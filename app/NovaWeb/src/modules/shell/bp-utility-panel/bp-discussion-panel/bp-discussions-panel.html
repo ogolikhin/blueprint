@@ -4,7 +4,7 @@
 </div>
 <div ng-if="!$ctrl.artifactId" class="empty-state">{{ $ctrl.localization.get('App_UP_Discussions_No_Artifact') }}</div>
 <div class="filter-bar" ng-if="$ctrl.artifactDiscussionList.length">
-    <button ng-disabled="!$ctrl.canCreate" class="btn btn-secondary btn-small" type="button" ng-click="$ctrl.newCommentClick()">{{ $ctrl.localization.get('App_UP_Discussions_New_Discussion') }}</button>
+    <button ng-disabled="!$ctrl.canCreate" class="btn btn-secondary btn-small pull-right" type="button" ng-click="$ctrl.newCommentClick()">{{ $ctrl.localization.get('App_UP_Discussions_New_Discussion') }}</button>
 </div>
 <bp-comment-edit ng-if="$ctrl.showAddComment"
                  add-button-text="{{$ctrl.localization.get('App_UP_Discussions_New_Post_Button_Text')}}"

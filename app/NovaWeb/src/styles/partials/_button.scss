@@ -8,8 +8,10 @@
       min-width: 20px;
       font-size: 1.2rem;
   }
-&[disabled],
-  &[disabled]:hover {
+  &[disabled],
+  &[disabled]:hover,
+  &.disabled,
+  &.disabled:hover{
     background-color: $gray-lighter ;
     border-color: $gray-lighter;
     color: $gray-light;

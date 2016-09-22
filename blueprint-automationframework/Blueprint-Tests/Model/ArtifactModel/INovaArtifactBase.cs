@@ -92,7 +92,7 @@ namespace Model.ArtifactModel
         #endregion Serialized JSON Properties
     }
 
-    public interface INovaPublishResponse
+    public interface INovaArtifactsAndProjectsResponse
     {
         #region Serialized JSON Properties
 

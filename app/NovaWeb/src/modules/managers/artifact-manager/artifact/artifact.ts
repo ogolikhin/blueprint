@@ -30,7 +30,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     private subject: Rx.BehaviorSubject<IStatefulArtifact> ;
     private subscribers: Rx.IDisposable[];
     private changesets: IChangeCollector;
+    private lockPromise: ng.IPromise<IStatefulArtifact>;
     private loadPromise: ng.IPromise<IStatefulArtifact>;
+    private isLoaded = false;
 
     constructor(private artifact: Models.IArtifact, private services: IStatefulArtifactServices) {
         this.artifactState = new ArtifactState(this).initialize(artifact);
@@ -191,7 +193,6 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         this.artifactState.invalid = value;
     }
 
-    private isLoaded = false;
     public load(force: boolean = true):  ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         if (!this.isProject() && (force || !this.isLoaded)) {
@@ -200,7 +201,6 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             } else {
                 this.loadPromise = deferred.promise;
                 this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
-                    this.loadPromise = null;
                     this.artifact = artifact;
                     this.artifactState.initialize(artifact);
                     this.customProperties.initialize(artifact.customPropertyValues);
@@ -220,7 +220,8 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                 }).catch((err) => {
                     deferred.reject(err);
                 }).finally(() => {
-                    this.lockpromise = null;
+                    this.loadPromise = null;
+                    this.lockPromise = null;
                 });
             }
         } else {
@@ -257,12 +258,11 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         return success;
     }
 
-    private lockpromise: ng.IPromise<IStatefulArtifact>;
     public lock(): ng.IPromise<IStatefulArtifact> {
-        if (!this.lockpromise) {
+        if (!this.lockPromise) {
 
             let deferred = this.services.getDeferred<IStatefulArtifact>();
-            this.lockpromise = deferred.promise;
+            this.lockPromise = deferred.promise;
             
             this.services.artifactService.lock(this.id).then((result: Models.ILockResult[]) => {
                 let lock = result[0];
@@ -281,7 +281,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             });
 
         }
-        return this.lockpromise;
+        return this.lockPromise;
     }
 
     private onChanged(artifactState: IArtifactState) {

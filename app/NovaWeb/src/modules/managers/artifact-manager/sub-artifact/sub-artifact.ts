@@ -25,6 +25,7 @@ import {
 export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubArtifact {
     private changesets: IChangeCollector;
     private loadPromise: ng.IPromise<IStatefulArtifact>;
+    private isLoaded = false;
 
     public deleted: boolean;
     public attachments: IArtifactAttachments;
@@ -113,7 +114,6 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
         }
     }
 
-    private isLoaded = false;
     public load(force: boolean = true, timeout?: ng.IPromise<any>):  ng.IPromise<IStatefulSubArtifact> {
         const deferred = this.services.getDeferred<IStatefulSubArtifact>();
         if (force || !this.isLoaded) {
@@ -123,7 +123,6 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
                 this.loadPromise = deferred.promise;
                 this.services.artifactService.getSubArtifact(this.artifact.id, this.id, timeout)
                     .then((subArtifact: Models.ISubArtifact) => {
-                        this.loadPromise = null;
                         this.subArtifact = subArtifact;
                         this.customProperties.initialize(subArtifact.customPropertyValues);
                         this.specialProperties.initialize(subArtifact.specificPropertyValues);
@@ -132,6 +131,8 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
                         deferred.resolve(this);
                 }).catch((err) => {
                     deferred.reject(err);
+                }).finally(() => {
+                    this.loadPromise = null;
                 });
             }
         } else {

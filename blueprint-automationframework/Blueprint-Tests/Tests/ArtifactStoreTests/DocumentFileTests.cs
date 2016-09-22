@@ -80,7 +80,7 @@ namespace ArtifactStoreTests
             artifact.Lock(_user);
             //
             // Execute & Verify:
-            UpdateDocumentFile_CanGetAttachment(_user, artifact, file: null);
+            DeleteDocumentFile_CheckAttachmentIsEmpty(_user, artifact);
         }
 
         [TestCase]
@@ -116,23 +116,16 @@ namespace ArtifactStoreTests
         /// <param name="user">The user to perform an operation.</param>
         /// <param name="artifact">The artifact to update.</param>
         /// <param name="file">The file to attach to document.</param>
-        private void UpdateDocumentFile_CanGetAttachment(IUser user, IArtifact artifact, INovaFile file = null)
+        private void UpdateDocumentFile_CanGetAttachment(IUser user, IArtifact artifact, INovaFile file)
         {
             // Setup:
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
             DocumentFileValue testFileValue = new DocumentFileValue();
 
-            if (file == null)
-            {
-                testFileValue = null;
-            }
-            else
-            {
-                testFileValue.FileExtension = "xls";//TODO - replace with param
-                testFileValue.FileGuid = file.Guid;
-                testFileValue.FileName = file.FileName;
-                testFileValue.FilePath = file.UriToFile.OriginalString;
-            }
+            testFileValue.FileExtension = "xls";//TODO - replace with param
+            testFileValue.FileGuid = file.Guid;
+            testFileValue.FileName = file.FileName;
+            testFileValue.FilePath = file.UriToFile.OriginalString;
             artifactDetails.DocumentFile = testFileValue;
 
             NovaArtifactDetails updateResult = null;
@@ -143,19 +136,35 @@ namespace ArtifactStoreTests
             var updatedArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
 
             // Verify:
-            if (file == null)
-            {
-                Assert.IsNull(updatedArtifactDetails.SpecificPropertyValues[0].CustomPropertyValue, "DocumentFileValue should be null for artifact with deleted attachment.");
-            }
-            else
-            {
-                Assert.IsNull(Helper.FileStore.GetSQLExpiredTime(testFileValue.FileGuid), "After saving ExpiredTime for file should be Null.");
-                DocumentHasExpectedAttachment(updatedArtifactDetails, testFileValue);
-            }
+            Assert.IsNull(Helper.FileStore.GetSQLExpiredTime(testFileValue.FileGuid), "After saving ExpiredTime for file should be Null.");
+            DocumentHasExpectedAttachment(updatedArtifactDetails, testFileValue);
         }
 
         /// <summary>
-        /// Returns true if artifactDetails has info about expectedDocumentFile and false in the opposite case.
+        /// Deletes attached file from the specified Document artifact.
+        /// </summary>
+        /// <param name="user">The user to perform an operation.</param>
+        /// <param name="artifact">The artifact to delete attachment.</param>
+        private void DeleteDocumentFile_CheckAttachmentIsEmpty(IUser user, IArtifact artifact)
+        {
+            // Setup:
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
+            DocumentFileValue testFileValue = null;
+            artifactDetails.DocumentFile = testFileValue;
+
+            NovaArtifactDetails updateResult = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, _user, artifactDetails, Helper.BlueprintServer.Address),
+                "Exception caught while trying to update an artifact!");
+            var updatedArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
+
+            // Verify:
+            Assert.IsNull(updatedArtifactDetails.SpecificPropertyValues[0].CustomPropertyValue);
+        }
+
+        /// <summary>
+        /// Check that artifactDetails has info about expectedDocumentFile.
         /// </summary>
         /// <param name="artifactDetails">Artifact details to check.</param>
         /// <param name="expectedDocumentFile">Expected file info.</param>

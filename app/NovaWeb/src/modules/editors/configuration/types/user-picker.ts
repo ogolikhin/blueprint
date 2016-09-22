@@ -197,9 +197,10 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                             $scope.to.options = users.map((item: IUserOrGroupInfo) => {
                                 let e: any = {};
                                 e[$scope.to.valueProp] = item.id.toString();
-                                e[$scope.to.labelProp] = item.name;
+                                e[$scope.to.labelProp] = (item.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + item.name;
                                 e.email = item.email;
                                 e.isGroup = item.isGroup;
+                                e.isBlocked = item.isBlocked;
                                 e.selected = this.isChoiceSelected(e, $select);
                                 return e;
                             });

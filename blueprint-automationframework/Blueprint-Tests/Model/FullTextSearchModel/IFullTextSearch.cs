@@ -4,7 +4,7 @@ using Model.Impl;
 
 namespace Model.FullTextSearchModel
 {
-    public interface IFullTextSearch : IDisposable
+    public interface IFullTextSearch
     {
         /// <summary>
         /// Returns a subset of search results based upon the page index that was requested.

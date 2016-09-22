@@ -71,7 +71,7 @@ export class ChangeSetCollector implements IChangeCollector {
         //combine all "ADD"
         let changeset = {
                type: ChangeTypeEnum.Add,
-               key: "add",
+               key: ChangeTypeEnum[ChangeTypeEnum.Add],
                value: this.collection.map((it: IChangeSet) => it.type === ChangeTypeEnum.Add ? it : null).filter((it) => !!it)
         };
         if (changeset.value.length) {
@@ -80,7 +80,7 @@ export class ChangeSetCollector implements IChangeCollector {
         //combine all "DELETE"
         changeset = {
                type: ChangeTypeEnum.Delete,
-               key: "add",
+               key: ChangeTypeEnum[ChangeTypeEnum.Delete],
                value: this.collection.map((it: IChangeSet) => it.type === ChangeTypeEnum.Delete ? it : null).filter((it) => !!it)
         };
         if (changeset.value.length) {

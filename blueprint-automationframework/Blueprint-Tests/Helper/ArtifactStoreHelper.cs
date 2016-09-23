@@ -3,6 +3,8 @@ using Model;
 using Model.ArtifactModel;
 using NUnit.Framework;
 using Utilities;
+using Model.Factories;
+using System.Linq;
 
 namespace Helper
 {
@@ -119,5 +121,24 @@ namespace Helper
             }
         }
 
+        /// <summary>
+        /// Gets the custom data project.
+        /// </summary>
+        /// <returns>The custom data project.</returns>
+        public static IProject GetCustomDataProject(IUser user)
+        {
+            List<IProject> allProjects = null;
+            allProjects = ProjectFactory.GetAllProjects(user);
+
+            const string customDataProjectName = "Custom Data";
+
+            Assert.That(allProjects.Exists(p => (p.Name == customDataProjectName)),
+                "No project was found named '{0}'!", customDataProjectName);
+
+            var projectCustomData = allProjects.First(p => (p.Name == customDataProjectName));
+            projectCustomData.GetAllArtifactTypes(ProjectFactory.Address, user);
+
+            return projectCustomData;
+        }
     }
 }

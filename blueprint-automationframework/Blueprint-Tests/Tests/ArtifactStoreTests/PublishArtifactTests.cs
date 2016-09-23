@@ -605,11 +605,14 @@ namespace ArtifactStoreTests
         public void PublishArtifact_PropertyOutOfRange_Conflict(string toChange, string changeTo)
         {
             // Setup:
-            var projectCustomData = GetCustomDataProject();
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
             IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
             artifact.Lock();
 
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            //This is needed to suppress 501 error
+            artifactDetails.ItemTypeId = null;
 
             string requestBody = JsonConvert.SerializeObject(artifactDetails);
 
@@ -640,13 +643,16 @@ namespace ArtifactStoreTests
         public void PublishAllArtifacts_PropertyOutOfRange_Conflict(string toChange, string changeTo, BaseArtifactType artifactType, int index)
         {
             // Setup:
-            var projectCustomData = GetCustomDataProject();
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
 
             var artifactTypes = new BaseArtifactType[] { artifactType, artifactType, artifactType };
             List<IArtifact> artifactList = Helper.CreatePublishedArtifactChain(projectCustomData, _user, artifactTypes);
             artifactList[index].Lock();
 
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifactList[index].Id);
+
+            //This is needed to suppress 501 error
+            artifactDetails.ItemTypeId = null;
 
             string requestBody = JsonConvert.SerializeObject(artifactDetails);
 
@@ -733,26 +739,6 @@ namespace ArtifactStoreTests
             var artifactTypes = new BaseArtifactType[] { artifactType, artifactType, artifactType };
             var artifactChain = Helper.CreateSavedArtifactChain(_project, _user, artifactTypes);
             return artifactChain;
-        }
-
-        /// <summary>
-        /// Gets the custom data project.
-        /// </summary>
-        /// <returns>The custom data project.</returns>
-        private IProject GetCustomDataProject()
-        {
-            List<IProject> allProjects = null;
-            allProjects = ProjectFactory.GetAllProjects(_user);
-
-            const string customDataProjectName = "Custom Data";
-
-            Assert.That(allProjects.Exists(p => (p.Name == customDataProjectName)),
-                "No project was found named '{0}'!", customDataProjectName);
-
-            var projectCustomData = allProjects.First(p => (p.Name == customDataProjectName));
-            projectCustomData.GetAllArtifactTypes(ProjectFactory.Address, _user);
-
-            return projectCustomData;
         }
 
         /// <summary>

@@ -384,11 +384,14 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_PropertyOutOfRange_200OK(string toChange, string changeTo)
         {
             // Setup:
-            var projectCustomData = GetCustomDataProject();
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
             IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
             artifact.Lock();
 
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            //This is needed to suppress 501 error
+            artifactDetails.ItemTypeId = null;
 
             string requestBody = JsonConvert.SerializeObject(artifactDetails);
 
@@ -416,11 +419,14 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_WrongType1InProperty_400BadRequest(string toChange, string changeTo, string expectedError)
         {
             // Setup:
-            var projectCustomData = GetCustomDataProject();
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
             IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
             artifact.Lock();
 
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            //This is needed to suppress 501 error
+            artifactDetails.ItemTypeId = null;
 
             string requestBody = JsonConvert.SerializeObject(artifactDetails);
             
@@ -442,7 +448,7 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_NotLockedByUser_409Conflict()
         {
             // Setup:
-            var projectCustomData = GetCustomDataProject();
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
             IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
 
             // Execute & Verify:
@@ -460,22 +466,7 @@ namespace ArtifactStoreTests
 
         #region Private functions
 
-        /// <summary>
-        /// Gets the custom data project.
-        /// </summary>
-        /// <returns>The custom data project.</returns>
-        private IProject GetCustomDataProject()
-        {
-            const string customDataProjectName = "Custom Data";
 
-            Assert.That(_allProjects.Exists(p => (p.Name == customDataProjectName)),
-                "No project was found named '{0}'!", customDataProjectName);
-            
-            var projectCustomData = _allProjects.First(p => (p.Name == customDataProjectName));
-            projectCustomData.GetAllArtifactTypes(ProjectFactory.Address, _user);
-
-            return projectCustomData;
-        }
 
         /// <summary>
         /// Common code for UpdateArtifact_PublishedArtifact_CanGetArtifact and UpdateArtifact_UnpublishedArtifact_CanGetArtifact tests.

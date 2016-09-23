@@ -1,11 +1,6 @@
 ﻿import "angular";
-import { IArtifactAttachmentsService, IArtifactAttachmentsResultSet } from "../../../../managers/artifact-manager";
-import { Helper } from "../../../../shared/utils/helper";
 import { ILocalizationService, IMessageService } from "../../../../core";
-import { FiletypeParser } from "../../../../shared/utils/filetypeParser";
 import { IDialogSettings, IDialogService } from "../../../../shared";
-import { IUploadStatusDialogData } from "../../../../shared/widgets";
-import { BpFileUploadStatusController } from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import { BPFieldBaseController } from "../base-controller";
 import { Models } from "../../../../main/models";
 import { ISelectionManager } from "../../../../managers";

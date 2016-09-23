@@ -45,13 +45,13 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                 this.$scope["fileName"] = model.fileName;
                 this.$scope["extension"] = FiletypeParser.getFiletypeClass(model.fileName);
             }
-        }
+        };
 
         let clearFields = () => {
             this.$scope["hasFile"] = false;
             this.$scope["fileName"] = null;
             this.$scope["extension"] = null;
-        }
+        };
         let maxAttachmentFilesize: number = this.settings.getNumber("MaxAttachmentFilesize", maxAttachmentFilesizeDefault);
         if (maxAttachmentFilesize < 0 || !Helper.isInt(maxAttachmentFilesize)) {
             maxAttachmentFilesize = maxAttachmentFilesizeDefault;
@@ -92,7 +92,7 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                     callback();
                 }
             });
-        }
+        };
 
         $scope["onFileSelect"] = (files: File[], callback?: Function) => {
             chooseDocumentFile(files, callback);
@@ -131,7 +131,7 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                     guid = null;
                 });
             }
-        }
+        };
 
         $scope["changeLabelText"] = localization.get("App_UP_Document_File_Change", "Change");
         $scope["uploadLabelText"] = localization.get("App_UP_Document_File_Upload", "Upload");

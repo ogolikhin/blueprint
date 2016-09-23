@@ -24,7 +24,7 @@ import {
 
 import { IMetaData, MetaDataService, IMetaDataService } from "./metadata";
 
-export { IArtifactState } from "./state/state";
+export { IArtifactState, IState } from "./state/state";
 
 
 angular.module("bp.managers.artifact", [])

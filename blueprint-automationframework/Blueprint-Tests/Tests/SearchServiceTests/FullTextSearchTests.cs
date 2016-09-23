@@ -197,15 +197,15 @@ namespace SearchServiceTests
             page = page ?? DEFAULT_PAGE_VALUE;
             pageSize = pageSize ?? DEFAULT_PAGESIZE_VALUE;
 
-            List<int> ReturnedFullTexedSearchItemArtifactIds = new List<int>();
+            List<int> ReturnedFullTextSearchItemArtifactIds = new List<int>();
 
             if (artifactsToBeFound.Any())
             {
-                searchResult.FullTextSearchItems.Cast<FullTextSearchItem>().ToList().ForEach(a => ReturnedFullTexedSearchItemArtifactIds.Add(a.ArtifactId));
+                searchResult.FullTextSearchItems.Cast<FullTextSearchItem>().ToList().ForEach(a => ReturnedFullTextSearchItemArtifactIds.Add(a.ArtifactId));
 
                 for (int i = 0; i < artifactsToBeFound.Count; i++)
                 {
-                    Assert.That(ReturnedFullTexedSearchItemArtifactIds.Contains(artifactsToBeFound[i].Id), "The expected artifact whose Id is {0} does not exist on the response from the Nova FullTextSearch call.", artifactsToBeFound[i].Id);
+                    Assert.That(ReturnedFullTextSearchItemArtifactIds.Contains(artifactsToBeFound[i].Id), "The expected artifact whose Id is {0} does not exist on the response from the Nova FullTextSearch call.", artifactsToBeFound[i].Id);
                 }
             }
 

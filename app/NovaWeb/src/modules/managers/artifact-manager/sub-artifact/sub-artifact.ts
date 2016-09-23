@@ -24,7 +24,7 @@ import {
 
 export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubArtifact {
     private changesets: IChangeCollector;
-    private loadPromise: ng.IPromise<IStatefulArtifact>;
+    private loadPromise: ng.IPromise<IStatefulSubArtifact>;
     private isLoaded = false;
 
     public deleted: boolean;

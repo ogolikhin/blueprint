@@ -64,7 +64,10 @@ describe("BPTreeViewComponent", () => {
             enableColResize: true,
             icons: {
                 groupExpanded: "<i />",
-                groupContracted: "<i />"
+                groupContracted: "<i />",
+                checkboxChecked: `<i class="ag-checkbox-checked" />`,
+                checkboxUnchecked: `<i class="ag-checkbox-unchecked" />`,
+                checkboxIndeterminate: `<i class="ag-checkbox-indeterminate" />`
             },
             angularCompileRows: true,
             suppressContextMenu: true,

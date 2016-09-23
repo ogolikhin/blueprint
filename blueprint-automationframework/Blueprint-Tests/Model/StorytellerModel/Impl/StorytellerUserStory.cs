@@ -59,7 +59,7 @@ namespace Model.StorytellerModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            var nonFunctionalRequirementProperty = CustomProperties.First(property => property.Name == "ST-Non-Functional Requirements");
+            var nonFunctionalRequirementProperty = CustomProperties.First(property => property.Name.StartsWithOrdinal("ST-Non-Functional Requirements"));   // Use StartsWith() instead of == because it might have "(Agile Pack)" on the end of the name.
             nonFunctionalRequirementProperty.Value = value;
             
             RestApiFacade restApi = new RestApiFacade(address, tokenValue);

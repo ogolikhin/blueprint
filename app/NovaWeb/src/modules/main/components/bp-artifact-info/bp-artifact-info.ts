@@ -151,6 +151,9 @@ export class BpArtifactInfoController {
             default:
                 break;
         }
+        if (artifact.artifactState.error) {
+            this.dialogService.alert(artifact.artifactState.error);
+        }
     }
 
     public get artifactHeadingMinWidth() {

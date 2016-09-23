@@ -1,10 +1,14 @@
 ﻿using CustomAttributes;
 using Helper;
 using Model;
+using Model.ArtifactModel;
+using Model.Factories;
 using Model.FullTextSearchModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Linq;
 using TestCommon;
+using Utilities;
 
 namespace SearchServiceTests
 {
@@ -17,14 +21,14 @@ namespace SearchServiceTests
         const int DEFAULT_PAGESIZE_VALUE = 10;
 
         private IUser _user = null;
-        //private IProject _project = null;
+        private List<IProject> _projects = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            //_project = ProjectFactory.GetProject(_user);
+            _projects = ProjectFactory.GetAllProjects(_user);
         }
 
         [TearDown]
@@ -35,24 +39,130 @@ namespace SearchServiceTests
 
         #region 200 OK Tests
 
+        [TestCase(2)]
+        [TestRail(181022)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Description("Searching with optional parameter, page. Execute Search - Must return SearchResult that uses the page value.")]
+        public void FullTextSearch_SearchWithPageOnly_VerifySearchResult(int page)
+        {
+            // Setup: Create searchable artifact(s) with unique search terms
+            FullTextSearchResult fullTextSearchResult = null;
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria("NonExistingSearchTerm", selectedProjectIds);
+
+            // Execute: Execute FullTextSearch with search terms with page parameter value
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.FullTextSearch.Search(_user, searchCriteria, page: page), "Nova FullTextSearch call failed when using following search term: {0} with page={1}!", searchCriteria.Query, page);
+
+            // Validation: Verify that searchResult uses poptional page value and and DefaultPageSize
+            FullTextSearchResultValidation(fullTextSearchResult, page: page);
+        }
+
+        [TestCase(3)]
+        [TestRail(181023)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Description("Searching with optional parameter, pageSize. Execute Search - Must return SearchResult that uses pageSize value.")]
+        public void FullTextSearch_SearchWithPageSizeOnly_VerifySearchResult(int pageSize)
+        {
+            // Setup: Create searchable artifact(s) with unique search terms
+            FullTextSearchResult fullTextSearchResult = null;
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria("NonExistingSearchTerm", selectedProjectIds);
+
+            // Execute: Execute FullTextSearch with search terms with pageSize parameter value
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.FullTextSearch.Search(_user, searchCriteria, pageSize: pageSize), "Nova FullTextSearch call failed when using following search term: {0} with pageSize={1}!", searchCriteria.Query, pageSize);
+
+            // Validation: Verify that searchResult uses FirstPage and optional pageSize value
+            FullTextSearchResultValidation(fullTextSearchResult, pageSize: pageSize);
+        }
+
+        [TestCase(4,5)]
+        [TestRail(166156)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Description("Searching with both optional parameters, page and pageSize. Execute Search - Must return SearchResult that uses page and pageSize values.")]
+        public void FullTextSearch_SearchWithBothPageAndPageSize_VerifySearchResult(int page, int pageSize)
+        {
+            // Setup: Create searchable artifact(s) with unique search terms
+            FullTextSearchResult fullTextSearchResult = null;
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria("NonExistingSearchTerm", selectedProjectIds);
+
+            // Execute: Execute FullTextSearch with search terms with both page and pageSize parameter values
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.FullTextSearch.Search(_user, searchCriteria, page: page, pageSize: pageSize), "Nova FullTextSearch call failed when using following search term: {0} with page={1} and pageSize={2}!", searchCriteria.Query, page, pageSize);
+
+            // Validation: Verify that searchResult uses FirstPage and optional page and pageSize values
+            FullTextSearchResultValidation(fullTextSearchResult, page: page, pageSize: pageSize);
+        }
+
         [TestCase]
         [TestRail(166155)]
         [Explicit(IgnoreReasons.UnderDevelopment)]
         [Description("Searching without both optional parameters, page and pagesize. Execute Search - Must return SearchResult that uses FirstPage and DefaultPageSize")]
         public void FullTextSearch_SearchWithoutBothPageAndPageSize_VerifySearchResultUsesFirstPageAndDefaultPageSize()
         {
-            FullTextSearchResult fullTextSearchResult = null;
-
             // Setup: Create searchable artifact(s) with unique search terms
+            FullTextSearchResult fullTextSearchResult = null;
             var projectIds = new List<int>() { 2, 4 };
-            FullTextSearchCriteria searchCriteria = new FullTextSearchCriteria("NonExistingSearchTerm", projectIds);
+            var searchCriteria = new FullTextSearchCriteria("NonExistingSearchTerm", projectIds);
 
             // Execute: Execute FullTextSearch with search terms
-            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.FullTextSearch.Search(_user, searchCriteria), "Search() call failed when using following search term: {0}artifact(s)!", searchCriteria.Query);
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.FullTextSearch.Search(_user, searchCriteria), "Nova FullTextSearch call failed when using following search term: {0}!", searchCriteria.Query);
 
             // Validation: Verify that searchResult uses FirstPage and DefaultPageSize
-            Assert.That(fullTextSearchResult.Page.Equals(DEFAULT_PAGE_VALUE), "The expected default page value is {0} but {1} was found from the returned searchResult.", DEFAULT_PAGE_VALUE, fullTextSearchResult.Page);
-            Assert.That(fullTextSearchResult.PageSize.Equals(DEFAULT_PAGESIZE_VALUE), "The expected default pagesize value is {0} but {1} was found from the returned searchResult.", DEFAULT_PAGESIZE_VALUE, fullTextSearchResult.PageSize);
+            FullTextSearchResultValidation(fullTextSearchResult, page: DEFAULT_PAGE_VALUE);
+        }
+
+        [TestCase(-3)]
+        [TestRail(181024)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Description("Searching with invalid page value. Execute Search - Must return SearchResult that uses First page.")]
+        public void FullTextSearch_SearchWithInvalidPage_VerifySearchResultUsesFirstPage(int page)
+        {
+            // Setup: Create searchable artifact(s) with unique search terms
+            FullTextSearchResult fullTextSearchResult = null;
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria("NonExistingSearchTerm", selectedProjectIds);
+
+            // Execute: Execute FullTextSearch with search terms with invalid page parameter value
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.FullTextSearch.Search(_user, searchCriteria, page: page), "Nova FullTextSearch call failed when using following search term: {0} with invalid page={1}!", searchCriteria.Query, page);
+
+            // Validation: Verify that searchResult uses FirstPage
+            FullTextSearchResultValidation(fullTextSearchResult, page: DEFAULT_PAGE_VALUE);
+        }
+
+        [TestCase(-10)]
+        [TestRail(181025)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Description("Searching with invalid pageSize value. Execute Search - Must return SearchResult that uses Default pageSize.")]
+        public void FullTextSearch_SearchWithInvalidPageSize_VerifySearchResultUsesDefaultPageSize(int pageSize)
+        {
+            // Setup: Create searchable artifact(s) with unique search terms
+            FullTextSearchResult fullTextSearchResult = null;
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria("NonExistingSearchTerm", selectedProjectIds);
+
+            // Execute: Execute FullTextSearch with search terms with invalid pageSize parameter value
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.FullTextSearch.Search(_user, searchCriteria, pageSize: pageSize), "Nova FullTextSearch call failed when using following search term: {0} with invalid pageSize={1}!", searchCriteria.Query, pageSize);
+
+            // Validation: Verify that searchResult uses Default PageSize
+            FullTextSearchResultValidation(fullTextSearchResult, pageSize: DEFAULT_PAGESIZE_VALUE);
+        }
+
+        [TestCase(-12, -100)]
+        [TestRail(181021)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Description("Searching with both invalid page and pageSize values. Execute Search - Must return SearchResult that uses First page and Default pageSize.")]
+        public void FullTextSearch_SearchWithInvalidPageAndPageSize_VerifySearchResultUsesFirstPageAndDefaultPageSize(int page, int pageSize)
+        {
+            // Setup: Create searchable artifact(s) with unique search terms
+            FullTextSearchResult fullTextSearchResult = null;
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria("NonExistingSearchTerm", selectedProjectIds);
+
+            // Execute: Execute FullTextSearch with search terms with invalid page and invalid pageSize parameter values
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.FullTextSearch.Search(_user, searchCriteria, page: page, pageSize: pageSize), "Nova FullTextSearch call failed when using following search term: {0} with invalid page={1} and invalid pageSize={2}!", searchCriteria.Query, page, pageSize);
+
+            // Validation: Verify that searchResult uses FirstPage and Default PageSize
+            FullTextSearchResultValidation(fullTextSearchResult, page: DEFAULT_PAGE_VALUE, pageSize: DEFAULT_PAGESIZE_VALUE);
         }
 
         #endregion 200 OK Tests
@@ -70,26 +180,40 @@ namespace SearchServiceTests
         #endregion 409 Conflict Tests
 
         #region Private Functions
+
         /// <summary>
         /// Asserts that returned searchResult from the FullTextSearch call match with artifacts that are being searched.
         /// </summary>
         /// <param name="searchResult">The searchResult from Nova search call.</param>
         /// <param name="artifactsToBeFound">artifacts that are being searched</param>
-        /*
-        private static void FullTextSearchResultValidation( FullTextSearchResult searchResult, List<IArtifactBase> artifactsToBeFound)
+        /// <param name="page"> (optional) page value that represents displaying page number of the rearch result</param>
+        /// <param name="pageSize"> (optional) pageSize value that indicates number of items that get displayed per page</param>
+        private static void FullTextSearchResultValidation( FullTextSearchResult searchResult, List<IArtifactBase> artifactsToBeFound = null, int? page = null, int? pageSize = null)
         {
             ThrowIf.ArgumentNull(searchResult, nameof(searchResult));
-            ThrowIf.ArgumentNull(artifactsToBeFound, nameof(artifactsToBeFound));
-            List<int> ReturnedFullTexedSearchItemArtifactIds = new List<int>();
 
-            searchResult.FullTextSearchItems.Cast<FullTextSearchItem>().ToList().ForEach(a => ReturnedFullTexedSearchItemArtifactIds.Add(a.ArtifactId));
+            //Setup: Set comparison values
+            artifactsToBeFound = artifactsToBeFound ?? new List<IArtifactBase>();
+            page = page ?? DEFAULT_PAGE_VALUE;
+            pageSize = pageSize ?? DEFAULT_PAGESIZE_VALUE;
 
-            for (int i = 0; i < artifactsToBeFound.Count; i++)
+            List<int> ReturnedFullTextSearchItemArtifactIds = new List<int>();
+
+            if (artifactsToBeFound.Any())
             {
-                Assert.That(ReturnedFullTexedSearchItemArtifactIds.Contains(artifactsToBeFound[i].Id), "The expected artifact whose Id is {0} does not exist on the response from the Nova FullTextSearch call.", artifactsToBeFound[i].Id);
+                searchResult.FullTextSearchItems.Cast<FullTextSearchItem>().ToList().ForEach(a => ReturnedFullTextSearchItemArtifactIds.Add(a.ArtifactId));
+
+                for (int i = 0; i < artifactsToBeFound.Count; i++)
+                {
+                    Assert.That(ReturnedFullTextSearchItemArtifactIds.Contains(artifactsToBeFound[i].Id), "The expected artifact whose Id is {0} does not exist on the response from the Nova FullTextSearch call.", artifactsToBeFound[i].Id);
+                }
             }
+
+            // Validation: Verify that searchResult uses page value passed as optional parameter and DefaultPageSize
+            Assert.That(searchResult.Page.Equals(page), "The expected default page value is {0} but {1} was found from the returned searchResult.", page, searchResult.Page);
+            Assert.That(searchResult.PageSize.Equals(pageSize), "The expected default pagesize value is {0} but {1} was found from the returned searchResult.", pageSize, searchResult.PageSize);
         }
-        */
+        
         #endregion Private Functions
 
     }

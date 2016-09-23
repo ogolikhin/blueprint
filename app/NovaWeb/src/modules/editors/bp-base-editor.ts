@@ -28,6 +28,9 @@ export class BpBaseEditor {
             this.artifactManager.get(obj.context.currentValue).then((artifact) => { // lightweight
                 if (this.onLoading(artifact)) {
                     this.artifact.artifactState.outdated = true;
+
+                    //TODO: Refresh related - investigate this vs putting it into onLoading, as well as why artifactState doesn't trigger
+                    this.subscribers.push(this.artifact.observable().subscribeOnNext(this.onStateChange, this));
                 }
              });
         } catch (ex) {
@@ -75,6 +78,8 @@ export class BpBaseEditor {
 
     private onStateChange(state: any) {
         this.onLoad();
+        //TODO:Added for refresh story, unclear if necessary; if refresh artifact works, delete this.
+        //this.onUpdate();
     }
 
 }

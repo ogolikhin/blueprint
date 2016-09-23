@@ -5,6 +5,7 @@ import { IStatefulArtifactFactory, } from "./artifact";
 import { IStatefulArtifact, IDispose } from "../models";
 
 export interface IArtifactManager extends IDispose {
+    collectionChangeObservable: Rx.Observable<IStatefulArtifact>;
     selection: ISelectionManager;
     list(): IStatefulArtifact[];
     add(artifact: IStatefulArtifact);
@@ -18,6 +19,7 @@ export interface IArtifactManager extends IDispose {
 
 export class ArtifactManager  implements IArtifactManager {
     private artifactList: IStatefulArtifact[];
+    private collectionChangeSubject: Rx.BehaviorSubject<IStatefulArtifact>;
     public static $inject = [ 
         "$q", 
         "messageService",
@@ -32,6 +34,7 @@ export class ArtifactManager  implements IArtifactManager {
         private metadataService: IMetaDataService,
         private artifactFactory: IStatefulArtifactFactory) {
         this.artifactList = [];
+        this.collectionChangeSubject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
 //        this.selectionService.selectionObservable.subscribeOnNext(this.onArtifactSelect, this);
     }
     
@@ -46,6 +49,10 @@ export class ArtifactManager  implements IArtifactManager {
 
     public list(): IStatefulArtifact[] {
         return this.artifactList;
+    }
+
+    public get collectionChangeObservable(): Rx.Observable<IStatefulArtifact> {
+         return this.collectionChangeSubject.filter((it: IStatefulArtifact) => it != null).asObservable();
     }
 
     public get(id: number): ng.IPromise<IStatefulArtifact> {
@@ -70,6 +77,7 @@ export class ArtifactManager  implements IArtifactManager {
     
     public add(artifact: IStatefulArtifact) {
         this.artifactList.push(artifact);
+        this.collectionChangeSubject.onNext(artifact);
     }
 
     public remove(id: number): IStatefulArtifact {
@@ -78,6 +86,7 @@ export class ArtifactManager  implements IArtifactManager {
             if (artifact.id === id) {
                 artifact.dispose();
                 stateArtifact = artifact;
+                this.collectionChangeSubject.onNext(artifact);
                 return false;
             }
             return true;

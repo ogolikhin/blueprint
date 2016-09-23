@@ -408,6 +408,14 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
 
     public refresh(): ng.IPromise<IStatefulArtifact> {
         let deffered = this.services.getDeferred<IStatefulArtifact>();
+
+        this.load(true)
+            .then((it: IStatefulArtifact) => {
+                deffered.resolve(it);
+            }).catch((error) => {
+                deffered.reject(error);
+            });
+
         return deffered.promise;
     }
 }

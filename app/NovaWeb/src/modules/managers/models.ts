@@ -87,10 +87,11 @@ export interface IStatefulSubArtifact extends IStatefulItem, Models.ISubArtifact
 export interface IArtifactNode {
     artifact: IStatefulArtifact;
     children?: IArtifactNode[];
+    parentNode?: IArtifactNode;
     id: number;
     name: string;
     projectId: number;
-    parentId: number;
+    //parentId: number;
     permissions: Enums.RolePermissions;
     predefinedType: Models.ItemTypePredefined;
     hasChildren?: boolean;

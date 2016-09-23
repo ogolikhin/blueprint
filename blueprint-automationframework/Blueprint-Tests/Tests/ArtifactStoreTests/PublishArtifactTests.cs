@@ -487,8 +487,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(165972)]
-        [Description("Create, save, publish Actor artifact.  Verify 400 Bad Request is returned for an artifact that is already published.")]
-
+        [Description("Create, save, publish Actor artifact, checks returned result is 400 Bad Request for artifact that already published")]
         public void PublishArtifact_SinglePublishedArtifact_BadRequest(BaseArtifactType artifactType)
         {
             // Setup:
@@ -510,7 +509,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(165975)]
-        [Description("Create & save a single artifact.  Publish the artifact with wrong token.  Verify publish returns 401 Unauthorized.")]
+        [Description("Create & save a single artifact.  Publish the artifact with wrong token.  Verify publish returns code 401 Unauthorized.")]
         public void PublishArtifact_InvalidToken_Unauthorized(BaseArtifactType artifactType)
         {
             // Setup:
@@ -581,6 +580,7 @@ namespace ArtifactStoreTests
         [TestRail(165974)]
         [Description("Create, save, parent artifact with two children, publish child artifact, checks returned result is 409 Conflict.")]
         public void PublishArtifact_ParentAndChildArtifacts_OnlyPublishChild_Conflict(BaseArtifactType artifactType, int index)
+
         {
             // Setup:
             List<IArtifact> artifactList = CreateParentAndTwoChildrenArtifactsAndGetAllArtifacts(artifactType);
@@ -676,8 +676,6 @@ namespace ArtifactStoreTests
         #endregion 409 Conflict tests
 
         #region Private functions
-
-        
 
         /// <summary>
         /// Asserts that the version of all the artifacts in the list still have the expected version.

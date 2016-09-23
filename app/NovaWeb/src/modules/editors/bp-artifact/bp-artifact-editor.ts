@@ -9,7 +9,6 @@ import {
     BpBaseEditor 
 } from "../bp-base-editor";
 
-import {IArtifactState  } from "../../managers/artifact-manager";
 import { PropertyEditor} from "./bp-property-editor";
 import { PropertyContext} from "./bp-property-context";
 

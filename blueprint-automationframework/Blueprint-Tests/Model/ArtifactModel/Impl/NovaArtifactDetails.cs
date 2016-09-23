@@ -19,7 +19,7 @@ namespace Model.ArtifactModel.Impl
         public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();
         public string Description { get; set; }
         public int Id { get; set; }
-        public int ItemTypeId { get; set; }
+        public int? ItemTypeId { get; set; }
         public int ItemTypeVersionId { get; set; }
         public Identification LastEditedBy { get; set; }
         public DateTime? LastEditedOn { get; set; }
@@ -55,22 +55,22 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Asserts that the specified INovaArtifactDetails object is equal to the specified IArtifactBase.
+        /// Asserts that the specified INovaArtifactBase object is equal to the specified IArtifactBase.
         /// </summary>
-        /// <param name="artifactDetails">The INovaArtifactDetails to compare against.</param>
-        /// <param name="artifact">The IArtifactBase to compare against.</param>
+        /// <param name="novaArtifactBase">The INovaArtifactBase to compare against.</param>
+        /// <param name="artifactBase">The IArtifactBase to compare against.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertEquals(INovaArtifactBase artifactDetails, IArtifactBase artifact)
+        public static void AssertEquals(INovaArtifactBase novaArtifactBase, IArtifactBase artifactBase)
         {
-            ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(novaArtifactBase, nameof(novaArtifactBase));
+            ThrowIf.ArgumentNull(artifactBase, nameof(artifactBase));
 
-            Assert.AreEqual(artifactDetails.Id, artifact.Id, "The Id parameters don't match!");
-            Assert.AreEqual(artifactDetails.Name, artifact.Name, "The Name  parameters don't match!");
-            Assert.AreEqual(artifactDetails.ParentId, artifact.ParentId, "The ParentId  parameters don't match!");
-            Assert.AreEqual(artifactDetails.ItemTypeId, artifact.ArtifactTypeId, "The ItemTypeId  parameters don't match!");
-            Assert.AreEqual(artifactDetails.ProjectId, artifact.ProjectId, "The ProjectId  parameters don't match!");
-            Assert.AreEqual(artifactDetails.Version, artifact.Version, "The Version  parameters don't match!");
+            Assert.AreEqual(novaArtifactBase.Id, artifactBase.Id, "The Id parameters don't match!");
+            Assert.AreEqual(novaArtifactBase.Name, artifactBase.Name, "The Name  parameters don't match!");
+            Assert.AreEqual(novaArtifactBase.ParentId, artifactBase.ParentId, "The ParentId  parameters don't match!");
+            Assert.AreEqual(novaArtifactBase.ItemTypeId, artifactBase.ArtifactTypeId, "The ItemTypeId  parameters don't match!");
+            Assert.AreEqual(novaArtifactBase.ProjectId, artifactBase.ProjectId, "The ProjectId  parameters don't match!");
+            Assert.AreEqual(novaArtifactBase.Version, artifactBase.Version, "The Version  parameters don't match!");
         }
 
         /// <summary>
@@ -314,7 +314,7 @@ namespace Model.ArtifactModel.Impl
         public string Description { get; set; }
         public int ParentId { get; set; }
         public double OrderIndex { get; set; }
-        public int ItemTypeId { get; set; }
+        public int? ItemTypeId { get; set; }
         public string Prefix { get; set; }
         public int PredefinedType { get; set; }
 
@@ -335,9 +335,9 @@ namespace Model.ArtifactModel.Impl
     }
 
     /// <summary>
-    /// This class is returned by Nova Publish.
+    /// This class is returned by Nova calls such as: Discard, Publish...
     /// </summary>
-    public class NovaPublishResponse : INovaPublishResponse
+    public class NovaArtifactsAndProjectsResponse : INovaArtifactsAndProjectsResponse
     {
         #region Serialized JSON Properties
 

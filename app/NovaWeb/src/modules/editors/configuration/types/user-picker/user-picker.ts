@@ -34,7 +34,7 @@ export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
                         uiSelectChoicesLI.classList.add("ps-child");
                     }
 
-                    $scope["bpFieldUserPicker"].setupResultsElement(uiSelectChoices);
+                    $scope["bpFieldUserPicker"].setupResultsElement(uiSelectContainer);
                 }
 
                 $scope["bpFieldUserPicker"].toggleScrollbar();
@@ -124,6 +124,9 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
             minimumInputLength: 2,
             showResultsCount: false,
             showLoadMore: false,
+            searchInputElement: null,
+            listItemElement: null,
+            itemsHeight: 40,
             labels: {
                 noMatch: localization.get("Property_No_Matching_Options"),
                 minimumLength: localization.get("Property_UserPicker_Placeholder"),
@@ -162,7 +165,8 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 this.showResultsCount = false;
                 this.showLoadMore = false;
             },
-            setupResultsElement: function(uiSelectChoices: HTMLElement) {
+            setupResultsElement: function(uiSelectContainer: HTMLElement) {
+                let uiSelectChoices = uiSelectContainer.querySelector("ul.ui-select-choices") as HTMLElement;
                 let uiSelectLoadMore = `
                     <li ng-if="bpFieldUserPicker.showResultsCount" class="ui-select-results-count">
                         <div ng-bind="bpFieldUserPicker.labels.topResults.replace('{0}', bpFieldUserPicker.currentLimit)"></div>
@@ -172,10 +176,16 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                             ng-bind="bpFieldUserPicker.labels.showMore"></button>
                     </li>`;
                 angular.element(uiSelectChoices).append($compile(uiSelectLoadMore)(<any>$scope));
+
+                this.searchInputElement = uiSelectContainer.querySelector("input.ui-select-search") as HTMLElement;
+                this.listItemElement = uiSelectChoices.querySelector("li.ui-select-choices-group") as HTMLElement;
             },
             loadMore: function () {
                 if (this.currentLimit < this.maxLimit && this.$select) {
                     this.refreshResults(this.$select, true);
+                    if (this.searchInputElement) {
+                        this.searchInputElement.focus();
+                    }
                 }
             },
             refreshResults: function ($select, loadMore?: boolean) {
@@ -262,6 +272,19 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                     }
                 } else {
                     this.currentSelectedItem = $select.activeIndex;
+                }
+
+                // need to manual scroll the list as the dropdown is not the default UI-select one
+                if (this.listItemElement) {
+                    let selectedTop = this.currentSelectedItem * this.itemsHeight;
+                    let selectedBottom = (this.currentSelectedItem + 1) * this.itemsHeight;
+                    let scrollTop = this.listItemElement.scrollTop;
+                    let allowance = (this.showResultsCount ? this.loadMoreAmount : this.loadMoreAmount + 1) * this.itemsHeight;
+                    if (selectedBottom > scrollTop + allowance) {
+                        this.listItemElement.scrollTop = selectedBottom - allowance;
+                    } else if (selectedTop < scrollTop) {
+                        this.listItemElement.scrollTop = selectedTop;
+                    }
                 }
             },
             onRemove: function ($item, $select, formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject) {

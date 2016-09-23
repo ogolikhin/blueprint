@@ -41,7 +41,7 @@ export class InstanceItemNodeVM extends ArtifactPickerNodeVM<Models.IProjectNode
         private options: IArtifactPickerOptions,
         model: Models.IProjectNode,
         isExpanded: boolean = false) {
-        super(model, model.name, model.id.toString(), model.hasChildren, [], isExpanded);
+        super(model, model.name, String(model.id), model.hasChildren, [], isExpanded);
     }
 
     public getCellClass(): string[] {
@@ -82,7 +82,7 @@ export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
         private projectService: IProjectService,
         private options: IArtifactPickerOptions,
         model: Models.IArtifact) {
-        super(model, `${model.prefix}${model.id} ${model.name}`, model.id.toString(),
+        super(model, `${model.prefix}${model.id} ${model.name}`, String(model.id),
             model.hasChildren || (Boolean(options.showSubArtifacts) && Models.ItemTypePredefined.canContainSubartifacts(model.predefinedType)), [], false);
     }
 
@@ -116,6 +116,12 @@ export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
         }
         return super.getIcon();
     }
+
+    public isSelectable(): boolean {
+        return !(this.options &&
+            this.options.selectableItemTypes &&
+            this.options.selectableItemTypes.indexOf(this.model.predefinedType) === -1);
+    }
  
     public loadChildrenAsync(): ng.IPromise<void> {
         this.loadChildrenAsync = undefined;
@@ -141,6 +147,10 @@ export class SubArtifactContainerNodeVM extends ArtifactPickerNodeVM<Models.IArt
         return result;
     }
 
+    public isSelectable(): boolean {
+        return false;
+    }
+
     public loadChildrenAsync(): ng.IPromise<void> {
         this.loadChildrenAsync = undefined;
         return this.projectService.getSubArtifactTree(this.model.id).then((children: Models.ISubArtifactNode[]) => {
@@ -152,7 +162,7 @@ export class SubArtifactContainerNodeVM extends ArtifactPickerNodeVM<Models.IArt
 export class SubArtifactNodeVM extends ArtifactPickerNodeVM<Models.ISubArtifactNode> {
     constructor(model: Models.ISubArtifactNode) {
         const children = model.children ? model.children.map(child => new SubArtifactNodeVM(child)) : [];
-        super(model, `${model.prefix}${model.id} ${model.displayName}`, model.id.toString(), model.hasChildren, children, false);
+        super(model, `${model.prefix}${model.id} ${model.displayName}`, String(model.id), model.hasChildren, children, false);
     }
 
     public getCellClass(): string[] {

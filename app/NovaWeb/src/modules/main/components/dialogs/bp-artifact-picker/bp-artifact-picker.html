@@ -17,12 +17,13 @@
                 </div>
             </div>
             <bp-tree-view grid-class="project-tree"
+                          selection-mode="$ctrl.selectionMode"
                           row-height="20"
                           root-node="$ctrl.rootNode"
                           root-node-visible="false"
-                          column-defs="$ctrl.columnDefs"
+                          columns="$ctrl.columns"
                           header-height="20"
-                          on-select="$ctrl.onSelect(vm)">
+                          on-select="$ctrl.onSelect(vm, isSelected, selectedVMs)">
             </bp-tree-view>
         </div>
     </div>
@@ -32,7 +33,7 @@
         <button class="btn btn-primary" ng-click="$ctrl.cancel()">
             <span ng-bind="$ctrl.dialogSettings.cancelButton"></span>
         </button>
-        <button class="btn btn-promoted-action" ng-click="$ctrl.ok()" ng-disabled="!$ctrl._selectedItem">
+        <button class="btn btn-promoted-action" ng-click="$ctrl.ok()" ng-disabled="$ctrl._selectedVMs.length === 0">
             <span ng-bind="$ctrl.dialogSettings.okButton"></span>
         </button>
     </div>

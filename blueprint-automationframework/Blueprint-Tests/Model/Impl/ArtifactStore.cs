@@ -397,11 +397,11 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetUnpublishedChanges(IUser, List{HttpStatusCode})"/>
-        public INovaPublishResponse GetUnpublishedChanges(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public INovaArtifactsAndProjectsResponse GetUnpublishedChanges(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            var unpublishedChanges = restApi.SendRequestAndDeserializeObject<NovaPublishResponse>(
+            var unpublishedChanges = restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse>(
                 RestPaths.Svc.ArtifactStore.Artifacts.UNPUBLISHED,
                 RestRequestMethod.GET,
                 expectedStatusCodes: expectedStatusCodes,
@@ -411,7 +411,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.PublishArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
-        public INovaPublishResponse PublishArtifact(IArtifactBase artifact,
+        public INovaArtifactsAndProjectsResponse PublishArtifact(IArtifactBase artifact,
             IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -421,7 +421,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.PublishArtifacts(List{IArtifactBase}, IUser, bool?, List{HttpStatusCode})"/>
-        public INovaPublishResponse PublishArtifacts(List<IArtifactBase> artifacts,
+        public INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts,
             IUser user = null,
             bool? all = null,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -430,7 +430,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.DiscardArtifacts(IArtifactBase, IUser, List{HttpStatusCode})"/>
-        public INovaPublishResponse DiscardArtifacts(List<IArtifactBase> artifacts, IUser user = null, bool? all = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public INovaArtifactsAndProjectsResponse DiscardArtifacts(List<IArtifactBase> artifacts, IUser user = null, bool? all = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             return DiscardArtifacts(Address, artifacts, user, all, expectedStatusCodes);
         }
@@ -543,7 +543,7 @@ namespace Model.Impl
         /// <param name="all">(optional) Pass true to publish all artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to publish.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
-        public static INovaPublishResponse PublishArtifacts(string address,
+        public static INovaArtifactsAndProjectsResponse PublishArtifacts(string address,
             List<IArtifactBase> artifacts,
             IUser user = null,
             bool? all = null,
@@ -566,7 +566,7 @@ namespace Model.Impl
                 queryParams = new Dictionary<string, string> { { "all", all.Value.ToString() } };
             }
 
-            var publishedArtifacts = restApi.SendRequestAndDeserializeObject<NovaPublishResponse, List<int>>(
+            var publishedArtifacts = restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse, List<int>>(
                 path,
                 RestRequestMethod.POST,
                 artifactIds,
@@ -638,7 +638,7 @@ namespace Model.Impl
         /// <param name="all">(optional) Pass true to discard all artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to discard.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>An object containing a list of artifacts that were discarded and their projects.</returns>
-        public static INovaPublishResponse DiscardArtifacts(string address,
+        public static INovaArtifactsAndProjectsResponse DiscardArtifacts(string address,
             List<IArtifactBase> artifacts,
             IUser user = null,
             bool? all = null,
@@ -661,7 +661,7 @@ namespace Model.Impl
                 queryParams = new Dictionary<string, string> { { "all", all.Value.ToString() } };
             }
 
-            var discardedArtifactResponse = restApi.SendRequestAndDeserializeObject<NovaPublishResponse, List<int>>(
+            var discardedArtifactResponse = restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse, List<int>>(
                 path,
                 RestRequestMethod.POST,
                 artifactIds,

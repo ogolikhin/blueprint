@@ -9,18 +9,18 @@ import "ui-select";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "tinymce";
-import {PrimitiveType} from "../../../main/models/enums";
-import { ILocalizationService } from "../../../core";
-import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
-import { MessageServiceMock } from "../../../core/messages/message.mock";
-import { IMessageService } from "../../../core";
-import { DialogServiceMock, IDialogService } from "../../../shared/widgets/bp-dialog/bp-dialog";
-import {formlyConfig} from "../formly-config";
-import { SettingsService } from "../../../core";
-import { ISelectionManager, SelectionManager } from "../../../managers/selection-manager/selection-manager";
+import {PrimitiveType} from "../../../../main/models/enums";
+import { ILocalizationService } from "../../../../core";
+import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
+import { MessageServiceMock } from "../../../../core/messages/message.mock";
+import { IMessageService } from "../../../../core";
+import { DialogServiceMock, IDialogService } from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {formlyConfig} from "../../formly-config";
+import { SettingsService } from "../../../../core";
+import { ISelectionManager, SelectionManager } from "../../../../managers/selection-manager/selection-manager";
 import { BPFieldInheritFromController } from "./actor-inheritance";
 import { ArtifactPickerDialogServiceMock } from "./artifact-picker-dialog-mock";
-import { IStatefulArtifact } from "../../../managers/models";
+import { IStatefulArtifact } from "../../../../managers/models";
 
 describe("Actor Inheritance controller", () => {
 

@@ -1,4 +1,5 @@
-﻿using CustomAttributes;
+﻿using System.Linq;
+using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
@@ -36,20 +37,20 @@ namespace ArtifactStoreTests
         [Description("Create & save an artifact.  GetUnpublishedChanges.  Verify the saved artifact is returned.")]
         public void GetArtifactDetails_SavedArtifact_ReturnsArtifactDetails(BaseArtifactType artifactType)
         {
+            // Setup:
             IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            INovaArtifactsAndProjectsResponse unpublishedChanges = null;
 
-            INovaPublishResponse unpublishedChanges = null;
-
+            // Execute:
             Assert.DoesNotThrow(() =>
             {
                 unpublishedChanges = Helper.ArtifactStore.GetUnpublishedChanges(_user);
             }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
-            foreach (var change in unpublishedChanges.Artifacts)
-            {
-                artifactDetails.AssertEquals(change, skipDatesAndDescription: true);
-            }
+            // Verify:
+            ArtifactStoreHelper.AssertExpectedProjectWasReturned(unpublishedChanges.Projects, _project);
+            Assert.AreEqual(1, unpublishedChanges.Artifacts.Count, "There should be 1 artifact in the unpublished changes!");
+            ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifactSkipVersion(unpublishedChanges.Artifacts.First(), artifact);
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -57,22 +58,21 @@ namespace ArtifactStoreTests
         [Description("Create & publish an artifact, then change & save it.  GetUnpublishedChanges.  Verify the draft artifact is returned.")]
         public void GetArtifactDetails_PublishedArtifact_ReturnsArtifactDetails(BaseArtifactType artifactType)
         {
+            // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             artifact.Save();
+            INovaArtifactsAndProjectsResponse unpublishedChanges = null;
 
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-
-            INovaPublishResponse unpublishedChanges = null;
-
+            // Execute:
             Assert.DoesNotThrow(() =>
             {
                 unpublishedChanges = Helper.ArtifactStore.GetUnpublishedChanges(_user);
             }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
-            foreach (var change in unpublishedChanges.Artifacts)
-            {
-                artifactDetails.AssertEquals(change, skipDatesAndDescription: true);
-            }
+            // Verify:
+            ArtifactStoreHelper.AssertExpectedProjectWasReturned(unpublishedChanges.Projects, _project);
+            Assert.AreEqual(1, unpublishedChanges.Artifacts.Count, "There should be 1 artifact in the unpublished changes!");
+            ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifact(unpublishedChanges.Artifacts.First(), artifact, expectedVersion: 1);
         }
     }
 }

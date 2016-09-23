@@ -185,7 +185,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         //TODO: need impementation
          this.attachments.discard();
          this.docRefs.discard();
-        // this.subArtifactCollection.discard(all);
+         this.subArtifactCollection.list().forEach(subArtifact => {
+             subArtifact.discard();
+         });
     }
     
     public setValidationErrorsFlag(value: boolean) {
@@ -339,10 +341,17 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         delta.specificPropertyValues = this.specialProperties.changes();
         delta.attachmentValues = this.attachments.changes();
         delta.docRefValues = this.docRefs.changes();
+        this.addSubArtifactChanges(delta);
 
         return delta;
     }
-
+    private addSubArtifactChanges(delta: Models.IArtifact) {
+        let subArtifacts = this.subArtifactCollection.list();
+        delta.subArtifacts = new Array<Models.ISubArtifact>();
+        subArtifacts.forEach(subArtifact => {
+            delta.subArtifacts.push(subArtifact.changes());
+        });
+    }
     //TODO: moved from bp-artifactinfo 
     
     public save(): ng.IPromise<IStatefulArtifact> {

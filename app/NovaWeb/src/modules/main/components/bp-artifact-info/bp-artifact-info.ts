@@ -4,10 +4,7 @@ import { IMessageService, Message, MessageType, ILocalizationService } from "../
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController, IArtifactPickerOptions } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 import { ILoadingOverlayService } from "../../../core/loading-overlay";
-
 import { IArtifactManager, IStatefulArtifact } from "../../../managers/artifact-manager";
-
-export { IArtifactManager }
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -19,9 +16,16 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 }
 
 export class BpArtifactInfoController {
-
     static $inject: [string] = [
-        "$scope", "$element", "artifactManager", "localization", "messageService", "dialogService", "windowManager", "loadingOverlayService"];
+        "$scope", 
+        "$element",
+        "artifactManager", 
+        "localization", 
+        "messageService", 
+        "dialogService", 
+        "windowManager", 
+        "loadingOverlayService"
+    ];
 
     private subscribers: Rx.IDisposable[];
     private artifact: IStatefulArtifact;
@@ -37,7 +41,6 @@ export class BpArtifactInfoController {
     public artifactTypeId: number;
     public artifactTypeIcon: number;
     public artifactTypeDescription: string;
-    private _artifactId: number;
 
     constructor(
         public $scope: ng.IScope,
@@ -54,10 +57,18 @@ export class BpArtifactInfoController {
     }
 
     public $onInit() {
-        this.subscribers = [
-            this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this),
-            this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onArtifactChanged, this),
-        ];
+        const windowSub = this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
+        const stateSub = this.artifactManager.selection
+            .artifactObservable
+            .skip(1) // skip the first (initial) value
+            .filter((artifact: IStatefulArtifact) => artifact != null)
+            .flatMap((artifact: IStatefulArtifact) => {
+                this.artifact = artifact;
+                return artifact.artifactState.observable();
+            })
+            .subscribeOnNext(this.onStateChanged);
+
+        this.subscribers = [windowSub, stateSub];
     } 
 
 
@@ -71,18 +82,9 @@ export class BpArtifactInfoController {
         }
     }
 
-    private onArtifactChanged = (artifact: IStatefulArtifact) => {
-        if (artifact) {
-            this.artifact = artifact;
-            this.subscribers.push(
-                this.artifact.artifactState.observable().subscribeOnNext(this.onStateChanged)
-            );
-        }
-    }
     private onStateChanged = () => {
         this.updateProperties(this.artifact);
     }
-    
 
     private initProperties() {
         this.artifactName = null;
@@ -145,11 +147,8 @@ export class BpArtifactInfoController {
                 break;
             default:
                 break;
-
         }
-        
     }
-
 
     public get artifactHeadingMinWidth() {
         let style = {};
@@ -174,7 +173,6 @@ export class BpArtifactInfoController {
 
         return style;
     }
-
 
     private onWidthResized(mainWindow: IMainWindow) {
         if (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
@@ -204,11 +202,11 @@ export class BpArtifactInfoController {
     
      public saveChanges() {
          let overlayId: number = this.loadingOverlayService.beginLoading();
-         try{
+         try {
             this.artifactManager.selection.getArtifact().save().finally(() => {
                this.loadingOverlayService.endLoading(overlayId);
             });
-        }catch(err){
+        } catch (err) {
             this.messageService.addError(err);
             this.loadingOverlayService.endLoading(overlayId);
             throw err;

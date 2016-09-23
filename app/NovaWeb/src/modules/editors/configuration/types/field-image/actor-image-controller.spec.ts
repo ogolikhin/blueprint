@@ -9,15 +9,15 @@ import "ui-select";
 import "angular-formly";
 import "tinymce";
 
-import { ILocalizationService } from "../../../core/localization";
-import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
-import { MessageServiceMock } from "../../../core/messages/message.mock";
-import { IMessageService } from "../../../core/messages";
-import { DialogServiceMock, IDialogService } from "../../../shared/widgets/bp-dialog/bp-dialog";
-import { SettingsService, ISettingsService } from "../../../core";
-import { BPFieldImageController } from "../types/field-image";
+import { ILocalizationService } from "../../../../core/localization";
+import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
+import { MessageServiceMock } from "../../../../core/messages/message.mock";
+import { IMessageService } from "../../../../core/messages";
+import { DialogServiceMock, IDialogService } from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import { SettingsService, ISettingsService } from "../../../../core";
+import { BPFieldImageController } from "./field-image";
 import { ActorImagePickerDialogServiceMock } from "./actor-image-choose-window-mock";
-import { ComponentTest } from "../../../util/component.test";
+import { ComponentTest } from "../../../../util/component.test";
 
 describe("Actor image controller tests", () => {
 

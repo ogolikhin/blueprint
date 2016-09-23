@@ -1,8 +1,8 @@
 import "angular";
 import "angular-formly";
-import { ILocalizationService } from "../../../core";
-import { Enums } from "../../../main/models";
-import { BPFieldBaseController } from "./base-controller";
+import { ILocalizationService } from "../../../../core";
+import { Enums } from "../../../../main/models";
+import { BPFieldBaseController } from "../base-controller";
 
 export class BPFieldSelect implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldSelect";
@@ -66,6 +66,9 @@ export class BpFieldSelectController extends BPFieldBaseController {
 
         $scope["bpFieldSelect"] = {
             closeDropdownOnTab: this.closeDropdownOnTab,
+            labels: {
+                noMatch: localization.get("Property_No_Matching_Options")
+            },
             refreshResults: function ($select) {
                 if (!$scope.options["data"].isValidated && $scope.options["data"].lookup === Enums.PropertyLookupEnum.Custom) {
                     let search = $select.search;

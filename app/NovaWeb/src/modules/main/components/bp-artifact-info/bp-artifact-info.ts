@@ -5,6 +5,7 @@ import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController, IArtifactPickerOptions } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 import { ILoadingOverlayService } from "../../../core/loading-overlay";
 import { IArtifactManager, IStatefulArtifact } from "../../../managers/artifact-manager";
+import { INavigationService } from "../../../core/navigation/navigation.svc";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -24,7 +25,8 @@ export class BpArtifactInfoController {
         "messageService", 
         "dialogService", 
         "windowManager", 
-        "loadingOverlayService"
+        "loadingOverlayService",
+        "navigationService"
     ];
 
     private subscribers: Rx.IDisposable[];
@@ -50,7 +52,8 @@ export class BpArtifactInfoController {
         private messageService: IMessageService,
         private dialogService: IDialogService,
         private windowManager: IWindowManager,
-        private loadingOverlayService: ILoadingOverlayService
+        private loadingOverlayService: ILoadingOverlayService,
+        private navigationService: INavigationService
     ) {
         this.initProperties();
         this.subscribers = [];     
@@ -234,4 +237,19 @@ export class BpArtifactInfoController {
             
         });
     }
+
+    public refresh() {
+        //loading overlay
+        let overlayId = this.loadingOverlayService.beginLoading();
+        let currentArtifact = this.artifactManager.selection.getArtifact();
+        
+        currentArtifact.refresh()
+            .catch((error) => {
+                this.dialogService.alert(error.message);
+                this.navigationService.navigateToArtifact(currentArtifact.parentId);
+                this.artifactManager.remove(currentArtifact.id);
+            }).finally(() => {
+                this.loadingOverlayService.endLoading(overlayId);
+            });
+      }
 }

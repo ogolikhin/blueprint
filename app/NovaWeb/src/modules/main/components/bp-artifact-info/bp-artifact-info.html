@@ -22,6 +22,7 @@
 </div>
 <div class="page-top-toolbar">
     <button class="btn btn-primary" bp-tooltip="Picker" ng-click="$ctrl.openPicker()">Picker</button>
+    <button class="btn btn-primary" bp-tooltip="Refresh" ng-click="$ctrl.refresh()" ng-disabled="$ctrl.isChanged">Refresh</button>
     <button class="btn btn-primary" bp-tooltip="Discard" ng-click="$ctrl.saveChanges()">Discard</button>
     <button class="btn btn-primary" bp-tooltip="Save" ng-click="$ctrl.saveChanges()" ng-disabled="!$ctrl.isChanged">Save</button>
     <button class="btn btn-primary" bp-tooltip="Publish">Publish</button>

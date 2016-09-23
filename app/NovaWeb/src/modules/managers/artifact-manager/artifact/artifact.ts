@@ -61,6 +61,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         //TODO: implement logic to release resources
         this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
         this.subject.dispose();
+        this.artifact.parentId = null;
         delete this.subscribers;
         delete this.subject;
 
@@ -407,15 +408,6 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     }
 
     public refresh(): ng.IPromise<IStatefulArtifact> {
-        let deffered = this.services.getDeferred<IStatefulArtifact>();
-
-        this.load(true)
-            .then((it: IStatefulArtifact) => {
-                deffered.resolve(it);
-            }).catch((error) => {
-                deffered.reject(error);
-            });
-
-        return deffered.promise;
+        return this.load(true);
     }
 }

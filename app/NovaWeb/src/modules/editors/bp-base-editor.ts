@@ -30,6 +30,8 @@ export class BpBaseEditor {
                 if (this.onLoading(artifact)) {
                     this.artifact.artifactState.outdated = true;
                     this.onLoad();
+
+                    //TODO: Refresh related - investigate this vs putting it into onLoading, as well as why artifactState doesn't trigger
                     this.subscribers.push(this.artifact.observable().subscribeOnNext(this.onStateChange, this));
                 }
              });

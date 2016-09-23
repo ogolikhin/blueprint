@@ -1,7 +1,7 @@
 ﻿
 namespace SearchService.Helpers
 {
-    public interface IConfiguration
+    public interface ISearchConfiguration
     {
         string PageSize { get; }
         string MaxItems { get; }

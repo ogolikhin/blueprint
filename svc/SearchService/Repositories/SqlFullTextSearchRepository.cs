@@ -16,16 +16,16 @@ namespace SearchService.Repositories
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
 
-        private SearchConfigurationHelper _searchConfigurationHelper;
+        private ISearchConfigurationProvider _searchConfigurationProvider;
 
-        public SqlFullTextSearchRepository() : this(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString), new Configuration())
+        public SqlFullTextSearchRepository() : this(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString), new SearchConfiguration())
         {
         }
 
-        internal SqlFullTextSearchRepository(ISqlConnectionWrapper connectionWrapper, IConfiguration configuration)
+        internal SqlFullTextSearchRepository(ISqlConnectionWrapper connectionWrapper, ISearchConfiguration configuration)
         {
             ConnectionWrapper = connectionWrapper;
-            _searchConfigurationHelper = new SearchConfigurationHelper(configuration);
+            _searchConfigurationProvider = new SearchConfigurationProvider(configuration);
         }
 
         /// <summary>
@@ -49,8 +49,8 @@ namespace SearchService.Repositories
             prm.Add("@primitiveItemTypePredefineds", SqlMapperHelper.ToInt32Collection(new [] { 4097, 4098, 4353, 4354, 4355, 4609, 4610, 32769 }));
             prm.Add("@page", page);
             prm.Add("@pageSize", pageSize);
-            prm.Add("@maxItems", _searchConfigurationHelper.MaxItems);
-            prm.Add("@maxSearchableValueStringSize", _searchConfigurationHelper.MaxSearchableValueStringSize);
+            prm.Add("@maxItems", _searchConfigurationProvider.MaxItems);
+            prm.Add("@maxSearchableValueStringSize", _searchConfigurationProvider.MaxSearchableValueStringSize);
 
             if (searchCriteria.ItemTypeIds?.ToArray().Length > 0)
             {
@@ -83,8 +83,8 @@ namespace SearchService.Repositories
             prm.Add("@projectIds", SqlMapperHelper.ToInt32Collection(searchCriteria.ProjectIds));
             prm.Add("@predefineds", SqlMapperHelper.ToInt32Collection(new [] { 4098, 4099, 4115, 16384 }));
             prm.Add("@primitiveItemTypePredefineds", SqlMapperHelper.ToInt32Collection(new [] { 4097, 4098, 4353, 4354, 4355, 4609, 4610, 32769 }));
-            prm.Add("@maxItems", _searchConfigurationHelper.MaxItems);
-            prm.Add("@maxSearchableValueStringSize", _searchConfigurationHelper.MaxSearchableValueStringSize);
+            prm.Add("@maxItems", _searchConfigurationProvider.MaxItems);
+            prm.Add("@maxSearchableValueStringSize", _searchConfigurationProvider.MaxSearchableValueStringSize);
 
             if (searchCriteria.ItemTypeIds?.ToArray().Length > 0)
             {

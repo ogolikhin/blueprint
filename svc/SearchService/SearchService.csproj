@@ -116,9 +116,10 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\Configuration.cs" />
-    <Compile Include="Helpers\IConfiguration.cs" />
-    <Compile Include="Helpers\SearchConfigurationHelper.cs" />
+    <Compile Include="Helpers\ISearchConfigurationProvider.cs" />
+    <Compile Include="Helpers\SearchConfiguration.cs" />
+    <Compile Include="Helpers\ISearchConfiguration.cs" />
+    <Compile Include="Helpers\SearchConfigurationProvider.cs" />
     <Compile Include="Models\FullTextSearchItem.cs" />
     <Compile Include="Models\FullTextSearchMetaDataResult.cs" />
     <Compile Include="Models\FullTextSearchResult.cs" />

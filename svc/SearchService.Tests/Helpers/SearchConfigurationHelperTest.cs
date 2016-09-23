@@ -12,10 +12,10 @@ namespace SearchService.Helpers
         [TestMethod]
         public void MaxSearchItems_InvalidValue_ReturnsServerConstant()
         {
-            var configuration = new Mock<IConfiguration>();
+            var configuration = new Mock<ISearchConfiguration>();
             configuration.Setup(a => a.MaxItems).Returns("abcd");
 
-            var helper = new SearchConfigurationHelper(configuration.Object);
+            var helper = new SearchConfigurationProvider(configuration.Object);
 
             var maxItems = helper.MaxItems;
 
@@ -24,10 +24,10 @@ namespace SearchService.Helpers
         [TestMethod]
         public void MaxSearchItems_NegativeValue_ReturnsServerConstant()
         {
-            var configuration = new Mock<IConfiguration>();
+            var configuration = new Mock<ISearchConfiguration>();
             configuration.Setup(a => a.MaxItems).Returns("-1");
 
-            var helper = new SearchConfigurationHelper(configuration.Object);
+            var helper = new SearchConfigurationProvider(configuration.Object);
 
             var maxItems = helper.MaxItems;
 
@@ -37,10 +37,10 @@ namespace SearchService.Helpers
         [TestMethod]
         public void MaxSearchItems_ValidValue_ReturnsValue()
         {
-            var configuration = new Mock<IConfiguration>();
+            var configuration = new Mock<ISearchConfiguration>();
             configuration.Setup(a => a.MaxItems).Returns("5");
 
-            var helper = new SearchConfigurationHelper(configuration.Object);
+            var helper = new SearchConfigurationProvider(configuration.Object);
 
             var maxItems = helper.MaxItems;
 
@@ -52,10 +52,10 @@ namespace SearchService.Helpers
         [TestMethod]
         public void MaxSearchableValueStringSize_InvalidValue_ReturnsServerConstant()
         {
-            var configuration = new Mock<IConfiguration>();
+            var configuration = new Mock<ISearchConfiguration>();
             configuration.Setup(a => a.MaxSearchableValueStringSize).Returns("abcd");
 
-            var helper = new SearchConfigurationHelper(configuration.Object);
+            var helper = new SearchConfigurationProvider(configuration.Object);
 
             var maxSearchableValueStringValue = helper.MaxSearchableValueStringSize;
 
@@ -65,10 +65,10 @@ namespace SearchService.Helpers
         [TestMethod]
         public void MaxSearchableValueStringSize_NegativeValue_ReturnsServerConstant()
         {
-            var configuration = new Mock<IConfiguration>();
+            var configuration = new Mock<ISearchConfiguration>();
             configuration.Setup(a => a.MaxSearchableValueStringSize).Returns("-1");
 
-            var helper = new SearchConfigurationHelper(configuration.Object);
+            var helper = new SearchConfigurationProvider(configuration.Object);
 
             var maxSearchableValueStringValue = helper.MaxSearchableValueStringSize;
 
@@ -78,11 +78,11 @@ namespace SearchService.Helpers
         [TestMethod]
         public void MaxSearchableValueStringSize_ValidValue_ReturnsValue()
         {
-            var configuration = new Mock<IConfiguration>();
+            var configuration = new Mock<ISearchConfiguration>();
             var value = 10;
             configuration.Setup(a => a.MaxSearchableValueStringSize).Returns(value.ToString(CultureInfo.InvariantCulture));
 
-            var helper = new SearchConfigurationHelper(configuration.Object);
+            var helper = new SearchConfigurationProvider(configuration.Object);
 
             var maxSearchableValueStringValue = helper.MaxSearchableValueStringSize;
 
@@ -93,10 +93,10 @@ namespace SearchService.Helpers
         [TestMethod]
         public void PageSize_InvalidValue_ReturnsServerConstant()
         {
-            var configuration = new Mock<IConfiguration>();
+            var configuration = new Mock<ISearchConfiguration>();
             configuration.Setup(a => a.PageSize).Returns("abcd");
 
-            var helper = new SearchConfigurationHelper(configuration.Object);
+            var helper = new SearchConfigurationProvider(configuration.Object);
 
             var pageSize = helper.PageSize;
 
@@ -106,10 +106,10 @@ namespace SearchService.Helpers
         [TestMethod]
         public void PageSize_NegativeValue_ReturnsServerConstant()
         {
-            var configuration = new Mock<IConfiguration>();
+            var configuration = new Mock<ISearchConfiguration>();
             configuration.Setup(a => a.PageSize).Returns("-1");
 
-            var helper = new SearchConfigurationHelper(configuration.Object);
+            var helper = new SearchConfigurationProvider(configuration.Object);
 
             var pageSize = helper.PageSize;
 
@@ -119,11 +119,11 @@ namespace SearchService.Helpers
         [TestMethod]
         public void PageSize_ValidValue_ReturnsValue()
         {
-            var configuration = new Mock<IConfiguration>();
+            var configuration = new Mock<ISearchConfiguration>();
             var value = 10;
             configuration.Setup(a => a.PageSize).Returns(value.ToString(CultureInfo.InvariantCulture));
 
-            var helper = new SearchConfigurationHelper(configuration.Object);
+            var helper = new SearchConfigurationProvider(configuration.Object);
 
             var pageSize = helper.PageSize;
 

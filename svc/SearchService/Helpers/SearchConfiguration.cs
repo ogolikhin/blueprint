@@ -3,7 +3,7 @@ using System.Configuration;
 
 namespace SearchService.Helpers
 {
-    public class Configuration : IConfiguration
+    public class SearchConfiguration : ISearchConfiguration
     {
         public string MaxItems
         {

@@ -2,10 +2,10 @@
 
 namespace SearchService.Helpers
 {
-    public class SearchConfigurationHelper
+    public class SearchConfigurationProvider: ISearchConfigurationProvider
     {
-        private IConfiguration _configuration;
-        public SearchConfigurationHelper(IConfiguration configuration)
+        private ISearchConfiguration _configuration;
+        public SearchConfigurationProvider(ISearchConfiguration configuration)
         {
             _configuration = configuration;
         }

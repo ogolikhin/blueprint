@@ -20,7 +20,7 @@ namespace SearchService.Controllers
         public async Task Post_PageSizeNegative_ReturnsConstant()
         {
             // Arrange
-            var configuration = new Mock<IConfiguration>();
+            var configuration = new Mock<ISearchConfiguration>();
             var controller = initializeController(configuration);
             var searchCriteria = new Models.SearchCriteria() { Query = "empty", ProjectIds = new int[1] { 1 } };
 
@@ -37,7 +37,7 @@ namespace SearchService.Controllers
         public async Task Metadata_PageSizeNegative_ReturnsConstant()
         {
             // Arrange
-            var configuration = new Mock<IConfiguration>();
+            var configuration = new Mock<ISearchConfiguration>();
             var controller = initializeController(configuration);
             var searchCriteria = new Models.SearchCriteria() { Query = "empty", ProjectIds = new int[1] { 1 } };
 
@@ -49,7 +49,7 @@ namespace SearchService.Controllers
             Assert.AreEqual(result.Content.PageSize, ServiceConstants.SearchPageSize);
         }
         #endregion
-        private FullTextSearchController initializeController(Mock<IConfiguration> configuration)
+        private FullTextSearchController initializeController(Mock<ISearchConfiguration> configuration)
         {
             var fullTextSearchRepositoryMock = new Mock<IFullTextSearchRepository>();
             fullTextSearchRepositoryMock.Setup(a => a.Search(It.IsAny<int>(), It.IsAny<Models.SearchCriteria>(), It.IsAny<int>(), It.IsAny<int>())).

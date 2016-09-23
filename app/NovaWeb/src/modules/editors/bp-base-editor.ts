@@ -28,8 +28,8 @@ export class BpBaseEditor {
 
             this.artifactManager.get(obj.context.currentValue).then((artifact) => { // lightweight
                 if (this.onLoading(artifact)) {
-                    this.artifact.artifactState.outdated = true;
-                    this.onLoad();
+                    this.artifact.artifactState.set({outdated: true});
+//                    this.onLoad();
                 }
              });
         } catch (ex) {

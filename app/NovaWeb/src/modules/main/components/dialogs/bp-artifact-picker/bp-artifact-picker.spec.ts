@@ -85,26 +85,13 @@ describe("ArtifactPickerController", () => {
         });
     });
 
-    it("onSelect, when ArtifactNodeVM or SubArtifactNodeVM, sets selected item", inject(($browser) => {
-        // Arrange
-        const model = {id: 3} as Models.IArtifact;
-        const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
-
-        // Act
-        controller.onSelect(vm);
-
-        // Assert
-        $browser.defer.flush(); // wait for $applyAsync()
-        expect(controller.returnValue).toEqual([model]);
-    }));
-
-    it("onSelect, when InstanceItemNodeVM of type Project, clears selected item and sets project", inject(($browser) => {
+    it("onSelect, when InstanceItemNodeVM of type Project, clears selected VMs and sets project", inject(($browser) => {
         // Arrange
         const model = {id: 11, type: Models.ProjectNodeType.Project} as Models.IProjectNode;
         const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 
         // Act
-        controller.onSelect(vm);
+        controller.onSelect(vm, true, [vm]);
 
         // Assert
         $browser.defer.flush(); // wait for $applyAsync()
@@ -112,17 +99,44 @@ describe("ArtifactPickerController", () => {
         expect(controller.project).toBe(model);
     }));
 
-    it("onSelect, when InstanceItemNodeVM of type Folder, clears selected item", inject(($browser) => {
+    it("onSelect, when InstanceItemNodeVM of type Folder, clears selected VMs", inject(($browser) => {
         // Arrange
         const model = {id: 99, type: Models.ProjectNodeType.Folder} as Models.IProjectNode;
         const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 
         // Act
-        controller.onSelect(vm);
+        controller.onSelect(vm, true, [vm]);
 
         // Assert
         $browser.defer.flush(); // wait for $applyAsync()
         expect(controller.returnValue).toEqual([]);
+    }));
+
+    it("onSelect, when InstanceItemNodeVM of type Project, clears selected VMs and sets project", inject(($browser) => {
+        // Arrange
+        const model = {id: 11, type: Models.ProjectNodeType.Project} as Models.IProjectNode;
+        const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
+
+        // Act
+        controller.onSelect(vm, true, [vm]);
+
+        // Assert
+        $browser.defer.flush(); // wait for $applyAsync()
+        expect(controller.returnValue).toEqual([]);
+        expect(controller.project).toBe(model);
+    }));
+
+    it("onSelect, when ArtifactNodeVM or SubArtifactNodeVM, sets selected VMs", inject(($browser) => {
+        // Arrange
+        const model = {id: 3} as Models.IArtifact;
+        const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
+
+        // Act
+        controller.onSelect(vm, true, [vm]);
+
+        // Assert
+        $browser.defer.flush(); // wait for $applyAsync()
+        expect(controller.returnValue).toEqual([model]);
     }));
 
     it("project, when defined, clears selected item and sets project and root node", inject(($browser) => {

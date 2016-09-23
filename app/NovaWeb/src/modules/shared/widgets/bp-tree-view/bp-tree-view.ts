@@ -12,7 +12,7 @@ import { ILocalizationService } from "../../../core";
  *               root-node-visible="false"
  *               columns="$ctrl.columns"
  *               header-height="20"
- *               on-select="$ctrl.onSelect(vm)">
+ *               on-select="$ctrl.onSelect(vm, isSelected, selectedVMs)">
  * </bp-tree-view>
  */
 export class BPTreeViewComponent implements ng.IComponentOptions {
@@ -44,7 +44,7 @@ export interface IBPTreeViewController extends ng.IComponentController {
     rootNodeVisible: boolean;
     columns: IColumn[];
     headerHeight: number;
-    onSelect: (param: {vm: ITreeViewNodeVM}) => void;
+    onSelect: (param: {vm: ITreeViewNodeVM, isSelected: boolean, selectedVMs: ITreeViewNodeVM[]}) => void;
 }
 
 export interface ITreeViewNodeVM {
@@ -79,7 +79,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     public rootNodeVisible: boolean;
     public columns: IColumn[];
     public headerHeight: number;
-    public onSelect: (param: {vm: ITreeViewNodeVM}) => void;
+    public onSelect: (param: {vm: ITreeViewNodeVM, isSelected: boolean, selectedVMs: ITreeViewNodeVM[]}) => void;
 
     constructor(private $q: ng.IQService, private $element: HTMLElement, private localization: ILocalizationService) {
         this.gridClass = angular.isDefined(this.gridClass) ? this.gridClass : "project-explorer";
@@ -293,17 +293,13 @@ export class BPTreeViewController implements IBPTreeViewController {
     }
 
     public onRowSelected = (event: {node: agGrid.RowNode}) => {
-        let node = event.node;
-        if (node.isSelected()) {
-            let vm = node.data as ITreeViewNodeVM;
-            if (vm.isSelectable ? vm.isSelectable() : true) {
-                if (this.onSelect) {
-                    let vm = node.data as ITreeViewNodeVM;
-                    this.onSelect({vm: vm});
-                }
-            } else {
-                node.setSelected(false);
-            }
+        const node = event.node;
+        const isSelected = node.isSelected();
+        const vm = node.data as ITreeViewNodeVM;
+        if (isSelected && vm.isSelectable && !vm.isSelectable()) {
+            node.setSelected(false);
+        } else if (this.onSelect) {
+            this.onSelect({vm: vm, isSelected: isSelected, selectedVMs: this.options.api.getSelectedRows() as ITreeViewNodeVM[]});
         }
     }
 

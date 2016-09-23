@@ -8,7 +8,7 @@ export class ArtifactPickerDialogServiceMock implements IDialogService {
 
     public open(dialogSettings: IDialogSettings): ng.IPromise<any> {
 
-        const deferred = this.$q.defer<Models.IArtifact>();
+        const deferred = this.$q.defer<Models.IArtifact[]>();
 
         let parentArtifact: any = {
             name: "parent"

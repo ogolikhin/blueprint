@@ -12,7 +12,7 @@ export interface IArtifactPickerController {
     project: Models.IProject;
     rootNode: ArtifactPickerNodeVM<any>;
     columns: IColumn[];
-    onSelect: (vm: ArtifactPickerNodeVM<any>) => void;
+    onSelect: (vm: ArtifactPickerNodeVM<any>, isSelected: boolean, selectedVMs: ArtifactPickerNodeVM<any>[]) => void;
 }
 
 export interface IArtifactPickerOptions {
@@ -24,7 +24,7 @@ export interface IArtifactPickerOptions {
 export class ArtifactPickerController extends BaseDialogController implements IArtifactPickerController {
 
     public hasCloseButton: boolean = true;
-    private _selectedItems: Models.IItem[];
+    private _selectedVMs: ArtifactPickerNodeVM<any>[];
 
     static $inject = [
         "$uibModalInstance",
@@ -59,12 +59,12 @@ export class ArtifactPickerController extends BaseDialogController implements IA
 
     //Dialog return value
     public get returnValue(): any {
-        return this._selectedItems;
+        return this._selectedVMs.map(vm => vm.model);
     };
 
-    private setSelectedItems(items: Models.IItem[]) {
+    private setSelectedVMs(items: ArtifactPickerNodeVM<any>[]) {
         this.$scope.$applyAsync((s) => {
-            this._selectedItems = items;
+            this._selectedVMs = items;
         });
     }
 
@@ -81,14 +81,14 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     public selectionMode: "single" | "multiple" | "checkbox";
     public rootNode: InstanceItemNodeVM;
 
-    public onSelect = (vm: ArtifactPickerNodeVM<any>) => {
-        if (vm instanceof ArtifactNodeVM || vm instanceof SubArtifactNodeVM) {
-            this.setSelectedItems([vm.model]);
-        } else {
-            this.setSelectedItems([]);
-            if (vm instanceof InstanceItemNodeVM && vm.model.type === Models.ProjectNodeType.Project) {
+    public onSelect = (vm: ArtifactPickerNodeVM<any>, isSelected: boolean, selectedVMs: ArtifactPickerNodeVM<any>[]) => {
+        if (vm instanceof InstanceItemNodeVM) {
+            this.setSelectedVMs([]);
+            if (vm.model.type === Models.ProjectNodeType.Project) {
                 this.project = vm.model;
             }
+        } else {
+            this.setSelectedVMs(selectedVMs);
         }
     };
 
@@ -99,7 +99,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     }
 
     public set project(project: Models.IProject) {
-        this.setSelectedItems([]);
+        this.setSelectedVMs([]);
         this._project = project;
         if (project) {
             this.selectionMode = this.dialogData.selectionMode;

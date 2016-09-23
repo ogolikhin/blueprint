@@ -487,7 +487,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(165972)]
-        [Description("Create, save, publish Actor artifact, checks returned result is 400 Bad Request for artifact that already published")]
+        [Description("Create, save, publish Actor artifact, checks returned result is 400 Bad Request for artifact that is already published")]
         public void PublishArtifact_SinglePublishedArtifact_BadRequest(BaseArtifactType artifactType)
         {
             // Setup:

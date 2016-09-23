@@ -24,8 +24,8 @@ namespace Model.Impl
 
         public int ProjectId { get; set; }
         public int VersionId { get; set; }
-        public int InstanceItemTypeId { get; set; }
-        public int IconImageId { get; set; }
+        public int? InstanceItemTypeId { get; set; }
+        public int? IconImageId { get; set; }
         public bool UsedInThisProject { get; set; }
         public List<int> CustomPropertyTypeIds { get; } = new List<int>();
     }

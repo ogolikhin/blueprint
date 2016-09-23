@@ -24,7 +24,7 @@ describe("ArtifactPickerController", () => {
         projectManager = jasmine.createSpyObj("projectManager", ["getSelectedProject", "getArtifact"]) as IProjectManager;
         (projectManager.getSelectedProject as jasmine.Spy).and.returnValue(project);
         projectService = {} as IProjectService;
-        options = {selectableItemTypes: [Models.ItemTypePredefined.Actor], showSubArtifacts: true};
+        options = {};
         controller = new ArtifactPickerController($instance, dialogSettings, $scope, localization, projectManager, projectService, options);
     }));
 
@@ -44,7 +44,7 @@ describe("ArtifactPickerController", () => {
         $scope.$broadcast("$destroy");
 
         // Assert
-        expect(controller.columnDefs).toBeUndefined();
+        expect(controller.columns).toBeUndefined();
         expect(controller.onSelect).toBeUndefined();
     }));
 
@@ -55,25 +55,19 @@ describe("ArtifactPickerController", () => {
             // Act
 
             // Assert
-            expect(controller.columnDefs).toEqual([jasmine.objectContaining({
-                headerName: "",
-                field: "name",
-                cellRenderer: "group",
-                cellRendererParams: jasmine.objectContaining({}),
-                suppressMenu: true,
-                suppressSorting: true,
+            expect(controller.columns).toEqual([jasmine.objectContaining({
+                isGroup: true
             })]);
-            expect(angular.isFunction(controller.columnDefs[0].cellClass)).toEqual(true);
-            expect(angular.isFunction(controller.columnDefs[0].cellRendererParams["innerRenderer"])).toEqual(true);
+            expect(angular.isFunction(controller.columns[0].cellClass)).toEqual(true);
+            expect(angular.isFunction(controller.columns[0].innerRenderer)).toEqual(true);
         });
 
-        it("cellClass returns correct result", () => {
+        it("getCellClass returns correct result", () => {
             // Arrange
             const vm = {getCellClass: () => ["test"]} as ArtifactPickerNodeVM<any>;
-            const cellClass = controller.columnDefs[0].cellClass as (cellClassParams: any) => string[];
 
             // Act
-            const css = cellClass({data: vm});
+            const css = controller.columns[0].cellClass(vm);
 
             // Assert
             expect(css).toEqual(["test"]);
@@ -82,67 +76,67 @@ describe("ArtifactPickerController", () => {
         it("innerRenderer returns correct result", () => {
             // Arrange
             const vm = {name: "name", getIcon() { return "icon"; }} as ArtifactPickerNodeVM<any>;
-            const innerRenderer = controller.columnDefs[0].cellRendererParams["innerRenderer"] as (params: any) => string;
 
             // Act
-            const result = innerRenderer({data: vm});
+            const result = controller.columns[0].innerRenderer(vm);
 
             // Assert
             expect(result).toEqual(`<span class="ag-group-value-wrapper">icon<span>name</span></span>`);
         });
     });
 
-    it("onSelect, when selectable ArtifactNodeVM or SubArtifactNodeVM, sets selected item", inject(($browser) => {
-        // Arrange
-        const model = {id: 3, predefinedType: Models.ItemTypePredefined.Actor} as Models.IArtifact;
-        const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
-
-        // Act
-        controller.onSelect(vm);
-
-        // Assert
-        $browser.defer.flush(); // wait for $applyAsync()
-        expect(controller.returnValue).toBe(model);
-    }));
-
-    it("onSelect, when not selectable ArtifactNodeVM, clears selected item", inject(($browser) => {
-        // Arrange
-        const model = {id: 3, predefinedType: Models.ItemTypePredefined.Glossary} as Models.IArtifact;
-        const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
-
-        // Act
-        controller.onSelect(vm);
-
-        // Assert
-        $browser.defer.flush(); // wait for $applyAsync()
-        expect(controller.returnValue).toBeUndefined();
-    }));
-
-    it("onSelect, when InstanceItemNodeVM of type Project, clears selected item and sets project", inject(($browser) => {
+    it("onSelect, when InstanceItemNodeVM of type Project, clears selected VMs and sets project", inject(($browser) => {
         // Arrange
         const model = {id: 11, type: Models.ProjectNodeType.Project} as Models.IProjectNode;
         const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 
         // Act
-        controller.onSelect(vm);
+        controller.onSelect(vm, true, [vm]);
 
         // Assert
         $browser.defer.flush(); // wait for $applyAsync()
-        expect(controller.returnValue).toBeUndefined();
+        expect(controller.returnValue).toEqual([]);
         expect(controller.project).toBe(model);
     }));
 
-    it("onSelect, when InstanceItemNodeVM of type Folder, clears selected item", inject(($browser) => {
+    it("onSelect, when InstanceItemNodeVM of type Folder, clears selected VMs", inject(($browser) => {
         // Arrange
         const model = {id: 99, type: Models.ProjectNodeType.Folder} as Models.IProjectNode;
         const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 
         // Act
-        controller.onSelect(vm);
+        controller.onSelect(vm, true, [vm]);
 
         // Assert
         $browser.defer.flush(); // wait for $applyAsync()
-        expect(controller.returnValue).toBeUndefined();
+        expect(controller.returnValue).toEqual([]);
+    }));
+
+    it("onSelect, when InstanceItemNodeVM of type Project, clears selected VMs and sets project", inject(($browser) => {
+        // Arrange
+        const model = {id: 11, type: Models.ProjectNodeType.Project} as Models.IProjectNode;
+        const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
+
+        // Act
+        controller.onSelect(vm, true, [vm]);
+
+        // Assert
+        $browser.defer.flush(); // wait for $applyAsync()
+        expect(controller.returnValue).toEqual([]);
+        expect(controller.project).toBe(model);
+    }));
+
+    it("onSelect, when ArtifactNodeVM or SubArtifactNodeVM, sets selected VMs", inject(($browser) => {
+        // Arrange
+        const model = {id: 3} as Models.IArtifact;
+        const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
+
+        // Act
+        controller.onSelect(vm, true, [vm]);
+
+        // Assert
+        $browser.defer.flush(); // wait for $applyAsync()
+        expect(controller.returnValue).toEqual([model]);
     }));
 
     it("project, when defined, clears selected item and sets project and root node", inject(($browser) => {
@@ -154,7 +148,7 @@ describe("ArtifactPickerController", () => {
 
         // Assert
         $browser.defer.flush(); // wait for $applyAsync()
-        expect(controller.returnValue).toBeUndefined();
+        expect(controller.returnValue).toEqual([]);
         expect(controller.project).toBe(newProject);
         expect(controller.rootNode).toEqual(new InstanceItemNodeVM(projectManager, projectService, options, {
             id: 6,
@@ -172,7 +166,7 @@ describe("ArtifactPickerController", () => {
 
         // Assert
         $browser.defer.flush(); // wait for $applyAsync()
-        expect(controller.returnValue).toBeUndefined();
+        expect(controller.returnValue).toEqual([]);
         expect(controller.project).toBeUndefined();
         expect(controller.rootNode).toEqual(new InstanceItemNodeVM(projectManager, projectService, options, {
             id: 0,

@@ -369,6 +369,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             }).catch((error) => {
                 deffered.reject(error);
                 let message: string;
+                // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
                 if (error) {
                     if (error.statusCode === 400) {
                         if (error.errorCode === 114) {
@@ -393,9 +394,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                     } else {
                         message = this.services.localizationService.get("App_Save_Artifact_Error_Other") + error.statusCode;
                     }
-                }
-                this.services.messageService.addError(message);
-                throw new Error(message);
+                    this.services.messageService.addError(message);
+                    throw new Error(message);
+                }                                
             }
         );
        

@@ -608,6 +608,74 @@ namespace ArtifactStoreTests
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of discard published artifact(s) which has dependend not discarded child artifact Id.", expectedExceptionMessage);
         }
 
+        [TestCase(3, BaseArtifactType.Process)]
+        [TestRail(166158)]
+        [Description("Create, save, parent artifact with two children, discard parent artifact, checks returned result is 409 Conflict.")]
+        public void DiscardArtifact_ParentAndChildrenArtifacts_OnlyDiscardChild_SwitchParentWithChild_Conflict(int numberOfArtifacts, BaseArtifactType artifactType)
+        {
+            // Setup:
+            List<BaseArtifactType> artifactTypes = new List<BaseArtifactType>();
+
+            for (int i = 0; i < numberOfArtifacts; i++)
+            {
+                artifactTypes.Add(artifactType);
+            }
+
+            // Create artifact(s) and publish for discard test
+            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes.ToArray());
+
+            artifactChain[1].ParentId = artifactChain[2].ParentId;
+            artifactChain[1].Save();
+
+            artifactChain[2].ParentId = artifactChain[1].ParentId;
+            artifactChain[2].Save();
+
+            List<IArtifactBase> oneArtifactList = new List<IArtifactBase>();
+            oneArtifactList.Add(artifactChain[artifactChain.Count - 1]);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DiscardArtifacts(oneArtifactList, _user),
+                "'POST {0}' should return 409 Conflict if the Artifact has parent artifact which is not discarded!", DISCARD_PATH);
+
+            // Verify:
+            string expectedExceptionMessage = "Specified artifacts have dependent artifacts to discard.";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of discard published artifact(s) which has dependend not discarded child artifact Id.", expectedExceptionMessage);
+        }
+
+        [TestCase(3, BaseArtifactType.Process)]
+        [TestRail(166158)]
+        [Description("Create, save, parent artifact with two children, discard parent artifact, checks returned result is 409 Conflict.")]
+        public void DiscardArtifact_ParentAndChildrenArtifacts_OnlyDiscardChild_RemoveParent_Conflict(int numberOfArtifacts, BaseArtifactType artifactType)
+        {
+            // Setup:
+            List<BaseArtifactType> artifactTypes = new List<BaseArtifactType>();
+
+            for (int i = 0; i < numberOfArtifacts; i++)
+            {
+                artifactTypes.Add(artifactType);
+            }
+
+            // Create artifact(s) and publish for discard test
+            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes.ToArray());
+
+            artifactChain[2].ParentId = _project.Id;
+            artifactChain[2].Save();
+
+            artifactChain[1].Delete();
+            artifactChain[1].Save();
+
+            List<IArtifactBase> oneArtifactList = new List<IArtifactBase>();
+            oneArtifactList.Add(artifactChain[2]);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DiscardArtifacts(oneArtifactList, _user),
+                "'POST {0}' should return 409 Conflict if the Artifact has parent artifact which is not discarded!", DISCARD_PATH);
+
+            // Verify:
+            string expectedExceptionMessage = "Specified artifacts have dependent artifacts to discard.";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of discard published artifact(s) which has dependend not discarded child artifact Id.", expectedExceptionMessage);
+        }
+
         #endregion 409 Conflict tests
 
         #region private call

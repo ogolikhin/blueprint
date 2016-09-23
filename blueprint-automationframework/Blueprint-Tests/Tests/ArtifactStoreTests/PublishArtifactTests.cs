@@ -580,7 +580,6 @@ namespace ArtifactStoreTests
         [TestRail(165974)]
         [Description("Create, save, parent artifact with two children, publish child artifact, checks returned result is 409 Conflict.")]
         public void PublishArtifact_ParentAndChildArtifacts_OnlyPublishChild_Conflict(BaseArtifactType artifactType, int index)
-
         {
             // Setup:
             List<IArtifact> artifactList = CreateParentAndTwoChildrenArtifactsAndGetAllArtifacts(artifactType);

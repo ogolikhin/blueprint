@@ -1,13 +1,10 @@
-﻿﻿import "angular";
-import { IArtifactAttachmentsService, IArtifactAttachmentsResultSet } from "../../../managers/artifact-manager";
-import { Helper } from "../../../shared/utils/helper";
-import { ILocalizationService, IMessageService } from "../../../core";
-import { FiletypeParser } from "../../../shared/utils/filetypeParser";
-import { IDialogSettings, IDialogService } from "../../../shared";
-import { IUploadStatusDialogData } from "../../../shared/widgets";
-import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
-import { BPFieldBaseController } from "./base-controller";
-import { Models } from "../../../main/models";
+﻿import "angular";
+import { ILocalizationService, IMessageService } from "../../../../core";
+import { IDialogSettings, IDialogService } from "../../../../shared";
+import { IUploadStatusDialogData } from "../../../../shared/widgets";
+import { BpFileUploadStatusController } from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
+import { BPFieldBaseController } from "../base-controller";
+import { Models } from "../../../../main/models";
 
 export class BPFieldImage implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldImage";
@@ -35,24 +32,24 @@ export class BPFieldImageController extends BPFieldBaseController {
         let onChange = (templateOptions["onChange"] as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
         const maxAttachmentFilesizeDefault: number = 1048576; // 1 MB
         const maxNumberAttachmentsDefault: number = 1;
-        const allowedExtensions = ['png', 'jpg', 'jpeg'];
+        const allowedExtensions = ["png", "jpg", "jpeg"];
 
         let setFields = (model: any) => {
             if (model) {
                 $scope.model["image"] =  model.image;
             }
-        }
+        };
 
         let currentModelVal = $scope.model[$scope.options["key"]];
         //let currentModelVal = <Models.IActorImagePropertyValue>$scope.model[$scope.options.key];
         if (!currentModelVal) {
             currentModelVal = <Models.IActorImagePropertyValue>{};
-        } 
+        }
 
         function chooseActorImage(files: File[], callback?: Function) {
             const dialogSettings = <IDialogSettings>{
                 okButton: localization.get("App_Button_Ok", "OK"),
-                template: require("../../../shared/widgets/bp-file-upload-status/bp-file-upload-status.html"),
+                template: require("../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status.html"),
                 controller: BpFileUploadStatusController,
                 css: "nova-file-upload-status",
                 header: localization.get("App_UP_Attachments_Upload_Dialog_Header", "File Upload"),
@@ -75,15 +72,15 @@ export class BPFieldImageController extends BPFieldBaseController {
                     var reader = new FileReader();
                     reader.readAsDataURL(image.file);
 
-                    reader.onload = function (e) {                        
-                        let imageContent = e.target['result'];                       
-                        currentModelVal.url = imageContent;                        
+                    reader.onload = function (e) {
+                        let imageContent = e.target["result"];
+                        currentModelVal.url = imageContent;
                         let savingValue = <Models.IActorImagePropertyValue>{
                             guid: image.guid
                         };
                         $scope.model[$scope.options["key"]] = currentModelVal;
                         onChange(savingValue, getImageField(), $scope);
-                    }
+                    };
                 }
             }).finally(() => {
                 if (callback) {
@@ -104,7 +101,7 @@ export class BPFieldImageController extends BPFieldBaseController {
         };
 
         $scope["onActorImageDelete"] = (isReadOnly: boolean) => {
-            if(isReadOnly && isReadOnly === true){
+            if (isReadOnly && isReadOnly === true) {
                 return ;
             }
             onChange(null, getImageField(), $scope);

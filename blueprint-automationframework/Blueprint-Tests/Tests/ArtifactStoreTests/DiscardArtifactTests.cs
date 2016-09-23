@@ -47,7 +47,7 @@ namespace ArtifactStoreTests
             var savedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
             try
             {
-                INovaPublishResponse discardArtifactResponse = null;
+                INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
                 // Execute:
                 Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(savedArtifacts, _user), "DiscardArtifacts() failed when discarding saved artifact(s)!");
@@ -79,7 +79,7 @@ namespace ArtifactStoreTests
             var savedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
             try
             {
-                INovaPublishResponse discardArtifactResponse = null;
+                INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
                 // Execute:
                 Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(savedArtifacts, _user, all: true), "DiscardArtifacts() failed when discarding saved artifact(s)!");
@@ -116,7 +116,7 @@ namespace ArtifactStoreTests
                 publishedArtifact.Save();
             }
 
-            INovaPublishResponse discardArtifactResponse = null;
+            INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(changedPublishedArtifacts, _user), "DiscardArtifacts() failed when discarding saved artifact(s)!");
@@ -142,7 +142,7 @@ namespace ArtifactStoreTests
                 publishedArtifact.Save();
             }
 
-            INovaPublishResponse discardArtifactResponse = null;
+            INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(changedPublishedArtifacts, _user, all: true), "DiscardArtifacts() failed when discarding saved artifact(s)!");
@@ -162,7 +162,7 @@ namespace ArtifactStoreTests
             // Create artifact(s) with save and publish for discard test
             var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
 
-            INovaPublishResponse discardArtifactResponse = null;
+            INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user, all: true), "DiscardArtifacts() failed when discarding saved artifact(s)!");
@@ -187,7 +187,7 @@ namespace ArtifactStoreTests
             mixedArtifacts.AddRange(publishedArtifacts);
             mixedArtifacts.AddRange(savedArtifacts);
 
-            INovaPublishResponse discardArtifactResponse = null;
+            INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(mixedArtifacts, _user, all: true), "DiscardArtifacts() failed when discarding saved artifact(s)!");
@@ -211,7 +211,7 @@ namespace ArtifactStoreTests
             // Create artifact(s) with save and publish for discard test
             var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
 
-            INovaPublishResponse discardArtifactResponse = null;
+            INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user),
@@ -238,7 +238,7 @@ namespace ArtifactStoreTests
             mixedArtifacts.AddRange(publishedArtifacts);
             mixedArtifacts.AddRange(savedArtifacts);
 
-            INovaPublishResponse discardArtifactResponse = null;
+            INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(mixedArtifacts, _user),
@@ -265,7 +265,7 @@ namespace ArtifactStoreTests
             mixedArtifacts.AddRange(savedArtifacts);
             mixedArtifacts.AddRange(publishedArtifacts);
 
-            INovaPublishResponse discardArtifactResponse = null;
+            INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(mixedArtifacts, _user),
@@ -284,7 +284,7 @@ namespace ArtifactStoreTests
             // Setup:
             List<IArtifactBase> artifacts = new List<IArtifactBase>();
 
-            INovaPublishResponse discardArtifactResponse = null;
+            INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(artifacts, _user),
@@ -395,7 +395,7 @@ namespace ArtifactStoreTests
                 publishedArtifact.Save();
             }
 
-            INovaPublishResponse discardArtifactResponse = null;
+            INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(changedPublishedArtifacts, _user, all: true), "DiscardArtifacts() failed when discarding saved artifact(s)!");
@@ -421,7 +421,7 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="discardArtifactResponse">The response from Nova discard call.</param>
         /// <param name="artifactsTodiscard">artifacts that are being discarded</param>
-        public static void DiscardVerification(INovaPublishResponse discardArtifactResponse, List<IArtifactBase> artifactsTodiscard)
+        public static void DiscardVerification(INovaArtifactsAndProjectsResponse discardArtifactResponse, List<IArtifactBase> artifactsTodiscard)
         {
             ThrowIf.ArgumentNull(discardArtifactResponse, nameof(discardArtifactResponse));
             ThrowIf.ArgumentNull(artifactsTodiscard, nameof(artifactsTodiscard));

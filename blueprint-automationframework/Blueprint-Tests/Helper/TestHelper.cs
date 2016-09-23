@@ -10,6 +10,7 @@ using Model.Impl;
 using Model.StorytellerModel;
 using NUnit.Framework;
 using Utilities;
+using Model.FullTextSearchModel;
 
 namespace Helper
 {
@@ -24,6 +25,7 @@ namespace Helper
         public IBlueprintServer BlueprintServer { get; } = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
         public IConfigControl ConfigControl { get; } = ConfigControlFactory.GetConfigControlFromTestConfig();
         public IFileStore FileStore { get; } = FileStoreFactory.GetFileStoreFromTestConfig();
+        public IFullTextSearch FullTextSearch { get; } = SearchServiceFactory.GetSearchServiceFromTestConfig();
         public IStoryteller Storyteller { get; } = StorytellerFactory.GetStorytellerFromTestConfig();
         public ISvcShared SvcShared { get; } = SvcSharedFactory.GetSvcSharedFromTestConfig();
 

@@ -100,8 +100,10 @@ export class ProcessDiagram {
             this.processViewModel.communicationManager = this.communicationManager;
         } else {
             this.processViewModel.updateProcessGraphModel(process);
-            this.processViewModel.communicationManager.toolbarCommunicationManager.removeToggleProcessTypeObserver(this.toggleProcessTypeHandler);
-            this.processViewModel.communicationManager.processDiagramCommunication.removeModelUpdateObserver(this.modelUpdateHandler);
+            this.processViewModel.communicationManager.toolbarCommunicationManager
+                .removeToggleProcessTypeObserver(this.toggleProcessTypeHandler);
+            this.processViewModel.communicationManager.processDiagramCommunication
+                .removeModelUpdateObserver(this.modelUpdateHandler);
             this.processViewModel.communicationManager.processDiagramCommunication
                 .removeNavigateToAssociatedArtifactObserver(this.navigateToAssociatedArtifactHandler);
         }
@@ -176,10 +178,19 @@ export class ProcessDiagram {
     }
 
     public destroy() {
-        this.processViewModel.communicationManager.toolbarCommunicationManager.removeToggleProcessTypeObserver(this.toggleProcessTypeHandler);
-        this.processViewModel.communicationManager.processDiagramCommunication.removeModelUpdateObserver(this.modelUpdateHandler);
-        this.processViewModel.communicationManager.processDiagramCommunication
-            .removeNavigateToAssociatedArtifactObserver(this.navigateToAssociatedArtifactHandler);
+        if (this.communicationManager) {
+            if (this.communicationManager.toolbarCommunicationManager) {
+                this.communicationManager.toolbarCommunicationManager
+                    .removeToggleProcessTypeObserver(this.toggleProcessTypeHandler);
+            }
+
+            if (this.communicationManager.processDiagramCommunication) {
+                this.communicationManager.processDiagramCommunication
+                    .removeModelUpdateObserver(this.modelUpdateHandler);
+                this.communicationManager.processDiagramCommunication
+                    .removeNavigateToAssociatedArtifactObserver(this.navigateToAssociatedArtifactHandler);
+            }
+        }
 
         // tear down persistent objects and event handlers
         if (this.graph != null) {

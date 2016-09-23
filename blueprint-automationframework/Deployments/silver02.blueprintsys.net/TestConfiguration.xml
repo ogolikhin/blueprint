@@ -5,11 +5,12 @@
 
   <BlueprintServices>
     <Service name="AdminStore"    address="http://silver02.blueprintsys.net/" />
-    <Service name="AccessControl" address="http://silver02.blueprintsys.net:8182/" />
+    <Service name="AccessControl" address="http://silver02.blueprintsys.net:82/" />
     <Service name="ArtifactStore" address="http://silver02.blueprintsys.net" />
     <Service name="ConfigControl" address="http://silver02.blueprintsys.net:82/" />
     <Service name="FileStore"     address="http://silver02.blueprintsys.net/" />
     <Service name="Storyteller"   address="http://silver02.blueprintsys.net" />
+    <Service name="SearchService" address="http://silver02.blueprintsys.net" />
   </BlueprintServices>
 
   <Databases>

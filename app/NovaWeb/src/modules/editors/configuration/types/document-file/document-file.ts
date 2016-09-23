@@ -1,12 +1,12 @@
-﻿﻿import "angular";
-import { IArtifactAttachmentsService, IArtifactAttachmentsResultSet } from "../../../managers/artifact-manager";
-import { Helper } from "../../../shared/utils/helper";
-import { ILocalizationService, IMessageService, ISettingsService } from "../../../core";
-import { FiletypeParser } from "../../../shared/utils/filetypeParser";
-import { IDialogSettings, IDialogService } from "../../../shared";
-import { IUploadStatusDialogData } from "../../../shared/widgets";
-import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
-import { BPFieldBaseController } from "./base-controller";
+import "angular";
+import { IArtifactAttachmentsService, IArtifactAttachmentsResultSet } from "../../../../managers/artifact-manager";
+import { Helper } from "../../../../shared/utils/helper";
+import { ILocalizationService, IMessageService, ISettingsService } from "../../../../core";
+import { FiletypeParser } from "../../../../shared/utils/filetypeParser";
+import { IDialogSettings, IDialogService } from "../../../../shared";
+import { IUploadStatusDialogData } from "../../../../shared/widgets";
+import { BpFileUploadStatusController } from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
+import { BPFieldBaseController } from "../base-controller";
 
 export class BPFieldDocumentFile implements AngularFormly.ITypeOptions {
     public name: string = "bpDocumentFile";
@@ -45,13 +45,13 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                 this.$scope["fileName"] = model.fileName;
                 this.$scope["extension"] = FiletypeParser.getFiletypeClass(model.fileName);
             }
-        }
+        };
 
         let clearFields = () => {
             this.$scope["hasFile"] = false;
             this.$scope["fileName"] = null;
             this.$scope["extension"] = null;
-        }
+        };
         let maxAttachmentFilesize: number = this.settings.getNumber("MaxAttachmentFilesize", maxAttachmentFilesizeDefault);
         if (maxAttachmentFilesize < 0 || !Helper.isInt(maxAttachmentFilesize)) {
             maxAttachmentFilesize = maxAttachmentFilesizeDefault;
@@ -60,7 +60,7 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
         let chooseDocumentFile = (files: File[], callback?: Function) => {
             const dialogSettings = <IDialogSettings>{
                 okButton: localization.get("App_Button_Ok", "OK"),
-                template: require("../../../shared/widgets/bp-file-upload-status/bp-file-upload-status.html"),
+                template: require("../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status.html"),
                 controller: BpFileUploadStatusController,
                 css: "nova-file-upload-status",
                 header: localization.get("App_UP_Attachments_Upload_Dialog_Header", "File Upload"),
@@ -92,7 +92,7 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                     callback();
                 }
             });
-        }
+        };
 
         $scope["onFileSelect"] = (files: File[], callback?: Function) => {
             chooseDocumentFile(files, callback);
@@ -131,7 +131,7 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                     guid = null;
                 });
             }
-        }
+        };
 
         $scope["changeLabelText"] = localization.get("App_UP_Document_File_Change", "Change");
         $scope["uploadLabelText"] = localization.get("App_UP_Document_File_Upload", "Upload");

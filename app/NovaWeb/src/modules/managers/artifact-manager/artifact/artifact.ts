@@ -32,7 +32,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     private changesets: IChangeCollector;
     private lockPromise: ng.IPromise<IStatefulArtifact>;
     private loadPromise: ng.IPromise<IStatefulArtifact>;
-    private isLoaded = false;
+//    private isLoaded = false;
 
     constructor(private artifact: Models.IArtifact, private services: IStatefulArtifactServices) {
         this.artifactState = new ArtifactState(this).initialize(artifact);
@@ -185,7 +185,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         //TODO: need impementation
          this.attachments.discard();
          this.docRefs.discard();
-        // this.subArtifactCollection.discard(all);
+         this.subArtifactCollection.list().forEach(subArtifact => {
+             subArtifact.discard();
+         });
     }
     
     public setValidationErrorsFlag(value: boolean) {
@@ -194,26 +196,25 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
 
     public load(force: boolean = true):  ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
-        if (!this.isProject() && (force || !this.isLoaded)) {
+        if (!this.isProject() && force) {
             if (this.loadPromise) {
                 return this.loadPromise;
             } else {
                 this.loadPromise = deferred.promise;
+                const artifactBeforeLoad = this.artifact;
                 this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
                     this.artifact = artifact;
                     this.artifactState.initialize(artifact);
                     this.customProperties.initialize(artifact.customPropertyValues);
                     this.specialProperties.initialize(artifact.specificPropertyValues);
                     
-                    const parentId = this.artifact.parentId;
-                    if (parentId && parentId !== artifact.parentId) {
+                    if (artifactBeforeLoad.parentId !== artifact.parentId) {
                         this.artifactState.set({
                             readonly: true,
                             lockedby: 0
                         });
-                        this.services.messageService.addError("The artifact has been moved!");
+                        this.artifactState.error = "Artifact_DoesNotExistOrMoved";
                     }
-                    this.isLoaded = true;
                     this.artifactState.outdated = false;
                     deferred.resolve(this);
                 }).catch((err) => {
@@ -339,10 +340,17 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         delta.specificPropertyValues = this.specialProperties.changes();
         delta.attachmentValues = this.attachments.changes();
         delta.docRefValues = this.docRefs.changes();
+        this.addSubArtifactChanges(delta);
 
         return delta;
     }
-
+    private addSubArtifactChanges(delta: Models.IArtifact) {
+        let subArtifacts = this.subArtifactCollection.list();
+        delta.subArtifacts = new Array<Models.ISubArtifact>();
+        subArtifacts.forEach(subArtifact => {
+            delta.subArtifacts.push(subArtifact.changes());
+        });
+    }
     //TODO: moved from bp-artifactinfo 
     
     public save(): ng.IPromise<IStatefulArtifact> {
@@ -377,6 +385,8 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                             message = this.services.localizationService.get("App_Save_Artifact_Error_409_117");
                         } else if (error.errorCode === 111 || error.errorCode === 115) {
                             message = this.services.localizationService.get("App_Save_Artifact_Error_409_115");
+                        } else if (error.errorCode === 123) {
+                            message = this.services.localizationService.get("App_Save_Artifact_Error_409_123");
                         } else {
                             message = this.services.localizationService.get("App_Save_Artifact_Error_409");
                         }

@@ -329,14 +329,18 @@ export class ProcessGraph implements IProcessGraph {
         //// This prevents some weird issue with the graph growing as we drag off the container edge.
         var svgElement = angular.element(this.htmlElement.children[0])[0];
         var containerElement: any = angular.element(this.htmlElement)[0];
-        svgElement.style.height = containerElement.style.height;
-        svgElement.style.maxHeight = containerElement.style.height;
-        if (this.isIe11) {
-            svgElement.style.width = containerElement.style.width;
-            svgElement.style.maxWidth = containerElement.style.width;
-        } else {
-            svgElement.style.width = containerElement.style.minWidth;
-            svgElement.style.maxWidth = containerElement.style.minWidth;
+
+        if (svgElement && containerElement) {
+            svgElement.style.height = containerElement.style.height;
+            svgElement.style.maxHeight = containerElement.style.height;
+
+            if (this.isIe11) {
+                svgElement.style.width = containerElement.style.width;
+                svgElement.style.maxWidth = containerElement.style.width;
+            } else {
+                svgElement.style.width = containerElement.style.minWidth;
+                svgElement.style.maxWidth = containerElement.style.minWidth;
+            }
         }
     }
 

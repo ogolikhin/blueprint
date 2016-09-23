@@ -24,7 +24,7 @@ namespace Model.FullTextSearchModel.Impl
 
         #region Members inherited from IFullTextSearch
 
-        public FullTextSearchResult Search(User user, FullTextSearchCriteria searchCriteria, int? page, int? pageSize, List<HttpStatusCode> expectedStatusCodes = null)
+        public FullTextSearchResult Search(IUser user, FullTextSearchCriteria searchCriteria, int? page = null, int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(FullTextSearch), nameof(Search));
 
@@ -59,7 +59,7 @@ namespace Model.FullTextSearchModel.Impl
             return restResponse;
         }
 
-        public FullTextSearchMetaDataResult SearchMetaData(User user, FullTextSearchCriteria searchCriteria, List<HttpStatusCode> expectedStatusCodes = null)
+        public FullTextSearchMetaDataResult SearchMetaData(IUser user, FullTextSearchCriteria searchCriteria, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(FullTextSearch), nameof(SearchMetaData));
 

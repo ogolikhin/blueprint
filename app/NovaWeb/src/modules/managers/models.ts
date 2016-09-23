@@ -81,6 +81,7 @@ export interface IIStatefulSubArtifact extends IIStatefulItem {
 
 export interface IStatefulSubArtifact extends IStatefulItem, Models.ISubArtifact {
     load(force?: boolean, timeout?: ng.IPromise<any>): ng.IPromise<IStatefulSubArtifact>;
+    changes(): Models.ISubArtifact;
 }
 
 export interface IArtifactNode {

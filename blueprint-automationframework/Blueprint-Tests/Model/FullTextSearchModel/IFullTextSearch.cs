@@ -19,7 +19,7 @@ namespace Model.FullTextSearchModel
         /// <param name="pageSize">(optional)The number of search results to return in a single request.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The subset of search results.</returns>
-        FullTextSearchResult Search(User user, FullTextSearchCriteria searchCriteria, int? page, int? pageSize, List<HttpStatusCode> expectedStatusCodes = null);
+        FullTextSearchResult Search(IUser user, FullTextSearchCriteria searchCriteria, int? page = null, int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Returns the search result metadata indicating what would be returned if the full search 
@@ -30,6 +30,6 @@ namespace Model.FullTextSearchModel
         /// "search phrase", "search ph*)</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The search result metadata.</returns>
-        FullTextSearchMetaDataResult SearchMetaData(User user, FullTextSearchCriteria searchCriteria, List<HttpStatusCode> expectedStatusCodes = null);
+        FullTextSearchMetaDataResult SearchMetaData(IUser user, FullTextSearchCriteria searchCriteria, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

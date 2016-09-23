@@ -96,7 +96,10 @@ export class BPTreeViewController implements IBPTreeViewController {
             enableColResize: true,
             icons: {
                 groupExpanded: "<i />",
-                groupContracted: "<i />"
+                groupContracted: "<i />",
+                checkboxChecked: `<i class="ag-checkbox-checked" />`,
+                checkboxUnchecked: `<i class="ag-checkbox-unchecked" />`,
+                checkboxIndeterminate: `<i class="ag-checkbox-indeterminate" />`
             },
             angularCompileRows: true, // this is needed to compile directives (dynamically added) on the rows
             suppressContextMenu: true,

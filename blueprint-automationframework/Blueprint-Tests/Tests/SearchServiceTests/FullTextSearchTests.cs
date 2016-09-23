@@ -1,11 +1,8 @@
-﻿using Common;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Helper;
 using Model;
-using Model.Factories;
 using Model.FullTextSearchModel.Impl;
 using NUnit.Framework;
-using System;
 using System.Collections.Generic;
 using TestCommon;
 
@@ -76,12 +73,23 @@ namespace SearchServiceTests
         /// <summary>
         /// Asserts that returned searchResult from the FullTextSearch call match with artifacts that are being searched.
         /// </summary>
-        /// <param name="discardArtifactResponse">The response from Nova discard call.</param>
-        /// <param name="artifactsTodiscard">artifacts that are being discarded</param>
-        //private static void FullTextSearchResultValidation()
-        //{
+        /// <param name="searchResult">The searchResult from Nova search call.</param>
+        /// <param name="artifactsToBeFound">artifacts that are being searched</param>
+        /*
+        private static void FullTextSearchResultValidation( FullTextSearchResult searchResult, List<IArtifactBase> artifactsToBeFound)
+        {
+            ThrowIf.ArgumentNull(searchResult, nameof(searchResult));
+            ThrowIf.ArgumentNull(artifactsToBeFound, nameof(artifactsToBeFound));
+            List<int> ReturnedFullTexedSearchItemArtifactIds = new List<int>();
 
-        //}
+            searchResult.FullTextSearchItems.Cast<FullTextSearchItem>().ToList().ForEach(a => ReturnedFullTexedSearchItemArtifactIds.Add(a.ArtifactId));
+
+            for (int i = 0; i < artifactsToBeFound.Count; i++)
+            {
+                Assert.That(ReturnedFullTexedSearchItemArtifactIds.Contains(artifactsToBeFound[i].Id), "The expected artifact whose Id is {0} does not exist on the response from the Nova FullTextSearch call.", artifactsToBeFound[i].Id);
+            }
+        }
+        */
         #endregion Private Functions
 
     }

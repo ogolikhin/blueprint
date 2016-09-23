@@ -68,6 +68,10 @@
       <Project>{52DB8811-A018-4CEC-BA81-8DDA947CC007}</Project>
       <Name>Model</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Utilities\Utilities.csproj">
+      <Project>{D52D51B2-AEC5-4118-A9C2-2A590BD083A3}</Project>
+      <Name>Utilities</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TestCommon\TestCommon.csproj">
       <Project>{8A66038C-22FC-4C28-BA0D-714614A50418}</Project>
       <Name>TestCommon</Name>

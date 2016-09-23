@@ -20,7 +20,7 @@ namespace Model.Factories
         /// <summary>
         /// Creates a SearchService object with the settings defined in the TestConfiguration.
         /// </summary>
-        /// <returns>The FileStore object.</returns>
+        /// <returns>The FullTextSearch object.</returns>
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
         public static IFullTextSearch GetSearchServiceFromTestConfig()

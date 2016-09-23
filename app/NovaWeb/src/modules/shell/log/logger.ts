@@ -42,7 +42,7 @@ export class Logger {
             if (args[0]) {
                 //if we have something to log
                 //post message to the server /svc/adminstore/log/js
-                if (args[0].message) {
+                if (args[0].message || args[0].message === "") {
                     serverLogger.log(args[0], level);
                 } else {
                     serverLogger.log({ message: args[0] }, level);

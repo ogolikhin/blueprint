@@ -27,7 +27,7 @@ export class BpBaseEditor {
 
             this.artifactManager.get(obj.context.currentValue).then((artifact) => { // lightweight
                 if (this.onLoading(artifact)) {
-                    this.artifact.artifactState.outdated = true;
+                    this.artifact.artifactState.set({outdated: true});
 
                     //TODO: Refresh related - investigate this vs putting it into onLoading, as well as why artifactState doesn't trigger
                     this.subscribers.push(this.artifact.observable().subscribeOnNext(this.onStateChange, this));

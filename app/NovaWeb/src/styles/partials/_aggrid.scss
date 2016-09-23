@@ -87,12 +87,12 @@ $has-children-padding-before-arrow: 3px;
     //    .ag-row.ag-row-group-expanded .ag-group-expanded {
     //      display: inline-block !important;
     //    }
-    .ag-row:hover {
+    .ag-row:hover:not(.ag-row-selected) {
       .ag-group-expanded::before,
       .ag-group-contracted::before,
       span > span,
       *::before {
-        background: $tree-hover-background;
+        background-color: $tree-hover-background;
       }
 
       .ag-group-contracted,
@@ -107,7 +107,7 @@ $has-children-padding-before-arrow: 3px;
       .ag-group-contracted::before,
       span > span,
       *::before {
-        background: $tree-focus-background !important;
+        background-color: $tree-focus-background;
       }
 
       .ag-group-contracted,
@@ -122,7 +122,7 @@ $has-children-padding-before-arrow: 3px;
       .ag-group-contracted::before,
       span > span,
       *::before {
-        background: $brand-secondary !important;
+        background-color: $brand-secondary;
         color: $white !important;
       }
 
@@ -154,6 +154,34 @@ $has-children-padding-before-arrow: 3px;
       vertical-align: bottom;
     }
 
+    > span .ag-group-checkbox {
+      height: 20px;
+      padding-left: 2px;
+      vertical-align: top;
+
+      i::before {
+        background-image: url("/novaweb/static/images/icons/checkboxes.gif");
+        background-repeat: no-repeat;
+        content: ' ';
+        display: inline-block;
+        height: 16px;
+        vertical-align: middle;
+        width: 16px;
+      }
+
+      .ag-checkbox-checked::before {
+        background-position: -16px -16px;
+      }
+
+      .ag-checkbox-unchecked::before {
+        background-position: -16px 0;
+      }
+
+      .ag-checkbox-indeterminate::before {
+        background-position: -16px 0;
+      }
+    }
+
     &.ag-cell-inline-editing .ag-group-value-wrapper span:not(.ag-group-inline-edit) {
       display: none !important;
     }
@@ -173,6 +201,11 @@ $has-children-padding-before-arrow: 3px;
 
         &.has-children > span {
           margin-left: -15px;
+
+          .ag-group-checkbox {
+            padding-left: 1px;
+            padding-right: 1px;
+          }
         }
       }
     }
@@ -292,7 +325,7 @@ $has-children-padding-before-arrow: 3px;
 
   .ag-row-loading .ag-cell .ag-group-value .ag-group-value-wrapper i,
   .ag-row-loading .ag-cell .ag-group-value .ag-group-value-wrapper i {
-    background: transparent !important;
+    background-color: transparent;
 
     &::before {
       -webkit-animation: spin 1.5s infinite linear;
@@ -300,7 +333,7 @@ $has-children-padding-before-arrow: 3px;
       -o-animation: spin 1.5s infinite linear;
       animation: spin 1.5s infinite linear;
       //animation-delay: .25s;
-      background: transparent !important;
+      background-color: transparent;
       content: '\e031' !important;
       font-family: 'Glyphicons Halflings' !important;
       opacity: 0;

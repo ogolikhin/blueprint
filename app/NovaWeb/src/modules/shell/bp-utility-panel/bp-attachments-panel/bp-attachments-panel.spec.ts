@@ -88,8 +88,8 @@
 //             const artifact = { id: 22, name: "TestDocument", prefix: "PRO" } as Models.IArtifact;
 //             let deferred = $q.defer();
 //             DialogService.prototype.open = jasmine.createSpy("open() spy").and.callFake(
-//                 (): ng.IPromise<Models.IArtifact> => {
-//                     deferred.resolve(artifact);
+//                 (): ng.IPromise<Models.IArtifact[]> => {
+//                     deferred.resolve([artifact]);
 //                     return deferred.promise;
 //                 }
 //             );

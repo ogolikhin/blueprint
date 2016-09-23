@@ -1,5 +1,5 @@
 import { Models, Enums } from "../main/models";
-import { IArtifactState } from "./artifact-manager";
+import { IArtifactState, IState } from "./artifact-manager";
 import { IStatefulArtifactServices } from "./artifact-manager/services";
 import { ISession } from "../shell/login/session.svc";
 import { Relationships } from "../main";

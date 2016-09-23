@@ -78,8 +78,9 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
             showSubArtifacts: false
         };
 
-        this.dialogService.open(dialogSettings, dialogData).then((artifact: Models.IArtifact) => {
-            if (artifact) {
+        this.dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {
+            if (items.length === 1) {
+                const artifact = items[0];
                 const newDoc = <IArtifactDocRef>{
                     artifactName: artifact.name,
                     artifactId: artifact.id,

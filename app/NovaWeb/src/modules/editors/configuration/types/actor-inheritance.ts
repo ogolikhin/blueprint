@@ -1,11 +1,6 @@
 ﻿﻿import "angular";
-import { IArtifactAttachmentsService, IArtifactAttachmentsResultSet } from "../../../managers/artifact-manager";
-import { Helper } from "../../../shared/utils/helper";
 import { ILocalizationService, IMessageService } from "../../../core";
-import { FiletypeParser } from "../../../shared/utils/filetypeParser";
 import { IDialogSettings, IDialogService } from "../../../shared";
-import { IUploadStatusDialogData } from "../../../shared/widgets";
-import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import { BPFieldBaseController } from "./base-controller";
 import { Models } from "../../../main/models";
 import { ISelectionManager } from "../../../managers";
@@ -85,9 +80,9 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
                 showSubArtifacts: false
             };
 
-            dialogService.open(dialogSettings, dialogData).then((artifact: Models.IArtifact) => {
-
-                if (artifact) {
+            dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {
+                if (items.length === 1) {
+                    const artifact = items[0];
                     let selected = selectionManager.getArtifact();
                     if (selected) {
                         if (selected.id === artifact.id) {

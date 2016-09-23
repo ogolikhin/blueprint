@@ -23,7 +23,7 @@ export class ArtifactPickerDialogServiceMock implements IDialogService {
             name: "actor name",
             parent: parentArtifact
         };
-        deferred.resolve(artifact);
+        deferred.resolve([artifact]);
         return deferred.promise;
     }
     public alert(message: string, header?: string): ng.IPromise<any> {

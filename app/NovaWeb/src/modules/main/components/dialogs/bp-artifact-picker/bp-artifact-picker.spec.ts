@@ -95,7 +95,7 @@ describe("ArtifactPickerController", () => {
 
         // Assert
         $browser.defer.flush(); // wait for $applyAsync()
-        expect(controller.returnValue).toBe(model);
+        expect(controller.returnValue).toEqual([model]);
     }));
 
     it("onSelect, when InstanceItemNodeVM of type Project, clears selected item and sets project", inject(($browser) => {
@@ -108,7 +108,7 @@ describe("ArtifactPickerController", () => {
 
         // Assert
         $browser.defer.flush(); // wait for $applyAsync()
-        expect(controller.returnValue).toBeUndefined();
+        expect(controller.returnValue).toEqual([]);
         expect(controller.project).toBe(model);
     }));
 
@@ -122,7 +122,7 @@ describe("ArtifactPickerController", () => {
 
         // Assert
         $browser.defer.flush(); // wait for $applyAsync()
-        expect(controller.returnValue).toBeUndefined();
+        expect(controller.returnValue).toEqual([]);
     }));
 
     it("project, when defined, clears selected item and sets project and root node", inject(($browser) => {
@@ -134,7 +134,7 @@ describe("ArtifactPickerController", () => {
 
         // Assert
         $browser.defer.flush(); // wait for $applyAsync()
-        expect(controller.returnValue).toBeUndefined();
+        expect(controller.returnValue).toEqual([]);
         expect(controller.project).toBe(newProject);
         expect(controller.rootNode).toEqual(new InstanceItemNodeVM(projectManager, projectService, options, {
             id: 6,
@@ -152,7 +152,7 @@ describe("ArtifactPickerController", () => {
 
         // Assert
         $browser.defer.flush(); // wait for $applyAsync()
-        expect(controller.returnValue).toBeUndefined();
+        expect(controller.returnValue).toEqual([]);
         expect(controller.project).toBeUndefined();
         expect(controller.rootNode).toEqual(new InstanceItemNodeVM(projectManager, projectService, options, {
             id: 0,

@@ -24,7 +24,7 @@ export interface IArtifactPickerOptions {
 export class ArtifactPickerController extends BaseDialogController implements IArtifactPickerController {
 
     public hasCloseButton: boolean = true;
-    private _selectedItem: Models.IItem;
+    private _selectedItems: Models.IItem[];
 
     static $inject = [
         "$uibModalInstance",
@@ -59,12 +59,12 @@ export class ArtifactPickerController extends BaseDialogController implements IA
 
     //Dialog return value
     public get returnValue(): any {
-        return this._selectedItem;
+        return this._selectedItems;
     };
 
-    private setSelectedItem(item: Models.IItem) {
+    private setSelectedItems(items: Models.IItem[]) {
         this.$scope.$applyAsync((s) => {
-            this._selectedItem = item;
+            this._selectedItems = items;
         });
     }
 
@@ -83,9 +83,9 @@ export class ArtifactPickerController extends BaseDialogController implements IA
 
     public onSelect = (vm: ArtifactPickerNodeVM<any>) => {
         if (vm instanceof ArtifactNodeVM || vm instanceof SubArtifactNodeVM) {
-            this.setSelectedItem(vm.model);
+            this.setSelectedItems([vm.model]);
         } else {
-            this.setSelectedItem(undefined);
+            this.setSelectedItems([]);
             if (vm instanceof InstanceItemNodeVM && vm.model.type === Models.ProjectNodeType.Project) {
                 this.project = vm.model;
             }
@@ -99,7 +99,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
     }
 
     public set project(project: Models.IProject) {
-        this.setSelectedItem(undefined);
+        this.setSelectedItems([]);
         this._project = project;
         if (project) {
             this.selectionMode = this.dialogData.selectionMode;

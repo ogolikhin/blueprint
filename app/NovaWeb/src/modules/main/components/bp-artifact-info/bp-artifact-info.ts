@@ -229,8 +229,8 @@ export class BpArtifactInfoController {
             showSubArtifacts: true
         };
 
-        this.dialogService.open(dialogSettings, dialogData).then((artifact: any) => {
-            
+        this.dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {
+            console.log(items);
         });
     }
 }

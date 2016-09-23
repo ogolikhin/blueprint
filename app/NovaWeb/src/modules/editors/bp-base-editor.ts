@@ -30,8 +30,7 @@ export class BpBaseEditor {
                 if (this.onLoading(artifact)) {
                     this.artifact.artifactState.outdated = true;
                     this.onLoad();
-                    //TODO:Added for refresh story, unclear if necessary; if refresh artifact works, delete this.
-                    //this.subscribers.push(this.artifact.observable().subscribeOnNext(this.onStateChange, this));
+                    this.subscribers.push(this.artifact.observable().subscribeOnNext(this.onStateChange, this));
                 }
              });
         } catch (ex) {

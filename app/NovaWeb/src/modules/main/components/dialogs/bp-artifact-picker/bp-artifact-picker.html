@@ -17,11 +17,11 @@
                 </div>
             </div>
             <bp-tree-view grid-class="project-tree"
-                          selection-mode="$ctrl.dialogData.selectionMode"
+                          selection-mode="$ctrl.selectionMode"
                           row-height="20"
                           root-node="$ctrl.rootNode"
                           root-node-visible="false"
-                          column-defs="$ctrl.columnDefs"
+                          columns="$ctrl.columns"
                           header-height="20"
                           on-select="$ctrl.onSelect(vm)">
             </bp-tree-view>

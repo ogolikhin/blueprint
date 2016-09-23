@@ -1,5 +1,5 @@
 ﻿import "angular";
-import { ColDef } from "ag-grid/main";
+import { IColumn } from "../../../../shared/widgets/bp-tree-view/";
 import { Helper } from "../../../../shared/";
 import { ILocalizationService } from "../../../../core";
 import { ArtifactPickerNodeVM, InstanceItemNodeVM, ArtifactNodeVM, SubArtifactNodeVM } from "./bp-artifact-picker-node-vm";
@@ -11,7 +11,7 @@ import { IProjectService } from "../../../../managers/project-manager/project-se
 export interface IArtifactPickerController {
     project: Models.IProject;
     rootNode: ArtifactPickerNodeVM<any>;
-    columnDefs: any[];
+    columns: IColumn[];
     onSelect: (vm: ArtifactPickerNodeVM<any>) => void;
 }
 
@@ -48,10 +48,10 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         this.project = this.projectManager.getSelectedProject();
 
         $scope.$on("$destroy", () => {
-            if (this.columnDefs) {
-                this.columnDefs[0].cellClass = undefined;
-                this.columnDefs[0].cellRendererParams["innerRenderer"] = undefined;
-                this.columnDefs = undefined;
+            if (this.columns) {
+                this.columns[0].cellClass = undefined;
+                this.columns[0].innerRenderer = undefined;
+                this.columns = undefined;
             }
             this.onSelect = undefined;
         });
@@ -68,28 +68,17 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         });
     }
 
-    public columnDefs: ColDef[] = [{
-        headerName: "",
-        field: "name",
-        cellClass: function (params) {
-            const vm = params.data as ArtifactPickerNodeVM<any>;
-            return vm.getCellClass();
-        },
-        cellRenderer: "group",
-        cellRendererParams: {
-            checkbox: this.dialogData.selectionMode === "checkbox",
-            innerRenderer: (params) => {
-                const vm = params.data as ArtifactPickerNodeVM<any>;
-                const icon = vm.getIcon();
-                const name = Helper.escapeHTMLText(vm.name);
-                return `<span class="ag-group-value-wrapper">${icon}<span>${name}</span></span>`;
-            },
-            padding: 20
-        },
-        suppressMenu: true,
-        suppressSorting: true,
+    public columns: IColumn[] = [{
+        cellClass: (vm: ArtifactPickerNodeVM<any>) => vm.getCellClass(),
+        isGroup: true,
+        innerRenderer: (vm: ArtifactPickerNodeVM<any>) => {
+            const icon = vm.getIcon();
+            const name = Helper.escapeHTMLText(vm.name);
+            return `<span class="ag-group-value-wrapper">${icon}<span>${name}</span></span>`;
+        }
     }];
 
+    public selectionMode: "single" | "multiple" | "checkbox";
     public rootNode: InstanceItemNodeVM;
 
     public onSelect = (vm: ArtifactPickerNodeVM<any>) => {
@@ -113,6 +102,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         this.setSelectedItem(undefined);
         this._project = project;
         if (project) {
+            this.selectionMode = this.dialogData.selectionMode;
             this.rootNode = new InstanceItemNodeVM(this.projectManager, this.projectService, this.dialogData, {
                 id: project.id,
                 type: Models.ProjectNodeType.Project,
@@ -120,6 +110,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 hasChildren: project.hasChildren,
             } as Models.IProjectNode, true);
         } else {
+            this.selectionMode = "single";
             this.rootNode = new InstanceItemNodeVM(this.projectManager, this.projectService, this.dialogData, {
                 id: 0,
                 type: Models.ProjectNodeType.Folder,

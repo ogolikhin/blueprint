@@ -44,7 +44,7 @@ describe("ArtifactPickerController", () => {
         $scope.$broadcast("$destroy");
 
         // Assert
-        expect(controller.columnDefs).toBeUndefined();
+        expect(controller.columns).toBeUndefined();
         expect(controller.onSelect).toBeUndefined();
     }));
 
@@ -55,37 +55,30 @@ describe("ArtifactPickerController", () => {
             // Act
 
             // Assert
-            expect(controller.columnDefs).toEqual([jasmine.objectContaining({
-                headerName: "",
-                field: "name",
-                cellRenderer: "group",
-                cellRendererParams: jasmine.objectContaining({}),
-                suppressMenu: true,
-                suppressSorting: true,
+            expect(controller.columns).toEqual([jasmine.objectContaining({
+                isGroup: true
             })]);
-            expect(angular.isFunction(controller.columnDefs[0].cellClass)).toEqual(true);
-            expect(angular.isFunction(controller.columnDefs[0].cellRendererParams["innerRenderer"])).toEqual(true);
+            expect(angular.isFunction(controller.columns[0].cellClass)).toEqual(true);
+            expect(angular.isFunction(controller.columns[0].innerRenderer)).toEqual(true);
         });
 
-        it("cellClass returns correct result", () => {
+        it("getCellClass returns correct result", () => {
             // Arrange
             const vm = {getCellClass: () => ["test"]} as ArtifactPickerNodeVM<any>;
-            const cellClass = controller.columnDefs[0].cellClass as (cellClassParams: any) => string[];
 
             // Act
-            const css = cellClass({data: vm});
+            const css = controller.columns[0].cellClass(vm);
 
             // Assert
             expect(css).toEqual(["test"]);
         });
 
-        it("innerRenderer returns correct result", () => {
+        it("getRendering returns correct result", () => {
             // Arrange
             const vm = {name: "name", getIcon() { return "icon"; }} as ArtifactPickerNodeVM<any>;
-            const innerRenderer = controller.columnDefs[0].cellRendererParams["innerRenderer"] as (params: any) => string;
 
             // Act
-            const result = innerRenderer({data: vm});
+            const result = controller.columns[0].innerRenderer(vm);
 
             // Assert
             expect(result).toEqual(`<span class="ag-group-value-wrapper">icon<span>name</span></span>`);

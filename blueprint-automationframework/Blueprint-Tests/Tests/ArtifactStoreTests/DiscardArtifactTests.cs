@@ -1,13 +1,17 @@
-﻿using CustomAttributes;
+﻿using Common;
+using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using System.Collections.Generic;
 using TestCommon;
 using Utilities;
+using Utilities.Facades;
+using System.Linq;
 
 namespace ArtifactStoreTests
 {
@@ -101,7 +105,6 @@ namespace ArtifactStoreTests
             }
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality failing.
         [TestCase(2, BaseArtifactType.Actor)]
         [TestRail(166135)]
         [Description("Set draft artifacts by saving, publishing, and saving. Execute Discard - Must return successful discard response")]
@@ -127,7 +130,6 @@ namespace ArtifactStoreTests
             DiscardVerification(discardArtifactResponse, changedPublishedArtifacts);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality failing.
         [TestCase(2, BaseArtifactType.Actor)]
         [TestRail(166136)]
         [Description("Set draft artifacts by saving, publishing, and saving. Execute Discard with optional parameter all=true - Must return successful discard response")]
@@ -196,7 +198,157 @@ namespace ArtifactStoreTests
             Assert.That(discardArtifactResponse.Artifacts.Count.Equals(numberOfArtifacts), "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}", numberOfArtifacts, discardArtifactResponse.Artifacts.Count);
         }
 
-        // TODO Discard of removed artifact
+        #region Custom data tests
+
+        [Category(Categories.CustomData)]
+        [TestCase(2, BaseArtifactType.Actor, "value\":10.0", "value\":999.0")] //Insert value into Numeric field which is out of range
+        [TestCase(2, BaseArtifactType.Actor, "value\":\"20", "value\":\"21")] //Insert value into Date field which is out of range
+        [TestRail(182270)]
+        [Description("Discard an artifact with a value of property that out of its permitted range. Verify 200 OK is returned.")]
+        public void DiscardArtifact_PropertyOutOfRange_OK(int numberOfArtifacts, BaseArtifactType artifactType, string toChange, string changeTo)
+        {
+            // Setup:
+            var projectCustomData = GetCustomDataProject();
+            // Create artifact(s) with save and publish for discard test
+            var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(projectCustomData, _user, artifactType, numberOfArtifacts);
+
+            // Hack: Create a fake artifact.
+            var fakeArtifact = ArtifactFactory.CreateArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+
+            for (int i = 0; i < numberOfArtifacts; i++)
+            {
+                NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, publishedArtifacts[i].Id);
+
+                string requestBody = JsonConvert.SerializeObject(artifactDetails);
+
+                requestBody = requestBody.Replace(toChange, changeTo);
+
+                fakeArtifact.Id = publishedArtifacts[i].Id;
+                fakeArtifact.Lock();
+
+                Assert.DoesNotThrow(() => UpdateInvalidArtifact(requestBody, publishedArtifacts[i].Id),
+                "'PATCH {0}' should return 200 OK if properties are out of range!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+            }
+
+            INovaPublishResponse discardArtifactResponse = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user), "DiscardArtifacts() 200 OK when discarding saved artifact(s)!");
+
+            // Validation: Makesure that returned body contains artifact details from savedArtifacts, ones taht are valid for successful discard. 
+            Assert.That(discardArtifactResponse.Artifacts.Count.Equals(numberOfArtifacts), "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}", numberOfArtifacts, discardArtifactResponse.Artifacts.Count);
+        }
+
+        [Category(Categories.CustomData)]
+        [TestCase(2, BaseArtifactType.Actor, "value\":10.0", "value\":999.0")] //Insert value into Numeric field which is out of range
+        [TestCase(2, BaseArtifactType.Actor, "value\":\"20", "value\":\"21")] //Insert value into Date field which is out of range
+        [TestRail(182271)]
+        [Description("Discard all artifacts. Update only one artifact. The other(s) not updated. Verify 200 OK is returned.")]
+        public void DiscardAllArtifact_PropertyOutOfRange_OK(int numberOfArtifacts, BaseArtifactType artifactType, string toChange, string changeTo)
+        {
+            // Setup:
+            var projectCustomData = GetCustomDataProject();
+            // Create artifact(s) with save and publish for discard test
+            var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(projectCustomData, _user, artifactType, numberOfArtifacts);
+
+            // Hack: Create a fake artifact.
+            var fakeArtifact = ArtifactFactory.CreateArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, publishedArtifacts[0].Id);
+
+            string requestBody = JsonConvert.SerializeObject(artifactDetails);
+
+            requestBody = requestBody.Replace(toChange, changeTo);
+
+            fakeArtifact.Id = publishedArtifacts[0].Id;
+            fakeArtifact.Lock();
+
+            Assert.DoesNotThrow(() => UpdateInvalidArtifact(requestBody, publishedArtifacts[0].Id),
+                "'PATCH {0}' should return 200 OK if properties are out of range!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            // Execute:
+            Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user, all : true), "DiscardArtifacts() 200 OK when discarding saved artifact(s)!");
+        }
+
+        #endregion Custom data tests
+
+        [TestCase(3, BaseArtifactType.Process)]
+        [TestRail(182307)]
+        [Description("Create, save, parent artifact with two children, discard all artifacts, checks returned result is 200 OK.")]
+        public void DiscardAllArtifact_ParentAndChildrenArtifacts_UpdateDependendChildren_OK(int numberOfArtifacts, BaseArtifactType artifactType)
+        {
+            // Setup:
+            List<BaseArtifactType> artifactTypes = new List<BaseArtifactType>();
+
+            for (int i = 0; i < numberOfArtifacts; i++)
+            {
+                artifactTypes.Add(artifactType);
+            }
+
+            // Create artifact(s) and publish for discard test
+            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes.ToArray());
+
+            for (int i = 1; i < numberOfArtifacts; i++)
+            {
+                artifactChain[i].ParentId = _project.Id;
+                artifactChain[i].Save();
+            }
+
+            // Execute:
+            Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(artifactChain.ConvertAll(x => (IArtifactBase)x), _user, all : true),
+                "'POST {0}' should return 200 OK if the Artifact has dependend children changed!", DISCARD_PATH);
+        }
+
+        [TestCase(3, BaseArtifactType.Process)]
+        [TestRail(182316)]
+        [Description("Create, save, parent artifact with two children, delete artifact, checks returned result is 200 OK.")]
+        public void DiscardArtifact_DeleteSingleArtifact_OK(int numberOfArtifacts, BaseArtifactType artifactType)
+        {
+            // Setup:
+            List<BaseArtifactType> artifactTypes = new List<BaseArtifactType>();
+
+            for (int i = 0; i < numberOfArtifacts; i++)
+            {
+                artifactTypes.Add(artifactType);
+            }
+
+            // Create artifact(s) with save and publish for discard test
+            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes.ToArray());
+
+            artifactChain[artifactChain.Count - 1].Delete(_user);
+
+            List<IArtifactBase> oneArtifactList = new List<IArtifactBase>();
+            oneArtifactList.Add(artifactChain[artifactChain.Count - 1]);
+
+            // Execute:
+            Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(oneArtifactList, _user),
+                "'POST {0}' should return 200 OK if the Artifact for removed artifact!", DISCARD_PATH);
+        }
+
+        [TestCase(3, BaseArtifactType.Process)]
+        [TestRail(182317)]
+        [Description("Create, save, parent artifact with two children, delete artifact, checks returned result is 200 OK.")]
+        public void DiscardAllArtifact_DeleteSingleArtifact_OK(int numberOfArtifacts, BaseArtifactType artifactType)
+        {
+            // Setup:
+            List<BaseArtifactType> artifactTypes = new List<BaseArtifactType>();
+
+            for (int i = 0; i < numberOfArtifacts; i++)
+            {
+                artifactTypes.Add(artifactType);
+            }
+
+            // Create artifact(s) with save and publish for discard test
+            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes.ToArray());
+
+            artifactChain[artifactChain.Count - 1].Delete(_user);
+
+            // Execute:
+            Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(artifactChain.ConvertAll(x => (IArtifactBase)x), _user, all : true),
+                "'POST {0}' should return 200 OK if the Artifact for removed artifact!", DISCARD_PATH);
+        }
 
         #endregion 200 OK Tests
 
@@ -380,35 +532,37 @@ namespace ArtifactStoreTests
 
         #region 409 Conflict tests
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality failing.
-        [TestCase(2, BaseArtifactType.Process)]
+        [TestCase(3, BaseArtifactType.Process)]
         [TestRail(166158)]
         [Description("Create, save, parent artifact with two children, discard parent artifact, checks returned result is 409 Conflict.")]
-        public void DiscardArtifact_ParentAndChildArtifacts_OnlyDiscardParent_Conflict(int numberOfArtifacts, BaseArtifactType artifactType)
+        public void DiscardArtifact_ParentAndChildrenArtifacts_OnlyDiscardChild_Conflict(int numberOfArtifacts, BaseArtifactType artifactType)
         {
             // Setup:
-            // Create artifact(s) with save and publish for discard test
-            var changedPublishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
+            List<BaseArtifactType> artifactTypes = new List<BaseArtifactType>();
 
-            foreach (var publishedArtifact in changedPublishedArtifacts.ConvertAll(x => (IArtifact)x))
+            for (int i = 0; i < numberOfArtifacts; i++)
             {
-                publishedArtifact.Save();
+                artifactTypes.Add(artifactType);
             }
 
-            INovaPublishResponse discardArtifactResponse = null;
+            // Create artifact(s) and publish for discard test
+            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes.ToArray());
 
-            // Execute:
-            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(changedPublishedArtifacts, _user, all: true), "DiscardArtifacts() failed when discarding saved artifact(s)!");
+            for (int i = 1; i < numberOfArtifacts; i++)
+            {
+                artifactChain[i].ParentId = _project.Id;
+                artifactChain[i].Save();
+            }
 
             List<IArtifactBase> oneArtifactList = new List<IArtifactBase>();
-            oneArtifactList.Add(changedPublishedArtifacts[2]);
+            oneArtifactList.Add(artifactChain[artifactChain.Count - 1]);
             
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DiscardArtifacts(oneArtifactList, _user),
-                "'POST {0}' should return 409 Conflict if the Artifact has parent artifact which is not published!", DISCARD_PATH);
+                "'POST {0}' should return 409 Conflict if the Artifact has parent artifact which is not discarded!", DISCARD_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "Specified artifacts have dependent artifacts to publish.";
+            string expectedExceptionMessage = "Specified artifacts have dependent artifacts to discard.";
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of discard published artifact(s) which has dependend not discarded child artifact Id.", expectedExceptionMessage);
         }
 
@@ -434,6 +588,51 @@ namespace ArtifactStoreTests
             }
         }
 
+        /// <summary>
+        /// Gets the custom data project.
+        /// </summary>
+        /// <returns>The custom data project.</returns>
+        private IProject GetCustomDataProject()
+        {
+            List<IProject> allProjects = null;
+            allProjects = ProjectFactory.GetAllProjects(_user);
+
+            const string customDataProjectName = "Custom Data";
+
+            Assert.That(allProjects.Exists(p => (p.Name == customDataProjectName)),
+                "No project was found named '{0}'!", customDataProjectName);
+
+            var projectCustomData = allProjects.First(p => (p.Name == customDataProjectName));
+            projectCustomData.GetAllArtifactTypes(ProjectFactory.Address, _user);
+
+            return projectCustomData;
+        }
+
+        /// <summary>
+        /// Try to update an invalid Artifact with Property Changes.  Use this for testing cases where the save is expected to fail.
+        /// </summary>
+        /// <param name="requestBody">The request body (i.e. artifact to be updated).</param>
+        /// <param name="artifactId">The ID of the artifact to save.</param>
+        /// <returns>The body content returned from ArtifactStore.</returns>
+        private string UpdateInvalidArtifact(string requestBody,
+            int artifactId)
+        {
+            ThrowIf.ArgumentNull(_user, nameof(_user));
+
+            string tokenValue = _user.Token?.AccessControlToken;
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
+            RestApiFacade restApi = new RestApiFacade(Helper.BlueprintServer.Address, tokenValue);
+            const string contentType = "application/json";
+
+            var response = restApi.SendRequestBodyAndGetResponse(
+                path,
+                RestRequestMethod.PATCH,
+                requestBody,
+                contentType);
+
+            return response.Content;
+        }
         #endregion private call
     }
 }

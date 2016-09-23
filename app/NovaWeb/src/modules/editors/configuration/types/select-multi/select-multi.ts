@@ -83,6 +83,9 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             currentSelectedItem: -1,
             isScrolling: false,
             isOpen: false,
+            labels: {
+                noMatch: localization.get("Property_No_Matching_Options")
+            },
             isChoiceSelected: function (item, $select): boolean {
                 return $select.selected.map(function (e) { return e[$scope.to.valueProp]; }).indexOf(item[$scope.to.valueProp]) !== -1;
             },

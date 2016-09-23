@@ -14,7 +14,7 @@ namespace Model.ArtifactModel.Impl
             
         public bool HasChildren { get; set; }
         public int Id { get; set; }
-        public int ItemTypeId { get; set; }
+        public int? ItemTypeId { get; set; }
         public Identification LockedByUser { get; set; }
         public DateTime? LockedDateTime { get; set; }
         public string Name { get; set; }

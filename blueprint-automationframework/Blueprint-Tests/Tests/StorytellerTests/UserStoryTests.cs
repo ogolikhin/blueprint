@@ -11,6 +11,7 @@ using Helper;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using TestCommon;
+using Utilities;
 
 namespace StorytellerTests
 {
@@ -406,11 +407,24 @@ namespace StorytellerTests
             // Generated User Stories from the Process
             List <IStorytellerUserStory> userStories = Helper.Storyteller.GenerateUserStories(_user, process);
             // Check that ST-Title property has expected value
-            // TODO: change CustomProperties[0] with more readable code like GetTitle
-            Assert.AreEqual(expectedStoryTitle, userStories[0].CustomProperties[0].Value);
+            var stTitleProperty = GetPropertyByName(userStories[0].CustomProperties, "ST-Title");
+            Assert.AreEqual(expectedStoryTitle, stTitleProperty.Value);
         }
 
         #endregion Tests
+
+        /// <summary>
+        /// Gets the StorytellerProperty from the list that has the specified Name.
+        /// </summary>
+        /// <param name="storytellerProperties">The list of properties to search through.</param>
+        /// <param name="name">The name of the property to find.</param>
+        /// <returns>The StorytellerProperty that it found.</returns>
+        private static StorytellerProperty GetPropertyByName(List<StorytellerProperty> storytellerProperties, string name)
+        {
+            ThrowIf.ArgumentNull(storytellerProperties, nameof(storytellerProperties));
+
+            return storytellerProperties.Find(p => p.Name.StartsWithOrdinal(name)); // Use StartsWith() instead of == because it might have "(Agile Pack)" on the end of the name.
+        }
 
         /// <summary>
         /// Creates text with inline traces for provided artifacts. For use with RTF properties.

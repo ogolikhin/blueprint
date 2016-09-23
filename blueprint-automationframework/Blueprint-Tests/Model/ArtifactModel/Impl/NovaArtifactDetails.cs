@@ -19,7 +19,7 @@ namespace Model.ArtifactModel.Impl
         public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();
         public string Description { get; set; }
         public int Id { get; set; }
-        public int ItemTypeId { get; set; }
+        public int? ItemTypeId { get; set; }
         public int ItemTypeVersionId { get; set; }
         public Identification LastEditedBy { get; set; }
         public DateTime? LastEditedOn { get; set; }
@@ -335,7 +335,7 @@ namespace Model.ArtifactModel.Impl
         public string Description { get; set; }
         public int ParentId { get; set; }
         public double OrderIndex { get; set; }
-        public int ItemTypeId { get; set; }
+        public int? ItemTypeId { get; set; }
         public string Prefix { get; set; }
         public int PredefinedType { get; set; }
 

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Dapper;
 using SearchService.Models;
 using ServiceLibrary.Helpers;
+using SearchService.Helpers;
 
 namespace SearchService.Repositories
 {
@@ -15,13 +16,16 @@ namespace SearchService.Repositories
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
 
-        public SqlFullTextSearchRepository() : this(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString))
+        private ISearchConfigurationProvider _searchConfigurationProvider;
+
+        public SqlFullTextSearchRepository() : this(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString), new SearchConfiguration())
         {
         }
 
-        internal SqlFullTextSearchRepository(ISqlConnectionWrapper connectionWrapper)
+        internal SqlFullTextSearchRepository(ISqlConnectionWrapper connectionWrapper, ISearchConfiguration configuration)
         {
             ConnectionWrapper = connectionWrapper;
+            _searchConfigurationProvider = new SearchConfigurationProvider(configuration);
         }
 
         /// <summary>
@@ -45,8 +49,8 @@ namespace SearchService.Repositories
             prm.Add("@primitiveItemTypePredefineds", SqlMapperHelper.ToInt32Collection(new [] { 4097, 4098, 4353, 4354, 4355, 4609, 4610, 32769 }));
             prm.Add("@page", page);
             prm.Add("@pageSize", pageSize);
-            prm.Add("@maxItems", GetDefaultMaxItems());
-            prm.Add("@maxSearchableValueStringSize", GetDefaultMaxSearchableValueStringSize());
+            prm.Add("@maxItems", _searchConfigurationProvider.MaxItems);
+            prm.Add("@maxSearchableValueStringSize", _searchConfigurationProvider.MaxSearchableValueStringSize);
 
             if (searchCriteria.ItemTypeIds?.ToArray().Length > 0)
             {
@@ -79,8 +83,8 @@ namespace SearchService.Repositories
             prm.Add("@projectIds", SqlMapperHelper.ToInt32Collection(searchCriteria.ProjectIds));
             prm.Add("@predefineds", SqlMapperHelper.ToInt32Collection(new [] { 4098, 4099, 4115, 16384 }));
             prm.Add("@primitiveItemTypePredefineds", SqlMapperHelper.ToInt32Collection(new [] { 4097, 4098, 4353, 4354, 4355, 4609, 4610, 32769 }));
-            prm.Add("@maxItems", GetDefaultMaxItems());
-            prm.Add("@maxSearchableValueStringSize", GetDefaultMaxSearchableValueStringSize());
+            prm.Add("@maxItems", _searchConfigurationProvider.MaxItems);
+            prm.Add("@maxSearchableValueStringSize", _searchConfigurationProvider.MaxSearchableValueStringSize);
 
             if (searchCriteria.ItemTypeIds?.ToArray().Length > 0)
             {
@@ -105,18 +109,6 @@ namespace SearchService.Repositories
             //Likewise, ' needs to be doubled to '' before passing to FTI (completely separate to TSQL escaping)
             return string.IsNullOrWhiteSpace(input) ? string.Empty :
                 string.Format(CultureInfo.InvariantCulture, "\"{0}\"", input.Replace("'", "''").Replace("\"", "\"\""));
-        }
-
-        private int GetDefaultMaxItems()
-        {
-            return WebApiConfig.MaxItems > 0 ? WebApiConfig.MaxItems : ServiceConstants.MaxSearchItems;
-        }
-
-        private int GetDefaultMaxSearchableValueStringSize()
-        {
-            return WebApiConfig.MaxSearchableValueStringSize > 0
-                ? WebApiConfig.MaxSearchableValueStringSize
-                : ServiceConstants.MaxSearchableValueStringSize;
         }
     }
 }

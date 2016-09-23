@@ -140,17 +140,32 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
         }
         return deferred.promise;
     }
-
-    public discard(): ng.IPromise<IStatefulArtifact>   {
-        const deferred = this.services.getDeferred<IStatefulArtifact>();
+    public changes(): Models.ISubArtifact {
+        if (this.artifactState.invalid) {
+            throw new Error("App_Save_Artifact_Error_400_114");
+        }
+        let delta: Models.ISubArtifact = {} as Models.ISubArtifact;
+        delta.id = this.id;
+        /*delta.customPropertyValues = [];
+        this.changesets.get().forEach((it: IChangeSet) => {
+            delta[it.key as string] = it.value;
+        });*/
+        //delta.customPropertyValues = this.customProperties.changes();
+        //delta.specificPropertyValues = this.specialProperties.changes();
+        delta.attachmentValues = this.attachments.changes();
+        delta.docRefValues = this.docRefs.changes();
+        return delta;
+    }
+    public discard() {
 
         // this.changesets.reset().forEach((it: IChangeSet) => {
         //     this[it.key as string].value = it.value;
         // });
 
-        // this.customProperties.discard();
+        this.attachments.discard();
+        this.docRefs.discard();
+
         // deferred.resolve(this);
-        return deferred.promise;
     }
 
     public lock(): ng.IPromise<IStatefulArtifact> {

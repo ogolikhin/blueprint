@@ -74,7 +74,10 @@ describe("ArtifactPickerNodeVM", () => {
             // Arrange
             const model = {
                 id: 123,
-                type: -999
+                type: -999,
+                name: "none",
+                parentFolderId: 0,
+                hasChildren: false
             } as Models.IProjectNode;
             const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 
@@ -89,7 +92,10 @@ describe("ArtifactPickerNodeVM", () => {
             // Arrange
             const model = {
                 id: 123,
-                type: -999
+                type: -999,
+                name: "none",
+                parentFolderId: 0,
+                hasChildren: false
             } as Models.IProjectNode;
             const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 
@@ -375,7 +381,10 @@ describe("ArtifactPickerNodeVM", () => {
             // Arrange
             const model = {
                 id: 123,
-                type: -999
+                type: -999,
+                name: "none",
+                parentFolderId: 0,
+                hasChildren: false
             } as Models.IProjectNode;
             const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 
@@ -448,7 +457,10 @@ describe("ArtifactPickerNodeVM", () => {
             // Arrange
             const model = {
                 id: 123,
-                type: -999
+                type: -999,
+                name: "none",
+                parentFolderId: 0,
+                hasChildren: false
             } as Models.IProjectNode;
             const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 

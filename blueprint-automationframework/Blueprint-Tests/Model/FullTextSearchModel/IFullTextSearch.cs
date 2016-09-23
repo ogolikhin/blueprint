@@ -28,8 +28,9 @@ namespace Model.FullTextSearchModel
         /// <param name="user">The user performing the search.</param>
         /// <param name="searchCriteria">The criteria for the search request. (i.e. "search", 
         /// "search phrase", "search ph*)</param>
+        /// <param name="pageSize">(optional)The number of search results to return in a single request.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The search result metadata.</returns>
-        FullTextSearchMetaDataResult SearchMetaData(IUser user, FullTextSearchCriteria searchCriteria, List<HttpStatusCode> expectedStatusCodes = null);
+        FullTextSearchMetaDataResult SearchMetaData(IUser user, FullTextSearchCriteria searchCriteria, int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

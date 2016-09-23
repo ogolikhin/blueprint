@@ -41,7 +41,6 @@ describe("ArtifactPickerNodeVM", () => {
         it("getCellClass, when a folder, returns correct class", () => {
             // Arrange
             const model = {
-                id: 123,
                 type: Models.ProjectNodeType.Folder,
                 hasChildren: true
             } as Models.IProjectNode;
@@ -57,7 +56,6 @@ describe("ArtifactPickerNodeVM", () => {
         it("getCellClass, when a project, returns correct result", () => {
             // Arrange
             const model = {
-                id: 123,
                 type: Models.ProjectNodeType.Project,
                 hasChildren: true
             } as Models.IProjectNode;
@@ -73,8 +71,7 @@ describe("ArtifactPickerNodeVM", () => {
         it("getCellClass, when invalid, returns correct result", () => {
             // Arrange
             const model = {
-                id: 123,
-                type: -999
+                type: -999,
             } as Models.IProjectNode;
             const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 
@@ -87,10 +84,7 @@ describe("ArtifactPickerNodeVM", () => {
 
         it("getIcon returns correct result", () => {
             // Arrange
-            const model = {
-                id: 123,
-                type: -999
-            } as Models.IProjectNode;
+            const model = {} as Models.IProjectNode;
             const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 
             // Act
@@ -106,7 +100,6 @@ describe("ArtifactPickerNodeVM", () => {
                 const children = [{id: 1234}, {id: 5678}] as Models.IProjectNode[];
                 (projectService.getFolders as jasmine.Spy).and.returnValue($q.resolve(children));
                 const model = {
-                    id: 123,
                     type: Models.ProjectNodeType.Folder
                 } as Models.IProjectNode;
                 const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
@@ -129,7 +122,6 @@ describe("ArtifactPickerNodeVM", () => {
                 const children = [{id: 1234}, {id: 5678, predefinedType: Models.ItemTypePredefined.CollectionFolder}] as Models.IArtifact[];
                 (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
                 const model = {
-                    id: 123,
                     type: Models.ProjectNodeType.Project
                 } as Models.IProjectNode;
                 const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
@@ -260,11 +252,9 @@ describe("ArtifactPickerNodeVM", () => {
 
         it("getIcon, when custom icon, returns correct result", () => {
             // Arrange
-            const itemType = {id:123, iconImageId: 456};
+            const itemType = {id: 123, iconImageId: 456};
             (projectManager.getArtifact as jasmine.Spy).and.returnValue({metadata: {getItemType() { return itemType; }}});
-            const model = {
-                id: 123
-            } as Models.IArtifact;
+            const model = {} as Models.IArtifact;
             const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
 
             // Act
@@ -277,9 +267,7 @@ describe("ArtifactPickerNodeVM", () => {
         it("getIcon, when no custom icon, returns correct result", () => {
             // Arrange
             (projectManager.getArtifact as jasmine.Spy).and.returnValue(undefined);
-            const model = {
-                id: 123
-            } as Models.IArtifact;
+            const model = {} as Models.IArtifact;
             const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
 
             // Act
@@ -287,6 +275,50 @@ describe("ArtifactPickerNodeVM", () => {
 
             // Assert
             expect(result).toEqual(`<i></i>`);
+        });
+
+        it("isSelectable, when selectableItemTypes not defined, returns true", () => {
+            // Arrange
+            const model = {} as Models.IArtifact;
+            const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
+
+            // Act
+            const result = vm.isSelectable();
+
+            // Assert
+            expect(result).toEqual(true);
+        });
+
+        it("isSelectable, when selectableItemTypes contains item type, returns true", () => {
+            // Arrange
+            options.selectableItemTypes = [Models.ItemTypePredefined.Actor, Models.ItemTypePredefined.Storyboard];
+            const model = {
+                id: 700,
+                predefinedType: Models.ItemTypePredefined.Storyboard
+            } as Models.IArtifact;
+            const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
+
+            // Act
+            const result = vm.isSelectable();
+
+            // Assert
+            expect(result).toEqual(true);
+        });
+
+        it("isSelectable, when selectableItemTypes does not contain item type, returns false", () => {
+            // Arrange
+            options.selectableItemTypes = [Models.ItemTypePredefined.Actor, Models.ItemTypePredefined.Storyboard];
+            const model = {
+                id: 700,
+                predefinedType: Models.ItemTypePredefined.Document
+            } as Models.IArtifact;
+            const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
+
+            // Act
+            const result = vm.isSelectable();
+
+            // Assert
+            expect(result).toEqual(false);
         });
 
         it("loadChildrenAsync, when not showing sub-artifacts, loads children", (done: DoneFn) =>
@@ -373,17 +405,26 @@ describe("ArtifactPickerNodeVM", () => {
 
         it("getIcon returns correct result", () => {
             // Arrange
-            const model = {
-                id: 123,
-                type: -999
-            } as Models.IProjectNode;
-            const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
+            const model = {} as Models.IArtifact;
+            const vm = new SubArtifactContainerNodeVM(projectService, model, "");
 
             // Act
             const result = vm.getIcon();
 
             // Assert
             expect(result).toEqual(`<i></i>`);
+        });
+
+        it("isSelectable returns correct result", () => {
+            // Arrange
+            const model = {} as Models.IArtifact;
+            const vm = new SubArtifactContainerNodeVM(projectService, model, "");
+
+            // Act
+            const result = vm.isSelectable();
+
+            // Assert
+            expect(result).toEqual(false);
         });
 
         it("loadChildrenAsync", (done: DoneFn) =>
@@ -446,11 +487,8 @@ describe("ArtifactPickerNodeVM", () => {
 
         it("getIcon returns correct result", () => {
             // Arrange
-            const model = {
-                id: 123,
-                type: -999
-            } as Models.IProjectNode;
-            const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
+            const model = {} as Models.ISubArtifactNode;
+            const vm = new SubArtifactNodeVM(model);
 
             // Act
             const result = vm.getIcon();

@@ -88,12 +88,9 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
             // the dropdown will be dynamically loaded from the webservice
             $scope.to.options = currentModelVal.map((it: Models.IUserGroup) => {
                 return {
-                    value: (it.isGroup ? "g" : "u") + it.id.toString(),
+                    value: it,
                     name: (it.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + it.displayName
                 } as any;
-            });
-            $scope.model[$scope.options["key"]] = currentModelVal.map((it: Models.IUserGroup) => {
-                return (it.isGroup ? "g" : "u") + it.id.toString();
             });
         }
 
@@ -135,7 +132,11 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 topResults: localization.get("Property_UserPicker_Display_Top_N_Results")
             },
             isChoiceSelected: function (item, $select): boolean {
-                return $select.selected.map(function (e) { return e[$scope.to.valueProp]; }).indexOf(item[$scope.to.valueProp]) !== -1;
+                let userValue: Models.IUserGroup = item[$scope.to.valueProp];
+                return $select.selected.some(function (elem) {
+                    let elemValue: Models.IUserGroup = elem[$scope.to.valueProp];
+                    return userValue.id === elemValue.id && Boolean(userValue.isGroup) === Boolean(elemValue.isGroup);
+                });
             },
             toggleScrollbar: function (removeScrollbar?: boolean) {
                 if (!removeScrollbar) {
@@ -164,6 +165,9 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 this.currentLimit = this.loadMoreAmount;
                 this.showResultsCount = false;
                 this.showLoadMore = false;
+                if (this.listItemElement) {
+                    this.listItemElement.parentElement.style.height = "";
+                }
             },
             setupResultsElement: function(uiSelectContainer: HTMLElement) {
                 let uiSelectChoices = uiSelectContainer.querySelector("ul.ui-select-choices") as HTMLElement;
@@ -206,7 +210,11 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                         (users) => {
                             $scope.to.options = users.map((item: IUserOrGroupInfo) => {
                                 let e: any = {};
-                                e[$scope.to.valueProp] = item.id.toString();
+                                e[$scope.to.valueProp] = {
+                                    id: parseInt(angular.isNumber(item.id) ? item.id : item.id.substr(1), 10),
+                                    displayName: item.name,
+                                    isGroup: item.isGroup
+                                } as Models.IUserGroup;
                                 e[$scope.to.labelProp] = (item.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + item.name;
                                 e.email = item.email;
                                 e.isGroup = item.isGroup;
@@ -219,6 +227,12 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
 
                             this.showResultsCount = $scope.to.options.length > this.currentLimit;
                             this.showLoadMore = $scope.to.options.length > this.currentLimit && $scope.to.options.length < this.maxLimit;
+
+                            if (this.listItemElement) {
+                                let height = this.showResultsCount ? $scope.to.options.length - 1 : $scope.to.options.length;
+                                height = (height * this.itemsHeight) + (this.showResultsCount ? 56 : 0) + 2; //borders
+                                this.listItemElement.parentElement.style.height = height.toString() + "px";
+                            }
 
                             this.$select = $select;
                         },

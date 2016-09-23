@@ -78,8 +78,9 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
             showSubArtifacts: false
         };
 
-        this.dialogService.open(dialogSettings, dialogData).then((artifact: Models.IArtifact) => {
-            if (artifact) {
+        this.dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {
+            if (items.length === 1) {
+                const artifact = items[0];
                 const newDoc = <IArtifactDocRef>{
                     artifactName: artifact.name,
                     artifactId: artifact.id,
@@ -147,8 +148,26 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         openUploadStatus();
     }
 
-    public delete(attachment: IArtifactAttachment) {
-        this.item.attachments.remove([attachment]);
+    public deleteAttachment(attachment: IArtifactAttachment) {
+        const dialogSettings = <IDialogSettings>{
+            okButton: this.localization.get("App_Button_Ok", "OK"),
+            header: this.localization.get("App_UP_Attachments_Delete_Header", "Delete Attachment"),
+            message: this.localization.get("App_UP_Attachments_Delete_Confirm", "Attachment will be deleted. Continue?"),
+        };
+        this.dialogService.open(dialogSettings).then(() => {
+            this.item.attachments.remove([attachment]);
+        });
+    }
+
+    public deleteDocRef(docRef: IArtifactDocRef) {
+        const dialogSettings = <IDialogSettings>{
+            okButton: this.localization.get("App_Button_Ok", "OK"),
+            header: this.localization.get("App_UP_Attachments_Delete_Header", "Delete Document Reference"),
+            message: this.localization.get("App_UP_Attachments_Delete_Confirm", "Document Reference will be deleted. Continue?"),
+        };
+        this.dialogService.open(dialogSettings).then(() => {
+            this.item.docRefs.remove([docRef]);
+        });
     }
 
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {

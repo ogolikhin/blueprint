@@ -21,7 +21,6 @@ namespace ArtifactStoreTests
         private IUser _user = null;
         private IProject _project = null;
         const string DISCARD_PATH = RestPaths.Svc.ArtifactStore.Artifacts.DISCARD;
-        const string PUBLISH_PATH = RestPaths.Svc.ArtifactStore.Artifacts.PUBLISH;
 
         [SetUp]
         public void SetUp()
@@ -282,8 +281,8 @@ namespace ArtifactStoreTests
 
         [TestCase(3, BaseArtifactType.Process)]
         [TestRail(182307)]
-        [Description("Create, save, parent artifact with two children, discard all artifacts, checks returned result is 200 OK.")]
-        public void DiscardAllArtifact_ParentAndChildrenArtifacts_UpdateDependendChildren_OK(int numberOfArtifacts, BaseArtifactType artifactType)
+        [Description("Create, save, and publish parent artifact with two children, discard all artifacts, checks returned result is 200 OK.")]
+        public void DiscardAllArtifact_ParentAndChildrenArtifacts_UpdateChildArtifact_OK(int numberOfArtifacts, BaseArtifactType artifactType)
         {
             // Setup:
             List<BaseArtifactType> artifactTypes = new List<BaseArtifactType>();
@@ -305,6 +304,42 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(artifactChain.ConvertAll(x => (IArtifactBase)x), _user, all: true),
                 "'POST {0}' should return 200 OK if the Artifact has dependend children changed!", DISCARD_PATH);
+        }
+
+        [TestCase(3, BaseArtifactType.Process)]
+        [TestRail(182330)]
+        [Description("Create, save, parent artifact with two children, discard all artifacts, checks returned result is 200 OK.")]
+        public void DiscardAllArtifact_ParentAndChildrenArtifacts_UpdateDependendChildren_InDifferentProjects_OK(int numberOfArtifacts, BaseArtifactType artifactType)
+        {
+            // Setup:
+            List<BaseArtifactType> artifactTypes = new List<BaseArtifactType>();
+
+            for (int i = 0; i < numberOfArtifacts; i++)
+            {
+                artifactTypes.Add(artifactType);
+            }
+
+            // Create artifact(s) and publish for discard test
+            var artifactChainTest = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes.ToArray());
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            var artifactChainCustomData = Helper.CreatePublishedArtifactChain(projectCustomData, _user, artifactTypes.ToArray());
+
+
+            for (int i = 1; i < numberOfArtifacts; i++)
+            {
+                artifactChainTest[i].ParentId = _project.Id;
+                artifactChainTest[i].Save();
+            }
+
+            for (int i = 1; i < numberOfArtifacts; i++)
+            {
+                artifactChainCustomData[i].ParentId = projectCustomData.Id;
+                artifactChainCustomData[i].Save();
+            }
+
+            // Execute:
+            Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(artifactChainTest.ConvertAll(x => (IArtifactBase)x), _user, all: true),
+                "'POST {0}' should return 200 OK if the changed Artifact are in different projects!", DISCARD_PATH);
         }
 
         [TestCase(3, BaseArtifactType.Process)]

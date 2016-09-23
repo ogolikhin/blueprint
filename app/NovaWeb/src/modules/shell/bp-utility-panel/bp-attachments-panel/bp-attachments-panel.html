@@ -39,7 +39,9 @@
             <bp-artifact-attachment-item
                 class="utility-panel-artifact-item"
                 ng-class="{'new-attachment': attachment.guid}"
-                attachment-info="attachment"></bp-artifact-attachment-item>
+                attachment-info="attachment"
+                delete-item="$ctrl.deleteAttachment(attachment)">
+            </bp-artifact-attachment-item>
         </div>
     </div>
     <div ng-if="!$ctrl.attachmentsList.length && $ctrl.categoryFilter === 1"
@@ -54,7 +56,9 @@
             
             <bp-artifact-document-item
                 class="utility-panel-artifact-item" 
-                doc-ref-info="document"></bp-artifact-document-item>
+                doc-ref-info="document"
+                delete-item="$ctrl.deleteDocRef(document)">
+            </bp-artifact-document-item>
         </div>
     </div>
     <div ng-if="!$ctrl.docRefList.length && $ctrl.categoryFilter === 2"

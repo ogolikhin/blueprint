@@ -1,7 +1,7 @@
 ﻿import { ILocalizationService } from "../../../../core";
-import { Helper } from "../../../../shared";
+import { Helper, IDialogService } from "../../../../shared";
 import { Relationships } from "../../../../main";
-import { IArtifactManager, SelectionSource } from "../../../../managers";
+import { IArtifactManager } from "../../../../managers";
 import { IStatefulArtifact } from "../../../../managers/models";
 import { IRelationshipDetailsService } from "../../../";
 
@@ -11,7 +11,8 @@ export class BPArtifactRelationshipItem implements ng.IComponentOptions {
     public bindings: any = {
         artifact: "=",
         selectedTraces: "=",
-        selectable: "@"
+        selectable: "@",
+        statefull: "="
     };
 }
 
@@ -24,7 +25,8 @@ export class BPArtifactRelationshipItemController {
     public static $inject: [string] = [
         "localization",
         "relationshipDetailsService",
-        "artifactManager"
+        "artifactManager",
+        "dialogService"
     ];
 
     public expanded: boolean = false;
@@ -37,12 +39,49 @@ export class BPArtifactRelationshipItemController {
     constructor(
         private localization: ILocalizationService,
         private relationshipDetailsService: IRelationshipDetailsService,
-        private artifactManager: IArtifactManager) {
+        private artifactManager: IArtifactManager,
+        private dialogService: IDialogService
+    ) {
 
     }
 
     public get isSelected() {
         return this.selectable.toString() === "true" && this.artifact.isSelected;
+    }
+
+    public traceTo() {
+        if (this.artifact.hasAccess) {
+            this.artifact.traceDirection = 0;
+        }
+    }
+
+    public traceFrom() {
+        if (this.artifact.hasAccess) {
+            this.artifact.traceDirection = 1;
+        }
+    }
+
+    public traceBoth() {
+        if (this.artifact.hasAccess) {
+            this.artifact.traceDirection = 2;
+        }
+    }
+
+    public flagTrace() {
+        if (this.artifact.hasAccess) {
+            this.artifact.suspect = this.artifact.suspect === true ? false : true;
+        }
+    }
+
+
+    public deleteTrace() {
+        if (this.artifact.hasAccess) {
+            this.dialogService.confirm("Are you sure that you want to delete this trace?").then(function (confirmed) {
+                if (confirmed) {
+                    //this.artifact.relationships.remove([artifact]);
+                }
+            });
+        }
     }
 
     public expand($event) {

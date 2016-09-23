@@ -30,7 +30,6 @@ export interface IArtifactSelectedArtifactMap {
     [artifactId: number]: Relationships.IRelationship[];
 }
 
-
 export class BPRelationshipsPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
         "$q",

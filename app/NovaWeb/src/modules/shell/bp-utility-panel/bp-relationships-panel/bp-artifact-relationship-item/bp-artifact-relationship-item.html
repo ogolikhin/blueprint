@@ -57,12 +57,28 @@
     </div>
     <div class="icons" ng-show="$ctrl.artifact.hasAccess">
         <div>
-            <input type="checkbox" ng-if="$ctrl.isSelected" ng-checked="$ctrl.isSelected" ng-click="$ctrl.select()" />
+            <input type="checkbox" ng-checked="$ctrl.isSelected" bp-tooltip="Choose" ng-click="$ctrl.select()"
+                   ng-disabled="!$ctrl.artifact.hasAccess"/>
         </div>
         <div>
-            <i class="fonticon-exchange"></i>
-            <i class="fonticon-flag-1"></i>
-            <i class="fonticon-delete-filled"></i>
+            <div uib-dropdown>
+                <span uib-dropdown-toggle bp-tooltip="Change Trace">
+                    <i class="fonticon-exchange"></i>
+                </span>
+                <ul class="dropdown-menu">
+                    <li ng-class="{disabled: $ctrl.artifact.hasAccess && $ctrl.artifact.traceDirection == 0}"><a ng-click="$ctrl.traceTo()"><i class="fonticon2-relationship-right"></i> To</a></li>
+                    <li ng-class="{disabled: $ctrl.artifact.hasAccess && $ctrl.artifact.traceDirection == 1}"><a ng-click="$ctrl.traceFrom()"><i class="fonticon2-relationship-left"></i> From</a></li>
+                    <li ng-class="{disabled: $ctrl.artifact.hasAccess && $ctrl.artifact.traceDirection == 2}"><a ng-click="$ctrl.traceBoth()"><i class="fonticon2-relationship-bi"></i> Both</a></li>
+                </ul>
+            </div>
+            <i class="fonticon-flag-1" ng-click="$ctrl.flagTrace()"
+                ng-class="{'fonticon-flag-empty': $ctrl.artifact.suspect == true}"
+               bp-tooltip="Flag"></i>
+
+            <span ng-class="{disabled: !$ctrl.artifact.hasAccess}" ng-click="$ctrl.deleteTrace()" bp-tooltip="Delete">
+                <i class="fonticon-delete-filled"></i>
+            </span>
         </div>
+
     </div>
 </div>

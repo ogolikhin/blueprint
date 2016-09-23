@@ -1,13 +1,32 @@
-<div class="icons" ng-if="!$ctrl.isLoading && ($ctrl.manualTraces.length || $ctrl.otherTraces.length) && $ctrl.selectedTraces[$ctrl.artifactId].length>0 && $ctrl.categoryFilter === 1">
+<div class="icons" ng-if="!$ctrl.isLoading && ($ctrl.manualTraces.length || $ctrl.otherTraces.length) &&
+                                            $ctrl.selectedTraces[$ctrl.item.id].length > 0 && $ctrl.categoryFilter === 1">
+
     <div>
-        {{::$ctrl.localization.get('App_UP_Relationships_Selected') }}&nbsp;{{$ctrl.selectedTraces[$ctrl.artifactId].length}}
+        {{::$ctrl.localization.get('App_UP_Relationships_Selected') }}&nbsp;{{$ctrl.selectedTraces[$ctrl.item.id].length}}
     </div>
+
     <div>
-        <i class="fonticon-exchange"></i>
-        <i class="fonticon-flag-1"></i>
-        <i class="fonticon-delete-filled"></i>
+        <div uib-dropdown>
+            <span uib-dropdown-toggle bp-tooltip="Change Trace">
+                <div class="icon-container">
+                    <i class="fonticon-exchange"></i>
+                </div>
+            </span>
+            <ul class="dropdown-menu">
+                <li ng-class=""><a ng-click="$ctrl.traceAllTo()"><i class="fonticon2-relationship-right"></i> To</a></li>
+                <li ng-class=""><a ng-click="$ctrl.traceAllFrom()"><i class="fonticon2-relationship-left"></i> From</a></li>
+                <li ng-class=""><a ng-click="$ctrl.traceAllBoth()"><i class="fonticon2-relationship-bi"></i> Both</a></li>
+            </ul>
+        </div>
+        <i class="fonticon-flag-1" ng-click="$ctrl.flagAllTrace()"
+                        ng-class="{'fonticon-flag-empty': !$ctrl.artifact.suspect}" bp-tooltip="Flag trace"></i>
+
+        <span ng-click="$ctrl.deleteAllTrace()" bp-tooltip="Delete trace">
+            <i class="fonticon-delete-filled"></i>
+        </span>
     </div>
 </div>
+
 <div class="filter-bar" ng-if="!$ctrl.isLoading &&  ($ctrl.manualTraces.length || $ctrl.otherTraces.length)">
 
     <bp-select ng-model="$ctrl.option"
@@ -30,7 +49,9 @@
         <div ng-repeat="artifact in $ctrl.manualTraces"
              class="artifact-item-wrapper">
             <div class="separator"></div>
-            <bp-artifact-relationship-item artifact="::artifact" selectable="{{$ctrl.categoryFilter === 1}}" selected-traces="$ctrl.selectedTraces[$ctrl.item.id]"></bp-artifact-relationship-item>
+            <bp-artifact-relationship-item artifact="::artifact" selectable="{{$ctrl.categoryFilter === 1}}"
+                selected-traces="$ctrl.selectedTraces[$ctrl.item.id]" istat
+                                          ></bp-artifact-relationship-item>
         </div>
     </div>
     <div ng-if="!$ctrl.manualTraces.length && $ctrl.categoryFilter ===1"

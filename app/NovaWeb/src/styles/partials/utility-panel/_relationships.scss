@@ -1,17 +1,51 @@
 bp-relationships-panel {
+     .filter-bar{
+       padding-bottom: 0;
+     }
      .icons {         
-        color: $gray-dark;
+        color: $gray-light;
         display: inline-block;
         width: 100%;
         padding: 5px;
-        background-color: $gray;
+        background-color: $gray-lightest;
+        i {
+          &::before{
+            font-size: $font-size-normal;
+          }
+        }
+        .dropdown-menu{
+            padding: 0;
+            margin: 4px 0 0 7px;
+            min-width: 70px;
 
+            li{
+                padding: 0;
+                margin: 0;
+                a{
+                    padding: 2px 5px;
+                    margin: 0;
+                    font-size:$font-size-small;
+                    cursor:pointer;
+                    i{
+                        padding-left: 5px;
+                      &::before{
+                        line-height: 40%;
+                        font-size:$font-size-small;
+                      }
+                    }
+                }
+            }
+        }
         div:first-child {
             float: left;
         }
 
-        div:last-child {
+        > div:last-child {
             float: right;
+            padding-top:5px;
+            i{
+                padding-left: 10px;
+            }
         }
     }
 
@@ -25,7 +59,7 @@ bp-relationships-panel {
     }    
 
     .tabs {
-        padding: $padding-root;
+        padding: $padding-root 0 0;
         width: 100%;
     }
 
@@ -35,7 +69,10 @@ bp-relationships-panel {
         }
 
         .selected {
-            background-color: $gray-lighter;
+           background-color: $gray-lightest;
+           .trace-icon{
+             background: white;
+           }
         }
 
         .details {
@@ -60,7 +97,7 @@ bp-relationships-panel {
                 border: 2px solid $gray-lighter;
                 border-radius: 50%;
                 float: left;
-                line-height: 1.9em;
+                line-height: 1.75em;
                 text-align: center;
 
                 .status {
@@ -131,20 +168,24 @@ bp-relationships-panel {
         }
 
         .unauthorized-details {
-                min-height: 0px;
+                min-height: 0;
         }
 
         .icons {
             border-top: 1px solid $gray-lighter;
-            color: $gray;
+            color: $gray-light;
             background-color: $white;
+          i{
+            &:hover{
+              color: $gray-dark;
+            }
+          }
         }
     }
 }
 .util-panel-heading {
     font-weight: 700;
     &.util-heading-other {
-        border-top: 1px solid #ccc;
-        padding-top: 10px;
+        padding-top: 0;
     }
 }

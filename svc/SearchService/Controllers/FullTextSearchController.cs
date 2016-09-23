@@ -8,6 +8,7 @@ using SearchService.Repositories;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Models;
+using SearchService.Helpers;
 
 namespace SearchService.Controllers
 {
@@ -18,14 +19,18 @@ namespace SearchService.Controllers
     {
         public override string LogSource => "SearchService.FullTextSearch";
 
-        public FullTextSearchController() : this(new SqlFullTextSearchRepository())
+        private SearchConfigurationHelper _searchConfigurationHelper;
+
+        public FullTextSearchController() : this(new SqlFullTextSearchRepository(), new Configuration())
         {
         }
 
         private readonly IFullTextSearchRepository _fullTextSearchRepository;
-        public FullTextSearchController(IFullTextSearchRepository fullTextSearchRepository)
+        public FullTextSearchController(IFullTextSearchRepository fullTextSearchRepository, IConfiguration configuration)
         {
             _fullTextSearchRepository = fullTextSearchRepository;
+
+            _searchConfigurationHelper = new SearchConfigurationHelper(configuration);
         }
 
         #region Search
@@ -57,10 +62,10 @@ namespace SearchService.Controllers
                 return BadRequest();
             }
 
-            int searchPageSize = pageSize.GetValueOrDefault(WebApiConfig.PageSize);
+            int searchPageSize = pageSize.GetValueOrDefault(_searchConfigurationHelper.PageSize);
             if (searchPageSize <= 0)
             {
-                searchPageSize = GetDefaultSearchPageSize();
+                searchPageSize = _searchConfigurationHelper.PageSize;
             }
 
             int searchPage = page.HasValue && page.Value > 0 ? page.Value : 1;
@@ -105,10 +110,10 @@ namespace SearchService.Controllers
                 return BadRequest();
             }
 
-            int searchPageSize = pageSize.GetValueOrDefault(WebApiConfig.PageSize);
+            int searchPageSize = pageSize.GetValueOrDefault(_searchConfigurationHelper.PageSize);
             if (searchPageSize <= 0)
             {
-                searchPageSize = GetDefaultSearchPageSize();
+                searchPageSize = _searchConfigurationHelper.PageSize;
             }
 
             var results = await _fullTextSearchRepository.SearchMetaData(userId.Value, searchCriteria);
@@ -117,11 +122,6 @@ namespace SearchService.Controllers
             results.TotalPages = results.TotalCount >= 0 ? (int)Math.Ceiling((double)results.TotalCount / searchPageSize) : -1;
 
             return Ok(results);
-        }
-
-        private static int GetDefaultSearchPageSize()
-        {
-            return WebApiConfig.PageSize > 0 ? WebApiConfig.PageSize : ServiceConstants.SearchPageSize;
         }
 
         #endregion

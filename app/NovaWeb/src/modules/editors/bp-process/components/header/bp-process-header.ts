@@ -1,7 +1,8 @@
 import { IWindowManager,  } from "../../../../main/services";
-import { BpArtifactInfoController , IArtifactManager} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
+import { BpArtifactInfoController } from "../../../../main/components/bp-artifact-info/bp-artifact-info";
 import { IMessageService, ILocalizationService} from "../../../../core";
 import { IDialogService } from "../../../../shared";
+import { IArtifactManager } from "../../../../managers";
 import { IToolbarCommunication } from "./toolbar-communication";
 import { ICommunicationManager } from "../../"; 
 import { ILoadingOverlayService } from "../../../../core/loading-overlay";

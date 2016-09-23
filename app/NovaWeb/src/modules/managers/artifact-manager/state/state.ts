@@ -22,6 +22,7 @@ export interface IArtifactState extends IState, IDispose {
     lock(value:  Models.ILockResult): void;
     get(): IState;
     set(value?: IState): void;
+    error?: string;
 } 
 
 
@@ -40,6 +41,7 @@ export class ArtifactState implements IArtifactState {
     }
     
     private reset(): IState {
+        this.error = null;
         return this.state = {
             lockedby: Enums.LockedByEnum.None,
         }; 
@@ -146,4 +148,6 @@ export class ArtifactState implements IArtifactState {
     public set invalid(value: boolean) {
         this.set({invalid: value});
     }
+
+    public error: string;
 }

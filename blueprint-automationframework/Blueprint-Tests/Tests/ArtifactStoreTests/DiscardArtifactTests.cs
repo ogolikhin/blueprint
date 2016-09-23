@@ -609,7 +609,7 @@ namespace ArtifactStoreTests
         }
 
         [TestCase(3, BaseArtifactType.Process)]
-        [TestRail(166158)]
+        [TestRail(182333)]
         [Description("Create, save, parent artifact with two children, discard parent artifact, checks returned result is 409 Conflict.")]
         public void DiscardArtifact_ParentAndChildrenArtifacts_OnlyDiscardChild_SwitchParentWithChild_Conflict(int numberOfArtifacts, BaseArtifactType artifactType)
         {
@@ -643,7 +643,7 @@ namespace ArtifactStoreTests
         }
 
         [TestCase(3, BaseArtifactType.Process)]
-        [TestRail(166158)]
+        [TestRail(182334)]
         [Description("Create, save, parent artifact with two children, discard parent artifact, checks returned result is 409 Conflict.")]
         public void DiscardArtifact_ParentAndChildrenArtifacts_OnlyDiscardChild_RemoveParent_Conflict(int numberOfArtifacts, BaseArtifactType artifactType)
         {

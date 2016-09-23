@@ -73,7 +73,7 @@ describe("ArtifactPickerController", () => {
             expect(css).toEqual(["test"]);
         });
 
-        it("getRendering returns correct result", () => {
+        it("innerRenderer returns correct result", () => {
             // Arrange
             const vm = {name: "name", getIcon() { return "icon"; }} as ArtifactPickerNodeVM<any>;
 

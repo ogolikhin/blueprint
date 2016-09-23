@@ -59,23 +59,31 @@ namespace Model.FullTextSearchModel.Impl
             return restResponse;
         }
 
-        public FullTextSearchMetaDataResult SearchMetaData(IUser user, FullTextSearchCriteria searchCriteria, List<HttpStatusCode> expectedStatusCodes = null)
+        public FullTextSearchMetaDataResult SearchMetaData(IUser user, FullTextSearchCriteria searchCriteria, int? pageSize, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(FullTextSearch), nameof(SearchMetaData));
 
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(searchCriteria, nameof(searchCriteria));
 
+            var queryParams = new Dictionary<string, string>();
+
+            if (pageSize != null)
+            {
+                queryParams.Add("pageSize", pageSize.ToString());
+            }
+
             var tokenValue = user.Token?.AccessControlToken;
 
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            Logger.WriteInfo("{0} Projects: {1} Item Types: {2} Search criteria: {3}", nameof(FullTextSearch), searchCriteria.ProjectIds, searchCriteria.ItemTypeIds, searchCriteria.Query);
+            Logger.WriteInfo("{0} Projects: {1} Item Types: {2} Search criteria: {3} Page Size: {4}", nameof(FullTextSearch), searchCriteria.ProjectIds, searchCriteria.ItemTypeIds, searchCriteria.Query, pageSize);
 
             var restResponse = restApi.SendRequestAndDeserializeObject<FullTextSearchMetaDataResult, FullTextSearchCriteria>(
                 RestPaths.Svc.SearchService.FullTextSearch.METADATA,
                 RestRequestMethod.POST,
                 searchCriteria,
+                queryParameters: queryParams,
                 expectedStatusCodes: expectedStatusCodes);
 
             return restResponse;

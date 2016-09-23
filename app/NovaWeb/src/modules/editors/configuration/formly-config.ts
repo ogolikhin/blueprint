@@ -1,36 +1,29 @@
 import "angular";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
-import { IArtifactAttachmentsService } from "../../managers/artifact-manager";
-import { ILocalizationService, IMessageService, ISettingsService } from "../../core";
-import { IDialogService } from "../../shared";
-import { ISelectionManager } from "../../managers";
-import { BPFieldReadOnly } from "./types/read-only";
-import { BPFieldText } from "./types/text";
-import { BPFieldTextMulti } from "./types/text-multi";
-import { BPFieldTextRTF } from "./types/text-rtf";
-import { BPFieldTextRTFInline } from "./types/text-rtf-inline";
-import { BPFieldNumber } from "./types/number";
-import { BPFieldSelect } from "./types/select";
-import { BPFieldSelectMulti } from "./types/select-multi";
-import { BPFieldUserPicker } from "./types/user-picker";
-import { BPFieldDatePicker } from "./types/date-picker";
-import { BPFieldDocumentFile } from "./types/document-file";
-import { BPFieldImage } from "./types/field-image";
-import { BPFieldInheritFrom } from "./types/actor-inheritance";
+import { ILocalizationService } from "../../core";
+import {
+    BPFieldReadOnly,
+    BPFieldText,
+    BPFieldTextMulti,
+    BPFieldTextRTF,
+    BPFieldTextRTFInline,
+    BPFieldNumber,
+    BPFieldSelect,
+    BPFieldSelectMulti,
+    BPFieldUserPicker,
+    BPFieldDatePicker,
+    BPFieldDocumentFile,
+    BPFieldImage,
+    BPFieldInheritFrom
+} from "./types";
 
 formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "artifactAttachments", "$window",
     "messageService", "dialogService", "settings", "selectionManager"];
 export function formlyConfig(
     formlyConfig: AngularFormly.IFormlyConfig,
     formlyValidationMessages: AngularFormly.IValidationMessages,
-    localization: ILocalizationService,
-    artifactAttachments: IArtifactAttachmentsService,
-    $window: ng.IWindowService,
-    messageService: IMessageService,
-    dialogService: IDialogService,
-    settingsService: ISettingsService,
-    selectionManager: ISelectionManager
+    localization: ILocalizationService
 ): void {
     formlyConfig.setWrapper({
         name: "bpFieldLabel",
@@ -57,21 +50,8 @@ export function formlyConfig(
     formlyConfig.setType(new BPFieldImage());
     formlyConfig.setType(new BPFieldInheritFrom());
 
-    //<span class="input-group-btn" >
-    //    <button type="button" class="btn btn-default" ng- click="bpFieldInheritFrom.delete($event)" > +</button>
-    //        < /span>
-
-    //<input type="text"
-    //id = "{{::id}}"
-    //name = "{{::id}}"
-    //ng - model="model[options.key].pathToProject"
-    //ng - keyup="bpFieldText.keyup($event)"
-    //class="form-control read-only-input"
-    //enable = "false" />
-
-
     /* tslint:disable */
-    /* not using this template yet
+    /* not using this template (yet)
      formlyConfig.setWrapper({
      name: "bpFieldHasError",
      template: `<div class="form-group" ng-class="{'has-error': showError}">

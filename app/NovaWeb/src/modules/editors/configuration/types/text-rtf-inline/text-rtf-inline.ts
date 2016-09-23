@@ -1,6 +1,6 @@
 import "angular";
 import "angular-formly";
-import { Helper } from "../../../shared";
+import { Helper } from "../../../../shared";
 
 export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTFInline";

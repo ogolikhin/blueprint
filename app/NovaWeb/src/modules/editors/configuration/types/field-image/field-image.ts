@@ -1,13 +1,13 @@
-﻿﻿import "angular";
-import { IArtifactAttachmentsService, IArtifactAttachmentsResultSet } from "../../../managers/artifact-manager";
-import { Helper } from "../../../shared/utils/helper";
-import { ILocalizationService, IMessageService } from "../../../core";
-import { FiletypeParser } from "../../../shared/utils/filetypeParser";
-import { IDialogSettings, IDialogService } from "../../../shared";
-import { IUploadStatusDialogData } from "../../../shared/widgets";
-import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
-import { BPFieldBaseController } from "./base-controller";
-import { Models } from "../../../main/models";
+﻿import "angular";
+import { IArtifactAttachmentsService, IArtifactAttachmentsResultSet } from "../../../../managers/artifact-manager";
+import { Helper } from "../../../../shared/utils/helper";
+import { ILocalizationService, IMessageService } from "../../../../core";
+import { FiletypeParser } from "../../../../shared/utils/filetypeParser";
+import { IDialogSettings, IDialogService } from "../../../../shared";
+import { IUploadStatusDialogData } from "../../../../shared/widgets";
+import { BpFileUploadStatusController } from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
+import { BPFieldBaseController } from "../base-controller";
+import { Models } from "../../../../main/models";
 
 export class BPFieldImage implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldImage";
@@ -47,12 +47,12 @@ export class BPFieldImageController extends BPFieldBaseController {
         //let currentModelVal = <Models.IActorImagePropertyValue>$scope.model[$scope.options.key];
         if (!currentModelVal) {
             currentModelVal = <Models.IActorImagePropertyValue>{};
-        } 
+        }
 
         function chooseActorImage(files: File[], callback?: Function) {
             const dialogSettings = <IDialogSettings>{
                 okButton: localization.get("App_Button_Ok", "OK"),
-                template: require("../../../shared/widgets/bp-file-upload-status/bp-file-upload-status.html"),
+                template: require("../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status.html"),
                 controller: BpFileUploadStatusController,
                 css: "nova-file-upload-status",
                 header: localization.get("App_UP_Attachments_Upload_Dialog_Header", "File Upload"),
@@ -75,9 +75,9 @@ export class BPFieldImageController extends BPFieldBaseController {
                     var reader = new FileReader();
                     reader.readAsDataURL(image.file);
 
-                    reader.onload = function (e) {                        
-                        let imageContent = e.target['result'];                       
-                        currentModelVal.url = imageContent;                        
+                    reader.onload = function (e) {
+                        let imageContent = e.target['result'];
+                        currentModelVal.url = imageContent;
                         let savingValue = <Models.IActorImagePropertyValue>{
                             guid: image.guid
                         };

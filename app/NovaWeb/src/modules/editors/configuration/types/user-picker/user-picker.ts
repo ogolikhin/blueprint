@@ -1,8 +1,8 @@
 import "angular";
 import "angular-formly";
-import { ILocalizationService, IUsersAndGroupsService, IUserOrGroupInfo } from "../../../core";
-import { Models } from "../../../main/models";
-import { BPFieldBaseController } from "./base-controller";
+import { ILocalizationService, IUsersAndGroupsService, IUserOrGroupInfo } from "../../../../core";
+import { Models } from "../../../../main/models";
+import { BPFieldBaseController } from "../base-controller";
 
 export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldUserPicker";

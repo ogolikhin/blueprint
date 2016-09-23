@@ -1,15 +1,15 @@
-﻿﻿import "angular";
-import { IArtifactAttachmentsService, IArtifactAttachmentsResultSet } from "../../../managers/artifact-manager";
-import { Helper } from "../../../shared/utils/helper";
-import { ILocalizationService, IMessageService } from "../../../core";
-import { FiletypeParser } from "../../../shared/utils/filetypeParser";
-import { IDialogSettings, IDialogService } from "../../../shared";
-import { IUploadStatusDialogData } from "../../../shared/widgets";
-import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
-import { BPFieldBaseController } from "./base-controller";
-import { Models } from "../../../main/models";
-import { ISelectionManager } from "../../../managers";
-import { ArtifactPickerController, IArtifactPickerOptions } from "../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker";
+﻿import "angular";
+import { IArtifactAttachmentsService, IArtifactAttachmentsResultSet } from "../../../../managers/artifact-manager";
+import { Helper } from "../../../../shared/utils/helper";
+import { ILocalizationService, IMessageService } from "../../../../core";
+import { FiletypeParser } from "../../../../shared/utils/filetypeParser";
+import { IDialogSettings, IDialogService } from "../../../../shared";
+import { IUploadStatusDialogData } from "../../../../shared/widgets";
+import { BpFileUploadStatusController } from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
+import { BPFieldBaseController } from "../base-controller";
+import { Models } from "../../../../main/models";
+import { ISelectionManager } from "../../../../managers";
+import { ArtifactPickerController, IArtifactPickerOptions } from "../../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker";
 
 export class BPFieldInheritFrom implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldInheritFrom";
@@ -74,7 +74,7 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
         function setBaseActor() {
             const dialogSettings = <IDialogSettings>{
                 okButton: localization.get("App_Button_Open"),
-                template: require("../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker.html"),
+                template: require("../../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker.html"),
                 controller: ArtifactPickerController,
                 css: "nova-open-project",
                 header: localization.get("App_Properties_Actor_InheritancePicker_Title")

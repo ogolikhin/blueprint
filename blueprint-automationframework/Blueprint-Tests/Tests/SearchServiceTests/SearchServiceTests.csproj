@@ -52,6 +52,10 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Common\Common.csproj">
+      <Project>{C7CDF470-B661-414D-B6C8-6C0E7E341D9A}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\CustomAttributes\CustomAttributes.csproj">
       <Project>{BD40AAA8-1CA8-43E9-867D-AADE6ACC8ED7}</Project>
       <Name>CustomAttributes</Name>
@@ -68,6 +72,9 @@
       <Project>{8A66038C-22FC-4C28-BA0D-714614A50418}</Project>
       <Name>TestCommon</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

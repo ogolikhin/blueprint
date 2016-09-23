@@ -77,6 +77,7 @@
     <Compile Include="ArtifactModel\IOpenApiArtifact.cs" />
     <Compile Include="ArtifactModel\ITrace.cs" />
     <Compile Include="Factories\ProjectRoleFactory.cs" />
+    <Compile Include="Factories\SearchServiceFactory.cs" />
     <Compile Include="Factories\SvcSharedFactory.cs" />
     <Compile Include="IDeepCopyable.cs" />
     <Compile Include="Impl\ProjectRole.cs" />

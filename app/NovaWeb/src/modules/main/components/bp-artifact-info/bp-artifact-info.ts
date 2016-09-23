@@ -37,7 +37,6 @@ export class BpArtifactInfoController {
     public artifactTypeId: number;
     public artifactTypeIcon: number;
     public artifactTypeDescription: string;
-    private _artifactId: number;
 
     constructor(
         public $scope: ng.IScope,
@@ -205,18 +204,18 @@ export class BpArtifactInfoController {
     
      public saveChanges() {
          let overlayId: number = this.loadingOverlayService.beginLoading();
-         try{
+         try {
             this.artifactManager.selection.getArtifact().save().finally(() => {
                this.loadingOverlayService.endLoading(overlayId);
             });
-        }catch(err){
+         } catch (err) {
             this.messageService.addError(err);
             this.loadingOverlayService.endLoading(overlayId);
             throw err;
-        }
+         }
      }
 
-    public openPicker() {
+    public openPicker($event: MouseEvent) {
         const dialogSettings: IDialogSettings = {
             okButton: this.localization.get("App_Button_Ok"),
             template: require("../dialogs/bp-artifact-picker/bp-artifact-picker.html"),
@@ -226,7 +225,7 @@ export class BpArtifactInfoController {
         };
 
         const dialogData: IArtifactPickerOptions = {
-            selectionMode: "checkbox",
+            selectionMode: $event.shiftKey ? "multiple" : $event.ctrlKey ? "checkbox" : "single",
             showSubArtifacts: true
         };
 

@@ -18,8 +18,7 @@ import {
     BPFieldInheritFrom
 } from "./types";
 
-formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization", "artifactAttachments", "$window",
-    "messageService", "dialogService", "settings", "selectionManager"];
+formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization"];
 export function formlyConfig(
     formlyConfig: AngularFormly.IFormlyConfig,
     formlyValidationMessages: AngularFormly.IValidationMessages,

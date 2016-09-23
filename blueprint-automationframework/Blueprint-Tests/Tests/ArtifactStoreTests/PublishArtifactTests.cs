@@ -611,6 +611,9 @@ namespace ArtifactStoreTests
 
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
+            //This is needed to suppress 501 error
+            artifactDetails.ItemTypeId = null;
+
             string requestBody = JsonConvert.SerializeObject(artifactDetails);
 
             requestBody = requestBody.Replace(toChange, changeTo);
@@ -647,6 +650,9 @@ namespace ArtifactStoreTests
             artifactList[index].Lock();
 
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifactList[index].Id);
+
+            //This is needed to suppress 501 error
+            artifactDetails.ItemTypeId = null;
 
             string requestBody = JsonConvert.SerializeObject(artifactDetails);
 

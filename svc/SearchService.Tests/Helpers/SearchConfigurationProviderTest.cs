@@ -6,7 +6,7 @@ using System.Globalization;
 namespace SearchService.Helpers
 {
     [TestClass]
-    public class SearchConfigurationHelperTest
+    public class SearchConfigurationProviderTest
     {
         #region MaxSearcItems tests
         [TestMethod]

@@ -75,7 +75,7 @@
     <Compile Include="App_Start\WebApiConfigTests.cs" />
     <Compile Include="Controllers\FullTextSearchControllerTests.cs" />
     <Compile Include="Controllers\StatusControllerTests.cs" />
-    <Compile Include="Helpers\SearchConfigurationHelperTest.cs" />
+    <Compile Include="Helpers\SearchConfigurationProviderTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

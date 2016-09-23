@@ -238,7 +238,7 @@ namespace ArtifactStoreTests
             // Execute: 
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user), "DiscardArtifacts() 200 OK when discarding saved artifact(s)!"); 
     
-            // Validation: Makesure that returned body contains artifact details from savedArtifacts, ones taht are valid for successful discard.  
+            // Validation: Make sure that returned body contains artifact details from saved Artifacts, ones that are valid for successful discard.  
             Assert.That(discardArtifactResponse.Artifacts.Count.Equals(numberOfArtifacts), "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}", numberOfArtifacts, discardArtifactResponse.Artifacts.Count);
         }
 

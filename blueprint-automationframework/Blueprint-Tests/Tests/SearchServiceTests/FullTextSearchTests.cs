@@ -168,9 +168,48 @@ namespace SearchServiceTests
         #endregion 200 OK Tests
 
         #region 400 Bad Request Tests
+
+        [TestCase]
+        [TestRail(166162)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Description("Searching with invalid search criteria. Execute Search - Must return 400 bad request")]
+        public void FullTextSearch_SearchWithInvalidSearchCriteria_400BadRequest()
+        {
+            // Setup: Create searchable artifact(s) with unique search terms
+            FullTextSearchResult fullTextSearchResult = null;
+            var invalidSearchCriteria = new FullTextSearchCriteria();
+
+            // Execute: Execute FullTextSearch with invalid Search criteria
+            var ex = Assert.Throws<Http400BadRequestException>(() => fullTextSearchResult = Helper.FullTextSearch.Search(_user, invalidSearchCriteria), "Nova FullTextSearch call exit with 400 BadRequestException failed when using invalid search criteria!");
+            
+            // Validation: Exception should contain empty response content.
+            Assert.That(ex.RestResponse.Content.Length.Equals(0), "FullTextSearch with invalid searchCriteria should return empty content but {0} is returned", ex.RestResponse.Content.ToString());
+        }
+
         #endregion 400 Bad Request Tests
 
         #region 401 Unauthorized Tests
+
+        [TestCase]
+        [TestRail(166163)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Description("Searching with invalid sesson. Execute Search - Must return 401 Unautorized")]
+        public void FullTextSearch_SearchWithInvalidSession_401Unauthorized()
+        {
+            // Setup: Create searchable artifact(s) with unique search terms
+            FullTextSearchResult fullTextSearchResult = null;
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria("NonExistingSearchTerm", selectedProjectIds);
+            IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+
+            // Execute: Execute FullTextSearch with invalid session
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => fullTextSearchResult = Helper.FullTextSearch.Search(userWithBadToken, searchCriteria), "Nova FullTextSearch call exit with 401 UnauthorizedException failed when using invalid session!");
+
+            // Validation: Exception should contain expected message.
+            const string expectedExceptionMessage = "Token is invalid";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of Nova FullTextSearch which has invalid token.", expectedExceptionMessage);
+        }
+
         #endregion 401 Unauthorized Tests
 
         #region 404 Not Found Tests

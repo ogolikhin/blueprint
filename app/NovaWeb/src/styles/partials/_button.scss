@@ -54,20 +54,6 @@
     color: $white;
   }
 }
-
-.btn-white {
-  background-color: $white;
-  border: solid 1px $gray-lighter;
-  color: $gray-darker;
-
-  &:hover,
-  &:focus,
-  &:active {
-    background-color: darken($gray-lightest, 2%);
-    border-color: darken($gray-lighter, 12%);
-  }
-}
-
 .btn-bluelight {
   background-color: $blue-lightest;
   border: solid 2px $gray-light;

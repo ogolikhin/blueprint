@@ -65,29 +65,8 @@ export class ChangeSetCollector implements IChangeCollector {
     }
 
     public get(): IChangeSet[] {
-        //filter out "UPDATES"
-        let changes = this.collection.filter((it: IChangeSet) => 
-            it.type === ChangeTypeEnum.Update
-        );
-        //combine all "ADD"
-        let changeset = {
-               type: ChangeTypeEnum.Add,
-               key: "add",
-               value: this.collection.map((it: IChangeSet) => it.type === ChangeTypeEnum.Add ? it : null).filter((it) => !!it)
-        };
-        if (changeset.value.length) {
-            changes.push(changeset);    
-        }
-        //combine all "DELETE"
-        changeset = {
-               type: ChangeTypeEnum.Delete,
-               key: "add",
-               value: this.collection.map((it: IChangeSet) => it.type === ChangeTypeEnum.Delete ? it : null).filter((it) => !!it)
-        };
-        if (changeset.value.length) {
-            changes.push(changeset);    
-        }
-        
+        // filter out initials. process add/update/delete on individual model level (attachments, docrefs, properties, etc).
+        let changes = this.collection.map((changeSet: IChangeSet) => changeSet.type !== ChangeTypeEnum.Initial ? changeSet : null).filter((changeSet) => !!changeSet)
         return changes;
     }
 

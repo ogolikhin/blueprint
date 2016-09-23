@@ -112,7 +112,7 @@ export class DocumentRefs implements IDocumentRefs {
     public changes(): IArtifactDocRef[] {
         let docRefChanges = new Array<IArtifactDocRef>();
         let changes = this.changeset.get();
-        let addChanges = changes.filter((it: IChangeSet) => it.type === ChangeTypeEnum.Add)[0];
+        /*let addChanges = changes.filter((it: IChangeSet) => it.type === ChangeTypeEnum.Add)[0];
         let deleteChanges = changes.filter((it: IChangeSet) => it.type === ChangeTypeEnum.Delete)[0];
         if (addChanges && addChanges.value.length > 0) {
             addChanges.value.forEach(addChange => {
@@ -127,7 +127,21 @@ export class DocumentRefs implements IDocumentRefs {
                 docRef.changeType = 2;
                 docRefChanges.push(docRef);
             });
-        }
+        }*/
+        changes.forEach(change => {
+            var docRef = change.value as IArtifactDocRef;
+            switch (change.type) {
+                case (ChangeTypeEnum.Add):
+                    docRef.changeType = 0;
+                    break;
+                case (ChangeTypeEnum.Delete):
+                    docRef.changeType = 2;
+                    break;
+                default:
+                    break;
+            }
+            docRefChanges.push(docRef);
+        });
         return docRefChanges;
     }
 

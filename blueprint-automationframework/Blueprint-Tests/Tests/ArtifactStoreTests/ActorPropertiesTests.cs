@@ -70,13 +70,13 @@ namespace ArtifactStoreTests
             IArtifact actor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
 
             // Execute & Verify:
-            Assert.DoesNotThrow(() => SetActorInheritance(actor, baseActor, _user), "Saving artifact shoudn't throw any exception, but it does.");
+            Assert.DoesNotThrow(() => SetActorInheritance(actor, baseActor, _user), "Saving artifact shouldn't throw any exception, but it does.");
             CheckActorHasExpectedActorInheritace(actor, baseActor, _user);
         }
 
         [TestCase]
         [TestRail(182331)]
-        [Description("Create 2 Actros, one Actor inherits from another Actor, delete inheritance, check that inheritance is empty.")]
+        [Description("Create 2 Actors, one Actor inherits from another Actor, delete inheritance, check that inheritance is empty.")]
         public void DeleteActorInheritance_ActorWithInheritance_ReturnsActorNoInheritance()
         {
             // Setup:
@@ -140,8 +140,8 @@ namespace ArtifactStoreTests
         {
             NovaArtifactDetails actorDetails = Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
             Assert.IsNotNull(actorDetails.ActorInheritance, "");
-            Assert.AreEqual(actorDetails.ActorInheritance.ActorId, expectedBaseActor.Id, "ArtifactId must be the same, but it doesn't.");
-            Assert.AreEqual(actorDetails.ActorInheritance.ActorName, expectedBaseActor.Name, "Name must be the same, but it doesn't.");
+            Assert.AreEqual(actorDetails.ActorInheritance.ActorId, expectedBaseActor.Id, "ArtifactId must be the same, but it isn't.");
+            Assert.AreEqual(actorDetails.ActorInheritance.ActorName, expectedBaseActor.Name, "Name must be the same, but it isn't.");
         }
     }
 }

@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using TestCommon;
 using Utilities;
 using Utilities.Facades;
-using System.Linq;
 
 namespace ArtifactStoreTests
 {
@@ -252,6 +251,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+
             // Create artifact(s) with save and publish for discard test
             var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(projectCustomData, _user, artifactType, numberOfArtifacts);
 
@@ -275,7 +275,7 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Execute:
-            Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user, all: true), "DiscardArtifacts() 200 OK when discarding saved artifact(s)!");
+            Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user, all : true), "DiscardArtifacts() 200 OK when discarding saved artifact(s)!");
         }
 
         #endregion Custom data tests
@@ -352,10 +352,10 @@ namespace ArtifactStoreTests
             artifactChain[artifactChain.Count - 1].Delete(_user);
 
             // Execute:
+
             Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(artifactChain.ConvertAll(x => (IArtifactBase)x), _user, all: true),
                 "'POST {0}' should return 200 OK if the Artifact for removed artifact!", DISCARD_PATH);
         }
-
 
         #endregion 200 OK Tests
 
@@ -620,6 +620,7 @@ namespace ArtifactStoreTests
 
             return response.Content;
         }
+
         #endregion private call
     }
 }

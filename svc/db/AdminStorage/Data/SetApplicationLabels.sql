@@ -193,6 +193,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Folder_NotFound', 
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Project_NotFound', 'en-US', N'Couldn''t find the project')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Project_MetaDataNotFound', 'en-US', N'Couldn''t find the project meta data')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_NotFound', 'en-US', N'Couldn''t find the artifact')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_DoesNotExistOrMoved', 'en-US', N'The artifact doesn''t exists or moved to different location')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ArtifactType_NotFound', 'en-US', N'Couldn''t find the artifact type')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_AlreadyLocked', 'en-US', N'Artifact locked by another user')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_DoesNotExist', 'en-US', N'The artifact has been deleted or moved.<br />The explorer will now be refreshed.')

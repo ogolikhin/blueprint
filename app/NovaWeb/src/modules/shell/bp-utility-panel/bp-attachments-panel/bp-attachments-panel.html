@@ -1,4 +1,4 @@
-﻿<div class="filter-bar" 
+<div class="filter-bar"
     ng-if="$ctrl.attachmentsList.length || $ctrl.docRefList.length">
 
     <div class="bp-select" ng-class="{'disabled': $ctrl.itemState.isReadonly}">
@@ -39,7 +39,9 @@
             <bp-artifact-attachment-item
                 class="utility-panel-artifact-item"
                 ng-class="{'new-attachment': attachment.guid}"
-                attachment-info="attachment"></bp-artifact-attachment-item>
+                attachment-info="attachment"
+                delete-item="$ctrl.deleteAttachment(attachment)">
+            </bp-artifact-attachment-item>
         </div>
     </div>
     <div ng-if="!$ctrl.attachmentsList.length && $ctrl.categoryFilter === 1"
@@ -54,7 +56,9 @@
             
             <bp-artifact-document-item
                 class="utility-panel-artifact-item" 
-                doc-ref-info="document"></bp-artifact-document-item>
+                doc-ref-info="document"
+                delete-item="$ctrl.deleteDocRef(document)">
+            </bp-artifact-document-item>
         </div>
     </div>
     <div ng-if="!$ctrl.docRefList.length && $ctrl.categoryFilter === 2"
@@ -72,7 +76,7 @@
     
     <div class="add-empty">
         <p>{{::$ctrl.localization.get('App_UP_Attachments_Attachment_Desc') }}</p>
-        <label class="btn btn-default" ng-class="{'disabled': $ctrl.isItemReadOnly }">
+        <label class="btn btn-secondary btn-small" ng-class="{'disabled': $ctrl.isItemReadOnly }">
             <input bp-file-upload="$ctrl.onFileSelect(files, callback)" type="file" multiple="1" class="file-input">
             {{::$ctrl.localization.get('App_UP_Attachments_Add_Attachment') }}
         </label>
@@ -80,7 +84,7 @@
         <hr />
 
         <p>{{::$ctrl.localization.get('App_UP_Attachments_Reference_Desc') }}</p>
-        <label class="btn btn-default" ng-click="$ctrl.addDocRef()" ng-class="{'disabled': $ctrl.isItemReadOnly}">
+        <label class="btn btn-secondary btn-small" ng-click="$ctrl.addDocRef()" ng-class="{'disabled': $ctrl.isItemReadOnly}">
             {{ $ctrl.localization.get('App_UP_Attachments_Add_Ref_Doc') }}
         </label>
     </div>

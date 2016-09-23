@@ -4,10 +4,8 @@ import { IMessageService, Message, MessageType, ILocalizationService } from "../
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController, IArtifactPickerOptions } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 import { ILoadingOverlayService } from "../../../core/loading-overlay";
-
 import { IArtifactManager, IStatefulArtifact } from "../../../managers/artifact-manager";
-
-export { IArtifactManager }
+import { INavigationService } from "../../../core/navigation/navigation.svc";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -19,9 +17,17 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 }
 
 export class BpArtifactInfoController {
-
     static $inject: [string] = [
-        "$scope", "$element", "artifactManager", "localization", "messageService", "dialogService", "windowManager", "loadingOverlayService"];
+        "$scope", 
+        "$element",
+        "artifactManager", 
+        "localization", 
+        "messageService", 
+        "dialogService", 
+        "windowManager", 
+        "loadingOverlayService",
+        "navigationService"
+    ];
 
     private subscribers: Rx.IDisposable[];
     private artifact: IStatefulArtifact;
@@ -46,17 +52,26 @@ export class BpArtifactInfoController {
         private messageService: IMessageService,
         private dialogService: IDialogService,
         private windowManager: IWindowManager,
-        private loadingOverlayService: ILoadingOverlayService
+        private loadingOverlayService: ILoadingOverlayService,
+        private navigationService: INavigationService
     ) {
         this.initProperties();
         this.subscribers = [];     
     }
 
     public $onInit() {
-        this.subscribers = [
-            this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this),
-            this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onArtifactChanged, this),
-        ];
+        const windowSub = this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
+        const stateSub = this.artifactManager.selection
+            .artifactObservable
+            .skip(1) // skip the first (initial) value
+            .filter((artifact: IStatefulArtifact) => artifact != null)
+            .flatMap((artifact: IStatefulArtifact) => {
+                this.artifact = artifact;
+                return artifact.artifactState.observable();
+            })
+            .subscribeOnNext(this.onStateChanged);
+
+        this.subscribers = [windowSub, stateSub];
     } 
 
 
@@ -70,23 +85,13 @@ export class BpArtifactInfoController {
         }
     }
 
-    private onArtifactChanged = (artifact: IStatefulArtifact) => {
-        if (artifact) {
-            this.artifact = artifact;
-            this.updateProperties(this.artifact);
-            this.subscribers.push(
-                this.artifact.artifactState.observable().subscribeOnNext(this.onStateChanged)
-            );
-        }
-    }
     private onStateChanged = () => {
         this.updateProperties(this.artifact);
     }
-    
 
     private initProperties() {
         this.artifactName = null;
-        this.artifactType = null;
+        this.artifactType = null;   
         this.artifactTypeId = null;
         this.artifactTypeIcon = null;
         this.artifactTypeDescription = null;
@@ -145,11 +150,11 @@ export class BpArtifactInfoController {
                 break;
             default:
                 break;
-
         }
-        
+        if (artifact.artifactState.error) {
+            this.dialogService.alert(artifact.artifactState.error);
+        }
     }
-
 
     public get artifactHeadingMinWidth() {
         let style = {};
@@ -174,7 +179,6 @@ export class BpArtifactInfoController {
 
         return style;
     }
-
 
     private onWidthResized(mainWindow: IMainWindow) {
         if (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
@@ -201,19 +205,18 @@ export class BpArtifactInfoController {
         }
     }
 
-    
-     public saveChanges() {
-         let overlayId: number = this.loadingOverlayService.beginLoading();
-         try {
+    public saveChanges() {
+        let overlayId: number = this.loadingOverlayService.beginLoading();
+        try {
             this.artifactManager.selection.getArtifact().save().finally(() => {
-               this.loadingOverlayService.endLoading(overlayId);
+                this.loadingOverlayService.endLoading(overlayId);
             });
-         } catch (err) {
+        } catch (err) {
             this.messageService.addError(err);
             this.loadingOverlayService.endLoading(overlayId);
             throw err;
-         }
-     }
+        }
+    }
 
     public openPicker($event: MouseEvent) {
         const dialogSettings: IDialogSettings = {
@@ -233,4 +236,19 @@ export class BpArtifactInfoController {
             console.log(items);
         });
     }
+
+    public refresh() {
+        //loading overlay
+        let overlayId = this.loadingOverlayService.beginLoading();
+        let currentArtifact = this.artifactManager.selection.getArtifact();
+        
+        currentArtifact.refresh()
+            .catch((error) => {
+                this.dialogService.alert(error.message);
+                this.navigationService.navigateToArtifact(currentArtifact.parentId);
+                this.artifactManager.remove(currentArtifact.id);
+            }).finally(() => {
+                this.loadingOverlayService.endLoading(overlayId);
+            });
+      }
 }

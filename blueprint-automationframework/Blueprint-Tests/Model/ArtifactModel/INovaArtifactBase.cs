@@ -9,7 +9,7 @@ namespace Model.ArtifactModel
         #region Serialized JSON Properties
 
         int Id { get; set; }
-        int ItemTypeId { get; set; }
+        int? ItemTypeId { get; set; }
         string Name { get; set; }
         int ParentId { get; set; }
         int ProjectId { get; set; }
@@ -92,7 +92,7 @@ namespace Model.ArtifactModel
         #endregion Serialized JSON Properties
     }
 
-    public interface INovaPublishResponse
+    public interface INovaArtifactsAndProjectsResponse
     {
         #region Serialized JSON Properties
 

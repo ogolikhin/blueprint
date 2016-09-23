@@ -1,0 +1,38 @@
+<div ng-if="hasFile">
+    <span class="input-group has-messages">
+        <span class="input-group-addon">
+            <div class="thumb {{extension}}"></div>
+        </span>
+        <span class="form-control-wrapper">
+            <input type="text" value="{{fileName}}" class="form-control" readonly bp-tooltip="{{fileName}}" bp-tooltip-truncated="true" />
+        </span>
+        <span class="input-group-addon">
+            <span class="icon fonticon2-delete" ng-class="{disabled: to.isReadOnly}" ng-click="deleteFile()"></span>
+        </span>
+        <span class="input-group-addon">
+            <label class="btn btn-primary btn-small" ng-disabled="to.isReadOnly" bp-tooltip="{{changeLabelText}}">
+                <input bp-file-upload="onFileSelect(files, callback)" type="file" multiple="1" class="file-input" ng-disabled="to.isReadOnly">
+                {{changeLabelText}}
+            </label>
+        </span>
+        <span class="input-group-addon">
+            <button class="btn btn-promoted-action btn-small" bp-tooltip="{{downloadLabelText}}" ng-click="downloadFile()">{{downloadLabelText}}</button>
+        </span>
+    </span>
+</div>
+<div ng-if="!hasFile">
+    <span class="input-group has-messages">
+        <span class="input-group-addon">
+            <div class="thumb fonticon2-attachment"></div>
+        </span>
+        <span class="form-control-wrapper">
+            <input type="text" class="form-control" readonly />
+        </span>
+        <span class="input-group-addon">
+            <label class="btn btn-primary btn-small" ng-disabled="to.isReadOnly" bp-tooltip="{{uploadLabelText}}">
+                <input bp-file-upload="onFileSelect(files, callback)" type="file" multiple="1" class="file-input" ng-disabled="to.isReadOnly">
+                {{uploadLabelText}}
+            </label>
+        </span>
+    </span>
+</div>`

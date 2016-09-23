@@ -193,13 +193,22 @@ namespace Model
         List<INovaSubArtifact> GetSubartifacts(IUser user, int artifactId, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Gets list of unpublished changes for the specified user.
+        /// (Runs: GET svc/bpartifactstore/artifacts/unpublished)
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>List of artifacts and projects for the unpublished changes.</returns>
+        INovaArtifactsAndProjectsResponse GetUnpublishedChanges(IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Publishes an artifact.
         /// </summary>
         /// <param name="artifact">The artifact to publish.</param>
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
-        INovaPublishResponse PublishArtifact(IArtifactBase artifact, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+        INovaArtifactsAndProjectsResponse PublishArtifact(IArtifactBase artifact, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Publishes a list of artifacts.
@@ -209,7 +218,7 @@ namespace Model
         /// <param name="all">(optional) Pass true to publish all artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to publish.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
-        INovaPublishResponse PublishArtifacts(List<IArtifactBase> artifacts, IUser user = null, bool? all = null, List<HttpStatusCode> expectedStatusCodes = null);
+        INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts, IUser user = null, bool? all = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Discard a list of artifacts.
@@ -219,6 +228,6 @@ namespace Model
         /// <param name="all">(optional) Pass true to discard all artifacts saved by the user that have changes.  In this case, you don't need to specify the artifacts to discard.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>An object containing a list of artifacts that were discarded and their projects.</returns>
-        INovaPublishResponse DiscardArtifacts(List<IArtifactBase> artifacts, IUser user = null, bool? all = null, List<HttpStatusCode> expectedStatusCodes = null);
+        INovaArtifactsAndProjectsResponse DiscardArtifacts(List<IArtifactBase> artifacts, IUser user = null, bool? all = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

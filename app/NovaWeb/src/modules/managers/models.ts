@@ -81,15 +81,17 @@ export interface IIStatefulSubArtifact extends IIStatefulItem {
 
 export interface IStatefulSubArtifact extends IStatefulItem, Models.ISubArtifact {
     load(force?: boolean, timeout?: ng.IPromise<any>): ng.IPromise<IStatefulSubArtifact>;
+    changes(): Models.ISubArtifact;
 }
 
 export interface IArtifactNode {
     artifact: IStatefulArtifact;
     children?: IArtifactNode[];
+    parentNode: IArtifactNode;
     id: number;
     name: string;
     projectId: number;
-    parentId: number;
+    //parentId: number;
     permissions: Enums.RolePermissions;
     predefinedType: Models.ItemTypePredefined;
     hasChildren?: boolean;

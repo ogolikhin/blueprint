@@ -1,10 +1,12 @@
 import { IWindowManager,  } from "../../../../main/services";
-import { BpArtifactInfoController , IArtifactManager} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
+import { BpArtifactInfoController } from "../../../../main/components/bp-artifact-info/bp-artifact-info";
 import { IMessageService, ILocalizationService} from "../../../../core";
 import { IDialogService } from "../../../../shared";
+import { IArtifactManager } from "../../../../managers";
 import { IToolbarCommunication } from "./toolbar-communication";
 import { ICommunicationManager } from "../../"; 
 import { ILoadingOverlayService } from "../../../../core/loading-overlay";
+import { INavigationService } from "../../../../core/navigation/navigation.svc";
 
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("./bp-process-header.html");
@@ -18,8 +20,16 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
     public isDeleteButtonEnabled: boolean;
     
     static $inject: [string] = [
-        "$scope", "$element", "artifactManager", "localization", "messageService", 
-        "dialogService", "windowManager", "communicationManager", "loadingOverlayService"];
+        "$scope", 
+        "$element", 
+        "artifactManager", 
+        "localization", 
+        "messageService", 
+        "dialogService", 
+        "windowManager", 
+        "communicationManager", 
+        "loadingOverlayService",
+        "navigationService"];
     
     constructor(
         $scope: ng.IScope,
@@ -30,7 +40,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         dialogService: IDialogService,
         windowManager: IWindowManager,
         communicationManager: ICommunicationManager,
-        loadingOverlayService: ILoadingOverlayService
+        loadingOverlayService: ILoadingOverlayService,
+        navigationService: INavigationService
     ) {
         super(
             $scope,
@@ -40,7 +51,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             messageService,
             dialogService,
             windowManager,
-            loadingOverlayService
+            loadingOverlayService,
+            navigationService
         );
         this.isDeleteButtonEnabled = false;
         this.toolbarCommunicationManager = communicationManager.toolbarCommunicationManager;

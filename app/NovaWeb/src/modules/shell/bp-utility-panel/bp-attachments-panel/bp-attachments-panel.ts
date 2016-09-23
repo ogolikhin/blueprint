@@ -125,10 +125,12 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
             this.dialogService.open(dialogSettings, dialogData).then((uploadList: any[]) => {
                 if (uploadList) {
                     const newAttachments = uploadList.map((uploadedFile: any) => {
+                        let fileExt: RegExpMatchArray = uploadedFile.name.match(/([^.]*)$/);
                         return <IArtifactAttachment>{
                             userId: this.session.currentUser.id,
                             userName: this.session.currentUser.displayName,
                             fileName: uploadedFile.name,
+                            fileType: fileExt[0] ? fileExt[0] : "",
                             attachmentId: null,
                             guid: uploadedFile.guid,
                             uploadedDate: null
@@ -144,6 +146,28 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         };
 
         openUploadStatus();
+    }
+
+    public deleteAttachment(attachment: IArtifactAttachment) {
+        const dialogSettings = <IDialogSettings>{
+            okButton: this.localization.get("App_Button_Ok", "OK"),
+            header: this.localization.get("App_UP_Attachments_Delete_Header", "Delete Attachment"),
+            message: this.localization.get("App_UP_Attachments_Delete_Confirm", "Attachment will be deleted. Continue?"),
+        };
+        this.dialogService.open(dialogSettings).then(() => {
+            this.item.attachments.remove([attachment]);
+        });
+    }
+
+    public deleteDocRef(docRef: IArtifactDocRef) {
+        const dialogSettings = <IDialogSettings>{
+            okButton: this.localization.get("App_Button_Ok", "OK"),
+            header: this.localization.get("App_UP_Attachments_Delete_Header", "Delete Document Reference"),
+            message: this.localization.get("App_UP_Attachments_Delete_Confirm", "Document Reference will be deleted. Continue?"),
+        };
+        this.dialogService.open(dialogSettings).then(() => {
+            this.item.docRefs.remove([docRef]);
+        });
     }
 
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {

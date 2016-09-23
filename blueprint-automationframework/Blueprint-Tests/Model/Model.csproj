@@ -77,6 +77,7 @@
     <Compile Include="ArtifactModel\IOpenApiArtifact.cs" />
     <Compile Include="ArtifactModel\ITrace.cs" />
     <Compile Include="Factories\ProjectRoleFactory.cs" />
+    <Compile Include="Factories\SearchServiceFactory.cs" />
     <Compile Include="Factories\SvcSharedFactory.cs" />
     <Compile Include="IDeepCopyable.cs" />
     <Compile Include="Impl\ProjectRole.cs" />
@@ -111,6 +112,13 @@
     <Compile Include="ArtifactModel\Impl\NovaTrace.cs" />
     <Compile Include="Impl\PrimitiveFolder.cs" />
     <Compile Include="IPrimitiveFolder.cs" />
+    <Compile Include="FullTextSearchModel\Impl\FullTextSearchItem.cs" />
+    <Compile Include="FullTextSearchModel\Impl\FullTextSearchMetaDataResult.cs" />
+    <Compile Include="FullTextSearchModel\Impl\FullTextSearchResult.cs" />
+    <Compile Include="FullTextSearchModel\Impl\FullTextSearchTypeItem.cs" />
+    <Compile Include="FullTextSearchModel\Impl\FullTextSearch.cs" />
+    <Compile Include="FullTextSearchModel\Impl\FullTextSearchCriteria.cs" />
+    <Compile Include="FullTextSearchModel\IFullTextSearch.cs" />
     <Compile Include="StorytellerModel\Impl\StorytellerUserStory.cs" />
     <Compile Include="StorytellerModel\Impl\Storyteller.cs" />
     <Compile Include="StorytellerModel\Impl\Process.cs" />

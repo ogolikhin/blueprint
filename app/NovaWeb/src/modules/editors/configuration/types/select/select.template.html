@@ -1,0 +1,23 @@
+<div class="input-group has-messages">
+	<div class="ui-select-single" ng-class="options.data.isValidated || options.data.lookup !== 2 ? 'no-custom' : 'allow-custom'"><ui-select
+			ng-model="model[options.key]"
+			ng-disabled="{{to.disabled}}"
+			uis-open-close="bpFieldSelect.onOpenClose(isOpen)">
+		<ui-select-match placeholder="{{to.placeholder}}">
+			<div class="ui-select-match-item-chosen" bp-tooltip="{{$select.selected[to.labelProp]}}" bp-tooltip-truncated="true">{{$select.selected[to.labelProp]}}</div>
+		</ui-select-match>
+		<ui-select-choices class="ps-child"
+			data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}"
+			refresh="bpFieldSelect.refreshResults($select)"
+			refresh-delay="0">
+			<div class="ui-select-choice-item"
+				ng-class="{'ui-select-choice-item-selected': $select.selected[to.valueProp] === option[to.valueProp]}"
+				ng-bind-html="option[to.labelProp] | bpEscapeAndHighlight: $select.search"
+				bp-tooltip="{{option[to.labelProp]}}" bp-tooltip-truncated="true"></div>
+		</ui-select-choices>
+		<ui-select-no-choice>{{bpFieldSelect.labels.noMatch}}</ui-select-no-choice>
+	</ui-select></div>
+	<div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+		<div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
+	</div>
+</div>

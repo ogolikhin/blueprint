@@ -24,6 +24,8 @@ import {
 
 export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubArtifact {
     private changesets: IChangeCollector;
+    private loadPromise: ng.IPromise<IStatefulSubArtifact>;
+    private isLoaded = false;
 
     public deleted: boolean;
     public attachments: IArtifactAttachments;
@@ -112,37 +114,58 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
         }
     }
 
-    private isLoaded = false;
     public load(force: boolean = true, timeout?: ng.IPromise<any>):  ng.IPromise<IStatefulSubArtifact> {
         const deferred = this.services.getDeferred<IStatefulSubArtifact>();
         if (force || !this.isLoaded) {
-            this.services.artifactService.getSubArtifact(this.artifact.id, this.id, timeout)
-                .then((subArtifact: Models.ISubArtifact) => {
-                    this.subArtifact = subArtifact;
-                    this.customProperties.initialize(subArtifact.customPropertyValues);
-                    this.specialProperties.initialize(subArtifact.specificPropertyValues);
-                    //this.artifactState.initialize(subArtifact); TODO autkin why we need it???
-                    this.isLoaded = true;
-                    deferred.resolve(this);
-            }).catch((err) => {
-                deferred.reject(err);
-            });
+            if (this.loadPromise) {
+                return this.loadPromise;
+            } else {
+                this.loadPromise = deferred.promise;
+                this.services.artifactService.getSubArtifact(this.artifact.id, this.id, timeout)
+                    .then((subArtifact: Models.ISubArtifact) => {
+                        this.subArtifact = subArtifact;
+                        this.customProperties.initialize(subArtifact.customPropertyValues);
+                        this.specialProperties.initialize(subArtifact.specificPropertyValues);
+                        //this.artifactState.initialize(subArtifact); TODO autkin why we need it???
+                        this.isLoaded = true;
+                        deferred.resolve(this);
+                }).catch((err) => {
+                    deferred.reject(err);
+                }).finally(() => {
+                    this.loadPromise = null;
+                });
+            }
         } else {
             deferred.resolve(this);
         }
         return deferred.promise;
     }
-
-    public discard(): ng.IPromise<IStatefulArtifact>   {
-        const deferred = this.services.getDeferred<IStatefulArtifact>();
+    public changes(): Models.ISubArtifact {
+        if (this.artifactState.invalid) {
+            throw new Error("App_Save_Artifact_Error_400_114");
+        }
+        let delta: Models.ISubArtifact = {} as Models.ISubArtifact;
+        delta.id = this.id;
+        /*delta.customPropertyValues = [];
+        this.changesets.get().forEach((it: IChangeSet) => {
+            delta[it.key as string] = it.value;
+        });*/
+        //delta.customPropertyValues = this.customProperties.changes();
+        //delta.specificPropertyValues = this.specialProperties.changes();
+        delta.attachmentValues = this.attachments.changes();
+        delta.docRefValues = this.docRefs.changes();
+        return delta;
+    }
+    public discard() {
 
         // this.changesets.reset().forEach((it: IChangeSet) => {
         //     this[it.key as string].value = it.value;
         // });
 
-        // this.customProperties.discard();
+        this.attachments.discard();
+        this.docRefs.discard();
+
         // deferred.resolve(this);
-        return deferred.promise;
     }
 
     public lock(): ng.IPromise<IStatefulArtifact> {

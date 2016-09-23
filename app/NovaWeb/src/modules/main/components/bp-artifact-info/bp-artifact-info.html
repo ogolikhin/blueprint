@@ -22,7 +22,8 @@
 </div>
 <div class="page-top-toolbar">
     <button class="btn btn-bluelight" bp-tooltip="Shift+click for multi-select, Ctrl+click for checkboxes" ng-click="$ctrl.openPicker($event)">Picker</button>
-    <button class="btn btn-bluelight" bp-tooltip="Discard" ng-click="$ctrl.saveChanges()">Discard</button>
-    <button class="btn btn-bluelight" bp-tooltip="Save" ng-click="$ctrl.saveChanges()" ng-disabled="!$ctrl.isChanged">Save</button>
+    <button class="btn btn-primary" bp-tooltip="Refresh" ng-click="$ctrl.refresh()" ng-disabled="$ctrl.isChanged">Refresh</button>
+    <button class="btn btn-primary" bp-tooltip="Discard" ng-click="$ctrl.saveChanges()">Discard</button>
+    <button class="btn btn-primary" bp-tooltip="Save" ng-click="$ctrl.saveChanges()" ng-disabled="!$ctrl.isChanged">Save</button>
     <button class="btn btn-primary" bp-tooltip="Publish">Publish</button>
 </div>

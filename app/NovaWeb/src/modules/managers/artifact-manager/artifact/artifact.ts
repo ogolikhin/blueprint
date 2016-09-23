@@ -386,7 +386,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                             message = this.services.localizationService.get("App_Save_Artifact_Error_409_117");
                         } else if (error.errorCode === 111 || error.errorCode === 115) {
                             message = this.services.localizationService.get("App_Save_Artifact_Error_409_115");
-                        } else if (error.errorCode === 123) {
+                        } else if (error.errorCode === 124) {
                             message = this.services.localizationService.get("App_Save_Artifact_Error_409_123");
                         } else {
                             message = this.services.localizationService.get("App_Save_Artifact_Error_409");

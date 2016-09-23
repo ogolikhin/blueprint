@@ -21,7 +21,7 @@ export class BPFieldSelect implements AngularFormly.ITypeOptions {
             }
         });
     };
-    public controller: Function = BpFieldSelectController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldSelectController;
 
     constructor() {
     }

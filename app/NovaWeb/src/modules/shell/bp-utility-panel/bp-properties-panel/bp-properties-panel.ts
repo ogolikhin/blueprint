@@ -10,7 +10,7 @@ import {PropertyLookupEnum, LockedByEnum} from "../../../main/models/enums";
 
 export class BPPropertiesPanel implements ng.IComponentOptions {
     public template: string = require("./bp-properties-panel.html");
-    public controller: Function = BPPropertiesController;   
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPPropertiesController;   
     public controllerAs = "$ctrl";
     public require: any = {
         bpAccordionPanel: "^bpAccordionPanel"

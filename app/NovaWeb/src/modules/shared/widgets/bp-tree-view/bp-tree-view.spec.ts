@@ -106,7 +106,7 @@ describe("BPTreeViewController", () => {
             spyOn(controller, "resetRowDataAsync");
 
             // Act
-            controller.$onChanges({rootNode: {} as ng.IChangesObject} as ng.IOnChangesObject);
+            controller.$onChanges({rootNode: {} as ng.IChangesObject<any>} as ng.IOnChangesObject);
 
             // Assert
             expect(controller.resetRowDataAsync).toHaveBeenCalled();
@@ -117,7 +117,7 @@ describe("BPTreeViewController", () => {
             spyOn(controller, "resetRowDataAsync");
 
             // Act
-            controller.$onChanges({rootNodeVisible: {} as ng.IChangesObject} as ng.IOnChangesObject);
+            controller.$onChanges({rootNodeVisible: {} as ng.IChangesObject<any>} as ng.IOnChangesObject);
 
             // Assert
             expect(controller.resetRowDataAsync).toHaveBeenCalled();
@@ -128,7 +128,7 @@ describe("BPTreeViewController", () => {
             spyOn(controller, "resetRowDataAsync");
 
             // Act
-            controller.$onChanges({columnDefs: {} as ng.IChangesObject} as ng.IOnChangesObject);
+            controller.$onChanges({columnDefs: {} as ng.IChangesObject<any>} as ng.IOnChangesObject);
 
             // Assert
             expect(controller.resetRowDataAsync).not.toHaveBeenCalled();

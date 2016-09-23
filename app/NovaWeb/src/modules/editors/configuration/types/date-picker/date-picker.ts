@@ -16,7 +16,7 @@ export class BPFieldDatePicker implements AngularFormly.ITypeOptions {
             $scope["fc"].$setTouched();
         });
     };
-    public controller: Function = BpFieldDatePickerController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldDatePickerController;
 
     constructor() {
         this.defaultOptions = {};

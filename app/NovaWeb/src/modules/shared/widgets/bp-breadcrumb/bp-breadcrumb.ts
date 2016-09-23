@@ -12,7 +12,7 @@ export class BPBreadcrumbController implements IBPBreadcrumbController {
 
 export class BPBreadcrumbComponent implements ng.IComponentOptions {
     public template: string = require("./bp-breadcrumb.html");
-    public controller: Function = BPBreadcrumbController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPBreadcrumbController;
     public bindings: any = {
         name: "@"
     };

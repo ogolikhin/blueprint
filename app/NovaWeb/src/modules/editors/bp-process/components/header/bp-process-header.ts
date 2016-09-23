@@ -9,7 +9,7 @@ import { ILoadingOverlayService } from "../../../../core/loading-overlay";
 
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("./bp-process-header.html");
-    public controller: Function = BpProcessHeaderController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpProcessHeaderController;
     public transclude: boolean = true;
 }
 

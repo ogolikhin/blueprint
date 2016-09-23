@@ -12,7 +12,7 @@ interface ISortOptions {
 
 export class BPHistoryPanel implements ng.IComponentOptions {
     public template: string = require("./bp-history-panel.html");
-    public controller: Function = BPHistoryPanelController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPHistoryPanelController;
     public require: any = {
         bpAccordionPanel: "^bpAccordionPanel"
     };

@@ -15,7 +15,7 @@ import { IDialogService } from "../../shared";
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {
     public template: string = require("./bp-details-editor.html");
-    public controller: Function = BpArtifactDetailsEditorController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactDetailsEditorController;
     public controllerAs = "$ctrl";
     public bindings: any = {
         context: "<",

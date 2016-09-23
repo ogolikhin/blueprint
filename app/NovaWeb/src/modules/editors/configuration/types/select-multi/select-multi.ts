@@ -31,7 +31,7 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
             }
         });
     };
-    public controller: Function = BpFieldSelectMultiController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldSelectMultiController;
 
     constructor() {
     }

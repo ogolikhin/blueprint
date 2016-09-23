@@ -8,7 +8,7 @@ import { IArtifactManager, IStatefulArtifact } from "../../../managers/artifact-
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
-    public controller: Function = BpArtifactInfoController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactInfoController;
     public transclude: boolean = true;
     public bindings: any = {
         context: "<"

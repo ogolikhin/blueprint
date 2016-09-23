@@ -7,7 +7,7 @@ import { BpBaseEditor } from "../bp-base-editor";
 
 export class BpGlossary implements ng.IComponentOptions {
     public template: string = require("./bp-glossary.html");
-    public controller: Function = BpGlossaryController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpGlossaryController;
     public bindings: any = {
         context: "<"
     };

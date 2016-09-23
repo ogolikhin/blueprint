@@ -7,7 +7,7 @@ import { INavigationService } from "../../../core/navigation/navigation.svc";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
-    public controller: Function = ProjectExplorerController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = ProjectExplorerController;
     public transclude: boolean = true;
 }
 

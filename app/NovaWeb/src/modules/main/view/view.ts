@@ -6,7 +6,7 @@ import { IProjectManager, IArtifactManager } from "../../managers";
 
 export class MainView implements ng.IComponentOptions {
     public template: string = require("./view.html");
-    public controller: Function = MainViewController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = MainViewController;
     public transclude: boolean = true;
     public controllerAs = "$main";
 }

@@ -13,7 +13,7 @@ export class BPFieldNumber implements AngularFormly.ITypeOptions {
             $scope["fc"].$setTouched();
         });
     };
-    public controller: Function = BpFieldNumberController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldNumberController;
 
     constructor() {
     }

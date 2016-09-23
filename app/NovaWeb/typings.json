@@ -1,6 +1,6 @@
 {
   "globalDependencies": {
-    "angular": "registry:dt/angular#1.5.0+20160920144239",
+    "angular": "registry:dt/angular#1.5.0+20160922195358",
     "angular-formly": "registry:dt/angular-formly#7.2.3+20160316171810",
     "angular-mocks": "registry:dt/angular-mocks#1.5.0+20160608104721",
     "angular-ui-bootstrap": "registry:dt/angular-ui-bootstrap#0.13.3+20160919090501",

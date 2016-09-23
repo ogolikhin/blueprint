@@ -753,8 +753,8 @@ pagecontent, bp-properties-panel {
       .ui-select-multiple .ui-select-choices {
         display: flex;
         flex-flow: column nowrap;
-        height: #{10 * $user-picker-choice-size}; // hack to trick IE display flex
         max-height: #{5 * $user-picker-choice-size + $user-picker-results-count + 2px}; //2px is the top and bottom border
+        min-height: #{1 * $user-picker-choice-size + 2px};
         overflow: hidden;
 
         .ui-select-choices-group {

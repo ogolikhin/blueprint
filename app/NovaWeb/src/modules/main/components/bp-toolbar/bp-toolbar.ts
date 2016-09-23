@@ -143,6 +143,10 @@ class BPToolbarController implements IBPToolbarController {
                     this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
                 });*/
                 break;
+            case `gotoimpactanalysis`:
+                let url = `Web/#/ImpactAnalysis/${this._currentArtifact}`;
+                window.open(url);
+                break;
             default:
                 this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
                 break;
@@ -160,11 +164,6 @@ class BPToolbarController implements IBPToolbarController {
 
     //temporary
     private deleteArtifact() {
-    }
-
-    public goToImpactAnalysis() {
-        let url = `Web/#/ImpactAnalysis/${this._currentArtifact}`;
-        window.open(url);
     }
 
     public $onInit(o) {

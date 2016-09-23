@@ -12,7 +12,8 @@ export class Routes {
     constructor(
         $stateProvider: ng.ui.IStateProvider,
         $urlRouterProvider: ng.ui.IUrlRouterProvider,
-        $urlMatcherFactoryProvider: any) {
+        $urlMatcherFactoryProvider: any
+    ) {
 
         $urlMatcherFactoryProvider.caseInsensitive(true);
 
@@ -25,5 +26,4 @@ export class Routes {
             .state("main.artifact.glossary", new GlossaryState())
             .state("main.artifact.diagram", new DiagramState());
     }
-
 };

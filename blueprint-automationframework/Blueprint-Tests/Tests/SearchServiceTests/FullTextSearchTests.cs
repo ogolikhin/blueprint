@@ -180,12 +180,14 @@ namespace SearchServiceTests
         #endregion 409 Conflict Tests
 
         #region Private Functions
+
         /// <summary>
         /// Asserts that returned searchResult from the FullTextSearch call match with artifacts that are being searched.
         /// </summary>
         /// <param name="searchResult">The searchResult from Nova search call.</param>
         /// <param name="artifactsToBeFound">artifacts that are being searched</param>
-
+        /// <param name="page"> (optional) page value that represents displaying page number of the rearch result</param>
+        /// <param name="pageSize"> (optional) pageSize value that indicates number of items that get displayed per page</param>
         private static void FullTextSearchResultValidation( FullTextSearchResult searchResult, List<IArtifactBase> artifactsToBeFound = null, int? page = null, int? pageSize = null)
         {
             ThrowIf.ArgumentNull(searchResult, nameof(searchResult));

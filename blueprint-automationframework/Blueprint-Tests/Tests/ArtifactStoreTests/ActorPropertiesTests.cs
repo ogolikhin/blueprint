@@ -3,11 +3,13 @@ using System.Linq;
 using CustomAttributes;
 using Helper;
 using Model;
+using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
+using Model.ArtifactModel.Impl.PredefinedProperties;
 using Model.Factories;
 using NUnit.Framework;
 using TestCommon;
-using Model.ArtifactModel.Impl.PredefinedProperties;
+using Utilities;
 
 namespace ArtifactStoreTests
 {
@@ -16,6 +18,9 @@ namespace ArtifactStoreTests
     public class ActorPropertiesTests : TestBase
     {
         private IUser _user = null;
+
+        private IProject _project = null;
+        private List<IProject> _allProjects = null;
 
         private int actorInheritedFromOtherActorId = 8;
         private int parentActorId = 9;
@@ -26,6 +31,9 @@ namespace ArtifactStoreTests
         {
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _allProjects = ProjectFactory.GetAllProjects(_user);
+            _project = _allProjects.First();
+            _project.GetAllArtifactTypes(ProjectFactory.Address, _user);
         }
 
         [TearDown]
@@ -42,7 +50,7 @@ namespace ArtifactStoreTests
         [Description("Gets ArtifactDetails for the actor with non-empty Inherited From field. Verify the inherited from object has expected information.")]
         public void GetActorInheritance_CustomProject_ReturnsActorInheritance()
         {
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, actorInheritedFromOtherActorId); ;
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, actorInheritedFromOtherActorId);
             ActorInheritanceValue actorInheritance = null;
 
             actorInheritance = artifactDetails.ActorInheritance;
@@ -51,5 +59,89 @@ namespace ArtifactStoreTests
         }
 
         #endregion Custom Data
+
+        [TestCase]
+        [TestRail(182329)]
+        [Description("Create 2 Actors, set one Actor inherits from another Actor, check that inheritance has expected values.")]
+        public void SetActorInheritance_Actor_ReturnsActorInheritance()
+        {
+            // Setup:
+            IArtifact baseActor= Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            IArtifact actor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+
+            // Execute & Verify:
+            Assert.DoesNotThrow(() => SetActorInheritance(actor, baseActor, _user), "Saving artifact shoudn't throw any exception, but it does.");
+            CheckActorHasExpectedActorInheritace(actor, baseActor, _user);
+        }
+
+        [TestCase]
+        [TestRail(182331)]
+        [Description("Create 2 Actros, one Actor inherits from another Actor, delete inheritance, check that inheritance is empty.")]
+        public void DeleteActorInheritance_ActorWithInheritance_ReturnsActorNoInheritance()
+        {
+            // Setup:
+            IArtifact baseActor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            IArtifact actor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            SetActorInheritance(actor, baseActor, _user);
+
+            // Execute & Verify:
+            Assert.DoesNotThrow(() => DeleteActorInheritance(actor, _user), "Deleting Actor inheritance shouldn't throw any exception, but it does.");
+            CheckActorHasNoActorInheritace(actor, _user);
+        }
+
+        [TestCase]
+        [TestRail(182332)]
+        [Description("Create Actor2 inherits from Actor1, try to set inheritance Actor1 from Actor2, it should return 409.")]
+        public void SetActor1Inheritance_Actor2InheritedFromActor1_Returns409CyclicReference()
+        {
+            // Setup:
+            IArtifact actor1 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            IArtifact actor2 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+
+            SetActorInheritance(actor2, actor1, _user);
+
+            // Execute & Verify:
+            Assert.Throws<Http409ConflictException>(() => SetActorInheritance(actor1, actor2, _user),
+                "Attempt to create cyclic reference Actor1 -> Actor2 -> Actor1 should throw 409, but it doesn't.");
+        }
+
+        private void SetActorInheritance(IArtifact actor, IArtifact baseActor, IUser user)
+        {
+            NovaArtifactDetails actorDetails = Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
+
+            ActorInheritanceValue actorInheritance = new ActorInheritanceValue();
+            actorInheritance.ActorId = baseActor.Id;
+            actorDetails.ActorInheritance = actorInheritance;
+
+            actor.Lock(user);
+            
+            Artifact.UpdateArtifact(actor, user, actorDetails, Helper.BlueprintServer.Address);
+        }
+
+        private void DeleteActorInheritance(IArtifact actor, IUser user)
+        {
+            NovaArtifactDetails actorDetails = Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
+
+            ActorInheritanceValue actorInheritance = null;
+            actorDetails.ActorInheritance = actorInheritance;
+
+            actor.Lock(user);
+
+            Artifact.UpdateArtifact(actor, user, actorDetails, Helper.BlueprintServer.Address);
+        }
+
+        private void CheckActorHasNoActorInheritace(IArtifact actor, IUser user)
+        {
+            NovaArtifactDetails actorDetails = Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
+            Assert.IsNull(actorDetails.ActorInheritance, "ActorInheritance must be empty");
+        }
+
+        private void CheckActorHasExpectedActorInheritace(IArtifact actor, IArtifact expectedBaseActor, IUser user)
+        {
+            NovaArtifactDetails actorDetails = Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
+            Assert.IsNotNull(actorDetails.ActorInheritance, "");
+            Assert.AreEqual(actorDetails.ActorInheritance.ActorId, expectedBaseActor.Id, "ArtifactId must be the same, but it doesn't.");
+            Assert.AreEqual(actorDetails.ActorInheritance.ActorName, expectedBaseActor.Name, "Name must be the same, but it doesn't.");
+        }
     }
 }

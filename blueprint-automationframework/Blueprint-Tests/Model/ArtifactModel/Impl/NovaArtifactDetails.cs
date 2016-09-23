@@ -31,7 +31,8 @@ namespace Model.ArtifactModel.Impl
         public int Permissions { get; set; }
         public int ProjectId { get; set; }
         public int Version { get; set; }
-        public List<CustomProperty> SpecificPropertyValues { get; } = new List<CustomProperty>();   // XXX: Right now ArtifactStore always returns an empty list for this.
+        public List<CustomProperty> SpecificPropertyValues { get; } = new List<CustomProperty>();
+
 
         #endregion Serialized JSON Properties
 
@@ -177,6 +178,7 @@ namespace Model.ArtifactModel.Impl
         /// Returns ActorInheritanceValue. It represents information from Inherited from field for Actor.
         /// </summary>
         /// <exception cref="FormatException">Throws FormatException if ActorInheritanceValue doesn't correspond to server JSON.</exception>
+        [JsonIgnore]
         public ActorInheritanceValue ActorInheritance
         {
             get
@@ -184,7 +186,7 @@ namespace Model.ArtifactModel.Impl
             // Finding ActorInheritence among other properties
             CustomProperty actorInheritanceProperty = SpecificPropertyValues.FirstOrDefault(
                 p => p.PropertyType == PropertyTypePredefined.ActorInheritance);
-            if (actorInheritanceProperty == null)
+            if ((actorInheritanceProperty == null) || (actorInheritanceProperty.CustomPropertyValue == null))
             {
                 return null;
             }
@@ -199,8 +201,9 @@ namespace Model.ArtifactModel.Impl
 
             set
             {
-                Assert.IsNotNull(value);
-                throw new NotImplementedException();
+                CustomProperty actorInheritanceProperty = SpecificPropertyValues.FirstOrDefault(
+                    p => p.PropertyType == PropertyTypePredefined.ActorInheritance);
+                actorInheritanceProperty.CustomPropertyValue = value;
             }
         }
 
@@ -208,6 +211,7 @@ namespace Model.ArtifactModel.Impl
         /// Gets or sets the DocumentFile property for Artifact of Document type.
         /// TODO: replace this and GetActorInheritance function with generic function
         /// </summary>
+        [JsonIgnore]
         public DocumentFileValue DocumentFile
         {
             get
@@ -216,7 +220,7 @@ namespace Model.ArtifactModel.Impl
                 CustomProperty documentFileProperty = SpecificPropertyValues.FirstOrDefault(
                     p => p.PropertyType == PropertyTypePredefined.DocumentFile);
 
-                if (documentFileProperty == null)
+                if ((documentFileProperty == null) || (documentFileProperty.CustomPropertyValue == null))
                 {
                     return null;
                 }

@@ -114,17 +114,8 @@ export class ArtifactAttachments implements IArtifactAttachments {
         let attachmentChanges = new Array<IArtifactAttachment>();
         let changes = this.changeset.get();
         changes.forEach(change => {
-            var attachment = change.value as IArtifactAttachment;
-            switch (change.type) {
-                case (ChangeTypeEnum.Add):
-                    attachment.changeType = 0;
-                    break;
-                case (ChangeTypeEnum.Delete):
-                    attachment.changeType = 2;
-                    break;
-                default:
-                    break;
-            }
+            const attachment = change.value as IArtifactAttachment;
+            attachment.changeType = change.type;
             attachmentChanges.push(attachment);
         });
         return attachmentChanges;

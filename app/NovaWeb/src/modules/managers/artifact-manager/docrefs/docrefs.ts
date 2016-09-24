@@ -114,16 +114,7 @@ export class DocumentRefs implements IDocumentRefs {
         let changes = this.changeset.get();
         changes.forEach(change => {
             var docRef = change.value as IArtifactDocRef;
-            switch (change.type) {
-                case (ChangeTypeEnum.Add):
-                    docRef.changeType = 0;
-                    break;
-                case (ChangeTypeEnum.Delete):
-                    docRef.changeType = 2;
-                    break;
-                default:
-                    break;
-            }
+            docRef.changeType = change.type;
             docRefChanges.push(docRef);
         });
         return docRefChanges;

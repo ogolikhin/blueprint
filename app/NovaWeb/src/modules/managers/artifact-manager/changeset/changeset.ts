@@ -2,10 +2,10 @@
 
 
 export enum ChangeTypeEnum {
-    Initial,
-    Update,
-    Add,
-    Delete
+    Add = 0,
+    Update = 1,
+    Delete = 2,
+    Initial = 3
 }
 
 export interface IChangeSet {

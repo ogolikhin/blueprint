@@ -113,7 +113,7 @@ export class DocumentRefs implements IDocumentRefs {
         let docRefChanges = new Array<IArtifactDocRef>();
         let changes = this.changeset.get();
         changes.forEach(change => {
-            var docRef = change.value as IArtifactDocRef;
+            let docRef = change.value as IArtifactDocRef;
             docRef.changeType = change.type;
             docRefChanges.push(docRef);
         });

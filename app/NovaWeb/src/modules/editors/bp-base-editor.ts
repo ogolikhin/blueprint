@@ -21,8 +21,15 @@ export class BpBaseEditor {
 
     public $onChanges(obj: any) {
         this.artifactManager.get(obj.context.currentValue).then((artifact) => { // lightweight
-            if (this.onLoading(artifact)) {
+            if (this.artifact) {
+                this.isLoading = true;
+                this.artifact = artifact;
+                const stateObserver = this.artifact.artifactState.observable()
+                        .filter(state => state.outdated)
+                        .subscribeOnNext(this.onLoad, this);
+
                 this.artifact.artifactState.set({outdated: true});
+                this.subscribers = [stateObserver];
             }
         });
     }
@@ -30,20 +37,6 @@ export class BpBaseEditor {
     public $onDestroy() {
         delete this.artifact;
         this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
-    }
-
-    public onLoading(artifact: IStatefulArtifact): boolean {
-        this.isLoading = true;
-        if (artifact) {
-            this.artifact = artifact;
-            this.subscribers.push(
-                this.artifact.artifactState.observable()
-                    .filter(state => state.outdated)
-                    .subscribeOnNext(this.onStateChange, this)
-            );
-        }
-        
-        return !!this.artifact;
     }
 
     public onLoad() {
@@ -55,9 +48,5 @@ export class BpBaseEditor {
 
     public onUpdate() {
         this.isLoading = false;
-    }
-
-    private onStateChange(state: IArtifactState) {
-        this.onLoad();
     }
 }

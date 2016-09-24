@@ -27,7 +27,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     public metadata: IMetaData;
     public deleted: boolean;
 
-    private subject: Rx.BehaviorSubject<IStatefulArtifact> ;
+    private subject: Rx.Subject<IStatefulArtifact> ;
     private subscribers: Rx.IDisposable[];
     private changesets: IChangeCollector;
     private lockPromise: ng.IPromise<IStatefulArtifact>;
@@ -44,7 +44,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         this.docRefs = new DocumentRefs(this);
         this.relationships = new ArtifactRelationships(this);
         this.subArtifactCollection = new StatefulSubArtifactCollection(this, this.services);
-        this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(this);
+        this.subject = new Rx.Subject<IStatefulArtifact>();
         this.deleted = false;
 
         this.subscribers = [
@@ -68,7 +68,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     }
 
     public observable(): Rx.Observable<IStatefulArtifact> {
-        return this.subject.filter(it => it !== null).asObservable();
+        return this.subject.asObservable();
     }    
 
     public get id(): number {
@@ -421,6 +421,16 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     }
 
     public refresh(): ng.IPromise<IStatefulArtifact> {
-        return this.load(true);
+        const deferred = this.services.getDeferred<IStatefulArtifact>();
+        const disposable = this.observable()
+            .filter(artifact => artifact && !artifact.artifactState.outdated)
+            .subscribe((artifact) => {
+
+            disposable.dispose();
+            deferred.resolve(artifact);
+        });
+        this.artifactState.set({ outdated: true });
+
+        return deferred.promise;
     }
 }

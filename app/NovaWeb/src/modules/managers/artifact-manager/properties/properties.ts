@@ -73,9 +73,13 @@ export class ArtifactProperties implements IArtifactProperties  {
     }
 
     public changes(): Models.IPropertyValue[] {
-       return this.changeset.get().map((it: IChangeSet) => {
-            return this.get(it.key as number);
-        }); 
+        const propertyChanges = new Array<Models.IPropertyValue>();
+        const changes = this.changeset.get() || [];
+        changes.filter(change => change.type === ChangeTypeEnum.Update)
+            .forEach(change => {
+                propertyChanges.push(change.value);
+            });
+        return propertyChanges;
     }
 }
 

@@ -21,14 +21,14 @@ export class BpBaseEditor {
 
     public $onChanges(obj: any) {
         this.artifactManager.get(obj.context.currentValue).then((artifact) => { // lightweight
-            if (this.artifact) {
+            if (artifact) {
                 this.isLoading = true;
                 this.artifact = artifact;
                 const stateObserver = this.artifact.artifactState.observable()
                         .filter(state => state.outdated)
                         .subscribeOnNext(this.onLoad, this);
 
-                this.artifact.artifactState.set({outdated: true});
+                this.artifact.refresh();
                 this.subscribers = [stateObserver];
             }
         });

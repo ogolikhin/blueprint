@@ -32,14 +32,13 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     private changesets: IChangeCollector;
     private lockPromise: ng.IPromise<IStatefulArtifact>;
     private loadPromise: ng.IPromise<IStatefulArtifact>;
-//    private isLoaded = false;
 
     constructor(private artifact: Models.IArtifact, private services: IStatefulArtifactServices) {
-        this.artifactState = new ArtifactState(this).initialize(artifact);
+        this.artifactState = new ArtifactState(this);
         this.changesets = new ChangeSetCollector(this);
         this.metadata = new MetaData(this);
-        this.customProperties = new ArtifactProperties(this).initialize(artifact.customPropertyValues);
-        this.specialProperties = new SpecialProperties(this).initialize(artifact.specificPropertyValues);
+        this.customProperties = new ArtifactProperties(this, artifact.customPropertyValues);
+        this.specialProperties = new SpecialProperties(this, artifact.specificPropertyValues);
         this.attachments = new ArtifactAttachments(this);
         this.docRefs = new DocumentRefs(this);
         this.relationships = new ArtifactRelationships(this);
@@ -61,10 +60,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         //TODO: implement logic to release resources
         this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
         this.subject.dispose();
-        this.artifact.parentId = null;
         delete this.subscribers;
         delete this.subject;
-
+        this.artifact.parentId = null;
     }
 
     public observable(): Rx.Observable<IStatefulArtifact> {

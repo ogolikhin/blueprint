@@ -17,36 +17,19 @@ export class BpBaseEditor {
         this.subscribers = [];
     }
 
-    public $onInit() {
-    }
+    public $onInit() { }
 
     public $onChanges(obj: any) {
-        // this.artifact = this.context;
-        try {
-            // this.artifactManager.selection.clearAll();
-
-            this.artifactManager.get(obj.context.currentValue).then((artifact) => { // lightweight
-                if (this.onLoading(artifact)) {
-                    this.artifact.artifactState.set({outdated: true});
-
-                    //TODO: Refresh related - investigate this vs putting it into onLoading, as well as why artifactState doesn't trigger
-                    this.subscribers.push(this.artifact.observable().subscribeOnNext(this.onStateChange, this));
-                }
-             });
-        } catch (ex) {
-            this.messageService.addError(ex.message);
-            throw ex;
-        }
+        this.artifactManager.get(obj.context.currentValue).then((artifact) => { // lightweight
+            if (this.onLoading(artifact)) {
+                this.artifact.artifactState.set({outdated: true});
+            }
+        });
     }
 
     public $onDestroy() {
-        try {
-            delete this.artifact;
-            this.subscribers = (this.subscribers || []).filter((it: Rx.IDisposable) => { it.dispose(); return false; });
-        } catch (ex) {
-            this.messageService.addError(ex.message);
-            throw ex;
-        }
+        delete this.artifact;
+        this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
 
     public onLoading(artifact: IStatefulArtifact): boolean {
@@ -54,7 +37,9 @@ export class BpBaseEditor {
         if (artifact) {
             this.artifact = artifact;
             this.subscribers.push(
-                this.artifact.artifactState.observable().filter(this.shouldbeUpdated).subscribeOnNext(this.onStateChange, this)
+                this.artifact.artifactState.observable()
+                    .filter(state => state.outdated)
+                    .subscribeOnNext(this.onStateChange, this)
             );
         }
         
@@ -72,16 +57,7 @@ export class BpBaseEditor {
         this.isLoading = false;
     }
 
-    private shouldbeUpdated(state: IArtifactState): boolean {
-        return !!state.outdated;
-    }
-
-    private onStateChange(state: any) {
+    private onStateChange(state: IArtifactState) {
         this.onLoad();
-        //TODO:Added for refresh story, unclear if necessary; if refresh artifact works, delete this.
-        //this.onUpdate();
     }
-
 }
-
-

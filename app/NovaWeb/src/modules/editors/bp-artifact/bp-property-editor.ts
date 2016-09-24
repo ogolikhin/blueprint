@@ -47,15 +47,8 @@ export class PropertyEditor {
                 };
 
             case Models.PrimitiveType.User:
-                //TODO: please implement on time of user editor field implementation
-                if (angular.isArray($value)) {
-                    return {
-                        validValueIds: $value.map((it) => { return this.locale.toNumber(it); })
-                    };
-                }
-                return {
-                    validValueIds: [this.locale.toNumber($value)]
-                };
+                //TODO: Check after save while switching artifact has been implemented
+                return $value;
 
             default:
                 return $value;

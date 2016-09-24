@@ -28,6 +28,12 @@ namespace Model.ArtifactModel.Impl
             public bool IsGroup { get; set; }
         }
 
+        public class ValidValue
+        {
+            public int Id { get; set; }
+            public string Value { get; set; }
+        }
+
         public int? VersionId { get; set; }
         public PropertyPrimitiveType? PrimitiveType { get; set; }
         public int? InstancePropertyTypeId { get; set; }
@@ -42,7 +48,7 @@ namespace Model.ArtifactModel.Impl
         public bool? IsMultipleAllowed { get; set; }
         public bool? IsValidated { get; set; }
         public int? DefaultValidValueIndex { get; set; }
-        public List<string> ValidValues { get; } = new List<string>();
+        public List<ValidValue> ValidValues { get; } = new List<ValidValue>();
         public List<UserGroup> UserGroupDefaultValue { get; } = new List<UserGroup>();
     }
 

@@ -8,12 +8,14 @@ export class BPArtifactAttachmentItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-attachment-item.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPArtifactAttachmentItemController;
     public bindings: any = {
-        attachmentInfo: "="
+        attachmentInfo: "=",
+        deleteItem: "&",
     };
 }
 
 interface IBPArtifactAttachmentItemController {
     attachmentInfo: IArtifactAttachment;
+    deleteItem: Function;
 }
 
 export class BPArtifactAttachmentItemController implements IBPArtifactAttachmentItemController {
@@ -26,6 +28,7 @@ export class BPArtifactAttachmentItemController implements IBPArtifactAttachment
 
     public fileIconClass: string;
     public attachmentInfo: IArtifactAttachment;
+    public deleteItem: Function;
     
     constructor(
         private $log: ng.ILogService,
@@ -36,10 +39,6 @@ export class BPArtifactAttachmentItemController implements IBPArtifactAttachment
 
     public $onInit() {
         this.fileIconClass = FiletypeParser.getFiletypeClass(this.attachmentInfo.fileName);
-    }
-
-    public deleteItem(): void {
-        alert("deleting attachment");
     }
     
     public downloadItem(): void {

@@ -57,7 +57,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 200 OK if a valid artifact ID is sent!", PUBLISH_PATH);
 
             // Verify:
-            ArtifactStoreHelper.AssertExpectedProjectWasReturned(publishResponse.Projects, _project);
+            ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(1, publishResponse.Artifacts.Count, "There should only be 1 published artifact returned!");
             ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifact(publishResponse.Artifacts.First(), artifact, expectedVersion: 1);
 
@@ -94,7 +94,7 @@ namespace ArtifactStoreTests
                 expectedVersion = numberOfVersions + 1;
             }
 
-            ArtifactStoreHelper.AssertExpectedProjectWasReturned(publishResponse.Projects, _project);
+            ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(1, publishResponse.Artifacts.Count, "There should only be 1 published artifact returned!");
             ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifact(publishResponse.Artifacts.First(), artifactWithMultipleVersions, expectedVersion);
 
@@ -120,7 +120,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 200 OK if a valid list of artifact IDs is sent!", PUBLISH_PATH);
 
             // Verify:
-            ArtifactStoreHelper.AssertExpectedProjectWasReturned(publishResponse.Projects, _project);
+            ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(numberOfArtifacts, publishResponse.Artifacts.Count, "There should only be {0} published artifact returned!", numberOfArtifacts);
 
             AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(
@@ -157,7 +157,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 200 OK if a valid list of artifact IDs is sent!", PUBLISH_PATH);
 
             // Verify:
-            ArtifactStoreHelper.AssertExpectedProjectWasReturned(publishResponse.Projects, _project);
+            ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(artifactsWithMultipleVersions.Count, publishResponse.Artifacts.Count,
                 "There should only be {0} published artifact returned!", artifactsWithMultipleVersions.Count);
 
@@ -204,7 +204,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 200 OK if a valid list of artifact IDs is sent!", PUBLISH_PATH);
 
             // Verify:
-            ArtifactStoreHelper.AssertExpectedProjectWasReturned(publishResponse.Projects, _project);
+            ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(artifactsToPublish.Count, publishResponse.Artifacts.Count,
                 "There should only be {0} published artifact returned!", artifactsToPublish.Count);
 
@@ -235,7 +235,7 @@ namespace ArtifactStoreTests
                 PUBLISH_PATH, (all == null) ? string.Empty : I18NHelper.FormatInvariant("?all={0}", all.Value.ToString()));
 
             // Verify:
-            ArtifactStoreHelper.AssertExpectedProjectWasReturned(publishResponse.Projects, _project);
+            ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(numberOfArtifactsToPublish, publishResponse.Artifacts.Count,
                 "There should only be {0} published artifact returned!", numberOfArtifactsToPublish);
 
@@ -261,7 +261,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 200 OK if a valid artifact ID is sent!", PUBLISH_PATH);
 
             // Verify:
-            ArtifactStoreHelper.AssertExpectedProjectWasReturned(publishResponse.Projects, _project);
+            ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(1, publishResponse.Artifacts.Count, "There should only be 1 published artifact returned!");
 
             IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
@@ -292,7 +292,7 @@ namespace ArtifactStoreTests
             allArtifacts.AddRange(artifactsPassedToPublish);
             allArtifacts.AddRange(artifactsNotPassedToPublish);
 
-            ArtifactStoreHelper.AssertExpectedProjectWasReturned(publishResponse.Projects, _project);
+            ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(allArtifacts.Count, publishResponse.Artifacts.Count,
                 "There should only be {0} published artifact returned!", allArtifacts.Count);
 
@@ -320,7 +320,7 @@ namespace ArtifactStoreTests
                     "'POST {0}?all=true' should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
 
                 // Verify:
-                ArtifactStoreHelper.AssertExpectedProjectWasReturned(publishResponse.Projects, _project);
+                ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(publishResponse.Projects, _project);
                 Assert.AreEqual(allArtifacts.Count, publishResponse.Artifacts.Count,
                     "There should only be {0} published artifact returned!", allArtifacts.Count);
 
@@ -358,7 +358,7 @@ namespace ArtifactStoreTests
                     "'POST {0}?all=true' should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
 
                 // Verify:
-                ArtifactStoreHelper.AssertExpectedProjectWasReturned(publishResponse.Projects, _project);
+                ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(publishResponse.Projects, _project);
                 Assert.AreEqual(savedArtifacts.Count, publishResponse.Artifacts.Count,
                     "There should only be {0} published artifact returned!", savedArtifacts.Count);
 
@@ -611,6 +611,9 @@ namespace ArtifactStoreTests
 
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
+            //This is needed to suppress 501 error
+            artifactDetails.ItemTypeId = null;
+
             string requestBody = JsonConvert.SerializeObject(artifactDetails);
 
             requestBody = requestBody.Replace(toChange, changeTo);
@@ -647,6 +650,9 @@ namespace ArtifactStoreTests
             artifactList[index].Lock();
 
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifactList[index].Id);
+
+            //This is needed to suppress 501 error
+            artifactDetails.ItemTypeId = null;
 
             string requestBody = JsonConvert.SerializeObject(artifactDetails);
 

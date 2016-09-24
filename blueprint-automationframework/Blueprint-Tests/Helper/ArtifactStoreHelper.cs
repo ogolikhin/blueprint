@@ -13,7 +13,7 @@ namespace Helper
         /// </summary>
         /// <param name="returnedProjects">The list of returned projects.</param>
         /// <param name="expectedProject">The expected project.</param>
-        public static void AssertExpectedProjectWasReturned(List<INovaProject> returnedProjects, IProject expectedProject)
+        public static void AssertOnlyExpectedProjectWasReturned(List<INovaProject> returnedProjects, IProject expectedProject)
         {
             AssertAllExpectedProjectsWereReturned(returnedProjects, new List<IProject> { expectedProject });
         }
@@ -23,13 +23,21 @@ namespace Helper
         /// </summary>
         /// <param name="returnedProjects">The list of returned projects.</param>
         /// <param name="expectedProjects">The list of expected projects.</param>
-        public static void AssertAllExpectedProjectsWereReturned(List<INovaProject> returnedProjects, List<IProject> expectedProjects)
+        /// <param name="assertNoUnexpectedProjectsWereReturned">(optional) Also verifies that no projects other than the expected projects were returned.
+        ///     Pass false to disable this check.</param>
+        public static void AssertAllExpectedProjectsWereReturned(
+            List<INovaProject> returnedProjects,
+            List<IProject> expectedProjects,
+            bool assertNoUnexpectedProjectsWereReturned = true)
         {
             ThrowIf.ArgumentNull(expectedProjects, nameof(expectedProjects));
             ThrowIf.ArgumentNull(returnedProjects, nameof(returnedProjects));
 
-            Assert.AreEqual(expectedProjects.Count, returnedProjects.Count,
-                "There should be {0} projects returned!", expectedProjects.Count);
+            if (assertNoUnexpectedProjectsWereReturned)
+            {
+                Assert.AreEqual(expectedProjects.Count, returnedProjects.Count,
+                    "There should be {0} projects returned!", expectedProjects.Count);
+            }
 
             foreach (var expectedProject in expectedProjects)
             {

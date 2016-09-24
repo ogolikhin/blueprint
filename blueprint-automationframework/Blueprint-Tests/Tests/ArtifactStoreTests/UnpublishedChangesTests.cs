@@ -48,7 +48,7 @@ namespace ArtifactStoreTests
             }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.AssertExpectedProjectWasReturned(unpublishedChanges.Projects, _project);
+            ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(unpublishedChanges.Projects, _project);
             Assert.AreEqual(1, unpublishedChanges.Artifacts.Count, "There should be 1 artifact in the unpublished changes!");
             ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifactSkipVersion(unpublishedChanges.Artifacts.First(), artifact);
         }
@@ -70,7 +70,7 @@ namespace ArtifactStoreTests
             }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.AssertExpectedProjectWasReturned(unpublishedChanges.Projects, _project);
+            ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(unpublishedChanges.Projects, _project);
             Assert.AreEqual(1, unpublishedChanges.Artifacts.Count, "There should be 1 artifact in the unpublished changes!");
             ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifact(unpublishedChanges.Artifacts.First(), artifact, expectedVersion: 1);
         }

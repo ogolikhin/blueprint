@@ -54,17 +54,3 @@
     color: $white;
   }
 }
-.btn-bluelight {
-  background-color: $blue-lightest;
-  border: solid 2px $gray-light;
-  color: $gray-light;
-  padding-bottom: 7px;
-  padding-top: 7px;
-
-  &:hover,
-  &:focus,
-  &:active {
-    background-color: darken($blue-lightest, 2%);
-    border-color: darken($gray-light, 12%);
-  }
-}

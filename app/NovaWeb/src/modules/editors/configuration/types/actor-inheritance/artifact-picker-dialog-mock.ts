@@ -8,7 +8,7 @@ export class ArtifactPickerDialogServiceMock implements IDialogService {
 
     public open(dialogSettings: IDialogSettings): ng.IPromise<any> {
 
-        const deferred = this.$q.defer<Models.IArtifact>();
+        const deferred = this.$q.defer<Models.IArtifact[]>();
 
         let parentArtifact: any = {
             name: "parent"
@@ -23,7 +23,7 @@ export class ArtifactPickerDialogServiceMock implements IDialogService {
             name: "actor name",
             parent: parentArtifact
         };
-        deferred.resolve(artifact);
+        deferred.resolve([artifact]);
         return deferred.promise;
     }
     public alert(message: string, header?: string): ng.IPromise<any> {

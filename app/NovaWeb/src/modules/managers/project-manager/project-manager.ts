@@ -30,7 +30,7 @@ export interface IProjectManager extends IDispose {
 export class ProjectManager  implements IProjectManager { 
 
     private _projectCollection: Rx.BehaviorSubject<Project[]>;
-    private subscriber: Rx.IDisposable;
+    private subscribers: Rx.IDisposable[];
     private statechangesubscriber: Rx.IDisposable;
     static $inject: [string] = [
         "localization", 
@@ -48,7 +48,8 @@ export class ProjectManager  implements IProjectManager {
         private artifactManager: IArtifactManager,
         private metadataService: IMetaDataService,
         private statefulArtifactFactory: IStatefulArtifactFactory) {
-
+        
+        this.subscribers = [];
     }
 
     private onChange(artifact: IStatefulArtifact) {
@@ -65,12 +66,22 @@ export class ProjectManager  implements IProjectManager {
     //     }
     // }
     
+    private onChangeInArtifactManagerCollection(artifact: IStatefulArtifact){
+         //Projects will null parentId have been removed from ArtifactManager
+         if (artifact.parentId === null) {
+             this.removeArtifact(artifact);
+         }
+     }
+
+     private disposeSubscribers() {
+         this.subscribers.forEach((s) => s.dispose());
+         this.subscribers = [];
+     }
+
     public dispose() {
         this.remove(true);
+        this.disposeSubscribers();
 
-        if (this.subscriber) {
-            this.subscriber.dispose();
-        }
         if (this._projectCollection) {
             this._projectCollection.dispose();
             delete this._projectCollection ;
@@ -78,14 +89,14 @@ export class ProjectManager  implements IProjectManager {
     }
 
     public initialize() {
-        //subscribe to event
-        if (this.subscriber) {
-            this.subscriber.dispose();
-        }
+        this.disposeSubscribers();
+
         if (this._projectCollection) {
             this._projectCollection.dispose();
             delete this._projectCollection ;
         }
+
+        this.subscribers.push(this.artifactManager.collectionChangeObservable.subscribeOnNext(this.onChangeInArtifactManagerCollection, this));
     }
 
     public get projectCollection(): Rx.BehaviorSubject<Project[]> {
@@ -124,6 +135,13 @@ export class ProjectManager  implements IProjectManager {
             throw ex;
         }
     }
+
+    public removeArtifact(artifact: IStatefulArtifact) {
+         let node: IArtifactNode = this.getArtifactNode(artifact.id);
+         node.parentNode.children = node.parentNode.children.filter((child) => child.id !== artifact.id);
+ 
+         this.projectCollection.onNext(this.projectCollection.getValue());
+     }
 
     public remove(all: boolean = false) {
         try {
@@ -165,7 +183,7 @@ export class ProjectManager  implements IProjectManager {
                     node.children = data.map((it: Models.IArtifact) => {
                         const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
                         this.artifactManager.add(statefulArtifact);
-                        return new ArtifactNode(statefulArtifact);
+                        return new ArtifactNode(statefulArtifact, node);
                     });
                     node.loaded = true;
                     node.open = true;

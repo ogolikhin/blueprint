@@ -9,12 +9,14 @@ export class BPArtifactDocumentItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-document-item.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPArtifactDocumentItemController;
     public bindings: any = {
-        docRefInfo: "="
+        docRefInfo: "=",
+        deleteItem: "&"
     };
 }
 
 interface IBPArtifactAttachmentItemController {
     docRefInfo: IArtifactDocRef;
+    deleteItem: Function;
 }
 
 export class BPArtifactDocumentItemController implements IBPArtifactAttachmentItemController {
@@ -28,6 +30,7 @@ export class BPArtifactDocumentItemController implements IBPArtifactAttachmentIt
 
     public fileIconClass: string;
     public docRefInfo: IArtifactDocRef;
+    public deleteItem: Function;
     
     constructor(
         private $log: ng.ILogService,
@@ -39,10 +42,6 @@ export class BPArtifactDocumentItemController implements IBPArtifactAttachmentIt
 
     public $onInit() {
         this.fileIconClass = "ext-document"; //FiletypeParser.getFiletypeClass(null);
-    }
-
-    public deleteItem() {
-        alert("deleting attachment");
     }
     
     public downloadItem(): ng.IPromise<any> {

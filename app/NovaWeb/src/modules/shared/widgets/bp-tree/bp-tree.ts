@@ -109,12 +109,14 @@ export class BPTreeController implements IBPTreeController  {
     private _datasource: any[] = [];
     private selectedRow: any;
     private clickTimeout: any;
+    private selectionSubject: Rx.Subject<RowNode>;
 
     private _innerRenderer: Function;
 
     constructor(private localization: ILocalizationService, private $element?, private $timeout?: ng.ITimeoutService) {
         this.bpRef = this;
 
+        this.selectionSubject = new Rx.Subject<RowNode>();
         this.gridClass = this.gridClass ? this.gridClass : "project-explorer";
         this.enableDragndrop = this.enableDragndrop ? true : false;
         this.rowBuffer = this.rowBuffer ? this.rowBuffer : 200;
@@ -135,6 +137,12 @@ export class BPTreeController implements IBPTreeController  {
         } else {
             this.gridColumns = [];
         }
+
+        this.selectionSubject
+            .filter(node => node != null && angular.isFunction(this.onSelect))
+            .distinctUntilChanged(node => node.id)
+            .debounce(200)
+            .subscribe(node => this.onSelect({ item: node.data }));
     }
 
     public $onInit = () => {
@@ -172,8 +180,8 @@ export class BPTreeController implements IBPTreeController  {
         this.bpRef = null;
         //this.reload(null);
         this.updateViewport(null, true);
-
         this.options.api.destroy();
+        this.selectionSubject.dispose();
     };
 
     /* tslint:disable */
@@ -391,16 +399,13 @@ export class BPTreeController implements IBPTreeController  {
         }
     };
 
-    private rowSelected = (node: any) => {
+    private rowSelected = (node: RowNode) => {
         if (!node) {
             return;
         }
 
         node.setSelected(true, true);
-
-        if (angular.isFunction(this.onSelect)) {
-            this.onSelect({ item: node.data });
-        }
+        this.selectionSubject.onNext(node);
     };
 
     private cellFocused = (params: any) => {

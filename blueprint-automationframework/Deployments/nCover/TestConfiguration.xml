@@ -9,6 +9,7 @@
     <Service name="ConfigControl" address="http://localhost:82/" />
     <Service name="FileStore"     address="http://localhost/" />
     <Service name="Storyteller"   address="http://localhost/" />
+    <Service name="SearchService"   address="http://localhost/" />
   </BlueprintServices>
 
   <Databases>

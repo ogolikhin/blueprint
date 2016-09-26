@@ -73,7 +73,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
                     key: relationship.artifactId,
                     value: relationship
                 } as IChangeSet;
-                this.changeset.add(changeset, relationship);
+                this.changeset.add(changeset);
                 
                 this.statefulItem.lock();
             });
@@ -100,7 +100,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
                         key: relationship.artifactId,
                         value: relationship
                     } as IChangeSet;
-                    this.changeset.add(changeset, relationship);
+                    this.changeset.add(changeset);
                     
                     this.statefulItem.lock();
                 }

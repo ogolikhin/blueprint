@@ -101,7 +101,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
                         key: attachment.guid || attachment.attachmentId,
                         value: attachment
                     } as IChangeSet;
-                    this.changeset.add(changeset, attachment);
+                    this.changeset.add(changeset);
                 }
             });
             this.subject.onNext(this.attachments);

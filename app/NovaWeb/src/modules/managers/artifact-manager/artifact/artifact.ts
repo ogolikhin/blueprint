@@ -27,24 +27,23 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     public metadata: IMetaData;
     public deleted: boolean;
 
-    private subject: Rx.BehaviorSubject<IStatefulArtifact> ;
+    private subject: Rx.Subject<IStatefulArtifact> ;
     private subscribers: Rx.IDisposable[];
     private changesets: IChangeCollector;
     private lockPromise: ng.IPromise<IStatefulArtifact>;
     private loadPromise: ng.IPromise<IStatefulArtifact>;
-//    private isLoaded = false;
 
     constructor(private artifact: Models.IArtifact, private services: IStatefulArtifactServices) {
-        this.artifactState = new ArtifactState(this).initialize(artifact);
+        this.artifactState = new ArtifactState(this);
         this.changesets = new ChangeSetCollector(this);
         this.metadata = new MetaData(this);
-        this.customProperties = new ArtifactProperties(this).initialize(artifact.customPropertyValues);
-        this.specialProperties = new SpecialProperties(this).initialize(artifact.specificPropertyValues);
+        this.customProperties = new ArtifactProperties(this, artifact.customPropertyValues);
+        this.specialProperties = new SpecialProperties(this, artifact.specificPropertyValues);
         this.attachments = new ArtifactAttachments(this);
         this.docRefs = new DocumentRefs(this);
         this.relationships = new ArtifactRelationships(this);
         this.subArtifactCollection = new StatefulSubArtifactCollection(this, this.services);
-        this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(this);
+        this.subject = new Rx.Subject<IStatefulArtifact>();
         this.deleted = false;
 
         this.subscribers = [
@@ -61,14 +60,13 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         //TODO: implement logic to release resources
         this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
         this.subject.dispose();
-        this.artifact.parentId = null;
         delete this.subscribers;
         delete this.subject;
-
+        this.artifact.parentId = null;
     }
 
     public observable(): Rx.Observable<IStatefulArtifact> {
-        return this.subject.filter(it => it !== null).asObservable();
+        return this.subject.asObservable();
     }    
 
     public get id(): number {
@@ -241,38 +239,26 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         return this.itemTypeId === Enums.ItemTypePredefined.Project;
     }
 
-    private validateLock(lock: Models.ILockResult): boolean {
+    private validateLock(lock: Models.ILockResult) {
         if (lock.result === Enums.LockResultEnum.Success) {
             this.artifactState.lock(lock);
             if (lock.info && lock.info.versionId !== this.version) {
                 this.artifactState.outdated = true;
                 this.discard(true);
-                return false;
             }
-        } else if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
-            this.artifactState.lock(lock);
-            this.artifactState.readonly = true;
-            this.artifactState.outdated = true;
-            this.discard(true);
-            return false;
-
-        } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
-            this.artifactState.readonly = true;
-            this.artifactState.outdated = true;
-            this.artifactState.error = "Artifact_Lock_" + Enums.LockResultEnum[lock.result];
-            this.discard(true);
-            return false;
-
         } else {
-            this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
             this.artifactState.readonly = true;
-            this.artifactState.outdated = true;            
+            this.artifactState.outdated = true;
             this.discard(true);
-            return false;
+            if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
+                this.artifactState.lock(lock);
+            } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
+                this.artifactState.error = "Artifact_Lock_" + Enums.LockResultEnum[lock.result];
+            } else {
+                this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
+            }
         }
-        return true;
     }
-
     public lock(): ng.IPromise<IStatefulArtifact> {
         if (this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
             return;
@@ -421,6 +407,16 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     }
 
     public refresh(): ng.IPromise<IStatefulArtifact> {
-        return this.load(true);
+        const deferred = this.services.getDeferred<IStatefulArtifact>();
+        const disposable = this.observable()
+            .filter(artifact => artifact && !artifact.artifactState.outdated)
+            .subscribe((artifact) => {
+
+            disposable.dispose();
+            deferred.resolve(artifact);
+        });
+        this.artifactState.set({ outdated: true });
+
+        return deferred.promise;
     }
 }

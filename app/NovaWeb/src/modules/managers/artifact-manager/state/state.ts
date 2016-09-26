@@ -33,6 +33,7 @@ export class ArtifactState implements IArtifactState {
 
     constructor(private artifact: IIStatefulArtifact) {
         this.subject = new Rx.BehaviorSubject<IArtifactState>(this);
+        this.initialize(artifact);
         
     }
     public dispose() {

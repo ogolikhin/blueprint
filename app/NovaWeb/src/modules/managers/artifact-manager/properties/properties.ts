@@ -25,11 +25,8 @@ export class ArtifactProperties implements IArtifactProperties  {
         // });
     }
 
-    public initialize(properties: Models.IPropertyValue[]): IArtifactProperties {
-        if (properties) {
-            this.properties = properties;
-        }
-        return this;
+    public initialize(properties: Models.IPropertyValue[])  {
+        this.properties = properties || [];
     }
 
     // public get value(): ng.IPromise<Models.IPropertyValue[]> {

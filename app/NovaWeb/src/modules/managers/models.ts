@@ -33,7 +33,7 @@ export interface IBlock<T> {
 }
 
 export interface IArtifactProperties {
-    initialize(properties: Models.IPropertyValue[]): IArtifactProperties; 
+    initialize(properties: Models.IPropertyValue[]); 
     observable: Rx.Observable<Models.IPropertyValue>;
     get(id: number): Models.IPropertyValue;
     set(id: number, value: any): Models.IPropertyValue;
@@ -84,7 +84,7 @@ export interface IStatefulSubArtifact extends IStatefulItem, Models.ISubArtifact
     changes(): Models.ISubArtifact;
 }
 
-export interface IArtifactNode {
+export interface IArtifactNode extends IDispose {
     artifact: IStatefulArtifact;
     children?: IArtifactNode[];
     parentNode: IArtifactNode;

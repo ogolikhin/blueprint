@@ -14,6 +14,15 @@ export class ArtifactNode implements IArtifactNode {
         this.hasChildren = artifact.hasChildren;
         this.parentNode = parentNode;
     };
+    
+    public dispose() {
+        if (angular.isArray(this.children)) {
+            this.children.forEach((it: IArtifactNode) => it.dispose );
+        }
+        delete this.children;
+        delete this.parentNode;
+        delete this._artifact;
+    }
 
     public get artifact(): IStatefulArtifact {
         return this._artifact;
@@ -57,6 +66,12 @@ export class Project extends ArtifactNode {
         super(artifact, null);
         this.open = true;
         this.hasChildren = true;
+
+    }
+
+    public dispose() {
+        super.dispose();
+        delete this.meta;
 
     }
 

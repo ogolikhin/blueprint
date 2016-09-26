@@ -156,6 +156,7 @@ export class ProjectManager  implements IProjectManager {
                 let result = true;
                 if (all || it.id === projectId) {
                     this.artifactManager.removeAll(it.projectId);
+                    it.dispose();
                     result = false;
                 }
                 return result;

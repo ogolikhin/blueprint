@@ -30,6 +30,19 @@ namespace Model
         List<INovaArtifactResponse> DeleteArtifact(IArtifactBase artifact, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Discard a list of artifacts.
+        /// </summary>
+        /// <param name="artifacts">The artifacts to discard.  This can be null if the 'all' parameter is true.</param>
+        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
+        /// <param name="all">(optional) Pass true to discard all artifacts saved by the user that have changes.  In this case, you don't need to specify the artifacts to discard.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>An object containing a list of artifacts that were discarded and their projects.</returns>
+        INovaArtifactsAndProjectsResponse DiscardArtifacts(List<IArtifactBase> artifacts,
+            IUser user = null,
+            bool? all = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Checks if the ArtifactStore service is ready for operation.
         /// (Runs: GET /status)
         /// </summary>
@@ -202,6 +215,19 @@ namespace Model
         INovaArtifactsAndProjectsResponse GetUnpublishedChanges(IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Moves an artifact to a different parent.
+        /// </summary>
+        /// <param name="artifact">The artifact to move.</param>
+        /// <param name="newParent">The new parent where this artifact will move to.</param>
+        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The details of the artifact that we moved.</returns>
+        INovaArtifactDetails MoveArtifact(IArtifactBase artifact,
+            IArtifactBase newParent,
+            IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Publishes an artifact.
         /// </summary>
         /// <param name="artifact">The artifact to publish.</param>
@@ -219,15 +245,5 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
         INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts, IUser user = null, bool? all = null, List<HttpStatusCode> expectedStatusCodes = null);
-
-        /// <summary>
-        /// Discard a list of artifacts.
-        /// </summary>
-        /// <param name="artifacts">The artifacts to discard.  This can be null if the 'all' parameter is true.</param>
-        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
-        /// <param name="all">(optional) Pass true to discard all artifacts saved by the user that have changes.  In this case, you don't need to specify the artifacts to discard.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>An object containing a list of artifacts that were discarded and their projects.</returns>
-        INovaArtifactsAndProjectsResponse DiscardArtifacts(List<IArtifactBase> artifacts, IUser user = null, bool? all = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

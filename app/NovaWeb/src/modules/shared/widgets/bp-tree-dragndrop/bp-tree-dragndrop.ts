@@ -184,8 +184,6 @@ export class BPTreeDragndrop implements ng.IDirective {
 
                         if (insertNodeByIndex(adjustedPath, node, nodes, position)) {
                             Controller.options.api.setRowData(nodes);
-                        } else {
-                            //TODO: make sure the extracted node gets reinserted in the original position
                         }
                         Controller.options.api.refreshView();
                     }

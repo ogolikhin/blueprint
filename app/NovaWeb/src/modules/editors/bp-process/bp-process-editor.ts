@@ -81,8 +81,7 @@ export class BpProcessEditorController extends BpBaseEditor {
     public onUpdate () {
         // when this method is called we should have a valid 
         // process artifact in the base class' artifact
-        // property. Note: the process artifact has not been 
-        // fully loaded yet. 
+        // property.
 
         // here we create a new process diagram  passing in the
         // process artifact and the html element that will contain

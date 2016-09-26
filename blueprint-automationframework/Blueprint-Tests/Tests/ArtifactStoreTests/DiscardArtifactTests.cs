@@ -2,7 +2,6 @@
 using Helper;
 using Model;
 using Model.ArtifactModel;
-using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -18,7 +17,6 @@ namespace ArtifactStoreTests
         private IUser _user = null;
         private IProject _project = null;
         const string DISCARD_PATH = RestPaths.Svc.ArtifactStore.Artifacts.DISCARD;
-        const string PUBLISH_PATH = RestPaths.Svc.ArtifactStore.Artifacts.PUBLISH;
 
         [SetUp]
         public void SetUp()
@@ -45,27 +43,19 @@ namespace ArtifactStoreTests
             // Setup:
             // Create artifact(s) with save for discard test
             var savedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
-            try
-            {
-                INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
+            INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
-                // Execute:
-                Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(savedArtifacts, _user), "DiscardArtifacts() failed when discarding saved artifact(s)!");
+            // Execute:
+            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(savedArtifacts, _user),
+                "DiscardArtifacts() failed when discarding saved artifact(s)!");
 
-                // Validation: Verify that discarded artifact information from discardedArtifactResponse match with that from savedArtifacts
+            // Validation: Verify that discarded artifact information from discardedArtifactResponse match with that from savedArtifacts
 
-                Assert.That(discardArtifactResponse.Artifacts.Count.Equals(savedArtifacts.Count), "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}", savedArtifacts.Count, discardArtifactResponse.Artifacts.Count);
+            Assert.That(discardArtifactResponse.Artifacts.Count.Equals(savedArtifacts.Count),
+                "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}",
+                savedArtifacts.Count, discardArtifactResponse.Artifacts.Count);
 
-                DiscardVerification(discardArtifactResponse, savedArtifacts);
-            }
-            finally
-            {
-                // Preperation for cleanup:
-                foreach (var artifact in savedArtifacts)
-                {
-                    artifact.IsSaved = false;
-                }
-            }
+            DiscardVerification(discardArtifactResponse, savedArtifacts);
         }
 
         [TestCase(2, BaseArtifactType.Actor)]
@@ -77,28 +67,18 @@ namespace ArtifactStoreTests
             // Setup:
             // Create artifact(s) with save for discard test
             var savedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
-            try
-            {
-                INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
+            INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
-                // Execute:
-                Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(savedArtifacts, _user, all: true), "DiscardArtifacts() failed when discarding saved artifact(s)!");
+            // Execute:
+            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(savedArtifacts, _user, all: true),
+                "DiscardArtifacts() failed when discarding saved artifact(s)!");
 
-                // Validation: Verify that discarded artifact information from discardedArtifactResponse match with that from savedArtifacts
+            // Validation: Verify that discarded artifact information from discardedArtifactResponse match with that from savedArtifacts
 
-                Assert.That(discardArtifactResponse.Artifacts.Count.Equals(savedArtifacts.Count), "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}", savedArtifacts.Count, discardArtifactResponse.Artifacts.Count);
+            Assert.That(discardArtifactResponse.Artifacts.Count.Equals(savedArtifacts.Count),
+                "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}", savedArtifacts.Count, discardArtifactResponse.Artifacts.Count);
 
-                DiscardVerification(discardArtifactResponse, savedArtifacts);
-
-            }
-            finally
-            {
-                // Preperation for cleanup:
-                foreach (var artifact in savedArtifacts)
-                {
-                    artifact.IsSaved = false;
-                }
-            }
+            DiscardVerification(discardArtifactResponse, savedArtifacts);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality failing.
@@ -119,10 +99,13 @@ namespace ArtifactStoreTests
             INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(changedPublishedArtifacts, _user), "DiscardArtifacts() failed when discarding saved artifact(s)!");
+            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(changedPublishedArtifacts, _user),
+                "DiscardArtifacts() failed when discarding saved artifact(s)!");
 
             // Validation: Verify that discarded artifact information from discardedArtifactResponse match with that from savedArtifacts
-            Assert.That(discardArtifactResponse.Artifacts.Count.Equals(changedPublishedArtifacts.Count), "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}", changedPublishedArtifacts.Count, discardArtifactResponse.Artifacts.Count);
+            Assert.That(discardArtifactResponse.Artifacts.Count.Equals(changedPublishedArtifacts.Count),
+                "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}",
+                changedPublishedArtifacts.Count, discardArtifactResponse.Artifacts.Count);
 
             DiscardVerification(discardArtifactResponse, changedPublishedArtifacts);
         }
@@ -145,10 +128,12 @@ namespace ArtifactStoreTests
             INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(changedPublishedArtifacts, _user, all: true), "DiscardArtifacts() failed when discarding saved artifact(s)!");
+            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(changedPublishedArtifacts, _user, all: true),
+                "DiscardArtifacts() failed when discarding saved artifact(s)!");
 
             // Validation: Verify that discarded artifact information from discardedArtifactResponse match with that from savedArtifacts
-            Assert.That(discardArtifactResponse.Artifacts.Count.Equals(changedPublishedArtifacts.Count), "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}", changedPublishedArtifacts.Count, discardArtifactResponse.Artifacts.Count);
+            Assert.That(discardArtifactResponse.Artifacts.Count.Equals(changedPublishedArtifacts.Count),
+                "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}", changedPublishedArtifacts.Count, discardArtifactResponse.Artifacts.Count);
 
             DiscardVerification(discardArtifactResponse, changedPublishedArtifacts);
         }
@@ -165,10 +150,12 @@ namespace ArtifactStoreTests
             INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user, all: true), "DiscardArtifacts() failed when discarding saved artifact(s)!");
+            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user, all: true),
+                "DiscardArtifacts() failed when discarding saved artifact(s)!");
 
             // Validation: Verify that response from discard call is empty since published artifact is not discardable
-            Assert.That(discardArtifactResponse.Artifacts.Count.Equals(0), "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}", 0, discardArtifactResponse.Artifacts.Count);
+            Assert.That(discardArtifactResponse.Artifacts.Count.Equals(0),
+                "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}", 0, discardArtifactResponse.Artifacts.Count);
         }
 
         [TestCase(2, BaseArtifactType.Actor)]
@@ -190,10 +177,13 @@ namespace ArtifactStoreTests
             INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(mixedArtifacts, _user, all: true), "DiscardArtifacts() failed when discarding saved artifact(s)!");
+            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(mixedArtifacts, _user, all: true),
+                "DiscardArtifacts() failed when discarding saved artifact(s)!");
 
             // Validation: Makesure that returned body contains artifact details from savedArtifacts, ones taht are valid for successful discard. 
-            Assert.That(discardArtifactResponse.Artifacts.Count.Equals(numberOfArtifacts), "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}", numberOfArtifacts, discardArtifactResponse.Artifacts.Count);
+            Assert.That(discardArtifactResponse.Artifacts.Count.Equals(numberOfArtifacts),
+                "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}",
+                numberOfArtifacts, discardArtifactResponse.Artifacts.Count);
         }
 
         // TODO Discard of removed artifact
@@ -219,7 +209,8 @@ namespace ArtifactStoreTests
 
             // Validation: Exception should contain expected message.
             string expectedExceptionMessage = "has nothing to discard";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of discard published artifact(s) which has nothing to discard.", expectedExceptionMessage);
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} was not found in returned message of discard published artifact(s) which has nothing to discard.", expectedExceptionMessage);
         }
 
         [TestCase(2, BaseArtifactType.Actor)]
@@ -246,7 +237,8 @@ namespace ArtifactStoreTests
 
             // Validation: Exception should contain expected message.
             string expectedExceptionMessage = "has nothing to discard";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of discard published artifact(s) which has nothing to discard.", expectedExceptionMessage);
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} was not found in returned message of discard published artifact(s) which has nothing to discard.", expectedExceptionMessage);
         }
 
         [TestCase(2, BaseArtifactType.Actor)]
@@ -273,7 +265,8 @@ namespace ArtifactStoreTests
 
             // Validation: Exception should contain expected message.
             string expectedExceptionMessage = "has nothing to discard";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of discard published artifact(s) which has nothing to discard.", expectedExceptionMessage);
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} was not found in returned message of discard published artifact(s) which has nothing to discard.", expectedExceptionMessage);
         }
 
         [TestCase]
@@ -292,7 +285,8 @@ namespace ArtifactStoreTests
 
             // Verify:
             const string expectedExceptionMessage = "The list of artifact Ids is empty.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of discard artifact(s) which has empty list of Ids.", expectedExceptionMessage);
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} was not found in returned message of discard artifact(s) which has empty list of Ids.", expectedExceptionMessage);
         }
 
         #endregion 400 Bad Request tests
@@ -316,7 +310,8 @@ namespace ArtifactStoreTests
 
             // Verify:
             const string expectedExceptionMessage = "Unauthorized call";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of discard published artifact(s) which has invalid token.", expectedExceptionMessage);
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} was not found in returned message of discard published artifact(s) which has invalid token.", expectedExceptionMessage);
         }
 
         #endregion 401 Unauthorized tests
@@ -341,7 +336,8 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedExceptionMessage = "Artifact with Id " + publishedArtifacts[publishedArtifacts.Count - 1].Id + " is deleted.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of discard published artifact(s) which has removed artifact Id.", expectedExceptionMessage);
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} was not found in returned message of discard published artifact(s) which has removed artifact Id.", expectedExceptionMessage);
         }
 
         [TestCase(2, BaseArtifactType.Process, int.MaxValue)]
@@ -367,7 +363,8 @@ namespace ArtifactStoreTests
 
                 // Verify:
                 string expectedExceptionMessage = "Item with Id " + publishedArtifacts[publishedArtifacts.Count - 1].Id + " is not found.";
-                Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of discard published artifact(s) which has non existent artifact Id.", expectedExceptionMessage);
+                Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                    "{0} was not found in returned message of discard published artifact(s) which has non existent artifact Id.", expectedExceptionMessage);
             }
             finally
             {
@@ -398,7 +395,8 @@ namespace ArtifactStoreTests
             INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(changedPublishedArtifacts, _user, all: true), "DiscardArtifacts() failed when discarding saved artifact(s)!");
+            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(changedPublishedArtifacts, _user, all: true),
+                "DiscardArtifacts() failed when discarding saved artifact(s)!");
 
             List<IArtifactBase> oneArtifactList = new List<IArtifactBase>();
             oneArtifactList.Add(changedPublishedArtifacts[2]);
@@ -409,7 +407,8 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedExceptionMessage = "Specified artifacts have dependent artifacts to publish.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of discard published artifact(s) which has dependend not discarded child artifact Id.", expectedExceptionMessage);
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} was not found in returned message of discard published artifact(s) which has dependend not discarded child artifact Id.", expectedExceptionMessage);
         }
 
         #endregion 409 Conflict tests
@@ -421,7 +420,7 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="discardArtifactResponse">The response from Nova discard call.</param>
         /// <param name="artifactsTodiscard">artifacts that are being discarded</param>
-        public static void DiscardVerification(INovaArtifactsAndProjectsResponse discardArtifactResponse, List<IArtifactBase> artifactsTodiscard)
+        public void DiscardVerification(INovaArtifactsAndProjectsResponse discardArtifactResponse, List<IArtifactBase> artifactsTodiscard)
         {
             ThrowIf.ArgumentNull(discardArtifactResponse, nameof(discardArtifactResponse));
             ThrowIf.ArgumentNull(artifactsTodiscard, nameof(artifactsTodiscard));
@@ -430,7 +429,14 @@ namespace ArtifactStoreTests
 
             for (int i = 0; i < artifactsTodiscard.Count; i++)
             {
-                Assert.That(tempIds.Contains(artifactsTodiscard[i].Id), "The discarded artifact whose Id is {0} does not exist on the response from the discard call.", artifactsTodiscard[i].Id);
+                Assert.That(tempIds.Contains(artifactsTodiscard[i].Id),
+                    "The discarded artifact whose Id is {0} does not exist on the response from the discard call.",artifactsTodiscard[i].Id);
+            }
+
+            foreach (var artifact in discardArtifactResponse.Artifacts)
+            {
+                Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id),
+                    "After discarding artifact ID {0} we were still able to get it!", artifact.Id);
             }
         }
 

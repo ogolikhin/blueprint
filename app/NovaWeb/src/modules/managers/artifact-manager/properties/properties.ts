@@ -47,27 +47,21 @@ export class ArtifactProperties implements IArtifactProperties  {
     public set(id: number, value: any): Models.IPropertyValue {
         let property = this.get(id);
         if (property) {
-            let oldValue = property.value;
-            property.value = value;
+           property.value = value;
            let changeset = {
                type: ChangeTypeEnum.Update,
                key: id,
                value: property              
            } as IChangeSet;
-           this.changeset.add(changeset, oldValue);
+           this.changeset.add(changeset);
            
            this.statefulItem.lock();
         }
         return property;
     }
 
-    public discard(all: boolean = false) {
-        this.changeset.reset().forEach((it: IChangeSet) => {
-            if (!all) {
-                this.get(it.key as number).value = it.value;
-            }
-        });
-        
+    public discard() {
+        this.changeset.reset();
     }
 
     public changes(): Models.IPropertyValue[] {

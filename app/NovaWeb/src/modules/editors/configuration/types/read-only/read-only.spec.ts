@@ -8,98 +8,99 @@ import "angular-formly-templates-bootstrap";
 import { createFormlyModule } from "../../formly-config.mock";
 import { PrimitiveType } from "../../../../main/models/enums";
 
-let fieldsDefinition = [
-    {
-        type: "bpFieldReadOnly",
-        key: "field",
-        data: {
-            primitiveType: PrimitiveType.Number
-        }
-    },
-    {
-        type: "bpFieldReadOnly",
-        key: "readonlyDate",
-        data: {
-            primitiveType: PrimitiveType.Date
-        }
-    },
-    {
-        type: "bpFieldReadOnly",
-        key: "readonlySelectMulti",
-        templateOptions: {
-            options: [
-                { value: 1, name: "Option 1" },
-                { value: 2, name: "Option 2" },
-                { value: 3, name: "Option 3" },
-                { value: 4, name: "Option 4" },
-                { value: 5, name: "Option 5" }
-            ],
-            optionsAttr: "bs-options"
-        },
-        data: {
-            primitiveType: PrimitiveType.Choice,
-            isMultipleAllowed: true
-        }
-    },
-    {
-        type: "bpFieldReadOnly",
-        key: "readonlySelect",
-        data: {
-            primitiveType: PrimitiveType.Choice,
-            validValues: [
-                { id: 1, value: "Option 1" },
-                { id: 2, value: "Option 2" },
-                { id: 3, value: "Option 3" },
-                { id: 4, value: "Option 4" },
-                { id: 5, value: "Option 5" }
-            ]
-        }
-    },
-    {
-        type: "bpFieldReadOnly",
-        key: "readonlyText",
-        data: {
-            primitiveType: PrimitiveType.Text
-        }
-    },
-    {
-        type: "bpFieldReadOnly",
-        key: "readonlyTextMulti",
-        data: {
-            primitiveType: PrimitiveType.Text,
-            isMultipleAllowed: true
-        }
-    },
-    {
-        type: "bpFieldReadOnly",
-        key: "readonlyRichText",
-        data: {
-            primitiveType: PrimitiveType.Text,
-            isRichText: true
-        }
-    },
-    {
-        type: "bpFieldReadOnly",
-        key: "readonlyUser",
-        data: {
-            primitiveType: PrimitiveType.User
-        }
-    },
-    {
-        type: "bpFieldReadOnly",
-        key: "readonlyInvalid",
-        data: {
-            primitiveType: -100000 // invalid type
-        }
-    }
-];
-
-let moduleName = createFormlyModule([
-    "formly",
-    "formlyBootstrap"
-], fieldsDefinition);
-
 describe("Formly ReadOnly", () => {
+    let fieldsDefinition = [
+        {
+            type: "bpFieldReadOnly",
+            key: "field",
+            data: {
+                primitiveType: PrimitiveType.Number
+            }
+        },
+        {
+            type: "bpFieldReadOnly",
+            key: "readonlyDate",
+            data: {
+                primitiveType: PrimitiveType.Date
+            }
+        },
+        {
+            type: "bpFieldReadOnly",
+            key: "readonlySelectMulti",
+            templateOptions: {
+                options: [
+                    { value: 1, name: "Option 1" },
+                    { value: 2, name: "Option 2" },
+                    { value: 3, name: "Option 3" },
+                    { value: 4, name: "Option 4" },
+                    { value: 5, name: "Option 5" }
+                ],
+                optionsAttr: "bs-options"
+            },
+            data: {
+                primitiveType: PrimitiveType.Choice,
+                isMultipleAllowed: true
+            }
+        },
+        {
+            type: "bpFieldReadOnly",
+            key: "readonlySelect",
+            data: {
+                primitiveType: PrimitiveType.Choice,
+                validValues: [
+                    { id: 1, value: "Option 1" },
+                    { id: 2, value: "Option 2" },
+                    { id: 3, value: "Option 3" },
+                    { id: 4, value: "Option 4" },
+                    { id: 5, value: "Option 5" }
+                ]
+            }
+        },
+        {
+            type: "bpFieldReadOnly",
+            key: "readonlyText",
+            data: {
+                primitiveType: PrimitiveType.Text
+            }
+        },
+        {
+            type: "bpFieldReadOnly",
+            key: "readonlyTextMulti",
+            data: {
+                primitiveType: PrimitiveType.Text,
+                isMultipleAllowed: true
+            }
+        },
+        {
+            type: "bpFieldReadOnly",
+            key: "readonlyRichText",
+            data: {
+                primitiveType: PrimitiveType.Text,
+                isRichText: true
+            }
+        },
+        {
+            type: "bpFieldReadOnly",
+            key: "readonlyUser",
+            data: {
+                primitiveType: PrimitiveType.User
+            }
+        },
+        {
+            type: "bpFieldReadOnly",
+            key: "readonlyInvalid",
+            data: {
+                primitiveType: -100000 // invalid type
+            }
+        }
+    ];
+
+    let moduleName = createFormlyModule("formlyModuleReadOnly", [
+        "ngSanitize",
+        "formly",
+        "formlyBootstrap"
+    ], fieldsDefinition);
+
     beforeEach(angular.mock.module(moduleName));
 
     afterEach(() => {

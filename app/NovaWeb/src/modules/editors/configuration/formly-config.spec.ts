@@ -6,12 +6,12 @@ import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import { createFormlyModule } from "./formly-config.mock";
 
-let moduleName = createFormlyModule([
-    "formly",
-    "formlyBootstrap"
-], null);
-
 describe("Formly", () => {
+    let moduleName = createFormlyModule("formlyModule", [
+        "formly",
+        "formlyBootstrap"
+    ], null);
+
     beforeEach(angular.mock.module(moduleName));
 
     afterEach(() => {

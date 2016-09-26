@@ -7,39 +7,39 @@ import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import { createFormlyModule } from "../../formly-config.mock";
 
-let fieldsDefinition = [
-    {
-        type: "bpFieldNumber",
-        key: "number",
-        templateOptions: {
-            min: 5,
-            max: 100,
-            decimalPlaces: 2
-        },
-        data: {
-            isValidated: true
-        }
-    },
-    {
-        type: "bpFieldNumber",
-        key: "numberNotVal",
-        templateOptions: {
-            min: 5,
-            max: 100,
-            decimalPlaces: 2
-        },
-        data: {
-            isValidated: false
-        }
-    }
-];
-
-let moduleName = createFormlyModule([
-    "formly",
-    "formlyBootstrap"
-], fieldsDefinition);
-
 describe("Formly Number", () => {
+    let fieldsDefinition = [
+        {
+            type: "bpFieldNumber",
+            key: "number",
+            templateOptions: {
+                min: 5,
+                max: 100,
+                decimalPlaces: 2
+            },
+            data: {
+                isValidated: true
+            }
+        },
+        {
+            type: "bpFieldNumber",
+            key: "numberNotVal",
+            templateOptions: {
+                min: 5,
+                max: 100,
+                decimalPlaces: 2
+            },
+            data: {
+                isValidated: false
+            }
+        }
+    ];
+
+    let moduleName = createFormlyModule("formlyModuleNumber", [
+        "formly",
+        "formlyBootstrap"
+    ], fieldsDefinition);
+
     beforeEach(angular.mock.module(moduleName));
 
     afterEach(() => {

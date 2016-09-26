@@ -7,26 +7,26 @@ import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import { createFormlyModule } from "../../formly-config.mock";
 
-let fieldsDefinition = [
-    {
-        type: "bpFieldTextMulti",
-        key: "textmulti",
-        templateOptions: {
-            required: true
-        }
-    },
-    {
-        type: "bpFieldTextMulti",
-        key: "textmultiNotVal"
-    }
-];
-
-let moduleName = createFormlyModule([
-    "formly",
-    "formlyBootstrap"
-], fieldsDefinition);
-
 describe("Formly Text", () => {
+    let fieldsDefinition = [
+        {
+            type: "bpFieldTextMulti",
+            key: "textmulti",
+            templateOptions: {
+                required: true
+            }
+        },
+        {
+            type: "bpFieldTextMulti",
+            key: "textmultiNotVal"
+        }
+    ];
+
+    let moduleName = createFormlyModule("formlyModuleTextMulti", [
+        "formly",
+        "formlyBootstrap"
+    ], fieldsDefinition);
+
     beforeEach(angular.mock.module(moduleName));
 
     afterEach(() => {

@@ -8,8 +8,8 @@ import { LocalizationServiceMock } from "../../core/localization/localization.mo
 //import { BpEscapeAndHighlightFilter } from "../../shared/filters/bp-escape-hightlight/bp-escape-highlight.filter";
 import { formlyConfig } from "./formly-config";
 
-export function createFormlyModule(dependencies, formlyFields) {
-    let app = angular.module("formlyModule", dependencies);
+export function createFormlyModule(moduleName, dependencies, formlyFields) {
+    let app = angular.module(moduleName, dependencies);
     setupFormly(app);
     setupFormlyDirective(app, formlyFields);
     return app.name;

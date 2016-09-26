@@ -27,7 +27,7 @@ export class BpBaseEditor {
                 this.isLoading = true;
                 this.artifact = artifact;
                 const stateObserver = this.artifact.artifactState.observable()
-                        .filter(state => state.outdated)
+                        .filter(state => state.outdated || state.deleted)
                         .subscribeOnNext(this.onLoad, this);
 
                 this.artifact.refresh();
@@ -46,6 +46,9 @@ export class BpBaseEditor {
         this.artifactManager.selection.setArtifact(this.artifact);
         this.artifact.load(this.artifact.artifactState.outdated).then(() => {
             this.onUpdate();
+        }).catch((error) => {
+            this.onUpdate();
+            this.messageService.addError(error);
         }).finally(() => {
             this.isLoading = false;
         })

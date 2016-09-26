@@ -6,6 +6,7 @@ export interface IProjectService {
     getProject(id?: number): ng.IPromise<Models.IProjectNode>;
     getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta>;
     getSubArtifactTree(artifactId: number): ng.IPromise<Models.ISubArtifactNode[]>;
+    getProjectTree(projectId:number, artifactId: number, loadChildren?: boolean): ng.IPromise<Models.IArtifact[]>;
 }
 
 export class ProjectService implements IProjectService {
@@ -82,7 +83,38 @@ export class ProjectService implements IProjectService {
         return defer.promise;
     }
 
+    public getProjectTree(projectId: number, artifactId: number, loadChildren?: boolean){
+        var defer = this.$q.defer<any>();
+        if (projectId && projectId === artifactId) {
+            artifactId = null;
+        }
+        
+        if(loadChildren === undefined){
+            loadChildren = false;
+        }
 
+        let url: string = `svc/artifactstore/projects/${projectId}` 
+        + `/artifacts/?expandedToArtifactId=${artifactId}` + `&includeChildren=` + loadChildren;
+
+        this.$http.get<Models.IArtifact[]>(url).then(
+            (result: ng.IHttpPromiseCallbackArg<Models.IArtifact[]>) => {
+                defer.resolve(result.data);
+            },
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                if (!errResult) {
+                    defer.reject();
+                    return;
+                }
+                var error = {
+                    statusCode: errResult.status,
+                    message: "Artifact_NotFound",
+                    errorCode: errResult.data.errorCode
+                };
+                defer.reject(error);
+            }
+        );
+        return defer.promise;
+    }
 
     public getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta> {
         var defer = this.$q.defer<any>();

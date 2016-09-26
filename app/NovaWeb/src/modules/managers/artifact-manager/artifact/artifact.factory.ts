@@ -1,8 +1,14 @@
 import { IMessageService, ILocalizationService } from "../../../core";
 import { IDialogService } from "../../../shared/";
 
+import { IProcessService } from "../../../editors/bp-process/services/process/process.svc";
 import { Models } from "../../../main/models";
-import { StatefulArtifactServices, IStatefulArtifactServices } from "../services";
+import {
+    StatefulArtifactServices,
+    IStatefulArtifactServices,
+    StatefulProcessArtifactServices,
+    IStatefulProcessArtifactServices
+} from "../services";
 import { IArtifactService } from "./artifact.svc";
 import { 
     IMetaDataService, 
@@ -10,7 +16,8 @@ import {
     IStatefulArtifact,  
     StatefulArtifact, 
     StatefulSubArtifact,
-    IArtifactRelationshipsService 
+    IArtifactRelationshipsService,
+    StatefulProcessArtifact  
 } from "../";
 import {
     // IStatefulArtifact, 
@@ -21,7 +28,7 @@ import {
 export interface IStatefulArtifactFactory {
     createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact;
     createStatefulSubArtifact(artifact: IStatefulArtifact, subArtifact: Models.ISubArtifact): IStatefulSubArtifact;
-    createStatefulProcessArtifact(artifact: Models.IArtifact);
+    createStatefulProcessArtifact(artifact: Models.IArtifact): IStatefulArtifact;
 }
 
 export class StatefulArtifactFactory implements IStatefulArtifactFactory {
@@ -35,7 +42,8 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         "artifactService",
         "artifactAttachments",
         "artifactRelationships",
-        "metadataService"
+        "metadataService",
+        "processService"
     ];
 
     private services: IStatefulArtifactServices;
@@ -49,7 +57,8 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         private artifactService: IArtifactService,
         private attachmentService: IArtifactAttachmentsService,
         private relationshipsService: IArtifactRelationshipsService,
-        private metadataService: IMetaDataService
+        private metadataService: IMetaDataService,
+        private processService: IProcessService
         ) {
 
         this.services = new StatefulArtifactServices( 
@@ -65,6 +74,9 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
     }
 
     public createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact {
+        if (artifact.predefinedType === Models.ItemTypePredefined.Process) {
+            return this.createStatefulProcessArtifact(artifact);
+        }
         return new StatefulArtifact(artifact, this.services);
     }
 
@@ -72,8 +84,10 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         return new StatefulSubArtifact(artifact, subArtifact, this.services);
     }
 
-    public createStatefulProcessArtifact(): IStatefulArtifact {
-        // TODO: implement for process
-        throw Error("this hasn't been implemented yet");
+    public createStatefulProcessArtifact(artifact: Models.IArtifact): IStatefulArtifact {
+
+        let processServices = new StatefulProcessArtifactServices(this.services, this.$q, this.processService);
+
+        return new StatefulProcessArtifact (artifact, processServices);
     }
 }

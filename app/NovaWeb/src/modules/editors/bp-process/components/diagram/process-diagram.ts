@@ -38,9 +38,7 @@ export class ProcessDiagram {
     }
  
     public createDiagram(process: any, htmlElement: HTMLElement) {
-        // retrieve the specified process from the server and 
-        // create a new diagram
-
+     
         this.checkParams(process.id, htmlElement);
         this.htmlElement = htmlElement;
 

@@ -87,11 +87,8 @@ export class StatefulSubArtifactCollection implements ISubArtifactCollection {
         return statefulSubArtifact;
     }
 
-
     public discard() {
-        //TODO implement logic to discard changes
-        this.subArtifactList.forEach((it: IStatefulSubArtifact) => it.discard());
-
+        this.subArtifactList.forEach(subArtifact => { subArtifact.discard(); });
     }
     public update(id: number) {
         // TODO: 

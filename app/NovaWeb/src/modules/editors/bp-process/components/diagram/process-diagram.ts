@@ -2,6 +2,7 @@
 import {IStatefulArtifact} from "../../../../managers/models";
 import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
+import {StatefulProcessArtifact } from "../../models/process-artifact";
 import {IProcessService} from "../../services/process/process.svc";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
 import {IProcessGraph} from "./presentation/graph/models/";
@@ -36,24 +37,17 @@ export class ProcessDiagram {
         this.processModel = null;
     }
  
-    public createDiagram(process: IProcess, htmlElement: HTMLElement) {
+    public createDiagram(process: any, htmlElement: HTMLElement) {
         // retrieve the specified process from the server and 
         // create a new diagram
 
         this.checkParams(process.id, htmlElement);
         this.htmlElement = htmlElement;
 
-        this.processModel = process;
+        this.processModel = <IProcess>process;
 
-        (<IStatefulArtifact>this.processModel).load().then((result) => {
-                this.onLoad(process);
-            }).catch((err: any) => {
-                // if access to proccess info is forbidden
-                if (err && err.statusCode === 403) {
-                    //handle errors if need to
-                }
-            });
- 
+        this.onLoad(this.processModel);
+
     }
 
     private checkParams(processId: number, htmlElement: HTMLElement): void {

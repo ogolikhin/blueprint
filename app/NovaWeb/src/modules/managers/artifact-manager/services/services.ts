@@ -1,4 +1,5 @@
 import { IMessageService, ILocalizationService } from "../../../core/";
+import { IProcessService } from "../../../editors/bp-process/services/process/process.svc";
 import { ISession } from "../../models";
 import { 
     IArtifactService,
@@ -9,6 +10,7 @@ import {
 
 export interface IStatefulArtifactServices {
     //request<T>(config: ng.IRequestConfig): ng.IPromise<T>;
+    qService(): ng.IQService;
     getDeferred<T>(): ng.IDeferred<T>;
     messageService: IMessageService;
     localizationService: ILocalizationService;
@@ -17,6 +19,7 @@ export interface IStatefulArtifactServices {
     attachmentService: IArtifactAttachmentsService;
     relationshipsService: IArtifactRelationshipsService;
     metaDataService: IMetaDataService;
+    processService: IProcessService;
 }
 
 export class StatefulArtifactServices implements IStatefulArtifactServices {
@@ -27,7 +30,12 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
                 private _artifactService: IArtifactService,
                 private _attachmentService: IArtifactAttachmentsService,
                 private _relationshipsService: IArtifactRelationshipsService,
-                private _metadataService: IMetaDataService) {
+                private _metadataService: IMetaDataService,
+                private _processService: IProcessService) {
+    }
+
+    public qService(): ng.IQService {
+        return this.$q;
     }
 
     public getDeferred<T>(): ng.IDeferred<T> {
@@ -61,7 +69,11 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
     public get metaDataService(): IMetaDataService {
         return this._metadataService;
     }
-    
+
+    public get processService(): IProcessService {
+        return this._processService;
+    }
+
     // public request<T>(request: ng.IRequestConfig): ng.IPromise<T> {
     //     var defer = this.services.$q.defer<T>();
     //     this.$http(request).then(

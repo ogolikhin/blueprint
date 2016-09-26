@@ -1,7 +1,10 @@
 import { IMessageService, ILocalizationService } from "../../../core";
 import { Models } from "../../../main/models";
+import { ItemTypePredefined } from "../../../main/models/enums";
 import { StatefulArtifactServices, IStatefulArtifactServices } from "../services";
 import { IArtifactService } from "./artifact.svc";
+import { IProcessService } from "../../../editors/bp-process/services/process/process.svc";
+import { StatefulProcessArtifact } from "../../../editors/bp-process/models/process-artifact";
 import { 
     IMetaDataService, 
     IStatefulSubArtifact, 
@@ -19,7 +22,7 @@ import {
 export interface IStatefulArtifactFactory {
     createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact;
     createStatefulSubArtifact(artifact: IStatefulArtifact, subArtifact: Models.ISubArtifact): IStatefulSubArtifact;
-    createStatefulProcessArtifact(artifact: Models.IArtifact);
+    createStatefulProcessArtifact(artifact: Models.IArtifact): IStatefulArtifact;
 }
 
 export class StatefulArtifactFactory implements IStatefulArtifactFactory {
@@ -32,7 +35,8 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         "artifactService",
         "artifactAttachments",
         "artifactRelationships",
-        "metadataService"
+        "metadataService",
+        "processService"
     ];
 
     private services: IStatefulArtifactServices;
@@ -45,8 +49,8 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         private artifactService: IArtifactService,
         private attachmentService: IArtifactAttachmentsService,
         private relationshipsService: IArtifactRelationshipsService,
-        private metadataService: IMetaDataService
-        ) {
+        private metadataService: IMetaDataService,
+        private processService: IProcessService) {
 
         this.services = new StatefulArtifactServices( 
             this.$q,
@@ -56,19 +60,25 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
             this.artifactService,
             this.attachmentService,
             this.relationshipsService,
-            this.metadataService);
+            this.metadataService,
+            this.processService);
     }
 
     public createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact {
-        return new StatefulArtifact(artifact, this.services);
+        if (artifact.predefinedType === ItemTypePredefined.Process) {
+            return this.createStatefulProcessArtifact(artifact);
+        } else {
+            return new StatefulArtifact(artifact, this.services);
+        }
     }
 
     public createStatefulSubArtifact(artifact: IStatefulArtifact, subArtifact: Models.ISubArtifact): IStatefulSubArtifact {
         return new StatefulSubArtifact(artifact, subArtifact, this.services);
     }
 
-    public createStatefulProcessArtifact(): IStatefulArtifact {
-        // TODO: implement for process
-        throw Error("this hasn't been implemented yet");
+    public createStatefulProcessArtifact(artifact: Models.IArtifact): IStatefulArtifact {
+      
+        return new StatefulProcessArtifact(artifact, this.services);
+      
     }
 }

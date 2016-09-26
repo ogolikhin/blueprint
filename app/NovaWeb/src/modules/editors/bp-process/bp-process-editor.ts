@@ -3,6 +3,7 @@
 import {IProcessService} from "./";
 import {ICommunicationManager} from "./";
 import {IProcess} from "./models/process-models";
+import {StatefulProcessArtifact } from "./models/process-artifact";
 import {ILocalizationService, IMessageService, INavigationService} from "../../core";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
@@ -73,9 +74,11 @@ export class BpProcessEditorController extends BpBaseEditor {
     }
 
     public onLoad() {
-        // this method is called by the base class onStateChange
-        // handler 
+        super.onLoad();
+   
+    }
 
+    public onUpdate () {
         // when this method is called we should have a valid 
         // process artifact in the base class' artifact
         // property. Note: the process artifact has not been 
@@ -100,12 +103,12 @@ export class BpProcessEditorController extends BpBaseEditor {
         );
        
         let htmlElement = this.getHtmlElement();
-         
-        this.processDiagram.createDiagram(<IProcess>this.artifact, htmlElement);
-        
+
+        this.processDiagram.createDiagram(this.artifact, htmlElement);
+
+        super.onUpdate();
     }
-
-
+    
     public $onDestroy() {
         super.$onDestroy();
         this.subArtifactEditorModalOpener.onDestroy();

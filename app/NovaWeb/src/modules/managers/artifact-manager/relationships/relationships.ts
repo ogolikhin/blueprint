@@ -112,7 +112,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
     }
 
     public discard() {
-        this.relationships = this.changeset.reset().map((changeset: IChangeSet) => changeset.value);
+        this.changeset.reset();
         this.subject.onNext(this.relationships);
     }
 }

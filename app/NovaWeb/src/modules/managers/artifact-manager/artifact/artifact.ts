@@ -174,18 +174,13 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     }
 
     public discard() {
-
         this.changesets.reset();
         this.customProperties.discard();
         this.specialProperties.discard();
-
-        //TODO: need impementation
-         this.attachments.discard();
-         this.docRefs.discard();
-         this.subArtifactCollection.list().forEach(subArtifact => {
-             subArtifact.discard();
-         });
-         this.artifactState.dirty = false;
+        this.attachments.discard();
+        this.docRefs.discard();
+        this.subArtifactCollection.discard();
+        this.artifactState.dirty = false;
     }
     
     public setValidationErrorsFlag(value: boolean) {

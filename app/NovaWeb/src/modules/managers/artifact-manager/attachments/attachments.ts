@@ -122,7 +122,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
     }
 
     public discard() {
-        this.attachments = this.changeset.reset().map((changeset: IChangeSet) => changeset.value);
+        this.changeset.reset();
         this.subject.onNext(this.attachments);
     }
 }

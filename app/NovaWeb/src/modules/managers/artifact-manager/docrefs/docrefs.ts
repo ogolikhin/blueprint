@@ -121,7 +121,7 @@ export class DocumentRefs implements IDocumentRefs {
     }
 
     public discard() {
-        this.docrefs = this.changeset.reset().map((changeset: IChangeSet) => changeset.value);
+        this.changeset.reset();
         this.subject.onNext(this.docrefs);
     }
 }

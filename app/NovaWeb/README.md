@@ -7,7 +7,7 @@ If you haven't installed node.js please install it first (latest LTS version fro
 * Synchronize installed Node.JS version with Visual Studio 2015 if you are going to use Task runner from VS2015 - 
 [link](http://ryanhayes.net/synchronize-node-js-install-version-with-visual-studio-2015/)
 
-* If in the console window we are getting the error message that 'typings' is not recognized as an internal or external command, operable program or batch file,
+* If in the console window we are getting the error message that 'gulp' is not recognized as an internal or external command, operable program or batch file,
 add the following path %AppData%\npm to system environment variable PATH (it's better to add it before path to nodejs, it will simplify npm update later).
 
 Then run `devsetup` (on Windows) to install required npm packages globally.

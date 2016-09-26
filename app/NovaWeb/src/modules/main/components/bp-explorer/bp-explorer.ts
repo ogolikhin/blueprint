@@ -1,4 +1,5 @@
-﻿import { Models} from "../../models";
+﻿import * as angular from "angular";
+import { Models} from "../../models";
 import { Helper, IBPTreeController, ITreeNode } from "../../../shared";
 import { IProjectManager, IArtifactManager} from "../../../managers";
 import { Project } from "../../../managers/project-manager";

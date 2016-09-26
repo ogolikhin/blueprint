@@ -1,4 +1,5 @@
-﻿import {ILocalizationService } from "../../../core";
+﻿import * as angular from "angular";
+import {ILocalizationService } from "../../../core";
 import { Models, IWindowManager } from "../../../main";
 import { ISelectionManager, IStatefulArtifact, IStatefulSubArtifact } from "../../../managers/artifact-manager";
 import {IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";

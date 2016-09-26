@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import "angular-formly";
 import "angular-sanitize";
 import { ILocalizationService } from "../../../../core";

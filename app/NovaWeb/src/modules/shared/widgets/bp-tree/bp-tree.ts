@@ -1,4 +1,4 @@
-﻿import "angular";
+﻿import * as angular from "angular";
 import * as Grid from "ag-grid/main";
 import { ILocalizationService } from "../../../core";
 import { RowNode } from "ag-grid/main";

@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
 import "rx/dist/rx.lite.js";

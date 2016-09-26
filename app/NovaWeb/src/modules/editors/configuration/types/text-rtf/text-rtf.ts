@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import "angular-formly";
 
 export class BPFieldTextRTF implements AngularFormly.ITypeOptions {

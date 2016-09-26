@@ -1,4 +1,5 @@
-﻿import { BPTreeComponent, IBPTreeController, ITreeNode } from "./bp-tree";
+﻿import * as angular from "angular";
+import { BPTreeComponent, IBPTreeController, ITreeNode } from "./bp-tree";
 
 angular.module("bp.widjets.tree", [])
     .component("bpTree", new BPTreeComponent());

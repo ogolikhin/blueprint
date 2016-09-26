@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import { Models, Enums } from "../../../main/models";
 import { IIStatefulArtifact, IDispose } from "../../models";
 

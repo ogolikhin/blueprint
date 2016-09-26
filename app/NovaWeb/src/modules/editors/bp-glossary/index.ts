@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import { BpGlossary } from "./bp-glossary";
 import { GlossaryService } from "./glossary.svc";
 

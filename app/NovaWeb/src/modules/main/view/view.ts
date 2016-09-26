@@ -1,4 +1,4 @@
-﻿import "angular";
+﻿import * as angular from "angular";
 import { IMessageService, IWindowVisibility, ILocalizationService } from "../../core";
 import { IUser, ISession } from "../../shell";
 import { Models, Enums } from "../models";

@@ -1,4 +1,5 @@
-﻿import {BpProcessTypeToggle} from "./components/header/bp-process-type-toggle";
+﻿import * as angular from "angular";
+import {BpProcessTypeToggle} from "./components/header/bp-process-type-toggle";
 import {BpProcessHeader} from "./components/header/bp-process-header";
 import {BpProcessEditor} from "./bp-process-editor";
 import {ProcessService} from "./services/process/process.svc";

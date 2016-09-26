@@ -1,4 +1,5 @@
-﻿import { ILocalizationService } from "../../core";
+﻿import * as angular from "angular";
+import { ILocalizationService } from "../../core";
 import { Helper } from "../../shared";
 import { Models } from "../../main";
 import { IArtifactManager, ISelection, IStatefulItem } from "../../managers/artifact-manager";

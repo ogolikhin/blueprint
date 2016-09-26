@@ -170,8 +170,15 @@ namespace ArtifactStore.Repositories
 
         #region GetVersionControlArtifactInfoAsync
 
-        public Task<VersionControlArtifactInfo> GetVersionControlArtifactInfoAsync(int itemId, int userId)
+        public async Task<VersionControlArtifactInfo> GetVersionControlArtifactInfoAsync(int itemId, int userId)
         {
+            DynamicParameters dynamicParameters = new DynamicParameters();
+            dynamicParameters.Add("@userId", userId);
+            dynamicParameters.Add("@itemId", itemId);
+            ArtifactBasicDetails artifactBasicDetails = (await ConnectionWrapper.QueryAsync<ArtifactBasicDetails>(
+                "GetArtifactBasicDetails", dynamicParameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+
+
             throw new NotImplementedException();
         }
 

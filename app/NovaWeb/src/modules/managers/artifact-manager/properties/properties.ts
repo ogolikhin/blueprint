@@ -47,7 +47,7 @@ export class ArtifactProperties implements IArtifactProperties  {
     public set(id: number, value: any): Models.IPropertyValue {
         let property = this.get(id);
         if (property) {
-            property.value = value;
+           property.value = value;
            let changeset = {
                type: ChangeTypeEnum.Update,
                key: id,

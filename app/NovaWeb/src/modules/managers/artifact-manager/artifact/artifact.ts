@@ -34,7 +34,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     private lockPromise: ng.IPromise<IStatefulArtifact>;
     private loadPromise: ng.IPromise<IStatefulArtifact>;
 
-    constructor(private artifact: Models.IArtifact, private services: IStatefulArtifactServices) {
+    constructor(protected artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
         this.artifactState = new ArtifactState(this);
         this.changesets = new ChangeSetCollector(this);
         this.metadata = new MetaData(this);

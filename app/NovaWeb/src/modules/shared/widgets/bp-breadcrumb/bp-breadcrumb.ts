@@ -7,7 +7,7 @@ export class BPBreadcrumbComponent implements ng.IComponentOptions {
     public controller: Function = BPBreadcrumbController;
 }
 
-export interface IBreadcrumbItem {
+export interface IBreadcrumbLink {
     id: number;
     name: string;
     isEnabled: boolean;
@@ -18,7 +18,7 @@ export interface IBPBreadcrumbController {
 }
 
 export class BPBreadcrumbController implements IBPBreadcrumbController {
-    public items: IBreadcrumbItem[];
+    public chain: IBreadcrumbLink[];
 
     public static $inject: string[] = [
         "messageService",
@@ -31,7 +31,7 @@ export class BPBreadcrumbController implements IBPBreadcrumbController {
         private navigationService: INavigationService,
         private breadcrumbService: IBreadcrumbService
     ) {
-        this.items = [];
+        this.chain = [];
 
         const navigationState = this.navigationService.getNavigationState();
 
@@ -39,8 +39,8 @@ export class BPBreadcrumbController implements IBPBreadcrumbController {
             .then((result: IArtifactReference[]) => {
                 for (let i: number = 0; i < result.length; i++) {
                     let artifactReference = result[i];
-                    this.items.push(
-                        <IBreadcrumbItem>{
+                    this.chain.push(
+                        <IBreadcrumbLink>{
                             id: artifactReference.id,
                             name: artifactReference.name,
                             isEnabled: i !== result.length - 1
@@ -56,11 +56,11 @@ export class BPBreadcrumbController implements IBPBreadcrumbController {
     }
 
     public navigate(index: number): void {
-        const currentItem = this.items[index];
-        if (!currentItem.isEnabled) {
+        const currentLink = this.chain[index];
+        if (!currentLink.isEnabled) {
             return;
         }
 
-        this.navigationService.navigateToArtifact(currentItem.id, { index: index });
+        this.navigationService.navigateToArtifact(currentLink.id, { index: index });
     }
 }

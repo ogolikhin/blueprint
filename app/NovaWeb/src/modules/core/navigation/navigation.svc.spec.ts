@@ -1,119 +1,399 @@
 import "angular";
 import "angular-mocks";
-import {INavigationContext, INavigationService, NavigationService} from "./navigation.svc";
+import {MainState} from "../../shell/router/main.state";
+import {ArtifactState} from "../../main/router/artifact.state";
+import {INavigationOptions, INavigationService, NavigationService} from "./navigation.svc";
 
 describe("NavigationService", () => {
-    let $q: ng.IQService;
     let $state: ng.ui.IStateService;
     let navigationService: INavigationService;
 
+    let mainState = "main";
+    let artifactState = "main.artifact";
+
     beforeEach(angular.mock.module("ui.router"));
 
-    beforeEach(inject((_$q_: ng.IQService, _$state_: ng.ui.IStateService) => {
-        $q = _$q_;
+    beforeEach(inject((_$state_: ng.ui.IStateService) => {
         $state = _$state_;
-
         navigationService = new NavigationService($state);
     }));
 
-    describe("navigateToMain method", () => {
-        it("initiates state transition to main state", () => {
-            // arrange
-            const expectedState = "main";
-            const stateGoSpy = spyOn($state, "go");
+    describe("navigateToMain", () => {
+        describe("from main state", () => {
+            beforeEach(() => {
+                $state.current = new MainState();
+            });
 
-            // act
-            navigationService.navigateToMain();
+            it("initiates state transition to main state", () => {
+                // arrange
+                const expectedState = mainState;
+                const stateGoSpy = spyOn($state, "go");
 
-            // assert
-            expect(stateGoSpy).toHaveBeenCalledWith(expectedState);
+                // act
+                navigationService.navigateToMain();
+
+                // assert
+                expect(stateGoSpy).toHaveBeenCalledWith(expectedState);
+                expect($state.current.params).toBeUndefined();
+            });
+        });
+
+        describe("from another artifact", () => {
+            let sourceArtifactId: number;
+
+            beforeEach(() => {
+                sourceArtifactId = 54;
+                $state.params["id"] = sourceArtifactId;
+                $state.current = new ArtifactState();
+            });
+
+            afterEach(() => {
+                sourceArtifactId = null;
+                $state.params["id"] = null;
+                $state.current = new MainState();
+            });
+
+            it("initiates state transition to main state", () => {
+                // arrange
+                const expectedState = mainState;
+                const stateGoSpy = spyOn($state, "go");
+
+                // act
+                navigationService.navigateToMain();
+
+                // assert
+                expect(stateGoSpy).toHaveBeenCalledWith(expectedState);
+                expect($state.current.params).toBeUndefined();
+            });
+        });
+
+        describe("from an artifact already navigated to", () => {
+            let predecessorArtifactId: number;
+            let sourceArtifactId: number;
+
+            beforeEach(() => {
+                predecessorArtifactId = 11;
+                sourceArtifactId = 54;
+                $state.params["id"] = sourceArtifactId;
+                $state.params["path"] = predecessorArtifactId;
+                $state.current = new ArtifactState();
+            });
+
+            afterEach(() => {
+                predecessorArtifactId = null;
+                sourceArtifactId = null;
+                $state.params["id"] = null;
+                $state.params["path"] = null;
+                $state.current = new MainState();
+            });
+
+            it("initiates state transition to main state", () => {
+                // arrange
+                const expectedState = mainState;
+                const stateGoSpy = spyOn($state, "go");
+
+                // act
+                navigationService.navigateToMain();
+
+                // assert
+                expect(stateGoSpy).toHaveBeenCalledWith(expectedState);
+                expect($state.current.params).toBeUndefined();
+            });
         });
     });
 
     describe("navigateToArtifact", () => {
-        it("initiates state transition to artifact state", () => {
-            // arrange
-            const artifactId = 63;
-            const expectedState = "main.artifact";
-            const expectedParams = { id: artifactId };
-            const expectedOptions = { inherit: false };
-            const stateGoSpy = spyOn($state, "go");
+        let targetArtifactId: number;
 
-            // act
-            navigationService.navigateToArtifact(artifactId);
-
-            // assert
-            expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
+        beforeEach(() => {
+            targetArtifactId = 63;
         });
 
-        it("initiates state transition to artifact state with path if navigating from previous artifact", () => {
-            // arrange
-            const artifactId = 63;
-            const sourceArtifactId = 22;
-            const path = sourceArtifactId.toString();
-            const context: INavigationContext = { sourceArtifactId: sourceArtifactId };
-            const expectedState = "main.artifact";
-            const expectedParams = { id: artifactId, path: path };
-            const expectedOptions = { inherit: false };
-            const stateGoSpy = spyOn($state, "go");
-
-            // act
-            navigationService.navigateToArtifact(artifactId, context);
-
-            // assert
-            expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
+        afterEach(() => {
+            targetArtifactId = null;
         });
 
-        it("doesn't include path if previous artifact is not correctly indicated", () => {
-            // arrange
-            const artifactId = 63;
-            const context: INavigationContext = { sourceArtifactId: null };
-            const expectedState = "main.artifact";
-            const expectedParams = { id: artifactId };
-            const expectedOptions = { inherit: false };
-            const stateGoSpy = spyOn($state, "go");
+         describe("from main state", () => {
+            beforeEach(() => {
+                $state.current = new MainState();
+            });
 
-            // act
-            navigationService.navigateToArtifact(artifactId, context);
+            afterEach(() => {
+                $state.current = null;
+            });
 
-            // assert
-            expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
+            describe("if navigation options are not defined", () => {
+                it("initiates state transition to artifact state with correct id and no path", () => {
+                    // arrange
+                    const stateGoSpy = spyOn($state, "go");
+
+                    const expectedState = artifactState;
+                    const expectedParams = { id: targetArtifactId };
+                    const expectedOptions = { inherit: false };
+
+                    // act
+                    navigationService.navigateToArtifact(targetArtifactId);
+
+                    // assert
+                    expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
+                });
+            });
+
+            describe("if navigation tracking is disabled", () => {
+                let options: INavigationOptions = <INavigationOptions>{ enableTracking: false };
+
+                it("initiates state transition to artifact state with correct id and no path", () => {
+                    // arrange
+                    const stateGoSpy = spyOn($state, "go");
+
+                    const expectedState = artifactState;
+                    const expectedParams = { id: targetArtifactId };
+                    const expectedOptions = { inherit: false };
+
+                    // act
+                    navigationService.navigateToArtifact(targetArtifactId, options);
+
+                    // assert
+                    expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
+                });
+            });
+
+            describe("if navigation tracking is enabled", () => {
+                let options: INavigationOptions = <INavigationOptions>{ enableTracking: true };
+
+                it("initiates state transition to artifact state with correct id and no path", () => {
+                    // arrange
+                    const stateGoSpy = spyOn($state, "go");
+
+                    const expectedState = artifactState;
+                    const expectedParams = { id: targetArtifactId };
+                    const expectedOptions = { inherit: false };
+
+                    // act
+                    navigationService.navigateToArtifact(targetArtifactId, options);
+
+                    // assert
+                    expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
+                });
+            });
         });
 
-        it("doesn't include path if previous artifact is the same as the new artifact", () => {
-            // arrange
-            const artifactId = 63;
-            const context: INavigationContext = { sourceArtifactId: artifactId };
-            const expectedState = "main.artifact";
-            const expectedParams = { id: artifactId };
-            const expectedOptions = { inherit: false };
-            const stateGoSpy = spyOn($state, "go");
+        describe("from same artifact", () => {
+            let sourceArtifactId: number;
 
-            // act
-            navigationService.navigateToArtifact(artifactId, context);
+            beforeEach(() => {
+                sourceArtifactId = targetArtifactId;
+                $state.params["id"] = sourceArtifactId;
+                $state.current = new ArtifactState();
+            });
 
-            // assert
-            expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
+            afterEach(() => {
+                sourceArtifactId = null;
+                $state.params["id"] = null;
+                $state.current = new MainState();
+            });
+
+            describe("if navigation options are not defined", () => {
+                it("initiates state transition to artifact state with correct id and no path", () => {
+                    // arrange
+                    const stateGoSpy = spyOn($state, "go");
+
+                    const expectedState = artifactState;
+                    const expectedParams = { id: targetArtifactId };
+                    const expectedOptions = { inherit: false };
+
+                    // act
+                    navigationService.navigateToArtifact(targetArtifactId);
+
+                    // assert
+                    expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
+                });
+            });
+
+            describe("if navigation tracking is disabled", () => {
+                let options: INavigationOptions = <INavigationOptions>{ enableTracking: false };
+
+                it("initiates state transition to artifact state with correct id and no path", () => {
+                    // arrange
+                    const stateGoSpy = spyOn($state, "go");
+
+                    const expectedState = artifactState;
+                    const expectedParams = { id: targetArtifactId };
+                    const expectedOptions = { inherit: false };
+
+                    // act
+                    navigationService.navigateToArtifact(targetArtifactId, options);
+
+                    // assert
+                    expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
+                });
+            });
+
+            describe("if navigation tracking is enabled", () => {
+                let options: INavigationOptions = <INavigationOptions>{ enableTracking: true };
+
+                it("initiates state transition to artifact state with correct id and no path", () => {
+                    // arrange
+                    const stateGoSpy = spyOn($state, "go");
+
+                    const expectedState = artifactState;
+                    const expectedParams = { id: targetArtifactId, path: sourceArtifactId.toString() };
+                    const expectedOptions = { inherit: false };
+
+                    // act
+                    navigationService.navigateToArtifact(targetArtifactId, options);
+
+                    // assert
+                    expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
+                });
+            });
         });
 
-        it("initiates state transition to artifact state with path if navigating from previous artifact in a chain of transitions", () => {
-            // arrange
-            const delimiter = ",";
-            const artifactId = 63;
-            const sourceArtifactId = 22;
-            const path = `52${delimiter}23`;
-            const context: INavigationContext = { sourceArtifactId: sourceArtifactId };
-            const expectedState = "main.artifact";
-            const expectedParams = { id: artifactId, path: `${path}${delimiter}${sourceArtifactId}` };
-            const expectedOptions = { inherit: false };
-            $state.params["path"] = path;
-            const stateGoSpy = spyOn($state, "go");
+        describe("from another artifact", () => {
+            let sourceArtifactId: number;
 
-            // act
-            navigationService.navigateToArtifact(artifactId, context);
+            beforeEach(() => {
+                sourceArtifactId = 54;
+                $state.params["id"] = sourceArtifactId;
+                $state.current = new ArtifactState();
+            });
 
-            // assert
-            expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
+            afterEach(() => {
+                sourceArtifactId = null;
+                $state.params["id"] = null;
+                $state.current = new MainState();
+            });
+
+            describe("if navigation options are not defined", () => {
+                it("initiates state transition to artifact state with correct id and no path", () => {
+                    // arrange
+                    const stateGoSpy = spyOn($state, "go");
+
+                    const expectedState = artifactState;
+                    const expectedParams = { id: targetArtifactId };
+                    const expectedOptions = { inherit: false };
+
+                    // act
+                    navigationService.navigateToArtifact(targetArtifactId);
+
+                    // assert
+                    expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
+                });
+            });
+
+            describe("if navigation tracking is disabled", () => {
+                let options: INavigationOptions = <INavigationOptions>{ enableTracking: false };
+
+                it("initiates state transition to artifact state with correct id and no path", () => {
+                    // arrange
+                    const stateGoSpy = spyOn($state, "go");
+
+                    const expectedState = artifactState;
+                    const expectedParams = { id: targetArtifactId };
+                    const expectedOptions = { inherit: false };
+
+                    // act
+                    navigationService.navigateToArtifact(targetArtifactId, options);
+
+                    // assert
+                    expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
+                });
+            });
+
+            describe("if navigation tracking is enabled", () => {
+                let options: INavigationOptions = <INavigationOptions>{ enableTracking: true };
+
+                it("initiates state transition to artifact state with correct id and correct path", () => {
+                    // arrange
+                    const stateGoSpy = spyOn($state, "go");
+
+                    const expectedState = artifactState;
+                    const expectedParams = { id: targetArtifactId, path: sourceArtifactId.toString() };
+                    const expectedOptions = { inherit: false };
+
+                    // act
+                    navigationService.navigateToArtifact(targetArtifactId, options);
+
+                    // assert
+                    expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
+                });
+            });
+        });
+
+        describe("from an artifact already navigated to", () => {
+            let predecessorArtifactId: number;
+            let sourceArtifactId: number;
+
+            beforeEach(() => {
+                predecessorArtifactId = 11;
+                sourceArtifactId = 54;
+                $state.params["id"] = sourceArtifactId;
+                $state.params["path"] = predecessorArtifactId;
+                $state.current = new ArtifactState();
+            });
+
+            afterEach(() => {
+                predecessorArtifactId = null;
+                sourceArtifactId = null;
+                $state.params["id"] = null;
+                $state.params["path"] = null;
+                $state.current = new MainState();
+            });
+
+            describe("if navigation options are not defined", () => {
+                it("initiates state transition to artifact state with correct id and no path", () => {
+                    // arrange
+                    const stateGoSpy = spyOn($state, "go");
+
+                    const expectedState = artifactState;
+                    const expectedParams = { id: targetArtifactId };
+                    const expectedOptions = { inherit: false };
+
+                    // act
+                    navigationService.navigateToArtifact(targetArtifactId);
+
+                    // assert
+                    expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
+                });
+            });
+
+            describe("if navigation tracking is disabled", () => {
+                let options: INavigationOptions = <INavigationOptions>{ enableTracking: false };
+
+                it("initiates state transition to artifact state with correct id and no path", () => {
+                    // arrange
+                    const stateGoSpy = spyOn($state, "go");
+
+                    const expectedState = artifactState;
+                    const expectedParams = { id: targetArtifactId };
+                    const expectedOptions = { inherit: false };
+
+                    // act
+                    navigationService.navigateToArtifact(targetArtifactId, options);
+
+                    // assert
+                    expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
+                });
+            });
+
+            describe("if navigation tracking is enabled", () => {
+                let options: INavigationOptions = <INavigationOptions>{ enableTracking: true };
+
+                it("initiates state transition to artifact state with correct id and correct path", () => {
+                    // arrange
+                    const stateGoSpy = spyOn($state, "go");
+
+                    const expectedState = artifactState;
+                    const expectedParams = { id: targetArtifactId, path: `${predecessorArtifactId},${sourceArtifactId}` };
+                    const expectedOptions = { inherit: false };
+
+                    // act
+                    navigationService.navigateToArtifact(targetArtifactId, options);
+
+                    // assert
+                    expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
+                });
+            });
         });
     });
 });

@@ -13,7 +13,7 @@ import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
 import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
 import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
-import {INavigationContext} from "../../../../../../../core/navigation/navigation.svc";
+import {INavigationOptions} from "../../../../../../../core/navigation/navigation.svc";
 
 export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implements ISystemTask, IUserTaskChildElement {
 
@@ -41,7 +41,6 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     private rootScope: ng.IRootScopeService;
     private dialogManager: IModalDialogCommunication;
     private processDiagramManager: IProcessDiagramCommunication;
-    private processId: number;
 
     public callout: DiagramNodeElement;
 
@@ -326,7 +325,6 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     }
 
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
-        this.processId = graph.viewModel.id;
         this.dialogManager = graph.viewModel.communicationManager.modalDialogManager;
         this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;
 
@@ -462,8 +460,8 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
             return;
         }
 
-        let context = <INavigationContext>{ sourceArtifactId: this.processId };
-        this.processDiagramManager.navigateToAssociatedArtifact(this.associatedArtifact.id, context);
+        let options = <INavigationOptions>{ enableTracking: true };
+        this.processDiagramManager.navigateToAssociatedArtifact(this.associatedArtifact.id, options);
     }
 
     private openDialog(dialogType: ModalDialogType) {

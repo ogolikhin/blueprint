@@ -147,6 +147,7 @@ namespace Model
                     public const string RELATIONSHIP_DETAILS        = "svc/artifactstore/artifacts/{0}/relationshipdetails";
                     public const string VERSION                     = "svc/artifactstore/artifacts/{0}/version";
                     public const string SUBARTIFACTS                = "svc/artifactstore/artifacts/{0}/subartifacts";
+                    public const string TO_id_                      = "svc/bpartifactstore/artifacts/{0}/to/{1}";   // XXX: For some reason they decided to put this call in blueprint-current!
 
                     public static class Discussions_id_
                     {

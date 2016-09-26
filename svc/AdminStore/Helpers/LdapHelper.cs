@@ -8,6 +8,7 @@ namespace AdminStore.Helpers
     public static class LdapHelper
     {
         public const string DefaultAccountNameAttribute = "samaccountname";
+        public const string DefaultUserObjectCategoryAttribute = "user";
 
         public static string EscapeLdapSearchFilter(string searchFilter)
         {
@@ -54,6 +55,13 @@ namespace AdminStore.Helpers
             return ldapSettings.EnableCustomSettings
                 ? (string.IsNullOrWhiteSpace(ldapSettings.AccountNameAttribute) ? DefaultAccountNameAttribute : ldapSettings.AccountNameAttribute)
                 : DefaultAccountNameAttribute;
+        }
+
+        public static string GetEffectiveUserObjectCategoryAttribute(this LdapSettings ldapSettings)
+        {
+            return ldapSettings.EnableCustomSettings
+                ? (string.IsNullOrWhiteSpace(ldapSettings.UserObjectCategoryAttribute) ? DefaultUserObjectCategoryAttribute : ldapSettings.UserObjectCategoryAttribute)
+                : DefaultUserObjectCategoryAttribute;
         }
 
         public static bool MatchesDomain(this LdapSettings ldapSettings, string domain)

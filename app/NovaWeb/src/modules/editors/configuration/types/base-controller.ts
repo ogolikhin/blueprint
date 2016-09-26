@@ -51,7 +51,7 @@ export class BPFieldBaseController implements IBPFieldBaseController {
         let target = event.target.tagName.toUpperCase() !== "INPUT" ? event.target.querySelector("INPUT") : event.target;
 
         if (target) {
-            target.scrollTop = 0;
+            target.parentElement.scrollTop = target.parentElement.clientHeight;
             target.focus();
             angular.element(target).triggerHandler("click");
         }

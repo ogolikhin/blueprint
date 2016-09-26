@@ -1,4 +1,5 @@
 ﻿import {ILocalizationService, IMessageService, Message, MessageType, INavigationService} from "../../../../core";
+import {IStatefulArtifact} from "../../../../managers/models";
 import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
 import {IProcessService} from "../../services/process/process.svc";
@@ -35,32 +36,24 @@ export class ProcessDiagram {
         this.processModel = null;
     }
  
-    public createDiagram(processId: number, htmlElement: HTMLElement) {
+    public createDiagram(process: IProcess, htmlElement: HTMLElement) {
         // retrieve the specified process from the server and 
         // create a new diagram
 
-        this.checkParams(processId, htmlElement);
+        this.checkParams(process.id, htmlElement);
         this.htmlElement = htmlElement;
-        let id: string = processId.toString();
 
-        //const processParams = this.bpUrlParsingService.getStateParams();   
+        this.processModel = process;
 
-        this.processService.load(id //,
-            //processParams.versionId,
-            //processParams.revisionId,
-            //processParams.baselineId,
-            //processParams.readOnly
-        ).then((process: IProcess) => {
-            this.onLoad(process);
-            //if (!this.processViewModel.isReadonly) {
-            //    this.processViewModel.isWithinShapeLimit(0, true);
-            //}
-        }).catch((err: any) => {
-            // if access to proccess info is forbidden
-            if (err && err.statusCode === 403) {
-                //handle errors if need to
-            }
-        });
+        (<IStatefulArtifact>this.processModel).load().then((result) => {
+                this.onLoad(process);
+            }).catch((err: any) => {
+                // if access to proccess info is forbidden
+                if (err && err.statusCode === 403) {
+                    //handle errors if need to
+                }
+            });
+ 
     }
 
     private checkParams(processId: number, htmlElement: HTMLElement): void {
@@ -81,9 +74,7 @@ export class ProcessDiagram {
 
     private onLoad(process: IProcess, useAutolayout: boolean = false, selectedNodeId: number = undefined) {
         this.resetBeforeLoad();
-        
-        this.processModel = process;
-        
+       
         let processViewModel = this.createProcessViewModel(process);
         // set isSpa flag to true. Note: this flag may no longer be needed.
         processViewModel.isSpa = true;

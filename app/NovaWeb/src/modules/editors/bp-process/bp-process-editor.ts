@@ -2,6 +2,7 @@
 //import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
 import {IProcessService} from "./";
 import {ICommunicationManager} from "./";
+import {IProcess} from "./models/process-models";
 import {ILocalizationService, IMessageService, INavigationService} from "../../core";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
@@ -72,7 +73,18 @@ export class BpProcessEditorController extends BpBaseEditor {
     }
 
     public onLoad() {
-        super.onLoad();
+        // this method is called by the base class onStateChange
+        // handler 
+
+        // when this method is called we should have a valid 
+        // process artifact in the base class' artifact
+        // property. Note: the process artifact has not been 
+        // fully loaded yet. 
+
+        // here we create a new process diagram  passing in the
+        // process artifact and the html element that will contain
+        // the graph
+
         this.processDiagram = new ProcessDiagram(
             this.$rootScope,
             this.$scope,
@@ -89,7 +101,7 @@ export class BpProcessEditorController extends BpBaseEditor {
        
         let htmlElement = this.getHtmlElement();
          
-        this.processDiagram.createDiagram(this.artifact.id, htmlElement);
+        this.processDiagram.createDiagram(<IProcess>this.artifact, htmlElement);
         
     }
 
@@ -100,26 +112,6 @@ export class BpProcessEditorController extends BpBaseEditor {
         this.processDiagram.destroy();
     }
     
-    // private load(artifactId: number) {
-    //     this.processDiagram = new ProcessDiagram(
-    //         this.$rootScope,
-    //         this.$scope,
-    //         this.$timeout,
-    //         this.$q,
-    //         this.$log,
-    //         this.processService,
-    //         this.messageService,
-    //         this.communicationManager,
-    //         this.dialogService,
-    //         this.localization
-    //     );
-       
-    //     let htmlElement = this.getHtmlElement();
-         
-    //     this.processDiagram.createDiagram(artifactId, htmlElement);
-        
-    // }
-
     private getHtmlElement(): HTMLElement {
 
         // this.$element is jqLite and does not support selectors

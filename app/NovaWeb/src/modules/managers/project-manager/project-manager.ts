@@ -159,13 +159,13 @@ export class ProjectManager  implements IProjectManager {
         project.children = data.map((it: Models.IArtifact) => {
             const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
             this.artifactManager.add(statefulArtifact);
-            return new ArtifactNode(statefulArtifact);
+            return new ArtifactNode(statefulArtifact, project);
         });
         project.loaded = true;
         project.open = true;
 
-        if(!this.artifactManager.selection.getArtifact(SelectionSource.Explorer)){
-            this.artifactManager.selection.setArtifact(this.getArtifact(selectedArtifact.parentId), SelectionSource.Explorer);
+        if(!this.artifactManager.selection.getArtifact()){
+            this.artifactManager.selection.setArtifact(this.getArtifact(selectedArtifact.parentId));
         }
 
         this.openChildNodes(project.children, data);
@@ -194,7 +194,7 @@ export class ProjectManager  implements IProjectManager {
                 node.children = childData[0].children.map((it: Models.IArtifact) => {
                     const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
                     this.artifactManager.add(statefulArtifact);
-                    return new ArtifactNode(statefulArtifact);
+                    return new ArtifactNode(statefulArtifact,node);
                 });
                 node.loaded = true;
                 node.open = true;

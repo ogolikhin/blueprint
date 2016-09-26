@@ -15,7 +15,7 @@ export class ArtifactPickerDialogServiceMock implements IDialogService {
         };
 
         let artifact: Models.IArtifact = {
-            artifacts: [],
+            children: [],
             createdBy: undefined,
             createdOn: undefined,            
             id: 10,    

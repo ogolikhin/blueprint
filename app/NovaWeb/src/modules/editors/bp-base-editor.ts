@@ -43,10 +43,12 @@ export class BpBaseEditor {
         this.artifactManager.selection.setArtifact(this.artifact);
         this.artifact.load(this.artifact.artifactState.outdated).then(() => {
             this.onUpdate();
-        });
+        }).finally(() => {
+            this.isLoading = false;
+        })
+        ;
     }
 
     public onUpdate() {
-        this.isLoading = false;
     }
 }

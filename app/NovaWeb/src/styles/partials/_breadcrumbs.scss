@@ -71,8 +71,8 @@
   color: $gray;
   margin: 0;
   padding: 0;
-  word-break:break-all;
-  display:inline;
+  word-wrap:break-word;
+  /*display:inline;*/
   font-size:$font-size-small;
 
   &::after {
@@ -87,7 +87,7 @@
     padding-left: 2px;
     padding-right: 2px;
     display:inline;
-    word-break:break-all;
+    /*word-break:break-all;*/
    
     &::before {
       content: '>';

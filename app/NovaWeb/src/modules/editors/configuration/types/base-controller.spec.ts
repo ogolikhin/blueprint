@@ -17,6 +17,20 @@ describe("Formly Base Controller", () => {
         return keyEvent as KeyboardEvent;
     }
 
+    function createMouseEvent(eventType: string = "click"): MouseEvent {
+        let mouseEvent = document.createEvent("MouseEvent");
+        mouseEvent.initMouseEvent(
+            eventType,
+            /*bubble*/true, /*cancelable*/true,
+            window, null,
+            0, 0, 0, 0, /*coordinates*/
+            false, false, false, false, /*modifier keys*/
+            0/*button=left*/, null
+        );
+
+        return mouseEvent;
+    }
+
     beforeEach(
         inject((
             _$controller_
@@ -78,6 +92,24 @@ describe("Formly Base Controller", () => {
             controller.blurOnKey(event, key);
             expect(document.activeElement).not.toBe(input);
         });
+
+        it("focus on button", () => {
+            const key = 13; // Enter
+            let input: HTMLElement = angular.element("input")[0];
+            let event: KeyboardEvent = createKeyEvent(key);
+            angular.element(input.parentElement).append("<span><button></button></span>");
+            let button: HTMLElement = angular.element("button")[0];
+
+            input.focus();
+            expect(document.activeElement).toBe(input);
+            expect(document.activeElement).not.toBe(button);
+
+            input.dispatchEvent(event);
+
+            controller.blurOnKey(event);
+            expect(document.activeElement).not.toBe(input);
+            expect(document.activeElement).toBe(button);
+        });
     });
 
     describe("closeDropdownOnTab", () => {
@@ -108,7 +140,7 @@ describe("Formly Base Controller", () => {
             angular.element(input).on("click", () => {
                 hasBeenClicked = true;
             });
-            let event: MouseEvent = new MouseEvent("click");
+            let event: MouseEvent = createMouseEvent();
 
             container.dispatchEvent(event);
             controller.scrollIntoView(event);

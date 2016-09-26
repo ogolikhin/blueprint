@@ -4,7 +4,14 @@ export interface INavigationState {
 }
 
 export interface INavigationOptions {
+}
+
+export class ForwardNavigationOptions implements INavigationOptions {
     enableTracking: boolean;
+}
+
+export class BackNavigationOptions implements INavigationOptions {
+    index: number;
 }
 
 export interface INavigationService {
@@ -49,24 +56,35 @@ export class NavigationService implements INavigationService {
         // Disables the inheritance of optional url parameters (such as "path")
         const stateOptions: ng.ui.IStateOptions = <ng.ui.IStateOptions>{ inherit: false };
 
-        if (options && options.enableTracking) {
-            this.updatePathParameter(parameters);
+        if (options) {
+            this.updatePathParameter(options, parameters);
         }
 
         return this.$state.go(state, parameters, stateOptions);
     }
 
-    private updatePathParameter(parameters: any) {
+    private updatePathParameter(options: INavigationOptions, parameters: any) {
         let currentState = this.getNavigationState();
 
         if (!currentState.id) {
             return;
         }
 
+        let forwardOptions = <ForwardNavigationOptions>options;
+        let backOptions = <BackNavigationOptions>options;
+
         if (!currentState.path || currentState.path.length === 0) {
-            parameters["path"] = `${currentState.id}`;
+            if (forwardOptions && forwardOptions.enableTracking) {
+                parameters["path"] = `${currentState.id}`;
+            }
         } else {
-            parameters["path"] = `${currentState.path.join(this.delimiter)}${this.delimiter}${currentState.id}`;
+            if (forwardOptions && forwardOptions.enableTracking) {
+                parameters["path"] = `${currentState.path.join(this.delimiter)}${this.delimiter}${currentState.id}`;
+            }
+
+            if (backOptions && backOptions.index > 0 && backOptions.index < currentState.path.length) {
+                parameters["path"] = `${currentState.path.slice(0, backOptions.index).join(this.delimiter)}`;
+            }
         }
     }
 }

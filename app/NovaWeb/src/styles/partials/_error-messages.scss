@@ -23,19 +23,16 @@ bp-message {
   font-size: 0;
 
   .container {
-    border-radius: $border-radius-amount;
-    box-shadow: 0 2px 5px 0 rgba($black, .5);
     color: $white;
-    margin: 0 20px 6px;
-    padding: 10px 0;
+    margin: -2px 0 5px 0;
+    padding: 10px;
     position: relative;
-    width: calc(100% - 40px);
+    width: 100%;
 
     .icon {
       display: inline-block;
       float: left;
       text-align: center;
-      width: 54px;
     }
 
     .text {
@@ -63,11 +60,6 @@ bp-message {
         font-size: 1.6rem;
       }
     }
-
-    &:first-child {
-      margin-top: 4px;
-    }
-
     &::after { //self clearing
       clear: both;
       content: '';

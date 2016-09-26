@@ -197,7 +197,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         
         let state = this.artifactState.get();
         if (artifactBeforeUpdate.parentId !== artifact.parentId || artifactBeforeUpdate.orderIndex !== artifact.orderIndex) {
-            this.services.dialogService.alert("Artifact_Lock_DoesNotExist");
+            state.misplaced = true;
         }
         state.outdated = false;
 
@@ -245,7 +245,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                     this.artifactState.outdated = true;
                     this.discard();
                 } else if (lock.info.parentId !== this.parentId || lock.info.orderIndex !== this.orderIndex) {
-                    this.services.dialogService.alert("Artifact_Lock_DoesNotExist");
+                    this.artifactState.misplaced = true;
                 }
 
             } 
@@ -256,7 +256,8 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
                 this.artifactState.lock(lock);
             } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
-                this.artifactState.error = "Artifact_Lock_" + Enums.LockResultEnum[lock.result];
+                this.artifactState.outdated = false;
+                this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
             } else {
                 this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
             }

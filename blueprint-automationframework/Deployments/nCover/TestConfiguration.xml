@@ -1,22 +1,22 @@
 <TestConfiguration>
 
-  <BlueprintServer address="http://localhost/" username="admin" password="$Admin93" />
+  <BlueprintServer address="http://ncover.blueprintsys.net/" username="admin" password="$Admin93" />
 
   <BlueprintServices>
-    <Service name="AdminStore"    address="http://localhost/" />
-    <Service name="AccessControl" address="http://localhost:8182/" />
-    <Service name="ArtifactStore" address="http://localhost/" />
-    <Service name="ConfigControl" address="http://localhost:82/" />
-    <Service name="FileStore"     address="http://localhost/" />
-    <Service name="Storyteller"   address="http://localhost/" />
-    <Service name="SearchService"   address="http://localhost/" />
+    <Service name="AdminStore"    address="http://ncover.blueprintsys.net/" />
+    <Service name="AccessControl" address="http://ncover.blueprintsys.net:8182/" />
+    <Service name="ArtifactStore" address="http://ncover.blueprintsys.net/" />
+    <Service name="ConfigControl" address="http://ncover.blueprintsys.net:82/" />
+    <Service name="FileStore"     address="http://ncover.blueprintsys.net/" />
+    <Service name="Storyteller"   address="http://ncover.blueprintsys.net/" />
+    <Service name="SearchService"   address="http://ncover.blueprintsys.net/" />
   </BlueprintServices>
 
   <Databases>
-    <Database name="Blueprint"     connection_string="Data Source=localhost;Initial Catalog=Blueprint;Integrated Security=False;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
-    <Database name="AdminStore"    connection_string="Data Source=localhost;Initial Catalog=Blueprint_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packet size=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
-    <Database name="AccessControl" connection_string="Data Source=localhost;Initial Catalog=Blueprint_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packet size=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
-    <Database name="FileStore"     connection_string="Data Source=localhost;Initial Catalog=Blueprint_FileStorage;Integrated Security=False;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;"/>
+    <Database name="Blueprint"     connection_string="Data Source=ncover.blueprintsys.net;Initial Catalog=Blueprint;Integrated Security=False;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
+    <Database name="AdminStore"    connection_string="Data Source=ncover.blueprintsys.net;Initial Catalog=Blueprint_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packet size=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
+    <Database name="AccessControl" connection_string="Data Source=ncover.blueprintsys.net;Initial Catalog=Blueprint_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packet size=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
+    <Database name="FileStore"     connection_string="Data Source=ncover.blueprintsys.net;Initial Catalog=Blueprint_FileStorage;Integrated Security=False;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;"/>
   </Databases>
 
   <LogLevel>TRACE</LogLevel>

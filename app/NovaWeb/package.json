@@ -23,7 +23,6 @@
     "typings:i": "typings install --global --save"
   },
   "dependencies": {
-    "@types/angular": "^1.5.16",
     "ag-grid": "5.3.1",
     "ag-grid-enterprise": "5.3.1",
     "angular": "^1.5.7",
@@ -45,10 +44,12 @@
     "ui-select": "^0.19.1"
   },
   "devDependencies": {
+    "@types/angular": "^1.5.16",
     "@types/angular-formly": "^7.2.30",
     "@types/angular-mocks": "^1.5.5",
     "@types/angular-ui-bootstrap": "^0.13.35",
     "@types/angular-ui-router": "^1.1.34",
+    "@types/jasmine": "^2.2.34",
     "@types/jquery": "^2.0.32",
     "angular-mocks": "~1.5.2",
     "angular-module-mocks": "~1.2.19",

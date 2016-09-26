@@ -170,13 +170,13 @@ export class BPTreeViewController implements IBPTreeViewController {
             rowDataAsync = [];
         }
 
+        // Save selection
+        const selectedVMs: {[key: string]: ITreeViewNodeVM} = {};
+        this.options.api.getSelectedRows().forEach((row: ITreeViewNodeVM) => selectedVMs[row.key] = row);
         this.options.api.setRowData([]);
         this.options.api.showLoadingOverlay();
-        return this.$q.when(rowDataAsync).then((rowData) => {
-            // Save selection
-            const selectedVMs: {[key: string]: ITreeViewNodeVM} = {};
-            this.options.api.getSelectedRows().forEach((row: ITreeViewNodeVM) => selectedVMs[row.key] = row);
 
+        return this.$q.when(rowDataAsync).then((rowData) => {
             this.options.api.setRowData(rowData);
             this.options.api.sizeColumnsToFit();
 

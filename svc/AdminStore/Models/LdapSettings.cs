@@ -23,6 +23,8 @@ namespace AdminStore.Models
 
         public string AccountNameAttribute { get; set; }
 
+        public string UserObjectCategoryAttribute { get; set; }
+
         internal string GetDecodedBindPassword()
         {
             return SystemEncryptions.Decrypt(BindPassword);

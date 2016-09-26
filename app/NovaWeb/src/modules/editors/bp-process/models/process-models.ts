@@ -48,7 +48,7 @@ export interface IHashMapOfPropertyValues {
 
 export interface IProcess {
     id: number;
-    name?: string;
+    name: string;
     typePrefix: string;
     projectId: number;
     itemTypeId: number;

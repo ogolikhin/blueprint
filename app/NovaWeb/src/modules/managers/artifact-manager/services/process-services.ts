@@ -15,6 +15,7 @@ export class ProcessStatefulArtifactServices extends StatefulArtifactServices im
             $q,
             statefulArtifactServices.session,
             statefulArtifactServices.messageService,
+            statefulArtifactServices.dialogService,
             statefulArtifactServices.localizationService,
             statefulArtifactServices.artifactService,
             statefulArtifactServices.attachmentService,

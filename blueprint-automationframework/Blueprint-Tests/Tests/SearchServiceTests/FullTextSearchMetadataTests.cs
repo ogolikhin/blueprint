@@ -1,8 +1,11 @@
-﻿using CustomAttributes;
+﻿using System.Collections.Generic;
+using CustomAttributes;
 using Helper;
 using Model;
 using NUnit.Framework;
 using System.Linq;
+using Model.ArtifactModel;
+using Model.Factories;
 using Model.FullTextSearchModel.Impl;
 using TestCommon;
 
@@ -13,6 +16,9 @@ namespace SearchServiceTests
     public class FullTextSearchMetadataTests : TestBase
     {
         private IUser _user = null;
+        private List<IProject> _projects = null;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
+        private List<IArtifactBase> _artifacts = null;
         const int DEFAULT_PAGE_VALUE = 1;
         const int DEFAULT_PAGESIZE_VALUE = 10;
 
@@ -21,6 +27,8 @@ namespace SearchServiceTests
         {
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _projects = ProjectFactory.GetAllProjects(_user, true);
+            _artifacts = SearchServiceTestHelper.SetupSearchData(_projects, _user, Helper);
         }
 
         [TearDown]
@@ -33,7 +41,6 @@ namespace SearchServiceTests
 
         [TestCase(new[] { 2, 4 }, 0 , 0, "NonExistentSearchItem")]
         [TestRail(182247)]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [Description("Search without optional parameter pagesize. Executed search must return search metadata result that indicates default page size.")]
         public void FullTextSearchMetadata_SearchMetadataWithoutPageSize_VerifySearchMetadataResultUsesDefaultPageSize(
             int[] projectIds,
@@ -63,7 +70,6 @@ namespace SearchServiceTests
         [TestCase(new[] { 2, 4 }, 0, 0, 10, "NonExistentSearchItem")]
         [TestCase(new[] { 2, 4 }, 0, 0, 100, "NonExistentSearchItem")]
         [TestRail(182245)]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [Description("Search with optional parameter pagesize. Executed search must return search metadata result that indicates requested page size")]
         public void FullTextSearchMetadata_SearchMetadataWithValidPageSize_VerifySearchMetadataResult(
             int[] projectIds,

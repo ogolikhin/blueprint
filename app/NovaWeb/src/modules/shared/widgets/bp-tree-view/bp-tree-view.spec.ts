@@ -92,7 +92,17 @@ describe("BPTreeViewController", () => {
     beforeEach(inject(($q: ng.IQService, $rootScope: ng.IRootScopeService) => {
         const element = angular.element(`<bp-tree-view />`)[0];
         controller = new BPTreeViewController($q, element, new LocalizationServiceMock($rootScope));
-        controller.options = {api: jasmine.createSpyObj("api", ["setColumnDefs", "getSelectedRows", "setRowData", "sizeColumnsToFit", "forEachNode"])};
+        controller.options = {api: jasmine.createSpyObj("api", [
+            "setColumnDefs",
+            "showLoadingOverlay",
+            "getSelectedRows",
+            "setRowData",
+            "sizeColumnsToFit",
+            "forEachNode",
+            "getModel",
+            "hideOverlay",
+            "showNoRowsOverlay"
+        ])};
     }));
 
     describe("Component lifecylcle methods", () => {
@@ -231,6 +241,7 @@ describe("BPTreeViewController", () => {
         it("When root node is visible, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService) => {
             // Arrange
             (controller.options.api.getSelectedRows as jasmine.Spy).and.returnValue([]);
+            (controller.options.api.getModel as jasmine.Spy).and.returnValue({ getRowCount() { return 1; }});
             controller.rootNode = {
                 key: "root",
                 isExpandable: true,
@@ -243,8 +254,11 @@ describe("BPTreeViewController", () => {
             controller.resetGridAsync().then(() => {
 
                 // Assert
+                expect(controller.options.api.showLoadingOverlay).toHaveBeenCalledWith();
                 expect(controller.options.api.setRowData).toHaveBeenCalledWith([controller.rootNode]);
                 expect(controller.options.api.sizeColumnsToFit).toHaveBeenCalled();
+                expect(controller.options.api.hideOverlay).toHaveBeenCalledWith();
+                expect(controller.options.api.showNoRowsOverlay).not.toHaveBeenCalled();
                 done();
             });
             $rootScope.$digest();
@@ -253,6 +267,7 @@ describe("BPTreeViewController", () => {
         it("When root node loads asynchronously, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
             // Arrange
             (controller.options.api.getSelectedRows as jasmine.Spy).and.returnValue([]);
+            (controller.options.api.getModel as jasmine.Spy).and.returnValue({ getRowCount() { return 1; }});
             const children = [{key: "child"}] as ITreeViewNodeVM[];
             controller.rootNode = {
                 key: "root",
@@ -266,8 +281,11 @@ describe("BPTreeViewController", () => {
             controller.resetGridAsync().then(() => {
 
                 // Assert
+                expect(controller.options.api.showLoadingOverlay).toHaveBeenCalledWith();
                 expect(controller.options.api.setRowData).toHaveBeenCalledWith(children);
                 expect(controller.options.api.sizeColumnsToFit).toHaveBeenCalled();
+                expect(controller.options.api.hideOverlay).toHaveBeenCalledWith();
+                expect(controller.options.api.showNoRowsOverlay).not.toHaveBeenCalled();
                 done();
             });
             $rootScope.$digest();
@@ -276,6 +294,7 @@ describe("BPTreeViewController", () => {
         it("When root node has children, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
             // Arrange
             (controller.options.api.getSelectedRows as jasmine.Spy).and.returnValue([]);
+            (controller.options.api.getModel as jasmine.Spy).and.returnValue({ getRowCount() { return 1; }});
             controller.rootNode = {
                 key: "root",
                 isExpandable: true,
@@ -287,8 +306,11 @@ describe("BPTreeViewController", () => {
             controller.resetGridAsync().then(() => {
 
                 // Assert
+                expect(controller.options.api.showLoadingOverlay).toHaveBeenCalledWith();
                 expect(controller.options.api.setRowData).toHaveBeenCalledWith(controller.rootNode.children);
                 expect(controller.options.api.sizeColumnsToFit).toHaveBeenCalled();
+                expect(controller.options.api.hideOverlay).toHaveBeenCalledWith();
+                expect(controller.options.api.showNoRowsOverlay).not.toHaveBeenCalled();
                 done();
             });
             $rootScope.$digest();
@@ -297,13 +319,17 @@ describe("BPTreeViewController", () => {
         it("When root node is undefined, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
             // Arrange
             (controller.options.api.getSelectedRows as jasmine.Spy).and.returnValue([]);
+            (controller.options.api.getModel as jasmine.Spy).and.returnValue({ getRowCount() { return 0; }});
 
             // Act
             controller.resetGridAsync().then(() => {
 
                 // Assert
+                expect(controller.options.api.showLoadingOverlay).toHaveBeenCalledWith();
                 expect(controller.options.api.setRowData).toHaveBeenCalledWith([]);
                 expect(controller.options.api.sizeColumnsToFit).toHaveBeenCalled();
+                expect(controller.options.api.hideOverlay).toHaveBeenCalledWith();
+                expect(controller.options.api.showNoRowsOverlay).toHaveBeenCalledWith();
                 done();
             });
             $rootScope.$digest();
@@ -319,6 +345,7 @@ describe("BPTreeViewController", () => {
             });
             (controller.options.api.getSelectedRows as jasmine.Spy).and.returnValue(rows);
             (controller.options.api.forEachNode as jasmine.Spy).and.callFake(callback => nodes.forEach(callback));
+            (controller.options.api.getModel as jasmine.Spy).and.returnValue({ getRowCount() { return 0; }});
 
             // Act
             controller.resetGridAsync().then(() => {

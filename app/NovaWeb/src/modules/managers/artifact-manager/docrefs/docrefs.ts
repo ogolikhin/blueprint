@@ -71,7 +71,7 @@ export class DocumentRefs implements IDocumentRefs {
                     key: docref.artifactId,
                     value: docref
                 } as IChangeSet;
-                this.changeset.add(changeset, docref);
+                this.changeset.add(changeset);
                 
                 this.statefulItem.lock();
             });
@@ -98,7 +98,7 @@ export class DocumentRefs implements IDocumentRefs {
                         key: docref.artifactId,
                         value: docref
                     } as IChangeSet;
-                    this.changeset.add(changeset, docref);
+                    this.changeset.add(changeset);
                     
                     this.statefulItem.lock();
                 }

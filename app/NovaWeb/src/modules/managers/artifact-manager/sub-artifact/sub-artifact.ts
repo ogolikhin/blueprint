@@ -103,13 +103,12 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
 
     private set(name: string, value: any) {
         if (name in this) {
-           const oldValue = this[name];
            const changeset = {
                type: ChangeTypeEnum.Update,
                key: name,
                value: value
            } as IChangeSet;
-           this.changesets.add(changeset, oldValue);
+           this.changesets.add(changeset);
            this.lock();
         }
     }

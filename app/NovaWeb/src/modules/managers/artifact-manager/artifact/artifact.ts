@@ -162,28 +162,22 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
 
     private set(name: string, value: any) {
         if (name in this) {
-           const oldValue = this[name];
            const changeset = {
                type: ChangeTypeEnum.Update,
                key: name,
                value: this.artifact[name] = value              
            } as IChangeSet;
-           this.changesets.add(changeset, oldValue);
+           this.changesets.add(changeset);
            
            this.lock(); 
         }
     }
 
-    public discard(all: boolean = false) {
+    public discard() {
 
-        this.changesets.reset().forEach((it: IChangeSet) => {
-            if (!all) {
-                this[it.key as string].value = it.value;
-            }
-        });
-
-        this.customProperties.discard(all);
-        this.specialProperties.discard(all);
+        this.changesets.reset();
+        this.customProperties.discard();
+        this.specialProperties.discard();
 
         //TODO: need impementation
          this.attachments.discard();
@@ -254,7 +248,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             if (lock.info) {
                 if (lock.info.versionId !== this.version) {
                     this.artifactState.outdated = true;
-                    this.discard(true);
+                    this.discard();
                 } else if (lock.info.parentId !== this.parentId || lock.info.orderIndex !== this.orderIndex) {
                     this.services.dialogService.alert("Artifact_Lock_DoesNotExist");
                 }
@@ -263,7 +257,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         } else {
             this.artifactState.readonly = true;
             this.artifactState.outdated = true;
-            this.discard(true);
+            this.discard();
             if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
                 this.artifactState.lock(lock);
             } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
@@ -373,7 +367,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         let changes = this.changes();
         this.services.artifactService.updateArtifact(changes)
             .then((artifact: Models.IArtifact) => {
-                this.discard(true);
+                this.discard();
                 this.load(true).then((it: IStatefulArtifact) => {
                     this.services.messageService.addInfo("App_Save_Artifact_Error_200");
                     deffered.resolve(it);

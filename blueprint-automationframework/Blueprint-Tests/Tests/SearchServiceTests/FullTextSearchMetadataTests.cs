@@ -22,7 +22,7 @@ namespace SearchServiceTests
         const int DEFAULT_PAGE_VALUE = 1;
         const int DEFAULT_PAGESIZE_VALUE = 10;
 
-        [SetUp]
+        [TestFixtureSetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
@@ -31,7 +31,7 @@ namespace SearchServiceTests
             _artifacts = SearchServiceTestHelper.SetupSearchData(_projects, _user, Helper);
         }
 
-        [TearDown]
+        [TestFixtureTearDown]
         public void TearDown()
         {
             Helper?.Dispose();

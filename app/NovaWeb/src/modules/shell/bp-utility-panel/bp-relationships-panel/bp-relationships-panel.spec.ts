@@ -1,7 +1,7 @@
 ﻿// import "angular";
 // import "angular-mocks";
 // import "angular-sanitize";
-// import "Rx";
+// import "rx/dist/rx.lite";
 // import "../../";
 // import { ComponentTest } from "../../../util/component.test";
 // import { BPRelationshipsPanelController } from "./bp-relationships-panel";

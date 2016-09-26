@@ -1,7 +1,7 @@
 import "./";
 import * as angular from "angular";
 import "angular-mocks";
-import "Rx";
+import "rx/dist/rx.lite";
 import { ComponentTest } from "../../util/component.test";
 import { LocalizationServiceMock } from "../../core/localization/localization.mock";
 import { BpGlossaryController } from "./bp-glossary";

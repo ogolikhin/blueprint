@@ -121,6 +121,46 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifact(unpublishedChanges.Artifacts.First(), artifact, expectedVersion: 1);
         }
 
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(182345)]
+        [Description("As user1 create & publish an artifact, then as user2 change & save it.  GetUnpublishedChanges as user1.  Verify an empty list is returned.")]
+        public void GetUnpublishedChanges_PublishedArtifactModifiedByDifferentUser_ReturnsEmptyList(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            IUser user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            artifact.Save(user2);
+            INovaArtifactsAndProjectsResponse unpublishedChanges = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                unpublishedChanges = Helper.ArtifactStore.GetUnpublishedChanges(_user);
+            }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
+
+            // Verify:
+            Assert.AreEqual(0, unpublishedChanges.Artifacts.Count, "There should be no artifacts in the list of unpublished changes!");
+            Assert.AreEqual(0, unpublishedChanges.Projects.Count, "There should be no projects in the list of unpublished changes!");
+        }
+
+        [TestCase]
+        [TestRail(182338)]
+        [Description("Call GetUnpublishedChanges by a user without permission to any projects.  Verify it returns 401 Unauthorized.")]
+        public void GetUnpublishedChanges_UserWithNoPermissions_ReturnsEmptyList()
+        {
+            // Setup:
+            IUser userWithNoPermissions = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken, instanceAdminRole: null);
+            INovaArtifactsAndProjectsResponse unpublishedChanges = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => unpublishedChanges = Helper.ArtifactStore.GetUnpublishedChanges(userWithNoPermissions),
+                "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
+
+            // Verify:
+            Assert.AreEqual(0, unpublishedChanges.Artifacts.Count, "There should be no artifacts in the list of unpublished changes!");
+            Assert.AreEqual(0, unpublishedChanges.Projects.Count, "There should be no projects in the list of unpublished changes!");
+        }
+
         [TestCase(BaseArtifactType.Process, 2)]
         [TestRail(182336)]
         [Description("Create & save artifacts in different projects.  GetUnpublishedChanges.  Verify the saved artifacts and the specified projects are returned " +
@@ -168,6 +208,44 @@ namespace ArtifactStoreTests
             AssertArtifactsAndProjectsResponseIsOrderedByProjectNameThenByArtifactId(unpublishedChanges);
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]  // We can't move artifacts from one project to another yet.  https://trello.com/c/V3AdEzXK
+        [TestCase(BaseArtifactType.Process, 2)]
+        [TestRail(000)]     // TODO: Add to TestRail once this test is working.
+        [Description("Create & publish an artifact, then move it to a different project.  GetUnpublishedChanges.  Verify the artifact and the specified projects are returned.")]
+        public void GetUnpublishedChanges_ArtifactMovedToDifferentProject_ReturnsArtifactDetails(
+            BaseArtifactType artifactType, int numberOfProjects)
+        {
+            // Setup:
+            var projects = ProjectFactory.GetProjects(_user, numberOfProjects);
+
+            // Create artifacts in different projects.
+            IArtifact artifact = Helper.CreateAndPublishArtifact(projects[0], _user, artifactType);
+
+            var artifacts = new List<IArtifactBase> { artifact };
+
+            // Move the artifact to a different project.
+            artifact.ProjectId = projects[1].Id;
+            artifact.Project = projects[1];
+            artifact.Save();
+
+            INovaArtifactsAndProjectsResponse unpublishedChanges = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                unpublishedChanges = Helper.ArtifactStore.GetUnpublishedChanges(_user);
+            }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(unpublishedChanges.Projects, projects);
+            Assert.AreEqual(artifacts.Count, unpublishedChanges.Artifacts.Count,
+                "There should be {0} artifact in the list of unpublished changes!", artifacts.Count);
+            ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInList(unpublishedChanges, artifacts);
+
+            // Verify - Order by the project name and then by the artifact integer Id.
+            AssertArtifactsAndProjectsResponseIsOrderedByProjectNameThenByArtifactId(unpublishedChanges);
+        }
+
         #endregion 200 OK tests
 
         #region 401 Unauthorized tests
@@ -183,19 +261,6 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetUnpublishedChanges(unauthorizedUser),
                 "'GET {0}' should return 401 Unauthorized when called with a bad token!", SVC_PATH);
-        }
-
-        [TestCase]
-        [TestRail(182338)]
-        [Description("Call GetUnpublishedChanges by a user without permission to any projects.  Verify it returns 401 Unauthorized.")]
-        public void GetUnpublishedChanges_UserWithNoPermissions_401Unauthorized()
-        {
-            // Setup:
-            IUser userWithNoPermissions = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken, instanceAdminRole: null);
-
-            // Execute:
-            Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetUnpublishedChanges(userWithNoPermissions),
-                "'GET {0}' should return 401 Unauthorized when called by a user without permission to any projects!", SVC_PATH);
         }
 
         #endregion 401 Unauthorized tests

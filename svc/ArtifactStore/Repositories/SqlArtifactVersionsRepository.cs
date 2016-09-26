@@ -177,12 +177,46 @@ namespace ArtifactStore.Repositories
             dynamicParameters.Add("@itemId", itemId);
             ArtifactBasicDetails artifactBasicDetails = (await ConnectionWrapper.QueryAsync<ArtifactBasicDetails>(
                 "GetArtifactBasicDetails", dynamicParameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
-
+            if (artifactBasicDetails != null)
+            {
+                VersionControlArtifactInfo artifactInfo = new VersionControlArtifactInfo
+                {
+                    Id = artifactBasicDetails.ArtifactId,
+                    SubArtifactId = (artifactBasicDetails.ArtifactId != artifactBasicDetails.ItemId) ? (int?)artifactBasicDetails.ItemId : null,
+                    Name = artifactBasicDetails.Name,
+                    ProjectId = artifactBasicDetails.ProjectId,
+                    ParentId = artifactBasicDetails.ParentId,
+                    OrderIndex = artifactBasicDetails.OrderIndex,
+                    ItemTypeId = artifactBasicDetails.ItemTypeId,
+                    Prefix = artifactBasicDetails.Prefix,
+                    PredefinedType = (ItemTypePredefined)artifactBasicDetails.PrimitiveItemTypePredefined,
+                    Version = (artifactBasicDetails.VersionIndex <= 0) ? -1 : artifactBasicDetails.VersionIndex,
+                    VersionCount = artifactBasicDetails.VersionsCount,
+                    Deleted = (artifactBasicDetails.DraftDeleted || artifactBasicDetails.LatestDeleted),
+                    LockedByUser = (artifactBasicDetails.LockedByUserId != null)
+                        ? new UserGroup { Id = artifactBasicDetails.LockedByUserId.Value } : null,
+                    LockedDateTime = artifactBasicDetails.LockedByUserTime,
+                    LockedUserName = artifactBasicDetails.LockedByUserName,
+                };
+                //RolePermissions? Permissions { get; set; }
+                if (artifactBasicDetails.DraftDeleted)
+                {
+                    artifactInfo.DeletedByUser = (artifactBasicDetails.UserId != null)
+                            ? new UserGroup { Id = artifactBasicDetails.UserId.Value } : null;
+                    artifactInfo.DeletedDateTime = artifactBasicDetails.LastSaveTimestamp;
+                    artifactInfo.DeletedUserName = artifactBasicDetails.UserName;
+                }
+                else if (artifactBasicDetails.LatestDeleted)
+                {
+                    artifactInfo.DeletedByUser = (artifactBasicDetails.LatestDeletedByUserId != null)
+                            ? new UserGroup { Id = artifactBasicDetails.LatestDeletedByUserId.Value } : null;
+                    artifactInfo.DeletedDateTime = artifactBasicDetails.LatestDeletedByUserTime;
+                    artifactInfo.DeletedUserName = artifactBasicDetails.LatestDeletedByUserName;
+                }
+            }
 
             throw new NotImplementedException();
         }
-
-        #endregion
-
+        #endregion GetVersionControlArtifactInfoAsync
     }
 }

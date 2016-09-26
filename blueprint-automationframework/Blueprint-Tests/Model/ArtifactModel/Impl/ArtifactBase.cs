@@ -683,18 +683,19 @@ namespace Model.ArtifactModel.Impl
                 }
                 else if (artifact.IsPublished)
                 {
-                    if (artifact.IsMarkedForDeletion)
+                    if (!artifact.IsMarkedForDeletion)
                     {
-                        artifact.Publish(artifact.LockOwner);
-                    }
-                    else
-                    {
+                        Logger.WriteDebug("Deleting artifact ID: {0}.", artifact.Id);
                         artifact.Delete(artifact.LockOwner, deleteChildren: true);
-                        artifact.Publish(artifact.LockOwner);
                     }
+
+                    Logger.WriteDebug("Publishing deleted artifact ID: {0}.", artifact.Id);
+                    artifact.Publish(artifact.LockOwner);
                 }
                 else if (artifact.IsSaved)
                 {
+                    Logger.WriteDebug("Adding artifact ID {0} to list of saved artifacts to discard.", artifact.Id);
+
                     if ((artifact.LockOwner != null) && savedArtifactsDictionary.ContainsKey(artifact.LockOwner))
                     {
                         savedArtifactsDictionary[artifact.LockOwner].Add(artifact);

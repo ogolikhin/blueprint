@@ -17,7 +17,7 @@ import {
     StatefulArtifact, 
     StatefulSubArtifact,
     IArtifactRelationshipsService,
-    ProcessStatefulArtifact 
+    StatefulProcessArtifact  
 } from "../";
 import {
     // IStatefulArtifact, 
@@ -88,6 +88,6 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
 
         let processServices = new ProcessStatefulArtifactServices(this.services, this.$q, this.processService);
 
-        return new ProcessStatefulArtifact(artifact, processServices);
+        return new StatefulProcessArtifact (artifact, processServices);
     }
 }

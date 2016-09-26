@@ -14,7 +14,7 @@ import { IStatefulArtifact } from "../../../../managers/models";
 import { Models } from "../../../../main/models";
 import { IProcessStatefulArtifactServices } from "../../services";
 
-export class ProcessStatefulArtifact extends StatefulArtifact implements IStatefulArtifact, IProcess {
+export class StatefulProcessArtifact  extends StatefulArtifact implements IStatefulArtifact, IProcess {
     
     public shapes: IProcessShape[];
     public links: IProcessLink[];

@@ -170,9 +170,6 @@ export class BPTreeDragndrop implements ng.IDirective {
 
                 $scope["onDropRow"] = function (path, $data, $event, position) {
                     if (self.isMoving) {
-                        // we backup the current data in case the drag and drop fails
-                        var dataBackup = JSON.parse(Helper.stringifySafe(nodes));
-
                         // handle special case when trying to drag to first position in an open folder
                         let node = getNode(path, nodes);
                         if (node.open && position === "after") {
@@ -183,13 +180,13 @@ export class BPTreeDragndrop implements ng.IDirective {
 
                         node = extractNodeByIndex(self.movingFrom, nodes);
                         // we need to recalculate the target path, after we extracted the node from the data
-                        var adjustedPath = adjustPath(self.movingFrom, path);
+                        let adjustedPath = adjustPath(self.movingFrom, path);
 
-                        if (!insertNodeByIndex(adjustedPath, node, nodes, position)) {
-                            Controller._datasource = dataBackup;
-                            nodes = Controller._datasource;
+                        if (insertNodeByIndex(adjustedPath, node, nodes, position)) {
+                            Controller.options.api.setRowData(nodes);
+                        } else {
+                            //TODO: make sure the extracted node gets reinserted in the original position
                         }
-                        Controller.options.api.setRowData(nodes);
                         Controller.options.api.refreshView();
                     }
                 };

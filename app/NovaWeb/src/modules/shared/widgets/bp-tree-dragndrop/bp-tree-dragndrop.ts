@@ -180,12 +180,10 @@ export class BPTreeDragndrop implements ng.IDirective {
 
                         node = extractNodeByIndex(self.movingFrom, nodes);
                         // we need to recalculate the target path, after we extracted the node from the data
-                        let adjustedPath = adjustPath(self.movingFrom, path);
+                        var adjustedPath = adjustPath(self.movingFrom, path);
 
                         if (insertNodeByIndex(adjustedPath, node, nodes, position)) {
                             Controller.options.api.setRowData(nodes);
-                        } else {
-                            //TODO: make sure the extracted node gets reinserted in the original position
                         }
                         Controller.options.api.refreshView();
                     }

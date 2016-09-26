@@ -60,7 +60,7 @@ export class StatefulSubArtifactCollection implements ISubArtifactCollection {
             key: subArtifact.id,
             value: subArtifact
         } as IChangeSet;
-        this.changeset.add(changeset, subArtifact);
+        this.changeset.add(changeset);
         //this.artifact.lock();
 
         return this.subArtifactList[length - 1];
@@ -77,7 +77,7 @@ export class StatefulSubArtifactCollection implements ISubArtifactCollection {
                     key: subArtifact.id,
                     value: subArtifact
                 } as IChangeSet;
-                this.changeset.add(changeset, subArtifact);
+                this.changeset.add(changeset);
                 this.artifact.lock();
 
                 return false;
@@ -87,11 +87,8 @@ export class StatefulSubArtifactCollection implements ISubArtifactCollection {
         return statefulSubArtifact;
     }
 
-
     public discard() {
-        //TODO implement logic to discard changes
-        this.subArtifactList.forEach((it: IStatefulSubArtifact) => it.discard());
-
+        this.subArtifactList.forEach(subArtifact => { subArtifact.discard(); });
     }
     public update(id: number) {
         // TODO: 

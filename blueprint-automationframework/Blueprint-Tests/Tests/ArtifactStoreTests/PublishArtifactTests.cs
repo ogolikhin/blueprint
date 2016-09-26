@@ -719,7 +719,7 @@ namespace ArtifactStoreTests
             List<IArtifactBase> artifactsToPublish,
             int expectedVersion)
         {
-            ArtifactStoreHelper.AssertArtifactAndProjectResponseContainsAllArtifactsInListAndHasExpectedVersion(
+            ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInListAndHasExpectedVersion(
                 publishResponse, artifactsToPublish, expectedVersion);
 
             foreach (var artifact in artifactsToPublish)

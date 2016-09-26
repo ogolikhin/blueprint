@@ -101,14 +101,15 @@ export class BPDiagramController extends BpBaseEditor {
 
     public onLoad() {
         super.onLoad();
-        if (this.isDestroyed()) {
+        if (this.isDestroyed) {
             return;
         }
         this.cancelationToken = this.$q.defer();
-        if (this.isDestroyed()) {
-            return;
-        }
         this.diagramService.getDiagram(this.artifact.id, this.artifact.predefinedType, this.cancelationToken.promise).then(diagram => {
+            // TODO: hotfix, remove later
+            if (this.isDestroyed) {
+                return;
+            }
             this.initSubArtifacts(diagram);
 
             if (diagram.libraryVersion === 0 && diagram.shapes && diagram.shapes.length > 0) {
@@ -134,13 +135,9 @@ export class BPDiagramController extends BpBaseEditor {
         });
     }
 
-    private isDestroyed() {
-        return !this.artifact;
-    }
-
     private onSelectionChanged = (diagramType: string, elements: Array<IDiagramElement>) => {
         this.$rootScope.$applyAsync(() => {
-            if (this.isDestroyed()) {
+            if (this.isDestroyed) {
                 return;
             }
             if (elements && elements.length > 0) {

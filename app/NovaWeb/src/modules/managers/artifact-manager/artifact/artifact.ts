@@ -12,7 +12,8 @@ import {
     IStatefulArtifact,
     IArtifactProperties,
     IIStatefulArtifact,
-    IArtifactAttachmentsResultSet
+    IArtifactAttachmentsResultSet,
+    IState
 } from "../../models";
 
 
@@ -33,7 +34,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     private lockPromise: ng.IPromise<IStatefulArtifact>;
     private loadPromise: ng.IPromise<IStatefulArtifact>;
 
-    constructor(private artifact: Models.IArtifact, private services: IStatefulArtifactServices) {
+    constructor(protected artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
         this.artifactState = new ArtifactState(this);
         this.changesets = new ChangeSetCollector(this);
         this.metadata = new MetaData(this);
@@ -127,6 +128,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     public get parentId(): number {
         return this.artifact.parentId;
     }
+    public get orderIndex(): number {
+        return this.artifact.orderIndex;
+    }
 
     public get createdOn(): Date {
         return this.artifact.createdOn;
@@ -158,40 +162,46 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
 
     private set(name: string, value: any) {
         if (name in this) {
-           const oldValue = this[name];
            const changeset = {
                type: ChangeTypeEnum.Update,
                key: name,
                value: this.artifact[name] = value              
            } as IChangeSet;
-           this.changesets.add(changeset, oldValue);
+           this.changesets.add(changeset);
            
            this.lock(); 
         }
     }
 
-    public discard(all: boolean = false) {
-
-        this.changesets.reset().forEach((it: IChangeSet) => {
-            if (!all) {
-                this[it.key as string].value = it.value;
-            }
-        });
-
-        this.customProperties.discard(all);
-        this.specialProperties.discard(all);
-
-        //TODO: need impementation
-         this.attachments.discard();
-         this.docRefs.discard();
-         this.subArtifactCollection.list().forEach(subArtifact => {
-             subArtifact.discard();
-         });
-         this.artifactState.dirty = false;
+    public discard() {
+        this.changesets.reset();
+        this.customProperties.discard();
+        this.specialProperties.discard();
+        this.attachments.discard();
+        this.docRefs.discard();
+        this.subArtifactCollection.discard();
+        this.artifactState.dirty = false;
     }
     
     public setValidationErrorsFlag(value: boolean) {
         this.artifactState.invalid = value;
+    }
+
+    private loadInternal(artifact: Models.IArtifact): IState {
+        const artifactBeforeUpdate = this.artifact;
+        
+        this.artifact = artifact;
+        this.artifactState.initialize(artifact);
+        this.customProperties.initialize(artifact.customPropertyValues);
+        this.specialProperties.initialize(artifact.specificPropertyValues);
+        
+        let state = this.artifactState.get();
+        if (artifactBeforeUpdate.parentId !== artifact.parentId || artifactBeforeUpdate.orderIndex !== artifact.orderIndex) {
+            state.misplaced = true;
+        }
+        state.outdated = false;
+
+        return state;
     }
 
     public load(force: boolean = true):  ng.IPromise<IStatefulArtifact> {
@@ -203,26 +213,14 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                 return this.loadPromise;
             } else {
                 this.loadPromise = deferred.promise;
-                const artifactBeforeLoad = this.artifact;
                 this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
-                    this.artifact = artifact;
-                    this.artifactState.initialize(artifact);
-                    this.customProperties.initialize(artifact.customPropertyValues);
-                    this.specialProperties.initialize(artifact.specificPropertyValues);
-                    
-                    const state = this.artifactState.get();
-                    if (artifactBeforeLoad.parentId !== artifact.parentId) {
-                        state.readonly = true;
-                        state.lockedBy = Enums.LockedByEnum.None;
-                        this.artifactState.error = "Artifact_Lock_DoesNotExist";
-                    }
-                    state.outdated = false;
+                    let state = this.loadInternal(artifact);
                     //modify states all at once
                     this.artifactState.set(state);
-
                     deferred.resolve(this);
                 }).catch((err) => {
-                    deferred.reject(err);
+                    this.artifactState.readonly = true;
+                    deferred.reject(new Error(err.message));
                 }).finally(() => {
                     this.loadPromise = null;
                     this.lockPromise = null;
@@ -239,26 +237,37 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         return this.itemTypeId === Enums.ItemTypePredefined.Project;
     }
 
+
     private validateLock(lock: Models.ILockResult) {
         if (lock.result === Enums.LockResultEnum.Success) {
             this.artifactState.lock(lock);
-            if (lock.info && lock.info.versionId !== this.version) {
-                this.artifactState.outdated = true;
-                this.discard(true);
-            }
+            if (lock.info) {
+                if (lock.info.versionId !== this.version) {
+                    this.artifactState.outdated = true;
+                    this.discard();
+                } else if (lock.info.parentId !== this.parentId || lock.info.orderIndex !== this.orderIndex) {
+                    this.artifactState.misplaced = true;
+                }
+
+            } 
         } else {
             this.artifactState.readonly = true;
             this.artifactState.outdated = true;
-            this.discard(true);
+            this.discard();
             if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
                 this.artifactState.lock(lock);
             } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
-                this.artifactState.error = "Artifact_Lock_" + Enums.LockResultEnum[lock.result];
+                this.artifactState.deleted = true;
+                this.artifactState.outdated = false;
+                this.artifactState.readonly = true;
+                this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
             } else {
                 this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
             }
         }
     }
+
+
     public lock(): ng.IPromise<IStatefulArtifact> {
         if (this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
             return;
@@ -357,7 +366,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         let changes = this.changes();
         this.services.artifactService.updateArtifact(changes)
             .then((artifact: Models.IArtifact) => {
-                this.discard(true);
+                this.discard();
                 this.load(true).then((it: IStatefulArtifact) => {
                     this.services.messageService.addInfo("App_Save_Artifact_Error_200");
                     deffered.resolve(it);

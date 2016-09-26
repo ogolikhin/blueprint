@@ -115,31 +115,38 @@ export class ProjectManager  implements IProjectManager {
         //try with selected artifact
         this.projectService.getProjectTree(project.id, selectedArtifact.id, selectedArtifactNode.open)
         .then((data: Models.IArtifact[]) => {
-            this.onGetProjectTree(project, data, defer, selectedArtifact);
+            this.onGetProjectTree(project, data, selectedArtifact);
+            defer.resolve();
         }).catch((error: any) => {
             if(error.statusCode === 404 && error.errorCode === 3000){
                 //try with selected artifact's parent
                 this.projectService.getProjectTree(project.id, selectedArtifact.parentId, selectedArtifactNode.open)
                 .then((data: Models.IArtifact[]) => {
-                    this.onGetProjectTree(project, data, defer, this.getArtifact(selectedArtifact.parentId));
+                    this.onGetProjectTree(project, data, this.getArtifact(selectedArtifact.parentId));
+                    defer.resolve();
                 }).catch((error: any) => {
                     if(error.statusCode === 404 && error.errorCode === 3000){
                         //try it with project
                     }else{
-                        this.onGetProjectTreeError(defer, project, error);
+                        this.onGetProjectTreeError(project, error);
+                        defer.reject();
                     }
                 });
             }else{
-                this.onGetProjectTreeError(defer, project, error);
+                this.onGetProjectTreeError(project, error);
+                defer.reject();
             }
         });
         
+        this.metadataService.remove(currentProject.id);    
         this.metadataService.load(currentProject.id);    
         
         return defer.promise; 
     }
     
-    private onGetProjectTree(project: Project, data: Models.IArtifact[], deffered: any, selectedArtifact: IStatefulArtifact){
+    private onGetProjectTree(project: Project, data: Models.IArtifact[], selectedArtifact: IStatefulArtifact){
+        this.artifactManager.removeAll(project.id);
+        
         project.children = data.map((it: Models.IArtifact) => {
             const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
             this.artifactManager.add(statefulArtifact);
@@ -155,10 +162,9 @@ export class ProjectManager  implements IProjectManager {
         this.openChildNodes(project.children, data);
 
         this.projectCollection.onNext(this.projectCollection.getValue());
-        deffered.resolve();
     }
     
-    private onGetProjectTreeError(deffered: any, project: Project, error: any){
+    private onGetProjectTreeError(project: Project, error: any){
         //ignore authentication errors here
         if (error) {
             this.messageService.addError(error["message"] || "Artifact_NotFound");
@@ -168,11 +174,9 @@ export class ProjectManager  implements IProjectManager {
             project.open = false;
             this.projectCollection.onNext(this.projectCollection.getValue());
         }
-        deffered.reject(); 
     }
 
     private openChildNodes(childrenNodes: IArtifactNode[], childrenData: Models.IArtifact[]){
-        
         angular.forEach(childrenNodes, (node) => {
             let childData = childrenData.filter(function (it) {
                 return it.id === node.id;

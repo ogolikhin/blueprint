@@ -569,7 +569,8 @@ namespace Model.Impl
             var movedArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails>(
                 path,
                 RestRequestMethod.POST,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChange: true);
 
             if (restApi.StatusCode == HttpStatusCode.OK)
             {

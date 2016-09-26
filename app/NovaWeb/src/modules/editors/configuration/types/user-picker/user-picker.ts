@@ -218,7 +218,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                                 e[$scope.to.labelProp] = (item.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + item.name;
                                 e.email = item.email;
                                 e.isGroup = item.isGroup;
-                                e.isBlocked = item.isBlocked;
+                                e.isLoginEnabled = item.isLoginEnabled;
                                 e.selected = this.isChoiceSelected(e, $select);
                                 return e;
                             });

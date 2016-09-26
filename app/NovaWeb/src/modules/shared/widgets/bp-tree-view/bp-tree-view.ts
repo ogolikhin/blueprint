@@ -170,6 +170,8 @@ export class BPTreeViewController implements IBPTreeViewController {
             rowDataAsync = [];
         }
 
+        this.options.api.setRowData([]);
+        this.options.api.showLoadingOverlay();
         return this.$q.when(rowDataAsync).then((rowData) => {
             // Save selection
             const selectedVMs: {[key: string]: ITreeViewNodeVM} = {};
@@ -184,6 +186,11 @@ export class BPTreeViewController implements IBPTreeViewController {
                     node.setSelected(true);
                 }
             });
+        }).finally(() => {
+            this.options.api.hideOverlay();
+            if (this.options.api.getModel().getRowCount() === 0) {
+                this.options.api.showNoRowsOverlay();
+            }
         });
     }
 

@@ -105,6 +105,12 @@ namespace ArtifactStoreTests
                 "Attempt to create cyclic reference Actor1 -> Actor2 -> Actor1 should throw 409, but it doesn't.");
         }
 
+        /// <summary>
+        /// Sets Actor Inheritance value for Actor artifact.
+        /// </summary>
+        /// <param name="actor">Acrtor artifact.</param>
+        /// <param name="baseActor">Acrtor to use for Actor Inheritance.</param>
+        /// <param name="user">User to perform operation.</param>
         private void SetActorInheritance(IArtifact actor, IArtifact baseActor, IUser user)
         {
             NovaArtifactDetails actorDetails = Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
@@ -118,28 +124,43 @@ namespace ArtifactStoreTests
             Artifact.UpdateArtifact(actor, user, actorDetails, Helper.BlueprintServer.Address);
         }
 
+        /// <summary>
+        /// Deletes Actor Inheritance value for Actor artifact.
+        /// </summary>
+        /// <param name="actor">Acrtor artifact.</param>
+        /// <param name="user">User to perform operation.</param>
         private void DeleteActorInheritance(IArtifact actor, IUser user)
         {
             NovaArtifactDetails actorDetails = Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
 
-            ActorInheritanceValue actorInheritance = null;
-            actorDetails.ActorInheritance = actorInheritance;
+            actorDetails.ActorInheritance = null;
 
             actor.Lock(user);
 
             Artifact.UpdateArtifact(actor, user, actorDetails, Helper.BlueprintServer.Address);
         }
 
+        /// <summary>
+        /// Check that Actor has empty Inherits From value.
+        /// </summary>
+        /// <param name="actor">Acrtor to check.</param>
+        /// <param name="user">User to perform operation.</param>
         private void CheckActorHasNoActorInheritace(IArtifact actor, IUser user)
         {
             NovaArtifactDetails actorDetails = Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
             Assert.IsNull(actorDetails.ActorInheritance, "ActorInheritance must be empty");
         }
 
+        /// <summary>
+        /// Check that Actor has expected Inherits From value.
+        /// </summary>
+        /// <param name="actor">Acrtor to check.</param>
+        /// <param name="expectedBaseActor">Actor expected in Actor Inheritance.</param>
+        /// <param name="user">User to perform operation.</param>
         private void CheckActorHasExpectedActorInheritace(IArtifact actor, IArtifact expectedBaseActor, IUser user)
         {
             NovaArtifactDetails actorDetails = Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
-            Assert.IsNotNull(actorDetails.ActorInheritance, "");
+            Assert.IsNotNull(actorDetails.ActorInheritance, "Actor Inheritance shouldn't be null, but it does.");
             Assert.AreEqual(actorDetails.ActorInheritance.ActorId, expectedBaseActor.Id, "ArtifactId must be the same, but it isn't.");
             Assert.AreEqual(actorDetails.ActorInheritance.ActorName, expectedBaseActor.Name, "Name must be the same, but it isn't.");
         }

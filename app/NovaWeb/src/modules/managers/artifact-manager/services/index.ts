@@ -1,2 +1,2 @@
 export { StatefulArtifactServices, IStatefulArtifactServices } from "./services";
-export { ProcessStatefulArtifactServices, IProcessStatefulArtifactServices } from "./process-services";
+export { StatefulProcessArtifactServices, IStatefulProcessArtifactServices } from "./process-services";

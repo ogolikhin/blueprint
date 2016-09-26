@@ -12,7 +12,7 @@ import { StatefulArtifact } from "../artifact";
 import { IStatefulArtifact } from "../../../../managers/models";
 
 import { Models } from "../../../../main/models";
-import { IProcessStatefulArtifactServices } from "../../services";
+import { IStatefulProcessArtifactServices } from "../../services";
 
 export class StatefulProcessArtifact  extends StatefulArtifact implements IStatefulArtifact, IProcess {
     
@@ -23,7 +23,7 @@ export class StatefulProcessArtifact  extends StatefulArtifact implements IState
     public status: IItemStatus;
     public requestedVersionInfo: IVersionInfo;
 
-    constructor(artifact: Models.IArtifact, protected services: IProcessStatefulArtifactServices) {
+    constructor(artifact: Models.IArtifact, protected services: IStatefulProcessArtifactServices) {
         super(artifact, services);
     }
     public get baseItemTypePredefined(): ItemTypePredefined {
@@ -33,7 +33,7 @@ export class StatefulProcessArtifact  extends StatefulArtifact implements IState
         return this.artifact.prefix;
     }
 
-    public getServices(): IProcessStatefulArtifactServices {
+    public getServices(): IStatefulProcessArtifactServices {
         return this.services;
     }
 

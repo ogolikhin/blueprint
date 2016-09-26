@@ -2,10 +2,10 @@
 import { IProcessService } from "../../../editors/bp-process/services/process/process.svc";
 import { StatefulArtifactServices, IStatefulArtifactServices } from "./services";
 
-export interface IProcessStatefulArtifactServices extends IStatefulArtifactServices {
+export interface IStatefulProcessArtifactServices extends IStatefulArtifactServices {
     processService: IProcessService;
 }
-export class ProcessStatefulArtifactServices extends StatefulArtifactServices implements IProcessStatefulArtifactServices {
+export class StatefulProcessArtifactServices extends StatefulArtifactServices implements IStatefulProcessArtifactServices {
 
     constructor(
         private statefulArtifactServices: IStatefulArtifactServices,

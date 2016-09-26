@@ -6,8 +6,8 @@ import { Models } from "../../../main/models";
 import {
     StatefulArtifactServices,
     IStatefulArtifactServices,
-    ProcessStatefulArtifactServices,
-    IProcessStatefulArtifactServices
+    StatefulProcessArtifactServices,
+    IStatefulProcessArtifactServices
 } from "../services";
 import { IArtifactService } from "./artifact.svc";
 import { 
@@ -86,7 +86,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
 
     public createStatefulProcessArtifact(artifact: Models.IArtifact): IStatefulArtifact {
 
-        let processServices = new ProcessStatefulArtifactServices(this.services, this.$q, this.processService);
+        let processServices = new StatefulProcessArtifactServices(this.services, this.$q, this.processService);
 
         return new StatefulProcessArtifact (artifact, processServices);
     }

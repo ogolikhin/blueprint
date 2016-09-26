@@ -13,26 +13,27 @@ namespace Model.ArtifactModel.Impl
     {
         #region Serialized JSON Properties
 
-        public Identification CreatedBy { get; set; }
-        public DateTime? CreatedOn { get; set; }
-        public DateTime? LastSavedOn { get; set; }
-        public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();
-        public string Description { get; set; }
-        public int Id { get; set; }
-        public int? ItemTypeId { get; set; }
-        public int ItemTypeVersionId { get; set; }
-        public Identification LastEditedBy { get; set; }
-        public DateTime? LastEditedOn { get; set; }
-        public Identification LockedByUser { get; set; }
-        public DateTime? LockedDateTime { get; set; }
-        public string Name { get; set; }
-        public double OrderIndex { get; set; }
-        public int ParentId { get; set; }
-        public int Permissions { get; set; }
         public int ProjectId { get; set; }
         public int Version { get; set; }
+        public DateTime? CreatedOn { get; set; }
+        public DateTime? LastEditedOn { get; set; }
+        public Identification CreatedBy { get; set; }
+        public Identification LastEditedBy { get; set; }
+        public DateTime? LastSavedOn { get; set; }
+        public int Permissions { get; set; }
+        public Identification LockedByUser { get; set; }
+        public DateTime? LockedDateTime { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public int ParentId { get; set; }
+        public double OrderIndex { get; set; }
+        public int? ItemTypeId { get; set; }
+        public int ItemTypeVersionId { get; set; }
+        public string Prefix { get; set; }
+        public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();
         public List<CustomProperty> SpecificPropertyValues { get; } = new List<CustomProperty>();
-
+        public int? PredefinedType { get; set; }
 
         #endregion Serialized JSON Properties
 

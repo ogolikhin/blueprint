@@ -1,4 +1,5 @@
-﻿import {UserStoryPreviewController} from "./user-story-preview";
+﻿import * as angular from "angular";
+import {UserStoryPreviewController} from "./user-story-preview";
 import {UserStoryDialogModel} from "../models/user-story-dialog-model";
 import { ModalServiceInstanceMock } from "../../../../../shell/login/mocks.spec";
 import { ShapeModelMock } from "../../diagram/presentation/graph/shapes/shape-model.mock";

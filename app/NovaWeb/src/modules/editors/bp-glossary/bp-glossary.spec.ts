@@ -1,5 +1,5 @@
 import "./";
-import "angular";
+import * as angular from "angular";
 import "angular-mocks";
 import "Rx";
 import { ComponentTest } from "../../util/component.test";

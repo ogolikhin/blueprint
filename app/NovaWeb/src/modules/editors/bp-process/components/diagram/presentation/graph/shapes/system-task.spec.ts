@@ -1,4 +1,5 @@
-﻿import {ShapesFactory} from "./shapes-factory";
+﻿import * as angular from "angular";
+import {ShapesFactory} from "./shapes-factory";
 import {ProcessGraph} from "../process-graph";
 import {ArtifactReferenceLinkMock, ShapeModelMock} from "./shape-model.mock";
 import {ProcessServiceMock} from "../../../../../services/process/process.svc.mock";

@@ -1,4 +1,4 @@
-﻿import "angular";
+﻿import * as angular from "angular";
 import "angular-mocks";
 import {IAuth, IUser, AuthSvc} from "./auth.svc";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";

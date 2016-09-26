@@ -1,4 +1,5 @@
-﻿import {ProcessGraph} from "./process-graph";
+﻿import * as angular from "angular";
+import {ProcessGraph} from "./process-graph";
 import {MessageServiceMock} from "../../../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {ProcessServiceMock} from "../../../../services/process/process.svc.mock";

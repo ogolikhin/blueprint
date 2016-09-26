@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import "angular-mocks";
 import * as agGrid from "ag-grid/main";
 import { BPTreeViewComponent, BPTreeViewController, ITreeViewNodeVM, IColumn } from "./bp-tree-view";

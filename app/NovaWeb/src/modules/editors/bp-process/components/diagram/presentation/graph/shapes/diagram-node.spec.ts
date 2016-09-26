@@ -1,4 +1,5 @@
-﻿import {ProcessServiceMock} from "../../../../../services/process/process.svc.mock";
+﻿import * as angular from "angular";
+import {ProcessServiceMock} from "../../../../../services/process/process.svc.mock";
 import {IProcessService} from "../../../../../services/process/process.svc";
 import {ProcessGraph} from "../process-graph";
 import {IProcessViewModel, ProcessViewModel} from "../../../viewmodel/process-viewmodel";

@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import "Rx";
 import "angular-mocks";
 import "angular-messages";

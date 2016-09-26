@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import "angular-mocks";
 import { SettingsService, IFileUploadService } from "../../../core";
 import { FileUploadService } from "../../../core/file-upload";

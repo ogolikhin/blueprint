@@ -156,5 +156,13 @@ export class ArtifactState implements IArtifactState {
         this.state.misplaced = value;
     }
 
+    public get deleted(): boolean {
+        return this.state.deleted;
+    }
+
+    public set deleted(value: boolean) {
+        this.state.deleted = value;
+    }
+
     public error: string;
 }

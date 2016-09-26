@@ -219,7 +219,8 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                     this.artifactState.set(state);
                     deferred.resolve(this);
                 }).catch((err) => {
-                    deferred.reject(err);
+                    this.artifactState.readonly = true;
+                    deferred.reject(new Error(err.message));
                 }).finally(() => {
                     this.loadPromise = null;
                     this.lockPromise = null;
@@ -256,7 +257,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
                 this.artifactState.lock(lock);
             } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
+                this.artifactState.deleted = true;
                 this.artifactState.outdated = false;
+                this.artifactState.readonly = true;
                 this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
             } else {
                 this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);

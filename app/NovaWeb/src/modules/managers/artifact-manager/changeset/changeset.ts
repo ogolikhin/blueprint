@@ -4,8 +4,7 @@
 export enum ChangeTypeEnum {
     Add = 0,
     Update = 1,
-    Delete = 2,
-    Initial = 3
+    Delete = 2
 }
 
 export interface IChangeSet {
@@ -14,7 +13,7 @@ export interface IChangeSet {
     value: any;
 }
 export interface IChangeCollector {
-    add(changeset: IChangeSet, old?: any);
+    add(changeset: IChangeSet);
     get(): IChangeSet[];
     reset(): IChangeSet[];
 }
@@ -31,17 +30,7 @@ export class ChangeSetCollector implements IChangeCollector {
 
     }
 
-    public add(changeset: IChangeSet, initValue?: any) {                 
-        let init = this.collection.filter((it: IChangeSet) => 
-            it.key === changeset.key && changeset.type === ChangeTypeEnum.Initial
-        )[0];
-        if (!init) {
-            this.collection.push({
-               type: ChangeTypeEnum.Initial,
-               key: changeset.key,
-               value: initValue              
-           } as IChangeSet);
-        } 
+    public add(changeset: IChangeSet) {                 
         let found = this.collection.filter((it: IChangeSet) => {
             return it.key === changeset.key && changeset.type === ChangeTypeEnum.Update && it.type === ChangeTypeEnum.Update;
         })[0];
@@ -56,18 +45,12 @@ export class ChangeSetCollector implements IChangeCollector {
 
 
     public reset(): IChangeSet[] {
-        let initValues = this.collection.filter((it: IChangeSet) => 
-            it.type === ChangeTypeEnum.Initial
-        );
-        
-        this._collection = [];
-        return initValues;
+        return this._collection = [];
     }
 
     public get(): IChangeSet[] {
         // filter out initials. process add/update/delete on individual model level (attachments, docrefs, properties, etc).
-        let changes = this.collection.map((changeSet: IChangeSet) => changeSet.type !== ChangeTypeEnum.Initial ? changeSet : null)
-                                     .filter((changeSet) => !!changeSet);
+        let changes = this.collection.filter((changeSet) => !!changeSet);
         return changes;
     }
 }

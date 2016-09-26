@@ -39,7 +39,7 @@ export interface IArtifactProperties {
     get(id: number): Models.IPropertyValue;
     set(id: number, value: any): Models.IPropertyValue;
     changes(): Models.IPropertyValue[];
-    discard(all?: boolean);
+    discard();
 }
 
 // TODO: make as a base class for IStatefulArtifact / IStatefulSubArtifact
@@ -52,7 +52,7 @@ export interface IStatefulItem extends Models.IArtifact {
     attachments: IArtifactAttachments;
     relationships: IArtifactRelationships;
     docRefs: IDocumentRefs;
-    discard(all?: boolean);
+    discard();
     lock(): ng.IPromise<IStatefulArtifact>;
 }
 

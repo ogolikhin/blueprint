@@ -15,7 +15,7 @@ export interface IChangeSet {
 export interface IChangeCollector {
     add(changeset: IChangeSet);
     get(): IChangeSet[];
-    reset(): IChangeSet[];
+    reset();
 }
 
 export class ChangeSetCollector implements IChangeCollector {
@@ -44,8 +44,8 @@ export class ChangeSetCollector implements IChangeCollector {
     }
 
 
-    public reset(): IChangeSet[] {
-        return this._collection = [];
+    public reset() {
+        this._collection = [];
     }
 
     public get(): IChangeSet[] {

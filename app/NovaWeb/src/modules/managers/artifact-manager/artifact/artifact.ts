@@ -239,38 +239,26 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         return this.itemTypeId === Enums.ItemTypePredefined.Project;
     }
 
-    private validateLock(lock: Models.ILockResult): boolean {
+    private validateLock(lock: Models.ILockResult) {
         if (lock.result === Enums.LockResultEnum.Success) {
             this.artifactState.lock(lock);
             if (lock.info && lock.info.versionId !== this.version) {
                 this.artifactState.outdated = true;
                 this.discard(true);
-                return false;
             }
-        } else if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
-            this.artifactState.lock(lock);
-            this.artifactState.readonly = true;
-            this.artifactState.outdated = true;
-            this.discard(true);
-            return false;
-
-        } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
-            this.artifactState.readonly = true;
-            this.artifactState.outdated = true;
-            this.artifactState.error = "Artifact_Lock_" + Enums.LockResultEnum[lock.result];
-            this.discard(true);
-            return false;
-
         } else {
-            this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
             this.artifactState.readonly = true;
-            this.artifactState.outdated = true;            
+            this.artifactState.outdated = true;
             this.discard(true);
-            return false;
+            if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
+                this.artifactState.lock(lock);
+            } else if (lock.result === Enums.LockResultEnum.DoesNotExist) {
+                this.artifactState.error = "Artifact_Lock_" + Enums.LockResultEnum[lock.result];
+            } else {
+                this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
+            }
         }
-        return true;
     }
-
     public lock(): ng.IPromise<IStatefulArtifact> {
         if (this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
             return;

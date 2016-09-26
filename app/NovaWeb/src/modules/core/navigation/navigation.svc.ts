@@ -1,13 +1,21 @@
+export interface INavigationState {
+    id?: number;
+    path?: number[];
+}
+
 export interface INavigationOptions {
     enableTracking: boolean;
 }
 
 export interface INavigationService {
+    getNavigationState(): INavigationState;
     navigateToMain(): ng.IPromise<any>;
     navigateToArtifact(id: number, options?: INavigationOptions): ng.IPromise<any>;
 }
 
 export class NavigationService implements INavigationService {
+    private delimiter: string = ",";
+
     public static $inject: [string] = [
         "$state"
     ];
@@ -15,6 +23,19 @@ export class NavigationService implements INavigationService {
     constructor(
         private $state: ng.ui.IStateService
     ) {
+    }
+
+    public getNavigationState(): INavigationState {
+        const idParameter = this.$state.params["id"];
+        const pathParameter = this.$state.params["path"];
+
+        const id: number = idParameter ? Number(idParameter) : null;
+        const path: number[] = pathParameter ? pathParameter.split(this.delimiter).map((element) => Number(element)) : null;
+
+        return <INavigationState>{
+            id: id,
+            path: path
+        };
     }
 
     public navigateToMain(): ng.IPromise<any> {
@@ -26,7 +47,7 @@ export class NavigationService implements INavigationService {
         const state = "main.artifact";
         const parameters = { id: id };
         // Disables the inheritance of optional url parameters (such as "path")
-        let stateOptions: ng.ui.IStateOptions = <ng.ui.IStateOptions>{ inherit: false };
+        const stateOptions: ng.ui.IStateOptions = <ng.ui.IStateOptions>{ inherit: false };
 
         if (options && options.enableTracking) {
             this.updatePathParameter(parameters);
@@ -36,19 +57,16 @@ export class NavigationService implements INavigationService {
     }
 
     private updatePathParameter(parameters: any) {
-        const sourceArtifactId = this.$state.params["id"];
+        let currentState = this.getNavigationState();
 
-        if (!sourceArtifactId) {
+        if (!currentState.id) {
             return;
         }
 
-        const path = this.$state.params["path"];
-
-        if (!path) {
-            parameters["path"] = `${sourceArtifactId}`;
+        if (!currentState.path || currentState.path.length === 0) {
+            parameters["path"] = `${currentState.id}`;
         } else {
-            const delimiter = ",";
-            parameters["path"] = `${path}${delimiter}${sourceArtifactId}`;
+            parameters["path"] = `${currentState.path.join(this.delimiter)}${this.delimiter}${currentState.id}`;
         }
     }
 }

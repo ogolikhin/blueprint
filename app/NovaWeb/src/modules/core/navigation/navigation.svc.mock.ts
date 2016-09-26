@@ -1,4 +1,4 @@
-import {INavigationOptions, INavigationService} from "./navigation.svc";
+import {INavigationState, INavigationOptions, INavigationService} from "./navigation.svc";
 
 export class NavigationServiceMock implements INavigationService {
     public static $inject: string[] = [
@@ -8,6 +8,10 @@ export class NavigationServiceMock implements INavigationService {
     constructor(
         private $q: ng.IQService
     ) {
+    }
+
+    public getNavigationState(): INavigationState {
+        return null;
     }
 
     public navigateToMain(): ng.IPromise<any> {

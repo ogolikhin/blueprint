@@ -43,7 +43,7 @@ describe("NavigationService", () => {
 
             beforeEach(() => {
                 sourceArtifactId = 54;
-                $state.params["id"] = sourceArtifactId;
+                $state.params["id"] = sourceArtifactId.toString();
                 $state.current = new ArtifactState();
             });
 
@@ -74,8 +74,8 @@ describe("NavigationService", () => {
             beforeEach(() => {
                 predecessorArtifactId = 11;
                 sourceArtifactId = 54;
-                $state.params["id"] = sourceArtifactId;
-                $state.params["path"] = predecessorArtifactId;
+                $state.params["id"] = sourceArtifactId.toString();
+                $state.params["path"] = predecessorArtifactId.toString();
                 $state.current = new ArtifactState();
             });
 
@@ -183,7 +183,7 @@ describe("NavigationService", () => {
 
             beforeEach(() => {
                 sourceArtifactId = targetArtifactId;
-                $state.params["id"] = sourceArtifactId;
+                $state.params["id"] = sourceArtifactId.toString();
                 $state.current = new ArtifactState();
             });
 
@@ -254,7 +254,7 @@ describe("NavigationService", () => {
 
             beforeEach(() => {
                 sourceArtifactId = 54;
-                $state.params["id"] = sourceArtifactId;
+                $state.params["id"] = sourceArtifactId.toString();
                 $state.current = new ArtifactState();
             });
 
@@ -327,8 +327,8 @@ describe("NavigationService", () => {
             beforeEach(() => {
                 predecessorArtifactId = 11;
                 sourceArtifactId = 54;
-                $state.params["id"] = sourceArtifactId;
-                $state.params["path"] = predecessorArtifactId;
+                $state.params["id"] = sourceArtifactId.toString();
+                $state.params["path"] = predecessorArtifactId.toString();
                 $state.current = new ArtifactState();
             });
 

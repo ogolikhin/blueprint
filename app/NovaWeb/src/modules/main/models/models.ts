@@ -289,6 +289,8 @@ export interface IVersionInfo {
     versionId?: number;
     revisionId?: number;
     baselineId?: number;
+    parentId?: number;
+    orderIndex?: number;
     isVersionInformationProvided?: boolean;
     isHeadOrSavedDraftVersion?: boolean;
 }

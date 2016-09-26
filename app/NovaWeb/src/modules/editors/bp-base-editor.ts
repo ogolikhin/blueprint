@@ -8,6 +8,7 @@ export { IArtifactManager, IProjectManager, IStatefulArtifact, IMessageService, 
 
 export class BpBaseEditor {
     protected subscribers: Rx.IDisposable[];
+    protected isDestroyed: boolean;
     public artifact: IStatefulArtifact;
     public isLoading: boolean;
 
@@ -20,6 +21,7 @@ export class BpBaseEditor {
     public $onInit() { }
 
     public $onChanges(obj: any) {
+        this.isDestroyed = false;
         this.artifactManager.get(obj.context.currentValue).then((artifact) => { // lightweight
             if (artifact) {
                 this.isLoading = true;
@@ -37,16 +39,19 @@ export class BpBaseEditor {
     public $onDestroy() {
         delete this.artifact;
         this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        this.isDestroyed = true;
     }
 
     public onLoad() {
         this.artifactManager.selection.setArtifact(this.artifact);
         this.artifact.load(this.artifact.artifactState.outdated).then(() => {
             this.onUpdate();
-        });
+        }).finally(() => {
+            this.isLoading = false;
+        })
+        ;
     }
 
     public onUpdate() {
-        this.isLoading = false;
     }
 }

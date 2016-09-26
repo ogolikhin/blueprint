@@ -1,4 +1,6 @@
 import { IMessageService, ILocalizationService } from "../../../core";
+import { IDialogService } from "../../../shared/";
+
 import { IProcessService } from "../../../editors/bp-process/services/process/process.svc";
 import { Models } from "../../../main/models";
 import {
@@ -35,6 +37,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         "$q",
         "session",
         "messageService",
+        "dialogService",
         "localization",
         "artifactService",
         "artifactAttachments",
@@ -49,6 +52,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         private $q: ng.IQService,
         private session: ISession,
         private messageService: IMessageService,
+        private dialogService: IDialogService,
         private localizationService: ILocalizationService,
         private artifactService: IArtifactService,
         private attachmentService: IArtifactAttachmentsService,
@@ -61,6 +65,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
             this.$q,
             this.session,
             this.messageService,
+            this.dialogService,
             this.localizationService,
             this.artifactService,
             this.attachmentService,

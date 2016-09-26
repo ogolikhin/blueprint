@@ -60,7 +60,7 @@ export class BpGlossaryController extends BpBaseEditor {
         // TODO: move this to sub-artifact
         let statefulSubartifacts = [];
         this.glossaryService.getGlossary(this.artifact.id).then((result: Models.IArtifact) => {
-            if (this.isDestroyed()) {
+            if (this.isDestroyed) {
                 return;
             }
             result.subArtifacts = result.subArtifacts.map((term: Models.ISubArtifact) => {
@@ -84,10 +84,6 @@ export class BpGlossaryController extends BpBaseEditor {
         }).finally(() => {
             this.isLoading = false;
         });
-    }
-
-    private isDestroyed() {
-        return !this.artifact;
     }
 
     private clearSelection() {

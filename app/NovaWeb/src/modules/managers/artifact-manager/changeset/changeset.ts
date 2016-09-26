@@ -66,45 +66,8 @@ export class ChangeSetCollector implements IChangeCollector {
 
     public get(): IChangeSet[] {
         // filter out initials. process add/update/delete on individual model level (attachments, docrefs, properties, etc).
-        let changes = this.collection.map((changeSet: IChangeSet) => changeSet.type !== ChangeTypeEnum.Initial ? changeSet : null).filter((changeSet) => !!changeSet)
+        let changes = this.collection.map((changeSet: IChangeSet) => changeSet.type !== ChangeTypeEnum.Initial ? changeSet : null)
+                                     .filter((changeSet) => !!changeSet);
         return changes;
     }
-
-
-
-    // private apply(item: IIStatefulItem){
-    //         let propertyTypeId: number;
-    //         let propertyValue: Models.IPropertyValue;
-
-    //         this.collection.forEach((it: IChangeSet) => {
-
-    //         });
-    //         switch (changeSet.lookup) {
-    //             case Enums.PropertyLookupEnum.System:
-    //                 if (changeSet.id in this.originItem) {
-    //                     item[changeSet.id] = changeSet.value;
-    //                 }
-    //                 break;
-    //             case Enums.PropertyLookupEnum.Custom:
-    //                 propertyTypeId = changeSet.id as number;
-    //                 propertyValue = (this._changedItem.customPropertyValues || []).filter((it: Models.IPropertyValue) => {
-    //                     return it.propertyTypeId === propertyTypeId;
-    //                 })[0];
-    //                 if (propertyValue) {
-    //                     item.customPropertyValues.push(propertyValue);
-    //                 }
-    //                 break;
-    //             case Enums.PropertyLookupEnum.Special:
-    //                 propertyTypeId = changeSet.id as number;
-    //                 propertyValue = (this._changedItem.specificPropertyValues || []).filter((it: Models.IPropertyValue) => {
-    //                     return it.propertyTypeId === propertyTypeId;
-    //                 })[0];
-    //                 if (propertyValue) {
-    //                     item.customPropertyValues.push(propertyValue);
-    //                 }
-    //                 break;
-    //         }
-    //         return item;
-    //     }
-
 }

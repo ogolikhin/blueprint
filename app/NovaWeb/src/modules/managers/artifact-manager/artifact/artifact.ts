@@ -12,7 +12,8 @@ import {
     IStatefulArtifact,
     IArtifactProperties,
     IIStatefulArtifact,
-    IArtifactAttachmentsResultSet
+    IArtifactAttachmentsResultSet,
+    IState
 } from "../../models";
 
 
@@ -127,6 +128,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     public get parentId(): number {
         return this.artifact.parentId;
     }
+    public get orderIndex(): number {
+        return this.artifact.orderIndex;
+    }
 
     public get createdOn(): Date {
         return this.artifact.createdOn;
@@ -194,6 +198,23 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         this.artifactState.invalid = value;
     }
 
+    private loadInternal(artifact: Models.IArtifact): IState {
+        const artifactBeforeUpdate = this.artifact;
+        
+        this.artifact = artifact;
+        this.artifactState.initialize(artifact);
+        this.customProperties.initialize(artifact.customPropertyValues);
+        this.specialProperties.initialize(artifact.specificPropertyValues);
+        
+        let state = this.artifactState.get();
+        if (artifactBeforeUpdate.parentId !== artifact.parentId || artifactBeforeUpdate.orderIndex !== artifact.orderIndex) {
+            this.services.dialogService.alert("Artifact_Lock_DoesNotExist");
+        }
+        state.outdated = false;
+
+        return state;
+    }
+
     public load(force: boolean = true):  ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         if (!this.isProject() && force && 
@@ -203,23 +224,10 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                 return this.loadPromise;
             } else {
                 this.loadPromise = deferred.promise;
-                const artifactBeforeLoad = this.artifact;
                 this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
-                    this.artifact = artifact;
-                    this.artifactState.initialize(artifact);
-                    this.customProperties.initialize(artifact.customPropertyValues);
-                    this.specialProperties.initialize(artifact.specificPropertyValues);
-                    
-                    const state = this.artifactState.get();
-                    if (artifactBeforeLoad.parentId !== artifact.parentId) {
-                        state.readonly = true;
-                        state.lockedBy = Enums.LockedByEnum.None;
-                        this.artifactState.error = "Artifact_Lock_DoesNotExist";
-                    }
-                    state.outdated = false;
+                    let state = this.loadInternal(artifact);
                     //modify states all at once
                     this.artifactState.set(state);
-
                     deferred.resolve(this);
                 }).catch((err) => {
                     deferred.reject(err);
@@ -239,13 +247,19 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         return this.itemTypeId === Enums.ItemTypePredefined.Project;
     }
 
+
     private validateLock(lock: Models.ILockResult) {
         if (lock.result === Enums.LockResultEnum.Success) {
             this.artifactState.lock(lock);
-            if (lock.info && lock.info.versionId !== this.version) {
-                this.artifactState.outdated = true;
-                this.discard(true);
-            }
+            if (lock.info) {
+                if (lock.info.versionId !== this.version) {
+                    this.artifactState.outdated = true;
+                    this.discard(true);
+                } else if (lock.info.parentId !== this.parentId || lock.info.orderIndex !== this.orderIndex) {
+                    this.services.dialogService.alert("Artifact_Lock_DoesNotExist");
+                }
+
+            } 
         } else {
             this.artifactState.readonly = true;
             this.artifactState.outdated = true;
@@ -259,6 +273,8 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             }
         }
     }
+
+
     public lock(): ng.IPromise<IStatefulArtifact> {
         if (this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
             return;

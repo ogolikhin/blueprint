@@ -16,7 +16,8 @@ import {
 export { 
     ISession,
     IArtifactAttachmentsResultSet, 
-    IArtifactAttachmentsService
+    IArtifactAttachmentsService,
+    IState
 };
 
 export interface IDispose {

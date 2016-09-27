@@ -1,23 +1,10 @@
-export interface INavigationState {
-    id?: number;
-    path?: number[];
-}
-
-export interface INavigationOptions {
-}
-
-export class ForwardNavigationOptions implements INavigationOptions {
-    enableTracking: boolean;
-}
-
-export class BackNavigationOptions implements INavigationOptions {
-    index: number;
-}
+import {INavigationState} from "./navigation-state";
+import {ForwardNavigationOptions, BackNavigationOptions} from "./navigation-options";
 
 export interface INavigationService {
     getNavigationState(): INavigationState;
     navigateToMain(): ng.IPromise<any>;
-    navigateToArtifact(id: number, options?: INavigationOptions): ng.IPromise<any>;
+    navigateToArtifact(id: number, options?: ForwardNavigationOptions | BackNavigationOptions): ng.IPromise<any>;
 }
 
 export class NavigationService implements INavigationService {
@@ -50,7 +37,7 @@ export class NavigationService implements INavigationService {
         return this.$state.go(state);
     }
 
-    public navigateToArtifact(id: number, options?: INavigationOptions): ng.IPromise<any> {
+    public navigateToArtifact(id: number, options?: ForwardNavigationOptions | BackNavigationOptions): ng.IPromise<any> {
         const state = "main.artifact";
         const parameters = { id: id };
         // Disables the inheritance of optional url parameters (such as "path")
@@ -63,27 +50,24 @@ export class NavigationService implements INavigationService {
         return this.$state.go(state, parameters, stateOptions);
     }
 
-    private updatePathParameter(options: INavigationOptions, parameters: any) {
+    private updatePathParameter(options: ForwardNavigationOptions | BackNavigationOptions, parameters: any) {
         let currentState = this.getNavigationState();
 
         if (!currentState.id) {
             return;
         }
 
-        let forwardOptions = <ForwardNavigationOptions>options;
-        let backOptions = <BackNavigationOptions>options;
-
         if (!currentState.path || currentState.path.length === 0) {
-            if (forwardOptions && forwardOptions.enableTracking) {
+            if (options instanceof ForwardNavigationOptions && options.enableTracking) {
                 parameters["path"] = `${currentState.id}`;
             }
         } else {
-            if (forwardOptions && forwardOptions.enableTracking) {
+            if (options instanceof ForwardNavigationOptions && options.enableTracking) {
                 parameters["path"] = `${currentState.path.join(this.delimiter)}${this.delimiter}${currentState.id}`;
             }
 
-            if (backOptions && backOptions.index > 0 && backOptions.index < currentState.path.length) {
-                parameters["path"] = `${currentState.path.slice(0, backOptions.index).join(this.delimiter)}`;
+            if (options instanceof BackNavigationOptions && options.pathIndex > 0 && options.pathIndex < currentState.path.length) {
+                parameters["path"] = `${currentState.path.slice(0, options.pathIndex).join(this.delimiter)}`;
             }
         }
     }

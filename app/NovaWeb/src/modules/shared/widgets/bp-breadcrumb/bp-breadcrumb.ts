@@ -1,4 +1,5 @@
 import {IMessageService} from "../../../core/messages/message.svc";
+import {BackNavigationOptions} from "../../../core/navigation/navigation-options";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IBreadcrumbService, IArtifactReference} from "./breadcrumb.svc";
 
@@ -61,6 +62,7 @@ export class BPBreadcrumbController implements IBPBreadcrumbController {
             return;
         }
 
-        this.navigationService.navigateToArtifact(currentLink.id, { index: index });
+        let options = new BackNavigationOptions(index);
+        this.navigationService.navigateToArtifact(currentLink.id, options);
     }
 }

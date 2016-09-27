@@ -13,7 +13,7 @@ import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
 import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
 import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
-import {INavigationOptions} from "../../../../../../../core/navigation/navigation.svc";
+import {ForwardNavigationOptions} from "../../../../../../../core/navigation/navigation-options";
 
 export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implements ISystemTask, IUserTaskChildElement {
 
@@ -460,7 +460,8 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
             return;
         }
 
-        let options = <INavigationOptions>{ enableTracking: true };
+        // enable tracking of the navigation (used to construct breadcrumb path)
+        let options = new ForwardNavigationOptions(true);
         this.processDiagramManager.navigateToAssociatedArtifact(this.associatedArtifact.id, options);
     }
 

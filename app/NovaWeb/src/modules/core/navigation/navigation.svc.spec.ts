@@ -2,7 +2,8 @@ import "angular";
 import "angular-mocks";
 import {MainState} from "../../shell/router/main.state";
 import {ArtifactState} from "../../main/router/artifact.state";
-import {INavigationOptions, INavigationService, NavigationService} from "./navigation.svc";
+import {ForwardNavigationOptions} from "./navigation-options";
+import {INavigationService, NavigationService} from "./navigation.svc";
 
 describe("NavigationService", () => {
     let $state: ng.ui.IStateService;
@@ -140,7 +141,7 @@ describe("NavigationService", () => {
             });
 
             describe("if navigation tracking is disabled", () => {
-                let options: INavigationOptions = <INavigationOptions>{ enableTracking: false };
+                let options = new ForwardNavigationOptions(false);
 
                 it("initiates state transition to artifact state with correct id and no path", () => {
                     // arrange
@@ -159,7 +160,7 @@ describe("NavigationService", () => {
             });
 
             describe("if navigation tracking is enabled", () => {
-                let options: INavigationOptions = <INavigationOptions>{ enableTracking: true };
+                let options = new ForwardNavigationOptions(true);
 
                 it("initiates state transition to artifact state with correct id and no path", () => {
                     // arrange
@@ -211,7 +212,7 @@ describe("NavigationService", () => {
             });
 
             describe("if navigation tracking is disabled", () => {
-                let options: INavigationOptions = <INavigationOptions>{ enableTracking: false };
+                let options = new ForwardNavigationOptions(false);
 
                 it("initiates state transition to artifact state with correct id and no path", () => {
                     // arrange
@@ -230,7 +231,7 @@ describe("NavigationService", () => {
             });
 
             describe("if navigation tracking is enabled", () => {
-                let options: INavigationOptions = <INavigationOptions>{ enableTracking: true };
+                let options = new ForwardNavigationOptions(true);
 
                 it("initiates state transition to artifact state with correct id and no path", () => {
                     // arrange
@@ -282,7 +283,7 @@ describe("NavigationService", () => {
             });
 
             describe("if navigation tracking is disabled", () => {
-                let options: INavigationOptions = <INavigationOptions>{ enableTracking: false };
+                let options = new ForwardNavigationOptions(false);
 
                 it("initiates state transition to artifact state with correct id and no path", () => {
                     // arrange
@@ -301,7 +302,7 @@ describe("NavigationService", () => {
             });
 
             describe("if navigation tracking is enabled", () => {
-                let options: INavigationOptions = <INavigationOptions>{ enableTracking: true };
+                let options = new ForwardNavigationOptions(true);
 
                 it("initiates state transition to artifact state with correct id and correct path", () => {
                     // arrange
@@ -358,7 +359,7 @@ describe("NavigationService", () => {
             });
 
             describe("if navigation tracking is disabled", () => {
-                let options: INavigationOptions = <INavigationOptions>{ enableTracking: false };
+                let options = new ForwardNavigationOptions(false);
 
                 it("initiates state transition to artifact state with correct id and no path", () => {
                     // arrange
@@ -377,7 +378,7 @@ describe("NavigationService", () => {
             });
 
             describe("if navigation tracking is enabled", () => {
-                let options: INavigationOptions = <INavigationOptions>{ enableTracking: true };
+                let options = new ForwardNavigationOptions(true);
 
                 it("initiates state transition to artifact state with correct id and correct path", () => {
                     // arrange

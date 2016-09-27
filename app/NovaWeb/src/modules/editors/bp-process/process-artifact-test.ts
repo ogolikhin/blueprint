@@ -1,23 +1,23 @@
-import { ArtifactState, IArtifactState} from "../../../managers/artifact-manager/state";
-import { Models, Enums, Relationships } from "../../../main/models";
-import { ArtifactAttachments, IArtifactAttachments } from "../../../managers/artifact-manager/attachments";
-import { ArtifactProperties, SpecialProperties } from "../../../managers/artifact-manager/properties";
-import { ChangeSetCollector } from "../../../managers/artifact-manager/changeset";
-import { StatefulSubArtifactCollection, ISubArtifactCollection } from "../../../managers/artifact-manager/sub-artifact";
-import { IMetaData, MetaData } from "../../../managers/artifact-manager/metadata";
-import { IProcess, IProcessShape, IProcessLink} from "./process-models";
-import { IItemStatus, IVersionInfo, IHashMapOfPropertyValues} from "./process-models";
-import { IProcessService } from "../services/process/process.svc";
-import {ItemTypePredefined, PropertyTypePredefined} from "../../../main/models/enums";
-import { IStatefulArtifactServices } from "../../../managers/artifact-manager/services";
-import { IArtifactRelationships, ArtifactRelationships } from "../../../managers/artifact-manager/relationships";
-import { ChangeTypeEnum, IChangeCollector, IChangeSet } from "../../../managers/artifact-manager/changeset/";
-import { IDocumentRefs, DocumentRefs }  from "../../../managers/artifact-manager/docrefs/";
-import { IStatefulArtifact, IArtifactProperties} from "../../../managers/models";
-import { IIStatefulArtifact, IArtifactAttachmentsResultSet} from "../../../managers/models";
+import { ArtifactState, IArtifactState} from "../../managers/artifact-manager/state";
+import { Models, Enums, Relationships } from "../../main/models";
+import { ArtifactAttachments, IArtifactAttachments } from "../../managers/artifact-manager/attachments";
+import { ArtifactProperties, SpecialProperties } from "../../managers/artifact-manager/properties";
+import { ChangeSetCollector } from "../../managers/artifact-manager/changeset";
+import { StatefulSubArtifactCollection, ISubArtifactCollection } from "../../managers/artifact-manager/sub-artifact";
+import { IMetaData, MetaData } from "../../managers/artifact-manager/metadata";
+import { IProcess, IProcessShape, IProcessLink} from "./models/process-models";
+import { IItemStatus, IVersionInfo, IHashMapOfPropertyValues} from "./models/process-models";
+import { IProcessService } from "./services/process.svc";
+import {ItemTypePredefined, PropertyTypePredefined} from "../../main/models/enums";
+import { IStatefulArtifactServices } from "../../managers/artifact-manager/services";
+import { IArtifactRelationships, ArtifactRelationships } from "../../managers/artifact-manager/relationships";
+import { ChangeTypeEnum, IChangeCollector, IChangeSet } from "../../managers/artifact-manager/changeset/";
+import { IDocumentRefs, DocumentRefs }  from "../../managers/artifact-manager/docrefs/";
+import { IStatefulArtifact, IArtifactProperties} from "../../managers/models";
+import { IIStatefulArtifact, IArtifactAttachmentsResultSet} from "../../managers/models";
 
 
-export class StatefulProcessArtifact implements IProcess, IStatefulArtifact, IIStatefulArtifact {
+export class StatefulProcessArtifactTest implements IProcess, IStatefulArtifact, IIStatefulArtifact {
      // IStatefulArtifact fields 
 
     public artifactState: IArtifactState;
@@ -232,7 +232,7 @@ export class StatefulProcessArtifact implements IProcess, IStatefulArtifact, IIS
                key: name,
                value: this.artifact[name] = value              
            } as IChangeSet;
-           this.changesets.add(changeset, oldValue);
+           this.changesets.add(changeset);
            
            this.lock(); 
         }
@@ -246,8 +246,8 @@ export class StatefulProcessArtifact implements IProcess, IStatefulArtifact, IIS
             }
         });
 
-        this.customProperties.discard(all);
-        this.specialProperties.discard(all);
+        this.customProperties.discard();
+        this.specialProperties.discard();
 
         //TODO: need impementation
          this.attachments.discard();
@@ -265,15 +265,17 @@ export class StatefulProcessArtifact implements IProcess, IStatefulArtifact, IIS
     public load(force: boolean = true):  ng.IPromise<IStatefulArtifact> {
 
         // loads process 
-        let q: ng.IQService = this.services.qService();
-
-        return q((resolve, reject) => {
-            setTimeout(() => {
+        let defer: ng.IDeferred<any> = this.services.getDeferred();
+        
+        setTimeout(() => {
                
-                    resolve(this);
+                defer.resolve(this);
                  
-            }, 1000);
-        });
+        }, 1000);
+        
+
+        return defer.promise;
+
     }
 
     private isProject(): boolean {

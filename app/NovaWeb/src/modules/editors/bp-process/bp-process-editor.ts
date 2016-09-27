@@ -2,8 +2,6 @@
 //import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
 import {IProcessService} from "./";
 import {ICommunicationManager} from "./";
-import {IProcess} from "./models/process-models";
-import {StatefulProcessArtifact } from "./models/process-artifact";
 import {ILocalizationService, IMessageService, INavigationService} from "../../core";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";

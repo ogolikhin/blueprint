@@ -1,8 +1,8 @@
 ﻿import {ShapesFactory} from "./shapes-factory";
 import {ProcessGraph} from "../process-graph";
 import {ArtifactReferenceLinkMock, ShapeModelMock} from "./shape-model.mock";
-import {ProcessServiceMock} from "../../../../../services/process/process.svc.mock";
-import {IProcessService} from "../../../../../services/process/process.svc";
+import {ProcessServiceMock} from "../../../../../services/process.svc.mock";
+import {IProcessService} from "../../../../../services/process.svc";
 import {ProcessModel, ProcessShapeModel, ProcessLinkModel} from "../../../../../models/process-models";
 import {ProcessShapeType, ProcessType} from "../../../../../models/enums";
 import {ProcessViewModel, IProcessViewModel} from "../../../viewmodel/process-viewmodel";

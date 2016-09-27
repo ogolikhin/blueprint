@@ -1,5 +1,5 @@
-import * as ProcessModels from "../../models/process-models";
-import { IMessageService } from "../../../../core";
+import * as ProcessModels from "../models/process-models";
+import { IMessageService } from "../../../core";
 export { ProcessModels }
 
 export interface IProcessService {

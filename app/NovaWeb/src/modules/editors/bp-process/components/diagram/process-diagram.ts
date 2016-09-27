@@ -1,9 +1,7 @@
 ﻿import {ILocalizationService, IMessageService, Message, MessageType, INavigationService} from "../../../../core";
-import {IStatefulArtifact} from "../../../../managers/models";
 import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
-import {StatefulProcessArtifact } from "../../models/process-artifact";
-import {IProcessService} from "../../services/process/process.svc";
+import {IProcessService} from "../../services/process.svc";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
 import {IProcessGraph} from "./presentation/graph/models/";
 import {ProcessGraph} from "./presentation/graph/process-graph";
@@ -32,8 +30,8 @@ export class ProcessDiagram {
         private communicationManager: ICommunicationManager,
         private dialogService: IDialogService,
         private localization: ILocalizationService,
-        private navigationService: INavigationService
-    ) {
+        private navigationService: INavigationService) {
+
         this.processModel = null;
     }
  

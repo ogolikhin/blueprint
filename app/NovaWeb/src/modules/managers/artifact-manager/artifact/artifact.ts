@@ -409,7 +409,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
        
         return deffered.promise;
     }
-    
+
     //TODO: stub - replace with implementation
     public autosave(): ng.IPromise<IStatefulArtifact> {
         let deffered = this.services.getDeferred<IStatefulArtifact>();

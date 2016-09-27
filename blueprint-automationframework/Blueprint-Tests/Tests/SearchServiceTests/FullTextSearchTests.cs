@@ -21,14 +21,18 @@ namespace SearchServiceTests
         const int DEFAULT_PAGESIZE_VALUE = 10;
 
         private IUser _user = null;
+        private IUser _userSecond = null;
         private List<IProject> _projects = null;
+        private List<IArtifactBase> _publishedArtifacts;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _projects = ProjectFactory.GetAllProjects(_user);
+            _userSecond = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _projects = ProjectFactory.GetAllProjects(_user, shouldRetrievePropertyTypes: true);
+            _publishedArtifacts = SearchServiceTestHelper.SetupSearchData(_projects, _user, Helper);
         }
 
         [TearDown]
@@ -165,6 +169,100 @@ namespace SearchServiceTests
             FullTextSearchResultValidation(fullTextSearchResult, page: DEFAULT_PAGE_VALUE, pageSize: DEFAULT_PAGESIZE_VALUE);
         }
 
+        [TestCase(BaseArtifactType.Actor)]
+        [TestRail(182340)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Description("Searching with the search criteria that matches with saved artifacts. Execute Search - Must return SearchResult with empty list of FullTextSearchItems.")]
+        public void FullTextSearch_SearchSavedNotPublishedArtifact_VerifyEmptySearchResult(BaseArtifactType baseArtifactType)
+        {
+            // Setup: Create search criteria with search term that maches with saved artifact(s)
+            FullTextSearchResult fullTextSearchResult = null;
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+
+            // Setup: Create and save single artifact for each project
+            List<IArtifactBase> savedOnlyArtifacts = new List<IArtifactBase>();
+            _projects.ForEach(project => savedOnlyArtifacts.Add(Helper.CreateAndSaveArtifact(project, _user, baseArtifactType)));
+
+            // Setup: Search with the name of the artifact created on on of available project
+            var searchCriteria = new FullTextSearchCriteria(savedOnlyArtifacts.First().Name, selectedProjectIds);
+
+            // Execute: Execute FullTextSearch with search terms with invalid page and invalid pageSize parameter values
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.FullTextSearch.Search(_user, searchCriteria), "Nova FullTextSearch call failed when using following search term: {0} which matches with saved only artifacts!", searchCriteria.Query);
+
+            // Validation: Verify that searchResult contains empty list of FullTextSearchItems 
+            FullTextSearchResultValidation(fullTextSearchResult);
+        }
+
+        [TestCase]
+        [TestRail(182341)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Description("Searching with the search criteria that matches with published artifacts. Execute Search - Must return SearchResult with list of FullTextSearchItems.")]
+        public void FullTextSearch_SearchPublishedArtifact_VerifySearchResultIncludesItem()
+        {
+            // Setup: Create search criteria with search term that matches published artifact(s) description
+            FullTextSearchResult fullTextSearchResult = null;
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+
+            var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Name")).TextOrChoiceValue, selectedProjectIds);
+
+            // Execute: Execute FullTextSearch with search terms that matches published artifact(s) description
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.FullTextSearch.Search(_userSecond, searchCriteria), "Nova FullTextSearch call failed when using following search term: {0} which matches with published artifacts!", searchCriteria.Query);
+
+            // Validation: Verify that searchResult contains published artifacts
+            FullTextSearchResultValidation(fullTextSearchResult, _publishedArtifacts);
+        }
+
+        [TestCase]
+        [TestRail(182342)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Description("Searching with the search criteria that matches with deleted but not published artifacts. Execute Search - Must return SearchResult with list of FullTextSearchItems.")]
+        public void FullTextSearch_SearchDeletedNotPublishedArtifact_VerifySearchResultIncludesItem()
+        {
+            // Setup: Create search criteria with search term that maches with published artifact(s) description
+            FullTextSearchResult fullTextSearchResult = null;
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+
+            // Setup: Delete all published artifacts
+            foreach (var publishedArtifact in _publishedArtifacts)
+            {
+                publishedArtifact.Delete(_user);
+            }
+
+            var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue, selectedProjectIds);
+
+            // Execute: Execute FullTextSearch with search terms that maches deleted but not published artifact(s) description
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.FullTextSearch.Search(_userSecond, searchCriteria), "Nova FullTextSearch call failed when using following search term: {0} which matches with deleted but not published artifacts!", searchCriteria.Query);
+
+            // Validation: Verify that searchResult contains list of FullTextSearchItems
+            FullTextSearchResultValidation(fullTextSearchResult, _publishedArtifacts);
+        }
+
+        [TestCase]
+        [TestRail(182342)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Description("Searching with the search criteria that matches with deleted and published artifacts. Execute Search - Must return SearchResult with empty list of FullTextSearchItems.")]
+        public void FullTextSearch_SearchDeletedAndPublishedArtifact_VerifyEmptySearchResult()
+        {
+            // Setup: Create search criteria with search term that maches with published artifact(s) description
+            FullTextSearchResult fullTextSearchResult = null;
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+
+            // Setup: Delete all published artifacts
+            foreach (var publishedArtifact in _publishedArtifacts)
+            {
+                publishedArtifact.Delete(_user);
+                publishedArtifact.Publish(_user);
+            }
+
+            var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue, selectedProjectIds);
+
+            // Execute: Execute FullTextSearch with search terms that maches deleted and published artifact(s) description
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.FullTextSearch.Search(_userSecond, searchCriteria), "Nova FullTextSearch call failed when using following search term: {0} which matches with deleted and published artifacts!", searchCriteria.Query);
+
+            // Validation: Verify that searchResult contains empty list of FullTextSearchItems
+            FullTextSearchResultValidation(fullTextSearchResult);
+        }
+
         #endregion 200 OK Tests
 
         #region 400 Bad Request Tests
@@ -180,8 +278,26 @@ namespace SearchServiceTests
             var invalidSearchCriteria = new FullTextSearchCriteria();
 
             // Execute: Execute FullTextSearch with invalid Search criteria
-            var ex = Assert.Throws<Http400BadRequestException>(() => fullTextSearchResult = Helper.FullTextSearch.Search(_user, invalidSearchCriteria), "Nova FullTextSearch call exit with 400 BadRequestException failed when using invalid search criteria!");
+            var ex = Assert.Throws<Http400BadRequestException>(() => fullTextSearchResult = Helper.FullTextSearch.Search(_user, invalidSearchCriteria), "Nova FullTextSearch call should exit with 400 BadRequestException when using invalid search criteria!");
             
+            // Validation: Exception should contain empty response content.
+            Assert.That(ex.RestResponse.Content.Length.Equals(0), "FullTextSearch with invalid searchCriteria should return empty content but {0} is returned", ex.RestResponse.Content.ToString());
+        }
+
+        [TestCase]
+        [TestRail(166164)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Description("Searching with the search term less than miminum size. Execute Search - Must return 400 bad request")]
+        public void FullTextSearch_SearchWithSearchTermLessThanMimimumSize_400BadRequest()
+        {
+            // Setup: Create searchable artifact(s) with the search term less than minimum size
+            FullTextSearchResult fullTextSearchResult = null;
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var lessThanMinimumSearchTermSearchCriteria = new FullTextSearchCriteria("ox", selectedProjectIds);
+
+            // Execute: Execute FullTextSearch with the search term less than minimum size
+            var ex = Assert.Throws<Http400BadRequestException>(() => fullTextSearchResult = Helper.FullTextSearch.Search(_user, lessThanMinimumSearchTermSearchCriteria), "Nova FullTextSearch call shuold exit with 400 BadRequestException when using less than minium length search term!");
+
             // Validation: Exception should contain empty response content.
             Assert.That(ex.RestResponse.Content.Length.Equals(0), "FullTextSearch with invalid searchCriteria should return empty content but {0} is returned", ex.RestResponse.Content.ToString());
         }
@@ -246,6 +362,9 @@ namespace SearchServiceTests
                 {
                     Assert.That(ReturnedFullTextSearchItemArtifactIds.Contains(artifactsToBeFound[i].Id), "The expected artifact whose Id is {0} does not exist on the response from the Nova FullTextSearch call.", artifactsToBeFound[i].Id);
                 }
+            } else
+            {
+                Assert.That(searchResult.FullTextSearchItems.Count().Equals(0), "The FullTextSearchItems should be null list when expected return result is empty but the response from the Nova FullTextSearch call returns {0} results", searchResult.FullTextSearchItems.Count());
             }
 
             // Validation: Verify that searchResult uses page value passed as optional parameter and DefaultPageSize

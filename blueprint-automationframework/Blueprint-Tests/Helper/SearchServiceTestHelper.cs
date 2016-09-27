@@ -21,7 +21,8 @@ namespace Helper
 
             var baseArtifactTypes = new List<BaseArtifactType>()
             {
-                BaseArtifactType.Actor,
+                BaseArtifactType.Actor
+                /*
                 BaseArtifactType.BusinessProcess,
                 BaseArtifactType.Document,
                 BaseArtifactType.DomainDiagram,
@@ -33,6 +34,7 @@ namespace Helper
                 BaseArtifactType.UIMockup,
                 BaseArtifactType.UseCase,
                 BaseArtifactType.UseCaseDiagram
+                */
             };
 
             var artifacts = new List<IArtifactBase>();
@@ -71,7 +73,10 @@ namespace Helper
             // Setup: 
             var searchCriteria = new FullTextSearchCriteria(searchTerm, projects.Select(p => p.Id));
 
-            WaitForSearchIndexerToUpdate(user, testHelper, searchCriteria);
+            // Define total expecting count for created artifacts which is baseArtifactTypes x 2
+            int createdArtifactsCount = 2 * baseArtifactTypes.Count();
+
+            WaitForSearchIndexerToUpdate(user, testHelper, searchCriteria, createdArtifactsCount: createdArtifactsCount);
 
             // Return the full artifact list
             return artifacts;
@@ -83,11 +88,12 @@ namespace Helper
         /// <param name="user">The user performing the search</param>
         /// <param name="testHelper">An instance of TestHelper</param>
         /// <param name="searchCriteria">The full text search criteria</param>
+        /// <param name="createdArtifactsCount">The total count for createdArtifacts</param>
         /// <param name="timeoutInMilliseconds">(optional) Timeout in milliseconds after which search will terminate 
         /// if not successful </param>
         /// <returns>True if the search criteria was met within the timeout. False if not.</returns>
         public static bool WaitForSearchIndexerToUpdate(IUser user, TestHelper testHelper,
-            FullTextSearchCriteria searchCriteria, int? timeoutInMilliseconds = null)
+            FullTextSearchCriteria searchCriteria, int createdArtifactsCount, int? timeoutInMilliseconds = null)
         {
             ThrowIf.ArgumentNull(searchCriteria, nameof(searchCriteria));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -102,9 +108,9 @@ namespace Helper
             do
             {
                 fullTestSearchMetadataResult = testHelper.FullTextSearch.SearchMetaData(user, searchCriteria);
-            } while (fullTestSearchMetadataResult.TotalCount < 1 && DateTime.Now < timeout);
+            } while (fullTestSearchMetadataResult.TotalCount < createdArtifactsCount && DateTime.Now < timeout);
 
-            return fullTestSearchMetadataResult.TotalCount >= 1;
+            return fullTestSearchMetadataResult.TotalCount.Equals(createdArtifactsCount);
         }
 
         #region private methods

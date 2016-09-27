@@ -115,7 +115,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
         return {
             $select: null,
             currentState: null,
-            currentLimit: 5,
+            currentLimit: 1000,
             maxLimit: 100,
             loadMoreAmount: 5,
             minimumInputLength: 2,

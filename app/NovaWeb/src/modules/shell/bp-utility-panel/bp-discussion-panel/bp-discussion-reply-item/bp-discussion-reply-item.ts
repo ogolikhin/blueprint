@@ -3,7 +3,7 @@ import { IReply, IArtifactDiscussions } from "../artifact-discussions.svc";
 
 export class BPDiscussionReplyItem implements ng.IComponentOptions {
     public template: string = require("./bp-discussion-reply-item.html");
-    public controller: Function = BPDiscussionReplyItemController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPDiscussionReplyItemController;
     public bindings: any = {
         replyInfo: "=",
         artifactId: "=",

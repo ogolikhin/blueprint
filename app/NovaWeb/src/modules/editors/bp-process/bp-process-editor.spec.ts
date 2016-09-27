@@ -1,4 +1,4 @@
-﻿// import {ProcessServiceMock} from "./services/process/process.svc.mock";
+﻿// import {ProcessServiceMock} from "./services/process.svc.mock";
 // import * as TestModels from "./models/test-model-factory";
 // import {SelectionManager} from "../../main/services";
 // import {CommunicationManager} from "./";

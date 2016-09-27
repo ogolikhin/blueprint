@@ -1,4 +1,4 @@
-﻿
+﻿import * as angular from "angular";
 import "./bp-accordion";
 import "./bp-artifact-info";
 import "./bp-toolbar";

@@ -10,7 +10,7 @@ export interface ISidebarController {
 
 export class BpSidebarLayout implements ng.IComponentOptions {
     public template: string;
-    public controller: Function;
+    public controller: ng.Injectable<ng.IControllerConstructor>;
     public bindings: any;
     public transclude: any;
 

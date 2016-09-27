@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import "angular-formly";
 import { ILocalizationService } from "../../../../core";
 import { Enums } from "../../../../main/models";
@@ -21,7 +21,7 @@ export class BPFieldSelect implements AngularFormly.ITypeOptions {
             }
         });
     };
-    public controller: Function = BpFieldSelectController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldSelectController;
 
     constructor() {
     }

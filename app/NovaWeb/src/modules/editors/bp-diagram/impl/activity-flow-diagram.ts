@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import { IStep, StepOfType } from "./usecase/models";
 import { IUseCaseShape } from "./usecase/usecase-to-diagram";
 import { AbstractShapeFactory, IShapeTemplates } from "./abstract-diagram-factory";

@@ -10,7 +10,7 @@ export class BPFieldInheritFrom implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldInheritFrom";
     public wrapper: string = "bpFieldLabel";
     public template: string = require("./actor-inheritance.template.html");
-    public controller: Function = BPFieldInheritFromController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPFieldInheritFromController;
     public defaultOptions: AngularFormly.IFieldConfigurationObject;
     constructor() {
         this.defaultOptions = {};

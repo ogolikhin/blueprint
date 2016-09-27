@@ -11,7 +11,7 @@ import { BPFieldBaseController } from "../base-controller";
 export class BPFieldDocumentFile implements AngularFormly.ITypeOptions {
     public name: string = "bpDocumentFile";
     public template: string = require("./document-file.template.html");
-    public controller: Function = BPFieldDocumentFileController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPFieldDocumentFileController;
     public defaultOptions: AngularFormly.IFieldConfigurationObject;
     constructor() {
         this.defaultOptions = {};

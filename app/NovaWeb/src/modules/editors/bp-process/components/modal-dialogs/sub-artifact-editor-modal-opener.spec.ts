@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import {IModalDialogCommunication, ModalDialogCommunication} from "./modal-dialog-communication";
 import {ModalDialogType} from "./base-modal-dialog-controller";
 import {CommunicationManager} from "../../../bp-process/services/communication-manager"; 

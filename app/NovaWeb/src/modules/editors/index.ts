@@ -1,4 +1,5 @@
-﻿import "angular-formly";
+﻿import * as angular from "angular";
+import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "./bp-glossary";
 import "./bp-artifact";

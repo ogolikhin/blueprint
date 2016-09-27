@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import "angular-formly";
 import { ILocalizationService } from "../../../../core";
 import { BPFieldBaseController } from "../base-controller";
@@ -16,14 +16,15 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
             let uiSelectContainer = $element[0].querySelector(".ui-select-container");
             if (uiSelectContainer) {
                 $scope["uiSelectContainer"] = uiSelectContainer;
-                uiSelectContainer.addEventListener("keydown", $scope["bpFieldSelectMulti"].closeDropdownOnTab, true);
-                uiSelectContainer.addEventListener("click", $scope["bpFieldSelectMulti"].scrollIntoView, true);
 
                 // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class
                 // Not needed for textareas
                 let uiSelectInput = uiSelectContainer.querySelector("div:not(.ps-child)") as HTMLElement;
                 if (uiSelectInput && !uiSelectInput.classList.contains("ps-child")) {
                     uiSelectInput.classList.add("ps-child");
+                    uiSelectInput.classList.add("ui-select-input");
+                    uiSelectInput.addEventListener("keydown", $scope["bpFieldSelectMulti"].closeDropdownOnTab, true);
+                    uiSelectInput.addEventListener("click", $scope["bpFieldSelectMulti"].scrollIntoView, true);
                 }
 
                 $scope["bpFieldSelectMulti"].toggleScrollbar();
@@ -31,7 +32,7 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
             }
         });
     };
-    public controller: Function = BpFieldSelectMultiController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldSelectMultiController;
 
     constructor() {
     }
@@ -68,8 +69,13 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
 
         $scope["$on"]("$destroy", function () {
             if ($scope["uiSelectContainer"]) {
-                $scope["uiSelectContainer"].removeEventListener("keydown", $scope["bpFieldSelectMulti"].closeDropdownOnTab, true);
-                $scope["uiSelectContainer"].removeEventListener("click", $scope["bpFieldSelectMulti"].scrollIntoView, true);
+                if ($scope["uiSelectContainer"]) {
+                    let uiSelectInput = $scope["uiSelectContainer"].querySelector(".ui-select-input") as HTMLElement;
+                    if (uiSelectInput) {
+                        uiSelectInput.removeEventListener("keydown", $scope["bpFieldSelectMulti"].closeDropdownOnTab, true);
+                        uiSelectInput.removeEventListener("click", $scope["bpFieldSelectMulti"].scrollIntoView, true);
+                    }
+                }
             }
         });
 

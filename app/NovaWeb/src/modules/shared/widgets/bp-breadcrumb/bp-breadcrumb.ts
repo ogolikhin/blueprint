@@ -43,7 +43,7 @@ export class BPBreadcrumbController implements IBPBreadcrumbController {
                         <IBreadcrumbLink>{
                             id: artifactReference.id,
                             name: artifactReference.name,
-                            isEnabled: i !== result.length - 1
+                            isEnabled: i !== result.length - 1 && !!artifactReference.link
                         }
                     );
                 }

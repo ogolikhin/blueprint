@@ -102,6 +102,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
                         value: attachment
                     } as IChangeSet;
                     this.changeset.add(changeset);
+                    this.statefulItem.lock();
                 }
             });
             this.subject.onNext(this.attachments);

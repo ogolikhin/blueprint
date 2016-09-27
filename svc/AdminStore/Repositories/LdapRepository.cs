@@ -139,7 +139,7 @@ namespace AdminStore.Repositories
         private bool UserExistsInLdapDirectory(LdapSettings ldapSettings, LoginInfo loginInfo)
         {
             var userName = loginInfo.UserName != null ? loginInfo.UserName.Trim() : loginInfo.Login;
-            var filter = I18NHelper.FormatInvariant("(&(objectCategory=user)({0}={1}))", ldapSettings.GetEffectiveAccountNameAttribute(), LdapHelper.EscapeLdapSearchFilter(userName));
+            var filter = I18NHelper.FormatInvariant("(&(objectCategory={0})({1}={2}))", ldapSettings.GetEffectiveUserObjectCategoryAttribute(), ldapSettings.GetEffectiveAccountNameAttribute(), LdapHelper.EscapeLdapSearchFilter(userName));
             try
             {
                 var found = _authenticator.SearchLdap(ldapSettings, filter);

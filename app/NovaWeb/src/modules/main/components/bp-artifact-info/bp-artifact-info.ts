@@ -57,14 +57,15 @@ export class BpArtifactInfoController {
         private navigationService: INavigationService
     ) {
         this.initProperties();
-        this.subscribers = [];     
+        this.subscribers = [];
     }
 
     public $onInit() {
         const windowSub = this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
-        const stateSub = this.artifactManager.selection
-            .artifactObservable
-            .skip(1) // skip the first (initial) value
+        const stateSub = this.artifactManager.selection.artifactObservable
+            // cannot always skip 1 and rely on the artifact observable having 2 values (initial and new)
+            // this is true when navigating to artifact X from artifact X via breadcrumb (loop)
+            //.skip(1) // skip the first (initial) value
             .filter((artifact: IStatefulArtifact) => artifact != null)
             .flatMap((artifact: IStatefulArtifact) => {
                 this.artifact = artifact;
@@ -152,8 +153,8 @@ export class BpArtifactInfoController {
             default:
                 break;
         }
-        if (artifact.artifactState.error) {
-            this.dialogService.alert(artifact.artifactState.error);
+        if (artifact.artifactState.misplaced) {
+            this.dialogService.alert("Artifact_Lock_DoesNotExist");
         }
     }
 
@@ -229,7 +230,7 @@ export class BpArtifactInfoController {
         };
 
         const dialogData: IArtifactPickerOptions = {
-            selectionMode: $event.shiftKey ? "multiple" : $event.ctrlKey ? "checkbox" : "single",
+            selectionMode: $event.shiftKey ? "multiple" : ($event.ctrlKey || $event.metaKey) ? "checkbox" : "single",
             showSubArtifacts: true
         };
 

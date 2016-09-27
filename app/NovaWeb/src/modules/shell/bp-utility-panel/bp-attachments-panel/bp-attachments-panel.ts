@@ -1,4 +1,4 @@
-﻿import { ILocalizationService, ISettingsService } from "../../../core";
+﻿import { ILocalizationService, ISettingsService, IMessageService } from "../../../core";
 import { Models} from "../../../main";
 import { ISession } from "../../../shell";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
@@ -35,7 +35,8 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         "session",
         "artifactAttachments",
         "settings",
-        "dialogService"
+        "dialogService",
+        "messageService"
     ];
 
     public attachmentsList: IArtifactAttachment[];
@@ -59,6 +60,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         private artifactAttachments: IArtifactAttachmentsService,
         private settingsService: ISettingsService,
         private dialogService: IDialogService,
+        private messageService: IMessageService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
         super($q, artifactManager.selection, bpAccordionPanel);
@@ -89,8 +91,12 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
                     itemTypePrefix: artifact.prefix,
                     referencedDate: new Date().toISOString()
                 };
-
-                this.docRefList = this.item.docRefs.add([newDoc]);
+                var isContainingDocRef = this.docRefList.filter((docref) => { return docref.artifactId === newDoc.artifactId; }).length > 0;
+                if (isContainingDocRef) {
+                    this.messageService.addError(this.localization.get("App_UP_Attachments_Add_Same_DocRef_Error"));
+                } else {
+                    this.docRefList = this.item.docRefs.add([newDoc]);
+                }
             }
         });
     }

@@ -2,6 +2,8 @@ import {ItemTypePredefined, PropertyTypePredefined} from "../../../main/models/e
 import {IHashMap} from "../../../main/models/models";
 import {PropertyType, PropertyValueFormat} from "./enums";
 
+export {ItemTypePredefined};
+
 export interface IArtifactInfo {
     id: number;
     typePrefix: string;

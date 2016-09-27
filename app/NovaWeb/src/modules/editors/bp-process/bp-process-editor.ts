@@ -57,8 +57,8 @@ export class BpProcessEditorController extends BpBaseEditor {
         private $timeout: ng.ITimeoutService,
         private communicationManager: ICommunicationManager,
         private dialogService: IDialogService,
-        private navigationService: INavigationService
-    ) {
+        private navigationService: INavigationService) {
+            
        super(messageService, artifactManager);
 
        this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener(
@@ -73,6 +73,18 @@ export class BpProcessEditorController extends BpBaseEditor {
 
     public onLoad() {
         super.onLoad();
+   
+    }
+
+    public onUpdate () {
+        // when this method is called we should have a valid 
+        // process artifact in the base class' artifact
+        // property.
+
+        // here we create a new process diagram  passing in the
+        // process artifact and the html element that will contain
+        // the graph
+
         this.processDiagram = new ProcessDiagram(
             this.$rootScope,
             this.$scope,
@@ -88,38 +100,18 @@ export class BpProcessEditorController extends BpBaseEditor {
         );
        
         let htmlElement = this.getHtmlElement();
-         
-        this.processDiagram.createDiagram(this.artifact.id, htmlElement);
-        
+
+        this.processDiagram.createDiagram(this.artifact, htmlElement);
+
+        super.onUpdate();
     }
-
-
+    
     public $onDestroy() {
         super.$onDestroy();
         this.subArtifactEditorModalOpener.onDestroy();
         this.processDiagram.destroy();
     }
     
-    // private load(artifactId: number) {
-    //     this.processDiagram = new ProcessDiagram(
-    //         this.$rootScope,
-    //         this.$scope,
-    //         this.$timeout,
-    //         this.$q,
-    //         this.$log,
-    //         this.processService,
-    //         this.messageService,
-    //         this.communicationManager,
-    //         this.dialogService,
-    //         this.localization
-    //     );
-       
-    //     let htmlElement = this.getHtmlElement();
-         
-    //     this.processDiagram.createDiagram(artifactId, htmlElement);
-        
-    // }
-
     private getHtmlElement(): HTMLElement {
 
         // this.$element is jqLite and does not support selectors

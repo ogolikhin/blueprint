@@ -56,8 +56,10 @@ namespace Model.ArtifactModel
         DateTime? LastEditedOn { get; set; }
         Identification LockedByUser { get; set; } // this is an optional properties depending on state status of the target artifact
         DateTime? LockedDateTime { get; set; } // its existance depends on presense of LockedByUser property
+        string Prefix { get; set; }
         List<CustomProperty> CustomPropertyValues { get; }
         List<CustomProperty> SpecificPropertyValues { get; }
+        int? PredefinedType { get; set; }
 
         #endregion Serialized JSON Properties
     }

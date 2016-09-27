@@ -11,6 +11,7 @@ export interface IState {
     published?: boolean;
     deleted?: boolean;
     outdated?: boolean;
+    misplaced?: boolean;
     invalid?: boolean;
 }
 
@@ -34,6 +35,7 @@ export class ArtifactState implements IArtifactState {
 
     constructor(private artifact: IIStatefulArtifact) {
         this.subject = new Rx.BehaviorSubject<IArtifactState>(this);
+        this.initialize(artifact);
         
     }
     public dispose() {
@@ -131,14 +133,12 @@ export class ArtifactState implements IArtifactState {
     }
     public set published(value: boolean) {
         this.state.published = value;
-        //this.set({published: value});
     }
     public get outdated(): boolean {
         return this.state.outdated;
     }
     public set outdated(value: boolean) {
         this.state.outdated = value;
-        //this.set({outdated: value});
     }
     
     public get invalid(): boolean {
@@ -147,7 +147,22 @@ export class ArtifactState implements IArtifactState {
 
     public set invalid(value: boolean) {
         this.state.invalid = value;
-//        this.set({invalid: value});
+    }
+
+    public get misplaced(): boolean {
+        return this.state.misplaced;
+    }
+
+    public set misplaced(value: boolean) {
+        this.state.misplaced = value;
+    }
+
+    public get deleted(): boolean {
+        return this.state.deleted;
+    }
+
+    public set deleted(value: boolean) {
+        this.state.deleted = value;
     }
 
     public error: string;

@@ -10,6 +10,7 @@ import { SelectionManager } from "./../../../managers/selection-manager/selectio
 import { IReply, IDiscussion } from "./artifact-discussions.svc";
 import { MessageServiceMock } from "../../../core/messages/message.mock";
 import { DialogServiceMock } from "../../../shared/widgets/bp-dialog/bp-dialog";
+import { ProcessServiceMock } from "../../../editors/bp-process/services/process.svc.mock";
 import {
     IArtifactManager,
     ArtifactManager,
@@ -45,6 +46,7 @@ describe("Component BPDiscussionPanel", () => {
         $provide.service("metadataService", MetaDataService);
         $provide.service("artifactRelationships", ArtifactRelationshipsService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
+        $provide.service("processService", ProcessServiceMock);
     }));
 
     beforeEach(inject(() => {

@@ -100,6 +100,45 @@ namespace Model.Factories
 
             return project;
         }
+
+        /// <summary>
+        /// Gets the first x number of projects from BP database.
+        /// </summary>
+        /// <param name="user">The user making the REST request.</param>
+        /// <param name="numberOfProjects">The number of projects to get.</param>
+        /// <param name="shouldRetrieveArtifactTypes">(optional) Define if ArtifactType list needs to be retrieved.
+        ///  By default, set to true</param>
+        /// <param name="shouldRetrievePropertyTypes">(optional) Define if Property values also need to be retrieved
+        ///  as part of ArtifactType list.  By default, set to false</param>
+        /// <returns>The first x number of projects retrieved from Blueprint server.</returns>
+        /// <exception cref="DataException">If not enough projects exist on the server.</exception>
+        public static List<IProject> GetProjects(IUser user, int numberOfProjects, bool shouldRetrieveArtifactTypes = true, bool shouldRetrievePropertyTypes = false)
+        {
+            var allProjects = GetAllProjects(user);
+
+            if (allProjects.Count < numberOfProjects)
+            {
+                string errorMsg = I18NHelper.FormatInvariant("Not enough projects available on the test server '{0}'.  Need {1}, but only {2} exist.",
+                    Address, numberOfProjects, allProjects.Count);
+
+                Logger.WriteError(errorMsg);
+                throw new DataException(errorMsg);
+            }
+
+            // Get project from blueprint
+            var projects = allProjects.GetRange(0, numberOfProjects);
+
+            if (shouldRetrieveArtifactTypes)
+            {
+                foreach (var project in projects)
+                {
+                    project.GetAllArtifactTypes(address: Address, user: user,
+                        shouldRetrievePropertyTypes: shouldRetrievePropertyTypes);
+                }
+            }
+
+            return projects;
+        }
     }
 }
 

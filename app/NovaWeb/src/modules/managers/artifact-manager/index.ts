@@ -3,7 +3,7 @@ import { IArtifactManager, ArtifactManager } from "./artifact-manager";
 import { ISelectionManager,  ISelection,  SelectionSource } from "../selection-manager";
 import { StatefulArtifactFactory } from "./artifact/artifact.factory";
 import { IStatefulArtifact, IStatefulSubArtifact, IStatefulItem } from "../models";
-import { ArtifactService, IArtifactService, IStatefulArtifactFactory, StatefulArtifact } from "./artifact";
+import { ArtifactService, IArtifactService, IStatefulArtifactFactory, StatefulArtifact, StatefulProcessArtifact  } from "./artifact";
 import { StatefulSubArtifact, ISubArtifactCollection } from "./sub-artifact";
 import { IDocumentRefs, DocumentRefs } from "./docrefs";
 import { IChangeSet, IChangeCollector, ChangeTypeEnum, ChangeSetCollector } from "./changeset";
@@ -68,5 +68,6 @@ export {
     ArtifactRelationships, 
     IArtifactRelationships, 
     ArtifactRelationshipsService, 
-    IArtifactRelationshipsService
+    IArtifactRelationshipsService,
+    StatefulProcessArtifact
 };

@@ -2,8 +2,8 @@
 import {ProcessGraph} from "./process-graph";
 import {MessageServiceMock} from "../../../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../../../core/messages/message.svc";
-import {ProcessServiceMock} from "../../../../services/process/process.svc.mock";
-import {IProcessService} from "../../../../services/process/process.svc";
+import {ProcessServiceMock} from "../../../../services/process.svc.mock";
+import {IProcessService} from "../../../../services/process.svc";
 import {ProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {NodeType} from "./models/";
 import * as TestModels from "../../../../models/test-model-factory";

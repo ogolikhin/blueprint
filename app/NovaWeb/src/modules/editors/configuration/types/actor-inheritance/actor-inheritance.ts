@@ -104,7 +104,10 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
                         isProjectPathVisible: isArtifactactPathFitToControl(artifact.prefix, artifact.name, artifact.id, artifactPath)
                     };
                     currentModelVal = $scope.model[$scope.options["key"]];
-                    onChange(currentModelVal, getInheritanceField(), $scope);
+                    var changedResult = {
+                        actorId: artifact.id,
+                    };
+                    onChange(changedResult, getInheritanceField(), $scope);
                 }
             });
         }

@@ -1,26 +1,32 @@
 <div class="icons animated" ng-class="{active: !$ctrl.isLoading && ($ctrl.manualTraces2.length || $ctrl.otherTraces.length) &&
                                           $ctrl.selectedTraces[$ctrl.item.id].length > 0}">
     <div>
-        {{$ctrl.selectedTraces[$ctrl.item.id].length}} item(s) selected
-        <!--{{::$ctrl.localization.get('App_UP_Relationships_Selected') }}-->
+        {{$ctrl.selectedTraces[$ctrl.item.id].length}} {{::$ctrl.localization.get('App_UP_Relationships_Selected') }}
     </div>
     <div>
         <div uib-dropdown>
-            <span uib-dropdown-toggle bp-tooltip="Change Trace">
+            <span uib-dropdown-toggle bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Change_Selected_Bidirectional') }}">
                 <div class="icon-container">
                     <i class="icon fonticon-exchange"></i>
                 </div>
             </span>
             <ul class="dropdown-menu">
-                <li ng-class=""><a ng-click="$ctrl.setSelectedDirection(0)"><i class="fonticon2-relationship-right"></i> To</a></li>
-                <li ng-class=""><a ng-click="$ctrl.setSelectedDirection(1)"><i class="fonticon2-relationship-left"></i> From</a></li>
-                <li ng-class=""><a ng-click="$ctrl.setSelectedDirection(2)"><i class="fonticon2-relationship-bi"></i> Bidirectional</a></li>
+                <li ng-class=""><a ng-click="$ctrl.setSelectedDirection(0)"><i class="fonticon2-relationship-right"></i>
+                                {{::$ctrl.localization.get('App_UP_Relationships_Selected_To') }}</a>
+                </li>
+                <li ng-class=""><a ng-click="$ctrl.setSelectedDirection(1)"><i class="fonticon2-relationship-left"></i>
+                                {{::$ctrl.localization.get('App_UP_Relationships_Selected_From') }}</a>
+                </li>
+                <li ng-class=""><a ng-click="$ctrl.setSelectedDirection(2)"><i class="fonticon2-relationship-bi"></i>
+                                {{::$ctrl.localization.get('App_UP_Relationships_Selected_Bidirectional') }}</a>
+                </li>
             </ul>
         </div>
         <i class="icon fonticon-flag-1" ng-click="$ctrl.toggleFlag()"
-                        ng-class="{'fonticon-flag-empty': $ctrl.hasUnFlagged }" bp-tooltip="Flag trace"></i>
+                        ng-class="{'fonticon-flag-empty': $ctrl.hasUnFlagged }"
+           bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Flag_Traces') }}"></i>
         <i class="icon fonticon-delete-filled" ng-click="$ctrl.deleteTraces($ctrl.selectedTraces[$ctrl.item.id])"
-                        bp-tooltip="Delete trace"></i>
+                        bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Delete_Selected') }}"></i>
     </div>
 </div>
 

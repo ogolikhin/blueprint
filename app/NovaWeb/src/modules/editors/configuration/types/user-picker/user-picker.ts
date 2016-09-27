@@ -17,14 +17,15 @@ export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
             let uiSelectContainer = $element[0].querySelector(".ui-select-container");
             if (uiSelectContainer) {
                 $scope["uiSelectContainer"] = uiSelectContainer;
-                uiSelectContainer.addEventListener("keydown", $scope["bpFieldUserPicker"].closeDropdownOnTab, true);
-                uiSelectContainer.addEventListener("click", $scope["bpFieldUserPicker"].scrollIntoView, true);
 
                 // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class
                 // Not needed for textareas
                 let uiSelectInput = uiSelectContainer.querySelector("div:not(.ps-child)") as HTMLElement;
                 if (uiSelectInput && !uiSelectInput.classList.contains("ps-child")) {
                     uiSelectInput.classList.add("ps-child");
+                    uiSelectInput.classList.add("ui-select-input");
+                    uiSelectInput.addEventListener("keydown", $scope["bpFieldUserPicker"].closeDropdownOnTab, true);
+                    uiSelectInput.addEventListener("click", $scope["bpFieldUserPicker"].scrollIntoView, true);
                 }
 
                 let uiSelectChoices = uiSelectContainer.querySelector("ul.ui-select-choices") as HTMLElement;
@@ -83,21 +84,39 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
         $scope.options["validators"] = validators;
 
         let currentModelVal = $scope.model[$scope.options["key"]];
-        if (currentModelVal && angular.isArray(currentModelVal) && currentModelVal.length) {
-            // create the initial options in the dropdown just to be able to display the selected options in the field
-            // the dropdown will be dynamically loaded from the webservice
-            $scope.to.options = currentModelVal.map((it: Models.IUserGroup) => {
-                return {
-                    value: it,
-                    name: (it.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + it.displayName
-                } as any;
-            });
+        if (currentModelVal) {
+            if (angular.isArray(currentModelVal) && currentModelVal.length) {
+                // create the initial options in the dropdown just to be able to display the selected options in the field
+                // the dropdown will be dynamically loaded from the webservice
+                $scope.to.options = currentModelVal.map((it: Models.IUserGroup) => {
+                    return {
+                        value: it,
+                        name: (it.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + it.displayName
+                    };
+                });
+            } else if (angular.isString(currentModelVal)) {
+                let optionsFromString = currentModelVal.split(",").map((it: Models.IUserGroup) => {
+                    return {
+                        value: {
+                            id: -1,
+                            displayName: it,
+                            isImported: true
+                        },
+                        name: it
+                    };
+                });
+                $scope.to.options = optionsFromString;
+                $scope.model[$scope.options["key"]] = optionsFromString;
+            }
         }
 
         $scope["$on"]("$destroy", function () {
             if ($scope["uiSelectContainer"]) {
-                $scope["uiSelectContainer"].removeEventListener("keydown", $scope["bpFieldUserPicker"].closeDropdownOnTab, true);
-                $scope["uiSelectContainer"].removeEventListener("click", $scope["bpFieldUserPicker"].scrollIntoView, true);
+                let uiSelectInput = $scope["uiSelectContainer"].querySelector(".ui-select-input") as HTMLElement;
+                if (uiSelectInput) {
+                    uiSelectInput.removeEventListener("keydown", $scope["bpFieldUserPicker"].closeDropdownOnTab, true);
+                    uiSelectInput.removeEventListener("click", $scope["bpFieldUserPicker"].scrollIntoView, true);
+                }
             }
         });
 
@@ -189,6 +208,16 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 this.searchInputElement = uiSelectContainer.querySelector("input.ui-select-search") as HTMLElement;
                 this.listItemElement = uiSelectChoices.querySelector("li.ui-select-choices-group") as HTMLElement;
             },
+            removeImportedUsers: function($select) {
+                $select.selected = $select.selected.filter((elem) => {
+                    return !elem.value.isImported;
+                });
+
+                let model = $scope.model[$scope.options["key"]].filter((elem) => {
+                    return !elem.isImported;
+                });
+                $scope.model[$scope.options["key"]] = model;
+            },
             loadMore: function () {
                 if (this.currentLimit < this.maxLimit && this.$select) {
                     this.refreshResults(this.$select, true);
@@ -240,6 +269,11 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                             }
 
                             this.$select = $select;
+
+                            // $scope["$applyAsync"](() => {
+                            //     $select.activeIndex = $select.items.length - (this.showResultsCount ? 2 : 1);
+                            //     $select.activeIndex = 0;
+                            // });
                         },
                         () => {
                             $scope.to.options = [];
@@ -312,6 +346,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
             },
             onRemove: function ($item, $select, formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject) {
                 options.validation.show = formControl.$invalid;
+                this.removeImportedUsers($select);
                 this.toggleScrollbar(true);
             },
             onSelect: function ($item, $select) {
@@ -336,6 +371,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                         $select.activeIndex = -1;
                     }
                 });
+                this.removeImportedUsers($select);
                 this.toggleScrollbar();
             }
         };

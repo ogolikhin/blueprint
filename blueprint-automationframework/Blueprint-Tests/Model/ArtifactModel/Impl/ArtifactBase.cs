@@ -496,7 +496,9 @@ namespace Model.ArtifactModel.Impl
                 // Can't be replaced from destination because our IUser model differs from the Blueprint implementation
                 "CreatedBy",
                 // This needs to be maintained so that it is not overwritten with null
-                "Address"
+                "Address",
+                // Need to figure out what this method does. Without having Project in this list it set Project to null.
+                "Project"
             };
 
             foreach (PropertyInfo sourcePropertyInfo in sourceArtifactBase.GetType().GetProperties())

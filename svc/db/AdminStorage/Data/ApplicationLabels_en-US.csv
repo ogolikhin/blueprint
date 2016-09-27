@@ -205,7 +205,7 @@ Artifact_NotFound,"Couldn't find the artifact"
 Artifact_DoesNotExistOrMoved, "The artifact doesn't exists or moved to different location"
 ArtifactType_NotFound,"Couldn't find the artifact type"
 Artifact_Lock_AlreadyLocked, "Artifact locked by another user"
-Artifact_Lock_DoesNotExist, "The artifact has been deleted or moved.<br />The explorer will now be refreshed."
+Artifact_Lock_DoesNotExist, "The artifact has been deleted or moved.<br />The Explorer will now be refreshed."
 Artifact_Lock_AccessDenied, "Cannot establish the artifact lock. Access denied."
 Artifact_Lock_Failure, "Cannot establish the artifact lock due to general failure"
 

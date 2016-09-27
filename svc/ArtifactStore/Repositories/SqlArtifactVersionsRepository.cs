@@ -1,6 +1,7 @@
 ﻿using ArtifactStore.Helpers;
 using ArtifactStore.Models;
 using Dapper;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
@@ -15,6 +16,8 @@ namespace ArtifactStore.Repositories
     public class SqlArtifactVersionsRepository : IArtifactVersionsRepository
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
+        private readonly SqlArtifactPermissionsRepository _artifactPermissionsRepository;
+
         public SqlArtifactVersionsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
@@ -23,6 +26,7 @@ namespace ArtifactStore.Repositories
         internal SqlArtifactVersionsRepository(ISqlConnectionWrapper connectionWrapper)
         {
             ConnectionWrapper = connectionWrapper;
+            _artifactPermissionsRepository = new SqlArtifactPermissionsRepository(connectionWrapper);
         }
 
         private async Task<bool> IncludeDraftVersion(int? userId, int sessionUserId, int artifactId)
@@ -177,42 +181,52 @@ namespace ArtifactStore.Repositories
             dynamicParameters.Add("@itemId", itemId);
             ArtifactBasicDetails artifactBasicDetails = (await ConnectionWrapper.QueryAsync<ArtifactBasicDetails>(
                 "GetArtifactBasicDetails", dynamicParameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
-            if (artifactBasicDetails != null)
+            if (artifactBasicDetails == null)
             {
-                VersionControlArtifactInfo artifactInfo = new VersionControlArtifactInfo
-                {
-                    Id = artifactBasicDetails.ArtifactId,
-                    SubArtifactId = (artifactBasicDetails.ArtifactId != artifactBasicDetails.ItemId) ? (int?)artifactBasicDetails.ItemId : null,
-                    Name = artifactBasicDetails.Name,
-                    ProjectId = artifactBasicDetails.ProjectId,
-                    ParentId = artifactBasicDetails.ParentId,
-                    OrderIndex = artifactBasicDetails.OrderIndex,
-                    ItemTypeId = artifactBasicDetails.ItemTypeId,
-                    Prefix = artifactBasicDetails.Prefix,
-                    PredefinedType = (ItemTypePredefined)artifactBasicDetails.PrimitiveItemTypePredefined,
-                    Version = (artifactBasicDetails.VersionIndex <= 0) ? -1 : artifactBasicDetails.VersionIndex,
-                    VersionCount = artifactBasicDetails.VersionsCount,
-                    IsDeleted = (artifactBasicDetails.DraftDeleted || artifactBasicDetails.LatestDeleted),
-                    LockedByUser = (artifactBasicDetails.LockedByUserId != null)
-                        ? new UserGroup { Id = artifactBasicDetails.LockedByUserId.Value, DisplayName = artifactBasicDetails.LockedByUserName } : null,
-                    LockedDateTime = artifactBasicDetails.LockedByUserTime,
-                };
-                //RolePermissions? Permissions { get; set; }
-                if (artifactBasicDetails.DraftDeleted)
-                {
-                    artifactInfo.DeletedByUser = (artifactBasicDetails.UserId != null)
-                            ? new UserGroup { Id = artifactBasicDetails.UserId.Value, DisplayName = artifactBasicDetails.UserName } : null;
-                    artifactInfo.DeletedDateTime = artifactBasicDetails.LastSaveTimestamp;
-                }
-                else if (artifactBasicDetails.LatestDeleted)
-                {
-                    artifactInfo.DeletedByUser = (artifactBasicDetails.LatestDeletedByUserId != null)
-                            ? new UserGroup { Id = artifactBasicDetails.LatestDeletedByUserId.Value, DisplayName = artifactBasicDetails.LatestDeletedByUserName } : null;
-                    artifactInfo.DeletedDateTime = artifactBasicDetails.LatestDeletedByUserTime;
-                }
+                string errorMessage = I18NHelper.FormatInvariant("Item (Id:{0}) is not found.", itemId);
+                throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
             }
-
-            throw new NotImplementedException();
+            Dictionary<int, RolePermissions> itemIdsPermissions =
+                // Always getting permissions for the Head version of an artifact.
+                // But, just in case, RevisionId and AddDrafts are available in ArtifactBasicDetails.
+                (await _artifactPermissionsRepository.GetArtifactPermissions(Enumerable.Repeat(artifactBasicDetails.ArtifactId, 1), userId));
+            if (!itemIdsPermissions.ContainsKey(artifactBasicDetails.ArtifactId) || !itemIdsPermissions[artifactBasicDetails.ArtifactId].HasFlag(RolePermissions.Read))
+            {
+                string errorMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifactBasicDetails.ArtifactId);
+                throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+            }
+            VersionControlArtifactInfo artifactInfo = new VersionControlArtifactInfo
+            {
+                Id = artifactBasicDetails.ArtifactId,
+                SubArtifactId = (artifactBasicDetails.ArtifactId != artifactBasicDetails.ItemId) ? (int?)artifactBasicDetails.ItemId : null,
+                Name = artifactBasicDetails.Name,
+                ProjectId = artifactBasicDetails.ProjectId,
+                ParentId = artifactBasicDetails.ParentId,
+                OrderIndex = artifactBasicDetails.OrderIndex,
+                ItemTypeId = artifactBasicDetails.ItemTypeId,
+                Prefix = artifactBasicDetails.Prefix,
+                PredefinedType = (ItemTypePredefined)artifactBasicDetails.PrimitiveItemTypePredefined,
+                Version = (artifactBasicDetails.VersionIndex <= 0) ? -1 : artifactBasicDetails.VersionIndex,
+                VersionCount = artifactBasicDetails.VersionsCount,
+                IsDeleted = (artifactBasicDetails.DraftDeleted || artifactBasicDetails.LatestDeleted),
+                LockedByUser = (artifactBasicDetails.LockedByUserId != null)
+                    ? new UserGroup { Id = artifactBasicDetails.LockedByUserId.Value, DisplayName = artifactBasicDetails.LockedByUserName } : null,
+                LockedDateTime = artifactBasicDetails.LockedByUserTime,
+            };
+            if (artifactBasicDetails.DraftDeleted)
+            {
+                artifactInfo.DeletedByUser = (artifactBasicDetails.UserId != null)
+                        ? new UserGroup { Id = artifactBasicDetails.UserId.Value, DisplayName = artifactBasicDetails.UserName } : null;
+                artifactInfo.DeletedDateTime = artifactBasicDetails.LastSaveTimestamp;
+            }
+            else if (artifactBasicDetails.LatestDeleted)
+            {
+                artifactInfo.DeletedByUser = (artifactBasicDetails.LatestDeletedByUserId != null)
+                        ? new UserGroup { Id = artifactBasicDetails.LatestDeletedByUserId.Value, DisplayName = artifactBasicDetails.LatestDeletedByUserName } : null;
+                artifactInfo.DeletedDateTime = artifactBasicDetails.LatestDeletedByUserTime;
+            }
+            artifactInfo.Permissions = itemIdsPermissions[artifactBasicDetails.ArtifactId];
+            return artifactInfo;
         }
         #endregion GetVersionControlArtifactInfoAsync
     }

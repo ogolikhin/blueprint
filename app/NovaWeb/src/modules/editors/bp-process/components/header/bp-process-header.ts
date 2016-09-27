@@ -65,7 +65,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         });
     }
 
-    private clickDelete() {
+    public clickDelete() {
         this.toolbarCommunicationManager.clickDelete();
     }
 

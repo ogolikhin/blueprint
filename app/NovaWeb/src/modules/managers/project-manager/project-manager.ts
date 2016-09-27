@@ -138,20 +138,20 @@ export class ProjectManager  implements IProjectManager {
         //try with selected artifact
         this.projectService.getProjectTree(project.id, selectedArtifact.id, selectedArtifactNode.open)
         .then((data: Models.IArtifact[]) => {
-            this.onGetProjectTree(project, data, selectedArtifact);
+            this.onGetProjectTree(project, data, selectedArtifact.id);
             defer.resolve();
         }).catch((error: any) => {
             if(error.statusCode === 404 && error.errorCode === 3000){
                 //try with selected artifact's parent
                 this.projectService.getProjectTree(project.id, selectedArtifact.parentId, selectedArtifactNode.open)
                 .then((data: Models.IArtifact[]) => {
-                    this.onGetProjectTree(project, data, this.getArtifact(selectedArtifact.parentId));
+                    this.onGetProjectTree(project, data, selectedArtifact.parentId);
                     defer.resolve();
                 }).catch((error: any) => {
                     if(error.statusCode === 404 && error.errorCode === 3000){
                         //try it with project
                         this.projectService.getArtifacts(project.id).then((data: Models.IArtifact[]) => {
-                            this.onGetProjectTree(project, data, null);
+                            this.onGetProjectTree(project, data, -1);
                             defer.resolve();
                         }).catch((err: any) => {
                             this.onGetProjectTreeError(project, error);
@@ -172,7 +172,7 @@ export class ProjectManager  implements IProjectManager {
         this.metadataService.load(currentProject.id);  
     }
     
-    private onGetProjectTree(project: Project, data: Models.IArtifact[], selectedArtifact?: IStatefulArtifact){
+    private onGetProjectTree(project: Project, data: Models.IArtifact[], selectedArtifactId?: number){
         this.artifactManager.removeAll(project.id);
         
         project.children = data.map((it: Models.IArtifact) => {
@@ -183,15 +183,11 @@ export class ProjectManager  implements IProjectManager {
         project.loaded = true;
         project.open = true;
 
-        if(selectedArtifact){
-            if(!this.artifactManager.selection.getArtifact()){
-                this.artifactManager.selection.setArtifact(this.getArtifact(selectedArtifact.parentId));
-            }else{
-                selectedArtifact.refresh();
-            }
-        }
-
         this.openChildNodes(project.children, data);
+
+        if(selectedArtifactId > 0){
+            this.artifactManager.selection.setArtifact(this.getArtifact(selectedArtifactId));
+        }
 
         //this.projectCollection.onNext(this.projectCollection.getValue());
     }

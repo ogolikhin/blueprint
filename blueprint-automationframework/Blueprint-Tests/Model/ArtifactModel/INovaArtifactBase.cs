@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using static Model.ArtifactModel.Impl.NovaArtifactDetails;
+using Model.ArtifactModel.Impl;
 
 namespace Model.ArtifactModel
 {
@@ -46,6 +47,7 @@ namespace Model.ArtifactModel
     {
         #region Serialized JSON Properties
 
+        List<AttachmentValue> AttachmentValues { get; }
         Identification CreatedBy { get; set; }
         DateTime? CreatedOn { get; set; }
         string Description { get; set; }

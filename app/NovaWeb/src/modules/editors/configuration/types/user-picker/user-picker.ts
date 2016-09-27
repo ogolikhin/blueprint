@@ -138,6 +138,11 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                     return userValue.id === elemValue.id && Boolean(userValue.isGroup) === Boolean(elemValue.isGroup);
                 });
             },
+            areStillChoicesAvailable: function ($select): boolean {
+                return $select.items.some((elem) => {
+                    return !this.isChoiceSelected(elem, $select);
+                });
+            },
             toggleScrollbar: function (removeScrollbar?: boolean) {
                 if (!removeScrollbar) {
                     if ($scope["uiSelectContainer"]) {
@@ -218,7 +223,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                                 e[$scope.to.labelProp] = (item.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + item.name;
                                 e.email = item.email;
                                 e.isGroup = item.isGroup;
-                                e.isBlocked = item.isBlocked;
+                                e.isLoginEnabled = item.isLoginEnabled;
                                 e.selected = this.isChoiceSelected(e, $select);
                                 return e;
                             });
@@ -269,20 +274,24 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
             },
             onHighlight: function (option, $select) {
                 if (this.isChoiceSelected(option, $select)) {
-                    if ($select.activeIndex > this.currentSelectedItem) {
-                        if ($select.activeIndex < $select.items.length - 1) {
-                            $select.activeIndex++;
+                    if (this.areStillChoicesAvailable($select)) {
+                        if ($select.activeIndex > this.currentSelectedItem) {
+                            if ($select.activeIndex < $select.items.length - 1) {
+                                $select.activeIndex++;
+                            } else {
+                                this.currentSelectedItem = $select.activeIndex;
+                                $select.activeIndex--;
+                            }
                         } else {
-                            this.currentSelectedItem = $select.activeIndex;
-                            $select.activeIndex--;
+                            if ($select.activeIndex > 0) {
+                                $select.activeIndex--;
+                            } else {
+                                this.currentSelectedItem = $select.activeIndex;
+                                $select.activeIndex++;
+                            }
                         }
                     } else {
-                        if ($select.activeIndex > 0) {
-                            $select.activeIndex--;
-                        } else {
-                            this.currentSelectedItem = $select.activeIndex;
-                            $select.activeIndex++;
-                        }
+                        $select.activeIndex = -1;
                     }
                 } else {
                     this.currentSelectedItem = $select.activeIndex;

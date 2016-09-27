@@ -27,10 +27,10 @@ export class StatefulProcessArtifact  extends StatefulArtifact implements IState
         super(artifact, services);
     }
     public get baseItemTypePredefined(): ItemTypePredefined {
-        return this.artifact.predefinedType;
+        return this.predefinedType;
     }
     public get typePrefix(): string {
-        return this.artifact.prefix;
+        return this.prefix;
     }
 
     public getServices(): IStatefulProcessArtifactServices {
@@ -40,7 +40,7 @@ export class StatefulProcessArtifact  extends StatefulArtifact implements IState
     public load(force: boolean = true): ng.IPromise<IStatefulArtifact> {
 
         const deferred = this.services.getDeferred<IStatefulArtifact>();
-        let promise = this.services.processService.load(this.artifact.id.toString())
+        let promise = this.services.processService.load(this.id.toString())
             .then((process: IProcess) => {
                 this.onLoad(process);
                 deferred.resolve(this);

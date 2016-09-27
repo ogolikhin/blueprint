@@ -170,13 +170,13 @@ export class BPTreeViewController implements IBPTreeViewController {
             rowDataAsync = [];
         }
 
+        // Save selection
+        const selectedVMs: {[key: string]: ITreeViewNodeVM} = {};
+        this.options.api.getSelectedRows().forEach((row: ITreeViewNodeVM) => selectedVMs[row.key] = row);
         this.options.api.setRowData([]);
         this.options.api.showLoadingOverlay();
-        return this.$q.when(rowDataAsync).then((rowData) => {
-            // Save selection
-            const selectedVMs: {[key: string]: ITreeViewNodeVM} = {};
-            this.options.api.getSelectedRows().forEach((row: ITreeViewNodeVM) => selectedVMs[row.key] = row);
 
+        return this.$q.when(rowDataAsync).then((rowData) => {
             this.options.api.setRowData(rowData);
             this.options.api.sizeColumnsToFit();
 
@@ -306,11 +306,20 @@ export class BPTreeViewController implements IBPTreeViewController {
         const node = event.node;
         const isSelected = node.isSelected();
         const vm = node.data as ITreeViewNodeVM;
-        if (isSelected && vm.isSelectable && !vm.isSelectable()) {
+        if (isSelected && ((vm.isSelectable && !vm.isSelectable()) || !this.isVisible(node))) {
             node.setSelected(false);
         } else if (this.onSelect) {
             this.onSelect({vm: vm, isSelected: isSelected, selectedVMs: this.options.api.getSelectedRows() as ITreeViewNodeVM[]});
         }
+    }
+
+    private isVisible(node: agGrid.RowNode): boolean {
+        while ((node = node.parent)) {
+            if (!node.expanded) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public onGridReady = (event?: any) => {

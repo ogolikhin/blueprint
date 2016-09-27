@@ -5,7 +5,7 @@ import "angular-sanitize";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import { LocalizationServiceMock } from "../../core/localization/localization.mock";
-//import { BpEscapeAndHighlightFilter } from "../../shared/filters/bp-escape-hightlight/bp-escape-highlight.filter";
+import { BpEscapeAndHighlightFilter } from "../../shared/filters/bp-escape-hightlight/bp-escape-highlight.filter";
 import { formlyConfig } from "./formly-config";
 
 export function createFormlyModule(moduleName, dependencies, formlyFields) {
@@ -17,6 +17,7 @@ export function createFormlyModule(moduleName, dependencies, formlyFields) {
     function setupFormly(ngModule) {
         ngModule
             .service("localization", LocalizationServiceMock)
+            .filter("bpEscapeAndHighlight", BpEscapeAndHighlightFilter.factory())
             .run(formlyConfig);
     }
 

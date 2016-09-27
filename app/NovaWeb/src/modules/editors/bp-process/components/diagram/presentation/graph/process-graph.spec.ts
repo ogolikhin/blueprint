@@ -1,7 +1,7 @@
 ﻿import {ProcessGraph} from "./process-graph";
 import {ShapesFactory} from "./shapes/shapes-factory";
-import {ProcessServiceMock} from "../../../../services/process/process.svc.mock";
-import {IProcessService} from "../../../../services/process/process.svc";
+import {ProcessServiceMock} from "../../../../services/process.svc.mock";
+import {IProcessService} from "../../../../services/process.svc";
 import * as Enums from "../../../../models/enums";
 import * as ProcessModels from "../../../../models/process-models";
 import {MessageServiceMock} from "../../../../../../core/messages/message.mock";

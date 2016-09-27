@@ -6,13 +6,13 @@
     IItemStatus,
     IVersionInfo,
     ItemTypePredefined}
-from "../../../../editors/bp-process/models/process-models";
+from "./models/process-models";
 
-import { StatefulArtifact } from "../artifact";
-import { IStatefulArtifact } from "../../../../managers/models";
+import { StatefulArtifact } from "../../managers/artifact-manager/artifact";
+import { IStatefulArtifact } from "../../managers/models";
 
-import { Models } from "../../../../main/models";
-import { IStatefulProcessArtifactServices } from "../../services";
+import { Models } from "../../main/models";
+import { IStatefulProcessArtifactServices } from "../../managers/artifact-manager/services";
 
 export class StatefulProcessArtifact  extends StatefulArtifact implements IStatefulArtifact, IProcess {
     
@@ -27,10 +27,10 @@ export class StatefulProcessArtifact  extends StatefulArtifact implements IState
         super(artifact, services);
     }
     public get baseItemTypePredefined(): ItemTypePredefined {
-        return this.artifact.predefinedType;
+        return this.predefinedType;
     }
     public get typePrefix(): string {
-        return this.artifact.prefix;
+        return this.prefix;
     }
 
     public getServices(): IStatefulProcessArtifactServices {
@@ -40,7 +40,7 @@ export class StatefulProcessArtifact  extends StatefulArtifact implements IState
     public load(force: boolean = true): ng.IPromise<IStatefulArtifact> {
 
         const deferred = this.services.getDeferred<IStatefulArtifact>();
-        let promise = this.services.processService.load(this.artifact.id.toString())
+        let promise = this.services.processService.load(this.id.toString())
             .then((process: IProcess) => {
                 this.onLoad(process);
                 deferred.resolve(this);

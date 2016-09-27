@@ -52,6 +52,11 @@ bp-toolbar {
                   color: $gray-light;
                   cursor: not-allowed;
               }
+              &:focus {
+                  background-color: $gray-lighter;
+                  color: $gray-light;
+                  outline: 0;
+              }
           }
         span {
           display: block;

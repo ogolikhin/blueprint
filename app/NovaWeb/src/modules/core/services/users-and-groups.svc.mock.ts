@@ -5,7 +5,8 @@ export class UserOrGroupInfo implements IUserOrGroupInfo {
         public email: string,
         public isGroup: boolean = false,
         public guest: boolean = false,
-        public isBlocked: boolean = false) {
+        public isBlocked: boolean = false,
+        public isLoginEnabled: boolean = true) {
     }
 
     public id: string;

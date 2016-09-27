@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import * as agGrid from "ag-grid/main";
 import { ILocalizationService } from "../../../core";
 
@@ -16,7 +17,7 @@ import { ILocalizationService } from "../../../core";
  * </bp-tree-view>
  */
 export class BPTreeViewComponent implements ng.IComponentOptions {
-    public controller: Function = BPTreeViewController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPTreeViewController;
     public template: string = require("./bp-tree-view.html");
     public bindings: {[binding: string]: string} = {
         gridClass: "@",
@@ -81,7 +82,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     public headerHeight: number;
     public onSelect: (param: {vm: ITreeViewNodeVM, isSelected: boolean, selectedVMs: ITreeViewNodeVM[]}) => void;
 
-    constructor(private $q: ng.IQService, private $element: HTMLElement, private localization: ILocalizationService) {
+    constructor(private $q: ng.IQService, private $element: ng.IAugmentedJQuery, private localization: ILocalizationService) {
         this.gridClass = angular.isDefined(this.gridClass) ? this.gridClass : "project-explorer";
         this.rowBuffer = angular.isDefined(this.rowBuffer) ? this.rowBuffer : 200;
         this.selectionMode = angular.isDefined(this.selectionMode) ? this.selectionMode : "single";
@@ -127,8 +128,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     }
 
     public $onChanges(onChangesObj: ng.IOnChangesObject): void {
-        if (this.options.api &&
-            (onChangesObj["selectionMode"] || onChangesObj["rootNode"] || onChangesObj["rootNodeVisible"] || onChangesObj["columns"])) {
+        if (onChangesObj["selectionMode"] || onChangesObj["rootNode"] || onChangesObj["rootNodeVisible"] || onChangesObj["columns"]) {
             this.resetGridAsync();
         }
     }
@@ -139,59 +139,67 @@ export class BPTreeViewController implements IBPTreeViewController {
     }
 
     public resetGridAsync(): ng.IPromise<void> {
-        this.options.rowSelection = this.selectionMode === "single" ? "single" : "multiple";
-        this.options.rowDeselection = this.selectionMode !== "single";
-        this.options.api.setColumnDefs(this.columns.map(column => {
-            return {
-                headerName: column.headerName ? column.headerName : "",
-                field: column.field,
-                cellClass: column.cellClass ? (params: agGrid.RowNode) => column.cellClass(params.data as ITreeViewNodeVM) : undefined,
-                cellRenderer: column.isGroup ? "group" : undefined,
-                cellRendererParams: column.isGroup ? {
-                    checkbox: this.selectionMode === "checkbox",
-                    innerRenderer: column.innerRenderer ? (params: agGrid.RowNode) => column.innerRenderer(params.data as ITreeViewNodeVM) : undefined,
-                    padding: 20
-                } : undefined,
-                suppressMenu: true,
-                suppressSorting: true,
-            } as agGrid.ColDef;
-        }));
+        if (this.options.api) {
+            this.options.rowSelection = this.selectionMode === "single" ? "single" : "multiple";
+            this.options.rowDeselection = this.selectionMode !== "single";
+            this.options.api.setColumnDefs(this.columns.map(column => {
+                return {
+                    headerName: column.headerName ? column.headerName : "",
+                    field: column.field,
+                    cellClass: column.cellClass ? (params: agGrid.RowNode) => column.cellClass(params.data as ITreeViewNodeVM) : undefined,
+                    cellRenderer: column.isGroup ? "group" : undefined,
+                    cellRendererParams: column.isGroup ? {
+                        checkbox: this.selectionMode === "checkbox",
+                        innerRenderer: column.innerRenderer ? (params: agGrid.RowNode) => column.innerRenderer(params.data as ITreeViewNodeVM) : undefined,
+                        padding: 20
+                    } : undefined,
+                    suppressMenu: true,
+                    suppressSorting: true,
+                } as agGrid.ColDef;
+            }));
 
-        let rowDataAsync: ITreeViewNodeVM[] | ng.IPromise<ITreeViewNodeVM[]>;
-        if (this.rootNode) {
-            if (this.rootNodeVisible) {
-                rowDataAsync = [this.rootNode];
-            } else if (this.rootNode.loadChildrenAsync) {
-                rowDataAsync = this.rootNode.loadChildrenAsync().then(() => this.rootNode.children);
+            let rowDataAsync: ITreeViewNodeVM[] | ng.IPromise<ITreeViewNodeVM[]>;
+            if (this.rootNode) {
+                if (this.rootNodeVisible) {
+                    rowDataAsync = [this.rootNode];
+                } else if (this.rootNode.loadChildrenAsync) {
+                    rowDataAsync = this.rootNode.loadChildrenAsync().then(() => this.rootNode.children);
+                } else {
+                    rowDataAsync = this.rootNode.children;
+                }
             } else {
-                rowDataAsync = this.rootNode.children;
+                rowDataAsync = [];
             }
-        } else {
-            rowDataAsync = [];
-        }
 
-        this.options.api.setRowData([]);
-        this.options.api.showLoadingOverlay();
-        return this.$q.when(rowDataAsync).then((rowData) => {
             // Save selection
             const selectedVMs: {[key: string]: ITreeViewNodeVM} = {};
             this.options.api.getSelectedRows().forEach((row: ITreeViewNodeVM) => selectedVMs[row.key] = row);
+            this.options.api.setRowData([]);
+            this.options.api.showLoadingOverlay();
 
-            this.options.api.setRowData(rowData);
-            this.options.api.sizeColumnsToFit();
+            return this.$q.when(rowDataAsync).then((rowData) => {
+                if (this.options.api) {
+                    this.options.api.setRowData(rowData);
+                    this.options.api.sizeColumnsToFit();
 
-            // Restore selection
-            this.options.api.forEachNode(node => {
-                if (selectedVMs[node.data.key]) {
-                    node.setSelected(true);
+                    // Restore selection
+                    this.options.api.forEachNode(node => {
+                        if (selectedVMs[node.data.key]) {
+                            node.setSelected(true);
+                        }
+                    });
+                }
+            }).finally(() => {
+                if (this.options.api) {
+                    this.options.api.hideOverlay();
+                    if (this.options.api.getModel().getRowCount() === 0) {
+                        this.options.api.showNoRowsOverlay();
+                    }
                 }
             });
-        }).finally(() => {
-            this.options.api.hideOverlay();
-            if (this.options.api.getModel().getRowCount() === 0) {
-                this.options.api.showNoRowsOverlay();
-            }
-        });
+        }
+
+        return this.$q.resolve();
     }
 
     public updateScrollbars(destroy: boolean = false) {
@@ -275,7 +283,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         // Only deal with clicks in the .ag-group-value span
         let element = event.event.target as Element;
         while (!(element && element.classList.contains("ag-group-value"))) {
-            if (!element || element === this.$element) {
+            if (!element || element === this.$element[0]) {
                 return;
             }
             element = element.parentElement;
@@ -306,11 +314,20 @@ export class BPTreeViewController implements IBPTreeViewController {
         const node = event.node;
         const isSelected = node.isSelected();
         const vm = node.data as ITreeViewNodeVM;
-        if (isSelected && vm.isSelectable && !vm.isSelectable()) {
+        if (isSelected && ((vm.isSelectable && !vm.isSelectable()) || !this.isVisible(node))) {
             node.setSelected(false);
         } else if (this.onSelect) {
             this.onSelect({vm: vm, isSelected: isSelected, selectedVMs: this.options.api.getSelectedRows() as ITreeViewNodeVM[]});
         }
+    }
+
+    private isVisible(node: agGrid.RowNode): boolean {
+        while ((node = node.parent)) {
+            if (!node.expanded) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public onGridReady = (event?: any) => {

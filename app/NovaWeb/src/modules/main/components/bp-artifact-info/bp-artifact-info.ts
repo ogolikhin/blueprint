@@ -1,4 +1,5 @@
-﻿import { Models, Enums } from "../../models";
+﻿import * as angular from "angular";
+import { Models, Enums } from "../../models";
 import { IWindowManager, IMainWindow, ResizeCause } from "../../services";
 import { IMessageService, Message, MessageType, ILocalizationService } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
@@ -9,7 +10,7 @@ import { INavigationService } from "../../../core/navigation/navigation.svc";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
-    public controller: Function = BpArtifactInfoController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactInfoController;
     public transclude: boolean = true;
     public bindings: any = {
         context: "<"
@@ -56,14 +57,15 @@ export class BpArtifactInfoController {
         private navigationService: INavigationService
     ) {
         this.initProperties();
-        this.subscribers = [];     
+        this.subscribers = [];
     }
 
     public $onInit() {
         const windowSub = this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
-        const stateSub = this.artifactManager.selection
-            .artifactObservable
-            .skip(1) // skip the first (initial) value
+        const stateSub = this.artifactManager.selection.artifactObservable
+            // cannot always skip 1 and rely on the artifact observable having 2 values (initial and new)
+            // this is true when navigating to artifact X from artifact X via breadcrumb (loop)
+            //.skip(1) // skip the first (initial) value
             .filter((artifact: IStatefulArtifact) => artifact != null)
             .flatMap((artifact: IStatefulArtifact) => {
                 this.artifact = artifact;

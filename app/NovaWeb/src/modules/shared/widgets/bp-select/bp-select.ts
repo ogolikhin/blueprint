@@ -12,7 +12,7 @@ interface IBPSelectController {
 
 export class BPSelect implements ng.IComponentOptions {
     public template: string = require("./bp-select.html");
-    public controller: Function = BPSelectController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPSelectController;
     public require: any = {
         ngModelCtrl: "ngModel"
     };

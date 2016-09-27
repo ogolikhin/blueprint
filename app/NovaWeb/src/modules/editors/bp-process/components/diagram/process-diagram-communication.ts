@@ -44,8 +44,8 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
         this.setNavigateToAssociatedArtifactSubject.disposeObserver(handler);
     }
 
-    public navigateToAssociatedArtifact(id: number, context?: any) {
-        this.setNavigateToAssociatedArtifactSubject.notify({ id: id, context: context });
+    public navigateToAssociatedArtifact(id: number, options?: any) {
+        this.setNavigateToAssociatedArtifactSubject.notify({ id: id, options: options });
     }
 
     public onDestroy() {

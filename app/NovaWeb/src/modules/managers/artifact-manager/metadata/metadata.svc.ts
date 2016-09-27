@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import { ILocalizationService } from "../../../core";
 import { Models } from "../../../main/models";
 

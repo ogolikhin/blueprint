@@ -24,9 +24,11 @@ var preLoaders = [
 function isDebug(argument) {
     return argument === '--debug';
 }
+var sourceMap = "eval";
 if (process.argv.some(isDebug)) {
     postLoaders = [];
     preLoaders = [];
+    sourceMap = "source-map-inline"
     console.log("Is Debug");
 }
 
@@ -47,7 +49,7 @@ module.exports = {
   resolveLoader: {
     modulesDirectories: ["node_modules"]
   },
-  devtool: "source-map-inline",
+  devtool: sourceMap,
   plugins: [
     FailPlugin,
     new webpack.ProvidePlugin({

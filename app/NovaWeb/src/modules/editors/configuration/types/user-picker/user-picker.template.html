@@ -18,8 +18,8 @@
 			data-repeat="option[to.valueProp] as option in to.options | limitTo: bpFieldUserPicker.currentLimit">
 			<div class="ui-select-choice-item">
 				<div class="ui-select-choice-icon" ng-if="option.isGroup"><img src="/novaweb/static/images/icons/user-group.svg" height="25" width="25" /></div>
-				<div class="ui-select-choice-icon" ng-if="!option.isGroup && option.isBlocked"><img src="/novaweb/static/images/icons/user-unauthorize.svg" height="25" width="25" /></div>
-				<div class="ui-select-choice-icon" ng-if="!option.isGroup && !option.isBlocked"><bp-avatar icon="" name="{{option[to.labelProp]}}" color-base="{{option[to.labelProp]}}"></bp-avatar></div>
+				<div class="ui-select-choice-icon" ng-if="!option.isGroup && !option.isLoginEnabled"><img src="/novaweb/static/images/icons/user-unauthorize.svg" height="25" width="25" /></div>
+				<div class="ui-select-choice-icon" ng-if="!option.isGroup && option.isLoginEnabled"><bp-avatar icon="" name="{{option[to.labelProp]}}" color-base="{{option[to.labelProp]}}"></bp-avatar></div>
 				<div class="ui-select-choice-info">
 					<div class="ui-select-choice-item-name"
 						bp-tooltip="{{option[to.labelProp]}}"

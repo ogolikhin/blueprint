@@ -1,4 +1,5 @@
-﻿import { BPLocale, ILocalizationService} from "../../core";
+﻿import * as angular from "angular";
+import { BPLocale, ILocalizationService} from "../../core";
 import { Enums, Models} from "../../main";
 import { PropertyContext} from "./bp-property-context";
 import { IStatefulItem} from "../../managers/models";
@@ -47,8 +48,16 @@ export class PropertyEditor {
                 };
 
             case Models.PrimitiveType.User:
-                //TODO: Check after save while switching artifact has been implemented
-                return $value;
+                if (angular.isArray($value)) {
+                    return {
+                        usersGroups: $value.filter((elem) => {
+                            // isImported is added in the Formly User Picker controller to users
+                            // from imported project who don't exist in the database
+                            return !elem.isImported;
+                        })
+                    };
+                }
+                return null; // we probably should not return in this case
 
             default:
                 return $value;

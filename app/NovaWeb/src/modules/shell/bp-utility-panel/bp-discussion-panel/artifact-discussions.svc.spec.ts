@@ -1,4 +1,4 @@
-﻿import "angular";
+﻿import * as angular from "angular";
 import "angular-mocks";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {IArtifactDiscussions, ArtifactDiscussions, IDiscussionResultSet, IReply, IDiscussion} from "./artifact-discussions.svc";

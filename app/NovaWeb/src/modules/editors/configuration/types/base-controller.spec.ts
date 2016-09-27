@@ -1,7 +1,7 @@
-import "angular";
+import * as angular from "angular";
 import "angular-mocks";
 
-import { IBPFieldBaseController, BPFieldBaseController } from "./base-controller";
+import { BPFieldBaseController } from "./base-controller";
 
 describe("Formly Base Controller", () => {
     let controller: BPFieldBaseController,
@@ -35,7 +35,7 @@ describe("Formly Base Controller", () => {
         inject((
             _$controller_
             ) => {
-                $controller = _$controller_
+                $controller = _$controller_;
             }
         )
     );
@@ -135,7 +135,6 @@ describe("Formly Base Controller", () => {
         it("click", () => {
             let hasBeenClicked = false;
             let container: HTMLElement = angular.element("div.container")[0];
-            let spacer: HTMLElement = angular.element("div.spacer")[0];
             let input: HTMLElement = angular.element("input")[0];
             angular.element(input).on("click", () => {
                 hasBeenClicked = true;

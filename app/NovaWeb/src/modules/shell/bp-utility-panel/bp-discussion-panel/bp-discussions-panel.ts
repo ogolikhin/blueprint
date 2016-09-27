@@ -10,7 +10,7 @@ import { Helper } from "../../../shared/utils/helper";
 
 export class BPDiscussionPanel implements ng.IComponentOptions {
     public template: string = require("./bp-discussions-panel.html");
-    public controller: Function = BPDiscussionPanelController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPDiscussionPanelController;
     public require: any = {
         bpAccordionPanel: "^bpAccordionPanel"
     };

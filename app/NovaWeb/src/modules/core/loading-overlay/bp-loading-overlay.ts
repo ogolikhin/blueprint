@@ -2,7 +2,7 @@
 
 export class BpLoadingOverlayComponent implements ng.IComponentOptions {
     public template: string = require("./bp-loading-overlay.html");
-    public controller: Function = BpLoadingOverlayController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpLoadingOverlayController;
     public transclude: boolean = true;
 }
 

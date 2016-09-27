@@ -1,4 +1,5 @@
-﻿import { Models} from "../../models";
+﻿import * as angular from "angular";
+import { Models} from "../../models";
 import { Helper, IBPTreeController, ITreeNode } from "../../../shared";
 import { IProjectManager, IArtifactManager} from "../../../managers";
 import { Project } from "../../../managers/project-manager";
@@ -7,14 +8,14 @@ import { INavigationService } from "../../../core/navigation/navigation.svc";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
-    public controller: Function = ProjectExplorerController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = ProjectExplorerController;
     public transclude: boolean = true;
 }
 
 export class ProjectExplorerController {
     public tree: IBPTreeController;
-    private _selectedArtifactId: number;
-    private _subscribers: Rx.IDisposable[];
+    private selected: IArtifactNode;
+    private subscribers: Rx.IDisposable[];
 
     public static $inject: [string] = ["projectManager", "artifactManager", "navigationService"];
     
@@ -28,17 +29,15 @@ export class ProjectExplorerController {
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {
         //use context reference as the last parameter on subscribe...
-        this._subscribers = [
+        this.subscribers = [
             //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
-            //subscribe for current artifact change (need to distinct artifact)
-//             this.artifactManager.selection.artifactObservable.subscribeOnNext(this.onSelectArtifact, this)
         ];
     }
     
     public $onDestroy() {
         //dispose all subscribers
-        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
 
     // the object defines how data will map to ITreeNode
@@ -102,10 +101,11 @@ export class ProjectExplorerController {
         if (this.tree) {
             this.tree.reload(projects);
             if (projects && projects.length > 0) {
-                this._selectedArtifactId = projects[0].id;
-                this.artifactManager.selection.setExplorerArtifact(projects[0].artifact);
-                this.navigationService.navigateToArtifact(this._selectedArtifactId);
-                this.tree.selectNode(this._selectedArtifactId);
+                if (!this.selected || this.selected.projectId !== projects[0].projectId) {
+                    this.selected = projects[0];
+                    this.navigationService.navigateToArtifact(this.selected.id);
+                }
+                this.tree.selectNode(this.selected.id);
             } else {
                 this.artifactManager.selection.setExplorerArtifact(null);
                 this.navigationService.navigateToMain();
@@ -115,27 +115,25 @@ export class ProjectExplorerController {
 
     public doLoad = (prms: Models.IProject): any[] => {
         //the explorer must be empty on a first load
-        if (!prms) {
-            return null;
+        if (prms) {
+            //notify the repository to load the node children
+            this.projectManager.loadArtifact(prms.id);
         }
-        //notify the repository to load the node children
-        this.projectManager.loadArtifact(prms.id);
+        
         return null;
     };
 
-    public doSelect = (node: ITreeNode) => {
-        //check passed in parameter
-        if (node && this._selectedArtifactId !== node.id) {
-            const artifact = this.doSync(node);
-            this._selectedArtifactId = artifact.id;
-            //NOTE: setExplorerArtifact method does not trigger notification
-            this.artifactManager.selection.setExplorerArtifact(artifact);
-            //
-            this.navigationService.navigateToArtifact(this._selectedArtifactId);
+    public doSelect = (node: IArtifactNode) => {
+        console.log("doSelect");
+        if (!this.selected || this.selected.id !== node.id) {
+            this.doSync(node);
+            this.selected = node;
+            this.navigationService.navigateToArtifact(node.id);
         }
     };
 
-    public doSync = (node: ITreeNode): IStatefulArtifact => {
+    public doSync = (node: IArtifactNode): IStatefulArtifact => {
+        console.log("doSync");
         //check passed in parameter
         let artifactNode = this.projectManager.getArtifactNode(node.id);
         if (artifactNode.children && artifactNode.children.length) {

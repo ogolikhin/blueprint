@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import "angular-formly";
 import { ILocalizationService } from "../../../../core";
 import { BPFieldBaseController } from "../base-controller";
@@ -16,14 +16,15 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
             let uiSelectContainer = $element[0].querySelector(".ui-select-container");
             if (uiSelectContainer) {
                 $scope["uiSelectContainer"] = uiSelectContainer;
-                uiSelectContainer.addEventListener("keydown", $scope["bpFieldSelectMulti"].closeDropdownOnTab, true);
-                uiSelectContainer.addEventListener("click", $scope["bpFieldSelectMulti"].scrollIntoView, true);
 
                 // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class
                 // Not needed for textareas
                 let uiSelectInput = uiSelectContainer.querySelector("div:not(.ps-child)") as HTMLElement;
                 if (uiSelectInput && !uiSelectInput.classList.contains("ps-child")) {
                     uiSelectInput.classList.add("ps-child");
+                    uiSelectInput.classList.add("ui-select-input");
+                    uiSelectInput.addEventListener("keydown", $scope["bpFieldSelectMulti"].closeDropdownOnTab, true);
+                    uiSelectInput.addEventListener("click", $scope["bpFieldSelectMulti"].scrollIntoView, true);
                 }
 
                 $scope["bpFieldSelectMulti"].toggleScrollbar();
@@ -31,7 +32,7 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
             }
         });
     };
-    public controller: Function = BpFieldSelectMultiController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldSelectMultiController;
 
     constructor() {
     }
@@ -68,8 +69,13 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
 
         $scope["$on"]("$destroy", function () {
             if ($scope["uiSelectContainer"]) {
-                $scope["uiSelectContainer"].removeEventListener("keydown", $scope["bpFieldSelectMulti"].closeDropdownOnTab, true);
-                $scope["uiSelectContainer"].removeEventListener("click", $scope["bpFieldSelectMulti"].scrollIntoView, true);
+                if ($scope["uiSelectContainer"]) {
+                    let uiSelectInput = $scope["uiSelectContainer"].querySelector(".ui-select-input") as HTMLElement;
+                    if (uiSelectInput) {
+                        uiSelectInput.removeEventListener("keydown", $scope["bpFieldSelectMulti"].closeDropdownOnTab, true);
+                        uiSelectInput.removeEventListener("click", $scope["bpFieldSelectMulti"].scrollIntoView, true);
+                    }
+                }
             }
         });
 
@@ -88,6 +94,11 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             },
             isChoiceSelected: function (item, $select): boolean {
                 return $select.selected.map(function (e) { return e[$scope.to.valueProp]; }).indexOf(item[$scope.to.valueProp]) !== -1;
+            },
+            areStillChoicesAvailable: function ($select): boolean {
+                return $select.items.some((elem) => {
+                    return !this.isChoiceSelected(elem, $select);
+                });
             },
             toggleScrollbar: function (removeScrollbar?: boolean) {
                 if (!removeScrollbar) {
@@ -220,20 +231,24 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             },
             onHighlight: function (option, $select) {
                 if (this.isChoiceSelected(option, $select)) {
-                    if ($select.activeIndex >= this.currentSelectedItem) {
-                        if ($select.activeIndex < $select.items.length - 1) {
-                            $select.activeIndex++;
+                    if (this.areStillChoicesAvailable($select)) {
+                        if ($select.activeIndex >= this.currentSelectedItem) {
+                            if ($select.activeIndex < $select.items.length - 1) {
+                                $select.activeIndex++;
+                            } else {
+                                this.currentSelectedItem = $select.activeIndex;
+                                $select.activeIndex--;
+                            }
                         } else {
-                            this.currentSelectedItem = $select.activeIndex;
-                            $select.activeIndex--;
+                            if ($select.activeIndex > 0) {
+                                $select.activeIndex--;
+                            } else {
+                                this.currentSelectedItem = $select.activeIndex;
+                                $select.activeIndex++;
+                            }
                         }
                     } else {
-                        if ($select.activeIndex > 0) {
-                            $select.activeIndex--;
-                        } else {
-                            this.currentSelectedItem = $select.activeIndex;
-                            $select.activeIndex++;
-                        }
+                        $select.activeIndex = -1;
                     }
                 } else {
                     this.currentSelectedItem = $select.activeIndex;

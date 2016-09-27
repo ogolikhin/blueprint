@@ -1,4 +1,5 @@
-﻿import {PreviewCenterController, PreviewCenterComponent} from "./preview-center";
+﻿import * as angular from "angular";
+import {PreviewCenterController, PreviewCenterComponent} from "./preview-center";
 import { ShapeModelMock } from "../../diagram/presentation/graph/shapes/shape-model.mock";
 import { SystemTask } from "../../diagram/presentation/graph/shapes/";
 //import {IArtifactManager} from "../../../../../managers/artifact-manager/artifact-manager";

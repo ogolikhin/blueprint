@@ -15,7 +15,7 @@ interface IBPToolbarController {
 
 export class BPToolbar implements ng.IComponentOptions {
     public template: string = require("./bp-toolbar.html");
-    public controller: Function = BPToolbarController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPToolbarController;
 }
 
 class BPToolbarController implements IBPToolbarController {
@@ -115,10 +115,15 @@ class BPToolbarController implements IBPToolbarController {
                 let refreshAllLoadingId = this.loadingOverlayService.beginLoading();
 
                 if(this._currentArtifact){
-                    this.projectManager.refresh(this.projectManager.getSelectedProject())
-                    .finally(() => {
+                    try{
+                        this.projectManager.refresh(this.projectManager.getSelectedProject())
+                        .finally(() => {
+                            this.loadingOverlayService.endLoading(refreshAllLoadingId);
+                        });
+                    }catch(err){
                         this.loadingOverlayService.endLoading(refreshAllLoadingId);
-                    });
+                        throw err;
+                    }
                 }
                 break;
             case `gotoimpactanalysis`:
@@ -144,7 +149,12 @@ class BPToolbarController implements IBPToolbarController {
     private deleteArtifact() {
     }
 
-    public $onInit(o) {
+    public goToImpactAnalysis() {
+        let url = `Web/#/ImpactAnalysis/${this._currentArtifact}`;
+        window.open(url);
+    }
+
+    public $onInit() {
         this._subscribers = [
             this.artifactManager.selection.artifactObservable.subscribe(this.displayArtifact)
         ];

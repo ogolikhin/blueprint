@@ -1,4 +1,5 @@
-﻿import { ILocalizationService, IMessageService } from "../../core";
+﻿import * as angular from "angular";
+import { ILocalizationService, IMessageService } from "../../core";
 import { IStatefulArtifactFactory } from "../artifact-manager/artifact";
 import { Project, ArtifactNode } from "./project";
 import { IArtifactNode, IStatefulArtifact, IDispose} from "../models";
@@ -119,23 +120,44 @@ export class ProjectManager  implements IProjectManager {
         }
         
         let selectedArtifact = this.artifactManager.selection.getArtifact();
-        let selectedArtifactNode = this.getArtifactNode(selectedArtifact.id);
         
+        if (selectedArtifact.artifactState.dirty){
+            selectedArtifact.autosave().then(() => {
+                this.doRefresh(project, selectedArtifact, defer, currentProject);
+            }).catch(() => {
+                defer.reject();
+            });
+        }else{
+            this.doRefresh(project, selectedArtifact, defer, currentProject);
+        }
+        
+        return defer.promise; 
+    }
+    
+    private doRefresh(project: Project, selectedArtifact: IStatefulArtifact, defer: any, currentProject: Models.IProject){
+        let selectedArtifactNode = this.getArtifactNode(selectedArtifact.id);
         //try with selected artifact
         this.projectService.getProjectTree(project.id, selectedArtifact.id, selectedArtifactNode.open)
         .then((data: Models.IArtifact[]) => {
-            this.onGetProjectTree(project, data, selectedArtifact);
+            this.onGetProjectTree(project, data, selectedArtifact.id);
             defer.resolve();
         }).catch((error: any) => {
             if(error.statusCode === 404 && error.errorCode === 3000){
                 //try with selected artifact's parent
                 this.projectService.getProjectTree(project.id, selectedArtifact.parentId, selectedArtifactNode.open)
                 .then((data: Models.IArtifact[]) => {
-                    this.onGetProjectTree(project, data, this.getArtifact(selectedArtifact.parentId));
+                    this.onGetProjectTree(project, data, selectedArtifact.parentId);
                     defer.resolve();
                 }).catch((error: any) => {
                     if(error.statusCode === 404 && error.errorCode === 3000){
                         //try it with project
+                        this.projectService.getArtifacts(project.id).then((data: Models.IArtifact[]) => {
+                            this.onGetProjectTree(project, data, -1);
+                            defer.resolve();
+                        }).catch((err: any) => {
+                            this.onGetProjectTreeError(project, error);
+                            defer.reject();
+                        });
                     }else{
                         this.onGetProjectTreeError(project, error);
                         defer.reject();
@@ -146,14 +168,12 @@ export class ProjectManager  implements IProjectManager {
                 defer.reject();
             }
         });
-        
+
         this.metadataService.remove(currentProject.id);    
-        this.metadataService.load(currentProject.id);    
-        
-        return defer.promise; 
+        this.metadataService.load(currentProject.id);  
     }
     
-    private onGetProjectTree(project: Project, data: Models.IArtifact[], selectedArtifact: IStatefulArtifact){
+    private onGetProjectTree(project: Project, data: Models.IArtifact[], selectedArtifactId?: number){
         this.artifactManager.removeAll(project.id);
         
         project.children = data.map((it: Models.IArtifact) => {
@@ -164,13 +184,13 @@ export class ProjectManager  implements IProjectManager {
         project.loaded = true;
         project.open = true;
 
-        if(!this.artifactManager.selection.getArtifact()){
-            this.artifactManager.selection.setArtifact(this.getArtifact(selectedArtifact.parentId));
-        }
-
         this.openChildNodes(project.children, data);
 
-        this.projectCollection.onNext(this.projectCollection.getValue());
+        if(selectedArtifactId > 0){
+            this.artifactManager.selection.setArtifact(this.getArtifact(selectedArtifactId));
+        }
+
+        //this.projectCollection.onNext(this.projectCollection.getValue());
     }
     
     private onGetProjectTreeError(project: Project, error: any){

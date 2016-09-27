@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import { ILocalizationService, Message } from "../../core";
 import { IWindowManager, IMainWindow } from "../../main";
 //import { Models, Enums } from "../../main";

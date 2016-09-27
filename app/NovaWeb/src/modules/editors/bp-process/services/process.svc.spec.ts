@@ -1,6 +1,7 @@
-﻿import {ProcessService, IProcessService} from "./process.svc";
-import { MessageServiceMock } from "../../../../core/messages/message.mock";
-import {createDefaultProcessModel} from "../../models/test-model-factory";
+import * as angular from "angular";
+import {ProcessService, IProcessService} from "./process.svc";
+import { MessageServiceMock } from "../../../core/messages/message.mock";
+import {createDefaultProcessModel} from "../models/test-model-factory";
 
 describe("Get process data model from the process model service", () => {
 

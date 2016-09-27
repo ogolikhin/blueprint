@@ -131,8 +131,10 @@ export class DiagramView implements IDiagramView {
         };
 
         this.graph.getLabel = (cell: MxCell) => {
-            if (cell.getLabel) {
-                return cell.getLabel();
+            // fix for awesome-typescript-loader - it cannot get definition
+            let aCell: any = cell;
+            if (aCell.getLabel) {
+                return aCell.getLabel();
             }
             if (cell.isVertex()) {
                 if (cell.value != null && cell.value.label != null) {

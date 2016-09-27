@@ -84,6 +84,7 @@ namespace Model.ArtifactModel.Impl
 
         public override int ProjectId { get; set; }
         public override int Version { get; set; }
+        public List<AttachmentValue> AttachmentValues { get; } = new List<AttachmentValue>();
         public DateTime? CreatedOn { get; set; }
         public DateTime? LastEditedOn { get; set; }
         public Identification CreatedBy { get; set; }

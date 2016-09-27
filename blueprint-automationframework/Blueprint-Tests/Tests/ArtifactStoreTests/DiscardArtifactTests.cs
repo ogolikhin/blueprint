@@ -199,10 +199,7 @@ namespace ArtifactStoreTests
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user); 
             // Create artifact(s) with save and publish for discard test 
             var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(projectCustomData, _user, artifactType, numberOfArtifacts); 
-
-            // Hack: Create a fake artifact. 
-            var fakeArtifact = ArtifactFactory.CreateArtifact(projectCustomData, _user, BaseArtifactType.Actor); 
-    
+  
             for (int i = 0; i<numberOfArtifacts; i++) 
             { 
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, publishedArtifacts[i].Id);
@@ -212,9 +209,9 @@ namespace ArtifactStoreTests
 
             string requestBody = JsonConvert.SerializeObject(artifactDetails); 
 
-            requestBody = requestBody.Replace(toChange, changeTo); 
+            requestBody = requestBody.Replace(toChange, changeTo);
 
-            fakeArtifact.Id = publishedArtifacts[i].Id; 
+            var fakeArtifact = (IArtifact)publishedArtifacts[i];
             fakeArtifact.Lock();
 
             Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, publishedArtifacts[i].Id, _user), 
@@ -244,9 +241,6 @@ namespace ArtifactStoreTests
             // Create artifact(s) with save and publish for discard test
             var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(projectCustomData, _user, artifactType, numberOfArtifacts);
 
-            // Hack: Create a fake artifact.
-            var fakeArtifact = ArtifactFactory.CreateArtifact(projectCustomData, _user, BaseArtifactType.Actor);
-
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, publishedArtifacts[0].Id);
 
             //This is needed to suppress 501 error
@@ -256,7 +250,7 @@ namespace ArtifactStoreTests
 
             requestBody = requestBody.Replace(toChange, changeTo);
 
-            fakeArtifact.Id = publishedArtifacts[0].Id;
+            var fakeArtifact = (IArtifact)publishedArtifacts[0];
             fakeArtifact.Lock();
 
             Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, publishedArtifacts[0].Id, _user),
@@ -271,8 +265,8 @@ namespace ArtifactStoreTests
 
         [TestCase(4, BaseArtifactType.Process)]
         [TestRail(182307)]
-        [Description("Create, save, and publish parent artifact with two children, discard all artifacts, checks returned result is 200 OK.")]
-        public void DiscardAllArtifact_ParentAndChildrenArtifacts_UpdateChildArtifact_OK(int numberOfArtifacts, BaseArtifactType artifactType)
+        [Description("Create, save, and publish parent artifact with two children, move children to parent artifact, discard all artifacts, checks returned result is 200 OK.")]
+        public void DiscardAllArtifact_ParentAndChildrenArtifacts_MoveChildArtifacts_OK(int numberOfArtifacts, BaseArtifactType artifactType)
         {
             // Setup:
             List<BaseArtifactType> artifactTypes = new List<BaseArtifactType>();
@@ -314,17 +308,16 @@ namespace ArtifactStoreTests
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
             var artifactChainCustomData = Helper.CreatePublishedArtifactChain(projectCustomData, _user, artifactTypes.ToArray());
 
-
             for (int i = 1; i < numberOfArtifacts; i++)
             {
-                artifactChainTest[i].ParentId = _project.Id;
-                artifactChainTest[i].Save();
+                artifactChainTest[i].Lock();
+                Helper.ArtifactStore.MoveArtifact(artifactChainTest[i], artifactChainTest[0], _user);
             }
 
             for (int i = 1; i < numberOfArtifacts; i++)
             {
-                artifactChainCustomData[i].ParentId = projectCustomData.Id;
-                artifactChainCustomData[i].Save();
+                artifactChainCustomData[i].Lock();
+                Helper.ArtifactStore.MoveArtifact(artifactChainCustomData[i], artifactChainCustomData[0], _user);
             }
 
             // Execute:

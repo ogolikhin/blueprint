@@ -74,7 +74,7 @@
 
     <p>{{::$ctrl.localization.get('App_UP_Attachments_No_Attachments') }}</p>
     
-    <div class="add-empty">
+    <div class="add-empty" ng-if="$ctrl.item">
         <p>{{::$ctrl.localization.get('App_UP_Attachments_Attachment_Desc') }}</p>
         <label class="btn btn-secondary btn-small" ng-class="{'disabled': $ctrl.isItemReadOnly }">
             <input bp-file-upload="$ctrl.onFileSelect(files, callback)" type="file" multiple="1" class="file-input">

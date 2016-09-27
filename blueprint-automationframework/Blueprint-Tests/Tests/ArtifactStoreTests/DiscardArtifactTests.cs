@@ -287,7 +287,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(artifactChain.ConvertAll(x => (IArtifactBase)x), _user, all: true),
-                "'POST {0}' should return 200 OK if the Artifact has dependend children changed!", DISCARD_PATH);
+                "'POST {0}' should return 200 OK if the dependent children of the Artifact have been moved!", DISCARD_PATH);
         }
 
         [TestCase(3, BaseArtifactType.Process)]

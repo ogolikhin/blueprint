@@ -1,15 +1,27 @@
-export interface INavigationContext {
-    sourceArtifactId: number;
+export interface INavigationState {
+    id?: number;
+    path?: number[];
+}
+
+export interface INavigationOptions {
+}
+
+export class ForwardNavigationOptions implements INavigationOptions {
+    enableTracking: boolean;
+}
+
+export class BackNavigationOptions implements INavigationOptions {
+    index: number;
 }
 
 export interface INavigationService {
+    getNavigationState(): INavigationState;
     navigateToMain(): ng.IPromise<any>;
-    navigateToArtifact(id: number, context?: INavigationContext): ng.IPromise<any>;
+    navigateToArtifact(id: number, options?: INavigationOptions): ng.IPromise<any>;
 }
 
 export class NavigationService implements INavigationService {
-    private _defaultState: string = "main";
-    private _artifactState: string = "main.artifact";
+    private delimiter: string = ",";
 
     public static $inject: [string] = [
         "$state"
@@ -20,45 +32,58 @@ export class NavigationService implements INavigationService {
     ) {
     }
 
-    public navigateToMain(): ng.IPromise<any> {
-        return this.$state.go(this._defaultState);
+    public getNavigationState(): INavigationState {
+        const idParameter = this.$state.params["id"];
+        const pathParameter = this.$state.params["path"];
+
+        const id: number = idParameter ? Number(idParameter) : null;
+        const path: number[] = pathParameter ? pathParameter.split(this.delimiter).map((element) => Number(element)) : null;
+
+        return <INavigationState>{
+            id: id,
+            path: path
+        };
     }
 
-    public navigateToArtifact(id: number, context?: INavigationContext): ng.IPromise<any> {
+    public navigateToMain(): ng.IPromise<any> {
+        const state: string = "main";
+        return this.$state.go(state);
+    }
+
+    public navigateToArtifact(id: number, options?: INavigationOptions): ng.IPromise<any> {
+        const state = "main.artifact";
         const parameters = { id: id };
-        let options: ng.ui.IStateOptions;
+        // Disables the inheritance of optional url parameters (such as "path")
+        const stateOptions: ng.ui.IStateOptions = <ng.ui.IStateOptions>{ inherit: false };
 
-        // Disables the inheritance of url parameters (such as "path")
-        options = <ng.ui.IStateOptions>{ inherit: false };
-
-        if (context) {
-            this.populatePath(id, context.sourceArtifactId, parameters);
+        if (options) {
+            this.updatePathParameter(options, parameters);
         }
 
-        return this.$state.go(this._artifactState, parameters, options);
+        return this.$state.go(state, parameters, stateOptions);
     }
 
-    private populatePath(id: number, sourceArtifactId: number, parameters: any) {
-        if (!sourceArtifactId || sourceArtifactId === id) {
+    private updatePathParameter(options: INavigationOptions, parameters: any) {
+        let currentState = this.getNavigationState();
+
+        if (!currentState.id) {
             return;
         }
 
-        const parameterName = "path";
-        const delimiter = ",";
+        let forwardOptions = <ForwardNavigationOptions>options;
+        let backOptions = <BackNavigationOptions>options;
 
-        const path = this.$state.params[parameterName];
-
-        if (!path) {
-            parameters[parameterName] = `${sourceArtifactId}`;
+        if (!currentState.path || currentState.path.length === 0) {
+            if (forwardOptions && forwardOptions.enableTracking) {
+                parameters["path"] = `${currentState.id}`;
+            }
         } else {
-            const pathElements = path.split(delimiter);
+            if (forwardOptions && forwardOptions.enableTracking) {
+                parameters["path"] = `${currentState.path.join(this.delimiter)}${this.delimiter}${currentState.id}`;
+            }
 
-            if (pathElements.length > 0) {
-                let lastArtifactId = Number(pathElements[pathElements.length - 1]);
-
-                if (lastArtifactId !== sourceArtifactId) {
-                    parameters[parameterName] = `${path}${delimiter}${sourceArtifactId}`;
-                }
+            if (backOptions && backOptions.index > 0 && backOptions.index < currentState.path.length) {
+                parameters["path"] = `${currentState.path.slice(0, backOptions.index).join(this.delimiter)}`;
             }
         }
     }

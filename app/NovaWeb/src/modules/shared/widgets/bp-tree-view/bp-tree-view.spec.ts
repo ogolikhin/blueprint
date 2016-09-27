@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import "angular-mocks";
 import * as agGrid from "ag-grid/main";
 import { BPTreeViewComponent, BPTreeViewController, ITreeViewNodeVM, IColumn } from "./bp-tree-view";
@@ -111,7 +111,7 @@ describe("BPTreeViewController", () => {
             spyOn(controller, "resetGridAsync");
 
             // Act
-            controller.$onChanges({selectionMode: {} as ng.IChangesObject} as ng.IOnChangesObject);
+            controller.$onChanges({selectionMode: {} as ng.IChangesObject<any>} as ng.IOnChangesObject);
 
             // Assert
             expect(controller.resetGridAsync).toHaveBeenCalled();
@@ -122,7 +122,7 @@ describe("BPTreeViewController", () => {
             spyOn(controller, "resetGridAsync");
 
             // Act
-            controller.$onChanges({rootNode: {} as ng.IChangesObject} as ng.IOnChangesObject);
+            controller.$onChanges({rootNode: {} as ng.IChangesObject<any>} as ng.IOnChangesObject);
 
             // Assert
             expect(controller.resetGridAsync).toHaveBeenCalled();
@@ -133,7 +133,7 @@ describe("BPTreeViewController", () => {
             spyOn(controller, "resetGridAsync");
 
             // Act
-            controller.$onChanges({rootNodeVisible: {} as ng.IChangesObject} as ng.IOnChangesObject);
+            controller.$onChanges({rootNodeVisible: {} as ng.IChangesObject<any>} as ng.IOnChangesObject);
 
             // Assert
             expect(controller.resetGridAsync).toHaveBeenCalled();
@@ -144,7 +144,7 @@ describe("BPTreeViewController", () => {
             spyOn(controller, "resetGridAsync");
 
             // Act
-            controller.$onChanges({columns: {} as ng.IChangesObject} as ng.IOnChangesObject);
+            controller.$onChanges({columns: {} as ng.IChangesObject<any>} as ng.IOnChangesObject);
 
             // Assert
             expect(controller.resetGridAsync).toHaveBeenCalled();

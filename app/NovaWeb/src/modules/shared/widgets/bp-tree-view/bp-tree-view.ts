@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import * as agGrid from "ag-grid/main";
 import { ILocalizationService } from "../../../core";
 
@@ -16,7 +17,7 @@ import { ILocalizationService } from "../../../core";
  * </bp-tree-view>
  */
 export class BPTreeViewComponent implements ng.IComponentOptions {
-    public controller: Function = BPTreeViewController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPTreeViewController;
     public template: string = require("./bp-tree-view.html");
     public bindings: {[binding: string]: string} = {
         gridClass: "@",

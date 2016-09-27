@@ -10,7 +10,7 @@ export class BPToggleController implements IBPToggleController {
 
 export class BPToggleComponent implements ng.IComponentOptions {
     public template: string = require("./bp-toggle.html");
-    public controller: Function = BPToggleController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPToggleController;
     public bindings: any = {     
     };
 }

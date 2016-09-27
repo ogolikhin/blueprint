@@ -3,7 +3,7 @@ import { ILocalizationService, IMessageService } from "../../../../core";
 
 export class BPArtifactDiscussionItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-discussion-item.html");
-    public controller: Function = BPArtifactDiscussionItemController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPArtifactDiscussionItemController;
     public bindings: any = {
         discussionInfo: "=",
         getReplies: "&",

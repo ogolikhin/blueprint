@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import {IModalDialogModel} from "./models/modal-dialog-model-interface";
 
 export interface IModalScope extends ng.IScope {

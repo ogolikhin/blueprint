@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
 import "rx/dist/rx.lite.js";
@@ -8,10 +8,13 @@ import {AuthSvc, IUser} from "./login/auth.svc";
 import {SessionSvc, ISession} from "./login/session.svc";
 import {HttpErrorInterceptor} from "./error/http-error-interceptor";
 import {ServerLoggerSvc} from "./log/server-logger.svc";
-import {Logger} from "./log/logger.ts";
+import {Logger} from "./log/logger";
 import {SessionTokenInterceptor} from "./login/session-token-interceptor";
 import {ArtifactHistory} from "./bp-utility-panel/bp-history-panel/artifact-history.svc";
-import {RelationshipDetailsService, IRelationshipDetailsService} from "./bp-utility-panel/bp-relationships-panel/bp-artifact-relationship-item/relationship-details.svc";
+import {
+    RelationshipDetailsService, 
+    IRelationshipDetailsService
+} from "./bp-utility-panel/bp-relationships-panel/bp-artifact-relationship-item/relationship-details.svc";
 import {BPUtilityPanel} from "./bp-utility-panel/bp-utility-panel";
 import {BPHistoryPanel} from "./bp-utility-panel/bp-history-panel/bp-history-panel";
 import {BPPropertiesPanel} from "./bp-utility-panel/bp-properties-panel/bp-properties-panel";

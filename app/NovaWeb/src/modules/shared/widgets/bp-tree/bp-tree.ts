@@ -1,4 +1,4 @@
-﻿import "angular";
+﻿import * as angular from "angular";
 import * as Grid from "ag-grid/main";
 import { ILocalizationService } from "../../../core";
 import { RowNode } from "ag-grid/main";
@@ -28,7 +28,7 @@ tslint:enable
 
 export class BPTreeComponent implements ng.IComponentOptions {
     public template: string = require("./bp-tree.html");
-    public controller: Function = BPTreeController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPTreeController;
     public bindings: any = {
         //properties
         gridClass: "@",

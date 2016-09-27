@@ -432,7 +432,39 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             deferred.resolve(artifact);
         });
         this.artifactState.set({ outdated: true });
+        
+        // TODO: also load subartifacts and the rest of the
 
+        // clear all fields from all sub-objects of THIS
+        // this.all-properties
+        // this.state
+        // this.attachments
+        // this.docRefs
+        // this.relationships
+
+        // if (this.hasObservers()) {
+        //     clear all fields
+        //     this.load(true);
+        // }
+
+        // if (this.attachments.hasObservers()) {
+        //     this.attachments.get(true);
+        // }
+
+        // if (this.docRefs.hasObservers()) {
+        //     this.docRefs.get(true);
+        // }
+
+        // if (this.relationships.hasObservers()) {
+        //     this.relationships.get(true);
+        // }
+
+        // if (this.subArtifactCollection.hasObservers()) {
+        //     this.subArtifactCollection.get(true);
+        // }
+
+
+        // TODO: return void, no more promises
         return deferred.promise;
     }
 }

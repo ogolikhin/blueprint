@@ -34,7 +34,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     private lockPromise: ng.IPromise<IStatefulArtifact>;
     private loadPromise: ng.IPromise<IStatefulArtifact>;
 
-    constructor(protected artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
+    constructor(private artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
         this.artifactState = new ArtifactState(this);
         this.changesets = new ChangeSetCollector(this);
         this.metadata = new MetaData(this);
@@ -260,7 +260,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                 this.artifactState.deleted = true;
                 this.artifactState.outdated = false;
                 this.artifactState.readonly = true;
-                this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
+                this.services.dialogService.alert("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
             } else {
                 this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
             }

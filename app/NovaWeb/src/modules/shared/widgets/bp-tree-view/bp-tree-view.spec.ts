@@ -166,6 +166,7 @@ describe("BPTreeViewController", () => {
     describe("resetGridAsync", () => {
         it ("When selection mode is single, sets rowSelection, rowDeselection and checkbox correctly", () => {
             // Arrange
+            (controller.options.api.getSelectedRows as jasmine.Spy).and.returnValue([]);
             (controller.options.api.setColumnDefs as jasmine.Spy).and.callFake(columnDefs => controller.options.columnDefs = columnDefs);
             controller.selectionMode = "single";
             controller.columns = [{isGroup: true}];
@@ -181,6 +182,7 @@ describe("BPTreeViewController", () => {
 
         it ("When selection mode is multiple, sets rowSelection, rowDeselection and checkbox correctly", () => {
             // Arrange
+            (controller.options.api.getSelectedRows as jasmine.Spy).and.returnValue([]);
             (controller.options.api.setColumnDefs as jasmine.Spy).and.callFake(columnDefs => controller.options.columnDefs = columnDefs);
             controller.selectionMode = "multiple";
             controller.columns = [{isGroup: true}];
@@ -196,6 +198,7 @@ describe("BPTreeViewController", () => {
 
         it ("When selection mode is checkbox, sets rowSelection, rowDeselection and checkbox correctly", () => {
             // Arrange
+            (controller.options.api.getSelectedRows as jasmine.Spy).and.returnValue([]);
             (controller.options.api.setColumnDefs as jasmine.Spy).and.callFake(columnDefs => controller.options.columnDefs = columnDefs);
             controller.selectionMode = "checkbox";
             controller.columns = [{isGroup: true}];
@@ -211,6 +214,7 @@ describe("BPTreeViewController", () => {
 
         it ("When columns change, sets column defs correctly", () => {
             // Arrange
+            (controller.options.api.getSelectedRows as jasmine.Spy).and.returnValue([]);
             (controller.options.api.setColumnDefs as jasmine.Spy).and.callFake(columnDefs => controller.options.columnDefs = columnDefs);
             controller.columns = [{
                 headerName: "header",
@@ -345,7 +349,7 @@ describe("BPTreeViewController", () => {
             });
             (controller.options.api.getSelectedRows as jasmine.Spy).and.returnValue(rows);
             (controller.options.api.forEachNode as jasmine.Spy).and.callFake(callback => nodes.forEach(callback));
-            (controller.options.api.getModel as jasmine.Spy).and.returnValue({ getRowCount() { return 0; }});
+            (controller.options.api.getModel as jasmine.Spy).and.returnValue({ getRowCount() { return rows.length; }});
 
             // Act
             controller.resetGridAsync().then(() => {
@@ -553,6 +557,23 @@ describe("BPTreeViewController", () => {
             controller.onRowSelected({node: node});
 
             // Assert
+            expect(node.setSelected).toHaveBeenCalledWith(false);
+            expect(controller.onSelect).not.toHaveBeenCalled();
+        });
+
+        it("onRowSelected, when selected and ancestor not expanded, deselects", () => {
+            // Arrange
+            controller.onSelect = jasmine.createSpy("onSelect");
+            const node = jasmine.createSpyObj("node", ["isSelected", "setSelected"]) as agGrid.RowNode & {setSelectedParams: jasmine.Spy};
+            (node.isSelected as jasmine.Spy).and.returnValue(true);
+            node.data = {isSelectable() { return true; }};
+            node.parent = { expanded: true, parent: { expanded: false} } as agGrid.RowNode;
+
+            // Act
+            controller.onRowSelected({node: node});
+
+            // Assert
+            expect(node.setSelected).toHaveBeenCalledWith(false);
             expect(controller.onSelect).not.toHaveBeenCalled();
         });
 

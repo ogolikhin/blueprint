@@ -127,8 +127,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     }
 
     public $onChanges(onChangesObj: ng.IOnChangesObject): void {
-        if (this.options.api &&
-            (onChangesObj["selectionMode"] || onChangesObj["rootNode"] || onChangesObj["rootNodeVisible"] || onChangesObj["columns"])) {
+        if (onChangesObj["selectionMode"] || onChangesObj["rootNode"] || onChangesObj["rootNodeVisible"] || onChangesObj["columns"]) {
             this.resetGridAsync();
         }
     }
@@ -139,59 +138,67 @@ export class BPTreeViewController implements IBPTreeViewController {
     }
 
     public resetGridAsync(): ng.IPromise<void> {
-        this.options.rowSelection = this.selectionMode === "single" ? "single" : "multiple";
-        this.options.rowDeselection = this.selectionMode !== "single";
-        this.options.api.setColumnDefs(this.columns.map(column => {
-            return {
-                headerName: column.headerName ? column.headerName : "",
-                field: column.field,
-                cellClass: column.cellClass ? (params: agGrid.RowNode) => column.cellClass(params.data as ITreeViewNodeVM) : undefined,
-                cellRenderer: column.isGroup ? "group" : undefined,
-                cellRendererParams: column.isGroup ? {
-                    checkbox: this.selectionMode === "checkbox",
-                    innerRenderer: column.innerRenderer ? (params: agGrid.RowNode) => column.innerRenderer(params.data as ITreeViewNodeVM) : undefined,
-                    padding: 20
-                } : undefined,
-                suppressMenu: true,
-                suppressSorting: true,
-            } as agGrid.ColDef;
-        }));
+        if (this.options.api) {
+            this.options.rowSelection = this.selectionMode === "single" ? "single" : "multiple";
+            this.options.rowDeselection = this.selectionMode !== "single";
+            this.options.api.setColumnDefs(this.columns.map(column => {
+                return {
+                    headerName: column.headerName ? column.headerName : "",
+                    field: column.field,
+                    cellClass: column.cellClass ? (params: agGrid.RowNode) => column.cellClass(params.data as ITreeViewNodeVM) : undefined,
+                    cellRenderer: column.isGroup ? "group" : undefined,
+                    cellRendererParams: column.isGroup ? {
+                        checkbox: this.selectionMode === "checkbox",
+                        innerRenderer: column.innerRenderer ? (params: agGrid.RowNode) => column.innerRenderer(params.data as ITreeViewNodeVM) : undefined,
+                        padding: 20
+                    } : undefined,
+                    suppressMenu: true,
+                    suppressSorting: true,
+                } as agGrid.ColDef;
+            }));
 
-        let rowDataAsync: ITreeViewNodeVM[] | ng.IPromise<ITreeViewNodeVM[]>;
-        if (this.rootNode) {
-            if (this.rootNodeVisible) {
-                rowDataAsync = [this.rootNode];
-            } else if (this.rootNode.loadChildrenAsync) {
-                rowDataAsync = this.rootNode.loadChildrenAsync().then(() => this.rootNode.children);
+            let rowDataAsync: ITreeViewNodeVM[] | ng.IPromise<ITreeViewNodeVM[]>;
+            if (this.rootNode) {
+                if (this.rootNodeVisible) {
+                    rowDataAsync = [this.rootNode];
+                } else if (this.rootNode.loadChildrenAsync) {
+                    rowDataAsync = this.rootNode.loadChildrenAsync().then(() => this.rootNode.children);
+                } else {
+                    rowDataAsync = this.rootNode.children;
+                }
             } else {
-                rowDataAsync = this.rootNode.children;
+                rowDataAsync = [];
             }
-        } else {
-            rowDataAsync = [];
-        }
 
-        // Save selection
-        const selectedVMs: {[key: string]: ITreeViewNodeVM} = {};
-        this.options.api.getSelectedRows().forEach((row: ITreeViewNodeVM) => selectedVMs[row.key] = row);
-        this.options.api.setRowData([]);
-        this.options.api.showLoadingOverlay();
+            // Save selection
+            const selectedVMs: {[key: string]: ITreeViewNodeVM} = {};
+            this.options.api.getSelectedRows().forEach((row: ITreeViewNodeVM) => selectedVMs[row.key] = row);
+            this.options.api.setRowData([]);
+            this.options.api.showLoadingOverlay();
 
-        return this.$q.when(rowDataAsync).then((rowData) => {
-            this.options.api.setRowData(rowData);
-            this.options.api.sizeColumnsToFit();
+            return this.$q.when(rowDataAsync).then((rowData) => {
+                if (this.options.api) {
+                    this.options.api.setRowData(rowData);
+                    this.options.api.sizeColumnsToFit();
 
-            // Restore selection
-            this.options.api.forEachNode(node => {
-                if (selectedVMs[node.data.key]) {
-                    node.setSelected(true);
+                    // Restore selection
+                    this.options.api.forEachNode(node => {
+                        if (selectedVMs[node.data.key]) {
+                            node.setSelected(true);
+                        }
+                    });
+                }
+            }).finally(() => {
+                if (this.options.api) {
+                    this.options.api.hideOverlay();
+                    if (this.options.api.getModel().getRowCount() === 0) {
+                        this.options.api.showNoRowsOverlay();
+                    }
                 }
             });
-        }).finally(() => {
-            this.options.api.hideOverlay();
-            if (this.options.api.getModel().getRowCount() === 0) {
-                this.options.api.showNoRowsOverlay();
-            }
-        });
+        }
+
+        return this.$q.resolve();
     }
 
     public updateScrollbars(destroy: boolean = false) {

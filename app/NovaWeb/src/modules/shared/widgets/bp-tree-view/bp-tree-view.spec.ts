@@ -557,6 +557,23 @@ describe("BPTreeViewController", () => {
             controller.onRowSelected({node: node});
 
             // Assert
+            expect(node.setSelected).toHaveBeenCalledWith(false);
+            expect(controller.onSelect).not.toHaveBeenCalled();
+        });
+
+        it("onRowSelected, when selected and ancestor not expanded, deselects", () => {
+            // Arrange
+            controller.onSelect = jasmine.createSpy("onSelect");
+            const node = jasmine.createSpyObj("node", ["isSelected", "setSelected"]) as agGrid.RowNode & {setSelectedParams: jasmine.Spy};
+            (node.isSelected as jasmine.Spy).and.returnValue(true);
+            node.data = {isSelectable() { return true; }};
+            node.parent = { expanded: true, parent: { expanded: false} } as agGrid.RowNode;
+
+            // Act
+            controller.onRowSelected({node: node});
+
+            // Assert
+            expect(node.setSelected).toHaveBeenCalledWith(false);
             expect(controller.onSelect).not.toHaveBeenCalled();
         });
 

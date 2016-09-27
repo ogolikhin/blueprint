@@ -217,7 +217,6 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                     let state = this.loadInternal(artifact);
                     //modify states all at once
                     this.artifactState.set(state);
-                    console.log("artifact Loaded");
                     deferred.resolve(this);
                 }).catch((err) => {
                     this.artifactState.readonly = true;
@@ -228,7 +227,6 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                 });
             }
         } else {
-            console.log("artifact Loaded");
             deferred.resolve(this);
         }
         

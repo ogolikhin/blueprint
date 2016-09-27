@@ -15,7 +15,9 @@ import { Models } from "../../main/models";
 import { IStatefulProcessArtifactServices } from "../../managers/artifact-manager/services";
 
 export class StatefulProcessArtifact extends StatefulArtifact implements IStatefulArtifact, IProcess {
-    private totalLoadPromise: ng.IPromise<IStatefulArtifact>;
+
+    private finalLoadPromise: ng.IPromise<IStatefulArtifact>;
+
     public shapes: IProcessShape[];
     public links: IProcessLink[];
     public decisionBranchDestinationLinks: IProcessLink[];
@@ -37,47 +39,47 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         return this.services;
     }
     public load(force: boolean = true): ng.IPromise<IStatefulArtifact> {
+        
+        const finalDeffered = this.services.getDeferred<IStatefulArtifact>();
+        if (this.finalLoadPromise) {
+            return this.finalLoadPromise;
+        }
+        this.finalLoadPromise = finalDeffered.promise;
 
         let artifactPromise = super.load(force);
-        
-        const totalDeffered = this.services.getDeferred<IStatefulArtifact>();
-        const processDeffered = this.services.getDeferred<IStatefulArtifact>();
+        let processPromise = this.loadProcess();
 
-        if (this.totalLoadPromise) {
-            return this.totalLoadPromise;
-        }
-        this.totalLoadPromise = totalDeffered.promise;
+        let artifactObservable = Rx.Observable.fromPromise(artifactPromise);
+        let processObservable = Rx.Observable.fromPromise(processPromise);
 
-        this.services.processService.load(this.id.toString())
-            .then((process: IProcess) => {
-                this.onLoad(process);
-                console.log("process Loaded");
-                processDeffered.resolve(this);
-        }).catch((err: any) => {
-            processDeffered.reject(err);
-        });
-
-        let sourceBase = Rx.Observable.fromPromise(artifactPromise);
-        let processPromise = Rx.Observable.fromPromise(processDeffered.promise);
-
-        let combination = Rx.Observable.merge(sourceBase, processPromise);
+        let combination = Rx.Observable.merge(artifactObservable, processObservable);
 
         let observer = Rx.Observer.create(
             (result: IStatefulArtifact) => {
             },
             err => {
-                totalDeffered.reject(err);
+                this.finalLoadPromise = null;
+                finalDeffered.reject(err);
             },
             () => {
-                console.log("everything Loaded");
-                this.totalLoadPromise = null;
-                totalDeffered.resolve(this);
+                this.finalLoadPromise = null;
+                finalDeffered.resolve(this);
             }
         );
         combination.subscribe(observer);
-        return totalDeffered.promise;
+        return finalDeffered.promise;
     }
-
+    private loadProcess(): ng.IPromise<IStatefulArtifact> {
+        const processDeffered = this.services.getDeferred<IStatefulArtifact>();
+        this.services.processService.load(this.id.toString())
+            .then((process: IProcess) => {
+                this.onLoad(process);
+                processDeffered.resolve(this);
+            }).catch((err: any) => {
+                processDeffered.reject(err);
+            });
+        return processDeffered.promise;
+    }
     private onLoad(process: IProcess) {
         // TODO: updating name seems to cause an infinite loading of process, something with base class's 'set' logic.
         //(<IProcess>this).name = process.name;

@@ -11,6 +11,10 @@ namespace ArtifactStore.Models
 
         public int ArtifactId { get; set; }
 
+        public int RevisionId { get; set; }
+
+        public bool AddDrafts { get; set; }
+
         public int PrimitiveItemTypePredefined { get; set; }
 
         public int ProjectId { get; set; }

@@ -51,10 +51,8 @@ namespace Helper
                 artifact.Lock();
 
                 UpdateArtifactProperty(testHelper, user, projects.First(), artifact, artifactType, "Name", randomArtifactName );
-
                 UpdateArtifactProperty(testHelper, user, projects.First(), artifact, artifactType, "Description", randomArtifactDescription);
 
-                artifact.Publish();
                 artifacts.Add(artifact);
 
                 // Create artifact in last project with same Name and Description
@@ -62,12 +60,12 @@ namespace Helper
                 artifact.Lock();
 
                 UpdateArtifactProperty(testHelper, user, projects.Last(), artifact, artifactType, "Name", randomArtifactName);
-
                 UpdateArtifactProperty(testHelper, user, projects.Last(), artifact, artifactType, "Description", randomArtifactDescription);
 
-                artifact.Publish();
                 artifacts.Add(artifact);
             }
+
+            ArtifactBase.PublishArtifacts(artifacts, artifacts.First().Address, user);
 
             var openApiProperty = artifacts.First().Properties.FirstOrDefault(p => p.Name == "Description");
 

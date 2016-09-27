@@ -171,7 +171,7 @@ namespace SearchServiceTests
 
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(182340)]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Ignore(IgnoreReasons.UnderDevelopment)]
         [Description("Searching with the search criteria that matches with saved artifacts. Execute Search - Must return SearchResult with empty list of FullTextSearchItems.")]
         public void FullTextSearch_SearchSavedNotPublishedArtifact_VerifyEmptySearchResult(BaseArtifactType baseArtifactType)
         {

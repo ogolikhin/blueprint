@@ -90,7 +90,7 @@ describe("BPTreeViewController", () => {
     let controller: BPTreeViewController;
 
     beforeEach(inject(($q: ng.IQService, $rootScope: ng.IRootScopeService) => {
-        const element = angular.element(`<bp-tree-view />`)[0];
+        const element = angular.element(`<bp-tree-view />`);
         controller = new BPTreeViewController($q, element, new LocalizationServiceMock($rootScope));
         controller.options = {api: jasmine.createSpyObj("api", [
             "setColumnDefs",
@@ -159,7 +159,7 @@ describe("BPTreeViewController", () => {
 
             // Assert
             expect(controller.options.api.setRowData).toHaveBeenCalledWith(null);
-            expect(controller.updateScrollbars).toHaveBeenCalled();
+            expect(controller.updateScrollbars).toHaveBeenCalledWith(true);
         });
     });
 
@@ -265,7 +265,7 @@ describe("BPTreeViewController", () => {
                 expect(controller.options.api.showNoRowsOverlay).not.toHaveBeenCalled();
                 done();
             });
-            $rootScope.$digest();
+            $rootScope.$digest(); // Resolves promises
         }));
 
         it("When root node loads asynchronously, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
@@ -292,7 +292,7 @@ describe("BPTreeViewController", () => {
                 expect(controller.options.api.showNoRowsOverlay).not.toHaveBeenCalled();
                 done();
             });
-            $rootScope.$digest();
+            $rootScope.$digest(); // Resolves promises
         }));
 
         it("When root node has children, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
@@ -317,7 +317,7 @@ describe("BPTreeViewController", () => {
                 expect(controller.options.api.showNoRowsOverlay).not.toHaveBeenCalled();
                 done();
             });
-            $rootScope.$digest();
+            $rootScope.$digest(); // Resolves promises
         }));
 
         it("When root node is undefined, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
@@ -336,10 +336,10 @@ describe("BPTreeViewController", () => {
                 expect(controller.options.api.showNoRowsOverlay).toHaveBeenCalledWith();
                 done();
             });
-            $rootScope.$digest();
+            $rootScope.$digest(); // Resolves promises
         }));
 
-        it("When selected rows, Restores selection", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
+        it("When selected rows, restores selection", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
             // Arrange
             const rows = [{key: "a"}, {key: "b"}, {key: "c"}];
             const nodes = rows.map(row => {
@@ -360,7 +360,7 @@ describe("BPTreeViewController", () => {
                 nodes.forEach(node => expect(node.setSelected).toHaveBeenCalledWith(true));
                 done();
             });
-            $rootScope.$digest();
+            $rootScope.$digest(); // Resolves promises
         }));
     });
 
@@ -405,6 +405,48 @@ describe("BPTreeViewController", () => {
     });
 
     describe("ag-grid event handlers", () => {
+        it("onRowGroupOpened, when expandable, sets isExpanded", () => {
+            // Arrange
+            const vm = { isExpandable: true, isExpanded: false } as ITreeViewNodeVM;
+            const node = { data: vm, expanded: true } as agGrid.RowNode;
+
+            // Act
+            controller.onRowGroupOpened({node: node});
+
+            // Assert
+            expect(vm.isExpanded).toEqual(true);
+        });
+
+        it("onRowGroupOpened, when loads asynchronously, calls resetGridAsync", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
+            // Arrange
+            const vm = jasmine.createSpyObj("vm", ["loadChildrenAsync"]) as ITreeViewNodeVM;
+            (vm.loadChildrenAsync as jasmine.Spy).and.returnValue($q.resolve());
+            vm.isExpandable = true;
+            vm.isExpanded = false;
+            const node = { data: vm, expanded: true } as agGrid.RowNode;
+            spyOn(controller, "resetGridAsync");
+
+            // Act
+            controller.onRowGroupOpened({node: node});
+
+            // Assert
+            expect(vm.loadChildrenAsync).toHaveBeenCalled();
+            $rootScope.$digest(); // Resolves promises
+            expect(controller.resetGridAsync).toHaveBeenCalled();
+        }));
+
+        it("onRowGroupOpened, when not expandable, does not set isExpanded", () => {
+            // Arrange
+            const vm = { isExpandable: false, isExpanded: false } as ITreeViewNodeVM;
+            const node = { data: vm, expanded: true } as agGrid.RowNode;
+
+            // Act
+            controller.onRowGroupOpened({node: node});
+
+            // Assert
+            expect(vm.isExpanded).toEqual(false);
+        });
+
         it("onModelUpdated calls updateScrollbars", () => {
             // Arrange
             spyOn(controller, "updateScrollbars");

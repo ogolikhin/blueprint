@@ -82,7 +82,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     public headerHeight: number;
     public onSelect: (param: {vm: ITreeViewNodeVM, isSelected: boolean, selectedVMs: ITreeViewNodeVM[]}) => void;
 
-    constructor(private $q: ng.IQService, private $element: HTMLElement, private localization: ILocalizationService) {
+    constructor(private $q: ng.IQService, private $element: ng.IAugmentedJQuery, private localization: ILocalizationService) {
         this.gridClass = angular.isDefined(this.gridClass) ? this.gridClass : "project-explorer";
         this.rowBuffer = angular.isDefined(this.rowBuffer) ? this.rowBuffer : 200;
         this.selectionMode = angular.isDefined(this.selectionMode) ? this.selectionMode : "single";
@@ -283,7 +283,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         // Only deal with clicks in the .ag-group-value span
         let element = event.event.target as Element;
         while (!(element && element.classList.contains("ag-group-value"))) {
-            if (!element || element === this.$element) {
+            if (!element || element === this.$element[0]) {
                 return;
             }
             element = element.parentElement;

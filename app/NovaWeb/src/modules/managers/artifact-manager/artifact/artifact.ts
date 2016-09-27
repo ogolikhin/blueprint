@@ -260,7 +260,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                 this.artifactState.deleted = true;
                 this.artifactState.outdated = false;
                 this.artifactState.readonly = true;
-                this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
+                this.services.dialogService.alert("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
             } else {
                 this.services.messageService.addError("Artifact_Lock_" + Enums.LockResultEnum[lock.result]);
             }

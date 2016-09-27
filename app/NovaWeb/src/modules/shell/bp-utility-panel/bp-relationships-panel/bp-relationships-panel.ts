@@ -174,15 +174,15 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     }
 
     public deleteTraces(artifacts: Relationships.IRelationship[]): void {
-        this.dialogService.confirm("Are you sure you want to delete this traces?").then( (confirmed) => {
+        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Traces")).then( (confirmed) => {
             if (confirmed) {
                 this.item.relationships.remove(artifacts);
             }
         });
     }
 
-    public deleteTrace(artifact: Relationships.IRelationship) {
-        this.dialogService.confirm("Are you sure you want to delete this traces?").then( (confirmed) => {
+    public deleteTrace(artifact: Relationships.IRelationship): void {
+        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace")).then( (confirmed) => {
             if (confirmed) {
                 this.item.relationships.remove([artifact]);
             }

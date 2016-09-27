@@ -132,6 +132,8 @@ App_UP_Relationships_Select,"Select"
 App_UP_Relationships_Delete,"Delete"
 App_UP_Relationships_Delete_Traces,"Delete Traces"
 App_UP_Relationships_Change_Trace,"Change Direction"
+Confirmation_Delete_Trace,"Are you sure you want to permanently delete the selected trace?"
+Confirmation_Delete_Traces,"Are you sure you want to permanently delete the selected traces?"
 
 App_Properties_Loading_Indicator_Label,"Loading..."
 App_Properties_System_Properties_Label,"System Properties"

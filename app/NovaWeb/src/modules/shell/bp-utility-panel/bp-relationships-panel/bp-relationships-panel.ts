@@ -106,6 +106,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         }
     }
 
+
     private getRelationships() {
         this.manualTraces = null;
         this.otherTraces = null;

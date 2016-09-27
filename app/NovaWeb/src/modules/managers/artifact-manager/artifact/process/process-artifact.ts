@@ -7,6 +7,7 @@
     IVersionInfo,
     ItemTypePredefined}
 from "../../../../editors/bp-process/models/process-models";
+import { IProcessService } from "../../../../editors/bp-process/services/process/process.svc";
 
 import { StatefulArtifact } from "../artifact";
 import { IStatefulArtifact } from "../../../../managers/models";
@@ -14,8 +15,8 @@ import { IStatefulArtifact } from "../../../../managers/models";
 import { Models } from "../../../../main/models";
 import { IStatefulProcessArtifactServices } from "../../services";
 
-export class StatefulProcessArtifact  extends StatefulArtifact implements IStatefulArtifact, IProcess {
-    
+export class StatefulProcessArtifact extends StatefulArtifact implements IStatefulArtifact, IProcess {
+    private totalLoadPromise: ng.IPromise<IStatefulArtifact>;
     public shapes: IProcessShape[];
     public links: IProcessLink[];
     public decisionBranchDestinationLinks: IProcessLink[];
@@ -32,23 +33,50 @@ export class StatefulProcessArtifact  extends StatefulArtifact implements IState
     public get typePrefix(): string {
         return this.prefix;
     }
-
+    
     public getServices(): IStatefulProcessArtifactServices {
         return this.services;
     }
-
     public load(force: boolean = true): ng.IPromise<IStatefulArtifact> {
 
-        const deferred = this.services.getDeferred<IStatefulArtifact>();
-        let promise = this.services.processService.load(this.id.toString())
+        let artifactPromise = super.load(force);
+        
+        const totalDeffered = this.services.getDeferred<IStatefulArtifact>();
+        const processDeffered = this.services.getDeferred<IStatefulArtifact>();
+
+        if (this.totalLoadPromise) {
+            return this.totalLoadPromise;
+        }
+        this.totalLoadPromise = totalDeffered.promise;
+
+        this.services.processService.load(this.id.toString())
             .then((process: IProcess) => {
                 this.onLoad(process);
-                deferred.resolve(this);
+                console.log("process Loaded");
+                processDeffered.resolve(this);
         }).catch((err: any) => {
-            deferred.reject(err);
+            processDeffered.reject(err);
         });
 
-        return deferred.promise;
+        let sourceBase = Rx.Observable.fromPromise(artifactPromise);
+        let processPromise = Rx.Observable.fromPromise(processDeffered.promise);
+
+        let combination = Rx.Observable.merge(sourceBase, processPromise);
+
+        let observer = Rx.Observer.create(
+            (result: IStatefulArtifact) => {
+            },
+            err => {
+                totalDeffered.reject(err);
+            },
+            () => {
+                console.log("everything Loaded");
+                this.totalLoadPromise = null;
+                totalDeffered.resolve(this);
+            }
+        );
+        combination.subscribe(observer);
+        return totalDeffered.promise;
     }
 
     private onLoad(process: IProcess) {

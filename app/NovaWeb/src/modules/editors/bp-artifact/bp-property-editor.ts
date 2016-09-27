@@ -49,10 +49,14 @@ export class PropertyEditor {
             case Models.PrimitiveType.User:
                 if (angular.isArray($value)) {
                     return {
-                        usersGroups: $value
+                        usersGroups: $value.filter((elem) => {
+                            // isImported is added in the Formly User Picker controller to users
+                            // from imported project who don't exist in the database
+                            return !elem.isImported;
+                        })
                     };
                 }
-                return $value;
+                return null; // we probably should not return in this case
 
             default:
                 return $value;

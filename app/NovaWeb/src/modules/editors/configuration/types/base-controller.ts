@@ -48,7 +48,7 @@ export class BPFieldBaseController implements IBPFieldBaseController {
     };
 
     public scrollIntoView = (event): void => {
-        let target = event.target.tagName.toUpperCase() !== "INPUT" ? event.target.querySelector("INPUT") : event.target;
+        let target = event.target.tagName.toUpperCase() !== "INPUT" ? event.target.querySelector("input") : event.target;
 
         if (target) {
             target.parentElement.scrollTop = target.parentElement.clientHeight;

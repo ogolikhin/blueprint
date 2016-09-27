@@ -57,8 +57,8 @@ export class BpProcessEditorController extends BpBaseEditor {
         private $timeout: ng.ITimeoutService,
         private communicationManager: ICommunicationManager,
         private dialogService: IDialogService,
-        private navigationService: INavigationService
-    ) {
+        private navigationService: INavigationService) {
+            
        super(messageService, artifactManager);
 
        this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener(

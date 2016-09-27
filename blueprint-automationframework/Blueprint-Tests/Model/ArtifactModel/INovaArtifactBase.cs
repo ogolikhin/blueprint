@@ -5,7 +5,7 @@ using Model.ArtifactModel.Impl;
 
 namespace Model.ArtifactModel
 {
-    public interface INovaArtifactBase : IArtifactObservable
+    public interface INovaArtifactBase : INovaArtifactObservable
     {
         #region Serialized JSON Properties
 

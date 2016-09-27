@@ -12,6 +12,12 @@ namespace Model.ArtifactModel.Impl
 {
     public abstract class NovaArtifactBase : INovaArtifactBase
     {
+        /// <summary>If this artifact was deleted, this will contain all related artifacts that were also deleted with it.</summary>
+        [JsonIgnore]
+        public List<int> DeletedArtifactIds { get; } = new List<int>();
+
+        #region Serialized properties
+
         public abstract int Id { get; set; }
         public abstract int? ItemTypeId { get; set; }
         public abstract string Name { get; set; }
@@ -19,43 +25,42 @@ namespace Model.ArtifactModel.Impl
         public abstract int ProjectId { get; set; }
         public abstract int Version { get; set; }
 
+        #endregion Serialized properties
+
         #region IArtifactObservable methods
 
         [JsonIgnore]
-        public List<IArtifactObserver> ArtifactObservers { get; private set; }
+        public List<INovaArtifactObserver> NovaArtifactObservers { get; private set; }
 
-        /// <seealso cref="RegisterObserver(IArtifactObserver)"/>
-        public void RegisterObserver(IArtifactObserver observer)
+        /// <seealso cref="RegisterObserver(INovaArtifactObserver)"/>
+        public void RegisterObserver(INovaArtifactObserver observer)
         {
-            if (ArtifactObservers == null)
+            if (NovaArtifactObservers == null)
             {
-                ArtifactObservers = new List<IArtifactObserver>();
+                NovaArtifactObservers = new List<INovaArtifactObserver>();
             }
 
-            ArtifactObservers.Add(observer);
+            NovaArtifactObservers.Add(observer);
         }
 
-        /// <seealso cref="UnregisterObserver(IArtifactObserver)"/>
-        public void UnregisterObserver(IArtifactObserver observer)
+        /// <seealso cref="UnregisterObserver(INovaArtifactObserver)"/>
+        public void UnregisterObserver(INovaArtifactObserver observer)
         {
-            ArtifactObservers?.Remove(observer);
+            NovaArtifactObservers?.Remove(observer);
         }
 
-        /// <seealso cref="NotifyArtifactDeletion(List{IArtifactBase})"/>
-        public void NotifyArtifactDeletion(List<IArtifactBase> deletedArtifactsList)
+        /// <seealso cref="NotifyArtifactDeletion(List{INovaArtifactBase})"/>
+        public void NotifyArtifactDeletion(List<INovaArtifactBase> deletedArtifactsList)
         {
             ThrowIf.ArgumentNull(deletedArtifactsList, nameof(deletedArtifactsList));
 
             // Notify the observers about any artifacts that were deleted as a result of this publish.
             foreach (var deletedArtifact in deletedArtifactsList)
             {
-                IEnumerable<int> deletedArtifactIds =
-                    from result in ((ArtifactBase)deletedArtifact).DeletedArtifactResults
-                    select result.ArtifactId;
+                var artifactIds = ((NovaArtifact) deletedArtifact).DeletedArtifactIds;
 
-                // TODO: Check if this logic is correct.  It looks like this should be outside the loop.
-                Logger.WriteDebug("*** Notifying observers about deletion of artifact IDs: {0}", string.Join(", ", deletedArtifactIds));
-                deletedArtifact.ArtifactObservers?.ForEach(o => o.NotifyArtifactDeletion(deletedArtifactIds));
+                Logger.WriteDebug("*** Notifying observers about deletion of artifact IDs: {0}", string.Join(", ", artifactIds));
+                deletedArtifact.NovaArtifactObservers?.ForEach(o => o.NotifyArtifactDeletion(artifactIds));
             }
         }
 
@@ -69,8 +74,11 @@ namespace Model.ArtifactModel.Impl
                 from result in publishedArtifactsList
                 select result.Id;
 
-            Logger.WriteDebug("*** Notifying observers about publish of artifact IDs: {0}", string.Join(", ", publishedArtifactIds));
-            ArtifactObservers?.ForEach(o => o.NotifyArtifactPublish(publishedArtifactIds));
+            // Convert to a list to remove the "Possible multiple enumeration" warning.
+            var artifactIds = publishedArtifactIds as IList<int> ?? publishedArtifactIds.ToList();
+
+            Logger.WriteDebug("*** Notifying observers about publish of artifact IDs: {0}", string.Join(", ", artifactIds));
+            NovaArtifactObservers?.ForEach(o => o.NotifyArtifactPublish(artifactIds));
         }
 
         #endregion IArtifactObservable methods
@@ -109,6 +117,8 @@ namespace Model.ArtifactModel.Impl
 
         #region Constructors
 
+        // ReSharper disable once RedundantBaseConstructorCall
+        // ReSharper disable once EmptyConstructor
         public NovaArtifactDetails() : base()
         {
             //base constructor
@@ -271,7 +281,7 @@ namespace Model.ArtifactModel.Impl
             string actorInheritancePropertyString = actorInheritanceProperty.CustomPropertyValue.ToString();
             var actorInheritanceValue = JsonConvert.DeserializeObject<ActorInheritanceValue>(actorInheritancePropertyString);
 
-                CheckIsJSONChanged<ActorInheritanceValue>(actorInheritanceProperty);
+                CheckIsJsonChanged<ActorInheritanceValue>(actorInheritanceProperty);
 
                 return actorInheritanceValue;
             }
@@ -280,7 +290,11 @@ namespace Model.ArtifactModel.Impl
             {
                 CustomProperty actorInheritanceProperty = SpecificPropertyValues.FirstOrDefault(
                     p => p.PropertyType == PropertyTypePredefined.ActorInheritance);
-                actorInheritanceProperty.CustomPropertyValue = value;
+
+                if (actorInheritanceProperty != null)   // TODO: Should this throw an exception instead?
+                {
+                    actorInheritanceProperty.CustomPropertyValue = value;
+                }
             }
         }
 
@@ -305,7 +319,7 @@ namespace Model.ArtifactModel.Impl
                 // Deserialization
                 //string documentFilePropertyString = documentFileProperty.CustomPropertyValue.ToString();
                 //var documentFilePropertyValue = JsonConvert.DeserializeObject<DocumentFileValue>(documentFilePropertyString);
-                //CheckIsJSONChanged<DocumentFileValue>(documentFileProperty);
+                //CheckIsJsonChanged<DocumentFileValue>(documentFileProperty);
 
                 return (DocumentFileValue)documentFileProperty.CustomPropertyValue;
             }
@@ -315,13 +329,17 @@ namespace Model.ArtifactModel.Impl
                 // Finding DocumentFile among other properties
                 CustomProperty documentFileProperty = SpecificPropertyValues.FirstOrDefault(
                     p => p.PropertyType == PropertyTypePredefined.DocumentFile);
-                documentFileProperty.CustomPropertyValue = value;
+
+                if (documentFileProperty != null)   // TODO: Should this throw an exception instead?
+                {
+                    documentFileProperty.CustomPropertyValue = value;
+                }
             }
         }
 
         #endregion Other properties
 
-        private static void CheckIsJSONChanged<TClass>(CustomProperty property)
+        private static void CheckIsJsonChanged<TClass>(CustomProperty property)
         {
             // Deserialization
             string specificPropertyString = property.CustomPropertyValue.ToString();
@@ -329,9 +347,9 @@ namespace Model.ArtifactModel.Impl
 
             // Try to serialize and compare with JSON from the server
             string serializedObject = JsonConvert.SerializeObject(specificPropertyValue, Formatting.Indented);
-            bool isJSONChanged = !(string.Equals(specificPropertyString, serializedObject, StringComparison.OrdinalIgnoreCase));
-            string msg = Common.I18NHelper.FormatInvariant("JSON for {0} has been changed!", nameof(TClass));
-            Assert.IsFalse(isJSONChanged, msg);
+            bool isJsonChanged = !(string.Equals(specificPropertyString, serializedObject, StringComparison.OrdinalIgnoreCase));
+            string msg = I18NHelper.FormatInvariant("JSON for {0} has been changed!", nameof(TClass));
+            Assert.IsFalse(isJsonChanged, msg);
         }
 
         public class Identification

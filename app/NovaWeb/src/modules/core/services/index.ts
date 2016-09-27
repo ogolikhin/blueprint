@@ -1,4 +1,5 @@
-﻿import { IWindowResize, WindowResize} from "./window-resize";
+﻿import * as angular from "angular";
+import { IWindowResize, WindowResize} from "./window-resize";
 import { IWindowVisibility, WindowVisibility} from "./window-visibility";
 import { IUserOrGroupInfo, IUsersAndGroupsService, UsersAndGroupsService } from "./users-and-groups.svc";
 

@@ -1,4 +1,5 @@
-﻿import {ILocalizationService } from "../../../core";
+﻿import * as angular from "angular";
+import {ILocalizationService } from "../../../core";
 import { Models, IWindowManager } from "../../../main";
 import { ISelectionManager, IStatefulArtifact, IStatefulSubArtifact } from "../../../managers/artifact-manager";
 import {IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
@@ -10,7 +11,7 @@ import {PropertyLookupEnum, LockedByEnum} from "../../../main/models/enums";
 
 export class BPPropertiesPanel implements ng.IComponentOptions {
     public template: string = require("./bp-properties-panel.html");
-    public controller: Function = BPPropertiesController;   
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPPropertiesController;   
     public controllerAs = "$ctrl";
     public require: any = {
         bpAccordionPanel: "^bpAccordionPanel"

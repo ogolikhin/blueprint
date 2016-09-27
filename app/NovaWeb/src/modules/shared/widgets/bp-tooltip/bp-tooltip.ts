@@ -1,3 +1,4 @@
+import * as angular from "angular";
 export class BPTooltip implements ng.IDirective {
     public restrict = "A";
 

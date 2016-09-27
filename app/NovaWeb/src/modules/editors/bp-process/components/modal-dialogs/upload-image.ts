@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import {IFileResult, IFileUploadService} from "../../../../core/file-upload/";
 import {ISystemTask} from "../diagram/presentation/graph/models/";
 

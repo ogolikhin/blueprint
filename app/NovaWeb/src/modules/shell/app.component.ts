@@ -12,7 +12,7 @@ export class AppComponent implements ng.IComponentOptions {
     // 'External' template should ends with *.view.html to be copied to the dest folder
     //public templateUrl: string = "/modules/application/app.view.html"
 
-    public controller: Function = AppController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = AppController;
     public controllerAs = "app";
 }
 

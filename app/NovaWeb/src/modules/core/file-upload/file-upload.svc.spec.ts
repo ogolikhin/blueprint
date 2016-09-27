@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import "angular-mocks";
 import { IFileUploadService, FileUploadService, IFileResult } from "./";
 import { Helper } from "../../shared";

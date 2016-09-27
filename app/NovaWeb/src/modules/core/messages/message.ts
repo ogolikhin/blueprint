@@ -40,7 +40,7 @@ export interface IMessageScope extends ng.IScope {
 
 export class MessageComponent implements ng.IComponentOptions {
     public template: string = require("./message.html");
-    public controller: Function = MessageController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = MessageController;
     public transclude: boolean = true;
     public bindings: any = {
         onMessageClosed: "&",

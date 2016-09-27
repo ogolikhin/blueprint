@@ -21,7 +21,7 @@ interface IOptions {
 
 export class BPRelationshipsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-relationships-panel.html");
-    public controller: Function = BPRelationshipsPanelController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPRelationshipsPanelController;
     public require: any = {
         bpAccordionPanel: "^bpAccordionPanel"
     };

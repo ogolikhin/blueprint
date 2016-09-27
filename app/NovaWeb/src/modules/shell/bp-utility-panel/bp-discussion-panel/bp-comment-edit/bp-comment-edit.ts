@@ -4,7 +4,7 @@ import { IMentionService, MentionService } from "./mention.svc";
 
 export class BPCommentEdit implements ng.IComponentOptions {
     public template: string = require("./bp-comment-edit.html");
-    public controller: Function = BPCommentEditController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPCommentEditController;
     public bindings: any = {
         addButtonText: "@",
         cancelButtonText: "@",

@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import "angular-formly";
 import { ILocalizationService } from "../../../../core";
 import { BPFieldBaseController } from "../base-controller";
@@ -13,7 +13,7 @@ export class BPFieldNumber implements AngularFormly.ITypeOptions {
             $scope["fc"].$setTouched();
         });
     };
-    public controller: Function = BpFieldNumberController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldNumberController;
 
     constructor() {
     }

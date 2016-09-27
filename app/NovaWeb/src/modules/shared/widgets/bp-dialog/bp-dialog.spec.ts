@@ -1,4 +1,4 @@
-﻿import "angular";
+﻿import * as angular from "angular";
 import "angular-mocks";
 import { IDialogSettings, IDialogService, DialogService, DialogTypeEnum} from "./bp-dialog";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";

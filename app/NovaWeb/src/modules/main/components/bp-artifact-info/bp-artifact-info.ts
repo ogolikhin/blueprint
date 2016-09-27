@@ -1,4 +1,5 @@
-﻿import { Models, Enums } from "../../models";
+﻿import * as angular from "angular";
+import { Models, Enums } from "../../models";
 import { IWindowManager, IMainWindow, ResizeCause } from "../../services";
 import { IMessageService, Message, MessageType, ILocalizationService } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
@@ -9,7 +10,7 @@ import { INavigationService } from "../../../core/navigation/navigation.svc";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
-    public controller: Function = BpArtifactInfoController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactInfoController;
     public transclude: boolean = true;
     public bindings: any = {
         context: "<"

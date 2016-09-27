@@ -1,6 +1,6 @@
 export class ErrorComponent implements ng.IComponentOptions {
     public template: string = require("./error.html");
-    public controller: Function = ErrorController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = ErrorController;
     public bindings: any = {
         message: "@"
     };

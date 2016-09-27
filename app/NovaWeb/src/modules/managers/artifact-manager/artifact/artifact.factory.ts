@@ -1,7 +1,7 @@
 import { IMessageService, ILocalizationService } from "../../../core";
 import { IDialogService } from "../../../shared/";
 
-import { IProcessService } from "../../../editors/bp-process/services/process/process.svc";
+import { IProcessService } from "../../../editors/bp-process/services/process.svc";
 import { Models } from "../../../main/models";
 import {
     StatefulArtifactServices,
@@ -85,7 +85,9 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
     }
 
     private createStatefulProcessArtifact(artifact: Models.IArtifact): IStatefulArtifact {
-        let processServices = new StatefulProcessArtifactServices(this.services, this.$q, this.processService);
+        let processServices: IStatefulProcessArtifactServices =
+            new StatefulProcessArtifactServices(this.services, this.$q, this.processService);
+
         return new StatefulProcessArtifact (artifact, processServices);
     }
 }

@@ -4,7 +4,7 @@ import {IBreadcrumbService, IArtifactReference} from "./breadcrumb.svc";
 
 export class BPBreadcrumbComponent implements ng.IComponentOptions {
     public template: string = require("./bp-breadcrumb.html");
-    public controller: Function = BPBreadcrumbController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPBreadcrumbController;
 }
 
 export interface IBreadcrumbLink {

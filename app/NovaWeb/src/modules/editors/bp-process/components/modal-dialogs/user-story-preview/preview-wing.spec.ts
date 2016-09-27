@@ -1,4 +1,4 @@
-﻿
+﻿import * as angular from "angular";
 import {UserStoryDialogModel} from "../models/user-story-dialog-model";
 import {PreviewWingController, PreviewWingDirective} from "./preview-wing";
 import { ShapeModelMock } from "../../diagram/presentation/graph/shapes/shape-model.mock";

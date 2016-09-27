@@ -1,4 +1,4 @@
-﻿import "angular";
+﻿import * as angular from "angular";
 import "angular-mocks";
 import { LocalizationServiceMock } from "../localization/localization.mock";
 import { IMessageService, MessageService } from "./message.svc";

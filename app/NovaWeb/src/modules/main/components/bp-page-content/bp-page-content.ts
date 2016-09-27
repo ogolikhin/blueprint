@@ -6,7 +6,7 @@ import { IDiagramService } from "../../../editors/bp-diagram/diagram.svc";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./bp-page-content.html");
-    public controller: Function = PageContentCtrl;
+    public controller: ng.Injectable<ng.IControllerConstructor> = PageContentCtrl;
     public controllerAs = "$content";
 } 
 

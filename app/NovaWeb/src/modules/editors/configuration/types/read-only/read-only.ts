@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import "angular-formly";
 import "angular-sanitize";
 import { ILocalizationService } from "../../../../core";
@@ -9,7 +9,7 @@ export class BPFieldReadOnly implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldReadOnly";
     public template: string = require("./read-only.template.html");
     public wrapper: string = "bpFieldLabel";
-    public controller: Function = BpFieldReadOnlyController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldReadOnlyController;
 }
 
 export class BpFieldReadOnlyController {

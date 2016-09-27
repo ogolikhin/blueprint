@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import {Helper} from "../../utils/helper";
 
 export class BPTreeDragndrop implements ng.IDirective {

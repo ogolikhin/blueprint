@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import "angular-mocks";
 import {MainState} from "../../shell/router/main.state";
 import {ArtifactState} from "../../main/router/artifact.state";

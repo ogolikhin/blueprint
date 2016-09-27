@@ -7,7 +7,7 @@ import {
 
 export class BPArtifactDocumentItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-document-item.html");
-    public controller: Function = BPArtifactDocumentItemController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPArtifactDocumentItemController;
     public bindings: any = {
         docRefInfo: "=",
         deleteItem: "&"
@@ -40,7 +40,7 @@ export class BPArtifactDocumentItemController implements IBPArtifactAttachmentIt
         private $window: ng.IWindowService) {
     }
 
-    public $onInit(o) {
+    public $onInit() {
         this.fileIconClass = "ext-document"; //FiletypeParser.getFiletypeClass(null);
     }
     

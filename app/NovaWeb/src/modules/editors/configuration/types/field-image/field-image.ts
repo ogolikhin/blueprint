@@ -9,7 +9,7 @@ import { Models } from "../../../../main/models";
 export class BPFieldImage implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldImage";
     public template: string = require("./field-image.template.html");
-    public controller: Function = BPFieldImageController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPFieldImageController;
     public defaultOptions: AngularFormly.IFieldConfigurationObject;
     constructor() {
         this.defaultOptions = {};

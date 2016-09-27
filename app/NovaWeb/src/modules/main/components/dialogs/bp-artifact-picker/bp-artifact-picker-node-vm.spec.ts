@@ -71,7 +71,11 @@ describe("ArtifactPickerNodeVM", () => {
         it("getCellClass, when invalid, returns correct result", () => {
             // Arrange
             const model = {
+                id: 123,
                 type: -999,
+                name: "none",
+                parentFolderId: 0,
+                hasChildren: false
             } as Models.IProjectNode;
             const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 
@@ -84,7 +88,14 @@ describe("ArtifactPickerNodeVM", () => {
 
         it("getIcon returns correct result", () => {
             // Arrange
-            const model = {} as Models.IProjectNode;
+            const model = {
+                id: 123,
+                type: -999,
+                name: "none",
+                parentFolderId: 0,
+                hasChildren: false
+            } as Models.IProjectNode;
+
             const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 
             // Act

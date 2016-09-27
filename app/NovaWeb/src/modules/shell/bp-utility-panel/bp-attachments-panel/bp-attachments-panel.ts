@@ -21,7 +21,7 @@ import {
 
 export class BPAttachmentsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-attachments-panel.html");
-    public controller: Function = BPAttachmentsPanelController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPAttachmentsPanelController;
     public require: any = {
         bpAccordionPanel: "^bpAccordionPanel"
     };

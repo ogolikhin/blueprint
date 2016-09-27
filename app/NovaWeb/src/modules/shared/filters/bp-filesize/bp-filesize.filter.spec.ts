@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import "angular-mocks";
 import "../";
 import { LocalizationServiceMock } from "../../../core/localization/localization.mock";

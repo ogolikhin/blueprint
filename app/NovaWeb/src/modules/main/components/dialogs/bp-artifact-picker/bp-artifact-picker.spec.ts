@@ -1,4 +1,4 @@
-﻿import "angular";
+﻿import * as angular from "angular";
 import "angular-mocks";
 import {ArtifactPickerController, IArtifactPickerOptions} from "./bp-artifact-picker";
 import {ArtifactPickerNodeVM, InstanceItemNodeVM, ArtifactNodeVM} from "./bp-artifact-picker-node-vm";

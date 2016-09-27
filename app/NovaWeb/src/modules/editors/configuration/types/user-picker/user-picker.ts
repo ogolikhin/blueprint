@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import "angular-formly";
 import { ILocalizationService, IUsersAndGroupsService, IUserOrGroupInfo } from "../../../../core";
 import { Models } from "../../../../main/models";
@@ -43,7 +43,7 @@ export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
             }
         });
     };
-    public controller: Function = BpFieldUserPickerController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldUserPickerController;
 
     constructor() {
     }
@@ -88,14 +88,16 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
             if (angular.isArray(currentModelVal) && currentModelVal.length) {
                 // create the initial options in the dropdown just to be able to display the selected options in the field
                 // the dropdown will be dynamically loaded from the webservice
-                $scope.to.options = currentModelVal.map((it: Models.IUserGroup) => {
+                // TODO: remove <any> - needs to return proper interface from map method return statement
+                $scope.to.options = <any>currentModelVal.map((it: Models.IUserGroup) => {
                     return {
                         value: it,
                         name: (it.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + it.displayName
                     };
                 });
             } else if (angular.isString(currentModelVal)) {
-                let optionsFromString = currentModelVal.split(",").map((it: Models.IUserGroup) => {
+                // TODO: remove <any> - need to return property interface from map return method
+                let optionsFromString: any = currentModelVal.split(",").map((it: Models.IUserGroup) => {
                     return {
                         value: {
                             id: -1,

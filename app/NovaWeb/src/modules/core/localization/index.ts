@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import * as moment from "moment";
 
 export interface ILocalizationService {

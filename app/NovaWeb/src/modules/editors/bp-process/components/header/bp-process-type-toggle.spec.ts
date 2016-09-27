@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import {ICommunicationManager, CommunicationManager} from "../../services/communication-manager";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {ComponentTest} from "../../../../util/component.test";

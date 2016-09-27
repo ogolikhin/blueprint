@@ -1,4 +1,4 @@
-﻿import "angular";
+﻿import * as angular from "angular";
 import "angular-mocks";
 import { ISession, SessionSvc } from "./session.svc";
 import { ILoginInfo } from "./login.ctrl";

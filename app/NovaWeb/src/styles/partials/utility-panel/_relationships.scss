@@ -2,27 +2,46 @@ bp-relationships-panel {
      .filter-bar{
        padding-bottom: 0;
      }
-     .icons {         
+
+      .icons {
         color: $gray-light;
         display: inline-block;
         width: 100%;
         padding: 5px;
         background-color: $gray-lightest;
+
         i {
           &::before{
             font-size: $font-size-normal;
           }
         }
+
+        div:first-child {
+          float: left;
+        }
+
+        > div:last-child {
+          float: right;
+          padding-top:5px;
+          i{
+            padding-left: 10px;
+
+            &.fonticon-delete-filled{
+              padding-left: 6px;
+            }
+          }
+        }
+
         .dropdown-menu{
             padding: 0;
-            margin: 4px 0 0 7px;
+            margin: 4px 0 0 -10px;
             min-width: 70px;
 
             li{
                 padding: 0;
                 margin: 0;
                 a{
-                    padding: 2px 5px;
+                    padding: 2px 8px 2px 2px;
                     margin: 0;
                     font-size:$font-size-small;
                     cursor:pointer;
@@ -36,18 +55,34 @@ bp-relationships-panel {
                 }
             }
         }
-        div:first-child {
-            float: left;
+
+      }
+
+      > .icons {
+        padding: 0 5px;
+        color: $gray-dark;
+        line-height: $utility-panel-title-height;
+
+        -webkit-transition: height 1s, opacity 1s;
+        transition: height 1s, opacity 1s;
+        height: 0;
+        opacity: 0;
+
+        &.active {
+          height: $utility-panel-title-height;
+          opacity: 1;
         }
 
-        > div:last-child {
-            float: right;
-            padding-top:5px;
-            i{
-                padding-left: 10px;
-            }
+        > div:last-child{
+          padding-top: 0;
+
+          .dropdown-menu{
+            margin-top: -4px;
+            background-color: $gray-lightest;
+            margin-left: -55px;
+          }
         }
-    }
+      }
 
     [class^="fonticon2-"],
     [class*=" fonticon2-"],
@@ -65,7 +100,8 @@ bp-relationships-panel {
 
     bp-artifact-relationship-item {
         .utility-panel-artifact-item {
-            padding: 0;
+          padding: 0;
+          min-height: 50px;
         }
 
         .selected {
@@ -173,13 +209,7 @@ bp-relationships-panel {
 
         .icons {
             border-top: 1px solid $gray-lighter;
-            color: $gray-light;
             background-color: $white;
-          i{
-            &:hover{
-              color: $gray-dark;
-            }
-          }
         }
     }
 }

@@ -1,36 +1,32 @@
-<div class="icons" ng-if="!$ctrl.isLoading && ($ctrl.manualTraces.length || $ctrl.otherTraces.length) &&
-                                            $ctrl.selectedTraces[$ctrl.item.id].length > 0 && $ctrl.categoryFilter === 1">
-
+<div class="icons animated" ng-class="{active: !$ctrl.isLoading && ($ctrl.manualTraces2.length || $ctrl.otherTraces.length) &&
+                                          $ctrl.selectedTraces[$ctrl.item.id].length > 0}">
     <div>
-        {{::$ctrl.localization.get('App_UP_Relationships_Selected') }}&nbsp;{{$ctrl.selectedTraces[$ctrl.item.id].length}}
+        {{$ctrl.selectedTraces[$ctrl.item.id].length}} item(s) selected
+        <!--{{::$ctrl.localization.get('App_UP_Relationships_Selected') }}-->
     </div>
-
     <div>
         <div uib-dropdown>
             <span uib-dropdown-toggle bp-tooltip="Change Trace">
                 <div class="icon-container">
-                    <i class="fonticon-exchange"></i>
+                    <i class="icon fonticon-exchange"></i>
                 </div>
             </span>
             <ul class="dropdown-menu">
-                <li ng-class=""><a ng-click="$ctrl.traceAllTo()"><i class="fonticon2-relationship-right"></i> To</a></li>
-                <li ng-class=""><a ng-click="$ctrl.traceAllFrom()"><i class="fonticon2-relationship-left"></i> From</a></li>
-                <li ng-class=""><a ng-click="$ctrl.traceAllBoth()"><i class="fonticon2-relationship-bi"></i> Both</a></li>
+                <li ng-class=""><a ng-click="$ctrl.setSelectedDirection(0)"><i class="fonticon2-relationship-right"></i> To</a></li>
+                <li ng-class=""><a ng-click="$ctrl.setSelectedDirection(1)"><i class="fonticon2-relationship-left"></i> From</a></li>
+                <li ng-class=""><a ng-click="$ctrl.setSelectedDirection(2)"><i class="fonticon2-relationship-bi"></i> Bidirectional</a></li>
             </ul>
         </div>
-        <i class="fonticon-flag-1" ng-click="$ctrl.flagAllTrace()"
-                        ng-class="{'fonticon-flag-empty': !$ctrl.artifact.suspect}" bp-tooltip="Flag trace"></i>
-
-        <span ng-click="$ctrl.deleteAllTrace()" bp-tooltip="Delete trace">
-            <i class="fonticon-delete-filled"></i>
-        </span>
+        <i class="icon fonticon-flag-1" ng-click="$ctrl.toggleFlag()"
+                        ng-class="{'fonticon-flag-empty': $ctrl.hasUnFlagged }" bp-tooltip="Flag trace"></i>
+        <i class="icon fonticon-delete-filled" ng-click="$ctrl.deleteTraces($ctrl.selectedTraces[$ctrl.item.id])"
+                        bp-tooltip="Delete trace"></i>
     </div>
 </div>
 
-<div class="filter-bar" ng-if="!$ctrl.isLoading &&  ($ctrl.manualTraces.length || $ctrl.otherTraces.length)">
+<div class="filter-bar" ng-if="!$ctrl.isLoading &&  ($ctrl.manualTraces2.length || $ctrl.otherTraces.length)">
 
-    <bp-select ng-model="$ctrl.option"
-               options="$ctrl.options">
+    <bp-select ng-model="$ctrl.option" options="$ctrl.options">
     </bp-select>
     <div class="tabs">
         <uib-tabset active="$ctrl.categoryFilter">
@@ -41,20 +37,18 @@
     </div>
 </div>
 
-<div ng-if="!$ctrl.isLoading && ($ctrl.manualTraces.length || $ctrl.otherTraces.length)"
+<div ng-if="!$ctrl.isLoading && ($ctrl.manualTraces2.length || $ctrl.otherTraces.length)"
      class="scrollable-content" perfect-scrollbar>
-
-    <h6 ng-if="$ctrl.manualTraces.length && $ctrl.categoryFilter !== 2" class="util-panel-heading">{{::$ctrl.localization.get('App_UP_Relationships_Traces') }}</h6>
+ <h6 ng-if="$ctrl.manualTraces2.length && $ctrl.categoryFilter !== 2" class="util-panel-heading">{{::$ctrl.localization.get('App_UP_Relationships_Traces') }}</h6>
     <div ng-if="$ctrl.categoryFilter!==2">
-        <div ng-repeat="artifact in $ctrl.manualTraces"
+        <div ng-repeat="artifact in $ctrl.manualTraces2"
              class="artifact-item-wrapper">
             <div class="separator"></div>
-            <bp-artifact-relationship-item artifact="::artifact" selectable="{{$ctrl.categoryFilter === 1}}"
-                selected-traces="$ctrl.selectedTraces[$ctrl.item.id]" istat
-                                          ></bp-artifact-relationship-item>
+            <bp-artifact-relationship-item artifact="::artifact" selectable="true"
+                selected-traces="$ctrl.selectedTraces[$ctrl.item.id]" delete-item="$ctrl.deleteTrace(artifact)"></bp-artifact-relationship-item>
         </div>
     </div>
-    <div ng-if="!$ctrl.manualTraces.length && $ctrl.categoryFilter ===1"
+    <div ng-if="!$ctrl.manualTraces2.length && $ctrl.categoryFilter ===1"
          class="empty-state">{{::$ctrl.localization.get('App_UP_Relationships_No_Traces') }}</div>
     <h6 ng-if="$ctrl.otherTraces.length && $ctrl.categoryFilter !== 1" class="util-panel-heading util-heading-other">{{::$ctrl.localization.get('App_UP_Relationships_Association') }}</h6>
 
@@ -63,7 +57,7 @@
         <div ng-repeat="artifact in $ctrl.associations"
              class="artifact-item-wrapper">
             <div class="separator"></div>
-            <bp-artifact-relationship-item artifact="::artifact" ></bp-artifact-relationship-item>
+            <bp-artifact-relationship-item artifact="::artifact"></bp-artifact-relationship-item>
         </div>
     </div>
     <h6 ng-if="$ctrl.actorInherits.length && $ctrl.categoryFilter !== 1">{{::$ctrl.localization.get('App_UP_Relationships_Subheading_Actor_Inherits') }}</h6>
@@ -90,7 +84,7 @@
     <span class="glyphicon glyphicon-refresh spin"></span>
 </div>
 
-<div ng-if="!($ctrl.manualTraces.length || $ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && !$ctrl.isLoading"
+<div ng-if="!($ctrl.manualTraces2.length || $ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && !$ctrl.isLoading"
      class="empty-state">{{::$ctrl.localization.get('App_UP_Relationships_No_Relationships') }}</div>
 
 

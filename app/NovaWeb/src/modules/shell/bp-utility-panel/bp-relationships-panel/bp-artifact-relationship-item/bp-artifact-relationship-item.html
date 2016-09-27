@@ -1,5 +1,4 @@
 ﻿<div ng-class='$ctrl.artifact.hasAccess ? "utility-panel-artifact-item" : "utility-panel-artifact-item unauthorized-details"'>
-
     <div class="details" ng-show="!$ctrl.artifact.hasAccess">
 
         <div class="unauthorize-icon fonticon2-unauthorize"></div>
@@ -41,7 +40,7 @@
                 <div ng-hide="$ctrl.artifact.itemId==$ctrl.artifact.artifactId"><span class="bolded-text">Main artifact: </span>{{$ctrl.artifact.artifactTypePrefix}}{{$ctrl.artifact.artifactId}} - {{$ctrl.artifact.artifactName}}</div>
                 <div class="bolded-text"><i class="icon-project"></i>{{$ctrl.artifact.projectName}} </div>
                 <div ng-if="$ctrl.expanded" ng-class="{'desc-visible': $ctrl.expanded, 'desc-hidden': !$ctrl.expanded}">
-                    <div ng-if="!$ctrl.fromOtherProject" class="left-arrow pull-left"></div>
+                    <div ng-if="!$ctrl.fromOtherProject" class="left-arrow"></div>
                     <ul class="wrappable-breadcrumbs">
                         <li ng-repeat="o in $ctrl.relationshipExtendedInfo.pathToProject">
                             <a ng-click="$ctrl.navigateToArtifact(o.itemId)">{{o.itemName}}</a>
@@ -55,29 +54,26 @@
             </div>
         </div>
     </div>
-    <div class="icons" ng-show="$ctrl.artifact.hasAccess">
+    <div class="icons" ng-show="$ctrl.artifact.hasAccess && $ctrl.selectable">
         <div>
-            <input type="checkbox" ng-checked="$ctrl.isSelected" bp-tooltip="Choose" ng-click="$ctrl.select()"
+            <input type="checkbox" ng-checked="$ctrl.isSelected" bp-tooltip="Select" ng-click="$ctrl.selectTrace()"
                    ng-disabled="!$ctrl.artifact.hasAccess"/>
         </div>
         <div>
             <div uib-dropdown>
                 <span uib-dropdown-toggle bp-tooltip="Change Trace">
-                    <i class="fonticon-exchange"></i>
+                    <i class="icon fonticon-exchange"></i>
                 </span>
                 <ul class="dropdown-menu">
-                    <li ng-class="{disabled: $ctrl.artifact.hasAccess && $ctrl.artifact.traceDirection == 0}"><a ng-click="$ctrl.traceTo()"><i class="fonticon2-relationship-right"></i> To</a></li>
-                    <li ng-class="{disabled: $ctrl.artifact.hasAccess && $ctrl.artifact.traceDirection == 1}"><a ng-click="$ctrl.traceFrom()"><i class="fonticon2-relationship-left"></i> From</a></li>
-                    <li ng-class="{disabled: $ctrl.artifact.hasAccess && $ctrl.artifact.traceDirection == 2}"><a ng-click="$ctrl.traceBoth()"><i class="fonticon2-relationship-bi"></i> Both</a></li>
+                    <li ng-class="{disabled: $ctrl.artifact.hasAccess && $ctrl.artifact.traceDirection == 0}"><a ng-click="$ctrl.setDirection(0)"><i class="fonticon2-relationship-right"></i> To</a></li>
+                    <li ng-class="{disabled: $ctrl.artifact.hasAccess && $ctrl.artifact.traceDirection == 1}"><a ng-click="$ctrl.setDirection(1)"><i class="fonticon2-relationship-left"></i> From</a></li>
+                    <li ng-class="{disabled: $ctrl.artifact.hasAccess && $ctrl.artifact.traceDirection == 2}"><a ng-click="$ctrl.setDirection(2)"><i class="fonticon2-relationship-bi"></i> Bidirectional</a></li>
                 </ul>
             </div>
-            <i class="fonticon-flag-1" ng-click="$ctrl.flagTrace()"
-                ng-class="{'fonticon-flag-empty': $ctrl.artifact.suspect == true}"
-               bp-tooltip="Flag"></i>
+            <i class="icon fonticon-flag-1" ng-click="$ctrl.toggleFlag()"
+                ng-class="{'fonticon-flag-empty': $ctrl.artifact.suspect == true}" bp-tooltip="Flag"></i>
 
-            <span ng-class="{disabled: !$ctrl.artifact.hasAccess}" ng-click="$ctrl.deleteTrace()" bp-tooltip="Delete">
-                <i class="fonticon-delete-filled"></i>
-            </span>
+            <i class="icon fonticon-delete-filled"  ng-class="{disabled: !$ctrl.artifact.hasAccess}" ng-click="$ctrl.deleteItem()" bp-tooltip="Delete"></i>
         </div>
 
     </div>

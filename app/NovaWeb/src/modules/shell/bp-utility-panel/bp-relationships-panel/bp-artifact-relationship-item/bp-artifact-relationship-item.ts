@@ -2,7 +2,7 @@
 import { Helper, IDialogService } from "../../../../shared";
 import { Relationships } from "../../../../main";
 import { IArtifactManager } from "../../../../managers";
-import { IStatefulArtifact } from "../../../../managers/models";
+import {IStatefulArtifact} from "../../../../managers/models";
 import { IRelationshipDetailsService } from "../../../";
 
 export class BPArtifactRelationshipItem implements ng.IComponentOptions {
@@ -12,7 +12,7 @@ export class BPArtifactRelationshipItem implements ng.IComponentOptions {
         artifact: "=",
         selectedTraces: "=",
         selectable: "@",
-        statefull: "="
+        deleteItem: "&",
     };
 }
 
@@ -21,7 +21,11 @@ export interface IResult {
     index: number;
 }
 
-export class BPArtifactRelationshipItemController {
+interface IBPArtifactRelationshipItemController {
+    deleteItem: Function;
+}
+
+export class BPArtifactRelationshipItemController implements IBPArtifactRelationshipItemController{
     public static $inject: [string] = [
         "localization",
         "relationshipDetailsService",
@@ -35,6 +39,7 @@ export class BPArtifactRelationshipItemController {
     public selectedTraces: Relationships.IRelationship[];
     public fromOtherProject: boolean = false;  
     public selectable: boolean = false;
+    public deleteItem: Function;
 
     constructor(
         private localization: ILocalizationService,
@@ -49,38 +54,15 @@ export class BPArtifactRelationshipItemController {
         return this.selectable.toString() === "true" && this.artifact.isSelected;
     }
 
-    public traceTo() {
+    public setDirection(direction: Relationships.TraceDirection): void {
         if (this.artifact.hasAccess) {
-            this.artifact.traceDirection = 0;
+            this.artifact.traceDirection = direction;
         }
     }
 
-    public traceFrom() {
-        if (this.artifact.hasAccess) {
-            this.artifact.traceDirection = 1;
-        }
-    }
-
-    public traceBoth() {
-        if (this.artifact.hasAccess) {
-            this.artifact.traceDirection = 2;
-        }
-    }
-
-    public flagTrace() {
+    public toggleFlag() {
         if (this.artifact.hasAccess) {
             this.artifact.suspect = this.artifact.suspect === true ? false : true;
-        }
-    }
-
-
-    public deleteTrace() {
-        if (this.artifact.hasAccess) {
-            this.dialogService.confirm("Are you sure that you want to delete this trace?").then(function (confirmed) {
-                if (confirmed) {
-                    //this.artifact.relationships.remove([artifact]);
-                }
-            });
         }
     }
 
@@ -95,8 +77,7 @@ export class BPArtifactRelationshipItemController {
         this.expanded = !this.expanded;
     }
 
-    public select() {       
-        if (this.selectable.toString() === "true") {
+    public selectTrace() {
             if (!this.artifact.isSelected) {
                 if (this.selectedTraces) {
                     let res = this.inArray(this.selectedTraces);
@@ -113,7 +94,6 @@ export class BPArtifactRelationshipItemController {
                 }
             }
             this.artifact.isSelected = !this.artifact.isSelected;
-        }
     }
 
     public remove($event) {

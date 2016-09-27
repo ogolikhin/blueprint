@@ -5,16 +5,85 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Common;
 using Utilities;
 
 namespace Model.ArtifactModel.Impl
 {
-    public class NovaArtifactDetails : INovaArtifactDetails
+    public abstract class NovaArtifactBase : INovaArtifactBase
+    {
+        public abstract int Id { get; set; }
+        public abstract int? ItemTypeId { get; set; }
+        public abstract string Name { get; set; }
+        public abstract int ParentId { get; set; }
+        public abstract int ProjectId { get; set; }
+        public abstract int Version { get; set; }
+
+        #region IArtifactObservable methods
+
+        [JsonIgnore]
+        public List<IArtifactObserver> ArtifactObservers { get; private set; }
+
+        /// <seealso cref="RegisterObserver(IArtifactObserver)"/>
+        public void RegisterObserver(IArtifactObserver observer)
+        {
+            if (ArtifactObservers == null)
+            {
+                ArtifactObservers = new List<IArtifactObserver>();
+            }
+
+            ArtifactObservers.Add(observer);
+        }
+
+        /// <seealso cref="UnregisterObserver(IArtifactObserver)"/>
+        public void UnregisterObserver(IArtifactObserver observer)
+        {
+            ArtifactObservers?.Remove(observer);
+        }
+
+        /// <seealso cref="NotifyArtifactDeletion(List{IArtifactBase})"/>
+        public void NotifyArtifactDeletion(List<IArtifactBase> deletedArtifactsList)
+        {
+            ThrowIf.ArgumentNull(deletedArtifactsList, nameof(deletedArtifactsList));
+
+            // Notify the observers about any artifacts that were deleted as a result of this publish.
+            foreach (var deletedArtifact in deletedArtifactsList)
+            {
+                IEnumerable<int> deletedArtifactIds =
+                    from result in ((ArtifactBase)deletedArtifact).DeletedArtifactResults
+                    select result.ArtifactId;
+
+                // TODO: Check if this logic is correct.  It looks like this should be outside the loop.
+                Logger.WriteDebug("*** Notifying observers about deletion of artifact IDs: {0}", string.Join(", ", deletedArtifactIds));
+                deletedArtifact.ArtifactObservers?.ForEach(o => o.NotifyArtifactDeletion(deletedArtifactIds));
+            }
+        }
+
+        /// <seealso cref="NotifyArtifactPublish(List{INovaArtifactResponse})"/>
+        public void NotifyArtifactPublish(List<INovaArtifactResponse> publishedArtifactsList)
+        {
+            ThrowIf.ArgumentNull(publishedArtifactsList, nameof(publishedArtifactsList));
+
+            // Notify the observers about any artifacts that were deleted as a result of this publish.
+            IEnumerable<int> publishedArtifactIds =
+                from result in publishedArtifactsList
+                select result.Id;
+
+            Logger.WriteDebug("*** Notifying observers about publish of artifact IDs: {0}", string.Join(", ", publishedArtifactIds));
+            ArtifactObservers?.ForEach(o => o.NotifyArtifactPublish(publishedArtifactIds));
+        }
+
+        #endregion IArtifactObservable methods
+    }
+
+    public class NovaArtifactDetails : NovaArtifactBase, INovaArtifactDetails
     {
         #region Serialized JSON Properties
 
-        public int ProjectId { get; set; }
-        public int Version { get; set; }
+        // NOTE: Keep the properties in this order so the shouldControlJsonChanges option in RestApiFacade works properly.  This is the order of the incoming JSON.
+
+        public override int ProjectId { get; set; }
+        public override int Version { get; set; }
         public DateTime? CreatedOn { get; set; }
         public DateTime? LastEditedOn { get; set; }
         public Identification CreatedBy { get; set; }
@@ -23,12 +92,12 @@ namespace Model.ArtifactModel.Impl
         public int Permissions { get; set; }
         public Identification LockedByUser { get; set; }
         public DateTime? LockedDateTime { get; set; }
-        public int Id { get; set; }
-        public string Name { get; set; }
+        public override int Id { get; set; }
+        public override string Name { get; set; }
         public string Description { get; set; }
-        public int ParentId { get; set; }
-        public double OrderIndex { get; set; }
-        public int? ItemTypeId { get; set; }
+        public override int ParentId { get; set; }
+        public double? OrderIndex { get; set; }
+        public override int? ItemTypeId { get; set; }
         public int ItemTypeVersionId { get; set; }
         public string Prefix { get; set; }
         public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();
@@ -45,6 +114,8 @@ namespace Model.ArtifactModel.Impl
         }
 
         #endregion Constructors
+
+        #region Assert functions
 
         /// <summary>
         /// Asserts that this INovaArtifactDetails object is equal to the specified IArtifactBase.
@@ -175,6 +246,10 @@ namespace Model.ArtifactModel.Impl
             }
         }
 
+        #endregion Assert functions
+
+        #region Other properties
+
         /// <summary>
         /// Returns ActorInheritanceValue. It represents information from Inherited from field for Actor.
         /// </summary>
@@ -242,6 +317,8 @@ namespace Model.ArtifactModel.Impl
                 documentFileProperty.CustomPropertyValue = value;
             }
         }
+
+        #endregion Other properties
 
         private static void CheckIsJSONChanged<TClass>(CustomProperty property)
         {
@@ -323,24 +400,24 @@ namespace Model.ArtifactModel.Impl
     /// <summary>
     /// This is the class returned by some ArtifactStore REST calls.
     /// </summary>
-    public class NovaArtifactResponse : INovaArtifactResponse
+    public class NovaArtifactResponse : NovaArtifactBase, INovaArtifactResponse
     {
         #region Serialized JSON Properties
 
         // NOTE: Keep the properties in this order so the shouldControlJsonChanges option in RestApiFacade works properly.  This is the order of the incoming JSON.
 
-        public int ProjectId { get; set; }
-        public int Version { get; set; }
+        public override int ProjectId { get; set; }
+        public override int Version { get; set; }
         public DateTime? CreatedOn { get; set; }
         public DateTime? LastEditedOn { get; set; }
         public NovaArtifactDetails.Identification CreatedBy { get; set; }
         public NovaArtifactDetails.Identification LastEditedBy { get; set; }
-        public int Id { get; set; }
-        public string Name { get; set; }
+        public override int Id { get; set; }
+        public override string Name { get; set; }
         public string Description { get; set; }
-        public int ParentId { get; set; }
+        public override int ParentId { get; set; }
         public double OrderIndex { get; set; }
-        public int? ItemTypeId { get; set; }
+        public override int? ItemTypeId { get; set; }
         public string Prefix { get; set; }
         public int PredefinedType { get; set; }
 

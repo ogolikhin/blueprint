@@ -26,6 +26,18 @@ namespace Model.Impl
 
         #region Members inherited from IArtifactStore
 
+        /// <seealso cref="IArtifactStore.CreateArtifact(IUser, BaseArtifactType, string, IProject, INovaArtifactDetails, double?, List{HttpStatusCode})"/>
+        public INovaArtifactDetails CreateArtifact(IUser user,
+            BaseArtifactType artifactType,
+            string name,
+            IProject project,
+            INovaArtifactDetails parentArtifact = null,
+            double? orderIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return CreateArtifact(Address, user, artifactType, name, project, parentArtifact, orderIndex, expectedStatusCodes);
+        }
+
         /// <seealso cref="IArtifactStore.DeleteArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
         public List<INovaArtifactResponse> DeleteArtifact(IArtifactBase artifact, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -485,6 +497,39 @@ namespace Model.Impl
         #endregion Members inherited from IDisposable
 
         #region Static members
+
+        public static INovaArtifactDetails CreateArtifact(string address,
+            IUser user,
+            BaseArtifactType artifactType,
+            string name,
+            IProject project,
+            INovaArtifactBase parentArtifact = null,
+            double? orderIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(address, nameof(address));
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            string path = RestPaths.Svc.ArtifactStore.Artifacts.CREATE;
+            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+
+            NovaArtifactDetails jsonBody = new NovaArtifactDetails
+            {
+                Name = name,
+                ProjectId = project.Id,
+                ItemTypeId = (int)artifactType,
+                ParentId = parentArtifact?.Id ?? project.Id,
+                OrderIndex = orderIndex
+            };
+
+            var newArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails, NovaArtifactDetails>(
+                path,
+                RestRequestMethod.POST,
+                jsonBody,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return newArtifact;
+        }
 
         /// <summary>
         /// Deletes the specified artifact and any children/traces/links/attachments belonging to the artifact.

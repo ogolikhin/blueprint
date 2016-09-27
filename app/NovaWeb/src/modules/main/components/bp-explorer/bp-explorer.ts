@@ -102,8 +102,8 @@ export class ProjectExplorerController {
             if (projects && projects.length > 0) {
                 if (!this.selected || this.selected.projectId !== projects[0].projectId) {
                     this.selected = projects[0];
+                    this.navigationService.navigateToArtifact(this.selected.id);
                 }
-                this.navigationService.navigateToArtifact(this.selected.id);
                 this.tree.selectNode(this.selected.id);
             } else {
                 this.artifactManager.selection.setExplorerArtifact(null);
@@ -114,23 +114,25 @@ export class ProjectExplorerController {
 
     public doLoad = (prms: Models.IProject): any[] => {
         //the explorer must be empty on a first load
-        if (!prms) {
-            return null;
+        if (prms) {
+            //notify the repository to load the node children
+            this.projectManager.loadArtifact(prms.id);
         }
-        this.selected = prms as IArtifactNode;
-        //notify the repository to load the node children
-        this.projectManager.loadArtifact(prms.id);
         
         return null;
     };
 
     public doSelect = (node: IArtifactNode) => {
-        this.doSync(node);
-        this.selected = node;
-        this.navigationService.navigateToArtifact(node.id);
+        console.log("doSelect");
+        if (!this.selected || this.selected.id !== node.id) {
+            this.doSync(node);
+            this.selected = node;
+            this.navigationService.navigateToArtifact(node.id);
+        }
     };
 
     public doSync = (node: IArtifactNode): IStatefulArtifact => {
+        console.log("doSync");
         //check passed in parameter
         let artifactNode = this.projectManager.getArtifactNode(node.id);
         if (artifactNode.children && artifactNode.children.length) {

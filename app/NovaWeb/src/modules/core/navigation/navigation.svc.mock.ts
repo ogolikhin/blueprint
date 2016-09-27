@@ -1,4 +1,4 @@
-import {INavigationContext, INavigationService} from "./navigation.svc";
+import {INavigationState, INavigationOptions, INavigationService} from "./navigation.svc";
 
 export class NavigationServiceMock implements INavigationService {
     public static $inject: string[] = [
@@ -10,6 +10,10 @@ export class NavigationServiceMock implements INavigationService {
     ) {
     }
 
+    public getNavigationState(): INavigationState {
+        return null;
+    }
+
     public navigateToMain(): ng.IPromise<any> {
         let deferred = this.$q.defer();
         deferred.resolve();
@@ -17,7 +21,7 @@ export class NavigationServiceMock implements INavigationService {
         return deferred.promise;
     }
 
-    public navigateToArtifact(id: number, context?: INavigationContext): ng.IPromise<any> {
+    public navigateToArtifact(id: number, options?: INavigationOptions): ng.IPromise<any> {
         let deferred = this.$q.defer();
         deferred.resolve();
 

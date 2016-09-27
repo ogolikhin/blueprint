@@ -217,6 +217,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                     let state = this.loadInternal(artifact);
                     //modify states all at once
                     this.artifactState.set(state);
+                    console.log("artifact Loaded");
                     deferred.resolve(this);
                 }).catch((err) => {
                     this.artifactState.readonly = true;
@@ -227,6 +228,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                 });
             }
         } else {
+            console.log("artifact Loaded");
             deferred.resolve(this);
         }
         
@@ -407,6 +409,13 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             }
         );
        
+        return deffered.promise;
+    }
+
+    //TODO: stub - replace with implementation
+    public autosave(): ng.IPromise<IStatefulArtifact> {
+        let deffered = this.services.getDeferred<IStatefulArtifact>();
+        deffered.resolve();
         return deffered.promise;
     }
 

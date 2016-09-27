@@ -60,8 +60,8 @@
                 </div>
                 <span>{{::$root.config.labels["App_Toolbar_Refresh_All"]}}</span>
             </a>
-            <a href="#" id="refreshAll" ng-if="!$ctrl.canRefreshAll">
-                <div class="toggle-container.disabled" >
+            <a href="#" id="refreshAll" class="disabled" ng-if="!$ctrl.canRefreshAll">
+                <div class="icon-container" >
                     <i class="fonticon fonticon2-refresh-line"></i>
                 </div>
                 <span>{{::$root.config.labels["App_Toolbar_Refresh_All"]}}</span>

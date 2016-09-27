@@ -22,7 +22,6 @@ namespace SearchServiceTests
         const int DEFAULT_PAGE_VALUE = 1;
         const int DEFAULT_PAGESIZE_VALUE = 10;
 
-
         [TestFixtureSetUp]
         public void SetUp()
         {

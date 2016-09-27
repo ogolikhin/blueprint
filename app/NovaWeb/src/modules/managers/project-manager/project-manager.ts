@@ -119,8 +119,22 @@ export class ProjectManager  implements IProjectManager {
         }
         
         let selectedArtifact = this.artifactManager.selection.getArtifact();
-        let selectedArtifactNode = this.getArtifactNode(selectedArtifact.id);
         
+        if (selectedArtifact.artifactState.dirty){
+            selectedArtifact.autosave().then(() => {
+                this.doRefresh(project, selectedArtifact, defer, currentProject);
+            }).catch(() => {
+                defer.reject();
+            });
+        }else{
+            this.doRefresh(project, selectedArtifact, defer, currentProject);
+        }
+        
+        return defer.promise; 
+    }
+    
+    private doRefresh(project: Project, selectedArtifact: IStatefulArtifact, defer: any, currentProject: Models.IProject){
+        let selectedArtifactNode = this.getArtifactNode(selectedArtifact.id);
         //try with selected artifact
         this.projectService.getProjectTree(project.id, selectedArtifact.id, selectedArtifactNode.open)
         .then((data: Models.IArtifact[]) => {
@@ -136,6 +150,13 @@ export class ProjectManager  implements IProjectManager {
                 }).catch((error: any) => {
                     if(error.statusCode === 404 && error.errorCode === 3000){
                         //try it with project
+                        this.projectService.getArtifacts(project.id).then((data: Models.IArtifact[]) => {
+                            this.onGetProjectTree(project, data, null);
+                            defer.resolve();
+                        }).catch((err: any) => {
+                            this.onGetProjectTreeError(project, error);
+                            defer.reject();
+                        });
                     }else{
                         this.onGetProjectTreeError(project, error);
                         defer.reject();
@@ -146,14 +167,12 @@ export class ProjectManager  implements IProjectManager {
                 defer.reject();
             }
         });
-        
+
         this.metadataService.remove(currentProject.id);    
-        this.metadataService.load(currentProject.id);    
-        
-        return defer.promise; 
+        this.metadataService.load(currentProject.id);  
     }
     
-    private onGetProjectTree(project: Project, data: Models.IArtifact[], selectedArtifact: IStatefulArtifact){
+    private onGetProjectTree(project: Project, data: Models.IArtifact[], selectedArtifact?: IStatefulArtifact){
         this.artifactManager.removeAll(project.id);
         
         project.children = data.map((it: Models.IArtifact) => {
@@ -164,13 +183,17 @@ export class ProjectManager  implements IProjectManager {
         project.loaded = true;
         project.open = true;
 
-        if(!this.artifactManager.selection.getArtifact()){
-            this.artifactManager.selection.setArtifact(this.getArtifact(selectedArtifact.parentId));
+        if(selectedArtifact){
+            if(!this.artifactManager.selection.getArtifact()){
+                this.artifactManager.selection.setArtifact(this.getArtifact(selectedArtifact.parentId));
+            }else{
+                selectedArtifact.refresh();
+            }
         }
 
         this.openChildNodes(project.children, data);
 
-        this.projectCollection.onNext(this.projectCollection.getValue());
+        //this.projectCollection.onNext(this.projectCollection.getValue());
     }
     
     private onGetProjectTreeError(project: Project, error: any){

@@ -17,6 +17,7 @@ export interface IProjectManager extends IDispose {
     initialize();
     add(data: Models.IProject);
     remove(all?: boolean): void;
+    refresh(data: Models.IProject);
     loadArtifact(id: number): void;
     loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
     getProject(id: number);
@@ -33,6 +34,7 @@ export class ProjectManager  implements IProjectManager {
     private subscribers: Rx.IDisposable[];
     private statechangesubscriber: Rx.IDisposable;
     static $inject: [string] = [
+        "$q",
         "localization", 
         "messageService", 
         "projectService", 
@@ -42,6 +44,7 @@ export class ProjectManager  implements IProjectManager {
     ];
 
     constructor(
+        private $q: ng.IQService,
         private localization: ILocalizationService,
         private messageService: IMessageService,
         private projectService: IProjectService,
@@ -101,6 +104,104 @@ export class ProjectManager  implements IProjectManager {
 
     public get projectCollection(): Rx.BehaviorSubject<Project[]> {
         return this._projectCollection || (this._projectCollection = new Rx.BehaviorSubject<Project[]>([]));
+    }
+
+    public refresh(currentProject: Models.IProject): ng.IPromise<any>{
+        let defer = this.$q.defer<any>();
+        
+        let project: Project;
+        if (!currentProject) {
+            throw new Error("Project_NotFound");
+        }
+        project = this.getProject(currentProject.id);
+        if (!project) {
+            throw new Error("Project_NotFound");
+        }
+        
+        let selectedArtifact = this.artifactManager.selection.getArtifact();
+        let selectedArtifactNode = this.getArtifactNode(selectedArtifact.id);
+        
+        //try with selected artifact
+        this.projectService.getProjectTree(project.id, selectedArtifact.id, selectedArtifactNode.open)
+        .then((data: Models.IArtifact[]) => {
+            this.onGetProjectTree(project, data, selectedArtifact);
+            defer.resolve();
+        }).catch((error: any) => {
+            if(error.statusCode === 404 && error.errorCode === 3000){
+                //try with selected artifact's parent
+                this.projectService.getProjectTree(project.id, selectedArtifact.parentId, selectedArtifactNode.open)
+                .then((data: Models.IArtifact[]) => {
+                    this.onGetProjectTree(project, data, this.getArtifact(selectedArtifact.parentId));
+                    defer.resolve();
+                }).catch((error: any) => {
+                    if(error.statusCode === 404 && error.errorCode === 3000){
+                        //try it with project
+                    }else{
+                        this.onGetProjectTreeError(project, error);
+                        defer.reject();
+                    }
+                });
+            }else{
+                this.onGetProjectTreeError(project, error);
+                defer.reject();
+            }
+        });
+        
+        this.metadataService.remove(currentProject.id);    
+        this.metadataService.load(currentProject.id);    
+        
+        return defer.promise; 
+    }
+    
+    private onGetProjectTree(project: Project, data: Models.IArtifact[], selectedArtifact: IStatefulArtifact){
+        this.artifactManager.removeAll(project.id);
+        
+        project.children = data.map((it: Models.IArtifact) => {
+            const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
+            this.artifactManager.add(statefulArtifact);
+            return new ArtifactNode(statefulArtifact, project);
+        });
+        project.loaded = true;
+        project.open = true;
+
+        if(!this.artifactManager.selection.getArtifact()){
+            this.artifactManager.selection.setArtifact(this.getArtifact(selectedArtifact.parentId));
+        }
+
+        this.openChildNodes(project.children, data);
+
+        this.projectCollection.onNext(this.projectCollection.getValue());
+    }
+    
+    private onGetProjectTreeError(project: Project, error: any){
+        //ignore authentication errors here
+        if (error) {
+            this.messageService.addError(error["message"] || "Artifact_NotFound");
+        } else {
+            project.children = [];
+            project.loaded = false;
+            project.open = false;
+            this.projectCollection.onNext(this.projectCollection.getValue());
+        }
+    }
+
+    private openChildNodes(childrenNodes: IArtifactNode[], childrenData: Models.IArtifact[]){
+        angular.forEach(childrenNodes, (node) => {
+            let childData = childrenData.filter(function (it) {
+                return it.id === node.id;
+            });
+            if (childData[0].hasChildren && childData[0].children){
+                node.children = childData[0].children.map((it: Models.IArtifact) => {
+                    const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
+                    this.artifactManager.add(statefulArtifact);
+                    return new ArtifactNode(statefulArtifact,node);
+                });
+                node.loaded = true;
+                node.open = true;
+                
+                this.openChildNodes(node.children, childData[0].children);
+            }
+        });
     }
 
     public add(data: Models.IProject) {

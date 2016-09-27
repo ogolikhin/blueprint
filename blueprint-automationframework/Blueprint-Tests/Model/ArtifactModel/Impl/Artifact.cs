@@ -488,6 +488,12 @@ namespace Model.ArtifactModel.Impl
             {
                 artifactToUpdate.IsSaved = true;
 
+                if (user?.Token?.OpenApiToken == null)
+                {
+                    // We need an OpenAPI token to make the GetProject call below.
+                    Assert.NotNull(artifactToUpdate.Project, "Project is null and we don't have an OpenAPI token!");
+                }
+
                 IProject project = artifactToUpdate.Project ?? ProjectFactory.CreateProject().GetProject(address, artifactToUpdate.ProjectId, user);
                 ArtifactBase artifactBaseToUpdate = artifactToUpdate as ArtifactBase;
 

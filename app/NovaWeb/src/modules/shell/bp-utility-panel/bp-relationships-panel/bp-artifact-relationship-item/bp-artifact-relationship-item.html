@@ -41,7 +41,7 @@
                 <div ng-hide="$ctrl.artifact.itemId==$ctrl.artifact.artifactId"><span class="bolded-text">Main artifact: </span>{{$ctrl.artifact.artifactTypePrefix}}{{$ctrl.artifact.artifactId}} - {{$ctrl.artifact.artifactName}}</div>
                 <div class="bolded-text"><i class="icon-project"></i>{{$ctrl.artifact.projectName}} </div>
                 <div ng-if="$ctrl.expanded" ng-class="{'desc-visible': $ctrl.expanded, 'desc-hidden': !$ctrl.expanded}">
-                    <div ng-if="!$ctrl.fromOtherProject" class="left-arrow"></div>
+                    <div ng-if="!$ctrl.fromOtherProject" class="left-arrow pull-left"></div>
                     <ul class="wrappable-breadcrumbs">
                         <li ng-repeat="o in $ctrl.relationshipExtendedInfo.pathToProject">
                             <a ng-click="$ctrl.navigateToArtifact(o.itemId)">{{o.itemName}}</a>

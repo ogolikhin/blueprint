@@ -47,7 +47,11 @@ export class PropertyEditor {
                 };
 
             case Models.PrimitiveType.User:
-                //TODO: Check after save while switching artifact has been implemented
+                if (angular.isArray($value)) {
+                    return {
+                        usersGroups: $value
+                    };
+                }
                 return $value;
 
             default:

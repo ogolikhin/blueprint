@@ -12,13 +12,13 @@
             </span>
             <ul class="dropdown-menu">
                 <li ng-class=""><a ng-click="$ctrl.setSelectedDirection(0)"><i class="fonticon2-relationship-right"></i>
-                                {{::$ctrl.localization.get('App_UP_Relationships_Selected_To') }}</a>
+                                {{::$ctrl.localization.get('App_UP_Relationships_To') }}</a>
                 </li>
                 <li ng-class=""><a ng-click="$ctrl.setSelectedDirection(1)"><i class="fonticon2-relationship-left"></i>
-                                {{::$ctrl.localization.get('App_UP_Relationships_Selected_From') }}</a>
+                                {{::$ctrl.localization.get('App_UP_Relationships_From') }}</a>
                 </li>
                 <li ng-class=""><a ng-click="$ctrl.setSelectedDirection(2)"><i class="fonticon2-relationship-bi"></i>
-                                {{::$ctrl.localization.get('App_UP_Relationships_Selected_Bidirectional') }}</a>
+                                {{::$ctrl.localization.get('App_UP_Relationships_Bidirectional') }}</a>
                 </li>
             </ul>
         </div>
@@ -26,7 +26,7 @@
                         ng-class="{'fonticon-flag-empty': $ctrl.hasUnFlagged }"
            bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Flag_Traces') }}"></i>
         <i class="icon fonticon-delete-filled" ng-click="$ctrl.deleteTraces($ctrl.selectedTraces[$ctrl.item.id])"
-                        bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Delete_Selected') }}"></i>
+                        bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Delete_Traces') }}"></i>
     </div>
 </div>
 

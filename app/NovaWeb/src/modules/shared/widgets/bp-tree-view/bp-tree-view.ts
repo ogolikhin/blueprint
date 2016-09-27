@@ -129,7 +129,7 @@ export class BPTreeViewController implements IBPTreeViewController {
 
     public $onChanges(onChangesObj: ng.IOnChangesObject): void {
         if (onChangesObj["selectionMode"] || onChangesObj["rootNode"] || onChangesObj["rootNodeVisible"] || onChangesObj["columns"]) {
-            this.resetGridAsync();
+            this.resetGridAsync(false);
         }
     }
 
@@ -138,7 +138,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         this.updateScrollbars(true);
     }
 
-    public resetGridAsync(): ng.IPromise<void> {
+    public resetGridAsync(saveSelection: boolean): ng.IPromise<void> {
         if (this.options.api) {
             this.options.rowSelection = this.selectionMode === "single" ? "single" : "multiple";
             this.options.rowDeselection = this.selectionMode !== "single";
@@ -171,23 +171,28 @@ export class BPTreeViewController implements IBPTreeViewController {
                 rowDataAsync = [];
             }
 
-            // Save selection
             const selectedVMs: {[key: string]: ITreeViewNodeVM} = {};
-            this.options.api.getSelectedRows().forEach((row: ITreeViewNodeVM) => selectedVMs[row.key] = row);
-            this.options.api.setRowData([]);
-            this.options.api.showLoadingOverlay();
+            if (saveSelection) {
+                this.options.api.getSelectedRows().forEach((row: ITreeViewNodeVM) => selectedVMs[row.key] = row);
+            } else {
+                this.options.api.setRowData([]);
+                this.options.api.showLoadingOverlay();
+            }
 
             return this.$q.when(rowDataAsync).then((rowData) => {
                 if (this.options.api) {
                     this.options.api.setRowData(rowData);
                     this.options.api.sizeColumnsToFit();
 
-                    // Restore selection
-                    this.options.api.forEachNode(node => {
-                        if (selectedVMs[node.data.key]) {
-                            node.setSelected(true);
-                        }
-                    });
+                    if (saveSelection) {
+
+                        // Restore selection
+                        this.options.api.forEachNode(node => {
+                            if (selectedVMs[node.data.key]) {
+                                node.setSelected(true);
+                            }
+                        });
+                    }
                 }
             }).finally(() => {
                 if (this.options.api) {
@@ -265,7 +270,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                 if (row) {
                     row.classList.add("ag-row-loading");
                 }
-                vm.loadChildrenAsync().then(() => this.resetGridAsync());
+                vm.loadChildrenAsync().then(() => this.resetGridAsync(true));
             }
             vm.isExpanded = node.expanded;
         }
@@ -331,6 +336,6 @@ export class BPTreeViewController implements IBPTreeViewController {
     }
 
     public onGridReady = (event?: any) => {
-        this.resetGridAsync();
+        this.resetGridAsync(false);
     }
 }

@@ -42,7 +42,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(182360)]
         [Description("Add attachment to the published artifact, check that it throws no error.")]
-        public void AddAttachment_Artifact_DoesntThowError()
+        public void AddAttachment_Artifact_DoesntThrowError()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.TextualRequirement);// it gives 500 error for BaseArtifactType.Document

@@ -192,26 +192,23 @@ namespace ArtifactStore.Repositories
                     PredefinedType = (ItemTypePredefined)artifactBasicDetails.PrimitiveItemTypePredefined,
                     Version = (artifactBasicDetails.VersionIndex <= 0) ? -1 : artifactBasicDetails.VersionIndex,
                     VersionCount = artifactBasicDetails.VersionsCount,
-                    Deleted = (artifactBasicDetails.DraftDeleted || artifactBasicDetails.LatestDeleted),
+                    IsDeleted = (artifactBasicDetails.DraftDeleted || artifactBasicDetails.LatestDeleted),
                     LockedByUser = (artifactBasicDetails.LockedByUserId != null)
-                        ? new UserGroup { Id = artifactBasicDetails.LockedByUserId.Value } : null,
+                        ? new UserGroup { Id = artifactBasicDetails.LockedByUserId.Value, DisplayName = artifactBasicDetails.LockedByUserName } : null,
                     LockedDateTime = artifactBasicDetails.LockedByUserTime,
-                    LockedUserName = artifactBasicDetails.LockedByUserName,
                 };
                 //RolePermissions? Permissions { get; set; }
                 if (artifactBasicDetails.DraftDeleted)
                 {
                     artifactInfo.DeletedByUser = (artifactBasicDetails.UserId != null)
-                            ? new UserGroup { Id = artifactBasicDetails.UserId.Value } : null;
+                            ? new UserGroup { Id = artifactBasicDetails.UserId.Value, DisplayName = artifactBasicDetails.UserName } : null;
                     artifactInfo.DeletedDateTime = artifactBasicDetails.LastSaveTimestamp;
-                    artifactInfo.DeletedUserName = artifactBasicDetails.UserName;
                 }
                 else if (artifactBasicDetails.LatestDeleted)
                 {
                     artifactInfo.DeletedByUser = (artifactBasicDetails.LatestDeletedByUserId != null)
-                            ? new UserGroup { Id = artifactBasicDetails.LatestDeletedByUserId.Value } : null;
+                            ? new UserGroup { Id = artifactBasicDetails.LatestDeletedByUserId.Value, DisplayName = artifactBasicDetails.LatestDeletedByUserName } : null;
                     artifactInfo.DeletedDateTime = artifactBasicDetails.LatestDeletedByUserTime;
-                    artifactInfo.DeletedUserName = artifactBasicDetails.LatestDeletedByUserName;
                 }
             }
 

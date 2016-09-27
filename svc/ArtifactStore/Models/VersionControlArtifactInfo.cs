@@ -38,7 +38,7 @@ namespace ArtifactStore.Models
         public int VersionCount { get; set; }
 
         [JsonProperty]
-        public bool Deleted { get; set; }
+        public bool IsDeleted { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public double? OrderIndex { get; set; }
@@ -53,15 +53,9 @@ namespace ArtifactStore.Models
         public DateTime? LockedDateTime { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string LockedUserName { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public UserGroup DeletedByUser { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public DateTime? DeletedDateTime { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string DeletedUserName { get; set; }
     }
 }

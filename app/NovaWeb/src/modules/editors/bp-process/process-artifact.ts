@@ -6,13 +6,13 @@
     IItemStatus,
     IVersionInfo,
     ItemTypePredefined}
-from "../../../../editors/bp-process/models/process-models";
+from "./models/process-models";
 
-import { StatefulArtifact } from "../artifact";
-import { IStatefulArtifact } from "../../../../managers/models";
+import { StatefulArtifact } from "../../managers/artifact-manager/artifact";
+import { IStatefulArtifact } from "../../managers/models";
 
-import { Models } from "../../../../main/models";
-import { IStatefulProcessArtifactServices } from "../../services";
+import { Models } from "../../main/models";
+import { IStatefulProcessArtifactServices } from "../../managers/artifact-manager/services";
 
 export class StatefulProcessArtifact  extends StatefulArtifact implements IStatefulArtifact, IProcess {
     

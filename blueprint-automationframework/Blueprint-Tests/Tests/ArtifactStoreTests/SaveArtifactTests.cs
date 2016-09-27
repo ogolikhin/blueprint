@@ -182,7 +182,7 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                UpdateInvalidArtifact(requestBody, artifact.Id, _user);
+                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifact.Id, _user);
             }, "'PATCH {0}' should return 400 Bad Request if an empty body is sent!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -205,7 +205,7 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                UpdateInvalidArtifact(requestBody, artifact.Id, _user);
+                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifact.Id, _user);
             }, "'PATCH {0}' should return 400 Bad Request if a corrupt JSON body is sent!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -228,7 +228,7 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                UpdateInvalidArtifact(requestBody, artifact.Id, _user);
+                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifact.Id, _user);
             }, "'PATCH {0}' should return 400 Bad Request if the 'Id' property is missing in the JSON body!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -251,7 +251,7 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                UpdateInvalidArtifact(requestBody, wrongArtifactId, _user);
+                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, wrongArtifactId, _user);
             }, "'PATCH {0}' should return 400 Bad Request if the Artifact ID in the URL is different than in the body!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -399,7 +399,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             string resultContent = null;
-            Assert.DoesNotThrow(() => resultContent = UpdateInvalidArtifact(requestBody, artifact.Id, _user),
+            Assert.DoesNotThrow(() => resultContent = ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifact.Id, _user),
                 "'PATCH {0}' should return 200 OK if properties are out of range!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
         }
@@ -434,7 +434,7 @@ namespace ArtifactStoreTests
             Assert.AreNotEqual(requestBody, modifiedRequestBody, "Check that RequestBody was updated.");
 
             // Execute & Verify:
-            var ex = Assert.Throws<Http400BadRequestException>(() => UpdateInvalidArtifact(modifiedRequestBody, artifact.Id, _user),
+            var ex = Assert.Throws<Http400BadRequestException>(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifact.Id, _user),
                 "'PATCH {0}' should return 400 Bad Request if the value is set to wrong type!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -507,7 +507,7 @@ namespace ArtifactStoreTests
         {
             objectToUpadate.GetType().GetProperty(propertyName).SetValue(objectToUpadate, propertyValue, null);
         }
-
+/*
         /// <summary>
         /// Try to update an invalid Artifact with Property Changes.  Use this for testing cases where the save is expected to fail.
         /// </summary>
@@ -535,7 +535,7 @@ namespace ArtifactStoreTests
 
             return response.Content;
         }
-
+*/
         /// <summary>
         /// Asserts that the specified RestResponse contains the expected error message.
         /// </summary>

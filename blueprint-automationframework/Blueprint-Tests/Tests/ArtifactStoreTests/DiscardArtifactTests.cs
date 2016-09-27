@@ -1,5 +1,4 @@
-﻿using Common;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
@@ -10,7 +9,6 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using TestCommon;
 using Utilities;
-using Utilities.Facades;
 
 namespace ArtifactStoreTests
 {
@@ -217,9 +215,9 @@ namespace ArtifactStoreTests
             requestBody = requestBody.Replace(toChange, changeTo); 
 
             fakeArtifact.Id = publishedArtifacts[i].Id; 
-            fakeArtifact.Lock(); 
+            fakeArtifact.Lock();
 
-            Assert.DoesNotThrow(() => UpdateInvalidArtifact(requestBody, publishedArtifacts[i].Id), 
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, publishedArtifacts[i].Id, _user), 
                 "'PATCH {0}' should return 200 OK if properties are out of range!", 
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_); 
             }
@@ -261,7 +259,7 @@ namespace ArtifactStoreTests
             fakeArtifact.Id = publishedArtifacts[0].Id;
             fakeArtifact.Lock();
 
-            Assert.DoesNotThrow(() => UpdateInvalidArtifact(requestBody, publishedArtifacts[0].Id),
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, publishedArtifacts[0].Id, _user),
                 "'PATCH {0}' should return 200 OK if properties are out of range!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -687,7 +685,7 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="discardArtifactResponse">The response from Nova discard call.</param>
         /// <param name="artifactsTodiscard">artifacts that are being discarded</param>
-        public void DiscardVerification(INovaArtifactsAndProjectsResponse discardArtifactResponse, List<IArtifactBase> artifactsTodiscard)
+        public static void DiscardVerification(INovaArtifactsAndProjectsResponse discardArtifactResponse, List<IArtifactBase> artifactsTodiscard)
         {
             ThrowIf.ArgumentNull(discardArtifactResponse, nameof(discardArtifactResponse));
             ThrowIf.ArgumentNull(artifactsTodiscard, nameof(artifactsTodiscard));
@@ -699,38 +697,6 @@ namespace ArtifactStoreTests
                 Assert.That(tempIds.Contains(artifactsTodiscard[i].Id),
                     "The discarded artifact whose Id is {0} does not exist on the response from the discard call.",artifactsTodiscard[i].Id);
             }
-
-            foreach (var artifact in discardArtifactResponse.Artifacts)
-            {
-                Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id),
-                    "After discarding artifact ID {0} we were still able to get it!", artifact.Id);
-            }
-        }
-
-        /// <summary>
-        /// Try to update an invalid Artifact with Property Changes.  Use this for testing cases where the save is expected to fail.
-        /// </summary>
-        /// <param name="requestBody">The request body (i.e. artifact to be updated).</param>
-        /// <param name="artifactId">The ID of the artifact to save.</param>
-        /// <returns>The body content returned from ArtifactStore.</returns>
-        private string UpdateInvalidArtifact(string requestBody,
-            int artifactId)
-        {
-            ThrowIf.ArgumentNull(_user, nameof(_user));
-
-            string tokenValue = _user.Token?.AccessControlToken;
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
-            RestApiFacade restApi = new RestApiFacade(Helper.BlueprintServer.Address, tokenValue);
-            const string contentType = "application/json";
-
-            var response = restApi.SendRequestBodyAndGetResponse(
-                path,
-                RestRequestMethod.PATCH,
-                requestBody,
-                contentType);
-
-            return response.Content;
         }
 
         #endregion private call

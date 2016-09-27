@@ -11,7 +11,6 @@ using NUnit.Framework;
 using TestCommon;
 using Utilities;
 using Newtonsoft.Json;
-using Utilities.Facades;
 
 namespace ArtifactStoreTests
 {
@@ -617,7 +616,7 @@ namespace ArtifactStoreTests
 
             requestBody = requestBody.Replace(toChange, changeTo);
 
-            Assert.DoesNotThrow(() => UpdateInvalidArtifact(requestBody, artifact.Id),
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifact.Id, _user),
                 "'PATCH {0}' should return 200 OK if properties are out of range!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -657,7 +656,7 @@ namespace ArtifactStoreTests
 
             requestBody = requestBody.Replace(toChange, changeTo);
 
-            Assert.DoesNotThrow(() => UpdateInvalidArtifact(requestBody, artifactList[index].Id),
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifactList[index].Id, _user),
                 "'PATCH {0}' should return 200 OK if properties are out of range!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -738,31 +737,7 @@ namespace ArtifactStoreTests
             return artifactChain;
         }
 
-        /// <summary>
-        /// Try to update an invalid Artifact with Property Changes.  Use this for testing cases where the save is expected to fail.
-        /// </summary>
-        /// <param name="requestBody">The request body (i.e. artifact to be updated).</param>
-        /// <param name="artifactId">The ID of the artifact to save.</param>
-        /// <returns>The body content returned from ArtifactStore.</returns>
-        private string UpdateInvalidArtifact(string requestBody,
-            int artifactId)
-        {
-            ThrowIf.ArgumentNull(_user, nameof(_user));
 
-            string tokenValue = _user.Token?.AccessControlToken;
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
-            RestApiFacade restApi = new RestApiFacade(Helper.BlueprintServer.Address, tokenValue);
-            const string contentType = "application/json";
-
-            var response = restApi.SendRequestBodyAndGetResponse(
-                path,
-                RestRequestMethod.PATCH,
-                requestBody,
-                contentType);
-
-            return response.Content;
-        }
         #endregion Private functions
     }
 }

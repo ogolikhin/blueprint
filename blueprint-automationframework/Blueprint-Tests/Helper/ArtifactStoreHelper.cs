@@ -5,6 +5,8 @@ using NUnit.Framework;
 using Utilities;
 using Model.Factories;
 using System.Linq;
+using Common;
+using Utilities.Facades;
 
 namespace Helper
 {
@@ -167,6 +169,32 @@ namespace Helper
             projectCustomData.GetAllArtifactTypes(ProjectFactory.Address, user);
 
             return projectCustomData;
+        }
+
+        /// <summary>
+        /// Try to update an invalid Artifact with Property Changes.  Use this for testing cases where the save is expected to fail.
+        /// </summary>
+        /// <param name="requestBody">The request body (i.e. artifact to be updated).</param>
+        /// <param name="artifactId">The ID of the artifact to save.</param>
+        /// <returns>The body content returned from ArtifactStore.</returns>
+        public static string UpdateInvalidArtifact(string address, string requestBody,
+            int artifactId, IUser user)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string tokenValue = user.Token?.AccessControlToken;
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
+            RestApiFacade restApi = new RestApiFacade(address, tokenValue);
+            const string contentType = "application/json";
+
+            var response = restApi.SendRequestBodyAndGetResponse(
+                path,
+                RestRequestMethod.PATCH,
+                requestBody,
+                contentType);
+
+            return response.Content;
         }
     }
 }

@@ -5,6 +5,7 @@ using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.FullTextSearchModel.Impl;
+using Model.Impl;
 using NUnit.Framework;
 using Utilities;
 using Utilities.Factories;
@@ -37,10 +38,13 @@ namespace Helper
 
             var artifacts = new List<IArtifactBase>();
 
+            // This keeps the artifact description constant for all created artifacts
+            var randomArtifactDescription = "Description " + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
+
             foreach (var artifactType in baseArtifactTypes)
             {
                 var randomArtifactName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
-                var randomArtifactDescription = "Description " + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
+
 
                 // Create artifact in first project with random Name & DEscription
                 var artifact = testHelper.CreateAndPublishArtifact(projects.First(), user, artifactType);
@@ -65,13 +69,17 @@ namespace Helper
                 artifacts.Add(artifact);
             }
 
-            // Get Name of last artifact published
-            var searchTerm = artifacts.Last().Name;
+            var openApiProperty = artifacts.First().Properties.FirstOrDefault(p => p.Name == "Description");
+
+            Assert.That(openApiProperty != null, "Description property for artifact could not be found!");
+
+            // Search for Description property value which is common to all artifacts
+            var searchTerm = openApiProperty.TextOrChoiceValue;
 
             // Setup: 
             var searchCriteria = new FullTextSearchCriteria(searchTerm, projects.Select(p => p.Id));
 
-            WaitForSearchIndexerToUpdate(user, testHelper, searchCriteria);
+            WaitForSearchIndexerToUpdate(user, testHelper, searchCriteria, artifacts.Count);
 
             // Return the full artifact list
             return artifacts;
@@ -83,11 +91,12 @@ namespace Helper
         /// <param name="user">The user performing the search</param>
         /// <param name="testHelper">An instance of TestHelper</param>
         /// <param name="searchCriteria">The full text search criteria</param>
+        /// <param name="artifactCount"></param>
         /// <param name="timeoutInMilliseconds">(optional) Timeout in milliseconds after which search will terminate 
         /// if not successful </param>
         /// <returns>True if the search criteria was met within the timeout. False if not.</returns>
         public static bool WaitForSearchIndexerToUpdate(IUser user, TestHelper testHelper,
-            FullTextSearchCriteria searchCriteria, int? timeoutInMilliseconds = null)
+            FullTextSearchCriteria searchCriteria, int artifactCount, int? timeoutInMilliseconds = null)
         {
             ThrowIf.ArgumentNull(searchCriteria, nameof(searchCriteria));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -102,9 +111,62 @@ namespace Helper
             do
             {
                 fullTestSearchMetadataResult = testHelper.FullTextSearch.SearchMetaData(user, searchCriteria);
-            } while (fullTestSearchMetadataResult.TotalCount < 1 && DateTime.Now < timeout);
+            } while (fullTestSearchMetadataResult.TotalCount < artifactCount && DateTime.Now < timeout);
 
-            return fullTestSearchMetadataResult.TotalCount >= 1;
+            return fullTestSearchMetadataResult.TotalCount == artifactCount;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="artifactTypes"></param>
+        /// <param name="baseArtifactType"></param>
+        /// <param name="artifactTypeName"></param>
+        /// <returns></returns>
+        public static int GetItemTypeIdForBaseArtifactType(List<OpenApiArtifactType> artifactTypes,
+            BaseArtifactType baseArtifactType, string artifactTypeName = null)
+        {
+            ThrowIf.ArgumentNull(artifactTypes, nameof(artifactTypes));
+
+            OpenApiArtifactType artifactType;
+
+            if (artifactTypeName == null)
+            {
+                artifactType = artifactTypes.Find(t => t.BaseArtifactType == baseArtifactType);
+            }
+            else
+            {
+                artifactType = artifactTypes.Find(t => t.BaseArtifactType == baseArtifactType && t.Name == artifactTypeName);
+            }
+
+            return artifactType.Id;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="projects"></param>
+        /// <param name="baseArtifactTypes"></param>
+        /// <returns></returns>
+        public static List<int> GetItemTypeIdsForBaseArtifactTypes(List<IProject> projects,
+            List<BaseArtifactType> baseArtifactTypes)
+        {
+            ThrowIf.ArgumentNull(projects, nameof(projects));
+            ThrowIf.ArgumentNull(baseArtifactTypes, nameof(baseArtifactTypes));
+
+            var itemTypeIds = new List<int>();
+
+            foreach (var baseArtifactType in baseArtifactTypes)
+            {
+                foreach (var project in projects)
+                {
+                    var itemTypeId = GetItemTypeIdForBaseArtifactType(project.ArtifactTypes, baseArtifactType);
+
+                    itemTypeIds.Add(itemTypeId);
+                }
+            }
+
+            return itemTypeIds;
         }
 
         #region private methods

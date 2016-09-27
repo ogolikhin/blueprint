@@ -8,6 +8,7 @@ using Model.ArtifactModel;
 using Model.Factories;
 using Model.FullTextSearchModel.Impl;
 using TestCommon;
+using Utilities;
 
 namespace SearchServiceTests
 {
@@ -160,9 +161,132 @@ namespace SearchServiceTests
                 "The search hit count for multiple projects was the same as for a single project but should be different.");
         }
 
+        [TestCase(1, 1, -1)]
+        [TestRail(182254)]
+        [Description("Search with one valid project and one invalid project. Executed search must return valid data for the valid project and" +
+                     " ignore the invalid project.")]
+        public void FullTextSearchMetadata_SearchMetadataWithOneValidAndOneInvalidProject_VerifySearchMetadataResultIgnoresInvalidProject(
+            int expectedHitCount,
+            int expectedTotalPageCount,
+            int invalidProjectId)
+        {
+            // Setup: 
+            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
+
+            var searchTerm = _artifacts.First().Name;
+            var projectIds = new List<int>
+            {
+                _projects.First().Id,
+                invalidProjectId
+            };
+
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, projectIds);
+
+            // Execute: Execute FullTextSearch with search term
+            Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
+                Helper.FullTextSearch.SearchMetaData(_user, searchCriteria),
+                "SearchMetaData() call failed when using following search term: {0}!",
+                searchCriteria.Query);
+
+            // Validation:
+            Assert.That(fullTextSearchMetaDataResult.TotalCount.Equals(expectedHitCount), "The expected search hit count is {0} but {1} was returned.", expectedHitCount, fullTextSearchMetaDataResult.TotalCount);
+            Assert.That(fullTextSearchMetaDataResult.TotalPages.Equals(expectedTotalPageCount), "The expected total page count is {0} but {1} was returned.", expectedTotalPageCount, fullTextSearchMetaDataResult.TotalPages);
+            Assert.That(fullTextSearchMetaDataResult.PageSize.Equals(DEFAULT_PAGE_SIZE_VALUE), "The expected default pagesize value is {0} but {1} was found from the returned searchResult.", DEFAULT_PAGE_SIZE_VALUE, fullTextSearchMetaDataResult.PageSize);
+
+        }
+
+        [TestCase(2, 1, new [] {BaseArtifactType.Actor})]
+        [TestCase(6, 1, new[] { BaseArtifactType.Actor, BaseArtifactType.Document, BaseArtifactType.Process })]
+        [TestCase(24, 3, new[] {
+            BaseArtifactType.Actor,
+            BaseArtifactType.Document,
+            BaseArtifactType.Process,
+            BaseArtifactType.DomainDiagram,
+            BaseArtifactType.BusinessProcess,
+            BaseArtifactType.GenericDiagram,
+            BaseArtifactType.Glossary,
+            BaseArtifactType.Storyboard,
+            BaseArtifactType.TextualRequirement,
+            BaseArtifactType.UIMockup,
+            BaseArtifactType.UseCase,
+            BaseArtifactType.UseCaseDiagram })]
+        [TestRail(182253)]
+        [Description("Search over specific artifact types. Executed search must return search metadata result that match only the artifact .")]
+        public void FullTextSearchMetadata_SearchMetadataForSpecificItemTypes_VerifySearchMetadataResultIncludesOnlyTypesSpecified(
+            int expectedHitCount,
+            int expectedTotalPageCount,
+            BaseArtifactType[] baseArtifactTypes)
+        {
+            ThrowIf.ArgumentNull(baseArtifactTypes, nameof(baseArtifactTypes));
+
+            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
+
+            // Setup: 
+            var openApiProperty = _artifacts.First().Properties.FirstOrDefault(p => p.Name == "Description");
+
+            Assert.That(openApiProperty != null, "Description property for artifact could not be found!");
+
+            // Search for Description property value which is common to all artifacts
+            var searchTerm = openApiProperty.TextOrChoiceValue;
+
+            var itemTypeIds = SearchServiceTestHelper.GetItemTypeIdsForBaseArtifactTypes(_projects, baseArtifactTypes.ToList());
+
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id), itemTypeIds);
+
+            // Execute: Execute FullTextSearch with search term
+            Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
+                Helper.FullTextSearch.SearchMetaData(_user, searchCriteria),
+                "SearchMetaData() call failed when using following search term: {0}!",
+                searchCriteria.Query);
+
+            // Validation:
+            Assert.That(fullTextSearchMetaDataResult.TotalCount.Equals(expectedHitCount), "The expected search hit count is {0} but {1} was returned.", expectedHitCount, fullTextSearchMetaDataResult.TotalCount);
+            Assert.That(fullTextSearchMetaDataResult.TotalPages.Equals(expectedTotalPageCount), "The expected total page count is {0} but {1} was returned.", expectedTotalPageCount, fullTextSearchMetaDataResult.TotalPages);
+            Assert.That(fullTextSearchMetaDataResult.PageSize.Equals(DEFAULT_PAGE_SIZE_VALUE), "The expected default pagesize value is {0} but {1} was found from the returned searchResult.", DEFAULT_PAGE_SIZE_VALUE, fullTextSearchMetaDataResult.PageSize);
+        }
+
         #endregion 200 OK Tests
 
         #region 400 Bad Request Tests
+
+        [TestCase]
+        [TestRail(182254)]
+        [Description("Search with no projects in search criteria. Executed search must return HTTP Exception 400: Bad Request.")]
+        public void FullTextSearchMetadata_SearchMetadataWithNoProjects_400BadRequest()
+        {
+            // Setup: 
+            var searchTerm = _artifacts.First().Name;
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, null);
+
+            // Execute & Vaidation: 
+            Assert.Throws<Http400BadRequestException>(() => Helper.FullTextSearch.SearchMetaData(_user, searchCriteria),
+                "SearchMetaData() should have thrown a HTTP 400 Bad Request exception but didn't.");
+        }
+
+        [TestCase]
+        [TestRail(182361)]
+        [Description("Search with no search criteria. Executed search must return HTTP Exception 400: Bad Request.")]
+        public void FullTextSearchMetadata_SearchMetadataWithNoSearchCriteria_400BadRequest()
+        {
+            // Execute & Vaidation: 
+            Assert.Throws<Http400BadRequestException>(() => Helper.FullTextSearch.SearchMetaData(_user, null),
+                "SearchMetaData() should have thrown a HTTP 400 Bad Request exception but didn't.");
+        }
+
+        [TestCase("")]
+        [TestCase("XX")]
+        [TestRail(182362)]
+        [Description("Search with search term less than required length (3). Executed search must return HTTP Exception 400: Bad Request.")]
+        public void FullTextSearchMetadata_SearchMetadataWithInvalidSearchTerm_400BadRequest(string searchTerm)
+        {
+            // Setup: 
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
+
+            // Execute & Vaidation: 
+            Assert.Throws<Http400BadRequestException>(() => Helper.FullTextSearch.SearchMetaData(_user, searchCriteria),
+                "SearchMetaData() should have thrown a HTTP 400 Bad Request exception but didn't.");
+        }
+
         #endregion 400 Bad Request Tests
 
         #region 401 Unauthorized Tests
@@ -175,6 +299,8 @@ namespace SearchServiceTests
         #endregion 409 Conflict Tests
 
         #region Private Functions
+
+
         #endregion Private Functions
 
     }

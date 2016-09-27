@@ -106,7 +106,7 @@ describe("Formly User Picker", () => {
 
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldUserPicker");
         let fieldScope = angular.element(fieldNode[0]).isolateScope();
-        fieldNode[0].querySelector(".ui-select-container").dispatchEvent(new Event("click", { "bubbles": true }));
+        fieldNode[0].querySelector(".ui-select-container > div").dispatchEvent(new Event("click", { "bubbles": true }));
 
         expect(fieldNode.length).toBe(2);
         expect(fieldNode[0]).toBeDefined();

@@ -351,6 +351,18 @@ bp-process-type-toggle {
     }
 }
 
+bp-breadcrumb {
+    a {
+        cursor: pointer;
+        text-decoration: none !important;
+    }
+
+    .nova-breadcrumbs-inaccessible {
+        color: #565656 !important;
+        cursor: default; 
+    }
+}
+
 bp-process-editor {
     /* add text ellipsis to drop down*/
     .dropdown-menu li a,

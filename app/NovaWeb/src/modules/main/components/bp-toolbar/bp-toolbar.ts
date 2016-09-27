@@ -115,10 +115,15 @@ class BPToolbarController implements IBPToolbarController {
                 let refreshAllLoadingId = this.loadingOverlayService.beginLoading();
 
                 if(this._currentArtifact){
-                    this.projectManager.refresh(this.projectManager.getSelectedProject())
-                    .finally(() => {
+                    try{
+                        this.projectManager.refresh(this.projectManager.getSelectedProject())
+                        .finally(() => {
+                            this.loadingOverlayService.endLoading(refreshAllLoadingId);
+                        });
+                    }catch(err){
                         this.loadingOverlayService.endLoading(refreshAllLoadingId);
-                    });
+                        throw err;
+                    }
                 }
                 break;
             case `gotoimpactanalysis`:

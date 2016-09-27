@@ -44,6 +44,9 @@ export class BpBaseEditor {
 
     public onLoad() {
         this.artifactManager.selection.setArtifact(this.artifact);
+        //NOTE: setExplorerArtifact method does not trigger notification
+        this.artifactManager.selection.setExplorerArtifact(this.artifact);
+
         this.artifact.load(this.artifact.artifactState.outdated).then(() => {
             this.onUpdate();
         }).catch((error) => {

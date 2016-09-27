@@ -156,7 +156,7 @@ namespace ArtifactStoreTests
         /// <summary>
         /// Check that Actor has expected Inherits From value.
         /// </summary>
-        /// <param name="actor">Acrtor to check.</param>
+        /// <param name="actor">Actor to check.</param>
         /// <param name="expectedBaseActor">Actor expected in Actor Inheritance.</param>
         /// <param name="user">User to perform operation.</param>
         private void CheckActorHasExpectedActorInheritace(IArtifact actor, IArtifact expectedBaseActor, IUser user)
@@ -195,7 +195,7 @@ namespace ArtifactStoreTests
         /// <summary>
         /// Check that Actor has no traces in Relationships\Other Traces.
         /// </summary>
-        /// <param name="actor">Acrtor to check.</param>
+        /// <param name="actor">Actor to check.</param>
         /// <param name="user">User to perform operation.</param>
         private void CheckActorHasNoOtherTraces(IArtifact actor, IUser user)
         {

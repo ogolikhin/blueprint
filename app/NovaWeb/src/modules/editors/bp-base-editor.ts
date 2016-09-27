@@ -25,13 +25,13 @@ export class BpBaseEditor {
         this.artifactManager.get(obj.context.currentValue).then((artifact) => { // lightweight
             if (artifact) {
                 this.isLoading = true;
-                this.artifact = artifact;
-                const stateObserver = this.artifact.artifactState.observable()
-                        .filter(state => state.outdated || state.deleted)
-                        .subscribeOnNext(this.onLoad, this);
+//                this.artifact = artifact;
+                const artifactObserver = artifact
+                        .getObservable()
+                        .subscribe(this.onArtifactChanged, this.onError);
 
-                this.artifact.refresh();
-                this.subscribers = [stateObserver];
+//                this.artifact.refresh();
+                this.subscribers = [artifactObserver];
             }
         });
     }
@@ -42,22 +42,26 @@ export class BpBaseEditor {
         this.isDestroyed = true;
     }
 
-    public onLoad() {
+    protected onArtifactChanged = (artifact: IStatefulArtifact) =>  {
+        this.artifact = artifact;
         this.artifactManager.selection.setArtifact(this.artifact);
-        //NOTE: setExplorerArtifact method does not trigger notification
         this.artifactManager.selection.setExplorerArtifact(this.artifact);
-
-        this.artifact.load(this.artifact.artifactState.outdated).then(() => {
-            this.onUpdate();
-        }).catch((error) => {
-            this.onUpdate();
-            this.messageService.addError(error);
-        }).finally(() => {
-            this.isLoading = false;
-        })
-        ;
+        this.onLoad();
     }
 
+    public onLoad() {
+        //NOTE: setExplorerArtifact method does not trigger notification
+        this.update();
+    }
+    public onError = (error: any) => {
+        this.messageService.addError(error);
+
+    }
+
+    protected update() {
+        this.onUpdate();
+
+    }
     public onUpdate() {
-    }
+   }
 }

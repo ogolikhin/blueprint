@@ -68,7 +68,7 @@ export class BpArtifactInfoController {
             .filter((artifact: IStatefulArtifact) => artifact != null)
             .flatMap((artifact: IStatefulArtifact) => {
                 this.artifact = artifact;
-                return artifact.artifactState.observable();
+                return artifact.getObservable();
             })
             .subscribeOnNext(this.onStateChanged);
 

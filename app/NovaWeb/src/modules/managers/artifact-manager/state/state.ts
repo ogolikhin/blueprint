@@ -16,11 +16,9 @@ export interface IState {
 
 export interface IArtifactState extends IState, IDispose {
     initialize(artifact: Models.IArtifact): IArtifactState;
-    observable(): Rx.Observable<IArtifactState>; 
     lock(value:  Models.ILockResult): void;
     get(): IState;
     set(value?: IState): void;
-    error?: string;
 } 
 
 
@@ -29,20 +27,14 @@ export class ArtifactState implements IArtifactState {
         lockedBy: Enums.LockedByEnum.None,
     }; 
     
-    private subject: Rx.BehaviorSubject<IArtifactState>;
-    
-
     constructor(private artifact: IIStatefulArtifact) {
-        this.subject = new Rx.BehaviorSubject<IArtifactState>(this);
         this.initialize(artifact);
         
     }
     public dispose() {
-        this.subject.dispose();
     }
     
     private reset(): IState {
-        this.error = null;
         return this.state = {
             lockedBy: Enums.LockedByEnum.None,
         }; 
@@ -55,7 +47,6 @@ export class ArtifactState implements IArtifactState {
         if (value) {
             angular.extend(this.state, value);
         }
-        this.subject.onNext(this);
     }
 
     public initialize(artifact: Models.IArtifact): IArtifactState {
@@ -73,11 +64,6 @@ export class ArtifactState implements IArtifactState {
         return this;
     }
 
-    public observable(): Rx.Observable<IArtifactState> {
-        return this.subject.filter(it => it !== null).asObservable();
-    }    
-
-
     public get lockedBy(): Enums.LockedByEnum {
         return this.state.lockedBy;
     }
@@ -90,7 +76,6 @@ export class ArtifactState implements IArtifactState {
         return this.state.lockOwner;
     }
     
-
     public lock(value: Models.ILockResult) {
         if (value) {
             let lockinfo: IState = {
@@ -110,7 +95,7 @@ export class ArtifactState implements IArtifactState {
     
     }
     public get readonly(): boolean {
-        return this.state.readonly ||
+        return this.state.readonly || this.deleted ||
                this.lockedBy === Enums.LockedByEnum.OtherUser ||
                (this.artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
     }
@@ -164,5 +149,4 @@ export class ArtifactState implements IArtifactState {
         this.state.deleted = value;
     }
 
-    public error: string;
 }

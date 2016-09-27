@@ -26,8 +26,10 @@ export class ArtifactStateController {
         // either gets a loaded artifact or loads if the artifact hasn't been loaded already
         artifactManager.get(id).then((artifact: IStatefulArtifact) => {
             if (artifact) {
+                artifact.unload();
                 this.navigateToSubRoute(artifact.predefinedType, artifact);
             }
+            //TODO::
         });
     }
 

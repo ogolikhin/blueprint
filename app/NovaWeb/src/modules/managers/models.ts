@@ -33,9 +33,8 @@ export interface IBlock<T> {
     discard();
 }
 
-export interface IArtifactProperties {
+export interface IArtifactProperties extends IDispose {
     initialize(properties: Models.IPropertyValue[]); 
-    observable: Rx.Observable<Models.IPropertyValue>;
     get(id: number): Models.IPropertyValue;
     set(id: number, value: any): Models.IPropertyValue;
     changes(): Models.IPropertyValue[];
@@ -63,15 +62,20 @@ export interface IIStatefulItem extends IStatefulItem  {
 }
 
 export interface IStatefulArtifact extends IStatefulItem, IDispose  {
-    observable(): Rx.Observable<IStatefulArtifact>;
+    /**
+     * Unload full weight artifact
+     */
+    unload();
     subArtifactCollection: ISubArtifactCollection;
-    load(force?: boolean): ng.IPromise<IStatefulArtifact>;
+    //load(force?: boolean): ng.IPromise<IStatefulArtifact>;
     save(): ng.IPromise<IStatefulArtifact>;
     autosave(): ng.IPromise<IStatefulArtifact>;
     publish(): ng.IPromise<IStatefulArtifact>;
     refresh(): ng.IPromise<IStatefulArtifact>;
     
     setValidationErrorsFlag(value: boolean);
+
+    getObservable(): Rx.Observable<IStatefulArtifact>;
 }
 
 // TODO: explore the possibility of using an internal interface for services

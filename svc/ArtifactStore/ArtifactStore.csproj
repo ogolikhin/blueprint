@@ -114,6 +114,7 @@
     <Compile Include="Helpers\MentionHelper.cs" />
     <Compile Include="Helpers\PropertyHelper.cs" />
     <Compile Include="Models\Artifact.cs" />
+    <Compile Include="Models\ArtifactBasicDetails.cs" />
     <Compile Include="Models\ArtifactHistoryResultSet.cs" />
     <Compile Include="Models\ArtifactDetailsResultSet.cs" />
     <Compile Include="Models\FilesInfo.cs" />

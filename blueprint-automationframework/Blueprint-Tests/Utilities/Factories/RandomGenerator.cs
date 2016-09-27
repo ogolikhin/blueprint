@@ -97,5 +97,24 @@ namespace Utilities.Factories
         {
             return I18NHelper.FormatInvariant("{0}_{1}", prefix, RandomAlphaNumericUpperAndLowerCase(numberOfCharacters));
         }
+
+        /// <summary>
+        /// Generates a random alpha-numeric string (with both upper and lower case letters, numbers and spaces).
+        /// </summary>
+        /// <returns>A random string with spaces.</returns>
+        public static string RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces()
+        {
+            string randomString = string.Empty;
+
+            randomString += RandomAlphaNumericUpperAndLowerCase(5);
+            randomString += " ";
+            randomString += RandomAlphaNumericUpperAndLowerCase(5);
+            randomString += " ";
+            randomString += RandomSpecialChars(4);
+            randomString += " ";
+            randomString += RandomNumber();
+
+            return randomString;
+        }
     }
 }

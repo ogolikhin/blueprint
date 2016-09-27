@@ -89,6 +89,11 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             isChoiceSelected: function (item, $select): boolean {
                 return $select.selected.map(function (e) { return e[$scope.to.valueProp]; }).indexOf(item[$scope.to.valueProp]) !== -1;
             },
+            areStillChoicesAvailable: function ($select): boolean {
+                return $select.items.some((elem) => {
+                    return !this.isChoiceSelected(elem, $select);
+                });
+            },
             toggleScrollbar: function (removeScrollbar?: boolean) {
                 if (!removeScrollbar) {
                     if ($scope["uiSelectContainer"]) {
@@ -220,20 +225,24 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             },
             onHighlight: function (option, $select) {
                 if (this.isChoiceSelected(option, $select)) {
-                    if ($select.activeIndex >= this.currentSelectedItem) {
-                        if ($select.activeIndex < $select.items.length - 1) {
-                            $select.activeIndex++;
+                    if (this.areStillChoicesAvailable($select)) {
+                        if ($select.activeIndex >= this.currentSelectedItem) {
+                            if ($select.activeIndex < $select.items.length - 1) {
+                                $select.activeIndex++;
+                            } else {
+                                this.currentSelectedItem = $select.activeIndex;
+                                $select.activeIndex--;
+                            }
                         } else {
-                            this.currentSelectedItem = $select.activeIndex;
-                            $select.activeIndex--;
+                            if ($select.activeIndex > 0) {
+                                $select.activeIndex--;
+                            } else {
+                                this.currentSelectedItem = $select.activeIndex;
+                                $select.activeIndex++;
+                            }
                         }
                     } else {
-                        if ($select.activeIndex > 0) {
-                            $select.activeIndex--;
-                        } else {
-                            this.currentSelectedItem = $select.activeIndex;
-                            $select.activeIndex++;
-                        }
+                        $select.activeIndex = -1;
                     }
                 } else {
                     this.currentSelectedItem = $select.activeIndex;

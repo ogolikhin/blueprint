@@ -42,7 +42,7 @@ export class ProcessEnd extends DiagramNode<IProcessShape> {
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
         this.insertVertex(graph.getMxGraph(), this.model.id.toString(), this.name, x - this.PROCESS_END_SHIFT, y, this.PROCESS_END_WIDTH,
             this.PROCESS_END_HEIGHT, "shape=ellipse;strokeColor=#d4d5da;strokeWidth=3;fillColor=#ffffff;labelWidth=35;" +
-            "verticalLabelPosition=bottom;fontColor=#000000;fontFamily=Open Sans, sans - serif;fontStyle = 1; fontSize = 11;" +
+            "verticalLabelPosition=bottom;fontColor=#000000;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=11;" +
             " foldable = 0; editable = 0");
         graph.endNode = this;
 

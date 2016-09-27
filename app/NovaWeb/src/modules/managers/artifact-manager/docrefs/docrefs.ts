@@ -71,7 +71,7 @@ export class DocumentRefs implements IDocumentRefs {
                     key: docref.artifactId,
                     value: docref
                 } as IChangeSet;
-                this.changeset.add(changeset, docref);
+                this.changeset.add(changeset);
                 
                 this.statefulItem.lock();
             });
@@ -98,7 +98,7 @@ export class DocumentRefs implements IDocumentRefs {
                         key: docref.artifactId,
                         value: docref
                     } as IChangeSet;
-                    this.changeset.add(changeset, docref);
+                    this.changeset.add(changeset);
                     
                     this.statefulItem.lock();
                 }
@@ -112,27 +112,16 @@ export class DocumentRefs implements IDocumentRefs {
     public changes(): IArtifactDocRef[] {
         let docRefChanges = new Array<IArtifactDocRef>();
         let changes = this.changeset.get();
-        let addChanges = changes.filter((it: IChangeSet) => it.type === ChangeTypeEnum.Add)[0];
-        let deleteChanges = changes.filter((it: IChangeSet) => it.type === ChangeTypeEnum.Delete)[0];
-        if (addChanges && addChanges.value.length > 0) {
-            addChanges.value.forEach(addChange => {
-                var docRef = addChange.value as IArtifactDocRef;
-                docRef.changeType = 0;
-                docRefChanges.push(docRef);
-            });
-        }
-        if (deleteChanges && deleteChanges.value.length > 0) {
-            deleteChanges.value.forEach(deleteChange => {
-                var docRef = deleteChange.value as IArtifactDocRef;
-                docRef.changeType = 2;
-                docRefChanges.push(docRef);
-            });
-        }
+        changes.forEach(change => {
+            const docRef = change.value as IArtifactDocRef;
+            docRef.changeType = change.type;
+            docRefChanges.push(docRef);
+        });
         return docRefChanges;
     }
 
     public discard() {
-        this.docrefs = this.changeset.reset().map((changeset: IChangeSet) => changeset.value);
+        this.changeset.reset();
         this.subject.onNext(this.docrefs);
     }
 }

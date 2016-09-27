@@ -1,4 +1,4 @@
-﻿import { ILocalizationService, IMessageService } from "../../../core";
+﻿import { ILocalizationService } from "../../../core";
 import { IDialogSettings, IDialogService } from "../../../shared";
 import { Models} from "../../models";
 import { IArtifactManager, IProjectManager } from "../../../managers";
@@ -31,7 +31,6 @@ class BPToolbarController implements IBPToolbarController {
         "dialogService",
         "projectManager",
         "artifactManager",
-        "messageService",
         "$rootScope",
         "loadingOverlayService",
         "$timeout",
@@ -42,7 +41,6 @@ class BPToolbarController implements IBPToolbarController {
         private dialogService: IDialogService,
         private projectManager: IProjectManager,
         private artifactManager: IArtifactManager,
-        private messageService: IMessageService,
         private $rootScope: ng.IRootScopeService,
         private loadingOverlayService: ILoadingOverlayService,
         private $timeout: ng.ITimeoutService, //Used for testing, remove later
@@ -114,34 +112,23 @@ class BPToolbarController implements IBPToolbarController {
                 });
                 break;
             case `refreshall`:
-                //Test Code: Do an arbitrary REST call to AdminStore, then popup a message.
                 let refreshAllLoadingId = this.loadingOverlayService.beginLoading();
 
-                this.$http.get(`svc/adminstore/licenses/transactions?days=50`)
-                .then(
-                    (response) => { console.log("two"); return this.$http.get(`svc/adminstore/licenses/transactions?days=50`); }
-                )
-                .then(
-                    (response) => { console.log("three"); return this.$http.get(`svc/adminstore/licenses/transactions?days=50`); }
-                )
-                .then(
-                    (response) => { console.log("four"); return this.$http.get(`svc/adminstore/licenses/transactions?days=50`); }
-                )
-                .then(
-                    (response) => { console.log("five"); return this.$http.get(`svc/adminstore/licenses/transactions?days=50`); }
-                )
-                .finally(() => {
-                    this.loadingOverlayService.endLoading(refreshAllLoadingId);
-                    this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
-                });
-                
-                /*
-                this.$http.get(`svc/adminstore/licenses/transactions?days=50`).then(
-                    (success) => { console.log("call two"); return this.$http.get(`svc/adminstore/licenses/transactions?days=50`);}
-                ).finally(() => {
-                    this.loadingOverlayService.endLoading(refreshAllLoadingId);
-                    this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
-                });*/
+                if(this._currentArtifact){
+                    try{
+                        this.projectManager.refresh(this.projectManager.getSelectedProject())
+                        .finally(() => {
+                            this.loadingOverlayService.endLoading(refreshAllLoadingId);
+                        });
+                    }catch(err){
+                        this.loadingOverlayService.endLoading(refreshAllLoadingId);
+                        throw err;
+                    }
+                }
+                break;
+            case `gotoimpactanalysis`:
+                let url = `Web/#/ImpactAnalysis/${this._currentArtifact}`;
+                window.open(url);
                 break;
             default:
                 this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
@@ -162,11 +149,6 @@ class BPToolbarController implements IBPToolbarController {
     private deleteArtifact() {
     }
 
-    public goToImpactAnalysis() {
-        let url = `Web/#/ImpactAnalysis/${this._currentArtifact}`;
-        window.open(url);
-    }
-
     public $onInit(o) {
         this._subscribers = [
             this.artifactManager.selection.artifactObservable.subscribe(this.displayArtifact)
@@ -182,6 +164,10 @@ class BPToolbarController implements IBPToolbarController {
         this._currentArtifact =
             Helper.canUtilityPanelUseSelectedArtifact(artifact) && 
             artifact.version !== 0 ? artifact.id : null;
+    }
+    
+    public get canRefreshAll(): boolean{
+        return !!this._currentArtifact;
     }
 
 }

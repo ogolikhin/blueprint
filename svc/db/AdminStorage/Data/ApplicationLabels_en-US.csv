@@ -82,6 +82,7 @@ App_UP_Attachments_Upload_Error,"Upload error."
 App_UP_Attachments_Upload_Empty,"There are no files to upload."
 App_UP_Attachments_Upload_Total_Failed,"Total items failed:"
 App_UP_Attachments_Upload_Dialog_Header,"File Upload"
+App_UP_Attachments_Add_Same_DocRef_Error, "Artifact already contains this document reference"
 
 App_UP_Document_File_Change, "Change"
 App_UP_Document_File_Upload, "Upload"

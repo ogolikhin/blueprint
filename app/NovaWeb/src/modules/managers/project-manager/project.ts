@@ -4,14 +4,25 @@ import { IStatefulArtifact, IArtifactNode } from "../models";
 export class ArtifactNode implements IArtifactNode {
     private _artifact: IStatefulArtifact;
     public children: IArtifactNode[];
+    public parentNode: IArtifactNode;
 
-    constructor(artifact: IStatefulArtifact ) { //
+    constructor(artifact: IStatefulArtifact, parentNode: IArtifactNode) {
         if (!artifact) {
             throw new Error("Artifact_Not_Found");
         }
         this._artifact = artifact;
         this.hasChildren = artifact.hasChildren;
+        this.parentNode = parentNode;
     };
+    
+    public dispose() {
+        if (angular.isArray(this.children)) {
+            this.children.forEach((it: IArtifactNode) => it.dispose );
+        }
+        delete this.children;
+        delete this.parentNode;
+        delete this._artifact;
+    }
 
     public get artifact(): IStatefulArtifact {
         return this._artifact;
@@ -52,9 +63,15 @@ export class Project extends ArtifactNode {
 
     public meta: Models.IProjectMeta;
     public constructor(artifact: IStatefulArtifact) {
-        super(artifact);
+        super(artifact, null);
         this.open = true;
         this.hasChildren = true;
+
+    }
+
+    public dispose() {
+        super.dispose();
+        delete this.meta;
 
     }
 

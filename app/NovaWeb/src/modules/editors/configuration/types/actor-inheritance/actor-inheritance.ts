@@ -1,4 +1,4 @@
-﻿import "angular";
+﻿﻿import "angular";
 import { ILocalizationService, IMessageService } from "../../../../core";
 import { IDialogSettings, IDialogService } from "../../../../shared";
 import { BPFieldBaseController } from "../base-controller";
@@ -80,9 +80,9 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
                 showSubArtifacts: false
             };
 
-            dialogService.open(dialogSettings, dialogData).then((artifact: Models.IArtifact) => {
-
-                if (artifact) {
+            dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {
+                if (items.length === 1) {
+                    const artifact = items[0];
                     let selected = selectionManager.getArtifact();
                     if (selected) {
                         if (selected.id === artifact.id) {
@@ -104,7 +104,10 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
                         isProjectPathVisible: isArtifactactPathFitToControl(artifact.prefix, artifact.name, artifact.id, artifactPath)
                     };
                     currentModelVal = $scope.model[$scope.options["key"]];
-                    onChange(currentModelVal, getInheritanceField(), $scope);
+                    var changedResult = {
+                        actorId: artifact.id,
+                    };
+                    onChange(changedResult, getInheritanceField(), $scope);
                 }
             });
         }

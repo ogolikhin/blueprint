@@ -8,6 +8,7 @@ export { IArtifactManager, IProjectManager, IStatefulArtifact, IMessageService, 
 
 export class BpBaseEditor {
     protected subscribers: Rx.IDisposable[];
+    protected isDestroyed: boolean;
     public artifact: IStatefulArtifact;
     public isLoading: boolean;
 
@@ -17,66 +18,46 @@ export class BpBaseEditor {
         this.subscribers = [];
     }
 
-    public $onInit() {
-    }
+    public $onInit() { }
 
     public $onChanges(obj: any) {
-        // this.artifact = this.context;
-        try {
-            // this.artifactManager.selection.clearAll();
+        this.isDestroyed = false;
+        this.artifactManager.get(obj.context.currentValue).then((artifact) => { // lightweight
+            if (artifact) {
+                this.isLoading = true;
+                this.artifact = artifact;
+                const stateObserver = this.artifact.artifactState.observable()
+                        .filter(state => state.outdated || state.deleted)
+                        .subscribeOnNext(this.onLoad, this);
 
-            this.artifactManager.get(obj.context.currentValue).then((artifact) => { // lightweight
-                if (this.onLoading(artifact)) {
-                    this.artifact.artifactState.outdated = true;
-                }
-             });
-        } catch (ex) {
-            this.messageService.addError(ex.message);
-            throw ex;
-        }
+                this.artifact.refresh();
+                this.subscribers = [stateObserver];
+            }
+        });
     }
 
     public $onDestroy() {
-        try {
-            delete this.artifact;
-            this.subscribers = (this.subscribers || []).filter((it: Rx.IDisposable) => { it.dispose(); return false; });
-        } catch (ex) {
-            this.messageService.addError(ex.message);
-            throw ex;
-        }
-    }
-
-    public onLoading(artifact: IStatefulArtifact): boolean {
-        this.isLoading = true;
-        if (artifact) {
-            this.artifact = artifact;
-            this.subscribers.push(
-                this.artifact.artifactState.observable().filter(this.shouldbeUpdated).subscribeOnNext(this.onStateChange, this)
-            );
-        }
-        
-        return !!this.artifact;
+        delete this.artifact;
+        this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        this.isDestroyed = true;
     }
 
     public onLoad() {
         this.artifactManager.selection.setArtifact(this.artifact);
+        //NOTE: setExplorerArtifact method does not trigger notification
+        this.artifactManager.selection.setExplorerArtifact(this.artifact);
+
         this.artifact.load(this.artifact.artifactState.outdated).then(() => {
             this.onUpdate();
-        });
+        }).catch((error) => {
+            this.onUpdate();
+            this.messageService.addError(error);
+        }).finally(() => {
+            this.isLoading = false;
+        })
+        ;
     }
 
     public onUpdate() {
-        this.isLoading = false;
     }
-
-    private shouldbeUpdated(state: IArtifactState): boolean {
-        return !!state.outdated;
-    }
-
-    private onStateChange(state: any) {
-        this.onLoad();
-    }
-
 }
-
-

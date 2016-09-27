@@ -13,25 +13,27 @@ namespace Model.ArtifactModel.Impl
     {
         #region Serialized JSON Properties
 
-        public Identification CreatedBy { get; set; }
-        public DateTime? CreatedOn { get; set; }
-        public DateTime? LastSavedOn { get; set; }
-        public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();
-        public string Description { get; set; }
-        public int Id { get; set; }
-        public int? ItemTypeId { get; set; }
-        public int ItemTypeVersionId { get; set; }
-        public Identification LastEditedBy { get; set; }
-        public DateTime? LastEditedOn { get; set; }
-        public Identification LockedByUser { get; set; }
-        public DateTime? LockedDateTime { get; set; }
-        public string Name { get; set; }
-        public double OrderIndex { get; set; }
-        public int ParentId { get; set; }
-        public int Permissions { get; set; }
         public int ProjectId { get; set; }
         public int Version { get; set; }
-        public List<CustomProperty> SpecificPropertyValues { get; } = new List<CustomProperty>();   // XXX: Right now ArtifactStore always returns an empty list for this.
+        public DateTime? CreatedOn { get; set; }
+        public DateTime? LastEditedOn { get; set; }
+        public Identification CreatedBy { get; set; }
+        public Identification LastEditedBy { get; set; }
+        public DateTime? LastSavedOn { get; set; }
+        public int Permissions { get; set; }
+        public Identification LockedByUser { get; set; }
+        public DateTime? LockedDateTime { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public int ParentId { get; set; }
+        public double OrderIndex { get; set; }
+        public int? ItemTypeId { get; set; }
+        public int ItemTypeVersionId { get; set; }
+        public string Prefix { get; set; }
+        public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();
+        public List<CustomProperty> SpecificPropertyValues { get; } = new List<CustomProperty>();
+        public int? PredefinedType { get; set; }
 
         #endregion Serialized JSON Properties
 
@@ -177,39 +179,40 @@ namespace Model.ArtifactModel.Impl
         /// Returns ActorInheritanceValue. It represents information from Inherited from field for Actor.
         /// </summary>
         /// <exception cref="FormatException">Throws FormatException if ActorInheritanceValue doesn't correspond to server JSON.</exception>
-        [SuppressMessage("Microsoft.Design", "CA1024:ChangeToProperty")]
-        public ActorInheritanceValue GetActorInheritance()
+        [JsonIgnore]
+        public ActorInheritanceValue ActorInheritance
         {
+            get
+            {
             // Finding ActorInheritence among other properties
             CustomProperty actorInheritanceProperty = SpecificPropertyValues.FirstOrDefault(
                 p => p.PropertyType == PropertyTypePredefined.ActorInheritance);
-
-            if (actorInheritanceProperty == null)
+            if ((actorInheritanceProperty == null) || (actorInheritanceProperty.CustomPropertyValue == null))
             {
                 return null;
             }
-
             // Deserialization
             string actorInheritancePropertyString = actorInheritanceProperty.CustomPropertyValue.ToString();
             var actorInheritanceValue = JsonConvert.DeserializeObject<ActorInheritanceValue>(actorInheritancePropertyString);
 
-            // Try to serialize and compare with JSON from the server
-            string serializedObject = JsonConvert.SerializeObject(actorInheritanceValue, Formatting.Indented);
-            bool isJSONChanged = !(string.Equals(actorInheritancePropertyString, serializedObject, StringComparison.OrdinalIgnoreCase));
+                CheckIsJSONChanged<ActorInheritanceValue>(actorInheritanceProperty);
 
-            if (isJSONChanged)
-            {
-                    string msg = Common.I18NHelper.FormatInvariant("JSON for {0} has been changed!", nameof(ActorInheritanceValue));
-                    throw new FormatException(msg);
+                return actorInheritanceValue;
             }
-            //
-            return actorInheritanceValue;
+
+            set
+            {
+                CustomProperty actorInheritanceProperty = SpecificPropertyValues.FirstOrDefault(
+                    p => p.PropertyType == PropertyTypePredefined.ActorInheritance);
+                actorInheritanceProperty.CustomPropertyValue = value;
+            }
         }
 
         /// <summary>
         /// Gets or sets the DocumentFile property for Artifact of Document type.
         /// TODO: replace this and GetActorInheritance function with generic function
         /// </summary>
+        [JsonIgnore]
         public DocumentFileValue DocumentFile
         {
             get
@@ -218,7 +221,17 @@ namespace Model.ArtifactModel.Impl
                 CustomProperty documentFileProperty = SpecificPropertyValues.FirstOrDefault(
                     p => p.PropertyType == PropertyTypePredefined.DocumentFile);
 
-                return (DocumentFileValue) documentFileProperty?.CustomPropertyValue;
+                if ((documentFileProperty == null) || (documentFileProperty.CustomPropertyValue == null))
+                {
+                    return null;
+                }
+
+                // Deserialization
+                //string documentFilePropertyString = documentFileProperty.CustomPropertyValue.ToString();
+                //var documentFilePropertyValue = JsonConvert.DeserializeObject<DocumentFileValue>(documentFilePropertyString);
+                //CheckIsJSONChanged<DocumentFileValue>(documentFileProperty);
+
+                return (DocumentFileValue)documentFileProperty.CustomPropertyValue;
             }
 
             set
@@ -228,6 +241,19 @@ namespace Model.ArtifactModel.Impl
                     p => p.PropertyType == PropertyTypePredefined.DocumentFile);
                 documentFileProperty.CustomPropertyValue = value;
             }
+        }
+
+        private static void CheckIsJSONChanged<TClass>(CustomProperty property)
+        {
+            // Deserialization
+            string specificPropertyString = property.CustomPropertyValue.ToString();
+            var specificPropertyValue = JsonConvert.DeserializeObject<TClass>(specificPropertyString);
+
+            // Try to serialize and compare with JSON from the server
+            string serializedObject = JsonConvert.SerializeObject(specificPropertyValue, Formatting.Indented);
+            bool isJSONChanged = !(string.Equals(specificPropertyString, serializedObject, StringComparison.OrdinalIgnoreCase));
+            string msg = Common.I18NHelper.FormatInvariant("JSON for {0} has been changed!", nameof(TClass));
+            Assert.IsFalse(isJSONChanged, msg);
         }
 
         public class Identification

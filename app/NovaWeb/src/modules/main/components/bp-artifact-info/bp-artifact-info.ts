@@ -5,6 +5,7 @@ import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerController, IArtifactPickerOptions } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
 import { ILoadingOverlayService } from "../../../core/loading-overlay";
 import { IArtifactManager, IStatefulArtifact } from "../../../managers/artifact-manager";
+import { INavigationService } from "../../../core/navigation/navigation.svc";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -24,7 +25,8 @@ export class BpArtifactInfoController {
         "messageService", 
         "dialogService", 
         "windowManager", 
-        "loadingOverlayService"
+        "loadingOverlayService",
+        "navigationService"
     ];
 
     private subscribers: Rx.IDisposable[];
@@ -50,17 +52,19 @@ export class BpArtifactInfoController {
         private messageService: IMessageService,
         private dialogService: IDialogService,
         private windowManager: IWindowManager,
-        private loadingOverlayService: ILoadingOverlayService
+        private loadingOverlayService: ILoadingOverlayService,
+        private navigationService: INavigationService
     ) {
         this.initProperties();
-        this.subscribers = [];     
+        this.subscribers = [];
     }
 
     public $onInit() {
         const windowSub = this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
-        const stateSub = this.artifactManager.selection
-            .artifactObservable
-            .skip(1) // skip the first (initial) value
+        const stateSub = this.artifactManager.selection.artifactObservable
+            // cannot always skip 1 and rely on the artifact observable having 2 values (initial and new)
+            // this is true when navigating to artifact X from artifact X via breadcrumb (loop)
+            //.skip(1) // skip the first (initial) value
             .filter((artifact: IStatefulArtifact) => artifact != null)
             .flatMap((artifact: IStatefulArtifact) => {
                 this.artifact = artifact;
@@ -148,8 +152,8 @@ export class BpArtifactInfoController {
             default:
                 break;
         }
-        if (artifact.artifactState.error) {
-            this.dialogService.alert(artifact.artifactState.error);
+        if (artifact.artifactState.misplaced) {
+            this.dialogService.alert("Artifact_Lock_DoesNotExist");
         }
     }
 
@@ -202,21 +206,20 @@ export class BpArtifactInfoController {
         }
     }
 
-    
-     public saveChanges() {
-         let overlayId: number = this.loadingOverlayService.beginLoading();
-         try {
+    public saveChanges() {
+        let overlayId: number = this.loadingOverlayService.beginLoading();
+        try {
             this.artifactManager.selection.getArtifact().save().finally(() => {
-               this.loadingOverlayService.endLoading(overlayId);
+                this.loadingOverlayService.endLoading(overlayId);
             });
         } catch (err) {
             this.messageService.addError(err);
             this.loadingOverlayService.endLoading(overlayId);
             throw err;
         }
-     }
+    }
 
-    public openPicker() {
+    public openPicker($event: MouseEvent) {
         const dialogSettings: IDialogSettings = {
             okButton: this.localization.get("App_Button_Ok"),
             template: require("../dialogs/bp-artifact-picker/bp-artifact-picker.html"),
@@ -226,12 +229,27 @@ export class BpArtifactInfoController {
         };
 
         const dialogData: IArtifactPickerOptions = {
-            selectableItemTypes: [],
+            selectionMode: $event.shiftKey ? "multiple" : ($event.ctrlKey || $event.metaKey) ? "checkbox" : "single",
             showSubArtifacts: true
         };
 
-        this.dialogService.open(dialogSettings, dialogData).then((artifact: any) => {
-            
+        this.dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {
+            console.log(items);
         });
     }
+
+    public refresh() {
+        //loading overlay
+        let overlayId = this.loadingOverlayService.beginLoading();
+        let currentArtifact = this.artifactManager.selection.getArtifact();
+        
+        currentArtifact.refresh()
+            .catch((error) => {
+                this.dialogService.alert(error.message);
+                this.navigationService.navigateToArtifact(currentArtifact.parentId);
+                this.artifactManager.remove(currentArtifact.id);
+            }).finally(() => {
+                this.loadingOverlayService.endLoading(overlayId);
+            });
+      }
 }

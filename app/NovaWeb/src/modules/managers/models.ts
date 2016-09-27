@@ -1,5 +1,5 @@
 import { Models, Enums } from "../main/models";
-import { IArtifactState } from "./artifact-manager";
+import { IArtifactState, IState } from "./artifact-manager";
 import { IStatefulArtifactServices } from "./artifact-manager/services";
 import { ISession } from "../shell/login/session.svc";
 import { Relationships } from "../main";
@@ -16,7 +16,8 @@ import {
 export { 
     ISession,
     IArtifactAttachmentsResultSet, 
-    IArtifactAttachmentsService
+    IArtifactAttachmentsService,
+    IState
 };
 
 export interface IDispose {
@@ -33,12 +34,12 @@ export interface IBlock<T> {
 }
 
 export interface IArtifactProperties {
-    initialize(properties: Models.IPropertyValue[]): IArtifactProperties; 
+    initialize(properties: Models.IPropertyValue[]); 
     observable: Rx.Observable<Models.IPropertyValue>;
     get(id: number): Models.IPropertyValue;
     set(id: number, value: any): Models.IPropertyValue;
     changes(): Models.IPropertyValue[];
-    discard(all?: boolean);
+    discard();
 }
 
 // TODO: make as a base class for IStatefulArtifact / IStatefulSubArtifact
@@ -51,7 +52,7 @@ export interface IStatefulItem extends Models.IArtifact {
     attachments: IArtifactAttachments;
     relationships: IArtifactRelationships;
     docRefs: IDocumentRefs;
-    discard(all?: boolean);
+    discard();
     lock(): ng.IPromise<IStatefulArtifact>;
 }
 
@@ -66,6 +67,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose  {
     subArtifactCollection: ISubArtifactCollection;
     load(force?: boolean): ng.IPromise<IStatefulArtifact>;
     save(): ng.IPromise<IStatefulArtifact>;
+    autosave(): ng.IPromise<IStatefulArtifact>;
     publish(): ng.IPromise<IStatefulArtifact>;
     refresh(): ng.IPromise<IStatefulArtifact>;
     
@@ -84,13 +86,14 @@ export interface IStatefulSubArtifact extends IStatefulItem, Models.ISubArtifact
     changes(): Models.ISubArtifact;
 }
 
-export interface IArtifactNode {
+export interface IArtifactNode extends IDispose {
     artifact: IStatefulArtifact;
     children?: IArtifactNode[];
+    parentNode: IArtifactNode;
     id: number;
     name: string;
     projectId: number;
-    parentId: number;
+    //parentId: number;
     permissions: Enums.RolePermissions;
     predefinedType: Models.ItemTypePredefined;
     hasChildren?: boolean;

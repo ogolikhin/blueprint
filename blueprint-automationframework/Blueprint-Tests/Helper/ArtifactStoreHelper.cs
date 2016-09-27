@@ -13,7 +13,7 @@ namespace Helper
         /// </summary>
         /// <param name="returnedProjects">The list of returned projects.</param>
         /// <param name="expectedProject">The expected project.</param>
-        public static void AssertExpectedProjectWasReturned(List<INovaProject> returnedProjects, IProject expectedProject)
+        public static void AssertOnlyExpectedProjectWasReturned(List<INovaProject> returnedProjects, IProject expectedProject)
         {
             AssertAllExpectedProjectsWereReturned(returnedProjects, new List<IProject> { expectedProject });
         }
@@ -23,13 +23,21 @@ namespace Helper
         /// </summary>
         /// <param name="returnedProjects">The list of returned projects.</param>
         /// <param name="expectedProjects">The list of expected projects.</param>
-        public static void AssertAllExpectedProjectsWereReturned(List<INovaProject> returnedProjects, List<IProject> expectedProjects)
+        /// <param name="assertNoUnexpectedProjectsWereReturned">(optional) Also verifies that no projects other than the expected projects were returned.
+        ///     Pass false to disable this check.</param>
+        public static void AssertAllExpectedProjectsWereReturned(
+            List<INovaProject> returnedProjects,
+            List<IProject> expectedProjects,
+            bool assertNoUnexpectedProjectsWereReturned = true)
         {
             ThrowIf.ArgumentNull(expectedProjects, nameof(expectedProjects));
             ThrowIf.ArgumentNull(returnedProjects, nameof(returnedProjects));
 
-            Assert.AreEqual(expectedProjects.Count, returnedProjects.Count,
-                "There should be {0} projects returned!", expectedProjects.Count);
+            if (assertNoUnexpectedProjectsWereReturned)
+            {
+                Assert.AreEqual(expectedProjects.Count, returnedProjects.Count,
+                    "There should be {0} projects returned!", expectedProjects.Count);
+            }
 
             foreach (var expectedProject in expectedProjects)
             {
@@ -94,7 +102,7 @@ namespace Helper
         /// <param name="artifactAndProjectResponse">The response from the Nova call.</param>
         /// <param name="artifacts">The OpenApi artifacts that we sent to the Nova call.</param>
         /// <param name="expectedVersion">The version expected in the artifacts.</param>
-        public static void AssertArtifactAndProjectResponseContainsAllArtifactsInListAndHasExpectedVersion(
+        public static void AssertArtifactsAndProjectsResponseContainsAllArtifactsInListAndHasExpectedVersion(
             INovaArtifactsAndProjectsResponse artifactAndProjectResponse,
             List<IArtifactBase> artifacts,
             int expectedVersion)
@@ -104,18 +112,39 @@ namespace Helper
 
             foreach (var artifact in artifacts)
             {
-                var publishedArtifact = artifactAndProjectResponse.Artifacts.Find(a => a.Id == artifact.Id);
-                Assert.NotNull(publishedArtifact, "Couldn't find artifact ID {0} in the list of artifacts!");
+                var novaArtifactResponse = artifactAndProjectResponse.Artifacts.Find(a => a.Id == artifact.Id);
+                Assert.NotNull(novaArtifactResponse, "Couldn't find artifact ID {0} in the list of artifacts!");
 
                 // The artifact doesn't have a version before it's published at least once, so we can't compare version of unpublished artifacts.
                 if (artifact.IsPublished)
                 {
-                    AssertNovaArtifactResponsePropertiesMatchWithArtifact(publishedArtifact, artifact, expectedVersion);
+                    AssertNovaArtifactResponsePropertiesMatchWithArtifact(novaArtifactResponse, artifact, expectedVersion);
                 }
                 else
                 {
-                    AssertNovaArtifactResponsePropertiesMatchWithArtifactSkipVersion(publishedArtifact, artifact);
+                    AssertNovaArtifactResponsePropertiesMatchWithArtifactSkipVersion(novaArtifactResponse, artifact);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Asserts that the response from the Nova call contains all the specified artifacts.
+        /// </summary>
+        /// <param name="artifactAndProjectResponse">The response from the Nova call.</param>
+        /// <param name="artifacts">The OpenApi artifacts that we sent to the Nova call.</param>
+        public static void AssertArtifactsAndProjectsResponseContainsAllArtifactsInList(
+            INovaArtifactsAndProjectsResponse artifactAndProjectResponse,
+            List<IArtifactBase> artifacts)
+        {
+            ThrowIf.ArgumentNull(artifactAndProjectResponse, nameof(artifactAndProjectResponse));
+            ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
+
+            foreach (var artifact in artifacts)
+            {
+                var novaArtifactResponse = artifactAndProjectResponse.Artifacts.Find(a => a.Id == artifact.Id);
+                Assert.NotNull(novaArtifactResponse, "Couldn't find artifact ID {0} in the list of artifacts!");
+
+                AssertNovaArtifactResponsePropertiesMatchWithArtifactSkipVersion(novaArtifactResponse, artifact);
             }
         }
 

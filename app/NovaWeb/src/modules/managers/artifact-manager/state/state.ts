@@ -1,10 +1,7 @@
 import { Models, Enums } from "../../../main/models";
 import { IIStatefulArtifact, IDispose } from "../../models";
 
-interface IState {
-    lockedby?: Enums.LockedByEnum;
-    lockdatetime?: Date;
-    lockowner?: string;
+export interface IState {
     lockedBy?: Enums.LockedByEnum;
     lockDateTime?: Date;
     lockOwner?: string;
@@ -13,6 +10,7 @@ interface IState {
     published?: boolean;
     deleted?: boolean;
     outdated?: boolean;
+    misplaced?: boolean;
     invalid?: boolean;
 }
 
@@ -28,13 +26,16 @@ export interface IArtifactState extends IState, IDispose {
 
 export class ArtifactState implements IArtifactState {
     private state: IState = {
-        lockedby: Enums.LockedByEnum.None,
+        lockedBy: Enums.LockedByEnum.None,
     }; 
     
     private subject: Rx.BehaviorSubject<IArtifactState>;
+    
 
     constructor(private artifact: IIStatefulArtifact) {
         this.subject = new Rx.BehaviorSubject<IArtifactState>(this);
+        this.initialize(artifact);
+        
     }
     public dispose() {
         this.subject.dispose();
@@ -43,7 +44,7 @@ export class ArtifactState implements IArtifactState {
     private reset(): IState {
         this.error = null;
         return this.state = {
-            lockedby: Enums.LockedByEnum.None,
+            lockedBy: Enums.LockedByEnum.None,
         }; 
     }
 
@@ -59,17 +60,15 @@ export class ArtifactState implements IArtifactState {
 
     public initialize(artifact: Models.IArtifact): IArtifactState {
         if (artifact) {
-            let state = this.reset();
+            this.reset();
             if (artifact.lockedByUser) {
-                state = {
-                    lockedby : artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
-                                                    Enums.LockedByEnum.CurrentUser :
-                                                    Enums.LockedByEnum.OtherUser,
-                    lockowner: artifact.lockedByUser.displayName,                                                    
-                    lockdatetime: artifact.lockedDateTime                
-                };
+                this.state.lockedBy = artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
+                                                Enums.LockedByEnum.CurrentUser :
+                                                Enums.LockedByEnum.OtherUser;
+                this.state.lockOwner = artifact.lockedByUser.displayName;                                                    
+                this.state.lockDateTime = artifact.lockedDateTime;              
             };                
-            this.set(state);
+            //this.set(state);
         }
         return this;
     }
@@ -80,35 +79,33 @@ export class ArtifactState implements IArtifactState {
 
 
     public get lockedBy(): Enums.LockedByEnum {
-        return this.state.lockedby;
+        return this.state.lockedBy;
     }
 
     public get lockDateTime(): Date {
-        return this.state.lockdatetime;
+        return this.state.lockDateTime;
     }
 
     public get lockOwner(): string {
-        return this.state.lockowner;
+        return this.state.lockOwner;
     }
     
 
     public lock(value: Models.ILockResult) {
         if (value) {
-            let lockinfo: IState = {};
+            let lockinfo: IState = {
+                lockedBy : Enums.LockedByEnum.None
+            };
             if (value.result === Enums.LockResultEnum.Success) {
-                lockinfo.lockedby = Enums.LockedByEnum.CurrentUser;
+                lockinfo.lockedBy = Enums.LockedByEnum.CurrentUser;
             } else if (value.result === Enums.LockResultEnum.AlreadyLocked) {
-                lockinfo.lockedby = Enums.LockedByEnum.OtherUser;
-            } else if (value.result === Enums.LockResultEnum.DoesNotExist) {
-                lockinfo.lockedby = Enums.LockedByEnum.None;
-            } else {
-                lockinfo.lockedby = Enums.LockedByEnum.None;
-            }
+                lockinfo.lockedBy = Enums.LockedByEnum.OtherUser;
+            } 
             if (value.info) {
-                lockinfo.lockdatetime = value.info.utcLockedDateTime;
-                lockinfo.lockowner = value.info.lockOwnerDisplayName;
+                lockinfo.lockDateTime = value.info.utcLockedDateTime;
+                lockinfo.lockOwner = value.info.lockOwnerDisplayName;
             }
-            this.set(lockinfo);            
+            angular.extend(this.state, lockinfo);            
         }
     
     }
@@ -118,27 +115,29 @@ export class ArtifactState implements IArtifactState {
                (this.artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
     }
     public set readonly(value: boolean) {
-        this.set({readonly: value});
+        this.state.readonly = value;
+        //this.set({readonly: value});
     }
 
     public get dirty(): boolean {
         return this.state.dirty;
     }
     public set dirty(value: boolean) {
-        this.set({dirty: value});
+        this.state.dirty = value;
+        //this.set({dirty: value});
     }
 
     public get published(): boolean {
         return this.state.published;
     }
     public set published(value: boolean) {
-        this.set({published: value});
+        this.state.published = value;
     }
     public get outdated(): boolean {
         return this.state.outdated;
     }
     public set outdated(value: boolean) {
-        this.set({outdated: value});
+        this.state.outdated = value;
     }
     
     public get invalid(): boolean {
@@ -146,7 +145,23 @@ export class ArtifactState implements IArtifactState {
     }
 
     public set invalid(value: boolean) {
-        this.set({invalid: value});
+        this.state.invalid = value;
+    }
+
+    public get misplaced(): boolean {
+        return this.state.misplaced;
+    }
+
+    public set misplaced(value: boolean) {
+        this.state.misplaced = value;
+    }
+
+    public get deleted(): boolean {
+        return this.state.deleted;
+    }
+
+    public set deleted(value: boolean) {
+        this.state.deleted = value;
     }
 
     public error: string;

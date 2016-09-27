@@ -36,6 +36,12 @@ namespace Model.Impl
             return deletedArtifacts;
         }
 
+        /// <seealso cref="IArtifactStore.DiscardArtifacts(List{IArtifactBase}, IUser, bool?, List{HttpStatusCode})"/>
+        public INovaArtifactsAndProjectsResponse DiscardArtifacts(List<IArtifactBase> artifacts, IUser user = null, bool? all = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return DiscardArtifacts(Address, artifacts, user, all, expectedStatusCodes);
+        }
+
         /// <seealso cref="IArtifactStore.GetStatus(string, List{HttpStatusCode})"/>
         public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -410,6 +416,17 @@ namespace Model.Impl
             return unpublishedChanges;
         }
 
+        /// <seealso cref="IArtifactStore.MoveArtifact(IArtifactBase, IArtifactBase, IUser, List{HttpStatusCode})"/>
+        public INovaArtifactDetails MoveArtifact(IArtifactBase artifact,
+            IArtifactBase newParent,
+            IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(newParent, nameof(newParent));
+
+            return MoveArtifact(Address, artifact, newParent.Id, user, expectedStatusCodes);
+        }
+
         /// <seealso cref="IArtifactStore.PublishArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
         public INovaArtifactsAndProjectsResponse PublishArtifact(IArtifactBase artifact,
             IUser user = null,
@@ -427,12 +444,6 @@ namespace Model.Impl
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             return PublishArtifacts(Address, artifacts, user, all, expectedStatusCodes);
-        }
-
-        /// <seealso cref="IArtifactStore.DiscardArtifacts(IArtifactBase, IUser, List{HttpStatusCode})"/>
-        public INovaArtifactsAndProjectsResponse DiscardArtifacts(List<IArtifactBase> artifacts, IUser user = null, bool? all = null, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            return DiscardArtifacts(Address, artifacts, user, all, expectedStatusCodes);
         }
 
         #endregion Members inherited from IArtifactStore
@@ -532,6 +543,42 @@ namespace Model.Impl
             }
 
             return deletedArtifactsToReturn;
+        }
+
+        /// <summary>
+        /// Moves an artifact to a different parent.
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="artifact">The artifact to move.</param>
+        /// <param name="newParentId">The ID of the new parent where this artifact will move to.</param>
+        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The details of the artifact that we moved.</returns>
+        public static INovaArtifactDetails MoveArtifact(string address,
+            IArtifactBase artifact,
+            int newParentId,
+            IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(address, nameof(address));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.TO_id_, artifact.Id, newParentId);
+            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+
+            var movedArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails>(
+                path,
+                RestRequestMethod.POST,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChange: true);
+
+            if (restApi.StatusCode == HttpStatusCode.OK)
+            {
+                // Set the IsSaved flag for the artifact so the Dispose() works properly.
+                artifact.IsSaved = true;
+            }
+
+            return movedArtifact;
         }
 
         /// <summary>

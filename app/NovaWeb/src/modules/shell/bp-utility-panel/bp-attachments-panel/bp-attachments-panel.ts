@@ -1,4 +1,4 @@
-﻿import { ILocalizationService, ISettingsService } from "../../../core";
+﻿import { ILocalizationService, ISettingsService, IMessageService } from "../../../core";
 import { Models} from "../../../main";
 import { ISession } from "../../../shell";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
@@ -35,7 +35,8 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         "session",
         "artifactAttachments",
         "settings",
-        "dialogService"
+        "dialogService",
+        "messageService"
     ];
 
     public attachmentsList: IArtifactAttachment[];
@@ -59,6 +60,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         private artifactAttachments: IArtifactAttachmentsService,
         private settingsService: ISettingsService,
         private dialogService: IDialogService,
+        private messageService: IMessageService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 
         super($q, artifactManager.selection, bpAccordionPanel);
@@ -78,8 +80,9 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
             showSubArtifacts: false
         };
 
-        this.dialogService.open(dialogSettings, dialogData).then((artifact: Models.IArtifact) => {
-            if (artifact) {
+        this.dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {
+            if (items.length === 1) {
+                const artifact = items[0];
                 const newDoc = <IArtifactDocRef>{
                     artifactName: artifact.name,
                     artifactId: artifact.id,
@@ -88,8 +91,12 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
                     itemTypePrefix: artifact.prefix,
                     referencedDate: new Date().toISOString()
                 };
-
-                this.docRefList = this.item.docRefs.add([newDoc]);
+                var isContainingDocRef = this.docRefList.filter((docref) => { return docref.artifactId === newDoc.artifactId; }).length > 0;
+                if (isContainingDocRef) {
+                    this.messageService.addError(this.localization.get("App_UP_Attachments_Add_Same_DocRef_Error"));
+                } else {
+                    this.docRefList = this.item.docRefs.add([newDoc]);
+                }
             }
         });
     }
@@ -147,8 +154,26 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         openUploadStatus();
     }
 
-    public delete(attachment: IArtifactAttachment) {
-        this.item.attachments.remove([attachment]);
+    public deleteAttachment(attachment: IArtifactAttachment) {
+        const dialogSettings = <IDialogSettings>{
+            okButton: this.localization.get("App_Button_Ok", "OK"),
+            header: this.localization.get("App_UP_Attachments_Delete_Header", "Delete Attachment"),
+            message: this.localization.get("App_UP_Attachments_Delete_Confirm", "Attachment will be deleted. Continue?"),
+        };
+        this.dialogService.open(dialogSettings).then(() => {
+            this.item.attachments.remove([attachment]);
+        });
+    }
+
+    public deleteDocRef(docRef: IArtifactDocRef) {
+        const dialogSettings = <IDialogSettings>{
+            okButton: this.localization.get("App_Button_Ok", "OK"),
+            header: this.localization.get("App_UP_Attachments_Delete_Header", "Delete Document Reference"),
+            message: this.localization.get("App_UP_Attachments_Delete_Confirm", "Document Reference will be deleted. Continue?"),
+        };
+        this.dialogService.open(dialogSettings).then(() => {
+            this.item.docRefs.remove([docRef]);
+        });
     }
 
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {

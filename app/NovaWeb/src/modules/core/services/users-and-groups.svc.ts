@@ -12,6 +12,7 @@ export interface IUserOrGroupInfo {
     isGroup: boolean;
     guest: boolean;
     isBlocked: boolean;
+    isLoginEnabled: boolean;
 }
 
 export interface IUsersAndGroupsService {

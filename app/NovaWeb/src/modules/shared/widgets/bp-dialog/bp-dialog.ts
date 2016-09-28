@@ -107,17 +107,25 @@ export interface IDialogController {
 export class BaseDialogController implements IDialogController {
 
     public hasCloseButton: boolean;
+    public readonly isAlertModal: boolean;
+    public readonly modalSubclass: string;
 
     public get returnValue(): any {
         return true;
     }
 
+    static bindings = {
+        modalSubclass: "@",
+        isAlertModal: "@"
+    };
 
     static $inject = ["$uibModalInstance", "dialogSettings"];
     constructor(
         public $instance: ng.ui.bootstrap.IModalServiceInstance, 
         public dialogSettings: IDialogSettings) {
-
+        
+        this.modalSubclass = `modal-${DialogTypeEnum[this.dialogSettings.type].toLowerCase()}`;
+        this.isAlertModal = this.dialogSettings.type === DialogTypeEnum.Alert;
     }
 
     public ok() {

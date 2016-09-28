@@ -13,6 +13,10 @@ $modal-side-clearance: 8px;
     background-color: $brand-secondary;
     padding: 15px 30px;
 
+    &.modal-alert {
+      background-color: $brand-warning;
+    }
+
     .modal-title {
       color: $white;
       font-size: $font-size-biggest;

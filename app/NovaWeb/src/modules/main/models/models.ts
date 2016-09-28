@@ -160,6 +160,9 @@ export interface IActorInheritancePropertyValue {
 export interface IActorImagePropertyValue {
     url: string;
     guid: string;    
+
+    // for client use only
+    imageSource: string;
 }
 
 export interface IProjectMeta {

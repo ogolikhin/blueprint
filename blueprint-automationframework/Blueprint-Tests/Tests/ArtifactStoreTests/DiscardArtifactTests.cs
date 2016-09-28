@@ -615,7 +615,10 @@ namespace ArtifactStoreTests
             // Create artifact(s) and publish for discard test
             var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes.ToArray());
 
-            SwapParentAndChildInArtifactChain(artifactChain, 1);
+            var parentArtifact = artifactChain[artifactChain.Count - 2];
+            var childArtifact = artifactChain[artifactChain.Count - 1];
+
+            SwapTwoArtifacts(ref parentArtifact, ref childArtifact);
 
             List<IArtifactBase> oneArtifactList = new List<IArtifactBase>();
             oneArtifactList.Add(artifactChain[artifactChain.Count - 1]);
@@ -691,31 +694,22 @@ namespace ArtifactStoreTests
         /// <summary>
         /// Swaps parent artifact with it's child.
         /// </summary>
-        /// <param name="artifactChain">List of artifacts in parent child relationship.</param>
-        /// <param name="parentArtifactToSwap">Index of parent artifact in a list</param>
-        private void SwapParentAndChildInArtifactChain(List<IArtifact> artifactChain, int parentArtifactToSwap)
+        /// <param name="firstArtifact">Parent artifact to swap</param>
+        /// <param name="secondArtifact">Child artifact to swap</param>
+        private void SwapTwoArtifacts(ref IArtifact firstArtifact, ref IArtifact secondArtifact)
         {
-            if (artifactChain != null)
-            {
-                Assert.IsTrue((parentArtifactToSwap < artifactChain.Count) && (parentArtifactToSwap >= 0)
-                    && ((parentArtifactToSwap + 1) < artifactChain.Count) && ((parentArtifactToSwap + 1) >= 0), "Index out of the range of elements in a list");
-                Assert.IsNotNull(artifactChain[parentArtifactToSwap], "Parent artifact is not created properly");
-                Assert.IsNotNull(artifactChain[parentArtifactToSwap + 1], "Child artifact is not created properly");
+            Assert.IsNotNull(firstArtifact);
+            Assert.IsNotNull(secondArtifact);
+            Assert.IsTrue(firstArtifact.Id != secondArtifact.Id);
 
-                IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            //Need to create new artifact since it is not possible to transfer project id into MoveArtifact function
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
 
-                artifactChain[parentArtifactToSwap + 1].Lock();
-                Helper.ArtifactStore.MoveArtifact(artifactChain[parentArtifactToSwap + 1], artifact, _user);
+            secondArtifact.Lock();
+            Helper.ArtifactStore.MoveArtifact(secondArtifact, artifact, _user);
 
-                artifactChain[parentArtifactToSwap].Lock();
-                Helper.ArtifactStore.MoveArtifact(artifactChain[parentArtifactToSwap], artifactChain[parentArtifactToSwap + 1], _user);
-
-                if (parentArtifactToSwap != 0)
-                {
-                    artifactChain[parentArtifactToSwap + 1].Lock();
-                    Helper.ArtifactStore.MoveArtifact(artifactChain[parentArtifactToSwap + 1], artifactChain[parentArtifactToSwap - 1], _user);
-                }
-            }
+            firstArtifact.Lock();
+            Helper.ArtifactStore.MoveArtifact(firstArtifact, secondArtifact, _user);
         }
 
         #endregion private call

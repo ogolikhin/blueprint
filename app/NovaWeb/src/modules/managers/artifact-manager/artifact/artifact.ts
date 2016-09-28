@@ -252,7 +252,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         this.artifactState.invalid = value;
     }
 
-    private loadInternal(artifact: Models.IArtifact): IState {
+    private initialize(artifact: Models.IArtifact): IState {
         const artifactBeforeUpdate = this.artifact;
         
         this.artifact = artifact;
@@ -272,7 +272,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         if (! this.isProject() && !(this.artifactState.dirty && this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser)) {
             this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
-                let state = this.loadInternal(artifact);
+                let state = this.initialize(artifact);
                 //modify states all at once
                 this.artifactState.set(state);
                 deferred.resolve(this);
@@ -468,27 +468,35 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     }
 
     public refresh(): ng.IPromise<IStatefulArtifact> {
-         const deferred = this.services.getDeferred<IStatefulArtifact>();
+        const deferred = this.services.getDeferred<IStatefulArtifact>();
         this.discard();
 
-        this.load().then((artifact: IStatefulArtifact) => {
-            //TODO: initialize all components
-            this.subject.onNext(artifact);
-            deferred.resolve(artifact);
-        }).catch((error) => {
-            this.subject.onError(error);
-            deferred.reject(error);
-        }).finally(() => {
-
-        });
+        let loadPromise = this.load();
         
         // TODO: also load subartifacts and the rest of the
+        let attachmentPromise: ng.IPromise<any>;
         // if (this._attachments) {
-        //     this._attachments.get(true);
+            // attachmentPromise = this._attachments.refresh();
         // }
 
+        // TODO: get promises for other refresh methods in sub-objects
+        let docRefPromise: ng.IPromise<any>, relationshipsPromise: ng.IPromise<any>, subArtifactsPromise: ng.IPromise<any>;
 
-        // TODO: return void, no more promises
+        this.getServices().$q.all([
+                loadPromise,
+                attachmentPromise,
+                docRefPromise,
+                relationshipsPromise,
+                subArtifactsPromise]).then(() => {
+
+            this.subject.onNext(this);
+            deferred.resolve(this);
+        
+        }).catch(error => {
+            this.subject.onError(error);
+            deferred.reject(error);
+        });
+
         return deferred.promise;
     }
 }

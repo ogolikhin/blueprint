@@ -114,11 +114,9 @@ export class ArtifactAttachments implements IArtifactAttachments {
     public changes(): IArtifactAttachment[] {
         let attachmentChanges = new Array<IArtifactAttachment>();
         let changes = this.changeset.get();
-        let uniqueKeys = changes.map((change) => {
-            return change.key;
-        }).filter((elem, index, self) => {
-            return index == self.indexOf(elem);
-        });
+        let uniqueKeys = changes
+            .map(change => change.key)
+            .filter((elem, index, self) => index == self.indexOf(elem));
         let deltaChanges = new Array<IChangeSet>();
         // remove changesets that cancel eachother.
         uniqueKeys.forEach((key) => {

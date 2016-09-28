@@ -112,11 +112,9 @@ export class DocumentRefs implements IDocumentRefs {
     public changes(): IArtifactDocRef[] {
         let docRefChanges = new Array<IArtifactDocRef>();
         let changes = this.changeset.get();
-        let uniqueKeys = changes.map((change) => {
-            return change.key;
-        }).filter((elem, index, self) => {
-            return index == self.indexOf(elem);
-        });
+        let uniqueKeys = changes
+            .map(change => change.key)
+            .filter((elem, index, self) => index == self.indexOf(elem));
         let deltaChanges = new Array<IChangeSet>();
         // remove changesets that cancel eachother.
         uniqueKeys.forEach((key) => {

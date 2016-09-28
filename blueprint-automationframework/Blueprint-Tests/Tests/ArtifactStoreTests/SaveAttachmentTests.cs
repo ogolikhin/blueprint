@@ -53,13 +53,73 @@ namespace ArtifactStoreTests
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.TextualRequirement);// it gives 500 error for BaseArtifactType.Document
-            artifact.Lock();
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-            artifactDetails.AttachmentValues.Add(new AttachmentValue(_user, _attachmentFile));
+            var attachmentBeforeTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
+            Assert.AreEqual(0, attachmentBeforeTest.AttachedFiles.Count,
+                "Artifact shouldn't have attachments at this point.");
 
             // Execute & Verify:
-            Assert.DoesNotThrow(() => Artifact.UpdateArtifact(artifact, _user, artifactDetails, Helper.BlueprintServer.Address),
+            Assert.DoesNotThrow(() => AddArtifactAttachmentAndSave(_user, artifact, _attachmentFile, Helper.BlueprintServer.Address),
                 "Exception caught while trying to update an artifact!");
+            var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
+            Assert.AreEqual(1, attachmentAfterTest.AttachedFiles.Count,
+                "Artifact should have 1 attachments at this point.");
+        }
+
+        [TestCase]
+        [TestRail(182379)]
+        [Description("Delete attached file from artifact with attachement, check that it throws no error.")]
+        public void DeleteAttachment_ArtifactWithAttachment_DoesntThrowError()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.TextualRequirement);// it gives 500 error for BaseArtifactType.Document
+            AddArtifactAttachmentAndSave(_user, artifact, _attachmentFile, Helper.BlueprintServer.Address);
+            artifact.Publish(_user);
+            var attachment = Helper.ArtifactStore.GetAttachments(artifact, _user);
+
+            // Execute & Verify:
+            Assert.DoesNotThrow(() => DeleteArtifactAttachmentAndSave(_user, artifact, attachment.AttachedFiles[0].AttachmentId,
+                Helper.BlueprintServer.Address), "Exception caught while trying to update an artifact!");
+            attachment = Helper.ArtifactStore.GetAttachments(artifact, _user);
+            Assert.AreEqual(0, attachment.AttachedFiles.Count, "Artifact shouldn't have attachments at this point.");
+        }
+
+        /// <summary>
+        /// Attaches file to the artifact (Save changes).
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
+        /// <param name="artifact">Artifact.</param>
+        /// <param name="file">File to attach.</param>
+        /// <param name="address">The address of the ArtifactStore service.</param>
+        private void AddArtifactAttachmentAndSave(IUser user, IArtifact artifact, INovaFile file, string address)
+        {
+            artifact.Lock(user);
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
+            artifactDetails.AttachmentValues.Add(new AttachmentValue(user, file));
+
+            Artifact.UpdateArtifact(artifact, user, artifactDetails, address);
+            var attachment = Helper.ArtifactStore.GetAttachments(artifact, _user);
+            Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
+        }
+
+        /// <summary>
+        /// deletes file from the artifact (Save changes).
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
+        /// <param name="artifact">Artifact.</param>
+        /// <param name="fileId">Id of the file to delete. File must be attached to the artifact.</param>
+        /// <param name="address">The address of the ArtifactStore service.</param>
+        private void DeleteArtifactAttachmentAndSave(IUser user, IArtifact artifact, int fileId, string address)
+        {
+            var attachment = Helper.ArtifactStore.GetAttachments(artifact, _user);
+            Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
+            var fileToDelete = attachment.AttachedFiles.FirstOrDefault(f => f.AttachmentId == fileId);
+            Assert.AreEqual(fileId, fileToDelete.AttachmentId, "Attachments must contain file with fileId.");
+
+            artifact.Lock(user);
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
+            artifactDetails.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
+
+            Artifact.UpdateArtifact(artifact, user, artifactDetails, address);
         }
     }
 }

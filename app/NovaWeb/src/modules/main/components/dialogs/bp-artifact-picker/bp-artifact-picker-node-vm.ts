@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import { Models } from "../../../models";
 import { Helper } from "../../../../shared/";
 import { ITreeViewNodeVM } from "../../../../shared/widgets/bp-tree-view/";

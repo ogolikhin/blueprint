@@ -1,5 +1,5 @@
-import "angular";
-import "Rx";
+import * as angular from "angular";
+import "rx/dist/rx.lite";
 import "angular-mocks";
 import "angular-messages";
 import "angular-sanitize";

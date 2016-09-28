@@ -1,4 +1,5 @@
-﻿import {ZoomableImageDirective, ZoomableImageModalController} from "./zoomable-image";
+﻿import * as angular from "angular";
+import {ZoomableImageDirective, ZoomableImageModalController} from "./zoomable-image";
 import { ModalServiceInstanceMock, ModalServiceMock } from "../../../../../shell/login/mocks.spec";
 
 describe("Zoomable Image Directive", () => {

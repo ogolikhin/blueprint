@@ -15,7 +15,7 @@ interface IBPToolbarController {
 
 export class BPToolbar implements ng.IComponentOptions {
     public template: string = require("./bp-toolbar.html");
-    public controller: Function = BPToolbarController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPToolbarController;
 }
 
 class BPToolbarController implements IBPToolbarController {
@@ -149,7 +149,12 @@ class BPToolbarController implements IBPToolbarController {
     private deleteArtifact() {
     }
 
-    public $onInit(o) {
+    public goToImpactAnalysis() {
+        let url = `Web/#/ImpactAnalysis/${this._currentArtifact}`;
+        window.open(url);
+    }
+
+    public $onInit() {
         this._subscribers = [
             this.artifactManager.selection.artifactObservable.subscribe(this.displayArtifact)
         ];

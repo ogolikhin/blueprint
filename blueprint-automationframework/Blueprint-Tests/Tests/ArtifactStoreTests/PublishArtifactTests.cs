@@ -11,7 +11,6 @@ using NUnit.Framework;
 using TestCommon;
 using Utilities;
 using Newtonsoft.Json;
-using Utilities.Facades;
 
 namespace ArtifactStoreTests
 {
@@ -487,8 +486,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(165972)]
-        [Description("Create, save, publish Actor artifact.  Verify 400 Bad Request is returned for an artifact that is already published.")]
-
+        [Description("Create, save, publish Actor artifact, checks returned result is 400 Bad Request for artifact that is already published")]
         public void PublishArtifact_SinglePublishedArtifact_BadRequest(BaseArtifactType artifactType)
         {
             // Setup:
@@ -510,7 +508,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(165975)]
-        [Description("Create & save a single artifact.  Publish the artifact with wrong token.  Verify publish returns 401 Unauthorized.")]
+        [Description("Create & save a single artifact.  Publish the artifact with wrong token.  Verify publish returns code 401 Unauthorized.")]
         public void PublishArtifact_InvalidToken_Unauthorized(BaseArtifactType artifactType)
         {
             // Setup:
@@ -605,7 +603,7 @@ namespace ArtifactStoreTests
         public void PublishArtifact_PropertyOutOfRange_Conflict(string toChange, string changeTo)
         {
             // Setup:
-            var projectCustomData = GetCustomDataProject();
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
             IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
             artifact.Lock();
 
@@ -618,7 +616,7 @@ namespace ArtifactStoreTests
 
             requestBody = requestBody.Replace(toChange, changeTo);
 
-            Assert.DoesNotThrow(() => UpdateInvalidArtifact(requestBody, artifact.Id),
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifact.Id, _user),
                 "'PATCH {0}' should return 200 OK if properties are out of range!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -643,7 +641,7 @@ namespace ArtifactStoreTests
         public void PublishAllArtifacts_PropertyOutOfRange_Conflict(string toChange, string changeTo, BaseArtifactType artifactType, int index)
         {
             // Setup:
-            var projectCustomData = GetCustomDataProject();
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
 
             var artifactTypes = new BaseArtifactType[] { artifactType, artifactType, artifactType };
             List<IArtifact> artifactList = Helper.CreatePublishedArtifactChain(projectCustomData, _user, artifactTypes);
@@ -658,7 +656,7 @@ namespace ArtifactStoreTests
 
             requestBody = requestBody.Replace(toChange, changeTo);
 
-            Assert.DoesNotThrow(() => UpdateInvalidArtifact(requestBody, artifactList[index].Id),
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifactList[index].Id, _user),
                 "'PATCH {0}' should return 200 OK if properties are out of range!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -676,8 +674,6 @@ namespace ArtifactStoreTests
         #endregion 409 Conflict tests
 
         #region Private functions
-
-        
 
         /// <summary>
         /// Asserts that the version of all the artifacts in the list still have the expected version.
@@ -741,51 +737,7 @@ namespace ArtifactStoreTests
             return artifactChain;
         }
 
-        /// <summary>
-        /// Gets the custom data project.
-        /// </summary>
-        /// <returns>The custom data project.</returns>
-        private IProject GetCustomDataProject()
-        {
-            List<IProject> allProjects = null;
-            allProjects = ProjectFactory.GetAllProjects(_user);
 
-            const string customDataProjectName = "Custom Data";
-
-            Assert.That(allProjects.Exists(p => (p.Name == customDataProjectName)),
-                "No project was found named '{0}'!", customDataProjectName);
-
-            var projectCustomData = allProjects.First(p => (p.Name == customDataProjectName));
-            projectCustomData.GetAllArtifactTypes(ProjectFactory.Address, _user);
-
-            return projectCustomData;
-        }
-
-        /// <summary>
-        /// Try to update an invalid Artifact with Property Changes.  Use this for testing cases where the save is expected to fail.
-        /// </summary>
-        /// <param name="requestBody">The request body (i.e. artifact to be updated).</param>
-        /// <param name="artifactId">The ID of the artifact to save.</param>
-        /// <returns>The body content returned from ArtifactStore.</returns>
-        private string UpdateInvalidArtifact(string requestBody,
-            int artifactId)
-        {
-            ThrowIf.ArgumentNull(_user, nameof(_user));
-
-            string tokenValue = _user.Token?.AccessControlToken;
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
-            RestApiFacade restApi = new RestApiFacade(Helper.BlueprintServer.Address, tokenValue);
-            const string contentType = "application/json";
-
-            var response = restApi.SendRequestBodyAndGetResponse(
-                path,
-                RestRequestMethod.PATCH,
-                requestBody,
-                contentType);
-
-            return response.Content;
-        }
         #endregion Private functions
     }
 }

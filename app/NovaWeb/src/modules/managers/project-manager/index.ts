@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import { IProjectService, ProjectService } from "./project-service";
 import { IProjectManager, ProjectManager} from "./project-manager";
 

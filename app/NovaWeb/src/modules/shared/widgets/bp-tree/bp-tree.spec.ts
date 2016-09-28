@@ -1,4 +1,4 @@
-﻿import "angular";
+﻿import * as angular from "angular";
 import "angular-mocks";
 import {BPTreeController, ITreeNode} from "./bp-tree";
 import {GridApi} from "ag-grid/main";

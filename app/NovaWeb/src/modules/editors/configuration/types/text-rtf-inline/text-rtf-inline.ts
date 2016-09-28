@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import "angular-formly";
 import { Helper } from "../../../../shared";
 
@@ -6,7 +6,7 @@ export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTFInline";
     public template: string = require("./text-rtf-inline.template.html");
     public wrapper: string = "bpFieldLabel";
-    public controller: Function = BpFieldTextRTFInlineController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldTextRTFInlineController;
 
     constructor() {
     }

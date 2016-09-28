@@ -6,7 +6,7 @@ import { FiletypeParser } from "../../../../shared/utils/filetypeParser";
 
 export class BPArtifactAttachmentItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-attachment-item.html");
-    public controller: Function = BPArtifactAttachmentItemController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPArtifactAttachmentItemController;
     public bindings: any = {
         attachmentInfo: "=",
         deleteItem: "&",
@@ -37,7 +37,7 @@ export class BPArtifactAttachmentItemController implements IBPArtifactAttachment
         private $window: ng.IWindowService) {
     }
 
-    public $onInit(o) {
+    public $onInit() {
         this.fileIconClass = FiletypeParser.getFiletypeClass(this.attachmentInfo.fileName);
     }
     

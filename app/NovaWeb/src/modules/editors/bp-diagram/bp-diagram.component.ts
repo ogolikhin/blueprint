@@ -21,7 +21,7 @@ import {
 
 export class BPDiagram implements ng.IComponentOptions {
     public template: string = require("./bp-diagram.html");
-    public controller: Function = BPDiagramController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPDiagramController;
     public bindings: any = {
         context: "<"
     };

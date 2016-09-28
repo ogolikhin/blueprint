@@ -4,7 +4,7 @@ import { IMessage, MessageType } from "./message";
 
 export class MessageContainerComponent implements ng.IComponentOptions {
     public template: string = require("./message-container.html");
-    public controller: Function = MessageContainerController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = MessageContainerController;
     public transclude: boolean = true;
 }
 

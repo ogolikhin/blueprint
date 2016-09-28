@@ -2,7 +2,7 @@
 import { IColumn } from "../../../../shared/widgets/bp-tree-view/";
 import { Helper } from "../../../../shared/";
 import { ILocalizationService } from "../../../../core";
-import { ArtifactPickerNodeVM, InstanceItemNodeVM, ArtifactNodeVM, SubArtifactNodeVM } from "./bp-artifact-picker-node-vm";
+import { ArtifactPickerNodeVM, InstanceItemNodeVM } from "./bp-artifact-picker-node-vm";
 import { IDialogSettings, BaseDialogController } from "../../../../shared/";
 import { Models } from "../../../models";
 import { IProjectManager } from "../../../../managers";
@@ -102,7 +102,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
         this.setSelectedVMs([]);
         this._project = project;
         if (project) {
-            this.selectionMode = this.dialogData.selectionMode;
+            this.selectionMode = this.dialogData.selectionMode || "single";
             this.rootNode = new InstanceItemNodeVM(this.projectManager, this.projectService, this.dialogData, {
                 id: project.id,
                 type: Models.ProjectNodeType.Project,

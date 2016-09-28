@@ -114,7 +114,24 @@ export class ArtifactAttachments implements IArtifactAttachments {
     public changes(): IArtifactAttachment[] {
         let attachmentChanges = new Array<IArtifactAttachment>();
         let changes = this.changeset.get();
-        changes.forEach(change => {
+        let keys = changes.map((change) => {
+            return change.key;
+        });
+        let uniqueKeys = keys.filter((elem, index, self) => {
+            return index == self.indexOf(elem);
+        });
+        let deltaChanges = new Array<IChangeSet>();
+        // remove changesets that cancel eachother.
+        uniqueKeys.forEach((key) => {
+            let addChanges = changes.filter(a => a.key === key && a.type === ChangeTypeEnum.Add);
+            let deleteChanges = changes.filter(a => a.key === key && a.type === ChangeTypeEnum.Delete);
+            if (addChanges.length > deleteChanges.length) {
+                deltaChanges.push(addChanges[0]);
+            } else if (addChanges.length < deleteChanges.length) {
+                deltaChanges.push(deleteChanges[0])
+            }
+        });
+        deltaChanges.forEach(change => {
             const attachment = change.value as IArtifactAttachment;
             attachment.changeType = change.type;
             attachmentChanges.push(attachment);

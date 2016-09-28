@@ -223,7 +223,7 @@ export class BpArtifactInfoController {
     public openPicker($event: MouseEvent) {
         const dialogSettings: IDialogSettings = {
             okButton: this.localization.get("App_Button_Ok"),
-            template: require("../dialogs/bp-artifact-picker/bp-artifact-picker-dialog.html"),
+            template: require("../bp-artifact-picker/bp-artifact-picker-dialog.html"),
             controller: ArtifactPickerDialogController,
             css: "nova-open-project",
             header: "Some header"

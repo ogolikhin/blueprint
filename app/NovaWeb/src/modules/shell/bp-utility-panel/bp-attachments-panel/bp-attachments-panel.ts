@@ -69,7 +69,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public addDocRef(): void {
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get("App_Button_Open"),
-            template: require("../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker-dialog.html"),
+            template: require("../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
             controller: ArtifactPickerDialogController,
             css: "nova-open-project",
             header: this.localization.get("App_UP_Attachments_Document_Picker_Title")

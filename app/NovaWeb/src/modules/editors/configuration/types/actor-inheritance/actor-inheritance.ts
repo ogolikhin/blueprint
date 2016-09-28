@@ -69,7 +69,7 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
         function setBaseActor() {
             const dialogSettings = <IDialogSettings>{
                 okButton: localization.get("App_Button_Open"),
-                template: require("../../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker-dialog.html"),
+                template: require("../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
                 controller: ArtifactPickerDialogController,
                 css: "nova-open-project",
                 header: localization.get("App_Properties_Actor_InheritancePicker_Title")

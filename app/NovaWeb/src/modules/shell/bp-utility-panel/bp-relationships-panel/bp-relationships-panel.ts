@@ -50,6 +50,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public isLoading: boolean = false;
     public selectedTraces: IArtifactSelectedArtifactMap;
     public isItemReadOnly: boolean;
+    public canCreate: boolean = false;
 
     constructor(
         $q: ng.IQService,
@@ -91,7 +92,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.otherTraces = null;
 
         if (this.item) {
-            this.isLoading = true;
+            this.isLoading = true;            
             this.item.relationships.get().then((relationships: Relationships.IRelationship[]) => {
                 this.manualTraces = relationships
                     .filter((relationship: Relationships.IRelationship) => 

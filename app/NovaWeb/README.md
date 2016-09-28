@@ -67,6 +67,10 @@ npm config set nova:backend http://titan.blueprintsys.net
 Note: all unit test are located together with the code using next pattern: [name-of-file-under-test].spec.ts, for example see src\modules\shell\login\auth.svc.spec.ts. 
 It's possible to create special 'tests' folder with tests when component folder already contains many files.
 
+Use next pattern: [name-of-service.svc].mock.ts when you need to create mock for existing service.
+
+Unit test and mock files are excluded from the code coverage report based on pattern (.spec|.mock).ts.
+
 * Use `gulp test` to run all unit tests using Karma and PhantomJS. 
 * Use `gulp test:debug` to run all unit tests using Karma and Chrome. 
   * Cancel the task to close the browser instance.

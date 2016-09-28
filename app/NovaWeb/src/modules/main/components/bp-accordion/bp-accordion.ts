@@ -55,7 +55,7 @@ export interface IBpAccordionPanelController {
 
 export class BpAccordion implements ng.IComponentOptions {
     public template: string = require("./bp-accordion.group.html");
-    public controller: Function = BpAccordionCtrl;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpAccordionCtrl;
     public controllerAs: string = "bpAccordion";
     public bindings: any = {
         accordionId: "@",
@@ -66,7 +66,7 @@ export class BpAccordion implements ng.IComponentOptions {
 
 export class BpAccordionPanel implements ng.IComponentOptions {
     public template: string = require("./bp-accordion.panel.html");
-    public controller: Function = BpAccordionPanelCtrl;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpAccordionPanelCtrl;
     public bindings: any = {
         accordionPanelId: "@",
         accordionPanelHeading: "@",

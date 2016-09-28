@@ -1,6 +1,6 @@
 export class BPAvatar implements ng.IComponentOptions {
     public template: string = require("./bp-avatar.html");
-    public controller: Function = BPAvatarController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPAvatarController;
     public bindings: any = {
         icon: "@?",
         name: "@",

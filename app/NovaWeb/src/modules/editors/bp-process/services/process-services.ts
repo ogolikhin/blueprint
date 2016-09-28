@@ -1,6 +1,6 @@
 ﻿
-import { IProcessService } from "../../../editors/bp-process/services/process/process.svc";
-import { StatefulArtifactServices, IStatefulArtifactServices } from "./services";
+import { IProcessService } from "./process.svc";
+import { StatefulArtifactServices, IStatefulArtifactServices } from "../../../managers/artifact-manager/services";
 
 export interface IStatefulProcessArtifactServices extends IStatefulArtifactServices {
     processService: IProcessService;

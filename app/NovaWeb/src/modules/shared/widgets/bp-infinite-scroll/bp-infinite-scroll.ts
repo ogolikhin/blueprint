@@ -1,3 +1,4 @@
+import * as angular from "angular";
 export class BPInfiniteScroll implements ng.IDirective {
     public restrict = "A";
     public link: Function = ($scope: ng.IScope, $element: ng.IAugmentedJQuery, $attrs: ng.IAttributes): void => {

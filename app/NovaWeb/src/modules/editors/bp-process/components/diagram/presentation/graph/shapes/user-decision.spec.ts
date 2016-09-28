@@ -1,8 +1,9 @@
-﻿import {ShapesFactory} from "./shapes-factory";
+﻿import * as angular from "angular";
+import {ShapesFactory} from "./shapes-factory";
 import {ProcessGraph} from "../process-graph";
 import {ProcessViewModel} from "../../../viewmodel/process-viewmodel";
-import {ProcessServiceMock} from "../../../../../services/process/process.svc.mock";
-import {IProcessService} from "../../../../../services/process/process.svc";
+import {ProcessServiceMock} from "../../../../../services/process.svc.mock";
+import {IProcessService} from "../../../../../services/process.svc";
 import * as ProcessModels from "../../../../../models/process-models";
 import {UserDecision} from "./";
 import {NodeChange} from "../models/";

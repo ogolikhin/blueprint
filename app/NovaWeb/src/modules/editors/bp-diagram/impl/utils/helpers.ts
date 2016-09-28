@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import {IDiagram, IConnection, IDiagramElement, IHierarchyDiagram, IHierarchyElement, IPoint, IProp} from "../models";
 
 export class MxFactory {

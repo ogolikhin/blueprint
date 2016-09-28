@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import {NodeLabelEditor} from "./node-label-editor";
 import {Label, LabelStyle, ELLIPSIS_SYMBOL} from "./labels/label";
 

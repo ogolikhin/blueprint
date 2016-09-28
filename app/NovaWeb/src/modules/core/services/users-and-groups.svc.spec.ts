@@ -1,4 +1,4 @@
-﻿import "angular";
+﻿import * as angular from "angular";
 import "angular-mocks";
 import { UserOrGroupInfo } from "./users-and-groups.svc.mock";
 import { IUserOrGroupInfo, UsersAndGroupsService } from "./users-and-groups.svc";

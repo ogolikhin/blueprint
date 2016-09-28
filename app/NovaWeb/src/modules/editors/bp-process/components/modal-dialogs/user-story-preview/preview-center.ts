@@ -197,7 +197,7 @@ export class PreviewCenterController {
 
 export class PreviewCenterComponent implements ng.IComponentOptions {
     public template: string = require("./preview-center.html");
-    public controller: Function = PreviewCenterController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = PreviewCenterController;
     public controllerAs = "centerCtrl";
     public bindings: any = {
         userTaskModel: "=",

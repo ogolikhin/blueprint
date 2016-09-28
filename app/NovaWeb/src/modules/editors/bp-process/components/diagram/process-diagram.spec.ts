@@ -1,5 +1,6 @@
-﻿import {ProcessServiceMock} from "../../services/process/process.svc.mock";
-import {IProcessService} from "../../services/process/process.svc";
+import * as angular from "angular";
+import {ProcessServiceMock} from "../../services/process.svc.mock";
+import {IProcessService} from "../../services/process.svc";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
@@ -91,12 +92,9 @@ describe("ProcessDiagram Tests", () => {
         );
 
         let model = TestModels.createDefaultProcessModel();
-
-        let loadSpy = spyOn(processModelService, "load");
-        loadSpy.and.returnValue(q.when(model));
-
+          
         // act
-        diagram.createDiagram(1, container);
+        diagram.createDiagram(model, container);
         rootScope.$apply();
 
         // assert
@@ -121,11 +119,8 @@ describe("ProcessDiagram Tests", () => {
 
         let model = TestModels.createDefaultProcessModel();
 
-        let loadSpy = spyOn(processModelService, "load");
-        loadSpy.and.returnValue(q.when(model));
-
         // act
-        diagram.createDiagram(1, container);
+        diagram.createDiagram(model, container);
         rootScope.$apply();
 
         diagram.destroy();
@@ -151,10 +146,12 @@ describe("ProcessDiagram Tests", () => {
             navigationService
         );
 
+        let model = TestModels.createDefaultProcessModel();
+        model.id = -1;
         let error: Error;
         // act
         try {
-            diagram.createDiagram(-1, container);
+            diagram.createDiagram(model, container);
         } catch (err) {
             error = err;
         }
@@ -178,11 +175,12 @@ describe("ProcessDiagram Tests", () => {
             navigationService
         );
 
+        let model = TestModels.createDefaultProcessModel();
         let error: Error;
 
         // act
         try {
-            diagram.createDiagram(1, null);
+            diagram.createDiagram(model, null);
         } catch (err) {
             error = err;
         }
@@ -209,9 +207,8 @@ describe("ProcessDiagram Tests", () => {
 
         let model = TestModels.createDefaultProcessModel();
         model.propertyValues["clientType"].value = ProcessType.UserToSystemProcess;
-        let loadSpy = spyOn(processModelService, "load");
-        loadSpy.and.returnValue(q.when(model));
-        diagram.createDiagram(1, container);
+
+        diagram.createDiagram(model, container);
         rootScope.$apply();
 
         // act
@@ -239,9 +236,8 @@ describe("ProcessDiagram Tests", () => {
 
         let model = TestModels.createDefaultProcessModel();
         model.propertyValues["clientType"].value = ProcessType.BusinessProcess;
-        let loadSpy = spyOn(processModelService, "load");
-        loadSpy.and.returnValue(q.when(model));
-        diagram.createDiagram(1, container);
+        
+        diagram.createDiagram(model, container);
         rootScope.$apply();
 
         // act
@@ -271,8 +267,8 @@ describe("ProcessDiagram Tests", () => {
 
         let model = TestModels.createDefaultProcessModel();
         model.propertyValues["clientType"].value = ProcessType.BusinessProcess;
-        spyOn(processModelService, "load").and.returnValue(q.when(model));
-        diagram.createDiagram(1, container);
+
+        diagram.createDiagram(model, container);
         rootScope.$apply();
 
         // act

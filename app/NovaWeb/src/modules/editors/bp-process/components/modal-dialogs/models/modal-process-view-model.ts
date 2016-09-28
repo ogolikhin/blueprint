@@ -47,6 +47,10 @@ export class ModalProcessViewModel implements IModalProcessViewModel {
     public get isChanged(): boolean {
         return this.processViewModel.isChanged;
     }
+
+    public set isChanged(value: boolean) {
+        this.processViewModel.isChanged = value;
+    }
     
     public get licenseType(): Enums.LicenseTypeEnum {
         return this.processViewModel.licenseType;

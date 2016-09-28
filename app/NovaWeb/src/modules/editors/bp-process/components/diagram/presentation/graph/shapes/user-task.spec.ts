@@ -1,11 +1,12 @@
-﻿import {UserTask, SystemTask, SystemDecision} from "./";
+﻿import * as angular from "angular";
+import {UserTask, SystemTask, SystemDecision} from "./";
 import {ShapesFactory} from "./shapes-factory";
 import {ProcessGraph} from "../process-graph";
 import {ProcessModel, ProcessShapeModel, ProcessLinkModel} from "../../../../../models/process-models";
 import {ProcessShapeType, ProcessType} from "../../../../../models/enums";
 import {createSystemDecisionForAddBranchTestModel} from "../../../../../models/test-model-factory";
-import {IProcessService} from "../../../../../services/process/process.svc";
-import {ProcessServiceMock} from "../../../../../services/process/process.svc.mock";
+import {IProcessService} from "../../../../../services/process.svc";
+import {ProcessServiceMock} from "../../../../../services/process.svc.mock";
 import {ProcessViewModel, IProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {ShapeModelMock, ArtifactReferenceLinkMock} from "./shape-model.mock";
 import {DiagramNodeElement} from "./diagram-element";

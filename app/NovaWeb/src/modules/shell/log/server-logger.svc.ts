@@ -1,4 +1,4 @@
-﻿import "angular";
+﻿import * as angular from "angular";
 
 export interface IServerLogger {
     log(message: any, level: number): ng.IPromise<any>;

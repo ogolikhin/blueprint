@@ -1,5 +1,5 @@
 ﻿import "../../main/";
-import "angular";
+import * as angular from "angular";
 import "angular-mocks";
 import { ILoadingOverlayService, LoadingOverlayService } from "./loading-overlay.svc";
 import { BpLoadingOverlayController } from "./bp-loading-overlay";

@@ -1,4 +1,5 @@
-﻿import {IProcess, ProcessModel} from "../../../../../models/process-models";
+﻿import * as angular from "angular";
+import {IProcess, ProcessModel} from "../../../../../models/process-models";
 import {IProcessViewModel, ProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {ILocalizationService, LocalizationService} from "../../../../../../../core/localization/";
 import {NodeType} from "../models/";

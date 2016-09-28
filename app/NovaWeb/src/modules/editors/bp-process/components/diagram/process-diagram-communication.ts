@@ -7,7 +7,7 @@ export interface IProcessDiagramCommunication {
 
     registerNavigateToAssociatedArtifactObserver(observer: any);
     removeNavigateToAssociatedArtifactObserver(observer: any);
-    navigateToAssociatedArtifact(artifactId: number, context?: any);
+    navigateToAssociatedArtifact(artifactId: number, enableTracking?: boolean);
 
     onDestroy();
 }
@@ -44,8 +44,8 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
         this.setNavigateToAssociatedArtifactSubject.disposeObserver(handler);
     }
 
-    public navigateToAssociatedArtifact(id: number, options?: any) {
-        this.setNavigateToAssociatedArtifactSubject.notify({ id: id, options: options });
+    public navigateToAssociatedArtifact(id: number, enableTracking?: boolean) {
+        this.setNavigateToAssociatedArtifactSubject.notify({ id: id, enableTracking: enableTracking });
     }
 
     public onDestroy() {

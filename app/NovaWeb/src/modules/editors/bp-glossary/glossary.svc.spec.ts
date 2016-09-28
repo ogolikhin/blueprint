@@ -1,6 +1,6 @@
-import "angular";
+import * as angular from "angular";
 import "angular-mocks";
-import "Rx";
+import "rx/dist/rx.lite";
 import { LocalizationServiceMock } from "../../core//localization/localization.mock";
 import { IGlossaryService, GlossaryService } from "./glossary.svc";
 import { IArtifact } from "../../main/models/models";

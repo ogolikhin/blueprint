@@ -1,4 +1,4 @@
-﻿import "angular";
+﻿import * as angular from "angular";
 import { BpFilesizeFilter } from "./bp-filesize/bp-filesize.filter";
 import { BpEscapeAndHighlightFilter } from "./bp-escape-hightlight/bp-escape-highlight.filter";
 

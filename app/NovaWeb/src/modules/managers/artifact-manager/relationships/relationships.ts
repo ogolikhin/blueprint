@@ -12,11 +12,11 @@ import {
 } from "../../models";
 
 export interface IArtifactRelationships extends IBlock<Relationships.IRelationship[]> {
-    observable: Rx.IObservable<Relationships.IRelationship[]>;
-    get(refresh?: boolean): ng.IPromise<Relationships.IRelationship[]>;
+    getObservable(): Rx.IObservable<Relationships.IRelationship[]>;
     add(relationships: Relationships.IRelationship[]);
     remove(relationships: Relationships.IRelationship[]);
     update(relationships: Relationships.IRelationship[]);
+    refresh(): ng.IPromise<Relationships.IRelationship[]>;
     discard();
 }
 
@@ -26,6 +26,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
     
     private changeset: IChangeCollector;
     private isLoaded: boolean;
+    private loadPromise: ng.IPromise<any>;
 
     constructor(private statefulItem: IIStatefulItem) {
         this.relationships = [];
@@ -40,23 +41,45 @@ export class ArtifactRelationships implements IArtifactRelationships {
     // }
 
     // refresh = true: turn lazy loading off, always reload
-    public get(refresh: boolean = true): ng.IPromise<Relationships.IRelationship[]> {
-        const deferred = this.statefulItem.getServices().getDeferred<Relationships.IRelationship[]>();
+    // public get(refresh: boolean = true): ng.IPromise<Relationships.IRelationship[]> {
+    //     const deferred = this.statefulItem.getServices().getDeferred<Relationships.IRelationship[]>();
 
-        if (this.isLoaded && !refresh) {
-            deferred.resolve(this.relationships);
-            this.subject.onNext(this.relationships);
-        } else {
-            this.statefulItem.getRelationships().then((result: Relationships.IRelationship[]) => {
-                deferred.resolve(result);
+    //     if (this.isLoaded && !refresh) {
+    //         deferred.resolve(this.relationships);
+    //         this.subject.onNext(this.relationships);
+    //     } else {
+    //         this.statefulItem.getRelationships().then((result: Relationships.IRelationship[]) => {
+    //             deferred.resolve(result);
+    //             this.subject.onNext(this.relationships);
+    //             this.isLoaded = true;
+    //         }, (error) => {
+    //             deferred.reject(error);
+    //         });
+    //     }
+
+    //     return deferred.promise;
+    // }
+
+    public getObservable(): Rx.IObservable<Relationships.IRelationship[]> {
+        if (!this.isLoadedOrLoading()) {
+
+            this.loadPromise = this.statefulItem.getRelationships().then((result: Relationships.IRelationship[]) => {
                 this.subject.onNext(this.relationships);
-                this.isLoaded = true;
+
             }, (error) => {
-                deferred.reject(error);
+                this.subject.onError(error);
+
+            }).finally(() => {
+                this.isLoaded = true;
+                this.loadPromise = null;
             });
         }
+        
+        return this.subject.filter(it => !!it).asObservable();
+    }
 
-        return deferred.promise;
+    protected isLoadedOrLoading() {
+        return this.relationships || this.loadPromise;
     }
 
     public get observable(): Rx.IObservable<Relationships.IRelationship[]> {
@@ -114,5 +137,11 @@ export class ArtifactRelationships implements IArtifactRelationships {
     public discard() {
         this.changeset.reset();
         this.subject.onNext(this.relationships);
+    }
+
+    // TODO: stub, implement
+    public refresh(): ng.IPromise<any> {
+
+        return null;
     }
 }

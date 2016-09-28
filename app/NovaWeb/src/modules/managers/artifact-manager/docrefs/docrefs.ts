@@ -13,12 +13,12 @@ import {
 
 export interface IDocumentRefs extends IBlock<IArtifactDocRef[]> {
     initialize(docrefs: IArtifactDocRef[]);
-    observable: Rx.IObservable<IArtifactDocRef[]>;
-    get(refresh?: boolean): ng.IPromise<IArtifactDocRef[]>;
+    getObservable(): Rx.IObservable<IArtifactDocRef[]>;
     add(docrefs: IArtifactDocRef[]);
     remove(docrefs: IArtifactDocRef[]);
     update(docrefs: IArtifactDocRef[]);
     changes(): IArtifactDocRef[];
+    refresh(): ng.IPromise<IArtifactDocRef[]>;
     discard();
 }
 
@@ -27,6 +27,7 @@ export class DocumentRefs implements IDocumentRefs {
     private subject: Rx.BehaviorSubject<IArtifactDocRef[]>;
     private changeset: IChangeCollector;
     private isLoaded: boolean;
+    private loadPromise: ng.IPromise<any>;
 
     constructor(private statefulItem: IIStatefulItem) {
         this.docrefs = [];
@@ -41,25 +42,39 @@ export class DocumentRefs implements IDocumentRefs {
     }
 
     // refresh = true: turn lazy loading off, always reload
-    public get(refresh: boolean = true): ng.IPromise<IArtifactDocRef[]> {
-        const deferred = this.statefulItem.getServices().getDeferred<IArtifactDocRef[]>();
+    // public get(refresh: boolean = true): ng.IPromise<IArtifactDocRef[]> {
+    //     const deferred = this.statefulItem.getServices().getDeferred<IArtifactDocRef[]>();
 
-        if (this.isLoaded && !refresh) {
-            deferred.resolve(this.docrefs);
-            this.subject.onNext(this.docrefs);
-        } else {
-            this.statefulItem.getAttachmentsDocRefs().then((result: IArtifactAttachmentsResultSet) => {
-                deferred.resolve(result.documentReferences);
-                this.isLoaded = true;
-            });
+    //     if (this.isLoaded && !refresh) {
+    //         deferred.resolve(this.docrefs);
+    //         this.subject.onNext(this.docrefs);
+    //     } else {
+    //         this.statefulItem.getAttachmentsDocRefs().then((result: IArtifactAttachmentsResultSet) => {
+    //             deferred.resolve(result.documentReferences);
+    //             this.isLoaded = true;
+    //         });
+    //     }
+
+    //     return deferred.promise;
+    // }
+
+    public getObservable(): Rx.IObservable<IArtifactDocRef[]> {
+        if (!this.isLoadedOrLoading()) {
+            this.loadPromise = this.statefulItem.getAttachmentsDocRefs()
+                .catch(error => {
+                    this.subject.onError(error);
+                }).finally(() => {
+                    this.loadPromise = null;
+                });
         }
-
-        return deferred.promise;
+        
+        return this.subject.filter(it => !!it).asObservable();
     }
 
-    public get observable(): Rx.IObservable<IArtifactDocRef[]> {
-        return this.subject.asObservable();
+    protected isLoadedOrLoading() {
+        return this.docrefs || this.loadPromise;
     }
+    
 
     public add(docrefs: IArtifactDocRef[]): IArtifactDocRef[] {
         if (docrefs) {
@@ -123,5 +138,11 @@ export class DocumentRefs implements IDocumentRefs {
     public discard() {
         this.changeset.reset();
         this.subject.onNext(this.docrefs);
+    }
+
+    // TODO: stub, implement
+    public refresh(): ng.IPromise<any> {
+
+        return null;
     }
 }

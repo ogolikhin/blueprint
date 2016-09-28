@@ -14,12 +14,13 @@ import {
 
 export interface IArtifactAttachments extends IBlock<IArtifactAttachment[]> {
     initialize(attachments: IArtifactAttachment[]);
-    observable: Rx.IObservable<IArtifactAttachment[]>;
-    get(refresh?: boolean): ng.IPromise<IArtifactAttachment[]>;
+    getObservable(): Rx.IObservable<IArtifactAttachment[]>;
+    // get(refresh?: boolean): ng.IPromise<IArtifactAttachment[]>;
     add(attachments: IArtifactAttachment[]);
     remove(attachments: IArtifactAttachment[]);
     update(attachments: IArtifactAttachment[]);
     changes(): IArtifactAttachment[];
+    refresh(): ng.IPromise<IArtifactAttachment[]>;
     discard();
 }
 
@@ -28,9 +29,10 @@ export class ArtifactAttachments implements IArtifactAttachments {
     private subject: Rx.BehaviorSubject<IArtifactAttachment[]>;
     private changeset: IChangeCollector;
     private isLoaded: boolean;
+    private loadPromise: ng.IPromise<any>;
 
     constructor(private statefulItem: IIStatefulItem) {
-        this.attachments = [];
+        // this.attachments = [];
         this.subject = new Rx.BehaviorSubject<IArtifactAttachment[]>(this.attachments);
         this.changeset = new ChangeSetCollector(statefulItem);
     }
@@ -42,27 +44,40 @@ export class ArtifactAttachments implements IArtifactAttachments {
     }
 
     // refresh = true: turn lazy loading off, always reload
-    public get(refresh: boolean = true): ng.IPromise<IArtifactAttachment[]> {
-        const deferred = this.statefulItem.getServices().getDeferred<IArtifactAttachment[]>();
+    // public get(refresh: boolean = true): ng.IPromise<IArtifactAttachment[]> {
+    //     const deferred = this.statefulItem.getServices().getDeferred<IArtifactAttachment[]>();
 
-        if (this.isLoaded && !refresh) {
-            deferred.resolve(this.attachments);
-            this.subject.onNext(this.attachments);
-        } else {
-            this.statefulItem.getAttachmentsDocRefs().then((result: IArtifactAttachmentsResultSet) => {
-                deferred.resolve(result.attachments);
-                this.subject.onNext(this.attachments);
-                this.isLoaded = true;
-            }, (error) => {
-                deferred.reject(error);
-            });
+    //     if (this.isLoaded && !refresh) {
+    //         deferred.resolve(this.attachments);
+    //         this.subject.onNext(this.attachments);
+    //     } else {
+    //         this.statefulItem.getAttachmentsDocRefs().then((result: IArtifactAttachmentsResultSet) => {
+    //             deferred.resolve(result.attachments);
+    //             this.subject.onNext(this.attachments);
+    //             this.isLoaded = true;
+    //         }, (error) => {
+    //             deferred.reject(error);
+    //         });
+    //     }
+
+    //     return deferred.promise;
+    // }
+
+    public getObservable(): Rx.IObservable<IArtifactAttachment[]> {
+        if (!this.isLoadedOrLoading()) {
+            this.loadPromise = this.statefulItem.getAttachmentsDocRefs()
+                .catch(error => {
+                    this.subject.onError(error);
+                }).finally(() => {
+                    this.loadPromise = null;
+                });
         }
-
-        return deferred.promise;
+        
+        return this.subject.filter(it => !!it).asObservable();
     }
 
-    public get observable(): Rx.IObservable<IArtifactAttachment[]> {
-        return this.subject.asObservable();
+    protected isLoadedOrLoading() {
+        return this.attachments || this.loadPromise;
     }
 
     public add(attachments: IArtifactAttachment[]): IArtifactAttachment[] {
@@ -125,5 +140,11 @@ export class ArtifactAttachments implements IArtifactAttachments {
     public discard() {
         this.changeset.reset();
         this.subject.onNext(this.attachments);
+    }
+
+    // TODO: stub, implement
+    public refresh(): ng.IPromise<IArtifactAttachment[]> {
+
+        return null;
     }
 }

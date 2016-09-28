@@ -25,11 +25,11 @@ export interface IDispose {
 }
 
 export interface IBlock<T> {
-    observable: Rx.IObservable<T>;
-    get(refresh?: boolean): ng.IPromise<T>;
+    getObservable(): Rx.IObservable<T>;
     add(T): T;
     remove(T): T;
     update(T): T;
+    refresh(): ng.IPromise<T>;
     discard();
 }
 

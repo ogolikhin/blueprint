@@ -54,22 +54,24 @@ export class ProjectManager  implements IProjectManager {
         private statefulArtifactFactory: IStatefulArtifactFactory) {
         
         this.subscribers = [];
+
+        const stateSub = this.artifactManager.selection.artifactObservable
+            // cannot always skip 1 and rely on the artifact observable having 2 values (initial and new)
+            // this is true when navigating to artifact X from artifact X via breadcrumb (loop)
+            //.skip(1) // skip the first (initial) value
+            .filter((artifact: IStatefulArtifact) => artifact != null && (artifact.artifactState.deleted || artifact.artifactState.misplaced))
+            .flatMap((artifact: IStatefulArtifact) => {
+                return artifact.getObservable();
+            }).subscribeOnNext(this.onDeleteOrMove);
+        
     }
 
-    private onChange(artifact: IStatefulArtifact) {
-        this.projectCollection.onNext(this._projectCollection.getValue());
+
+    private onDeleteOrMove = (artifact: IStatefulArtifact) => {
+        const project = this.getProject(artifact.projectId);
+//        this.refresh(project);
     }
 
-    // private onArtifactSelect(artifact: IStatefulArtifact) {
-    //     if (this.statechangesubscriber) {
-    //         this.statechangesubscriber.dispose();
-    //         delete this.statechangesubscriber;
-    //     }
-    //     if (artifact) {
-    //         this.statechangesubscriber = artifact.observable().subscribeOnNext(this.onChange, this);
-    //     }
-    // }
-    
     private onChangeInArtifactManagerCollection(artifact: IStatefulArtifact){
          //Projects will null parentId have been removed from ArtifactManager
          if (artifact.parentId === null) {
@@ -121,13 +123,13 @@ export class ProjectManager  implements IProjectManager {
         
         let selectedArtifact = this.artifactManager.selection.getArtifact();
         
-        if (selectedArtifact.artifactState.dirty){
+        if (selectedArtifact.artifactState.dirty) {
             selectedArtifact.autosave().then(() => {
                 this.doRefresh(project, selectedArtifact, defer, currentProject);
             }).catch(() => {
                 defer.reject();
             });
-        }else{
+        } else {
             this.doRefresh(project, selectedArtifact, defer, currentProject);
         }
         
@@ -311,7 +313,6 @@ export class ProjectManager  implements IProjectManager {
                     node.open = true;
 
                     this.projectCollection.onNext(this.projectCollection.getValue());
-//                    this.artifactManager.selection.setArtifact(node.artifact, SelectionSource.Explorer);
 
                 }).catch((error: any) => {
                     //ignore authentication errors here

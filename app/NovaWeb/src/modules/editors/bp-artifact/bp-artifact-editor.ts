@@ -72,39 +72,33 @@ export class BpArtifactEditor extends BpBaseEditor {
     }
 
 
-    // public onLoad() {
-    //     super.onLoad();
-    // }
+    public onArtifactReady() {
+        if ( this.editor  && this.artifact) {
+            this.clearFields();
 
-    public onUpdate() {
-        super.onUpdate();
-        if ( !this.editor) {
-            return;
-        }
-        this.clearFields();
+            this.model = this.editor.load(this.artifact, this.artifact.metadata.getArtifactPropertyTypes());
 
-        this.model = this.editor.load(this.artifact, this.artifact.metadata.getArtifactPropertyTypes());
+            this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
+                //add property change handler to each field
+                angular.extend(field.templateOptions, {
+                    onChange: this.onValueChange.bind(this)
+                });
 
-        this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
-            //add property change handler to each field
-            angular.extend(field.templateOptions, {
-                onChange: this.onValueChange.bind(this)
+                let isReadOnly = this.artifact.artifactState.readonly || this.artifact.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
+                field.templateOptions["isReadOnly"] = isReadOnly;
+                if (isReadOnly) {
+                    if (field.key !== "documentFile" &&
+                        field.type !== "bpFieldImage" &&
+                        field.type !== "bpFieldInheritFrom") {
+                        field.type = "bpFieldReadOnly";
+                    }
+                }           
+                this.onFieldUpdate(field);
+
             });
-
-            let isReadOnly = this.artifact.artifactState.readonly || this.artifact.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
-            field.templateOptions["isReadOnly"] = isReadOnly;
-            if (isReadOnly) {
-                if (field.key !== "documentFile" &&
-                    field.type !== "bpFieldImage" &&
-                    field.type !== "bpFieldInheritFrom") {
-                    field.type = "bpFieldReadOnly";
-                }
-            }           
-            this.onFieldUpdate(field);
-
-        });
-        this.isLoading = false;
+        }
         this.setArtifactEditorLabelsWidth();
+        super.onArtifactReady();
     }
 
     public setArtifactEditorLabelsWidth(mainWindow?: IMainWindow) {

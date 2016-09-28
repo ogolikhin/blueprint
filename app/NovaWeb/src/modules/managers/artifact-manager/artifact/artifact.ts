@@ -30,12 +30,12 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     private _subArtifactCollection: ISubArtifactCollection;
     private _changesets: IChangeCollector;
 
-    private subject: Rx.BehaviorSubject<IStatefulArtifact> ;
+    private subject: Rx.Subject<IStatefulArtifact> ;
     private lockPromise: ng.IPromise<IStatefulArtifact>;
     private loadPromise: ng.IPromise<IStatefulArtifact>;
 
     constructor(private artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
-        this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
+        this.subject = new Rx.Subject<IStatefulArtifact>();
         this.artifactState = new ArtifactState(this);
         this.metadata = new MetaData(this);
         this.deleted = false;
@@ -203,9 +203,10 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         if (!this.isFullArtifactLoadedOrLoading()) {
             this.loadPromise = this.load();
 
-            this.loadPromise.then((artifact) => {
-                this.subject.onNext(artifact);
+            this.loadPromise.then(() => {
+                this.subject.onNext(this);
             }).catch((error) => {
+                this.artifactState.readonly = true;
                 this.subject.onError(error);
             }).finally(() => {
                 this.loadPromise = null;
@@ -259,26 +260,42 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         this.artifactState.initialize(artifact);
         this.customProperties.initialize(artifact.customPropertyValues);
         this.specialProperties.initialize(artifact.specificPropertyValues);
-        
+         
         let state = this.artifactState.get();
         if (artifactBeforeUpdate.parentId !== artifact.parentId || artifactBeforeUpdate.orderIndex !== artifact.orderIndex) {
+            this.artifact.parentId = artifactBeforeUpdate.parentId; 
             state.misplaced = true;
         }
 
         return state;
     }
 
+    private isNeedToLoad() {
+        if (this.isProject()) {
+            return false;
+        } else if (this.artifactState.dirty && this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
+            return false;
+        } else if (this.artifactState.misplaced ) {
+            return false;
+        } else if (this.artifactState.deleted ) {
+            return false;
+        }
+        return true;
+    }
+
     protected load():  ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
-        if (! this.isProject() && !(this.artifactState.dirty && this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser)) {
+        if (this.isNeedToLoad()) {
             this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
                 let state = this.initialize(artifact);
                 //modify states all at once
                 this.artifactState.set(state);
                 deferred.resolve(this);
             }).catch((err) => {
-                this.artifactState.readonly = true;
-                deferred.reject(new Error(err.message));
+                if (err.statusCode === 404) {
+                    this.artifactState.deleted = true;
+                }
+                deferred.reject(err);
             });
         } else {
             deferred.resolve(this);

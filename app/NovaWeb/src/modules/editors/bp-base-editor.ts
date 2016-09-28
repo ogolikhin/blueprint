@@ -24,8 +24,12 @@ export class BpBaseEditor {
         this.artifactManager.get(obj.context.currentValue).then((artifact) => {
             if (artifact) {
                 this.isLoading = true;
+                this.artifact = artifact;
+                this.artifactManager.selection.setArtifact(this.artifact);
+                //TODO come up with better way to fix bug in use case diagram when user selects actor/ use case
+                this.artifactManager.selection.setExplorerArtifact(this.artifact);
                 const artifactObserver = artifact.getObservable()
-                        .subscribe(this.onArtifactChanged, this.onError);
+                        .subscribe(this.onArtifactChanged, this.onArtifactError);
 
                 this.subscribers = [artifactObserver];
             }
@@ -39,26 +43,18 @@ export class BpBaseEditor {
         this.isDestroyed = true;
     }
 
-    protected onArtifactChanged = (artifact: IStatefulArtifact) =>  {
-        this.artifact = artifact;
-        this.artifactManager.selection.setArtifact(this.artifact);
-        //TODO come up with better way to fix bug in use case diagram when user selects actor/ use case
-        this.artifactManager.selection.setExplorerArtifact(this.artifact);
-        this.onLoad();
+    protected onArtifactChanged = () =>  {
+        console.log("artifact changed");
+        this.onArtifactReady();
     }
 
-    public onLoad() {
-        this.update();
+    protected onArtifactError = (error: any) => {
+        console.log("artifact error");
+        this.onArtifactReady();
     }
 
-    public onError = (error: any) => {
-        this.messageService.addError(error);
+    public onArtifactReady() {
+        this.isLoading = false;
     }
 
-    protected update() {
-        this.onUpdate();
-    }
-
-    public onUpdate() {
-    }
 }

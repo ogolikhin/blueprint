@@ -124,7 +124,7 @@ export class ProjectExplorerController {
     };
 
     public doSelect = (node: IArtifactNode) => {
-        console.log("doSelect");
+        
         if (!this.selected || this.selected.id !== node.id) {
             this.doSync(node);
             this.selected = node;
@@ -133,7 +133,7 @@ export class ProjectExplorerController {
     };
 
     public doSync = (node: IArtifactNode): IStatefulArtifact => {
-        console.log("doSync");
+        
         //check passed in parameter
         let artifactNode = this.projectManager.getArtifactNode(node.id);
         if (artifactNode.children && artifactNode.children.length) {

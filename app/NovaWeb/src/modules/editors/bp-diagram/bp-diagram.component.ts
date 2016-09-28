@@ -99,8 +99,8 @@ export class BPDiagramController extends BpBaseEditor {
         }
     }
 
-    public onLoad() {
-        super.onLoad();
+    public onArtifactReady() {
+        super.onArtifactReady();
         if (this.isDestroyed) {
             return;
         }

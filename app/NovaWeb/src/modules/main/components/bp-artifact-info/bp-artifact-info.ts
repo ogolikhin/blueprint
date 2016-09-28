@@ -81,8 +81,9 @@ export class BpArtifactInfoController {
     public $onChanges(obj: any) {
         this.artifactManager.get(obj.context.currentValue).then((artifact) => {
             if (artifact) {
+                this.artifact = artifact;
                 const artifactObserver = artifact.getObservable()
-                        .subscribe(this.onArtifactChanged); //, this.onError);
+                        .subscribe(this.onArtifactChanged, this.onError);
 
                 this.subscribers.push(artifactObserver);
             }
@@ -95,9 +96,17 @@ export class BpArtifactInfoController {
         delete this.subscribers;
     }
 
-    private onArtifactChanged = (artifact) => {
-        this.artifact = artifact;
+    private onArtifactChanged = () => {
         this.updateProperties(this.artifact);
+    }
+
+    public onError = (error: any) => {
+        if (this.artifact.artifactState.deleted) {
+            this.dialogService.alert("Artifact_Lock_DoesNotExist");
+        } else {
+            this.messageService.addError(error);
+        }
+        this.onArtifactChanged();
     }
 
     private initProperties() {
@@ -164,7 +173,7 @@ export class BpArtifactInfoController {
         }
         if (artifact.artifactState.misplaced) {
             this.dialogService.alert("Artifact_Lock_DoesNotExist");
-        }
+        } 
     }
 
     public get artifactHeadingMinWidth() {

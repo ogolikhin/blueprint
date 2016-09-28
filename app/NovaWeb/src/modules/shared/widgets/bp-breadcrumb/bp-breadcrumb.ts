@@ -11,6 +11,7 @@ export class BPBreadcrumbComponent implements ng.IComponentOptions {
 }
 
 export interface IBPBreadcrumbController {
+    links: IBreadcrumbLink[];
     onSelect?: Function;
 }
 
@@ -25,8 +26,9 @@ export class BPBreadcrumbController implements IBPBreadcrumbController {
         this.selectionSubject = new Rx.Subject<IBreadcrumbLink>();
 
         this.selectionSubject
-            .filter(link => link != null && angular.isFunction(this.onSelect))
-            .subscribe(link => this.onSelect({ link: link }));
+            .filter((link: IBreadcrumbLink) => link != null && angular.isFunction(this.onSelect))
+            .debounce(200)
+            .subscribe((link: IBreadcrumbLink) => this.onSelect({ link: link }));
     }
 
     public $onInit = () => {

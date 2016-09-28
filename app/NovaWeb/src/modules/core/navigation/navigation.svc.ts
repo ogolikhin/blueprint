@@ -56,16 +56,16 @@ export class NavigationService implements INavigationService {
             return parameters;
         };
 
-        return this._navigateToArtifact(getParameters);
+        return this.navigateToArtifactInternal(getParameters);
     }
 
     public navigateBack(pathIndex?: number): ng.IPromise<any> {
         const deferred: ng.IDeferred<any> = this.$q.defer();
         const path: number[] = this.getNavigationState().path;
-        const validationError: string = this.validateBackNavigation(path, pathIndex);
+        const validationError: Error = this.validateBackNavigation(path, pathIndex);
 
         if (!!validationError) {
-            deferred.reject(new Error(validationError));
+            deferred.reject(validationError);
             return deferred.promise;
         }
 
@@ -88,10 +88,10 @@ export class NavigationService implements INavigationService {
             return parameters;
         };
 
-        return this._navigateToArtifact(getParameters);
+        return this.navigateToArtifactInternal(getParameters);
     }
 
-    private _navigateToArtifact(getParameters: () => any): ng.IPromise<any> {
+    private navigateToArtifactInternal(getParameters: () => any): ng.IPromise<any> {
         const state = "main.artifact";
         const parameters = getParameters();
         // Disables the inheritance of optional url parameters (such as "path")
@@ -100,18 +100,18 @@ export class NavigationService implements INavigationService {
         return this.$state.go(state, parameters, stateOptions);
     }
 
-    private validateBackNavigation(path: number[], pathIndex: number): string {
+    private validateBackNavigation(path: number[], pathIndex: number): Error {
         if (!path || path.length === 0) {
-            return `Unable to navigate back, no navigation history found.`;
+            return new Error(`Unable to navigate back, no navigation history found.`);
         }
 
         if (!!pathIndex) {
             if (pathIndex < 0) {
-                return `Unable to navigate back, pathIndex is out of range: ${pathIndex}.`;
+                return new Error(`Unable to navigate back, pathIndex is out of range: ${pathIndex}.`);
             }
 
             if (pathIndex >= path.length) {
-                return `Unable to navigate back, pathIndex is out of range: ${pathIndex}.`;
+                return new Error(`Unable to navigate back, pathIndex is out of range: ${pathIndex}.`);
             }
         }
 

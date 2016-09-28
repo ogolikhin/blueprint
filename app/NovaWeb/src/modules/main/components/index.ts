@@ -12,8 +12,6 @@ angular.module("bp.components", [
     "bp.components.toolbar",
     "bp.components.sidebar",
     "bp.components.explorer",
-    "bp.components.pagecontent"
-
+    "bp.components.pagecontent",
+    "bp.components.artifactpicker"
 ]);
-
-

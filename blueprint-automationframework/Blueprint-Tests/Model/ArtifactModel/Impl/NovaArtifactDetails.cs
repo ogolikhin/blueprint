@@ -15,6 +15,7 @@ namespace Model.ArtifactModel.Impl
 
         public List<AttachmentValue> AttachmentValues { get; } = new List<AttachmentValue>();
 
+        //this function is used by Newtonsoft.Json to determine when to serialize property. See help for Newtonsoft.Json.Serialization
         public bool ShouldSerializeAttachmentValues()
         {
             return AttachmentValues.Count > 0;
@@ -303,17 +304,27 @@ namespace Model.ArtifactModel.Impl
 
         public class CustomProperty
         {
+            [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
             public string Name { get; set; }
 
-            [JsonProperty("value")]
+            [JsonProperty("value", NullValueHandling=NullValueHandling.Ignore)]
             public object CustomPropertyValue { get; set; }
 
             public int PropertyTypeId { get; set; }
 
             public int PropertyTypeVersionId { get; set; }
+            
+            //this function is used by Newtonsoft.Json to determine when to serialize property. See help for Newtonsoft.Json.Serialization
+            public bool ShouldSerializePropertyTypeVersionId()
+            {
+                return PropertyTypeVersionId != 0;
+            }
 
             [JsonProperty("PropertyTypePredefined")]
             public PropertyTypePredefined PropertyType { get; set; }
+
+            [JsonProperty("isReuseReadOnly", NullValueHandling = NullValueHandling.Ignore)]
+            public bool? IsReuseReadOnly { get; set; }
         }
 
 

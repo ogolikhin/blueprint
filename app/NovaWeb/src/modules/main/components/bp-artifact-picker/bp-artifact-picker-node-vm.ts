@@ -1,9 +1,9 @@
 import * as angular from "angular";
-import { Models } from "../../../models";
-import { Helper } from "../../../../shared/";
-import { ITreeViewNodeVM } from "../../../../shared/widgets/bp-tree-view/";
-import { IProjectManager } from "../../../../managers";
-import { IProjectService } from "../../../../managers/project-manager/project-service";
+import { Models } from "../../models";
+import { Helper } from "../../../shared/";
+import { ITreeViewNodeVM } from "../../../shared/widgets/bp-tree-view/";
+import { IProjectManager } from "../../../managers";
+import { IProjectService } from "../../../managers/project-manager/project-service";
 import { IArtifactPickerOptions } from "./bp-artifact-picker";
 
 export abstract class ArtifactPickerNodeVM<T> implements ITreeViewNodeVM {

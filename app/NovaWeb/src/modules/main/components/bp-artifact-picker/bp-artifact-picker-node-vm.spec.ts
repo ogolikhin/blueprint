@@ -1,8 +1,8 @@
 import "angular";
 import "angular-mocks";
-import {Models} from "../../../models";
-import {IProjectManager} from "../../../../managers/";
-import {IProjectService} from "../../../../managers/project-manager/";
+import {Models} from "../../models";
+import {IProjectManager} from "../../../managers/";
+import {IProjectService} from "../../../managers/project-manager/";
 import {IArtifactPickerOptions} from "./bp-artifact-picker";
 import {InstanceItemNodeVM, ArtifactNodeVM, SubArtifactContainerNodeVM, SubArtifactNodeVM} from "./bp-artifact-picker-node-vm";
 

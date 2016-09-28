@@ -1,6 +1,5 @@
 ﻿import { IMessageService } from "../core";
 import { IArtifactManager, IProjectManager } from "../managers";
-import { IArtifactState } from "../managers/artifact-manager";
 import { IStatefulArtifact, } from "../managers/models";
 import { Models, Enums } from "../main/models";
 
@@ -22,15 +21,12 @@ export class BpBaseEditor {
 
     public $onChanges(obj: any) {
         this.isDestroyed = false;
-        this.artifactManager.get(obj.context.currentValue).then((artifact) => { // lightweight
+        this.artifactManager.get(obj.context.currentValue).then((artifact) => {
             if (artifact) {
                 this.isLoading = true;
-//                this.artifact = artifact;
-                const artifactObserver = artifact
-                        .getObservable()
+                const artifactObserver = artifact.getObservable()
                         .subscribe(this.onArtifactChanged, this.onError);
 
-//                this.artifact.refresh();
                 this.subscribers = [artifactObserver];
             }
         });
@@ -38,30 +34,31 @@ export class BpBaseEditor {
 
     public $onDestroy() {
         delete this.artifact;
-        this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        this.subscribers.forEach(subscriber => { subscriber.dispose(); });
+        delete this.subscribers;
         this.isDestroyed = true;
     }
 
     protected onArtifactChanged = (artifact: IStatefulArtifact) =>  {
         this.artifact = artifact;
         this.artifactManager.selection.setArtifact(this.artifact);
+        //TODO come up with better way to fix bug in use case diagram when user selects actor/ use case
         this.artifactManager.selection.setExplorerArtifact(this.artifact);
         this.onLoad();
     }
 
     public onLoad() {
-        //NOTE: setExplorerArtifact method does not trigger notification
         this.update();
     }
+
     public onError = (error: any) => {
         this.messageService.addError(error);
-
     }
 
     protected update() {
         this.onUpdate();
-
     }
+
     public onUpdate() {
-   }
+    }
 }

@@ -9,7 +9,6 @@ export interface IState {
     dirty?: boolean;
     published?: boolean;
     deleted?: boolean;
-    outdated?: boolean;
     misplaced?: boolean;
     invalid?: boolean;
 }
@@ -117,12 +116,6 @@ export class ArtifactState implements IArtifactState {
     }
     public set published(value: boolean) {
         this.state.published = value;
-    }
-    public get outdated(): boolean {
-        return this.state.outdated;
-    }
-    public set outdated(value: boolean) {
-        this.state.outdated = value;
     }
     
     public get invalid(): boolean {

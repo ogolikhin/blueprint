@@ -12,6 +12,9 @@ export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("./bp-process-header.html");
     public controller: Function = BpProcessHeaderController;
     public transclude: boolean = true;
+    public bindings: any = {
+        context: "<"
+    };
 }
 
 export class BpProcessHeaderController extends BpArtifactInfoController {

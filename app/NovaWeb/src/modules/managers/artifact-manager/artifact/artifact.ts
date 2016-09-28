@@ -19,18 +19,18 @@ import {
 
 export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     public artifactState: IArtifactState;
+    public metadata: IMetaData;
+    public deleted: boolean;
+
     private _attachments: IArtifactAttachments;
     private _docRefs: IDocumentRefs;
     private _relationships: IArtifactRelationships;
     private _customProperties: IArtifactProperties;
     private _specialProperties: IArtifactProperties;
     private _subArtifactCollection: ISubArtifactCollection;
-    public metadata: IMetaData;
-    public deleted: boolean;
+    private _changesets: IChangeCollector;
 
     private subject: Rx.BehaviorSubject<IStatefulArtifact> ;
-    private subscribers: Rx.IDisposable[];
-    private _changesets: IChangeCollector;
     private lockPromise: ng.IPromise<IStatefulArtifact>;
     private loadPromise: ng.IPromise<IStatefulArtifact>;
 
@@ -39,22 +39,10 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         this.artifactState = new ArtifactState(this);
         this.metadata = new MetaData(this);
         this.deleted = false;
-
-        this.subscribers = [
-            // this.artifactState.observable()
-            //     .subscribeOnNext(this.onChanged, this),
-        ];
-        // this.artifactState.observable
-        //     .filter((it: IArtifactState) => !!it.get().lock)
-        //     .distinctUntilChanged()
-        //     .subscribeOnNext(this.onChanged, this);
     }
 
     public dispose() {
-        //TODO: implement logic to release resources
-        this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
         this.subject.dispose();
-        delete this.subscribers;
         delete this.subject;
         this.artifact.parentId = null;
     }
@@ -168,60 +156,66 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         }
         return this._customProperties;
     }
+
     public get changesets() {
         if (!this._changesets) {
             this._changesets = new ChangeSetCollector(this);
         }
         return this._changesets;
     }
+
     public get specialProperties() {
         if (!this._specialProperties) {
             this._specialProperties = new SpecialProperties(this);
         }
         return this._specialProperties;
     }
+
     public get attachments() {
         if (!this._attachments) {
             this._attachments = new ArtifactAttachments(this);
         }
         return this._attachments;
     }
+
     public get docRefs() {
         if (!this._docRefs) {
             this._docRefs = new DocumentRefs(this);
         }
         return this._docRefs;
     }
+
     public get relationships() {
         if (!this._relationships) {
             this._relationships = new ArtifactRelationships(this);
         }
         return this._relationships;
     }
+
     public get subArtifactCollection() {
         if (!this._subArtifactCollection) {
             this._subArtifactCollection = new StatefulSubArtifactCollection(this, this.services);
         }
         return this._subArtifactCollection;
     }
-        // if (!this.changesets) {
-        //     this.changesets = new ChangeSetCollector(this);
-        // }
-
 
     public getObservable(): Rx.Observable<IStatefulArtifact> {
-        if (!this.isFullArtifactLoaded()) {
-            this.load().then((artifact) => {
+        if (!this.isFullArtifactLoadedOrLoading()) {
+            this.loadPromise = this.load();
+
+            this.loadPromise.then((artifact) => {
                 this.subject.onNext(artifact);
             }).catch((error) => {
                 this.subject.onError(error);
+            }).finally(() => {
+                this.loadPromise = null;
             });
         }
         return this.subject.filter(it => !!it).asObservable();
     }
 
-    protected isFullArtifactLoaded() {
-        return this._customProperties && this._specialProperties;
+    protected isFullArtifactLoadedOrLoading() {
+        return this._customProperties && this._specialProperties || this.loadPromise;
     }
 
     public unload() {
@@ -237,15 +231,20 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         //TODO: implement the same for all objects
     }
 
-
-
     public discard() {
         this.changesets.reset();
-        this.customProperties.discard();
-        this.specialProperties.discard();
-        this.attachments.discard();
-        this.docRefs.discard();
-        this.subArtifactCollection.discard();
+        if (this._customProperties) {
+            this._customProperties.discard();
+        }
+        if (this._specialProperties) {
+            this._specialProperties.discard();
+        }
+        if (this._attachments) {
+            this._attachments.discard();
+        }
+        if (this._subArtifactCollection) {
+            this._subArtifactCollection.discard();
+        }
         this.artifactState.dirty = false;
     }
     
@@ -265,7 +264,6 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         if (artifactBeforeUpdate.parentId !== artifact.parentId || artifactBeforeUpdate.orderIndex !== artifact.orderIndex) {
             state.misplaced = true;
         }
-        state.outdated = false;
 
         return state;
     }
@@ -281,10 +279,9 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             }).catch((err) => {
                 this.artifactState.readonly = true;
                 deferred.reject(new Error(err.message));
-            }).finally(() => {
             });
         } else {
-            deferred.resolve(this)
+            deferred.resolve(this);
         }
         
         return deferred.promise;
@@ -294,14 +291,16 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         return this.itemTypeId === Enums.ItemTypePredefined.Project;
     }
 
-
-    private validateLock(lock: Models.ILockResult) {
+    private processLock(lock: Models.ILockResult) {
         if (lock.result === Enums.LockResultEnum.Success) {
             this.artifactState.lock(lock);
             if (lock.info.versionId !== this.version) {
                 this.refresh();             
-            } else if (lock.info.parentId !== this.parentId || lock.info.orderIndex !== this.orderIndex) {
-                this.artifactState.misplaced = true;
+            } else {
+                if (lock.info.parentId !== this.parentId || lock.info.orderIndex !== this.orderIndex) {
+                    this.artifactState.misplaced = true;
+                }
+                this.subject.onNext(this);
             }
 
         } else {
@@ -320,7 +319,6 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         }
     }
 
-
     public lock(): ng.IPromise<IStatefulArtifact> {
         if (this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
             return;
@@ -332,7 +330,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             
             this.services.artifactService.lock(this.id).then((result: Models.ILockResult[]) => {
                 let lock = result[0];
-                this.validateLock(lock); 
+                this.processLock(lock); 
                 //modifies all other state at once 
                 this.artifactState.set(this.artifactState.get());
                 deferred.resolve(this);
@@ -343,7 +341,6 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         }
         return this.lockPromise;
     }
-
 
     public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {
         const deferred = this.services.getDeferred();
@@ -401,6 +398,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
 
         return delta;
     }
+
     private addSubArtifactChanges(delta: Models.IArtifact) {
         let subArtifacts = this.subArtifactCollection.list();
         delta.subArtifacts = new Array<Models.ISubArtifact>();
@@ -419,11 +417,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
                 this.discard();
                 this.refresh();
                 this.services.messageService.addInfo("App_Save_Artifact_Error_200");
-                // this.load(true).then((it: IStatefulArtifact) => {
-                //     deffered.resolve(it);
-                // }).finally(() => {
 
-                // });
             }).catch((error) => {
                 deffered.reject(error);
                 let message: string;
@@ -475,14 +469,6 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
 
     public refresh(): ng.IPromise<IStatefulArtifact> {
          const deferred = this.services.getDeferred<IStatefulArtifact>();
-        // const disposable = this.observable()
-        //     .filter(artifact => artifact && !artifact.artifactState.outdated)
-        //     .subscribe((artifact) => {
-
-        //     disposable.dispose();
-        //     deferred.resolve(artifact);
-        // });
-        // this.artifactState.set({ outdated: true });
         this.discard();
 
         this.load().then((artifact: IStatefulArtifact) => {
@@ -497,33 +483,8 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         });
         
         // TODO: also load subartifacts and the rest of the
-
-        // clear all fields from all sub-objects of THIS
-        // this.all-properties
-        // this.state
-        // this.attachments
-        // this.docRefs
-        // this.relationships
-
-        // if (this.hasObservers()) {
-        //     clear all fields
-        //     this.load(true);
-        // }
-
-        // if (this.attachments.hasObservers()) {
-        //     this.attachments.get(true);
-        // }
-
-        // if (this.docRefs.hasObservers()) {
-        //     this.docRefs.get(true);
-        // }
-
-        // if (this.relationships.hasObservers()) {
-        //     this.relationships.get(true);
-        // }
-
-        // if (this.subArtifactCollection.hasObservers()) {
-        //     this.subArtifactCollection.get(true);
+        // if (this._attachments) {
+        //     this._attachments.get(true);
         // }
 
 

@@ -36,6 +36,13 @@ namespace Model.Impl
             return deletedArtifacts;
         }
 
+        /// <seealso cref="IArtifactStore.DiscardArtifact(IArtifactBase, IUser, bool?, List{HttpStatusCode})"/>
+        public INovaArtifactsAndProjectsResponse DiscardArtifact(IArtifactBase artifact, IUser user = null, bool? all = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            var artifacts = new List<IArtifactBase> { artifact };
+            return DiscardArtifacts(Address, artifacts, user, all, expectedStatusCodes);
+        }
+
         /// <seealso cref="IArtifactStore.DiscardArtifacts(List{IArtifactBase}, IUser, bool?, List{HttpStatusCode})"/>
         public INovaArtifactsAndProjectsResponse DiscardArtifacts(List<IArtifactBase> artifacts, IUser user = null, bool? all = null, List<HttpStatusCode> expectedStatusCodes = null)
         {

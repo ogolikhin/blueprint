@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import {IBreadcrumbLink} from "./breadcrumb-link";
 
 export class BPBreadcrumbComponent implements ng.IComponentOptions {

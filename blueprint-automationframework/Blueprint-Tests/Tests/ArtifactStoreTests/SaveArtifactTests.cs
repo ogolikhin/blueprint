@@ -434,7 +434,8 @@ namespace ArtifactStoreTests
             Assert.AreNotEqual(requestBody, modifiedRequestBody, "Check that RequestBody was updated.");
 
             // Execute & Verify:
-            var ex = Assert.Throws<Http400BadRequestException>(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifact.Id, _user),
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, modifiedRequestBody, artifact.Id, _user),
                 "'PATCH {0}' should return 400 Bad Request if the value is set to wrong type!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 

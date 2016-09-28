@@ -73,7 +73,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(savedArtifacts, _user, all: true),
-                "DiscardArtifacts() failed when discarding saved artifact(s)!");
+                "'POST {0}?all=true' should return 200 OK when discarding saved artifacts!", DISCARD_PATH);
 
             // Validation: Verify that discarded artifact information from discardedArtifactResponse match with that from savedArtifacts
 
@@ -129,7 +129,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(changedPublishedArtifacts, _user, all: true),
-                "DiscardArtifacts() failed when discarding saved artifact(s)!");
+                "'POST {0}?all=true' should return 200 OK when discarding saved artifacts!", DISCARD_PATH);
 
             // Validation: Verify that discarded artifact information from discardedArtifactResponse match with that from savedArtifacts
             Assert.That(discardArtifactResponse.Artifacts.Count.Equals(changedPublishedArtifacts.Count),
@@ -151,7 +151,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user, all: true),
-                "DiscardArtifacts() failed when discarding saved artifact(s)!");
+                "'POST {0}?all=true' should return 200 OK when discarding saved artifacts!", DISCARD_PATH);
 
             // Validation: Verify that response from discard call is empty since published artifact is not discardable
             Assert.That(discardArtifactResponse.Artifacts.Count.Equals(0),
@@ -178,7 +178,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(mixedArtifacts, _user, all: true),
-                "DiscardArtifacts() failed when discarding saved artifact(s)!");
+                "'POST {0}?all=true' should return 200 OK when discarding saved artifacts!", DISCARD_PATH);
 
             // Validation: Makesure that returned body contains artifact details from savedArtifacts, ones taht are valid for successful discard. 
             Assert.That(discardArtifactResponse.Artifacts.Count.Equals(numberOfArtifacts),
@@ -258,7 +258,8 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Execute:
-            Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user, all : true), "DiscardArtifacts() 200 OK when discarding saved artifact(s)!");
+            Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user, all : true),
+                "'POST {0}?all=true' should return 200 OK when discarding saved artifact(s)!", DISCARD_PATH);
         }
 
         #endregion Custom data tests
@@ -287,7 +288,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(artifactChain.ConvertAll(x => (IArtifactBase)x), _user, all: true),
-                "'POST {0}' should return 200 OK if the dependent children of the Artifact have been moved!", DISCARD_PATH);
+                "'POST {0}?all=true' should return 200 OK if the dependent children of the Artifact have been moved!", DISCARD_PATH);
         }
 
         [TestCase(3, BaseArtifactType.Process)]
@@ -304,9 +305,9 @@ namespace ArtifactStoreTests
             }
 
             // Create artifact(s) and publish for discard test
-            var artifactChainTest = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes.ToArray());
-            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
-            var artifactChainCustomData = Helper.CreatePublishedArtifactChain(projectCustomData, _user, artifactTypes.ToArray());
+            var projects = ProjectFactory.GetProjects(_user, numberOfProjects: 2);
+            var artifactChainTest = Helper.CreatePublishedArtifactChain(projects[0], _user, artifactTypes.ToArray());
+            var artifactChainCustomData = Helper.CreatePublishedArtifactChain(projects[1], _user, artifactTypes.ToArray());
 
             for (int i = 1; i < numberOfArtifacts; i++)
             {
@@ -322,7 +323,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(artifactChainTest.ConvertAll(x => (IArtifactBase)x), _user, all: true),
-                "'POST {0}' should return 200 OK if the changed Artifact are in different projects!", DISCARD_PATH);
+                "'POST {0}?all=true' should return 200 OK if the changed Artifacts are in different projects!", DISCARD_PATH);
         }
 
         [TestCase(3, BaseArtifactType.Process)]
@@ -372,7 +373,7 @@ namespace ArtifactStoreTests
             // Execute:
 
             Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(artifactChain.ConvertAll(x => (IArtifactBase)x), _user, all: true),
-                "'POST {0}' should return 200 OK if the Artifact for removed artifact!", DISCARD_PATH);
+                "'POST {0}?all=true' should return 200 OK if the Artifact for removed artifact!", DISCARD_PATH);
         }
 
         #endregion 200 OK Tests

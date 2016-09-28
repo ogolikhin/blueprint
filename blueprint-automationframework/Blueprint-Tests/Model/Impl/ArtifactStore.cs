@@ -723,10 +723,14 @@ namespace Model.Impl
                     Logger.WriteDebug("'POST {0}' returned following artifact Id: {1}",
                         path, discardedArtifacts.Id);
 
-                    if ((all != true) && (artifacts.Count > 0))
+                    if (artifacts.Count > 0)
                     {
                         IArtifactBase discardedArtifact = artifacts.Find(a => a.Id == discardedArtifacts.Id);
-                        discardedArtifact.IsSaved = false;
+
+                        if (discardedArtifact != null)
+                        {
+                            discardedArtifact.IsSaved = false;
+                        }
                     }
                 }
             }

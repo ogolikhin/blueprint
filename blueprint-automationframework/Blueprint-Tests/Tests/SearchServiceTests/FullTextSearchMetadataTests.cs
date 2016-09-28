@@ -510,11 +510,17 @@ namespace SearchServiceTests
             var searchTerm = artifact.Name;
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
 
+            // Create user with author project role to project
+            var userWithProjectRole = SearchServiceTestHelper.CreateUserWithProjectRolePermissions(
+                Helper,
+                SearchServiceTestHelper.ProjectRole.Author, 
+                _projects.First());
+
             // Replace the valid AccessControlToken with an invalid token
-            _user.SetToken(invalidAccessControlToken);
+            userWithProjectRole.SetToken(invalidAccessControlToken);
 
             // Execute & Verify:
-            Assert.Throws<Http401UnauthorizedException>(() => Helper.FullTextSearch.SearchMetaData(_user, searchCriteria),
+            Assert.Throws<Http401UnauthorizedException>(() => Helper.FullTextSearch.SearchMetaData(userWithProjectRole, searchCriteria),
                 "We should get a 401 Unauthorized when a user does not have authorization to search metadata!");
         }
 

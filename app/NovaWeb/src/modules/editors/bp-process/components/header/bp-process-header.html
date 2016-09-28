@@ -17,7 +17,7 @@
                 <i class="legacy-indicator fonticon2-legacy" bp-tooltip="Legacy artifact" ng-if="$ctrl.isLegacy"></i>
             </div>
         </div>
-        <bp-breadcrumb name="{{ $ctrl.artifactName }}" context="$ctrl.context"></bp-breadcrumb>
+        <bp-breadcrumb links="$ctrl.breadcrumbLinks" on-select="$ctrl.navigateTo(link)"></bp-breadcrumb>
         <div class="type-id"> {{$ctrl.artifactTypeDescription}} </div>
     </div>
 </div>

@@ -197,7 +197,7 @@ namespace Helper
 
             var newUser = testHelper.CreateUserAndAddToDatabase(instanceAdminRole: null);
 
-            foreach (var project in projects)
+            foreach(var project in projects)
             {
                 if (role == ProjectRole.Viewer)
                 {
@@ -232,15 +232,12 @@ namespace Helper
                 var permissionsGroup = testHelper.CreateGroupAndAddToDatabase();
                 permissionsGroup.AddUser(newUser);
                 permissionsGroup.AssignRoleToProjectOrArtifact(project, role: projectRole, artifact: artifact);
-
             }
 
             testHelper.AdminStore.AddSession(newUser);
 
             return newUser;
         }
-
-        #region private methods
 
         /// <summary>
         /// Updates an artifact property

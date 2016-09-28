@@ -438,14 +438,11 @@ namespace SearchServiceTests
             // Set search criteria over all projects
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
 
-            List<IProject> selectedProjects = new List<IProject>();
-            selectedProjects.Add(_projects.First());
-
             // Create user with project role to only 1 project
             var userWithProjectRole = SearchServiceTestHelper.CreateUserWithProjectRolePermissions(
                 Helper,
                 projectRole,
-                selectedProjects);
+                new List<IProject> {_projects.First()});
 
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
                 Helper.FullTextSearch.SearchMetaData(userWithProjectRole, searchCriteria),
@@ -642,14 +639,11 @@ namespace SearchServiceTests
             var searchTerm = artifact.Name;
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
 
-            List<IProject> selectedProjects = new List<IProject>();
-            selectedProjects.Add(_projects.First());
-
             // Create user with author project role to project
             var userWithProjectRole = SearchServiceTestHelper.CreateUserWithProjectRolePermissions(
                 Helper,
                 SearchServiceTestHelper.ProjectRole.Author,
-                selectedProjects);
+                _projects);
 
             // Replace the valid AccessControlToken with an invalid token
             userWithProjectRole.SetToken(invalidAccessControlToken);

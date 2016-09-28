@@ -46,7 +46,7 @@ export class UsersAndGroupsService implements IUsersAndGroupsService {
         if (limit) {
             config.params.limit = limit;
         }
-        if (includeGuests) {
+        if (includeGuests === false || includeGuests === true) {
             config.params.includeGuests = includeGuests;
         }
         config.dontRetry = true;

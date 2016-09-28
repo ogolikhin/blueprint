@@ -185,51 +185,55 @@ namespace Helper
         /// </summary>
         /// <param name="testHelper"></param>
         /// <param name="role">Author or Viewer</param>
-        /// <param name="project">The project that the role is created for</param>
+        /// <param name="project">The list of projects that the role is created for</param>
         /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide</param>
         /// <returns></returns>
-        public static IUser CreateUserWithProjectRolePermissions(TestHelper testHelper, ProjectRole role, IProject project, IArtifactBase artifact = null)
+        public static IUser CreateUserWithProjectRolePermissions(TestHelper testHelper, ProjectRole role, List<IProject> projects, IArtifactBase artifact = null)
         {
             ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
-            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(projects, nameof(projects));
 
             IProjectRole projectRole = null;
 
             var newUser = testHelper.CreateUserAndAddToDatabase(instanceAdminRole: null);
 
-            if (role == ProjectRole.Viewer)
+            foreach(var project in projects)
             {
-                projectRole = ProjectRoleFactory.CreateProjectRole(
-                    project, RolePermissions.Read, 
-                    role.ToString());
-            }
-            else if (role == ProjectRole.Author)
-            {
-                projectRole = ProjectRoleFactory.CreateProjectRole(
-                    project,
-                    RolePermissions.Delete |
-                    RolePermissions.Edit |
-                    RolePermissions.CanReport |
-                    RolePermissions.Comment |
-                    RolePermissions.DeleteAnyComment |
-                    RolePermissions.CreateRapidReview |
-                    RolePermissions.ExcelUpdate |
-                    RolePermissions.Read |
-                    RolePermissions.Reuse |
-                    RolePermissions.Share |
-                    RolePermissions.Trace,
-                    role.ToString());
-            }
-            else if (role == ProjectRole.None)
-            {
-                projectRole = ProjectRoleFactory.CreateProjectRole(
-                    project, RolePermissions.None,
-                    role.ToString());
-            }
+                if (role == ProjectRole.Viewer)
+                {
+                    projectRole = ProjectRoleFactory.CreateProjectRole(
+                        project, RolePermissions.Read,
+                        role.ToString());
+                }
+                else if (role == ProjectRole.Author)
+                {
+                    projectRole = ProjectRoleFactory.CreateProjectRole(
+                        project,
+                        RolePermissions.Delete |
+                        RolePermissions.Edit |
+                        RolePermissions.CanReport |
+                        RolePermissions.Comment |
+                        RolePermissions.DeleteAnyComment |
+                        RolePermissions.CreateRapidReview |
+                        RolePermissions.ExcelUpdate |
+                        RolePermissions.Read |
+                        RolePermissions.Reuse |
+                        RolePermissions.Share |
+                        RolePermissions.Trace,
+                        role.ToString());
+                }
+                else if (role == ProjectRole.None)
+                {
+                    projectRole = ProjectRoleFactory.CreateProjectRole(
+                        project, RolePermissions.None,
+                        role.ToString());
+                }
 
-            var permissionsGroup = testHelper.CreateGroupAndAddToDatabase();
-            permissionsGroup.AddUser(newUser);
-            permissionsGroup.AssignRoleToProjectOrArtifact(project, role: projectRole, artifact: artifact);
+                var permissionsGroup = testHelper.CreateGroupAndAddToDatabase();
+                permissionsGroup.AddUser(newUser);
+                permissionsGroup.AssignRoleToProjectOrArtifact(project, role: projectRole, artifact: artifact);
+
+            }
 
             testHelper.AdminStore.AddSession(newUser);
 

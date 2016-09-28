@@ -24,8 +24,10 @@ Now it includes webpack, karma, gulp, typescript, typings and multiple plugins (
 Use `npm install --save` for grabbing open source client side libraries (bower is not used anymore). 
 Client side libraries that are not open source (example mxgraph) should be added under version control (libs folder)
 
-### typings - TypeScript definition files
-Since `tsd` marked as obsolete we are using `typings` to manage TypeScript definitions [(Usage examples)](https://www.npmjs.com/package/typings#quick-start)
+### ~~typings -~~ TypeScript definition files
+~~Since `tsd` marked as obsolete we are using `typings` to manage TypeScript definitions [(Usage examples)](https://www.npmjs.com/package/typings#quick-start)~~
+
+After the migration to Typescript 2 we are also using npm to get TS definitions, see [available packages](https://www.npmjs.com/~types).
 
 If typings definitions are not available anywhere:
 1. create your own definitions `.d.ts` file and place it in `typings/custom/` directory.

@@ -17,7 +17,7 @@ $modal-side-clearance: 8px;
       color: $white;
       font-size: $font-size-biggest;
 
-      .modal-fonticon::before {
+      .fonticon-modal::before {
         content: '\e87f'; /* TODO: Use parameter */
         vertical-align: bottom;
       }
@@ -70,7 +70,7 @@ $modal-side-clearance: 8px;
   .modal-header {
     background-color: $brand-warning;
 
-    .modal-title .modal-fonticon::before {
+    .modal-title .fonticon-modal::before {
       content: '\e824'; /* TODO: Use parameter */
     }
   }

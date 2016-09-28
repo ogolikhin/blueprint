@@ -50,11 +50,11 @@ export class BpArtifactInfoController {
         private $element: ng.IAugmentedJQuery,
         private artifactManager: IArtifactManager,
         private localization: ILocalizationService,
-        private messageService: IMessageService,
+        protected messageService: IMessageService,
         private dialogService: IDialogService,
         private windowManager: IWindowManager,
         private loadingOverlayService: ILoadingOverlayService,
-        private navigationService: INavigationService
+        protected navigationService: INavigationService
     ) {
         this.initProperties();
         this.subscribers = [];

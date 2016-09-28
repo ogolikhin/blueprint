@@ -895,7 +895,7 @@ pagecontent, bp-properties-panel {
           padding-top: 28px;
           cursor: pointer;
           &.disabled{
-            opacity: $default-desabled-opacity;
+            opacity: $default-disabled-opacity;
             cursor: not-allowed;
           }
         }
@@ -964,7 +964,7 @@ pagecontent, bp-properties-panel {
         cursor:pointer;
         margin-right: 5px;
         &.disabled{
-          opacity: $default-desabled-opacity;
+          opacity: $default-disabled-opacity;
           cursor: not-allowed;
         }
       }
@@ -1096,7 +1096,7 @@ pagecontent, bp-properties-panel {
           padding-left: $padding-smaller;
           padding-right: $padding-smaller;
           &.disabled{
-            opacity: $default-desabled-opacity;
+            opacity: $default-disabled-opacity;
             cursor: not-allowed;
           }
         }

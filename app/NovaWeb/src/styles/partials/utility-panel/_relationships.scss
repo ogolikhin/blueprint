@@ -1,19 +1,88 @@
 bp-relationships-panel {
-     .icons {         
-        color: $gray-dark;
+     .filter-bar{
+       padding-bottom: 0;
+     }
+
+      .icons {
+        color: $gray-light;
         display: inline-block;
         width: 100%;
         padding: 5px;
-        background-color: $gray;
+        background-color: $gray-lightest;
+
+        i {
+          &::before{
+            font-size: $font-size-normal;
+          }
+        }
 
         div:first-child {
-            float: left;
+          float: left;
         }
 
-        div:last-child {
-            float: right;
+        > div:last-child {
+          float: right;
+          padding-top:5px;
+          i{
+            padding-left: 10px;
+
+            &.fonticon-delete-filled{
+              padding-left: 6px;
+            }
+          }
         }
-    }
+
+        .dropdown-menu{
+            padding: 0;
+            margin: 4px 0 0 -10px;
+            min-width: 70px;
+
+            li{
+                padding: 0;
+                margin: 0;
+                a{
+                    padding: 2px 8px 2px 2px;
+                    margin: 0;
+                    font-size:$font-size-small;
+                    cursor:pointer;
+
+                    i{
+                      padding-left: 5px;
+                      &::before{
+                        line-height: 40%;
+                        font-size:$font-size-small;
+                      }
+                    }
+                }
+            }
+        }
+        &:first-child {
+          @include transition(height 1s, opacity 1s);
+
+          padding: 0 5px;
+          color: $gray-dark;
+          line-height: $utility-panel-title-height;
+          height: 0;
+          opacity: 0;
+
+          &.active {
+            height: $utility-panel-title-height;
+            opacity: 1;
+          }
+
+          > div:last-child{
+            padding-top: 0;
+
+            .dropdown-menu{
+              margin-top: -4px;
+              background-color: $gray-lightest;
+              margin-left: -55px;
+            }
+          }
+        }
+      }
+
+
 
     [class^="fonticon2-"],
     [class*=" fonticon2-"],
@@ -25,17 +94,21 @@ bp-relationships-panel {
     }    
 
     .tabs {
-        padding: $padding-root;
+        padding: $padding-root 0 0;
         width: 100%;
     }
 
     bp-artifact-relationship-item {
         .utility-panel-artifact-item {
-            padding: 0;
+          padding: 0;
+          min-height: 50px;
         }
 
         .selected {
-            background-color: $gray-lighter;
+           background-color: $gray-lightest;
+           .trace-icon{
+             background: white;
+           }
         }
 
         .details {
@@ -60,7 +133,7 @@ bp-relationships-panel {
                 border: 2px solid $gray-lighter;
                 border-radius: 50%;
                 float: left;
-                line-height: 1.9em;
+                line-height: 1.75em;
                 text-align: center;
 
                 .status {
@@ -131,12 +204,11 @@ bp-relationships-panel {
         }
 
         .unauthorized-details {
-                min-height: 0px;
+                min-height: 0;
         }
 
         .icons {
             border-top: 1px solid $gray-lighter;
-            color: $gray;
             background-color: $white;
         }
     }
@@ -144,7 +216,6 @@ bp-relationships-panel {
 .util-panel-heading {
     font-weight: 700;
     &.util-heading-other {
-        border-top: 1px solid #ccc;
-        padding-top: 10px;
+        padding-top: 0;
     }
 }

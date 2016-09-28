@@ -8,10 +8,5 @@ export {
 } from "./navigation-state";
 
 export {
-    ForwardNavigationOptions,
-    BackNavigationOptions
-} from "./navigation-options";
-
-export {
     INavigationService
 } from "./navigation.svc";

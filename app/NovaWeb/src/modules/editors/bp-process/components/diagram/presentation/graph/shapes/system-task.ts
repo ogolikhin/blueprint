@@ -13,7 +13,6 @@ import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
 import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
 import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
-import {ForwardNavigationOptions} from "../../../../../../../core/navigation/navigation-options";
 
 export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implements ISystemTask, IUserTaskChildElement {
 
@@ -460,9 +459,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
             return;
         }
 
-        // enable tracking of the navigation (used to construct breadcrumb path)
-        let options = new ForwardNavigationOptions(true);
-        this.processDiagramManager.navigateToAssociatedArtifact(this.associatedArtifact.id, options);
+        this.processDiagramManager.navigateToAssociatedArtifact(this.associatedArtifact.id, true);
     }
 
     private openDialog(dialogType: ModalDialogType) {

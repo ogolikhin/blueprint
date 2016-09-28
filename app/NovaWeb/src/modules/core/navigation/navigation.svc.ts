@@ -1,20 +1,22 @@
 import {INavigationState} from "./navigation-state";
-import {ForwardNavigationOptions, BackNavigationOptions} from "./navigation-options";
 
 export interface INavigationService {
     getNavigationState(): INavigationState;
     navigateToMain(): ng.IPromise<any>;
-    navigateToArtifact(id: number, options?: ForwardNavigationOptions | BackNavigationOptions): ng.IPromise<any>;
+    navigateToArtifact(id: number, enableTracking?: boolean): ng.IPromise<any>;
+    navigateBack(pathIndex?: number): ng.IPromise<any>;
 }
 
 export class NavigationService implements INavigationService {
     private delimiter: string = ",";
 
     public static $inject: [string] = [
+        "$q",
         "$state"
     ];
 
     constructor(
+        private $q: ng.IQService,
         private $state: ng.ui.IStateService
     ) {
     }
@@ -37,38 +39,82 @@ export class NavigationService implements INavigationService {
         return this.$state.go(state);
     }
 
-    public navigateToArtifact(id: number, options?: ForwardNavigationOptions | BackNavigationOptions): ng.IPromise<any> {
+    public navigateToArtifact(id: number, enableTracking: boolean = false): ng.IPromise<any> {
+        const getParameters = () => {
+            const parameters = { id: id };
+
+            const currentState = this.getNavigationState();
+
+            if (enableTracking && currentState.id) {
+                if (!currentState.path || currentState.path.length === 0) {
+                    parameters["path"] = `${currentState.id}`;
+                } else {
+                    parameters["path"] = `${currentState.path.join(this.delimiter)}${this.delimiter}${currentState.id}`;
+                }
+            }
+
+            return parameters;
+        };
+
+        return this._navigateToArtifact(getParameters);
+    }
+
+    public navigateBack(pathIndex?: number): ng.IPromise<any> {
+        const deferred: ng.IDeferred<any> = this.$q.defer();
+        const path: number[] = this.getNavigationState().path;
+        const validationError: string = this.validateBackNavigation(path, pathIndex);
+
+        if (!!validationError) {
+            deferred.reject(new Error(validationError));
+            return deferred.promise;
+        }
+
+        if (pathIndex == null) {
+            // if path index is not defined set it to the index of the last element in navigation path
+            pathIndex = path.length - 1;
+        }
+
+        const getParameters = () => {
+            const parameters = {
+                id: path[pathIndex]
+            };
+
+            const newPath = path.slice(0, pathIndex).join(this.delimiter);
+
+            if (newPath) {
+                parameters["path"] = newPath;
+            }
+
+            return parameters;
+        };
+
+        return this._navigateToArtifact(getParameters);
+    }
+
+    private _navigateToArtifact(getParameters: () => any): ng.IPromise<any> {
         const state = "main.artifact";
-        const parameters = { id: id };
+        const parameters = getParameters();
         // Disables the inheritance of optional url parameters (such as "path")
         const stateOptions: ng.ui.IStateOptions = <ng.ui.IStateOptions>{ inherit: false };
-
-        if (options) {
-            this.updatePathParameter(options, parameters);
-        }
 
         return this.$state.go(state, parameters, stateOptions);
     }
 
-    private updatePathParameter(options: ForwardNavigationOptions | BackNavigationOptions, parameters: any) {
-        let currentState = this.getNavigationState();
-
-        if (!currentState.id) {
-            return;
+    private validateBackNavigation(path: number[], pathIndex: number): string {
+        if (!path || path.length === 0) {
+            return `Unable to navigate back, no navigation history found.`;
         }
 
-        if (!currentState.path || currentState.path.length === 0) {
-            if (options instanceof ForwardNavigationOptions && options.enableTracking) {
-                parameters["path"] = `${currentState.id}`;
-            }
-        } else {
-            if (options instanceof ForwardNavigationOptions && options.enableTracking) {
-                parameters["path"] = `${currentState.path.join(this.delimiter)}${this.delimiter}${currentState.id}`;
+        if (!!pathIndex) {
+            if (pathIndex < 0) {
+                return `Unable to navigate back, pathIndex is out of range: ${pathIndex}.`;
             }
 
-            if (options instanceof BackNavigationOptions && options.pathIndex > 0 && options.pathIndex < currentState.path.length) {
-                parameters["path"] = `${currentState.path.slice(0, options.pathIndex).join(this.delimiter)}`;
+            if (pathIndex >= path.length) {
+                return `Unable to navigate back, pathIndex is out of range: ${pathIndex}.`;
             }
         }
+
+        return null;
     }
 }

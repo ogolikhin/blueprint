@@ -56,7 +56,5 @@ export {
 
 export {
     INavigationState,
-    ForwardNavigationOptions,
-    BackNavigationOptions,
     INavigationService
 } from "./navigation"

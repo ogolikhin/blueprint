@@ -1,4 +1,4 @@
-import {INavigationState, ForwardNavigationOptions, BackNavigationOptions, INavigationService} from "./";
+import {INavigationState, INavigationService} from "./";
 
 export class NavigationServiceMock implements INavigationService {
     public static $inject: string[] = [
@@ -21,7 +21,14 @@ export class NavigationServiceMock implements INavigationService {
         return deferred.promise;
     }
 
-    public navigateToArtifact(id: number, options?: ForwardNavigationOptions | BackNavigationOptions): ng.IPromise<any> {
+    public navigateToArtifact(id: number, enableTracking?: boolean): ng.IPromise<any> {
+        let deferred = this.$q.defer();
+        deferred.resolve();
+
+        return deferred.promise;
+    }
+
+    public navigateBack(pathIndex: number): ng.IPromise<any> {
         let deferred = this.$q.defer();
         deferred.resolve();
 

@@ -15,7 +15,6 @@ import {Label, LabelStyle} from "../labels/label";
 import {SystemDecision} from "./";
 import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
 import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
-import {ForwardNavigationOptions} from "../../../../../../../core/navigation/navigation-options";
 
 export class UserStoryProperties implements IUserStoryProperties {
     public nfr: IArtifactProperty;
@@ -428,9 +427,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             return;
         }
 
-        // enable tracking of the navigation (used to construct breadcrumb path)
-        let options = new ForwardNavigationOptions(true);
-        this.processDiagramManager.navigateToAssociatedArtifact(this.associatedArtifact.id, options);
+        this.processDiagramManager.navigateToAssociatedArtifact(this.associatedArtifact.id, true);
     }
 
     private openDialog(dialogType: ModalDialogType) {

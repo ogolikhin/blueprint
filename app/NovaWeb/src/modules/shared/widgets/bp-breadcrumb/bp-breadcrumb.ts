@@ -1,5 +1,4 @@
 import {IMessageService} from "../../../core/messages/message.svc";
-import {BackNavigationOptions} from "../../../core/navigation/navigation-options";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IBreadcrumbService, IArtifactReference} from "./breadcrumb.svc";
 
@@ -56,13 +55,12 @@ export class BPBreadcrumbController implements IBPBreadcrumbController {
             });
     }
 
-    public navigate(index: number): void {
-        const currentLink = this.chain[index];
-        if (!currentLink.isEnabled) {
+    public navigate(pathIndex: number): void {
+        const currentLink = this.chain[pathIndex];
+        if (pathIndex < 0 || pathIndex >= this.chain.length || !currentLink.isEnabled) {
             return;
         }
 
-        let options = new BackNavigationOptions(index);
-        this.navigationService.navigateToArtifact(currentLink.id, options);
+        this.navigationService.navigateBack(pathIndex);
     }
 }

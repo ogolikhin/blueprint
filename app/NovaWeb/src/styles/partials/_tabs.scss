@@ -51,8 +51,8 @@
 
   > li {
     overflow: hidden;
-    white-space: nowrap;
     transition: flex .25s;
+    white-space: nowrap;
 
     &.active,
     &:hover {

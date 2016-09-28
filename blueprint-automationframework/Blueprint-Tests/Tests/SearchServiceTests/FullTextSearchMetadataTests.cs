@@ -432,11 +432,14 @@ namespace SearchServiceTests
             // Set search criteria over all projects
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
 
+            List<IProject> selectedProjects = new List<IProject>();
+            selectedProjects.Add(_projects.First());
+
             // Create user with project role to only 1 project
             var userWithProjectRole = SearchServiceTestHelper.CreateUserWithProjectRolePermissions(
                 Helper,
                 projectRole,
-                _projects.First());
+                selectedProjects);
 
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
                 Helper.FullTextSearch.SearchMetaData(userWithProjectRole, searchCriteria),

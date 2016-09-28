@@ -1,4 +1,5 @@
-﻿import {ILocalizationService, IMessageService} from "../../../../../../core/";
+﻿import * as angular from "angular";
+import {ILocalizationService, IMessageService} from "../../../../../../core/";
 import {IProcessGraph, ILayout} from "./models/";
 import {INotifyModelChanged, IConditionContext} from "./models/";
 import {ICondition, IScopeContext, IStopTraversalCondition} from "./models/";

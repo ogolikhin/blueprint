@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 import "angular-formly";
 import { ILocalizationService } from "../../../../core";
 import { BPFieldBaseController } from "../base-controller";
@@ -32,7 +32,7 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
             }
         });
     };
-    public controller: Function = BpFieldSelectMultiController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldSelectMultiController;
 
     constructor() {
     }

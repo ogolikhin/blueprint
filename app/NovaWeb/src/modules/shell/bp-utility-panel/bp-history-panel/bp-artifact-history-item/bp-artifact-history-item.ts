@@ -3,7 +3,7 @@ import { Models } from "../../../../main";
 
 export class BPArtifactHistoryItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-history-item.html");
-    public controller: Function = BPArtifactHistoryItemController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPArtifactHistoryItemController;
     public bindings: any = {
         artifactInfo: "="
     };

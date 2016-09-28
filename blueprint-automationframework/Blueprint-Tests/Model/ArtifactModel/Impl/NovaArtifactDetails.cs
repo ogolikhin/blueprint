@@ -14,6 +14,11 @@ namespace Model.ArtifactModel.Impl
         #region Serialized JSON Properties
 
         public List<AttachmentValue> AttachmentValues { get; } = new List<AttachmentValue>();
+
+        public bool ShouldSerializeAttachmentValues()
+        {
+            return AttachmentValues.Count > 0;
+        }
         public int ProjectId { get; set; }
         public int Version { get; set; }
         public DateTime? CreatedOn { get; set; }

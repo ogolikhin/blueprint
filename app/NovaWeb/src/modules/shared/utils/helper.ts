@@ -1,4 +1,5 @@
-﻿import { Models } from "../../main";
+﻿import * as angular from "angular";
+import { Models } from "../../main";
 
 export class Helper {
 

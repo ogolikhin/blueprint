@@ -1,4 +1,5 @@
-﻿import { BPLocale, ILocalizationService} from "../../core";
+﻿import * as angular from "angular";
+import { BPLocale, ILocalizationService} from "../../core";
 import { Enums, Models} from "../../main";
 import { PropertyContext} from "./bp-property-context";
 import { IStatefulItem} from "../../managers/models";

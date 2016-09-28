@@ -1,4 +1,4 @@
-﻿import "angular";
+﻿import * as angular from "angular";
 import "angular-mocks";
 import {SessionTokenInterceptor} from "./session-token-interceptor";
 import {SessionTokenHelper} from "./session.token.helper";

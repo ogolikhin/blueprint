@@ -1,66 +1,44 @@
-import {IMessageService} from "../../../core/messages/message.svc";
-import {INavigationService} from "../../../core/navigation/navigation.svc";
-import {IBreadcrumbService, IArtifactReference} from "./breadcrumb.svc";
+import * as angular from "angular";
+import {IBreadcrumbLink} from "./breadcrumb-link";
 
 export class BPBreadcrumbComponent implements ng.IComponentOptions {
     public template: string = require("./bp-breadcrumb.html");
-    public controller: Function = BPBreadcrumbController;
-}
-
-export interface IBreadcrumbLink {
-    id: number;
-    name: string;
-    isEnabled: boolean;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPBreadcrumbController;
+    public bindings: any = {
+        links: "<",
+        onSelect: "&?"
+    };
 }
 
 export interface IBPBreadcrumbController {
-    navigate(id: number): void;
+    links: IBreadcrumbLink[];
+    onSelect?: Function;
 }
 
 export class BPBreadcrumbController implements IBPBreadcrumbController {
-    public chain: IBreadcrumbLink[];
+    public links: IBreadcrumbLink[];
+    public onSelect: Function;
 
-    public static $inject: string[] = [
-        "messageService",
-        "navigationService",
-        "breadcrumbService"
-    ];
+    private selectionSubject: Rx.Subject<IBreadcrumbLink>;
 
     constructor(
-        private messageService: IMessageService,
-        private navigationService: INavigationService,
-        private breadcrumbService: IBreadcrumbService
     ) {
-        this.chain = [];
+        this.selectionSubject = new Rx.Subject<IBreadcrumbLink>();
 
-        const navigationState = this.navigationService.getNavigationState();
-
-        this.breadcrumbService.getReferences(navigationState)
-            .then((result: IArtifactReference[]) => {
-                for (let i: number = 0; i < result.length; i++) {
-                    let artifactReference = result[i];
-                    this.chain.push(
-                        <IBreadcrumbLink>{
-                            id: artifactReference.id,
-                            name: artifactReference.name,
-                            isEnabled: i !== result.length - 1 && !!artifactReference.link
-                        }
-                    );
-                }
-            })
-            .catch((error) => {
-                if (error) {
-                    this.messageService.addError(error);
-                }
-            });
+        this.selectionSubject
+            .filter((link: IBreadcrumbLink) => link != null && angular.isFunction(this.onSelect))
+            .debounce(200)
+            .subscribe((link: IBreadcrumbLink) => this.onSelect({ link: link }));
     }
 
-    public navigate(index: number): void {
-        const currentLink = this.chain[index];
-        if (!currentLink.isEnabled) {
-            return;
-        }
+    public $onInit = () => {
+    };
 
-        this.navigationService.navigateToArtifact(currentLink.id, { index: index });
+    public $onDestroy = () => {
+        this.selectionSubject.dispose();
+    };
+
+    public click(link: IBreadcrumbLink): void {
+        this.selectionSubject.onNext(link);
     }
 }

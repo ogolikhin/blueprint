@@ -209,15 +209,21 @@ namespace ArtifactStore.Repositories
                 Version = (artifactBasicDetails.VersionIndex <= 0) ? -1 : artifactBasicDetails.VersionIndex,
                 VersionCount = artifactBasicDetails.VersionsCount,
                 IsDeleted = (artifactBasicDetails.DraftDeleted || artifactBasicDetails.LatestDeleted),
+                HasChanges = ((artifactBasicDetails.LockedByUserId != null) && (artifactBasicDetails.LockedByUserId.Value == userId))
+                    || artifactBasicDetails.HasDraftRelationships,
                 LockedByUser = (artifactBasicDetails.LockedByUserId != null)
                     ? new UserGroup { Id = artifactBasicDetails.LockedByUserId.Value, DisplayName = artifactBasicDetails.LockedByUserName } : null,
-                LockedDateTime = artifactBasicDetails.LockedByUserTime,
+                LockedDateTime = artifactBasicDetails.LockedByUserTime.HasValue 
+                    ? DateTime.SpecifyKind(artifactBasicDetails.LockedByUserTime.Value, DateTimeKind.Utc)
+                    : (DateTime?) null
             };
             if (artifactBasicDetails.DraftDeleted)
             {
                 artifactInfo.DeletedByUser = (artifactBasicDetails.UserId != null)
                         ? new UserGroup { Id = artifactBasicDetails.UserId.Value, DisplayName = artifactBasicDetails.UserName } : null;
-                artifactInfo.DeletedDateTime = artifactBasicDetails.LastSaveTimestamp;
+                artifactInfo.DeletedDateTime = artifactBasicDetails.LastSaveTimestamp.HasValue
+                    ? DateTime.SpecifyKind(artifactBasicDetails.LastSaveTimestamp.Value, DateTimeKind.Utc)
+                    : (DateTime?) null;
             }
             else if (artifactBasicDetails.LatestDeleted)
             {
@@ -228,6 +234,7 @@ namespace ArtifactStore.Repositories
             artifactInfo.Permissions = itemIdsPermissions[artifactBasicDetails.ArtifactId];
             return artifactInfo;
         }
+
         #endregion GetVersionControlArtifactInfoAsync
     }
 }

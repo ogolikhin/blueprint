@@ -14,6 +14,7 @@ import {
 export interface IDocumentRefs extends IBlock<IArtifactDocRef[]> {
     initialize(docrefs: IArtifactDocRef[]);
     getObservable(): Rx.IObservable<IArtifactDocRef[]>;
+    get(refresh?: boolean): ng.IPromise<IArtifactDocRef[]>;
     add(docrefs: IArtifactDocRef[]);
     remove(docrefs: IArtifactDocRef[]);
     update(docrefs: IArtifactDocRef[]);
@@ -42,21 +43,21 @@ export class DocumentRefs implements IDocumentRefs {
     }
 
     // refresh = true: turn lazy loading off, always reload
-    // public get(refresh: boolean = true): ng.IPromise<IArtifactDocRef[]> {
-    //     const deferred = this.statefulItem.getServices().getDeferred<IArtifactDocRef[]>();
+    public get(refresh: boolean = true): ng.IPromise<IArtifactDocRef[]> {
+        const deferred = this.statefulItem.getServices().getDeferred<IArtifactDocRef[]>();
 
-    //     if (this.isLoaded && !refresh) {
-    //         deferred.resolve(this.docrefs);
-    //         this.subject.onNext(this.docrefs);
-    //     } else {
-    //         this.statefulItem.getAttachmentsDocRefs().then((result: IArtifactAttachmentsResultSet) => {
-    //             deferred.resolve(result.documentReferences);
-    //             this.isLoaded = true;
-    //         });
-    //     }
+        if (this.isLoaded && !refresh) {
+            deferred.resolve(this.docrefs);
+            this.subject.onNext(this.docrefs);
+        } else {
+            this.statefulItem.getAttachmentsDocRefs().then((result: IArtifactAttachmentsResultSet) => {
+                deferred.resolve(result.documentReferences);
+                this.isLoaded = true;
+            });
+        }
 
-    //     return deferred.promise;
-    // }
+        return deferred.promise;
+    }
 
     public getObservable(): Rx.IObservable<IArtifactDocRef[]> {
         if (!this.isLoadedOrLoading()) {

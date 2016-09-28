@@ -15,7 +15,7 @@ import {
 export interface IArtifactAttachments extends IBlock<IArtifactAttachment[]> {
     initialize(attachments: IArtifactAttachment[]);
     getObservable(): Rx.IObservable<IArtifactAttachment[]>;
-    // get(refresh?: boolean): ng.IPromise<IArtifactAttachment[]>;
+    get(refresh?: boolean): ng.IPromise<IArtifactAttachment[]>;
     add(attachments: IArtifactAttachment[]);
     remove(attachments: IArtifactAttachment[]);
     update(attachments: IArtifactAttachment[]);
@@ -44,24 +44,24 @@ export class ArtifactAttachments implements IArtifactAttachments {
     }
 
     // refresh = true: turn lazy loading off, always reload
-    // public get(refresh: boolean = true): ng.IPromise<IArtifactAttachment[]> {
-    //     const deferred = this.statefulItem.getServices().getDeferred<IArtifactAttachment[]>();
+    public get(refresh: boolean = true): ng.IPromise<IArtifactAttachment[]> {
+        const deferred = this.statefulItem.getServices().getDeferred<IArtifactAttachment[]>();
 
-    //     if (this.isLoaded && !refresh) {
-    //         deferred.resolve(this.attachments);
-    //         this.subject.onNext(this.attachments);
-    //     } else {
-    //         this.statefulItem.getAttachmentsDocRefs().then((result: IArtifactAttachmentsResultSet) => {
-    //             deferred.resolve(result.attachments);
-    //             this.subject.onNext(this.attachments);
-    //             this.isLoaded = true;
-    //         }, (error) => {
-    //             deferred.reject(error);
-    //         });
-    //     }
+        if (this.isLoaded && !refresh) {
+            deferred.resolve(this.attachments);
+            this.subject.onNext(this.attachments);
+        } else {
+            this.statefulItem.getAttachmentsDocRefs().then((result: IArtifactAttachmentsResultSet) => {
+                deferred.resolve(result.attachments);
+                this.subject.onNext(this.attachments);
+                this.isLoaded = true;
+            }, (error) => {
+                deferred.reject(error);
+            });
+        }
 
-    //     return deferred.promise;
-    // }
+        return deferred.promise;
+    }
 
     public getObservable(): Rx.IObservable<IArtifactAttachment[]> {
         if (!this.isLoadedOrLoading()) {

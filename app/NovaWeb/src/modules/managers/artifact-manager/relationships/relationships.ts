@@ -16,6 +16,7 @@ export interface IArtifactRelationships extends IBlock<Relationships.IRelationsh
     add(relationships: Relationships.IRelationship[]);
     remove(relationships: Relationships.IRelationship[]);
     update(relationships: Relationships.IRelationship[]);
+    get(refresh?: boolean): ng.IPromise<Relationships.IRelationship[]>;
     refresh(): ng.IPromise<Relationships.IRelationship[]>;
     discard();
 }
@@ -34,31 +35,25 @@ export class ArtifactRelationships implements IArtifactRelationships {
         this.changeset = new ChangeSetCollector(statefulItem);
     }
 
-    // public initialize(relationships: Relationships.IRelationship[]) {
-    //     this.isLoaded = true;
-    //     this.relationships = relationships;
-    //     this.subject.onNext(this.relationships);
-    // }
-
     // refresh = true: turn lazy loading off, always reload
-    // public get(refresh: boolean = true): ng.IPromise<Relationships.IRelationship[]> {
-    //     const deferred = this.statefulItem.getServices().getDeferred<Relationships.IRelationship[]>();
+    public get(refresh: boolean = true): ng.IPromise<Relationships.IRelationship[]> {
+        const deferred = this.statefulItem.getServices().getDeferred<Relationships.IRelationship[]>();
 
-    //     if (this.isLoaded && !refresh) {
-    //         deferred.resolve(this.relationships);
-    //         this.subject.onNext(this.relationships);
-    //     } else {
-    //         this.statefulItem.getRelationships().then((result: Relationships.IRelationship[]) => {
-    //             deferred.resolve(result);
-    //             this.subject.onNext(this.relationships);
-    //             this.isLoaded = true;
-    //         }, (error) => {
-    //             deferred.reject(error);
-    //         });
-    //     }
+        if (this.isLoaded && !refresh) {
+            deferred.resolve(this.relationships);
+            this.subject.onNext(this.relationships);
+        } else {
+            this.statefulItem.getRelationships().then((result: Relationships.IRelationship[]) => {
+                deferred.resolve(result);
+                this.subject.onNext(this.relationships);
+                this.isLoaded = true;
+            }, (error) => {
+                deferred.reject(error);
+            });
+        }
 
-    //     return deferred.promise;
-    // }
+        return deferred.promise;
+    }
 
     public getObservable(): Rx.IObservable<Relationships.IRelationship[]> {
         if (!this.isLoadedOrLoading()) {

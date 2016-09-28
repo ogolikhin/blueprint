@@ -13,10 +13,6 @@ $modal-side-clearance: 8px;
     background-color: $brand-secondary;
     padding: 15px 30px;
 
-    &.modal-alert {
-      background-color: $brand-warning;
-    }
-
     .modal-title {
       color: $white;
       font-size: $font-size-biggest;
@@ -67,6 +63,18 @@ $modal-side-clearance: 8px;
       margin: 0;
     }
   }
+}
+
+.modal-alert {
+  .modal-header {
+    background-color: $brand-warning;
+  }
+
+  .fonticon-information:before {
+    content: '\e824'; /* TODO: Use parameter, remane .fonticon-information to .modal-fonticon and style all cases */
+  }
+
+  /* Note: '.modal-alert .btn-promoted-action' is defined in _button.scss */
 }
 
 $modal-open-project-height: 450px;

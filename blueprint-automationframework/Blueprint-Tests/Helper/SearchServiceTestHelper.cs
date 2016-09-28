@@ -240,7 +240,8 @@ namespace Helper
             return newUser;
         }
 
- 
+        #region private methods
+
         /// <summary>
         /// Updates an artifact property
         /// </summary>

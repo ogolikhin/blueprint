@@ -29,7 +29,7 @@ namespace Helper
 
             var baseArtifactTypes = new List<BaseArtifactType>()
             {
-                BaseArtifactType.Actor,
+                BaseArtifactType.Actor/*,
                 BaseArtifactType.BusinessProcess,
                 BaseArtifactType.Document,
                 BaseArtifactType.DomainDiagram,
@@ -40,7 +40,7 @@ namespace Helper
                 BaseArtifactType.TextualRequirement,
                 BaseArtifactType.UIMockup,
                 BaseArtifactType.UseCase,
-                BaseArtifactType.UseCaseDiagram
+                BaseArtifactType.UseCaseDiagram*/
             };
 
             var artifacts = new List<IArtifactBase>();

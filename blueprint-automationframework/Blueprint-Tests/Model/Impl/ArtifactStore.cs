@@ -427,11 +427,12 @@ namespace Model.Impl
         public INovaArtifactDetails MoveArtifact(IArtifactBase artifact,
             IArtifactBase newParent,
             IUser user = null,
+            int? artifactVersion = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(newParent, nameof(newParent));
 
-            return MoveArtifact(Address, artifact, newParent.Id, user, expectedStatusCodes);
+            return MoveArtifact(Address, artifact, newParent.Id, user, artifactVersion, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.PublishArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
@@ -565,6 +566,7 @@ namespace Model.Impl
             IArtifactBase artifact,
             int newParentId,
             IUser user = null,
+            int? artifactVersion = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
@@ -573,9 +575,17 @@ namespace Model.Impl
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.TO_id_, artifact.Id, newParentId);
             RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
 
+            Dictionary<string, string> queryParams = null;
+
+            if (artifactVersion != null)
+            {
+                queryParams = new Dictionary<string, string> { { "artifactVersion", artifactVersion.ToString() } };
+            }
+
             var movedArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails>(
                 path,
                 RestRequestMethod.POST,
+                queryParameters: queryParams,
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChange: true);
 

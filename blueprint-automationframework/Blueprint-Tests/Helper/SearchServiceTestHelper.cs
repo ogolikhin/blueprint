@@ -17,8 +17,9 @@ namespace Helper
     {
         public enum ProjectRole
         {
-            Author,
-            Viewer
+            None,
+            Viewer,
+            Author
         }
         public static List<IArtifactBase> SetupSearchData(List<IProject> projects, IUser user, TestHelper testHelper)
         {
@@ -198,24 +199,32 @@ namespace Helper
 
             if (role == ProjectRole.Viewer)
             {
-                projectRole = ProjectRoleFactory.CreateProjectRole(project, RolePermissions.Read, role.ToString());
+                projectRole = ProjectRoleFactory.CreateProjectRole(
+                    project, RolePermissions.Read, 
+                    role.ToString());
             }
             else if (role == ProjectRole.Author)
             {
                 projectRole = ProjectRoleFactory.CreateProjectRole(
-                project,
-                RolePermissions.Delete |
-                RolePermissions.Edit |
-                RolePermissions.CanReport |
-                RolePermissions.Comment |
-                RolePermissions.DeleteAnyComment |
-                RolePermissions.CreateRapidReview |
-                RolePermissions.ExcelUpdate |
-                RolePermissions.Read |
-                RolePermissions.Reuse |
-                RolePermissions.Share |
-                RolePermissions.Trace,
-                role.ToString());
+                    project,
+                    RolePermissions.Delete |
+                    RolePermissions.Edit |
+                    RolePermissions.CanReport |
+                    RolePermissions.Comment |
+                    RolePermissions.DeleteAnyComment |
+                    RolePermissions.CreateRapidReview |
+                    RolePermissions.ExcelUpdate |
+                    RolePermissions.Read |
+                    RolePermissions.Reuse |
+                    RolePermissions.Share |
+                    RolePermissions.Trace,
+                    role.ToString());
+            }
+            else if (role == ProjectRole.None)
+            {
+                projectRole = ProjectRoleFactory.CreateProjectRole(
+                    project, RolePermissions.None,
+                    role.ToString());
             }
 
             var permissionsGroup = testHelper.CreateGroupAndAddToDatabase();

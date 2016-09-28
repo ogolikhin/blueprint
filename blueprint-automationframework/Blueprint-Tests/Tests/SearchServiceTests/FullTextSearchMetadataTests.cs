@@ -415,6 +415,42 @@ namespace SearchServiceTests
             Assert.That(fullTextSearchMetaDataResult.PageSize.Equals(DEFAULT_PAGE_SIZE_VALUE), "The expected default pagesize value is {0} but {1} was found from the returned searchResult.", DEFAULT_PAGE_SIZE_VALUE, fullTextSearchMetaDataResult.PageSize);
         }
 
+        [TestCase(1, 1, SearchServiceTestHelper.ProjectRole.Author)]
+        [TestCase(1, 1, SearchServiceTestHelper.ProjectRole.Viewer)]
+        [TestCase(0, 0, SearchServiceTestHelper.ProjectRole.None)]
+        [TestRail(182372)]
+        [Description("Search without optional parameter pagesize. Executed search must return search metadata result that indicates default page size.")]
+        public void FullTextSearchMetadata_UserWithProjectRolePermissionsOnSingleProject_VerifyResultIndicatesResultsFromSingleProject(
+            int expectedHitCount,
+            int expectedTotalPageCount,
+            SearchServiceTestHelper.ProjectRole projectRole)
+        {
+            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
+
+            // Setup: 
+            var searchTerm = _artifacts.First().Name;
+            // Set search criteria over all projects
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
+
+            // Create user with project role to only 1 project
+            var userWithProjectRole = SearchServiceTestHelper.CreateUserWithProjectRolePermissions(
+                Helper,
+                projectRole,
+                _projects.First());
+
+            Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
+                Helper.FullTextSearch.SearchMetaData(userWithProjectRole, searchCriteria),
+                "SearchMetaData() call failed when using following search term: {0}!",
+                searchCriteria.Query);
+
+            // Validation:
+            // Although 2 artifacts exist with the search criteria, the new user only has permissions to a single project
+            Assert.That(fullTextSearchMetaDataResult.TotalCount.Equals(expectedHitCount), "The expected search hit count is {0} but {1} was returned.", expectedHitCount, fullTextSearchMetaDataResult.TotalCount);
+            Assert.That(fullTextSearchMetaDataResult.TotalPages.Equals(expectedTotalPageCount), "The expected total page count is {0} but {1} was returned.", expectedTotalPageCount, fullTextSearchMetaDataResult.TotalPages);
+            Assert.That(fullTextSearchMetaDataResult.PageSize.Equals(DEFAULT_PAGE_SIZE_VALUE), "The expected default pagesize value is {0} but {1} was found from the returned searchResult.", DEFAULT_PAGE_SIZE_VALUE, fullTextSearchMetaDataResult.PageSize);
+        }
+
+
         #endregion 200 OK Tests
 
         #region 400 Bad Request Tests
@@ -460,6 +496,28 @@ namespace SearchServiceTests
         #endregion 400 Bad Request Tests
 
         #region 401 Unauthorized Tests
+
+        [TestRail(182255)]
+        [TestCase(BaseArtifactType.Actor, "4f2cfd40d8994b8b812534b51711100d")]
+        [TestCase(BaseArtifactType.Actor, "BADTOKEN")]
+        [Description("Create an artifact and publish. Attempt to perform search metadata with a user that does not have authorization " +
+             "to delete. Verify that HTTP 401 Unauthorized exception is thrown.")]
+        public void FullTextSearchMetadata_SearchMetadataWithInvalidSession_401Unauthorized(BaseArtifactType artifactType, string invalidAccessControlToken)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_projects.First(), _user, artifactType);
+
+            var searchTerm = artifact.Name;
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
+
+            // Replace the valid AccessControlToken with an invalid token
+            _user.SetToken(invalidAccessControlToken);
+
+            // Execute & Verify:
+            Assert.Throws<Http401UnauthorizedException>(() => Helper.FullTextSearch.SearchMetaData(_user, searchCriteria),
+                "We should get a 401 Unauthorized when a user does not have authorization to search metadata!");
+        }
+
         #endregion 401 Unauthorized Tests
 
         #region 404 Not Found Tests

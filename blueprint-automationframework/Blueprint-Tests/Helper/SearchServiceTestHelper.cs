@@ -4,6 +4,7 @@ using System.Linq;
 using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
+using Model.Factories;
 using Model.FullTextSearchModel.Impl;
 using Model.Impl;
 using NUnit.Framework;
@@ -14,6 +15,11 @@ namespace Helper
 {
     public static class SearchServiceTestHelper
     {
+        public enum ProjectRole
+        {
+            Author,
+            Viewer
+        }
         public static List<IArtifactBase> SetupSearchData(List<IProject> projects, IUser user, TestHelper testHelper)
         {
             ThrowIf.ArgumentNull(projects, nameof(projects));
@@ -171,6 +177,54 @@ namespace Helper
             }
 
             return itemTypeIds;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="testHelper"></param>
+        /// <param name="role">Author or Viewer</param>
+        /// <param name="project">The project that the role is created for</param>
+        /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide</param>
+        /// <returns></returns>
+        public static IUser CreateUserWithProjectRolePermissions(TestHelper testHelper, ProjectRole role, IProject project, IArtifactBase artifact = null)
+        {
+            ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            IProjectRole projectRole = null;
+
+            var newUser = testHelper.CreateUserAndAddToDatabase(instanceAdminRole: null);
+
+            if (role == ProjectRole.Viewer)
+            {
+                projectRole = ProjectRoleFactory.CreateProjectRole(project, RolePermissions.Read, role.ToString());
+            }
+            else if (role == ProjectRole.Author)
+            {
+                projectRole = ProjectRoleFactory.CreateProjectRole(
+                project,
+                RolePermissions.Delete |
+                RolePermissions.Edit |
+                RolePermissions.CanReport |
+                RolePermissions.Comment |
+                RolePermissions.DeleteAnyComment |
+                RolePermissions.CreateRapidReview |
+                RolePermissions.ExcelUpdate |
+                RolePermissions.Read |
+                RolePermissions.Reuse |
+                RolePermissions.Share |
+                RolePermissions.Trace,
+                role.ToString());
+            }
+
+            var permissionsGroup = testHelper.CreateGroupAndAddToDatabase();
+            permissionsGroup.AddUser(newUser);
+            permissionsGroup.AssignRoleToProjectOrArtifact(project, role: projectRole, artifact: artifact);
+
+            testHelper.AdminStore.AddSession(newUser);
+
+            return newUser;
         }
 
         #region private methods

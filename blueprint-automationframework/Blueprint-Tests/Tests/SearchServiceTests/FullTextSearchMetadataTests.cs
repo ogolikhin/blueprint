@@ -513,11 +513,14 @@ namespace SearchServiceTests
             var searchTerm = artifact.Name;
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
 
+            List<IProject> selectedProjects = new List<IProject>();
+            selectedProjects.Add(_projects.First());
+
             // Create user with author project role to project
             var userWithProjectRole = SearchServiceTestHelper.CreateUserWithProjectRolePermissions(
                 Helper,
-                SearchServiceTestHelper.ProjectRole.Author, 
-                _projects.First());
+                SearchServiceTestHelper.ProjectRole.Author,
+                selectedProjects);
 
             // Replace the valid AccessControlToken with an invalid token
             userWithProjectRole.SetToken(invalidAccessControlToken);

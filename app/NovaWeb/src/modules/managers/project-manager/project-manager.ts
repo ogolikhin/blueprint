@@ -1,4 +1,5 @@
-﻿import { ILocalizationService, IMessageService } from "../../core";
+﻿import * as angular from "angular";
+import { ILocalizationService, IMessageService } from "../../core";
 import { IDialogService } from "../../shared";
 import { IStatefulArtifactFactory } from "../artifact-manager/artifact";
 import { Project, ArtifactNode } from "./project";

@@ -42,3 +42,26 @@
     }
   }
 }
+
+// proof of concept
+.page-body .artifact-overview .content .nav-tabs {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+
+  > li {
+    overflow: hidden;
+    transition: flex .25s;
+    white-space: nowrap;
+
+    &.active,
+    &:hover {
+      flex: none;
+    }
+
+    > a {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}

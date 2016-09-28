@@ -45,8 +45,9 @@ bp-relationships-panel {
                     margin: 0;
                     font-size:$font-size-small;
                     cursor:pointer;
+
                     i{
-                        padding-left: 5px;
+                      padding-left: 5px;
                       &::before{
                         line-height: 40%;
                         font-size:$font-size-small;
@@ -55,34 +56,33 @@ bp-relationships-panel {
                 }
             }
         }
+        &:first-child {
+          @include transition(height 1s, opacity 1s);
 
-      }
+          padding: 0 5px;
+          color: $gray-dark;
+          line-height: $utility-panel-title-height;
+          height: 0;
+          opacity: 0;
 
-      > .icons {
-        padding: 0 5px;
-        color: $gray-dark;
-        line-height: $utility-panel-title-height;
+          &.active {
+            height: $utility-panel-title-height;
+            opacity: 1;
+          }
 
-        -webkit-transition: height 1s, opacity 1s;
-        transition: height 1s, opacity 1s;
-        height: 0;
-        opacity: 0;
+          > div:last-child{
+            padding-top: 0;
 
-        &.active {
-          height: $utility-panel-title-height;
-          opacity: 1;
-        }
-
-        > div:last-child{
-          padding-top: 0;
-
-          .dropdown-menu{
-            margin-top: -4px;
-            background-color: $gray-lightest;
-            margin-left: -55px;
+            .dropdown-menu{
+              margin-top: -4px;
+              background-color: $gray-lightest;
+              margin-left: -55px;
+            }
           }
         }
       }
+
+
 
     [class^="fonticon2-"],
     [class*=" fonticon2-"],

@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import "./artifact-manager";
 import "./project-manager";
 import "./selection-manager";

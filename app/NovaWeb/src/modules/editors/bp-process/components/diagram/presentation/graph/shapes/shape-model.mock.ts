@@ -1,4 +1,5 @@
-﻿import {ShapesFactory} from "./shapes-factory";
+﻿import * as angular from "angular";
+import {ShapesFactory} from "./shapes-factory";
 import {
     IUserTaskShape,
     IProcessShape,

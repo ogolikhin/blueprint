@@ -1,4 +1,5 @@
-﻿import {ProcessEnd} from "./";
+﻿import * as angular from "angular";
+import {ProcessEnd} from "./";
 import {ShapesFactory} from "./shapes-factory";
 import {ProcessGraph} from "../process-graph";
 import {ProcessModel, ProcessShapeModel} from "../../../../../models/process-models";

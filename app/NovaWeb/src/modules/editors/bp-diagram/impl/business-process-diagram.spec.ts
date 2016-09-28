@@ -1,5 +1,5 @@
 ﻿/* tslint:disable:max-line-length */
-import "angular";
+import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
 require("script!mxClient");

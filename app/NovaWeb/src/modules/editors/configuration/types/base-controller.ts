@@ -1,4 +1,4 @@
-import "angular";
+import * as angular from "angular";
 
 export interface IBPFieldBaseController {
     blurOnKey(event: KeyboardEvent, keyCode?: number | number[]): void;

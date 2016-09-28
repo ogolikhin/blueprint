@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import {BreadcrumbService} from "./breadcrumb.svc";
 import {BPBreadcrumbComponent} from "./bp-breadcrumb";
  

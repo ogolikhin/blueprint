@@ -12,24 +12,17 @@
  |
  |
  */
-var backend = "http://localhost:9801";
-console.log({backend: backend});
+var proxy_config = require('./webpack/proxy.dev');
 
-var url = require('url'),
-   proxy = require('proxy-middleware');
-var proxyOptions = url.parse(backend + '/svc');
-proxyOptions.route = '/svc';
-var loginProxyOptions = url.parse(backend + '/Login/WinLogin.aspx');
-loginProxyOptions.route = '/Login/WinLogin.aspx';
 module.exports = {
     "host": "localhost",
     "port": 8000,
     "server": {
-                "baseDir": "dist",
-                "middleware": [proxy(proxyOptions), proxy(loginProxyOptions)]
-                },
+        "baseDir": "dist",
+        "middleware": proxy_config
+    },
     "ui": false,
     "online": false,
     "notify": false,
-    "ghostMode": false 
+    "ghostMode": false
 };

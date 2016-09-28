@@ -209,6 +209,8 @@ namespace ArtifactStore.Repositories
                 Version = (artifactBasicDetails.VersionIndex <= 0) ? -1 : artifactBasicDetails.VersionIndex,
                 VersionCount = artifactBasicDetails.VersionsCount,
                 IsDeleted = (artifactBasicDetails.DraftDeleted || artifactBasicDetails.LatestDeleted),
+                HasChanges = ((artifactBasicDetails.LockedByUserId != null) && (artifactBasicDetails.LockedByUserId.Value == userId))
+                    || artifactBasicDetails.HasDraftRelationships,
                 LockedByUser = (artifactBasicDetails.LockedByUserId != null)
                     ? new UserGroup { Id = artifactBasicDetails.LockedByUserId.Value, DisplayName = artifactBasicDetails.LockedByUserName } : null,
                 LockedDateTime = artifactBasicDetails.LockedByUserTime,

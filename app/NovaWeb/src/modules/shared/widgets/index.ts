@@ -1,4 +1,5 @@
-﻿import "./bp-dialog";
+﻿import * as angular from "angular";
+import "./bp-dialog";
 import "./bp-avatar";
 import "./bp-tree";
 import "./bp-tree-dragndrop";

@@ -1,4 +1,5 @@
-﻿import { ILoadingOverlayService, LoadingOverlayService } from "./loading-overlay.svc";
+﻿import * as angular from "angular";
+import { ILoadingOverlayService, LoadingOverlayService } from "./loading-overlay.svc";
 import { BpLoadingOverlayComponent } from "./bp-loading-overlay";
 
 angular.module("bp.core.loadingOverlay", [])

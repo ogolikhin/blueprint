@@ -182,5 +182,24 @@ namespace Helper
             INovaFile file = FileFactory.CreateNovaFile(fakeFileName, fileType, DateTime.Now, fileContents);
             return file;
         }
+
+        /// <summary>
+        /// Create a file consisting of a random byte array.
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
+        /// <param name="fileName">The filename of the file being uploaded.</param>
+        /// <param name="fileType">The mime filetype of the file being uploaded.</param>
+        /// <param name="expireTime">Expire time of the file being uploaded.</param>
+        /// <param name="fileStore">The FileStore to add the file into.</param>
+        /// <returns>The uploaded file with valid Guid from FileStore DB.</returns>
+        public static INovaFile UploadNovaFileToFileStore(IUser user, string fileName, string fileType,
+            DateTime expireTime, IFileStore fileStore)
+        {
+            ThrowIf.ArgumentNull(fileStore, nameof(fileStore));
+            var fileToUpload = CreateNovaFileWithRandomByteArray((uint)2048, fileName, fileType);
+            var uploadedFile = fileStore.AddFile(fileToUpload, user, expireTime: expireTime, useMultiPartMime: true);
+            Assert.IsNotNull(fileStore.GetSQLExpiredTime(uploadedFile.Guid), "Uploaded file shouldn't have null ExpiredTime");
+            return uploadedFile;
+        }
     }
 }

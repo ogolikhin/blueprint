@@ -7,7 +7,7 @@ import { IRelationshipDetailsService } from "../../../";
 
 export class BPArtifactRelationshipItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-relationship-item.html");
-    public controller: Function = BPArtifactRelationshipItemController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPArtifactRelationshipItemController;
     public bindings: any = {
         artifact: "=",
         selectedTraces: "=",

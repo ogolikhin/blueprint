@@ -1,4 +1,4 @@
-﻿import "angular";
+﻿import * as angular from "angular";
 import { ILocalizationService } from "../../../core";
 
 export enum DialogTypeEnum {

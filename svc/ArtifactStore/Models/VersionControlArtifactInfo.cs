@@ -40,6 +40,9 @@ namespace ArtifactStore.Models
         [JsonProperty]
         public bool IsDeleted { get; set; }
 
+        [JsonProperty]
+        public bool HasChanges { get; set; }
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public double? OrderIndex { get; set; }
 

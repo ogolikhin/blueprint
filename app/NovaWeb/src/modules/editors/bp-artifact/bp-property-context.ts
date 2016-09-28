@@ -1,4 +1,5 @@
-﻿import { Helper } from "../../shared";
+﻿import * as angular from "angular";
+import { Helper } from "../../shared";
 import { Enums, Models} from "../../main";
 
 

@@ -6,7 +6,7 @@ module.exports = [
         exclude: [
            
         ],
-        loader: 'ts-loader'
+        loader: 'awesome-typescript-loader'
     },     {
         test: /\.css$/,
         loader: ExtractTextPlugin.extract('style-loader', 'css-loader?sourceMap')

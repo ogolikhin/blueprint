@@ -1,7 +1,6 @@
-﻿import "angular";
+﻿import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
-import "Rx";
 import "../../";
 import { ComponentTest } from "../../../util/component.test";
 import { BPDiscussionPanelController} from "./bp-discussions-panel";

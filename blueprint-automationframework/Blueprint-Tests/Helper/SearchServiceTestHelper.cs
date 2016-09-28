@@ -185,7 +185,7 @@ namespace Helper
         /// </summary>
         /// <param name="testHelper"></param>
         /// <param name="role">Author or Viewer</param>
-        /// <param name="project">The list of projects that the role is created for</param>
+        /// <param name="projects">The list of projects that the role is created for</param>
         /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide</param>
         /// <returns></returns>
         public static IUser CreateUserWithProjectRolePermissions(TestHelper testHelper, ProjectRole role, List<IProject> projects, IArtifactBase artifact = null)
@@ -232,15 +232,12 @@ namespace Helper
                 var permissionsGroup = testHelper.CreateGroupAndAddToDatabase();
                 permissionsGroup.AddUser(newUser);
                 permissionsGroup.AssignRoleToProjectOrArtifact(project, role: projectRole, artifact: artifact);
-
             }
 
             testHelper.AdminStore.AddSession(newUser);
 
             return newUser;
         }
-
-        #region private methods
 
         /// <summary>
         /// Updates an artifact property
@@ -252,8 +249,10 @@ namespace Helper
         /// <param name="artifactType">The type of artifact.</param>
         /// <param name="propertyToChange">Property to change.</param>
         /// <param name="value">The value to what property will be changed</param>
-        private static void UpdateArtifactProperty<T>(TestHelper testHelper, IUser user, IProject project, IArtifact artifact, BaseArtifactType artifactType, string propertyToChange, T value)
+        public static void UpdateArtifactProperty<T>(TestHelper testHelper, IUser user, IProject project, IArtifact artifact, BaseArtifactType artifactType, string propertyToChange, T value)
         {
+            ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
+
             var artifactDetails = testHelper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
 
             SetProperty(propertyToChange, value, ref artifactDetails);
@@ -270,6 +269,8 @@ namespace Helper
 
             TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
         }
+
+        #region private methods
 
         /// <summary>
         /// Set one primary property to specific value.

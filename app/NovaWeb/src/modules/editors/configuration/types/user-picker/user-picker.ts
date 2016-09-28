@@ -226,14 +226,19 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 this.listItemElement = uiSelectChoices.querySelector("li.ui-select-choices-group") as HTMLElement;
             },
             removeImportedUsers: function($select) {
-                $select.selected = $select.selected.filter((elem) => {
-                    return !elem.value.isImported;
-                });
+                if ($select.selected && $select.selected.length > 0) {
+                    $select.selected = $select.selected.filter((elem) => {
+                        return !elem.value.isImported;
+                    });
+                }
 
-                let model = $scope.model[$scope.options["key"]].filter((elem) => {
-                    return !elem.isImported;
-                });
-                $scope.model[$scope.options["key"]] = model;
+                let model = $scope.model[$scope.options["key"]];
+                if (model && angular.isArray(model) && model.length > 0) {
+                    model = model.filter((elem) => {
+                        return !elem.isImported;
+                    });
+                    $scope.model[$scope.options["key"]] = model;
+                }
             },
             loadMore: function () {
                 if (this.currentLimit < this.maxLimit && this.$select) {

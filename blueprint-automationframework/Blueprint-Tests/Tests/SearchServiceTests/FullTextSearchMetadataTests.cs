@@ -97,7 +97,7 @@ namespace SearchServiceTests
 
         [TestCase(2, 1, 0)]
         [TestCase(2, 1, -1)]
-        [TestRail(182247)]
+        [TestRail(182248)]
         [Description("Search with invalid pagesize. Executed search must return search metadata result that indicates default page size.")]
         public void FullTextSearchMetadata_SearchMetadataWithInvalidPageSize_VerifySearchMetadataResultUsesDefaultPageSize(
             int expectedHitCount,
@@ -123,7 +123,7 @@ namespace SearchServiceTests
         }
 
         [TestCase(1, 1)]
-        [TestRail(182247)]
+        [TestRail(182252)]
         [Description("Search a single project where the search term is valid across multiple projects. Executed search must return" +
                      " search metadata result that indicates only the single project was searched.")]
         public void FullTextSearchMetadata_SearchMetadataFromSingleProject_VerifySearchMetadataResultIncludesOnlyProjectsSpecified(
@@ -164,7 +164,7 @@ namespace SearchServiceTests
         }
 
         [TestCase(1, 1, -1)]
-        [TestRail(182254)]
+        [TestRail(182363)]
         [Description("Search with one valid project and one invalid project. Executed search must return valid data for the valid project and" +
                      " ignore the invalid project.")]
         public void FullTextSearchMetadata_SearchMetadataWithOneValidAndOneInvalidProject_VerifySearchMetadataResultIgnoresInvalidProject(
@@ -496,46 +496,6 @@ namespace SearchServiceTests
             Assert.That(fullTextSearchMetaDataResult.PageSize.Equals(DEFAULT_PAGE_SIZE_VALUE), "The expected default pagesize value is {0} but {1} was found from the returned searchResult.", DEFAULT_PAGE_SIZE_VALUE, fullTextSearchMetaDataResult.PageSize);
         }
 
-        [TestCase(24, 3, SearchServiceTestHelper.ProjectRole.Author)]
-        [TestCase(24, 3, SearchServiceTestHelper.ProjectRole.Viewer)]
-        [TestCase(0, 0, SearchServiceTestHelper.ProjectRole.None)]
-        [TestRail(182376)]
-        [Description("Search for artifact in multiple projects with user with varying permissions to a single artifact. Executed search must return search metadata" +
-                     " result that indicates whether the user was able to see the artifact in the search results or not.")]
-        public void FullTextSearchMetadata_UserWithProjectRolePermissionsToSingleArtifact_VerifyResultIndicatesResultsFromSingleArtifact(
-            int expectedHitCount,
-            int expectedTotalPageCount,
-            SearchServiceTestHelper.ProjectRole projectRole)
-        {
-            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
-
-            // Setup:
-            var openApiProperty = _artifacts.First().Properties.FirstOrDefault(p => p.Name == "Description");
-            Assert.That(openApiProperty != null, "Description property for artifact could not be found!");
-
-            // Search for Description property value which is common to all artifacts
-            var searchTerm = openApiProperty.TextOrChoiceValue;
-
-            // Set search criteria over all projects
-            var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
-
-            // Create user with project role with permissions to all projects
-            var userWithProjectRole = SearchServiceTestHelper.CreateUserWithProjectRolePermissions(
-                Helper,
-                projectRole,
-                _projects);
-
-            Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
-                Helper.FullTextSearch.SearchMetaData(userWithProjectRole, searchCriteria),
-                "SearchMetaData() call failed when using following search term: {0}!",
-                searchCriteria.Query);
-
-            // Validation:
-            Assert.That(fullTextSearchMetaDataResult.TotalCount.Equals(expectedHitCount), "The expected search hit count is {0} but {1} was returned.", expectedHitCount, fullTextSearchMetaDataResult.TotalCount);
-            Assert.That(fullTextSearchMetaDataResult.TotalPages.Equals(expectedTotalPageCount), "The expected total page count is {0} but {1} was returned.", expectedTotalPageCount, fullTextSearchMetaDataResult.TotalPages);
-            Assert.That(fullTextSearchMetaDataResult.PageSize.Equals(DEFAULT_PAGE_SIZE_VALUE), "The expected default pagesize value is {0} but {1} was found from the returned searchResult.", DEFAULT_PAGE_SIZE_VALUE, fullTextSearchMetaDataResult.PageSize);
-        }
-
         [TestCase(0, 0, BaseArtifactType.Actor)]
         [TestRail(182368)]
         [Description("Search older version of artifact. Executed search must return search metadata result that indicates empty search results.")]
@@ -662,9 +622,6 @@ namespace SearchServiceTests
         #endregion 409 Conflict Tests
 
         #region Private Functions
-
-
         #endregion Private Functions
-
     }
 }

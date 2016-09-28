@@ -17,7 +17,8 @@ $modal-side-clearance: 8px;
       color: $white;
       font-size: $font-size-biggest;
 
-      .fonticon-information::before {
+      .modal-fonticon::before {
+        content: '\e87f'; /* TODO: Use parameter */
         vertical-align: bottom;
       }
     }
@@ -65,13 +66,13 @@ $modal-side-clearance: 8px;
   }
 }
 
-.modal-alert {
+.modal.modal-alert {
   .modal-header {
     background-color: $brand-warning;
-  }
 
-  .fonticon-information:before {
-    content: '\e824'; /* TODO: Use parameter, remane .fonticon-information to .modal-fonticon and style all cases */
+    .modal-title .modal-fonticon::before {
+      content: '\e824'; /* TODO: Use parameter */
+    }
   }
 
   /* Note: '.modal-alert .btn-promoted-action' is defined in _button.scss */

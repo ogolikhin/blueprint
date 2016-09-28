@@ -46,15 +46,13 @@ namespace Helper
                 var randomArtifactName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
 
 
-                // Create artifact in first project with random Name & DEscription
+                // Create artifact in first project with random Name & Description
                 var artifact = testHelper.CreateAndPublishArtifact(projects.First(), user, artifactType);
                 artifact.Lock();
 
                 UpdateArtifactProperty(testHelper, user, projects.First(), artifact, artifactType, "Name", randomArtifactName );
-
                 UpdateArtifactProperty(testHelper, user, projects.First(), artifact, artifactType, "Description", randomArtifactDescription);
 
-                artifact.Publish();
                 artifacts.Add(artifact);
 
                 // Create artifact in last project with same Name and Description
@@ -62,12 +60,12 @@ namespace Helper
                 artifact.Lock();
 
                 UpdateArtifactProperty(testHelper, user, projects.Last(), artifact, artifactType, "Name", randomArtifactName);
-
                 UpdateArtifactProperty(testHelper, user, projects.Last(), artifact, artifactType, "Description", randomArtifactDescription);
 
-                artifact.Publish();
                 artifacts.Add(artifact);
             }
+
+            ArtifactBase.PublishArtifacts(artifacts, artifacts.First().Address, user);
 
             var openApiProperty = artifacts.First().Properties.FirstOrDefault(p => p.Name == "Description");
 
@@ -92,11 +90,12 @@ namespace Helper
         /// <param name="testHelper">An instance of TestHelper</param>
         /// <param name="searchCriteria">The full text search criteria</param>
         /// <param name="artifactCount"></param>
+        /// <param name="waitForArtifactsToDisappear"></param>
         /// <param name="timeoutInMilliseconds">(optional) Timeout in milliseconds after which search will terminate 
         /// if not successful </param>
         /// <returns>True if the search criteria was met within the timeout. False if not.</returns>
         public static bool WaitForSearchIndexerToUpdate(IUser user, TestHelper testHelper,
-            FullTextSearchCriteria searchCriteria, int artifactCount, int? timeoutInMilliseconds = null)
+            FullTextSearchCriteria searchCriteria, int artifactCount, bool waitForArtifactsToDisappear = false, int? timeoutInMilliseconds = null)
         {
             ThrowIf.ArgumentNull(searchCriteria, nameof(searchCriteria));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -105,15 +104,20 @@ namespace Helper
             // Default wait of 5 seconds if timeout is not set
             int waitForSearchIndexerMilliseconds = timeoutInMilliseconds ?? 5000;
 
-            var timeout = DateTime.Now.AddSeconds(waitForSearchIndexerMilliseconds);
+            var timeout = DateTime.Now.AddMilliseconds(waitForSearchIndexerMilliseconds);
 
-            FullTextSearchMetaDataResult fullTestSearchMetadataResult = null;
+            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
             do
             {
-                fullTestSearchMetadataResult = testHelper.FullTextSearch.SearchMetaData(user, searchCriteria);
-            } while (fullTestSearchMetadataResult.TotalCount < artifactCount && DateTime.Now < timeout);
+                Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
+                    testHelper.FullTextSearch.SearchMetaData(user, searchCriteria),
+                    "SearchMetaData() call failed when using following search term: {0}!",
+                    searchCriteria.Query);
 
-            return fullTestSearchMetadataResult.TotalCount == artifactCount;
+            } while ((!waitForArtifactsToDisappear && DateTime.Now < timeout && fullTextSearchMetaDataResult.TotalCount < artifactCount ) ||
+                    waitForArtifactsToDisappear && DateTime.Now < timeout && fullTextSearchMetaDataResult.TotalCount > artifactCount);
+
+            return fullTextSearchMetaDataResult.TotalCount == artifactCount;
         }
 
         /// <summary>

@@ -151,7 +151,7 @@ App_Save_Artifact_Error_400_114,"The artifact cannot be saved. Please ensure all
 App_Save_Artifact_Error_409_115,"Sorry, but the artifact cannot be saved because your lock on it was stolen by another user. Please Refresh the artifact. Any changes you have made will be lost."
 App_Save_Artifact_Error_409_116,"The artifact cannot be saved. It is a reused artifact with read-only settings. You have modified read-only properties."
 App_Save_Artifact_Error_409_117,"A property type is out of date."
-App_Save_Artifact_Error_409_123,"Cannot save an artifact because it has a cyclic relationship."
+App_Save_Artifact_Error_409_123,"The artifact cannot be saved. It inherits from an actor that already inherits from this artifact. Actor artifacts cannot inherit from themselves."
 App_Save_Artifact_Error_Other,"Sorry, but an error has occurred and the artifact cannot be saved. Please contact an administrator.<br><br>"
 
 # glossary artifact

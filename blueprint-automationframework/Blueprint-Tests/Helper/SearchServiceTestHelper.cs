@@ -18,20 +18,13 @@ namespace Helper
     {
         private const int DEFAULT_TIMEOUT_FOR_SEARCH_INDEXER_UPDATE_IN_MS = 30000;
 
-        public enum ProjectRole
-        {
-            None,
-            Viewer,
-            Author
-        }
-
         /// <summary>
         /// Sets up artifact data for Search Service tests
         /// </summary>
         /// <param name="projects">The projects in which the artifacts will be created</param>
         /// <param name="user">The user creating the artifacts</param>
         /// <param name="testHelper">An instance of TestHelper</param>
-        /// <returns></returns>
+        /// <returns>List of created artifacts</returns>
         public static List<IArtifactBase> SetupSearchData(List<IProject> projects, IUser user, TestHelper testHelper)
         {
             ThrowIf.ArgumentNull(projects, nameof(projects));
@@ -40,21 +33,7 @@ namespace Helper
 
             Logger.WriteTrace("{0}.{1} called.", nameof(SearchServiceTestHelper), nameof(SetupSearchData));
 
-            var baseArtifactTypes = new List<BaseArtifactType>()
-            {
-                BaseArtifactType.Actor,
-                BaseArtifactType.BusinessProcess,
-                BaseArtifactType.Document,
-                BaseArtifactType.DomainDiagram,
-                BaseArtifactType.GenericDiagram,
-                BaseArtifactType.Glossary,
-                BaseArtifactType.Process,
-                BaseArtifactType.Storyboard,
-                BaseArtifactType.TextualRequirement,
-                BaseArtifactType.UIMockup,
-                BaseArtifactType.UseCase,
-                BaseArtifactType.UseCaseDiagram
-            };
+            var baseArtifactTypes = TestCaseSources.AllArtifactTypesForOpenApiRestMethods;
 
             var artifacts = new List<IArtifactBase>();
 
@@ -114,16 +93,13 @@ namespace Helper
             FullTextSearchCriteria searchCriteria, 
             int artifactCount, 
             bool waitForArtifactsToDisappear = false, 
-            int? timeoutInMilliseconds = null)
+            int timeoutInMilliseconds = DEFAULT_TIMEOUT_FOR_SEARCH_INDEXER_UPDATE_IN_MS)
         {
             ThrowIf.ArgumentNull(searchCriteria, nameof(searchCriteria));
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
 
-            // Default wait if timeout is not set as a passed argument
-            int waitForSearchIndexerMilliseconds = timeoutInMilliseconds ?? DEFAULT_TIMEOUT_FOR_SEARCH_INDEXER_UPDATE_IN_MS;
-
-            var timeout = DateTime.Now.AddMilliseconds(waitForSearchIndexerMilliseconds);
+            var timeout = DateTime.Now.AddMilliseconds(timeoutInMilliseconds);
 
             FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
             do
@@ -137,19 +113,18 @@ namespace Helper
                     waitForArtifactsToDisappear && DateTime.Now < timeout && fullTextSearchMetaDataResult.TotalCount > artifactCount);
 
 
-            if (!fullTextSearchMetaDataResult.TotalCount.Equals(artifactCount))
-            {
-                Logger.WriteError("Created artifact count of {0} does not match expected artifact count of {1} after {2} seconds.",
+            var errorMessage = I18NHelper.FormatInvariant(
+                    "Created artifact count of {0} does not match expected artifact count of {1} after {2} seconds.",
                     fullTextSearchMetaDataResult.TotalCount,
                     artifactCount,
-                    DEFAULT_TIMEOUT_FOR_SEARCH_INDEXER_UPDATE_IN_MS / 1000);
+                    timeoutInMilliseconds/1000);
+
+            if (!fullTextSearchMetaDataResult.TotalCount.Equals(artifactCount))
+            {
+                Logger.WriteError(errorMessage);
             }
 
-            Assert.That(fullTextSearchMetaDataResult.TotalCount.Equals(artifactCount), 
-                "Created artifact count of {0} does not match expected artifact count of {1} after {2} seconds.", 
-                fullTextSearchMetaDataResult.TotalCount, 
-                artifactCount, 
-                DEFAULT_TIMEOUT_FOR_SEARCH_INDEXER_UPDATE_IN_MS/1000);
+            Assert.That(fullTextSearchMetaDataResult.TotalCount.Equals(artifactCount), errorMessage);
         }
 
         /// <summary>
@@ -157,7 +132,7 @@ namespace Helper
         /// </summary>
         /// <param name="projects"></param>
         /// <param name="baseArtifactTypes"></param>
-        /// <returns></returns>
+        /// <returns>List of ItemTypeId</returns>
         public static List<int> GetItemTypeIdsForBaseArtifactTypes(List<IProject> projects,
             List<BaseArtifactType> baseArtifactTypes)
         {
@@ -185,7 +160,7 @@ namespace Helper
         /// <param name="artifactTypes"></param>
         /// <param name="baseArtifactType"></param>
         /// <param name="artifactTypeName"></param>
-        /// <returns></returns>
+        /// <returns>An ItemTypeId</returns>
         public static int GetItemTypeIdForBaseArtifactType(
             List<OpenApiArtifactType> artifactTypes,
             BaseArtifactType baseArtifactType, 
@@ -207,71 +182,7 @@ namespace Helper
             return artifactType.Id;
         }
 
-        /// <summary>
-        /// Creates a user with project role permissions for one or more projects.  Optionally, creates role permissions for a single artifact within
-        /// a project.
-        /// </summary>
-        /// <param name="testHelper">An instance of TestHelper</param>
-        /// <param name="role">Author, Viewer or No permission role</param>
-        /// <param name="projects">The list of projects that the role is created for</param>
-        /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide</param>
-        /// <returns></returns>
-        public static IUser CreateUserWithProjectRolePermissions(TestHelper testHelper, ProjectRole role, List<IProject> projects, IArtifactBase artifact = null)
-        {
-            ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
-            ThrowIf.ArgumentNull(projects, nameof(projects));
 
-            Logger.WriteTrace("{0}.{1} called.", nameof(SearchServiceTestHelper), nameof(CreateUserWithProjectRolePermissions));
-
-            IProjectRole projectRole = null;
-
-            var newUser = testHelper.CreateUserAndAddToDatabase(instanceAdminRole: null);
-
-            foreach(var project in projects)
-            {
-                if (role == ProjectRole.Viewer)
-                {
-                    projectRole = ProjectRoleFactory.CreateProjectRole(
-                        project, RolePermissions.Read,
-                        role.ToString());
-                }
-                else if (role == ProjectRole.Author)
-                {
-                    projectRole = ProjectRoleFactory.CreateProjectRole(
-                        project,
-                        RolePermissions.Delete |
-                        RolePermissions.Edit |
-                        RolePermissions.CanReport |
-                        RolePermissions.Comment |
-                        RolePermissions.DeleteAnyComment |
-                        RolePermissions.CreateRapidReview |
-                        RolePermissions.ExcelUpdate |
-                        RolePermissions.Read |
-                        RolePermissions.Reuse |
-                        RolePermissions.Share |
-                        RolePermissions.Trace,
-                        role.ToString());
-                }
-                else if (role == ProjectRole.None)
-                {
-                    projectRole = ProjectRoleFactory.CreateProjectRole(
-                        project, RolePermissions.None,
-                        role.ToString());
-                }
-
-                var permissionsGroup = testHelper.CreateGroupAndAddToDatabase();
-                permissionsGroup.AddUser(newUser);
-                permissionsGroup.AssignRoleToProjectOrArtifact(project, role: projectRole, artifact: artifact);
-            }
-
-            testHelper.AdminStore.AddSession(newUser);
-
-            Logger.WriteInfo("User {0} created.", newUser.Username);
-
-            Logger.WriteTrace("{0}.{1} finished.", nameof(SearchServiceTestHelper), nameof(CreateUserWithProjectRolePermissions));
-
-            return newUser;
-        }
 
         /// <summary>
         /// Updates an artifact property

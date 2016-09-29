@@ -21,8 +21,6 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
 
     constructor(private parentArtifact: IStatefulArtifact, private subArtifact: Models.ISubArtifact, services: IStatefulArtifactServices) {
         super(subArtifact, services);
-        subArtifact["projectId"] = parentArtifact.projectId;
-
         this.subject = new Rx.BehaviorSubject<IStatefulSubArtifact>(null);
 
 

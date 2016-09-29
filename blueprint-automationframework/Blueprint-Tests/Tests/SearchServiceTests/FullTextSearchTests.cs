@@ -383,16 +383,19 @@ namespace SearchServiceTests
                 selectedPublishedArtifacts.AddRange(_publishedArtifacts.FindAll(a => a.ProjectId.Equals(selectedProjectId)));
             }
 
-            var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Name")).TextOrChoiceValue, projectIds: searchProjectIds);
+            var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue, projectIds: searchProjectIds);
 
             // Setup: Create user with the specific permission on project(s)
             var userForPermissionTest = SearchServiceTestHelper.CreateUserWithProjectRolePermissions(Helper, role: projectRole, projects: selectedProjects);
 
+            // Setup: Calculate the pageSize so that can display all expecting search results
+            var customSearchPageSize = (_publishedArtifacts.Count() / searchProjectIds.Count()) + (_publishedArtifacts.Count() % searchProjectIds.Count());
+
             // Execute: Execute FullTextSearch with search terms that maches published artifact(s) description
-            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.FullTextSearch.Search(userForPermissionTest, searchCriteria), "Nova FullTextSearch call failed when using following search term: {0} which matches with published artifacts!", searchCriteria.Query);
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.FullTextSearch.Search(userForPermissionTest, searchCriteria, pageSize: customSearchPageSize), "Nova FullTextSearch call failed when using following search term: {0} which matches with published artifacts!", searchCriteria.Query);
 
             // Validation: Verify that searchResult contains list of FullTextSearchItems depending on permission for project(s)
-            FullTextSearchResultValidation(fullTextSearchResult, selectedPublishedArtifacts);
+            FullTextSearchResultValidation(fullTextSearchResult, selectedPublishedArtifacts, pageSize: customSearchPageSize);
         }
 
         [TestCase]

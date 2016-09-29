@@ -329,8 +329,11 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                         let $select = $scope["bpFieldUserPicker"].$select;
                         let itemsHeight = $scope["bpFieldUserPicker"].itemsHeight;
                         let scrollTop = dropdown.scrollTop;
+                        if (isNaN($select.activeIndex)) {
+                            $select.activeIndex = 0;
+                        }
                         if (scrollTop > ($select.activeIndex) * itemsHeight) {
-                            $select.activeIndex = Math.round(scrollTop / itemsHeight) + (this.loadMoreAmount - 1);
+                            $select.activeIndex = Math.round(scrollTop / itemsHeight);
                         }
                         $scope["bpFieldUserPicker"].isScrolling = false;
                     });

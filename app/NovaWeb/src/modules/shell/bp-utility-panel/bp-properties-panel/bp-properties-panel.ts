@@ -149,7 +149,9 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                 });
 
                 let isReadOnly = this.selectedArtifact.artifactState.readonly || this.selectedArtifact.artifactState.lockedBy === LockedByEnum.OtherUser;
-                field.templateOptions["isReadOnly"] = isReadOnly;
+                if (isReadOnly) {
+                    field.templateOptions.disabled = true;
+                }                
                 //if (isReadOnly) {
                     if (field.key !== "documentFile" &&
                         field.type !== "bpFieldImage" &&

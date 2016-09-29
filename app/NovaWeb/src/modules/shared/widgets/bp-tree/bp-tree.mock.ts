@@ -37,6 +37,8 @@ export class BPTreeControllerMock implements IBPTreeController {
         }
     }
 
+    public nodeExists(id: number): boolean { return false; } 
+
     public showLoading() { }
 
     public showNoRows() { }

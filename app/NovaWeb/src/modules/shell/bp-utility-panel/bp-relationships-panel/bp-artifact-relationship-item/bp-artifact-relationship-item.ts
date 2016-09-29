@@ -13,7 +13,7 @@ export class BPArtifactRelationshipItem implements ng.IComponentOptions {
         selectedTraces: "=",
         selectable: "@",
         deleteItem: "&",
-        isItemReadOnly: "="
+        isItemReadOnly: "<"
     };
 }
 

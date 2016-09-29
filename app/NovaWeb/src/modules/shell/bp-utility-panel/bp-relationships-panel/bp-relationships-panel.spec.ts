@@ -10,7 +10,6 @@ import { ComponentTest } from "../../../util/component.test";
 import { BPRelationshipsPanelController } from "./bp-relationships-panel";
 import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
 import { ArtifactRelationshipsMock } from "./../../../managers/artifact-manager/relationships/relationships.svc.mock";
-//import { ArtifactRelationshipsService } from "./relationships.svc";
 import { MessageServiceMock } from "../../../core/messages/message.mock";
 import { SelectionManager } from "./../../../managers/selection-manager/selection-manager";
 import { DialogServiceMock } from "../../../shared/widgets/bp-dialog/bp-dialog";
@@ -28,7 +27,6 @@ import {
 describe("Component BPRelationshipsPanel", () => {
 
       let directiveTest: ComponentTest<BPRelationshipsPanelController>;
-      let template = `<bp-relationships-panel></bp-relationships-panel>`;
       let vm: BPRelationshipsPanelController;
       let bpAccordionPanelController = {
           isActiveObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
@@ -52,6 +50,7 @@ describe("Component BPRelationshipsPanel", () => {
     }));
 
     beforeEach(inject(() => {
+        let template = `<bp-relationships-panel></bp-relationships-panel>`;
         directiveTest = new ComponentTest<BPRelationshipsPanelController>(template, "bp-relationships-panel");
         vm = directiveTest.createComponentWithMockParent({}, "bpAccordionPanel", bpAccordionPanelController);
 
@@ -137,86 +136,75 @@ describe("Component BPRelationshipsPanel", () => {
         }));
 
     it("should load data for a selected artifacts",
-        inject(($rootScope: ng.IRootScopeService, statefulArtifactFactory: IStatefulArtifactFactory, artifactManager: IArtifactManager,
-                $timeout:  ng.ITimeoutService) => {
+        inject(($rootScope: ng.IRootScopeService, statefulArtifactFactory: IStatefulArtifactFactory, artifactManager: IArtifactManager) => {
 
-
+            //Arrange
             vm.item = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "AC"});
-
             vm.selectedTraces = {};
-
             vm.selectedTraces[22] = [traces[0]];
 
+            //Act
             vm.setSelectedDirection(2);
+            $rootScope.$digest();
 
-            $timeout.flush();
-
+            //Assert
             expect(vm.selectedTraces[22][0].traceDirection).toBe(2);
-        }));
-
-    it("should delete trace from artifact",
-        inject(($httpBackend: ng.IHttpBackendService, $rootScope: ng.IRootScopeService,
-                statefulArtifactFactory: IStatefulArtifactFactory, artifactManager: IArtifactManager,
-                artifactRelationships: IArtifactRelationshipsService, $timeout:  ng.ITimeoutService) => {
-
-            let artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "AC"});
-
-            vm.item = artifact;
-
-            let readerSpy = spyOn(vm.item.relationships, 'remove');
-            vm.deleteTrace(traces[0]);
-            $timeout.flush();
-            expect(readerSpy).toHaveBeenCalled();
-
         }));
 
     it("should flag traces",
         inject(($httpBackend: ng.IHttpBackendService, $rootScope: ng.IRootScopeService,
                 statefulArtifactFactory: IStatefulArtifactFactory, artifactManager: IArtifactManager,
-                artifactRelationships: IArtifactRelationshipsService, $timeout:  ng.ITimeoutService) => {
+                artifactRelationships: IArtifactRelationshipsService) => {
 
+            //Arrange
             vm.item = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "AC"});
             vm.selectedTraces = {};
             vm.selectedTraces[22] = traces;
 
+            //Act
             vm.toggleFlag();
-            $timeout.flush();
+            $rootScope.$digest();
+
+            //Assert
             expect(vm.selectedTraces[22][0].suspect).toBe(true);
             expect(vm.selectedTraces[22][1].suspect).toBe(true);
+
+        }));
+
+    it("should delete trace from artifact",
+        inject(($httpBackend: ng.IHttpBackendService, $rootScope: ng.IRootScopeService,
+                statefulArtifactFactory: IStatefulArtifactFactory, artifactManager: IArtifactManager,
+                artifactRelationships: IArtifactRelationshipsService) => {
+
+            //Arrange
+            vm.item = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "AC"});
+            let readerSpy = spyOn(vm.item.relationships, "remove");
+
+            //Act
+            vm.deleteTrace(traces[0]);
+            $rootScope.$digest();
+
+            //Assert
+            expect(readerSpy).toHaveBeenCalled();
 
         }));
 
     it("should delete selected traces from artifact",
         inject(($httpBackend: ng.IHttpBackendService, $rootScope: ng.IRootScopeService,
                 statefulArtifactFactory: IStatefulArtifactFactory, artifactManager: IArtifactManager,
-                artifactRelationships: IArtifactRelationshipsService, $timeout:  ng.ITimeoutService) => {
+                artifactRelationships: IArtifactRelationshipsService) => {
 
+            //Arrange
+            vm.item = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "AC"});
+            vm.selectedTraces = {};
+            vm.selectedTraces[22] = traces;
+            let readerSpy = spyOn(vm.item.relationships, "remove");
 
-
-            let artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "AC"});
-
-            vm.item = artifact;
-
-            let readerSpy = spyOn(vm.item.relationships, 'remove');
+            //Act
             vm.deleteTraces(traces);
-            $timeout.flush();
-            expect(readerSpy).toHaveBeenCalled();
+            $rootScope.$digest();
 
+            //Assert
+            expect(readerSpy).toHaveBeenCalled();
         }));
-    // it("should not load data for artifact without Prefix",
-    //     inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
-    //
-    //         //Arrange
-    //         const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact"});
-    //
-    //         //Act
-    //         artifactManager.selection.setArtifact(artifact);
-    //         $rootScope.$digest();
-    //         const selectedArtifact = artifactManager.selection.getArtifact();
-    //
-    //         //Assert
-    //         expect(selectedArtifact).toBeDefined();
-    //         expect(vm.manualTraces).toBe(null);
-    //         expect(vm.otherTraces).toBe(null);
-    //     }));
 });

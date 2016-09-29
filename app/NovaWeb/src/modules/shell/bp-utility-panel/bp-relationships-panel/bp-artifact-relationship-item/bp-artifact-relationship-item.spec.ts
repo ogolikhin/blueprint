@@ -33,16 +33,14 @@ import {
         $provide.service("artifactAttachments", ArtifactAttachmentsService);
         $provide.service("artifactRelationships", ArtifactRelationshipsMock);
         $provide.service("processService", ProcessServiceMock);
-        //$provide.service("ArtifactRelationshipsMock", ArtifactRelationshipsMock);
     }));
 
     let directiveTest: ComponentTest<BPArtifactRelationshipItemController>;
-    let template = `<bp-artifact-relationship-item artifact="::artifact">
-        </bp-artifact-relationship-item>`;
     let vm: BPArtifactRelationshipItemController;
 
 
     beforeEach(inject(() => {
+        let template = `<bp-artifact-relationship-item artifact="::artifact"></bp-artifact-relationship-item>`;
         directiveTest = new ComponentTest<BPArtifactRelationshipItemController>(template, "bp-artifact-relationship-item");
         vm = directiveTest.createComponent({});
     }));
@@ -83,24 +81,29 @@ import {
 
     it("limitChars, short text", () => {
         //Assert
-        var result = vm.limitChars("<html><body>&#x200b;<div><span>ABC</span></div></body></html>");
+        let result = vm.limitChars("<html><body>&#x200b;<div><span>ABC</span></div></body></html>");
        expect(result.length).toBe(4); //zero width space included
     });
 
     it("limitChars, no text", () => {
         //Assert
-        var result = vm.limitChars("");
+        let result = vm.limitChars("");
         expect(result.length).toBe(0);
     });
 
     it("limitChars, long text 110 characters", () => {
+        //Arrange
+        const expectedResult = "UiKXLAu2uZQzdnrqH1SlqDXyQ74hHy3kxVtSQowhCxf99llObZxr3Rj0eDX09aCB8NR0YJhMuqNbGczDTimrpGtU48fBeduOhvS1...";
+
+        //Act
+        let result = vm.limitChars("UiKXLAu2uZQzdnrqH1SlqDXyQ74hHy3kxVtSQowhCxf99llObZxr3Rj0eDX09aCB8NR0YJhMuqNbGczDTimrpGtU48fBeduOhvS1n98dPUrCHh");
+
         //Assert
-        var result = vm.limitChars("UiKXLAu2uZQzdnrqH1SlqDXyQ74hHy3kxVtSQowhCxf99llObZxr3Rj0eDX09aCB8NR0YJhMuqNbGczDTimrpGtU48fBeduOhvS1n98dPUrCHh");
-        expect(result.length).toBe(103);
+        expect(result).toBe(expectedResult);
     });
 
     it("inArray, contains an artifact", () => {
-        //Arange
+        //Arrange
         vm.artifact = <Relationships.IRelationship>{
             "artifactId": 1,
             "itemId": 1
@@ -109,13 +112,15 @@ import {
         array.push({"itemId": 1});
         array.push({ "itemId": 2 });
 
+        //Act
+        let result = vm.inArray(array);
+
         //Assert
-        var result = vm.inArray(array);
         expect(result.found).toBe(true);
         expect(result.index).toBe(0);
     });
     it("inArray, doesn't contain an artifact", () => {
-        //Arange
+        //Arrange
         vm.artifact = <Relationships.IRelationship>{
             "artifactId": 1,
             "itemId": 3
@@ -124,36 +129,42 @@ import {
         array.push({ "itemId": 1 });
         array.push({ "itemId": 2 });
 
-        //Assert
+        //Act
         var result = vm.inArray(array);
+
+        //Assert
         expect(result.found).toBe(false);
         expect(result.index).toBe(-1);
     });
 
     it("inArray, null array", () => {
-        //Arange
+        //Arrange
         vm.artifact = <Relationships.IRelationship>{
             "artifactId": 1,
             "itemId": 3
         };
         let array = null;
 
-        //Assert
+        //Act
         var result = vm.inArray(array);
+
+        //Assert
         expect(result.found).toBe(false);
         expect(result.index).toBe(-1);
     });
 
     it("inArray, empty array", () => {
-        //Arange
+        //Arrange
         vm.artifact = <Relationships.IRelationship>{
             "artifactId": 1,
             "itemId": 3
         };
         let array = [];
 
-        //Assert
+        //Act
         var result = vm.inArray(array);
+
+        //Assert
         expect(result.found).toBe(false);
         expect(result.index).toBe(-1);
     });
@@ -171,65 +182,59 @@ import {
         });
 
         it("select, select artifact", () => {
-            //Arange
+            //Arrange
             vm.artifact.isSelected = false;
 
-            //Assert
+            //Act
             vm.selectTrace();
+
+            //Assert
             expect(vm.selectedTraces.length).toBe(1);
             expect(vm.artifact.isSelected).toBe(true);
 
         });
 
         it("select, select artifact that already in the array", () => {
-            //Arange
+            //Arrange
             vm.artifact.isSelected = false;
             vm.selectedTraces.push(vm.artifact);
 
-            //Assert
+            //Act
             vm.selectTrace();
+
+            //Assert
             expect(vm.selectedTraces.length).toBe(1);
             expect(vm.artifact.isSelected).toBe(true);
 
         });
 
-        // it("select, selectable false", () => {
-        //     //Arange
-        //     vm.selectable = false;
-        //     vm.artifact.isSelected = false;
-        //     vm.selectedTraces.push(vm.artifact);
-        //
-        //     //Assert
-        //     vm.selectTrace();
-        //     expect(vm.selectedTraces.length).toBe(1);
-        //     expect(vm.artifact.isSelected).toBe(false);
-        //
-        // });
-
-
         it("select, unselect artifact", () => {
-            //Arange
+            //Arrange
             vm.artifact.isSelected = true;
             vm.selectedTraces.push(vm.artifact);
 
-            //Assert
+            //Act
             vm.selectTrace();
+
+            //Assert
             expect(vm.selectedTraces.length).toBe(0);
             expect(vm.artifact.isSelected).toBe(false);
 
         });
 
         it("select, unselect artifact that is not in the array", () => {
-            //Arange
+            //Arrange
             let artifact = <Relationships.IRelationship>{
                 "artifactId": 1,
                 "itemId": 4
             };
             vm.artifact.isSelected = true;
+
+            //Act
             vm.selectedTraces.push(artifact);
+            vm.selectTrace();
 
             //Assert
-            vm.selectTrace();
             expect(vm.selectedTraces.length).toBe(1);
             expect(vm.artifact.isSelected).toBe(false);
 

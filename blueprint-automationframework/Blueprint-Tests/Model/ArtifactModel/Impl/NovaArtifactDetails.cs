@@ -86,6 +86,12 @@ namespace Model.ArtifactModel.Impl
 
     public class NovaArtifactDetails : NovaArtifactBase, INovaArtifactDetails
     {
+        //this function is used by Newtonsoft.Json to determine when to serialize property. See help for Newtonsoft.Json.Serialization
+        public bool ShouldSerializeAttachmentValues()
+        {
+            return AttachmentValues.Count > 0;
+        }
+
         #region Serialized JSON Properties
 
         // NOTE: Keep the properties in this order so the shouldControlJsonChanges option in RestApiFacade works properly.  This is the order of the incoming JSON.
@@ -393,17 +399,27 @@ namespace Model.ArtifactModel.Impl
 
         public class CustomProperty
         {
+            [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
             public string Name { get; set; }
 
-            [JsonProperty("value")]
+            [JsonProperty("value", NullValueHandling=NullValueHandling.Ignore)]
             public object CustomPropertyValue { get; set; }
 
             public int PropertyTypeId { get; set; }
 
             public int PropertyTypeVersionId { get; set; }
+            
+            //this function is used by Newtonsoft.Json to determine when to serialize property. See help for Newtonsoft.Json.Serialization
+            public bool ShouldSerializePropertyTypeVersionId()
+            {
+                return PropertyTypeVersionId != 0;
+            }
 
             [JsonProperty("PropertyTypePredefined")]
             public PropertyTypePredefined PropertyType { get; set; }
+
+            [JsonProperty("isReuseReadOnly", NullValueHandling = NullValueHandling.Ignore)]
+            public bool? IsReuseReadOnly { get; set; }
         }
 
 

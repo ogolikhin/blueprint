@@ -520,6 +520,9 @@ namespace Model.Impl
             string path = RestPaths.Svc.ArtifactStore.Artifacts.CREATE;
             RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
 
+            // Set expectedStatusCodes to 201 Created by default if it's null.
+            expectedStatusCodes = expectedStatusCodes ?? new List<HttpStatusCode> { HttpStatusCode.Created };
+
             NovaArtifactDetails jsonBody = new NovaArtifactDetails
             {
                 Name = name,

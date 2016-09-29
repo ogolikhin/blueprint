@@ -28,7 +28,7 @@ namespace Model
         /// <param name="project">The project where the artifact will be created in.</param>
         /// <param name="parentArtifact">(optional) The parent of the new artifact.</param>
         /// <param name="orderIndex">(optional) The order index of the new artifact.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
         /// <returns>The new Nova artifact that was created.</returns>
         INovaArtifactDetails CreateArtifact(IUser user, 
             BaseArtifactType artifactType,

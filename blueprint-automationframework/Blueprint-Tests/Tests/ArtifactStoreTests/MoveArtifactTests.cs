@@ -63,8 +63,8 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182373)]
-        [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other.  Send correct version of artifact with the message. Verify the moved artifact is returned with the updated Parent ID.")]
-        public void MoveArtifact_SendCurrentVersionWithRequest_PublishedArtifactBecomesChildOfPublishedArtifact_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
+        [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other.  Verify the moved artifact is returned with the updated Parent ID.")]
+        public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
@@ -153,10 +153,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-
-            artifact.Save();
-            artifact.Publish();
+            IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions : 2);
 
             artifact.Lock();
             // Execute:
@@ -177,7 +174,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             IArtifact parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IArtifact childArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, parentArtifact);
+            IArtifact childArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, parent: parentArtifact);
 
             parentArtifact.Lock();
 

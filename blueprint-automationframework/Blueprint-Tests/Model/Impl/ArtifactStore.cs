@@ -435,7 +435,7 @@ namespace Model.Impl
             return unpublishedChanges;
         }
 
-        /// <seealso cref="IArtifactStore.MoveArtifact(IArtifactBase, IArtifactBase, IUser, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.MoveArtifact(IArtifactBase, IArtifactBase, IUser, int?, List{HttpStatusCode})"/>
         public INovaArtifactDetails MoveArtifact(IArtifactBase artifact,
             IArtifactBase newParent,
             IUser user = null,
@@ -608,6 +608,7 @@ namespace Model.Impl
         /// <param name="artifact">The artifact to move.</param>
         /// <param name="newParentId">The ID of the new parent where this artifact will move to.</param>
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
+        /// <param name="artifactVersion">(optional) The version of the artifact.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The details of the artifact that we moved.</returns>
         public static INovaArtifactDetails MoveArtifact(string address,

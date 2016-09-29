@@ -7,18 +7,36 @@ import { StatefulSubArtifactCollection, ISubArtifactCollection } from "../sub-ar
 import { IMetaData, MetaData } from "../metadata";
 import { IStatefulArtifactServices } from "../services";
 import { IArtifactRelationships, ArtifactRelationships } from "../relationships";
-import { StatefulItem, IStatefulItem, IIStatefulItem } from "../item";
 import { IDocumentRefs, DocumentRefs, ChangeTypeEnum, IChangeCollector, IChangeSet } from "../";
 import {
     IStatefulArtifact,
     IArtifactProperties,
-    IIStatefulArtifact,
     IArtifactAttachmentsResultSet,
     IState
 } from "../../models";
 
 
-export class StatefulArtifact extends StatefulItem implements IStatefulArtifact, IIStatefulArtifact {
+// TODO: make as a base class for IStatefulArtifact / IStatefulSubArtifact
+export interface IStatefulItem extends Models.IArtifact {
+    deleted: boolean;
+    metadata: IMetaData;
+    artifactState: IArtifactState;
+    customProperties: IArtifactProperties;
+    specialProperties: IArtifactProperties;
+    attachments: IArtifactAttachments;
+    relationships: IArtifactRelationships;
+    docRefs: IDocumentRefs;
+    discard();
+    lock(): ng.IPromise<IStatefulArtifact>;
+}
+
+export interface IIStatefulItem extends IStatefulItem  {
+    getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet>;
+    getRelationships(): ng.IPromise<Relationships.IRelationship[]>;
+    getServices(): IStatefulArtifactServices;
+}
+
+export class StatefulItem implements IStatefulItem {
     public artifactState: IArtifactState;
     public metadata: IMetaData;
     public deleted: boolean;

@@ -1,5 +1,6 @@
 import { Models, Enums } from "../main/models";
 import { IArtifactState, IState } from "./artifact-manager";
+import { IStatefulItem, IIStatefulItem } from "./artifact-manager/item";
 import { IStatefulArtifactServices } from "./artifact-manager/services";
 import { ISession } from "../shell/login/session.svc";
 import { Relationships } from "../main";
@@ -39,26 +40,6 @@ export interface IArtifactProperties extends IDispose {
     set(id: number, value: any): Models.IPropertyValue;
     changes(): Models.IPropertyValue[];
     discard();
-}
-
-// TODO: make as a base class for IStatefulArtifact / IStatefulSubArtifact
-export interface IStatefulItem extends Models.IArtifact {
-    deleted: boolean;
-    metadata: IMetaData;
-    artifactState: IArtifactState;
-    customProperties: IArtifactProperties;
-    specialProperties: IArtifactProperties;
-    attachments: IArtifactAttachments;
-    relationships: IArtifactRelationships;
-    docRefs: IDocumentRefs;
-    discard();
-    lock(): ng.IPromise<IStatefulArtifact>;
-}
-
-export interface IIStatefulItem extends IStatefulItem  {
-    getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet>;
-    getRelationships(): ng.IPromise<Relationships.IRelationship[]>;
-    getServices(): IStatefulArtifactServices;
 }
 
 export interface IStatefulArtifact extends IStatefulItem, IDispose  {

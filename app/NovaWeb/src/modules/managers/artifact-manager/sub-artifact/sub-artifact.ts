@@ -26,19 +26,20 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
     private changesets: IChangeCollector;
     private loadPromise: ng.IPromise<IStatefulSubArtifact>;
     private isLoaded = false;
+    private subject: Rx.BehaviorSubject<IStatefulArtifact>;
 
     public deleted: boolean;
     public attachments: IArtifactAttachments;
     public docRefs: IDocumentRefs;
-    public customProperties: IArtifactProperties;
-    public specialProperties: IArtifactProperties;
+    public _customProperties: IArtifactProperties;
+    public _specialProperties: IArtifactProperties;
     public metadata: IMetaData;
     public relationships: IArtifactRelationships;
 
     constructor(private artifact: IStatefulArtifact, private subArtifact: Models.ISubArtifact, private services: IStatefulArtifactServices) {
         this.metadata = new MetaData(this);
-        this.customProperties = new ArtifactProperties(this, subArtifact.customPropertyValues);
-        this.specialProperties = new SpecialProperties(this, subArtifact.specificPropertyValues);
+        this._customProperties = new ArtifactProperties(this, subArtifact.customPropertyValues);
+        this._specialProperties = new SpecialProperties(this, subArtifact.specificPropertyValues);
         this.attachments = new ArtifactAttachments(this);
         this.relationships = new ArtifactRelationships(this);
         this.docRefs = new DocumentRefs(this);
@@ -111,6 +112,28 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
            this.changesets.add(changeset);
            this.lock();
         }
+    }
+
+    public getObservable(): Rx.Observable<IStatefulArtifact> {
+        if (!this.isFullArtifactLoadedOrLoading()) {
+            this.loadPromise = this.load();
+
+            this.loadPromise.then(() => {
+                this.subject.onNext(this);
+            }).catch((error) => {
+                this.artifactState.readonly = true;
+                this.subject.onError(error);
+            }).finally(() => {
+                this.loadPromise = null;
+            });
+        } else {
+//            this.subject.onNext(this);
+        }
+        return this.subject.filter(it => !!it).asObservable();
+    }
+
+    protected isFullArtifactLoadedOrLoading() {
+        return this._customProperties && this._specialProperties || this.loadPromise;
     }
 
     public load(force: boolean = true, timeout?: ng.IPromise<any>):  ng.IPromise<IStatefulSubArtifact> {

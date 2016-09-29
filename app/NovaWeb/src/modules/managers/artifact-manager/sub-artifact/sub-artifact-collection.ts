@@ -19,7 +19,7 @@ import {
 
 export interface ISubArtifactCollection {
     initialise(artifacts: IStatefulSubArtifact[]);
-    getObservable(): Rx.Observable<IStatefulSubArtifact[]>;
+    // getObservable(): Rx.Observable<IStatefulSubArtifact[]>;
     list(): IStatefulSubArtifact[];
     add(subArtifact: IStatefulSubArtifact): IStatefulSubArtifact;
     get(id: number): IStatefulSubArtifact;

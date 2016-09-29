@@ -50,7 +50,7 @@ export class BpArtifactInfoController {
         private $element: ng.IAugmentedJQuery,
         private artifactManager: IArtifactManager,
         private localization: ILocalizationService,
-        protected messageService: IMessageService,
+        private messageService: IMessageService,
         private dialogService: IDialogService,
         private windowManager: IWindowManager,
         private loadingOverlayService: ILoadingOverlayService,

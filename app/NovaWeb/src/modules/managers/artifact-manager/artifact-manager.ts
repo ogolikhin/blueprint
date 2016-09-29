@@ -1,8 +1,8 @@
 import { IMessageService } from "../../core";
 import { ISelectionManager } from "../selection-manager/selection-manager";
 import { IMetaDataService } from "./metadata";
-import { IStatefulArtifactFactory, } from "./artifact";
-import { IStatefulArtifact, IDispose } from "../models";
+import { IStatefulArtifactFactory, IStatefulArtifact } from "./artifact";
+import { IDispose } from "../models";
 
 export interface IArtifactManager extends IDispose {
     collectionChangeObservable: Rx.Observable<IStatefulArtifact>;

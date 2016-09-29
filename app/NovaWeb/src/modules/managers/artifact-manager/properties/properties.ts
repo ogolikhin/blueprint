@@ -1,12 +1,15 @@
 import { IIStatefulItem } from "../item";
 import { Models } from "../../../main/models";
-import { IArtifactProperties } from "../../models";
-import {
-    ChangeTypeEnum, 
-    IChangeCollector, 
-    IChangeSet,
-    ChangeSetCollector
-} from "../";
+import { ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector } from "../changeset";
+import { IDispose } from "../../models";
+
+export interface IArtifactProperties extends IDispose {
+    initialize(properties: Models.IPropertyValue[]); 
+    get(id: number): Models.IPropertyValue;
+    set(id: number, value: any): Models.IPropertyValue;
+    changes(): Models.IPropertyValue[];
+    discard();
+}
 
 export class ArtifactProperties implements IArtifactProperties  {
     

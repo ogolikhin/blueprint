@@ -2,13 +2,16 @@ import { Models, Relationships } from "../../../main/models";
 // import { ArtifactState} from "../state";
 import { IStatefulArtifactServices } from "../services";
 import { IMetaData } from "../metadata";
-import { StatefulItem } from "../item";
-import {
-    IStatefulArtifact,
-    IIStatefulSubArtifact,
-    IStatefulSubArtifact,
-    IArtifactAttachmentsResultSet
-} from "../../models";
+import { IStatefulArtifact } from "../artifact";
+import { StatefulItem, IStatefulItem, IIStatefulItem } from "../item";
+import { IArtifactAttachmentsResultSet } from "../attachments";
+
+export interface IIStatefulSubArtifact extends IIStatefulItem {
+}
+
+export interface IStatefulSubArtifact extends IStatefulItem, Models.ISubArtifact {
+    getObservable(): Rx.Observable<IStatefulSubArtifact>;
+}
 
 export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArtifact, IIStatefulSubArtifact {
     private isLoaded = false;
@@ -18,6 +21,11 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
 
     constructor(private parentArtifact: IStatefulArtifact, private subArtifact: Models.ISubArtifact, services: IStatefulArtifactServices) {
         super(subArtifact, services);
+        subArtifact["projectId"] = parentArtifact.projectId;
+
+        this.subject = new Rx.BehaviorSubject<IStatefulSubArtifact>(null);
+
+
         // this.changesets = new ChangeSetCollector(this.artifact);
     }
 

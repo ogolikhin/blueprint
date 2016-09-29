@@ -1,14 +1,8 @@
-import { IBlock } from "../../models";
 import { IIStatefulItem } from "../item";
+import { ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector } from "../changeset";
 import { IArtifactAttachmentsResultSet, IArtifactDocRef } from "./";
-import {
-    ChangeTypeEnum, 
-    IChangeCollector, 
-    IChangeSet,
-    ChangeSetCollector
-} from "../";
 
-export interface IDocumentRefs extends IBlock<IArtifactDocRef[]> {
+export interface IDocumentRefs {
     initialize(docrefs: IArtifactDocRef[]);
     getObservable(): Rx.IObservable<IArtifactDocRef[]>;
     get(refresh?: boolean): ng.IPromise<IArtifactDocRef[]>;

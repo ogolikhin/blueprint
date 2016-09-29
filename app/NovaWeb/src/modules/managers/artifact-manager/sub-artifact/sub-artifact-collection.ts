@@ -1,21 +1,7 @@
-// import { Models, Enums } from "../../../main/models";
-// import { ArtifactState} from "../state";
-// import { IArtifactManager } from "../";
-// import { ArtifactAttachments } from "../attachments";
-// import { CustomProperties } from "../properties";
-// import { ChangeTypeEnum, IChangeCollector, IChangeSet  } from "../../models";
+import { ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector  } from "../changeset";
 import { IStatefulArtifactServices } from "../services";
-import { 
-    ChangeSetCollector, 
-    IChangeCollector, 
-    ChangeTypeEnum, 
-    IChangeSet
-} from "../";
-
-import {
-         IIStatefulArtifact,
-         IStatefulSubArtifact
-} from "../../models";
+import { IIStatefulArtifact } from "../artifact";
+import { IStatefulSubArtifact } from "../sub-artifact";
 
 export interface ISubArtifactCollection {
     initialise(artifacts: IStatefulSubArtifact[]);

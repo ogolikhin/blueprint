@@ -1,9 +1,10 @@
 ﻿import * as angular from "angular";
 import { Models} from "../../models";
-import { Helper, IBPTreeController, ITreeNode } from "../../../shared";
+import { Helper, IBPTreeController } from "../../../shared";
 import { IProjectManager, IArtifactManager} from "../../../managers";
 import { Project } from "../../../managers/project-manager";
-import { IStatefulArtifact, IArtifactNode} from "../../../managers/models";
+import { IStatefulArtifact } from "../../../managers/artifact-manager";
+import { IArtifactNode } from "../../../managers/project-manager";
 import { INavigationService } from "../../../core/navigation/navigation.svc";
 
 export class ProjectExplorer implements ng.IComponentOptions {

@@ -1,26 +1,36 @@
-import { ArtifactState, IArtifactState} from "../state";
+import { ArtifactState, IArtifactState, IState } from "../state";
 import { Models, Enums, Relationships } from "../../../main/models";
 import { IStatefulArtifactServices } from "../services";
-import { StatefulItem } from "../item";
-import {
-    IStatefulArtifact,
-    IIStatefulArtifact,
-    IArtifactAttachmentsResultSet,
-    IState
-} from "../../models";
+import { StatefulItem, IStatefulItem, IIStatefulItem } from "../item";
+import { IArtifactAttachmentsResultSet } from "../attachments";
+import { ISubArtifactCollection } from "../sub-artifact";
+import { IDispose } from "../../models";
 
+
+export interface IStatefulArtifact extends IStatefulItem, IDispose  {
+
+    /**
+     * Unload full weight artifact
+     */
+    unload();
+    subArtifactCollection: ISubArtifactCollection;
+    //load(force?: boolean): ng.IPromise<IStatefulArtifact>;
+    save(): ng.IPromise<IStatefulArtifact>;
+    autosave(): ng.IPromise<IStatefulArtifact>;
+    publish(): ng.IPromise<IStatefulArtifact>;
+    refresh(): ng.IPromise<IStatefulArtifact>;
+    
+    getObservable(): Rx.Observable<IStatefulArtifact>;
+
+}
+
+// TODO: explore the possibility of using an internal interface for services
+export interface IIStatefulArtifact extends IIStatefulItem {
+}
 
 export class StatefulArtifact extends StatefulItem implements IStatefulArtifact, IIStatefulArtifact {
     public artifactState: IArtifactState;
     public deleted: boolean;
-
-    // private _attachments: IArtifactAttachments;
-    // private _docRefs: IDocumentRefs;
-    // private _relationships: IArtifactRelationships;
-    // private _customProperties: IArtifactProperties;
-    // private _specialProperties: IArtifactProperties;
-    // private _subArtifactCollection: ISubArtifactCollection;
-    // private _changesets: IChangeCollector;
 
     private subject: Rx.BehaviorSubject<IStatefulArtifact> ;
 

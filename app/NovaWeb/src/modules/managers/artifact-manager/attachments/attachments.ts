@@ -1,19 +1,12 @@
-import { IBlock } from "../../models";
 import { IIStatefulItem } from "../item";
-import {
-    IArtifactAttachmentsResultSet,
-    IArtifactAttachment,
-    ChangeTypeEnum, 
-    IChangeCollector, 
-    IChangeSet, 
-    ChangeSetCollector 
-} from "../";
+import { ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector  } from "../changeset";
+import { IArtifactAttachmentsResultSet, IArtifactAttachment } from "./attachments.svc";
 
 
-export interface IArtifactAttachments extends IBlock<IArtifactAttachment[]> {
+export interface IArtifactAttachments {
+    isLoading: boolean;
     initialize(attachments: IArtifactAttachment[]);
     getObservable(): Rx.IObservable<IArtifactAttachment[]>;
-    get(refresh?: boolean): ng.IPromise<IArtifactAttachment[]>;
     add(attachments: IArtifactAttachment[]);
     remove(attachments: IArtifactAttachment[]);
     update(attachments: IArtifactAttachment[]);
@@ -30,9 +23,12 @@ export class ArtifactAttachments implements IArtifactAttachments {
     private loadPromise: ng.IPromise<any>;
 
     constructor(private statefulItem: IIStatefulItem) {
-        // this.attachments = [];
         this.subject = new Rx.BehaviorSubject<IArtifactAttachment[]>(this.attachments);
         this.changeset = new ChangeSetCollector(statefulItem);
+    }
+
+    public get isLoading(): boolean {
+        return !this.isLoaded || !!this.loadPromise;
     }
 
     public initialize(attachments: IArtifactAttachment[]) {
@@ -42,7 +38,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
     }
 
     // refresh = true: turn lazy loading off, always reload
-    public get(refresh: boolean = true): ng.IPromise<IArtifactAttachment[]> {
+    private get(refresh: boolean = true): ng.IPromise<IArtifactAttachment[]> {
         const deferred = this.statefulItem.getServices().getDeferred<IArtifactAttachment[]>();
 
         if (this.isLoaded && !refresh) {
@@ -129,7 +125,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
         let changes = this.changeset.get();
         let uniqueKeys = changes
             .map(change => change.key)
-            .filter((elem, index, self) => index == self.indexOf(elem));
+            .filter((elem, index, self) => index === self.indexOf(elem));
         let deltaChanges = new Array<IChangeSet>();
         // remove changesets that cancel eachother.
         uniqueKeys.forEach((key) => {
@@ -138,7 +134,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
             if (addChanges.length > deleteChanges.length) {
                 deltaChanges.push(addChanges[0]);
             } else if (addChanges.length < deleteChanges.length) {
-                deltaChanges.push(deleteChanges[0])
+                deltaChanges.push(deleteChanges[0]);
             }
         });
         deltaChanges.forEach(change => {
@@ -154,9 +150,8 @@ export class ArtifactAttachments implements IArtifactAttachments {
         this.subject.onNext(this.attachments);
     }
 
-    // TODO: stub, implement
     public refresh(): ng.IPromise<IArtifactAttachment[]> {
-
-        return null;
+        this.isLoaded = false;
+        return this.get(true);
     }
 }

@@ -1,17 +1,29 @@
 ﻿import * as angular from "angular";
 import { ILocalizationService, IMessageService } from "../../core";
 import { IDialogService } from "../../shared";
-import { IStatefulArtifactFactory } from "../artifact-manager/artifact";
+import { IStatefulArtifactFactory, IStatefulArtifact } from "../artifact-manager/artifact";
 import { Project, ArtifactNode } from "./project";
-import { IArtifactNode, IStatefulArtifact, IDispose} from "../models";
-//import { StatefulArtifact } from "../artifact-manager/artifact";
-
+import { IDispose} from "../models";
 import { Models, Enums } from "../../main/models";
 import { IProjectService } from "./project-service";
-import { SelectionSource } from "../selection-manager";
-
 import { IArtifactManager } from "../../managers";
 import { IMetaDataService } from "../artifact-manager/metadata";
+
+export interface IArtifactNode extends IDispose {
+    artifact: IStatefulArtifact;
+    children?: IArtifactNode[];
+    parentNode: IArtifactNode;
+    id: number;
+    name: string;
+    projectId: number;
+    //parentId: number;
+    permissions: Enums.RolePermissions;
+    predefinedType: Models.ItemTypePredefined;
+    hasChildren?: boolean;
+    loaded?: boolean;
+    open?: boolean;
+}
+
 export interface IProjectManager extends IDispose {
     projectCollection: Rx.BehaviorSubject<Project[]>;
 

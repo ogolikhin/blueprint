@@ -1,6 +1,7 @@
 import * as angular from "angular";
 import { Models, Enums } from "../../../main/models";
-import { IIStatefulArtifact, IDispose } from "../../models";
+import { IDispose } from "../../models";
+import { IIStatefulArtifact } from "../artifact";
 
 export interface IState {
     lockedBy?: Enums.LockedByEnum;

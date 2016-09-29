@@ -97,9 +97,13 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
         try {
             if (subArtifact) {
+                this.selectedArtifact = artifact;
                 this.selectedSubArtifact = subArtifact;
                 //TODO: implement .getObservable
-                    //this.subArtifactSubscriber = this.selectedSubArtifact.getObservable().subscribe(this.onSubArtifactChanged);
+                this.onUpdate();
+                this.subArtifactSubscriber = this.selectedSubArtifact.getObservable().subscribe(this.onSubArtifactChanged);
+                
+                // for new selection
 
             } else if (artifact) {
                 this.selectedSubArtifact = null;

@@ -1,14 +1,8 @@
-import { IBlock } from "../../models";
 import { IIStatefulItem } from "../item";
-import { ChangeSetCollector } from "../changeset";
 import { Relationships } from "../../../main";
-import {
-    ChangeTypeEnum, 
-    IChangeCollector, 
-    IChangeSet
-} from "../";
+import { ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector } from "../changeset";
 
-export interface IArtifactRelationships extends IBlock<Relationships.IRelationship[]> {
+export interface IArtifactRelationships {
     getObservable(): Rx.IObservable<Relationships.IRelationship[]>;
     add(relationships: Relationships.IRelationship[]);
     remove(relationships: Relationships.IRelationship[]);

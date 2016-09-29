@@ -1,11 +1,8 @@
 ﻿
-import {IArtifactProperty, IProcess, IProcessShape} from "../../../models/process-models";
 import {UserTask, SystemTask} from "../../diagram/presentation/graph/shapes/";
 import {IDiagramNode} from "../../diagram/presentation/graph/models";
 import {IArtifactManager} from "../../../../../managers";
-import { IStatefulArtifact} from "../../../../../managers/models";
-
-import {Models} from "../../../../../main";
+import { IStatefulArtifact} from "../../../../../managers/artifact-manager";
 
 export class PreviewCenterController {
     private userStoryTitle: string = "ST-Title";

@@ -1,12 +1,11 @@
 import { IMessageService, ILocalizationService } from "../../../core/";
 import { IDialogService } from "../../../shared/";
-import { ISession } from "../../models";
-import { 
-    IArtifactService,
-    IMetaDataService, 
-    IArtifactAttachmentsService, 
-    IArtifactRelationshipsService
-} from "../";
+import { ISession } from "../../../shell/login/session.svc";
+import { IArtifactService } from "../artifact";
+import { IMetaDataService } from "../metadata";
+import { IArtifactAttachmentsService } from "../attachments";
+import { IArtifactRelationshipsService } from "../relationships";
+
 
 export interface IStatefulArtifactServices {
     //request<T>(config: ng.IRequestConfig): ng.IPromise<T>;

@@ -1,6 +1,6 @@
 ﻿import { IMessageService } from "../core";
 import { IArtifactManager, IProjectManager } from "../managers";
-import { IStatefulArtifact, } from "../managers/models";
+import { IStatefulArtifact } from "../managers/artifact-manager";
 import { Models, Enums } from "../main/models";
 
 export { IArtifactManager, IProjectManager, IStatefulArtifact, IMessageService, Models, Enums }

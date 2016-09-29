@@ -1,7 +1,7 @@
 ﻿import "angular";
 import { Models } from "../models";
 import { IArtifactManager } from "../../managers";
-import { IStatefulArtifact } from "../../managers/models";
+import { IStatefulArtifact } from "../../managers/artifact-manager";
 import { MessageService} from "../../shell";
 
 export class ArtifactState implements ng.ui.IState {

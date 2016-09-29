@@ -8,9 +8,7 @@
     ItemTypePredefined}
 from "./models/process-models";
 
-import { StatefulArtifact } from "../../managers/artifact-manager/artifact";
-import { IStatefulArtifact } from "../../managers/models";
-
+import { StatefulArtifact, IStatefulArtifact } from "../../managers/artifact-manager/artifact";
 import { Models } from "../../main/models";
 import { IStatefulProcessArtifactServices } from "../../managers/artifact-manager/services";
 

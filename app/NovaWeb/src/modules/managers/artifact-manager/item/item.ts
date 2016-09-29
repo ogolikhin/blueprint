@@ -1,22 +1,17 @@
-import { ArtifactState, IArtifactState} from "../state";
+import { IArtifactState, IState} from "../state";
 import { Models, Enums, Relationships } from "../../../main/models";
-import { ArtifactAttachments, IArtifactAttachments } from "../attachments";
+import { ArtifactAttachments, IArtifactAttachments, IArtifactAttachmentsResultSet } from "../attachments";
 import { ArtifactProperties, SpecialProperties } from "../properties";
-import { ChangeSetCollector } from "../changeset";
+import { ChangeSetCollector,  ChangeTypeEnum, IChangeCollector, IChangeSet } from "../changeset";
 import { StatefulSubArtifactCollection, ISubArtifactCollection } from "../sub-artifact";
 import { IMetaData, MetaData } from "../metadata";
+import { IDocumentRefs, DocumentRefs } from "../docrefs";
 import { IStatefulArtifactServices } from "../services";
+import { IArtifactProperties } from "../properties";
 import { IArtifactRelationships, ArtifactRelationships } from "../relationships";
-import { IDocumentRefs, DocumentRefs, ChangeTypeEnum, IChangeCollector, IChangeSet } from "../";
-import {
-    IStatefulArtifact,
-    IArtifactProperties,
-    IArtifactAttachmentsResultSet,
-    IState
-} from "../../models";
 
 
-// TODO: make as a base class for IStatefulArtifact / IStatefulSubArtifact
+
 export interface IStatefulItem extends Models.IArtifact {
     artifactState: IArtifactState;
 
@@ -41,7 +36,7 @@ export interface IIStatefulItem extends IStatefulItem  {
 
 export abstract class StatefulItem implements IIStatefulItem {
 //    public artifactState: IArtifactState;
-    public metadata: IMetaData;
+    public _metadata: IMetaData;
     public deleted: boolean;
 
     private _attachments: IArtifactAttachments;
@@ -51,15 +46,14 @@ export abstract class StatefulItem implements IIStatefulItem {
     private _specialProperties: IArtifactProperties;
     private _subArtifactCollection: ISubArtifactCollection;
     private _changesets: IChangeCollector;
-    protected lockPromise: ng.IPromise<IStatefulArtifact>;
-    protected loadPromise: ng.IPromise<IStatefulArtifact>;
+    protected lockPromise: ng.IPromise<IStatefulItem>;
+    protected loadPromise: ng.IPromise<IStatefulItem>;
 
 
     constructor(private artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
 //        this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
-        this.metadata = new MetaData(this);
+        
         this.deleted = false;
-
     }
 
     public dispose() {
@@ -218,9 +212,7 @@ export abstract class StatefulItem implements IIStatefulItem {
         return this._subArtifactCollection;
     }
 
-    public lock(): ng.IPromise<IStatefulArtifact> {
-        let deffered = this.services.getDeferred<IStatefulArtifact>();
-        return deffered.promise;
+    public lock() {
     }
     
     protected isFullArtifactLoadedOrLoading() {
@@ -256,6 +248,12 @@ export abstract class StatefulItem implements IIStatefulItem {
         }
     }
     
+    public get metadata(): IMetaData {
+        if (!this._metadata) {
+            this._metadata = new MetaData(this);
+        }
+        return this._metadata;
+    } 
     public initialize(artifact: Models.IArtifact): IState {
         
         this.artifact = artifact;

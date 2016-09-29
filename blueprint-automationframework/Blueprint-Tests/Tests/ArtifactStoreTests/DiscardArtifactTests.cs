@@ -41,9 +41,8 @@ namespace ArtifactStoreTests
 
         [TestCase(2, BaseArtifactType.Actor)]
         [TestRail(166133)]
-        [Description("Set draft artifacts by just saving. Execute Discard - Must return successful discard response")]
-        //Create process artifact, save, don't publish, discard - must return successfully discarded.
-        public void DiscardArtifacts_DiscardSavedArtifacts_VerifyArtifactDiscarded(int numberOfArtifacts, BaseArtifactType artifactType)
+        [Description("Create & save multiple artifacts.  Discard all saved artifacts.  Verify all saved artifacts are discarded.")]
+        public void DiscardArtifacts_MultipleSavedArtifacts_VerifyArtifactsAreDiscarded(int numberOfArtifacts, BaseArtifactType artifactType)
         {
             // Setup:
             // Create artifact(s) with save for discard test
@@ -52,22 +51,19 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(savedArtifacts, _user),
-                "DiscardArtifacts() failed when discarding saved artifact(s)!");
+                "'POST {0}' should return 200 OK when discarding saved artifacts!", DISCARD_PATH);
 
-            // Validation: Verify that discarded artifact information from discardedArtifactResponse match with that from savedArtifacts
-
-            Assert.That(discardArtifactResponse.Artifacts.Count.Equals(savedArtifacts.Count),
-                "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}",
-                savedArtifacts.Count, discardArtifactResponse.Artifacts.Count);
-
+            // Verify:
+            Assert.AreEqual(savedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
+                "There should be {0} artifacts returned in discard results!", savedArtifacts.Count);
+            Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
             DiscardVerification(discardArtifactResponse, savedArtifacts);
         }
 
         [TestCase(2, BaseArtifactType.Actor)]
         [TestRail(166134)]
-        [Description("Set draft artifacts by just saving. Execute Discard with optional parameter all=true - Must return successful discard response")]
-        //Create process artifact, save, don't publish, discard - must return successfully discarded.
-        public void DiscardArtifacts_DiscardSavedArtifactsWithDiscardAll_VerifyArtifactDiscarded(int numberOfArtifacts, BaseArtifactType artifactType)
+        [Description("Create & save multiple artifacts.  Discard with all=true.  Verify all saved artifacts are discarded.")]
+        public void DiscardAllArtifacts_MultipleSavedArtifacts_VerifyArtifactsAreDiscarded(int numberOfArtifacts, BaseArtifactType artifactType)
         {
             // Setup:
             // Create artifact(s) with save for discard test
@@ -75,21 +71,31 @@ namespace ArtifactStoreTests
             INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(savedArtifacts, _user, all: true),
+            Assert.DoesNotThrow(
+                () => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(artifacts: null, user: _user, all: true),
                 "'POST {0}?all=true' should return 200 OK when discarding saved artifacts!", DISCARD_PATH);
 
-            // Validation: Verify that discarded artifact information from discardedArtifactResponse match with that from savedArtifacts
-
-            Assert.That(discardArtifactResponse.Artifacts.Count.Equals(savedArtifacts.Count),
-                "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}", savedArtifacts.Count, discardArtifactResponse.Artifacts.Count);
-
-            DiscardVerification(discardArtifactResponse, savedArtifacts);
+            try
+            {
+                // Verify:
+                Assert.AreEqual(savedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
+                    "There should be {0} artifacts returned in discard results!", savedArtifacts.Count);
+                Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
+                DiscardVerification(discardArtifactResponse, savedArtifacts);
+            }
+            finally
+            {
+                // Need to manually update the IsSaved flags so the TearDown doesn't fail.
+                savedArtifacts.ForEach(a => a.IsSaved = false);
+            }
         }
 
         [TestCase(2, BaseArtifactType.Actor)]
         [TestRail(166135)]
-        [Description("Set draft artifacts by saving, publishing, and saving. Execute Discard - Must return successful discard response")]
-        public void DiscardArtifacts_DiscardChangesFromPreviouslyPublishedArtifacts_VerifyArtifactDiscarded(int numberOfArtifacts, BaseArtifactType artifactType)
+        [Description("Create & publish multiple artifacts, then change & save them.  Discard all the changed artifacts.  " +
+            "Verify all changed artifacts are discarded.")]
+        public void DiscardArtifacts_MultiplePublishedArtifactsWithDrafts_VerifyArtifactsAreDiscarded(
+            int numberOfArtifacts, BaseArtifactType artifactType)
         {
             // Setup:
             // Create artifact(s) with save and publish for discard test
@@ -104,20 +110,21 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(changedPublishedArtifacts, _user),
-                "DiscardArtifacts() failed when discarding saved artifact(s)!");
+                "'POST {0}' should return 200 OK when discarding published artifacts with drafts!", DISCARD_PATH);
 
-            // Validation: Verify that discarded artifact information from discardedArtifactResponse match with that from savedArtifacts
-            Assert.That(discardArtifactResponse.Artifacts.Count.Equals(changedPublishedArtifacts.Count),
-                "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}",
-                changedPublishedArtifacts.Count, discardArtifactResponse.Artifacts.Count);
-
+            // Verify:
+            Assert.AreEqual(changedPublishedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
+                "There should be {0} artifacts returned in discard results!", changedPublishedArtifacts.Count);
+            Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
             DiscardVerification(discardArtifactResponse, changedPublishedArtifacts);
         }
 
         [TestCase(2, BaseArtifactType.Actor)]
         [TestRail(166136)]
-        [Description("Set draft artifacts by saving, publishing, and saving. Execute Discard with optional parameter all=true - Must return successful discard response")]
-        public void DiscardArtifacts_DiscardChangesFromPreviouslyPublishedArtifactsWithDiscardAll_VerifyArtifactDiscarded(int numberOfArtifacts, BaseArtifactType artifactType)
+        [Description("Create & publish multiple artifacts, then change & save them.  Discard with all=true.  " +
+            "Verify all changed artifacts are discarded.")]
+        public void DiscardAllArtifacts_MultiplePublishedArtifactsWithDrafts_VerifyArtifactsAreDiscarded(
+            int numberOfArtifacts, BaseArtifactType artifactType)
         {
             // Setup:
             // Create artifact(s) with save and publish for discard test
@@ -134,17 +141,17 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(changedPublishedArtifacts, _user, all: true),
                 "'POST {0}?all=true' should return 200 OK when discarding saved artifacts!", DISCARD_PATH);
 
-            // Validation: Verify that discarded artifact information from discardedArtifactResponse match with that from savedArtifacts
-            Assert.That(discardArtifactResponse.Artifacts.Count.Equals(changedPublishedArtifacts.Count),
-                "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}", changedPublishedArtifacts.Count, discardArtifactResponse.Artifacts.Count);
-
+            // Verify:
+            Assert.AreEqual(changedPublishedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
+                "There should be {0} artifacts returned in discard results!", changedPublishedArtifacts.Count);
+            Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
             DiscardVerification(discardArtifactResponse, changedPublishedArtifacts);
         }
 
         [TestCase(2, BaseArtifactType.Actor)]
         [TestRail(166137)]
-        [Description("Set published artifacts by saving and publishing. Execute Discard with optional parameter all=true - Must return empty response which represents nothing to be discarded")]
-        public void DiscardArtifacts_DiscardPublishedArtifactsWithDiscardAll_VerifyNothingToDiscard(int numberOfArtifacts, BaseArtifactType artifactType)
+        [Description("Create & publish multiple artifacts.  Discard with all=true.  Verify no discarded projects or artifacts are returned.")]
+        public void DiscardAllArtifacts_MultiplePublishedArtifacts_VerifyNothingToDiscard(int numberOfArtifacts, BaseArtifactType artifactType)
         {
             // Setup:
             // Create artifact(s) with save and publish for discard test
@@ -156,15 +163,17 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user, all: true),
                 "'POST {0}?all=true' should return 200 OK when discarding saved artifacts!", DISCARD_PATH);
 
-            // Validation: Verify that response from discard call is empty since published artifact is not discardable
-            Assert.That(discardArtifactResponse.Artifacts.Count.Equals(0),
-                "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}", 0, discardArtifactResponse.Artifacts.Count);
+            // Verify:
+            Assert.AreEqual(0, discardArtifactResponse.Artifacts.Count, "There should be no artifacts returned in discard results!");
+            Assert.AreEqual(0, discardArtifactResponse.Projects.Count, "There should be no projects returned in discard results!");
         }
 
         [TestCase(2, BaseArtifactType.Actor)]
         [TestRail(166138)]
-        [Description("Set published artifacts by saving and publishing. Execute Discard with optional parameter all=true - Must return list of saved artifacts that got dicarded")]
-        public void DiscardArtifacts_DiscardMixedListOfPublishedAndSavedArtifactsWithDiscardAll_DiscardSavedArtifacts(int numberOfArtifacts, BaseArtifactType artifactType)
+        [Description("Create a list of saved artifacts as well as published artifacts.  Discard with all=true.  " +
+            "Verify saved artifacts are discarded.")]
+        public void DiscardAllArtifacts_MixedListOfPublishedAndSavedArtifacts_SavedArtifactsAreDiscarded(
+            int numberOfArtifacts, BaseArtifactType artifactType)
         {
             // Setup:
             // Create artifact(s) with save and publish for discard test
@@ -183,10 +192,11 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(mixedArtifacts, _user, all: true),
                 "'POST {0}?all=true' should return 200 OK when discarding saved artifacts!", DISCARD_PATH);
 
-            // Validation: Makesure that returned body contains artifact details from savedArtifacts, ones taht are valid for successful discard. 
-            Assert.That(discardArtifactResponse.Artifacts.Count.Equals(numberOfArtifacts),
-                "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}",
-                numberOfArtifacts, discardArtifactResponse.Artifacts.Count);
+            // Verify:
+            Assert.AreEqual(savedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
+                "There should be {0} artifacts returned in discard results!", savedArtifacts.Count);
+            Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
+            DiscardVerification(discardArtifactResponse, savedArtifacts);
         }
 
         #region Custom data tests 
@@ -195,188 +205,218 @@ namespace ArtifactStoreTests
         [TestCase(2, BaseArtifactType.Actor, "value\":10.0", "value\":999.0")] //Insert value into Numeric field which is out of range 
         [TestCase(2, BaseArtifactType.Actor, "value\":\"20", "value\":\"21")] //Insert value into Date field which is out of range 
         [TestRail(182270)] 
-        [Description("Discard an artifact with a value of property that out of its permitted range. Verify 200 OK is returned.")] 
-        public void DiscardArtifact_PropertyOutOfRange_OK(int numberOfArtifacts, BaseArtifactType artifactType, string toChange, string changeTo)
+        [Description("Create & publish multiple artifacts.  Update all with out of range properties.  Discard the artifacts.  " +
+            "Verify all changed artifacts are discarded.")] 
+        public void DiscardArtifact_PublishedArtifactsInDraftWithOutOfRangeProperties_ChangedArtifactsAreDiscarded(
+            int numberOfArtifacts, BaseArtifactType artifactType, string toChange, string changeTo)
         { 
             // Setup: 
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user); 
             // Create artifact(s) with save and publish for discard test 
             var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(projectCustomData, _user, artifactType, numberOfArtifacts); 
   
-            for (int i = 0; i<numberOfArtifacts; i++) 
+            for (int i = 0; i < numberOfArtifacts; i++) 
             { 
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, publishedArtifacts[i].Id);
+                NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, publishedArtifacts[i].Id);
 
-            //This is needed to suppress 501 error
-            artifactDetails.ItemTypeId = null;
+                //This is needed to suppress 501 error
+                artifactDetails.ItemTypeId = null;
 
-            string requestBody = JsonConvert.SerializeObject(artifactDetails); 
+                string requestBody = JsonConvert.SerializeObject(artifactDetails);
+                requestBody = requestBody.Replace(toChange, changeTo);
 
-            requestBody = requestBody.Replace(toChange, changeTo);
+                var artifact = (IArtifact)publishedArtifacts[i];
+                artifact.Lock();
 
-            var fakeArtifact = (IArtifact)publishedArtifacts[i];
-            fakeArtifact.Lock();
-
-            Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, publishedArtifacts[i].Id, _user), 
-                "'PATCH {0}' should return 200 OK if properties are out of range!", 
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_); 
+                Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifact.Id, _user), 
+                    "'PATCH {0}' should return 200 OK if properties are out of range!", 
+                    RestPaths.Svc.ArtifactStore.ARTIFACTS_id_); 
             }
 
             INovaArtifactsAndProjectsResponse discardArtifactResponse = null; 
     
             // Execute: 
-            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user), "DiscardArtifacts() 200 OK when discarding saved artifact(s)!"); 
-    
-            // Validation: Make sure that returned body contains artifact details from saved Artifacts, ones that are valid for successful discard.  
-            Assert.That(discardArtifactResponse.Artifacts.Count.Equals(numberOfArtifacts), "Number of discarded artifact is {0} but discarded item count from the response of the discard is {1}", numberOfArtifacts, discardArtifactResponse.Artifacts.Count);
+            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user),
+                "'POST {0}' should return 200 OK when discarding artifacts with out of range properties!", DISCARD_PATH);
+
+            // Verify:
+            Assert.AreEqual(publishedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
+                "There should be {0} artifacts returned in discard results!", publishedArtifacts.Count);
+            Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
+            DiscardVerification(discardArtifactResponse, publishedArtifacts);
         }
 
         [Category(Categories.CustomData)]
         [TestCase(2, BaseArtifactType.Actor, "value\":10.0", "value\":999.0")] //Insert value into Numeric field which is out of range
         [TestCase(2, BaseArtifactType.Actor, "value\":\"20", "value\":\"21")] //Insert value into Date field which is out of range
         [TestRail(182271)]
-        [Description("Discard all artifacts. Update only one artifact. The other(s) not updated. Verify 200 OK is returned.")]
-        public void DiscardAllArtifact_PropertyOutOfRange_OK(int numberOfArtifacts, BaseArtifactType artifactType, string toChange, string changeTo)
+        [Description("Create & publish multiple artifacts.  Update one with out of range properties.  Discard with all=true.  " +
+            "Verify the changed artifact is discarded.")]
+        public void DiscardAllArtifacts_PublishedArtifacts_OneInDraftWithOutOfRangeProperties_ChangedArtifactIsDiscarded(
+            int numberOfArtifacts, BaseArtifactType artifactType, string toChange, string changeTo)
         {
             // Setup:
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
 
             // Create artifact(s) with save and publish for discard test
             var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(projectCustomData, _user, artifactType, numberOfArtifacts);
+            IArtifact firstArtifact = (IArtifact)publishedArtifacts[0];
 
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, publishedArtifacts[0].Id);
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, firstArtifact.Id);
 
             //This is needed to suppress 501 error
             artifactDetails.ItemTypeId = null;
 
             string requestBody = JsonConvert.SerializeObject(artifactDetails);
-
             requestBody = requestBody.Replace(toChange, changeTo);
 
-            var fakeArtifact = (IArtifact)publishedArtifacts[0];
-            fakeArtifact.Lock();
+            firstArtifact.Lock();
 
-            Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, publishedArtifacts[0].Id, _user),
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, firstArtifact.Id, _user),
                 "'PATCH {0}' should return 200 OK if properties are out of range!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
+            INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
+
             // Execute:
-            Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user, all : true),
-                "'POST {0}?all=true' should return 200 OK when discarding saved artifact(s)!", DISCARD_PATH);
+            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(artifacts: null, user: _user, all : true),
+                "'POST {0}?all=true' should return 200 OK when discarding artifacts with out of range properties!", DISCARD_PATH);
+
+            // Verify:
+            Assert.AreEqual(1, discardArtifactResponse.Artifacts.Count, "There should be 1 artifacts returned in discard results!");
+            Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
+            DiscardVerification(discardArtifactResponse, new List<IArtifactBase> { firstArtifact });
         }
 
         #endregion Custom data tests
 
         [TestCase(4, BaseArtifactType.Process)]
         [TestRail(182307)]
-        [Description("Create, save, and publish parent artifact with two children, move children to parent artifact, discard all artifacts, checks returned result is 200 OK.")]
-        public void DiscardAllArtifact_ParentAndChildrenArtifacts_MoveChildArtifacts_OK(int numberOfArtifacts, BaseArtifactType artifactType)
+        [Description("Create & publish a chain of published artifacts.  Move the child artifacts.  Discard with all=true.  " +
+            "Verify all moved artifacts are discarded.")]
+        public void DiscardAllArtifacts_ChainOfPublishedArtifacts_MoveChildArtifacts_MovedArtifactAreDiscarded(int numberOfArtifacts, BaseArtifactType artifactType)
         {
             // Setup:
-            List<BaseArtifactType> artifactTypes = new List<BaseArtifactType>();
-
-            for (int i = 0; i < numberOfArtifacts; i++)
-            {
-                artifactTypes.Add(artifactType);
-            }
+            List<BaseArtifactType> artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactType);
 
             // Create artifact(s) and publish for discard test
             var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes.ToArray());
+
+            var changedArtifacts = new List<IArtifactBase>();
 
             for (int i = 1; i < numberOfArtifacts; i++)
             {
                 artifactChain[i].Lock();
                 Helper.ArtifactStore.MoveArtifact(artifactChain[i], artifactChain[0], _user);
+                changedArtifacts.Add(artifactChain[i]);
             }
 
+            INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
+
             // Execute:
-            Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(artifactChain.ConvertAll(x => (IArtifactBase)x), _user, all: true),
+            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(artifacts: null, user: _user, all: true),
                 "'POST {0}?all=true' should return 200 OK if the dependent children of the Artifact have been moved!", DISCARD_PATH);
+
+            // Verify:
+            Assert.AreEqual(changedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
+                "There should be {0} artifacts returned in discard results!", changedArtifacts.Count);
+            Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
+            DiscardVerification(discardArtifactResponse, changedArtifacts);
         }
 
         [TestCase(3, BaseArtifactType.Process)]
         [TestRail(182330)]
-        [Description("Create, save, parent artifact with two children, discard all artifacts, checks returned result is 200 OK.")]
-        public void DiscardAllArtifact_ParentAndChildrenArtifacts_UpdateDependendChildren_InDifferentProjects_OK(int numberOfArtifacts, BaseArtifactType artifactType)
+        [Description("Create & publish chains of published artifacts in different projects.  Move the child artifacts.  Discard with all=true.  " +
+            "Verify all moved artifacts are discarded.")]
+        public void DiscardAllArtifacts_ChainsOfPublishedArtifactsInDifferentProjects_MoveChildArtifacts_MovedArtifactAreDiscarded(
+            int numberOfArtifacts, BaseArtifactType artifactType)
         {
             // Setup:
-            List<BaseArtifactType> artifactTypes = new List<BaseArtifactType>();
-
-            for (int i = 0; i < numberOfArtifacts; i++)
-            {
-                artifactTypes.Add(artifactType);
-            }
+            List<BaseArtifactType> artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactType);
 
             // Create artifact(s) and publish for discard test
             var projects = ProjectFactory.GetProjects(_user, numberOfProjects: 2);
-            var artifactChainTest = Helper.CreatePublishedArtifactChain(projects[0], _user, artifactTypes.ToArray());
-            var artifactChainCustomData = Helper.CreatePublishedArtifactChain(projects[1], _user, artifactTypes.ToArray());
+            var artifactChainInProject1 = Helper.CreatePublishedArtifactChain(projects[0], _user, artifactTypes.ToArray());
+            var artifactChainInProject2 = Helper.CreatePublishedArtifactChain(projects[1], _user, artifactTypes.ToArray());
+
+            var changedArtifacts = new List<IArtifactBase>();
 
             for (int i = 1; i < numberOfArtifacts; i++)
             {
-                artifactChainTest[i].Lock();
-                Helper.ArtifactStore.MoveArtifact(artifactChainTest[i], artifactChainTest[0], _user);
+                artifactChainInProject1[i].Lock();
+                Helper.ArtifactStore.MoveArtifact(artifactChainInProject1[i], artifactChainInProject1[0], _user);
+                changedArtifacts.Add(artifactChainInProject1[i]);
+
+                artifactChainInProject2[i].Lock();
+                Helper.ArtifactStore.MoveArtifact(artifactChainInProject2[i], artifactChainInProject2[0], _user);
+                changedArtifacts.Add(artifactChainInProject2[i]);
             }
 
-            for (int i = 1; i < numberOfArtifacts; i++)
-            {
-                artifactChainCustomData[i].Lock();
-                Helper.ArtifactStore.MoveArtifact(artifactChainCustomData[i], artifactChainCustomData[0], _user);
-            }
+            INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(artifactChainTest.ConvertAll(x => (IArtifactBase)x), _user, all: true),
+            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(artifacts: null, user: _user, all: true),
                 "'POST {0}?all=true' should return 200 OK if the changed Artifacts are in different projects!", DISCARD_PATH);
+
+            // Verify:
+            Assert.AreEqual(changedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
+                "There should be {0} artifacts returned in discard results!", changedArtifacts.Count);
+            Assert.AreEqual(2, discardArtifactResponse.Projects.Count, "There should be 2 projects returned in discard results!");
+            DiscardVerification(discardArtifactResponse, changedArtifacts);
         }
 
         [TestCase(3, BaseArtifactType.Process)]
         [TestRail(182316)]
-        [Description("Create, save, parent artifact with two children in a chain, delete last artifact, checks returned result is 200 OK.")]
-        public void DiscardArtifact_CreateArtifactChainAndPublish_DeleteSingleArtifactAndSave_OK(int numberOfArtifacts, BaseArtifactType artifactType)
+        [Description("Create & publish a chain of artifacts.  Delete the last artifact.  Discard the deleted artifact.  Verify the deleted artifact is discarded.")]
+        public void DiscardArtifact_DeleteLastArtifactInChainOfPublishedArtifacts_SendDeletedArtifact_ArtifactSuccessfullyDiscarded(
+            int numberOfArtifacts, BaseArtifactType artifactType)
         {
             // Setup:
-            List<BaseArtifactType> artifactTypes = new List<BaseArtifactType>();
-
-            for (int i = 0; i < numberOfArtifacts; i++)
-            {
-                artifactTypes.Add(artifactType);
-            }
+            List<BaseArtifactType> artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactType);
 
             // Create artifact(s) with save and publish for discard test
             var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes.ToArray());
 
-            artifactChain[artifactChain.Count - 1].Delete(_user);
+            IArtifactBase lastArtifact = artifactChain.Last();
+            lastArtifact.Delete(_user);
 
-            List<IArtifactBase> oneArtifactList = new List<IArtifactBase>();
-            oneArtifactList.Add(artifactChain[artifactChain.Count - 1]);
+            INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(oneArtifactList, _user),
-                "'POST {0}' should return 200 OK if the Artifact for removed artifact!", DISCARD_PATH);
+            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifact(lastArtifact, _user),
+                "'POST {0}' should return 200 OK when discarding artifacts with unpublished deletes!", DISCARD_PATH);
+
+            // Verify:
+            Assert.AreEqual(1, discardArtifactResponse.Artifacts.Count, "Only 1 artifact should be returned in discard results!");
+            Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "Only 1 project should be returned in discard results!");
+            DiscardVerification(discardArtifactResponse, new List<IArtifactBase> { lastArtifact });
         }
 
         [TestCase(3, BaseArtifactType.Process)]
         [TestRail(182317)]
-        [Description("Create, save, parent artifact with two children, delete artifact, checks returned result is 200 OK.")]
-        public void DiscardAllArtifact_DeleteSingleArtifact_OK(int numberOfArtifacts, BaseArtifactType artifactType)
+        [Description("Create & publish a chain of artifacts.  Delete the last artifact.  Discard with all=true.  " +
+            "Verify the deleted artifact is discarded.")]
+        public void DiscardAllArtifacts_DeleteLastArtifactInChainOfPublishedArtifacts_SendEmptyList_ArtifactSuccessfullyDiscarded(
+            int numberOfArtifacts, BaseArtifactType artifactType)
         {
             // Setup:
-            List<BaseArtifactType> artifactTypes = new List<BaseArtifactType>();
-
-            for (int i = 0; i < numberOfArtifacts; i++)
-            {
-                artifactTypes.Add(artifactType);
-            }
+            List<BaseArtifactType> artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactType);
 
             // Create artifact(s) with save and publish for discard test
             var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes.ToArray());
+            IArtifactBase lastArtifact = artifactChain.Last();
+            lastArtifact.Delete(_user);
 
-            artifactChain[artifactChain.Count - 1].Delete(_user);
+            INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
+            Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(artifacts: null, user: _user, all: true),
+                "'POST {0}?all=true' should return 200 OK if an artifact was deleted!", DISCARD_PATH);
 
-            Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(artifactChain.ConvertAll(x => (IArtifactBase)x), _user, all: true),
-                "'POST {0}?all=true' should return 200 OK if the Artifact for removed artifact!", DISCARD_PATH);
+            // Verify:
+            Assert.AreEqual(1, discardArtifactResponse.Artifacts.Count, "Only 1 artifact should be returned in discard results!");
+            Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "Only 1 project should be returned in discard results!");
+            DiscardVerification(discardArtifactResponse, new List<IArtifactBase> { lastArtifact });
         }
 
         #endregion 200 OK Tests
@@ -612,11 +652,29 @@ namespace ArtifactStoreTests
         #region private call
 
         /// <summary>
+        /// Creates a list of artifact types.
+        /// </summary>
+        /// <param name="numberOfArtifacts">The number of artifact types to add to the list.</param>
+        /// <param name="artifactType">The artifact type.</param>
+        /// <returns>A list of artifact types.</returns>
+        private static List<BaseArtifactType> CreateListOfArtifactTypes(int numberOfArtifacts, BaseArtifactType artifactType)
+        {
+            List<BaseArtifactType> artifactTypes = new List<BaseArtifactType>();
+
+            for (int i = 0; i < numberOfArtifacts; i++)
+            {
+                artifactTypes.Add(artifactType);
+            }
+
+            return artifactTypes;
+        }
+
+        /// <summary>
         /// Asserts that returned artifact details from the discard call match with artifacts that were discarded.
         /// </summary>
         /// <param name="discardArtifactResponse">The response from Nova discard call.</param>
         /// <param name="artifactsTodiscard">artifacts that are being discarded</param>
-        public void DiscardVerification(INovaArtifactsAndProjectsResponse discardArtifactResponse,
+        private void DiscardVerification(INovaArtifactsAndProjectsResponse discardArtifactResponse,
             List<IArtifactBase> artifactsTodiscard)
         {
             ThrowIf.ArgumentNull(discardArtifactResponse, nameof(discardArtifactResponse));

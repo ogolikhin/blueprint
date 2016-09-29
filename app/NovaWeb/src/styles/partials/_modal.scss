@@ -17,7 +17,8 @@ $modal-side-clearance: 8px;
       color: $white;
       font-size: $font-size-biggest;
 
-      .fonticon-information::before {
+      .fonticon-modal::before {
+        content: $fonticon-information;
         vertical-align: bottom;
       }
     }
@@ -63,6 +64,18 @@ $modal-side-clearance: 8px;
       margin: 0;
     }
   }
+}
+
+.modal.modal-alert {
+  .modal-header {
+    background-color: $brand-warning;
+
+    .modal-title .fonticon-modal::before {
+      content: $fonticon-warning;
+    }
+  }
+
+  /* Note: '.modal-alert .btn-promoted-action' is defined in _button.scss */
 }
 
 $modal-open-project-height: 450px;

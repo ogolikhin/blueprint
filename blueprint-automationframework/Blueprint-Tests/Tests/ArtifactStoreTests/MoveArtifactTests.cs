@@ -128,44 +128,7 @@ namespace ArtifactStoreTests
             NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
         }
 
-        [TestCase(BaseArtifactType.Process)]
-        [TestRail(0)]
-        [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other. Move parent to be a child of child. Send correct version of artifact with the message. Verify the moved artifact is returned with the updated Parent ID.")]
-        public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_MoveParentToBeChildOfAChid_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
-        {
-            // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-            artifact.Lock();
-            INovaArtifactDetails movedArtifactDetails = null;
-
-            // Execute:
-            Assert.DoesNotThrow(() =>
-            {
-                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, _user);
-            }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
-
-            // Verify:
-            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-            NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
-
-            artifact.Publish();
-
-            newParentArtifact.Lock();
-
-            // Execute:
-            Assert.DoesNotThrow(() =>
-            {
-                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(newParentArtifact, artifact, _user);
-            }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
-
-            // Verify:
-            artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newParentArtifact.Id);
-            NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
-
-            newParentArtifact.Publish();
-        }
 
         #endregion 200 OK tests
 
@@ -223,6 +186,41 @@ namespace ArtifactStoreTests
             string expectedExceptionMessage = "Cannot move a historical version of an artifact. Please refresh.";
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
                 "{0} did not find version in returned message of move artifact call due to incorrect one sent with the request.", expectedExceptionMessage);
+        }
+         
+        [Ignore(IgnoreReasons.UnderDevelopment)] //Not fixed yet
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(182394)]
+        [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other. Move parent to be a child of child. Send correct version of artifact with the message. Verify the moved artifact is returned with the updated Parent ID.")]
+        public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_MoveParentToBeAChildOfAChid_ReturnsArtifactDetails_409Unauthorized(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            artifact.Lock();
+            INovaArtifactDetails movedArtifactDetails = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, _user);
+            }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
+
+            // Verify:
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
+
+            newParentArtifact.Lock();
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.MoveArtifact(newParentArtifact, artifact, _user),
+                "'POST {0}' should return 409 Conflict when parent moved to its child", SVC_PATH);
+
+            // Verify:
+            string expectedExceptionMessage = "Cannot move an ancester artifact to this position.";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} when user tries to move parent artifact to its child", expectedExceptionMessage);
         }
 
         #endregion 409 Conflict tests

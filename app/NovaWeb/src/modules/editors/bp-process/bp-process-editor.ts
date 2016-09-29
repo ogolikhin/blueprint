@@ -106,6 +106,10 @@ export class BpProcessEditorController extends BpBaseEditor {
     public $onDestroy() {
         super.$onDestroy();
 
+        this.destroy();
+    }
+
+    private destroy() {
         if (this.subArtifactEditorModalOpener) {
             this.subArtifactEditorModalOpener.onDestroy();
         }

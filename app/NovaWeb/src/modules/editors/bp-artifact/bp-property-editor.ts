@@ -2,7 +2,7 @@
 import { BPLocale, ILocalizationService} from "../../core";
 import { Enums, Models} from "../../main";
 import { PropertyContext} from "./bp-property-context";
-import { IStatefulItem} from "../../managers/models";
+import { IStatefulItem} from "../../managers/artifact-manager";
 
 import { tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
 

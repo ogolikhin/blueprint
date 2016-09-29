@@ -1,17 +1,9 @@
 import { ArtifactState, IArtifactState} from "../state";
 import { Models, Enums, Relationships } from "../../../main/models";
-import { ArtifactAttachments, IArtifactAttachments } from "../attachments";
-import { ArtifactProperties, SpecialProperties } from "../properties";
-import { ChangeSetCollector } from "../changeset";
-import { StatefulSubArtifactCollection, ISubArtifactCollection } from "../sub-artifact";
-import { IMetaData, MetaData } from "../metadata";
 import { IStatefulArtifactServices } from "../services";
-import { IArtifactRelationships, ArtifactRelationships } from "../relationships";
-import { StatefulItem, IStatefulItem, IIStatefulItem } from "../item";
-import { IDocumentRefs, DocumentRefs, ChangeTypeEnum, IChangeCollector, IChangeSet } from "../";
+import { StatefulItem } from "../item";
 import {
     IStatefulArtifact,
-    IArtifactProperties,
     IIStatefulArtifact,
     IArtifactAttachmentsResultSet,
     IState
@@ -20,185 +12,42 @@ import {
 
 export class StatefulArtifact extends StatefulItem implements IStatefulArtifact, IIStatefulArtifact {
     public artifactState: IArtifactState;
-    public metadata: IMetaData;
     public deleted: boolean;
 
-    private _attachments: IArtifactAttachments;
-    private _docRefs: IDocumentRefs;
-    private _relationships: IArtifactRelationships;
-    private _customProperties: IArtifactProperties;
-    private _specialProperties: IArtifactProperties;
-    private _subArtifactCollection: ISubArtifactCollection;
-    private _changesets: IChangeCollector;
+    // private _attachments: IArtifactAttachments;
+    // private _docRefs: IDocumentRefs;
+    // private _relationships: IArtifactRelationships;
+    // private _customProperties: IArtifactProperties;
+    // private _specialProperties: IArtifactProperties;
+    // private _subArtifactCollection: ISubArtifactCollection;
+    // private _changesets: IChangeCollector;
 
     private subject: Rx.BehaviorSubject<IStatefulArtifact> ;
-    private lockPromise: ng.IPromise<IStatefulArtifact>;
-    private loadPromise: ng.IPromise<IStatefulArtifact>;
 
-    constructor(private artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
-        this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
+    constructor(artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
+        super(artifact, services);
         this.artifactState = new ArtifactState(this);
-        this.metadata = new MetaData(this);
-        this.deleted = false;
+        this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
     }
 
     public dispose() {
+        super.dispose();
         this.subject.dispose();
         delete this.subject;
-        this.artifact.parentId = null;
     }
 
-    public get id(): number {
-        return this.artifact.id;
-    }
-
-    public get projectId() {
-        return this.artifact.projectId;
-    }
-    
-    public set projectId(value: number) {
-        this.set("projectId", value);
-    }
-
-    public get name(): string {
-        return this.artifact.name;
-    }
-
-    public set name(value: string) {
-        this.set("name", value);
-    }
-
-    public get description(): string {
-        return this.artifact.description;
-    }
-
-    public set description(value: string) {
-        this.set("description", value);
-    }
-
-    public get itemTypeId(): number {
-        return this.artifact.itemTypeId;
-    }
-
-    public set itemTypeId(value: number) {
-        this.set("itemTypeId", value);
-    }
-
-    public get itemTypeVersionId(): number {
-        return this.artifact.itemTypeVersionId;
-    }
-    public get predefinedType(): Models.ItemTypePredefined {
-        return this.artifact.predefinedType;
-    }
-
-    public get permissions(): Enums.RolePermissions {
-        return this.artifact.permissions;
-    }
-
-    public get version() {
-        return this.artifact.version;
-    }
-
-    public get prefix(): string {
-        return this.artifact.prefix;
-    }
-
-    public get parentId(): number {
-        return this.artifact.parentId;
-    }
-    public get orderIndex(): number {
-        return this.artifact.orderIndex;
-    }
-
-    public get createdOn(): Date {
-        return this.artifact.createdOn;
-    }
-
-    public get lastEditedOn(): Date {
-        return this.artifact.lastEditedOn;
-    }
-
-    public get createdBy(): Models.IUserGroup {
-        return this.artifact.createdBy;
-    }
-
-    public get lastEditedBy(): Models.IUserGroup {
-        return this.artifact.lastEditedBy;
-    }
-
-    public get hasChildren(): boolean {
-        return this.artifact.hasChildren;
-    }
-    
-    public get readOnlyReuseSettings(): Enums.ReuseSettings {
-        return this.artifact.readOnlyReuseSettings;
-    }
-
-    public getServices(): IStatefulArtifactServices {
-        return this.services;
-    }
-
-    private set(name: string, value: any) {
-        if (name in this) {
-           const changeset = {
-               type: ChangeTypeEnum.Update,
-               key: name,
-               value: this.artifact[name] = value              
-           } as IChangeSet;
-           this.changesets.add(changeset);
-           
-           this.lock(); 
+    public  initialize(artifact: Models.IArtifact): IState {
+        let state: IState = {};
+        if (this.parentId !== artifact.parentId || this.orderIndex !== artifact.orderIndex) {
+            this.artifactState.misplaced = true;
+        } else {
+            this.artifactState.initialize(artifact);
+            super.initialize(artifact);
         }
+        
+        return this.artifactState.get();
     }
 
-    public get customProperties() {
-        if (!this._customProperties) {
-            this._customProperties = new ArtifactProperties(this);
-        }
-        return this._customProperties;
-    }
-
-    public get changesets() {
-        if (!this._changesets) {
-            this._changesets = new ChangeSetCollector(this);
-        }
-        return this._changesets;
-    }
-
-    public get specialProperties() {
-        if (!this._specialProperties) {
-            this._specialProperties = new SpecialProperties(this);
-        }
-        return this._specialProperties;
-    }
-
-    public get attachments() {
-        if (!this._attachments) {
-            this._attachments = new ArtifactAttachments(this);
-        }
-        return this._attachments;
-    }
-
-    public get docRefs() {
-        if (!this._docRefs) {
-            this._docRefs = new DocumentRefs(this);
-        }
-        return this._docRefs;
-    }
-
-    public get relationships() {
-        if (!this._relationships) {
-            this._relationships = new ArtifactRelationships(this);
-        }
-        return this._relationships;
-    }
-
-    public get subArtifactCollection() {
-        if (!this._subArtifactCollection) {
-            this._subArtifactCollection = new StatefulSubArtifactCollection(this, this.services);
-        }
-        return this._subArtifactCollection;
-    }
 
     public getObservable(): Rx.Observable<IStatefulArtifact> {
         if (!this.isFullArtifactLoadedOrLoading()) {
@@ -218,60 +67,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return this.subject.filter(it => !!it).asObservable();
     }
 
-    protected isFullArtifactLoadedOrLoading() {
-        return this._customProperties && this._specialProperties || this.loadPromise;
-    }
-
-    public unload() {
-        if ( this._customProperties) {
-            this._customProperties.dispose();
-            delete this._customProperties;
-        }
-        if ( this._specialProperties) {
-            this._specialProperties.dispose();
-            delete this._specialProperties;
-        }
-
-        //TODO: implement the same for all objects
-    }
 
     public discard() {
-        this.changesets.reset();
-        if (this._customProperties) {
-            this._customProperties.discard();
-        }
-        if (this._specialProperties) {
-            this._specialProperties.discard();
-        }
-        if (this._attachments) {
-            this._attachments.discard();
-        }
-        if (this._subArtifactCollection) {
-            this._subArtifactCollection.discard();
-        }
+        super.discard();
         this.artifactState.dirty = false;
     }
     
-    public setValidationErrorsFlag(value: boolean) {
-        this.artifactState.invalid = value;
-    }
-
-    private initialize(artifact: Models.IArtifact): IState {
-        const artifactBeforeUpdate = this.artifact;
-        
-        this.artifact = artifact;
-        this.artifactState.initialize(artifact);
-        this.customProperties.initialize(artifact.customPropertyValues);
-        this.specialProperties.initialize(artifact.specificPropertyValues);
-         
-        let state = this.artifactState.get();
-        if (artifactBeforeUpdate.parentId !== artifact.parentId || artifactBeforeUpdate.orderIndex !== artifact.orderIndex) {
-            this.artifact.parentId = artifactBeforeUpdate.parentId; 
-            state.misplaced = true;
-        }
-
-        return state;
-    }
 
     private isNeedToLoad() {
         if (this.isProject()) {
@@ -396,27 +197,18 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return deferred.promise;
     }
 
-    private changes(): Models.IArtifact {
+    public changes(): Models.IArtifact {
+        
         if (this.artifactState.invalid) {
             throw new Error("App_Save_Artifact_Error_400_114");
         }
 
-        let delta: Models.IArtifact = {} as Models.Artifact;
+        let delta = super.changes();
 
-        delta.id = this.id;
-        delta.projectId = this.projectId;
-        delta.customPropertyValues = [];
-        this.changesets.get().forEach((it: IChangeSet) => {
-            delta[it.key as string] = it.value;
-        });
-      
-        delta.customPropertyValues = this.customProperties.changes();
-        delta.specificPropertyValues = this.specialProperties.changes();
-        delta.attachmentValues = this.attachments.changes();
-        delta.docRefValues = this.docRefs.changes();
         this.addSubArtifactChanges(delta);
 
         return delta;
+
     }
 
     private addSubArtifactChanges(delta: Models.IArtifact) {

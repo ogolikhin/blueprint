@@ -43,6 +43,7 @@ export interface IArtifactProperties extends IDispose {
 }
 
 export interface IStatefulArtifact extends IStatefulItem, IDispose  {
+
     /**
      * Unload full weight artifact
      */
@@ -54,9 +55,8 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose  {
     publish(): ng.IPromise<IStatefulArtifact>;
     refresh(): ng.IPromise<IStatefulArtifact>;
     
-    setValidationErrorsFlag(value: boolean);
-
     getObservable(): Rx.Observable<IStatefulArtifact>;
+
 }
 
 // TODO: explore the possibility of using an internal interface for services
@@ -67,8 +67,7 @@ export interface IIStatefulSubArtifact extends IIStatefulItem {
 }
 
 export interface IStatefulSubArtifact extends IStatefulItem, Models.ISubArtifact {
-    load(force?: boolean, timeout?: ng.IPromise<any>): ng.IPromise<IStatefulSubArtifact>;
-    changes(): Models.ISubArtifact;
+    
 }
 
 export interface IArtifactNode extends IDispose {

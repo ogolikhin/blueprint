@@ -34,7 +34,6 @@ export class ProjectManager  implements IProjectManager {
 
     private _projectCollection: Rx.BehaviorSubject<Project[]>;
     private subscribers: Rx.IDisposable[];
-    private statechangesubscriber: Rx.IDisposable;
     static $inject: [string] = [
         "$q",
         "localization", 
@@ -58,21 +57,6 @@ export class ProjectManager  implements IProjectManager {
         
         this.subscribers = [];
 
-        const stateSub = this.artifactManager.selection.artifactObservable
-            // cannot always skip 1 and rely on the artifact observable having 2 values (initial and new)
-            // this is true when navigating to artifact X from artifact X via breadcrumb (loop)
-            //.skip(1) // skip the first (initial) value
-            .filter((artifact: IStatefulArtifact) => artifact != null && (artifact.artifactState.deleted || artifact.artifactState.misplaced))
-            .flatMap((artifact: IStatefulArtifact) => {
-                return artifact.getObservable();
-            }).subscribeOnNext(this.onDeleteOrMove);
-        
-    }
-
-
-    private onDeleteOrMove = (artifact: IStatefulArtifact) => {
-        const project = this.getProject(artifact.projectId);
-//        this.refresh(project);
     }
 
     private onChangeInArtifactManagerCollection(artifact: IStatefulArtifact){

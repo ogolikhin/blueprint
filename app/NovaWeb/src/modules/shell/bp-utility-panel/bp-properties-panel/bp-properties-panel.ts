@@ -93,31 +93,13 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         return this.richTextFields && this.richTextFields.length > 0;
     }
 
-//     private get selectedArtifact(): IStatefulArtifact {
-//         return this._selectedArtifact;    
-//     }   
-//     private set selectedArtifact(value: IStatefulArtifact) {
-//         this._selectedArtifact = value;
-//         if (this._selectedArtifact) {
-//             this.artifactSubscriber = this.selectedArtifact.getObservable().subscribe(this.onArtifactChanged);
-//         }
-//     }
-
-//     private get selectedSubArtifact(): IStatefulSubArtifact {
-//         return this._selectedSubArtifact;    
-//     }   
-//     private set selectedSubArtifact(value: IStatefulSubArtifact) {
-//         this._selectedSubArtifact = value;
-//         if (this._selectedSubArtifact) {
-// //        this.subArtifactSubscriber = this.selectedSubArtifact.getObservable().subscribe(this.onArtifactChanged);
-//         }
-//     }
 
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
         try {
             if (subArtifact) {
                 this.selectedSubArtifact = subArtifact;
-                    this.subArtifactSubscriber = this.selectedSubArtifact.getObservable().subscribe(this.onSubArtifactChanged);
+                //TODO: implement .getObservable
+                    //this.subArtifactSubscriber = this.selectedSubArtifact.getObservable().subscribe(this.onSubArtifactChanged);
 
             } else if (artifact) {
                 this.selectedSubArtifact = null;

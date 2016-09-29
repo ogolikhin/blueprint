@@ -172,7 +172,8 @@ export class BpArtifactInfoController {
                 break;
         }
         if (artifact.artifactState.misplaced) {
-            this.dialogService.alert("Artifact_Lock_DoesNotExist");
+            this.dialogService.alert("Artifact_Lock_DoesNotExist").then(() => {
+            }) ;
         } 
     }
 

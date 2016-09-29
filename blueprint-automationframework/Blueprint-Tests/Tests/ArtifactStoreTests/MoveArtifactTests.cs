@@ -41,7 +41,7 @@ namespace ArtifactStoreTests
         [Description("Create & publish 3 artifacts. Create chain : grandparent, parent and child. Move parent artifact with a child to be a child of the project.  Verify the moved artifact is returned with the updated Parent ID.")]
         public void MoveArtifact_PublishedArtifactWithDependentChildBecomesChildOfProject_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
         {
-            // Setup:
+            // Setup:git 
             IArtifact grandParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);            
             IArtifact parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, grandParentArtifact);
             Helper.CreateAndPublishArtifact(_project, _user, artifactType, parentArtifact);
@@ -86,8 +86,8 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182381)]
-        [Description("Create & publish an artifact.  Move the artifact to be a child of the project.  Verify the moved artifact is returned with the updated Parent ID.")]
-        public void MoveArtifact_PublishedArtifactBecomesChildOfProjectTwice_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
+        [Description("Create & publish an artifact.  Move the artifact to the same location.  Verify the moved artifact is returned with the updated Parent ID.")]
+        public void MoveArtifact_PublishedArtifact_FromProjectRootToProjectRoot_VerifyParentDidNotChange_200OK(BaseArtifactType artifactType)
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
@@ -104,13 +104,12 @@ namespace ArtifactStoreTests
             // Verify:
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
+            Assert.Equals(movedArtifactDetails.Id, _project.Id);
         }
-
-
 
         #endregion 200 OK tests
 
-        #region 401 Conflict tests
+        #region 401 Unauthorized tests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182380)]
@@ -137,7 +136,11 @@ namespace ArtifactStoreTests
                 "{0} was not found in returned message of move published artifact(s) which has invalid token.", expectedExceptionMessage);
         }
 
-        #endregion 401 Conflict tests
+        #endregion 401 Unauthorized tests
+
+        #region 403 Forbidden tests
+
+        #endregion 403 Forbidden tests
 
         #region 409 Conflict tests
 
@@ -146,7 +149,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process, 1)]
         [TestRail(182378)]
         [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other.  Send incorrect version of artifact with the message. Verify the moved artifact is returned with the updated Parent ID.")]
-        public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_SendIncorrectVersionWithMessage_409Conflict(BaseArtifactType artifactType, int artifactVersion)
+        public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_SendIncorrectVersion_409Conflict(BaseArtifactType artifactType, int artifactVersion)
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
@@ -170,7 +173,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182394)]
         [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other. Move parent to be a child of child. Send correct version of artifact with the message. Verify the moved artifact is returned with the updated Parent ID.")]
-        public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_MoveParentToBeAChildOfAChild_ReturnsArtifactDetails_409Unauthorized(BaseArtifactType artifactType)
+        public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_MoveParentToBeAChildOfAChild_409Conflict(BaseArtifactType artifactType)
         {
             // Setup:
             IArtifact parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);

@@ -114,10 +114,12 @@ export class ArtifactManager  implements IArtifactManager {
             if (this.artifactDictionary.hasOwnProperty(artifactKey)) {
                 if (!projectId || artifact.projectId === projectId) {
                     artifact.dispose();
-                    this.metadataService.remove(artifact.projectId);
                     delete this.artifactDictionary[artifactKey];
                 }
             }
+        }
+        if (projectId) {
+            this.metadataService.remove(projectId);
         }
     }
 

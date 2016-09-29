@@ -175,9 +175,18 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     }
 
     public deleteTraces(artifacts: Relationships.IRelationship[]): void {
-        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Traces")).then( (confirmed) => {
+        let selectedTracesLength = this.selectedTraces[this.item.id].length;
+
+        var regex = /\{0\}/ig;
+
+        let confirmation = this.localization.get("Confirmation_Delete_Traces")
+            .replace(regex, function (matched: string, p1?: string) { return selectedTracesLength.toString(); });
+
+        this.dialogService.confirm(confirmation).then( (confirmed) => {
             if (confirmed) {
                 this.item.relationships.remove(artifacts);
+
+                this.selectedTraces[this.item.id].length = 0;
             }
         });
     }

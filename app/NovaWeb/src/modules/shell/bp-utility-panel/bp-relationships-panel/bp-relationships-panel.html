@@ -1,7 +1,9 @@
 <div class="icons animated" ng-class="{active: !$ctrl.isLoading && ($ctrl.manualTraces2.length || $ctrl.otherTraces.length) &&
                                           $ctrl.selectedTraces[$ctrl.item.id].length > 0}">
     <div>
-        {{$ctrl.selectedTraces[$ctrl.item.id].length}} {{::$ctrl.localization.get('App_UP_Relationships_Selected') }}
+        {{$ctrl.selectedTraces[$ctrl.item.id].length}}
+        <span ng-if="$ctrl.selectedTraces[$ctrl.item.id].length == 1">{{::$ctrl.localization.get('App_UP_Relationships_Selected_Singular') }}</span>
+        <span ng-if="$ctrl.selectedTraces[$ctrl.item.id].length > 1">{{::$ctrl.localization.get('App_UP_Relationships_Selected_Plural') }}</span>
     </div>
     <div>
         <div uib-dropdown>
@@ -50,7 +52,7 @@
         <div ng-repeat="artifact in $ctrl.manualTraces2"
              class="artifact-item-wrapper">
             <div class="separator"></div>
-            <bp-artifact-relationship-item artifact="::artifact" selectable="true"
+            <bp-artifact-relationship-item artifact="::artifact" selectable="true" is-item-read-only="$ctrl.isItemReadOnly"
                 selected-traces="$ctrl.selectedTraces[$ctrl.item.id]" delete-item="$ctrl.deleteTrace(artifact)"></bp-artifact-relationship-item>
         </div>
     </div>

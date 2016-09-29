@@ -13,6 +13,7 @@ export class BPArtifactRelationshipItem implements ng.IComponentOptions {
         selectedTraces: "=",
         selectable: "@",
         deleteItem: "&",
+        isItemReadOnly: "="
     };
 }
 
@@ -36,6 +37,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     public expanded: boolean = false;
     public relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo;
     public artifact: Relationships.IRelationship;
+    public isItemReadOnly: boolean;
     public selectedTraces: Relationships.IRelationship[];
     public fromOtherProject: boolean = false;  
     public selectable: boolean = false;

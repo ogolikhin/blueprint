@@ -20,7 +20,7 @@ export abstract class ArtifactPickerNodeVM<T> implements ITreeViewNodeVM {
         if (this.isExpandable) {
             result.push("has-children");
         }
-        if (this.isSelectable && !this.isSelectable()) {
+        if (!this.isSelectable()) {
             result.push("not-selectable");
         }
         return result;
@@ -30,7 +30,9 @@ export abstract class ArtifactPickerNodeVM<T> implements ITreeViewNodeVM {
         return "<i></i>";
     }
 
-    public isSelectable?();
+    public isSelectable(): boolean {
+        return true;
+    }
 
     protected static processChildArtifacts(children: Models.IArtifact[], parent: Models.IArtifact): Models.IArtifact[] {
         children = children.filter(child => child.predefinedType !== Models.ItemTypePredefined.CollectionFolder);

@@ -71,10 +71,7 @@ describe("ArtifactPickerNodeVM", () => {
         it("getCellClass, when invalid, returns correct result", () => {
             // Arrange
             const model = {
-                id: 123,
-                type: -999,
-                name: "none",
-                parentFolderId: 0,
+                type: -999 as Models.ProjectNodeType,
                 hasChildren: false
             } as Models.IProjectNode;
             const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
@@ -88,13 +85,7 @@ describe("ArtifactPickerNodeVM", () => {
 
         it("getIcon returns correct result", () => {
             // Arrange
-            const model = {
-                id: 123,
-                type: -999,
-                name: "none",
-                parentFolderId: 0,
-                hasChildren: false
-            } as Models.IProjectNode;
+            const model = {} as Models.IProjectNode;
 
             const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 
@@ -103,6 +94,18 @@ describe("ArtifactPickerNodeVM", () => {
 
             // Assert
             expect(result).toEqual(`<i></i>`);
+        });
+
+        it("isSelectable returns correct result", () => {
+            // Arrange
+            const model = {} as Models.IProjectNode;
+            const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
+
+            // Act
+            const result = vm.isSelectable();
+
+            // Assert
+            expect(result).toEqual(true);
         });
 
         it("loadChildrenAsync, when a folder, loads children", (done: DoneFn) =>

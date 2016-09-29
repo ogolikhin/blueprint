@@ -57,8 +57,7 @@ namespace ArtifactStore.Controllers
             ApplyRelationshipPermissions(permissions, result.ManualTraces);
             ApplyRelationshipPermissions(permissions, result.OtherTraces);
 
-            result.CanDelete = HasPermissions(itemId, permissions, RolePermissions.Trace) && revisionId == int.MaxValue;
-            result.CanCreate = HasPermissions(itemId, permissions, RolePermissions.Trace) && revisionId == int.MaxValue;
+            result.CanEdit = HasPermissions(itemId, permissions, RolePermissions.Trace) && HasPermissions(itemId, permissions, RolePermissions.Edit);
 
             return result;
         }

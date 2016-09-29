@@ -16,6 +16,12 @@
     isSelected: boolean;
 }
 
+export interface IArtifactRelationshipsResultSet {
+    manualTraces: IRelationship[];
+    otherTraces: IRelationship[];
+    canEdit: boolean;
+}
+
 export enum TraceDirection {
     To = 0,
     From = 1,

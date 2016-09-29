@@ -89,7 +89,7 @@ namespace Model.ArtifactModel.Impl
             UserName = user.Username;
             FileName = file.FileName; //500 error when it is empty?
             FileType = file.FileType;
-            AttachmentId = null; //null for add, real id to telete existing attachment
+            AttachmentId = null; //null for add, real id to delete existing attachment
             Guid = file.Guid;
             UploadedDate = null;
             ChangeType = 0; //0 for add, 2 for delete existing attachment 
@@ -101,7 +101,7 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         public AttachmentValue(int attachmentId)
         {
-            AttachmentId = attachmentId; //null for add, real id to telete existing attachment
+            AttachmentId = attachmentId; //null for add, real id to delete existing attachment
             ChangeType = 2; //0 for add, 2 for delete existing attachment 
         }
     }

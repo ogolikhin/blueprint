@@ -11,6 +11,7 @@ using NUnit.Framework;
 using TestCommon;
 using Common;
 using Utilities.Factories;
+using Utilities;
 
 namespace ArtifactStoreTests
 {
@@ -48,61 +49,93 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(182360)]
-        [Description("Add attachment to the published artifact, check that it throws no error.")]
-        public void AddAttachment_Artifact_DoesntThrowError()
+        [Description("Add attachment to the published artifact, check that it throws no error, check that attachement has expected value.")]
+        public void AddAttachment_PublishedArtifact_AttachmentHasExpectedValue()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.TextualRequirement);// it gives 500 error for BaseArtifactType.Document
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.TextualRequirement);
             var attachmentBeforeTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
             Assert.AreEqual(0, attachmentBeforeTest.AttachedFiles.Count,
                 "Artifact shouldn't have attachments at this point.");
 
-            // Execute & Verify:
+            // Execute:
             Assert.DoesNotThrow(() => AddArtifactAttachmentAndSave(_user, artifact, new List<INovaFile> { _attachmentFile }, Helper.BlueprintServer.Address),
                 "Exception caught while trying to update an artifact!");
+
+            // Verify:
             var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
             Assert.AreEqual(1, attachmentAfterTest.AttachedFiles.Count,
                 "Artifact should have 1 attachments at this point.");
             Assert.AreEqual(_attachmentFile.FileName, attachmentAfterTest.AttachedFiles[0].FileName, "Filename must have expected value.");
+            Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
         }
 
         [TestCase]
         [TestRail(182379)]
         [Description("Delete attached file from artifact with attachement, check that it throws no error.")]
-        public void DeleteAttachment_ArtifactWithAttachment_DoesntThrowError()
+        public void DeleteAttachment_ArtifactWithAttachment_AttachmentIsEmpty()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.TextualRequirement);// it gives 500 error for BaseArtifactType.Document
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.TextualRequirement);
             AddArtifactAttachmentAndSave(_user, artifact, new List<INovaFile> { _attachmentFile }, Helper.BlueprintServer.Address);
             artifact.Publish(_user);
             var attachment = Helper.ArtifactStore.GetAttachments(artifact, _user);
 
-            // Execute & Verify:
+            // Execute:
             Assert.DoesNotThrow(() => DeleteArtifactAttachmentAndSave(_user, artifact, attachment.AttachedFiles[0].AttachmentId,
                 Helper.BlueprintServer.Address), "Exception caught while trying to update an artifact!");
             attachment = Helper.ArtifactStore.GetAttachments(artifact, _user);
+
+            // Verify:
             Assert.AreEqual(0, attachment.AttachedFiles.Count, "Artifact shouldn't have attachments at this point.");
+            Assert.AreEqual(0, attachment.DocumentReferences.Count, "List of Document References must be empty.");
         }
 
         [TestCase]
         [TestRail(182397)]
         [Description("Add 2 attachments to the published artifact, check that it throws no error.")]
-        public void Add2Attachments_Artifact_DoesntThrowError()
+        public void Add2Attachments_Artifact_AttachmentHasExpectedValue()
         {
+            // Setup:
             var attachmentFile1 = FileStoreTestHelper.UploadNovaFileToFileStore(_user, _fileName, _fileType, defaultExpireTime,
                 Helper.FileStore);
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.TextualRequirement);// it gives 500 error for BaseArtifactType.Document
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.TextualRequirement);
 
             var attachmentBeforeTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
             Assert.AreEqual(0, attachmentBeforeTest.AttachedFiles.Count,
                 "Artifact shouldn't have attachments at this point.");
 
-            // Execute & Verify:
+            // Execute:
             Assert.DoesNotThrow(() => AddArtifactAttachmentAndSave(_user, artifact, new List<INovaFile> { _attachmentFile, attachmentFile1 },
                 Helper.BlueprintServer.Address), "Exception caught while trying to update an artifact!");
+
+            // Verify:
             var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
             Assert.AreEqual(2, attachmentAfterTest.AttachedFiles.Count,
                 "Artifact should have 2 attachments at this point.");
+            Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
+        }
+
+        [TestCase]
+        [TestRail(182404)]
+        [Description("Add attachment to the published Document, it should throw 409 exception, file shouldn't be added.")]
+        public void AddAttachment_PublishedDocument_Throw409()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Document);
+            var attachmentBeforeTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
+            Assert.AreEqual(0, attachmentBeforeTest.AttachedFiles.Count,
+                "Artifact shouldn't have attachments at this point.");
+
+            // Execute:
+            Assert.Throws<Http409ConflictException>(() => AddArtifactAttachmentAndSave(_user, artifact, new List<INovaFile> { _attachmentFile }, Helper.BlueprintServer.Address),
+                "Unexpected Exception caught while trying to update an artifact!");
+            
+            // Verify:
+            var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
+            Assert.AreEqual(0, attachmentAfterTest.AttachedFiles.Count,
+                "Artifact shouldn't have at this point.");
+            Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
         }
 
 

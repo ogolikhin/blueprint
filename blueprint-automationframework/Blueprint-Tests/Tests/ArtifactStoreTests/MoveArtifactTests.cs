@@ -41,7 +41,7 @@ namespace ArtifactStoreTests
         [Description("Create & publish 3 artifacts. Create chain : grandparent, parent and child. Move parent artifact with a child to be a child of the project.  Verify the moved artifact is returned with the updated Parent ID.")]
         public void MoveArtifact_PublishedArtifactWithDependentChildBecomesChildOfProject_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
         {
-            // Setup:git 
+            // Setup:
             IArtifact grandParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);            
             IArtifact parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, grandParentArtifact);
             Helper.CreateAndPublishArtifact(_project, _user, artifactType, parentArtifact);

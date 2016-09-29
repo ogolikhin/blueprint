@@ -458,7 +458,6 @@ namespace Model.ArtifactModel.Impl
                     from result in ((ArtifactBase)deletedArtifact).DeletedArtifactResults
                     select result.ArtifactId;
 
-                // TODO: Check if this logic is correct.  It looks like this should be outside the loop.
                 Logger.WriteDebug("*** Notifying observers about deletion of artifact IDs: {0}", string.Join(", ", deletedArtifactIds));
                 deletedArtifact.ArtifactObservers?.ForEach(o => o.NotifyArtifactDeletion(deletedArtifactIds));
             }

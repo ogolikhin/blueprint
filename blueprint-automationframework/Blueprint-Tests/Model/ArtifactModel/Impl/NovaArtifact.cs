@@ -7,24 +7,24 @@ using static Model.ArtifactModel.Impl.NovaArtifactDetails;
 
 namespace Model.ArtifactModel.Impl
 {
-    public class NovaArtifact : INovaArtifact
+    public class NovaArtifact : NovaArtifactBase, INovaArtifact
     {
 
         #region Serialized JSON Properties
             
         public bool HasChildren { get; set; }
-        public int Id { get; set; }
-        public int? ItemTypeId { get; set; }
+        public override int Id { get; set; }
+        public override int? ItemTypeId { get; set; }
         public Identification LockedByUser { get; set; }
         public DateTime? LockedDateTime { get; set; }
-        public string Name { get; set; }
+        public override string Name { get; set; }
         public double OrderIndex { get; set; }
-        public int ParentId { get; set; }
+        public override int ParentId { get; set; }
         public int Permissions { get; set; }
         public int PredefinedType { get; set; }
         public string Prefix { get; set; }
-        public int ProjectId { get; set; }
-        public int Version { get; set; }
+        public override int ProjectId { get; set; }
+        public override int Version { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")] // This property can be null, so setter is needed.
         [JsonConverter(typeof(Deserialization.ConcreteListConverter<INovaArtifact, NovaArtifact>))]

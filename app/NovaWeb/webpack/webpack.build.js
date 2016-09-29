@@ -24,7 +24,7 @@ module.exports = {
         extensions: ['', '.ts', '.js', '.json'],
         alias: {
             tinymce: 'tinymce/tinymce',
-            mxClient: path.resolve(__dirname, '../libs/mxClient/js/mxClient.js'),
+            mxClient: path.resolve(__dirname, '../libs/mxClient/js/mxClient.min.js'),
             mxClientCss: path.resolve(__dirname, '../libs/mxClient/css')
         }
     },

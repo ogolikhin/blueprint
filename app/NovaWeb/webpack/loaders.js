@@ -51,6 +51,11 @@ module.exports = [
         loaders: [
             'imports?mxBasePath=>"./novaweb/libs/mxClient", mxLoadStylesheets=>false, mxLoadResources=>false'
         ]
+    }, {
+        test: require.resolve(path.join(__dirname, '../libs/mxClient/js/mxClient.min.js')),
+        loaders: [
+            'imports?mxBasePath=>"./novaweb/libs/mxClient", mxLoadStylesheets=>false, mxLoadResources=>false'
+        ]
     }
 ];
 

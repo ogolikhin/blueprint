@@ -213,13 +213,17 @@ namespace ArtifactStore.Repositories
                     || artifactBasicDetails.HasDraftRelationships,
                 LockedByUser = (artifactBasicDetails.LockedByUserId != null)
                     ? new UserGroup { Id = artifactBasicDetails.LockedByUserId.Value, DisplayName = artifactBasicDetails.LockedByUserName } : null,
-                LockedDateTime = artifactBasicDetails.LockedByUserTime,
+                LockedDateTime = artifactBasicDetails.LockedByUserTime.HasValue 
+                    ? DateTime.SpecifyKind(artifactBasicDetails.LockedByUserTime.Value, DateTimeKind.Utc)
+                    : (DateTime?) null
             };
             if (artifactBasicDetails.DraftDeleted)
             {
                 artifactInfo.DeletedByUser = (artifactBasicDetails.UserId != null)
                         ? new UserGroup { Id = artifactBasicDetails.UserId.Value, DisplayName = artifactBasicDetails.UserName } : null;
-                artifactInfo.DeletedDateTime = artifactBasicDetails.LastSaveTimestamp;
+                artifactInfo.DeletedDateTime = artifactBasicDetails.LastSaveTimestamp.HasValue
+                    ? DateTime.SpecifyKind(artifactBasicDetails.LastSaveTimestamp.Value, DateTimeKind.Utc)
+                    : (DateTime?) null;
             }
             else if (artifactBasicDetails.LatestDeleted)
             {
@@ -230,6 +234,7 @@ namespace ArtifactStore.Repositories
             artifactInfo.Permissions = itemIdsPermissions[artifactBasicDetails.ArtifactId];
             return artifactInfo;
         }
+
         #endregion GetVersionControlArtifactInfoAsync
     }
 }

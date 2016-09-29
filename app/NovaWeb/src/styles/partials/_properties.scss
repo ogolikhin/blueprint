@@ -840,11 +840,18 @@ pagecontent, bp-properties-panel {
             color: $brand-secondary;
             font-size: $font-size-big;
             font-weight: 600;
-            height: 28px;
+            height: 20px;
             line-height: 20px;
             outline: none;
-            padding: 0 0 8px;
+            padding: 0;
             width: 100%;
+
+            &:hover,
+            &:focus,
+            &:active {
+              background: $brand-secondary;
+              color: $white;
+            }
           }
         }
       }

@@ -64,6 +64,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182373)]
+
         [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other.  Verify the moved artifact is returned with the updated Parent ID.")]
         public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
         {
@@ -151,8 +152,9 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process, 0)]
         [TestCase(BaseArtifactType.Process, 1)]
         [TestRail(182378)]
-        [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other.  Send incorrect version of artifact with the message. Verify the moved artifact is returned with the updated Parent ID.")]
+        [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other.  Send incorrect version of artifact with the message. Verify returned code 409 Conflict.")]
         public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_SendIncorrectVersion_409Conflict(BaseArtifactType artifactType, int artifactVersion)
+
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions : 2);
@@ -172,7 +174,7 @@ namespace ArtifactStoreTests
         [Ignore(IgnoreReasons.UnderDevelopment)] //Not fixed yet
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182394)]
-        [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other. Move parent to be a child of child. Send correct version of artifact with the message. Verify the moved artifact is returned with the updated Parent ID.")]
+        [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other. Move parent to be a child of child. Send correct version of artifact with the message. Verify returned code 409 Conflict.")]
         public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_MoveParentToBeAChildOfAChild_409Conflict(BaseArtifactType artifactType)
         {
             // Setup:

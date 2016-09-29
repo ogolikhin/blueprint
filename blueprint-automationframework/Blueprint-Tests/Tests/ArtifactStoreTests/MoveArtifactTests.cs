@@ -54,11 +54,12 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, parentArtifact, _project.Id, _user);
-            }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
+            }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, parentArtifact.Id);
             NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
+            Assert.AreEqual(_project.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -77,11 +78,13 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, _user);
-            }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
+            }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
+            Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
+
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -99,7 +102,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, _project.Id, _user);
-            }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
+            }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
@@ -128,7 +131,7 @@ namespace ArtifactStoreTests
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, userWithBadToken);
-            }, "'GET {0}' should return 401 Unauthorized when called with a invalid token!", SVC_PATH);
+            }, "'POST {0}' should return 401 Unauthorized when called with a invalid token!", SVC_PATH);
 
             // Verify:
             const string expectedExceptionMessage = "Unauthorized call";

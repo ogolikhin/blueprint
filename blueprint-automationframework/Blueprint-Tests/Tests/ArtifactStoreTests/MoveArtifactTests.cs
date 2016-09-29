@@ -42,35 +42,13 @@ namespace ArtifactStoreTests
         public void MoveArtifact_PublishedArtifactWithDependentChildBecomesChildOfProject_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IArtifact parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IArtifact grandParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-
-            artifact.Lock();
+            IArtifact grandParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);            
+            IArtifact parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, grandParentArtifact);
+            Helper.CreateAndPublishArtifact(_project, _user, artifactType, parentArtifact);
 
             INovaArtifactDetails movedArtifactDetails = null;
 
-            // Execute:
-            Assert.DoesNotThrow(() =>
-            {
-                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, parentArtifact, _user);
-            }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
-
-            // Verify:
-            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-            NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
-
             parentArtifact.Lock();
-
-            // Execute:
-            Assert.DoesNotThrow(() =>
-            {
-                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(parentArtifact, grandParentArtifact, _user);
-            }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
-            
-            // Verify:
-            artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, parentArtifact.Id);
-            NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -79,7 +57,7 @@ namespace ArtifactStoreTests
             }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
-            artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, parentArtifact.Id);
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, parentArtifact.Id);
             NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
         }
 
@@ -192,29 +170,16 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182394)]
         [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other. Move parent to be a child of child. Send correct version of artifact with the message. Verify the moved artifact is returned with the updated Parent ID.")]
-        public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_MoveParentToBeAChildOfAChid_ReturnsArtifactDetails_409Unauthorized(BaseArtifactType artifactType)
+        public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_MoveParentToBeAChildOfAChild_ReturnsArtifactDetails_409Unauthorized(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            IArtifact parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            IArtifact childArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, parentArtifact);
 
-            artifact.Lock();
-            INovaArtifactDetails movedArtifactDetails = null;
-
-            // Execute:
-            Assert.DoesNotThrow(() =>
-            {
-                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, _user);
-            }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
-
-            // Verify:
-            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-            NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
-
-            newParentArtifact.Lock();
+            parentArtifact.Lock();
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.MoveArtifact(newParentArtifact, artifact, _user),
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.MoveArtifact(parentArtifact, childArtifact, _user),
                 "'POST {0}' should return 409 Conflict when parent moved to its child", SVC_PATH);
 
             // Verify:

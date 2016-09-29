@@ -343,6 +343,10 @@ $has-children-padding-before-arrow: 3px;
     }
   }
 
+  .ag-cell.not-selectable {
+    opacity: $default-disabled-opacity;
+  }
+
   .ag-cell.has-children {
     .ag-group-expanded i::before,
     .ag-group-contracted i::before {

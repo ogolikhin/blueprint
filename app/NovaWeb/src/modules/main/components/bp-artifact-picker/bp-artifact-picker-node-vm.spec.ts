@@ -261,6 +261,22 @@ describe("ArtifactPickerNodeVM", () => {
             expect(result).toEqual([]);
         });
 
+        it("getCellClass, when not selectable, returns correct result", () => {
+            // Arrange
+            options.selectableItemTypes = [Models.ItemTypePredefined.Actor, Models.ItemTypePredefined.Storyboard];
+            const model = {
+                id: 100,
+                predefinedType: Models.ItemTypePredefined.DomainDiagram
+            } as Models.ISubArtifactNode;
+            const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
+
+            // Act
+            const result = vm.getCellClass();
+
+            // Assert
+            expect(result).toEqual(["not-selectable", "is-domain-diagram"]);
+        });
+
         it("getIcon, when custom icon, returns correct result", () => {
             // Arrange
             const itemType = {id: 123, iconImageId: 456};
@@ -411,7 +427,7 @@ describe("ArtifactPickerNodeVM", () => {
             const result = vm.getCellClass();
 
             // Assert
-            expect(result).toEqual(["has-children", "is-subartifact"]);
+            expect(result).toEqual(["has-children", "not-selectable", "is-subartifact"]);
         });
 
         it("getIcon returns correct result", () => {
@@ -481,7 +497,7 @@ describe("ArtifactPickerNodeVM", () => {
             expect(vm.isExpanded).toEqual(false);
         });
 
-        it("getCellClass returns correct result", () => {
+        it("getCellClass, when has children, returns correct result", () => {
             // Arrange
             const model = {
                 id: 100,
@@ -494,6 +510,22 @@ describe("ArtifactPickerNodeVM", () => {
 
             // Assert
             expect(result).toEqual(["has-children", "is-subartifact"]);
+        });
+
+        it("getCellClass, when not selectable, returns correct result", () => {
+            // Arrange
+            options.selectableItemTypes = [Models.ItemTypePredefined.BPShape, Models.ItemTypePredefined.BPConnector];
+            const model = {
+                id: 100,
+                predefinedType: Models.ItemTypePredefined.GDShape
+            } as Models.ISubArtifactNode;
+            const vm = new SubArtifactNodeVM(options, model);
+
+            // Act
+            const result = vm.getCellClass();
+
+            // Assert
+            expect(result).toEqual(["not-selectable", "is-subartifact"]);
         });
 
         it("getIcon returns correct result", () => {

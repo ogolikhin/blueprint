@@ -13,9 +13,9 @@
     <p>{{::$ctrl.localization.get('App_UP_Relationships_No_Relationships') }}</p>
 
     <div class="add-empty" ng-if="$ctrl.item && !($ctrl.manualTraces.length || $ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && !$ctrl.isLoading">
-        <p>{{ $ctrl.localization.get('App_UP_Discussions_Introduction_Message') }}</p>
+        <p>{{ $ctrl.localization.get('App_UP_Relationships_Introduction_Message') }}</p>
         <label class="btn btn-secondary btn-small" ng-class="{'disabled': $ctrl.isItemReadOnly }">           
-            {{::$ctrl.localization.get('App_UP_Attachments_Add_Attachment') }}
+            {{::$ctrl.localization.get('App_UP_Relationships_Add_Relationship') }}
         </label>       
     </div>
 </div>

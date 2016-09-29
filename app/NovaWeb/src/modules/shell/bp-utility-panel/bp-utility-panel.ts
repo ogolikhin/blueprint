@@ -123,6 +123,7 @@ export class BPUtilityPanelController {
             this.toggleHistoryPanel(selection);
             this.togglePropertiesPanel(selection);
             this.toggleFilesPanel(selection);
+            this.toggleRelationshipsPanel(selection);
         }
     }
 
@@ -166,6 +167,19 @@ export class BPUtilityPanelController {
             this.hidePanel(PanelType.Files);
         } else {
             this.showPanel(PanelType.Files);
+        }
+    }
+
+    private toggleRelationshipsPanel(selection: ISelection) {
+        const artifact = selection.artifact;
+
+        if (artifact && (artifact.predefinedType === ItemTypePredefined.CollectionFolder ||
+                         artifact.predefinedType === ItemTypePredefined.Collections ||
+                         artifact.predefinedType === ItemTypePredefined.ArtifactCollection ||
+                         artifact.predefinedType === ItemTypePredefined.Project)) {
+            this.hidePanel(PanelType.Relationships);
+        } else {
+            this.showPanel(PanelType.Relationships);
         }
     }
 }

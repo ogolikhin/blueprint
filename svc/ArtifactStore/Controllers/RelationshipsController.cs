@@ -49,13 +49,16 @@ namespace ArtifactStore.Controllers
             var itemIds = new List<int> { itemId };
             itemIds = itemIds.Union(result.ManualTraces.Select(a=>a.ArtifactId)).Union(result.OtherTraces.Select(a => a.ArtifactId)).Distinct().ToList();
             var permissions = await ArtifactPermissionsRepository.GetArtifactPermissionsInChunks(itemIds, session.UserId);
-            if (!HasReadPermissions(itemId, permissions))
+            if (!HasPermissions(itemId, permissions, RolePermissions.Read))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
 
             ApplyRelationshipPermissions(permissions, result.ManualTraces);
-            ApplyRelationshipPermissions(permissions, result.OtherTraces);            
+            ApplyRelationshipPermissions(permissions, result.OtherTraces);
+
+            result.CanDelete = HasPermissions(itemId, permissions, RolePermissions.Trace) && revisionId == int.MaxValue;
+            result.CanCreate = HasPermissions(itemId, permissions, RolePermissions.Trace) && revisionId == int.MaxValue;
 
             return result;
         }
@@ -64,7 +67,7 @@ namespace ArtifactStore.Controllers
         {
             foreach (var relationship in relationships)
             {
-                if (!HasReadPermissions(relationship.ArtifactId, permissions))
+                if (!HasPermissions(relationship.ArtifactId, permissions, RolePermissions.Read))
                 {
                     MakeRelationshipUnauthorized(relationship);
                 }
@@ -97,17 +100,17 @@ namespace ArtifactStore.Controllers
 
             var itemIds = new List<int> { artifactId };
             var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(itemIds, session.UserId);
-            if (!HasReadPermissions(artifactId, permissions))
+            if (!HasPermissions(artifactId, permissions, RolePermissions.Read))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
             return await RelationshipsRepository.GetRelationshipExtendedInfo(artifactId, session.UserId, addDrafts);
         }
 
-        private static bool HasReadPermissions(int itemId, Dictionary<int, RolePermissions> permissions)
+        private static bool HasPermissions(int itemId, Dictionary<int, RolePermissions> permissions, RolePermissions permissionType)
         {
             RolePermissions permission = RolePermissions.None;
-            if (permissions.TryGetValue(itemId, out permission) && permission.HasFlag(RolePermissions.Read))
+            if (permissions.TryGetValue(itemId, out permission) && permission.HasFlag(permissionType))
             {
                 return true;
             }

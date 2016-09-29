@@ -43,6 +43,10 @@ namespace ArtifactStore.Models
         public List<Relationship> ManualTraces;
         [JsonProperty]
         public List<Relationship> OtherTraces;
+        [JsonProperty]
+        public bool CanCreate { get; set; }
+        [JsonProperty]
+        public bool CanDelete { get; set; }
     }
     [JsonObject]
     public class Relationship

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Common;
 using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
@@ -15,33 +16,24 @@ namespace Helper
 {
     public static class SearchServiceTestHelper
     {
-        public enum ProjectRole
-        {
-            None,
-            Viewer,
-            Author
-        }
+        private const int DEFAULT_TIMEOUT_FOR_SEARCH_INDEXER_UPDATE_IN_MS = 30000;
+
+        /// <summary>
+        /// Sets up artifact data for Search Service tests
+        /// </summary>
+        /// <param name="projects">The projects in which the artifacts will be created</param>
+        /// <param name="user">The user creating the artifacts</param>
+        /// <param name="testHelper">An instance of TestHelper</param>
+        /// <returns>List of created artifacts</returns>
         public static List<IArtifactBase> SetupSearchData(List<IProject> projects, IUser user, TestHelper testHelper)
         {
             ThrowIf.ArgumentNull(projects, nameof(projects));
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
 
-            var baseArtifactTypes = new List<BaseArtifactType>()
-            {
-                BaseArtifactType.Actor,
-                BaseArtifactType.BusinessProcess,
-                BaseArtifactType.Document,
-                BaseArtifactType.DomainDiagram,
-                BaseArtifactType.GenericDiagram,
-                BaseArtifactType.Glossary,
-                BaseArtifactType.Process,
-                BaseArtifactType.Storyboard,
-                BaseArtifactType.TextualRequirement,
-                BaseArtifactType.UIMockup,
-                BaseArtifactType.UseCase,
-                BaseArtifactType.UseCaseDiagram
-            };
+            Logger.WriteTrace("{0}.{1} called.", nameof(SearchServiceTestHelper), nameof(SetupSearchData));
+
+            var baseArtifactTypes = TestCaseSources.AllArtifactTypesForOpenApiRestMethods;
 
             var artifacts = new List<IArtifactBase>();
 
@@ -51,7 +43,6 @@ namespace Helper
             foreach (var artifactType in baseArtifactTypes)
             {
                 var randomArtifactName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
-
 
                 // Create artifact in first project with random Name & Description
                 var artifact = testHelper.CreateAndPublishArtifact(projects.First(), user, artifactType);
@@ -74,17 +65,12 @@ namespace Helper
 
             ArtifactBase.PublishArtifacts(artifacts, artifacts.First().Address, user);
 
-            var openApiProperty = artifacts.First().Properties.FirstOrDefault(p => p.Name == "Description");
-
-            Assert.That(openApiProperty != null, "Description property for artifact could not be found!");
-
-            // Search for Description property value which is common to all artifacts
-            var searchTerm = openApiProperty.TextOrChoiceValue;
-
-            // Setup: 
-            var searchCriteria = new FullTextSearchCriteria(searchTerm, projects.Select(p => p.Id));
-
+            // Wait for all artifacts to be available to the search service
+            var searchCriteria = new FullTextSearchCriteria(randomArtifactDescription, projects.Select(p => p.Id));
             WaitForSearchIndexerToUpdate(user, testHelper, searchCriteria, artifacts.Count);
+
+            Logger.WriteInfo("{0} {1} artifacts created.", nameof(SearchServiceTestHelper), artifacts.Count);
+            Logger.WriteTrace("{0}.{1} finished.", nameof(SearchServiceTestHelper), nameof(SetupSearchData));
 
             // Return the full artifact list
             return artifacts;
@@ -96,22 +82,24 @@ namespace Helper
         /// <param name="user">The user performing the search</param>
         /// <param name="testHelper">An instance of TestHelper</param>
         /// <param name="searchCriteria">The full text search criteria</param>
-        /// <param name="artifactCount"></param>
-        /// <param name="waitForArtifactsToDisappear"></param>
+        /// <param name="artifactCount">The number of artifacts that were created</param>
+        /// <param name="waitForArtifactsToDisappear">(optional) Flag to indicate whether to wait for the artifacts to disappear. 
+        /// (Default is False => Wait for artifacts to appear instead of disappear)</param>
         /// <param name="timeoutInMilliseconds">(optional) Timeout in milliseconds after which search will terminate 
         /// if not successful </param>
-        /// <returns>True if the search criteria was met within the timeout. False if not.</returns>
-        public static bool WaitForSearchIndexerToUpdate(IUser user, TestHelper testHelper,
-            FullTextSearchCriteria searchCriteria, int artifactCount, bool waitForArtifactsToDisappear = false, int? timeoutInMilliseconds = null)
+        public static void  WaitForSearchIndexerToUpdate(
+            IUser user, 
+            TestHelper testHelper,
+            FullTextSearchCriteria searchCriteria, 
+            int artifactCount, 
+            bool waitForArtifactsToDisappear = false, 
+            int timeoutInMilliseconds = DEFAULT_TIMEOUT_FOR_SEARCH_INDEXER_UPDATE_IN_MS)
         {
             ThrowIf.ArgumentNull(searchCriteria, nameof(searchCriteria));
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
 
-            // Default wait of 5 seconds if timeout is not set
-            int waitForSearchIndexerMilliseconds = timeoutInMilliseconds ?? 5000;
-
-            var timeout = DateTime.Now.AddMilliseconds(waitForSearchIndexerMilliseconds);
+            var timeout = DateTime.Now.AddMilliseconds(timeoutInMilliseconds);
 
             FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
             do
@@ -124,41 +112,27 @@ namespace Helper
             } while ((!waitForArtifactsToDisappear && DateTime.Now < timeout && fullTextSearchMetaDataResult.TotalCount < artifactCount ) ||
                     waitForArtifactsToDisappear && DateTime.Now < timeout && fullTextSearchMetaDataResult.TotalCount > artifactCount);
 
-            return fullTextSearchMetaDataResult.TotalCount == artifactCount;
+
+            var errorMessage = I18NHelper.FormatInvariant(
+                    "Created artifact count of {0} does not match expected artifact count of {1} after {2} seconds.",
+                    fullTextSearchMetaDataResult.TotalCount,
+                    artifactCount,
+                    timeoutInMilliseconds/1000);
+
+            if (!fullTextSearchMetaDataResult.TotalCount.Equals(artifactCount))
+            {
+                Logger.WriteError(errorMessage);
+            }
+
+            Assert.That(fullTextSearchMetaDataResult.TotalCount.Equals(artifactCount), errorMessage);
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="artifactTypes"></param>
-        /// <param name="baseArtifactType"></param>
-        /// <param name="artifactTypeName"></param>
-        /// <returns></returns>
-        public static int GetItemTypeIdForBaseArtifactType(List<OpenApiArtifactType> artifactTypes,
-            BaseArtifactType baseArtifactType, string artifactTypeName = null)
-        {
-            ThrowIf.ArgumentNull(artifactTypes, nameof(artifactTypes));
-
-            OpenApiArtifactType artifactType;
-
-            if (artifactTypeName == null)
-            {
-                artifactType = artifactTypes.Find(t => t.BaseArtifactType == baseArtifactType);
-            }
-            else
-            {
-                artifactType = artifactTypes.Find(t => t.BaseArtifactType == baseArtifactType && t.Name == artifactTypeName);
-            }
-
-            return artifactType.Id;
-        }
-
-        /// <summary>
-        /// 
+        /// Gets the list of all Item Type Ids for a list of projects and base artifact types.
         /// </summary>
         /// <param name="projects"></param>
         /// <param name="baseArtifactTypes"></param>
-        /// <returns></returns>
+        /// <returns>List of ItemTypeId</returns>
         public static List<int> GetItemTypeIdsForBaseArtifactTypes(List<IProject> projects,
             List<BaseArtifactType> baseArtifactTypes)
         {
@@ -181,63 +155,34 @@ namespace Helper
         }
 
         /// <summary>
-        /// 
+        /// Gets the Item Type Id for a base artifact type from a list of artifact types
         /// </summary>
-        /// <param name="testHelper"></param>
-        /// <param name="role">Author or Viewer</param>
-        /// <param name="projects">The list of projects that the role is created for</param>
-        /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide</param>
-        /// <returns></returns>
-        public static IUser CreateUserWithProjectRolePermissions(TestHelper testHelper, ProjectRole role, List<IProject> projects, IArtifactBase artifact = null)
+        /// <param name="artifactTypes"></param>
+        /// <param name="baseArtifactType"></param>
+        /// <param name="artifactTypeName"></param>
+        /// <returns>An ItemTypeId</returns>
+        public static int GetItemTypeIdForBaseArtifactType(
+            List<OpenApiArtifactType> artifactTypes,
+            BaseArtifactType baseArtifactType, 
+            string artifactTypeName = null)
         {
-            ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
-            ThrowIf.ArgumentNull(projects, nameof(projects));
+            ThrowIf.ArgumentNull(artifactTypes, nameof(artifactTypes));
 
-            IProjectRole projectRole = null;
+            OpenApiArtifactType artifactType;
 
-            var newUser = testHelper.CreateUserAndAddToDatabase(instanceAdminRole: null);
-
-            foreach(var project in projects)
+            if (artifactTypeName == null)
             {
-                if (role == ProjectRole.Viewer)
-                {
-                    projectRole = ProjectRoleFactory.CreateProjectRole(
-                        project, RolePermissions.Read,
-                        role.ToString());
-                }
-                else if (role == ProjectRole.Author)
-                {
-                    projectRole = ProjectRoleFactory.CreateProjectRole(
-                        project,
-                        RolePermissions.Delete |
-                        RolePermissions.Edit |
-                        RolePermissions.CanReport |
-                        RolePermissions.Comment |
-                        RolePermissions.DeleteAnyComment |
-                        RolePermissions.CreateRapidReview |
-                        RolePermissions.ExcelUpdate |
-                        RolePermissions.Read |
-                        RolePermissions.Reuse |
-                        RolePermissions.Share |
-                        RolePermissions.Trace,
-                        role.ToString());
-                }
-                else if (role == ProjectRole.None)
-                {
-                    projectRole = ProjectRoleFactory.CreateProjectRole(
-                        project, RolePermissions.None,
-                        role.ToString());
-                }
-
-                var permissionsGroup = testHelper.CreateGroupAndAddToDatabase();
-                permissionsGroup.AddUser(newUser);
-                permissionsGroup.AssignRoleToProjectOrArtifact(project, role: projectRole, artifact: artifact);
+                artifactType = artifactTypes.Find(t => t.BaseArtifactType == baseArtifactType);
+            }
+            else
+            {
+                artifactType = artifactTypes.Find(t => t.BaseArtifactType == baseArtifactType && t.Name == artifactTypeName);
             }
 
-            testHelper.AdminStore.AddSession(newUser);
-
-            return newUser;
+            return artifactType.Id;
         }
+
+
 
         /// <summary>
         /// Updates an artifact property
@@ -273,7 +218,7 @@ namespace Helper
         #region private methods
 
         /// <summary>
-        /// Set one primary property to specific value.
+        /// Set one property to a specific value.
         /// </summary>
         /// <param name="propertyName">Name of the property in which value will be changed.</param>
         /// <param name="propertyValue">The value to set the property to.</param>

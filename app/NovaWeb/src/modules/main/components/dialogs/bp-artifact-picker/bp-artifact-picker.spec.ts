@@ -23,7 +23,7 @@ describe("ArtifactPickerController", () => {
         const localization = {} as ILocalizationService;
         projectManager = jasmine.createSpyObj("projectManager", ["getSelectedProject", "getArtifact"]) as IProjectManager;
         (projectManager.getSelectedProject as jasmine.Spy).and.returnValue(project);
-        projectService = {} as IProjectService;
+        projectService = jasmine.createSpyObj("projectService", ["abort"]) as IProjectService;
         options = {};
         controller = new ArtifactPickerController($instance, dialogSettings, $scope, localization, projectManager, projectService, options);
     }));

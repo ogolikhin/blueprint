@@ -78,9 +78,11 @@ export class BPFieldImageController extends BPFieldBaseController {
                     reader.onload = function (e) {
                         let imageContent = e.target["result"];
                         currentModelVal.imageSource = imageContent;
-                        currentModelVal.guid = image.guid;                       
                         $scope.model[$scope.options["key"]] = currentModelVal;
-                        onChange(currentModelVal, getImageField(), $scope);
+                        let savingValue = <Models.IActorImagePropertyValue>{
+                            guid: image.guid
+                        };
+                        onChange(savingValue, getImageField(), $scope);
                     };
                 }
             }).finally(() => {

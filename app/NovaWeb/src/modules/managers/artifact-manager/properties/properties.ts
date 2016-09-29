@@ -1,5 +1,6 @@
+import { IIStatefulItem } from "../item";
 import { Models } from "../../../main/models";
-import { IIStatefulItem, IArtifactProperties } from "../../models";
+import { IArtifactProperties } from "../../models";
 import {
     ChangeTypeEnum, 
     IChangeCollector, 

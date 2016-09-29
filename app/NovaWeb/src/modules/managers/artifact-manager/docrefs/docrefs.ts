@@ -1,3 +1,5 @@
+import { IBlock } from "../../models";
+import { IIStatefulItem } from "../item";
 import { IArtifactAttachmentsResultSet, IArtifactDocRef } from "./";
 import {
     ChangeTypeEnum, 
@@ -5,11 +7,6 @@ import {
     IChangeSet,
     ChangeSetCollector
 } from "../";
-import { 
-    IBlock,
-    IIStatefulItem
-} from "../../models";
-
 
 export interface IDocumentRefs extends IBlock<IArtifactDocRef[]> {
     initialize(docrefs: IArtifactDocRef[]);

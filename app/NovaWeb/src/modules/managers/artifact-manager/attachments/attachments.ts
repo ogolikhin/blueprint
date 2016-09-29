@@ -1,3 +1,5 @@
+import { IBlock } from "../../models";
+import { IIStatefulItem } from "../item";
 import {
     IArtifactAttachmentsResultSet,
     IArtifactAttachment,
@@ -7,10 +9,6 @@ import {
     ChangeSetCollector 
 } from "../";
 
-import { 
-    IBlock,
-    IIStatefulItem
-} from "../../models";
 
 export interface IArtifactAttachments extends IBlock<IArtifactAttachment[]> {
     initialize(attachments: IArtifactAttachment[]);

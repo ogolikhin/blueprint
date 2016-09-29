@@ -19,6 +19,7 @@ import {
 
 export interface ISubArtifactCollection {
     initialise(artifacts: IStatefulSubArtifact[]);
+    getObservable(): Rx.Observable<IStatefulSubArtifact[]>;
     list(): IStatefulSubArtifact[];
     add(subArtifact: IStatefulSubArtifact): IStatefulSubArtifact;
     get(id: number): IStatefulSubArtifact;
@@ -90,6 +91,7 @@ export class StatefulSubArtifactCollection implements ISubArtifactCollection {
     public discard() {
         this.subArtifactList.forEach(subArtifact => { subArtifact.discard(); });
     }
+
     public update(id: number) {
         // TODO: 
     }

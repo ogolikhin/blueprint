@@ -282,7 +282,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                             $select.items = $scope.to.options;
                             this.currentState = $scope.to.options.length ? null : "no-match";
 
-                            this.showResultsCount = $scope.to.options.length > this.currentLimit;
+                            this.showResultsCount = $scope.to.options.length > this.currentLimit || $scope.to.options.length === this.maxLimit;
                             this.showLoadMore = $scope.to.options.length > this.currentLimit && $scope.to.options.length < this.maxLimit;
 
                             if (this.listItemElement) {
@@ -330,7 +330,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                         let itemsHeight = $scope["bpFieldUserPicker"].itemsHeight;
                         let scrollTop = dropdown.scrollTop;
                         if (scrollTop > ($select.activeIndex) * itemsHeight) {
-                            $select.activeIndex = Math.round(scrollTop / itemsHeight);
+                            $select.activeIndex = Math.round(scrollTop / itemsHeight) + (this.loadMoreAmount - 1);
                         }
                         $scope["bpFieldUserPicker"].isScrolling = false;
                     });

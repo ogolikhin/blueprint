@@ -58,11 +58,12 @@ namespace ArtifactStoreTests
                 "Artifact shouldn't have attachments at this point.");
 
             // Execute & Verify:
-            Assert.DoesNotThrow(() => AddArtifactAttachmentAndSave(_user, artifact, _attachmentFile, Helper.BlueprintServer.Address),
+            Assert.DoesNotThrow(() => AddArtifactAttachmentAndSave(_user, artifact, new List<INovaFile> { _attachmentFile }, Helper.BlueprintServer.Address),
                 "Exception caught while trying to update an artifact!");
             var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
             Assert.AreEqual(1, attachmentAfterTest.AttachedFiles.Count,
                 "Artifact should have 1 attachments at this point.");
+            Assert.AreEqual(_attachmentFile.FileName, attachmentAfterTest.AttachedFiles[0].FileName, "Filename must have expected value.");
         }
 
         [TestCase]
@@ -72,7 +73,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.TextualRequirement);// it gives 500 error for BaseArtifactType.Document
-            AddArtifactAttachmentAndSave(_user, artifact, _attachmentFile, Helper.BlueprintServer.Address);
+            AddArtifactAttachmentAndSave(_user, artifact, new List<INovaFile> { _attachmentFile }, Helper.BlueprintServer.Address);
             artifact.Publish(_user);
             var attachment = Helper.ArtifactStore.GetAttachments(artifact, _user);
 
@@ -83,17 +84,40 @@ namespace ArtifactStoreTests
             Assert.AreEqual(0, attachment.AttachedFiles.Count, "Artifact shouldn't have attachments at this point.");
         }
 
+        [TestCase]
+        [TestRail(182397)]
+        [Description("Add 2 attachments to the published artifact, check that it throws no error.")]
+        public void Add2Attachments_Artifact_DoesntThrowError()
+        {
+            var attachmentFile1 = FileStoreTestHelper.UploadNovaFileToFileStore(_user, _fileName, _fileType, defaultExpireTime,
+                Helper.FileStore);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.TextualRequirement);// it gives 500 error for BaseArtifactType.Document
+
+            var attachmentBeforeTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
+            Assert.AreEqual(0, attachmentBeforeTest.AttachedFiles.Count,
+                "Artifact shouldn't have attachments at this point.");
+
+            // Execute & Verify:
+            Assert.DoesNotThrow(() => AddArtifactAttachmentAndSave(_user, artifact, new List<INovaFile> { _attachmentFile, attachmentFile1 },
+                Helper.BlueprintServer.Address), "Exception caught while trying to update an artifact!");
+            var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
+            Assert.AreEqual(2, attachmentAfterTest.AttachedFiles.Count,
+                "Artifact should have 2 attachments at this point.");
+        }
+
+
         /// <summary>
         /// Attaches file to the artifact (Save changes).
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
         /// <param name="artifact">Artifact.</param>
-        /// <param name="file">File to attach.</param>
+        /// <param name="files">List of files to attach.</param>
         /// <param name="address">The address of the ArtifactStore service.</param>
-        private void AddArtifactAttachmentAndSave(IUser user, IArtifact artifact, INovaFile file, string address)
+        private void AddArtifactAttachmentAndSave(IUser user, IArtifact artifact, List<INovaFile> files, string address)
         {
             artifact.Lock(user);
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
+            foreach (var file in files)
             artifactDetails.AttachmentValues.Add(new AttachmentValue(user, file));
 
             Artifact.UpdateArtifact(artifact, user, artifactDetails, address);

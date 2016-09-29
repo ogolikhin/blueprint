@@ -42,6 +42,18 @@
     color: $white;
   }
 }
+.modal-alert .btn-promoted-action {
+  background-color: $brand-warning;
+  border: solid 1px $brand-warning;
+  color: $white;
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: darken($brand-warning, 10%);
+    border-color: darken($brand-warning, 10%);
+    color: $white;
+  }
+}
 .btn-secondary {
   background-color: transparent;
   border: solid 1px $brand-secondary;

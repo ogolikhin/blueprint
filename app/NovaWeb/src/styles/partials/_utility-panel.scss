@@ -128,6 +128,13 @@ bp-utility-panel {
         @include text-ellipsis-flex-width(100%);
     }
 
+    .icon {
+        &:hover {
+            color: $brand-secondary;
+            cursor: pointer;
+        }
+    }
+
     .button-bar {
         border-top: 1px solid $gray-lighter;
         margin-top: $padding-root;
@@ -142,11 +149,6 @@ bp-utility-panel {
             padding: 0 5px;
             &:before {
                 font-size: $font-size-normal;
-            }
-
-            &:hover {
-                color: $gray-dark;
-                cursor: pointer;
             }
         }
     }

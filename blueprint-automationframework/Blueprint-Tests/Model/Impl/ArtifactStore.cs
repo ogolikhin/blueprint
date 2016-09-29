@@ -26,6 +26,18 @@ namespace Model.Impl
 
         #region Members inherited from IArtifactStore
 
+        /// <seealso cref="IArtifactStore.CreateArtifact(IUser, BaseArtifactType, string, IProject, INovaArtifactDetails, double?, List{HttpStatusCode})"/>
+        public INovaArtifactDetails CreateArtifact(IUser user,
+            BaseArtifactType artifactType,
+            string name,
+            IProject project,
+            INovaArtifactDetails parentArtifact = null,
+            double? orderIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return CreateArtifact(Address, user, artifactType, name, project, parentArtifact, orderIndex, expectedStatusCodes);
+        }
+
         /// <seealso cref="IArtifactStore.DeleteArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
         public List<INovaArtifactResponse> DeleteArtifact(IArtifactBase artifact, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -34,6 +46,13 @@ namespace Model.Impl
             var deletedArtifacts = DeleteArtifact(Address, artifact, user, expectedStatusCodes);
 
             return deletedArtifacts;
+        }
+
+        /// <seealso cref="IArtifactStore.DiscardArtifact(IArtifactBase, IUser, bool?, List{HttpStatusCode})"/>
+        public INovaArtifactsAndProjectsResponse DiscardArtifact(IArtifactBase artifact, IUser user = null, bool? all = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            var artifacts = new List<IArtifactBase> { artifact };
+            return DiscardArtifacts(Address, artifacts, user, all, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.DiscardArtifacts(List{IArtifactBase}, IUser, bool?, List{HttpStatusCode})"/>
@@ -486,6 +505,42 @@ namespace Model.Impl
 
         #region Static members
 
+        public static INovaArtifactDetails CreateArtifact(string address,
+            IUser user,
+            BaseArtifactType artifactType,
+            string name,
+            IProject project,
+            INovaArtifactBase parentArtifact = null,
+            double? orderIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(address, nameof(address));
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            string path = RestPaths.Svc.ArtifactStore.Artifacts.CREATE;
+            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+
+            // Set expectedStatusCodes to 201 Created by default if it's null.
+            expectedStatusCodes = expectedStatusCodes ?? new List<HttpStatusCode> { HttpStatusCode.Created };
+
+            NovaArtifactDetails jsonBody = new NovaArtifactDetails
+            {
+                Name = name,
+                ProjectId = project.Id,
+                ItemTypeId = (int)artifactType,
+                ParentId = parentArtifact?.Id ?? project.Id,
+                OrderIndex = orderIndex
+            };
+
+            var newArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails, NovaArtifactDetails>(
+                path,
+                RestRequestMethod.POST,
+                jsonBody,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return newArtifact;
+        }
+
         /// <summary>
         /// Deletes the specified artifact and any children/traces/links/attachments belonging to the artifact.
         /// </summary>
@@ -723,10 +778,14 @@ namespace Model.Impl
                     Logger.WriteDebug("'POST {0}' returned following artifact Id: {1}",
                         path, discardedArtifacts.Id);
 
-                    if ((all != true) && (artifacts.Count > 0))
+                    if (artifacts.Count > 0)
                     {
                         IArtifactBase discardedArtifact = artifacts.Find(a => a.Id == discardedArtifacts.Id);
-                        discardedArtifact.IsSaved = false;
+
+                        if (discardedArtifact != null)
+                        {
+                            discardedArtifact.IsSaved = false;
+                        }
                     }
                 }
             }

@@ -4,6 +4,7 @@ using System.Linq;
 using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
+using Model.Factories;
 using Model.FullTextSearchModel.Impl;
 using Model.Impl;
 using NUnit.Framework;
@@ -14,6 +15,12 @@ namespace Helper
 {
     public static class SearchServiceTestHelper
     {
+        public enum ProjectRole
+        {
+            None,
+            Viewer,
+            Author
+        }
         public static List<IArtifactBase> SetupSearchData(List<IProject> projects, IUser user, TestHelper testHelper)
         {
             ThrowIf.ArgumentNull(projects, nameof(projects));
@@ -46,15 +53,13 @@ namespace Helper
                 var randomArtifactName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
 
 
-                // Create artifact in first project with random Name & DEscription
+                // Create artifact in first project with random Name & Description
                 var artifact = testHelper.CreateAndPublishArtifact(projects.First(), user, artifactType);
                 artifact.Lock();
 
                 UpdateArtifactProperty(testHelper, user, projects.First(), artifact, artifactType, "Name", randomArtifactName );
-
                 UpdateArtifactProperty(testHelper, user, projects.First(), artifact, artifactType, "Description", randomArtifactDescription);
 
-                artifact.Publish();
                 artifacts.Add(artifact);
 
                 // Create artifact in last project with same Name and Description
@@ -62,12 +67,12 @@ namespace Helper
                 artifact.Lock();
 
                 UpdateArtifactProperty(testHelper, user, projects.Last(), artifact, artifactType, "Name", randomArtifactName);
-
                 UpdateArtifactProperty(testHelper, user, projects.Last(), artifact, artifactType, "Description", randomArtifactDescription);
 
-                artifact.Publish();
                 artifacts.Add(artifact);
             }
+
+            ArtifactBase.PublishArtifacts(artifacts, artifacts.First().Address, user);
 
             var openApiProperty = artifacts.First().Properties.FirstOrDefault(p => p.Name == "Description");
 
@@ -92,11 +97,12 @@ namespace Helper
         /// <param name="testHelper">An instance of TestHelper</param>
         /// <param name="searchCriteria">The full text search criteria</param>
         /// <param name="artifactCount"></param>
+        /// <param name="waitForArtifactsToDisappear"></param>
         /// <param name="timeoutInMilliseconds">(optional) Timeout in milliseconds after which search will terminate 
         /// if not successful </param>
         /// <returns>True if the search criteria was met within the timeout. False if not.</returns>
         public static bool WaitForSearchIndexerToUpdate(IUser user, TestHelper testHelper,
-            FullTextSearchCriteria searchCriteria, int artifactCount, int? timeoutInMilliseconds = null)
+            FullTextSearchCriteria searchCriteria, int artifactCount, bool waitForArtifactsToDisappear = false, int? timeoutInMilliseconds = null)
         {
             ThrowIf.ArgumentNull(searchCriteria, nameof(searchCriteria));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -105,15 +111,20 @@ namespace Helper
             // Default wait of 5 seconds if timeout is not set
             int waitForSearchIndexerMilliseconds = timeoutInMilliseconds ?? 5000;
 
-            var timeout = DateTime.Now.AddSeconds(waitForSearchIndexerMilliseconds);
+            var timeout = DateTime.Now.AddMilliseconds(waitForSearchIndexerMilliseconds);
 
-            FullTextSearchMetaDataResult fullTestSearchMetadataResult = null;
+            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
             do
             {
-                fullTestSearchMetadataResult = testHelper.FullTextSearch.SearchMetaData(user, searchCriteria);
-            } while (fullTestSearchMetadataResult.TotalCount < artifactCount && DateTime.Now < timeout);
+                Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
+                    testHelper.FullTextSearch.SearchMetaData(user, searchCriteria),
+                    "SearchMetaData() call failed when using following search term: {0}!",
+                    searchCriteria.Query);
 
-            return fullTestSearchMetadataResult.TotalCount == artifactCount;
+            } while ((!waitForArtifactsToDisappear && DateTime.Now < timeout && fullTextSearchMetaDataResult.TotalCount < artifactCount ) ||
+                    waitForArtifactsToDisappear && DateTime.Now < timeout && fullTextSearchMetaDataResult.TotalCount > artifactCount);
+
+            return fullTextSearchMetaDataResult.TotalCount == artifactCount;
         }
 
         /// <summary>
@@ -169,7 +180,64 @@ namespace Helper
             return itemTypeIds;
         }
 
-        #region private methods
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="testHelper"></param>
+        /// <param name="role">Author or Viewer</param>
+        /// <param name="projects">The list of projects that the role is created for</param>
+        /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide</param>
+        /// <returns></returns>
+        public static IUser CreateUserWithProjectRolePermissions(TestHelper testHelper, ProjectRole role, List<IProject> projects, IArtifactBase artifact = null)
+        {
+            ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
+            ThrowIf.ArgumentNull(projects, nameof(projects));
+
+            IProjectRole projectRole = null;
+
+            var newUser = testHelper.CreateUserAndAddToDatabase(instanceAdminRole: null);
+
+            foreach(var project in projects)
+            {
+                if (role == ProjectRole.Viewer)
+                {
+                    projectRole = ProjectRoleFactory.CreateProjectRole(
+                        project, RolePermissions.Read,
+                        role.ToString());
+                }
+                else if (role == ProjectRole.Author)
+                {
+                    projectRole = ProjectRoleFactory.CreateProjectRole(
+                        project,
+                        RolePermissions.Delete |
+                        RolePermissions.Edit |
+                        RolePermissions.CanReport |
+                        RolePermissions.Comment |
+                        RolePermissions.DeleteAnyComment |
+                        RolePermissions.CreateRapidReview |
+                        RolePermissions.ExcelUpdate |
+                        RolePermissions.Read |
+                        RolePermissions.Reuse |
+                        RolePermissions.Share |
+                        RolePermissions.Trace,
+                        role.ToString());
+                }
+                else if (role == ProjectRole.None)
+                {
+                    projectRole = ProjectRoleFactory.CreateProjectRole(
+                        project, RolePermissions.None,
+                        role.ToString());
+                }
+
+                var permissionsGroup = testHelper.CreateGroupAndAddToDatabase();
+                permissionsGroup.AddUser(newUser);
+                permissionsGroup.AssignRoleToProjectOrArtifact(project, role: projectRole, artifact: artifact);
+            }
+
+            testHelper.AdminStore.AddSession(newUser);
+
+            return newUser;
+        }
 
         /// <summary>
         /// Updates an artifact property
@@ -181,8 +249,10 @@ namespace Helper
         /// <param name="artifactType">The type of artifact.</param>
         /// <param name="propertyToChange">Property to change.</param>
         /// <param name="value">The value to what property will be changed</param>
-        private static void UpdateArtifactProperty<T>(TestHelper testHelper, IUser user, IProject project, IArtifact artifact, BaseArtifactType artifactType, string propertyToChange, T value)
+        public static void UpdateArtifactProperty<T>(TestHelper testHelper, IUser user, IProject project, IArtifact artifact, BaseArtifactType artifactType, string propertyToChange, T value)
         {
+            ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
+
             var artifactDetails = testHelper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
 
             SetProperty(propertyToChange, value, ref artifactDetails);
@@ -199,6 +269,8 @@ namespace Helper
 
             TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
         }
+
+        #region private methods
 
         /// <summary>
         /// Set one primary property to specific value.

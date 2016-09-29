@@ -23,7 +23,8 @@ export class UserStoryPreviewController extends BaseModalDialogController<UserSt
         super($rootScope, $scope, $uibModalInstance, dialogModel);
 
         this.isReadonly = dialogModel.isReadonly;
-        $scope["active"] = 0;
+        $scope["active_previous"] = 0;
+        $scope["active_next"] = 0;
     }
 
     public saveData() {

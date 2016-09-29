@@ -44,6 +44,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
             this.subject.onNext(this.relationships);
         } else {
             this.statefulItem.getRelationships().then((result: Relationships.IRelationship[]) => {
+                this.relationships = result;
                 deferred.resolve(result);
                 this.subject.onNext(this.relationships);
                 this.isLoaded = true;

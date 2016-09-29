@@ -7,7 +7,7 @@ If you haven't installed node.js please install it first (latest LTS version fro
 * Synchronize installed Node.JS version with Visual Studio 2015 if you are going to use Task runner from VS2015 - 
 [link](http://ryanhayes.net/synchronize-node-js-install-version-with-visual-studio-2015/)
 
-* If in the console window we are getting the error message that 'gulp' is not recognized as an internal or external command, operable program or batch file,
+* If in the console window you are getting the error message that 'gulp' is not recognized as an internal or external command, operable program or batch file,
 add the following path %AppData%\npm to system environment variable PATH (it's better to add it before path to nodejs, it will simplify npm update later).
 
 Then run `devsetup` (on Windows) to install required npm packages globally.
@@ -24,10 +24,14 @@ Now it includes webpack, karma, gulp, typescript, typings and multiple plugins (
 Use `npm install --save` for grabbing open source client side libraries (bower is not used anymore). 
 Client side libraries that are not open source (example mxgraph) should be added under version control (libs folder)
 
-### typings - TypeScript definition files
-Since `tsd` marked as obsolete we are using `typings` to manage TypeScript definitions [(Usage examples)](https://www.npmjs.com/package/typings#quick-start)
+### ~~typings -~~ TypeScript definition files
+~~Since `tsd` marked as obsolete we are using `typings` to manage TypeScript definitions [(Usage examples)](https://www.npmjs.com/package/typings#quick-start)~~
+
+After the migration to Typescript 2 we are also using npm to get TS definitions, see [available packages](https://www.npmjs.com/~types).
+Use `npm install --save-dev @types/package-name` to install new definition.
 
 If typings definitions are not available anywhere:
+
 1. create your own definitions `.d.ts` file and place it in `typings/custom/` directory.
 2. add a reference to that file in `typings/addons.d.ts`
 
@@ -63,7 +67,9 @@ npm config set nova:backend http://titan.blueprintsys.net
 Note: all unit test are located together with the code using next pattern: [name-of-file-under-test].spec.ts, for example see src\modules\shell\login\auth.svc.spec.ts. 
 It's possible to create special 'tests' folder with tests when component folder already contains many files.
 
-You may need to install karma-chrome-launcher: `npm i karma-chrome-launcher` to run (and debug) unit tests in Chrome browser
+Use next pattern: [name-of-service.svc].mock.ts when you need to create mock for existing service.
+
+Unit test and mock files are excluded from the code coverage report based on pattern (.spec|.mock).ts.
 
 * Use `gulp test` to run all unit tests using Karma and PhantomJS. 
 * Use `gulp test:debug` to run all unit tests using Karma and Chrome. 

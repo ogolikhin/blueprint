@@ -15,7 +15,7 @@ describe("messageService", () => {
     beforeEach(inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $templateCache: ng.ITemplateCacheService) => {
        $rootScope["config"] = {
             "settings": {
-                "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 7000, "Error": 0 }`
+                "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`
             }
         };       
     }));

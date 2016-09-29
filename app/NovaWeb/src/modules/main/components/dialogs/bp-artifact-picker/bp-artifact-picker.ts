@@ -54,6 +54,7 @@ export class ArtifactPickerController extends BaseDialogController implements IA
                 this.columns = undefined;
             }
             this.onSelect = undefined;
+            this.projectService.abort();
         });
     };
 

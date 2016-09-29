@@ -130,7 +130,7 @@ import {
         array.push({ "itemId": 2 });
 
         //Act
-        var result = vm.inArray(array);
+        let result = vm.inArray(array);
 
         //Assert
         expect(result.found).toBe(false);
@@ -146,7 +146,7 @@ import {
         let array = null;
 
         //Act
-        var result = vm.inArray(array);
+        let result = vm.inArray(array);
 
         //Assert
         expect(result.found).toBe(false);
@@ -162,7 +162,7 @@ import {
         let array = [];
 
         //Act
-        var result = vm.inArray(array);
+        let result = vm.inArray(array);
 
         //Assert
         expect(result.found).toBe(false);

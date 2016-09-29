@@ -114,16 +114,14 @@ class BPToolbarController implements IBPToolbarController {
             case `refreshall`:
                 let refreshAllLoadingId = this.loadingOverlayService.beginLoading();
 
-                if(this._currentArtifact){
-                    try{
-                        this.projectManager.refresh(this.projectManager.getSelectedProject())
-                        .finally(() => {
-                            this.loadingOverlayService.endLoading(refreshAllLoadingId);
-                        });
-                    }catch(err){
+                try {
+                    this.projectManager.refresh(this.projectManager.getSelectedProject())
+                    .finally(() => {
                         this.loadingOverlayService.endLoading(refreshAllLoadingId);
-                        throw err;
-                    }
+                    });
+                }catch (err) {
+                    this.loadingOverlayService.endLoading(refreshAllLoadingId);
+                    throw err;
                 }
                 break;
             case `gotoimpactanalysis`:
@@ -172,7 +170,7 @@ class BPToolbarController implements IBPToolbarController {
     }
     
     public get canRefreshAll(): boolean{
-        return !!this._currentArtifact;
+        return !!this.projectManager.getSelectedProject();
     }
 
 }

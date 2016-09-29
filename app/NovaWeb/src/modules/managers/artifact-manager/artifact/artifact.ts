@@ -30,12 +30,12 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
     private _subArtifactCollection: ISubArtifactCollection;
     private _changesets: IChangeCollector;
 
-    private subject: Rx.Subject<IStatefulArtifact> ;
+    private subject: Rx.BehaviorSubject<IStatefulArtifact> ;
     private lockPromise: ng.IPromise<IStatefulArtifact>;
     private loadPromise: ng.IPromise<IStatefulArtifact>;
 
     constructor(private artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
-        this.subject = new Rx.Subject<IStatefulArtifact>();
+        this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
         this.artifactState = new ArtifactState(this);
         this.metadata = new MetaData(this);
         this.deleted = false;
@@ -211,6 +211,8 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             }).finally(() => {
                 this.loadPromise = null;
             });
+        } else {
+//            this.subject.onNext(this);
         }
         return this.subject.filter(it => !!it).asObservable();
     }

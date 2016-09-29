@@ -38,6 +38,8 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     public getServices(): IStatefulProcessArtifactServices {
         return this.services;
     }
+
+    
     public load(force: boolean = true): ng.IPromise<IStatefulArtifact> {
         
         const finalDeffered = this.services.getDeferred<IStatefulArtifact>();

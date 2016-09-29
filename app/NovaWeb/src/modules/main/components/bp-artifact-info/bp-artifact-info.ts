@@ -2,8 +2,9 @@
 import { Models, Enums } from "../../models";
 import { IWindowManager, IMainWindow, ResizeCause } from "../../services";
 import { IMessageService, Message, MessageType, ILocalizationService } from "../../../core";
-import { Helper, IDialogSettings, IDialogService } from "../../../shared";
+import { Helper, IDialogSettings, IDialogService, IDialogData } from "../../../shared";
 import { ArtifactPickerDialogController, IArtifactPickerOptions } from "../bp-artifact-picker";
+import { ManageTracesDialogController } from "../dialogs/bp-manage-traces";
 import { ILoadingOverlayService } from "../../../core/loading-overlay";
 import { IArtifactManager, IStatefulArtifact } from "../../../managers/artifact-manager";
 import { INavigationService } from "../../../core/navigation/navigation.svc";
@@ -218,6 +219,22 @@ export class BpArtifactInfoController {
             this.loadingOverlayService.endLoading(overlayId);
             throw err;
         }
+    }
+
+    public openManageTraces() {
+        const dialogSettings: IDialogSettings = {
+            okButton: this.localization.get("App_Button_Ok"),
+            template: require("../dialogs/bp-manage-traces/bp-manage-traces.html"),
+            controller: ManageTracesDialogController,
+            css: "nova-open-project",
+            header: "Manage Traces"
+        };
+
+        const dialogData: IDialogData = {
+        };
+
+        this.dialogService.open(dialogSettings, dialogData).then(() => {
+        });
     }
 
     public openPicker($event: MouseEvent) {

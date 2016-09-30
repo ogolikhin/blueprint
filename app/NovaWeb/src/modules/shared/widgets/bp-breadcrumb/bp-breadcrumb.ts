@@ -1,4 +1,3 @@
-import * as angular from "angular";
 import {IBreadcrumbLink} from "./breadcrumb-link";
 
 export class BPBreadcrumbComponent implements ng.IComponentOptions {
@@ -6,39 +5,28 @@ export class BPBreadcrumbComponent implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BPBreadcrumbController;
     public bindings: any = {
         links: "<",
-        onSelect: "&?"
+        onNavigate: "&"
     };
 }
 
 export interface IBPBreadcrumbController {
     links: IBreadcrumbLink[];
-    onSelect?: Function;
+    onNavigate: (parameter: { link: IBreadcrumbLink }) => void;
 }
 
 export class BPBreadcrumbController implements IBPBreadcrumbController {
     public links: IBreadcrumbLink[];
-    public onSelect: Function;
-
-    private selectionSubject: Rx.Subject<IBreadcrumbLink>;
-
-    constructor(
-    ) {
-        this.selectionSubject = new Rx.Subject<IBreadcrumbLink>();
-
-        this.selectionSubject
-            .filter((link: IBreadcrumbLink) => link != null && angular.isFunction(this.onSelect))
-            .debounce(200)
-            .subscribe((link: IBreadcrumbLink) => this.onSelect({ link: link }));
-    }
+    public onNavigate: (parameter: { link: IBreadcrumbLink }) => void;
 
     public $onInit = () => {
     };
 
     public $onDestroy = () => {
-        this.selectionSubject.dispose();
+        this.dispose();
     };
 
-    public click(link: IBreadcrumbLink): void {
-        this.selectionSubject.onNext(link);
+    public dispose() {
+        this.links = [];
+        this.onNavigate = null;
     }
 }

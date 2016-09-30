@@ -7,6 +7,7 @@ using Model.FullTextSearchModel.Impl;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using TestCommon;
 using Utilities;
@@ -440,11 +441,54 @@ namespace SearchServiceTests
             FullTextSearchResultValidation(fullTextSearchResult);
         }
 
+        [TestCase(2)]
+        [TestCase(6)]
+        [TestRail(0)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Description("Searching with the search criteria that returns multiple pages for SearchResult. Execute Search - Verify that number of result items matches with expecting search result items.")]
+        public void FullTextSearch_SearchWithSearchTermReturningMultiplePages_VerifyResultItemCountWithResultCount(int pageSize)
+        {
+            // Setup: Create search criteria that will return multiple page for SearchResult
+            var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue, _projects.ConvertAll(o => o.Id));
+
+            // Setup: Setup expecting search result counts
+            var expectedSearchResultCount = _publishedArtifacts.Count();
+            var expectedPageCount = expectedSearchResultCount / pageSize + 1;
+            // List of artifacts decending ordered by Last Edited On
+            var expectedArtifactsStackDescOrderedByLastEditedOn = CreateDescendingOrderedLasteEditedOnArtifactStack(_publishedArtifacts);
+
+            // Setup: Execute FullTextSearch with pageSize
+            var returnedSearchCount = 0;
+            var pageCount = 1;
+            while ( pageCount <= expectedPageCount)
+            {
+                // Execute Search with page and pageSize
+                FullTextSearchResult fullTextSearchResult = null;
+                Assert.DoesNotThrow(() => fullTextSearchResult = Helper.FullTextSearch.Search(_user, searchCriteria, page: pageCount, pageSize: pageSize),
+                    "Nova FullTextSearch call failed when using following search term: {0}, page: {1}, pageSize: {2}", searchCriteria.Query, pageCount, pageSize);
+
+                // Adds search result per page into total returned search count
+                returnedSearchCount += fullTextSearchResult.FullTextSearchItems.Count();
+
+                // Create a artifact list per page, decending ordered by Last Edited On
+                List<IArtifactBase> pagedArtifacts = CreateArtifactListPerPage(expectedArtifactsStackDescOrderedByLastEditedOn, pageSize);
+
+                // Validation: Verify that searchResult contains list of FullTextSearchItems
+                FullTextSearchResultValidation(fullTextSearchResult, artifactsToBeFound: pagedArtifacts, page: pageCount, pageSize: pageSize);
+
+                pageCount++;
+            }
+
+            // Validation: Verify that expected search count is equal to returned search count
+            Assert.That(returnedSearchCount.Equals(expectedSearchResultCount),"expected search result count is {0} but {1} was returned", expectedSearchResultCount, returnedSearchCount);
+
+        }
+
         #endregion 200 OK Tests
 
         #region 400 Bad Request Tests
 
-        [TestCase]
+[TestCase]
         [TestRail(166162)]
         [Description("Searching with invalid search criteria. Execute Search - Must return 400 bad request")]
         public void FullTextSearch_SearchWithInvalidSearchCriteria_400BadRequest()
@@ -509,6 +553,33 @@ namespace SearchServiceTests
         #endregion 409 Conflict Tests
 
         #region Private Functions
+
+        /// <summary>
+        /// Create a stack of artifact descending ordered by Last Edited On datetime value
+        /// </summary>
+        /// <param name="artifactList">The list of artifact</param>
+        private static Stack<IArtifactBase> CreateDescendingOrderedLasteEditedOnArtifactStack(List<IArtifactBase> artifactList)
+        {
+            return new Stack<IArtifactBase>(artifactList.OrderBy(a => Convert.ToDateTime(a.Properties.Find(p => p.Name.Equals("Last Edited On")).DateValue, CultureInfo.InvariantCulture)));
+        }
+
+        /// <summary>
+        /// Creates the artifact list per page with artifact stack decending ordered by Edited On datetime value
+        /// </summary>
+        /// <param name="artifactStack">a stack of artifact descending ordered by Last Edited On datetime</param>
+        /// <param name="pageSize">maximum number of artifacts that will be on the paged artifact list</param>
+        private static List<IArtifactBase> CreateArtifactListPerPage (Stack<IArtifactBase> artifactStack, int pageSize)
+        {
+            List<IArtifactBase> pagedArtifacts = new List<IArtifactBase>();
+            for (int i = 0; i < pageSize; i++)
+            {
+                if (artifactStack.Any())
+                {
+                    pagedArtifacts.Add(artifactStack.Pop());
+                }
+            }
+            return pagedArtifacts;
+        }
 
         /// <summary>
         /// Asserts that returned searchResult from the FullTextSearch call match with artifacts that are being searched.

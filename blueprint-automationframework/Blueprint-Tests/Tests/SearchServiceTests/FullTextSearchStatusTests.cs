@@ -13,7 +13,7 @@ namespace SearchServiceTests
         [TestCase]
         [TestRail(182409)]
         [Description("Calls the /status endpoint for SearchService with a valid preAuthorizedKey and verifies that it returns 200 OK and a JSON structure containing detailed status of dependent services.")]
-        public static void GetStatusWithPreAuthorizedKey_ValidPreAuthorizedKey_ReturnsDetailedStatus()
+        public static void GetStatus_WithValidPreAuthorizedKey_ReturnsDetailedStatus()
         {
             using (TestHelper helper = new TestHelper())
             {

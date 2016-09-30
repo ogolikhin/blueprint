@@ -22,8 +22,6 @@ export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements 
         this.parentId = subartifact.parentId;
         this.propertyValues = subartifact.propertyValues;
         this.associatedArtifact = subartifact.associatedArtifact;
-
-        subartifact.propertyValues;
     }
     public get typePrefix(): string{
         return this.prefix;

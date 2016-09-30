@@ -71,21 +71,7 @@ export class ProjectManager  implements IProjectManager {
 
     }
 
-<<<<<<< HEAD
     private onChangeInArtifactManagerCollection(artifact: IStatefulArtifact){
-=======
-    // private onArtifactSelect(artifact: IStatefulArtifact) {
-    //     if (this.statechangesubscriber) {
-    //         this.statechangesubscriber.dispose();
-    //         delete this.statechangesubscriber;
-    //     }
-    //     if (artifact) {
-    //         this.statechangesubscriber = artifact.observable().subscribeOnNext(this.onChange, this);
-    //     }
-    // }
-    
-    private onChangeInArtifactManagerCollection(artifact: IStatefulArtifact) {
->>>>>>> f7ecb2e813fe66573385c3907994771d8c271b1e
          //Projects will null parentId have been removed from ArtifactManager
          if (artifact.parentId === null) {
              this.removeArtifact(artifact);
@@ -148,11 +134,7 @@ export class ProjectManager  implements IProjectManager {
                     }
                 });
             });
-<<<<<<< HEAD
         } else {
-=======
-        }else {
->>>>>>> f7ecb2e813fe66573385c3907994771d8c271b1e
             this.doRefresh(project, selectedArtifact, defer, currentProject);
         }
         

@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Common;
+﻿using Common;
 using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
-using Model.Factories;
 using Model.FullTextSearchModel.Impl;
 using Model.Impl;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Utilities;
 using Utilities.Factories;
 
@@ -24,8 +23,10 @@ namespace Helper
         /// <param name="projects">The projects in which the artifacts will be created</param>
         /// <param name="user">The user creating the artifacts</param>
         /// <param name="testHelper">An instance of TestHelper</param>
+        /// <param name="selectedBaseArtifactTypes">(optional) list of seletedBaseAritfactTypes will be used to setup search data</param>
         /// <returns>List of created artifacts</returns>
-        public static List<IArtifactBase> SetupSearchData(List<IProject> projects, IUser user, TestHelper testHelper)
+        public static List<IArtifactBase> SetupSearchData(List<IProject> projects, IUser user, TestHelper testHelper,
+            List<BaseArtifactType> selectedBasedArtifactTypes = null)
         {
             ThrowIf.ArgumentNull(projects, nameof(projects));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -33,7 +34,7 @@ namespace Helper
 
             Logger.WriteTrace("{0}.{1} called.", nameof(SearchServiceTestHelper), nameof(SetupSearchData));
 
-            var baseArtifactTypes = TestCaseSources.AllArtifactTypesForOpenApiRestMethods;
+            var baseArtifactTypes = selectedBasedArtifactTypes ?? TestCaseSources.AllArtifactTypesForOpenApiRestMethods;
 
             var artifacts = new List<IArtifactBase>();
 

@@ -39,13 +39,13 @@ export abstract class StatefulItem implements IIStatefulItem {
     public metadata: IMetaData;
     public deleted: boolean;
 
-    private _attachments: IArtifactAttachments;
-    private _docRefs: IDocumentRefs;
-    private _relationships: IArtifactRelationships;
-    private _customProperties: IArtifactProperties;
-    private _specialProperties: IArtifactProperties;
-    private _subArtifactCollection: ISubArtifactCollection;
-    private _changesets: IChangeCollector;
+    protected _attachments: IArtifactAttachments;
+    protected _docRefs: IDocumentRefs;
+    protected _relationships: IArtifactRelationships;
+    protected _customProperties: IArtifactProperties;
+    protected _specialProperties: IArtifactProperties;
+    protected _subArtifactCollection: ISubArtifactCollection;
+    protected _changesets: IChangeCollector;
     protected lockPromise: ng.IPromise<IStatefulItem>;
     protected loadPromise: ng.IPromise<IStatefulItem>;
 

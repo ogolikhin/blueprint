@@ -298,16 +298,18 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         let loadPromise = this.load();
         
         // TODO: also load subartifacts and the rest of the
-        // let attachmentPromise: ng.IPromise<any>;
-        // if (this._attachments) {
-            // attachmentPromise = this._attachments.refresh();
-        // }
+        let attachmentPromise: ng.IPromise<any>;
+        if (this._attachments) {
+            // FYI, this will also reload docRefs so no need to call docRefs.refresh()
+            attachmentPromise = this._attachments.refresh();
+        }
 
         // TODO: get promises for other refresh methods in sub-objects
-        // let docRefPromise: ng.IPromise<any>, relationshipsPromise: ng.IPromise<any>, subArtifactsPromise: ng.IPromise<any>;
+        // let relationshipsPromise: ng.IPromise<any>, subArtifactsPromise: ng.IPromise<any>;
 
         this.getServices().$q.all([
-                loadPromise
+                loadPromise,
+                attachmentPromise
             ]).then(() => {
 
             this.subject.onNext(this);

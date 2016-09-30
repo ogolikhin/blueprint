@@ -24,25 +24,16 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
         super(subArtifact, services);
         this.metadata = new MetaData(this);
         this.subject = new Rx.BehaviorSubject<IStatefulSubArtifact>(null);
-
-
-
         // this.changesets = new ChangeSetCollector(this.artifact);
     }
-
-    //TODO.
-    //Needs implementation of other object like
-    //attachments, traces and etc.
 
     public get artifactState() {
         return this.parentArtifact.artifactState;
     }
 
-
     public get projectId(): number {
         return this.parentArtifact.projectId;
     }
-
 
     protected load():  ng.IPromise<IStatefulSubArtifact> {
         const deferred = this.services.getDeferred<IStatefulSubArtifact>();
@@ -54,7 +45,6 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
             });
         return deferred.promise;
     }
-
 
     public getObservable(): Rx.Observable<IStatefulSubArtifact> {
         if (!this.isFullArtifactLoadedOrLoading()) {

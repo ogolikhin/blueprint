@@ -192,12 +192,12 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
-    private attachmentsUpdated(attachments: IArtifactAttachment[]) {
+    private attachmentsUpdated = (attachments: IArtifactAttachment[]) => {
         this.attachmentsList = attachments;
         this.isItemReadOnly = this.item.artifactState.readonly || this.item.deleted;
     }
 
-    private docRefsUpdated(docRefs: IArtifactDocRef[]) {
+    private docRefsUpdated = (docRefs: IArtifactDocRef[]) => {
         this.docRefList = docRefs;
         this.isItemReadOnly = this.item.artifactState.readonly || this.item.deleted;
     }

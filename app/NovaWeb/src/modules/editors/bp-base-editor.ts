@@ -44,7 +44,7 @@ export class BpBaseEditor {
     }
 
     protected onArtifactChanged = () =>  {
-        console.log("artifact changed");
+        console.log("artifact changed: " + this.artifact.name);
         this.onArtifactReady();
     }
 

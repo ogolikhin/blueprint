@@ -120,6 +120,13 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return deferred.promise;
     }
 
+    public unload() {
+        super.unload();
+        // sets initial value on subject so it doesn't send up update with old info
+        // null values get filtered out before it gets to the observer
+        this.subject.onNext(null);
+    }
+
     private isProject(): boolean {
         return this.itemTypeId === Enums.ItemTypePredefined.Project;
     }

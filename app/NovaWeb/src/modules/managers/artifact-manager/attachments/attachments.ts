@@ -1,9 +1,10 @@
 import { IIStatefulItem } from "../item";
+import { IDispose } from "../../models";
 import { ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector  } from "../changeset";
 import { IArtifactAttachmentsResultSet, IArtifactAttachment } from "./attachments.svc";
 
 
-export interface IArtifactAttachments {
+export interface IArtifactAttachments extends IDispose {
     isLoading: boolean;
     initialize(attachments: IArtifactAttachment[]);
     getObservable(): Rx.IObservable<IArtifactAttachment[]>;
@@ -143,6 +144,12 @@ export class ArtifactAttachments implements IArtifactAttachments {
             attachmentChanges.push(attachment);
         });
         return attachmentChanges;
+    }
+
+    public dispose() {
+        delete this.attachments;
+        delete this.changeset;
+        delete this.loadPromise;
     }
 
     public discard() {

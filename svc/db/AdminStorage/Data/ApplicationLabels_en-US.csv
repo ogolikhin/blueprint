@@ -262,7 +262,7 @@ Property_SubArtifact_Section_Name,"Sub-Artifact Properties"
 Property_UserPicker_Placeholder,"Type the user or group's name or email"
 Property_UserPicker_Searching,"Searching..."
 Property_UserPicker_ShowMore,"Show more"
-Property_UserPicker_Display_Top_N_Results,"Displaying top {0} results"
+Property_UserPicker_Display_Top_N_Results,"Displaying first {0} results"
 
 #Messages
 HttpError_ServiceUnavailable, "Service is unavailable"

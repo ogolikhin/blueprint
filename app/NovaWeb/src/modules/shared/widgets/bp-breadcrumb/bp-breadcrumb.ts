@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import {IBreadcrumbLink} from "./breadcrumb-link";
 
 export class BPBreadcrumbComponent implements ng.IComponentOptions {
@@ -5,7 +6,7 @@ export class BPBreadcrumbComponent implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BPBreadcrumbController;
     public bindings: any = {
         links: "<",
-        onNavigate: "&"
+        onNavigate: "&?"
     };
 }
 
@@ -19,6 +20,7 @@ export class BPBreadcrumbController implements IBPBreadcrumbController {
     public onNavigate: (parameter: { link: IBreadcrumbLink }) => void;
 
     public $onInit = () => {
+        this.links = angular.isDefined(this.links) ? this.links : [];
     };
 
     public $onDestroy = () => {
@@ -26,7 +28,7 @@ export class BPBreadcrumbController implements IBPBreadcrumbController {
     };
 
     public dispose() {
-        this.links = [];
-        this.onNavigate = null;
+        delete this.links;
+        delete this.onNavigate;
     }
 }

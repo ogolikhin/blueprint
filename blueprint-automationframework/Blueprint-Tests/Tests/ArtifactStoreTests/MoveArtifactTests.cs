@@ -6,6 +6,7 @@ using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
 using NUnit.Framework;
+using System.Collections.Generic;
 using TestCommon;
 using Utilities;
 
@@ -183,16 +184,17 @@ namespace ArtifactStoreTests
         public void MoveArtifact_MoveOneArtifactToBeAChildOfAnotherInDifferentProject_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
-            /*            var projects = ProjectFactory.GetAllProjects(_user, shouldRetrievePropertyTypes: true);
-                        Assert.GreaterOrEqual(projects.Count, 2, "This test requires at least 2 projects to exist!");
+            var projects = ProjectFactory.GetAllProjects(_user, shouldRetrievePropertyTypes: true);
+            Assert.GreaterOrEqual(projects.Count, 2, "This test requires at least 2 projects to exist!");
 
-                        IProject firstProject = projects[0];
-                        IProject secondProject = projects[1];*/
+            IProject firstProject = projects[0];
+            IProject secondProject = projects[1];
 
-            IProject CustomDataProject = ProjectFactory.GetProject(_user, "Custom Data");
-
-            IArtifact artifact1 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IArtifact artifact2 = Helper.CreateAndPublishArtifact(CustomDataProject, _user, artifactType);
+            /* For interanl testing only. Will be removed after review approved 
+                        IProject CustomDataProject = ProjectFactory.GetProject(_user, "Custom Data");
+            */
+            IArtifact artifact1 = Helper.CreateAndPublishArtifact(firstProject, _user, artifactType);
+            IArtifact artifact2 = Helper.CreateAndPublishArtifact(secondProject, _user, artifactType);
 
             artifact1.Lock();
 
@@ -243,7 +245,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, userWithoutPermissions),
-                "'POST {0}' should return 409 Conflict when user tries to move artifact of unsupported artifact type", SVC_PATH);
+                "'POST {0}' should return 403 Forbidden when user tries to move artifact without proper permissions", SVC_PATH);
 
             // Verify:
             string expectedExceptionMessage = "You do not have permission to access the artifact (ID: " + artifact1.Id + ")";
@@ -252,31 +254,113 @@ namespace ArtifactStoreTests
         }
 
         [TestCase(BaseArtifactType.Process)]
-        [TestRail(0)]
+        [TestRail(182424)]
         [Description("Create & publish 2 artifacts. Move an artifact to be a child of the other one to which user does not have proper permissions.  Verify returned code 409 Conflict.")]
         public void MoveArtifact_PublishedArtifactCannotBeMovedToArtifactWhichUserDoesNotHaveProperPermissions_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
-            IUser userWithoutPermissions = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
-                InstanceAdminRole.BlueprintAnalytics);
-
-            IArtifact artifact1 = Helper.CreateAndPublishArtifact(_project, userWithoutPermissions, artifactType);
+            IArtifact artifact1 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             IArtifact artifact2 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
+            // Create a user without permission to the artifact.
+            IUser userWithoutPermissions = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
 
-            artifact1.Lock();
+            IProjectRole noneRole = ProjectRoleFactory.CreateProjectRole(_project, RolePermissions.None);
+            IProjectRole authorRole = ProjectRoleFactory.CreateProjectRole(
+                _project,
+                RolePermissions.Delete |
+                RolePermissions.Edit |
+                RolePermissions.CanReport |
+                RolePermissions.Comment |
+                RolePermissions.DeleteAnyComment |
+                RolePermissions.CreateRapidReview |
+                RolePermissions.ExcelUpdate |
+                RolePermissions.Read |
+                RolePermissions.Reuse |
+                RolePermissions.Share |
+                RolePermissions.Trace);
 
-            // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, userWithoutPermissions),
-                "'POST {0}' should return 409 Conflict when user tries to move artifact of unsupported artifact type", SVC_PATH);
+            IGroup authorsGroup = Helper.CreateGroupAndAddToDatabase();
+            authorsGroup.AddUser(userWithoutPermissions);
+            authorsGroup.AssignRoleToProjectOrArtifact(_project, role: authorRole);
 
-            // Verify:
-            string expectedExceptionMessage = "You do not have permission to access the artifact (ID: " + artifact1.Id + ")";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to move an artifact without proper permissions", expectedExceptionMessage);
+            IGroup viewersGroup = Helper.CreateGroupAndAddToDatabase();
+            viewersGroup.AddUser(userWithoutPermissions);
+            viewersGroup.AssignRoleToProjectOrArtifact(_project, role: noneRole, artifact: artifact2);
+
+            Helper.AdminStore.AddSession(userWithoutPermissions);
+
+            artifact1.Lock(userWithoutPermissions);
+            try
+            {
+                // Execute:
+                var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, userWithoutPermissions),
+                    "'POST {0}' should return 403 Forbidden when user tries to move artifact to artifact to which has/she no permissions", SVC_PATH);
+
+                // Verify:
+                string expectedExceptionMessage = "You do not have permission to access the artifact (ID: " + artifact2.Id + ")";
+                Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                    "{0} when user tries to move an artifact without proper permissions", expectedExceptionMessage);
+
+            }
+            finally
+            {
+                var artifacts = new List<IArtifactBase>();
+                artifacts.Add(artifact1);
+
+                Helper.ArtifactStore.DeleteArtifact(artifact1, userWithoutPermissions);
+                Helper.ArtifactStore.PublishArtifacts(artifacts, userWithoutPermissions);
+            }
         }
 
         #endregion 403 Forbidden tests
+
+        #region 404 Not Found tests
+
+//        [TestCase(BaseArtifactType.Process, 0)]   Need to be fixed
+        [TestCase(BaseArtifactType.Process, int.MaxValue)]
+        [TestRail(182429)]
+        [Description("Create & publish an artifact. Move an artifact to be a child of the non existing artifact.  Verify returned code 404 Not Found.")]
+        public void MoveArtifact_CannotMoveArtifactToNotExistingOne_404NotFound(BaseArtifactType artifactType, int artifactId)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            artifact.Lock();
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, artifactId, _user),
+                "'POST {0}' should return 404 Not Found when user tries to move artifact to one that does not exist", SVC_PATH);
+
+            // Verify:
+            string expectedExceptionMessage = "You have attempted to access an artifact that does not exist or has been deleted.";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} when user tries to move an artifact to artifact that does not exist", expectedExceptionMessage);
+        }
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(0)]
+        [Description("Create & publish 2 artifacts. Delete 2nd one. Move first artifact to be a child of second artifact.  Verify returned code 404 Not Found.")]
+        public void MoveArtifact_CannotMoveArtifactTosDeletedOne_404NotFound(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact1 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            IArtifact artifact2 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            artifact2.Delete();
+            artifact1.Lock();
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, _user),
+                "'POST {0}' should return 404 Not Found when user tries to move artifact to one that does not exist", SVC_PATH);
+
+            // Verify:
+            string expectedExceptionMessage = "You have attempted to access an artifact that does not exist or has been deleted.";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} when user tries to move an artifact to artifact that was removed", expectedExceptionMessage);
+        }
+
+        #endregion 404 Not Found tests
 
         #region 409 Conflict tests
 
@@ -303,7 +387,6 @@ namespace ArtifactStoreTests
                 "{0} did not find version in returned message of move artifact call due to incorrect one sent with the request.", expectedExceptionMessage);
         }
          
-        [Ignore(IgnoreReasons.UnderDevelopment)] //Not fixed yet
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182394)]
         [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other. Move parent to be a child of child. Send correct version of artifact with the message. Verify returned code 409 Conflict.")]
@@ -320,7 +403,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict when parent moved to its child", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "Cannot move an ancester artifact to this position.";
+            string expectedExceptionMessage = "This move will result in a circular relationship between the artifact and its new parent.";
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
                 "{0} when user tries to move parent artifact to its child", expectedExceptionMessage);
         }
@@ -344,7 +427,6 @@ namespace ArtifactStoreTests
                 "{0} when user tries to move parent artifact to its child without previously locking it", expectedExceptionMessage);
         }
 
-        [Ignore(IgnoreReasons.UnderDevelopment)] //Not fixed yet
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182403)]
         [Description("Create & publish an artifact.  Move the artifact to be a child of itself. Verify returned code 409 Conflict.")]
@@ -360,12 +442,11 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict when artifact moved to itself", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "Cannot move an ancester artifact to this position.";
+            string expectedExceptionMessage = "This move will result in a circular relationship between the artifact and its new parent.";
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
                 "{0} when user tries to move an artifact to itself", expectedExceptionMessage);
         }
 
-        [Ignore(IgnoreReasons.UnderDevelopment)] //Not fixed yet
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182406)]
         [Description("Create & publish 3 artifacts.  Move the artifact to be a child of one of descendents. Verify returned code 409 Conflict.")]
@@ -383,7 +464,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict when artifact moved to one of its descendents", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "Cannot move an ancester artifact to this position.";
+            string expectedExceptionMessage = "This move will result in a circular relationship between the artifact and its new parent.";
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
                 "{0} when user tries to move an artifact to one of its descendents", expectedExceptionMessage);
         }

@@ -75,10 +75,10 @@ namespace Model
         void UpdateProject();
 
         /// <summary>
-        /// Get the all NovaArtifactTypes for the project, update the ArtifactTypes of the project and return the same list
+        /// Get the all artifactTypes for the project, update the ArtifactTypes of the project and return the same list
         /// Runs api/v1/projects/projectId/metadata/artifactTypes with optional parameter based on optional boolean parameter
         /// </summary>
-        /// <param name="address">The base Uri address of the  server.</param>
+        /// <param name="address">The base Uri address of the Blueprint server.</param>
         /// <param name="user">The user to authenticate to the the server with.  Defaults to no authentication.</param>
         /// <param name="shouldRetrievePropertyTypes">(optional) Defines whether or not to include property types.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
@@ -88,7 +88,7 @@ namespace Model
             bool shouldRetrievePropertyTypes = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Get the all artifactTypes for the project, update the ArtifactTypes of the project and return the same list
+        /// Get the all NovaArtifactTypes for the project, update the ArtifactTypes of the project and return the same list
         /// Runs: GET {address}/svc/artifactstore/projects/{projectId}/meta/customtypes
         /// </summary>
         /// <param name="artifactStore">The ArtifactStore to use for the call.</param>

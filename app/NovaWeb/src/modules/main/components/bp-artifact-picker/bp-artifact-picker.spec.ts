@@ -20,8 +20,8 @@ describe("BpArtifactPicker", () => {
 
     it("Values are bound", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
         // Arrange
-        const element = `<bp-artifact-picker selectable-item-types="[1, 2]";
-                                             selection-mode="'multiple'";
+        const element = `<bp-artifact-picker selectable-item-types="[1, 2]"
+                                             selection-mode="'multiple'"
                                              show-sub-artifacts="true"
                                              on-selection-changed="$ctrl.onSelectionChanged(selectedItems)">`;
 

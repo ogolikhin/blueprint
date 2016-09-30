@@ -1,4 +1,4 @@
-import {INavigationState, INavigationService} from "../../../core/navigation";
+import {INavigationService, INavigationState} from "../../../core/navigation";
 import {ItemTypePredefined} from "../../../main/models/enums";
 
 export interface IArtifactReference {
@@ -31,31 +31,21 @@ export class BreadcrumbService implements IBreadcrumbService {
 
     public getReferences(): ng.IPromise<IArtifactReference[]> {
         const deferred = this.$q.defer();
-        let url = "/svc/shared/navigation"; 
-        
         const navigationState: INavigationState = this.navigationService.getNavigationState();
 
-        if (navigationState.path && navigationState.path.length > 0) {
-            url = `${url}/${navigationState.path.join("/")}/${navigationState.id}`;
+        if (!navigationState.path || navigationState.path.length === 0) {
+            deferred.reject();
         } else {
-            url = `${url}/${navigationState.id}`;
-        }
+            const url = `/svc/shared/navigation/${navigationState.path.join("/")}/${navigationState.id}`;
 
-        this.$http.get<IArtifactReference[]>(url)
-            .then((result: ng.IHttpPromiseCallbackArg<IArtifactReference[]>) => {
-                deferred.resolve(result.data);
-            })
-            .catch((reason: any) => {
-                if (!reason) {
-                    deferred.reject();
-                    return;
-                }
-                
-                deferred.reject({
-                    statusCode: reason.status,
-                    message: reason.data ? reason.data.message : ""
+            this.$http.get(url)
+                .then((result) => {
+                    deferred.resolve(result.data);
+                })
+                .catch((error) => {
+                    deferred.reject(error);
                 });
-            });
+        }
 
         return deferred.promise;
     }

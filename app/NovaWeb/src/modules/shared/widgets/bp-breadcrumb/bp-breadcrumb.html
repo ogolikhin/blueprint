@@ -1,6 +1,6 @@
 <ul class="breadcrumbs process-breadcrumbs" ng-show="$ctrl.links && $ctrl.links.length > 1">
     <li ng-repeat="link in $ctrl.links track by $index">
-        <a ng-if="link.isEnabled" ng-click="$ctrl.click(link)">{{ link.name }}</a>
+        <a ng-if="link.isEnabled" ng-click="$ctrl.onNavigate({link: link})">{{ link.name }}</a>
         <a ng-if="!link.isEnabled" class="nova-breadcrumbs-inaccessible">{{ link.name }}</a>
     </li>
 </ul>

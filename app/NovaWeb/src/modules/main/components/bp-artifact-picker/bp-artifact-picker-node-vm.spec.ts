@@ -71,10 +71,7 @@ describe("ArtifactPickerNodeVM", () => {
         it("getCellClass, when invalid, returns correct result", () => {
             // Arrange
             const model = {
-                id: 123,
-                type: -999,
-                name: "none",
-                parentFolderId: 0,
+                type: -999 as Models.ProjectNodeType,
                 hasChildren: false
             } as Models.IProjectNode;
             const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
@@ -88,13 +85,7 @@ describe("ArtifactPickerNodeVM", () => {
 
         it("getIcon returns correct result", () => {
             // Arrange
-            const model = {
-                id: 123,
-                type: -999,
-                name: "none",
-                parentFolderId: 0,
-                hasChildren: false
-            } as Models.IProjectNode;
+            const model = {} as Models.IProjectNode;
 
             const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 
@@ -103,6 +94,18 @@ describe("ArtifactPickerNodeVM", () => {
 
             // Assert
             expect(result).toEqual(`<i></i>`);
+        });
+
+        it("isSelectable returns correct result", () => {
+            // Arrange
+            const model = {} as Models.IProjectNode;
+            const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
+
+            // Act
+            const result = vm.isSelectable();
+
+            // Assert
+            expect(result).toEqual(true);
         });
 
         it("loadChildrenAsync, when a folder, loads children", (done: DoneFn) =>
@@ -261,6 +264,22 @@ describe("ArtifactPickerNodeVM", () => {
             expect(result).toEqual([]);
         });
 
+        it("getCellClass, when not selectable, returns correct result", () => {
+            // Arrange
+            options.selectableItemTypes = [Models.ItemTypePredefined.Actor, Models.ItemTypePredefined.Storyboard];
+            const model = {
+                id: 100,
+                predefinedType: Models.ItemTypePredefined.DomainDiagram
+            } as Models.ISubArtifactNode;
+            const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
+
+            // Act
+            const result = vm.getCellClass();
+
+            // Assert
+            expect(result).toEqual(["not-selectable", "is-domain-diagram"]);
+        });
+
         it("getIcon, when custom icon, returns correct result", () => {
             // Arrange
             const itemType = {id: 123, iconImageId: 456};
@@ -373,7 +392,7 @@ describe("ArtifactPickerNodeVM", () => {
 
                     // Assert
                     expect(vm.loadChildrenAsync).toBeUndefined();
-                    expect(vm.children[0]).toEqual(new SubArtifactContainerNodeVM(projectService, model, "Shapes"));
+                    expect(vm.children[0]).toEqual(new SubArtifactContainerNodeVM(projectService, options, model, "Shapes"));
                     expect(vm.children.slice(1)).toEqual(children.map(child => new ArtifactNodeVM(projectManager, projectService, options, child)));
                     done();
                 }).catch(done.fail);
@@ -391,7 +410,7 @@ describe("ArtifactPickerNodeVM", () => {
             } as Models.IArtifact;
 
             // Act
-            const vm = new SubArtifactContainerNodeVM(projectService, model, "Terms");
+            const vm = new SubArtifactContainerNodeVM(projectService, options, model, "Terms");
 
             // Assert
             expect(vm.model).toBe(model);
@@ -405,19 +424,19 @@ describe("ArtifactPickerNodeVM", () => {
         it("getCellClass returns correct result", () => {
             // Arrange
             const model = {} as Models.IArtifact;
-            const vm = new SubArtifactContainerNodeVM(projectService, model, "");
+            const vm = new SubArtifactContainerNodeVM(projectService, options, model, "");
 
             // Act
             const result = vm.getCellClass();
 
             // Assert
-            expect(result).toEqual(["has-children", "is-subartifact"]);
+            expect(result).toEqual(["has-children", "not-selectable", "is-subartifact"]);
         });
 
         it("getIcon returns correct result", () => {
             // Arrange
             const model = {} as Models.IArtifact;
-            const vm = new SubArtifactContainerNodeVM(projectService, model, "");
+            const vm = new SubArtifactContainerNodeVM(projectService, options, model, "");
 
             // Act
             const result = vm.getIcon();
@@ -429,7 +448,7 @@ describe("ArtifactPickerNodeVM", () => {
         it("isSelectable returns correct result", () => {
             // Arrange
             const model = {} as Models.IArtifact;
-            const vm = new SubArtifactContainerNodeVM(projectService, model, "");
+            const vm = new SubArtifactContainerNodeVM(projectService, options, model, "");
 
             // Act
             const result = vm.isSelectable();
@@ -444,14 +463,14 @@ describe("ArtifactPickerNodeVM", () => {
                 const children = [{id: 1111}, {id: 2222}] as Models.ISubArtifactNode[];
                 (projectService.getSubArtifactTree as jasmine.Spy).and.returnValue($q.resolve(children));
                 const model = {} as Models.IArtifact;
-                const vm = new SubArtifactContainerNodeVM(projectService, model, "");
+                const vm = new SubArtifactContainerNodeVM(projectService, options, model, "");
 
                 // Act
                 vm.loadChildrenAsync().then(() => {
 
                     // Assert
                     expect(vm.loadChildrenAsync).toBeUndefined();
-                    expect(vm.children).toEqual(children.map(child => new SubArtifactNodeVM(child)));
+                    expect(vm.children).toEqual(children.map(child => new SubArtifactNodeVM(options, child)));
                     done();
                 }).catch(done.fail);
                 $rootScope.$digest(); // Resolves promises
@@ -470,7 +489,7 @@ describe("ArtifactPickerNodeVM", () => {
             } as Models.ISubArtifactNode;
 
             // Act
-            const vm = new SubArtifactNodeVM(model);
+            const vm = new SubArtifactNodeVM(options, model);
 
             // Assert
             expect(vm.model).toBe(model);
@@ -481,13 +500,13 @@ describe("ArtifactPickerNodeVM", () => {
             expect(vm.isExpanded).toEqual(false);
         });
 
-        it("getCellClass returns correct result", () => {
+        it("getCellClass, when has children, returns correct result", () => {
             // Arrange
             const model = {
                 id: 100,
                 hasChildren: true
             } as Models.ISubArtifactNode;
-            const vm = new SubArtifactNodeVM(model);
+            const vm = new SubArtifactNodeVM(options, model);
 
             // Act
             const result = vm.getCellClass();
@@ -496,16 +515,74 @@ describe("ArtifactPickerNodeVM", () => {
             expect(result).toEqual(["has-children", "is-subartifact"]);
         });
 
+        it("getCellClass, when not selectable, returns correct result", () => {
+            // Arrange
+            options.selectableItemTypes = [Models.ItemTypePredefined.BPShape, Models.ItemTypePredefined.BPConnector];
+            const model = {
+                id: 100,
+                predefinedType: Models.ItemTypePredefined.GDShape
+            } as Models.ISubArtifactNode;
+            const vm = new SubArtifactNodeVM(options, model);
+
+            // Act
+            const result = vm.getCellClass();
+
+            // Assert
+            expect(result).toEqual(["not-selectable", "is-subartifact"]);
+        });
+
         it("getIcon returns correct result", () => {
             // Arrange
             const model = {} as Models.ISubArtifactNode;
-            const vm = new SubArtifactNodeVM(model);
+            const vm = new SubArtifactNodeVM(options, model);
 
             // Act
             const result = vm.getIcon();
 
             // Assert
             expect(result).toEqual(`<i></i>`);
+        });
+
+        it("isSelectable, when selectableItemTypes not defined, returns true", () => {
+            // Arrange
+            const model = {} as Models.ISubArtifactNode;
+            const vm = new SubArtifactNodeVM(options, model);
+
+            // Act
+            const result = vm.isSelectable();
+
+            // Assert
+            expect(result).toEqual(true);
+        });
+
+        it("isSelectable, when selectableItemTypes contains item type, returns true", () => {
+            // Arrange
+            options.selectableItemTypes = [Models.ItemTypePredefined.BPShape, Models.ItemTypePredefined.BPConnector];
+            const model = {
+                predefinedType: Models.ItemTypePredefined.BPConnector
+            } as Models.ISubArtifactNode;
+            const vm = new SubArtifactNodeVM(options, model);
+
+            // Act
+            const result = vm.isSelectable();
+
+            // Assert
+            expect(result).toEqual(true);
+        });
+
+        it("isSelectable, when selectableItemTypes does not contain item type, returns false", () => {
+            // Arrange
+            options.selectableItemTypes = [Models.ItemTypePredefined.BPShape, Models.ItemTypePredefined.BPConnector];
+            const model = {
+                predefinedType: Models.ItemTypePredefined.GDShape
+            } as Models.ISubArtifactNode;
+            const vm = new SubArtifactNodeVM(options, model);
+
+            // Act
+            const result = vm.isSelectable();
+
+            // Assert
+            expect(result).toEqual(false);
         });
     });
 });

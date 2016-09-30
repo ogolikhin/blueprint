@@ -1,7 +1,22 @@
-<div class="icons animated" ng-class="{active: !$ctrl.isLoading && ($ctrl.manualTraces2.length || $ctrl.otherTraces.length) &&
-                                          $ctrl.selectedTraces[$ctrl.item.id].length > 0}">
+<div ng-if="!($ctrl.manualTraces2.length || $ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && !$ctrl.isLoading"
+     class="empty-state">
+
+    <p>{{::$ctrl.localization.get('App_UP_Relationships_No_Relationships') }}</p>
+
+    <div class="add-empty" ng-if="$ctrl.item && !($ctrl.manualTraces2.length || $ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && !$ctrl.isLoading">
+        <p>{{ $ctrl.localization.get('App_UP_Relationships_Introduction_Message') }}</p>
+        <label class="btn btn-secondary btn-small" ng-class="{'disabled': $ctrl.isItemReadOnly }">
+            {{::$ctrl.localization.get('App_UP_Relationships_Add_Relationship') }}
+        </label>
+    </div>
+</div>
+
+<div class="icons header-icons" ng-class="{active: !$ctrl.isLoading && ($ctrl.manualTraces2.length || $ctrl.otherTraces.length) &&
+                                          $ctrl.selectedTraces[$ctrl.item.id].length > 0 && $ctrl.categoryFilter < 2}">
     <div>
-        {{$ctrl.selectedTraces[$ctrl.item.id].length}} {{::$ctrl.localization.get('App_UP_Relationships_Selected') }}
+        {{$ctrl.selectedTraces[$ctrl.item.id].length}}
+        <span ng-if="$ctrl.selectedTraces[$ctrl.item.id].length == 1">{{::$ctrl.localization.get('App_UP_Relationships_Selected_Singular') }}</span>
+        <span ng-if="$ctrl.selectedTraces[$ctrl.item.id].length > 1">{{::$ctrl.localization.get('App_UP_Relationships_Selected_Plural') }}</span>
     </div>
     <div>
         <div uib-dropdown>
@@ -14,6 +29,7 @@
                 <li ng-class=""><a ng-click="$ctrl.setSelectedDirection(0)"><i class="fonticon2-relationship-right"></i>
                                 {{::$ctrl.localization.get('App_UP_Relationships_To') }}</a>
                 </li>
+
                 <li ng-class=""><a ng-click="$ctrl.setSelectedDirection(1)"><i class="fonticon2-relationship-left"></i>
                                 {{::$ctrl.localization.get('App_UP_Relationships_From') }}</a>
                 </li>
@@ -38,7 +54,8 @@
         <uib-tabset active="$ctrl.categoryFilter">
             <uib-tab index="0" heading="{{::$ctrl.localization.get('App_UP_Relationships_All') }}"></uib-tab>
             <uib-tab index="1" heading="{{::$ctrl.localization.get('App_UP_Relationships_Traces') }}"></uib-tab>
-            <uib-tab index="2" heading="{{::$ctrl.localization.get('App_UP_Relationships_Association') }}"></uib-tab>
+            <uib-tab index="2" heading="{{::$ctrl.localization.get('App_UP_Relationships_Association') }}"
+                     ></uib-tab>
         </uib-tabset>
     </div>
 </div>
@@ -50,7 +67,7 @@
         <div ng-repeat="artifact in $ctrl.manualTraces2"
              class="artifact-item-wrapper">
             <div class="separator"></div>
-            <bp-artifact-relationship-item artifact="::artifact" selectable="true"
+            <bp-artifact-relationship-item artifact="::artifact" selectable="true" is-item-read-only="$ctrl.isItemReadOnly"
                 selected-traces="$ctrl.selectedTraces[$ctrl.item.id]" delete-item="$ctrl.deleteTrace(artifact)"></bp-artifact-relationship-item>
         </div>
     </div>
@@ -89,8 +106,5 @@
 <div ng-if="$ctrl.isLoading" class="app-loading">
     <span class="glyphicon glyphicon-refresh spin"></span>
 </div>
-
-<div ng-if="!($ctrl.manualTraces2.length || $ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && !$ctrl.isLoading"
-     class="empty-state">{{::$ctrl.localization.get('App_UP_Relationships_No_Relationships') }}</div>
 
 

@@ -32,5 +32,25 @@ namespace Model.FullTextSearchModel
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The search result metadata.</returns>
         FullTextSearchMetaDataResult SearchMetaData(IUser user, FullTextSearchCriteria searchCriteria, int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets the current status of the SearchService service.
+        /// (Runs: GET /status)
+        /// </summary>
+        /// <param name="preAuthorizedKey">(optional) The pre-authorized key to use for authentication.  Defaults to a valid key.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>A JSON structure containing the status of this service and its dependent services.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")] // Ignore this warning.
+        string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets the current status of the SearchService service.
+        /// (Runs: GET /status/upcheck)
+        /// </summary>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Status of SearchService service.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")] // Ignore this warning.
+        HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null);
+
     }
 }

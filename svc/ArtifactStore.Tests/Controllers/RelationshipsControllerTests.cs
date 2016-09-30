@@ -79,6 +79,66 @@ namespace ArtifactStore.Controllers
             Assert.IsTrue(result.OtherTraces[0].HasAccess);
         }
 
+        [TestMethod]
+        public async Task GetRelationships_ArtifactCanEdit_Success()
+        {
+            //Arrange
+            const int artifactId = 1;
+            const int projectId = 10;
+            const int destId = 123;
+            var itemInfo = new ItemInfo { ProjectId = projectId, ArtifactId = artifactId, ItemId = artifactId };
+            var permisionDictionary = new Dictionary<int, RolePermissions>();
+            var resultSet = new RelationshipResultSet { ManualTraces = new List<Relationship> { new Relationship { ArtifactId = destId, ArtifactName = "test" } }, OtherTraces = new List<Relationship> { new Relationship { ArtifactId = destId, ArtifactName = "test" } } };
+            permisionDictionary.Add(artifactId, RolePermissions.Read | RolePermissions.Trace | RolePermissions.Edit);       
+            permisionDictionary.Add(destId, RolePermissions.Read);
+
+            _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(itemInfo);
+            _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissionsInChunks(It.IsAny<List<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
+
+            _relationshipsRepositoryMock.Setup(m => m.GetRelationships(artifactId, _session.UserId, true)).ReturnsAsync(resultSet);
+            var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+            controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
+            //Act
+            var result = await controller.GetRelationships(artifactId);
+
+            //Assert
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.CanEdit);            
+        }
+
+        [TestMethod]
+        public async Task GetRelationships_ArtifactCannotEdit_Success()
+        {
+            //Arrange
+            const int artifactId = 1;
+            const int projectId = 10;
+            const int destId = 123;
+            var itemInfo = new ItemInfo { ProjectId = projectId, ArtifactId = artifactId, ItemId = artifactId };
+            var permisionDictionary = new Dictionary<int, RolePermissions>();
+            var resultSet = new RelationshipResultSet { ManualTraces = new List<Relationship> { new Relationship { ArtifactId = destId, ArtifactName = "test" } }, OtherTraces = new List<Relationship> { new Relationship { ArtifactId = destId, ArtifactName = "test" } } };
+            permisionDictionary.Add(artifactId, RolePermissions.Read | RolePermissions.Edit);                
+            permisionDictionary.Add(destId, RolePermissions.Read);
+
+            _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(itemInfo);
+            _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissionsInChunks(It.IsAny<List<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
+
+            _relationshipsRepositoryMock.Setup(m => m.GetRelationships(artifactId, _session.UserId, true)).ReturnsAsync(resultSet);
+            var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+            controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
+            //Act
+            var result = await controller.GetRelationships(artifactId);
+
+            //Assert
+            Assert.IsNotNull(result);
+            Assert.IsFalse(result.CanEdit);
+        }
+
         [ExpectedException(typeof(HttpResponseException))]
         [TestMethod]
         public async Task GetRelationships_ArtifactHasNoPermission_ExcetionThrown()

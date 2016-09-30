@@ -59,9 +59,10 @@ export class ArtifactRelationships implements IArtifactRelationships {
                 const other = result.otherTraces || [];
                 let loadedRelationships = manual.concat(other);
                 this.canEdit = result.canEdit;
+                this.relationships = loadedRelationships;
+                this.originalRelationships = angular.copy(loadedRelationships);
                 deferred.resolve(loadedRelationships);
                 this.subject.onNext(this.relationships);
-                this.originalRelationships = angular.copy(this.relationships);
                 this.isLoaded = true;
             }, (error) => {
                 deferred.reject(error);

@@ -10,8 +10,7 @@ import {
     IArtifactAttachments,
     IMetaData,
     ISubArtifactCollection,
-    IArtifactRelationships,
-    IArtifactRelationshipsResultSet
+    IArtifactRelationships    
 } from "./artifact-manager";
 
 export { 
@@ -59,7 +58,7 @@ export interface IStatefulItem extends Models.IArtifact {
 
 export interface IIStatefulItem extends IStatefulItem  {
     getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet>;
-    getRelationships(): ng.IPromise<IArtifactRelationshipsResultSet>;
+    getRelationships(): ng.IPromise<Relationships.IArtifactRelationshipsResultSet>;
     getServices(): IStatefulArtifactServices;
 }
 

@@ -2,7 +2,7 @@
 import { Relationships } from "../../../main";
 
 export interface IArtifactRelationshipsService {
-    getRelationships(artifactId: number, subArtifactId?: number, timeout?: ng.IPromise<void>): ng.IPromise<IArtifactRelationshipsResultSet>;
+    getRelationships(artifactId: number, subArtifactId?: number, timeout?: ng.IPromise<void>): ng.IPromise<Relationships.IArtifactRelationshipsResultSet>;
 }
 
 export class ArtifactRelationshipsService implements IArtifactRelationshipsService {

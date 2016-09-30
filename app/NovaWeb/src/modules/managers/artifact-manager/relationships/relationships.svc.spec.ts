@@ -94,8 +94,10 @@ describe("Artifact Relationships Service", () => {
         // Act
         let error: any;
         let data: Relationships.IRelationship[];
-        artifactRelationships.getRelationships(5).then((response: Relationships.IRelationship[]) => {
-            data = response;
+        artifactRelationships.getRelationships(5).then((response: Relationships.IArtifactRelationshipsResultSet) => {
+            const manual = response.manualTraces || [];
+            const other = response.otherTraces || [];            
+            data = manual.concat(other);
         }, (err) => {
             error = err;
         });

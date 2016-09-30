@@ -107,7 +107,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
 
                 return relationships;
             }).finally(() => {
-                this.isItemReadOnly = this.item.artifactState.readonly || this.item.deleted;
+                this.isItemReadOnly = this.item.artifactState.readonly || this.item.deleted || !this.item.relationships.canEdit;
                 this.isLoading = false;
             });
         }

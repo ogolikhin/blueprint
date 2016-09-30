@@ -16,6 +16,7 @@ export interface IRelationship {
     primitiveItemTypePredefined: number;
     isSelected: boolean;
     changeType?: ChangeTypeEnum;
+    readOnly: boolean;
 }
 
 export interface IArtifactRelationshipsResultSet {

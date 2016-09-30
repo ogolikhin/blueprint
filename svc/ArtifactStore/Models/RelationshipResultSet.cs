@@ -76,6 +76,8 @@ namespace ArtifactStore.Models
         [JsonProperty]
         public bool HasAccess { get; set; } = true;
         [JsonProperty]
+        public bool ReadOnly { get; set; }
+        [JsonProperty]
         public int PrimitiveItemTypePredefined { get; set; }
     }
 

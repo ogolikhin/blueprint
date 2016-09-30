@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using Common;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using NUnit.Framework;
 using Utilities;
@@ -26,9 +27,21 @@ namespace Model.Impl
 
         #region Members inherited from IArtifactStore
 
-        /// <seealso cref="IArtifactStore.CreateArtifact(IUser, BaseArtifactType, string, IProject, INovaArtifactDetails, double?, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.CreateArtifact(IUser, ArtifactTypePredefined, string, IProject, INovaArtifactDetails, double?, List{HttpStatusCode})"/>
         public INovaArtifactDetails CreateArtifact(IUser user,
-            BaseArtifactType artifactType,
+            ArtifactTypePredefined artifactType,
+            string name,
+            IProject project,
+            INovaArtifactDetails parentArtifact = null,
+            double? orderIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return CreateArtifact(Address, user, (ItemTypePredefined)artifactType, name, project, parentArtifact, orderIndex, expectedStatusCodes);
+        }
+
+        /// <seealso cref="IArtifactStore.CreateArtifact(IUser, ItemTypePredefined, string, IProject, INovaArtifactDetails, double?, List{HttpStatusCode})"/>
+        public INovaArtifactDetails CreateArtifact(IUser user,
+            ItemTypePredefined artifactType,
             string name,
             IProject project,
             INovaArtifactDetails parentArtifact = null,
@@ -91,12 +104,12 @@ namespace Model.Impl
             // Print all returned types for debugging.
             foreach (var artifactType in artifactTypes.ArtifactTypes)
             {
-                Logger.WriteDebug("*** Artifact Type - Name: '{0}', BaseType: '{1}', Prefix: '{2}'", artifactType.Name, artifactType.BaseType, artifactType.Prefix);
+                Logger.WriteDebug("*** Artifact Type - Name: '{0}', BaseType: '{1}', Prefix: '{2}'", artifactType.Name, artifactType.PredefinedType, artifactType.Prefix);
             }
 
             foreach (var artifactType in artifactTypes.SubArtifactTypes)
             {
-                Logger.WriteDebug("*** Sub-Artifact Type - Name: '{0}', BaseType: '{1}', Prefix: '{2}'", artifactType.Name, artifactType.BaseType, artifactType.Prefix);
+                Logger.WriteDebug("*** Sub-Artifact Type - Name: '{0}', BaseType: '{1}', Prefix: '{2}'", artifactType.Name, artifactType.PredefinedType, artifactType.Prefix);
             }
 
             foreach (var propertyType in artifactTypes.PropertyTypes)
@@ -508,7 +521,7 @@ namespace Model.Impl
 
         public static INovaArtifactDetails CreateArtifact(string address,
             IUser user,
-            BaseArtifactType artifactType,
+            ItemTypePredefined artifactType,
             string name,
             IProject project,
             INovaArtifactBase parentArtifact = null,
@@ -524,11 +537,16 @@ namespace Model.Impl
             // Set expectedStatusCodes to 201 Created by default if it's null.
             expectedStatusCodes = expectedStatusCodes ?? new List<HttpStatusCode> { HttpStatusCode.Created };
 
+            // Get the custom artifact type for the project.
+            NovaArtifactType itemType = project.NovaArtifactTypes.Find(at => at.PredefinedType == artifactType);
+            Assert.NotNull(itemType, "No custom artifact type was found in project '{0}' for ItemTypePredefined: {1}!",
+                project.Name, artifactType);
+
             NovaArtifactDetails jsonBody = new NovaArtifactDetails
             {
                 Name = name,
                 ProjectId = project.Id,
-                ItemTypeId = (int)artifactType,
+                ItemTypeId = itemType.Id,
                 ParentId = parentArtifact?.Id ?? project.Id,
                 OrderIndex = orderIndex
             };

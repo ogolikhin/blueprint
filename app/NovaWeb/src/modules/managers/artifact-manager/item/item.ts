@@ -247,6 +247,12 @@ export abstract class StatefulItem implements IIStatefulItem {
         if (this._attachments) {
             this._attachments.discard();
         }
+        if (this._docRefs) {
+            this._docRefs.discard();
+        }
+        if (this._relationships) {
+            this._relationships.discard();
+        }
         if (this._subArtifactCollection) {
             this._subArtifactCollection.discard();
         }

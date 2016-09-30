@@ -43,11 +43,11 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public docRefList: IArtifactDocRef[];
     public item: IStatefulItem;
     public isItemReadOnly: boolean;
-
     public categoryFilter: number;
-    public isLoadingAttachments: boolean = false;
-    public isLoadingDocRefs: boolean = false;
     public filesToUpload: any;
+
+    // public isLoadingAttachments: boolean = false;
+    // public isLoadingDocRefs: boolean = false;
 
     private maxAttachmentFilesizeDefault: number = 10485760; // 10 MB
     private maxNumberAttachmentsDefault: number = 50;
@@ -182,6 +182,8 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
         this.item = subArtifact || artifact;
 
+        this.attachmentsList = [];
+        this.docRefList = [];
         this.subscribers = this.subscribers.filter(sub => { sub.dispose(); return false; });
 
         const attachmentsSubscriber = this.item.attachments.getObservable().subscribe(this.attachmentsUpdated);

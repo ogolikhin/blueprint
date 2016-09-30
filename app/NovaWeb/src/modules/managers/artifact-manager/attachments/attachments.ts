@@ -10,7 +10,6 @@ export interface IArtifactAttachments extends IDispose {
     getObservable(): Rx.IObservable<IArtifactAttachment[]>;
     add(attachments: IArtifactAttachment[]);
     remove(attachments: IArtifactAttachment[]);
-    update(attachments: IArtifactAttachment[]);
     changes(): IArtifactAttachment[];
     refresh(): ng.IPromise<IArtifactAttachment[]>;
     discard();
@@ -91,10 +90,6 @@ export class ArtifactAttachments implements IArtifactAttachments {
         }
         
         return this.attachments;
-    }
-
-    public update(attachments: IArtifactAttachment[]): IArtifactAttachment[] {
-        throw Error("operation not supported");
     }
 
     public remove(attachments: IArtifactAttachment[]): IArtifactAttachment[] {

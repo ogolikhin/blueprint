@@ -1,11 +1,13 @@
 import { IIStatefulItem } from "../item";
+import { IDispose } from "../../models";
 import { ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector } from "../changeset";
-import { IArtifactAttachmentsResultSet, IArtifactDocRef } from "./";
+import { IArtifactAttachmentsResultSet, IArtifactDocRef } from "../attachments";
 
-export interface IDocumentRefs {
+export interface IDocumentRefs extends IDispose {
+    isLoading: boolean;
     initialize(docrefs: IArtifactDocRef[]);
     getObservable(): Rx.IObservable<IArtifactDocRef[]>;
-    get(refresh?: boolean): ng.IPromise<IArtifactDocRef[]>;
+    // get(refresh?: boolean): ng.IPromise<IArtifactDocRef[]>;
     add(docrefs: IArtifactDocRef[]);
     remove(docrefs: IArtifactDocRef[]);
     update(docrefs: IArtifactDocRef[]);
@@ -27,6 +29,10 @@ export class DocumentRefs implements IDocumentRefs {
         this.changeset = new ChangeSetCollector(statefulItem);
     }
 
+    public get isLoading(): boolean {
+        return !this.isLoaded || !!this.loadPromise;
+    }
+
     public initialize(docrefs: IArtifactDocRef[]) {
         this.isLoaded = true;
         this.docrefs = docrefs;
@@ -34,7 +40,7 @@ export class DocumentRefs implements IDocumentRefs {
     }
 
     // refresh = true: turn lazy loading off, always reload
-    public get(refresh: boolean = true): ng.IPromise<IArtifactDocRef[]> {
+    private get(refresh: boolean = true): ng.IPromise<IArtifactDocRef[]> {
         const deferred = this.statefulItem.getServices().getDeferred<IArtifactDocRef[]>();
 
         if (this.isLoaded && !refresh) {
@@ -121,7 +127,7 @@ export class DocumentRefs implements IDocumentRefs {
         let changes = this.changeset.get();
         let uniqueKeys = changes
             .map(change => change.key)
-            .filter((elem, index, self) => index == self.indexOf(elem));
+            .filter((elem, index, self) => index === self.indexOf(elem));
         let deltaChanges = new Array<IChangeSet>();
         // remove changesets that cancel eachother.
         uniqueKeys.forEach((key) => {
@@ -130,7 +136,7 @@ export class DocumentRefs implements IDocumentRefs {
             if (addChanges.length > deleteChanges.length) {
                 deltaChanges.push(addChanges[0]);
             } else if (addChanges.length < deleteChanges.length) {
-                deltaChanges.push(deleteChanges[0])
+                deltaChanges.push(deleteChanges[0]);
             }
         });
         deltaChanges.forEach(change => {
@@ -141,14 +147,19 @@ export class DocumentRefs implements IDocumentRefs {
         return docRefChanges;
     }
 
+    public dispose() {
+        delete this.docrefs;
+        delete this.changeset;
+        delete this.loadPromise;
+    }
+
     public discard() {
         this.changeset.reset();
         this.subject.onNext(this.docrefs);
     }
 
-    // TODO: stub, implement
     public refresh(): ng.IPromise<any> {
-
-        return null;
+        this.isLoaded = false;
+        return this.get(true);
     }
 }

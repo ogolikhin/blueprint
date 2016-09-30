@@ -2,7 +2,7 @@ import { Models, Enums } from "../main/models";
 import { IArtifactState, IState } from "./artifact-manager";
 import { IStatefulArtifactServices } from "./artifact-manager/services";
 import { ISession } from "../shell/login/session.svc";
-import { Relationships } from "../main";
+import { IRelationship } from "../main/models/relationshipmodels";
 import { 
     IArtifactAttachmentsResultSet, 
     IArtifactAttachmentsService,
@@ -10,7 +10,7 @@ import {
     IArtifactAttachments,
     IMetaData,
     ISubArtifactCollection,
-    IArtifactRelationships    
+    IArtifactRelationships
 } from "./artifact-manager";
 
 export { 

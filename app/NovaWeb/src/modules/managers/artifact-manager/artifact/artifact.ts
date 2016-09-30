@@ -347,6 +347,7 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
         delta.specificPropertyValues = this.specialProperties.changes();
         delta.attachmentValues = this.attachments.changes();
         delta.docRefValues = this.docRefs.changes();
+        delta.traces = this.relationships.changes();
         this.addSubArtifactChanges(delta);
 
         return delta;

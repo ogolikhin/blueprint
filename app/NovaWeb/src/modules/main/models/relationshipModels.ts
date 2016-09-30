@@ -1,4 +1,5 @@
-﻿export interface IRelationship {
+﻿import { ChangeTypeEnum } from "../../managers/artifact-manager/changeset";
+export interface IRelationship {
     artifactId: number;
     artifactTypePrefix: string;
     artifactName: string;
@@ -14,6 +15,7 @@
     hasAccess: boolean;
     primitiveItemTypePredefined: number;
     isSelected: boolean;
+    changeType?: ChangeTypeEnum;
 }
 
 export interface IArtifactRelationshipsResultSet {

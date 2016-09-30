@@ -4,6 +4,7 @@ import { IStatefulArtifactServices } from "../services";
 import { StatefulItem, IStatefulItem, IIStatefulItem } from "../item";
 import { IArtifactAttachmentsResultSet } from "../attachments";
 import { ISubArtifactCollection } from "../sub-artifact";
+import { MetaData } from "../metadata";
 import { IDispose } from "../../models";
 
 
@@ -37,6 +38,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     constructor(artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
         super(artifact, services);
         this.artifactState = new ArtifactState(this);
+        this.metadata = new MetaData(this);
         this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
     }
 

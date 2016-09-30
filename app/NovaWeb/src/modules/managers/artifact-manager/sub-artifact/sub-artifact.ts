@@ -5,6 +5,7 @@ import { IMetaData } from "../metadata";
 import { IStatefulArtifact } from "../artifact";
 import { StatefulItem, IStatefulItem, IIStatefulItem } from "../item";
 import { IArtifactAttachmentsResultSet } from "../attachments";
+import { MetaData } from "../metadata";
 
 export interface IIStatefulSubArtifact extends IIStatefulItem {
 }
@@ -21,7 +22,9 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
 
     constructor(private parentArtifact: IStatefulArtifact, private subArtifact: Models.ISubArtifact, services: IStatefulArtifactServices) {
         super(subArtifact, services);
+        this.metadata = new MetaData(this);
         this.subject = new Rx.BehaviorSubject<IStatefulSubArtifact>(null);
+
 
 
         // this.changesets = new ChangeSetCollector(this.artifact);
@@ -35,17 +38,41 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
         return this.parentArtifact.artifactState;
     }
 
-    public get metadata(): IMetaData {
-        return this.parentArtifact.metadata;
-    }
-
 
     public get projectId(): number {
         return this.parentArtifact.projectId;
     }
 
+
+    protected load():  ng.IPromise<IStatefulSubArtifact> {
+        const deferred = this.services.getDeferred<IStatefulSubArtifact>();
+            this.services.artifactService.getSubArtifact(this.parentArtifact.id, this.id).then((artifact: Models.ISubArtifact) => {
+                let state = this.initialize(artifact);
+                deferred.resolve(this);
+            }).catch((err) => {
+                deferred.reject(err);
+            });
+        return deferred.promise;
+    }
+
+
     public getObservable(): Rx.Observable<IStatefulSubArtifact> {
+        if (!this.isFullArtifactLoadedOrLoading()) {
+            this.loadPromise = this.load();
+
+            this.loadPromise.then(() => {
+                this.subject.onNext(this);
+            }).catch((error) => {
+                this.artifactState.readonly = true;
+                this.subject.onError(error);
+            }).finally(() => {
+                this.loadPromise = null;
+            });
+        } else {
+//            this.subject.onNext(this);
+        }
         return this.subject.filter(it => !!it).asObservable();
+        
     }
 
     public changes(): Models.ISubArtifact {

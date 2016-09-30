@@ -73,7 +73,6 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
     }
 
     public createStatefulSubArtifact(artifact: IStatefulArtifact, subArtifact: Models.ISubArtifact): IStatefulSubArtifact {
-        subArtifact["projectId"] = artifact.projectId;
         return new StatefulSubArtifact(artifact, subArtifact, this.services);
     }
 

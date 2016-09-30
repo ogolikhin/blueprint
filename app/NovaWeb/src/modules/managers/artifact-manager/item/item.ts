@@ -36,7 +36,7 @@ export interface IIStatefulItem extends IStatefulItem  {
 
 export abstract class StatefulItem implements IIStatefulItem {
 //    public artifactState: IArtifactState;
-    public _metadata: IMetaData;
+    public metadata: IMetaData;
     public deleted: boolean;
 
     private _attachments: IArtifactAttachments;
@@ -248,12 +248,6 @@ export abstract class StatefulItem implements IIStatefulItem {
         }
     }
     
-    public get metadata(): IMetaData {
-        if (!this._metadata) {
-            this._metadata = new MetaData(this);
-        }
-        return this._metadata;
-    } 
     public initialize(artifact: Models.IArtifact): IState {
         
         this.artifact = artifact;

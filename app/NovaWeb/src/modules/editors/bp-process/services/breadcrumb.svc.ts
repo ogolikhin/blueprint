@@ -1,4 +1,4 @@
-import {INavigationState} from "../../../core/navigation/navigation-state";
+import {INavigationService, INavigationState} from "../../../core/navigation";
 import {ItemTypePredefined} from "../../../main/models/enums";
 
 export interface IArtifactReference {
@@ -12,26 +12,30 @@ export interface IArtifactReference {
 }
 
 export interface IBreadcrumbService {
-    getReferences(navigationState: INavigationState): ng.IPromise<IArtifactReference[]>;
+    getReferences(): ng.IPromise<IArtifactReference[]>;
 }
 
 export class BreadcrumbService implements IBreadcrumbService {
     public static $inject: string[] = [
         "$q",
-        "$http"
+        "$http",
+        "navigationService"
     ];
 
     constructor(
         private $q: ng.IQService,
-        private $http: ng.IHttpService
+        private $http: ng.IHttpService,
+        private navigationService: INavigationService
     ) {
     }
 
-    public getReferences<T>(navigationState: INavigationState): ng.IPromise<T[]> {
+    public getReferences(): ng.IPromise<IArtifactReference[]> {
         const deferred = this.$q.defer();
-        let url = "/svc/shared/navigation/"; 
-        
-        if (navigationState.path) {
+
+        let url = "/svc/shared/navigation/";
+        const navigationState: INavigationState = this.navigationService.getNavigationState();
+
+        if (navigationState.path && navigationState.path.length > 0) {
             url = `${url}${navigationState.path.join("/")}/${navigationState.id}`;
         } else {
             url = `${url}${navigationState.id}`;

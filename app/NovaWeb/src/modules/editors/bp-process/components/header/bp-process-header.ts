@@ -88,8 +88,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
     }
 
     public $onInit() {
-        const navigationState = this.navigationService.getNavigationState();
-        this.breadcrumbService.getReferences(navigationState)
+        this.breadcrumbService.getReferences()
             .then((result: IArtifactReference[]) => {
                 for (let i: number = 0; i < result.length; i++) {
                     let artifactReference = result[i];

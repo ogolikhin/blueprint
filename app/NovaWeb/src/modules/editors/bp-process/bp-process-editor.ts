@@ -20,7 +20,6 @@ export class BpProcessEditor implements ng.IComponentOptions {
 }
 
 export class BpProcessEditorController extends BpBaseEditor {
-
     public processDiagram: ProcessDiagram;
     public subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
     
@@ -57,8 +56,8 @@ export class BpProcessEditorController extends BpBaseEditor {
         private $timeout: ng.ITimeoutService,
         private communicationManager: ICommunicationManager,
         private dialogService: IDialogService,
-        private navigationService: INavigationService) {
-            
+        private navigationService: INavigationService
+    ) {
        super(messageService, artifactManager);
 
        this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener(
@@ -68,12 +67,10 @@ export class BpProcessEditorController extends BpBaseEditor {
     public $onInit() {
         super.$onInit();
         this.subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this));
-        
     }
 
     public onLoad() {
         super.onLoad();
-   
     }
 
     public onUpdate () {
@@ -108,12 +105,21 @@ export class BpProcessEditorController extends BpBaseEditor {
     
     public $onDestroy() {
         super.$onDestroy();
-        this.subArtifactEditorModalOpener.onDestroy();
-        this.processDiagram.destroy();
+
+        this.destroy();
+    }
+
+    private destroy() {
+        if (this.subArtifactEditorModalOpener) {
+            this.subArtifactEditorModalOpener.onDestroy();
+        }
+        
+        if (this.processDiagram) {
+            this.processDiagram.destroy();
+        }
     }
     
     private getHtmlElement(): HTMLElement {
-
         // this.$element is jqLite and does not support selectors
         // so we must traverse its children to find the designated
         // containing element  for the diagram
@@ -128,7 +134,6 @@ export class BpProcessEditorController extends BpBaseEditor {
         } 
          
         return htmlElement;
-
     }
 
     public onWidthResized(mainWindow: IMainWindow) {
@@ -140,5 +145,4 @@ export class BpProcessEditorController extends BpBaseEditor {
             }
         }
     }
-    
 }

@@ -199,7 +199,7 @@ namespace SearchServiceTests
 
         [TestCase(2, 1, new [] {BaseArtifactType.Actor})]
         [TestCase(6, 1, new[] { BaseArtifactType.Actor, BaseArtifactType.Document, BaseArtifactType.Process })]
-        [TestCase(24, 3, new[] {
+        [TestCase(26, 3, new[] {
             BaseArtifactType.Actor,
             BaseArtifactType.Document,
             BaseArtifactType.Process,
@@ -207,6 +207,7 @@ namespace SearchServiceTests
             BaseArtifactType.BusinessProcess,
             BaseArtifactType.GenericDiagram,
             BaseArtifactType.Glossary,
+            BaseArtifactType.PrimitiveFolder, 
             BaseArtifactType.Storyboard,
             BaseArtifactType.TextualRequirement,
             BaseArtifactType.UIMockup,
@@ -415,16 +416,16 @@ namespace SearchServiceTests
             Assert.That(fullTextSearchMetaDataResult.PageSize.Equals(DEFAULT_PAGE_SIZE_VALUE), "The expected default pagesize value is {0} but {1} was found from the returned searchResult.", DEFAULT_PAGE_SIZE_VALUE, fullTextSearchMetaDataResult.PageSize);
         }
 
-        [TestCase(12, 2, SearchServiceTestHelper.ProjectRole.Author)]
-        [TestCase(12, 2, SearchServiceTestHelper.ProjectRole.Viewer)]
-        [TestCase(0, 0, SearchServiceTestHelper.ProjectRole.None)]
+        [TestCase(13, 2, TestHelper.ProjectRole.Author)]
+        [TestCase(13, 2, TestHelper.ProjectRole.Viewer)]
+        [TestCase(0, 0, TestHelper.ProjectRole.None)]
         [TestRail(182372)]
         [Description("Search for artifact in a single project with user with different permissions. Executed search must return search metadata result " +
                      "that indicates whether the user was able to see the artifacts in the search results or not.")]
         public void FullTextSearchMetadata_UserWithProjectRolePermissionsOnSingleProject_VerifyResultIndicatesResultsFromSingleProject(
             int expectedHitCount,
             int expectedTotalPageCount,
-            SearchServiceTestHelper.ProjectRole projectRole)
+            TestHelper.ProjectRole projectRole)
         {
             FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
 
@@ -439,7 +440,7 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
 
             // Create user with project role to only 1 project
-            var userWithProjectRole = SearchServiceTestHelper.CreateUserWithProjectRolePermissions(
+            var userWithProjectRole = TestHelper.CreateUserWithProjectRolePermissions(
                 Helper,
                 projectRole,
                 new List<IProject> {_projects.First()});
@@ -456,16 +457,16 @@ namespace SearchServiceTests
             Assert.That(fullTextSearchMetaDataResult.PageSize.Equals(DEFAULT_PAGE_SIZE_VALUE), "The expected default pagesize value is {0} but {1} was found from the returned searchResult.", DEFAULT_PAGE_SIZE_VALUE, fullTextSearchMetaDataResult.PageSize);
         }
 
-        [TestCase(24, 3, SearchServiceTestHelper.ProjectRole.Author)]
-        [TestCase(24, 3, SearchServiceTestHelper.ProjectRole.Viewer)]
-        [TestCase(0, 0, SearchServiceTestHelper.ProjectRole.None)]
+        [TestCase(26, 3, TestHelper.ProjectRole.Author)]
+        [TestCase(26, 3, TestHelper.ProjectRole.Viewer)]
+        [TestCase(0, 0, TestHelper.ProjectRole.None)]
         [TestRail(182376)]
         [Description("Search for artifact in multiple projects with user with varying permissions. Executed search must return search metadata result " +
              "that indicates whether the user was able to see the artifacts in the search results or not.")]
         public void FullTextSearchMetadata_UserWithProjectRolePermissionsOnMultipleProjects_VerifyResultIndicatesResultsFromMultipleProjects(
             int expectedHitCount,
             int expectedTotalPageCount,
-            SearchServiceTestHelper.ProjectRole projectRole)
+            TestHelper.ProjectRole projectRole)
         {
             FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
 
@@ -480,7 +481,7 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
 
             // Create user with project role with permissions to all projects
-            var userWithProjectRole = SearchServiceTestHelper.CreateUserWithProjectRolePermissions(
+            var userWithProjectRole = TestHelper.CreateUserWithProjectRolePermissions(
                 Helper,
                 projectRole,
                 _projects);
@@ -600,9 +601,9 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
 
             // Create user with author project role to project
-            var userWithProjectRole = SearchServiceTestHelper.CreateUserWithProjectRolePermissions(
+            var userWithProjectRole = TestHelper.CreateUserWithProjectRolePermissions(
                 Helper,
-                SearchServiceTestHelper.ProjectRole.Author,
+                TestHelper.ProjectRole.Author,
                 _projects);
 
             // Replace the valid AccessControlToken with an invalid token

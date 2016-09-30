@@ -67,6 +67,30 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         this.enableDeleteButtonHandler = this.toolbarCommunicationManager.registerEnableDeleteObserver(this.enableDeleteButton);
     }
 
+    public $onInit() {
+        this.breadcrumbService.getReferences()
+            .then((result: IArtifactReference[]) => {
+                for (let i: number = 0; i < result.length; i++) {
+                    const artifactReference = result[i];
+                    const breadcrumbLink: IBreadcrumbLink = {
+                        id: artifactReference.id,
+                        name: artifactReference.name,
+                        isEnabled: i !== result.length - 1 && !!artifactReference.link
+                    };
+                    this.breadcrumbLinks.push(breadcrumbLink);
+                }
+            });
+
+        super.$onInit();
+    }
+
+    public $onDestroy() {
+        super.$onDestroy();
+
+        //dispose subscribers
+        this.toolbarCommunicationManager.removeEnableDeleteObserver(this.enableDeleteButtonHandler);
+    }
+
     public enableDeleteButton = (value: boolean) => {
         this.$scope.$applyAsync((s) => {
             this.isDeleteButtonEnabled = value;
@@ -85,35 +109,5 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
 
     public clickDelete() {
         this.toolbarCommunicationManager.clickDelete();
-    }
-
-    public $onInit() {
-        this.breadcrumbService.getReferences()
-            .then((result: IArtifactReference[]) => {
-                for (let i: number = 0; i < result.length; i++) {
-                    let artifactReference = result[i];
-                    this.breadcrumbLinks.push(
-                        <IBreadcrumbLink>{
-                            id: artifactReference.id,
-                            name: artifactReference.name,
-                            isEnabled: i !== result.length - 1 && !!artifactReference.link
-                        }
-                    );
-                }
-            })
-            .catch((error) => {
-                if (error) {
-                    this.messageService.addError(error);
-                }
-            });
-
-        super.$onInit();
-    }
-
-    public $onDestroy() {
-        super.$onDestroy();
-
-        //dispose subscribers
-        this.toolbarCommunicationManager.removeEnableDeleteObserver(this.enableDeleteButtonHandler);
     }
 }

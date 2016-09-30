@@ -9,6 +9,7 @@
     <Service name="ConfigControl" address="http://deploy-installer-w12r2s14sp1.blueprintsys.net:83" />
     <Service name="FileStore"     address="http://deploy-installer-w12r2s14sp1.blueprintsys.net" />
     <Service name="Storyteller"   address="http://deploy-installer-w12r2s14sp1.blueprintsys.net" />
+    <Service name="SearchService" address="http://deploy-installer-w12r2s14sp1.blueprintsys.net" />
   </BlueprintServices>
 
   <Databases>

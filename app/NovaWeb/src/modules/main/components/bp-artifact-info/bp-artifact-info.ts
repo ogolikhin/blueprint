@@ -50,7 +50,7 @@ export class BpArtifactInfoController {
         private $element: ng.IAugmentedJQuery,
         private artifactManager: IArtifactManager,
         private localization: ILocalizationService,
-        protected messageService: IMessageService,
+        private messageService: IMessageService,
         private dialogService: IDialogService,
         private windowManager: IWindowManager,
         private loadingOverlayService: ILoadingOverlayService,
@@ -230,6 +230,7 @@ export class BpArtifactInfoController {
         };
 
         const dialogData: IArtifactPickerOptions = {
+            selectableItemTypes: $event.altKey ? [Models.ItemTypePredefined.Document] : undefined,
             selectionMode: $event.shiftKey ? "multiple" : ($event.ctrlKey || $event.metaKey) ? "checkbox" : "single",
             showSubArtifacts: true
         };

@@ -26,6 +26,18 @@ namespace Model.Impl
 
         #region Members inherited from IArtifactStore
 
+        /// <seealso cref="IArtifactStore.CreateArtifact(IUser, BaseArtifactType, string, IProject, INovaArtifactDetails, double?, List{HttpStatusCode})"/>
+        public INovaArtifactDetails CreateArtifact(IUser user,
+            BaseArtifactType artifactType,
+            string name,
+            IProject project,
+            INovaArtifactDetails parentArtifact = null,
+            double? orderIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return CreateArtifact(Address, user, artifactType, name, project, parentArtifact, orderIndex, expectedStatusCodes);
+        }
+
         /// <seealso cref="IArtifactStore.DeleteArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
         public List<INovaArtifactResponse> DeleteArtifact(IArtifactBase artifact, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -423,15 +435,16 @@ namespace Model.Impl
             return unpublishedChanges;
         }
 
-        /// <seealso cref="IArtifactStore.MoveArtifact(IArtifactBase, IArtifactBase, IUser, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.MoveArtifact(IArtifactBase, IArtifactBase, IUser, int?, List{HttpStatusCode})"/>
         public INovaArtifactDetails MoveArtifact(IArtifactBase artifact,
             IArtifactBase newParent,
             IUser user = null,
+            int? artifactVersion = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(newParent, nameof(newParent));
 
-            return MoveArtifact(Address, artifact, newParent.Id, user, expectedStatusCodes);
+            return MoveArtifact(Address, artifact, newParent.Id, user, artifactVersion, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.PublishArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
@@ -492,6 +505,42 @@ namespace Model.Impl
         #endregion Members inherited from IDisposable
 
         #region Static members
+
+        public static INovaArtifactDetails CreateArtifact(string address,
+            IUser user,
+            BaseArtifactType artifactType,
+            string name,
+            IProject project,
+            INovaArtifactBase parentArtifact = null,
+            double? orderIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(address, nameof(address));
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            string path = RestPaths.Svc.ArtifactStore.Artifacts.CREATE;
+            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+
+            // Set expectedStatusCodes to 201 Created by default if it's null.
+            expectedStatusCodes = expectedStatusCodes ?? new List<HttpStatusCode> { HttpStatusCode.Created };
+
+            NovaArtifactDetails jsonBody = new NovaArtifactDetails
+            {
+                Name = name,
+                ProjectId = project.Id,
+                ItemTypeId = (int)artifactType,
+                ParentId = parentArtifact?.Id ?? project.Id,
+                OrderIndex = orderIndex
+            };
+
+            var newArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails, NovaArtifactDetails>(
+                path,
+                RestRequestMethod.POST,
+                jsonBody,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return newArtifact;
+        }
 
         /// <summary>
         /// Deletes the specified artifact and any children/traces/links/attachments belonging to the artifact.
@@ -559,12 +608,14 @@ namespace Model.Impl
         /// <param name="artifact">The artifact to move.</param>
         /// <param name="newParentId">The ID of the new parent where this artifact will move to.</param>
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
+        /// <param name="artifactVersion">(optional) The version of the artifact.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The details of the artifact that we moved.</returns>
         public static INovaArtifactDetails MoveArtifact(string address,
             IArtifactBase artifact,
             int newParentId,
             IUser user = null,
+            int? artifactVersion = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
@@ -573,9 +624,17 @@ namespace Model.Impl
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.TO_id_, artifact.Id, newParentId);
             RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
 
+            Dictionary<string, string> queryParams = null;
+
+            if (artifactVersion != null)
+            {
+                queryParams = new Dictionary<string, string> { { "artifactVersion", artifactVersion.ToString() } };
+            }
+
             var movedArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails>(
                 path,
                 RestRequestMethod.POST,
+                queryParameters: queryParams,
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChange: true);
 

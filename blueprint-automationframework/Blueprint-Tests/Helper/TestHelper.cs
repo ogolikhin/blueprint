@@ -16,6 +16,13 @@ namespace Helper
 {
     public class TestHelper : IDisposable, IArtifactObserver
     {
+        public enum ProjectRole
+        {
+            None,
+            Viewer,
+            Author
+        }
+
         private bool _isDisposed = false;
 
         // Nova services:
@@ -477,6 +484,72 @@ namespace Helper
             }
 
             return user;
+        }
+
+        /// <summary>
+        /// Creates a user with project role permissions for one or more projects.  Optionally, creates role permissions for a single artifact within
+        /// a project.
+        /// </summary>
+        /// <param name="testHelper">An instance of TestHelper</param>
+        /// <param name="role">Author, Viewer or No permission role</param>
+        /// <param name="projects">The list of projects that the role is created for</param>
+        /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide</param>
+        /// <returns></returns>
+        public static IUser CreateUserWithProjectRolePermissions(TestHelper testHelper, ProjectRole role, List<IProject> projects, IArtifactBase artifact = null)
+        {
+            ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
+            ThrowIf.ArgumentNull(projects, nameof(projects));
+
+            Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(CreateUserWithProjectRolePermissions));
+
+            IProjectRole projectRole = null;
+
+            var newUser = testHelper.CreateUserAndAddToDatabase(instanceAdminRole: null);
+
+            foreach (var project in projects)
+            {
+                if (role == ProjectRole.Viewer)
+                {
+                    projectRole = ProjectRoleFactory.CreateProjectRole(
+                        project, RolePermissions.Read,
+                        role.ToString());
+                }
+                else if (role == ProjectRole.Author)
+                {
+                    projectRole = ProjectRoleFactory.CreateProjectRole(
+                        project,
+                        RolePermissions.Delete |
+                        RolePermissions.Edit |
+                        RolePermissions.CanReport |
+                        RolePermissions.Comment |
+                        RolePermissions.DeleteAnyComment |
+                        RolePermissions.CreateRapidReview |
+                        RolePermissions.ExcelUpdate |
+                        RolePermissions.Read |
+                        RolePermissions.Reuse |
+                        RolePermissions.Share |
+                        RolePermissions.Trace,
+                        role.ToString());
+                }
+                else if (role == ProjectRole.None)
+                {
+                    projectRole = ProjectRoleFactory.CreateProjectRole(
+                        project, RolePermissions.None,
+                        role.ToString());
+                }
+
+                var permissionsGroup = testHelper.CreateGroupAndAddToDatabase();
+                permissionsGroup.AddUser(newUser);
+                permissionsGroup.AssignRoleToProjectOrArtifact(project, role: projectRole, artifact: artifact);
+            }
+
+            testHelper.AdminStore.AddSession(newUser);
+
+            Logger.WriteInfo("User {0} created.", newUser.Username);
+
+            Logger.WriteTrace("{0}.{1} finished.", nameof(TestHelper), nameof(CreateUserWithProjectRolePermissions));
+
+            return newUser;
         }
 
         #endregion User management

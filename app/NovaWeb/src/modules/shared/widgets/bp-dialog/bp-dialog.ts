@@ -81,6 +81,7 @@ export class DialogService implements IDialogService {
             header: this.localization.get(header) || header || this.localization.get("App_DialogTitle_Alert"),
             message: this.localization.get(message) || message,
             cancelButton: null,
+            css: "modal-alert nova-messaging"
         });
         return this.openInternal(<ng.ui.bootstrap.IModalSettings>{
             keyboard: false
@@ -112,12 +113,10 @@ export class BaseDialogController implements IDialogController {
         return true;
     }
 
-
     static $inject = ["$uibModalInstance", "dialogSettings"];
     constructor(
         public $instance: ng.ui.bootstrap.IModalServiceInstance, 
         public dialogSettings: IDialogSettings) {
-
     }
 
     public ok() {

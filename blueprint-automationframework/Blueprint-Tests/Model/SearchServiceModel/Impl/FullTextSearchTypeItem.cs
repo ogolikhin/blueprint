@@ -1,4 +1,4 @@
-﻿namespace Model.FullTextSearchModel.Impl
+﻿namespace Model.SearchServiceModel.Impl
 {
     public class FullTextSearchTypeItem
     {

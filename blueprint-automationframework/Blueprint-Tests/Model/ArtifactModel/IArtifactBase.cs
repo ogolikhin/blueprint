@@ -51,49 +51,35 @@ namespace Model.ArtifactModel
         PROShape = 8228
     }
 
+    /// <summary>
+    /// These are all the base artifact types (including some that cannot be created by OpenAPI).
+    /// Full list available at:  blueprint-current/Source/BluePrintSys.RC.Service.Business/Models/Api/BaseArtifactTypes.cs
+    /// </summary>
     public enum BaseArtifactType
     {
-        Actor,
         /// <summary>Not used by OpenAPI.</summary>
-        AgilePackEpic,
+        Undefined = 0,
+        PrimitiveFolder = 1,
+        Glossary = 2,
+        TextualRequirement = 3,
+        BusinessProcess = 4,    // It should be BusinessProcessDiagram, but development code is missing the 'Diagram'!
+        Actor = 5,
+        UseCase = 6,
         /// <summary>Not used by OpenAPI.</summary>
-        AgilePackFeature,
+        DataElement = 7,
+        UIMockup = 8,
+        GenericDiagram = 9,
+        Document = 10,
+        Storyboard = 11,
+        DomainDiagram = 12,
+        UseCaseDiagram = 13,
         /// <summary>Not used by OpenAPI.</summary>
-        AgilePackScenario,
+        Baseline = 14,
         /// <summary>Not used by OpenAPI.</summary>
-        AgilePackTheme,
-        /// <summary>Not used by OpenAPI.</summary>
-        AgilePackUserStory,
-        /// <summary>Not used by OpenAPI.</summary>
-        Baseline,
-        /// <summary>Not used by OpenAPI.</summary>
-        BaselinesAndReviews,
-        /// <summary>Not used by OpenAPI.</summary>
-        BaselinesAndReviewsFolder,
-        BusinessProcess, //it is BusinessProcessDiagram!
-        /// <summary>Not used by OpenAPI.</summary>
-        Collection,
-        /// <summary>Not used by OpenAPI.</summary>
-        CollectionFolder,
-        /// <summary>Not used by OpenAPI.</summary>
-        Collections,
-        Document,
-        DomainDiagram,
-        /// <summary>Not used by OpenAPI.</summary>
-        Folder,
-        GenericDiagram,
-        Glossary,
-        PrimitiveFolder,
-        Process,
-        /// <summary>Not used by OpenAPI.</summary>
-        Project,
-        /// <summary>Not used by OpenAPI.</summary>
-        Review,
-        Storyboard,
-        TextualRequirement,
-        UIMockup,
-        UseCase,
-        UseCaseDiagram
+        BaselineFolder = 15,
+        ArtifactBaseline = 16,
+        ArtifactReviewPackage = 17,
+        Process     // This doesn't exist in BluePrintSys.RC.Service.Business/Models/Api/BaseArtifactTypes.cs.
     }
 
     #endregion Enums

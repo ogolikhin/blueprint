@@ -488,7 +488,7 @@ namespace SearchServiceTests
 
         #region 400 Bad Request Tests
 
-[TestCase]
+        [TestCase]
         [TestRail(166162)]
         [Description("Searching with invalid search criteria. Execute Search - Must return 400 bad request")]
         public void FullTextSearch_SearchWithInvalidSearchCriteria_400BadRequest()

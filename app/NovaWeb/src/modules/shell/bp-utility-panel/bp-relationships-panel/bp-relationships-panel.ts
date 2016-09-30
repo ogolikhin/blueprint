@@ -110,7 +110,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.otherTraces = null;
 
         if (this.item) {
-            this.isLoading = true;
+            this.isLoading = true;            
             this.item.relationships.get().then((relationships: Relationships.IRelationship[]) => {
                 this.allTraces = relationships;
                 this.manualTraces = relationships
@@ -126,7 +126,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
 
                 return relationships;
             }).finally(() => {
-                this.isItemReadOnly = this.item.artifactState.readonly || this.item.deleted;
+                this.isItemReadOnly = this.item.artifactState.readonly || this.item.deleted || !this.item.relationships.canEdit;
                 this.isLoading = false;
             });
         }

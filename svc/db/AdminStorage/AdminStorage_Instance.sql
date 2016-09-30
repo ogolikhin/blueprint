@@ -1052,6 +1052,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationshi
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Change_Trace', 'en-US', N'Change Direction')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Confirmation_Delete_Trace', 'en-US', N'Please confirm the deletion of the trace.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Confirmation_Delete_Traces', 'en-US', N'Please confirm the deletion of the selected traces ({0}).')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Introduction_Message', 'en-US', N'A short description of what a Trace is. To come from Tech Writer.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Add_Relationship', 'en-US', N'Add a trace')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Properties_Loading_Indicator_Label', 'en-US', N'Loading...')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Properties_System_Properties_Label', 'en-US', N'System Properties')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Properties_Additional_Properties_Label', 'en-US', N'Additional Properties')

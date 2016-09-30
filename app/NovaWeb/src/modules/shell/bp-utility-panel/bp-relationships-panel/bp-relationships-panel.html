@@ -1,3 +1,16 @@
+<div ng-if="!($ctrl.manualTraces.length || $ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && !$ctrl.isLoading"
+     class="empty-state">
+
+    <p>{{::$ctrl.localization.get('App_UP_Relationships_No_Relationships') }}</p>
+
+    <div class="add-empty" ng-if="$ctrl.item && !($ctrl.manualTraces.length || $ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && !$ctrl.isLoading">
+        <p>{{ $ctrl.localization.get('App_UP_Relationships_Introduction_Message') }}</p>
+        <label class="btn btn-secondary btn-small" ng-class="{'disabled': $ctrl.isItemReadOnly }">
+            {{::$ctrl.localization.get('App_UP_Relationships_Add_Relationship') }}
+        </label>
+    </div>
+</div>
+
 <div class="icons animated" ng-class="{active: !$ctrl.isLoading && ($ctrl.manualTraces2.length || $ctrl.otherTraces.length) &&
                                           $ctrl.selectedTraces[$ctrl.item.id].length > 0 && $ctrl.categoryFilter < 2}">
     <div>
@@ -93,8 +106,5 @@
 <div ng-if="$ctrl.isLoading" class="app-loading">
     <span class="glyphicon glyphicon-refresh spin"></span>
 </div>
-
-<div ng-if="!($ctrl.manualTraces2.length || $ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && !$ctrl.isLoading"
-     class="empty-state">{{::$ctrl.localization.get('App_UP_Relationships_No_Relationships') }}</div>
 
 

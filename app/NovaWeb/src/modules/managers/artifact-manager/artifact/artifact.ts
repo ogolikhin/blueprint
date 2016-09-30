@@ -314,11 +314,11 @@ export class StatefulArtifact implements IStatefulArtifact, IIStatefulArtifact {
             });
         return deferred.promise;
     }
-    
-    public getRelationships(): ng.IPromise<Relationships.IRelationship[]> {
+
+    public getRelationships(): ng.IPromise<Relationships.IArtifactRelationshipsResultSet> {
         const deferred = this.services.getDeferred();
         this.services.relationshipsService.getRelationships(this.id)
-            .then( (result: Relationships.IRelationship[]) => {
+            .then( (result: Relationships.IArtifactRelationshipsResultSet) => {
                 deferred.resolve(result);
             }, (error) => {
                 if (error && error.statusCode === 404) {

@@ -18,6 +18,7 @@ export interface IArtifactRelationships extends IBlock<Relationships.IRelationsh
     remove(relationships: Relationships.IRelationship[]);
     update(relationships: Relationships.IRelationship[]);
     discard();
+    canEdit: boolean;
 }
 
 export class ArtifactRelationships implements IArtifactRelationships {
@@ -26,6 +27,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
     
     private changeset: IChangeCollector;
     private isLoaded: boolean;
+    public canEdit: boolean;
 
     constructor(private statefulItem: IIStatefulItem) {
         this.relationships = [];
@@ -47,9 +49,12 @@ export class ArtifactRelationships implements IArtifactRelationships {
             deferred.resolve(this.relationships);
             this.subject.onNext(this.relationships);
         } else {
-            this.statefulItem.getRelationships().then((result: Relationships.IRelationship[]) => {
-                this.relationships = result;
-                deferred.resolve(result);
+            this.statefulItem.getRelationships().then((result: Relationships.IArtifactRelationshipsResultSet) => {
+                const manual = result.manualTraces || [];
+                const other = result.otherTraces || [];
+                let loadedRelationships = manual.concat(other);
+                this.canEdit = result.canEdit;
+                deferred.resolve(loadedRelationships);
                 this.subject.onNext(this.relationships);
                 this.isLoaded = true;
             }, (error) => {

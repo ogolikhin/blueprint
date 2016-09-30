@@ -7,9 +7,8 @@ using Utilities.Facades;
 
 namespace Model.FullTextSearchModel.Impl
 {
-    public class FullTextSearch : IFullTextSearch
+    public class FullTextSearch : NovaServiceBase, IFullTextSearch
     {
-        public string Address { get; }
 
         #region Constructor
 
@@ -108,6 +107,18 @@ namespace Model.FullTextSearchModel.Impl
                 expectedStatusCodes: expectedStatusCodes);
 
             return projects;
+        }
+
+        /// <seealso cref="IFullTextSearch.GetStatus(string, List{HttpStatusCode})"/>
+        public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return GetStatus(RestPaths.Svc.SearchService.STATUS, preAuthorizedKey, expectedStatusCodes);
+        }
+
+        /// <seealso cref="IFullTextSearch.GetStatusUpcheck(List{HttpStatusCode})"/>
+        public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return GetStatusUpcheck(RestPaths.Svc.SearchService.Status.UPCHECK, expectedStatusCodes);
         }
 
         #endregion Members inherited from IFullTextSearch

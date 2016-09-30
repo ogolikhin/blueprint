@@ -153,6 +153,7 @@ export class ProjectManager  implements IProjectManager {
                 defer.resolve();
             } else {
                 this.onGetProjectTreeError(project);
+                //this.loadArtifact(selectedArtifact.id);
                 defer.reject();
             }
         }).catch((error: any) => {
@@ -160,7 +161,8 @@ export class ProjectManager  implements IProjectManager {
                 //try with selected artifact's parent
                 this.projectService.getProjectTree(project.id, selectedArtifact.parentId, true)
                 .then((data: Models.IArtifact[]) => {
-                    if (this.onGetProjectTree(project, data, selectedArtifact.parentId)) {
+                    this.messageService.addInfo("Refresh_Artifact_Deleted");
+                    if (this.onGetProjectTree(project, data)) {
                         defer.resolve();
                     } else {
                         this.onGetProjectTreeError(project);
@@ -170,23 +172,27 @@ export class ProjectManager  implements IProjectManager {
                     if (innerError.statusCode === 404 && innerError.errorCode === 3000) {
                         //try it with project
                         this.projectService.getArtifacts(project.id).then((data: Models.IArtifact[]) => {
-                            if (this.onGetProjectTree(project, data, -1)) {
+                            this.messageService.addInfo("Refresh_Artifact_Deleted");
+                            if (this.onGetProjectTree(project, data)) {
                                 defer.resolve();
                             } else {
                                 this.onGetProjectTreeError(project);
                                 defer.reject();
                             }
                         }).catch((err: any) => {
-                            this.onGetProjectTreeError(project, innerError);
+                            this.messageService.addError("Refresh_Project_NotFound");
+                            this.onGetProjectTreeError(project);
                             defer.reject();
                         });
                     } else {
-                        this.onGetProjectTreeError(project, innerError);
+                        this.messageService.addError(error["message"]);
+                        this.onGetProjectTreeError(project);
                         defer.reject();
                     }
                 });
             } else {
-                this.onGetProjectTreeError(project, error);
+                this.messageService.addError(error["message"]);
+                this.onGetProjectTreeError(project);
                 defer.reject();
             }
         });
@@ -196,7 +202,6 @@ export class ProjectManager  implements IProjectManager {
         let oldProjectId: number = project.id;
         let oldProject = this.getProject(oldProjectId);
         this.artifactManager.removeAll(oldProjectId);
-        oldProject.dispose();
         
         this.metadataService.load(oldProjectId).then(() => {
 
@@ -229,16 +234,15 @@ export class ProjectManager  implements IProjectManager {
 
                 //open any children that have children
                 this.openChildNodes(newProjectNode.children, data);
-
-                //select node in project explorer
-                if (selectedArtifactId > 0) {
-                    //TODO: replace with correct functionality
-                    //this.artifactManager.selection.setArtifact(this.getArtifact(selectedArtifactId));
+               
+                if (selectedArtifactId) {
+                    //this.loadArtifact(selectedArtifactId);
                 }
 
                 //update project collection
                 this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(oldProject), 1, newProjectNode);
                 this.projectCollection.onNext(this.projectCollection.getValue());
+                oldProject.dispose();
             }).catch(() => {
                 return false;
             });
@@ -248,16 +252,11 @@ export class ProjectManager  implements IProjectManager {
         return true;
     }
     
-    private onGetProjectTreeError(project: Project, error?: any) {
-        //ignore authentication errors here
-        if (error) {
-            this.messageService.addError(error["message"] || "Artifact_NotFound");
-        } else {
-            project.children = [];
-            project.loaded = false;
-            project.open = false;
-            this.projectCollection.onNext(this.projectCollection.getValue());
-        }
+    private onGetProjectTreeError(project: Project) {
+        project.children = [];
+        project.loaded = false;
+        project.open = false;
+        this.projectCollection.onNext(this.projectCollection.getValue());
     }
 
     private openChildNodes(childrenNodes: IArtifactNode[], childrenData: Models.IArtifact[]) {

@@ -29,7 +29,7 @@ body {
   background-position: center 48%, top;
   background-size: 60%, 120%;
   color: $body-color;
-  overflow: hidden;
+  overflow: auto;
 }
 
 @import 'partials/navbar';
@@ -51,9 +51,11 @@ body {
 #wrapper {
   display: block;
   height: calc(100% - #{$wrapper-height});
+  left: 0;
   margin-top: $wrapper-height;
+  min-width: $app-minimum-width;
   overflow: hidden;
-  position: fixed;
+  position: absolute;
   width: 100%;
 }
 

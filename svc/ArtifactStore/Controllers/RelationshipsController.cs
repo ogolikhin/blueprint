@@ -70,9 +70,15 @@ namespace ArtifactStore.Controllers
                 {
                     MakeRelationshipUnauthorized(relationship);
                 }
+
+                if ((HasPermissions(relationship.ArtifactId, permissions, RolePermissions.Trace) &&
+                     HasPermissions(relationship.ArtifactId, permissions, RolePermissions.Edit)) == false)
+                {
+                    relationship.ReadOnly = true;
+                }
             }
         }
-
+        
         private static void MakeRelationshipUnauthorized(Relationship relationship)
         {            
             relationship.HasAccess = false;

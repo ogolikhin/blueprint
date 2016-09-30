@@ -77,10 +77,10 @@
                 </ul>
             </div>
             <i class="icon fonticon-flag-1" ng-click="$ctrl.toggleFlag()"
-                ng-class="{'fonticon-flag-empty': $ctrl.artifact.suspect == true, disabled: !$ctrl.artifact.hasAccess || $ctrl.isItemReadOnly}"
+                ng-class="{'fonticon-flag-empty': $ctrl.artifact.suspect == true, disabled: !$ctrl.artifact.hasAccess || $ctrl.isItemReadOnly || $ctrl.artifact.readOnly}"
                 bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Flag_Trace')}}"></i>
 
-            <i class="icon fonticon-delete-filled"  ng-class="{disabled: !$ctrl.artifact.hasAccess || $ctrl.isItemReadOnly}"
+            <i class="icon fonticon-delete-filled"  ng-class="{disabled: !$ctrl.artifact.hasAccess || $ctrl.isItemReadOnly || $ctrl.artifact.readOnly}"
                 ng-click="$ctrl.deleteItem()" bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Delete')}}"></i>
         </div>
 

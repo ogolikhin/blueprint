@@ -241,12 +241,7 @@ describe("BPTreeViewController", () => {
         it("When root node is visible, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService) => {
             // Arrange
             (controller.options.api.getModel as jasmine.Spy).and.returnValue({ getRowCount() { return 1; }});
-            controller.rootNode = {
-                key: "root",
-                isExpandable: true,
-                children: [],
-                isExpanded: false
-            };
+            controller.rootNode = {} as ITreeViewNodeVM;
             controller.rootNodeVisible = true;
 
             // Act
@@ -273,8 +268,9 @@ describe("BPTreeViewController", () => {
                 isExpandable: true,
                 children: [],
                 isExpanded: false,
+                isSelectable() { return true; },
                 loadChildrenAsync() { this.children = children; return $q.resolve(); }
-            };
+            } as ITreeViewNodeVM;
 
             // Act
             controller.resetGridAsync(false).then(() => {
@@ -295,11 +291,8 @@ describe("BPTreeViewController", () => {
             // Arrange
             (controller.options.api.getModel as jasmine.Spy).and.returnValue({ getRowCount() { return 1; }});
             controller.rootNode = {
-                key: "root",
-                isExpandable: true,
-                children: [{key: "child"}] as ITreeViewNodeVM[],
-                isExpanded: false
-            };
+                children: [{key: "child"}] as ITreeViewNodeVM[]
+            } as ITreeViewNodeVM;
 
             // Act
             controller.resetGridAsync(false).then(() => {
@@ -570,7 +563,7 @@ describe("BPTreeViewController", () => {
         it("onRowSelected, when selected and selectable, calls onSelect correctly", () => {
             // Arrange
             controller.onSelect = jasmine.createSpy("onSelect");
-            const vm = {} as ITreeViewNodeVM;
+            const vm = {isSelectable() { return true; }} as ITreeViewNodeVM;
             const node = {data: vm, isSelected: () => true} as agGrid.RowNode;
             (controller.options.api.getSelectedRows as jasmine.Spy).and.returnValue([node.data]);
 
@@ -612,7 +605,7 @@ describe("BPTreeViewController", () => {
             expect(controller.onSelect).not.toHaveBeenCalled();
         });
 
-        it("onRowSelected, when not selected, does not call onSelect", () => {
+        it("onRowSelected, when not selected, calls onSelect correctly", () => {
             // Arrange
             controller.onSelect = jasmine.createSpy("onSelect");
             const vm = {} as ITreeViewNodeVM;

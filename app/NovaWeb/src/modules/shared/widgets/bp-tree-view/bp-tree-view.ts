@@ -53,7 +53,7 @@ export interface ITreeViewNodeVM {
     isExpandable: boolean;
     children: ITreeViewNodeVM[];
     isExpanded: boolean;
-    isSelectable?(): boolean;
+    isSelectable(): boolean;
     loadChildrenAsync?(): ng.IPromise<any>; // To lazy-load children
 }
 
@@ -162,7 +162,7 @@ export class BPTreeViewController implements IBPTreeViewController {
             if (this.rootNode) {
                 if (this.rootNodeVisible) {
                     rowDataAsync = [this.rootNode];
-                } else if (this.rootNode.loadChildrenAsync) {
+                } else if (angular.isFunction(this.rootNode.loadChildrenAsync)) {
                     rowDataAsync = this.rootNode.loadChildrenAsync().then(() => this.rootNode.children);
                 } else {
                     rowDataAsync = this.rootNode.children;
@@ -266,7 +266,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                 row.classList.remove(node.expanded ? "ag-row-group-contracted" : "ag-row-group-expanded");
                 row.classList.add(node.expanded ? "ag-row-group-expanded" : "ag-row-group-contracted");
             }
-            if (node.expanded && vm.loadChildrenAsync) {
+            if (node.expanded && angular.isFunction(vm.loadChildrenAsync)) {
                 if (row) {
                     row.classList.add("ag-row-loading");
                 }
@@ -310,7 +310,7 @@ export class BPTreeViewController implements IBPTreeViewController {
             } else {
                 node.setSelectedParams({newValue: true, clearSelection: true});
             }
-        } else if (vm.isSelectable ? vm.isSelectable() : true) {
+        } else if (vm.isSelectable()) {
             node.setSelectedParams({newValue: true, clearSelection: !multiSelectKeyPressed, rangeSelect: shiftKeyPressed});
         }
     }
@@ -319,7 +319,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         const node = event.node;
         const isSelected = node.isSelected();
         const vm = node.data as ITreeViewNodeVM;
-        if (isSelected && ((vm.isSelectable && !vm.isSelectable()) || !this.isVisible(node))) {
+        if (isSelected && (!vm.isSelectable() || !this.isVisible(node))) {
             node.setSelected(false);
         } else if (this.onSelect) {
             this.onSelect({vm: vm, isSelected: isSelected, selectedVMs: this.options.api.getSelectedRows() as ITreeViewNodeVM[]});

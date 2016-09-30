@@ -8,6 +8,7 @@ import {ProcessGraph} from "./presentation/graph/process-graph";
 import {ICommunicationManager} from "../../../bp-process";
 import {IDialogService} from "../../../../shared";
 import {ShapesFactory} from "./presentation/graph/shapes/shapes-factory";
+import {IArtifactManager} from "../../../bp-base-editor";
 
 export class ProcessDiagram {
     public processModel: IProcess;
@@ -30,7 +31,8 @@ export class ProcessDiagram {
         private communicationManager: ICommunicationManager,
         private dialogService: IDialogService,
         private localization: ILocalizationService,
-        private navigationService: INavigationService) {
+        private navigationService: INavigationService,
+        private artifactManager: IArtifactManager) {
 
         this.processModel = null;
     }
@@ -138,7 +140,8 @@ export class ProcessDiagram {
                             this.localization,
                             this.messageService,
                             this.$log,
-                            this.shapesFactory);
+                            this.shapesFactory,
+                            this.artifactManager);
         } catch (err) {
             this.handleInitProcessGraphFailed(processViewModel.id, err);
         }

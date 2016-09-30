@@ -3,7 +3,7 @@
 export class ProcessServiceMock implements IProcessService {
     private processModel;
     constructor(private $q: ng.IQService) {
-        this.processModel = <any>{ projectId: 1, id: 1111, status: { isLocked: true, isLockedByMe: true } };
+        this.processModel = <any>{ projectId: 1, id: 1111, status: { isLocked: true, isLockedByMe: true }, shapes:[], links: []};
     }
 
     public load(processId: string, versionId?: number, revisionId?: number, baselineId?: number, readOnly?: boolean): ng.IPromise<ProcessModels.IProcess> {

@@ -33,12 +33,12 @@ namespace SearchService.Repositories
         /// <returns></returns>
         public async Task<IEnumerable<ProjectSearchResult>> GetProjectsByName(int userId, string searchText, int resultCount)
         {
-            var repliesPrm = new DynamicParameters();
-            repliesPrm.Add("@userId", userId);
-            repliesPrm.Add("@projectName", searchText);
-            repliesPrm.Add("@resultCount", resultCount);
+            var searchPrms = new DynamicParameters();
+            searchPrms.Add("@userId", userId);
+            searchPrms.Add("@projectName", searchText);
+            searchPrms.Add("@resultCount", resultCount);
 
-            return (await ConnectionWrapper.QueryAsync<ProjectSearchResult>("GetProjectsByName", repliesPrm, commandType: CommandType.StoredProcedure)).ToList();
+            return (await ConnectionWrapper.QueryAsync<ProjectSearchResult>("GetProjectsByName", searchPrms, commandType: CommandType.StoredProcedure)).ToList();
         }
     }
 }

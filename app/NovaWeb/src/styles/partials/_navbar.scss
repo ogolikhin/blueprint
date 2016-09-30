@@ -1,9 +1,13 @@
 .navbar {
   border: 0;
   display: block;
+  left: 0;
   margin: 0;
   min-height: $navbar-height;
+  min-width: $app-minimum-width;
   padding: 0;
+  position: absolute;
+  top: 0;
 
   .navbar-header {
     background: $navbar-color url('images/logo-storyteller-white.svg') 15px no-repeat;

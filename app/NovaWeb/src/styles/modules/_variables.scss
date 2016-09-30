@@ -35,7 +35,7 @@ $tree-hover-background: #e5f3fb;
 $tree-focus-background: #e5f3fb;
 $tree-focus-border: #70c0e7;
 
-  //font
+//font
 $font-family-base: 'Open Sans', Arial, Helvetica, sans-serif;
 
 $font-size-root:     10px;
@@ -55,7 +55,10 @@ $font-weight-semibold: 600;
 $font-weight-bold: 700;
 $font-weight-extrabold: 800;
 
-// padding
+//app minimum global width
+$app-minimum-width: 640px;
+
+//padding
 $padding-smallest: 5px;
 $padding-smaller: 7px;
 $padding-root: 10px;

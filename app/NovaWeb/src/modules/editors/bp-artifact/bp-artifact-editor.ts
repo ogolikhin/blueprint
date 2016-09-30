@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import { ILocalizationService, Message } from "../../core";
 import { IWindowManager, IMainWindow } from "../../main";
 //import { Models, Enums } from "../../main";
@@ -91,7 +92,9 @@ export class BpArtifactEditor extends BpBaseEditor {
             });
 
             let isReadOnly = this.artifact.artifactState.readonly || this.artifact.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
-            field.templateOptions["isReadOnly"] = isReadOnly;
+            if (isReadOnly) {
+                field.templateOptions.disabled = true;
+            }
             if (isReadOnly) {
                 if (field.key !== "documentFile" &&
                     field.type !== "bpFieldImage" &&

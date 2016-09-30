@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using static Model.ArtifactModel.Impl.NovaArtifactDetails;
+using Model.ArtifactModel.Impl;
 
 namespace Model.ArtifactModel
 {
-    public interface INovaArtifactBase
+    public interface INovaArtifactBase : INovaArtifactObservable
     {
         #region Serialized JSON Properties
 
@@ -46,12 +47,13 @@ namespace Model.ArtifactModel
     {
         #region Serialized JSON Properties
 
+        List<AttachmentValue> AttachmentValues { get; }
         Identification CreatedBy { get; set; }
         DateTime? CreatedOn { get; set; }
         string Description { get; set; }
         int ItemTypeVersionId { get; set; }
         int Permissions { get; set; }
-        double OrderIndex { get; set; }
+        double? OrderIndex { get; set; }
         Identification LastEditedBy { get; set; }
         DateTime? LastEditedOn { get; set; }
         Identification LockedByUser { get; set; } // this is an optional properties depending on state status of the target artifact

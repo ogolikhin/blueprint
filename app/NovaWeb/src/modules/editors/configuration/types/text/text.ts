@@ -12,7 +12,7 @@ export class BPFieldText implements AngularFormly.ITypeOptions {
             $scope["fc"].$setTouched();
         });
     };
-    public controller: Function = BpFieldTextController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldTextController;
 }
 
 export class BpFieldTextController extends BPFieldBaseController {

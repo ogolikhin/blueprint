@@ -6,7 +6,7 @@ module.exports = [
         exclude: [
            
         ],
-        loader: 'ts-loader'
+        loader: 'awesome-typescript-loader'
     },     {
         test: /\.css$/,
         loader: ExtractTextPlugin.extract('style-loader', 'css-loader?sourceMap')
@@ -48,6 +48,11 @@ module.exports = [
           ]
     }, {
         test: require.resolve(path.join(__dirname, '../libs/mxClient/js/mxClient.js')),
+        loaders: [
+            'imports?mxBasePath=>"./novaweb/libs/mxClient", mxLoadStylesheets=>false, mxLoadResources=>false'
+        ]
+    }, {
+        test: require.resolve(path.join(__dirname, '../libs/mxClient/js/mxClient.min.js')),
         loaders: [
             'imports?mxBasePath=>"./novaweb/libs/mxClient", mxLoadStylesheets=>false, mxLoadResources=>false'
         ]

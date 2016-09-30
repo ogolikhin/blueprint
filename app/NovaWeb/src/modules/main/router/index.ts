@@ -1,4 +1,5 @@
-﻿import {ArtifactStateController} from "./artifact.state";
+﻿import * as angular from "angular";
+import {ArtifactStateController} from "./artifact.state";
 import {DetailsStateController} from "./editor-states/details.state";
 import {DiagramStateController} from "./editor-states/diagram.state";
 import {GeneralStateController} from "./editor-states/general.state";

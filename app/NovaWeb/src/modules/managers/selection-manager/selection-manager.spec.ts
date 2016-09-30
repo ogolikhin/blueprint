@@ -1,6 +1,6 @@
 // import "angular";
 // import "angular-mocks";
-// import "Rx";
+// import "rx/dist/rx.lite";
 // import { IArtifact, ISubArtifact } from "./../models/models";
 // import { SelectionManager, SelectionSource } from "./selection-manager";
 

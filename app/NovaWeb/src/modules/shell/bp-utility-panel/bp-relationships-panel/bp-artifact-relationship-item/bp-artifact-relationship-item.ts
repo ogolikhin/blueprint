@@ -1,17 +1,19 @@
 ﻿import { ILocalizationService } from "../../../../core";
-import { Helper } from "../../../../shared";
+import { Helper, IDialogService } from "../../../../shared";
 import { Relationships } from "../../../../main";
-import { IArtifactManager, SelectionSource } from "../../../../managers";
-import { IStatefulArtifact } from "../../../../managers/models";
+import { IArtifactManager } from "../../../../managers";
+import {IStatefulArtifact} from "../../../../managers/models";
 import { IRelationshipDetailsService } from "../../../";
 
 export class BPArtifactRelationshipItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-relationship-item.html");
-    public controller: Function = BPArtifactRelationshipItemController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPArtifactRelationshipItemController;
     public bindings: any = {
         artifact: "=",
         selectedTraces: "=",
-        selectable: "@"
+        selectable: "@",
+        deleteItem: "&",
+        isItemReadOnly: "<"
     };
 }
 
@@ -20,29 +22,50 @@ export interface IResult {
     index: number;
 }
 
-export class BPArtifactRelationshipItemController {
+interface IBPArtifactRelationshipItemController {
+    deleteItem: Function;
+}
+
+export class BPArtifactRelationshipItemController implements IBPArtifactRelationshipItemController{
     public static $inject: [string] = [
         "localization",
         "relationshipDetailsService",
-        "artifactManager"
+        "artifactManager",
+        "dialogService"
     ];
 
     public expanded: boolean = false;
     public relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo;
     public artifact: Relationships.IRelationship;
+    public isItemReadOnly: boolean;
     public selectedTraces: Relationships.IRelationship[];
     public fromOtherProject: boolean = false;  
     public selectable: boolean = false;
+    public deleteItem: Function;
 
     constructor(
         private localization: ILocalizationService,
         private relationshipDetailsService: IRelationshipDetailsService,
-        private artifactManager: IArtifactManager) {
+        private artifactManager: IArtifactManager,
+        private dialogService: IDialogService
+    ) {
 
     }
 
     public get isSelected() {
         return this.selectable.toString() === "true" && this.artifact.isSelected;
+    }
+
+    public setDirection(direction: Relationships.TraceDirection): void {
+        if (this.artifact.hasAccess) {
+            this.artifact.traceDirection = direction;
+        }
+    }
+
+    public toggleFlag() {
+        if (this.artifact.hasAccess) {
+            this.artifact.suspect = this.artifact.suspect === true ? false : true;
+        }
     }
 
     public expand($event) {
@@ -56,8 +79,7 @@ export class BPArtifactRelationshipItemController {
         this.expanded = !this.expanded;
     }
 
-    public select() {       
-        if (this.selectable.toString() === "true") {
+    public selectTrace() {
             if (!this.artifact.isSelected) {
                 if (this.selectedTraces) {
                     let res = this.inArray(this.selectedTraces);
@@ -74,7 +96,6 @@ export class BPArtifactRelationshipItemController {
                 }
             }
             this.artifact.isSelected = !this.artifact.isSelected;
-        }
     }
 
     public remove($event) {

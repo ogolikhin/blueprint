@@ -1,4 +1,5 @@
-﻿import { Models} from "../../models";
+﻿import * as angular from "angular";
+import { Models} from "../../models";
 import { Helper, IBPTreeController, ITreeNode } from "../../../shared";
 import { IProjectManager, IArtifactManager} from "../../../managers";
 import { Project } from "../../../managers/project-manager";
@@ -7,7 +8,7 @@ import { INavigationService } from "../../../core/navigation/navigation.svc";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
-    public controller: Function = ProjectExplorerController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = ProjectExplorerController;
     public transclude: boolean = true;
 }
 
@@ -104,7 +105,21 @@ export class ProjectExplorerController {
                     this.selected = projects[0];
                     this.navigationService.navigateToArtifact(this.selected.id);
                 }
-                this.tree.selectNode(this.selected.id);
+                if (this.tree.nodeExists(this.selected.id)){
+                    this.tree.selectNode(this.selected.id);
+                }else {
+                    if (this.selected.parentNode && this.tree.nodeExists(this.selected.parentNode.id)){
+                        this.tree.selectNode(this.selected.parentNode.id);
+                    }else {
+                        if (this.tree.nodeExists(this.selected.projectId)) {
+                            this.tree.selectNode(this.selected.projectId);
+                        } else {
+                            this.artifactManager.selection.setExplorerArtifact(null);
+                            this.navigationService.navigateToMain();
+                        }
+                    }
+                }
+                
             } else {
                 this.artifactManager.selection.setExplorerArtifact(null);
                 this.navigationService.navigateToMain();

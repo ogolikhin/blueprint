@@ -6,17 +6,8 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var webpack = require('webpack');
 var path = require('path');
 var vendor_libs = require('./vendors');
+var proxy_config = require('./proxy.dev');
 
-
-var backend = process.env.npm_config_backend || process.env.npm_package_config_backend || "http://localhost:9801";
-console.log({backend: backend});
-
-var url = require('url'),
-   proxy = require('proxy-middleware');
-var svcProxyOptions = url.parse(backend + '/svc');
-svcProxyOptions.route = '/svc';
-var sharedProxyOptions = url.parse(backend + '/shared');
-sharedProxyOptions.route = '/shared';
 
 var del = require('del');
 del(['dist/*']);
@@ -78,7 +69,7 @@ module.exports = {
             port: 8000,
             server: {
                 baseDir: 'dist',
-                middleware: [proxy(svcProxyOptions), proxy(sharedProxyOptions)]
+                middleware: proxy_config
             },
             ui: false,
             online: false,

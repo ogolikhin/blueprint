@@ -4,7 +4,7 @@ import {ProcessType} from "../../models/enums";
 
 export class BpProcessTypeToggle implements ng.IComponentOptions {
     public template: string = require("./bp-process-type-toggle.html");
-    public controller: Function = BpProcessTypeToggleController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpProcessTypeToggleController;
     public controllerAs: string = "$ctrl";
 }
 

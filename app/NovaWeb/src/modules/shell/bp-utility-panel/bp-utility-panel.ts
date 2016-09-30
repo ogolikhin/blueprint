@@ -1,4 +1,5 @@
-﻿import { ILocalizationService } from "../../core";
+﻿import * as angular from "angular";
+import { ILocalizationService } from "../../core";
 import { Helper } from "../../shared";
 import { Models } from "../../main";
 import { IArtifactManager, ISelection, IStatefulItem } from "../../managers/artifact-manager";
@@ -15,7 +16,7 @@ export enum PanelType {
 
 export class BPUtilityPanel implements ng.IComponentOptions {
     public template: string = require("./bp-utility-panel.html");
-    public controller: Function = BPUtilityPanelController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPUtilityPanelController;
 }
 
 export class BPUtilityPanelController {
@@ -58,7 +59,7 @@ export class BPUtilityPanelController {
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
-    public $onInit(o) {
+    public $onInit() {
         const selectionObservable = this.artifactManager.selection.selectionObservable
             .distinctUntilChanged()
             .subscribe(this.onSelectionChanged);

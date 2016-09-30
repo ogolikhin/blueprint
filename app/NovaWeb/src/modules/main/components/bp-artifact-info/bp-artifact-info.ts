@@ -1,15 +1,16 @@
-﻿import { Models, Enums } from "../../models";
+﻿import * as angular from "angular";
+import { Models, Enums } from "../../models";
 import { IWindowManager, IMainWindow, ResizeCause } from "../../services";
 import { IMessageService, Message, MessageType, ILocalizationService } from "../../../core";
 import { Helper, IDialogSettings, IDialogService } from "../../../shared";
-import { ArtifactPickerController, IArtifactPickerOptions } from "../dialogs/bp-artifact-picker/bp-artifact-picker";
+import { ArtifactPickerDialogController, IArtifactPickerOptions } from "../bp-artifact-picker";
 import { ILoadingOverlayService } from "../../../core/loading-overlay";
 import { IArtifactManager, IStatefulArtifact } from "../../../managers/artifact-manager";
 import { INavigationService } from "../../../core/navigation/navigation.svc";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
-    public controller: Function = BpArtifactInfoController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactInfoController;
     public transclude: boolean = true;
     public bindings: any = {
         context: "<"
@@ -53,7 +54,7 @@ export class BpArtifactInfoController {
         private dialogService: IDialogService,
         private windowManager: IWindowManager,
         private loadingOverlayService: ILoadingOverlayService,
-        private navigationService: INavigationService
+        protected navigationService: INavigationService
     ) {
         this.initProperties();
         this.subscribers = [];
@@ -222,13 +223,14 @@ export class BpArtifactInfoController {
     public openPicker($event: MouseEvent) {
         const dialogSettings: IDialogSettings = {
             okButton: this.localization.get("App_Button_Ok"),
-            template: require("../dialogs/bp-artifact-picker/bp-artifact-picker.html"),
-            controller: ArtifactPickerController,
+            template: require("../bp-artifact-picker/bp-artifact-picker-dialog.html"),
+            controller: ArtifactPickerDialogController,
             css: "nova-open-project",
             header: "Some header"
         };
 
         const dialogData: IArtifactPickerOptions = {
+            selectableItemTypes: $event.altKey ? [Models.ItemTypePredefined.Document] : undefined,
             selectionMode: $event.shiftKey ? "multiple" : ($event.ctrlKey || $event.metaKey) ? "checkbox" : "single",
             showSubArtifacts: true
         };

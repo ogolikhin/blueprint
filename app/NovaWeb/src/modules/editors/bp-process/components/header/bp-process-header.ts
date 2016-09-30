@@ -7,16 +7,19 @@ import { IToolbarCommunication } from "./toolbar-communication";
 import { ICommunicationManager } from "../../"; 
 import { ILoadingOverlayService } from "../../../../core/loading-overlay";
 import { INavigationService } from "../../../../core/navigation/navigation.svc";
+import { IArtifactReference, IBreadcrumbService } from "../../services/breadcrumb.svc";
+import { IBreadcrumbLink } from "../../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
 
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("./bp-process-header.html");
-    public controller: Function = BpProcessHeaderController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpProcessHeaderController;
     public transclude: boolean = true;
 }
 
 export class BpProcessHeaderController extends BpArtifactInfoController {
     private toolbarCommunicationManager: IToolbarCommunication;
     private enableDeleteButtonHandler: string;
+    private breadcrumbLinks: IBreadcrumbLink[];
     public isDeleteButtonEnabled: boolean;
     
     static $inject: [string] = [
@@ -29,7 +32,9 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "windowManager", 
         "communicationManager", 
         "loadingOverlayService",
-        "navigationService"];
+        "navigationService",
+        "breadcrumbService"
+    ];
     
     constructor(
         $scope: ng.IScope,
@@ -41,7 +46,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         windowManager: IWindowManager,
         communicationManager: ICommunicationManager,
         loadingOverlayService: ILoadingOverlayService,
-        navigationService: INavigationService
+        navigationService: INavigationService,
+        private breadcrumbService: IBreadcrumbService
     ) {
         super(
             $scope,
@@ -54,19 +60,28 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             loadingOverlayService,
             navigationService
         );
+
+        this.breadcrumbLinks = [];
         this.isDeleteButtonEnabled = false;
         this.toolbarCommunicationManager = communicationManager.toolbarCommunicationManager;
         this.enableDeleteButtonHandler = this.toolbarCommunicationManager.registerEnableDeleteObserver(this.enableDeleteButton);
     }
 
-    public enableDeleteButton = (value: boolean) => {
-        this.$scope.$applyAsync((s) => {
-            this.isDeleteButtonEnabled = value;
-        });
-    }
+    public $onInit() {
+        this.breadcrumbService.getReferences()
+            .then((result: IArtifactReference[]) => {
+                for (let i: number = 0; i < result.length; i++) {
+                    const artifactReference = result[i];
+                    const breadcrumbLink: IBreadcrumbLink = {
+                        id: artifactReference.id,
+                        name: artifactReference.name,
+                        isEnabled: i !== result.length - 1 && !!artifactReference.link
+                    };
+                    this.breadcrumbLinks.push(breadcrumbLink);
+                }
+            });
 
-    public clickDelete() {
-        this.toolbarCommunicationManager.clickDelete();
+        super.$onInit();
     }
 
     public $onDestroy() {
@@ -75,5 +90,24 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         //dispose subscribers
         this.toolbarCommunicationManager.removeEnableDeleteObserver(this.enableDeleteButtonHandler);
     }
-    
+
+    public enableDeleteButton = (value: boolean) => {
+        this.$scope.$applyAsync((s) => {
+            this.isDeleteButtonEnabled = value;
+        });
+    }
+
+    public navigateTo = (link: IBreadcrumbLink): void => {
+        if (!!link && link.isEnabled) {
+            const index = this.breadcrumbLinks.indexOf(link);
+
+            if (index >= 0) {
+                this.navigationService.navigateBack(index);
+            }
+        }
+    }
+
+    public clickDelete() {
+        this.toolbarCommunicationManager.clickDelete();
+    }
 }

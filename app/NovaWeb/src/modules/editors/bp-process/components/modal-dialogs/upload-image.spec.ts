@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import {SystemTask} from "../diagram/presentation/graph/shapes/system-task";
 import {ShapesFactory} from "../diagram/presentation/graph/shapes/shapes-factory";
 import {ITaskFlags} from "../../models/process-models";

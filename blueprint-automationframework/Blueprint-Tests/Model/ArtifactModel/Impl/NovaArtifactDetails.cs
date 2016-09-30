@@ -5,16 +5,100 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Common;
 using Utilities;
 
 namespace Model.ArtifactModel.Impl
 {
-    public class NovaArtifactDetails : INovaArtifactDetails
+    public abstract class NovaArtifactBase : INovaArtifactBase
     {
+        /// <summary>If this artifact was deleted, this will contain all related artifacts that were also deleted with it.</summary>
+        [JsonIgnore]
+        public List<int> DeletedArtifactIds { get; } = new List<int>();
+
+        #region Serialized properties
+
+        public abstract int Id { get; set; }
+        public abstract int? ItemTypeId { get; set; }
+        public abstract string Name { get; set; }
+        public abstract int ParentId { get; set; }
+        public abstract int ProjectId { get; set; }
+        public abstract int Version { get; set; }
+
+        #endregion Serialized properties
+
+        #region IArtifactObservable methods
+
+        [JsonIgnore]
+        public List<INovaArtifactObserver> NovaArtifactObservers { get; private set; }
+
+        /// <seealso cref="RegisterObserver(INovaArtifactObserver)"/>
+        public void RegisterObserver(INovaArtifactObserver observer)
+        {
+            if (NovaArtifactObservers == null)
+            {
+                NovaArtifactObservers = new List<INovaArtifactObserver>();
+            }
+
+            NovaArtifactObservers.Add(observer);
+        }
+
+        /// <seealso cref="UnregisterObserver(INovaArtifactObserver)"/>
+        public void UnregisterObserver(INovaArtifactObserver observer)
+        {
+            NovaArtifactObservers?.Remove(observer);
+        }
+
+        /// <seealso cref="NotifyArtifactDeletion(List{INovaArtifactBase})"/>
+        public void NotifyArtifactDeletion(List<INovaArtifactBase> deletedArtifactsList)
+        {
+            ThrowIf.ArgumentNull(deletedArtifactsList, nameof(deletedArtifactsList));
+
+            // Notify the observers about any artifacts that were deleted as a result of this publish.
+            foreach (var deletedArtifact in deletedArtifactsList)
+            {
+                var artifactIds = ((NovaArtifact) deletedArtifact).DeletedArtifactIds;
+
+                Logger.WriteDebug("*** Notifying observers about deletion of artifact IDs: {0}", string.Join(", ", artifactIds));
+                deletedArtifact.NovaArtifactObservers?.ForEach(o => o.NotifyArtifactDeletion(artifactIds));
+            }
+        }
+
+        /// <seealso cref="NotifyArtifactPublish(List{INovaArtifactResponse})"/>
+        public void NotifyArtifactPublish(List<INovaArtifactResponse> publishedArtifactsList)
+        {
+            ThrowIf.ArgumentNull(publishedArtifactsList, nameof(publishedArtifactsList));
+
+            // Notify the observers about any artifacts that were deleted as a result of this publish.
+            IEnumerable<int> publishedArtifactIds =
+                from result in publishedArtifactsList
+                select result.Id;
+
+            // Convert to a list to remove the "Possible multiple enumeration" warning.
+            var artifactIds = publishedArtifactIds as IList<int> ?? publishedArtifactIds.ToList();
+
+            Logger.WriteDebug("*** Notifying observers about publish of artifact IDs: {0}", string.Join(", ", artifactIds));
+            NovaArtifactObservers?.ForEach(o => o.NotifyArtifactPublish(artifactIds));
+        }
+
+        #endregion IArtifactObservable methods
+    }
+
+    public class NovaArtifactDetails : NovaArtifactBase, INovaArtifactDetails
+    {
+        //this function is used by Newtonsoft.Json to determine when to serialize property. See help for Newtonsoft.Json.Serialization
+        public bool ShouldSerializeAttachmentValues()
+        {
+            return AttachmentValues.Count > 0;
+        }
+
         #region Serialized JSON Properties
 
-        public int ProjectId { get; set; }
-        public int Version { get; set; }
+        // NOTE: Keep the properties in this order so the shouldControlJsonChanges option in RestApiFacade works properly.  This is the order of the incoming JSON.
+
+        public override int ProjectId { get; set; }
+        public override int Version { get; set; }
+        public List<AttachmentValue> AttachmentValues { get; } = new List<AttachmentValue>();
         public DateTime? CreatedOn { get; set; }
         public DateTime? LastEditedOn { get; set; }
         public Identification CreatedBy { get; set; }
@@ -23,12 +107,12 @@ namespace Model.ArtifactModel.Impl
         public int Permissions { get; set; }
         public Identification LockedByUser { get; set; }
         public DateTime? LockedDateTime { get; set; }
-        public int Id { get; set; }
-        public string Name { get; set; }
+        public override int Id { get; set; }
+        public override string Name { get; set; }
         public string Description { get; set; }
-        public int ParentId { get; set; }
-        public double OrderIndex { get; set; }
-        public int? ItemTypeId { get; set; }
+        public override int ParentId { get; set; }
+        public double? OrderIndex { get; set; }
+        public override int? ItemTypeId { get; set; }
         public int ItemTypeVersionId { get; set; }
         public string Prefix { get; set; }
         public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();
@@ -39,12 +123,16 @@ namespace Model.ArtifactModel.Impl
 
         #region Constructors
 
+        // ReSharper disable once RedundantBaseConstructorCall
+        // ReSharper disable once EmptyConstructor
         public NovaArtifactDetails() : base()
         {
             //base constructor
         }
 
         #endregion Constructors
+
+        #region Assert functions
 
         /// <summary>
         /// Asserts that this INovaArtifactDetails object is equal to the specified IArtifactBase.
@@ -175,6 +263,10 @@ namespace Model.ArtifactModel.Impl
             }
         }
 
+        #endregion Assert functions
+
+        #region Other properties
+
         /// <summary>
         /// Returns ActorInheritanceValue. It represents information from Inherited from field for Actor.
         /// </summary>
@@ -195,7 +287,7 @@ namespace Model.ArtifactModel.Impl
             string actorInheritancePropertyString = actorInheritanceProperty.CustomPropertyValue.ToString();
             var actorInheritanceValue = JsonConvert.DeserializeObject<ActorInheritanceValue>(actorInheritancePropertyString);
 
-                CheckIsJSONChanged<ActorInheritanceValue>(actorInheritanceProperty);
+                CheckIsJsonChanged<ActorInheritanceValue>(actorInheritanceProperty);
 
                 return actorInheritanceValue;
             }
@@ -204,7 +296,11 @@ namespace Model.ArtifactModel.Impl
             {
                 CustomProperty actorInheritanceProperty = SpecificPropertyValues.FirstOrDefault(
                     p => p.PropertyType == PropertyTypePredefined.ActorInheritance);
-                actorInheritanceProperty.CustomPropertyValue = value;
+
+                if (actorInheritanceProperty != null)   // TODO: Should this throw an exception instead?
+                {
+                    actorInheritanceProperty.CustomPropertyValue = value;
+                }
             }
         }
 
@@ -229,7 +325,7 @@ namespace Model.ArtifactModel.Impl
                 // Deserialization
                 //string documentFilePropertyString = documentFileProperty.CustomPropertyValue.ToString();
                 //var documentFilePropertyValue = JsonConvert.DeserializeObject<DocumentFileValue>(documentFilePropertyString);
-                //CheckIsJSONChanged<DocumentFileValue>(documentFileProperty);
+                //CheckIsJsonChanged<DocumentFileValue>(documentFileProperty);
 
                 return (DocumentFileValue)documentFileProperty.CustomPropertyValue;
             }
@@ -239,11 +335,17 @@ namespace Model.ArtifactModel.Impl
                 // Finding DocumentFile among other properties
                 CustomProperty documentFileProperty = SpecificPropertyValues.FirstOrDefault(
                     p => p.PropertyType == PropertyTypePredefined.DocumentFile);
-                documentFileProperty.CustomPropertyValue = value;
+
+                if (documentFileProperty != null)   // TODO: Should this throw an exception instead?
+                {
+                    documentFileProperty.CustomPropertyValue = value;
+                }
             }
         }
 
-        private static void CheckIsJSONChanged<TClass>(CustomProperty property)
+        #endregion Other properties
+
+        private static void CheckIsJsonChanged<TClass>(CustomProperty property)
         {
             // Deserialization
             string specificPropertyString = property.CustomPropertyValue.ToString();
@@ -251,9 +353,9 @@ namespace Model.ArtifactModel.Impl
 
             // Try to serialize and compare with JSON from the server
             string serializedObject = JsonConvert.SerializeObject(specificPropertyValue, Formatting.Indented);
-            bool isJSONChanged = !(string.Equals(specificPropertyString, serializedObject, StringComparison.OrdinalIgnoreCase));
-            string msg = Common.I18NHelper.FormatInvariant("JSON for {0} has been changed!", nameof(TClass));
-            Assert.IsFalse(isJSONChanged, msg);
+            bool isJsonChanged = !(string.Equals(specificPropertyString, serializedObject, StringComparison.OrdinalIgnoreCase));
+            string msg = I18NHelper.FormatInvariant("JSON for {0} has been changed!", nameof(TClass));
+            Assert.IsFalse(isJsonChanged, msg);
         }
 
         public class Identification
@@ -297,17 +399,27 @@ namespace Model.ArtifactModel.Impl
 
         public class CustomProperty
         {
+            [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
             public string Name { get; set; }
 
-            [JsonProperty("value")]
+            [JsonProperty("value", NullValueHandling=NullValueHandling.Ignore)]
             public object CustomPropertyValue { get; set; }
 
             public int PropertyTypeId { get; set; }
 
             public int PropertyTypeVersionId { get; set; }
+            
+            //this function is used by Newtonsoft.Json to determine when to serialize property. See help for Newtonsoft.Json.Serialization
+            public bool ShouldSerializePropertyTypeVersionId()
+            {
+                return PropertyTypeVersionId != 0;
+            }
 
             [JsonProperty("PropertyTypePredefined")]
             public PropertyTypePredefined PropertyType { get; set; }
+
+            [JsonProperty("isReuseReadOnly", NullValueHandling = NullValueHandling.Ignore)]
+            public bool? IsReuseReadOnly { get; set; }
         }
 
 
@@ -323,24 +435,24 @@ namespace Model.ArtifactModel.Impl
     /// <summary>
     /// This is the class returned by some ArtifactStore REST calls.
     /// </summary>
-    public class NovaArtifactResponse : INovaArtifactResponse
+    public class NovaArtifactResponse : NovaArtifactBase, INovaArtifactResponse
     {
         #region Serialized JSON Properties
 
         // NOTE: Keep the properties in this order so the shouldControlJsonChanges option in RestApiFacade works properly.  This is the order of the incoming JSON.
 
-        public int ProjectId { get; set; }
-        public int Version { get; set; }
+        public override int ProjectId { get; set; }
+        public override int Version { get; set; }
         public DateTime? CreatedOn { get; set; }
         public DateTime? LastEditedOn { get; set; }
         public NovaArtifactDetails.Identification CreatedBy { get; set; }
         public NovaArtifactDetails.Identification LastEditedBy { get; set; }
-        public int Id { get; set; }
-        public string Name { get; set; }
+        public override int Id { get; set; }
+        public override string Name { get; set; }
         public string Description { get; set; }
-        public int ParentId { get; set; }
+        public override int ParentId { get; set; }
         public double OrderIndex { get; set; }
-        public int? ItemTypeId { get; set; }
+        public override int? ItemTypeId { get; set; }
         public string Prefix { get; set; }
         public int PredefinedType { get; set; }
 

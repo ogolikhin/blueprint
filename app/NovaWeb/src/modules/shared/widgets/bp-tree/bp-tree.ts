@@ -1,4 +1,4 @@
-﻿import "angular";
+﻿import * as angular from "angular";
 import * as Grid from "ag-grid/main";
 import { ILocalizationService } from "../../../core";
 import { RowNode } from "ag-grid/main";
@@ -28,7 +28,7 @@ tslint:enable
 
 export class BPTreeComponent implements ng.IComponentOptions {
     public template: string = require("./bp-tree.html");
-    public controller: Function = BPTreeController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPTreeController;
     public bindings: any = {
         //properties
         gridClass: "@",
@@ -71,7 +71,8 @@ export interface IBPTreeController {
 
     isEmpty: boolean;
     //to select a row in in ag-grid (by id)
-    selectNode(id: number);                    
+    selectNode(id: number);            
+    nodeExists(id: number): boolean;      
     //to reload datasource with data passed, if id specified the data will be loaded to node's children collection
     reload(data?: any[], id?: number);
     showLoading();
@@ -237,6 +238,15 @@ export class BPTreeController implements IBPTreeController  {
         });
     }
 
+    public nodeExists(id: number): boolean {
+        let found: boolean = false;
+        this.options.api.getModel().forEachNode(function (it) {
+            if (it.data.id === id) {
+                found = true;
+            }
+        });
+        return found;
+    }
 
     //sets a new datasource or add a datasource to specific node  children collection
     public reload(data?: any[], nodeId?: number) {

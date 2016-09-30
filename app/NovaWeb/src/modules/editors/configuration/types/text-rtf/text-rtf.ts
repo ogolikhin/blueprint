@@ -1,11 +1,11 @@
-import "angular";
+import * as angular from "angular";
 import "angular-formly";
 
 export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTF";
     public template: string = require("./text-rtf.template.html");
     public wrapper: string = "bpFieldLabel";
-    public controller: Function = BpFieldTextRTFController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldTextRTFController;
 
     constructor() {
     }

@@ -1,4 +1,5 @@
-﻿import { ILocalizationService } from "../../../core";
+﻿import * as angular from "angular";
+import { ILocalizationService } from "../../../core";
 
 export interface IArtifactDiscussions {
     artifactDiscussions: ng.IPromise<IDiscussion[]>;

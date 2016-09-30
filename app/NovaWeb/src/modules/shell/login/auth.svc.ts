@@ -1,4 +1,4 @@
-﻿import "angular";
+﻿import * as angular from "angular";
 import { SessionTokenHelper } from "./session.token.helper";
 import { ILocalizationService, ISettingsService, IHttpInterceptorConfig } from "../../core";
 import { Helper } from "../../shared";

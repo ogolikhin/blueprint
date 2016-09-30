@@ -1,8 +1,21 @@
-import "angular";
+import * as angular from "angular";
 import "angular-formly";
 import { ILocalizationService, IUsersAndGroupsService, IUserOrGroupInfo } from "../../../../core";
 import { Models } from "../../../../main/models";
 import { BPFieldBaseController } from "../base-controller";
+
+interface IUserGroup extends Models.IUserGroup {
+    isImported?: boolean;
+}
+
+interface IUserPickerItem {
+    value?: IUserGroup;
+    name?: string;
+    email?: string;
+    isGroup?: boolean;
+    isLoginEnabled?: boolean;
+    selected?: boolean;
+}
 
 export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldUserPicker";
@@ -24,7 +37,7 @@ export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
                 if (uiSelectInput && !uiSelectInput.classList.contains("ps-child")) {
                     uiSelectInput.classList.add("ps-child");
                     uiSelectInput.classList.add("ui-select-input");
-                    uiSelectInput.addEventListener("keydown", $scope["bpFieldUserPicker"].closeDropdownOnTab, true);
+                    uiSelectInput.addEventListener("keydown", $scope["bpFieldUserPicker"].onTab, true);
                     uiSelectInput.addEventListener("click", $scope["bpFieldUserPicker"].scrollIntoView, true);
                 }
 
@@ -43,7 +56,7 @@ export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
             }
         });
     };
-    public controller: Function = BpFieldUserPickerController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldUserPickerController;
 
     constructor() {
     }
@@ -88,14 +101,16 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
             if (angular.isArray(currentModelVal) && currentModelVal.length) {
                 // create the initial options in the dropdown just to be able to display the selected options in the field
                 // the dropdown will be dynamically loaded from the webservice
-                $scope.to.options = currentModelVal.map((it: Models.IUserGroup) => {
+                // TODO: remove <any> - needs to return proper interface from map method return statement
+                $scope.to.options = <any>currentModelVal.map((it: IUserGroup) => {
                     return {
                         value: it,
                         name: (it.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + it.displayName
-                    };
+                    } as IUserPickerItem;
                 });
             } else if (angular.isString(currentModelVal)) {
-                let optionsFromString = currentModelVal.split(",").map((it: Models.IUserGroup) => {
+                // TODO: remove <any> - need to return property interface from map return method
+                let optionsFromString = <any>currentModelVal.split(",").map((it: string) => {
                     return {
                         value: {
                             id: -1,
@@ -103,9 +118,10 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                             isImported: true
                         },
                         name: it
-                    };
+                    } as IUserPickerItem;
                 });
                 $scope.to.options = optionsFromString;
+
                 $scope.model[$scope.options["key"]] = optionsFromString;
             }
         }
@@ -114,7 +130,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
             if ($scope["uiSelectContainer"]) {
                 let uiSelectInput = $scope["uiSelectContainer"].querySelector(".ui-select-input") as HTMLElement;
                 if (uiSelectInput) {
-                    uiSelectInput.removeEventListener("keydown", $scope["bpFieldUserPicker"].closeDropdownOnTab, true);
+                    uiSelectInput.removeEventListener("keydown", $scope["bpFieldUserPicker"].onTab, true);
                     uiSelectInput.removeEventListener("click", $scope["bpFieldUserPicker"].scrollIntoView, true);
                 }
             }
@@ -133,16 +149,19 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
     ) {
         return {
             $select: null,
+            currentSelectedItem: -1,
             currentState: null,
             currentLimit: 1000,
             maxLimit: 100,
-            loadMoreAmount: 5,
+            minLimit: 5,
             minimumInputLength: 2,
             showResultsCount: false,
             showLoadMore: false,
             searchInputElement: null,
             listItemElement: null,
             itemsHeight: 40,
+            maxVisibleItems: 7,
+            isScrolling: false,
             labels: {
                 noMatch: localization.get("Property_No_Matching_Options"),
                 minimumLength: localization.get("Property_UserPicker_Placeholder"),
@@ -182,11 +201,35 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                     }
                 }
             },
-            closeDropdownOnTab: this.closeDropdownOnTab,
+            onTab: (event) => {
+                let key = event.keyCode || event.which;
+                if (key === 9) { // 9 = Tab
+                    let userPicker = $scope["bpFieldUserPicker"];
+                    let $select = userPicker.$select;
+                    if ($select.open && userPicker.showLoadMore) {
+                        let button = $scope["uiSelectContainer"].querySelector(".ui-select-results-count button");
+                        if (button) {
+                            if (document.activeElement === button && event.shiftKey) {
+                                userPicker.searchInputElement.focus();
+                            } else if (document.activeElement !== button && !event.shiftKey) {
+                                $select.activeIndex = -1;
+                                button.focus();
+                            }
+                        } else {
+                            this.closeDropdownOnTab(event);
+                        }
+                        event.stopPropagation();
+                        event.stopImmediatePropagation();
+                        event.preventDefault();
+                    } else {
+                        this.closeDropdownOnTab(event);
+                    }
+                }
+            },
             scrollIntoView: this.scrollIntoView,
             resetSettings: function () {
                 this.currentState = null;
-                this.currentLimit = this.loadMoreAmount;
+                this.currentLimit = this.minLimit;
                 this.showResultsCount = false;
                 this.showLoadMore = false;
                 if (this.listItemElement) {
@@ -201,6 +244,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                         <button
                             ng-if="bpFieldUserPicker.showLoadMore"
                             ng-click="bpFieldUserPicker.loadMore()"
+                            ng-keydown="bpFieldUserPicker.onTab($event)"
                             ng-bind="bpFieldUserPicker.labels.showMore"></button>
                     </li>`;
                 angular.element(uiSelectChoices).append($compile(uiSelectLoadMore)(<any>$scope));
@@ -209,14 +253,19 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 this.listItemElement = uiSelectChoices.querySelector("li.ui-select-choices-group") as HTMLElement;
             },
             removeImportedUsers: function($select) {
-                $select.selected = $select.selected.filter((elem) => {
-                    return !elem.value.isImported;
-                });
+                if ($select.selected && $select.selected.length > 0) {
+                    $select.selected = $select.selected.filter((elem) => {
+                        return !elem.value.isImported;
+                    });
+                }
 
-                let model = $scope.model[$scope.options["key"]].filter((elem) => {
-                    return !elem.isImported;
-                });
-                $scope.model[$scope.options["key"]] = model;
+                let model = $scope.model[$scope.options["key"]];
+                if (model && angular.isArray(model) && model.length > 0) {
+                    model = model.filter((elem) => {
+                        return !elem.isImported;
+                    });
+                    $scope.model[$scope.options["key"]] = model;
+                }
             },
             loadMore: function () {
                 if (this.currentLimit < this.maxLimit && this.$select) {
@@ -230,7 +279,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 let query = $select.search;
                 if (query.length >= this.minimumInputLength) {
                     if (loadMore) {
-                        this.currentLimit += this.loadMoreAmount;
+                        this.currentLimit = this.maxLimit;
                     }
                     this.currentState = "searching";
                     usersAndGroupsService.search(
@@ -238,12 +287,13 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                         true, //emailDiscussion has to be set to true so that als users without email get returned
                         //max number of users to return. We ask for 1 more so to know if we need to show the "Load more"
                         //if more than maxLimit, we ask for maxLimit
-                        this.currentLimit < this.maxLimit ? this.currentLimit + 1 : this.maxLimit,
+                        this.currentLimit < this.maxLimit ? this.minLimit + 1 : this.maxLimit,
                         false //do not include guest users
                     ).then(
                         (users) => {
-                            $scope.to.options = users.map((item: IUserOrGroupInfo) => {
-                                let e: any = {};
+                            // TODO: remove <any> - need to return property interface from map return method
+                            $scope.to.options = <any>users.map((item: IUserOrGroupInfo) => {
+                                let e: IUserPickerItem = {};
                                 e[$scope.to.valueProp] = {
                                     id: parseInt(angular.isNumber(item.id) ? item.id : item.id.substr(1), 10),
                                     displayName: item.name,
@@ -259,21 +309,26 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                             $select.items = $scope.to.options;
                             this.currentState = $scope.to.options.length ? null : "no-match";
 
-                            this.showResultsCount = $scope.to.options.length > this.currentLimit;
-                            this.showLoadMore = $scope.to.options.length > this.currentLimit && $scope.to.options.length < this.maxLimit;
+                            this.showResultsCount = (
+                                    $scope.to.options.length > this.minLimit &&
+                                    !loadMore
+                                ) || (
+                                    $scope.to.options.length === this.maxLimit &&
+                                    this.currentLimit === this.maxLimit
+                                );
+                            this.showLoadMore = this.currentLimit !== this.maxLimit;
 
                             if (this.listItemElement) {
                                 let height = this.showResultsCount ? $scope.to.options.length - 1 : $scope.to.options.length;
+                                if (height > this.maxVisibleItems) {
+                                    height = this.maxVisibleItems;
+                                }
                                 height = (height * this.itemsHeight) + (this.showResultsCount ? 56 : 0) + 2; //borders
-                                this.listItemElement.parentElement.style.height = height.toString() + "px";
+                                this.listItemElement.parentElement.style.height =
+                                    this.listItemElement.parentElement.style.maxHeight = height.toString() + "px";
                             }
 
                             this.$select = $select;
-
-                            // $scope["$applyAsync"](() => {
-                            //     $select.activeIndex = $select.items.length - (this.showResultsCount ? 2 : 1);
-                            //     $select.activeIndex = 0;
-                            // });
                         },
                         () => {
                             $scope.to.options = [];
@@ -289,22 +344,38 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                     this.resetSettings();
                 }
             },
-            findDropdown: function ($select): HTMLElement {
-                let dropdown: HTMLElement;
-                let elements = $select.$element.find("ul");
-                for (let i = 0; i < elements.length; i++) {
-                    if (elements[i].classList.contains("ui-select-choices")) {
-                        dropdown = elements[i];
-                        break;
-                    }
-                }
-                return dropdown;
-            },
             onOpenClose: function (isOpen: boolean, $select, options) {
                 $select.items = [];
                 $scope.to.options = [];
 
                 this.resetSettings();
+
+                if (this.listItemElement) {
+                    if (isOpen) {
+                        angular.element(this.listItemElement).on("scroll", this.onScroll);
+                    } else {
+                        angular.element(this.listItemElement).off("scroll", this.onScroll);
+                    }
+                }
+            },
+            onScroll: function (event) {
+                let dropdown = this;
+                if (!$scope["bpFieldUserPicker"].isScrolling) {
+                    //using requestAnimationFrame to throttle the event (see: https://developer.mozilla.org/en-US/docs/Web/Events/scroll)
+                    window.requestAnimationFrame(() => {
+                        let $select = $scope["bpFieldUserPicker"].$select;
+                        let itemsHeight = $scope["bpFieldUserPicker"].itemsHeight;
+                        let scrollTop = dropdown.scrollTop;
+                        if (isNaN($select.activeIndex)) {
+                            $select.activeIndex = 0;
+                        }
+                        if (scrollTop > ($select.activeIndex) * itemsHeight) {
+                            $select.activeIndex = Math.round(scrollTop / itemsHeight);
+                        }
+                        $scope["bpFieldUserPicker"].isScrolling = false;
+                    });
+                }
+                $scope["bpFieldUserPicker"].isScrolling = true;
             },
             onHighlight: function (option, $select) {
                 if (this.isChoiceSelected(option, $select)) {
@@ -334,9 +405,9 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 // need to manual scroll the list as the dropdown is not the default UI-select one
                 if (this.listItemElement) {
                     let selectedTop = this.currentSelectedItem * this.itemsHeight;
-                    let selectedBottom = (this.currentSelectedItem + 1) * this.itemsHeight;
+                    let selectedBottom = selectedTop + this.itemsHeight;
                     let scrollTop = this.listItemElement.scrollTop;
-                    let allowance = (this.showResultsCount ? this.loadMoreAmount : this.loadMoreAmount + 1) * this.itemsHeight;
+                    let allowance = this.maxVisibleItems * this.itemsHeight;
                     if (selectedBottom > scrollTop + allowance) {
                         this.listItemElement.scrollTop = selectedBottom - allowance;
                     } else if (selectedTop < scrollTop) {

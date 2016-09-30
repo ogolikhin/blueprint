@@ -1,4 +1,5 @@
-﻿import {ProcessServiceMock} from "../../services/process.svc.mock";
+import * as angular from "angular";
+import {ProcessServiceMock} from "../../services/process.svc.mock";
 import {IProcessService} from "../../services/process.svc";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../core/messages/message.svc";

@@ -1,4 +1,4 @@
-﻿
+﻿import * as angular from "angular";
 import "./bp-accordion";
 import "./bp-artifact-info";
 import "./bp-toolbar";
@@ -12,8 +12,6 @@ angular.module("bp.components", [
     "bp.components.toolbar",
     "bp.components.sidebar",
     "bp.components.explorer",
-    "bp.components.pagecontent"
-
+    "bp.components.pagecontent",
+    "bp.components.artifactpicker"
 ]);
-
-

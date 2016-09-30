@@ -801,12 +801,12 @@ pagecontent, bp-properties-panel {
                   white-space: nowrap;
 
                   &:first-child {
-                    line-height: 15px;
+                    line-height: 16px;
                   }
 
                   &:last-child {
                     font-size: $font-size-smaller;
-                    line-height: #{$user-picker-choice-size - 12px - 15px};
+                    line-height: #{$user-picker-choice-size - 12px - 16px};
                   }
                 }
               }
@@ -840,11 +840,18 @@ pagecontent, bp-properties-panel {
             color: $brand-secondary;
             font-size: $font-size-big;
             font-weight: 600;
-            height: 28px;
+            height: 20px;
             line-height: 20px;
             outline: none;
-            padding: 0 0 8px;
+            padding: 0;
             width: 100%;
+
+            &:hover,
+            &:focus,
+            &:active {
+              background: $brand-secondary;
+              color: $white;
+            }
           }
         }
       }
@@ -895,7 +902,7 @@ pagecontent, bp-properties-panel {
           padding-top: 28px;
           cursor: pointer;
           &.disabled{
-            opacity: $default-desabled-opacity;
+            opacity: $default-disabled-opacity;
             cursor: not-allowed;
           }
         }
@@ -964,7 +971,7 @@ pagecontent, bp-properties-panel {
         cursor:pointer;
         margin-right: 5px;
         &.disabled{
-          opacity: $default-desabled-opacity;
+          opacity: $default-disabled-opacity;
           cursor: not-allowed;
         }
       }
@@ -1096,7 +1103,7 @@ pagecontent, bp-properties-panel {
           padding-left: $padding-smaller;
           padding-right: $padding-smaller;
           &.disabled{
-            opacity: $default-desabled-opacity;
+            opacity: $default-disabled-opacity;
             cursor: not-allowed;
           }
         }

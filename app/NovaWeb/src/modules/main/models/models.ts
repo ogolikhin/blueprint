@@ -1,4 +1,5 @@
-﻿import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, RolePermissions, ReuseSettings, TraceType, TraceDirection, LockResultEnum } from "./enums";
+﻿import * as angular from "angular";
+import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, RolePermissions, ReuseSettings, TraceType, TraceDirection, LockResultEnum } from "./enums";
 import { IArtifactAttachment, IArtifactDocRef } from "../../managers/artifact-manager";
 
 export enum ArtifactStateEnum {
@@ -159,6 +160,9 @@ export interface IActorInheritancePropertyValue {
 export interface IActorImagePropertyValue {
     url: string;
     guid: string;    
+
+    // for client use only
+    imageSource: string;
 }
 
 export interface IProjectMeta {

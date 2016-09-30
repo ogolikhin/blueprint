@@ -1,5 +1,4 @@
-import "angular";
-import "Rx";
+import * as angular from "angular";
 import "angular-mocks";
 import "angular-messages";
 import "angular-sanitize";
@@ -27,8 +26,8 @@ describe("Actor image controller tests", () => {
         compile,
         apply,
         createController,
-        $controller : ng.IControllerService,
-        imageName = 'default.png'
+        $controller: ng.IControllerService,
+        imageModel        
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock)
@@ -45,8 +44,12 @@ describe("Actor image controller tests", () => {
                 compile = $compile;
                 scope = rootScope.$new();
 
+                imageModel  = {
+                    imageSource: ""
+                };
+
                 scope.model = {
-                    image: imageName
+                    image: imageModel,                   
                 };
 
                 scope["to"] = {
@@ -57,7 +60,7 @@ describe("Actor image controller tests", () => {
                     key: "image"
                 };
 
-                controller = $controller(BPFieldImageController, {$scope: scope});
+                                controller = $controller(BPFieldImageController, {$scope: scope});
             }
         )
     );
@@ -78,8 +81,8 @@ describe("Actor image controller tests", () => {
             var files = [{
                 file: new Blob([base64], {type: 'image/png'}),
                 guid: '2788d782-4d7f-e611-82cc-a0999b0c8c40',
-                name: imageName,
-                url: 'svc/bpfilestore/file/2788d782-4d7f-e611'
+                name: imageModel,
+                url: 'svc/bpfilestore/file/2788d782-4d7f-e611'                
             }];
 
             var readerSpy = spyOn(FileReader.prototype, 'readAsDataURL');
@@ -104,7 +107,7 @@ describe("Actor image controller tests", () => {
                         messageService: IMessageService, dialogService: IDialogService, settingsService: ISettingsService) => {
 
            scope.onActorImageDelete(true);
-            expect(scope.model.image === imageName).toBeTruthy()
+           expect(scope.model.image === imageModel).toBeTruthy()
 
         }));
     })

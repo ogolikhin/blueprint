@@ -1,4 +1,5 @@
-﻿import { IMessageService, MessageService } from "./message.svc";
+﻿import * as angular from "angular";
+import { IMessageService, MessageService } from "./message.svc";
 import { MessageComponent, IMessage, Message, MessageType } from "./message";
 import { MessageContainerComponent } from "./message-container";
 

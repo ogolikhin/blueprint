@@ -4,13 +4,13 @@ import { IDialogSettings, IDialogService } from "../../../../shared";
 import { BPFieldBaseController } from "../base-controller";
 import { Models } from "../../../../main/models";
 import { ISelectionManager } from "../../../../managers";
-import { ArtifactPickerController, IArtifactPickerOptions } from "../../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker";
+import { ArtifactPickerDialogController, IArtifactPickerOptions } from "../../../../main/components/bp-artifact-picker";
 
 export class BPFieldInheritFrom implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldInheritFrom";
     public wrapper: string = "bpFieldLabel";
     public template: string = require("./actor-inheritance.template.html");
-    public controller: Function = BPFieldInheritFromController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPFieldInheritFromController;
     public defaultOptions: AngularFormly.IFieldConfigurationObject;
     constructor() {
         this.defaultOptions = {};
@@ -63,14 +63,17 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
         }
 
         function isArtifactactPathFitToControl(prefix: string, name: string, id: number, artifactPath: string[]): boolean {
+            if (!artifactPath || !prefix || !id || !name) {
+                return true;
+            }
             return artifactPath.length > 0 && (artifactPath.toString().length + prefix.length + id.toString().length + name.length) < 39;
         }
 
         function setBaseActor() {
             const dialogSettings = <IDialogSettings>{
                 okButton: localization.get("App_Button_Open"),
-                template: require("../../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker.html"),
-                controller: ArtifactPickerController,
+                template: require("../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
+                controller: ArtifactPickerDialogController,
                 css: "nova-open-project",
                 header: localization.get("App_Properties_Actor_InheritancePicker_Title")
             };

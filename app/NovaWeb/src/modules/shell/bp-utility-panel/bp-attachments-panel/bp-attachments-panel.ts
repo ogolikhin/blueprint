@@ -7,7 +7,7 @@ import { IDialogSettings, IDialogService } from "../../../shared";
 import { IUploadStatusDialogData } from "../../../shared/widgets";
 import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import { Helper } from "../../../shared/utils/helper";
-import { ArtifactPickerController, IArtifactPickerOptions } from "../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker";
+import { ArtifactPickerDialogController, IArtifactPickerOptions } from "../../../main/components/bp-artifact-picker";
 import { IArtifactManager } from "../../../managers";
 import { IStatefulItem } from "../../../managers/models";
 import { 
@@ -21,7 +21,7 @@ import {
 
 export class BPAttachmentsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-attachments-panel.html");
-    public controller: Function = BPAttachmentsPanelController;
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPAttachmentsPanelController;
     public require: any = {
         bpAccordionPanel: "^bpAccordionPanel"
     };
@@ -69,8 +69,8 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public addDocRef(): void {
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get("App_Button_Open"),
-            template: require("../../../main/components/dialogs/bp-artifact-picker/bp-artifact-picker.html"),
-            controller: ArtifactPickerController,
+            template: require("../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
+            controller: ArtifactPickerDialogController,
             css: "nova-open-project",
             header: this.localization.get("App_UP_Attachments_Document_Picker_Title")
         };

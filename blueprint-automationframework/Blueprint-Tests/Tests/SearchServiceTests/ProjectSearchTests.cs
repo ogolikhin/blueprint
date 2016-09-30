@@ -67,7 +67,7 @@ namespace SearchServiceTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                projects = Helper.FullTextSearch.SearchProjects(_userAdmin, "te", 10);
+                projects = Helper.FullTextSearch.SearchProjects(_userAdmin, "es", 10);//project name is 'test' - search using 'es' substring
             }, "GetArtifactDiscussions shouldn't throw any error.");
 
             // Verify:

@@ -155,6 +155,9 @@ App_Save_Artifact_Error_409_117,"A property type is out of date."
 App_Save_Artifact_Error_409_123,"The artifact cannot be saved. It inherits from an actor that already inherits from this artifact. Actor artifacts cannot inherit from each other."
 App_Save_Artifact_Error_Other,"Sorry, but an error has occurred and the artifact cannot be saved. Please contact an administrator.<br><br>"
 
+Refresh_Project_NotFound,"You have attempted to access a project that has been deleted"
+Refresh_Artifact_Deleted,"The artifact that was selected no longer exists"
+
 # glossary artifact
 Artifact_Glossary_Term,"Term"
 Artifact_Glossary_Definition,"Definition"

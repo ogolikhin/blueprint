@@ -115,9 +115,6 @@ export class ProjectService implements IProjectService {
     }
 
     public getProjectTree(projectId: number, artifactId: number, loadChildren?: boolean) {
-        if (projectId && projectId === artifactId) {
-            artifactId = null;
-        }
         if (angular.isUndefined(loadChildren)) {
             loadChildren = false;
         }

@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import { ChangeSetCollector } from "../changeset";
 import { Models } from "../../../main/models";
-import { IRelationship, TraceDirection } from "../../../main/models/relationshipmodels";
+import { IRelationship, TraceDirection, IArtifactRelationshipsResultSet } from "../../../main/models/relationshipmodels";
 import {
     ChangeTypeEnum, 
     IChangeCollector, 
@@ -54,13 +54,14 @@ export class ArtifactRelationships implements IArtifactRelationships {
             deferred.resolve(this.relationships);
             this.subject.onNext(this.relationships);
         } else {
-            this.statefulItem.getRelationships().then((result: Relationships.IArtifactRelationshipsResultSet) => {
+            this.statefulItem.getRelationships().then((result: IArtifactRelationshipsResultSet) => {
                 const manual = result.manualTraces || [];
                 const other = result.otherTraces || [];
                 let loadedRelationships = manual.concat(other);
                 this.canEdit = result.canEdit;
                 deferred.resolve(loadedRelationships);
                 this.subject.onNext(this.relationships);
+                this.originalRelationships = angular.copy(this.relationships);
                 this.isLoaded = true;
             }, (error) => {
                 deferred.reject(error);

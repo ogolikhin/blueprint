@@ -120,6 +120,8 @@ App_UP_Relationships_Subheading_Actor_Inherits,"Actor Inherits"
 App_UP_Relationships_Subheading_Document_Reference,"Document Reference"
 App_UP_Relationships_Unauthorized,"Unauthorized"
 App_UP_Relationships_Selected,"Selected: "
+App_UP_Relationships_Introduction_Message," A short description of what a Trace is. To come from Tech Writer."
+App_UP_Relationships_Add_Relationship,"Add a trace"
 
 App_Properties_Loading_Indicator_Label,"Loading..."
 App_Properties_System_Properties_Label,"System Properties"

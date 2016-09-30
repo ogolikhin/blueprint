@@ -1037,6 +1037,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationshi
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Subheading_Document_Reference', 'en-US', N'Document Reference')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Unauthorized', 'en-US', N'Unauthorized')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Selected', 'en-US', N'Selected:')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Introduction_Message', 'en-US', N'A short description of what a Trace is. To come from Tech Writer.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Add_Relationship', 'en-US', N'Add a trace')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Properties_Loading_Indicator_Label', 'en-US', N'Loading...')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Properties_System_Properties_Label', 'en-US', N'System Properties')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Properties_Additional_Properties_Label', 'en-US', N'Additional Properties')

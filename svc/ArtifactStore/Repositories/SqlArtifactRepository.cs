@@ -358,7 +358,7 @@ namespace ArtifactStore.Repositories
 
             // We do not treat the project as the artifact
             if (expandedToArtifactId == projectId)
-                ThrowNotFoundException(projectId, expandedToArtifactId);
+                return await GetProjectOrArtifactChildrenAsync(projectId, null, userId);
 
             var prm = new DynamicParameters();
             prm.Add("@projectId", projectId);

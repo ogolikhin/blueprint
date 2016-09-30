@@ -18,9 +18,35 @@ export class BpFieldTextRTFInlineController {
     constructor(private $scope: AngularFormly.ITemplateScope) {
         let to: AngularFormly.ITemplateOptions = {
             tinymceOption: { // this will go to ui-tinymce directive
+                autoresize_bottom_margin: 0,
                 inline: true,
-                plugins: "advlist autolink link image paste lists charmap print noneditable mention",
+                fixed_toolbar_container: ".tinymce-toolbar-" + $scope.options["key"],
+                menubar: false,
+                toolbar: "fontsize | bold italic underline | forecolor format | link table",
+                statusbar: false,
+                plugins: "paste textcolor table noneditable autolink link autoresize",
                 init_instance_callback: function (editor) {
+                    editor.formatter.register("font8px", {
+                        inline: "span",
+                        styles: { "font-size": "8px" }
+                    });
+                    editor.formatter.register("font10px", {
+                        inline: "span",
+                        styles: { "font-size": "10px" }
+                    });
+                    editor.formatter.register("font12px", {
+                        inline: "span",
+                        styles: { "font-size": "12px" }
+                    });
+                    editor.formatter.register("font15px", {
+                        inline: "span",
+                        styles: { "font-size": "15px" }
+                    });
+                    editor.formatter.register("font18px", {
+                        inline: "span",
+                        styles: { "font-size": "18px" }
+                    });
+
                     Helper.autoLinkURLText(editor.getBody());
                     editor.dom.setAttrib(editor.dom.select("a"), "data-mce-contenteditable", "false");
                     editor.dom.bind(editor.dom.select("a"), "click", function (e) {
@@ -33,7 +59,54 @@ export class BpFieldTextRTFInlineController {
                         }
                     });
                 },
-                mentions: {} // an empty mentions is needed when including the mention plugin and not using it
+                setup: function (editor) {
+                    editor.addButton("format", {
+                        title: "Format",
+                        type: "menubutton",
+                        text: "",
+                        icon: "format",
+                        menu: [
+                            { icon: "strikethrough", text: " Strikethrough", onclick: function () { tinymce.execCommand("strikethrough"); } },
+                            { icon: "bullist", text: " Bulleted list", onclick: function () { tinymce.execCommand("InsertUnorderedList"); } },
+                            { icon: "numlist", text: " Numeric list", onclick: function () { tinymce.execCommand("InsertOrderedList"); } },
+                            { icon: "outdent", text: " Outdent", onclick: function () { tinymce.execCommand("Outdent"); } },
+                            { icon: "indent", text: " Indent", onclick: function () { tinymce.execCommand("Indent"); } }
+                        ]
+                    });
+                    editor.addButton("fontsize", {
+                        type: "menubutton", // https://www.tinymce.com/docs/demo/custom-toolbar-menu-button/
+                        text: "",
+                        icon: "font-size",
+                        menu: [
+                            {
+                                text: "8px",
+                                onclick: function () {
+                                    editor.formatter.apply("font8px");
+                                }
+                            },
+                            {
+                                text: "10px",
+                                onclick: function () {
+                                    editor.formatter.apply("font10px");
+                                }
+                            }, {
+                                text: "12px",
+                                onclick: function () {
+                                    editor.formatter.apply("font12px");
+                                }
+                            }, {
+                                text: "15px",
+                                onclick: function () {
+                                    editor.formatter.apply("font15px");
+                                }
+                            }, {
+                                text: "18px",
+                                onclick: function () {
+                                    editor.formatter.apply("font18px");
+                                }
+                            }]
+                    });
+                }
             }
         };
         angular.merge($scope.to, to);

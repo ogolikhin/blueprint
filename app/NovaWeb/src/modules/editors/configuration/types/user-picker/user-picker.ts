@@ -37,7 +37,7 @@ export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
                 if (uiSelectInput && !uiSelectInput.classList.contains("ps-child")) {
                     uiSelectInput.classList.add("ps-child");
                     uiSelectInput.classList.add("ui-select-input");
-                    uiSelectInput.addEventListener("keydown", $scope["bpFieldUserPicker"].onTab, true);
+                    uiSelectInput.addEventListener("keydown", $scope["bpFieldUserPicker"].onKeyDown, true);
                     uiSelectInput.addEventListener("click", $scope["bpFieldUserPicker"].scrollIntoView, true);
                 }
 
@@ -130,7 +130,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
             if ($scope["uiSelectContainer"]) {
                 let uiSelectInput = $scope["uiSelectContainer"].querySelector(".ui-select-input") as HTMLElement;
                 if (uiSelectInput) {
-                    uiSelectInput.removeEventListener("keydown", $scope["bpFieldUserPicker"].onTab, true);
+                    uiSelectInput.removeEventListener("keydown", $scope["bpFieldUserPicker"].onKeyDown, true);
                     uiSelectInput.removeEventListener("click", $scope["bpFieldUserPicker"].scrollIntoView, true);
                 }
             }
@@ -201,11 +201,11 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                     }
                 }
             },
-            onTab: (event) => {
-                let key = event.keyCode || event.which;
+            onKeyDown: (event) => {
+                const key = event.keyCode || event.which;
+                const userPicker = $scope["bpFieldUserPicker"];
+                const $select = userPicker.$select;
                 if (key === 9) { // 9 = Tab
-                    let userPicker = $scope["bpFieldUserPicker"];
-                    let $select = userPicker.$select;
                     if ($select.open && userPicker.showLoadMore) {
                         let button = $scope["uiSelectContainer"].querySelector(".ui-select-results-count button");
                         if (button) {
@@ -224,6 +224,10 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                     } else {
                         this.closeDropdownOnTab(event);
                     }
+                } else if (key === 38 && $select.open) { // 38 = Arrow up
+                    setTimeout(() => {
+                        userPicker.searchInputElement.selectionStart = userPicker.searchInputElement.selectionEnd = userPicker.searchInputElement.value.length;
+                    }, 150);
                 }
             },
             scrollIntoView: this.scrollIntoView,
@@ -244,7 +248,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                         <button
                             ng-if="bpFieldUserPicker.showLoadMore"
                             ng-click="bpFieldUserPicker.loadMore()"
-                            ng-keydown="bpFieldUserPicker.onTab($event)"
+                            ng-keydown="bpFieldUserPicker.onKeyDown($event)"
                             ng-bind="bpFieldUserPicker.labels.showMore"></button>
                     </li>`;
                 angular.element(uiSelectChoices).append($compile(uiSelectLoadMore)(<any>$scope));

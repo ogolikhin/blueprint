@@ -63,6 +63,9 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
         }
 
         function isArtifactactPathFitToControl(prefix: string, name: string, id: number, artifactPath: string[]): boolean {
+            if (!artifactPath || !prefix || !id || !name) {
+                return true;
+            }
             return artifactPath.length > 0 && (artifactPath.toString().length + prefix.length + id.toString().length + name.length) < 39;
         }
 

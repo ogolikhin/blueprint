@@ -247,6 +247,7 @@ export class BpArtifactInfoController {
         };
 
         const dialogData: IArtifactPickerOptions = {
+            selectableItemTypes: $event.altKey ? [Models.ItemTypePredefined.Document] : undefined,
             selectionMode: $event.shiftKey ? "multiple" : ($event.ctrlKey || $event.metaKey) ? "checkbox" : "single",
             showSubArtifacts: true
         };

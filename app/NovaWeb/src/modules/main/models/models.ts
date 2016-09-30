@@ -1,6 +1,7 @@
 ﻿import * as angular from "angular";
 import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, RolePermissions, ReuseSettings, TraceType, TraceDirection, LockResultEnum } from "./enums";
 import { IArtifactAttachment, IArtifactDocRef } from "../../managers/artifact-manager";
+import { IRelationship } from "./relationshipmodels";
 
 export enum ArtifactStateEnum {
     Published = 0,
@@ -52,7 +53,7 @@ export interface IItem {
     customPropertyValues?: IPropertyValue[];
     specificPropertyValues?: IPropertyValue[];
     systemPropertyValues?: IPropertyValue[];
-    traces?: ITrace[];
+    traces?: IRelationship[];
 
     predefinedType?: ItemTypePredefined;
 

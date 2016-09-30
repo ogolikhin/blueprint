@@ -149,24 +149,4 @@ bp-discussion-panel {
             font-style: normal;
         }
     }
-
-    .mce-btn button {
-        padding: 2px 3px;
-        font-size: 12px;
-    }
-
-    .mce-ico {
-        font-size: 13px;
-        width: 14px;
-    }
-
-    i.mce-ico.mce-i-font-size::before {
-        content: "\e241";
-        font-family: 'Glyphicons Halflings' !important;
-    }
-
-    i.mce-ico.mce-i-format::before {
-        content: "\e81c";
-        font-family: 'bp-font2' !important;
-    }
 }

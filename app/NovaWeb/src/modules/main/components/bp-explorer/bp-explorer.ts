@@ -105,7 +105,24 @@ export class ProjectExplorerController {
                     this.selected = projects[0];
                     this.navigationService.navigateToArtifact(this.selected.id);
                 }
-                this.tree.selectNode(this.selected.id);
+                if (this.tree.nodeExists(this.selected.id)) {
+                    this.tree.selectNode(this.selected.id);
+                    //this.navigationService.navigateToArtifact(this.selected.id);
+                }else {
+                    if (this.selected.parentNode && this.tree.nodeExists(this.selected.parentNode.id)) {
+                        this.tree.selectNode(this.selected.parentNode.id);
+                        this.navigationService.navigateToArtifact(this.selected.parentNode.id);
+                    }else {
+                        if (this.tree.nodeExists(this.selected.projectId)) {
+                            this.tree.selectNode(this.selected.projectId);
+                            this.navigationService.navigateToArtifact(this.selected.projectId);
+                        } else {
+                            this.artifactManager.selection.setExplorerArtifact(null);
+                            this.navigationService.navigateToMain();
+                        }
+                    }
+                }
+                
             } else {
                 this.artifactManager.selection.setExplorerArtifact(null);
                 this.navigationService.navigateToMain();

@@ -1,13 +1,8 @@
 ﻿import { ILocalizationService } from "../../../core";
 import { Relationships } from "../../../main";
 
-interface IArtifactRelationshipsResultSet {
-    manualTraces: Relationships.IRelationship[];
-    otherTraces: Relationships.IRelationship[];
-}
-
 export interface IArtifactRelationshipsService {
-    getRelationships(artifactId: number, subArtifactId?: number, timeout?: ng.IPromise<void>): ng.IPromise<Relationships.IRelationship[]>;
+    getRelationships(artifactId: number, subArtifactId?: number, timeout?: ng.IPromise<void>): ng.IPromise<Relationships.IArtifactRelationshipsResultSet>;
 }
 
 export class ArtifactRelationshipsService implements IArtifactRelationshipsService {
@@ -27,7 +22,7 @@ export class ArtifactRelationshipsService implements IArtifactRelationshipsServi
     public getRelationships(
         artifactId: number,
         subArtifactId?: number,
-        timeout?: ng.IPromise<void>): ng.IPromise<Relationships.IRelationship[]> {
+        timeout?: ng.IPromise<void>): ng.IPromise<Relationships.IArtifactRelationshipsResultSet> {
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
             url: `/svc/artifactstore/artifacts/${artifactId}/relationships`,
@@ -38,11 +33,8 @@ export class ArtifactRelationshipsService implements IArtifactRelationshipsServi
         };
 
         this.$http(requestObj).then(
-            (result: ng.IHttpPromiseCallbackArg<IArtifactRelationshipsResultSet>) => {
-                    const manual = result.data.manualTraces || [];
-                    const other = result.data.otherTraces || [];
-
-                    defer.resolve(manual.concat(other));
+            (result: ng.IHttpPromiseCallbackArg<Relationships.IArtifactRelationshipsResultSet>) => {                   
+                    defer.resolve(result.data);
             }, (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 if (!errResult) {
                     defer.reject();

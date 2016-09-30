@@ -21,6 +21,7 @@
     </div>
 </div>
 <div class="page-top-toolbar">
+    <button class="btn btn-bluelight" bp-tooltip="Shift+click for multi-select, Ctrl+click or Command+click for checkboxes, Alt+click for Documents only" ng-click="$ctrl.openPicker($event)">Picker</button>
     <button class="btn btn-bluelight" ng-click="$ctrl.openManageTraces()">Manage Traces</button>
     <button class="btn btn-bluelight" bp-tooltip="Shift+click for multi-select, Ctrl+click or Command+click for checkboxes" ng-click="$ctrl.openPicker($event)">Picker</button>
     <button class="btn btn-primary" bp-tooltip="Refresh" ng-click="$ctrl.refresh()" ng-disabled="$ctrl.isChanged">Refresh</button>

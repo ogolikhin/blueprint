@@ -1,6 +1,5 @@
 ﻿<div ng-class='$ctrl.artifact.hasAccess ? "utility-panel-artifact-item" : "utility-panel-artifact-item unauthorized-details"'>
     <div class="details" ng-show="!$ctrl.artifact.hasAccess">
-
         <div class="unauthorize-icon fonticon2-unauthorize"></div>
         <div class="inner-details">
             <div>
@@ -60,27 +59,29 @@
     <div class="icons" ng-show="$ctrl.artifact.hasAccess && $ctrl.selectable">
         <div>
             <input type="checkbox" ng-checked="$ctrl.isSelected" bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Select')}}" ng-click="$ctrl.selectTrace()"
-                   ng-disabled="!$ctrl.artifact.hasAccess"/>
+                   ng-disabled="!$ctrl.artifact.hasAccess || $ctrl.isItemReadOnly"/>
         </div>
         <div>
             <div uib-dropdown>
-                <span uib-dropdown-toggle bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Change_Trace')}}">
-                    <i class="icon fonticon-exchange"></i>
+                <span uib-dropdown-toggle >
+                    <i class="icon fonticon-exchange" ng-class="{disabled: !$ctrl.artifact.hasAccess || $ctrl.isItemReadOnly}"
+                       bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Change_Trace')}}"></i>
                 </span>
-                <ul class="dropdown-menu">
-                    <li ng-class="{disabled: $ctrl.artifact.hasAccess && $ctrl.artifact.traceDirection == 0}">
+                <ul class="dropdown-menu" ng-hide="!$ctrl.artifact.hasAccess || $ctrl.isItemReadOnly">
+                    <li ng-class="{disabled: $ctrl.artifact.traceDirection == 0}">
                         <a ng-click="$ctrl.setDirection(0)"><i class="fonticon2-relationship-right"></i> {{::$ctrl.localization.get('App_UP_Relationships_To')}}</a></li>
-                    <li ng-class="{disabled: $ctrl.artifact.hasAccess && $ctrl.artifact.traceDirection == 1}">
+                    <li ng-class="{disabled: $ctrl.artifact.traceDirection == 1}">
                         <a ng-click="$ctrl.setDirection(1)"><i class="fonticon2-relationship-left"></i> {{::$ctrl.localization.get('App_UP_Relationships_From')}}</a></li>
-                    <li ng-class="{disabled: $ctrl.artifact.hasAccess && $ctrl.artifact.traceDirection == 2}">
+                    <li ng-class="{disabled: $ctrl.artifact.traceDirection == 2}">
                         <a ng-click="$ctrl.setDirection(2)"><i class="fonticon2-relationship-bi"></i> {{::$ctrl.localization.get('App_UP_Relationships_Bidirectional')}}</a></li>
                 </ul>
             </div>
             <i class="icon fonticon-flag-1" ng-click="$ctrl.toggleFlag()"
-                ng-class="{'fonticon-flag-empty': $ctrl.artifact.suspect == true}" bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Flag_Trace')}}"></i>
+                ng-class="{'fonticon-flag-empty': $ctrl.artifact.suspect == true, disabled: !$ctrl.artifact.hasAccess || $ctrl.isItemReadOnly || $ctrl.artifact.readOnly}"
+                bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Flag_Trace')}}"></i>
 
-            <i class="icon fonticon-delete-filled"  ng-class="{disabled: !$ctrl.artifact.hasAccess}" ng-click="$ctrl.deleteItem()"
-               bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Delete')}}"></i>
+            <i class="icon fonticon-delete-filled"  ng-class="{disabled: !$ctrl.artifact.hasAccess || $ctrl.isItemReadOnly || $ctrl.artifact.readOnly}"
+                ng-click="$ctrl.deleteItem()" bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Delete')}}"></i>
         </div>
 
     </div>

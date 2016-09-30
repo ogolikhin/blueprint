@@ -249,7 +249,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_SubArtifa
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_UserPicker_Placeholder', 'en-US', N'Type the user or group''s name or email')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_UserPicker_Searching', 'en-US', N'Searching...')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_UserPicker_ShowMore', 'en-US', N'Show more')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_UserPicker_Display_Top_N_Results', 'en-US', N'Displaying top {0} results')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_UserPicker_Display_Top_N_Results', 'en-US', N'Displaying first {0} results')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_ServiceUnavailable', 'en-US', N'Service is unavailable')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_Forbidden', 'en-US', N'You do not have permission to view this artifact.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_NotFound', 'en-US', N'Not found. A project or an artifact for the specified ids is not found, does not exist or is deleted')

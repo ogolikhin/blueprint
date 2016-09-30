@@ -58,7 +58,6 @@ bp-relationships-panel {
         }
         &:first-child {
           @include transition(max-height 1s, opacity 1s);
-
           padding: 0 5px;
           color: $gray-dark;
           line-height: $utility-panel-title-height;

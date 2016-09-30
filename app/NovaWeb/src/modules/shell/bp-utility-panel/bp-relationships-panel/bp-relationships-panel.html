@@ -1,5 +1,5 @@
 <div class="icons animated" ng-class="{active: !$ctrl.isLoading && ($ctrl.manualTraces2.length || $ctrl.otherTraces.length) &&
-                                          $ctrl.selectedTraces[$ctrl.item.id].length > 0}">
+                                          $ctrl.selectedTraces[$ctrl.item.id].length > 0 && $ctrl.categoryFilter < 2}">
     <div>
         {{$ctrl.selectedTraces[$ctrl.item.id].length}}
         <span ng-if="$ctrl.selectedTraces[$ctrl.item.id].length == 1">{{::$ctrl.localization.get('App_UP_Relationships_Selected_Singular') }}</span>
@@ -40,7 +40,8 @@
         <uib-tabset active="$ctrl.categoryFilter">
             <uib-tab index="0" heading="{{::$ctrl.localization.get('App_UP_Relationships_All') }}"></uib-tab>
             <uib-tab index="1" heading="{{::$ctrl.localization.get('App_UP_Relationships_Traces') }}"></uib-tab>
-            <uib-tab index="2" heading="{{::$ctrl.localization.get('App_UP_Relationships_Association') }}"></uib-tab>
+            <uib-tab index="2" heading="{{::$ctrl.localization.get('App_UP_Relationships_Association') }}"
+                     ></uib-tab>
         </uib-tabset>
     </div>
 </div>

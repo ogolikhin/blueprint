@@ -1,4 +1,4 @@
-import {INavigationState} from "../../../core/navigation/navigation-state";
+import {INavigationService, INavigationState} from "../../../core/navigation";
 import {ItemTypePredefined} from "../../../main/models/enums";
 
 export interface IArtifactReference {
@@ -12,38 +12,40 @@ export interface IArtifactReference {
 }
 
 export interface IBreadcrumbService {
-    getReferences(navigationState: INavigationState): ng.IPromise<IArtifactReference[]>;
+    getReferences(): ng.IPromise<IArtifactReference[]>;
 }
 
 export class BreadcrumbService implements IBreadcrumbService {
     public static $inject: string[] = [
         "$q",
-        "$http"
+        "$http",
+        "navigationService"
     ];
 
     constructor(
         private $q: ng.IQService,
-        private $http: ng.IHttpService
+        private $http: ng.IHttpService,
+        private navigationService: INavigationService
     ) {
     }
 
-    public getReferences<T>(navigationState: INavigationState): ng.IPromise<T[]> {
+    public getReferences(): ng.IPromise<IArtifactReference[]> {
         const deferred = this.$q.defer();
-        let url = "/svc/shared/navigation/"; 
-        
-        if (navigationState.path) {
-            url = `${url}${navigationState.path.join("/")}/${navigationState.id}`;
-        } else {
-            url = `${url}${navigationState.id}`;
-        }
+        const navigationState: INavigationState = this.navigationService.getNavigationState();
 
-        this.$http.get(url)
-            .then((result) => {
-                deferred.resolve(result.data);
-            })
-            .catch((error) => {
-                deferred.reject(error);
-            });
+        if (!navigationState.path || navigationState.path.length === 0) {
+            deferred.reject();
+        } else {
+            const url = `/svc/shared/navigation/${navigationState.path.join("/")}/${navigationState.id}`;
+
+            this.$http.get(url)
+                .then((result) => {
+                    deferred.resolve(result.data);
+                })
+                .catch((error) => {
+                    deferred.reject(error);
+                });
+        }
 
         return deferred.promise;
     }

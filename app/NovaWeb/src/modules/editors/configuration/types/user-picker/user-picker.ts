@@ -37,7 +37,7 @@ export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
                 if (uiSelectInput && !uiSelectInput.classList.contains("ps-child")) {
                     uiSelectInput.classList.add("ps-child");
                     uiSelectInput.classList.add("ui-select-input");
-                    uiSelectInput.addEventListener("keydown", $scope["bpFieldUserPicker"].closeDropdownOnTab, true);
+                    uiSelectInput.addEventListener("keydown", $scope["bpFieldUserPicker"].onKeyDown, true);
                     uiSelectInput.addEventListener("click", $scope["bpFieldUserPicker"].scrollIntoView, true);
                 }
 
@@ -130,7 +130,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
             if ($scope["uiSelectContainer"]) {
                 let uiSelectInput = $scope["uiSelectContainer"].querySelector(".ui-select-input") as HTMLElement;
                 if (uiSelectInput) {
-                    uiSelectInput.removeEventListener("keydown", $scope["bpFieldUserPicker"].closeDropdownOnTab, true);
+                    uiSelectInput.removeEventListener("keydown", $scope["bpFieldUserPicker"].onKeyDown, true);
                     uiSelectInput.removeEventListener("click", $scope["bpFieldUserPicker"].scrollIntoView, true);
                 }
             }
@@ -149,16 +149,18 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
     ) {
         return {
             $select: null,
+            currentSelectedItem: -1,
             currentState: null,
             currentLimit: 1000,
             maxLimit: 100,
-            loadMoreAmount: 5,
+            minLimit: 5,
             minimumInputLength: 2,
             showResultsCount: false,
             showLoadMore: false,
             searchInputElement: null,
             listItemElement: null,
             itemsHeight: 40,
+            maxVisibleItems: 7,
             isScrolling: false,
             labels: {
                 noMatch: localization.get("Property_No_Matching_Options"),
@@ -199,11 +201,39 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                     }
                 }
             },
-            closeDropdownOnTab: this.closeDropdownOnTab,
+            onKeyDown: (event) => {
+                const key = event.keyCode || event.which;
+                const userPicker = $scope["bpFieldUserPicker"];
+                const $select = userPicker.$select;
+                if (key === 9) { // 9 = Tab
+                    if ($select.open && userPicker.showLoadMore) {
+                        let button = $scope["uiSelectContainer"].querySelector(".ui-select-results-count button");
+                        if (button) {
+                            if (document.activeElement === button && event.shiftKey) {
+                                userPicker.searchInputElement.focus();
+                            } else if (document.activeElement !== button && !event.shiftKey) {
+                                $select.activeIndex = -1;
+                                button.focus();
+                            }
+                        } else {
+                            this.closeDropdownOnTab(event);
+                        }
+                        event.stopPropagation();
+                        event.stopImmediatePropagation();
+                        event.preventDefault();
+                    } else {
+                        this.closeDropdownOnTab(event);
+                    }
+                } else if (key === 38 && $select.open) { // 38 = Arrow up
+                    setTimeout(() => {
+                        userPicker.searchInputElement.selectionStart = userPicker.searchInputElement.selectionEnd = userPicker.searchInputElement.value.length;
+                    }, 150);
+                }
+            },
             scrollIntoView: this.scrollIntoView,
             resetSettings: function () {
                 this.currentState = null;
-                this.currentLimit = this.loadMoreAmount;
+                this.currentLimit = this.minLimit;
                 this.showResultsCount = false;
                 this.showLoadMore = false;
                 if (this.listItemElement) {
@@ -218,6 +248,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                         <button
                             ng-if="bpFieldUserPicker.showLoadMore"
                             ng-click="bpFieldUserPicker.loadMore()"
+                            ng-keydown="bpFieldUserPicker.onKeyDown($event)"
                             ng-bind="bpFieldUserPicker.labels.showMore"></button>
                     </li>`;
                 angular.element(uiSelectChoices).append($compile(uiSelectLoadMore)(<any>$scope));
@@ -252,7 +283,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 let query = $select.search;
                 if (query.length >= this.minimumInputLength) {
                     if (loadMore) {
-                        this.currentLimit += this.loadMoreAmount;
+                        this.currentLimit = this.maxLimit;
                     }
                     this.currentState = "searching";
                     usersAndGroupsService.search(
@@ -260,7 +291,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                         true, //emailDiscussion has to be set to true so that als users without email get returned
                         //max number of users to return. We ask for 1 more so to know if we need to show the "Load more"
                         //if more than maxLimit, we ask for maxLimit
-                        this.currentLimit < this.maxLimit ? this.currentLimit + 1 : this.maxLimit,
+                        this.currentLimit < this.maxLimit ? this.minLimit + 1 : this.maxLimit,
                         false //do not include guest users
                     ).then(
                         (users) => {
@@ -282,13 +313,23 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                             $select.items = $scope.to.options;
                             this.currentState = $scope.to.options.length ? null : "no-match";
 
-                            this.showResultsCount = $scope.to.options.length > this.currentLimit || $scope.to.options.length === this.maxLimit;
-                            this.showLoadMore = $scope.to.options.length > this.currentLimit && $scope.to.options.length < this.maxLimit;
+                            this.showResultsCount = (
+                                    $scope.to.options.length > this.minLimit &&
+                                    !loadMore
+                                ) || (
+                                    $scope.to.options.length === this.maxLimit &&
+                                    this.currentLimit === this.maxLimit
+                                );
+                            this.showLoadMore = this.currentLimit !== this.maxLimit;
 
                             if (this.listItemElement) {
                                 let height = this.showResultsCount ? $scope.to.options.length - 1 : $scope.to.options.length;
+                                if (height > this.maxVisibleItems) {
+                                    height = this.maxVisibleItems;
+                                }
                                 height = (height * this.itemsHeight) + (this.showResultsCount ? 56 : 0) + 2; //borders
-                                this.listItemElement.parentElement.style.height = height.toString() + "px";
+                                this.listItemElement.parentElement.style.height =
+                                    this.listItemElement.parentElement.style.maxHeight = height.toString() + "px";
                             }
 
                             this.$select = $select;
@@ -368,9 +409,9 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 // need to manual scroll the list as the dropdown is not the default UI-select one
                 if (this.listItemElement) {
                     let selectedTop = this.currentSelectedItem * this.itemsHeight;
-                    let selectedBottom = (this.currentSelectedItem + 1) * this.itemsHeight;
+                    let selectedBottom = selectedTop + this.itemsHeight;
                     let scrollTop = this.listItemElement.scrollTop;
-                    let allowance = (this.showResultsCount ? this.loadMoreAmount : this.loadMoreAmount + 1) * this.itemsHeight;
+                    let allowance = this.maxVisibleItems * this.itemsHeight;
                     if (selectedBottom > scrollTop + allowance) {
                         this.listItemElement.scrollTop = selectedBottom - allowance;
                     } else if (selectedTop < scrollTop) {

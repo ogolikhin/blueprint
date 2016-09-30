@@ -87,6 +87,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             this.columns = undefined;
         }
         this.onSelect = undefined;
+        this.projectService.abort();
     }
 
     private setSelectedVMs(items: ArtifactPickerNodeVM<any>[]) {

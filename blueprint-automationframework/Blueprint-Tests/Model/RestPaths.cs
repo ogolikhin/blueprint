@@ -134,8 +134,9 @@ namespace Model
 
                 public static class Artifacts
                 {
+                    public const string CREATE                      = "svc/bpartifactstore/artifacts/create";   // XXX: For some reason they decided to put this call in blueprint-current!
+                    public const string DISCARD                     = "svc/bpartifactstore/artifacts/discard";  // XXX: For some reason they decided to put this call in blueprint-current!
                     public const string PUBLISH                     = "svc/bpartifactstore/artifacts/publish";  // XXX: For some reason they decided to put this call in blueprint-current!
-                    public const string DISCARD                     = "svc/bpartifactstore/artifacts/discard";
                     public const string UNPUBLISHED                 = "svc/bpartifactstore/artifacts/unpublished";
                 }
 
@@ -300,11 +301,18 @@ namespace Model
             [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
             public static class SearchService
             {
-                public const string FULLTEXTSEARCH = "svc/searchservice/fulltextsearch";
+                public const string FULLTEXTSEARCH                  = "svc/searchservice/fulltextsearch";
+
+                public const string STATUS                          = "svc/searchservice/status";
 
                 public static class FullTextSearch
                 {
-                    public const string METADATA      = "svc/searchservice/fulltextsearch/metadata";
+                    public const string METADATA                    = "svc/searchservice/fulltextsearch/metadata";
+                }
+
+                public static class Status
+                {
+                    public const string UPCHECK                     = "svc/searchservice/status/upcheck";
                 }
             }
 

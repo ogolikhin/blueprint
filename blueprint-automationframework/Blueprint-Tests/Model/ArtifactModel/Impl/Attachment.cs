@@ -76,6 +76,10 @@ namespace Model.ArtifactModel.Impl
 
         public int ChangeType { get; set; }
 
+        /// <summary>
+        /// Creates new AttachmentValue from INovaFile
+        /// Use to pass into UpdateArtifact to add attachment
+        /// </summary>
         public AttachmentValue(IUser user, INovaFile file)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -85,10 +89,20 @@ namespace Model.ArtifactModel.Impl
             UserName = user.Username;
             FileName = file.FileName; //500 error when it is empty?
             FileType = file.FileType;
-            AttachmentId = null; //now it is always null?
+            AttachmentId = null; //null for add, real id to delete existing attachment
             Guid = file.Guid;
             UploadedDate = null;
-            ChangeType = 0; //now it is always 0?
+            ChangeType = 0; //0 for add, 2 for delete existing attachment 
+        }
+
+        /// <summary>
+        /// Creates new AttachmentValue from AttachmentId
+        /// Use to pass into UpdateArtifact to delete existing attachment
+        /// </summary>
+        public AttachmentValue(int attachmentId)
+        {
+            AttachmentId = attachmentId; //null for add, real id to delete existing attachment
+            ChangeType = 2; //0 for add, 2 for delete existing attachment 
         }
     }
 }

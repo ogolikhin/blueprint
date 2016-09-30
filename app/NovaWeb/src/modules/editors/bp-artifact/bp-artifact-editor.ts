@@ -92,7 +92,9 @@ export class BpArtifactEditor extends BpBaseEditor {
             });
 
             let isReadOnly = this.artifact.artifactState.readonly || this.artifact.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
-            field.templateOptions["isReadOnly"] = isReadOnly;
+            if (isReadOnly) {
+                field.templateOptions.disabled = true;
+            }
             if (isReadOnly) {
                 if (field.key !== "documentFile" &&
                     field.type !== "bpFieldImage" &&

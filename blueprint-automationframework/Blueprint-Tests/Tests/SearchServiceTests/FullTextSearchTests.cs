@@ -396,16 +396,8 @@ namespace SearchServiceTests
             // Execute: Execute FullTextSearch with search terms that matches published artifact(s) description
             Assert.DoesNotThrow(() => fullTextSearchResult = Helper.FullTextSearch.Search(userWithSelectiveProjectPermission, searchCriteria, pageSize: customSearchPageSize), "Nova FullTextSearch call failed when using following search term: {0} which matches with published artifacts!", searchCriteria.Query);
 
-            if (customSearchPageSize.Equals(0))
-            {
-                // Validation: Verify that searchResult contains empty list of FullTextSearchItems
-                FullTextSearchResultValidation(fullTextSearchResult, publishedArtifactsForSelectedProjects);
-            } else
-            {
-                // Validation: Verify that searchResult contains list of FullTextSearchItems depending on permission for project(s)
-                FullTextSearchResultValidation(fullTextSearchResult, publishedArtifactsForSelectedProjects, pageSize: customSearchPageSize);
-            }
-
+            // Validation: Verify that searchResult contains list of FullTextSearchItems depending on permission for project(s)
+            FullTextSearchResultValidation(fullTextSearchResult, publishedArtifactsForSelectedProjects, pageSize: customSearchPageSize);
         }
 
         [TestCase]
@@ -534,6 +526,9 @@ namespace SearchServiceTests
             page = page ?? DEFAULT_PAGE_VALUE;
             pageSize = pageSize ?? DEFAULT_PAGESIZE_VALUE;
 
+            page = page.Equals(0) ? DEFAULT_PAGE_VALUE : page;
+            pageSize = pageSize.Equals(0) ? DEFAULT_PAGESIZE_VALUE : pageSize;
+            
             List<int> ReturnedFullTextSearchItemArtifactIds = new List<int>();
 
             if (artifactsToBeFound.Any())

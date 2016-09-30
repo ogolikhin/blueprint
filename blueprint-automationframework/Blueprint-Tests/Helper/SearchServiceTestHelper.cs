@@ -32,11 +32,9 @@ namespace Helper
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
 
-            selectedBasedArtifactTypes = selectedBasedArtifactTypes ?? new List<BaseArtifactType>();
-
             Logger.WriteTrace("{0}.{1} called.", nameof(SearchServiceTestHelper), nameof(SetupSearchData));
 
-            var baseArtifactTypes = selectedBasedArtifactTypes.Any() ? selectedBasedArtifactTypes : TestCaseSources.AllArtifactTypesForOpenApiRestMethods;
+            var baseArtifactTypes = selectedBasedArtifactTypes ?? TestCaseSources.AllArtifactTypesForOpenApiRestMethods;
 
             var artifacts = new List<IArtifactBase>();
 

@@ -46,6 +46,9 @@ namespace SearchService.Controllers
         [ActionName("GetProjectsByName")]
         public async Task<IEnumerable<ProjectSearchResult>> GetProjectsByName(string searchText, int? resultCount = DefaultResultCount)
         {
+            if (resultCount == null)
+                resultCount = DefaultResultCount;
+
             if (resultCount > MaxResultCount)
                 resultCount = MaxResultCount;
 
@@ -54,7 +57,9 @@ namespace SearchService.Controllers
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
             }
 
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            Session session = null;
+            if (Request.Properties.Keys.Contains(ServiceConstants.SessionProperty))
+                session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             if (session == null)
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);

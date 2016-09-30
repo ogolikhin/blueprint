@@ -683,28 +683,6 @@ pagecontent, bp-properties-panel {
         }
       }
 
-      .form-tinymce {
-        border: solid 1px $gray-lightest;
-        border-radius: 0;
-        box-shadow: none !important;
-        box-sizing: border-box;
-        color: $gray-dark;
-        font-size: $font-size-normal;
-        font-weight: 400;
-        min-height: #{3 * $property-min-height};
-        min-width: $property-input-width;
-      }
-
-      .form-tinymce-toolbar {
-        position: relative;
-
-        .mce-tinymce {
-          bottom: 0;
-          position: absolute;
-          top: auto !important;
-        }
-      }
-
       .error-messages {
         bottom: calc((#{$font-size-smaller} + 2px) * -1);
         position: absolute;
@@ -863,8 +841,19 @@ pagecontent, bp-properties-panel {
         width: 100%;
       }
 
-      div.form-tinymce,
-      div.form-tinymce[contenteditable="true"] {
+      .tinymce-body,
+      .tinymce-body[contenteditable="true"] {
+        border: solid 1px $gray-lightest;
+        border-radius: 0;
+        box-shadow: none;
+        box-sizing: border-box;
+        color: $gray-dark;
+        font-size: $font-size-normal;
+        font-weight: 400;
+        min-height: #{3 * $property-min-height};
+        min-width: $property-input-width;
+        overflow: auto;
+
         a {
           color: blue;
           cursor: pointer;

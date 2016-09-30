@@ -88,13 +88,17 @@ namespace Model.FullTextSearchModel.Impl
         }
 
         /// <seealso cref="FullTextSearch.SearchProjects(IUser, string, int, List{HttpStatusCode})"/>
-        public List<ProjectSearchResult> SearchProjects(IUser user, string searchText, int resultCount, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<ProjectSearchResult> SearchProjects(IUser user, string searchText, int? resultCount, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
             var queryParams = new Dictionary<string, string>();
 
             queryParams.Add("searchText", searchText);
+            if (resultCount != null)
+            {
+                queryParams.Add("resultCount", resultCount.ToString());
+            }
 
             var tokenValue = user.Token?.AccessControlToken;
 

@@ -20,11 +20,18 @@ export abstract class ArtifactPickerNodeVM<T> implements ITreeViewNodeVM {
         if (this.isExpandable) {
             result.push("has-children");
         }
+        if (!this.isSelectable()) {
+            result.push("not-selectable");
+        }
         return result;
     }
 
     public getIcon(): string {
         return "<i></i>";
+    }
+
+    public isSelectable(): boolean {
+        return true;
     }
 
     protected static processChildArtifacts(children: Models.IArtifact[], parent: Models.IArtifact): Models.IArtifact[] {
@@ -131,14 +138,14 @@ export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
             this.children = children.map(child => new ArtifactNodeVM(this.projectManager, this.projectService, this.options, child));
             if (this.options.showSubArtifacts && Models.ItemTypePredefined.canContainSubartifacts(this.model.predefinedType)) {
                 const name = Models.ItemTypePredefined.getSubArtifactsContainerNodeTitle(this.model.predefinedType);
-                this.children.unshift(new SubArtifactContainerNodeVM(this.projectService, this.model, name)); //TODO localize
+                this.children.unshift(new SubArtifactContainerNodeVM(this.projectService, this.options, this.model, name)); //TODO localize
             }
         });
     }
 }
 
 export class SubArtifactContainerNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
-    constructor(private projectService: IProjectService, model: Models.IArtifact, name: string) {
+    constructor(private projectService: IProjectService, private options: IArtifactPickerOptions, model: Models.IArtifact, name: string) {
         super(model, name, `${model.id} ${name}`, true, [], false);
     }
 
@@ -155,20 +162,26 @@ export class SubArtifactContainerNodeVM extends ArtifactPickerNodeVM<Models.IArt
     public loadChildrenAsync(): ng.IPromise<void> {
         this.loadChildrenAsync = undefined;
         return this.projectService.getSubArtifactTree(this.model.id).then((children: Models.ISubArtifactNode[]) => {
-            this.children = children.map(child => new SubArtifactNodeVM(child));
+            this.children = children.map(child => new SubArtifactNodeVM(this.options, child));
         });
     }
 }
 
 export class SubArtifactNodeVM extends ArtifactPickerNodeVM<Models.ISubArtifactNode> {
-    constructor(model: Models.ISubArtifactNode) {
-        const children = model.children ? model.children.map(child => new SubArtifactNodeVM(child)) : [];
-        super(model, `${model.prefix}${model.id} ${model.displayName}`, String(model.id), model.hasChildren, children, false);
+    constructor(private options: IArtifactPickerOptions, model: Models.ISubArtifactNode) {
+        super(model, `${model.prefix}${model.id} ${model.displayName}`, String(model.id), model.hasChildren,
+            model.children ? model.children.map(child => new SubArtifactNodeVM(this.options, child)) : [], false);
     }
 
     public getCellClass(): string[] {
         var result = super.getCellClass();
         result.push("is-subartifact");
         return result;
+    }
+
+    public isSelectable(): boolean {
+        return !(this.options &&
+            this.options.selectableItemTypes &&
+            this.options.selectableItemTypes.indexOf(this.model.predefinedType) === -1);
     }
 }

@@ -96,6 +96,8 @@ export class BpArtifactEditor extends BpBaseEditor {
                 this.onFieldUpdate(field);
 
             });
+
+            this.isLoading = false;
         }
         this.setArtifactEditorLabelsWidth();
         super.onArtifactReady();

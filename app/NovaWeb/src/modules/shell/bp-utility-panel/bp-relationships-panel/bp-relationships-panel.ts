@@ -9,10 +9,8 @@ import {
     IArtifactRelationships
 } from "../../../managers/artifact-manager";
 import { IRelationship, LinkType } from "../../../main/models/relationshipModels";
-// import { IArtifactRelationships, IArtifactRelationshipsResultSet } from "./artifact-relationships.svc";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
-// import { Helper } from "../../../shared/utils/helper";
 
 interface IOptions {
     value: string;
@@ -175,9 +173,16 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     }
 
     public deleteTraces(artifacts: Relationships.IRelationship[]): void {
-        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Traces")).then( (confirmed) => {
+        let selectedTracesLength = this.selectedTraces[this.item.id].length;
+
+        let confirmation = this.localization.get("Confirmation_Delete_Traces")
+            .replace("{0}", selectedTracesLength.toString());
+
+        this.dialogService.confirm(confirmation).then( (confirmed) => {
             if (confirmed) {
                 this.item.relationships.remove(artifacts);
+
+                this.selectedTraces[this.item.id].length = 0;
             }
         });
     }

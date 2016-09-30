@@ -2,7 +2,7 @@ import { Models, Enums } from "../main/models";
 import { IArtifactState, IState } from "./artifact-manager";
 import { IStatefulArtifactServices } from "./artifact-manager/services";
 import { ISession } from "../shell/login/session.svc";
-import { Relationships } from "../main";
+import { IRelationship } from "../main/models/relationshipmodels";
 import { 
     IArtifactAttachmentsResultSet, 
     IArtifactAttachmentsService,
@@ -58,7 +58,7 @@ export interface IStatefulItem extends Models.IArtifact {
 
 export interface IIStatefulItem extends IStatefulItem  {
     getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet>;
-    getRelationships(): ng.IPromise<Relationships.IRelationship[]>;
+    getRelationships(): ng.IPromise<IRelationship[]>;
     getServices(): IStatefulArtifactServices;
 }
 

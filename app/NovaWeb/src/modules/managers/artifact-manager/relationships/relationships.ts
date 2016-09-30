@@ -1,5 +1,7 @@
 import { ChangeSetCollector } from "../changeset";
+import { Models } from "../../../main/models";
 import { Relationships } from "../../../main";
+import { TraceDirection } from "../../../main/models/relationshipmodels";
 import {
     ChangeTypeEnum, 
     IChangeCollector, 
@@ -17,11 +19,13 @@ export interface IArtifactRelationships extends IBlock<Relationships.IRelationsh
     add(relationships: Relationships.IRelationship[]);
     remove(relationships: Relationships.IRelationship[]);
     update(relationships: Relationships.IRelationship[]);
+    changes(): Relationships.IRelationship[];
     discard();
 }
 
 export class ArtifactRelationships implements IArtifactRelationships {
     private relationships: Relationships.IRelationship[];
+    private originalRelationships: Relationships.IRelationship[];
     private subject: Rx.BehaviorSubject<Relationships.IRelationship[]>;
     
     private changeset: IChangeCollector;
@@ -49,6 +53,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
         } else {
             this.statefulItem.getRelationships().then((result: Relationships.IRelationship[]) => {
                 this.relationships = result;
+                this.originalRelationships = this.relationships.slice();
                 deferred.resolve(result);
                 this.subject.onNext(this.relationships);
                 this.isLoaded = true;
@@ -71,7 +76,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
                 
                 const changeset = {
                     type: ChangeTypeEnum.Add,
-                    key: relationship.artifactId,
+                    key: this.getKey(relationship),
                     value: relationship
                 } as IChangeSet;
                 this.changeset.add(changeset);
@@ -84,6 +89,9 @@ export class ArtifactRelationships implements IArtifactRelationships {
         return this.relationships;
     }
 
+    private getKey(relationship: Relationships.IRelationship) {
+        return `${relationship.itemId}-${relationship.traceType}`
+    }
     public update(docrefs: Relationships.IRelationship[]): Relationships.IRelationship[] {
         throw Error("operation not supported");
     }
@@ -110,6 +118,41 @@ export class ArtifactRelationships implements IArtifactRelationships {
         }
 
         return this.relationships;
+    }
+
+    private isChanged = (updated: Relationships.IRelationship, original: Relationships.IRelationship) => {
+        return updated.traceDirection !== original.traceDirection || updated.suspect !== original.suspect;
+    }
+
+    private getMatchingRelationshipEntry = (toFind: Relationships.IRelationship, relationshipList: Relationships.IRelationship[]) => {
+        let matches = relationshipList.filter(a => a.itemId === toFind.itemId && a.traceType === toFind.traceType);
+        if (matches.length !== 1){
+            return null;
+        } else {
+            return matches[0];
+        }
+    };
+
+    public changes() {
+        let deltaRelationshipChanges = new Array<Relationships.IRelationship>();
+        this.relationships.forEach(updatedRelationship => {
+            let oldRelationship = this.getMatchingRelationshipEntry(updatedRelationship, this.originalRelationships);
+            if (oldRelationship && this.isChanged(updatedRelationship, oldRelationship)) {
+                updatedRelationship.changeType = ChangeTypeEnum.Update;
+                deltaRelationshipChanges.push(updatedRelationship);
+            } else if (!oldRelationship) {
+                updatedRelationship.changeType = ChangeTypeEnum.Add;
+                deltaRelationshipChanges.push(updatedRelationship);
+            }
+        });
+        this.originalRelationships.forEach(originalRelationship => {
+            let updatedRelationship = this.getMatchingRelationshipEntry(originalRelationship, this.relationships);
+            if (!updatedRelationship) {
+                originalRelationship.changeType = ChangeTypeEnum.Delete;
+                deltaRelationshipChanges.push(originalRelationship);
+            }
+        });
+        return deltaRelationshipChanges;
     }
 
     public discard() {

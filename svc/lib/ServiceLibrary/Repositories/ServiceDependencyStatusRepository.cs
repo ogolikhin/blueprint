@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using ServiceLibrary.Helpers;
+using System.Collections.Generic;
 
 namespace ServiceLibrary.Repositories
 {
@@ -23,18 +24,25 @@ namespace ServiceLibrary.Repositories
             AccessInfo = _requestUri.ToString();
         }
 
-        public async Task<string> GetStatus(int timeout)
+        private async Task<StatusResponse> GetStatus(int timeout)
         {
-            //Note: Getting an HttpClient from HttpClientProvider doesn't work, because we
-            //won't be able to change the timeout if the HttpClient has been used before.
-            
             var webRequest = WebRequest.CreateHttp(_requestUri);
             webRequest.Timeout = timeout;
-
-            using (HttpWebResponse result = (HttpWebResponse) await webRequest.GetResponseAsync())
+            HttpWebResponse result = (HttpWebResponse)await webRequest.GetResponseAsync();
+            var responseData = new StatusResponse()
             {
-                return ((int)result.StatusCode).ToString();
-            }      
+                Name = Name,
+                AccessInfo = AccessInfo,
+                Result = ((int)result.StatusCode).ToString(),
+                NoErrors = true
+            };
+            return responseData;
+
+        }
+
+        public async Task<List<StatusResponse>> GetStatuses(int timeout)
+        {
+            return new List<StatusResponse>() { await GetStatus(timeout) };
         }
     }
 }

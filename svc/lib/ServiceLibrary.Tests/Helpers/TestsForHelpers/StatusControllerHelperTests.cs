@@ -74,7 +74,7 @@ namespace ServiceLibrary.Helpers
             }
 
             statusRepoMock = new Mock<IStatusRepository>();
-            statusRepoMock.Setup(r => r.GetStatus(It.IsAny<int>())).Throws(new Exception("MyException"));
+            statusRepoMock.Setup(r => r.GetStatuses(It.IsAny<int>())).Throws(new Exception("MyException"));
             statusRepoMock.Setup(r => r.Name).Returns($"MyService3");
             statusRepoMock.Setup(r => r.AccessInfo).Returns($"MyAccessInfo3");
             statusRepoList.Add(statusRepoMock.Object);
@@ -126,7 +126,7 @@ namespace ServiceLibrary.Helpers
         private IStatusRepository GetStatusRepo(string name, string accessInfo, string getStatusResponse)
         {
             var statusRepoMock = new Mock<IStatusRepository>();
-            statusRepoMock.Setup(r => r.GetStatus(It.IsAny<int>())).ReturnsAsync(getStatusResponse);
+            //statusRepoMock.Setup(r => r.GetStatuses(It.IsAny<int>())).ReturnsAsync(getStatusResponse);
             statusRepoMock.Setup(r => r.Name).Returns(name);
             statusRepoMock.Setup(r => r.AccessInfo).Returns(accessInfo);
             return statusRepoMock.Object;

@@ -24,7 +24,7 @@ import {ProcessAddHelper} from "./process-add-helper";
 import {IDialogSettings, IDialogService} from "../../../../../../shared";
 import {NodePopupMenu} from "./popup-menu/node-popup-menu";
 import {ProcessGraphSelectionHelper} from "./process-graph-selection";
-import {IArtifactManager} from "../../../../../bp-base-editor";
+import { ISelectionManager } from "../../../../../../managers";
 import { IStatefulSubArtifact, IStatefulArtifact } from "../../../../../../managers/artifact-manager";
 import { StatefulProcessArtifact } from "../../../../process-artifact";
 
@@ -71,7 +71,7 @@ export class ProcessGraph implements IProcessGraph {
         public messageService: IMessageService = null,
         private $log: ng.ILogService = null,
         private shapesFactory: ShapesFactory = null,
-        private artifactManager:IArtifactManager = null) {
+        private selectionManager:ISelectionManager = null) {
 
         // Creates the graph inside the given container
          
@@ -145,10 +145,10 @@ export class ProcessGraph implements IProcessGraph {
     }
     private setSelectionArtifact(elements: IDiagramNode[]){
         if(elements.length > 0){
-            this.artifactManager.selection.setSubArtifact(this.viewModel.statefulArtifact.subArtifactCollection.get(elements[0].model.id));
+            this.selectionManager.setSubArtifact(this.viewModel.statefulArtifact.subArtifactCollection.get(elements[0].model.id));
         }
         else{
-            this.artifactManager.selection.setArtifact(this.viewModel.statefulArtifact);
+            this.selectionManager.setArtifact(this.viewModel.statefulArtifact);
         }        
     }
     private initializePopupMenu() {

@@ -94,7 +94,7 @@ export class BpProcessEditorController extends BpBaseEditor {
             this.dialogService,
             this.localization,
             this.navigationService,
-            this.artifactManager
+            this.artifactManager.selection
         );
        
         let htmlElement = this.getHtmlElement();

@@ -41,7 +41,7 @@ namespace ArtifactStoreTests
         [Description("Create & publish 3 artifacts. Create chain : grandparent, parent and child. Move parent artifact with a child to be a child of the project.  Verify the moved artifact is returned with the updated Parent ID.")]
         public void MoveArtifact_PublishedArtifactWithDependentChildBecomesChildOfProject_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
         {
-            // Setup:git 
+            // Setup:
             IArtifact grandParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);            
             IArtifact parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, grandParentArtifact);
             Helper.CreateAndPublishArtifact(_project, _user, artifactType, parentArtifact);
@@ -54,15 +54,17 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, parentArtifact, _project.Id, _user);
-            }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
+            }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, parentArtifact.Id);
             NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
+            Assert.AreEqual(_project.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
         }
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182373)]
+
         [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other.  Verify the moved artifact is returned with the updated Parent ID.")]
         public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
         {
@@ -77,11 +79,13 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, _user);
-            }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
+            }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
+            Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
+
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -100,12 +104,13 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, _project.Id, _user);
-            }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
+            }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(_project.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
+
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -131,6 +136,7 @@ namespace ArtifactStoreTests
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
+
         }
 
         #endregion 200 OK tests
@@ -154,7 +160,7 @@ namespace ArtifactStoreTests
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, userWithBadToken);
-            }, "'GET {0}' should return 401 Unauthorized when called with a invalid token!", SVC_PATH);
+            }, "'POST {0}' should return 401 Unauthorized when called with a invalid token!", SVC_PATH);
 
             // Verify:
             const string expectedExceptionMessage = "Unauthorized call";
@@ -210,6 +216,7 @@ namespace ArtifactStoreTests
         [TestRail(182378)]
         [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other.  Send not current version of artifact with the message. Verify returned code 409 Conflict.")]
         public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_SendIncorrectVersion_409Conflict(BaseArtifactType artifactType, int artifactVersion)
+
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions : 2);

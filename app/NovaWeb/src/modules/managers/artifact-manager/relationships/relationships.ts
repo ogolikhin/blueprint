@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import { ChangeSetCollector } from "../changeset";
 import { Models } from "../../../main/models";
 import { IRelationship, TraceDirection } from "../../../main/models/relationshipmodels";
@@ -14,7 +15,7 @@ import {
 
 export interface IArtifactRelationships extends IBlock<IRelationship[]> {
     observable: Rx.IObservable<IRelationship[]>;
-    get(refresh?: boolean): ng.IPromise<Relationships.IRelationship[]>;
+    get(refresh?: boolean): ng.IPromise<IRelationship[]>;
     add(relationships: IRelationship[]);
     remove(relationships: IRelationship[]);
     update(relationships: IRelationship[]);
@@ -44,7 +45,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
     // }
 
     // refresh = true: turn lazy loading off, always reload
-    public get(refresh: boolean = true): ng.IPromise<Relationships.IRelationship[]> {
+    public get(refresh: boolean = true): ng.IPromise<IRelationship[]> {
         const deferred = this.statefulItem.getServices().getDeferred<IRelationship[]>();
 
         if (this.isLoaded && !refresh) {
@@ -53,9 +54,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
         } else {
             this.statefulItem.getRelationships().then((result: IRelationship[]) => {
                 this.relationships = result;
-                this.relationships.forEach(relationship => {
-                    this.originalRelationships.push(this.cloneRelationship(relationship));
-                });
+                this.originalRelationships = angular.copy(this.relationships);
                 deferred.resolve(result);
                 this.subject.onNext(this.relationships);
                 this.isLoaded = true;
@@ -134,26 +133,6 @@ export class ArtifactRelationships implements IArtifactRelationships {
             return matches[0];
         }
     };
-
-    private cloneRelationship = (original: IRelationship) => {
-        return {
-            artifactId: original.artifactId,
-            artifactTypePrefix: original.artifactTypePrefix,
-            artifactName: original.artifactName,
-            itemId: original.itemId,
-            itemTypePrefix: original.itemTypePrefix,
-            itemName: original.itemName,
-            itemLabel: original.itemLabel,
-            projectId: original.projectId,
-            projectName: original.projectName,
-            traceDirection: original.traceDirection,
-            traceType: original.traceType,
-            suspect: original.suspect,
-            hasAccess: original.hasAccess,
-            primitiveItemTypePredefined: original.primitiveItemTypePredefined,
-            isSelected: original.isSelected
-        }
-    }
 
     public changes() {
         let deltaRelationshipChanges = new Array<IRelationship>();

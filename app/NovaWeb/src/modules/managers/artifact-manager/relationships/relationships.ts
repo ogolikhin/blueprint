@@ -43,7 +43,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
 
     // refresh = true: turn lazy loading off, always reload
     public get(refresh: boolean = true): ng.IPromise<Relationships.IRelationship[]> {
-        const deferred = this.statefulItem.getServices().getDeferred<Relationships.IArtifactRelationshipsResultSet>();
+        const deferred = this.statefulItem.getServices().getDeferred<Relationships.IRelationship[]>();
 
         if (this.isLoaded && !refresh) {
             deferred.resolve(this.relationships);

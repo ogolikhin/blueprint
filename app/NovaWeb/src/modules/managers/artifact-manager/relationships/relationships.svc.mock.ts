@@ -9,38 +9,10 @@ export class ArtifactRelationshipsMock implements IArtifactRelationshipsService 
 
     constructor(private $q: ng.IQService) { }
 
-    public getRelationships(artifactId: number): ng.IPromise<Relationships.IRelationship[]> {
-        const deferred = this.$q.defer<any>();
-        const artifactList = [
-            {
-                "artifactId": "1",
-                "artifactTypePrefix": "PRE",
-                "artifactName": "Artifact1",
-                "itemId": "2",
-                "itemTypePrefix": "PRE",
-                "itemName": "Item1",
-                "projectId": "1",
-                "projectName": "Project1",
-                "traceDirection": {},
-                "traceType": 2,
-                "suspect": false,
-                "hasAccess": true,
-                "primitiveItemTypePredefined": "1"
-            }, {
-                "artifactId": "3",
-                "artifactTypePrefix": "PRE",
-                "artifactName": "Artifact1",
-                "itemId": "4",
-                "itemTypePrefix": "PRE",
-                "itemName": "Item1",
-                "projectId": "1",
-                "projectName": "Project1",
-                "traceDirection": {},
-                "traceType": 2,
-                "suspect": false,
-                "hasAccess": true,
-                "primitiveItemTypePredefined": 1
-            },
+    public getRelationships(artifactId: number): ng.IPromise<Relationships.IArtifactRelationshipsResultSet> {
+        const deferred = this.$q.defer<any>();        
+
+        const mockOtherTraces = [           
             {
                 "artifactId": "1",
                 "artifactTypePrefix": "PRE",
@@ -87,7 +59,45 @@ export class ArtifactRelationshipsMock implements IArtifactRelationshipsService 
             }
         ];
 
-        deferred.resolve(artifactList);
+        const mockManualTraces = [
+            {
+            "artifactId": "1",
+            "artifactTypePrefix": "PRE",
+            "artifactName": "Artifact1",
+            "itemId": "2",
+            "itemTypePrefix": "PRE",
+            "itemName": "Item1",
+            "projectId": "1",
+            "projectName": "Project1",
+            "traceDirection": {},
+            "traceType": 2,
+            "suspect": false,
+            "hasAccess": true,
+            "primitiveItemTypePredefined": "1"
+            },
+            {
+                "artifactId": "3",
+                "artifactTypePrefix": "PRE",
+                "artifactName": "Artifact1",
+                "itemId": "4",
+                "itemTypePrefix": "PRE",
+                "itemName": "Item1",
+                "projectId": "1",
+                "projectName": "Project1",
+                "traceDirection": {},
+                "traceType": 2,
+                "suspect": false,
+                "hasAccess": true,
+                "primitiveItemTypePredefined": 1
+            }
+        ];
+
+        let result = {
+            manualTraces: mockManualTraces,
+            otherTraces: mockOtherTraces
+        };
+
+        deferred.resolve(result);
         return deferred.promise;
     }
 

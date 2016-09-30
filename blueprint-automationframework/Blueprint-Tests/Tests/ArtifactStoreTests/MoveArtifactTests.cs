@@ -41,7 +41,7 @@ namespace ArtifactStoreTests
         [Description("Create & publish 3 artifacts. Create chain : grandparent, parent and child. Move parent artifact with a child to be a child of the project.  Verify the moved artifact is returned with the updated Parent ID.")]
         public void MoveArtifact_PublishedArtifactWithDependentChildBecomesChildOfProject_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
         {
-            // Setup:
+            // Setup: 
             IArtifact grandParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);            
             IArtifact parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, grandParentArtifact);
             Helper.CreateAndPublishArtifact(_project, _user, artifactType, parentArtifact);
@@ -178,7 +178,7 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="artifactType"></param>
         [TestCase(BaseArtifactType.Process)]
-        [TestRail(0)]
+        [TestRail(182405)]
         [Description("Create & publish 2 artifacts.  Each on ein different folder. Move the artifact to be a child of the other in different project. Verify returned code 409 Conflict.")]
         public void MoveArtifact_MoveOneArtifactToBeAChildOfAnotherInDifferentProject_403Forbidden(BaseArtifactType artifactType)
         {
@@ -197,13 +197,83 @@ namespace ArtifactStoreTests
             artifact1.Lock();
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, _user),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, _user),
                 "'POST {0}' should return 409 Conflict when artifact moved to itself", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "Cannot move an ancester artifact to this position.";
+            string expectedExceptionMessage = "Cannot move artifact to a different project.";
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to move an artifact to itself", expectedExceptionMessage);
+                "{0} when user tries to move an artifact to different project", expectedExceptionMessage);
+        }
+
+        [Ignore(IgnoreReasons.UnderDevelopment)] //Not implemented yet. There is no ability to test Baseline and Review. This will be tested manually
+        [TestCase(BaseArtifactType.Collection)]
+        [TestRail(182408)]
+        [Description("Create & publish 2 artifacts of unsupported artifact type. Move an artifact to be a child of the other one.   Verify returned code 409 Conflict.")]
+        public void MoveArtifact_PublishedArtifactCannotBeMovedForUnsupportedArtifactTypes_403Forbidden(BaseArtifactType artifactType)
+        {
+            // Setup: 
+            IArtifact artifact1 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            IArtifact artifact2 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            artifact1.Lock();
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, _user),
+                "'POST {0}' should return 409 Conflict when user tries to move artifact of unsupported artifact type", SVC_PATH);
+
+            // Verify:
+            string expectedExceptionMessage = "Cannot move baselines, collections or reviews.";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} when user tries to move an artifact of unsupported artifact type", expectedExceptionMessage);
+        }
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(182416)]
+        [Description("Create & publish 2 artifacts. Move an artifact to be a child of the other one with user that does not have proper permissions.  Verify returned code 409 Conflict.")]
+        public void MoveArtifact_PublishedArtifactCannotBeMovedForUserWithoutProperPermissions_403Forbidden(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact1 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            IArtifact artifact2 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            IUser userWithoutPermissions = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
+                InstanceAdminRole.BlueprintAnalytics);
+
+            artifact1.Lock();
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, userWithoutPermissions),
+                "'POST {0}' should return 409 Conflict when user tries to move artifact of unsupported artifact type", SVC_PATH);
+
+            // Verify:
+            string expectedExceptionMessage = "You do not have permission to access the artifact (ID: " + artifact1.Id + ")";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} when user tries to move an artifact without proper permissions", expectedExceptionMessage);
+        }
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(0)]
+        [Description("Create & publish 2 artifacts. Move an artifact to be a child of the other one to which user does not have proper permissions.  Verify returned code 409 Conflict.")]
+        public void MoveArtifact_PublishedArtifactCannotBeMovedToArtifactWhichUserDoesNotHaveProperPermissions_403Forbidden(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IUser userWithoutPermissions = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
+                InstanceAdminRole.BlueprintAnalytics);
+
+            IArtifact artifact1 = Helper.CreateAndPublishArtifact(_project, userWithoutPermissions, artifactType);
+            IArtifact artifact2 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+
+            artifact1.Lock();
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, userWithoutPermissions),
+                "'POST {0}' should return 409 Conflict when user tries to move artifact of unsupported artifact type", SVC_PATH);
+
+            // Verify:
+            string expectedExceptionMessage = "You do not have permission to access the artifact (ID: " + artifact1.Id + ")";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} when user tries to move an artifact without proper permissions", expectedExceptionMessage);
         }
 
         #endregion 403 Forbidden tests
@@ -277,7 +347,7 @@ namespace ArtifactStoreTests
         [Ignore(IgnoreReasons.UnderDevelopment)] //Not fixed yet
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182403)]
-        [Description("Create & publish 2 artifacts.  Move the artifact to be a child of the other. Verify returned code 409 Conflict.")]
+        [Description("Create & publish an artifact.  Move the artifact to be a child of itself. Verify returned code 409 Conflict.")]
         public void MoveArtifact_MoveOneArtifactToBeAChildOfItself_409Conflict(BaseArtifactType artifactType)
         {
             // Setup:
@@ -295,6 +365,28 @@ namespace ArtifactStoreTests
                 "{0} when user tries to move an artifact to itself", expectedExceptionMessage);
         }
 
+        [Ignore(IgnoreReasons.UnderDevelopment)] //Not fixed yet
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(182406)]
+        [Description("Create & publish 3 artifacts.  Move the artifact to be a child of one of descendents. Verify returned code 409 Conflict.")]
+        public void MoveArtifact_MoveParentToOneOfDescendentArtifacts_409Conflict(BaseArtifactType artifactType)
+        {
+            // Setup: 
+            IArtifact grandParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            IArtifact parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, grandParentArtifact);
+            IArtifact childArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, parentArtifact);
+
+            grandParentArtifact.Lock();
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.MoveArtifact(grandParentArtifact, childArtifact, _user),
+                "'POST {0}' should return 409 Conflict when artifact moved to one of its descendents", SVC_PATH);
+
+            // Verify:
+            string expectedExceptionMessage = "Cannot move an ancester artifact to this position.";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} when user tries to move an artifact to one of its descendents", expectedExceptionMessage);
+        }
         #endregion 409 Conflict tests
     }
 }

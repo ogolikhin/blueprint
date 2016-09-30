@@ -1,4 +1,5 @@
-﻿import { Models } from "../../main/models";
+﻿import * as angular from "angular";
+import { Models } from "../../main/models";
 
 export interface IProjectService {
     abort(): void;
@@ -25,18 +26,23 @@ export class ProjectService implements IProjectService {
     }
 
     public getFolders(id?: number): ng.IPromise<Models.IProjectNode[]> {
-        var defer = this.$q.defer<any>();
+        const defer = this.$q.defer<any>();
         this.canceler = this.$q.defer<any>();
 
-        let url: string = `svc/adminstore/instance/folders/${id || 1}/children`;
-        this.$http.get<Models.IProjectNode[]>(url, { timeout: this.canceler.promise }).then(
+        const requestObj: ng.IRequestConfig = {
+            url: `svc/adminstore/instance/folders/${id || 1}/children`,
+            method: "GET",
+            timeout: this.canceler.promise
+        };
+
+        this.$http(requestObj).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IProjectNode[]>) => defer.resolve(result.data),
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 if (!errResult) {
                     defer.reject();
                     return;
                 }
-                var error = {
+                const error = {
                     statusCode: errResult.status,
                     message: "Folder_NotFound"
                 };
@@ -47,11 +53,16 @@ export class ProjectService implements IProjectService {
     } 
 
     public getProject(id?: number): ng.IPromise<Models.IProjectNode> {
-        var defer = this.$q.defer<any>();
+        const defer = this.$q.defer<any>();
         this.canceler = this.$q.defer<any>();
 
-        let url: string = `svc/adminstore/instance/projects/${id}`;
-        this.$http.get<Models.IProjectNode>(url, { timeout: this.canceler.promise }).then(
+        const requestObj: ng.IRequestConfig = {
+            url: `svc/adminstore/instance/projects/${id}`,
+            method: "GET",
+            timeout: this.canceler.promise
+        };
+
+        this.$http(requestObj).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IProjectNode>) => {
                 defer.resolve(result.data);
             },
@@ -60,7 +71,7 @@ export class ProjectService implements IProjectService {
                     defer.reject();
                     return;
                 }
-                var error = {
+                const error = {
                     statusCode: errResult.status,
                     message: "Project_NotFound"
                 };
@@ -71,14 +82,20 @@ export class ProjectService implements IProjectService {
     } 
 
     public getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
-        var defer = this.$q.defer<any>();
         if (projectId && projectId === artifactId) {
             artifactId = null;
         }
+
+        const defer = this.$q.defer<any>();
         this.canceler = this.$q.defer<any>();
 
-        let url: string = `svc/artifactstore/projects/${projectId}` + (artifactId ? `/artifacts/${artifactId}` : ``) + `/children`;
-        this.$http.get<Models.IArtifact[]>(url, { timeout: this.canceler.promise }).then(
+        const requestObj: ng.IRequestConfig = {
+            url: `svc/artifactstore/projects/${projectId}` + (artifactId ? `/artifacts/${artifactId}` : ``) + `/children`,
+            method: "GET",
+            timeout: this.canceler.promise
+        };
+
+        this.$http(requestObj).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IArtifact[]>) => {
                 defer.resolve(result.data);
             },
@@ -87,7 +104,7 @@ export class ProjectService implements IProjectService {
                     defer.reject();
                     return;
                 }
-                var error = {
+                const error = {
                     statusCode: errResult.status,
                     message: "Artifact_NotFound"
                 };
@@ -98,17 +115,23 @@ export class ProjectService implements IProjectService {
     }
 
     public getProjectTree(projectId: number, artifactId: number, loadChildren?: boolean) {
-        var defer = this.$q.defer<any>();
         if (projectId && projectId === artifactId) {
             artifactId = null;
         }
-        if (loadChildren === undefined) {
+        if (angular.isUndefined(loadChildren)) {
             loadChildren = false;
         }
+
+        const defer = this.$q.defer<any>();
         this.canceler = this.$q.defer<any>();
 
-        let url: string = `svc/artifactstore/projects/${projectId}/artifacts/?expandedToArtifactId=${artifactId}&includeChildren=${loadChildren}`;
-        this.$http.get<Models.IArtifact[]>(url, { timeout: this.canceler.promise }).then(
+        const requestObj: ng.IRequestConfig = {
+            url: `svc/artifactstore/projects/${projectId}/artifacts/?expandedToArtifactId=${artifactId}&includeChildren=${loadChildren}`,
+            method: "GET",
+            timeout: this.canceler.promise
+        };
+
+        this.$http(requestObj).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IArtifact[]>) => {
                 defer.resolve(result.data);
             },
@@ -117,7 +140,7 @@ export class ProjectService implements IProjectService {
                     defer.reject();
                     return;
                 }
-                var error = {
+                const error = {
                     statusCode: errResult.status,
                     message: "Artifact_NotFound",
                     errorCode: errResult.data.errorCode
@@ -129,11 +152,16 @@ export class ProjectService implements IProjectService {
     }
 
     public getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta> {
-        var defer = this.$q.defer<any>();
+        const defer = this.$q.defer<any>();
         this.canceler = this.$q.defer<any>();
 
-        let url: string = `svc/artifactstore/projects/${projectId}/meta/customtypes`;
-        this.$http.get<Models.IProjectMeta>(url, { timeout: this.canceler.promise }).then(
+        const requestObj: ng.IRequestConfig = {
+            url: `svc/artifactstore/projects/${projectId}/meta/customtypes`,
+            method: "GET",
+            timeout: this.canceler.promise
+        };
+
+        this.$http(requestObj).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IProjectMeta>) => {
                 defer.resolve(result.data);
             },
@@ -142,7 +170,7 @@ export class ProjectService implements IProjectService {
                     defer.reject();
                     return;
                 }
-                var error = {
+                const error = {
                     statusCode: errResult.status,
                     message: "Project_NotFound"
                 };
@@ -153,11 +181,16 @@ export class ProjectService implements IProjectService {
     }
 
     public getSubArtifactTree(artifactId: number): ng.IPromise<Models.ISubArtifactNode[]> {
-        var defer = this.$q.defer<any>();
+        const defer = this.$q.defer<any>();
         this.canceler = this.$q.defer<any>();
 
-        let url = `/svc/artifactstore/artifacts/${artifactId}/subartifacts`;
-        this.$http.get<Models.ISubArtifactNode[]>(url, { timeout: this.canceler.promise }).then(
+        const requestObj: ng.IRequestConfig = {
+            url: `/svc/artifactstore/artifacts/${artifactId}/subartifacts`,
+            method: "GET",
+            timeout: this.canceler.promise
+        };
+
+        this.$http(requestObj).then(
             (result: ng.IHttpPromiseCallbackArg<Models.ISubArtifactNode[]>) => {
                 defer.resolve(result.data);
             },
@@ -166,7 +199,7 @@ export class ProjectService implements IProjectService {
                     defer.reject();
                     return;
                 }
-                var error = {
+                const error = {
                     statusCode: errResult.status,
                     message: (errResult.data ? errResult.data.message : "")
                 };

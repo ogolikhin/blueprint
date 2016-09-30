@@ -15,7 +15,7 @@ describe("BpArtifactPicker", () => {
     beforeEach(angular.mock.module("bp.components.artifactpicker", ($provide: ng.auto.IProvideService) => {
         $provide.service("localization", () => {});
         $provide.service("projectManager", () => { return { getSelectedProject: () => undefined }; });
-        $provide.service("projectService", () => { return { abort: () => undefined }; });
+        $provide.service("projectService", () => { return { abort: () => {} }; });
     }));
 
     it("Values are bound", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
@@ -62,7 +62,7 @@ describe("BpArtifactPickerController", () => {
         const localization = {} as ILocalizationService;
         projectManager = jasmine.createSpyObj("projectManager", ["getSelectedProject", "getArtifact"]) as IProjectManager;
         (projectManager.getSelectedProject as jasmine.Spy).and.returnValue(project);
-        projectService = { abort: () => undefined } as IProjectService;
+        projectService = { abort: () => {} } as IProjectService;
         controller = new BpArtifactPickerController($scope, localization, projectManager, projectService);
     }));
 

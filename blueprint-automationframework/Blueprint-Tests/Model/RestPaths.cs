@@ -307,6 +307,8 @@ namespace Model
                 {
                     public const string METADATA      = "svc/searchservice/fulltextsearch/metadata";
                 }
+
+                public const string PROJECTSEARCH = "svc/searchservice/projectsearch";
             }
 
             public static class Shared

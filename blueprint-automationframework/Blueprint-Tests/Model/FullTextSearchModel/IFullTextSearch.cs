@@ -32,5 +32,15 @@ namespace Model.FullTextSearchModel
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The search result metadata.</returns>
         FullTextSearchMetaDataResult SearchMetaData(IUser user, FullTextSearchCriteria searchCriteria, int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Returns the list of projects name which contains searchText
+        /// </summary>
+        /// <param name="user">The user performing the search.</param>
+        /// <param name="searchText">Text to search</param>
+        /// <param name="resultCount">(optional)The number of search results to return.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>List of projects.</returns>
+        List<ProjectSearchResult> SearchProjects(IUser user, string searchText, int resultCount, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

@@ -88,6 +88,28 @@ namespace Model.FullTextSearchModel.Impl
             return restResponse;
         }
 
+        /// <seealso cref="FullTextSearch.SearchProjects(IUser, string, int, List{HttpStatusCode})"/>
+        public List<ProjectSearchResult> SearchProjects(IUser user, string searchText, int resultCount, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            var queryParams = new Dictionary<string, string>();
+
+            queryParams.Add("searchText", searchText);
+
+            var tokenValue = user.Token?.AccessControlToken;
+
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var projects = restApi.SendRequestAndDeserializeObject<List<ProjectSearchResult>>(
+                RestPaths.Svc.SearchService.PROJECTSEARCH,
+                RestRequestMethod.GET,
+                queryParameters: queryParams,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return projects;
+        }
+
         #endregion Members inherited from IFullTextSearch
     }
 }

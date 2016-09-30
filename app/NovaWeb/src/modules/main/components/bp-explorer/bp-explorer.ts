@@ -107,7 +107,7 @@ export class ProjectExplorerController {
                 }
                 if (this.tree.nodeExists(this.selected.id)) {
                     this.tree.selectNode(this.selected.id);
-                    this.navigationService.navigateToArtifact(this.selected.id);
+                    //this.navigationService.navigateToArtifact(this.selected.id);
                 }else {
                     if (this.selected.parentNode && this.tree.nodeExists(this.selected.parentNode.id)) {
                         this.tree.selectNode(this.selected.parentNode.id);

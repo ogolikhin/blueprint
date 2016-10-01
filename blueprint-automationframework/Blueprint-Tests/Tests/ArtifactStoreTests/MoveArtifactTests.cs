@@ -116,7 +116,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182402)]
-        [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other.  Send current version of artifact with the message. erify the moved artifact is returned with the updated Parent ID..")]
+        [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other.  Send current version of artifact with the message.  Verify the moved artifact is returned with the updated Parent ID.")]
         public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_SendCurrentVersion_200OK(BaseArtifactType artifactType)
         {
             const int CURRENT_VERSION_OF_ARTIFACT = 2;
@@ -127,6 +127,7 @@ namespace ArtifactStoreTests
             IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             artifact.Lock();
+            
             // Execute:
             Assert.DoesNotThrow(() =>
             {
@@ -180,7 +181,7 @@ namespace ArtifactStoreTests
         /// <param name="artifactType"></param>
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182405)]
-        [Description("Create & publish 2 artifacts.  Each on ein different folder. Move the artifact to be a child of the other in different project. Verify returned code 409 Conflict.")]
+        [Description("Create & publish 2 artifacts.  Each one in a different project.  Move the artifact to be a child of the other in different project.  Verify returned code 409 Conflict.")]
         public void MoveArtifact_MoveOneArtifactToBeAChildOfAnotherInDifferentProject_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
@@ -295,7 +296,7 @@ namespace ArtifactStoreTests
             {
                 // Execute:
                 var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, userWithoutPermissions),
-                    "'POST {0}' should return 403 Forbidden when user tries to move artifact to artifact to which has/she no permissions", SVC_PATH);
+                    "'POST {0}' should return 403 Forbidden when user tries to move artifact to an artifact to which user has no permissions", SVC_PATH);
 
                 // Verify:
                 string expectedExceptionMessage = "You do not have permission to access the artifact (ID: " + artifact2.Id + ")";

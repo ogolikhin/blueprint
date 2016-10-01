@@ -29,26 +29,26 @@ namespace Model.Impl
 
         /// <seealso cref="IArtifactStore.CreateArtifact(IUser, ArtifactTypePredefined, string, IProject, INovaArtifactDetails, double?, List{HttpStatusCode})"/>
         public INovaArtifactDetails CreateArtifact(IUser user,
-            ArtifactTypePredefined artifactType,
+            ArtifactTypePredefined baseArtifactType,
             string name,
             IProject project,
             INovaArtifactDetails parentArtifact = null,
             double? orderIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return CreateArtifact(Address, user, (ItemTypePredefined)artifactType, name, project, parentArtifact, orderIndex, expectedStatusCodes);
+            return CreateArtifact(Address, user, (ItemTypePredefined)baseArtifactType, name, project, parentArtifact, orderIndex, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.CreateArtifact(IUser, ItemTypePredefined, string, IProject, INovaArtifactDetails, double?, List{HttpStatusCode})"/>
         public INovaArtifactDetails CreateArtifact(IUser user,
-            ItemTypePredefined artifactType,
+            ItemTypePredefined baseArtifactType,
             string name,
             IProject project,
             INovaArtifactDetails parentArtifact = null,
             double? orderIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return CreateArtifact(Address, user, artifactType, name, project, parentArtifact, orderIndex, expectedStatusCodes);
+            return CreateArtifact(Address, user, baseArtifactType, name, project, parentArtifact, orderIndex, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.DeleteArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
@@ -521,7 +521,7 @@ namespace Model.Impl
 
         public static INovaArtifactDetails CreateArtifact(string address,
             IUser user,
-            ItemTypePredefined artifactType,
+            ItemTypePredefined baseArtifactType,
             string name,
             IProject project,
             INovaArtifactBase parentArtifact = null,
@@ -538,9 +538,9 @@ namespace Model.Impl
             expectedStatusCodes = expectedStatusCodes ?? new List<HttpStatusCode> { HttpStatusCode.Created };
 
             // Get the custom artifact type for the project.
-            NovaArtifactType itemType = project.NovaArtifactTypes.Find(at => at.PredefinedType == artifactType);
+            NovaArtifactType itemType = project.NovaArtifactTypes.Find(at => at.PredefinedType == baseArtifactType);
             Assert.NotNull(itemType, "No custom artifact type was found in project '{0}' for ItemTypePredefined: {1}!",
-                project.Name, artifactType);
+                project.Name, baseArtifactType);
 
             NovaArtifactDetails jsonBody = new NovaArtifactDetails
             {

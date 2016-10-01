@@ -24,7 +24,7 @@ namespace Model
         /// Creates a new Nova artifact.
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
-        /// <param name="artifactType">The base artifact type (i.e. ItemType) to create.</param>
+        /// <param name="baseArtifactType">The base artifact type (i.e. ItemType) to create.</param>
         /// <param name="name">The name of the new artifact.</param>
         /// <param name="project">The project where the artifact will be created in.</param>
         /// <param name="parentArtifact">(optional) The parent of the new artifact.</param>
@@ -32,7 +32,7 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
         /// <returns>The new Nova artifact that was created.</returns>
         INovaArtifactDetails CreateArtifact(IUser user,
-            ArtifactTypePredefined artifactType,
+            ArtifactTypePredefined baseArtifactType,
             string name,
             IProject project,
             INovaArtifactDetails parentArtifact = null,
@@ -43,7 +43,7 @@ namespace Model
         /// Creates a new Nova artifact.
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
-        /// <param name="artifactType">The base artifact type (i.e. ItemType) to create.</param>
+        /// <param name="baseArtifactType">The base artifact type (i.e. ItemType) to create.</param>
         /// <param name="name">The name of the new artifact.</param>
         /// <param name="project">The project where the artifact will be created in.</param>
         /// <param name="parentArtifact">(optional) The parent of the new artifact.</param>
@@ -51,7 +51,7 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
         /// <returns>The new Nova artifact that was created.</returns>
         INovaArtifactDetails CreateArtifact(IUser user,
-            ItemTypePredefined artifactType,
+            ItemTypePredefined baseArtifactType,
             string name,
             IProject project,
             INovaArtifactDetails parentArtifact = null,

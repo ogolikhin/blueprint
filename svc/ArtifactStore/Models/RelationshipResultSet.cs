@@ -43,6 +43,8 @@ namespace ArtifactStore.Models
         public List<Relationship> ManualTraces;
         [JsonProperty]
         public List<Relationship> OtherTraces;
+        [JsonProperty]
+        public bool CanEdit { get; set; }        
     }
     [JsonObject]
     public class Relationship
@@ -73,6 +75,8 @@ namespace ArtifactStore.Models
         public bool Suspect { get; set; }
         [JsonProperty]
         public bool HasAccess { get; set; } = true;
+        [JsonProperty]
+        public bool ReadOnly { get; set; }
         [JsonProperty]
         public int PrimitiveItemTypePredefined { get; set; }
     }

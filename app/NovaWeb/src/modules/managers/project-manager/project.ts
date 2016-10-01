@@ -31,27 +31,27 @@ export class ArtifactNode implements IArtifactNode {
     }
 
     public get id(): number {
-        return this._artifact.id;
+        return !this._artifact ? null : this._artifact.id;
     }
 
     public get name(): string {
-        return this._artifact.name;
+        return !this._artifact ? null : this._artifact.name;
     }
 
     public get projectId() {
-        return this._artifact.projectId;
+        return !this._artifact ? null : this._artifact.projectId;
     }
 
     public get parentId(): number {
-        return this._artifact.parentId;
+        return !this._artifact ? null : this._artifact.parentId;
     }
 
     public get permissions(): Enums.RolePermissions {
-        return this._artifact.permissions;
+        return !this._artifact ? null : this._artifact.permissions;
     }
 
     public get predefinedType(): Models.ItemTypePredefined {
-        return this._artifact.predefinedType;
+        return !this._artifact ? null : this._artifact.predefinedType;
     }
 
     public hasChildren: boolean;

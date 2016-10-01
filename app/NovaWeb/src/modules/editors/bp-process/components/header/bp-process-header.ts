@@ -22,7 +22,7 @@ export class BpProcessHeader implements ng.IComponentOptions {
 export class BpProcessHeaderController extends BpArtifactInfoController {
     private toolbarCommunicationManager: IToolbarCommunication;
     private enableDeleteButtonHandler: string;
-    private breadcrumbLinks: IBreadcrumbLink[];
+    public breadcrumbLinks: IBreadcrumbLink[];
     public isDeleteButtonEnabled: boolean;
     
     static $inject: [string] = [

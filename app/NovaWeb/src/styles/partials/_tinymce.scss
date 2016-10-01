@@ -1,4 +1,28 @@
-.mce-mention {
-  margin: 0;
-  z-index: 65536;
+body {
+  .mce-mention {
+    margin: 0;
+    z-index: 65536;
+  }
+
+  i.mce-ico.mce-i-font-size::before {
+    content: '\e241';
+    font-family: 'Glyphicons Halflings' !important;
+  }
+
+  i.mce-ico.mce-i-format::before {
+    content: $fonticon2-format;
+    font-family: 'bp-font2' !important;
+  }
+
+  bp-discussion-panel {
+    .mce-btn button {
+      font-size: 12px;
+      padding: 2px 3px;
+    }
+
+    .mce-ico {
+      font-size: 13px;
+      width: 14px;
+    }
+  }
 }

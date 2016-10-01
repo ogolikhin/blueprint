@@ -56,17 +56,16 @@ bp-relationships-panel {
                 }
             }
         }
-        &:first-child {
-          @include transition(height 1s, opacity 1s);
-
+        &.header-icons {
+          @include transition(max-height 0.5s, opacity 0.5s);
           padding: 0 5px;
           color: $gray-dark;
           line-height: $utility-panel-title-height;
-          height: 0;
+          max-height: 0;
           opacity: 0;
 
           &.active {
-            height: $utility-panel-title-height;
+            max-height: $utility-panel-title-height;
             opacity: 1;
           }
 

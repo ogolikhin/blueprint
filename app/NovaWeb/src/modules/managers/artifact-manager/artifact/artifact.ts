@@ -3,6 +3,7 @@ import { Models, Enums, Relationships } from "../../../main/models";
 import { IStatefulArtifactServices } from "../services";
 import { StatefulItem, IStatefulItem, IIStatefulItem } from "../item";
 import { IArtifactAttachmentsResultSet } from "../attachments";
+import { IChangeSet } from "../changeset";
 import { ISubArtifactCollection } from "../sub-artifact";
 import { MetaData } from "../metadata";
 import { IDispose } from "../../models";
@@ -49,7 +50,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     public  initialize(artifact: Models.IArtifact): IState {
-        let state: IState = {};
+        // let state: IState = {};
         if (this.parentId !== artifact.parentId || this.orderIndex !== artifact.orderIndex) {
             this.artifactState.misplaced = true;
         } else {
@@ -201,11 +202,11 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             });
         return deferred.promise;
     }
-    
-    public getRelationships(): ng.IPromise<Relationships.IRelationship[]> {
+
+    public getRelationships(): ng.IPromise<Relationships.IArtifactRelationshipsResultSet> {
         const deferred = this.services.getDeferred();
         this.services.relationshipsService.getRelationships(this.id)
-            .then( (result: Relationships.IRelationship[]) => {
+            .then( (result: Relationships.IArtifactRelationshipsResultSet) => {
                 deferred.resolve(result);
             }, (error) => {
                 if (error && error.statusCode === 404) {
@@ -222,8 +223,20 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             throw new Error("App_Save_Artifact_Error_400_114");
         }
 
-        let delta = super.changes();
+        let delta: Models.IArtifact = {} as Models.Artifact;
 
+        delta.id = this.id;
+        delta.projectId = this.projectId;
+        delta.customPropertyValues = [];
+        this.changesets.get().forEach((it: IChangeSet) => {
+            delta[it.key as string] = it.value;
+        });
+      
+        delta.customPropertyValues = this.customProperties.changes();
+        delta.specificPropertyValues = this.specialProperties.changes();
+        delta.attachmentValues = this.attachments.changes();
+        delta.docRefValues = this.docRefs.changes();
+        delta.traces = this.relationships.changes();
         this.addSubArtifactChanges(delta);
 
         return delta;

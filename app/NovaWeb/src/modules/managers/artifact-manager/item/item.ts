@@ -4,13 +4,11 @@ import { ArtifactAttachments, IArtifactAttachments, IArtifactAttachmentsResultSe
 import { ArtifactProperties, SpecialProperties } from "../properties";
 import { ChangeSetCollector,  ChangeTypeEnum, IChangeCollector, IChangeSet } from "../changeset";
 import { StatefulSubArtifactCollection, ISubArtifactCollection } from "../sub-artifact";
-import { IMetaData, MetaData } from "../metadata";
+import { IMetaData } from "../metadata";
 import { IDocumentRefs, DocumentRefs } from "../docrefs";
 import { IStatefulArtifactServices } from "../services";
 import { IArtifactProperties } from "../properties";
 import { IArtifactRelationships, ArtifactRelationships } from "../relationships";
-
-
 
 export interface IStatefulItem extends Models.IArtifact {
     artifactState: IArtifactState;
@@ -30,7 +28,7 @@ export interface IStatefulItem extends Models.IArtifact {
 
 export interface IIStatefulItem extends IStatefulItem  {
     getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet>;
-    getRelationships(): ng.IPromise<Relationships.IRelationship[]>;
+    getRelationships(): ng.IPromise<Relationships.IArtifactRelationshipsResultSet>;
     getServices(): IStatefulArtifactServices;
 }
 
@@ -288,10 +286,10 @@ export abstract class StatefulItem implements IIStatefulItem {
         return deferred.promise;
     }
     
-    public getRelationships(): ng.IPromise<Relationships.IRelationship[]> {
+    public getRelationships(): ng.IPromise<Relationships.IArtifactRelationshipsResultSet> {
         const deferred = this.services.getDeferred();
         this.services.relationshipsService.getRelationships(this.id)
-            .then( (result: Relationships.IRelationship[]) => {
+            .then( (result: Relationships.IArtifactRelationshipsResultSet) => {
                 deferred.resolve(result);
             }, (error) => {
                 if (error && error.statusCode === 404) {

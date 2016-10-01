@@ -176,3 +176,15 @@
     outline: 0;
     filter: progid:DXImageTransform.Microsof;
 }
+
+@media (max-width: #{$app-minimum-width - 1px}) {
+  .rte-autocomplete {
+      left: 50% !important;
+      right: auto !important;
+      transform: translate(-50%, 0);
+
+      &::after, &::before {
+          display: none;
+      }
+  }
+}

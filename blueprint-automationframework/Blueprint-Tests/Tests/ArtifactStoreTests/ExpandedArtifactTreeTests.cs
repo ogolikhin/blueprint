@@ -209,6 +209,34 @@ namespace ArtifactStoreTests
             VerifyArtifactTree(artifactChain, artifacts, artifactIndex);
         }
 
+        [TestCase(BaseArtifactType.Actor, true)]
+        [TestCase(BaseArtifactType.Actor, false)]
+        [TestRail(182430)]
+        [Description("Create & publish some artifacts.  GetExpandedArtifactTree with the ID of the project instead of an artifact.  " +
+            "Verify all the artifacts you created were returned.")]
+        public void GetExpandedArtifactTree_ArtifactIdIsAProjectId_ReturnsProjectTree(BaseArtifactType artifactType, bool includeChildren)
+        {
+            // Setup:
+            var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts: 3);
+
+            List<INovaArtifact> returnedArtifacts = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => returnedArtifacts = Helper.ArtifactStore.GetExpandedArtifactTree(_user, _project, _project.Id, includeChildren),
+                "'GET {0}' should return 200 OK when a Project ID is passed in place of an Artifact ID!", REST_PATH);
+
+            // Verify:
+            // Make sure we can find all the artifacts we created in the list returned by the GetExpandedArtifactTree call.
+            foreach (var artifact in publishedArtifacts)
+            {
+                INovaArtifact matchingNovaArtifact = returnedArtifacts.Find(a => a.Id == artifact.Id);
+                Assert.NotNull(matchingNovaArtifact,
+                    "Couldn't find artifact ID {0} in the list of returned artifacts!", artifact.Id);
+
+                matchingNovaArtifact.AssertEquals(artifact, shouldCompareVersions: false);
+            }
+        }
+
         [TestCase("")]
         [TestCase("00000000-0000-0000-0000-000000000000")]
         [TestRail(164532)]
@@ -312,21 +340,6 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [TestRail(164537)]
-        [Description("GetExpandedArtifactTree with the ID of the project instead of an artifact.  Verify 404 Not Found is returned with the correct error message.")]
-        public void GetExpandedArtifactTree_ArtifactIdIsAProjectId_404NotFound()
-        {
-            // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(_user, _project, _project.Id),
-                "'GET {0}' should return 404 Not Found when a Project ID is passed in place of an Artifact ID!", REST_PATH);
-
-            // Verify:
-            string expectedMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", _project.Id, _project.Id);
-            AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
-                "If a Project ID is passed in place of an Artifact ID, we should get an error message of '{0}'!", expectedMessage);
-        }
-
-        [TestCase]
         [TestRail(164538)]
         [Description("GetExpandedArtifactTree with the ID of the artifact instead of a project.  Verify 404 Not Found is returned with the correct error message.")]
         public void GetExpandedArtifactTree_ProjectIdIsAnArtifactId_404NotFound()
@@ -341,7 +354,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 404 Not Found when an Artifact ID is passed in place of a Project ID!", REST_PATH);
 
             // Verify:
-            string expectedMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", artifact.Id, artifact.Id);
+            string expectedMessage = I18NHelper.FormatInvariant("Project (Id:{0}) is not found.", notAProject.Id);
             AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
                 "If an Artifact ID is passed in place of a Project ID, we should get an error message of '{0}'!", expectedMessage);
         }
@@ -622,7 +635,7 @@ namespace ArtifactStoreTests
                 }
             }
 
-            Assert.IsNull(currentChild, "The Children property of the last artifactin the chain should be null!");
+            Assert.IsNull(currentChild, "The Children property of the last artifact in the chain should be null!");
         }
 
         #endregion Private functions

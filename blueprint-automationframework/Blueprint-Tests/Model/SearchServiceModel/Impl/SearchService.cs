@@ -5,14 +5,14 @@ using Model.Impl;
 using Utilities;
 using Utilities.Facades;
 
-namespace Model.FullTextSearchModel.Impl
+namespace Model.SearchServiceModel.Impl
 {
-    public class FullTextSearch : NovaServiceBase, IFullTextSearch
+    public class SearchService : NovaServiceBase, ISearchService
     {
 
         #region Constructor
 
-        public FullTextSearch(string address)
+        public SearchService(string address)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
 
@@ -21,11 +21,11 @@ namespace Model.FullTextSearchModel.Impl
 
         #endregion Constructor
 
-        #region Members inherited from IFullTextSearch
+        #region Members inherited from ISearchService
 
-        public FullTextSearchResult Search(IUser user, FullTextSearchCriteria searchCriteria, int? page = null, int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public FullTextSearchResult FullTextSearch(IUser user, FullTextSearchCriteria searchCriteria, int? page = null, int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            Logger.WriteTrace("{0}.{1}", nameof(FullTextSearch), nameof(Search));
+            Logger.WriteTrace("{0}.{1}", nameof(SearchService), nameof(FullTextSearch));
 
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(searchCriteria, nameof(searchCriteria));
@@ -46,7 +46,7 @@ namespace Model.FullTextSearchModel.Impl
 
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            Logger.WriteInfo("{0} Projects: {1} Item Types: {2} Search criteria: {3}", nameof(FullTextSearch), searchCriteria.ProjectIds, searchCriteria.ItemTypeIds, searchCriteria.Query);
+            Logger.WriteInfo("{0} Projects: {1} Item Types: {2} Search criteria: {3}", nameof(SearchService), searchCriteria.ProjectIds, searchCriteria.ItemTypeIds, searchCriteria.Query);
 
             var restResponse = restApi.SendRequestAndDeserializeObject<FullTextSearchResult, FullTextSearchCriteria>(
                 RestPaths.Svc.SearchService.FULLTEXTSEARCH,
@@ -58,9 +58,9 @@ namespace Model.FullTextSearchModel.Impl
             return restResponse;
         }
 
-        public FullTextSearchMetaDataResult SearchMetaData(IUser user, FullTextSearchCriteria searchCriteria, int? pageSize, List<HttpStatusCode> expectedStatusCodes = null)
+        public FullTextSearchMetaDataResult FullTextSearchMetaData(IUser user, FullTextSearchCriteria searchCriteria, int? pageSize, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            Logger.WriteTrace("{0}.{1}", nameof(FullTextSearch), nameof(SearchMetaData));
+            Logger.WriteTrace("{0}.{1}", nameof(SearchService), nameof(FullTextSearchMetaData));
 
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -75,7 +75,7 @@ namespace Model.FullTextSearchModel.Impl
 
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            Logger.WriteInfo("{0} Projects: {1} Item Types: {2} Search criteria: {3} Page Size: {4}", nameof(FullTextSearch), searchCriteria?.ProjectIds, searchCriteria?.ItemTypeIds, searchCriteria?.Query, pageSize);
+            Logger.WriteInfo("{0} Projects: {1} Item Types: {2} Search criteria: {3} Page Size: {4}", nameof(SearchService), searchCriteria?.ProjectIds, searchCriteria?.ItemTypeIds, searchCriteria?.Query, pageSize);
 
             var restResponse = restApi.SendRequestAndDeserializeObject<FullTextSearchMetaDataResult, FullTextSearchCriteria>(
                 RestPaths.Svc.SearchService.FullTextSearch.METADATA,
@@ -87,13 +87,13 @@ namespace Model.FullTextSearchModel.Impl
             return restResponse;
         }
 
-        /// <seealso cref="IFullTextSearch.GetStatus(string, List{HttpStatusCode})"/>
+        /// <seealso cref="ISearchService.GetStatus(string, List{HttpStatusCode})"/>
         public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
         {
             return GetStatus(RestPaths.Svc.SearchService.STATUS, preAuthorizedKey, expectedStatusCodes);
         }
 
-        /// <seealso cref="IFullTextSearch.GetStatusUpcheck(List{HttpStatusCode})"/>
+        /// <seealso cref="ISearchService.GetStatusUpcheck(List{HttpStatusCode})"/>
         public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
         {
             return GetStatusUpcheck(RestPaths.Svc.SearchService.Status.UPCHECK, expectedStatusCodes);

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Model.FullTextSearchModel.Impl
+namespace Model.SearchServiceModel.Impl
 {
     public class FullTextSearchCriteria
     {

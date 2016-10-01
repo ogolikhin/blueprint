@@ -8,7 +8,7 @@ namespace SearchServiceTests
 {
     [TestFixture]
     [Category(Categories.SearchService)]
-    public static class FullTextSearchStatusTests
+    public static class SearchStatusTests
     {
         [TestCase]
         [TestRail(182409)]
@@ -21,7 +21,7 @@ namespace SearchServiceTests
 
                 Assert.DoesNotThrow(() =>
                 {
-                    content = helper.FullTextSearch.GetStatus();
+                    content = helper.SearchService.GetStatus();
                 }, "The GET /status endpoint should return 200 OK!");
 
                 var extraExpectedStrings = new List<string> { "SearchService", "Blueprint", "\"accessInfo\":\"data source=" };
@@ -41,7 +41,7 @@ namespace SearchServiceTests
 
                 Assert.DoesNotThrow(() =>
                 {
-                    content = helper.FullTextSearch.GetStatus();
+                    content = helper.SearchService.GetStatus();
                 }, "The GET /status endpoint should return 200 OK!");
 
                 var extraExpectedStrings = new List<string> { "SearchService", "Blueprint" };
@@ -62,7 +62,7 @@ namespace SearchServiceTests
             {
                 Assert.Throws<Http401UnauthorizedException>(() =>
                 {
-                    helper.FullTextSearch.GetStatus(preAuthorizedKey);
+                    helper.SearchService.GetStatus(preAuthorizedKey);
                 }, "The GET /status endpoint should return 401 Unauthorized when we pass an invalid or missing preAuthorizedKey!");
             }
         }
@@ -76,7 +76,7 @@ namespace SearchServiceTests
             {
                 Assert.DoesNotThrow(() =>
                 {
-                    helper.FullTextSearch.GetStatusUpcheck();
+                    helper.SearchService.GetStatusUpcheck();
                 });
             }
         }

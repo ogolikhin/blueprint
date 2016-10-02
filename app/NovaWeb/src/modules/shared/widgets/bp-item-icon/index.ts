@@ -1,6 +1,6 @@
 ﻿import * as angular from "angular";
 import { BPItemTypeIconComponent } from "./bp-item-icon";
 
-angular.module("bp.widjets.itemicon", [])
+angular.module("bp.widgets.itemicon", [])
     .component("bpItemTypeIcon", new BPItemTypeIconComponent());
 

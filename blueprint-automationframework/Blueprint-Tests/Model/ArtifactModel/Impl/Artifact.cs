@@ -7,6 +7,7 @@ using Utilities;
 using NUnit.Framework;
 using Utilities.Facades;
 using Common;
+using Model.ArtifactModel.Enums;
 using Model.Factories;
 using Model.Impl;
 using Utilities.Factories;

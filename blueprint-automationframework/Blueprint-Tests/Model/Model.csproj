@@ -54,6 +54,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArtifactModel\Enums\ItemTypePredefined.cs" />
+    <Compile Include="ArtifactModel\Enums\ItemTypePredefinedExtension.cs" />
     <Compile Include="ArtifactModel\IArtifactObserver.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactBase.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactHistory.cs" />

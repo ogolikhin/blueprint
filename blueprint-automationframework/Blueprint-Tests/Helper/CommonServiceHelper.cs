@@ -4,6 +4,7 @@ using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
+using Model.ArtifactModel.Enums;
 using Utilities;
 
 namespace Helper

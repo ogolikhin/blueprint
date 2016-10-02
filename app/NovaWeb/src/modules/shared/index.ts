@@ -7,7 +7,7 @@ import "./filters";
 angular.module("app.shared", [
     "ui.router",
     "ui.bootstrap",
-    "bp.widjets",
+    "bp.widgets",
     "bp.filters"]);
     
 export {

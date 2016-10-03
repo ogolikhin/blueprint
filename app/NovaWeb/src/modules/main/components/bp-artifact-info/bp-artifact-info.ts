@@ -62,33 +62,51 @@ export class BpArtifactInfoController {
 
     public $onInit() {
         const windowSub = this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
-        const stateSub = this.artifactManager.selection.artifactObservable
-            // cannot always skip 1 and rely on the artifact observable having 2 values (initial and new)
-            // this is true when navigating to artifact X from artifact X via breadcrumb (loop)
-            //.skip(1) // skip the first (initial) value
-            .filter((artifact: IStatefulArtifact) => artifact != null)
-            .flatMap((artifact: IStatefulArtifact) => {
-                this.artifact = artifact;
-                return artifact.artifactState.observable();
-            })
-            .subscribeOnNext(this.onStateChanged);
+        // const stateSub = this.artifactManager.selection.artifactObservable
+        //     // cannot always skip 1 and rely on the artifact observable having 2 values (initial and new)
+        //     // this is true when navigating to artifact X from artifact X via breadcrumb (loop)
+        //     // .skip(1) // skip the first (initial) value
 
-        this.subscribers = [windowSub, stateSub];
-    } 
+        //     .filter((artifact: IStatefulArtifact) => artifact != null)
+        //     .distinctUntilChanged(artifact => artifact.id)
+        //     .flatMap((artifact: IStatefulArtifact) => {
+        //         this.artifact = artifact;
+        //         return artifact.getObservable();
+        //     })
+        //     .subscribeOnNext(this.onStateChanged);
 
-
-    public $onDestroy() {
-        try {
-            this.initProperties();
-            this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
-        } catch (ex) {
-            this.messageService.addError(ex.message);
-            throw ex;
-        }
+        this.subscribers.push(windowSub);
     }
 
-    private onStateChanged = () => {
+    public $onChanges(obj: any) {
+        this.artifactManager.get(obj.context.currentValue).then((artifact) => {
+            if (artifact) {
+                this.artifact = artifact;
+                const artifactObserver = artifact.getObservable()
+                        .subscribe(this.onArtifactChanged, this.onError);
+
+                this.subscribers.push(artifactObserver);
+            }
+        });
+    }
+
+    public $onDestroy() {
+        this.initProperties();
+        this.subscribers.forEach(subscriber => { subscriber.dispose(); });
+        delete this.subscribers;
+    }
+
+    private onArtifactChanged = () => {
         this.updateProperties(this.artifact);
+    }
+
+    public onError = (error: any) => {
+        if (this.artifact.artifactState.deleted) {
+            this.dialogService.alert("Artifact_Lock_DoesNotExist");
+        } else {
+            this.messageService.addError(error);
+        }
+        this.onArtifactChanged();
     }
 
     private initProperties() {
@@ -154,8 +172,9 @@ export class BpArtifactInfoController {
                 break;
         }
         if (artifact.artifactState.misplaced) {
-            this.dialogService.alert("Artifact_Lock_DoesNotExist");
-        }
+            this.dialogService.alert("Artifact_Lock_DoesNotExist").then(() => {
+            }) ;
+        } 
     }
 
     public get artifactHeadingMinWidth() {

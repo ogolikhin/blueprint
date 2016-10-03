@@ -54,8 +54,8 @@ export class BpGlossaryController extends BpBaseEditor {
         this.$element.off("click", this.stopPropagation);
     }
 
-    public onLoad() {
-        super.onLoad();
+    public onArtifactReady() {
+        super.onArtifactReady();
         
         // TODO: move this to sub-artifact
         let statefulSubartifacts = [];

@@ -66,7 +66,7 @@ describe("BpProcessHeader", () => {
         navigationService = _navigationService_;
     }));
 
-    it("correctly initializes breadcrumb", () => {
+    xit("correctly initializes breadcrumb", () => {
         // arrange
         const deferred = $q.defer();
         deferred.resolve([

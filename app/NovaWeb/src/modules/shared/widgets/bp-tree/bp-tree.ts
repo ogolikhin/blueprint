@@ -140,7 +140,6 @@ export class BPTreeController implements IBPTreeController {
 
         this.selectionSubject
             .filter(node => node != null && angular.isFunction(this.onSelect))
-            .distinctUntilChanged(node => node.id)
             .debounce(200)
             .subscribe(node => this.onSelect({ item: node.data }));
     }

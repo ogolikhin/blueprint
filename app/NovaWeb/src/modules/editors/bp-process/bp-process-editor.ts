@@ -114,7 +114,6 @@ export class BpProcessEditorController extends BpBaseEditor {
         if (this.processDiagram) {
             this.processDiagram.destroy();
         }
-        this.isLoading = true;
     }
     
     private getHtmlElement(): HTMLElement {

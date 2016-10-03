@@ -88,7 +88,7 @@ namespace Model.FullTextSearchModel.Impl
         }
 
         /// <seealso cref="FullTextSearch.SearchProjects(IUser, string, int, List{HttpStatusCode})"/>
-        public List<ProjectSearchResult> SearchProjects(IUser user, string searchText, int? resultCount, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<ProjectSearchResult> SearchProjects(IUser user, string searchText, int? resultCount = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 

@@ -1,13 +1,10 @@
 ﻿using CustomAttributes;
 using Helper;
 using Model;
-using Model.ArtifactModel;
 using Model.Factories;
 using Model.FullTextSearchModel.Impl;
 using NUnit.Framework;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using TestCommon;
 using Utilities;
 

@@ -61,6 +61,6 @@ namespace Model.FullTextSearchModel
         /// <param name="resultCount">(optional)The number of search results to return.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>List of projects.</returns>
-        List<ProjectSearchResult> SearchProjects(IUser user, string searchText, int? resultCount, List<HttpStatusCode> expectedStatusCodes = null);
+        List<ProjectSearchResult> SearchProjects(IUser user, string searchText, int? resultCount = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

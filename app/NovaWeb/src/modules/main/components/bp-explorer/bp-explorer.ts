@@ -63,6 +63,7 @@ export class ProjectExplorerController {
             if (params.data.hasChildren) {
                 css.push("has-children");
             }
+
             if (params.data.predefinedType === Models.ItemTypePredefined.PrimitiveFolder) {
                 css.push("is-folder");
             } else if (params.data.predefinedType === Models.ItemTypePredefined.Project) {
@@ -100,20 +101,23 @@ export class ProjectExplorerController {
         // At this point the tree component (bp-tree) is not created yet due to component hierachy (dependant) 
         // so, just need to do an extra check if the component has created
         if (this.tree) {
+            
             this.tree.reload(projects);
+
             if (projects && projects.length > 0) {
                 if (!this.selected || this.selected.projectId !== projects[0].projectId) {
                     this.selected = projects[0];
                     this.navigationService.navigateToArtifact(this.selected.id);
                 }
+
                 if (this.tree.nodeExists(this.selected.id)) {
                     this.tree.selectNode(this.selected.id);
                     //this.navigationService.navigateToArtifact(this.selected.id);
-                }else {
+                } else {
                     if (this.selected.parentNode && this.tree.nodeExists(this.selected.parentNode.id)) {
                         this.tree.selectNode(this.selected.parentNode.id);
                         this.navigationService.navigateToArtifact(this.selected.parentNode.id);
-                    }else {
+                    } else {
                         if (this.tree.nodeExists(this.selected.projectId)) {
                             this.tree.selectNode(this.selected.projectId);
                             this.navigationService.navigateToArtifact(this.selected.projectId);
@@ -123,7 +127,6 @@ export class ProjectExplorerController {
                         }
                     }
                 }
-                
             } else {
                 this.artifactManager.selection.setExplorerArtifact(null);
                 this.navigationService.navigateToMain();
@@ -154,12 +157,14 @@ export class ProjectExplorerController {
         
         //check passed in parameter
         let artifactNode = this.projectManager.getArtifactNode(node.id);
+
         if (artifactNode.children && artifactNode.children.length) {
             angular.extend(artifactNode, {
                 loaded: node.loaded,
                 open: node.open
             });
         };
+        
         return artifactNode.artifact;
     };
 }

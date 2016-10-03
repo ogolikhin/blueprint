@@ -7,6 +7,7 @@ using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
@@ -78,9 +79,22 @@ namespace ArtifactStoreTests
             artifactDetails.AssertEquals(newArtifact);
         }
 
+        // TODO: Create an artifact and specify the OrderIndex before another artifact.
+        // TODO: Create an artifact and specify the OrderIndex same as another artifact.
+        // TODO: Create an artifact and specify the OrderIndex after another artifact.
+        // TODO: Create Collections.
+
         #endregion 200 OK tests
 
         #region Negative tests
+
+        // TODO: Send an artifact without one of the following: Name, ProjectId, ItemTtypeId, or ParentId.  Verify 400 Bad Request.
+        // TODO: Send a corrupt JSON body.  Verify 400 Bad Request.
+        // TODO: Create user with access to project but not to a folder and try to create artifact in that folder.  Verify 403 Forbidden.
+        // TODO: Pass non-existent ItemTypeId.  Verify 404 Not Found.
+        // TODO: Pass non-existent ParentId.  Verify 404 Not Found.
+        // TODO: Create a folder with a parent other than a Project or Folder.  Verify 409 Conflict.
+        // TODO: Create an artifact with ProjectID x with a Parent that exists in project y.  Verify ?? Error.
 
         [TestCase]
         [TestRail(154746)]
@@ -165,7 +179,7 @@ namespace ArtifactStoreTests
         /// <param name="artifactName">The name of the artifact.</param>
         /// <param name="parentId">The parent ID of the artifact.</param>
         /// <param name="orderIndex">The order index of the artifact.</param>
-        /// <returns></returns>
+        /// <returns>The artifact that was created.</returns>
         private INovaArtifactDetails CreateInvalidArtifact(IUser user,
             IProject project,
             int itemTypeId,
@@ -175,7 +189,7 @@ namespace ArtifactStoreTests
         {
             artifactName = artifactName ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
-            NovaArtifactDetails jsonBody = new NovaArtifactDetails
+            NovaArtifactDetails artifactDetails = new NovaArtifactDetails
             {
                 Name = artifactName,
                 ProjectId = project.Id,
@@ -183,21 +197,39 @@ namespace ArtifactStoreTests
                 ParentId = parentId ?? project.Id,
                 OrderIndex = orderIndex
             };
+            
+            string jsonBody = JsonConvert.SerializeObject(artifactDetails);
 
+            RestResponse response = CreateInvalidArtifact(user, jsonBody);
+            INovaArtifactDetails createdArtifact = JsonConvert.DeserializeObject<NovaArtifactDetails>(response.Content);
+            
+            return createdArtifact;
+        }
+        
+        /// <summary>
+        /// Tries to create an invalid artifact.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="jsonBody">The JSON body of the request.</param>
+        /// <returns>The REST response.</returns>
+        private RestResponse CreateInvalidArtifact(IUser user, string jsonBody)
+        {
             RestApiFacade restApi = new RestApiFacade(Helper.BlueprintServer.Address, user?.Token?.AccessControlToken);
 
             // Set expectedStatusCodes to 201 Created.
             List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
+            const string contentType = "application/json";
 
-            var newArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails, NovaArtifactDetails>(
+            var response = restApi.SendRequestBodyAndGetResponse(
                 SVC_PATH,
                 RestRequestMethod.POST,
                 jsonBody,
+                contentType,
                 expectedStatusCodes: expectedStatusCodes);
 
-            return newArtifact;
+            return response;
         }
-
+        
         #endregion Private functions
     }
 }

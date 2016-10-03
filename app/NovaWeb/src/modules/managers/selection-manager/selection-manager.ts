@@ -1,5 +1,6 @@
 import { IItem } from "./../../main/models/models";
-import { IStatefulArtifact, IStatefulSubArtifact, IDispose } from "./../../managers/models";
+import { IStatefulArtifact, IStatefulSubArtifact } from "./../../managers/artifact-manager";
+import { IDispose } from "./../../managers/models";
 
 export interface ISelectionManager extends IDispose {
     artifactObservable: Rx.Observable<IStatefulArtifact>;

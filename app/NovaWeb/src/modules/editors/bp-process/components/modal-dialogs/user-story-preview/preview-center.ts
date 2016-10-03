@@ -1,7 +1,8 @@
-﻿import {UserTask, SystemTask} from "../../diagram/presentation/graph/shapes/";
+﻿
+import {UserTask, SystemTask} from "../../diagram/presentation/graph/shapes/";
 import {IDiagramNode} from "../../diagram/presentation/graph/models";
 import {IArtifactManager} from "../../../../../managers";
-import { IStatefulArtifact} from "../../../../../managers/models";
+import { IStatefulArtifact} from "../../../../../managers/artifact-manager";
 
 export class PreviewCenterController {
     private userStoryTitle: string = "ST-Title";
@@ -25,6 +26,9 @@ export class PreviewCenterController {
     public isSMB: boolean = false;
     public isProjectOnlySearch: boolean = true;
     public when: string;
+
+    private statefulUserStoryArtifact: IStatefulArtifact;
+    private subscribers: Rx.IDisposable[];
 
     public static $inject = [
         "$window",
@@ -125,7 +129,8 @@ export class PreviewCenterController {
         private artifactManager: IArtifactManager
         // private projectManager: IProjectManager,
         ) {
-
+        
+        this.subscribers = [];
         this.isReadonly = $scope.$parent["vm"].isReadonly;
 
         let isSMBVal = $rootScope["config"].settings.StorytellerIsSMB;
@@ -143,41 +148,8 @@ export class PreviewCenterController {
         this.previousSystemTask = $scope["centerCtrl"].previousSystemTask;
         this.nextSystemTask = $scope["centerCtrl"].nextSystemTask;
         const userStoryId = this.centerTask.userStoryId;
-        if (userStoryId) {
-            //let revisionId: number = null;
-            this.artifactManager.get(userStoryId).then((it: IStatefulArtifact) => {
-                it.metadata.getArtifactPropertyTypes().forEach((propertyType) => {
-                    let propertyValue = it.customProperties.get(propertyType.id);
-                    if (propertyType.name.toLowerCase().indexOf(this.userStoryTitle.toLowerCase()) === 0) {
-                        this.title = propertyValue.value;
-                    } else if (propertyType.name.toLowerCase().indexOf(this.userStoryAcceptanceCriteria.toLowerCase()) === 0) {
-                        this.acceptanceCriteria = propertyValue.value;
-                    } else if (propertyType.name.toLowerCase().indexOf(this.userStoryBusinessRules.toLowerCase()) === 0) {
-                        this.businessRules = propertyValue.value;
-                    } else if (propertyType.name.toLowerCase().indexOf(this.userStoryNFR.toLowerCase()) === 0) {
-                        this.nonfunctionalRequirements = propertyValue.value;
-                    }
-                });
-            });
-            //Only request for revision Id when is +ve number
-            //if (this.processModelService &&
-            //    this.processModelService.processModel &&
-            //    this.processModelService.processModel.status &&
-            //    this.processModelService.processModel.status.revisionId &&
-            //    this.processModelService.processModel.status.revisionId > 0) {
-            //    revisionId = this.processModelService.processModel.status.revisionId;
-            //}
-
-            //this.artifactUtilityService.getProperties(userStoryId, revisionId, true).then(info => {
-            //    info.properties.sort(function (obj1, obj2) {
-            //        return obj1.propertyTypeId - obj2.propertyTypeId;
-            //    });
-            //    this.title = previewCenterControllerHelper.getPropertyValueByName(info.properties, "ST-Title");
-            //    this.acceptanceCriteria = previewCenterControllerHelper.getPropertyValueByName(info.properties, "ST-Acceptance Criteria");
-            //    this.centerTask.userStoryProperties.businessRules = previewCenterControllerHelper.getPropertyByName(info.properties, "ST-Business Rules");
-            //    this.centerTask.userStoryProperties.nfr = previewCenterControllerHelper.getPropertyByName(info.properties, "ST-Non-Functional Requirements");
-            //});
-        }
+        
+        this.loadUserStory(userStoryId);
 
         this.$window.addEventListener("resize", this.resizeContentAreas);
         this.resizeContentAreas(false);
@@ -187,7 +159,47 @@ export class PreviewCenterController {
             this.previousSystemTask = null;
             this.nextSystemTask = null;
             this.$window.removeEventListener("resize", this.resizeContentAreas);
+
+            if (this.subscribers) {
+                this.subscribers.forEach(subscriber => { subscriber.dispose(); });
+                delete this.subscribers;
+            }
+
+            if (this.statefulUserStoryArtifact) {
+                this.statefulUserStoryArtifact.unload();
+                this.statefulUserStoryArtifact = null;
+            }
         });
+    }
+
+    private loadUserStory(userStoryId: number){
+        if (userStoryId) {
+            this.artifactManager.get(userStoryId).then((it: IStatefulArtifact) => {
+                this.statefulUserStoryArtifact = it;
+                let observer = this.statefulUserStoryArtifact.getObservable().subscribe((obs:IStatefulArtifact) =>{
+                    this.loadMetaData(obs);
+                });
+                this.subscribers = [observer];
+            });
+        };
+    }
+
+    private loadMetaData(statefulArtifact: IStatefulArtifact){
+        statefulArtifact.metadata.getArtifactPropertyTypes().forEach((propertyType) => {
+            let propertyValue = statefulArtifact.customProperties.get(propertyType.id);
+            if (this.doesPropertyNameContain(propertyType.name, this.userStoryTitle)){
+                this.title = propertyValue.value;
+            } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryAcceptanceCriteria)){
+                this.acceptanceCriteria = propertyValue.value;
+            } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryBusinessRules)) {
+                this.businessRules = propertyValue.value;
+            } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryNFR)) {
+                this.nonfunctionalRequirements = propertyValue.value;
+            }
+        })
+    }
+    private doesPropertyNameContain(propertyType: string, value: string): boolean {
+        return propertyType.toLowerCase().indexOf(value.toLowerCase()) === 0;
     }
 }
 

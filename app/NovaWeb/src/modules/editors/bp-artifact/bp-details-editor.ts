@@ -44,33 +44,12 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public customFields: AngularFormly.IFieldConfigurationObject[];
     public specificFields: AngularFormly.IFieldConfigurationObject[];
     public richTextFields: AngularFormly.IFieldConfigurationObject[];
+    public isSystemPropertyAvailable: boolean;
+    public isCustomPropertyAvailable: boolean;
+    public isRichTextPropertyAvailable: boolean;
+    public isSpecificPropertyAvailable: boolean;
+    public specificPropertiesHeading: string;
 
-    public get isSystemPropertyAvailable(): boolean {
-        return this.systemFields && this.systemFields.length > 0;
-    }
-    public get isCustomPropertyAvailable(): boolean {
-        return this.customFields && this.customFields.length > 0;
-    }
-
-    public get isRichTextPropertyAvailable(): boolean {
-        return this.richTextFields && this.richTextFields.length > 0;
-    }
-
-    public get isSpecificPropertyAvailable(): boolean {
-        return this.artifact.predefinedType === Models.ItemTypePredefined.Document ||
-               this.artifact.predefinedType === Models.ItemTypePredefined.Actor;
-    }
-
-    public get specificPropertiesHeading(): string {
-        if (this.artifact.predefinedType === Models.ItemTypePredefined.Document) {
-            return this.localization.get("Nova_Document_File", "File");
-        } else if (this.artifact.predefinedType === Models.ItemTypePredefined.Actor) {
-            return this.localization.get("Property_Actor_Section_Name", "Actor Properties");
-        } else {
-            return this.artifact.name + this.localization.get("Nova_Properties", " Properties");
-            //TODO:: return this.artifact.type.name + this.localization.get("Nova_Properties", " Properties");
-        }
-    }
 
     public $onDestroy() {
         delete this.systemFields;
@@ -87,7 +66,24 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         this.richTextFields = [];
     }
     
-
+    public onArtifactReady() {
+        super.onArtifactReady();
+        if (this.artifact) {
+            this.isSystemPropertyAvailable = this.systemFields && this.systemFields.length > 0;
+            this.isCustomPropertyAvailable = this.customFields && this.customFields.length > 0;
+            this.isRichTextPropertyAvailable =  this.richTextFields && this.richTextFields.length > 0;
+            this.isSpecificPropertyAvailable = this.artifact.predefinedType === Models.ItemTypePredefined.Document ||
+                                               this.artifact.predefinedType === Models.ItemTypePredefined.Actor;
+            if (this.artifact.predefinedType === Models.ItemTypePredefined.Document) {
+                this.specificPropertiesHeading = this.localization.get("Nova_Document_File", "File");
+            } else if (this.artifact.predefinedType === Models.ItemTypePredefined.Actor) {
+                this.specificPropertiesHeading = this.localization.get("Property_Actor_Section_Name", "Actor Properties");
+            } else {
+                this.specificPropertiesHeading = this.artifact.name + this.localization.get("Nova_Properties", " Properties");
+                //TODO:: return this.artifact.type.name + this.localization.get("Nova_Properties", " Properties");
+            }
+        }
+    }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
         let propertyContext = field.data as PropertyContext;

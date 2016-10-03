@@ -17,6 +17,7 @@ import { IDialogService } from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import { ISelectionManager, SelectionManager } from "../../../../managers/selection-manager/selection-manager";
 import { BPFieldInheritFromController } from "./actor-inheritance";
 import { ArtifactPickerDialogServiceMock } from "./artifact-picker-dialog.mock";
+import { IStatefulArtifact } from "../../../../managers/artifact-manager";
 
 describe("Actor Inheritance controller", () => {
 

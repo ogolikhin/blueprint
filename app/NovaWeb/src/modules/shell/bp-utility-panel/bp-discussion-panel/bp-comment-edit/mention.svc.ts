@@ -172,7 +172,7 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
                     isvalid="True"
                     ${this.prepareMentionIdAttributes(person)} 
                     ${this.prepareMentionEmailAttribute(person)}>
-                        <span style="font-family: 'Portable User Interface'; font-size: 13.3330001831055px; font-style: italic; font-weight: bold; color: Black; text-decoration: ; line-height: 1.45000004768372">
+                        <span style="font-family: 'Verdana'; font-size: 11px; font-style: italic; font-weight: bold; color: Black; text-decoration: ; line-height: 1.45000004768372">
                             ${Helper.escapeHTMLText(person.name)}
                         </span>
                     </a> `;

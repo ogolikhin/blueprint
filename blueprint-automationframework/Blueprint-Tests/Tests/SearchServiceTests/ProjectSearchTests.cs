@@ -15,12 +15,11 @@ namespace SearchServiceTests
     public class ProjectSearchTests : TestBase
     {
         private IUser _userAdmin = null;
-        private IUser _userAuthorLicenseViewerRole = null;
-        private IUser _userAuthorLicenseNoAccessRole = null;
+        private IUser _userAuthorLicense = null;
 
         private IProjectRole _viewerRole = null;
 
-        private IGroup _authorsGroup = null;
+        private IGroup _group = null;
 
         private IProject _project = null;
 
@@ -29,21 +28,14 @@ namespace SearchServiceTests
         {
             Helper = new TestHelper();
             _userAdmin = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _userAuthorLicenseViewerRole = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
-            _userAuthorLicenseNoAccessRole = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
+            _userAuthorLicense = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
 
-            _authorsGroup = Helper.CreateGroupAndAddToDatabase();
-            _authorsGroup.AddUser(_userAuthorLicenseViewerRole);
-            _authorsGroup.AddUser(_userAuthorLicenseNoAccessRole);
+            _group = Helper.CreateGroupAndAddToDatabase();
+            _group.AddUser(_userAuthorLicense);
 
             _project = ProjectFactory.GetProject(_userAdmin);
 
             _viewerRole = ProjectRoleFactory.CreateProjectRole(_project, RolePermissions.Read);
-
-            _authorsGroup.AssignRoleToProjectOrArtifact(_project, role: _viewerRole);
-
-            Helper.AdminStore.AddSession(_userAuthorLicenseViewerRole);
-            Helper.AdminStore.AddSession(_userAuthorLicenseNoAccessRole);
         }
 
         [TearDown]
@@ -56,7 +48,7 @@ namespace SearchServiceTests
         [TestCase]
         [TestRail(182423)]
         [Description("Search project, user has admin privilege, check that search result contains one project.")]
-        public void SearchProject_UserHasProjectAccess_ReturnsCorrectProject()
+        public void SearchProject_UserAdminAccess_ReturnsCorrectProjects()
         {
             // Setup:
             List<ProjectSearchResult> projects = null;
@@ -65,6 +57,45 @@ namespace SearchServiceTests
             Assert.DoesNotThrow(() =>
             {
                 projects = Helper.SearchService.SearchProjects(_userAdmin, "es", 10);//project name is 'test' - search using 'es' substring
+            }, "GetArtifactDiscussions shouldn't throw any error.");
+
+            // Verify:
+            Assert.AreEqual(1, projects.Count, "Search result should have 1 project, but it doesn't.");
+        }
+
+        [TestCase]
+        [TestRail(1)]
+        [Description("Search project, user has no access to the project, returns empty list.")]
+        public void SearchProject_UserHasNoProjectAccess_ReturnsEmptyList()
+        {
+            // Setup:
+            List<ProjectSearchResult> projects = null;
+            Helper.AdminStore.AddSession(_userAuthorLicense);
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                projects = Helper.SearchService.SearchProjects(_userAuthorLicense, "es", 10);//project name is 'test' - search using 'es' substring
+            }, "GetArtifactDiscussions shouldn't throw any error.");
+
+            // Verify:
+            Assert.AreEqual(0, projects.Count, "Search result should have 1 project, but it doesn't.");
+        }
+
+        [TestCase]
+        [TestRail(2)]
+        [Description("Search project, user has admin privilege, check that search result contains one project.")]
+        public void SearchProject_UserHasAuthorAccess_ReturnsCorrectProjects()
+        {
+            // Setup:
+            List<ProjectSearchResult> projects = null;
+            _group.AssignRoleToProjectOrArtifact(_project, _viewerRole);
+            Helper.AdminStore.AddSession(_userAuthorLicense);
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                projects = Helper.SearchService.SearchProjects(_userAuthorLicense, "es", 10);//project name is 'test' - search using 'es' substring
             }, "GetArtifactDiscussions shouldn't throw any error.");
 
             // Verify:

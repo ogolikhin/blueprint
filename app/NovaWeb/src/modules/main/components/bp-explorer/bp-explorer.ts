@@ -146,7 +146,7 @@ export class ProjectExplorerController {
     public doSelect = (node: IArtifactNode) => {
         console.log("doSelect");
 
-        if (!this.selected || this.selected.id !== node.id) {
+        if (!this.selected || this.selected.id !== node.id || this.selected.id !== this.artifactManager.selection.getArtifact().id) {
             this.doSync(node);
             this.selected = node;
             this.navigationService.navigateToArtifact(node.id);

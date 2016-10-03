@@ -1,7 +1,7 @@
 ﻿import "angular";
 import { Models } from "../models";
 import { IArtifactManager } from "../../managers";
-import { IStatefulArtifact } from "../../managers/models";
+import { IStatefulArtifact } from "../../managers/artifact-manager";
 import { MessageService} from "../../shell";
 
 export class ArtifactState implements ng.ui.IState {
@@ -25,9 +25,11 @@ export class ArtifactStateController {
 
         // either gets a loaded artifact or loads if the artifact hasn't been loaded already
         artifactManager.get(id).then((artifact: IStatefulArtifact) => {
-            if (artifact) {
-                this.navigateToSubRoute(artifact.predefinedType, artifact);
+            if (!artifact) {
+                throw new Error("Go to functionality is not implemented yet!!!");
             }
+            artifact.unload();
+            this.navigateToSubRoute(artifact.predefinedType, artifact);
         });
     }
 

@@ -59,15 +59,15 @@
     <div class="icons" ng-show="$ctrl.artifact.hasAccess && $ctrl.selectable">
         <div>
             <input type="checkbox" ng-checked="$ctrl.isSelected" bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Select')}}" ng-click="$ctrl.selectTrace()"
-                   ng-disabled="!$ctrl.artifact.hasAccess || $ctrl.isItemReadOnly"/>
+                   ng-disabled="!$ctrl.artifact.hasAccess || $ctrl.isItemReadOnly  || $ctrl.artifact.readOnly"/>
         </div>
         <div>
             <div uib-dropdown>
                 <span uib-dropdown-toggle >
-                    <i class="icon fonticon-exchange" ng-class="{disabled: !$ctrl.artifact.hasAccess || $ctrl.isItemReadOnly}"
+                    <i class="icon fonticon-exchange" ng-class="{disabled: !$ctrl.artifact.hasAccess || $ctrl.isItemReadOnly || $ctrl.artifact.readOnly}"
                        bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Change_Trace')}}"></i>
                 </span>
-                <ul class="dropdown-menu" ng-hide="!$ctrl.artifact.hasAccess || $ctrl.isItemReadOnly">
+                <ul class="dropdown-menu" ng-hide="!$ctrl.artifact.hasAccess || $ctrl.isItemReadOnly || $ctrl.artifact.readOnly">
                     <li ng-class="{disabled: $ctrl.artifact.traceDirection == 0}">
                         <a ng-click="$ctrl.setDirection(0)"><i class="fonticon2-relationship-right"></i> {{::$ctrl.localization.get('App_UP_Relationships_To')}}</a></li>
                     <li ng-class="{disabled: $ctrl.artifact.traceDirection == 1}">

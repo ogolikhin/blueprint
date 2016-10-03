@@ -1,9 +1,10 @@
 ﻿import * as angular from "angular";
 import { Models} from "../../models";
-import { Helper, IBPTreeController, ITreeNode } from "../../../shared";
+import { Helper, IBPTreeController } from "../../../shared";
 import { IProjectManager, IArtifactManager} from "../../../managers";
 import { Project } from "../../../managers/project-manager";
-import { IStatefulArtifact, IArtifactNode} from "../../../managers/models";
+import { IStatefulArtifact } from "../../../managers/artifact-manager";
+import { IArtifactNode } from "../../../managers/project-manager";
 import { INavigationService } from "../../../core/navigation/navigation.svc";
 
 export class ProjectExplorer implements ng.IComponentOptions {
@@ -62,6 +63,7 @@ export class ProjectExplorerController {
             if (params.data.hasChildren) {
                 css.push("has-children");
             }
+
             if (params.data.predefinedType === Models.ItemTypePredefined.PrimitiveFolder) {
                 css.push("is-folder");
             } else if (params.data.predefinedType === Models.ItemTypePredefined.Project) {
@@ -99,20 +101,23 @@ export class ProjectExplorerController {
         // At this point the tree component (bp-tree) is not created yet due to component hierachy (dependant) 
         // so, just need to do an extra check if the component has created
         if (this.tree) {
+            
             this.tree.reload(projects);
+
             if (projects && projects.length > 0) {
                 if (!this.selected || this.selected.projectId !== projects[0].projectId) {
                     this.selected = projects[0];
                     this.navigationService.navigateToArtifact(this.selected.id);
                 }
+
                 if (this.tree.nodeExists(this.selected.id)) {
                     this.tree.selectNode(this.selected.id);
                     //this.navigationService.navigateToArtifact(this.selected.id);
-                }else {
+                } else {
                     if (this.selected.parentNode && this.tree.nodeExists(this.selected.parentNode.id)) {
                         this.tree.selectNode(this.selected.parentNode.id);
                         this.navigationService.navigateToArtifact(this.selected.parentNode.id);
-                    }else {
+                    } else {
                         if (this.tree.nodeExists(this.selected.projectId)) {
                             this.tree.selectNode(this.selected.projectId);
                             this.navigationService.navigateToArtifact(this.selected.projectId);
@@ -122,7 +127,6 @@ export class ProjectExplorerController {
                         }
                     }
                 }
-                
             } else {
                 this.artifactManager.selection.setExplorerArtifact(null);
                 this.navigationService.navigateToMain();
@@ -141,7 +145,7 @@ export class ProjectExplorerController {
     };
 
     public doSelect = (node: IArtifactNode) => {
-        console.log("doSelect");
+        
         if (!this.selected || this.selected.id !== node.id) {
             this.doSync(node);
             this.selected = node;
@@ -150,15 +154,17 @@ export class ProjectExplorerController {
     };
 
     public doSync = (node: IArtifactNode): IStatefulArtifact => {
-        console.log("doSync");
+        
         //check passed in parameter
         let artifactNode = this.projectManager.getArtifactNode(node.id);
+
         if (artifactNode.children && artifactNode.children.length) {
             angular.extend(artifactNode, {
                 loaded: node.loaded,
                 open: node.open
             });
         };
+        
         return artifactNode.artifact;
     };
 }

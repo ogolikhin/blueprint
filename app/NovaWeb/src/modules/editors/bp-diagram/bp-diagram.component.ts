@@ -15,7 +15,6 @@ import { IItem } from "./../../main/models/models";
 import { 
     IArtifactManager, 
     IMessageService,
-    IStatefulArtifact,
     BpBaseEditor 
 } from "../bp-base-editor";
 

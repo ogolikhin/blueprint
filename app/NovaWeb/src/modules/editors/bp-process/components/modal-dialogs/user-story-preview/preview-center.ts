@@ -1,11 +1,7 @@
-﻿
-import {IArtifactProperty, IProcess, IProcessShape} from "../../../models/process-models";
-import {UserTask, SystemTask} from "../../diagram/presentation/graph/shapes/";
+﻿import {UserTask, SystemTask} from "../../diagram/presentation/graph/shapes/";
 import {IDiagramNode} from "../../diagram/presentation/graph/models";
 import {IArtifactManager} from "../../../../../managers";
 import { IStatefulArtifact} from "../../../../../managers/models";
-
-import {Models} from "../../../../../main";
 
 export class PreviewCenterController {
     private userStoryTitle: string = "ST-Title";
@@ -17,7 +13,7 @@ export class PreviewCenterController {
     public previousSystemTask: SystemTask;
     public nextSystemTask: SystemTask;
     public isUserSystemProcess: boolean;
-    private subArtifactId: number;
+    public subArtifactId: number;
     private isTabsVisible: boolean;
     private showMoreActiveTabIndex: number = 0;
 
@@ -51,7 +47,7 @@ export class PreviewCenterController {
         if (acceptanceCriteria) {
             acceptanceCriteria.setAttribute("style", "max-height:" + acceptanceCriteriaMaxHeight + "px");
         }
-    }
+    };
 
     public showMore(type: string, event: any) {
         // select tab
@@ -77,7 +73,7 @@ export class PreviewCenterController {
         // temporary solution from: http://stackoverflow.com/questions/8840580/force-dom-redraw-refresh-on-chrome-mac
         if (!element) { return; }
 
-        var n = document.createTextNode(' ');
+        var n = document.createTextNode(" ");
         element.appendChild(n);
 
         setTimeout(function () {
@@ -148,7 +144,7 @@ export class PreviewCenterController {
         this.nextSystemTask = $scope["centerCtrl"].nextSystemTask;
         const userStoryId = this.centerTask.userStoryId;
         if (userStoryId) {
-            let revisionId: number = null;
+            //let revisionId: number = null;
             this.artifactManager.get(userStoryId).then((it: IStatefulArtifact) => {
                 it.metadata.getArtifactPropertyTypes().forEach((propertyType) => {
                     let propertyValue = it.customProperties.get(propertyType.id);
@@ -186,7 +182,7 @@ export class PreviewCenterController {
         this.$window.addEventListener("resize", this.resizeContentAreas);
         this.resizeContentAreas(false);
 
-        $scope.$on('$destroy', () => {
+        $scope.$on("$destroy", () => {
             this.centerTask = null;
             this.previousSystemTask = null;
             this.nextSystemTask = null;

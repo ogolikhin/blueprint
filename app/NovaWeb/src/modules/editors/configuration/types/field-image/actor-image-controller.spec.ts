@@ -24,22 +24,19 @@ describe("Actor image controller tests", () => {
         scope,
         rootScope,
         compile,
-        apply,
-        createController,
         $controller: ng.IControllerService,
-        imageModel        
+        imageModel;     
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        $provide.service("localization", LocalizationServiceMock)
-        $provide.service("messageService", MessageServiceMock)
+        $provide.service("localization", LocalizationServiceMock);
+        $provide.service("messageService", MessageServiceMock);
         $provide.service("dialogService", ActorImagePickerDialogServiceMock);
         $provide.service("settingsService", SettingsService);
     }));
 
     beforeEach(
         inject(
-            ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService,
-                $controller) => {
+            ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $controller) => {
                 rootScope = $rootScope;
                 compile = $compile;
                 scope = rootScope.$new();
@@ -79,24 +76,24 @@ describe("Actor image controller tests", () => {
             var base64 = "";
 
             var files = [{
-                file: new Blob([base64], {type: 'image/png'}),
-                guid: '2788d782-4d7f-e611-82cc-a0999b0c8c40',
+                file: new Blob([base64], {type: "image/png"}),
+                guid: "2788d782-4d7f-e611-82cc-a0999b0c8c40",
                 name: imageModel,
-                url: 'svc/bpfilestore/file/2788d782-4d7f-e611'                
+                url: "svc/bpfilestore/file/2788d782-4d7f-e611"                
             }];
 
-            var readerSpy = spyOn(FileReader.prototype, 'readAsDataURL');
+            var readerSpy = spyOn(FileReader.prototype, "readAsDataURL");
 
             scope.onFileSelect(files, function(){});
             $timeout.flush();
             expect(readerSpy).toHaveBeenCalled();
         }));
-    })
+    });
 
     describe("delete image for actor", () => {
 
         it("delete image for actor without readonly mode", inject(($timeout: ng.ITimeoutService, localization: ILocalizationService, $window: ng.IWindowService,
-                                                                   messageService: IMessageService, dialogService: IDialogService, settingsService: ISettingsService) => {
+            messageService: IMessageService, dialogService: IDialogService, settingsService: ISettingsService) => {
 
             scope.onActorImageDelete();
             expect(scope.model.image === null).toBeTruthy();
@@ -107,9 +104,9 @@ describe("Actor image controller tests", () => {
                         messageService: IMessageService, dialogService: IDialogService, settingsService: ISettingsService) => {
 
            scope.onActorImageDelete(true);
-           expect(scope.model.image === imageModel).toBeTruthy()
+           expect(scope.model.image === imageModel).toBeTruthy();
 
         }));
-    })
-})
+    });
+});
 

@@ -8,8 +8,7 @@ import { IMetaData, MetaData } from "../metadata";
 
 import { 
     ChangeTypeEnum, 
-    IChangeCollector, 
-    ChangeSetCollector, 
+    IChangeCollector,
     IChangeSet, 
     IArtifactRelationships, 
     ArtifactRelationships

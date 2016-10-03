@@ -60,8 +60,8 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
 
     it("supports multiple beginLoading() calls", (inject((loadingOverlayService: ILoadingOverlayService) => {
         // Act
-        let id1 = loadingOverlayService.beginLoading();
-        let id2 = loadingOverlayService.beginLoading();
+        loadingOverlayService.beginLoading();
+        loadingOverlayService.beginLoading();
         componentTest.scope.$digest();
 
         // Assert      
@@ -100,7 +100,6 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
         expect(() => {
             loadingOverlayService.endLoading(id);
         }).toThrow(new Error(`Invalid id; endLoading may have been called multiple times on the same id or called before beginLoading`));
-        //expect(loadingOverlayService.endLoading(id)).toThrowError(`Invalid id; endLoading may have been called multiple times on the same id or called before beginLoading`);
         componentTest.scope.$digest();
 
         //Assert
@@ -108,7 +107,8 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
         expect(componentTest.element.find("div:nth-child(2)").hasClass("overlay-graphic")).toBe(false);
     })));
 
-    it("throws an error if endLoading() is called twice - does not hide the overlay if beginLoading() was called twice", (inject((loadingOverlayService: ILoadingOverlayService) => {
+    it("throws an error if endLoading() is called twice - does not hide the overlay if beginLoading() was called twice", 
+        (inject((loadingOverlayService: ILoadingOverlayService) => {
         // Act
         let id1 = loadingOverlayService.beginLoading();
         let id2 = loadingOverlayService.beginLoading();
@@ -128,8 +128,8 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
 
     it("hides the overlay if dispose() is called, even with multiple beginLoading() calls", (inject((loadingOverlayService: ILoadingOverlayService) => {
         // Act
-        let id1 = loadingOverlayService.beginLoading();
-        let id2 = loadingOverlayService.beginLoading();
+        loadingOverlayService.beginLoading();
+        loadingOverlayService.beginLoading();
         loadingOverlayService.dispose();
 
         //Assert 2

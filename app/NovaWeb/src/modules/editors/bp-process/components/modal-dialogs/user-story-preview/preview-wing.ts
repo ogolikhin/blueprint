@@ -21,11 +21,12 @@ export class PreviewWingController {
 
         this.givenOrThen = PreviewCenterController.getTaskLabelNameValue(this.wingTask.label, PreviewCenterController.getTaskLabel(this.wingTask));
 
-        this.previewDescription;
         if (this.wingTask.description) {
-            var tempParent = window.document.createElement('div');
+            var tempParent = window.document.createElement("div");
             tempParent.innerHTML = <string>this.wingTask.description;
-            if (tempParent.textContent.trim() != "") this.previewDescription = tempParent.innerHTML;
+            if (tempParent.textContent.trim() !== "") {
+                this.previewDescription = tempParent.innerHTML;
+            }
         }
     }
 }
@@ -51,7 +52,7 @@ export class PreviewWingDirective implements ng.IDirective {
     public controllerAs = "wingCtrl";
     public bindToController = true;
 
-    public template: string = require("./preview-wing.html");;
+    public template: string = require("./preview-wing.html"); ;
 
     public link(scope, elem, attr, ctrl) {
         function activateLinks() {
@@ -93,9 +94,9 @@ export class PreviewWingDirective implements ng.IDirective {
                 //    elem.setAttribute("target", "");
                 //    elem.addEventListener("click", openPropertyMW);
                 //});
-                links.forEach(elem => {
-                    elem.setAttribute("target", "_blank");
-                    elem.addEventListener("click", openUrl);
+                links.forEach(element => {
+                    element.setAttribute("target", "_blank");
+                    element.addEventListener("click", openUrl);
                 });
             }
         }

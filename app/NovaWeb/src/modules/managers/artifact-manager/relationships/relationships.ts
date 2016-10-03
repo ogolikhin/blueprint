@@ -1,7 +1,6 @@
 import * as angular from "angular";
 import { ChangeSetCollector } from "../changeset";
-import { Models } from "../../../main/models";
-import { IRelationship, TraceDirection, IArtifactRelationshipsResultSet } from "../../../main/models/relationshipmodels";
+import { IRelationship, IArtifactRelationshipsResultSet } from "../../../main/models/relationshipmodels";
 import {
     ChangeTypeEnum, 
     IChangeCollector, 
@@ -97,7 +96,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
     }
 
     private getKey(relationship: IRelationship) {
-        return `${relationship.itemId}-${relationship.traceType}`
+        return `${relationship.itemId}-${relationship.traceType}`;
     }
     public update(docrefs: IRelationship[]): IRelationship[] {
         throw Error("operation not supported");
@@ -133,7 +132,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
 
     private getMatchingRelationshipEntry = (toFind: IRelationship, relationshipList: IRelationship[]) => {
         let matches = relationshipList.filter(a => a.itemId === toFind.itemId && a.traceType === toFind.traceType);
-        if (matches.length !== 1){
+        if (matches.length !== 1) {
             return null;
         } else {
             return matches[0];

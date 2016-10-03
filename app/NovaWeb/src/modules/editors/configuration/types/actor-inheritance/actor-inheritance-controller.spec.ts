@@ -9,18 +9,14 @@ import "ui-select";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "tinymce";
-import {PrimitiveType} from "../../../../main/models/enums";
 import { ILocalizationService } from "../../../../core";
 import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
 import { MessageServiceMock } from "../../../../core/messages/message.mock";
 import { IMessageService } from "../../../../core";
-import { DialogServiceMock, IDialogService } from "../../../../shared/widgets/bp-dialog/bp-dialog";
-import {formlyConfig} from "../../formly-config";
-import { SettingsService } from "../../../../core";
+import { IDialogService } from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import { ISelectionManager, SelectionManager } from "../../../../managers/selection-manager/selection-manager";
 import { BPFieldInheritFromController } from "./actor-inheritance";
 import { ArtifactPickerDialogServiceMock } from "./artifact-picker-dialog.mock";
-import { IStatefulArtifact } from "../../../../managers/models";
 
 describe("Actor Inheritance controller", () => {
 
@@ -72,7 +68,8 @@ describe("Actor Inheritance controller", () => {
         $controller = _$controller_;
     }));
 
-    it("delete base actor", inject((localization: ILocalizationService, $window: ng.IWindowService, messageService: IMessageService, dialogService: IDialogService, selectionManager: ISelectionManager) => {
+    it("delete base actor", inject((localization: ILocalizationService, $window: ng.IWindowService, messageService: IMessageService, 
+        dialogService: IDialogService, selectionManager: ISelectionManager) => {
 
         // Act
         scope.deleteBaseActor();     
@@ -80,7 +77,8 @@ describe("Actor Inheritance controller", () => {
         expect(scope.model[scope.options.key] === null).toBeTruthy();
     }));
 
-    it("select base actor", inject(($timeout: ng.ITimeoutService, localization: ILocalizationService, $window: ng.IWindowService, messageService: IMessageService, dialogService: IDialogService, selectionManager: ISelectionManager) => {                
+    it("select base actor", inject(($timeout: ng.ITimeoutService, localization: ILocalizationService, $window: ng.IWindowService, 
+        messageService: IMessageService, dialogService: IDialogService, selectionManager: ISelectionManager) => {                
 
         // Act
         scope.selectBaseActor();
@@ -92,7 +90,8 @@ describe("Actor Inheritance controller", () => {
         expect(scope.model[scope.options.key].pathToProject[0] === "parent").toBeTruthy();
     }));
 
-    it("current artifact as base actor", inject(($timeout: ng.ITimeoutService, localization: ILocalizationService, $window: ng.IWindowService, messageService: IMessageService, dialogService: IDialogService, selectionManager: ISelectionManager) => {
+    it("current artifact as base actor", inject(($timeout: ng.ITimeoutService, localization: ILocalizationService, $window: ng.IWindowService, 
+        messageService: IMessageService, dialogService: IDialogService, selectionManager: ISelectionManager) => {
         
         let artifact: any = {
             id: 10                       

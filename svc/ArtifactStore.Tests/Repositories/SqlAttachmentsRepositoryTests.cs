@@ -33,7 +33,7 @@ namespace ArtifactStore.Repositories
             cxn.SetupQueryAsync("GetDocumentArtifactInfos", new Dictionary<string, object> { { "artifactIds", SqlConnectionWrapper.ToDataTable(new List<int> { artifactId }, "Int32Collection", "Int32Value") }, { "addDrafts", addDrafts }}, new List<LinkedArtifactInfo> { new LinkedArtifactInfo { ArtifactId = artifactId, ArtifactName = "Test Document Name" } });
             var repository = new SqlAttachmentsRepository(cxn.Object, mockUserRepository);
             // Act
-            var result = await repository.GetAttachmentsAndDocumentReferences(artifactId, userId, subArtifactId, addDrafts);
+            var result = await repository.GetAttachmentsAndDocumentReferences(artifactId, userId, int.MaxValue, subArtifactId, addDrafts);
 
             // Assert
             cxn.Verify();
@@ -59,7 +59,7 @@ namespace ArtifactStore.Repositories
             var repository = new SqlAttachmentsRepository(cxn.Object, mockUserRepository);
 
             // Act
-            var result = await repository.GetAttachmentsAndDocumentReferences(artifactId, userId, subArtifactId, addDrafts);
+            var result = await repository.GetAttachmentsAndDocumentReferences(artifactId, userId, int.MaxValue, subArtifactId, addDrafts);
 
             // Assert
             cxn.Verify();

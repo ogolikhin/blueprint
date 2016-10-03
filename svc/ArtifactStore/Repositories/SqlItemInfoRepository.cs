@@ -4,6 +4,7 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ArtifactStore.Helpers
@@ -38,6 +39,14 @@ namespace ArtifactStore.Helpers
             parameters.Add("@addDrafts", addDrafts);
             parameters.Add("@revisionId", revisionId);
             return await _connectionWrapper.QueryAsync<ItemDetails>("GetItemsDetails", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        internal async Task<int> GetRevisionIdByVersionIndex(int artifactId, int versionIndex)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@artifactId", artifactId);
+            parameters.Add("@versionIndex", versionIndex);
+            return (await _connectionWrapper.QueryAsync<int>("GetRevisionIdByVersionIndex", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
     }

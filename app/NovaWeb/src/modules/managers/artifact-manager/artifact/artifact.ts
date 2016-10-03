@@ -34,7 +34,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     public artifactState: IArtifactState;
     public deleted: boolean;
 
-    private subject: Rx.BehaviorSubject<IStatefulArtifact> ;
+    protected subject: Rx.BehaviorSubject<IStatefulArtifact>;
 
     constructor(artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
         super(artifact, services);

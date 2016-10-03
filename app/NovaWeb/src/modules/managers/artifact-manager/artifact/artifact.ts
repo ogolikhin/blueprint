@@ -51,7 +51,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     public  initialize(artifact: Models.IArtifact): IState {
         // let state: IState = {};
-        if (this.parentId !== artifact.parentId || this.orderIndex !== artifact.orderIndex) {
+        if (this.parentId && this.orderIndex && 
+            (this.parentId !== artifact.parentId || this.orderIndex !== artifact.orderIndex)) {
             this.artifactState.misplaced = true;
         } else {
             this.artifactState.initialize(artifact);

@@ -5,7 +5,6 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
-using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Newtonsoft.Json;
@@ -42,121 +41,7 @@ namespace ArtifactStoreTests
             Helper?.Dispose();
         }
 
-        #region SaveArtifact tests
-
-        [TestCase(ArtifactTypePredefined.Actor)]
-//        [TestCase(ArtifactTypePredefined.Baseline)]
-        [TestCase(ArtifactTypePredefined.BusinessProcess)]
-//        [TestCase(ArtifactTypePredefined.DataElement)]
-        [TestCase(ArtifactTypePredefined.Document)]
-        [TestCase(ArtifactTypePredefined.DomainDiagram)]
-        [TestCase(ArtifactTypePredefined.GenericDiagram)]
-        [TestCase(ArtifactTypePredefined.Glossary)]
-        [TestCase(ArtifactTypePredefined.PrimitiveFolder)]
-//        [TestCase(ArtifactTypePredefined.Project)]
-        [TestCase(ArtifactTypePredefined.Storyboard)]
-        [TestCase(ArtifactTypePredefined.TextualRequirement)]
-        [TestCase(ArtifactTypePredefined.UIMockup)]
-        [TestCase(ArtifactTypePredefined.UseCase)]
-        [TestCase(ArtifactTypePredefined.UseCaseDiagram)]
-
-//        [TestCase(BaselineAndCollectionTypePredefined.ArtifactBaseline)]
-        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]
-//        [TestCase(BaselineAndCollectionTypePredefined.ArtifactReviewPackage)]
-//        [TestCase(BaselineAndCollectionTypePredefined.BaselineFolder)]
-        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]
-        [TestRail(154745)]
-        [Description("Create & save an artifact.  Get the artifact.  Verify the artifact returned has the same properties as the artifact we saved.")]
-        public void SaveArtifact_UnpublishedArtifact_CanGetArtifact(ItemTypePredefined artifactType)
-        {
-            // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
-            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
-
-            // Execute:
-            INovaArtifactDetails newArtifact = null;
-
-            Assert.DoesNotThrow(() =>
-                newArtifact = Helper.ArtifactStore.CreateArtifact(_user, artifactType, artifactName, _project),
-                "Exception caught while trying to save an artifact of type: '{0}'!", artifactType);
-
-            // Verify:
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
-            artifactDetails.AssertEquals(newArtifact);
-        }
-
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality isn't implemented yet, only PATCH.
-        [TestCase]
-        [TestRail(154746)]
-        [Description("Create & save an artifact but don't send a 'Session-Token' header in the request.  Verify 400 Bad Request is returned.")]
-        public void SaveArtifact_NoTokenHeader_400BadRequest()
-        {
-            // Setup:
-            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
-            IUser userWithNoToken = Helper.CreateUserAndAddToDatabase();
-
-            // Execute & Verify:
-            Assert.Throws<Http400BadRequestException>(() => artifact.Save(userWithNoToken),
-                "'POST {0}' should return 400 Bad Request if no Session-Token header is passed!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
-        }
-
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality isn't implemented yet, only PATCH.
-        [TestCase]
-        [TestRail(154747)]
-        [Description("Create & save an artifact but pass an unauthorized token.  Verify 401 Unauthorized is returned.")]
-        public void SaveArtifact_UnauthorizedToken_401Unauthorized()
-        {
-            // Setup:
-            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
-            IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
-
-            // Execute & Verify:
-            Assert.Throws<Http401UnauthorizedException>(() => artifact.Save(userWithBadToken),
-                "'POST {0}' should return 401 Unauthorized if an invalid token is passed!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
-        }
-
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality isn't implemented yet, only PATCH.
-        [TestCase]
-        [TestRail(154748)]
-        [Description("Create & save an artifact as a user that doesn't have permission to add artifacts to the project.  Verify 403 Forbidden is returned.")]
-        public void SaveArtifact_UserWithoutPermissions_403Forbidden()
-        {
-            // Setup:
-            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
-
-            IUser userWithoutPermission = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
-                InstanceAdminRole.BlueprintAnalytics);
-
-            // Execute & Verify:
-            Assert.Throws<Http403ForbiddenException>(() => artifact.Save(userWithoutPermission),
-                "'POST {0}' should return 403 Forbidden if the user doesn't have permission to add artifacts!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
-        }
-
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality isn't implemented yet, only PATCH.
-        [TestCase(0)]
-        [TestCase(int.MaxValue)]
-        [TestRail(154749)]
-        [Description("Create & save an artifact with a non-existent Project ID.  Verify 404 Not Found is returned.")]
-        public void SaveArtifact_NonExistentProjectId_404NotFound(int projectId)
-        {
-            // Setup:
-            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
-
-            // Replace ProjectId with a fake ID that shouldn't exist.
-            artifact.ProjectId = projectId;
-
-            // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => artifact.Save(),
-                "'POST {0}' should return 404 Not Found if the Project ID doesn't exist!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
-        }
-
-        #endregion SaveArtifact tests
-
-        #region UpdateArtifact tests
+        #region 200 OK tests
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(156656)]
@@ -181,6 +66,23 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5));
         }
+
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
+        [TestRail(164531)]
+        [Description("Create & publish an artifact. Update the artifact property 'Name' with Empty space. Get the artifact. Verify the artifact returned has the same properties as the artifact we updated.")]
+        public void UpdateArtifact_PublishedArtifact_SetEmptyNameProperty_CanGetArtifact(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            artifact.Lock();
+
+            // Execute & Verify:
+            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Name", "");
+        }
+
+        #endregion 200 OK tests
+
+        #region Negative tests
 
         [TestCase]
         [TestRail(156662)]
@@ -373,18 +275,7 @@ namespace ArtifactStoreTests
             AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
         }
 
-        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
-        [TestRail(164531)]
-        [Description("Create & publish an artifact. Update the artifact property 'Name' with Empty space. Get the artifact. Verify the artifact returned has the same properties as the artifact we updated.")]
-        public void UpdateArtifact_PublishedArtifact_SetEmptyNameProperty_CanGetArtifact(BaseArtifactType artifactType)
-        {
-            // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            artifact.Lock();
-
-            // Execute & Verify:
-            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Name", "");
-        }
+        #endregion Negative tests
 
         #region Custom data tests
 
@@ -474,8 +365,6 @@ namespace ArtifactStoreTests
         }
 
         #endregion Custom Data
-
-        #endregion UpdateArtifact tests
 
         #region Private functions
 

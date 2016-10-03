@@ -838,7 +838,7 @@ pagecontent, bp-properties-panel {
       }
 
       .tinymce-group {
-        position: relative;
+        display: block;
         width: 100%;
       }
 
@@ -857,6 +857,8 @@ pagecontent, bp-properties-panel {
         color: $gray-dark;
         font-size: $font-size-normal;
         font-weight: 400;
+        max-height: #{15 * $property-min-height};
+        max-width: 100%;
         min-height: #{3 * $property-min-height};
         min-width: $property-input-width;
         overflow: auto;

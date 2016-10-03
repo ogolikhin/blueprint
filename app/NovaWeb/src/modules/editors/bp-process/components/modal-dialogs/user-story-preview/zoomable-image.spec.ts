@@ -4,18 +4,20 @@ import { ModalServiceInstanceMock, ModalServiceMock } from "../../../../../shell
 
 describe("Zoomable Image Directive", () => {
 
-    const directiveTemplate = '<zoomable-image class="img-responsive preview-image-placeholder"' +
-        'enable-zoom="true" image-src="image.png"' +
-        'image-alt="test alt text"></zoomable-image>';
+    /* tslint:disable:max-line-length */
+    const directiveTemplate = `<zoomable-image class="img-responsive preview-image-placeholder" enable-zoom="true" image-src="image.png" image-alt="test alt text"></zoomable-image>`;
+    /* tslint:enable:max-line-length */
     let element: ng.IAugmentedJQuery;
     let scope;
+
+/*
     let $uibModal: angular.ui.bootstrap.IModalService;
     let $uibModalInstance = {
         close() { },
         dismiss() { },
         cancel() { }
     };
-    
+*/  
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService, $compileProvider: ng.ICompileProvider) => {
         $provide.service("$uibModalInstance", ModalServiceInstanceMock);

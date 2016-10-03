@@ -364,7 +364,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182432)]
-        [Description("Create & publish second artifacts. Delete 2nd one. Move first artifact to be a child of second artifact.  Verify returned code 404 Not Found.")]
+        [Description("Create & publish 2 artifacts.  Delete 2nd one.  Move first artifact to be a child of second artifact.  Verify returned code 404 Not Found.")]
         public void MoveArtifact_CannotMoveArtifactToDeletedArtifact_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:

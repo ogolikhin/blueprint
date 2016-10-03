@@ -1,12 +1,12 @@
-﻿// import "angular";
+﻿// import * as angular from "angular";
 // import "angular-mocks";
 // import { OpenProjectController } from "./open-project";
-// import { SettingsService } from "../../../core";
-// import { MessageService } from "../../../shell/";
-// import { ProjectManager, SelectionManager } from "../../services";
-// import { BPTreeControllerMock } from "../../../shared/widgets/bp-tree/bp-tree.mock";
-// import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
-// import { ProjectRepositoryMock } from "../../services/project-repository.mock";
+// import { SettingsService } from "../../../../core";
+// import { MessageService } from "../../../../shell/";
+// import { ProjectManager } from "../../../../managers/project-manager/project-manager";
+// import { BPTreeControllerMock } from "../../../../shared/widgets/bp-tree/bp-tree.mock";
+// import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
+// import { ProjectServiceMock } from "../../../../managers/project-manager/project-service.mock";
 
 // export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
 
@@ -151,9 +151,8 @@
 //         $provide.service("localization", LocalizationServiceMock);
 //         $provide.service("settings", SettingsService);
 //         $provide.service("messageService", MessageService);
-//         $provide.service("projectRepository", ProjectRepositoryMock);
+//         $provide.service("projectService", ProjectServiceMock);
 //         $provide.service("manager", ProjectManager);
-//         $provide.service("selectionManager", SelectionManager);
 
 //     }));
 //     beforeEach(inject((

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Model.FullTextSearchModel.Impl
+namespace Model.SearchServiceModel.Impl
 {
     public class ProjectSearchResult
     {

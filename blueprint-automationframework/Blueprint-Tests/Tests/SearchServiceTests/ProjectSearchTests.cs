@@ -2,7 +2,7 @@
 using Helper;
 using Model;
 using Model.Factories;
-using Model.FullTextSearchModel.Impl;
+using Model.SearchServiceModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
 using TestCommon;
@@ -64,7 +64,7 @@ namespace SearchServiceTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                projects = Helper.FullTextSearch.SearchProjects(_userAdmin, "es", 10);//project name is 'test' - search using 'es' substring
+                projects = Helper.SearchService.SearchProjects(_userAdmin, "es", 10);//project name is 'test' - search using 'es' substring
             }, "GetArtifactDiscussions shouldn't throw any error.");
 
             // Verify:

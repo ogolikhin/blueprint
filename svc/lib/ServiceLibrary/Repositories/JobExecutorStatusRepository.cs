@@ -14,9 +14,7 @@ namespace ServiceLibrary.Repositories
         public List<StatusResponse> statusResponses = new List<StatusResponse>() ;
         private readonly string _dbSchema;
         internal readonly ISqlConnectionWrapper _connectionWrapper;
-
         public string Name { get; set; }
-
         public string AccessInfo { get; set; }
 
 
@@ -54,7 +52,7 @@ namespace ServiceLibrary.Repositories
                 responseData.AccessInfo = AccessInfo;
                 responseData.NoErrors = false;
                 responseData.Result = ex.ToString();
-                //await Log.LogError(LogSource, ex);
+               
             }
             return responseData;
           

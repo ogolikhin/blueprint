@@ -8,6 +8,7 @@ namespace ServiceLibrary.Repositories
 	{
         string Name { get; set; }
         string AccessInfo { get; set; }
-		Task<List<StatusResponse>> GetStatuses(int timeout);
-	}
+        Task<List<StatusResponse>> GetStatuses(int timeout);
+
+    }
 }

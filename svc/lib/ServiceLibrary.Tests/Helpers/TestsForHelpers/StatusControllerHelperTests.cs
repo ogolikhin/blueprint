@@ -35,7 +35,7 @@ namespace ServiceLibrary.Helpers
             var statusRepoList = new List<IStatusRepository>();
             for (int i = 0; i < 3; i++)
             {
-                statusRepoList.Add( GetStatusRepo($"MyService{i}", $"MyAccessInfo{i}", $"MyResponseMessage{i}"));//, $"MyResponseMessage{i}"));
+                statusRepoList.Add( GetStatusRepo($"MyService{i}", $"MyAccessInfo{i}", $"MyResponseMessage{i}"));
             }
 
 

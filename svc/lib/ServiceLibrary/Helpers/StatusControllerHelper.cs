@@ -54,7 +54,6 @@ namespace ServiceLibrary.Helpers
             {
                 List<StatusResponse> statusResult = await result;
                 serviceStatus.StatusResponses.AddRange(statusResult);
-
                 statusResult.ForEach((response) => { serviceStatus.NoErrors &= response.NoErrors; });
                 
             }
@@ -105,7 +104,8 @@ namespace ServiceLibrary.Helpers
             }
             catch (Exception ex)
             {
-                List<StatusResponse> r = new List<StatusResponse>();
+                await Log.LogError(LogSource, ex);
+                List<StatusResponse> responseWithError = new List<StatusResponse>();
                 var responseData = new StatusResponse()
                 {
                     Name = statusRepo.Name,
@@ -113,8 +113,8 @@ namespace ServiceLibrary.Helpers
                     Result = $"ERROR: {ex.ToString()}",
                     NoErrors = false
                 };
-                r.Add(responseData);
-                 return r;
+                responseWithError.Add(responseData);
+                 return responseWithError;
             }
 
            

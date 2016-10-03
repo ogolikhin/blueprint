@@ -33,10 +33,9 @@ namespace ServiceLibrary.Helpers
         {
             //Arrange
             var statusRepoList = new List<IStatusRepository>();
-
             for (int i = 0; i < 3; i++)
             {
-                statusRepoList.Add(GetStatusRepo($"MyService{i}", $"MyAccessInfo{i}", $"MyResponseMessage{i}"));
+                statusRepoList.Add( GetStatusRepo($"MyService{i}", $"MyAccessInfo{i}", $"MyResponseMessage{i}"));//, $"MyResponseMessage{i}"));
             }
 
 
@@ -66,11 +65,11 @@ namespace ServiceLibrary.Helpers
         {
             //Arrange
             var statusRepoList = new List<IStatusRepository>();
-
+            List<StatusResponse> response = new List<StatusResponse>();
             Mock<IStatusRepository> statusRepoMock;
             for (int i = 0; i < 3; i++)
             {
-                statusRepoList.Add(GetStatusRepo($"MyService{i}", $"MyAccessInfo{i}", $"MyResponseMessage{i}"));
+                statusRepoList.Add(GetStatusRepo($"MyService{i}", $"MyAccessInfo{i}", $"MyResponseMessage{i}"));//, response));//, $"MyResponseMessage{i}"));
             }
 
             statusRepoMock = new Mock<IStatusRepository>();
@@ -123,13 +122,26 @@ namespace ServiceLibrary.Helpers
             return logRepo.Object;
         }
 
-        private IStatusRepository GetStatusRepo(string name, string accessInfo, string getStatusResponse)
+
+       
+
+        private  IStatusRepository GetStatusRepo(string name, string accessInfo,string result)// List<StatusResponse> responseDatas)
         {
+            List<StatusResponse> responseDatas = new List<StatusResponse>();
+            var responseData = new StatusResponse()
+            {
+                Name = name,
+                AccessInfo = accessInfo,
+                Result = result,
+                NoErrors = true
+            };
+
+            responseDatas.Add(responseData);
             var statusRepoMock = new Mock<IStatusRepository>();
-            //statusRepoMock.Setup(r => r.GetStatuses(It.IsAny<int>())).ReturnsAsync(getStatusResponse);
+            statusRepoMock.Setup( r => r.GetStatuses(It.IsAny<int>())).ReturnsAsync( responseDatas);
             statusRepoMock.Setup(r => r.Name).Returns(name);
             statusRepoMock.Setup(r => r.AccessInfo).Returns(accessInfo);
-            return statusRepoMock.Object;
+            return  statusRepoMock.Object;
         }
 
     }

@@ -1,18 +1,18 @@
 import * as angular from "angular";
-import { IArtifactService } from "../../managers/artifact-manager/"
+import { IArtifactService } from "../../managers/artifact-manager/";
 import { ArtifactServiceMock } from "../../managers/artifact-manager/artifact/artifact.svc.mock";
 import { IProcessService } from "./services/process.svc";
 import { ProcessServiceMock } from "./services/process.svc.mock";
 
 import { IStatefulProcessArtifactServices, StatefulArtifactServices, StatefulProcessArtifactServices } from "../../managers/artifact-manager/services";
-import { StatefulProcessArtifact } from "./process-artifact";;
+import { StatefulProcessArtifact } from "./process-artifact";
 
 import { Models } from "../../main/models";
 
 import * as TestModels from "./models/test-model-factory";
 import { IProcess } from "./models/process-models";
 
-describe("StatefulProcessArtifact", ()=> {
+describe("StatefulProcessArtifact", () => {
     
     let services: IStatefulProcessArtifactServices;
     let $q: ng.IQService;
@@ -38,12 +38,12 @@ describe("StatefulProcessArtifact", ()=> {
         ) => {
             $rootScope = _$rootScope_;
             $q = _$q_;
-            let artitfactServices = new StatefulArtifactServices(_$q_,null,null,null,null,artifactService,null,null,null);
+            let artitfactServices = new StatefulArtifactServices(_$q_, null, null, null, null, artifactService, null, null, null);
             services = new StatefulProcessArtifactServices(artitfactServices, _$q_, processService);
     }));
 
 
-    it("Load - calls both the artifact service and process service to retrieve information", ()=>{
+    it("Load - calls both the artifact service and process service to retrieve information", () => {
         //Arrange
         
         const artifact = {
@@ -67,7 +67,7 @@ describe("StatefulProcessArtifact", ()=> {
         expect(artifactSpy).toHaveBeenCalled();
     });
 
-    it("Load - multiple loads will only execute once if initial load is not finished.", ()=>{
+    it("Load - multiple loads will only execute once if initial load is not finished.", () => {
         //Arrange
         
         const artifact = {
@@ -93,7 +93,7 @@ describe("StatefulProcessArtifact", ()=> {
         expect(artifactSpy).toHaveBeenCalledTimes(1);
     });
     
-    it("Load - artifact service updates are reflected on model", ()=>{
+    it("Load - artifact service updates are reflected on model", () => {
         //Arrange
         
         const artifact = {
@@ -106,15 +106,15 @@ describe("StatefulProcessArtifact", ()=> {
 
         let processArtifact = new StatefulProcessArtifact(artifact, services);
         let isLoaded: boolean = false;
-        let loaded = ()=>{ isLoaded = true; }
+        let loaded = () => { isLoaded = true; };
         //Act
-        processArtifact.getObservable().subscribe(loaded, ()=>{});
+        processArtifact.getObservable().subscribe(loaded, () => {});
         $rootScope.$digest();
 
         //Assert
         expect(isLoaded).toBeTruthy();
     });
-    it("Load - process service updates are reflected on model", ()=>{
+    it("Load - process service updates are reflected on model", () => {
         //Arrange
         
         const artifact = {

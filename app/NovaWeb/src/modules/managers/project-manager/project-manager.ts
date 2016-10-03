@@ -313,9 +313,10 @@ export class ProjectManager  implements IProjectManager {
 
     public removeArtifact(artifact: IStatefulArtifact) {
          let node: IArtifactNode = this.getArtifactNode(artifact.id);
-         node.parentNode.children = node.parentNode.children.filter((child) => child.id !== artifact.id);
- 
-         this.projectCollection.onNext(this.projectCollection.getValue());
+         if (node) {
+            node.parentNode.children = node.parentNode.children.filter((child) => child.id !== artifact.id);
+            this.projectCollection.onNext(this.projectCollection.getValue());
+         }
      }
 
     public remove(all: boolean = false) {

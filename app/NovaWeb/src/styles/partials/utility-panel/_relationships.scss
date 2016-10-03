@@ -57,7 +57,7 @@ bp-relationships-panel {
             }
         }
         &.header-icons {
-          @include transition(max-height 1s, opacity 1s);
+          @include transition(max-height 0.5s, opacity 0.5s);
           padding: 0 5px;
           color: $gray-dark;
           line-height: $utility-panel-title-height;

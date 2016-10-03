@@ -54,6 +54,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArtifactModel\Enums\ItemTypePredefined.cs" />
+    <Compile Include="ArtifactModel\Enums\ItemTypePredefinedExtension.cs" />
     <Compile Include="ArtifactModel\IArtifactObserver.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactBase.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactHistory.cs" />
@@ -113,13 +115,13 @@
     <Compile Include="ArtifactModel\Impl\NovaTrace.cs" />
     <Compile Include="Impl\PrimitiveFolder.cs" />
     <Compile Include="IPrimitiveFolder.cs" />
-    <Compile Include="FullTextSearchModel\Impl\FullTextSearchItem.cs" />
-    <Compile Include="FullTextSearchModel\Impl\FullTextSearchMetaDataResult.cs" />
-    <Compile Include="FullTextSearchModel\Impl\FullTextSearchResult.cs" />
-    <Compile Include="FullTextSearchModel\Impl\FullTextSearchTypeItem.cs" />
-    <Compile Include="FullTextSearchModel\Impl\FullTextSearch.cs" />
-    <Compile Include="FullTextSearchModel\Impl\FullTextSearchCriteria.cs" />
-    <Compile Include="FullTextSearchModel\IFullTextSearch.cs" />
+    <Compile Include="SearchServiceModel\Impl\FullTextSearchItem.cs" />
+    <Compile Include="SearchServiceModel\Impl\FullTextSearchMetaDataResult.cs" />
+    <Compile Include="SearchServiceModel\Impl\FullTextSearchResult.cs" />
+    <Compile Include="SearchServiceModel\Impl\FullTextSearchTypeItem.cs" />
+    <Compile Include="SearchServiceModel\Impl\SearchService.cs" />
+    <Compile Include="SearchServiceModel\Impl\FullTextSearchCriteria.cs" />
+    <Compile Include="SearchServiceModel\ISearchService.cs" />
     <Compile Include="StorytellerModel\Impl\StorytellerUserStory.cs" />
     <Compile Include="StorytellerModel\Impl\Storyteller.cs" />
     <Compile Include="StorytellerModel\Impl\Process.cs" />

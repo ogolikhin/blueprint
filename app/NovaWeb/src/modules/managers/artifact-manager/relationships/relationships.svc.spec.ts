@@ -123,8 +123,8 @@ describe("Artifact Relationships Service", () => {
 
         // Act
         let error: any;
-        let data: Relationships.IRelationship[];
-        artifactRelationships.getRelationships(5).then((response: Relationships.IRelationship[]) => {
+        let data: any; // should not be defined
+        artifactRelationships.getRelationships(5).then((response) => {
             data = response;
         }, (err) => {
             error = err;

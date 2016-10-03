@@ -16,22 +16,22 @@ import "./bp-file-upload";
 import "./bp-toggle";
 import "./bp-breadcrumb";
 
-angular.module("bp.widjets", [
-    "bp.widjets.dialog",
-    "bp.widjets.avatar",
-    "bp.widjets.tree",
-    "bp.widjets.treedraganddrop",
-    "bp.widjets.treeView",
-    "bp.widjets.inlineedit",
-    "bp.widjets.tooltip",    
-    "bp.widjets.infinitescroll",
-    "bp.widjets.select",
-    "bp.widjets.itemicon",
-    "bp.widjets.speciallink",
-    "bp.widjets.compilehtml",
-    "bp.widjets.collapsible",
-    "bp.widjets.fileupload",
-    "bp.widjets.toggle",
+angular.module("bp.widgets", [
+    "bp.widgets.dialog",
+    "bp.widgets.avatar",
+    "bp.widgets.tree",
+    "bp.widgets.treedraganddrop",
+    "bp.widgets.treeView",
+    "bp.widgets.inlineedit",
+    "bp.widgets.tooltip",    
+    "bp.widgets.infinitescroll",
+    "bp.widgets.select",
+    "bp.widgets.itemicon",
+    "bp.widgets.speciallink",
+    "bp.widgets.compilehtml",
+    "bp.widgets.collapsible",
+    "bp.widgets.fileupload",
+    "bp.widgets.toggle",
     "bp.widgets.breadcrumb"
 ]);
     

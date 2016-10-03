@@ -4,7 +4,6 @@ import {
     BpArtifactEditor,
     ILocalizationService, 
     IArtifactManager, 
-    IStatefulArtifact,
     IMessageService,  
     IWindowManager, 
     PropertyContext, 

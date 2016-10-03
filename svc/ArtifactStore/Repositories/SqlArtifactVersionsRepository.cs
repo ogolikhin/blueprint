@@ -206,30 +206,32 @@ namespace ArtifactStore.Repositories
                 ItemTypeId = artifactBasicDetails.ItemTypeId,
                 Prefix = artifactBasicDetails.Prefix,
                 PredefinedType = (ItemTypePredefined)artifactBasicDetails.PrimitiveItemTypePredefined,
-                Version = (artifactBasicDetails.VersionIndex <= 0) ? -1 : artifactBasicDetails.VersionIndex,
+                Version = (artifactBasicDetails.VersionIndex != null) && (artifactBasicDetails.VersionIndex.Value <= 0) ? -1 : artifactBasicDetails.VersionIndex,
                 VersionCount = artifactBasicDetails.VersionsCount,
                 IsDeleted = (artifactBasicDetails.DraftDeleted || artifactBasicDetails.LatestDeleted),
                 HasChanges = ((artifactBasicDetails.LockedByUserId != null) && (artifactBasicDetails.LockedByUserId.Value == userId))
                     || artifactBasicDetails.HasDraftRelationships,
                 LockedByUser = (artifactBasicDetails.LockedByUserId != null)
                     ? new UserGroup { Id = artifactBasicDetails.LockedByUserId.Value, DisplayName = artifactBasicDetails.LockedByUserName } : null,
-                LockedDateTime = artifactBasicDetails.LockedByUserTime.HasValue 
-                    ? DateTime.SpecifyKind(artifactBasicDetails.LockedByUserTime.Value, DateTimeKind.Utc)
-                    : (DateTime?) null
+                LockedDateTime = (artifactBasicDetails.LockedByUserTime != null)
+                    ? (DateTime?)DateTime.SpecifyKind(artifactBasicDetails.LockedByUserTime.Value, DateTimeKind.Utc)
+                    : null
             };
             if (artifactBasicDetails.DraftDeleted)
             {
                 artifactInfo.DeletedByUser = (artifactBasicDetails.UserId != null)
                         ? new UserGroup { Id = artifactBasicDetails.UserId.Value, DisplayName = artifactBasicDetails.UserName } : null;
-                artifactInfo.DeletedDateTime = artifactBasicDetails.LastSaveTimestamp.HasValue
-                    ? DateTime.SpecifyKind(artifactBasicDetails.LastSaveTimestamp.Value, DateTimeKind.Utc)
-                    : (DateTime?) null;
+                artifactInfo.DeletedDateTime = (artifactBasicDetails.LastSaveTimestamp != null)
+                    ? (DateTime?)DateTime.SpecifyKind(artifactBasicDetails.LastSaveTimestamp.Value, DateTimeKind.Utc)
+                    : null;
             }
             else if (artifactBasicDetails.LatestDeleted)
             {
                 artifactInfo.DeletedByUser = (artifactBasicDetails.LatestDeletedByUserId != null)
                         ? new UserGroup { Id = artifactBasicDetails.LatestDeletedByUserId.Value, DisplayName = artifactBasicDetails.LatestDeletedByUserName } : null;
-                artifactInfo.DeletedDateTime = artifactBasicDetails.LatestDeletedByUserTime;
+                artifactInfo.DeletedDateTime = (artifactBasicDetails.LatestDeletedByUserTime != null)
+                    ? (DateTime?)DateTime.SpecifyKind(artifactBasicDetails.LatestDeletedByUserTime.Value, DateTimeKind.Utc)
+                    : null;
             }
             artifactInfo.Permissions = itemIdsPermissions[artifactBasicDetails.ArtifactId];
             return artifactInfo;

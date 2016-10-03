@@ -1,17 +1,29 @@
 ﻿import * as angular from "angular";
 import { ILocalizationService, IMessageService } from "../../core";
 import { IDialogService } from "../../shared";
-import { IStatefulArtifactFactory } from "../artifact-manager/artifact";
+import { IStatefulArtifactFactory, IStatefulArtifact } from "../artifact-manager/artifact";
 import { Project, ArtifactNode } from "./project";
-import { IArtifactNode, IStatefulArtifact, IDispose} from "../models";
-//import { StatefulArtifact } from "../artifact-manager/artifact";
-
+import { IDispose} from "../models";
 import { Models, Enums } from "../../main/models";
 import { IProjectService } from "./project-service";
-import { SelectionSource } from "../selection-manager";
-
 import { IArtifactManager } from "../../managers";
 import { IMetaDataService } from "../artifact-manager/metadata";
+
+export interface IArtifactNode extends IDispose {
+    artifact: IStatefulArtifact;
+    children?: IArtifactNode[];
+    parentNode: IArtifactNode;
+    id: number;
+    name: string;
+    projectId: number;
+    //parentId: number;
+    permissions: Enums.RolePermissions;
+    predefinedType: Models.ItemTypePredefined;
+    hasChildren?: boolean;
+    loaded?: boolean;
+    open?: boolean;
+}
+
 export interface IProjectManager extends IDispose {
     projectCollection: Rx.BehaviorSubject<Project[]>;
 
@@ -34,7 +46,6 @@ export class ProjectManager  implements IProjectManager {
 
     private _projectCollection: Rx.BehaviorSubject<Project[]>;
     private subscribers: Rx.IDisposable[];
-    private statechangesubscriber: Rx.IDisposable;
     static $inject: [string] = [
         "$q",
         "localization", 
@@ -57,23 +68,10 @@ export class ProjectManager  implements IProjectManager {
         private statefulArtifactFactory: IStatefulArtifactFactory) {
         
         this.subscribers = [];
+
     }
 
-    private onChange(artifact: IStatefulArtifact) {
-        this.projectCollection.onNext(this._projectCollection.getValue());
-    }
-
-    // private onArtifactSelect(artifact: IStatefulArtifact) {
-    //     if (this.statechangesubscriber) {
-    //         this.statechangesubscriber.dispose();
-    //         delete this.statechangesubscriber;
-    //     }
-    //     if (artifact) {
-    //         this.statechangesubscriber = artifact.observable().subscribeOnNext(this.onChange, this);
-    //     }
-    // }
-    
-    private onChangeInArtifactManagerCollection(artifact: IStatefulArtifact) {
+    private onChangeInArtifactManagerCollection(artifact: IStatefulArtifact){
          //Projects will null parentId have been removed from ArtifactManager
          if (artifact.parentId === null) {
              this.removeArtifact(artifact);
@@ -136,7 +134,7 @@ export class ProjectManager  implements IProjectManager {
                     }
                 });
             });
-        }else {
+        } else {
             this.doRefresh(project, selectedArtifact, defer, currentProject);
         }
         
@@ -366,7 +364,6 @@ export class ProjectManager  implements IProjectManager {
                     node.open = true;
 
                     this.projectCollection.onNext(this.projectCollection.getValue());
-//                    this.artifactManager.selection.setArtifact(node.artifact, SelectionSource.Explorer);
 
                 }).catch((error: any) => {
                     //ignore authentication errors here

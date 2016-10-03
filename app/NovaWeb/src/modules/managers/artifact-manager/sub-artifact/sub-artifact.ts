@@ -1,144 +1,70 @@
 import { Models, Relationships } from "../../../main/models";
 // import { ArtifactState} from "../state";
-import { ArtifactAttachments, IArtifactAttachments } from "../attachments";
-import { IDocumentRefs, DocumentRefs } from "../docrefs";
-import { ArtifactProperties, SpecialProperties } from "../properties";
 import { IStatefulArtifactServices } from "../services";
-import { IMetaData, MetaData } from "../metadata";
+import { IMetaData } from "../metadata";
+import { IStatefulArtifact } from "../artifact";
+import { StatefulItem, IStatefulItem, IIStatefulItem } from "../item";
+import { IArtifactAttachmentsResultSet } from "../attachments";
+import { MetaData } from "../metadata";
 
-import { 
-    ChangeTypeEnum, 
-    IChangeCollector, 
-    ChangeSetCollector, 
-    IChangeSet, 
-    IArtifactRelationships, 
-    ArtifactRelationships
-} from "../";
-import {
-    IStatefulArtifact,
-    IArtifactProperties,
-    IIStatefulSubArtifact,
-    IStatefulSubArtifact,
-    IArtifactAttachmentsResultSet
-} from "../../models";
+export interface IIStatefulSubArtifact extends IIStatefulItem {
+}
 
-export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubArtifact {
-    private changesets: IChangeCollector;
-    private loadPromise: ng.IPromise<IStatefulSubArtifact>;
+export interface IStatefulSubArtifact extends IStatefulItem, Models.ISubArtifact {
+    getObservable(): Rx.Observable<IStatefulSubArtifact>;
+}
+
+export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArtifact, IIStatefulSubArtifact {
     private isLoaded = false;
+    private subject: Rx.BehaviorSubject<IStatefulSubArtifact>;
 
     public deleted: boolean;
-    public attachments: IArtifactAttachments;
-    public docRefs: IDocumentRefs;
-    public customProperties: IArtifactProperties;
-    public specialProperties: IArtifactProperties;
-    public metadata: IMetaData;
-    public relationships: IArtifactRelationships;
 
-    constructor(private artifact: IStatefulArtifact, private subArtifact: Models.ISubArtifact, private services: IStatefulArtifactServices) {
+    constructor(private parentArtifact: IStatefulArtifact, private subArtifact: Models.ISubArtifact, services: IStatefulArtifactServices) {
+        super(subArtifact, services);
         this.metadata = new MetaData(this);
-        this.customProperties = new ArtifactProperties(this, subArtifact.customPropertyValues);
-        this.specialProperties = new SpecialProperties(this, subArtifact.specificPropertyValues);
-        this.attachments = new ArtifactAttachments(this);
-        this.relationships = new ArtifactRelationships(this);
-        this.docRefs = new DocumentRefs(this);
+        this.subject = new Rx.BehaviorSubject<IStatefulSubArtifact>(null);
         // this.changesets = new ChangeSetCollector(this.artifact);
     }
 
-    //TODO.
-    //Needs implementation of other object like
-    //attachments, traces and etc.
-
     public get artifactState() {
-        return this.artifact.artifactState;
-    }
-
-    //TODO: implement system property getters and setters
-    public get id(): number {
-        return this.subArtifact.id;
-    }
-
-    public get name(): string {
-        return this.subArtifact.name;
-    }
-
-    public set name(value: string) {
-        this.set("name", value);
-    }
-
-    public get description(): string {
-        return this.subArtifact.description;
-    }
-
-    public set description(value: string) {
-        this.set("description", value);
-    }
-
-    public get itemTypeId(): number {
-        return this.subArtifact.itemTypeId;
-    }
-
-    public set itemTypeId(value: number) {
-        this.set("itemTypeId", value);
-    }
-
-    public get itemTypeVersionId(): number {
-        return this.subArtifact.itemTypeVersionId;
-    }
-    public get predefinedType(): Models.ItemTypePredefined {
-        return this.subArtifact.predefinedType;
-    }
-
-    public get version() {
-        return this.subArtifact.version;
-    }
-
-    public get prefix(): string {
-        return this.subArtifact.prefix;
+        return this.parentArtifact.artifactState;
     }
 
     public get projectId(): number {
-        return this.artifact.projectId;
+        return this.parentArtifact.projectId;
     }
 
-    private set(name: string, value: any) {
-        if (name in this) {
-           const changeset = {
-               type: ChangeTypeEnum.Update,
-               key: name,
-               value: value
-           } as IChangeSet;
-           this.changesets.add(changeset);
-           this.lock();
-        }
-    }
-
-    public load(force: boolean = true, timeout?: ng.IPromise<any>):  ng.IPromise<IStatefulSubArtifact> {
+    protected load():  ng.IPromise<IStatefulSubArtifact> {
         const deferred = this.services.getDeferred<IStatefulSubArtifact>();
-        if (force || !this.isLoaded) {
-            if (this.loadPromise) {
-                return this.loadPromise;
-            } else {
-                this.loadPromise = deferred.promise;
-                this.services.artifactService.getSubArtifact(this.artifact.id, this.id, timeout)
-                    .then((subArtifact: Models.ISubArtifact) => {
-                        this.subArtifact = subArtifact;
-                        this.customProperties.initialize(subArtifact.customPropertyValues);
-                        this.specialProperties.initialize(subArtifact.specificPropertyValues);
-                        //this.artifactState.initialize(subArtifact); TODO autkin why we need it???
-                        this.isLoaded = true;
-                        deferred.resolve(this);
-                }).catch((err) => {
-                    deferred.reject(err);
-                }).finally(() => {
-                    this.loadPromise = null;
-                });
-            }
-        } else {
-            deferred.resolve(this);
-        }
+            this.services.artifactService.getSubArtifact(this.parentArtifact.id, this.id).then((artifact: Models.ISubArtifact) => {
+                let state = this.initialize(artifact);
+                deferred.resolve(this);
+            }).catch((err) => {
+                deferred.reject(err);
+            });
         return deferred.promise;
     }
+
+    public getObservable(): Rx.Observable<IStatefulSubArtifact> {
+        if (!this.isFullArtifactLoadedOrLoading()) {
+            this.loadPromise = this.load();
+
+            this.loadPromise.then(() => {
+                this.subject.onNext(this);
+            }).catch((error) => {
+                this.artifactState.readonly = true;
+                this.subject.onError(error);
+            }).finally(() => {
+                this.loadPromise = null;
+            });
+        } else {
+//            this.subject.onNext(this);
+        }
+        return this.subject.filter(it => !!it).asObservable();
+        
+    }
+
     public changes(): Models.ISubArtifact {
         if (this.artifactState.invalid) {
             throw new Error("App_Save_Artifact_Error_400_114");
@@ -156,6 +82,9 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
         return delta;
     }
     public discard() {
+        super.discard();
+        this.artifactState.dirty = false;
+
 
         // this.changesets.reset().forEach((it: IChangeSet) => {
         //     this[it.key as string].value = it.value;
@@ -168,12 +97,12 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
     }
 
     public lock(): ng.IPromise<IStatefulArtifact> {
-        return this.artifact.lock();
+        return this.parentArtifact.lock();
     }
 
     public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {
         const deferred = this.services.getDeferred();
-        this.services.attachmentService.getArtifactAttachments(this.artifact.id, this.id, true)
+        this.services.attachmentService.getArtifactAttachments(this.parentArtifact.id, this.id, true)
             .then( (result: IArtifactAttachmentsResultSet) => {
                 this.attachments.initialize(result.attachments);
                 this.docRefs.initialize(result.documentReferences);
@@ -190,7 +119,7 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
 
     public getRelationships(): ng.IPromise<Relationships.IArtifactRelationshipsResultSet> {
         const deferred = this.services.getDeferred();
-        this.services.relationshipsService.getRelationships(this.artifact.id, this.id)
+        this.services.relationshipsService.getRelationships(this.parentArtifact.id, this.id)
             .then( (result: Relationships.IArtifactRelationshipsResultSet) => {
                 deferred.resolve(result);
             }, (error) => {
@@ -202,7 +131,4 @@ export class StatefulSubArtifact implements IStatefulSubArtifact, IIStatefulSubA
         return deferred.promise;
     }
 
-    public getServices(): IStatefulArtifactServices {
-        return this.services;
-    }
 }

@@ -17,8 +17,10 @@ export class BPTreeControllerMock implements IBPTreeController {
     }
 
     public selectNode(id: number) { }
-
-    public nodeExists(id: number): boolean { return true; }
+    
+    public nodeExists(id: number): boolean {
+        return true;
+    }
 
     public reload(data?: any[], id?: number) {
         if (!data) {

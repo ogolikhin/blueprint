@@ -1,23 +1,24 @@
+import { IIStatefulItem } from "../item";
 import { Models } from "../../../main/models";
-import { IIStatefulItem, IArtifactProperties } from "../../models";
-import {
-    ChangeTypeEnum, 
-    IChangeCollector, 
-    IChangeSet,
-    ChangeSetCollector
-} from "../";
+import { ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector } from "../changeset";
+import { IDispose } from "../../models";
+
+export interface IArtifactProperties extends IDispose {
+    initialize(properties: Models.IPropertyValue[]); 
+    get(id: number): Models.IPropertyValue;
+    set(id: number, value: any): Models.IPropertyValue;
+    changes(): Models.IPropertyValue[];
+    discard();
+}
 
 export class ArtifactProperties implements IArtifactProperties  {
     
     protected properties: Models.IPropertyValue[];
-    //private subject: Rx.BehaviorSubject<Models.IPropertyValue>;
-    private subject: Rx.Observable<Models.IPropertyValue>;
     private changeset: IChangeCollector;
 
     constructor(private statefulItem: IIStatefulItem, properties?: Models.IPropertyValue[]) {
         this.properties = properties || [];
         this.changeset = new ChangeSetCollector(statefulItem);
-        this.subject  = Rx.Observable.fromArray<Models.IPropertyValue>(this.properties);
 //        this.subject = new Rx.BehaviorSubject<Models.IPropertyValue>(null);
         // this.subject.subscribeOnNext((it: Models.IPropertyValue) => {
         //     this.addChangeSet(it);
@@ -29,15 +30,10 @@ export class ArtifactProperties implements IArtifactProperties  {
         this.properties = properties || [];
     }
 
-    // public get value(): ng.IPromise<Models.IPropertyValue[]> {
-    //         // try to get custom property through a service
-    //         return {} as ng.IPromise<Models.IPropertyValue[]>;
-    // }    
-
-    public get observable(): Rx.Observable<Models.IPropertyValue> {
-        return this.subject.filter(it => it !== null).asObservable();
-    }    
-
+    public dispose() {
+        delete this.properties;
+        delete this.changeset;
+    }
 
     public get(id: number): Models.IPropertyValue {
         return this.properties.filter((it: Models.IPropertyValue) => it.propertyTypeId === id)[0];

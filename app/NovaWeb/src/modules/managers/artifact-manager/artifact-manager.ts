@@ -1,8 +1,8 @@
 import { IMessageService } from "../../core";
 import { ISelectionManager } from "../selection-manager/selection-manager";
 import { IMetaDataService } from "./metadata";
-import { IStatefulArtifactFactory, } from "./artifact";
-import { IStatefulArtifact, IDispose } from "../models";
+import { IStatefulArtifactFactory, IStatefulArtifact } from "./artifact";
+import { IDispose } from "../models";
 
 export interface IArtifactManager extends IDispose {
     collectionChangeObservable: Rx.Observable<IStatefulArtifact>;
@@ -18,22 +18,25 @@ export interface IArtifactManager extends IDispose {
 }
 
 export class ArtifactManager  implements IArtifactManager {
-    private artifactList: IStatefulArtifact[];
+    private artifactDictionary: { [id: number]: IStatefulArtifact };
     private collectionChangeSubject: Rx.BehaviorSubject<IStatefulArtifact>;
-    public static $inject = [ 
+    public static $inject = [
+        "$log",
         "$q", 
         "messageService",
         "selectionManager", 
         "metadataService", 
-        "statefulArtifactFactory" ];
+        "statefulArtifactFactory"
+    ];
         
     constructor(
+        private $log: ng.ILogService,
         private $q: ng.IQService, 
         private messageService: IMessageService, 
         private selectionService: ISelectionManager, 
         private metadataService: IMetaDataService,
         private artifactFactory: IStatefulArtifactFactory) {
-        this.artifactList = [];
+        this.artifactDictionary = {};
         this.collectionChangeSubject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
 //        this.selectionService.selectionObservable.subscribeOnNext(this.onArtifactSelect, this);
     }
@@ -48,7 +51,17 @@ export class ArtifactManager  implements IArtifactManager {
     }
 
     public list(): IStatefulArtifact[] {
-        return this.artifactList;
+        let artifactList: IStatefulArtifact[] = [];
+        
+        for (let artifactKey in this.artifactDictionary) {
+            let artifact = this.artifactDictionary[artifactKey];
+            
+            if (this.artifactDictionary.hasOwnProperty(artifactKey)) {
+                artifactList.push(artifact);
+            }
+        }
+
+        return artifactList;
     }
 
     public get collectionChangeObservable(): Rx.Observable<IStatefulArtifact> {
@@ -56,12 +69,12 @@ export class ArtifactManager  implements IArtifactManager {
     }
 
     public get(id: number): ng.IPromise<IStatefulArtifact> {
-        let deferred = this.$q.defer<IStatefulArtifact>();
-        let artifact = this.artifactList.filter((it: IStatefulArtifact) => it.id === id)[0];
+        const deferred = this.$q.defer<IStatefulArtifact>();
+        const artifact = this.artifactDictionary[id];
         if (artifact) {
             deferred.resolve(artifact);
         } else {
-            this.artifactFactory.createStatefulArtifact({id: id}).load().then((it: IStatefulArtifact) => {
+            this.artifactFactory.createStatefulArtifact({id: id}).refresh().then((it: IStatefulArtifact) => {
                 this.add(it);
                 deferred.resolve(it);
             }).catch((err) => {
@@ -76,35 +89,38 @@ export class ArtifactManager  implements IArtifactManager {
     }
     
     public add(artifact: IStatefulArtifact) {
-        this.artifactList.push(artifact);
+        if (this.artifactDictionary[artifact.id]) {
+            this.$log.info(`Overwriting an already added artifact with id: ${artifact.id}`);
+        }
+        this.artifactDictionary[artifact.id] = artifact;
         this.collectionChangeSubject.onNext(artifact);
     }
 
     public remove(id: number): IStatefulArtifact {
-        let stateArtifact: IStatefulArtifact;
-        this.artifactList = this.artifactList.filter((artifact: IStatefulArtifact) => {
-            if (artifact.id === id) {
-                artifact.dispose();
-                stateArtifact = artifact;
-                this.collectionChangeSubject.onNext(artifact);
-                return false;
-            }
-            return true;
-        });
-        return stateArtifact;
+        let artifact: IStatefulArtifact = this.artifactDictionary[id];
+
+        if (artifact) {
+            delete this.artifactDictionary[id];
+            this.collectionChangeSubject.onNext(artifact);
+        }
+
+        return artifact;
     }
 
     public removeAll(projectId?: number) {
-        
-        this.artifactList = this.artifactList.filter((it: IStatefulArtifact) => {
-            if (!projectId || it.projectId === projectId) {
-                it.dispose();
-                this.metadataService.remove(it.projectId);
-                return false;
+        for (const artifactKey in this.artifactDictionary) {
+            const artifact = this.artifactDictionary[artifactKey];
+            
+            if (this.artifactDictionary.hasOwnProperty(artifactKey)) {
+                if (!projectId || artifact.projectId === projectId) {
+                    artifact.dispose();
+                    delete this.artifactDictionary[artifactKey];
+                }
             }
-            return true;
-        });
-        
+        }
+        if (projectId) {
+            this.metadataService.remove(projectId);
+        }
     }
 
     // TODO: 
@@ -121,7 +137,6 @@ export class ArtifactManager  implements IArtifactManager {
     public refreshAll() {
         throw new Error("Not implemented yet");
     }
-
 
     // private changeSubscriber: Rx.IDisposable[];
 

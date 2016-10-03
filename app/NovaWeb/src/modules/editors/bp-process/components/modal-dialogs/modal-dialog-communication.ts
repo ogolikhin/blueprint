@@ -67,7 +67,7 @@ export class ModalDialogCommunication implements IModalDialogCommunication {
         this.setModalProcessViewModelSubject.disposeObserver(handler);
     }
     
-    public setModalProcessViewModel(modalProcessViewModel: any){
+    public setModalProcessViewModel(modalProcessViewModel: any) {
         this.setModalProcessViewModelSubject.notify(modalProcessViewModel);
     }
 

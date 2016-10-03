@@ -3,12 +3,11 @@ import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
 import {IProcessService} from "../../services/process.svc";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
-import {IProcessGraph} from "./presentation/graph/models/";
+import {IProcessGraph, ISelectionListener} from "./presentation/graph/models/";
 import {ProcessGraph} from "./presentation/graph/process-graph";
 import {ICommunicationManager} from "../../../bp-process";
 import {IDialogService} from "../../../../shared";
 import {ShapesFactory} from "./presentation/graph/shapes/shapes-factory";
-import {ISelectionManager} from "../../../../managers";
 
 export class ProcessDiagram {
     public processModel: IProcess;
@@ -31,8 +30,7 @@ export class ProcessDiagram {
         private communicationManager: ICommunicationManager,
         private dialogService: IDialogService,
         private localization: ILocalizationService,
-        private navigationService: INavigationService,
-        private selectionManager: ISelectionManager) {
+        private navigationService: INavigationService) {
 
         this.processModel = null;
     }
@@ -140,8 +138,7 @@ export class ProcessDiagram {
                             this.localization,
                             this.messageService,
                             this.$log,
-                            this.shapesFactory,
-                            this.selectionManager);
+                            this.shapesFactory);
         } catch (err) {
             this.handleInitProcessGraphFailed(processViewModel.id, err);
         }
@@ -154,6 +151,14 @@ export class ProcessDiagram {
         }
     }
 
+    public addSelectionListener(listener: ISelectionListener) {
+        if (listener != null) {
+            this.graph.addSelectionListener(listener);
+        }
+    }
+    public clearSelection(){
+        this.graph.clearSelection();
+    }
     private resetBeforeLoad() {
         if (this.graph != null) {
             this.graph.destroy();

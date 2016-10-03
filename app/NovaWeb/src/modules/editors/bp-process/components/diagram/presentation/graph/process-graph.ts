@@ -24,9 +24,9 @@ import {ProcessAddHelper} from "./process-add-helper";
 import {IDialogSettings, IDialogService} from "../../../../../../shared";
 import {NodePopupMenu} from "./popup-menu/node-popup-menu";
 import {ProcessGraphSelectionHelper} from "./process-graph-selection";
-import { ISelectionManager } from "../../../../../../managers";
 import { IStatefulSubArtifact, IStatefulArtifact } from "../../../../../../managers/artifact-manager";
 import { StatefulProcessArtifact } from "../../../../process-artifact";
+import {ISelectionListener} from "./models/";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
@@ -70,8 +70,7 @@ export class ProcessGraph implements IProcessGraph {
         private localization: ILocalizationService,
         public messageService: IMessageService = null,
         private $log: ng.ILogService = null,
-        private shapesFactory: ShapesFactory = null,
-        private selectionManager:ISelectionManager = null) {
+        private shapesFactory: ShapesFactory = null) {
 
         // Creates the graph inside the given container
          
@@ -124,10 +123,7 @@ export class ProcessGraph implements IProcessGraph {
         this.selectionHelper.addSelectionListener((elements) => {
             this.setDeletable(elements);
         });
-        this.selectionHelper.addSelectionListener((elements) => {
-            this.setSelectionArtifact(elements);
-        });
-        
+
         this.selectionHelper.initSelection();
 
         this.applyDefaultStyles();
@@ -143,13 +139,13 @@ export class ProcessGraph implements IProcessGraph {
      
         this.initializeGlobalScope();
     }
-    private setSelectionArtifact(elements: IDiagramNode[]){
-        if(elements.length > 0){
-            this.selectionManager.setSubArtifact(this.viewModel.statefulArtifact.subArtifactCollection.get(elements[0].model.id));
+    public addSelectionListener(listener: ISelectionListener) {
+        if (listener != null) {
+            this.selectionHelper.addSelectionListener(listener);
         }
-        else{
-            this.selectionManager.setArtifact(this.viewModel.statefulArtifact);
-        }        
+    }
+    public clearSelection(){
+        this.mxgraph.clearSelection();
     }
     private initializePopupMenu() {
 

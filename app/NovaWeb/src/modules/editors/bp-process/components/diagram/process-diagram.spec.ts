@@ -88,8 +88,7 @@ describe("ProcessDiagram Tests", () => {
             communicationManager,
             dialogService,
             localization,
-            navigationService,
-            null
+            navigationService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -115,8 +114,7 @@ describe("ProcessDiagram Tests", () => {
             communicationManager,
             dialogService,
             localization,
-            navigationService,
-            null
+            navigationService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -145,8 +143,7 @@ describe("ProcessDiagram Tests", () => {
             communicationManager,
             dialogService,
             localization,
-            navigationService,
-            null
+            navigationService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -175,8 +172,7 @@ describe("ProcessDiagram Tests", () => {
             communicationManager,
             dialogService,
             localization,
-            navigationService,
-            null
+            navigationService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -206,8 +202,7 @@ describe("ProcessDiagram Tests", () => {
             communicationManager,
             dialogService,
             localization,
-            navigationService,
-            null
+            navigationService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -236,8 +231,7 @@ describe("ProcessDiagram Tests", () => {
             communicationManager,
             dialogService,
             localization,
-            navigationService,
-            null
+            navigationService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -267,8 +261,7 @@ describe("ProcessDiagram Tests", () => {
             communicationManager,
             dialogService,
             localization,
-            navigationService,
-            null
+            navigationService
         );
         let navigateToArtifactSpy = spyOn(navigationService, "navigateToArtifact");
 

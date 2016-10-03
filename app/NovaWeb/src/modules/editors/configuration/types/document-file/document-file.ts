@@ -71,7 +71,7 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                 maxAttachmentFilesize: maxAttachmentFilesize,
                 maxNumberAttachments: maxNumberAttachments
             };
-            let ds = dialogService.open(dialogSettings, dialogData).then((uploadList: any[]) => {
+            dialogService.open(dialogSettings, dialogData).then((uploadList: any[]) => {
                 if (uploadList && uploadList.length > 0) {
                     let uploadedFile = uploadList[0];
                     const fileExt: RegExpMatchArray = uploadedFile.name.match(/([^.]*)$/);

@@ -7,7 +7,6 @@ describe("PreviewWing Directive", () => {
 
     var element: ng.IAugmentedJQuery;
     var scope: ng.IScope;
-    var directiveTemplate: string;
     var directiveWrapper: string;
 
     it("constructor, cloneModel",

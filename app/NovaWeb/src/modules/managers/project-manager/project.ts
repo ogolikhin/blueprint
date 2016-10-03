@@ -1,6 +1,7 @@
 import * as angular from "angular";
 import { Models, Enums } from "../../main/models";
-import { IStatefulArtifact, IArtifactNode } from "../models";
+import { IStatefulArtifact } from "../artifact-manager";
+import { IArtifactNode } from "../project-manager";
 
 export class ArtifactNode implements IArtifactNode {
     private _artifact: IStatefulArtifact;

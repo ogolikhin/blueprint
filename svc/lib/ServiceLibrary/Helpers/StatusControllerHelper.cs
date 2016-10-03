@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+ 
 
 namespace ServiceLibrary.Helpers
 {
@@ -40,20 +41,21 @@ namespace ServiceLibrary.Helpers
             serviceStatus.AssemblyFileVersion = GetAssemblyFileVersion();
 
             //Get status responses from each repo, store the tasks.
-            List<Task<StatusResponse>> statusResponses = new List<Task<StatusResponse>>();
+            List<Task<List<StatusResponse>>> statusResponses = new List<Task<List<StatusResponse>>>();
             foreach (IStatusRepository statusRepo in StatusRepos)
             {
-                statusResponses.Add(TryGetStatusResponse(statusRepo));
+                Task<List<StatusResponse>> response = TryGetStatusResponse(statusRepo);
+                statusResponses.Add(response);
             }
 
             //Await the status check task results.
             serviceStatus.NoErrors = true;
             foreach (var result in statusResponses)
             {
-                var statusResult = await result;
-                serviceStatus.StatusResponses.Add(statusResult);
-
-                serviceStatus.NoErrors &= statusResult.NoErrors;
+                List<StatusResponse> statusResult = await result;
+                serviceStatus.StatusResponses.AddRange(statusResult);
+                statusResult.ForEach((response) => { serviceStatus.NoErrors &= response.NoErrors; });
+                
             }
 
             return serviceStatus;
@@ -92,29 +94,30 @@ namespace ServiceLibrary.Helpers
         /// <summary>
         /// Modifies serviceStatus in place, returns whether status was successfully obtained.
         /// </summary>
-        private async Task<StatusResponse> TryGetStatusResponse(IStatusRepository statusRepo)
+        private async Task<List<StatusResponse>> TryGetStatusResponse(IStatusRepository statusRepo)
         {
-            var responseData = new StatusResponse()
-            {
-                Name = statusRepo.Name,
-                AccessInfo = statusRepo.AccessInfo
-            };
-
+            
             try
             {
-                var result = await statusRepo.GetStatus(GET_STATUS_TIMEOUT);
-
-                responseData.Result = result;
-                responseData.NoErrors = true;
+                return await statusRepo.GetStatuses(GET_STATUS_TIMEOUT);
+               
             }
             catch (Exception ex)
             {
                 await Log.LogError(LogSource, ex);
-                responseData.Result = $"ERROR: {ex.ToString()}";
-                responseData.NoErrors = false;
+                List<StatusResponse> responseWithError = new List<StatusResponse>();
+                var responseData = new StatusResponse()
+                {
+                    Name = statusRepo.Name,
+                    AccessInfo = statusRepo.AccessInfo,
+                    Result = $"ERROR: {ex.ToString()}",
+                    NoErrors = false
+                };
+                responseWithError.Add(responseData);
+                 return responseWithError;
             }
 
-            return responseData;
+           
         }
 
         private static string GetAssemblyFileVersion()

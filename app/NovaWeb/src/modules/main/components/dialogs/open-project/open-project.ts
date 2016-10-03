@@ -1,10 +1,8 @@
 ﻿import * as angular from "angular";
-import { ILocalizationService } from "../../../core";
-import { Helper, IBPTreeController, IDialogSettings, BaseDialogController, IDialogService } from "../../../shared";
-import { Models } from "../../models";
-//import { IProjectManager } from "../../services";
-import { IProjectManager } from "../../../managers";
-
+import { ILocalizationService } from "../../../../core";
+import { Helper, IBPTreeController, IDialogSettings, BaseDialogController, IDialogService } from "../../../../shared";
+import { Models } from "../../../models";
+import { IProjectManager } from "../../../../managers";
 
 export interface IOpenProjectController {
     propertyMap: any;

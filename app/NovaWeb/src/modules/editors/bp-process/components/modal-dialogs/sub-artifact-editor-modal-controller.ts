@@ -7,6 +7,9 @@ import {ICommunicationManager} from "../../services/communication-manager";
 export class SubArtifactEditorModalController extends BaseModalDialogController<SubArtifactDialogModel> {
     public getLinkableProcesses: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
     public getLinkableArtifacts: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
+    public isProjectOnlySearch: boolean = true;
+    public isLoadingIncludes: boolean = false;
+
     private isShowMore: boolean = false;
     private showMoreActiveTabIndex: number = 0;
     private isIncludeNoResults: boolean = false;
@@ -16,9 +19,7 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
     private isSMB: boolean = false;
     private actionPlaceHolderText: string;
     private systemNamePlaceHolderText: string;
-    private isProjectOnlySearch: boolean = true;
     private searchIncludesDelay: ng.IPromise<any>;
-    public isLoadingIncludes: boolean = false;
     private modalProcessViewModel: IModalProcessViewModel;
 
     public static $inject = [
@@ -109,13 +110,13 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         this.setNextNode(this.modalProcessViewModel);
     }
     
-    private getUserTaskDescription() {
+    public getUserTaskDescription() {
         if (this.dialogModel.clonedUserTask) {
             return this.$sce.trustAsHtml(this.dialogModel.clonedUserTask.description);
         }
     }
 
-    private getSystemTaskDescription() {
+    public getSystemTaskDescription() {
         if (this.dialogModel.clonedSystemTask) {
             return this.$sce.trustAsHtml(this.dialogModel.clonedSystemTask.description);
         }
@@ -125,18 +126,18 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         this.modalProcessViewModel = modalProcessViewModel;
     }
 
-    private prepIncludeField(): void {
+    public prepIncludeField(): void {
         this.isIncludeResultsVisible = true;
-        this.clearFileds();
+        this.clearFields();
     }
 
-    private cleanIncludeField(): void {
+    public cleanIncludeField(): void {
         this.isIncludeResultsVisible = false;
-        this.clearFileds();
+        this.clearFields();
     }
 
-    private changeIncludeField(): void {
-        this.clearFileds();
+    public changeIncludeField(): void {
+        this.clearFields();
     }
 
     private cancelIncludeSearchTimer(): void {
@@ -144,7 +145,7 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         this.isLoadingIncludes = false;
     }
 
-    private clearFileds() {
+    private clearFields() {
         this.cancelIncludeSearchTimer();
         this.isIncludeBadRequest = false;
         this.isIncludeNoResults = false;
@@ -169,11 +170,11 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         this.dialogModel.nextNode = modalProcessViewModel.getNextNode(this.dialogModel.clonedSystemTask.model);
     }
 
-    private sortById(p1: IArtifactReference, p2: IArtifactReference) {
+    public sortById(p1: IArtifactReference, p2: IArtifactReference) {
         return p1.id - p2.id;
     }
 
-    private filterByDisplayLabel(process: IArtifactReference, viewValue: string): boolean {
+    public filterByDisplayLabel(process: IArtifactReference, viewValue: string): boolean {
         //exlude current process
         if (process.id === this.modalProcessViewModel.processViewModel.id) {
             return false;
@@ -252,7 +253,7 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         this.dialogModel.originalSystemTask.imageId = this.dialogModel.clonedSystemTask.imageId;
     }
 
-    private showMore(type: string, event: any) {
+    public showMore(type: string, event: any) {
         // select tab
         if (type === "label") {
             this.isShowMore = !this.isShowMore;
@@ -273,7 +274,7 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         // temporary solution from: http://stackoverflow.com/questions/8840580/force-dom-redraw-refresh-on-chrome-mac
         if (!element) { return; }
 
-        var n = document.createTextNode(' ');
+        var n = document.createTextNode(" ");
         element.appendChild(n);
 
         setTimeout(function () {

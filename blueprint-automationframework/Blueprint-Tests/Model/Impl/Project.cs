@@ -43,6 +43,9 @@ namespace Model.Impl
         [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiArtifactType>>))]
         public List<OpenApiArtifactType> ArtifactTypes { get; } = new List<OpenApiArtifactType>();
 
+        [JsonIgnore]
+        public List<NovaArtifactType> NovaArtifactTypes { get; } = new List<NovaArtifactType>();
+
         #endregion Properties
 
         #region Public Methods
@@ -155,6 +158,31 @@ namespace Model.Impl
             foreach (var artifactType in artifactTypes)
             {
                 ArtifactTypes.Add(artifactType);
+            }
+
+            return artifactTypes;
+        }
+
+        /// <seealso cref="IProject.GetAllNovaArtifactTypes(IArtifactStore, IUser, List{HttpStatusCode})"/>
+        public List<NovaArtifactType> GetAllNovaArtifactTypes(
+            IArtifactStore artifactStore,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
+            var artifactTypesResult = artifactStore.GetCustomArtifactTypes(this, user, expectedStatusCodes);
+            var artifactTypes = artifactTypesResult.ArtifactTypes;
+
+            // Clean and repopulate NovaArtifactTypes if there is any element exist for NovaArtifactTypes.
+            if (NovaArtifactTypes.Any())
+            {
+                NovaArtifactTypes.Clear();
+            }
+
+            foreach (var artifactType in artifactTypes)
+            {
+                NovaArtifactTypes.Add(artifactType);
             }
 
             return artifactTypes;

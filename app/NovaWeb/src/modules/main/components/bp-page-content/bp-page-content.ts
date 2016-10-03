@@ -1,6 +1,5 @@
 import { IWindowManager } from "../../services";
-import { IArtifactManager, SelectionSource } from "../../../managers";
-import { IStatefulArtifact } from "../../../managers/models";
+import { IArtifactManager } from "../../../managers";
 import { IMessageService, INavigationService } from "../../../core";
 import { IDiagramService } from "../../../editors/bp-diagram/diagram.svc";
 

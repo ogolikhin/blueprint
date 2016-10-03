@@ -5,7 +5,7 @@ import { Helper } from "../../../../shared";
 export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTFInline";
     public template: string = require("./text-rtf-inline.template.html");
-    public wrapper: string = "bpFieldLabel";
+    public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldTextRTFInlineController;
 
     constructor() {
@@ -24,7 +24,15 @@ export class BpFieldTextRTFInlineController {
                 menubar: false,
                 toolbar: "fontsize | bold italic underline | forecolor format | link table",
                 statusbar: false,
-                plugins: "paste textcolor table noneditable autolink link autoresize",
+                plugins: "paste textcolor table noneditable autolink link autoresize, contextmenu",
+                contextmenu: "bold italic underline strikethrough | link inserttable | cell row column deletetable",
+                // paste_preprocess: function (plugin, args) {
+                //     console.log(plugin, args);
+                // },
+                paste_postprocess: function (plugin, args) {
+                    // console.log(plugin, args);
+                    Helper.autoLinkURLText(args.node);
+                },
                 init_instance_callback: function (editor) {
                     editor.formatter.register("font8px", {
                         inline: "span",

@@ -159,7 +159,7 @@ export class ShapeModelMock {
         return this.shapesFactory.createModelSystemDecisionShape(1, 0, 35, 6, 0);
     }
 
-    public RootscopeMock(): ng.IRootScopeService{
+    public RootscopeMock(): ng.IRootScopeService {
         return this.rootScope;
     }
 }

@@ -111,6 +111,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Discussions
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_All', 'en-US', N'All')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Traces', 'en-US', N'Traces')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Association', 'en-US', N'Other')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Manage_Traces', 'en-US', N'Manage Traces')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Collapse', 'en-US', N'Hide details')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Expand', 'en-US', N'Show details')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_No_Relationships', 'en-US', N'No relationships available')

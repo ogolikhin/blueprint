@@ -201,6 +201,7 @@ namespace ArtifactStoreTests
                 "{0} when user tries to move an artifact to different project", expectedExceptionMessage);
         }
 
+        [Category(Categories.CustomData)]
         [TestCase(181, 182)]
         [TestCase(183, 185)]
         [TestCase(180, 1)]

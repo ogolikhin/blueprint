@@ -24,7 +24,7 @@ namespace SearchService.Controllers
         public ProjectSearchController() : this(new SqlProjectSearchRepository())
         {
         }
-        public ProjectSearchController(IProjectSearchRepository projectSearchRepository) : base()
+        public ProjectSearchController(IProjectSearchRepository projectSearchRepository)
         {
             _projectSearchRepository = projectSearchRepository;
         }
@@ -45,7 +45,6 @@ namespace SearchService.Controllers
         [HttpPost, NoCache]
         [Route("projectsearch"), SessionRequired]
         [ActionName("GetProjectsByName")]
-        [ResponseType(typeof(IEnumerable<ProjectSearchResult>))]
         public async Task<IEnumerable<ProjectSearchResult>> GetProjectsByName([FromBody] ProjectSearchCriteria searchCriteria, int? resultCount = DefaultResultCount)
         {
             if (resultCount == null)

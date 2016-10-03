@@ -125,6 +125,7 @@
     <Compile Include="Models\FullTextSearchMetaDataResult.cs" />
     <Compile Include="Models\FullTextSearchResult.cs" />
     <Compile Include="Models\FullTextSearchTypeItem.cs" />
+    <Compile Include="Models\ProjectSearchCriteria.cs" />
     <Compile Include="Models\ProjectSearchResult.cs" />
     <Compile Include="Models\SearchCriteria.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

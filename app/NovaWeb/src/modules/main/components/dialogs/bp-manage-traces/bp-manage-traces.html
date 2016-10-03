@@ -1,95 +1,50 @@
 <div class="modal-header">
     <h3 class="modal-title">{{::$ctrl.dialogSettings.header}}</h3>
 </div>
-<div class="modal-body artifact-picker">
-    <div class="col-md-6">
+<div class="modal-body artifact-picker manage-traces">
+    <div>
         <bp-artifact-picker selection-mode="'checkbox'";
                             show-sub-artifacts="true">
         </bp-artifact-picker>
     </div>
-    <div class="col-md-1">
-        <bp-select ng-model="$ctrl.option" options="$ctrl.options"></bp-select>
+    <div class="trace-direction">
+        <div uib-dropdown>
+            <span uib-dropdown-toggle bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Change_Trace')}}">
+                <i class="icon fonticon-exchange"></i> Trace
+            </span>
+            <ul class="dropdown-menu">
+                <li>
+                    <a ng-click="$ctrl.setDirection(0)"><i class="fonticon2-relationship-right"></i> {{::$ctrl.localization.get('App_UP_Relationships_To')}}</a></li>
+                <li>
+                    <a ng-click="$ctrl.setDirection(1)"><i class="fonticon2-relationship-left"></i> {{::$ctrl.localization.get('App_UP_Relationships_From')}}</a></li>
+                <li>
+                    <a ng-click="$ctrl.setDirection(2)"><i class="fonticon2-relationship-bi"></i> {{::$ctrl.localization.get('App_UP_Relationships_Bidirectional')}}</a></li>
+            </ul>
+        </div>
     </div>
-    <div class="col-md-5">
+    <div>
         <div class="actions-panel">
-            <i class="icon fonticon-exchange"></i>
-            <i class="icon fonticon-flag-1"></i>
-            <i class="icon fonticon-delete-filled"></i>
+            <div uib-dropdown>
+                <span uib-dropdown-toggle bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Change_Trace')}}">
+                    <i class="icon fonticon-exchange"></i>
+                </span>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a ng-click="$ctrl.setSelectedDirection(0)"><i class="fonticon2-relationship-right"></i> {{::$ctrl.localization.get('App_UP_Relationships_To')}}</a></li>
+                    <li>
+                        <a ng-click="$ctrl.setSelectedDirection(1)"><i class="fonticon2-relationship-left"></i> {{::$ctrl.localization.get('App_UP_Relationships_From')}}</a></li>
+                    <li>
+                        <a ng-click="$ctrl.setSelectedDirection(2)"><i class="fonticon2-relationship-bi"></i> {{::$ctrl.localization.get('App_UP_Relationships_Bidirectional')}}</a></li>
+                </ul>
+            </div>
+            <i class="icon fonticon-flag-1" ng-click="$ctrl.toggleTraces()"></i>
+            <i class="icon fonticon-delete-filled" ng-click="$ctrl.deleteTraces()"></i>
         </div>
 
         <div class="trace-manager-wrapper">
-
-
-
             <!-- Item details -->
-            <!--<bp-manage-traces-item item="item"></bp-manage-traces-item>-->
-            <!--<div ng-repeat="item in items">-->
-                <!--<bp-manage-traces-item item="item"></bp-manage-traces-item>-->
-            <!--</div>-->
-
-            <div>
-                <div class="row">
-                    <div class="col-md-1 col-sm-1 col-xs-1">
-                        <input type="checkbox" ng-checked="$ctrl.isSelected"
-                               bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Select')}}"
-                               ng-click="$ctrl.selectTrace()"/>
-                    </div>
-                    <div class="col-md-9 col-sm-9 col-xs-9">
-                        <div class="trace-icon" data-ng-class="{'false': 'trace-icon-regular', 'true' : 'trace-icon-suspect'}[$ctrl.artifact.suspect]">
-                            <i data-ng-class="{'0': 'fonticon2-relationship-right', '1' : 'fonticon2-relationship-left', '2' : 'fonticon2-relationship-bi'}[$ctrl.artifact.traceDirection]"></i>
-                        </div>
-                        <a ng-click="$ctrl.navigateToArtifact($ctrl.artifact)">
-                            <i class="icon-textual"></i> Name<br/>
-                            <i class="icon-project"></i> Description
-                        </a>
-                    </div>
-                </div>
-                <div class="col-md-12">
-                    <div class="icons">
-                        <div uib-dropdown>
-                            <span uib-dropdown-toggle bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Change_Trace')}}">
-                                <i class="icon fonticon-exchange"></i>
-                            </span>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <a ng-click="$ctrl.setDirection(0)"><i class="fonticon2-relationship-right"></i> {{::$ctrl.localization.get('App_UP_Relationships_To')}}</a></li>
-                                    <li>
-                                        <a ng-click="$ctrl.setDirection(1)"><i class="fonticon2-relationship-left"></i> {{::$ctrl.localization.get('App_UP_Relationships_From')}}</a></li>
-                                    <li>
-                                        <a ng-click="$ctrl.setDirection(2)"><i class="fonticon2-relationship-bi"></i> {{::$ctrl.localization.get('App_UP_Relationships_Bidirectional')}}</a></li>
-                                </ul>
-                            </div>
-                            <i class="icon fonticon-flag-1" ng-click="selectTrace()"
-                               bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Flag_Trace')}}"></i>
-
-                            <i class="icon fonticon-delete-filled" ng-class="deleteTrace()"
-                               bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Delete')}}"></i>
-                        </div>
-                </div>
-                <div class="details" ng-class="{'selected' : $ctrl.isSelected}" ng-click="$ctrl.select()">
-
-                    <div class="inner-details">
-                        <div>
-                            <div ng-hide="$ctrl.artifact.itemId==$ctrl.artifact.artifactId"><span class="bolded-text">Main artifact: </span>{{$ctrl.artifact.artifactTypePrefix}}{{$ctrl.artifact.artifactId}} - {{$ctrl.artifact.artifactName}}</div>
-                            <div class="bolded-text">{{$ctrl.artifact.projectName}} </div>
-                            <div ng-if="$ctrl.expanded" ng-class="{'desc-visible': $ctrl.expanded, 'desc-hidden': !$ctrl.expanded}">
-                                <div ng-if="!$ctrl.fromOtherProject" class="left-arrow"></div>
-                                <ul class="wrappable-breadcrumbs">
-                                    <li ng-repeat="o in $ctrl.relationshipExtendedInfo.pathToProject">
-                                        <a ng-click="$ctrl.navigateToArtifact(o.itemId)">{{o.itemName}}</a>
-                                    </li>
-                                </ul>
-
-                                <div class="desc">
-                                    <span class="bolded-text ">Description:&nbsp;</span> Desc
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-            </div>
+                <bp-manage-traces-item item="item" delete-trace="$ctrl.deleteTrace(item)"
+                      ng-repeat="item in $ctrl.traces" class="clearfix"></bp-manage-traces-item>
             <!-- /Item details -->
         </div>
     </div>

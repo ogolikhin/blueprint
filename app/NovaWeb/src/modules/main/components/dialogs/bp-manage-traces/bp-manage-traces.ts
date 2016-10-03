@@ -1,10 +1,12 @@
+import { ILocalizationService } from "../../../../core";
 import { BaseDialogController, IDialogSettings } from "../../../../shared";
+import { Relationships } from "../../../models";
 
 export class ManageTracesDialogController extends BaseDialogController {
-    public static $inject = ["$uibModalInstance", "dialogSettings"];
+    public static $inject = ["$uibModalInstance", "dialogSettings", "localization"];
 
-
-    constructor($uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, dialogSettings: IDialogSettings ) {
+    constructor($uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, dialogSettings: IDialogSettings,
+                private localization: ILocalizationService) {
         super($uibModalInstance, dialogSettings);
     };
 
@@ -14,7 +16,7 @@ export class ManageTracesDialogController extends BaseDialogController {
         { value: "3", label: "Bidirectional" },
     ];
 
-    public  artifacts = [{
+    public traces = [{
             name: "test",
             desc: "test2"
         },
@@ -23,14 +25,15 @@ export class ManageTracesDialogController extends BaseDialogController {
             desc: "test3"
     }];
 
-    public selectTrace(): string {
-        return "";
+    public toggleTraces(artifacts: Relationships.IRelationship[]): void {
+        alert("run fn toggleTraces");
     }
 
-    public deleteTrace(): string {
-        return "";
+    public deleteTraces(artifacts: Relationships.IRelationship[]): void {
+        alert("run fn deleteTraces");
     }
-    // public sT() {
-    //     return [{name: "Test name"}];
-    // };
+
+    public deleteTrace(artifacts: Relationships.IRelationship): void {
+        alert("run fn deleteTrace");
+    }
 }

@@ -246,7 +246,7 @@ namespace Model.Impl
             var artifactDiscussions = restApi.SendRequestAndDeserializeObject<Discussions>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChange: true);
+                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
 
             return artifactDiscussions;
         }
@@ -264,7 +264,7 @@ namespace Model.Impl
             var discussionReplies = restApi.SendRequestAndDeserializeObject<List<Reply>>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChange: true);
+                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
 
             return discussionReplies;
         }
@@ -429,7 +429,7 @@ namespace Model.Impl
             var subartifacts = restApi.SendRequestAndDeserializeObject<List<NovaSubArtifact>>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChange: true);
+                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
 
             return subartifacts.ConvertAll(o => (INovaSubArtifact)o);
         }
@@ -443,9 +443,24 @@ namespace Model.Impl
                 RestPaths.Svc.ArtifactStore.Artifacts.UNPUBLISHED,
                 RestRequestMethod.GET,
                 expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChange: true);
+                shouldControlJsonChanges: true);
 
             return unpublishedChanges;
+        }
+
+        /// <seealso cref="IArtifactStore.GetVersionControlInfo(IUser, int, List{HttpStatusCode})"/>
+        public INovaVersionControlArtifactInfo GetVersionControlInfo(IUser user, int itemId, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts.VERSION_CONTROL_INFO_id_, itemId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var artifactBaseInfo = restApi.SendRequestAndDeserializeObject<NovaVersionControlArtifactInfo>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
+
+            return artifactBaseInfo;
         }
 
         /// <seealso cref="IArtifactStore.MoveArtifact(IArtifactBase, IArtifactBase, IUser, int?, List{HttpStatusCode})"/>
@@ -654,7 +669,7 @@ namespace Model.Impl
                 RestRequestMethod.POST,
                 queryParameters: queryParams,
                 expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChange: true);
+                shouldControlJsonChanges: true);
 
             if (restApi.StatusCode == HttpStatusCode.OK)
             {

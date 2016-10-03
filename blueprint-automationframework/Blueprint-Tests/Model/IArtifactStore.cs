@@ -267,6 +267,17 @@ namespace Model
         INovaArtifactsAndProjectsResponse GetUnpublishedChanges(IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Gets basic info about an artifact with the specified ID.
+        /// (The last version, is deleted, when deleted, who deleted plus base properties, project Id, parent Id etc.)
+        /// (Runs: GET svc/artifactstore/artifacts/versioncontrolinfo/{artifactId})
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="itemId">Id of artifact or sub-artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The artifact that was requested.</returns>
+        INovaVersionControlArtifactInfo GetVersionControlInfo(IUser user, int itemId, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Moves an artifact to a different parent.
         /// </summary>
         /// <param name="artifact">The artifact to move.</param>

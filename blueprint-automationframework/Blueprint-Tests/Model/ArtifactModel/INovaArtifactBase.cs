@@ -128,4 +128,30 @@ namespace Model.ArtifactModel
 
         #endregion Serialized JSON Properties
     }
+
+    public interface INovaVersionControlArtifactInfo //: INovaArtifactBase
+    {
+        #region Serialized JSON Properties
+
+        int Id { get; set; }
+        int? SubArtifactId { get; set; }
+        string Name { get; set; }
+        int? ProjectId { get; set; }
+        int? ParentId { get; set; }
+        int? ItemTypeId { get; set; }
+        string Prefix { get; set; }
+        int? PredefinedType { get; set; }
+        int? Version { get; set; }
+        int? VersionCount { get; set; }
+        bool? IsDeleted { get; set; }
+        bool? HasChanges { get; set; }
+        double? OrderIndex { get; set; }
+        int? Permissions { get; set; }
+        Identification LockedByUser { get; set; }
+        DateTime? LockedDateTime { get; set; }
+        Identification DeletedByUser { get; set; }
+        DateTime? DeletedDateTime { get; set; }
+
+        #endregion Serialized JSON Properties
+    }
 }

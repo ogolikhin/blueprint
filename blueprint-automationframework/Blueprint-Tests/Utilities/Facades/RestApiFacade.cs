@@ -222,6 +222,7 @@ namespace Utilities.Facades
         /// <summary>
         /// Converts an IRestRequest into our own RestRequest object.
         /// </summary>
+        /// <param name="fileName">The filename in the request.</param>
         /// <param name="restRequest">The request from RestSharp.</param>
         /// <returns>A RestRequest object.</returns>
         private static RestRequest ConvertToRestRequest(string fileName, IRestRequest restRequest)
@@ -359,11 +360,18 @@ namespace Utilities.Facades
                 ////try to serialize and compare
                 if (shouldControlJsonChanges)
                 {
-                    string serializeObject = JsonConvert.SerializeObject(result);
+                    JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore
+                    };
+                    
+                    string serializeObject = JsonConvert.SerializeObject(result, jsonSerializerSettings);
                     bool isJSONChanged = !(string.Equals(response.Content, serializeObject, StringComparison.OrdinalIgnoreCase));
+
                     if (isJSONChanged)
                     {
-                        string msg = I18NHelper.FormatInvariant("JSON for {0} has been changed!", typeof(T1).ToString());
+                        string msg = I18NHelper.FormatInvariant("JSON for {0} has been changed!\r\nReceived JSON: {1}\r\nSerialized JSON: {2}",
+                            typeof(T1).ToString(), response.Content, serializeObject);
                         throw new FormatException(msg);
                     }
                 }
@@ -408,9 +416,16 @@ namespace Utilities.Facades
            Dictionary<string, string> queryParameters = null,
            List<HttpStatusCode> expectedStatusCodes = null,
            Dictionary<string, string> cookies = null,
-           bool shouldControlJsonChange = false) where T : new()
+           bool shouldControlJsonChanges = false) where T : new()
         {
-            return SendRequestAndDeserializeObject<T, List<string>>(resourcePath, method, null, additionalHeaders, queryParameters, expectedStatusCodes, cookies, shouldControlJsonChange);
+            return SendRequestAndDeserializeObject<T, List<string>>(resourcePath,
+                method,
+                null,
+                additionalHeaders,
+                queryParameters,
+                expectedStatusCodes,
+                cookies,
+                shouldControlJsonChanges);
         }
 
         /// <summary>

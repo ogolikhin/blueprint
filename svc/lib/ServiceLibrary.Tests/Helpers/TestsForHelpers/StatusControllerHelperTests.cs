@@ -69,7 +69,7 @@ namespace ServiceLibrary.Helpers
             Mock<IStatusRepository> statusRepoMock;
             for (int i = 0; i < 3; i++)
             {
-                statusRepoList.Add(GetStatusRepo($"MyService{i}", $"MyAccessInfo{i}", $"MyResponseMessage{i}"));//, response));//, $"MyResponseMessage{i}"));
+                statusRepoList.Add(GetStatusRepo($"MyService{i}", $"MyAccessInfo{i}", $"MyResponseMessage{i}"));
             }
 
             statusRepoMock = new Mock<IStatusRepository>();
@@ -125,7 +125,7 @@ namespace ServiceLibrary.Helpers
 
        
 
-        private  IStatusRepository GetStatusRepo(string name, string accessInfo,string result)// List<StatusResponse> responseDatas)
+        private  IStatusRepository GetStatusRepo(string name, string accessInfo,string result)
         {
             List<StatusResponse> responseDatas = new List<StatusResponse>();
             var responseData = new StatusResponse()

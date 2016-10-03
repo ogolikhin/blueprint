@@ -12,8 +12,6 @@ namespace ServiceLibrary.Repositories
     public class JobExecutorStatusRepository : IStatusRepository
     {
         public List<StatusResponse> statusResponses = new List<StatusResponse>() ;
-        private readonly IServiceLogRepository Log;
-        private readonly string LogSource;
         private readonly string _dbSchema;
         internal readonly ISqlConnectionWrapper _connectionWrapper;
 
@@ -22,12 +20,11 @@ namespace ServiceLibrary.Repositories
         public string AccessInfo { get; set; }
 
 
-        public JobExecutorStatusRepository(string cxn, string name, IServiceLogRepository log, string logSource, string dbSchema = ServiceConstants.DefaultDBSchema)
+        public JobExecutorStatusRepository(string cxn, string name,  string dbSchema = ServiceConstants.DefaultDBSchema)
             : this(new SqlConnectionWrapper(cxn), cxn, name)
         {
             _dbSchema = dbSchema;
-            Log = log;
-            LogSource = logSource;
+           
         }
 
         internal JobExecutorStatusRepository(ISqlConnectionWrapper connectionWrapper, string accessInfo, string name)
@@ -37,16 +34,18 @@ namespace ServiceLibrary.Repositories
             AccessInfo = accessInfo;
         }
 
-        private async Task<StatusResponse> GetStatus(JobExecutorModel jobex)
+        private StatusResponse ParseStatus(JobExecutorModel jobex)
         {
             var timeSpanSinceLastActivity = jobex.CurrentTimestamp.Subtract(jobex.LastActivityTimestamp).TotalMinutes;
             var responseData = new StatusResponse();
             try {
                 
-                    responseData.Name = "JobExecutor- " + jobex.JobServiceId.Remove(jobex.JobServiceId.LastIndexOf("@", StringComparison.Ordinal));
+                    responseData.Name = $"JobExecutor-" + jobex.JobServiceId.Remove(jobex.JobServiceId.LastIndexOf("@", StringComparison.Ordinal));
                     responseData.AccessInfo = AccessInfo;
                     responseData.NoErrors = jobex.Status == 2 && timeSpanSinceLastActivity <= 5 ? true : false;// if status = 2 and timeSpanSinceLastActivity <=5 min then NoErrors = true
-                    responseData.Result = System.String.Format(CultureInfo.InvariantCulture, "JobName={0}, Platform= {1}, Type={2}, Status = {3}, LastActivityTimestamp={4}, ExecutingJobMessageId={5}, CurrentTimestamp={6}", jobex.JobServiceId, jobex.Platform, jobex.Types, jobex.Status == 2 ? "Active" : "Down", jobex.LastActivityTimestamp, jobex.ExecutingJobMessageId, jobex.CurrentTimestamp);
+                    responseData.Result = System.String.Format(CultureInfo.InvariantCulture, 
+                        "JobName={0}, Platform= {1}, Type={2}, Status = {3}, LastActivityTimestamp={4}, ExecutingJobMessageId={5}, CurrentTimestamp={6}", 
+                        jobex.JobServiceId, jobex.Platform, jobex.Types, jobex.Status == 2 ? "Active" : "Down", jobex.LastActivityTimestamp, jobex.ExecutingJobMessageId, jobex.CurrentTimestamp);
 
             }
             catch (Exception ex)
@@ -54,8 +53,8 @@ namespace ServiceLibrary.Repositories
                 responseData.Name = "JobExecutor";
                 responseData.AccessInfo = AccessInfo;
                 responseData.NoErrors = false;
-                responseData.Result = "Some Error Occured.Please see log";
-                await Log.LogError(LogSource, ex);
+                responseData.Result = ex.ToString();
+                //await Log.LogError(LogSource, ex);
             }
             return responseData;
           
@@ -65,24 +64,25 @@ namespace ServiceLibrary.Repositories
         {
             try
             {
-                var result = _connectionWrapper.Query<JobExecutorModel>("GetJobServices", commandType: CommandType.StoredProcedure).ToList();
+                var query = await _connectionWrapper.QueryAsync<JobExecutorModel>("GetJobServices", commandType: CommandType.StoredProcedure);
+                var result = query.ToList();
                 if (result.Count > 0)
                 {
                     foreach (var jobex in result)
                     {                       
-                        statusResponses.Add(await GetStatus(jobex));
+                        statusResponses.Add(ParseStatus(jobex));
                     }
                 }
                 else {
                     statusResponses.Add(new StatusResponse(){Name = Name,AccessInfo = AccessInfo,Result = "No Executor Found at Database",NoErrors = false});
-                    await Log.LogError(LogSource, "No Job Executor Found at Database");
+                    
                 }
             }
             catch (Exception ex)
             {
                 
                 statusResponses.Add(new StatusResponse() { Name = Name, AccessInfo = AccessInfo, Result = ex.ToString(), NoErrors = false });
-                await Log.LogError(LogSource, ex);
+               
             }
 
             return  statusResponses;

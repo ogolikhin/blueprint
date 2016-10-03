@@ -26,7 +26,7 @@ namespace AdminStore.Controllers
                                                         new SqlStatusRepository(ServiceConstants.RaptorMain, "RaptorDB"),
                                                         new ServiceDependencyStatusRepository(new Uri(WebApiConfig.AccessControl), "AccessControlEndpoint"),
                                                         new ServiceDependencyStatusRepository(new Uri(WebApiConfig.ConfigControl), "ConfigControlEndpoint"),
-                                                        new JobExecutorStatusRepository(ServiceConstants.RaptorMain, "JobExecutor", new ServiceLogRepository(),WebApiConfig.LogSourceStatus)},
+                                                        new JobExecutorStatusRepository(ServiceConstants.RaptorMain, "JobExecutor")},
                         "AdminStore",
                         new ServiceLogRepository(),
                         WebApiConfig.LogSourceStatus

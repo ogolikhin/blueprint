@@ -2,19 +2,19 @@
 
 namespace Model.ArtifactModel.Impl
 {
-    public class NovaVersionControlArtifactInfo : INovaVersionControlArtifactInfo
+    public class NovaVersionControlArtifactInfo : NovaArtifactBase, INovaVersionControlArtifactInfo
     {
         #region Serialized JSON Properties
 
-        public int Id { get; set; }
+        public override int Id { get; set; }
         public int? SubArtifactId { get; set; }
-        public string Name { get; set; }
-        public int? ProjectId { get; set; }
-        public int? ParentId { get; set; }
-        public int? ItemTypeId { get; set; }
+        public override string Name { get; set; }
+        public override int? ProjectId { get; set; }
+        public override int? ParentId { get; set; }
+        public override int? ItemTypeId { get; set; }
         public string Prefix { get; set; }
         public int? PredefinedType { get; set; }
-        public int? Version { get; set; }
+        public override int? Version { get; set; }
         public int? VersionCount { get; set; }
         public bool? IsDeleted { get; set; }
         public bool? HasChanges { get; set; }

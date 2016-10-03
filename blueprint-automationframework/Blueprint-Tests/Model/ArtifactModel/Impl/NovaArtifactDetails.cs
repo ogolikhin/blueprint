@@ -21,9 +21,9 @@ namespace Model.ArtifactModel.Impl
         public abstract int Id { get; set; }
         public abstract int? ItemTypeId { get; set; }
         public abstract string Name { get; set; }
-        public abstract int ParentId { get; set; }
-        public abstract int ProjectId { get; set; }
-        public abstract int Version { get; set; }
+        public abstract int? ParentId { get; set; }
+        public abstract int? ProjectId { get; set; }
+        public abstract int? Version { get; set; }
 
         #endregion Serialized properties
 
@@ -96,8 +96,8 @@ namespace Model.ArtifactModel.Impl
 
         // NOTE: Keep the properties in this order so the shouldControlJsonChanges option in RestApiFacade works properly.  This is the order of the incoming JSON.
 
-        public override int ProjectId { get; set; }
-        public override int Version { get; set; }
+        public override int? ProjectId { get; set; }
+        public override int? Version { get; set; }
         public List<AttachmentValue> AttachmentValues { get; } = new List<AttachmentValue>();
         public DateTime? CreatedOn { get; set; }
         public DateTime? LastEditedOn { get; set; }
@@ -112,7 +112,7 @@ namespace Model.ArtifactModel.Impl
 
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
         public string Description { get; set; }
-        public override int ParentId { get; set; }
+        public override int? ParentId { get; set; }
         public double? OrderIndex { get; set; }
         public override int? ItemTypeId { get; set; }
         public int ItemTypeVersionId { get; set; }
@@ -495,8 +495,8 @@ namespace Model.ArtifactModel.Impl
 
         // NOTE: Keep the properties in this order so the shouldControlJsonChanges option in RestApiFacade works properly.  This is the order of the incoming JSON.
 
-        public override int ProjectId { get; set; }
-        public override int Version { get; set; }
+        public override int? ProjectId { get; set; }
+        public override int? Version { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedOn, even if it's null.
         public DateTime? CreatedOn { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedOn, even if it's null.
@@ -509,7 +509,7 @@ namespace Model.ArtifactModel.Impl
         public override string Name { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
         public string Description { get; set; }
-        public override int ParentId { get; set; }
+        public override int? ParentId { get; set; }
         public double OrderIndex { get; set; }
         public override int? ItemTypeId { get; set; }
         public string Prefix { get; set; }

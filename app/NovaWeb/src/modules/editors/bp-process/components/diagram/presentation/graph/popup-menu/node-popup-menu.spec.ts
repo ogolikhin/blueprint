@@ -39,8 +39,8 @@ describe("Popup Menu test", () => {
             "ST_Popup_Menu_Add_User_Decision_Label": "Add User Decision Point"
         };
 
-        var wrapper = document.createElement('DIV');
-        htmlElement = document.createElement('DIV');
+        var wrapper = document.createElement("DIV");
+        htmlElement = document.createElement("DIV");
         wrapper.appendChild(htmlElement);
         document.body.appendChild(wrapper);
   

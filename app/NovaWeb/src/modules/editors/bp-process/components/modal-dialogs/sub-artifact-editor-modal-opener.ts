@@ -7,9 +7,8 @@ import {SubArtifactDecisionDialogModel} from "./models/sub-artifact-decision-dia
 import {IProcessGraph, IDiagramNode, ICondition, IDecision} from "../diagram/presentation/graph/models/process-graph-interfaces";
 import {UserTask} from "../diagram/presentation/graph/shapes/user-task";
 import {SystemTask} from "../diagram/presentation/graph/shapes/system-task";
-import {IProcessShape, NodeType} from "../diagram/presentation/graph/models/";
-import {IModalDialogModel} from "./models/modal-dialog-model-interface";
-import {IUserTask, IUserStoryProperties, ILabel, ISystemTask, IProcessLink} from "../diagram/presentation/graph/models/";
+import {NodeType} from "../diagram/presentation/graph/models/";
+import {IProcessLink} from "../diagram/presentation/graph/models/";
 import {SubArtifactEditorModalController} from "./sub-artifact-editor-modal-controller";
 import {UserStoryPreviewController} from "./user-story-preview/user-story-preview";
 import {ModalProcessViewModel} from "./models/modal-process-view-model";

@@ -99,8 +99,8 @@ export class BPDiagramController extends BpBaseEditor {
         }
     }
 
-    public onLoad() {
-        super.onLoad();
+    public onArtifactReady() {
+        super.onArtifactReady();
         if (this.isDestroyed) {
             return;
         }
@@ -146,6 +146,7 @@ export class BPDiagramController extends BpBaseEditor {
                     const artifactPromise = this.getUseCaseDiagramArtifact(<IShape>element);
                     if (artifactPromise) {
                         artifactPromise.then((artifact) => {
+                            artifact.unload();
                             this.artifactManager.selection.setArtifact(artifact);
                         });
                     }

@@ -454,7 +454,7 @@ namespace SearchServiceTests
             var expectedSearchResultCount = _publishedArtifacts.Count();
             var expectedPageCount = expectedSearchResultCount / pageSize + 1;
             // List of artifacts decending ordered by Last Edited On
-            var expectedArtifactsStackDescOrderedByLastEditedOn = CreateDescendingOrderedLasteEditedOnArtifactStack(_publishedArtifacts);
+            var expectedArtifactsStackDescOrderedByLastEditedOn = CreateDescendingOrderedLastEditedOnArtifactStack(_publishedArtifacts);
 
             // Setup: Execute FullTextSearch with pageSize
             var returnedSearchCount = 0;
@@ -480,7 +480,39 @@ namespace SearchServiceTests
 
             // Validation: Verify that expected search count is equal to returned search count
             Assert.That(returnedSearchCount.Equals(expectedSearchResultCount),"expected search result count is {0} but {1} was returned", expectedSearchResultCount, returnedSearchCount);
+        }
 
+        [TestCase]
+        [Description("Searching with the search criteria. Execute Search - Verify that result are sorted by Last Edited On")]
+        public void FullTextSearch_SearchWithCriteria_VerifyFullTextSearchItemsAreSortedByLastEditedOn()
+        {
+            // Setup: Create search criteria with search term that matches published artifact(s) description
+            FullTextSearchResult fullTextSearchResult = null;
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+
+            var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue, selectedProjectIds);
+
+            // Setup: Set the pageSize that displays all expecting search results for the user with permission on selected project(s)
+            var customSearchPageSize = _publishedArtifacts.Count();
+
+            // List of artifacts decending ordered by Last Edited On
+            var expectedArtifactsStackDescOrderedByLastEditedOn = CreateDescendingOrderedLastEditedOnArtifactStack(_publishedArtifacts);
+
+            // Create an expected artifact list decending ordered by Last Edited On
+            List<IArtifactBase> LastEditedOnOrderedArtifacts = CreateArtifactListPerPage(expectedArtifactsStackDescOrderedByLastEditedOn, customSearchPageSize);
+
+            // Execute: Execute FullTextSearch with search terms that matches published artifact(s) description
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria, pageSize: customSearchPageSize), "Nova FullTextSearch call failed when using following search term: {0} which matches with published artifacts!", searchCriteria.Query);
+
+            // Validation: Verify that searchResult contains published artifacts
+            FullTextSearchResultValidation(fullTextSearchResult, _publishedArtifacts, pageSize: customSearchPageSize);
+
+            // Validation: Compaire returned FullTextSearchItems from search result with the expected ordered artifacts
+            for (int i = 0; i < fullTextSearchResult.FullTextSearchItems.Count(); i++ )
+            {
+                Assert.That(fullTextSearchResult.FullTextSearchItems.Cast<FullTextSearchItem>().ToList()[i].ArtifactId.
+                    Equals(LastEditedOnOrderedArtifacts[i].Id), "artfiact with ID {0} was expected from the returned FullTextSearchItems but artifact with ID {1} is found on data row {2}.", LastEditedOnOrderedArtifacts[i].Id, fullTextSearchResult.FullTextSearchItems.Cast<FullTextSearchItem>().ToList()[i].ArtifactId, i);
+            }
         }
 
         #endregion 200 OK Tests
@@ -557,7 +589,7 @@ namespace SearchServiceTests
         /// Create a stack of artifact descending ordered by Last Edited On datetime value
         /// </summary>
         /// <param name="artifactList">The list of artifact</param>
-        private static Stack<IArtifactBase> CreateDescendingOrderedLasteEditedOnArtifactStack(List<IArtifactBase> artifactList)
+        private static Stack<IArtifactBase> CreateDescendingOrderedLastEditedOnArtifactStack(List<IArtifactBase> artifactList)
         {
             return new Stack<IArtifactBase>(artifactList.OrderBy(a => Convert.ToDateTime(a.Properties.Find(p => p.Name.Equals("Last Edited On")).DateValue, CultureInfo.InvariantCulture)));
         }

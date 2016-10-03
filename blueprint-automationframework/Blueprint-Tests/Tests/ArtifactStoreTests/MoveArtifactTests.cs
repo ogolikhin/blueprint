@@ -203,7 +203,7 @@ namespace ArtifactStoreTests
         [Ignore(IgnoreReasons.UnderDevelopment)] //Not implemented yet. There is no ability to test Baseline and Review. This will be tested manually
 //        [TestCase(BaseArtifactType.Collection)]
         [TestRail(182408)]
-        [Description("Create & publish 2 artifacts of unsupported artifact type. Move an artifact to be a child of the other one.   Verify returned code 409 Conflict.")]
+        [Description("Create & publish 2 artifacts of unsupported artifact type. Move an artifact to be a child of the other one.   Verify returned code 403 Forbidden.")]
         public void MoveArtifact_PublishedArtifactCannotBeMovedForUnsupportedArtifactTypes_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup: 
@@ -214,7 +214,8 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, _user),
-                "'POST {0}' should return 409 Conflict when user tries to move artifact of unsupported artifact type", SVC_PATH);
+
+                "'POST {0}' should return 403 Forbidden when user tries to move artifact of unsupported artifact type", SVC_PATH);
 
             // Verify:
             string expectedExceptionMessage = "Cannot move baselines, collections or reviews.";

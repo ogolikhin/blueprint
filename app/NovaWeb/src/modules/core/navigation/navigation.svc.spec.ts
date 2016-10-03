@@ -1,5 +1,6 @@
 import * as angular from "angular";
 import "angular-mocks";
+import "angular-ui-router";
 import {MainState} from "../../shell/router/main.state";
 import {ArtifactState} from "../../main/router/artifact.state";
 import {INavigationService, NavigationService} from "./navigation.svc";

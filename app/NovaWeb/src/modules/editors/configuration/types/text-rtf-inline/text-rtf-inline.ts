@@ -25,7 +25,14 @@ export class BpFieldTextRTFInlineController {
                 toolbar: "fontsize | bold italic underline | forecolor format | link table",
                 statusbar: false,
                 plugins: "paste textcolor table noneditable autolink link autoresize, contextmenu",
-                contextmenu: "link image inserttable | cell row column deletetable",
+                contextmenu: "bold italic underline strikethrough | link inserttable | cell row column deletetable",
+                // paste_preprocess: function (plugin, args) {
+                //     console.log(plugin, args);
+                // },
+                paste_postprocess: function (plugin, args) {
+                    // console.log(plugin, args);
+                    Helper.autoLinkURLText(args.node);
+                },
                 init_instance_callback: function (editor) {
                     editor.formatter.register("font8px", {
                         inline: "span",

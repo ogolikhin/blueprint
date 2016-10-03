@@ -1,8 +1,13 @@
 import { IMessageService, ILocalizationService } from "../../../core";
 import { IDialogService } from "../../../shared/";
-
+import { ISession } from "../../../shell/login/session.svc";
 import { IProcessService } from "../../../editors/bp-process/services/process.svc";
 import { Models } from "../../../main/models";
+import { IArtifactAttachmentsService } from "../attachments";
+import { IMetaDataService } from "../metadata";
+import { StatefulSubArtifact, IStatefulSubArtifact } from "../sub-artifact";
+import { IStatefulArtifact, StatefulArtifact, StatefulProcessArtifact } from "../artifact";
+import { IArtifactRelationshipsService } from "../relationships";
 import {
     StatefulArtifactServices,
     IStatefulArtifactServices,
@@ -10,20 +15,7 @@ import {
     IStatefulProcessArtifactServices
 } from "../services";
 import { IArtifactService } from "./artifact.svc";
-import {
-    IMetaDataService,
-    IStatefulSubArtifact,
-    IStatefulArtifact,
-    StatefulArtifact,
-    StatefulSubArtifact,
-    IArtifactRelationshipsService,
-    StatefulProcessArtifact    
-} from "../";
-import {
-    // IStatefulArtifact, 
-    ISession, 
-    IArtifactAttachmentsService
-} from "../../models";
+
 
 export interface IStatefulArtifactFactory {
     createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact;

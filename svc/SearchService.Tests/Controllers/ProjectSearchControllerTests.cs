@@ -35,16 +35,16 @@ namespace SearchService.Controllers
         {
             //Arrange
             const int projectId = 10;
-            const string projectName = "Test";
-            var project = new ProjectSearchResult { ProjectId = projectId, ProjectName = projectName };
-            _projectSearchRepositoryMock.Setup(m => m.GetProjectsByName(1, projectName, 20)).ReturnsAsync(new[] { project });
+            var searchCriteria = new ProjectSearchCriteria {Query = "Test"};
+            var project = new ProjectSearchResult { ProjectId = projectId, ProjectName = searchCriteria.Query };
+            _projectSearchRepositoryMock.Setup(m => m.GetProjectsByName(1, searchCriteria.Query, 20)).ReturnsAsync(new[] { project });
             var controller = new ProjectSearchController(_projectSearchRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
             //Act
-            var result = await controller.GetProjectsByName(projectName, 20);
+            var result = await controller.GetProjectsByName(searchCriteria, 20);
 
             //Assert
             Assert.IsNotNull(result);
@@ -58,16 +58,16 @@ namespace SearchService.Controllers
         {
             //Arrange
             const int projectId = 10;
-            const string projectName = "Test";
-            var project = new ProjectSearchResult { ProjectId = projectId, ProjectName = projectName };
-            _projectSearchRepositoryMock.Setup(m => m.GetProjectsByName(1, projectName, 20)).ReturnsAsync(new[] { project });
+            var searchCriteria = new ProjectSearchCriteria { Query = "Test" };
+            var project = new ProjectSearchResult { ProjectId = projectId, ProjectName = searchCriteria.Query };
+            _projectSearchRepositoryMock.Setup(m => m.GetProjectsByName(1, searchCriteria.Query, 20)).ReturnsAsync(new[] { project });
             var controller = new ProjectSearchController(_projectSearchRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
             //Act
-            var result = await controller.GetProjectsByName(projectName, null);
+            var result = await controller.GetProjectsByName(searchCriteria, null);
 
             //Assert
             Assert.IsNotNull(result);
@@ -81,16 +81,16 @@ namespace SearchService.Controllers
         {
             //Arrange
             const int projectId = 10;
-            const string projectName = "Test";
-            var project = new ProjectSearchResult { ProjectId = projectId, ProjectName = projectName };
-            _projectSearchRepositoryMock.Setup(m => m.GetProjectsByName(1, projectName, 100)).ReturnsAsync(new[] { project });
+            var searchCriteria = new ProjectSearchCriteria { Query = "Test" };
+            var project = new ProjectSearchResult { ProjectId = projectId, ProjectName = searchCriteria.Query };
+            _projectSearchRepositoryMock.Setup(m => m.GetProjectsByName(1, searchCriteria.Query, 100)).ReturnsAsync(new[] { project });
             var controller = new ProjectSearchController(_projectSearchRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
             //Act
-            var result = await controller.GetProjectsByName(projectName, 1000);
+            var result = await controller.GetProjectsByName(searchCriteria, 1000);
 
             //Assert
             Assert.IsNotNull(result);
@@ -107,7 +107,7 @@ namespace SearchService.Controllers
             //Act
             try
             {
-                await controller.GetProjectsByName("");
+                await controller.GetProjectsByName(new ProjectSearchCriteria { Query = "" });
             }
             catch (HttpResponseException e)
             {
@@ -121,9 +121,9 @@ namespace SearchService.Controllers
         {
             //Arrange
             const int projectId = 10;
-            const string projectName = "Test";
-            var project = new ProjectSearchResult { ProjectId = projectId, ProjectName = projectName };
-            _projectSearchRepositoryMock.Setup(m => m.GetProjectsByName(1, projectName, 100)).ReturnsAsync(new[] { project });
+            var searchCriteria = new ProjectSearchCriteria { Query = "Test" };
+            var project = new ProjectSearchResult { ProjectId = projectId, ProjectName = searchCriteria.Query };
+            _projectSearchRepositoryMock.Setup(m => m.GetProjectsByName(1, searchCriteria.Query, 100)).ReturnsAsync(new[] { project });
             var controller = new ProjectSearchController(_projectSearchRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage()
@@ -131,7 +131,7 @@ namespace SearchService.Controllers
             //Act
             try
             {
-                await controller.GetProjectsByName(projectName, 1000);
+                await controller.GetProjectsByName(searchCriteria, 1000);
             }
             catch (HttpResponseException e)
             {

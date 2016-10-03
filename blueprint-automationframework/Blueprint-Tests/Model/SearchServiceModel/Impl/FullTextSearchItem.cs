@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Model.FullTextSearchModel.Impl
+namespace Model.SearchServiceModel.Impl
 {
     public class FullTextSearchItem
     {

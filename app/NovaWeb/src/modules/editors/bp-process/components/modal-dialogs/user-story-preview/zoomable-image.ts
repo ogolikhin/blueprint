@@ -21,7 +21,7 @@ export class ZoomableImageDirective implements ng.IDirective {
         imageAlt: "@",
         imageSrc: "@",
         enableZoom: "=?"
-    }
+    };
     public restrict = "E";
     public replace = true;
     public template = `<div class="zoomable-image">
@@ -49,7 +49,7 @@ export class ZoomableImageDirective implements ng.IDirective {
                         return {
                             image: $scope.imageSrc,
                             alt: $scope.imageAlt
-                        }
+                        };
                     }
                 },
                 template: `<div class="image-preview">
@@ -57,6 +57,6 @@ export class ZoomableImageDirective implements ng.IDirective {
                                 <img ng-src="{{ vm.imageAttributes.image }}" alt="{{ vm.imageAttributes.alt }}" />
                             </div>`,
             });
-        }
+        };
     };
 }

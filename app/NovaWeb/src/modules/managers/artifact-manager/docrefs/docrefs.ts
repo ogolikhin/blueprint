@@ -1,24 +1,18 @@
-import { IArtifactAttachmentsResultSet, IArtifactDocRef } from "./";
-import {
-    ChangeTypeEnum, 
-    IChangeCollector, 
-    IChangeSet,
-    ChangeSetCollector
-} from "../";
-import { 
-    IBlock,
-    IIStatefulItem
-} from "../../models";
+import { IIStatefulItem } from "../item";
+import { IDispose } from "../../models";
+import { ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector } from "../changeset";
+import { IArtifactAttachmentsResultSet, IArtifactDocRef } from "../attachments";
 
-
-export interface IDocumentRefs extends IBlock<IArtifactDocRef[]> {
+export interface IDocumentRefs extends IDispose {
+    isLoading: boolean;
     initialize(docrefs: IArtifactDocRef[]);
-    observable: Rx.IObservable<IArtifactDocRef[]>;
-    get(refresh?: boolean): ng.IPromise<IArtifactDocRef[]>;
+    getObservable(): Rx.IObservable<IArtifactDocRef[]>;
+    // get(refresh?: boolean): ng.IPromise<IArtifactDocRef[]>;
     add(docrefs: IArtifactDocRef[]);
     remove(docrefs: IArtifactDocRef[]);
     update(docrefs: IArtifactDocRef[]);
     changes(): IArtifactDocRef[];
+    refresh(): ng.IPromise<IArtifactDocRef[]>;
     discard();
 }
 
@@ -27,11 +21,16 @@ export class DocumentRefs implements IDocumentRefs {
     private subject: Rx.BehaviorSubject<IArtifactDocRef[]>;
     private changeset: IChangeCollector;
     private isLoaded: boolean;
+    private loadPromise: ng.IPromise<any>;
 
     constructor(private statefulItem: IIStatefulItem) {
         this.docrefs = [];
         this.subject = new Rx.BehaviorSubject<IArtifactDocRef[]>(this.docrefs);
         this.changeset = new ChangeSetCollector(statefulItem);
+    }
+
+    public get isLoading(): boolean {
+        return !this.isLoaded || !!this.loadPromise;
     }
 
     public initialize(docrefs: IArtifactDocRef[]) {
@@ -41,7 +40,7 @@ export class DocumentRefs implements IDocumentRefs {
     }
 
     // refresh = true: turn lazy loading off, always reload
-    public get(refresh: boolean = true): ng.IPromise<IArtifactDocRef[]> {
+    private get(refresh: boolean = true): ng.IPromise<IArtifactDocRef[]> {
         const deferred = this.statefulItem.getServices().getDeferred<IArtifactDocRef[]>();
 
         if (this.isLoaded && !refresh) {
@@ -57,9 +56,23 @@ export class DocumentRefs implements IDocumentRefs {
         return deferred.promise;
     }
 
-    public get observable(): Rx.IObservable<IArtifactDocRef[]> {
-        return this.subject.asObservable();
+    public getObservable(): Rx.IObservable<IArtifactDocRef[]> {
+        if (!this.isLoadedOrLoading()) {
+            this.loadPromise = this.statefulItem.getAttachmentsDocRefs()
+                .catch(error => {
+                    this.subject.onError(error);
+                }).finally(() => {
+                    this.loadPromise = null;
+                });
+        }
+        
+        return this.subject.filter(it => !!it).asObservable();
     }
+
+    protected isLoadedOrLoading() {
+        return this.docrefs || this.loadPromise;
+    }
+    
 
     public add(docrefs: IArtifactDocRef[]): IArtifactDocRef[] {
         if (docrefs) {
@@ -114,7 +127,7 @@ export class DocumentRefs implements IDocumentRefs {
         let changes = this.changeset.get();
         let uniqueKeys = changes
             .map(change => change.key)
-            .filter((elem, index, self) => index == self.indexOf(elem));
+            .filter((elem, index, self) => index === self.indexOf(elem));
         let deltaChanges = new Array<IChangeSet>();
         // remove changesets that cancel eachother.
         uniqueKeys.forEach((key) => {
@@ -123,7 +136,7 @@ export class DocumentRefs implements IDocumentRefs {
             if (addChanges.length > deleteChanges.length) {
                 deltaChanges.push(addChanges[0]);
             } else if (addChanges.length < deleteChanges.length) {
-                deltaChanges.push(deleteChanges[0])
+                deltaChanges.push(deleteChanges[0]);
             }
         });
         deltaChanges.forEach(change => {
@@ -134,8 +147,19 @@ export class DocumentRefs implements IDocumentRefs {
         return docRefChanges;
     }
 
+    public dispose() {
+        delete this.docrefs;
+        delete this.changeset;
+        delete this.loadPromise;
+    }
+
     public discard() {
         this.changeset.reset();
         this.subject.onNext(this.docrefs);
+    }
+
+    public refresh(): ng.IPromise<any> {
+        this.isLoaded = false;
+        return this.get(true);
     }
 }

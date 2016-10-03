@@ -19,8 +19,8 @@ import {formlyConfig} from "../../formly-config";
 import { SettingsService } from "../../../../core";
 import { ISelectionManager, SelectionManager } from "../../../../managers/selection-manager/selection-manager";
 import { BPFieldInheritFromController } from "./actor-inheritance";
-import { ArtifactPickerDialogServiceMock } from "./artifact-picker-dialog-mock";
-import { IStatefulArtifact } from "../../../../managers/models";
+import { ArtifactPickerDialogServiceMock } from "./artifact-picker-dialog.mock";
+import { IStatefulArtifact } from "../../../../managers/artifact-manager";
 
 describe("Actor Inheritance controller", () => {
 

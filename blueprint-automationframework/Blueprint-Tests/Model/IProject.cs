@@ -33,6 +33,11 @@ namespace Model
         /// </summary>
         List<OpenApiArtifactType> ArtifactTypes { get; }
 
+        /// <summary>
+        /// Nova Artifact type list for the project.
+        /// </summary>
+        List<NovaArtifactType> NovaArtifactTypes { get; }
+
         #endregion Properties
 
         #region Methods
@@ -81,6 +86,19 @@ namespace Model
         /// <returns>a artifact type list which is retrieved for the project</returns>
         List<OpenApiArtifactType> GetAllArtifactTypes(string address, IUser user,
             bool shouldRetrievePropertyTypes = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+
+        /// <summary>
+        /// Get the all NovaArtifactTypes for the project, update the ArtifactTypes of the project and return the same list
+        /// Runs: GET {address}/svc/artifactstore/projects/{projectId}/meta/customtypes
+        /// </summary>
+        /// <param name="artifactStore">The ArtifactStore to use for the call.</param>
+        /// <param name="user">The user to authenticate to the the server with.  Defaults to no authentication.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>a artifact type list which is retrieved for the project</returns>
+        List<NovaArtifactType> GetAllNovaArtifactTypes(
+            IArtifactStore artifactStore,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null);
 
         #endregion Methods
     }

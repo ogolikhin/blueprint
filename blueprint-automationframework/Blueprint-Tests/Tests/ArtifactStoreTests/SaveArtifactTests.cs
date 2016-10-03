@@ -5,6 +5,7 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Newtonsoft.Json;
@@ -43,34 +44,45 @@ namespace ArtifactStoreTests
 
         #region SaveArtifact tests
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality isn't implemented yet, only PATCH.
-        [TestCase(BaseArtifactType.Actor)]
-        [TestCase(BaseArtifactType.BusinessProcess)]
-        [TestCase(BaseArtifactType.Document)]
-        [TestCase(BaseArtifactType.DomainDiagram)]
-        [TestCase(BaseArtifactType.GenericDiagram)]
-        [TestCase(BaseArtifactType.Glossary)]
-        [TestCase(BaseArtifactType.PrimitiveFolder)]
-        [TestCase(BaseArtifactType.Process)]
-        [TestCase(BaseArtifactType.Storyboard)]
-        [TestCase(BaseArtifactType.TextualRequirement)]
-        [TestCase(BaseArtifactType.UIMockup)]
-        [TestCase(BaseArtifactType.UseCase)]
-        [TestCase(BaseArtifactType.UseCaseDiagram)]
+        [TestCase(ArtifactTypePredefined.Actor)]
+//        [TestCase(ArtifactTypePredefined.Baseline)]
+        [TestCase(ArtifactTypePredefined.BusinessProcess)]
+//        [TestCase(ArtifactTypePredefined.DataElement)]
+        [TestCase(ArtifactTypePredefined.Document)]
+        [TestCase(ArtifactTypePredefined.DomainDiagram)]
+        [TestCase(ArtifactTypePredefined.GenericDiagram)]
+        [TestCase(ArtifactTypePredefined.Glossary)]
+        [TestCase(ArtifactTypePredefined.PrimitiveFolder)]
+//        [TestCase(ArtifactTypePredefined.Project)]
+        [TestCase(ArtifactTypePredefined.Storyboard)]
+        [TestCase(ArtifactTypePredefined.TextualRequirement)]
+        [TestCase(ArtifactTypePredefined.UIMockup)]
+        [TestCase(ArtifactTypePredefined.UseCase)]
+        [TestCase(ArtifactTypePredefined.UseCaseDiagram)]
+
+//        [TestCase(BaselineAndCollectionTypePredefined.ArtifactBaseline)]
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]
+//        [TestCase(BaselineAndCollectionTypePredefined.ArtifactReviewPackage)]
+//        [TestCase(BaselineAndCollectionTypePredefined.BaselineFolder)]
+        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]
         [TestRail(154745)]
         [Description("Create & save an artifact.  Get the artifact.  Verify the artifact returned has the same properties as the artifact we saved.")]
-        public void SaveArtifact_UnpublishedArtifact_CanGetArtifact(BaseArtifactType artifactType)
+        public void SaveArtifact_UnpublishedArtifact_CanGetArtifact(ItemTypePredefined artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateArtifact(_project, _user, artifactType);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
             // Execute:
-            Assert.DoesNotThrow(() => artifact.Save(),
+            INovaArtifactDetails newArtifact = null;
+
+            Assert.DoesNotThrow(() =>
+                newArtifact = Helper.ArtifactStore.CreateArtifact(_user, artifactType, artifactName, _project),
                 "Exception caught while trying to save an artifact of type: '{0}'!", artifactType);
 
             // Verify:
-            IOpenApiArtifact openApiArtifact = OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, _user);
-            TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
+            artifactDetails.AssertEquals(newArtifact);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]  // POST (Save) functionality isn't implemented yet, only PATCH.

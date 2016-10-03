@@ -69,11 +69,7 @@ export class BpProcessEditorController extends BpBaseEditor {
         this.subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this));
     }
 
-    public onLoad() {
-        super.onLoad();
-    }
-
-    public onUpdate () {
+    public onArtifactReady() {
         // when this method is called we should have a valid 
         // process artifact in the base class' artifact
         // property.
@@ -101,9 +97,9 @@ export class BpProcessEditorController extends BpBaseEditor {
 
         this.processDiagram.createDiagram(this.artifact, htmlElement);
 
-        super.onUpdate();
+        super.onArtifactReady();
     }
-    
+
     public $onDestroy() {
         super.$onDestroy();
 

@@ -443,7 +443,7 @@ namespace SearchServiceTests
 
         [TestCase(2)]
         [TestCase(6)]
-        [TestRail(0)]
+        [TestRail(182447)]
         [Description("Searching with the search criteria that returns multiple pages for SearchResult. Execute Search - Verify that number of result items matches with expecting search result items.")]
         public void FullTextSearch_SearchWithSearchTermReturnsMultiplePages_VerifyResultItemCountWithExpected(int pageSize)
         {
@@ -483,6 +483,7 @@ namespace SearchServiceTests
         }
 
         [TestCase]
+        [TestRail(182448)]
         [Description("Searching with the search criteria. Execute Search - Verify that result are sorted by Last Edited On")]
         public void FullTextSearch_SearchWithCriteria_VerifyFullTextSearchItemsAreSortedByLastEditedOn()
         {

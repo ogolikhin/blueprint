@@ -9,6 +9,7 @@ export interface IArtifactProperties extends IDispose {
     set(id: number, value: any): Models.IPropertyValue;
     changes(): Models.IPropertyValue[];
     discard();
+    isLoaded: boolean;
 }
 
 export class ArtifactProperties implements IArtifactProperties  {
@@ -19,6 +20,7 @@ export class ArtifactProperties implements IArtifactProperties  {
     constructor(private statefulItem: IIStatefulItem, properties?: Models.IPropertyValue[]) {
         this.properties = properties || [];
         this.changeset = new ChangeSetCollector(statefulItem);
+        this._isLoaded = false;
 //        this.subject = new Rx.BehaviorSubject<Models.IPropertyValue>(null);
         // this.subject.subscribeOnNext((it: Models.IPropertyValue) => {
         //     this.addChangeSet(it);
@@ -28,6 +30,12 @@ export class ArtifactProperties implements IArtifactProperties  {
 
     public initialize(properties: Models.IPropertyValue[])  {
         this.properties = properties || [];
+        this._isLoaded = true;
+    }
+
+    private _isLoaded: boolean;
+    public get isLoaded(): boolean {
+        return this._isLoaded;
     }
 
     public dispose() {

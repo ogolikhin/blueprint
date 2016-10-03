@@ -174,7 +174,6 @@ export class PreviewCenterController {
 
     private loadUserStory(userStoryId: number){
         if (userStoryId) {
-            let revisionId: number = null;
             this.artifactManager.get(userStoryId).then((it: IStatefulArtifact) => {
                 this.statefulUserStoryArtifact = it;
                 let observer = this.statefulUserStoryArtifact.getObservable().subscribe((obs:IStatefulArtifact) =>{
@@ -188,16 +187,19 @@ export class PreviewCenterController {
     private loadMetaData(statefulArtifact: IStatefulArtifact){
         statefulArtifact.metadata.getArtifactPropertyTypes().forEach((propertyType) => {
             let propertyValue = statefulArtifact.customProperties.get(propertyType.id);
-            if (propertyType.name.toLowerCase().indexOf(this.userStoryTitle.toLowerCase()) === 0) {
+            if (this.doesPropertyNameContain(propertyType.name, this.userStoryTitle)){
                 this.title = propertyValue.value;
-            } else if (propertyType.name.toLowerCase().indexOf(this.userStoryAcceptanceCriteria.toLowerCase()) === 0) {
+            } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryAcceptanceCriteria)){
                 this.acceptanceCriteria = propertyValue.value;
-            } else if (propertyType.name.toLowerCase().indexOf(this.userStoryBusinessRules.toLowerCase()) === 0) {
+            } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryBusinessRules)) {
                 this.businessRules = propertyValue.value;
-            } else if (propertyType.name.toLowerCase().indexOf(this.userStoryNFR.toLowerCase()) === 0) {
+            } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryNFR)) {
                 this.nonfunctionalRequirements = propertyValue.value;
             }
         })
+    }
+    private doesPropertyNameContain(propertyType: string, value: string): boolean {
+        return propertyType.toLowerCase().indexOf(value.toLowerCase()) === 0;
     }
 }
 

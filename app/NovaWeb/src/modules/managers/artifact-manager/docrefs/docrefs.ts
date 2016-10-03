@@ -114,7 +114,7 @@ export class DocumentRefs implements IDocumentRefs {
         let changes = this.changeset.get();
         let uniqueKeys = changes
             .map(change => change.key)
-            .filter((elem, index, self) => index == self.indexOf(elem));
+            .filter((elem, index, self) => index === self.indexOf(elem));
         let deltaChanges = new Array<IChangeSet>();
         // remove changesets that cancel eachother.
         uniqueKeys.forEach((key) => {
@@ -123,7 +123,7 @@ export class DocumentRefs implements IDocumentRefs {
             if (addChanges.length > deleteChanges.length) {
                 deltaChanges.push(addChanges[0]);
             } else if (addChanges.length < deleteChanges.length) {
-                deltaChanges.push(deleteChanges[0])
+                deltaChanges.push(deleteChanges[0]);
             }
         });
         deltaChanges.forEach(change => {

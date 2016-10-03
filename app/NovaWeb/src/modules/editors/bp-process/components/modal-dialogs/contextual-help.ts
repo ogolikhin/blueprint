@@ -19,7 +19,7 @@ export class ContextualHelpController  {
 export class ContextualHelpDirective implements ng.IDirective {
     public scope = {
         imageSrc: "@"
-    }
+    };
     public restrict = "E";
     public replace = true;
     public template = `<div class="contextual-help">
@@ -46,7 +46,7 @@ export class ContextualHelpDirective implements ng.IDirective {
                     imageAttributes: () => {
                         return {
                             image: $scope.imageSrc
-                        }
+                        };
                     }
                 },
                 template: `<div class="image-preview">
@@ -54,6 +54,6 @@ export class ContextualHelpDirective implements ng.IDirective {
                                 <img ng-src="{{vm.imageAttributes.image}}" />
                             </div>`,
             });
-        }
+        };
     };
 }

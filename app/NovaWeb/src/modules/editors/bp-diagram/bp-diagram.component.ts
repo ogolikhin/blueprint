@@ -146,6 +146,7 @@ export class BPDiagramController extends BpBaseEditor {
                     const artifactPromise = this.getUseCaseDiagramArtifact(<IShape>element);
                     if (artifactPromise) {
                         artifactPromise.then((artifact) => {
+                            artifact.unload();
                             this.artifactManager.selection.setArtifact(artifact);
                         });
                     }

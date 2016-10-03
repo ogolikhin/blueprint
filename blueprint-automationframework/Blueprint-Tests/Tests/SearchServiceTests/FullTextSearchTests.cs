@@ -410,10 +410,10 @@ namespace SearchServiceTests
             FullTextSearchResult fullTextSearchResult = null;
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
 
-            List<BaseArtifactType> selectedBasedArtifactTypes = new List<BaseArtifactType> { BaseArtifactType.Actor, BaseArtifactType.Process };
+            List<BaseArtifactType> selectedBasedArtifactTypes = new List<BaseArtifactType> { BaseArtifactType.Actor };
 
             // Setup: Create few artifacts to search
-            var publishedArtifacts = SearchServiceTestHelper.SetupFullTextSearchData(_projects, _user, Helper, selectedBaseArtifactTypes: selectedBasedArtifactTypes);
+            var publishedArtifacts = SearchServiceTestHelper.SetupFullTextSearchData(_projects, _user, Helper, selectedBaseArtifactTypes: selectedBasedArtifactTypes,timeoutInMilliseconds: 60000);
 
             // Setup: Create search criteria with search term that matches with current version of artifact(s) description
             var searchCriteria = new FullTextSearchCriteria(publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue, selectedProjectIds);
@@ -444,9 +444,8 @@ namespace SearchServiceTests
         [TestCase(2)]
         [TestCase(6)]
         [TestRail(0)]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [Description("Searching with the search criteria that returns multiple pages for SearchResult. Execute Search - Verify that number of result items matches with expecting search result items.")]
-        public void FullTextSearch_SearchWithSearchTermReturningMultiplePages_VerifyResultItemCountWithResultCount(int pageSize)
+        public void FullTextSearch_SearchWithSearchTermReturnsMultiplePages_VerifyResultItemCountWithExpected(int pageSize)
         {
             // Setup: Create search criteria that will return multiple page for SearchResult
             var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue, _projects.ConvertAll(o => o.Id));
@@ -464,7 +463,7 @@ namespace SearchServiceTests
             {
                 // Execute Search with page and pageSize
                 FullTextSearchResult fullTextSearchResult = null;
-                Assert.DoesNotThrow(() => fullTextSearchResult = Helper.FullTextSearch.Search(_user, searchCriteria, page: pageCount, pageSize: pageSize),
+                Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria, page: pageCount, pageSize: pageSize),
                     "Nova FullTextSearch call failed when using following search term: {0}, page: {1}, pageSize: {2}", searchCriteria.Query, pageCount, pageSize);
 
                 // Adds search result per page into total returned search count

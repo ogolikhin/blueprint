@@ -7,6 +7,7 @@ using Model.Factories;
 using Model.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Linq;
 using TestCommon;
 using Utilities;
 
@@ -86,7 +87,6 @@ namespace ArtifactStoreTests
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
-
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -201,27 +201,40 @@ namespace ArtifactStoreTests
                 "{0} when user tries to move an artifact to different project", expectedExceptionMessage);
         }
 
-        [Ignore(IgnoreReasons.UnderDevelopment)] //Not implemented yet. There is no ability to test Baseline and Review. This will be tested manually
-//        [TestCase(BaseArtifactType.Collection)]
+        [TestCase(181, 182)]
+        [TestCase(183, 185)]
+        [TestCase(180, 1)]
         [TestRail(182408)]
         [Description("Create & publish 2 artifacts of unsupported artifact type. Move an artifact to be a child of the other one.   Verify returned code 403 Forbidden.")]
-        public void MoveArtifact_PublishedArtifactCannotBeMovedForUnsupportedArtifactTypes_403Forbidden(BaseArtifactType artifactType)
+        public void MoveArtifact_PublishedArtifactCannotBeMovedForUnsupportedArtifactTypes_403Forbidden(int artifactIdToMove, int artifactIdMoveTo)
         {
-            // Setup: 
-            IArtifact artifact1 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IArtifact artifact2 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var projects = ProjectFactory.GetProjects(_user, numberOfProjects: 2);
+            Assert.GreaterOrEqual(projects.Count, 2, "This test requires at least 2 projects to exist!");
 
-            artifact1.Lock();
+            NovaArtifactDetails retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_user, artifactIdToMove);
+
+            IArtifact fakeArtifact = ArtifactFactory.CreateArtifact(
+            _project, _user, BaseArtifactType.Actor, retrievedArtifact.Id);   // Don't use Helper because this isn't a real artifact, it's just wrapping the bad artifact ID.
+
+            fakeArtifact.Lock();
+            
+            Artifact.UpdateArtifact(fakeArtifact, _user, retrievedArtifact, Helper.BlueprintServer.Address);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, _user),
-
-                "'POST {0}' should return 403 Forbidden when user tries to move artifact of unsupported artifact type", SVC_PATH);
-
-            // Verify:
-            string expectedExceptionMessage = "Cannot move baselines, collections or reviews.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+            try
+            {
+                var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, fakeArtifact, artifactIdMoveTo, _user),
+               "'POST {0}' should return 403 Forbidden when user tries to move artifact of unsupported artifact type", SVC_PATH);                
+                
+                // Verify:
+                string expectedExceptionMessage = "Cannot move baselines, collections or reviews.";
+                Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
                 "{0} when user tries to move an artifact of unsupported artifact type", expectedExceptionMessage);
+            }
+            finally
+            {
+                fakeArtifact.Publish(_user);
+            }
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -308,7 +321,27 @@ namespace ArtifactStoreTests
 
         #region 404 Not Found tests
 
-//        [TestCase(BaseArtifactType.Process, 0)]   Need to be fixed
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(182403)]
+        [Description("Create & publish an artifact. Move an artifact to be a child of the artifact with Id 0.  Verify returned code 404 Not Found.")]
+        public void MoveArtifact_ublishedArtifactCannotBeMovedToArtifactWithId0_404NotFound(BaseArtifactType artifactType)
+        {
+            const int ARTIFACT_WITH_ID_0 = 0;
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            artifact.Lock();
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, ARTIFACT_WITH_ID_0, _user),
+                "'POST {0}' should return 404 Not Found when user tries to move artifact to one that has Id 0", SVC_PATH);
+
+            // Verify:
+            string expectedExceptionMessage = "<html xmlns=\"http://www.w3.org/1999/xhtml\">";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} when user tries to move an artifact to artifact that has Id 0", expectedExceptionMessage);
+        }
+
         [TestCase(BaseArtifactType.Process, int.MaxValue)]
         [TestRail(182429)]
         [Description("Create & publish an artifact. Move an artifact to be a child of the non existing artifact.  Verify returned code 404 Not Found.")]
@@ -432,15 +465,10 @@ namespace ArtifactStoreTests
 
             Assert.IsNotNull(artifactList, "Artifact List is not created");
 
-            IArtifact firstArtifact = artifactList[0];
-            IArtifact lastArtifact = null ;
+            IArtifact firstArtifact = artifactList.First();
+            IArtifact lastArtifact = artifactList.Last();
 
             firstArtifact.Lock();
-
-            if (artifactList.Count == 1)
-                lastArtifact = firstArtifact;
-            else
-                lastArtifact = artifactList[artifactList.Count - 1];
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.MoveArtifact(firstArtifact, lastArtifact, _user),

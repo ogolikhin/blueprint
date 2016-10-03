@@ -7,6 +7,7 @@ using Model.Factories;
 using Model.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Linq;
 using TestCommon;
 using Utilities;
 
@@ -432,15 +433,10 @@ namespace ArtifactStoreTests
 
             Assert.IsNotNull(artifactList, "Artifact List is not created");
 
-            IArtifact firstArtifact = artifactList[0];
-            IArtifact lastArtifact = null ;
+            IArtifact firstArtifact = artifactList.First();
+            IArtifact lastArtifact = artifactList.Last();
 
             firstArtifact.Lock();
-
-            if (artifactList.Count == 1)
-                lastArtifact = firstArtifact;
-            else
-                lastArtifact = artifactList[artifactList.Count - 1];
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.MoveArtifact(firstArtifact, lastArtifact, _user),

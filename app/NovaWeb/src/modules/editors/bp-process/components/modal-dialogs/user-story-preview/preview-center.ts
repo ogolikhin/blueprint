@@ -172,11 +172,11 @@ export class PreviewCenterController {
         });
     }
 
-    private loadUserStory(userStoryId: number){
+    private loadUserStory(userStoryId: number) {
         if (userStoryId) {
             this.artifactManager.get(userStoryId).then((it: IStatefulArtifact) => {
                 this.statefulUserStoryArtifact = it;
-                let observer = this.statefulUserStoryArtifact.getObservable().subscribe((obs:IStatefulArtifact) =>{
+                let observer = this.statefulUserStoryArtifact.getObservable().subscribe((obs: IStatefulArtifact) => {
                     this.loadMetaData(obs);
                 });
                 this.subscribers = [observer];
@@ -184,19 +184,19 @@ export class PreviewCenterController {
         };
     }
 
-    private loadMetaData(statefulArtifact: IStatefulArtifact){
+    private loadMetaData(statefulArtifact: IStatefulArtifact) {
         statefulArtifact.metadata.getArtifactPropertyTypes().forEach((propertyType) => {
             let propertyValue = statefulArtifact.customProperties.get(propertyType.id);
-            if (this.doesPropertyNameContain(propertyType.name, this.userStoryTitle)){
+            if (this.doesPropertyNameContain(propertyType.name, this.userStoryTitle)) {
                 this.title = propertyValue.value;
-            } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryAcceptanceCriteria)){
+            } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryAcceptanceCriteria)) {
                 this.acceptanceCriteria = propertyValue.value;
             } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryBusinessRules)) {
                 this.businessRules = propertyValue.value;
             } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryNFR)) {
                 this.nonfunctionalRequirements = propertyValue.value;
             }
-        })
+        });
     }
     private doesPropertyNameContain(propertyType: string, value: string): boolean {
         return propertyType.toLowerCase().indexOf(value.toLowerCase()) === 0;

@@ -1,7 +1,6 @@
 import { Models, Relationships } from "../../../main/models";
 // import { ArtifactState} from "../state";
 import { IStatefulArtifactServices } from "../services";
-import { IMetaData } from "../metadata";
 import { IStatefulArtifact } from "../artifact";
 import { StatefulItem, IStatefulItem, IIStatefulItem } from "../item";
 import { IArtifactAttachmentsResultSet } from "../attachments";
@@ -15,7 +14,7 @@ export interface IStatefulSubArtifact extends IStatefulItem, Models.ISubArtifact
 }
 
 export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArtifact, IIStatefulSubArtifact {
-    private isLoaded = false;
+    public isLoaded = false;
     private subject: Rx.BehaviorSubject<IStatefulSubArtifact>;
 
     public deleted: boolean;
@@ -38,7 +37,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
     protected load():  ng.IPromise<IStatefulSubArtifact> {
         const deferred = this.services.getDeferred<IStatefulSubArtifact>();
             this.services.artifactService.getSubArtifact(this.parentArtifact.id, this.id).then((artifact: Models.ISubArtifact) => {
-                let state = this.initialize(artifact);
+                this.initialize(artifact);
                 deferred.resolve(this);
             }).catch((err) => {
                 deferred.reject(err);

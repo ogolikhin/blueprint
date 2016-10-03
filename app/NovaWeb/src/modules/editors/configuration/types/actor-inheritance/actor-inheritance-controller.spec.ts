@@ -17,7 +17,6 @@ import { IDialogService } from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import { ISelectionManager, SelectionManager } from "../../../../managers/selection-manager/selection-manager";
 import { BPFieldInheritFromController } from "./actor-inheritance";
 import { ArtifactPickerDialogServiceMock } from "./artifact-picker-dialog.mock";
-import { IStatefulArtifact } from "../../../../managers/artifact-manager";
 
 describe("Actor Inheritance controller", () => {
 
@@ -25,13 +24,11 @@ describe("Actor Inheritance controller", () => {
         scope,
         rootScope,
         compile,
-        module,
-        createController,
         $controller: ng.IControllerService;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        $provide.service("localization", LocalizationServiceMock)
-        $provide.service("messageService", MessageServiceMock)
+        $provide.service("localization", LocalizationServiceMock);
+        $provide.service("messageService", MessageServiceMock);
         $provide.service("dialogService", ArtifactPickerDialogServiceMock);
         $provide.service("selectionManager", SelectionManager);
     }));
@@ -45,7 +42,7 @@ describe("Actor Inheritance controller", () => {
                 scope.model = {};
                 scope.options = {
                     key: "Key"
-                }
+                };
 
                 scope.model[scope.options.key] = {
                     pathToProject: [],

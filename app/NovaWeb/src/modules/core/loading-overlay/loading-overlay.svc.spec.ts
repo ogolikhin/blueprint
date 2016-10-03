@@ -111,7 +111,7 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
         (inject((loadingOverlayService: ILoadingOverlayService) => {
         // Act
         let id1 = loadingOverlayService.beginLoading();
-        let id2 = loadingOverlayService.beginLoading();
+        loadingOverlayService.beginLoading();
         loadingOverlayService.endLoading(id1);
         componentTest.scope.$digest();
 

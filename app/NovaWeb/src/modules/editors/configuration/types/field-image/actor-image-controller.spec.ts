@@ -12,11 +12,10 @@ import { ILocalizationService } from "../../../../core/localization";
 import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
 import { MessageServiceMock } from "../../../../core/messages/message.mock";
 import { IMessageService } from "../../../../core/messages";
-import { DialogServiceMock, IDialogService } from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import { IDialogService } from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import { SettingsService, ISettingsService } from "../../../../core";
 import { BPFieldImageController } from "./field-image";
 import { ActorImagePickerDialogServiceMock } from "./actor-image-choose-window.mock";
-import { ComponentTest } from "../../../../util/component.test";
 
 describe("Actor image controller tests", () => {
 
@@ -46,7 +45,7 @@ describe("Actor image controller tests", () => {
                 };
 
                 scope.model = {
-                    image: imageModel,                   
+                    image: imageModel,              
                 };
 
                 scope["to"] = {
@@ -57,7 +56,7 @@ describe("Actor image controller tests", () => {
                     key: "image"
                 };
 
-                                controller = $controller(BPFieldImageController, {$scope: scope});
+                controller = $controller(BPFieldImageController, {$scope: scope});
             }
         )
     );
@@ -99,9 +98,8 @@ describe("Actor image controller tests", () => {
             expect(scope.model.image === null).toBeTruthy();
         }));
 
-        it("delete image for actor with read only mode",
-                inject(($timeout: ng.ITimeoutService, localization: ILocalizationService, $window: ng.IWindowService,
-                        messageService: IMessageService, dialogService: IDialogService, settingsService: ISettingsService) => {
+        it("delete image for actor with read only mode", inject(($timeout: ng.ITimeoutService, localization: ILocalizationService, $window: ng.IWindowService,
+            messageService: IMessageService, dialogService: IDialogService, settingsService: ISettingsService) => {
 
            scope.onActorImageDelete(true);
            expect(scope.model.image === imageModel).toBeTruthy();

@@ -71,7 +71,7 @@ export class ProjectManager  implements IProjectManager {
 
     }
 
-    private onChangeInArtifactManagerCollection(artifact: IStatefulArtifact){
+    private onChangeInArtifactManagerCollection(artifact: IStatefulArtifact) {
          //Projects will null parentId have been removed from ArtifactManager
          if (artifact.parentId === null) {
              this.removeArtifact(artifact);

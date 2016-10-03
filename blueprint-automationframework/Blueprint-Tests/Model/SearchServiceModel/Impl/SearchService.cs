@@ -87,7 +87,40 @@ namespace Model.SearchServiceModel.Impl
             return restResponse;
         }
 
-        /// <seealso cref="ISearchService.GetStatus(string, List{HttpStatusCode})"/>
+        /// <seealso cref="FullTextSearch.SearchProjects(IUser, string, int, List{HttpStatusCode})"/>
+        public List<ProjectSearchResult> SearchProjects(IUser user, string searchText, int? resultCount = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            var jsonObject = new Dictionary<string, string> {{ "query", searchText }};
+            
+            var queryParams = new Dictionary<string, string>();
+
+            if (resultCount != null)
+            {
+                queryParams.Add("resultCount", resultCount.ToString());
+            }
+            else
+            {
+                queryParams = null;
+            }
+
+            var tokenValue = user.Token?.AccessControlToken;
+
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var projects = restApi.SendRequestAndDeserializeObject<List<ProjectSearchResult>, Dictionary<string, string>>(
+                RestPaths.Svc.SearchService.PROJECTSEARCH,
+                RestRequestMethod.POST,
+                jsonObject: jsonObject,
+                queryParameters: queryParams,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
+
+            return projects;
+        }
+
+        /// <seealso cref="IFullTextSearch.GetStatus(string, List{HttpStatusCode})"/>
         public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
         {
             return GetStatus(RestPaths.Svc.SearchService.STATUS, preAuthorizedKey, expectedStatusCodes);

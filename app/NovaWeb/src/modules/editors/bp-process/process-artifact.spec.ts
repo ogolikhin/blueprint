@@ -60,7 +60,7 @@ describe("StatefulProcessArtifact", ()=> {
         let artifactSpy = spyOn(services.artifactService, "getArtifact").and.callThrough();
 
         //Act
-        processArtifact.load();
+        processArtifact.getObservable();
 
         //Assert
         expect(loadSpy).toHaveBeenCalled();
@@ -84,9 +84,9 @@ describe("StatefulProcessArtifact", ()=> {
         let artifactSpy = spyOn(services.artifactService, "getArtifact").and.callThrough();
 
         //Act
-        processArtifact.load();
-        processArtifact.load();
-        processArtifact.load();
+        processArtifact.getObservable();
+        processArtifact.getObservable();
+        processArtifact.getObservable();
 
         //Assert
         expect(loadSpy).toHaveBeenCalledTimes(1);
@@ -105,13 +105,14 @@ describe("StatefulProcessArtifact", ()=> {
 
 
         let processArtifact = new StatefulProcessArtifact(artifact, services);
-
+        let isLoaded: boolean = false;
+        let loaded = ()=>{ isLoaded = true; }
         //Act
-        processArtifact.load();
+        processArtifact.getObservable().subscribe(loaded, ()=>{});
         $rootScope.$digest();
 
         //Assert
-        expect(processArtifact.name).toBe('Artifact ' + artifact.id);
+        expect(isLoaded).toBeTruthy();
     });
     it("Load - process service updates are reflected on model", ()=>{
         //Arrange
@@ -132,7 +133,7 @@ describe("StatefulProcessArtifact", ()=> {
         loadSpy.and.returnValue($q.when(model));
 
         //Act
-        processArtifact.load();
+        processArtifact.getObservable();
         $rootScope.$digest();
 
         //Assert

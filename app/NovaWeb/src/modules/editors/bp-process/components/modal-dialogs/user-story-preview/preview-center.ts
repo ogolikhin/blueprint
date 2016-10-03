@@ -14,7 +14,7 @@ export class PreviewCenterController {
     public previousSystemTask: SystemTask;
     public nextSystemTask: SystemTask;
     public isUserSystemProcess: boolean;
-    private subArtifactId: number;
+    public subArtifactId: number;
     private isTabsVisible: boolean;
     private showMoreActiveTabIndex: number = 0;
 
@@ -51,7 +51,7 @@ export class PreviewCenterController {
         if (acceptanceCriteria) {
             acceptanceCriteria.setAttribute("style", "max-height:" + acceptanceCriteriaMaxHeight + "px");
         }
-    }
+    };
 
     public showMore(type: string, event: any) {
         // select tab
@@ -77,7 +77,7 @@ export class PreviewCenterController {
         // temporary solution from: http://stackoverflow.com/questions/8840580/force-dom-redraw-refresh-on-chrome-mac
         if (!element) { return; }
 
-        var n = document.createTextNode(' ');
+        var n = document.createTextNode(" ");
         element.appendChild(n);
 
         setTimeout(function () {
@@ -154,7 +154,7 @@ export class PreviewCenterController {
         this.$window.addEventListener("resize", this.resizeContentAreas);
         this.resizeContentAreas(false);
 
-        $scope.$on('$destroy', () => {
+        $scope.$on("$destroy", () => {
             this.centerTask = null;
             this.previousSystemTask = null;
             this.nextSystemTask = null;
@@ -172,11 +172,11 @@ export class PreviewCenterController {
         });
     }
 
-    private loadUserStory(userStoryId: number){
+    private loadUserStory(userStoryId: number) {
         if (userStoryId) {
             this.artifactManager.get(userStoryId).then((it: IStatefulArtifact) => {
                 this.statefulUserStoryArtifact = it;
-                let observer = this.statefulUserStoryArtifact.getObservable().subscribe((obs:IStatefulArtifact) =>{
+                let observer = this.statefulUserStoryArtifact.getObservable().subscribe((obs: IStatefulArtifact) => {
                     this.loadMetaData(obs);
                 });
                 this.subscribers = [observer];
@@ -184,19 +184,19 @@ export class PreviewCenterController {
         };
     }
 
-    private loadMetaData(statefulArtifact: IStatefulArtifact){
+    private loadMetaData(statefulArtifact: IStatefulArtifact) {
         statefulArtifact.metadata.getArtifactPropertyTypes().forEach((propertyType) => {
             let propertyValue = statefulArtifact.customProperties.get(propertyType.id);
-            if (this.doesPropertyNameContain(propertyType.name, this.userStoryTitle)){
+            if (this.doesPropertyNameContain(propertyType.name, this.userStoryTitle)) {
                 this.title = propertyValue.value;
-            } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryAcceptanceCriteria)){
+            } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryAcceptanceCriteria)) {
                 this.acceptanceCriteria = propertyValue.value;
             } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryBusinessRules)) {
                 this.businessRules = propertyValue.value;
             } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryNFR)) {
                 this.nonfunctionalRequirements = propertyValue.value;
             }
-        })
+        });
     }
     private doesPropertyNameContain(propertyType: string, value: string): boolean {
         return propertyType.toLowerCase().indexOf(value.toLowerCase()) === 0;

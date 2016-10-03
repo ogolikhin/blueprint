@@ -3,7 +3,7 @@ import { IDialogSettings, IDialogService } from "../../../shared";
 import { Models} from "../../models";
 import { IArtifactManager, IProjectManager } from "../../../managers";
 
-import { OpenProjectController } from "../dialogs/open-project";
+import { OpenProjectController } from "../dialogs/open-project/open-project";
 import { BPTourController } from "../dialogs/bp-tour/bp-tour";
 import { Helper } from "../../../shared/utils/helper";
 import { ILoadingOverlayService } from "../../../core/loading-overlay";
@@ -76,7 +76,7 @@ class BPToolbarController implements IBPToolbarController {
             case `openproject`:
                 this.dialogService.open(<IDialogSettings>{
                     okButton: this.localization.get("App_Button_Open"),
-                    template: require("../dialogs/open-project.template.html"),
+                    template: require("../dialogs/open-project/open-project.template.html"),
                     controller: OpenProjectController,
                     css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
                 }).then((project: Models.IProject) => {

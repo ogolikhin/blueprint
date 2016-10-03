@@ -28,7 +28,7 @@ export class ArtifactServiceMock implements IArtifactService {
         return new Models.Artifact({
             id: id,
             version: 1,
-            lastSavedOn: '20160831T16:00:00'
+            lastSavedOn: "20160831T16:00:00"
         });
     }
 

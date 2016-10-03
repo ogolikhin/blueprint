@@ -100,7 +100,7 @@ namespace SearchService.Controllers
         }
 
         [TestMethod]
-        public async Task GetProjects_BadRequest()
+        public async Task GetProjects_QueryIsEmpty_BadRequest()
         {
             //Arrange
             var controller = new ProjectSearchController(_projectSearchRepositoryMock.Object);
@@ -108,6 +108,23 @@ namespace SearchService.Controllers
             try
             {
                 await controller.GetProjectsByName(new ProjectSearchCriteria { Query = "" });
+            }
+            catch (HttpResponseException e)
+            {
+                //Assert
+                Assert.AreEqual(HttpStatusCode.BadRequest, e.Response.StatusCode);
+            }
+        }
+
+        [TestMethod]
+        public async Task GetProjects_NullSerachCriteria_BadRequest()
+        {
+            //Arrange
+            var controller = new ProjectSearchController(_projectSearchRepositoryMock.Object);
+            //Act
+            try
+            {
+                await controller.GetProjectsByName(null);
             }
             catch (HttpResponseException e)
             {

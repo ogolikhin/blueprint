@@ -24,7 +24,7 @@ namespace SearchService.Controllers
         public ProjectSearchController() : this(new SqlProjectSearchRepository())
         {
         }
-        public ProjectSearchController(IProjectSearchRepository projectSearchRepository) : base()
+        public ProjectSearchController(IProjectSearchRepository projectSearchRepository)
         {
             _projectSearchRepository = projectSearchRepository;
         }

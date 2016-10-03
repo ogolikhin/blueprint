@@ -26,7 +26,7 @@ interface IBPArtifactRelationshipItemController {
     deleteItem: Function;
 }
 
-export class BPArtifactRelationshipItemController implements IBPArtifactRelationshipItemController{
+export class BPArtifactRelationshipItemController implements IBPArtifactRelationshipItemController {
     public static $inject: [string] = [
         "localization",
         "relationshipDetailsService",

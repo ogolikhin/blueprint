@@ -6,7 +6,7 @@ import {
 } from "./models/process-models";
 
 import { StatefulSubArtifact } from "../../managers/artifact-manager/sub-artifact";
-import { IStatefulArtifact } from "../../managers/models";
+import { IStatefulArtifact } from "../../managers/artifact-manager/artifact";
 import { IStatefulArtifactServices } from "../../managers/artifact-manager/services";
 
 export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements IProcessShape{

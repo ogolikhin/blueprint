@@ -202,7 +202,9 @@
 //             expect(changedArtifact[1].id).toEqual(10);
 
 //         }));
-//         it("Current artifact hasn't changed", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
+           /* tslint:disable:max-line-length */
+//         it("Current artifact hasn't changed", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {/
+           /* tslint:enable:max-line-length */
 //             // Arrange
 //             let changedArtifact: Models.IArtifact[] = [];
 

@@ -1,25 +1,17 @@
-import {
-    IArtifactAttachmentsResultSet,
-    IArtifactAttachment,
-    ChangeTypeEnum, 
-    IChangeCollector, 
-    IChangeSet, 
-    ChangeSetCollector 
-} from "../";
+import { IIStatefulItem } from "../item";
+import { IDispose } from "../../models";
+import { ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector  } from "../changeset";
+import { IArtifactAttachmentsResultSet, IArtifactAttachment } from "./attachments.svc";
 
-import { 
-    IBlock,
-    IIStatefulItem
-} from "../../models";
 
-export interface IArtifactAttachments extends IBlock<IArtifactAttachment[]> {
+export interface IArtifactAttachments extends IDispose {
+    isLoading: boolean;
     initialize(attachments: IArtifactAttachment[]);
-    observable: Rx.IObservable<IArtifactAttachment[]>;
-    get(refresh?: boolean): ng.IPromise<IArtifactAttachment[]>;
+    getObservable(): Rx.IObservable<IArtifactAttachment[]>;
     add(attachments: IArtifactAttachment[]);
     remove(attachments: IArtifactAttachment[]);
-    update(attachments: IArtifactAttachment[]);
     changes(): IArtifactAttachment[];
+    refresh(): ng.IPromise<IArtifactAttachment[]>;
     discard();
 }
 
@@ -28,11 +20,15 @@ export class ArtifactAttachments implements IArtifactAttachments {
     private subject: Rx.BehaviorSubject<IArtifactAttachment[]>;
     private changeset: IChangeCollector;
     private isLoaded: boolean;
+    private loadPromise: ng.IPromise<any>;
 
     constructor(private statefulItem: IIStatefulItem) {
-        this.attachments = [];
         this.subject = new Rx.BehaviorSubject<IArtifactAttachment[]>(this.attachments);
         this.changeset = new ChangeSetCollector(statefulItem);
+    }
+
+    public get isLoading(): boolean {
+        return !this.isLoaded || !!this.loadPromise;
     }
 
     public initialize(attachments: IArtifactAttachment[]) {
@@ -42,7 +38,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
     }
 
     // refresh = true: turn lazy loading off, always reload
-    public get(refresh: boolean = true): ng.IPromise<IArtifactAttachment[]> {
+    private get(refresh: boolean = true): ng.IPromise<IArtifactAttachment[]> {
         const deferred = this.statefulItem.getServices().getDeferred<IArtifactAttachment[]>();
 
         if (this.isLoaded && !refresh) {
@@ -61,8 +57,21 @@ export class ArtifactAttachments implements IArtifactAttachments {
         return deferred.promise;
     }
 
-    public get observable(): Rx.IObservable<IArtifactAttachment[]> {
-        return this.subject.asObservable();
+    public getObservable(): Rx.IObservable<IArtifactAttachment[]> {
+        if (!this.isLoadedOrLoading()) {
+            this.loadPromise = this.statefulItem.getAttachmentsDocRefs()
+                .catch(error => {
+                    this.subject.onError(error);
+                }).finally(() => {
+                    this.loadPromise = null;
+                });
+        }
+        
+        return this.subject.filter(it => !!it).asObservable();
+    }
+
+    protected isLoadedOrLoading() {
+        return this.attachments || this.loadPromise;
     }
 
     public add(attachments: IArtifactAttachment[]): IArtifactAttachment[] {
@@ -81,10 +90,6 @@ export class ArtifactAttachments implements IArtifactAttachments {
         }
         
         return this.attachments;
-    }
-
-    public update(attachments: IArtifactAttachment[]): IArtifactAttachment[] {
-        throw Error("operation not supported");
     }
 
     public remove(attachments: IArtifactAttachment[]): IArtifactAttachment[] {
@@ -136,8 +141,19 @@ export class ArtifactAttachments implements IArtifactAttachments {
         return attachmentChanges;
     }
 
+    public dispose() {
+        delete this.attachments;
+        delete this.changeset;
+        delete this.loadPromise;
+    }
+
     public discard() {
         this.changeset.reset();
         this.subject.onNext(this.attachments);
+    }
+
+    public refresh(): ng.IPromise<IArtifactAttachment[]> {
+        this.isLoaded = false;
+        return this.get(true);
     }
 }

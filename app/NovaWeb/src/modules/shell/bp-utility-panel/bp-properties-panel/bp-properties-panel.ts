@@ -42,8 +42,10 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     public richTextFields: AngularFormly.IFieldConfigurationObject[];
 
     private selectedArtifact: IStatefulArtifact;
-    private selectedSubArtifact: Models.ISubArtifact;
-
+    private selectedSubArtifact: IStatefulSubArtifact;
+    protected artifactSubscriber: Rx.IDisposable;
+    protected subArtifactSubscriber: Rx.IDisposable;
+    
     constructor(
         $q: ng.IQService,
         protected selectionManager: ISelectionManager,        
@@ -51,6 +53,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         public windowManager: IWindowManager,
         public localization: ILocalizationService,
         public bpAccordionPanel: IBpAccordionPanelController) {
+
 
         super($q, selectionManager, bpAccordionPanel);
         this.editor = new PropertyEditor(this.localization);
@@ -62,6 +65,16 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         delete this.customFields;
         delete this.richTextFields;
         super.$onDestroy();        
+    }
+
+    public destroySubscribers() {
+        if (this.artifactSubscriber) {
+            this.artifactSubscriber.dispose();
+        }
+        if (this.subArtifactSubscriber) {
+            this.subArtifactSubscriber.dispose();
+        }
+               
     }
 
     public get isSystemPropertyAvailable(): boolean {
@@ -80,16 +93,23 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         return this.richTextFields && this.richTextFields.length > 0;
     }
 
+
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
         try {
-            this.fields = [];
-            this.model = {};
-            this.systemFields = [];
-            this.customFields = [];
-            this.specificFields = [];
-            this.richTextFields = [];         
-            if (artifact) {
-                return this.onLoad(artifact, subArtifact, timeout);
+            if (subArtifact) {
+                this.selectedArtifact = artifact;
+                this.selectedSubArtifact = subArtifact;
+                //TODO: implement .getObservable
+                this.onUpdate();
+                this.subArtifactSubscriber = this.selectedSubArtifact.getObservable().subscribe(this.onSubArtifactChanged);
+                
+                // for new selection
+
+            } else if (artifact) {
+                this.selectedSubArtifact = null;
+                this.selectedArtifact = artifact;
+                this.artifactSubscriber = this.selectedArtifact.getObservable().subscribe(this.onArtifactChanged);
+                
             }
         } catch (ex) {
             this.messageService.addError(ex);
@@ -98,47 +118,63 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
-    private onLoad(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<void> {
-        let deferred = this.$q.defer<any>();
-        this.isLoading = true;
-        if (subArtifact) {
-            subArtifact.load(true, timeout).then(() => {
-                this.onUpdate(artifact, subArtifact);
-            })
-            .finally(() => {
-                deferred.resolve();
-                this.isLoading = false;
-            });
-                    
-        } else {
-            artifact.load(false).then(() => {
-                this.onUpdate(artifact, subArtifact);
-            })
-            .finally(() => {
-                deferred.resolve();
-                this.isLoading = false;
-            });
+    protected onArtifactChanged = (it) => {
+        this.onUpdate();
+        if (this.artifactSubscriber) {
+            this.artifactSubscriber.dispose();
         }
-        return deferred.promise;
+            
+    }
+    protected onSubArtifactChanged = (it) => {
+        this.onUpdate();
+        if (this.subArtifactSubscriber) {
+            this.subArtifactSubscriber.dispose();
+        }
+            
     }
 
-    public onUpdate(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact) {
-        this.selectedArtifact = artifact;
-        this.selectedSubArtifact = subArtifact;
+    // private onLoad(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<void> {
+    //     let deferred = this.$q.defer<any>();
+    //     this.isLoading = true;
+    //     if (subArtifact) {
+    //         subArtifact.load(true, timeout).then(() => {
+    //             this.onUpdate(artifact, subArtifact);
+    //         })
+    //         .finally(() => {
+    //             deferred.resolve();
+    //             this.isLoading = false;
+    //         });
+                    
+    //     } else {
+    //         artifact.load(false).then(() => {
+    //             this.onUpdate(artifact, subArtifact);
+    //         })
+    //         .finally(() => {
+    //             deferred.resolve();
+    //             this.isLoading = false;
+    //         });
+    //     }
+    //     return deferred.promise;
+    // }
+
+    public onUpdate() {
         try {
+            this.fields = [];
+            this.model = {};
+            this.systemFields = [];
+            this.customFields = [];
+            this.specificFields = [];
+            this.richTextFields = [];         
             
-            if (!artifact || !this.editor) {
-                return;
+            if (!this.editor || !this.selectedArtifact) {
+                return; 
             }
 
-            if (subArtifact) {
-                this.editor.load(subArtifact, subArtifact.metadata.getSubArtifactPropertyTypes());
+            if (this.selectedSubArtifact) {
+                this.editor.load(this.selectedSubArtifact, this.selectedSubArtifact.metadata.getSubArtifactPropertyTypes());
             } else {
-                this.editor.load(artifact, artifact.metadata.getArtifactPropertyTypes());
+                this.editor.load(this.selectedArtifact, this.selectedArtifact.metadata.getArtifactPropertyTypes());
             }
-
-            // let changedArtifact = this.getChangedArtifact(artifact);           
-            // let changedSubArtifact = this.getChangedSubArtifact(subArtifact);            
 
             
             this.model = this.editor.getModel();
@@ -166,6 +202,8 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         } catch (ex) {
             this.messageService.addError(ex);
             throw ex;
+        } finally {
+            this.isLoading = false;
         }       
     }
 

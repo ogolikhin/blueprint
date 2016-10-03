@@ -6,7 +6,7 @@ import "angular-ui-bootstrap";
 import "ui-select";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
-import { UsersAndGroupsServiceMock, UserOrGroupInfo } from "../../../../core/services/users-and-groups.svc.mock";
+import { UsersAndGroupsServiceMock } from "../../../../core/services/users-and-groups.svc.mock";
 import { createFormlyModule } from "../../formly-config.mock";
 
 describe("Formly User Picker", () => {

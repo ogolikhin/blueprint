@@ -47,9 +47,10 @@
 </div>
 
 <div class="filter-bar" ng-if="!$ctrl.isLoading &&  ($ctrl.manualTraces2.length || $ctrl.otherTraces.length)">
-
-    <bp-select ng-model="$ctrl.option" options="$ctrl.options">
-    </bp-select>
+    
+    <label class="btn btn-secondary btn-small pull-right" ng-class="{'disabled': $ctrl.isItemReadOnly }">
+        {{::$ctrl.localization.get('App_UP_Relationships_Manage_Traces') }}
+    </label>
     <div class="tabs">
         <uib-tabset active="$ctrl.categoryFilter">
             <uib-tab index="0" heading="{{::$ctrl.localization.get('App_UP_Relationships_All') }}"></uib-tab>

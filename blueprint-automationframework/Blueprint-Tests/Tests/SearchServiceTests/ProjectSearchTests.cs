@@ -61,7 +61,7 @@ namespace SearchServiceTests
             }, "GetArtifactDiscussions shouldn't throw any error.");
 
             // Verify:
-            Assert.AreEqual(1, projects.Count, "Search result should have 1 project, but it doesn't.");
+            Assert.IsTrue(projects.Count >= 1, "Search result should have at least 1 project, but it doesn't.");
             Assert.IsTrue(projects[0].ProjectName.Contains(searchString), "Name of returned project should contain searchString, but it doesn't");
         }
 
@@ -103,7 +103,7 @@ namespace SearchServiceTests
             }, "GetArtifactDiscussions shouldn't throw any error.");
 
             // Verify:
-            Assert.AreEqual(1, projects.Count, "Search result should have 1 project, but it doesn't.");
+            Assert.IsTrue(projects.Count >= 1, "Search result should have at least 1 project, but it doesn't.");
             Assert.IsTrue(projects[0].ProjectName.Contains(searchString), "Name of returned project should contain searchString, but it doesn't");
         }
 
@@ -124,7 +124,7 @@ namespace SearchServiceTests
             }, "GetArtifactDiscussions shouldn't throw any error.");
 
             // Verify:
-            Assert.AreEqual(1, projects.Count, "Search result should have 1 project, but it doesn't.");
+            Assert.IsTrue(projects.Count >= 1, "Search result should have at least 1 project, but it doesn't.");
             Assert.AreEqual(_project.Name, projects[0].ProjectName, "Name of returned project should have expected value, but it doesn't");
         }
     }

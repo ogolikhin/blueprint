@@ -300,6 +300,7 @@ namespace ArtifactStoreTests
                 "{0} when user tries to move an artifact to different project", expectedExceptionMessage);
         }
 
+        [Ignore(IgnoreReasons.DeploymentNotReady)] // The tests might change the state of artifact and lead to chain effect of multiple failures down the road
         [Category(Categories.CustomData)]
         [TestCase(181, 182)]
         [TestCase(183, 185)]
@@ -424,7 +425,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182403)]
         [Description("Create & publish an artifact. Move an artifact to be a child of the artifact with Id 0.  Verify returned code 404 Not Found.")]
-        public void MoveArtifact_ublishedArtifactCannotBeMovedToArtifactWithId0_404NotFound(BaseArtifactType artifactType)
+        public void MoveArtifact_PublishedArtifactCannotBeMovedToArtifactWithId0_404NotFound(BaseArtifactType artifactType)
         {
             const int ARTIFACT_WITH_ID_0 = 0;
             // Setup:

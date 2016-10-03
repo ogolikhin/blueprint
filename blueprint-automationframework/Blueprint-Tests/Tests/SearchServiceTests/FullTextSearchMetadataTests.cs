@@ -6,7 +6,7 @@ using NUnit.Framework;
 using System.Linq;
 using Model.ArtifactModel;
 using Model.Factories;
-using Model.FullTextSearchModel.Impl;
+using Model.SearchServiceModel.Impl;
 using TestCommon;
 using Utilities;
 
@@ -30,7 +30,7 @@ namespace SearchServiceTests
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _projects = ProjectFactory.GetAllProjects(_user, true);
-            _artifacts = SearchServiceTestHelper.SetupSearchData(_projects, _user, Helper);
+            _artifacts = SearchServiceTestHelper.SetupFullTextSearchData(_projects, _user, Helper);
         }
 
         [TestFixtureTearDown]
@@ -56,7 +56,7 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with search term
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
-                Helper.FullTextSearch.SearchMetaData(_user, searchCriteria),
+                Helper.SearchService.FullTextSearchMetaData(_user, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
                 searchCriteria.Query);
 
@@ -85,7 +85,7 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with search terms
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
-                Helper.FullTextSearch.SearchMetaData(_user, searchCriteria, requestedPageSize),
+                Helper.SearchService.FullTextSearchMetaData(_user, searchCriteria, requestedPageSize),
                 "SearchMetaData() call failed when using following search term: {0}!",
                 searchCriteria.Query);
 
@@ -112,7 +112,7 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with search term
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
-                Helper.FullTextSearch.SearchMetaData(_user, searchCriteria, requestedPageSize),
+                Helper.SearchService.FullTextSearchMetaData(_user, searchCriteria, requestedPageSize),
                 "SearchMetaData() call failed when using following search term: {0}!",
                 searchCriteria.Query);
 
@@ -140,7 +140,7 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with search term
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResultForSingleProject =
-                Helper.FullTextSearch.SearchMetaData(_user, searchCriteria),
+                Helper.SearchService.FullTextSearchMetaData(_user, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
                 searchCriteria.Query);
 
@@ -155,7 +155,7 @@ namespace SearchServiceTests
             FullTextSearchMetaDataResult fullTextSearchMetaDataResultForMultipleProjects = null;
 
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResultForMultipleProjects =
-                Helper.FullTextSearch.SearchMetaData(_user, searchCriteria),
+                Helper.SearchService.FullTextSearchMetaData(_user, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
                 searchCriteria.Query);
 
@@ -186,7 +186,7 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with search term
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
-                Helper.FullTextSearch.SearchMetaData(_user, searchCriteria),
+                Helper.SearchService.FullTextSearchMetaData(_user, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
                 searchCriteria.Query);
 
@@ -238,7 +238,7 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with search term
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
-                Helper.FullTextSearch.SearchMetaData(_user, searchCriteria),
+                Helper.SearchService.FullTextSearchMetaData(_user, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
                 searchCriteria.Query);
 
@@ -268,11 +268,11 @@ namespace SearchServiceTests
             var searchTerm = artifact.Name;
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
 
-            SearchServiceTestHelper.WaitForSearchIndexerToUpdate(_user, Helper, searchCriteria, 1);
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1);
 
             // Execute: Execute FullTextSearch with search term
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
-                Helper.FullTextSearch.SearchMetaData(_user, searchCriteria),
+                Helper.SearchService.FullTextSearchMetaData(_user, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
                 searchCriteria.Query);
 
@@ -299,11 +299,11 @@ namespace SearchServiceTests
             var searchTerm = artifact.Name;
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
 
-            SearchServiceTestHelper.WaitForSearchIndexerToUpdate(_user, Helper, searchCriteria, 1);
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1);
 
             // Execute: Perform search with another user
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
-                Helper.FullTextSearch.SearchMetaData(_user2, searchCriteria),
+                Helper.SearchService.FullTextSearchMetaData(_user2, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
                 searchCriteria.Query);
 
@@ -332,10 +332,10 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
 
             // Wait until second user can see the artifact in the search results or timeout occurs
-            SearchServiceTestHelper.WaitForSearchIndexerToUpdate(_user2, Helper, searchCriteria, 1);
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user2, Helper, searchCriteria, 1);
 
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
-                Helper.FullTextSearch.SearchMetaData(_user2, searchCriteria),
+                Helper.SearchService.FullTextSearchMetaData(_user2, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
                 searchCriteria.Query);
 
@@ -347,10 +347,10 @@ namespace SearchServiceTests
             artifact.Save(_user);
 
             // Wait until first user no longer sees the artifact in search results or timeout occurs
-            SearchServiceTestHelper.WaitForSearchIndexerToUpdate(_user, Helper, searchCriteria, 0, waitForArtifactsToDisappear: true);
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 0, waitForArtifactsToDisappear: true);
 
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
-                Helper.FullTextSearch.SearchMetaData(_user, searchCriteria),
+                Helper.SearchService.FullTextSearchMetaData(_user, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
                 searchCriteria.Query);
 
@@ -358,7 +358,7 @@ namespace SearchServiceTests
             Assert.That(fullTextSearchMetaDataResult.TotalCount.Equals(0), "The expected search hit count is {0} but {1} was returned.", 0, fullTextSearchMetaDataResult.TotalCount);
 
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
-                Helper.FullTextSearch.SearchMetaData(_user2, searchCriteria),
+                Helper.SearchService.FullTextSearchMetaData(_user2, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
                 searchCriteria.Query);
 
@@ -387,10 +387,10 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
 
             // Wait until second user can see the artifact in the search results or timeout occurs
-            SearchServiceTestHelper.WaitForSearchIndexerToUpdate(_user2, Helper, searchCriteria, 1);
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user2, Helper, searchCriteria, 1);
 
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
-                Helper.FullTextSearch.SearchMetaData(_user2, searchCriteria),
+                Helper.SearchService.FullTextSearchMetaData(_user2, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
                 searchCriteria.Query);
 
@@ -402,10 +402,10 @@ namespace SearchServiceTests
             artifact.Publish(_user);
 
             // Wait until second user can no longer see the artifact or timeout occurs
-            SearchServiceTestHelper.WaitForSearchIndexerToUpdate(_user2, Helper, searchCriteria, 0, waitForArtifactsToDisappear: true);
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user2, Helper, searchCriteria, 0, waitForArtifactsToDisappear: true);
 
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
-                Helper.FullTextSearch.SearchMetaData(_user2, searchCriteria),
+                Helper.SearchService.FullTextSearchMetaData(_user2, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
                 searchCriteria.Query);
 
@@ -446,7 +446,7 @@ namespace SearchServiceTests
                 new List<IProject> {_projects.First()});
 
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
-                Helper.FullTextSearch.SearchMetaData(userWithProjectRole, searchCriteria),
+                Helper.SearchService.FullTextSearchMetaData(userWithProjectRole, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
                 searchCriteria.Query);
 
@@ -487,7 +487,7 @@ namespace SearchServiceTests
                 _projects);
 
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
-                Helper.FullTextSearch.SearchMetaData(userWithProjectRole, searchCriteria),
+                Helper.SearchService.FullTextSearchMetaData(userWithProjectRole, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
                 searchCriteria.Query);
 
@@ -514,7 +514,7 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
 
             // Wait until user can see the artifact in the search results or timeout occurs
-            SearchServiceTestHelper.WaitForSearchIndexerToUpdate(_user, Helper, searchCriteria, 1);
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1);
 
             // update artifact with name that doesn't match old search criteria
             var newSearchTerm = "NewName";
@@ -527,11 +527,11 @@ namespace SearchServiceTests
             var newSearchCriteria = new FullTextSearchCriteria(newSearchTerm, _projects.Select(p => p.Id));
 
             // Wait until user can see the artifact in the search results or timeout occurs
-            SearchServiceTestHelper.WaitForSearchIndexerToUpdate(_user, Helper, newSearchCriteria, 1);
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, newSearchCriteria, 1);
 
             // Attempt to search for artifact with original search criteria
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
-                Helper.FullTextSearch.SearchMetaData(_user, searchCriteria),
+                Helper.SearchService.FullTextSearchMetaData(_user, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
                 searchCriteria.Query);
 
@@ -555,7 +555,7 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(searchTerm, null);
 
             // Execute & Vaidation: 
-            Assert.Throws<Http400BadRequestException>(() => Helper.FullTextSearch.SearchMetaData(_user, searchCriteria),
+            Assert.Throws<Http400BadRequestException>(() => Helper.SearchService.FullTextSearchMetaData(_user, searchCriteria),
                 "SearchMetaData() should have thrown a HTTP 400 Bad Request exception but didn't.");
         }
 
@@ -565,7 +565,7 @@ namespace SearchServiceTests
         public void FullTextSearchMetadata_SearchMetadataWithNoSearchCriteria_400BadRequest()
         {
             // Execute & Vaidation: 
-            Assert.Throws<Http400BadRequestException>(() => Helper.FullTextSearch.SearchMetaData(_user, null),
+            Assert.Throws<Http400BadRequestException>(() => Helper.SearchService.FullTextSearchMetaData(_user, null),
                 "SearchMetaData() should have thrown a HTTP 400 Bad Request exception but didn't.");
         }
 
@@ -579,7 +579,7 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
 
             // Execute & Vaidation: 
-            Assert.Throws<Http400BadRequestException>(() => Helper.FullTextSearch.SearchMetaData(_user, searchCriteria),
+            Assert.Throws<Http400BadRequestException>(() => Helper.SearchService.FullTextSearchMetaData(_user, searchCriteria),
                 "SearchMetaData() should have thrown a HTTP 400 Bad Request exception but didn't.");
         }
 
@@ -610,7 +610,7 @@ namespace SearchServiceTests
             userWithProjectRole.SetToken(invalidAccessControlToken);
 
             // Execute & Verify:
-            Assert.Throws<Http401UnauthorizedException>(() => Helper.FullTextSearch.SearchMetaData(userWithProjectRole, searchCriteria),
+            Assert.Throws<Http401UnauthorizedException>(() => Helper.SearchService.FullTextSearchMetaData(userWithProjectRole, searchCriteria),
                 "We should get a 401 Unauthorized when a user does not have authorization to search metadata!");
         }
 

@@ -4,8 +4,6 @@ import { Enums, Models} from "../../main";
 import { PropertyContext} from "./bp-property-context";
 import { IStatefulItem} from "../../managers/models";
 
-import { tinymceMentionsData} from "../../util/tinymce-mentions.mock"; //TODO: added just for testing
-
 export class PropertyEditor {
 
     private _model: any;
@@ -215,23 +213,6 @@ export class PropertyEditor {
                 case Models.PrimitiveType.Text:
                     field.type = context.isRichText ? "bpFieldTextRTFInline" : (context.isMultipleAllowed ? "bpFieldTextMulti" : "bpFieldText");
                     field.defaultValue = context.stringDefaultValue;
-                    if (context.isRichText && Enums.PropertyLookupEnum.Special !== context.lookup) {
-                        field.templateOptions["tinymceOption"] = {
-                            //fixed_toolbar_container: ".form-tinymce-toolbar." + context.fieldPropertyName
-                        };
-                        //TODO: added just for testing
-                        if (true) { //here we need something to decide if the tinyMCE editor should have mentions
-                            field.templateOptions["tinymceOption"].mentions = {
-                                source: tinymceMentionsData,
-                                delay: 100,
-                                items: 5,
-                                queryBy: "fullname",
-                                insert: function (item) {
-                                    return `<a class="mceNonEditable" href="mailto:${item.emailaddress}" title="ID# ${item.id}">${item.fullname}</a>`;
-                                }
-                            };
-                        }
-                    }
                     break;
                 case Models.PrimitiveType.Date:
                     field.type = "bpFieldDatepicker";

@@ -5,10 +5,10 @@ import { BPTreeViewComponent, BPTreeViewController, ITreeViewNodeVM, IColumn } f
 import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
 
 describe("BPTreeViewComponent", () => {
-    angular.module("bp.widjets.treeView", [])
+    angular.module("bp.widgets.treeView", [])
         .component("bpTreeView", new BPTreeViewComponent());
 
-    beforeEach(angular.mock.module("bp.widjets.treeView", ($provide: ng.auto.IProvideService) => {
+    beforeEach(angular.mock.module("bp.widgets.treeView", ($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
     }));
 

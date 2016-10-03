@@ -25,7 +25,6 @@ Sample template. See following parameters:
 tslint:enable
 */
 
-
 export class BPTreeComponent implements ng.IComponentOptions {
     public template: string = require("./bp-tree.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPTreeController;
@@ -51,6 +50,7 @@ export class BPTreeComponent implements ng.IComponentOptions {
         onRowPostCreate: "&?"
     };
 }
+
 export interface ITreeNode {
     id: number;
     name: string;
@@ -61,6 +61,7 @@ export interface ITreeNode {
     loaded?: boolean;
     open?: boolean;
 }
+
 export interface IBPTreeController {
     onLoad?: Function;                  //to be called to load ag-grid data a data node to the datasource
     onSelect?: Function;                //to be called on time of ag-grid row selection
@@ -71,8 +72,8 @@ export interface IBPTreeController {
 
     isEmpty: boolean;
     //to select a row in in ag-grid (by id)
-    selectNode(id: number);            
-    nodeExists(id: number): boolean;      
+    selectNode(id: number);
+    nodeExists(id: number): boolean;
     //to reload datasource with data passed, if id specified the data will be loaded to node's children collection
     reload(data?: any[], id?: number);
     showLoading();
@@ -80,8 +81,7 @@ export interface IBPTreeController {
     hideOverlays();
 }
 
-
-export class BPTreeController implements IBPTreeController  {
+export class BPTreeController implements IBPTreeController {
     static $inject = ["localization", "$element", "$timeout"];
     //properties
     public gridClass: string;
@@ -101,7 +101,6 @@ export class BPTreeController implements IBPTreeController  {
     public onRowClick: Function;
     public onRowDblClick: Function;
     public onRowPostCreate: Function;
-   
 
     public bpRef: BPTreeController;
 
@@ -171,10 +170,8 @@ export class BPTreeController implements IBPTreeController  {
             onViewportChanged: this.updateViewport,
             onModelUpdated: this.updateViewport,
             localeTextFunc: (key: string, defaultValue: string) => this.localization.get("ag-Grid_" + key, defaultValue)
-
         };
-    };  
-    
+    };
 
     public $onDestroy = () => {
         this.selectedRow = null;
@@ -188,17 +185,17 @@ export class BPTreeController implements IBPTreeController  {
     /* tslint:disable */
     private mapData(data: any, propertyMap?: any): ITreeNode {
         propertyMap = propertyMap || this.propertyMap;
+
         if (!propertyMap) {
             return data;
         }
+
         let item = {} as ITreeNode;
 
-         for (let property in data) {
-             item[propertyMap[property] ? propertyMap[property] : property ] = data[property];
-         }
-        // for (let property in propertyMap) {
-        //     item[property] = data[property];
-        // }
+        for (let property in data) {
+            item[propertyMap[property] ? propertyMap[property] : property] = data[property];
+        }
+
         if (item.hasChildren) {
             if (angular.isArray(item.children) && item.children.length) {
                 item.children = item.children.map(function (it) {
@@ -208,6 +205,7 @@ export class BPTreeController implements IBPTreeController  {
                 item.children = [];
             }
         }
+        
         return item;
     }
     /* tslint:enable */
@@ -216,9 +214,9 @@ export class BPTreeController implements IBPTreeController  {
         return !Boolean(this._datasource && this._datasource.length);
     }
 
-
     private getNode(id: number, nodes?: ITreeNode[]): ITreeNode {
         let item: ITreeNode;
+
         if (nodes) {
             nodes.map(function (node: ITreeNode) {
                 if (!item && node.id === id) {  ///needs to be changed toCamelCase
@@ -228,6 +226,7 @@ export class BPTreeController implements IBPTreeController  {
                 }
             }.bind(this));
         }
+
         return item;
     };
 
@@ -245,6 +244,7 @@ export class BPTreeController implements IBPTreeController  {
                 found = true;
             }
         });
+
         return found;
     }
 
@@ -255,9 +255,10 @@ export class BPTreeController implements IBPTreeController  {
         this._datasource = this._datasource || [];
         if (data) {
             nodes = data.map(function (it) {
-                return this.mapData(it, this.propertyMap) ;
+                return this.mapData(it, this.propertyMap);
             }.bind(this)) as ITreeNode[];
         }
+
         if (nodeId) {
             let node = this.getNode(nodeId, this._datasource);
             if (node) {
@@ -267,7 +268,6 @@ export class BPTreeController implements IBPTreeController  {
                     children: nodes
                 });
             }
-
         } else {
             this._datasource = nodes;
         }
@@ -303,7 +303,7 @@ export class BPTreeController implements IBPTreeController  {
                 if (viewport.getAttribute("data-ps-id")) {
                     // perfect-scrollbar has been initialized on the element (data-ps-id is not null/undefined/"" )
                     let allColumnIds = [];
-                    this.options.columnDefs.forEach(function(columnDef) {
+                    this.options.columnDefs.forEach(function (columnDef) {
                         allColumnIds.push(columnDef.field);
                     });
                     this.options.columnApi.autoSizeColumns(allColumnIds);
@@ -319,6 +319,7 @@ export class BPTreeController implements IBPTreeController  {
         }
     };
     /* tslint:disable */
+
     private innerRenderer = (params: any) => {
         let inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? `bp-tree-inline-editing="` + params.colDef.field + `"` : "";
 
@@ -339,6 +340,7 @@ export class BPTreeController implements IBPTreeController  {
         return `<span class="ag-group-value-wrapper" ${inlineEditing}${enableDragndrop}>${currentValue}</span>`;
     };
     /* tslint:enable */
+
     private getNodeChildDetails(node: ITreeNode) {
         if (node.children) {
             return {
@@ -364,6 +366,7 @@ export class BPTreeController implements IBPTreeController  {
         if (params && params.api) {
             params.api.sizeColumnsToFit();
         }
+
         if (angular.isFunction(self.onLoad)) {
             //this verifes and updates current node to inject children
             //NOTE:: this method may uppdate grid datasource using setDataSource method
@@ -390,6 +393,7 @@ export class BPTreeController implements IBPTreeController  {
                 row.classList.add("ag-row-group-contracted");
             }
         }
+
         if (node.data.hasChildren && !node.data.loaded) {
             if (angular.isFunction(self.onLoad)) {
                 if (row) {
@@ -403,7 +407,9 @@ export class BPTreeController implements IBPTreeController  {
                 }
             }
         }
+
         node.data.open = node.expanded;
+        
         if (angular.isFunction(self.onSync)) {
             self.onSync({ item: node.data });
         }
@@ -423,7 +429,7 @@ export class BPTreeController implements IBPTreeController  {
         let selectedRow = model.getRow(params.rowIndex);
         this.rowSelected(selectedRow);
     };
-    
+
     private rowClicked = (params: any) => {
         let self = this;
 
@@ -440,13 +446,13 @@ export class BPTreeController implements IBPTreeController  {
         this.$timeout.cancel(this.clickTimeout);
 
         if (angular.isFunction(this.onRowDblClick)) {
-            this.onRowDblClick({prms: params});
+            this.onRowDblClick({ prms: params });
         }
     };
 
     private rowPostCreate = (params: any) => {
         if (angular.isFunction(this.onRowPostCreate)) {
-            this.onRowPostCreate({prms: params});
+            this.onRowPostCreate({ prms: params });
         }
     };
 }

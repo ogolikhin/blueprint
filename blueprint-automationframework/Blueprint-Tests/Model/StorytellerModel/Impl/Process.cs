@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using Common;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;

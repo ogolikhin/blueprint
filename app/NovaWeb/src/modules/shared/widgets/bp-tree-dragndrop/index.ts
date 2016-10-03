@@ -2,6 +2,6 @@
 import { BPTreeDragndrop } from "./bp-tree-dragndrop";
 
 
-angular.module("bp.widjets.treedraganddrop", [])
+angular.module("bp.widgets.treedraganddrop", [])
     .directive("bpTreeDragndrop", BPTreeDragndrop.factory());
 

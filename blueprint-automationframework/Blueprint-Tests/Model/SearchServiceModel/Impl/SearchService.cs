@@ -92,23 +92,30 @@ namespace Model.SearchServiceModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
+            var jsonObject = new Dictionary<string, string> {{ "query", searchText }};
+            
             var queryParams = new Dictionary<string, string>();
 
-            queryParams.Add("searchText", searchText);
             if (resultCount != null)
             {
                 queryParams.Add("resultCount", resultCount.ToString());
+            }
+            else
+            {
+                queryParams = null;
             }
 
             var tokenValue = user.Token?.AccessControlToken;
 
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            var projects = restApi.SendRequestAndDeserializeObject<List<ProjectSearchResult>>(
+            var projects = restApi.SendRequestAndDeserializeObject<List<ProjectSearchResult>, Dictionary<string, string>>(
                 RestPaths.Svc.SearchService.PROJECTSEARCH,
-                RestRequestMethod.GET,
+                RestRequestMethod.POST,
+                jsonObject: jsonObject,
                 queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
 
             return projects;
         }

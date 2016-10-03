@@ -58,7 +58,7 @@ namespace Model.SearchServiceModel
         /// <param name="searchText">Text to search</param>
         /// <param name="resultCount">(optional)The number of search results to return.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>List of projects.</returns>
+        /// <returns>Returns a list of projects that have names that match the searchText.</returns>
         List<ProjectSearchResult> SearchProjects(IUser user, string searchText, int? resultCount = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

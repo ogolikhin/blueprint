@@ -3,7 +3,8 @@ import { Models} from "../../models";
 import { Helper, IBPTreeController } from "../../../shared";
 import { IProjectManager, IArtifactManager} from "../../../managers";
 import { Project } from "../../../managers/project-manager";
-import { IStatefulArtifact, IArtifactNode} from "../../../managers/models";
+import { IStatefulArtifact } from "../../../managers/artifact-manager";
+import { IArtifactNode } from "../../../managers/project-manager";
 import { INavigationService } from "../../../core/navigation/navigation.svc";
 
 export class ProjectExplorer implements ng.IComponentOptions {
@@ -144,18 +145,15 @@ export class ProjectExplorerController {
     };
 
     public doSelect = (node: IArtifactNode) => {
-        console.log("doSelect");
-
-        if (!this.selected || this.selected.id !== node.id) {
+        if (!this.selected || this.selected.id !== node.id || this.selected.id !== this.artifactManager.selection.getArtifact().id) {
             this.doSync(node);
             this.selected = node;
+            this.tree.selectNode(node.id);
             this.navigationService.navigateToArtifact(node.id);
         }
     };
 
     public doSync = (node: IArtifactNode): IStatefulArtifact => {
-        console.log("doSync");
-
         //check passed in parameter
         let artifactNode = this.projectManager.getArtifactNode(node.id);
 

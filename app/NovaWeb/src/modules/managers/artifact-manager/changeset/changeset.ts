@@ -1,5 +1,4 @@
- import {IIStatefulItem} from "../../models";
-
+import { IIStatefulItem } from "../item";
 
 export enum ChangeTypeEnum {
     Add = 0,

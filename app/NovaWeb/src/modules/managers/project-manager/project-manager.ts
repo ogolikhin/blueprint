@@ -1,17 +1,29 @@
 ﻿import * as angular from "angular";
 import { ILocalizationService, IMessageService } from "../../core";
 import { IDialogService } from "../../shared";
-import { IStatefulArtifactFactory } from "../artifact-manager/artifact";
+import { IStatefulArtifactFactory, IStatefulArtifact } from "../artifact-manager/artifact";
 import { Project, ArtifactNode } from "./project";
-import { IArtifactNode, IStatefulArtifact, IDispose} from "../models";
-//import { StatefulArtifact } from "../artifact-manager/artifact";
-
+import { IDispose} from "../models";
 import { Models, Enums } from "../../main/models";
 import { IProjectService } from "./project-service";
-import { SelectionSource } from "../selection-manager";
-
 import { IArtifactManager } from "../../managers";
 import { IMetaDataService } from "../artifact-manager/metadata";
+
+export interface IArtifactNode extends IDispose {
+    artifact: IStatefulArtifact;
+    children?: IArtifactNode[];
+    parentNode: IArtifactNode;
+    id: number;
+    name: string;
+    projectId: number;
+    //parentId: number;
+    permissions: Enums.RolePermissions;
+    predefinedType: Models.ItemTypePredefined;
+    hasChildren?: boolean;
+    loaded?: boolean;
+    open?: boolean;
+}
+
 export interface IProjectManager extends IDispose {
     projectCollection: Rx.BehaviorSubject<Project[]>;
 
@@ -34,7 +46,6 @@ export class ProjectManager  implements IProjectManager {
 
     private _projectCollection: Rx.BehaviorSubject<Project[]>;
     private subscribers: Rx.IDisposable[];
-    private statechangesubscriber: Rx.IDisposable;
     static $inject: [string] = [
         "$q",
         "localization", 
@@ -57,22 +68,9 @@ export class ProjectManager  implements IProjectManager {
         private statefulArtifactFactory: IStatefulArtifactFactory) {
         
         this.subscribers = [];
+
     }
 
-    private onChange(artifact: IStatefulArtifact) {
-        this.projectCollection.onNext(this._projectCollection.getValue());
-    }
-
-    // private onArtifactSelect(artifact: IStatefulArtifact) {
-    //     if (this.statechangesubscriber) {
-    //         this.statechangesubscriber.dispose();
-    //         delete this.statechangesubscriber;
-    //     }
-    //     if (artifact) {
-    //         this.statechangesubscriber = artifact.observable().subscribeOnNext(this.onChange, this);
-    //     }
-    // }
-    
     private onChangeInArtifactManagerCollection(artifact: IStatefulArtifact) {
          //Projects will null parentId have been removed from ArtifactManager
          if (artifact.parentId === null) {
@@ -136,7 +134,7 @@ export class ProjectManager  implements IProjectManager {
                     }
                 });
             });
-        }else {
+        } else {
             this.doRefresh(project, selectedArtifact, defer, currentProject);
         }
         
@@ -157,39 +155,50 @@ export class ProjectManager  implements IProjectManager {
                 defer.reject();
             }
         }).catch((error: any) => {
+            if (!error) {
+                this.onGetProjectTreeError(project);
+                defer.reject();
+            }
             if (error.statusCode === 404 && error.errorCode === 3000) {
-                //try with selected artifact's parent
-                this.projectService.getProjectTree(project.id, selectedArtifact.parentId, true)
-                .then((data: Models.IArtifact[]) => {
-                    this.messageService.addInfo("Refresh_Artifact_Deleted");
-                    if (this.onGetProjectTree(project, data)) {
-                        defer.resolve();
-                    } else {
-                        this.onGetProjectTreeError(project);
-                        defer.reject();
-                    }
-                }).catch((innerError: any) => {
-                    if (innerError.statusCode === 404 && innerError.errorCode === 3000) {
-                        //try it with project
-                        this.projectService.getArtifacts(project.id).then((data: Models.IArtifact[]) => {
-                            this.messageService.addInfo("Refresh_Artifact_Deleted");
-                            if (this.onGetProjectTree(project, data)) {
-                                defer.resolve();
-                            } else {
-                                this.onGetProjectTreeError(project);
-                                defer.reject();
-                            }
-                        }).catch((err: any) => {
-                            this.messageService.addError("Refresh_Project_NotFound");
+                //if we're selecting project
+                if (selectedArtifact.id === selectedArtifact.projectId) {
+                    this.messageService.addError("Refresh_Project_NotFound");
+                    this.onGetProjectTreeError(project);
+                    defer.reject();
+                } else {
+                    //try with selected artifact's parent
+                    this.projectService.getProjectTree(project.id, selectedArtifact.parentId, true)
+                    .then((data: Models.IArtifact[]) => {
+                        this.messageService.addInfo("Refresh_Artifact_Deleted");
+                        if (this.onGetProjectTree(project, data)) {
+                            defer.resolve();
+                        } else {
                             this.onGetProjectTreeError(project);
                             defer.reject();
-                        });
-                    } else {
-                        this.messageService.addError(error["message"]);
-                        this.onGetProjectTreeError(project);
-                        defer.reject();
-                    }
-                });
+                        }
+                    }).catch((innerError: any) => {
+                        if (innerError.statusCode === 404 && innerError.errorCode === 3000) {
+                            //try it with project
+                            this.projectService.getArtifacts(project.id).then((data: Models.IArtifact[]) => {
+                                this.messageService.addInfo("Refresh_Artifact_Deleted");
+                                if (this.onGetProjectTree(project, data)) {
+                                    defer.resolve();
+                                } else {
+                                    this.onGetProjectTreeError(project);
+                                    defer.reject();
+                                }
+                            }).catch((err: any) => {
+                                this.messageService.addError("Refresh_Project_NotFound");
+                                this.onGetProjectTreeError(project);
+                                defer.reject();
+                            });
+                        } else {
+                            this.messageService.addError(error["message"]);
+                            this.onGetProjectTreeError(project);
+                            defer.reject();
+                        }
+                    });
+                }
             } else {
                 this.messageService.addError(error["message"]);
                 this.onGetProjectTreeError(project);
@@ -234,9 +243,11 @@ export class ProjectManager  implements IProjectManager {
 
                 //open any children that have children
                 this.openChildNodes(newProjectNode.children, data);
-               
+
                 if (selectedArtifactId) {
-                    //this.loadArtifact(selectedArtifactId);
+                    this.artifactManager.get(selectedArtifactId).then((artifact) => {
+                        this.artifactManager.selection.setArtifact(artifact);
+                    });
                 }
 
                 //update project collection
@@ -366,7 +377,6 @@ export class ProjectManager  implements IProjectManager {
                     node.open = true;
 
                     this.projectCollection.onNext(this.projectCollection.getValue());
-//                    this.artifactManager.selection.setArtifact(node.artifact, SelectionSource.Explorer);
 
                 }).catch((error: any) => {
                     //ignore authentication errors here

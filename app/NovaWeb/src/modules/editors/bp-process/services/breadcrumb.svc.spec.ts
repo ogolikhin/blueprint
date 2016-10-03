@@ -1,4 +1,5 @@
 import * as angular from "angular";
+import "angular-mocks";
 import {BreadcrumbService, IArtifactReference} from "./breadcrumb.svc";
 import {ItemTypePredefined} from "../../../main/models/enums";
 import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";

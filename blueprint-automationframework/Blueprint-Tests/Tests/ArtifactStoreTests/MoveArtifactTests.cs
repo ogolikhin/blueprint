@@ -40,7 +40,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.PrimitiveFolder)]
         [TestRail(182346)]
-        [Description("Create & publish 3 artifacts. Create chain : grandparent, parent and child. Move parent artifact with a child to be a child of the project.  Verify the moved artifact is returned with the updated Parent ID.")]
+        [Description("Create & publish three artifacts. Create chain : grandparent, parent and child. Move parent artifact with a child to be a child of the project.  Verify the moved artifact is returned with the updated Parent ID.")]
         public void MoveArtifact_PublishedArtifactWithDependentChildBecomesChildOfProject_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
         {
             // Setup: 
@@ -90,7 +90,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182373)]
-        [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other.  Verify the moved artifact is returned with the updated Parent ID.")]
+        [Description("Create & publish two artifacts.  Move one artifact to be a child of the other.  Verify the moved artifact is returned with the updated Parent ID.")]
         public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
         {
             // Setup:
@@ -114,7 +114,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182459)]
-        [Description("Create & save an artifacts.  Move this artifact to be a child of the other.  Verify the moved artifact is returned with the updated Parent ID.")]
+        [Description("Create & save an artifact.  Move this artifact to be a child of the other.  Verify the moved artifact is returned with the updated Parent ID.")]
         public void MoveArtifact_SavedArtifactBecomesChildOfPublishedArtifact_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
         {
             // Setup:
@@ -246,7 +246,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182402)]
-        [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other.  Send current version of artifact with the message.  Verify the moved artifact is returned with the updated Parent ID.")]
+        [Description("Create & publish two artifacts.  Move one artifact to be a child of the other.  Send current version of artifact with the message.  Verify the moved artifact is returned with the updated Parent ID.")]
         public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_SendCurrentVersion_200OK(BaseArtifactType artifactType)
         {
             const int CURRENT_VERSION_OF_ARTIFACT = 2;
@@ -332,7 +332,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182405)]
-        [Description("Create & publish 2 artifacts.  Each one in different project. Move the artifact to be a child of the other in different project. Verify returned code 403 Forbidden.")]
+        [Description("Create & publish two artifacts.  Each one in different project. Move the artifact to be a child of the other in different project. Verify returned code 403 Forbidden.")]
         public void MoveArtifact_PublishedArtifactMoveToBeAChildOfAnotherInDifferentProject_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
@@ -359,7 +359,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182462)]
-        [Description("Create & publish 2 artifacts.  Each one in different project. Move the artifact to be a child of the other in different project. Verify returned code 403 Forbidden.")]
+        [Description("Create & publish two artifacts.  Each one in different project. Move the artifact to be a child of the other in different project. Verify returned code 403 Forbidden.")]
         public void MoveArtifact_SavedArtifactMoveToBeAChildOfAnotherInDifferentProject_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
@@ -422,7 +422,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182416)]
-        [Description("Create & publish 2 artifacts. Move an artifact to be a child of the other one with user that does not have proper permissions.  Verify returned code 403 Forbidden.")]
+        [Description("Create & publish two artifacts. Move an artifact to be a child of the other one with user that does not have proper permissions.  Verify returned code 403 Forbidden.")]
         public void MoveArtifact_PublishedArtifactCannotBeMovedForUserWithoutProperPermissions_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
@@ -468,7 +468,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182424)]
-        [Description("Create & publish 2 artifacts. Move an artifact to be a child of the other one to which user does not have proper permissions.  Verify returned code 403 Forbidden.")]
+        [Description("Create & publish two artifacts. Move an artifact to be a child of the other one to which user does not have proper permissions.  Verify returned code 403 Forbidden.")]
         public void MoveArtifact_PublishedArtifactCannotBeMovedToArtifactWhichUserDoesNotHaveProperPermissions_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
@@ -646,7 +646,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182432)]
-        [Description("Create & publish 2 artifacts.  Delete 2nd one.  Move first artifact to be a child of second artifact.  Verify returned code 404 Not Found.")]
+        [Description("Create & publish two artifacts.  Delete 2nd one.  Move first artifact to be a child of second artifact.  Verify returned code 404 Not Found.")]
         public void MoveArtifact_PublishedArtifactCannotBeMovedToDeletedArtifact_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
@@ -669,7 +669,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182479)]
-        [Description("Create & save an artifact.  Delete 2nd one.  Move first artifact to be a child of second artifact.  Verify returned code 404 Not Found.")]
+        [Description("Create & save an artifact.  Delete second one.  Move first artifact to be a child of second artifact.  Verify returned code 404 Not Found.")]
         public void MoveArtifact_SavedArtifactCannotBeMovedToDeletedArtifact_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
@@ -691,7 +691,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182480)]
-        [Description("Create & publish 2 artifacts. Delete first one. Move first artifact to be a child of second artifact.  Verify returned code 404 Not Found.")]
+        [Description("Create & publish two artifacts. Delete first one. Move first artifact to be a child of second artifact.  Verify returned code 404 Not Found.")]
         public void MoveArtifact_DeletedArtifactCannotBeMovedToAnotherArtifact_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
@@ -717,7 +717,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process, 0)]
         [TestCase(BaseArtifactType.Process, 1)]
         [TestRail(182378)]
-        [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other.  Send not current version of artifact with the message. Verify returned code 409 Conflict.")]
+        [Description("Create & publish two artifacts.  Move one artifact to be a child of the other.  Send not current version of artifact with the message. Verify returned code 409 Conflict.")]
         public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_SendIncorrectVersion_409Conflict(BaseArtifactType artifactType, int artifactVersion)
 
         {
@@ -740,7 +740,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process, 0)]
         [TestCase(BaseArtifactType.Process, 1)]
         [TestRail(182481)]
-        [Description("Create & publish 2 artifacts.  Move this artifact to be a child of the other.  Send not current version of artifact with the message. Verify returned code 409 Conflict.")]
+        [Description("Create & publish two artifacts.  Move this artifact to be a child of the other.  Send not current version of artifact with the message. Verify returned code 409 Conflict.")]
         public void MoveArtifact_SavedArtifactBecomesChildOfPublishedArtifact_SendIncorrectVersion_409Conflict(BaseArtifactType artifactType, int artifactVersion)
 
         {
@@ -762,7 +762,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182401)]
-        [Description("Create & publish 2 artifacts.  Do not put lock on artifact that would be moved.  Move the artifact to be a child of the other. Verify returned code 409 Conflict.")]
+        [Description("Create & publish two artifacts.  Do not put lock on artifact that would be moved.  Move the artifact to be a child of the other. Verify returned code 409 Conflict.")]
         public void MoveArtifact_PublishArtifactAndMoveToBeAChildOfAnotherArtifact_DoNotSetLock_409Conflict(BaseArtifactType artifactType)
         {
             // Setup:

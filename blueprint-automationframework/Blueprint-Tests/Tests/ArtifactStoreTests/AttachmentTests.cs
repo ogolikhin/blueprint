@@ -404,6 +404,53 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
         }
 
+        [TestCase]
+        [TestRail(1)]
+        [Description(".")]
+        public void GetAttachmentSpecifyVersion_PublishedArtifactWithAttachment_AttachmentIsReturned()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            artifact.AddArtifactAttachment(_attachmentFile, _user);
+            artifact.Publish();
+
+            Attachments attachment = Helper.ArtifactStore.GetAttachments(artifact, _user, versionId: 2);
+            Assert.AreEqual(1, attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                attachment = Helper.ArtifactStore.GetAttachments(artifact, _user, versionId: 1);
+            }, "'{0}' shouldn't return any error when passed a published artifact ID.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
+
+            // Verify:
+            Assert.AreEqual(0, attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
+        }
+
+        [TestCase]
+        [TestRail(2)]
+        [Description(".")]
+        public void GetAttachment_DraftArtifactWithAttachment_AttachmentIsReturned()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Glossary);
+            artifact.AddArtifactAttachment(_attachmentFile, _user);
+            
+            Attachments attachment = Helper.ArtifactStore.GetAttachments(artifact, _user, addDrafts: false);
+            Assert.AreEqual(0, attachment.AttachedFiles.Count, ".");
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                attachment = Helper.ArtifactStore.GetAttachments(artifact, _user);
+            }, "'{0}' shouldn't return any error when passed a published artifact ID.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
+
+            // Verify:
+            Assert.AreEqual(1, attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
+        }
+
         // TODO: Implement GetAttachment_PublishedArtifactWithDocReferenceUserHasNoPermissionToDocReference_403Forbidden  TestRail ID: 154596
     }
 }

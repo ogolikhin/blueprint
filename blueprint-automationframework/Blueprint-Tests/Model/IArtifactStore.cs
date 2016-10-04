@@ -210,8 +210,8 @@ namespace Model
         /// <param name="subArtifactId">(optional) The ID of a sub-artifact of this artifact that has the attachment to get.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Attachment object for the specified artifact/subartifact.</returns>
-        Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null, int? subArtifactId = null,
-            List<HttpStatusCode> expectedStatusCodes = null);
+        Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null, int? versionId = null,
+            int? subArtifactId = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets relationships for the specified artifact/subartifact

@@ -32,7 +32,7 @@ namespace SearchService.Repositories
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="searchCriteria">SearchCriteria object</param>
-        /// <param name="page">Page Number</param>
+        /// <param name="startOffset">Search start offset</param>
         /// <param name="pageSize">Page Size</param>
         /// <returns></returns>
         public async Task<ItemSearchResult> FindItemByName(int userId, ItemSearchCriteria searchCriteria, int startOffset, int pageSize)
@@ -44,7 +44,17 @@ namespace SearchService.Repositories
             prm.Add("@userId", userId);
             prm.Add("@query", GetQuery(searchCriteria.Query));
             prm.Add("@projectIds", SqlMapperHelper.ToInt32Collection(searchCriteria.ProjectIds));            
-            prm.Add("@primitiveItemTypePredefineds", SqlMapperHelper.ToInt32Collection(new[] { 4097, 4098, 4353, 4354, 4355, 4609, 4610, 32769 }));
+            prm.Add("@primitiveItemTypePredefineds", SqlMapperHelper.ToInt32Collection(new[]
+            {
+                4097, // Project
+                4098, // Baseline
+                4353, // Baseline Folder
+                4354, // Artifact Baseline
+                4355, // ArtifactReviewPackage
+                4609,  
+                4610,
+                32769
+            }));
             prm.Add("@startOffset", startOffset);
             prm.Add("@pageSize", pageSize);            
             prm.Add("@maxSearchableValueStringSize", _searchConfigurationProvider.MaxSearchableValueStringSize);

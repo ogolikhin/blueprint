@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using SearchService.Models;
 using ServiceLibrary.Repositories;
 using System.Data;
-using ArtifactStore.Models;
 using Dapper;
 
 namespace SearchService.Repositories
@@ -42,18 +41,6 @@ namespace SearchService.Repositories
             searchPrms.Add("@resultCount", resultCount);
 
             return (await ConnectionWrapper.QueryAsync<ProjectSearchResult>("GetProjectsByName", searchPrms, commandType: CommandType.StoredProcedure)).ToList();
-        }
-
-        public Task<IEnumerable<ItemSearchResult>> FindItemByName(int userId, string searchText, int[] projectIds, int[] itemTypes, int resultCount)
-        {
-            var searchCriteria = new SearchCriteria()
-            {
-                Query = searchText,
-                ItemTypeIds = itemTypes,
-                ProjectIds = projectIds                
-            };
-
-            _fullTextSearchRepository.Search(userId, searchCriteria);
-        }
+        }        
     }
 }

@@ -16,7 +16,7 @@ export class BpFieldTextRTFController {
 
     constructor(private $scope: AngularFormly.ITemplateScope) {
         let to: AngularFormly.ITemplateOptions = {
-            tinymceOption: { // this will go to ui-tinymce directive
+            tinymceOptions: { // this will go to ui-tinymce directive
                 plugins: "advlist autolink link image paste lists charmap print noneditable mention",
                 mentions: {} // an empty mentions is needed when including the mention plugin and not using it
             }

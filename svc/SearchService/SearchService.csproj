@@ -111,6 +111,7 @@
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\ItemNameSearchController.cs" />
     <Compile Include="Controllers\FullTextSearchController.cs" />
     <Compile Include="Controllers\ProjectSearchController.cs" />
     <Compile Include="Controllers\StatusController.cs" />
@@ -125,13 +126,19 @@
     <Compile Include="Models\FullTextSearchMetaDataResult.cs" />
     <Compile Include="Models\FullTextSearchResult.cs" />
     <Compile Include="Models\FullTextSearchTypeItem.cs" />
+    <Compile Include="Models\ItemSearchCriteria.cs" />
+    <Compile Include="Models\ItemSearchResult.cs" />
+    <Compile Include="Models\ItemSearchResultItem.cs" />
+    <Compile Include="Models\ProjectSearchCriteria.cs" />
     <Compile Include="Models\ProjectSearchResult.cs" />
     <Compile Include="Models\SearchCriteria.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\ConfigRepository.cs" />
     <Compile Include="Repositories\IFullTextSearchRepository.cs" />
+    <Compile Include="Repositories\IItemSearchRepository.cs" />
     <Compile Include="Repositories\IProjectSearchRepository.cs" />
     <Compile Include="Repositories\SqlFullTextSearchRepository.cs" />
+    <Compile Include="Repositories\SqlItemSearchRepository.cs" />
     <Compile Include="Repositories\SqlProjectSearchRepository.cs" />
   </ItemGroup>
   <ItemGroup>

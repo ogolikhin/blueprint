@@ -50,6 +50,7 @@ module.exports = {
     modulesDirectories: ["node_modules"]
   },
   devtool: sourceMap,
+  bail: true,
   plugins: [
     FailPlugin,
     new webpack.ProvidePlugin({

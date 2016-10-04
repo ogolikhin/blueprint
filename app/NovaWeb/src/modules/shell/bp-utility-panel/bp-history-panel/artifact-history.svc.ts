@@ -3,7 +3,14 @@ import { Models } from "../../../main";
 
 export interface IArtifactHistory {
     artifactHistory: ng.IPromise<IArtifactHistoryVersion[]>;
-    getArtifactHistory(artifactId: number, limit?: number, offset?: number, userId?: string, asc?: boolean, timeout?: ng.IPromise<void>): ng.IPromise<IArtifactHistoryVersion[]>;
+    getArtifactHistory(
+        artifactId: number,
+        limit?: number,
+        offset?: number,
+        userId?: string,
+        asc?: boolean,
+        timeout?: ng.IPromise<void>
+    ): ng.IPromise<IArtifactHistoryVersion[]>;
 }
 
 export interface IArtifactHistoryVersion {

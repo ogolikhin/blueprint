@@ -12,7 +12,6 @@ import { SubArtifactEditorModalOpener } from "./sub-artifact-editor-modal-opener
 import { SubArtifactEditorModalController } from "./sub-artifact-editor-modal-controller";
 import * as TestModels from "../../models/test-model-factory";
 import * as ProcessModels from "../../models/process-models";
-import {NodeType} from "../diagram/presentation/graph/models/";
 
 class ObservableHelper {
     public getGraph: () => any;
@@ -38,7 +37,7 @@ describe("SubArtifactEditorModalOpener test", () => {
     let $uibModal: ModalServiceMock;
     let rootScope: any;
     let graph: ProcessGraph;
-    let processModelService, wrapper, container, subArtifactId;
+    let wrapper, container;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("communicationManager", CommunicationManager);
@@ -137,7 +136,7 @@ describe("SubArtifactEditorModalOpener test", () => {
 
     it("openUserSystemTaskDetailsModalDialog.open called with parameters", () => {
         let process = TestModels.createUserDecisionInfiniteLoopModel();
-        let spy = spyOn(subArtifactEditorModalOpener, "open");
+        spyOn(subArtifactEditorModalOpener, "open");
 
         // Act
         graph = createGraph(process);
@@ -157,7 +156,7 @@ describe("SubArtifactEditorModalOpener test", () => {
         let clientModel = new ProcessGraphModel(process);
         let viewModel = new ProcessViewModel(clientModel);
         viewModel.communicationManager = communicationManager;
-        return new ProcessGraph(rootScope, localScope, container, processModelService,  viewModel, dialogService, localization);
+        return new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
     }
 
 });

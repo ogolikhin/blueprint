@@ -1,11 +1,23 @@
 import * as angular from "angular";
 import "angular-formly";
+import "angular-ui-tinymce";
+import "tinymce";
 import { Helper } from "../../../../shared";
 
 export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTFInline";
     public template: string = require("./text-rtf-inline.template.html");
-    public wrapper: string = "bpFieldLabel";
+    public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
+    public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
+        $scope.$applyAsync(() => {
+            $scope["fc"].$setTouched();
+
+            let tinymceBody = $element[0].querySelector(".tinymce-body");
+            if (tinymceBody) {
+                $scope["tinymceBody"] = tinymceBody;
+            }
+        });
+    };
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldTextRTFInlineController;
 
     constructor() {
@@ -15,17 +27,36 @@ export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
 export class BpFieldTextRTFInlineController {
     static $inject: [string] = ["$scope"];
 
+    private observer: MutationObserver;
+
     constructor(private $scope: AngularFormly.ITemplateScope) {
         let to: AngularFormly.ITemplateOptions = {
-            tinymceOption: { // this will go to ui-tinymce directive
-                autoresize_bottom_margin: 0,
+            tinymceOptions: { // this will go to ui-tinymce directive
                 inline: true,
                 fixed_toolbar_container: ".tinymce-toolbar-" + $scope.options["key"],
                 menubar: false,
-                toolbar: "fontsize | bold italic underline | forecolor format | link table",
+                toolbar: "fontselect fontsize | bold italic underline | forecolor format | link table",
                 statusbar: false,
-                plugins: "paste textcolor table noneditable autolink link autoresize",
-                init_instance_callback: function (editor) {
+                invalid_elements: "img,frame,iframe,script",
+                invalid_styles: {
+                    "*": "background-image"
+                },
+                paste_webkit_styles: "none", // https://www.tinymce.com/docs/plugins/paste/#paste_webkit_styles
+                paste_remove_styles_if_webkit: true, // https://www.tinymce.com/docs/plugins/paste/#paste_remove_styles_if_webkit
+                // https://www.tinymce.com/docs/plugins/paste/#paste_retain_style_properties
+                paste_retain_style_properties: "color font-size font-family line-height text-align background background-color",
+                table_toolbar: "", // https://www.tinymce.com/docs/plugins/table/#table_toolbar
+                // we don't need the autoresize plugin when using the inline version of tinyMCE as the height will
+                // be controlled using CSS (max-height, min-height)
+                plugins: "paste textcolor table noneditable autolink link",
+                // plugins: "contextmenu", // https://www.tinymce.com/docs/plugins/contextmenu/
+                // contextmenu: "bold italic underline strikethrough | link inserttable | cell row column deletetable",
+                // paste_preprocess: function (plugin, args) { // https://www.tinymce.com/docs/plugins/paste/#paste_preprocess
+                // },
+                paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
+                    Helper.autoLinkURLText(args.node);
+                },
+                init_instance_callback: (editor) => {
                     editor.formatter.register("font8px", {
                         inline: "span",
                         styles: { "font-size": "8px" }
@@ -47,17 +78,21 @@ export class BpFieldTextRTFInlineController {
                         styles: { "font-size": "18px" }
                     });
 
-                    Helper.autoLinkURLText(editor.getBody());
-                    editor.dom.setAttrib(editor.dom.select("a"), "data-mce-contenteditable", "false");
-                    editor.dom.bind(editor.dom.select("a"), "click", function (e) {
-                        let element = e.target as HTMLElement;
-                        while (element && element.tagName.toUpperCase() !== "A") {
-                            element = element.parentElement;
-                        }
-                        if (element && element.getAttribute("href")) {
-                            window.open(element.getAttribute("href"), "_blank");
-                        }
-                    });
+                    let editorBody = editor.getBody();
+                    Helper.autoLinkURLText(editorBody);
+                    this.handleLinks(editorBody.querySelectorAll("a"));
+
+                    // MutationObserver
+                    const MutationObserver = window["MutationObserver"] || window["WebKitMutationObserver"] || window["MozMutationObserver"];
+                    if (!angular.isUndefined(MutationObserver)) {
+                        // create an observer instance
+                        this.observer = new MutationObserver((mutations) => {
+                            mutations.forEach(this.handleMutation);
+                        });
+
+                        const observerConfig = { attributes: false, childList: true, characterData: false, subtree: true };
+                        this.observer.observe(editor.getBody(), observerConfig);
+                    }
                 },
                 setup: function (editor) {
                     editor.addButton("format", {
@@ -70,7 +105,9 @@ export class BpFieldTextRTFInlineController {
                             { icon: "bullist", text: " Bulleted list", onclick: function () { tinymce.execCommand("InsertUnorderedList"); } },
                             { icon: "numlist", text: " Numeric list", onclick: function () { tinymce.execCommand("InsertOrderedList"); } },
                             { icon: "outdent", text: " Outdent", onclick: function () { tinymce.execCommand("Outdent"); } },
-                            { icon: "indent", text: " Indent", onclick: function () { tinymce.execCommand("Indent"); } }
+                            { icon: "indent", text: " Indent", onclick: function () { tinymce.execCommand("Indent"); } },
+                            { text: "-" },
+                            { icon: "removeformat", text: " Clear formatting", onclick: function () { tinymce.execCommand("RemoveFormat"); } }
                         ]
                     });
                     editor.addButton("fontsize", {
@@ -110,5 +147,108 @@ export class BpFieldTextRTFInlineController {
             }
         };
         angular.merge($scope.to, to);
+
+        let validators = {
+            // tinyMCE may leave empty tags that cause the value to appear not empty
+            requiredCustom: {
+                expression: function ($viewValue, $modelValue, scope) {
+                    if (scope.to && scope.to.required) {
+                        if (angular.isString($modelValue) && $modelValue.length !== 0) {
+                            let div = document.createElement("div");
+                            div.innerHTML = $modelValue;
+                            return !(div.innerText.trim() === "");
+                        }
+                    }
+                    return true;
+                }
+            }
+        };
+        $scope.options["validators"] = validators;
+
+        $scope["$on"]("$destroy", () => {
+            this.removeObserver();
+            this.handleLinks(this.$scope["tinymceBody"].querySelectorAll("a"), true);
+        });
     }
+
+    private disableEditability = (event) => {
+        angular.element(this.$scope["tinymceBody"]).attr("contentEditable", "false");
+    };
+
+    private enableEditability = (event) => {
+        angular.element(this.$scope["tinymceBody"]).attr("contentEditable", "true");
+    };
+
+    private handleClick = function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        const href = this.href;
+        if (href.indexOf("?ArtifactId=") !== -1) {
+            const artifactId = parseInt(href.split("?ArtifactId=")[1], 10);
+            self.location.replace("/#/main/" + artifactId);
+        } else {
+            window.open(href, "_blank");
+        }
+    };
+
+    private handleLinks = (nodeList: Node[] | NodeList, remove: boolean = false) => {
+        if (nodeList.length === 0) {
+            return;
+        }
+        for (let i = 0; i < nodeList.length; i++) {
+            let element = nodeList[i] as HTMLElement;
+
+            element.removeEventListener("click", this.handleClick);
+
+            if (!remove) {
+                angular.element(element).attr("contentEditable", "false");
+                angular.element(element).attr("data-mce-contenteditable", "false");
+
+                element.addEventListener("mouseover", this.disableEditability);
+                element.addEventListener("mouseout", this.enableEditability);
+                element.addEventListener("click", this.handleClick);
+            } else {
+                element.removeEventListener("mouseover", this.disableEditability);
+                element.removeEventListener("mouseout", this.enableEditability);
+            }
+        }
+    };
+
+    private handleMutation = (mutation: MutationRecord) => {
+        let addedNodes = mutation.addedNodes;
+        let removedNodes = mutation.removedNodes;
+        if (addedNodes) {
+            for (let i = 0; i < addedNodes.length; i++) {
+                let node = addedNodes[i];
+                if (node.nodeType === 1) { // ELEMENT_NODE
+                    if (node.nodeName.toUpperCase() === "A") {
+                        this.handleLinks([node]);
+                    } else {
+                        let element = node as HTMLElement;
+                        this.handleLinks(element.querySelectorAll("a"));
+                    }
+                }
+            }
+        }
+        if (removedNodes) {
+            for (let i = 0; i < removedNodes.length; i++) {
+                let node = removedNodes[i];
+                if (node.nodeType === 1) { // ELEMENT_NODE
+                    if (node.nodeName.toUpperCase() === "A") {
+                        this.handleLinks([node], true);
+                    } else {
+                        let element = node as HTMLElement;
+                        this.handleLinks(element.querySelectorAll("a"), true);
+                    }
+                }
+            }
+        }
+    };
+
+    private removeObserver = () => {
+        if (this.observer) {
+            this.observer.disconnect();
+        }
+    };
 }

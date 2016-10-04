@@ -34,18 +34,18 @@ export class BPFieldImageController extends BPFieldBaseController {
         const maxNumberAttachmentsDefault: number = 1;
         const allowedExtensions = ["png", "jpg", "jpeg"];
 
+        /*
         let setFields = (model: any) => {
             if (model) {
                 $scope.model["image"] =  model.image;
             }
-        };
+        };*/
 
         let currentModelVal = <Models.IActorImagePropertyValue>$scope.model[$scope.options["key"]];
         //let currentModelVal = <Models.IActorImagePropertyValue>$scope.model[$scope.options.key];
         if (!currentModelVal) {
             currentModelVal = <Models.IActorImagePropertyValue>{};
-        }
-        else {
+        } else {
             currentModelVal.imageSource = currentModelVal.url;
         }
 
@@ -67,7 +67,7 @@ export class BPFieldImageController extends BPFieldBaseController {
             };
 
 
-            let ds = dialogService.open(dialogSettings, dialogData).then((uploadList: any[]) => {
+            dialogService.open(dialogSettings, dialogData).then((uploadList: any[]) => {
                 // TODO: add state manager handling
 
                 if (uploadList && uploadList.length > 0) {

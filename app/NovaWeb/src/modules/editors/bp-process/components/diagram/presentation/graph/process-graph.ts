@@ -9,7 +9,6 @@ import {IDiagramNode, IDiagramNodeElement} from "./models/";
 import {IProcessShape, IProcessLink} from "./models/";
 import {SourcesAndDestinations, ProcessShapeType} from "./models/";
 import {NodeType, NodeChange} from "./models/";
-import {IProcessService} from "../../../../services/process.svc";
 import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {BpMxGraphModel} from "./bp-mxgraph-model";
 import {ShapesFactory} from "./shapes/shapes-factory";
@@ -24,6 +23,9 @@ import {ProcessAddHelper} from "./process-add-helper";
 import {IDialogSettings, IDialogService} from "../../../../../../shared";
 import {NodePopupMenu} from "./popup-menu/node-popup-menu";
 import {ProcessGraphSelectionHelper} from "./process-graph-selection";
+import { IStatefulSubArtifact, IStatefulArtifact } from "../../../../../../managers/artifact-manager";
+import { StatefulProcessArtifact } from "../../../../process-artifact";
+import {ISelectionListener} from "./models/";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
@@ -59,7 +61,6 @@ export class ProcessGraph implements IProcessGraph {
         public rootScope: any,
         private scope: any,
         private htmlElement: HTMLElement,
-        private processService: IProcessService,
         // #TODO fix up references later 
         //private artifactVersionControlService: Shell.IArtifactVersionControlService,
         public viewModel: IProcessViewModel, 
@@ -120,7 +121,7 @@ export class ProcessGraph implements IProcessGraph {
         this.selectionHelper.addSelectionListener((elements) => {
             this.setDeletable(elements);
         });
-        
+
         this.selectionHelper.initSelection();
 
         this.applyDefaultStyles();
@@ -136,7 +137,14 @@ export class ProcessGraph implements IProcessGraph {
      
         this.initializeGlobalScope();
     }
-
+    public addSelectionListener(listener: ISelectionListener) {
+        if (listener != null) {
+            this.selectionHelper.addSelectionListener(listener);
+        }
+    }
+    public clearSelection() {
+        this.mxgraph.clearSelection();
+    }
     private initializePopupMenu() {
 
         // initialize a popup menu for the graph
@@ -409,6 +417,10 @@ export class ProcessGraph implements IProcessGraph {
         if (this.nodeLabelEditor != null) {
             this.nodeLabelEditor.dispose();
         }
+
+         if (this.selectionHelper) {
+             this.selectionHelper.destroy();
+         }
 
         this.viewModel.communicationManager.toolbarCommunicationManager.removeClickDeleteObserver(this.deleteShapeHandler);
         

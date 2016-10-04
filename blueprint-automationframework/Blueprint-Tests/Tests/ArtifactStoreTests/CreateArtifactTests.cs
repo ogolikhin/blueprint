@@ -43,29 +43,22 @@ namespace ArtifactStoreTests
         #region 200 OK tests
 
         [TestCase(ArtifactTypePredefined.Actor)]
-        //        [TestCase(ArtifactTypePredefined.Baseline)]
         [TestCase(ArtifactTypePredefined.BusinessProcess)]
-        //        [TestCase(ArtifactTypePredefined.DataElement)]
         [TestCase(ArtifactTypePredefined.Document)]
         [TestCase(ArtifactTypePredefined.DomainDiagram)]
         [TestCase(ArtifactTypePredefined.GenericDiagram)]
         [TestCase(ArtifactTypePredefined.Glossary)]
         [TestCase(ArtifactTypePredefined.PrimitiveFolder)]
-        //        [TestCase(ArtifactTypePredefined.Project)]
         [TestCase(ArtifactTypePredefined.Storyboard)]
         [TestCase(ArtifactTypePredefined.TextualRequirement)]
         [TestCase(ArtifactTypePredefined.UIMockup)]
         [TestCase(ArtifactTypePredefined.UseCase)]
         [TestCase(ArtifactTypePredefined.UseCaseDiagram)]
-
-        //        [TestCase(BaselineAndCollectionTypePredefined.ArtifactBaseline)]
-        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]
-        //        [TestCase(BaselineAndCollectionTypePredefined.ArtifactReviewPackage)]
-        //        [TestCase(BaselineAndCollectionTypePredefined.BaselineFolder)]
-        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection, Explicit = true, IgnoreReason = IgnoreReasons.UnderDevelopment)]
+        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder, Explicit = true, IgnoreReason = IgnoreReasons.UnderDevelopment)]
         [TestRail(154745)]
-        [Description("Create an artifact.  Get the artifact.  Verify the artifact returned has the same properties as the artifact we created.")]
-        public void CreateArtifact_UnpublishedArtifact_CanGetArtifact(ItemTypePredefined artifactType)
+        [Description("Create an artifact of a supported type.  Get the artifact.  Verify the artifact returned has the same properties as the artifact we created.")]
+        public void CreateArtifact_ValidArtifactType_CanGetArtifact(ItemTypePredefined artifactType)
         {
             // Execute:
             INovaArtifactDetails newArtifact = null;
@@ -75,26 +68,40 @@ namespace ArtifactStoreTests
                 "Exception caught while trying to create an artifact of type: '{0}'!", artifactType);
 
             // Verify:
+            Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
             artifactDetails.AssertEquals(newArtifact);
         }
 
-        // TODO: Create an artifact and specify the OrderIndex before another artifact.
-        // TODO: Create an artifact and specify the OrderIndex same as another artifact.
-        // TODO: Create an artifact and specify the OrderIndex after another artifact.
-        // TODO: Create Collections.
+        // TODO: Create folder under project.  Verify success.
+        // TODO: Create folder under another folder.  Verify success.
+        // TODO: Create artifact with order index before, same as, or after other artifacts.  Verify success.
+        // TODO: Create Collections & Collection Folders.  Verify success.  NOTE: Default collection folder ID of a project is Project ID + 2.
+        // TODO: (CustomData) Create artifact that has required fields.  Verify success.  Try to publish.  Verify error.
 
         #endregion 200 OK tests
 
         #region Negative tests
 
-        // TODO: Send an artifact without one of the following: Name, ProjectId, ItemTtypeId, or ParentId.  Verify 400 Bad Request.
-        // TODO: Send a corrupt JSON body.  Verify 400 Bad Request.
-        // TODO: Create user with access to project but not to a folder and try to create artifact in that folder.  Verify 403 Forbidden.
-        // TODO: Pass non-existent ItemTypeId.  Verify 404 Not Found.
-        // TODO: Pass non-existent ParentId.  Verify 404 Not Found.
-        // TODO: Create a folder with a parent other than a Project or Folder.  Verify 409 Conflict.
-        // TODO: Create an artifact with ProjectID x with a Parent that exists in project y.  Verify ?? Error.
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/oUNtprrI  Returns 403 instead of 400.
+        [TestCase(ArtifactTypePredefined.Baseline)]
+        [TestCase(ArtifactTypePredefined.DataElement)]
+        [TestCase(ArtifactTypePredefined.Project)]
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactBaseline)]
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactReviewPackage)]
+        [TestCase(BaselineAndCollectionTypePredefined.BaselineFolder)]
+        [TestRail(182485)]
+        [Description("Create an artifact of an unsupported type.  Verify 400 Bad Request is returned.")]
+        public void CreateArtifact_UnsupportedArtifactType_400BadRequest(ItemTypePredefined artifactType)
+        {
+            // Execute & Verify:
+            var ex = Assert.Throws<Http400BadRequestException>(() => CreateArtifactWithRandomName(artifactType, _user, _project),
+                "'POST {0}' should return 400 Bad Request when trying to create an unsupported artifact type of: '{1}'!",
+                SVC_PATH, artifactType);
+
+            const string expectedError = "TODO: fill this in when bug is fixed.";
+            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedError);
+        }
 
         [TestCase]
         [TestRail(154746)]
@@ -122,7 +129,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 401 Unauthorized if an invalid token is passed!", SVC_PATH);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Fails with: "Artifact's Project is not found or does not exist."
+        [Explicit(IgnoreReasons.ProductBug)]    // Trell bug: https://trello.com/c/xuw4vq9s  Fails with 404: "Artifact's Project is not found or does not exist."
         [TestCase]
         [TestRail(154748)]
         [Description("Create an artifact as a user that doesn't have permission to add artifacts to the project.  Verify 403 Forbidden is returned.")]
@@ -138,7 +145,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 403 Forbidden if the user doesn't have permission to add artifacts!", SVC_PATH);
         }
 
-        [TestCase(0, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)] // Fails with: "DItemType with Id: 4114 was deleted by some other user. Please refresh."
+        [TestCase(0, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)] // Trello bug: https://trello.com/c/oCTfF5Iq  Fails with 500 error: "DItemType with Id: 4114 was deleted by some other user. Please refresh."
         [TestCase(int.MaxValue)]
         [TestRail(154749)]
         [Description("Create an artifact with a non-existent Project ID.  Verify 404 Not Found is returned.")]
@@ -153,9 +160,29 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found if the Project ID doesn't exist!", SVC_PATH);
         }
 
+        // TODO: Create artifact with missing required fields (name, project id, item type id, parent id).  Verify 400 Bad Request.
+        // TODO: Send a corrupt JSON body.  Verify 400 Bad Request.
+        // TODO: Create artifact with parent that user has no access to.  Verify 403.
+        // TODO: Pass non-existent ItemTypeId.  Verify 404 Not Found.
+        // TODO: Create artifact with non-existent parent.  Verify 404.
+        // TODO: Create folder under non-folder artifact.  Verify 409.
+        // TODO: Create an artifact with ProjectID x with a Parent that exists in project y.  Verify ?? Error.
+
         #endregion Negative tests
 
         #region Private functions
+
+        /// <summary>
+        /// Asserts that the specified RestResponse contains the expected error message.
+        /// </summary>
+        /// <param name="restReponse">The RestResponse that contains the message.</param>
+        /// <param name="expectedMessage">The expected error message.</param>
+        private static void AssertRestResponseMessageIsCorrect(RestResponse restReponse, string expectedMessage)
+        {
+            SaveArtifactResult result = JsonConvert.DeserializeObject<SaveArtifactResult>(restReponse.Content);
+
+            Assert.AreEqual(expectedMessage, result.Message, "The wrong message was returned by 'POST {0}'.", SVC_PATH);
+        }
 
         /// <summary>
         /// Creates a new artifact with a random name.

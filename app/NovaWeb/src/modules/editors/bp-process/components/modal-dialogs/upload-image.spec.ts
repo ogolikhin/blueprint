@@ -4,7 +4,7 @@ import {ShapesFactory} from "../diagram/presentation/graph/shapes/shapes-factory
 import {ITaskFlags} from "../../models/process-models";
 import {ItemTypePredefined} from "../../../../main/models/enums";
 import {ISystemTaskShape} from "../diagram/presentation/graph/models/";
-import {IFileResult, IFileUploadService, FileUploadService} from "../../../../core/file-upload/";
+import {IFileUploadService, FileUploadService} from "../../../../core/file-upload/";
 import {UploadImageDirective} from "./upload-image";
 
 describe("UploadImage Directive", () => {
@@ -49,12 +49,12 @@ describe("UploadImage Directive", () => {
 
             scope["systemTaskModel"] = new SystemTask(sampleSystemTask, fakeRootScope, shapesFactory.NEW_SYSTEM_TASK_LABEL, null, shapesFactory);
 
-            element = $compile(
-                "<upload-image data-image-container-class=\"file-upload_preview\" data-system-task-model=\"systemTaskModel\"  data-image-uploaded=\"imageUploaded\"></upload-image>")(scope);
+            /* tslint:disable:max-line-length */
+            element = $compile("<upload-image data-image-container-class=\"file-upload_preview\" data-system-task-model=\"systemTaskModel\"  data-image-uploaded=\"imageUploaded\"></upload-image>")(scope);
+            /* tslint:enable:max-line-length */
 
             scope.$digest();
             imageUpload = $injector.get("uploadImageDirective")[0].__proto__;
-            var fileService = $injector.get("fileUploadService");
 
             isolatedScope = element.isolateScope();
         })
@@ -103,7 +103,7 @@ describe("UploadImage Directive", () => {
                     expect(imageUpload.toggleButtons).toHaveBeenCalled();
                     done();
                 }, 0);
-            })
+            });
     });
 
 

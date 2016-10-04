@@ -49,7 +49,6 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public option: string = "1";
     public isLoading: boolean = false;
     public selectedTraces: IArtifactSelectedArtifactMap;
-    public isItemReadOnly: boolean;
     public hasFlagged: boolean = false;
     public hasUnFlagged: boolean = false;
 
@@ -126,10 +125,15 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
 
                 return relationships;
             }).finally(() => {
-                this.isItemReadOnly = this.item.artifactState.readonly || this.item.deleted || !this.item.relationships.canEdit;
                 this.isLoading = false;
             });
         }
+    }
+
+    public canManageTraces(): boolean {
+        // if artifact is locked by other user we still can add/manage traces
+        return !this.item.artifactState.deleted &&               
+                this.item.relationships.canEdit;
     }
 
     public setSelectedDirection(direction: Relationships.TraceDirection): void {

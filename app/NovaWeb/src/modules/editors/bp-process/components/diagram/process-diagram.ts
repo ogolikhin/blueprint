@@ -1,9 +1,8 @@
 ﻿import {ILocalizationService, IMessageService, Message, MessageType, INavigationService} from "../../../../core";
 import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
-import {IProcessService} from "../../services/process.svc";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
-import {IProcessGraph} from "./presentation/graph/models/";
+import {IProcessGraph, ISelectionListener} from "./presentation/graph/models/";
 import {ProcessGraph} from "./presentation/graph/process-graph";
 import {ICommunicationManager} from "../../../bp-process";
 import {IDialogService} from "../../../../shared";
@@ -19,13 +18,14 @@ export class ProcessDiagram {
     private navigateToAssociatedArtifactHandler: string;
     private shapesFactory: ShapesFactory;
 
+    private selectionListeners: ISelectionListener[]; 
+
     constructor(
         private $rootScope: ng.IRootScopeService,
         private $scope: ng.IScope,
         private $timeout: ng.ITimeoutService,
         private $q: ng.IQService,
         private $log: ng.ILogService,
-        private processService: IProcessService,
         private messageService: IMessageService,
         private communicationManager: ICommunicationManager,
         private dialogService: IDialogService,
@@ -33,6 +33,7 @@ export class ProcessDiagram {
         private navigationService: INavigationService) {
 
         this.processModel = null;
+        this.selectionListeners = [];
     }
  
     public createDiagram(process: any, htmlElement: HTMLElement) {
@@ -121,6 +122,7 @@ export class ProcessDiagram {
     private recreateProcessGraph = (selectedNodeId: number = undefined) => {
         this.graph.destroy();
         this.createProcessGraph(this.processViewModel, true, selectedNodeId);
+        
     }
 
     private createProcessGraph(processViewModel: IProcessViewModel, 
@@ -132,13 +134,13 @@ export class ProcessDiagram {
                             this.$rootScope,
                             this.$scope,
                             this.htmlElement,
-                            this.processService,
                             this.processViewModel,
                             this.dialogService,
                             this.localization,
                             this.messageService,
                             this.$log,
                             this.shapesFactory);
+            this.registerSelectionListeners();
         } catch (err) {
             this.handleInitProcessGraphFailed(processViewModel.id, err);
         }
@@ -150,7 +152,17 @@ export class ProcessDiagram {
             this.handleRenderProcessGraphFailed(processViewModel.id, err);
         }
     }
-
+    private registerSelectionListeners() {
+        for (let listener of this.selectionListeners){
+            this.graph.addSelectionListener(listener);
+        }
+    }
+    public addSelectionListener(listener: ISelectionListener) {
+        this.selectionListeners.push(listener);
+    }
+    public clearSelection() {
+        this.graph.clearSelection();
+    }
     private resetBeforeLoad() {
         if (this.graph != null) {
             this.graph.destroy();
@@ -183,6 +195,7 @@ export class ProcessDiagram {
             this.processViewModel.destroy();
             this.processViewModel = null;
         }
+        this.selectionListeners = null;
     }
 
     private handleInitProcessGraphFailed(processId: number, err: any) {

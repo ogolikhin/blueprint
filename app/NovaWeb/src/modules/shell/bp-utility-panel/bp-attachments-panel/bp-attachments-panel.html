@@ -5,13 +5,13 @@
         <div uib-dropdown>
             <a href="#" uib-dropdown-toggle><span>{{::$ctrl.localization.get('App_UP_Attachments_Add_New')}}</span><b class="caret"></b></a>
             <ul uib-dropdown-menu class="dropdown-menu">
-                <li ng-class="{'disabled': $ctrl.isItemReadOnly}">
+                <li ng-class="{'disabled': $ctrl.item.artifactState.readonly}">
                     <label>
                         <input bp-file-upload="$ctrl.onFileSelect(files, callback)" type="file" multiple="1" class="file-input">
                         {{::$ctrl.localization.get('App_UP_Attachments_Attachment') }}
                     </label>
                 </li>
-                <li ng-click="$ctrl.addDocRef()" ng-class="{'disabled': $ctrl.isItemReadOnly}">
+                <li ng-click="$ctrl.addDocRef()" ng-class="{'disabled': $ctrl.item.artifactState.readonly}">
                     <a href>{{::$ctrl.localization.get('App_UP_Attachments_Ref_Doc') }}</a>
                 </li>
             </ul>
@@ -65,18 +65,18 @@
    	    class="empty-state">{{::$ctrl.localization.get('App_UP_Attachments_No_Documents_Only') }}</div>
 </div>
 
-<div ng-if="$ctrl.isLoadingAttachments || $ctrl.isLoadingDocRefs" class="app-loading">
+<div ng-if="$ctrl.item.attachments.isLoading || $ctrl.item.docRefs.isLoading" class="app-loading">
     <span class="glyphicon glyphicon-refresh spin"></span>
 </div>
 
-<div ng-if="!$ctrl.attachmentsList.length && !$ctrl.docRefList.length && !$ctrl.isLoadingAttachments && !$ctrl.isLoadingDocRefs"
+<div ng-if="!$ctrl.attachmentsList.length && !$ctrl.docRefList.length && !$ctrl.item.attachments.isLoading && !$ctrl.item.docRefs.isLoading"
     class="empty-state">
 
     <p>{{::$ctrl.localization.get('App_UP_Attachments_No_Attachments') }}</p>
     
     <div class="add-empty" ng-if="$ctrl.item">
         <p>{{::$ctrl.localization.get('App_UP_Attachments_Attachment_Desc') }}</p>
-        <label class="btn btn-secondary btn-small" ng-class="{'disabled': $ctrl.isItemReadOnly }">
+        <label class="btn btn-secondary btn-small" ng-class="{'disabled': $ctrl.item.artifactState.readonly }">
             <input bp-file-upload="$ctrl.onFileSelect(files, callback)" type="file" multiple="1" class="file-input">
             {{::$ctrl.localization.get('App_UP_Attachments_Add_Attachment') }}
         </label>
@@ -84,7 +84,7 @@
         <hr />
 
         <p>{{::$ctrl.localization.get('App_UP_Attachments_Reference_Desc') }}</p>
-        <label class="btn btn-secondary btn-small" ng-click="$ctrl.addDocRef()" ng-class="{'disabled': $ctrl.isItemReadOnly}">
+        <label class="btn btn-secondary btn-small" ng-click="$ctrl.addDocRef()" ng-class="{'disabled': $ctrl.item.artifactState.readonly}">
             {{ $ctrl.localization.get('App_UP_Attachments_Add_Ref_Doc') }}
         </label>
     </div>

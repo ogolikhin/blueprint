@@ -4,6 +4,7 @@
 // import "angular-sanitize";
 // import { ComponentTest } from "../../../util/component.test";
 // import { BPAttachmentsPanelController } from "./bp-attachments-panel";
+// import { HttpStatusCode } from "../../../core/http";
 // import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
 // import { ArtifactAttachmentsMock } from "./artifact-attachments.mock";
 // import { IArtifactAttachmentsResultSet, IArtifactDocRef } from "./artifact-attachments.svc";
@@ -115,7 +116,7 @@
 //             ArtifactAttachmentsMock.prototype.getArtifactAttachments = jasmine.createSpy("getArtifactAttachments() spy").and.callFake(
 //                 (): ng.IPromise<IArtifactAttachmentsResultSet> => {
 //                     deferred.reject({
-//                         statusCode: 404,
+//                         statusCode: HttpStatusCode.NotFound,
 //                         errorCode: 2000
 //                     });
 //                     return deferred.promise;

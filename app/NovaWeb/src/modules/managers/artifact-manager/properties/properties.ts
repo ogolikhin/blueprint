@@ -1,23 +1,27 @@
+import { IIStatefulItem } from "../item";
 import { Models } from "../../../main/models";
-import { IIStatefulItem, IArtifactProperties } from "../../models";
-import {
-    ChangeTypeEnum, 
-    IChangeCollector, 
-    IChangeSet,
-    ChangeSetCollector
-} from "../";
+import { ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector } from "../changeset";
+import { IDispose } from "../../models";
+
+export interface IArtifactProperties extends IDispose {
+    initialize(properties: Models.IPropertyValue[]); 
+    get(id: number): Models.IPropertyValue;
+    set(id: number, value: any): Models.IPropertyValue;
+    changes(): Models.IPropertyValue[];
+    discard();
+    isLoaded: boolean;
+}
 
 export class ArtifactProperties implements IArtifactProperties  {
     
     protected properties: Models.IPropertyValue[];
-    //private subject: Rx.BehaviorSubject<Models.IPropertyValue>;
-    private subject: Rx.Observable<Models.IPropertyValue>;
     private changeset: IChangeCollector;
 
+    //TODO: Remove properties in constructor, not getting used anywhere.
     constructor(private statefulItem: IIStatefulItem, properties?: Models.IPropertyValue[]) {
         this.properties = properties || [];
         this.changeset = new ChangeSetCollector(statefulItem);
-        this.subject  = Rx.Observable.fromArray<Models.IPropertyValue>(this.properties);
+        this._isLoaded = false;
 //        this.subject = new Rx.BehaviorSubject<Models.IPropertyValue>(null);
         // this.subject.subscribeOnNext((it: Models.IPropertyValue) => {
         //     this.addChangeSet(it);
@@ -27,17 +31,18 @@ export class ArtifactProperties implements IArtifactProperties  {
 
     public initialize(properties: Models.IPropertyValue[])  {
         this.properties = properties || [];
+        this._isLoaded = true;
     }
 
-    // public get value(): ng.IPromise<Models.IPropertyValue[]> {
-    //         // try to get custom property through a service
-    //         return {} as ng.IPromise<Models.IPropertyValue[]>;
-    // }    
+    private _isLoaded: boolean;
+    public get isLoaded(): boolean {
+        return this._isLoaded;
+    }
 
-    public get observable(): Rx.Observable<Models.IPropertyValue> {
-        return this.subject.filter(it => it !== null).asObservable();
-    }    
-
+    public dispose() {
+        delete this.properties;
+        delete this.changeset;
+    }
 
     public get(id: number): Models.IPropertyValue {
         return this.properties.filter((it: Models.IPropertyValue) => it.propertyTypeId === id)[0];

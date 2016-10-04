@@ -1,6 +1,4 @@
 import * as angular from "angular";
-import {ProcessServiceMock} from "../../../../../services/process.svc.mock";
-import {IProcessService} from "../../../../../services/process.svc";
 import {ProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {ProcessGraph} from "../process-graph";
 import {DiagramLink} from "./";
@@ -16,14 +14,12 @@ import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
 describe("DiagramLink unit tests", () => {
     let rootScope;
     let localScope;
-    let processService;
     let container: HTMLElement;
     let communicationManager: ICommunicationManager,
         dialogService: DialogService,
         localization: LocalizationServiceMock;
     
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        $provide.service("processModelService", ProcessServiceMock);
         $provide.service("communicationManager", CommunicationManager);
         $provide.service("$uibModal", ModalServiceMock);
         $provide.service("dialogService", DialogService);
@@ -33,12 +29,10 @@ describe("DiagramLink unit tests", () => {
     beforeEach(inject((
         _$window_: ng.IWindowService,
         $rootScope: ng.IRootScopeService,
-        _processModelService_: IProcessService, 
         _communicationManager_: ICommunicationManager,
         _dialogService_: DialogService,
-        _localization_: LocalizationServiceMock
-    ) => {
-        processService = _processModelService_;
+        _localization_: LocalizationServiceMock) => {
+       
         communicationManager = _communicationManager_;
         dialogService = _dialogService_;
         localization = _localization_;
@@ -73,7 +67,7 @@ describe("DiagramLink unit tests", () => {
             let processModel = new ProcessViewModel(testModel);
             processModel.communicationManager = communicationManager;
 
-            let processGraph = new ProcessGraph(rootScope, localScope, container, processService,  processModel, dialogService, localization);
+            let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             // act
             processGraph.layout.render(true, null);
@@ -100,7 +94,7 @@ describe("DiagramLink unit tests", () => {
             let testModel = createUserDecisionWithoutUserTaskInFirstConditionModel();
             let processModel = new ProcessViewModel(testModel);
             processModel.communicationManager = communicationManager;
-            let processGraph = new ProcessGraph(rootScope, localScope, container, processService, processModel, dialogService, localization);
+            let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             // act
             processGraph.layout.render(true, null);

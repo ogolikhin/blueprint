@@ -12,7 +12,7 @@ namespace SearchService.Repositories
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
 
-        //private ISearchConfigurationProvider _searchConfigurationProvider;        
+        //private ISearchConfigurationProvider _searchConfigurationProvider;
 
         public SqlProjectSearchRepository() : this(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString))
         {
@@ -20,7 +20,7 @@ namespace SearchService.Repositories
 
         internal SqlProjectSearchRepository(ISqlConnectionWrapper connectionWrapper)
         {
-            ConnectionWrapper = connectionWrapper;            
+            ConnectionWrapper = connectionWrapper;
             //_searchConfigurationProvider = new SearchConfigurationProvider(configuration);
         }
 

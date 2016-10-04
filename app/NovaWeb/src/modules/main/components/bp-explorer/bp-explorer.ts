@@ -110,18 +110,22 @@ export class ProjectExplorerController {
                     this.navigationService.navigateToArtifact(this.selected.id);
                 }
 
+                //if node exists in the tree
                 if (this.tree.nodeExists(this.selected.id)) {
                     this.tree.selectNode(this.selected.id);
-                    //this.navigationService.navigateToArtifact(this.selected.id);
+                    this.navigationService.navigateToArtifact(this.selected.id);
                 } else {
+                    //otherwise, if parent node is in the tree
                     if (this.selected.parentNode && this.tree.nodeExists(this.selected.parentNode.id)) {
                         this.tree.selectNode(this.selected.parentNode.id);
                         this.navigationService.navigateToArtifact(this.selected.parentNode.id);
                     } else {
+                        //otherwise, try with project node
                         if (this.tree.nodeExists(this.selected.projectId)) {
                             this.tree.selectNode(this.selected.projectId);
                             this.navigationService.navigateToArtifact(this.selected.projectId);
                         } else {
+                            //if project node fails too - give up
                             this.artifactManager.selection.setExplorerArtifact(null);
                             this.navigationService.navigateToMain();
                         }

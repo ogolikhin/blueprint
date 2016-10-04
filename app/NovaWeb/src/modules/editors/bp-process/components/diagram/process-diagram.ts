@@ -18,7 +18,7 @@ export class ProcessDiagram {
     private navigateToAssociatedArtifactHandler: string;
     private shapesFactory: ShapesFactory;
 
-    private selectionListeners : ISelectionListener[] 
+    private selectionListeners: ISelectionListener[]; 
 
     constructor(
         private $rootScope: ng.IRootScopeService,
@@ -152,15 +152,15 @@ export class ProcessDiagram {
             this.handleRenderProcessGraphFailed(processViewModel.id, err);
         }
     }
-    private registerSelectionListeners(){
-        for(let listener of this.selectionListeners){
+    private registerSelectionListeners() {
+        for (let listener of this.selectionListeners){
             this.graph.addSelectionListener(listener);
         }
     }
     public addSelectionListener(listener: ISelectionListener) {
         this.selectionListeners.push(listener);
     }
-    public clearSelection(){
+    public clearSelection() {
         this.graph.clearSelection();
     }
     private resetBeforeLoad() {

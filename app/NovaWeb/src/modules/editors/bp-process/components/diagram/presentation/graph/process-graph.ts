@@ -142,7 +142,7 @@ export class ProcessGraph implements IProcessGraph {
             this.selectionHelper.addSelectionListener(listener);
         }
     }
-    public clearSelection(){
+    public clearSelection() {
         this.mxgraph.clearSelection();
     }
     private initializePopupMenu() {
@@ -418,7 +418,7 @@ export class ProcessGraph implements IProcessGraph {
             this.nodeLabelEditor.dispose();
         }
 
-         if(this.selectionHelper){
+         if (this.selectionHelper) {
              this.selectionHelper.destroy();
          }
 

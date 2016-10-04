@@ -82,8 +82,8 @@ export class BpProcessEditorController extends BpBaseEditor {
                && !selection.subArtifact;
     }
 
-    private clearSelection(value: ISelection){
-        if(this.processDiagram) {
+    private clearSelection(value: ISelection) {
+        if (this.processDiagram) {
             this.processDiagram.clearSelection();
         }
     }
@@ -111,9 +111,9 @@ export class BpProcessEditorController extends BpBaseEditor {
        
         let htmlElement = this.getHtmlElement();
 
-        this.processDiagram.addSelectionListener((element)=>{
+        this.processDiagram.addSelectionListener((element) => {
             this.onSelectionChanged(element);
-        })
+        });
 
         this.processDiagram.createDiagram(this.artifact, htmlElement);
         
@@ -164,13 +164,12 @@ export class BpProcessEditorController extends BpBaseEditor {
     }
     
     private onSelectionChanged = (elements: IDiagramNode[]) => {
-        if(elements.length > 0 ){
-            if(elements[0].model.id <= 0){
+        if (elements.length > 0 ) {
+            if (elements[0].model.id <= 0) {
                 return;
             }
             this.artifactManager.selection.setSubArtifact(this.artifact.subArtifactCollection.get(elements[0].model.id));
-        }
-        else{
+        } else {
             this.artifactManager.selection.setArtifact(this.artifact);
         }    
     }

@@ -1,6 +1,4 @@
 import * as angular from "angular";
-import {ProcessServiceMock} from "../../../../../services/process.svc.mock";
-import {IProcessService} from "../../../../../services/process.svc";
 import {ProcessGraph} from "../process-graph";
 import {IProcessViewModel, ProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {ShapesFactory} from "./shapes-factory";
@@ -20,13 +18,11 @@ describe("DiagramNode", () => {
         let graph: ProcessGraph;
         let shapesFactory;
         let rootScope: ng.IRootScopeService; 
-        var processModelMock: IProcessService;
         let communicationManager: ICommunicationManager,
             dialogService: DialogService,
             localization: LocalizationServiceMock;
         
         beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-            $provide.service("processModelService", ProcessServiceMock);
             $provide.service("communicationManager", CommunicationManager);
             $provide.service("$uibModal", ModalServiceMock);
             $provide.service("dialogService", DialogService);
@@ -34,13 +30,11 @@ describe("DiagramNode", () => {
         }));
 
         beforeEach(inject((
-            _processModelService_: IProcessService,
             $rootScope: ng.IRootScopeService, 
             _communicationManager_: ICommunicationManager,
             _dialogService_: DialogService,
-            _localization_: LocalizationServiceMock
-        ) => {
-            processModelMock = _processModelService_;
+            _localization_: LocalizationServiceMock) => {
+
             communicationManager = _communicationManager_;
             dialogService = _dialogService_;
             localization = _localization_;
@@ -64,7 +58,6 @@ describe("DiagramNode", () => {
 
         afterEach(() => {
             graph = null;
-            processModelMock = null;
         });
 
         describe("for user task -> system task model", () => {
@@ -93,7 +86,7 @@ describe("DiagramNode", () => {
                 document.body.appendChild(wrapper);
 
                 graph = new ProcessGraph(rootScope, { graphContainer: container, graphWrapper: wrapper }, 
-                                         container, processModelMock, processModel, dialogService, localization);
+                                         container, processModel, dialogService, localization);
                 graph.render(false, null);
             });
 
@@ -336,7 +329,7 @@ describe("DiagramNode", () => {
                 document.body.appendChild(wrapper);
 
                 graph = new ProcessGraph(rootScope, { graphContainer: container, graphWrapper: wrapper }, 
-                                         container, processModelMock, processModel, dialogService, localization);
+                                         container, processModel, dialogService, localization);
                 graph.render(false, null);
             });
 

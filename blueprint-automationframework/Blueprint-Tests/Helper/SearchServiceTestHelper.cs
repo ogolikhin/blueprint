@@ -15,7 +15,7 @@ namespace Helper
 {
     public static class SearchServiceTestHelper
     {
-        private const int DEFAULT_TIMEOUT_FOR_SEARCH_INDEXER_UPDATE_IN_MS = 30000;
+        private const int DEFAULT_TIMEOUT_FOR_SEARCH_INDEXER_UPDATE_IN_MS = 300000;
 
         /// <summary>
         /// Sets up artifact data for Full Text Search Service tests
@@ -25,8 +25,11 @@ namespace Helper
         /// <param name="testHelper">An instance of TestHelper</param>
         /// <param name="selectedBaseArtifactTypes">(optional) list of seletedBaseAritfactTypes will be used to setup search data</param>
         /// <returns>List of created artifacts</returns>
+        /// <param name="timeoutInMilliseconds">(optional) Timeout in milliseconds after which search will terminate 
+        /// if not successful </param>
         public static List<IArtifactBase> SetupFullTextSearchData(List<IProject> projects, IUser user, TestHelper testHelper,
-            List<BaseArtifactType> selectedBaseArtifactTypes = null)
+            List<BaseArtifactType> selectedBaseArtifactTypes = null,
+            int timeoutInMilliseconds = DEFAULT_TIMEOUT_FOR_SEARCH_INDEXER_UPDATE_IN_MS)
         {
             ThrowIf.ArgumentNull(projects, nameof(projects));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -68,7 +71,7 @@ namespace Helper
 
             // Wait for all artifacts to be available to the search service
             var searchCriteria = new FullTextSearchCriteria(randomArtifactDescription, projects.Select(p => p.Id));
-            WaitForFullTextSearchIndexerToUpdate(user, testHelper, searchCriteria, artifacts.Count);
+            WaitForFullTextSearchIndexerToUpdate(user, testHelper, searchCriteria, artifacts.Count,timeoutInMilliseconds: timeoutInMilliseconds);
 
             Logger.WriteInfo("{0} {1} artifacts created.", nameof(SearchServiceTestHelper), artifacts.Count);
             Logger.WriteTrace("{0}.{1} finished.", nameof(SearchServiceTestHelper), nameof(SetupFullTextSearchData));

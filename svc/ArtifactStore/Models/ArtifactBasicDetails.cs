@@ -31,7 +31,7 @@ namespace ArtifactStore.Models
 
         public int VersionsCount { get; set; }
 
-        public int VersionIndex { get; set; }
+        public int? VersionIndex { get; set; }
 
         public bool DraftDeleted { get; set; }
 

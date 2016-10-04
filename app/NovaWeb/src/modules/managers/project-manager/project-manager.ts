@@ -1,17 +1,30 @@
 ﻿import * as angular from "angular";
-import { ILocalizationService, IMessageService } from "../../core";
+import { ILocalizationService, IMessageService, INavigationService } from "../../core";
+import { HttpErrorStatusCodes } from "../../shell/error/http-error-interceptor";
 import { IDialogService } from "../../shared";
-import { IStatefulArtifactFactory } from "../artifact-manager/artifact";
+import { IStatefulArtifactFactory, IStatefulArtifact } from "../artifact-manager/artifact";
 import { Project, ArtifactNode } from "./project";
-import { IArtifactNode, IStatefulArtifact, IDispose} from "../models";
-//import { StatefulArtifact } from "../artifact-manager/artifact";
-
+import { IDispose} from "../models";
 import { Models, Enums } from "../../main/models";
-import { IProjectService } from "./project-service";
-import { SelectionSource } from "../selection-manager";
-
+import { IProjectService, ProjectServiceStatusCode } from "./project-service";
 import { IArtifactManager } from "../../managers";
 import { IMetaDataService } from "../artifact-manager/metadata";
+
+export interface IArtifactNode extends IDispose {
+    artifact: IStatefulArtifact;
+    children?: IArtifactNode[];
+    parentNode: IArtifactNode;
+    id: number;
+    name: string;
+    projectId: number;
+    //parentId: number;
+    permissions: Enums.RolePermissions;
+    predefinedType: Models.ItemTypePredefined;
+    hasChildren?: boolean;
+    loaded?: boolean;
+    open?: boolean;
+}
+
 export interface IProjectManager extends IDispose {
     projectCollection: Rx.BehaviorSubject<Project[]>;
 
@@ -26,21 +39,22 @@ export interface IProjectManager extends IDispose {
     getArtifactNode(id: number): IArtifactNode;
     getArtifact(id: number): IStatefulArtifact;
     getSelectedProject(): Project; 
-
 }
 
 
 export class ProjectManager  implements IProjectManager { 
 
+    private get defaultPermissions(): number {return 4095; };
+
     private _projectCollection: Rx.BehaviorSubject<Project[]>;
     private subscribers: Rx.IDisposable[];
-    private statechangesubscriber: Rx.IDisposable;
     static $inject: [string] = [
         "$q",
         "localization", 
         "messageService", 
         "dialogService",
-        "projectService", 
+        "projectService",
+        "navigationService", 
         "artifactManager", 
         "metadataService",
         "statefulArtifactFactory"
@@ -52,6 +66,7 @@ export class ProjectManager  implements IProjectManager {
         private messageService: IMessageService,
         private dialogService: IDialogService,
         private projectService: IProjectService,
+        private navigationService: INavigationService,
         private artifactManager: IArtifactManager,
         private metadataService: IMetaDataService,
         private statefulArtifactFactory: IStatefulArtifactFactory) {
@@ -59,20 +74,6 @@ export class ProjectManager  implements IProjectManager {
         this.subscribers = [];
     }
 
-    private onChange(artifact: IStatefulArtifact) {
-        this.projectCollection.onNext(this._projectCollection.getValue());
-    }
-
-    // private onArtifactSelect(artifact: IStatefulArtifact) {
-    //     if (this.statechangesubscriber) {
-    //         this.statechangesubscriber.dispose();
-    //         delete this.statechangesubscriber;
-    //     }
-    //     if (artifact) {
-    //         this.statechangesubscriber = artifact.observable().subscribeOnNext(this.onChange, this);
-    //     }
-    // }
-    
     private onChangeInArtifactManagerCollection(artifact: IStatefulArtifact) {
          //Projects will null parentId have been removed from ArtifactManager
          if (artifact.parentId === null) {
@@ -124,21 +125,30 @@ export class ProjectManager  implements IProjectManager {
         
         let selectedArtifact = this.artifactManager.selection.getArtifact();
         
-        if (selectedArtifact.artifactState.dirty) {
-            selectedArtifact.autosave().then(() => {
-                this.doRefresh(project, selectedArtifact, defer, currentProject);
-            }).catch(() => {
-                this.dialogService.confirm(this.localization.get("Confirmation_Continue_Refresh")).then((confirmed: boolean) => {
-                    if (confirmed) {
-                        this.doRefresh(project, selectedArtifact, defer, currentProject);
-                    }else {
-                        defer.reject();
-                    }
+        this.navigationService.navigateToMain()
+        .then(() => {
+            //if selected artifact is dirty - perform autosave
+            if (selectedArtifact.artifactState.dirty) {
+                selectedArtifact.autosave()
+                .then(() => {
+                    this.doRefresh(project, selectedArtifact, defer, currentProject);
+                }).catch(() => {
+                    //something went wrong - ask user if they want to force refresh
+                    this.dialogService.confirm(this.localization.get("Confirmation_Continue_Refresh"))
+                    .then((confirmed: boolean) => {
+                        if (confirmed) {
+                            this.doRefresh(project, selectedArtifact, defer, currentProject);
+                        }else {
+                            defer.reject();
+                        }
+                    });
                 });
-            });
-        }else {
-            this.doRefresh(project, selectedArtifact, defer, currentProject);
-        }
+            } else {
+                this.doRefresh(project, selectedArtifact, defer, currentProject);
+            }
+        }).catch(() => {
+            defer.reject();
+        });
         
         return defer.promise; 
     }
@@ -149,56 +159,67 @@ export class ProjectManager  implements IProjectManager {
         //try with selected artifact
         this.projectService.getProjectTree(project.id, selectedArtifact.id, selectedArtifactNode.open)
         .then((data: Models.IArtifact[]) => {
-            if (this.onGetProjectTree(project, data, selectedArtifact.id)) {
+            if (this.ProcessProjectTree(project, data, selectedArtifact.id)) {
                 defer.resolve();
             } else {
-                this.onGetProjectTreeError(project);
+                this.ClearProject(project);
                 //this.loadArtifact(selectedArtifact.id);
                 defer.reject();
             }
         }).catch((error: any) => {
-            if (error.statusCode === 404 && error.errorCode === 3000) {
-                //try with selected artifact's parent
-                this.projectService.getProjectTree(project.id, selectedArtifact.parentId, true)
-                .then((data: Models.IArtifact[]) => {
-                    this.messageService.addInfo("Refresh_Artifact_Deleted");
-                    if (this.onGetProjectTree(project, data)) {
-                        defer.resolve();
-                    } else {
-                        this.onGetProjectTreeError(project);
-                        defer.reject();
-                    }
-                }).catch((innerError: any) => {
-                    if (innerError.statusCode === 404 && innerError.errorCode === 3000) {
-                        //try it with project
-                        this.projectService.getArtifacts(project.id).then((data: Models.IArtifact[]) => {
-                            this.messageService.addInfo("Refresh_Artifact_Deleted");
-                            if (this.onGetProjectTree(project, data)) {
-                                defer.resolve();
-                            } else {
-                                this.onGetProjectTreeError(project);
-                                defer.reject();
-                            }
-                        }).catch((err: any) => {
-                            this.messageService.addError("Refresh_Project_NotFound");
-                            this.onGetProjectTreeError(project);
+            if (!error) {
+                this.ClearProject(project);
+                defer.reject();
+            }
+            if (error.statusCode === HttpErrorStatusCodes.NotFound && error.errorCode === ProjectServiceStatusCode.ResourceNotFound) {
+                //if we're selecting project
+                if (selectedArtifact.id === selectedArtifact.projectId) {
+                    this.messageService.addError("Refresh_Project_NotFound");
+                    this.ClearProject(project);
+                    defer.reject();
+                } else {
+                    //try with selected artifact's parent
+                    this.projectService.getProjectTree(project.id, selectedArtifact.parentId, true)
+                    .then((data: Models.IArtifact[]) => {
+                        this.messageService.addInfo("Refresh_Artifact_Deleted");
+                        if (this.ProcessProjectTree(project, data)) {
+                            defer.resolve();
+                        } else {
+                            this.ClearProject(project);
                             defer.reject();
-                        });
-                    } else {
-                        this.messageService.addError(error["message"]);
-                        this.onGetProjectTreeError(project);
-                        defer.reject();
-                    }
-                });
+                        }
+                    }).catch((innerError: any) => {
+                        if (innerError.statusCode === HttpErrorStatusCodes.NotFound && innerError.errorCode === ProjectServiceStatusCode.ResourceNotFound) {
+                            //try it with project
+                            this.projectService.getArtifacts(project.id).then((data: Models.IArtifact[]) => {
+                                this.messageService.addInfo("Refresh_Artifact_Deleted");
+                                if (this.ProcessProjectTree(project, data)) {
+                                    defer.resolve();
+                                } else {
+                                    this.ClearProject(project);
+                                    defer.reject();
+                                }
+                            }).catch((err: any) => {
+                                this.messageService.addError("Refresh_Project_NotFound");
+                                this.ClearProject(project);
+                                defer.reject();
+                            });
+                        } else {
+                            this.messageService.addError(error["message"]);
+                            this.ClearProject(project);
+                            defer.reject();
+                        }
+                    });
+                }
             } else {
                 this.messageService.addError(error["message"]);
-                this.onGetProjectTreeError(project);
+                this.ClearProject(project);
                 defer.reject();
             }
         });
     }
     
-    private onGetProjectTree(project: Project, data: Models.IArtifact[], selectedArtifactId?: number): boolean {
+    private ProcessProjectTree(project: Project, data: Models.IArtifact[], selectedArtifactId?: number): boolean {
         let oldProjectId: number = project.id;
         let oldProject = this.getProject(oldProjectId);
         this.artifactManager.removeAll(oldProjectId);
@@ -213,7 +234,7 @@ export class ProjectManager  implements IProjectManager {
                     projectId: oldProjectId,
                     itemTypeId: Enums.ItemTypePredefined.Project,
                     prefix: "PR",
-                    permissions: 4095,
+                    permissions: this.defaultPermissions,
                     predefinedType: Enums.ItemTypePredefined.Project,
                     hasChildren: true
                 });
@@ -234,9 +255,12 @@ export class ProjectManager  implements IProjectManager {
 
                 //open any children that have children
                 this.openChildNodes(newProjectNode.children, data);
-               
+
                 if (selectedArtifactId) {
-                    //this.loadArtifact(selectedArtifactId);
+                    this.artifactManager.get(selectedArtifactId).then((artifact) => {
+                        //artifact.refresh();
+                        this.artifactManager.selection.setArtifact(artifact);
+                    });
                 }
 
                 //update project collection
@@ -252,7 +276,7 @@ export class ProjectManager  implements IProjectManager {
         return true;
     }
     
-    private onGetProjectTreeError(project: Project) {
+    private ClearProject(project: Project) {
         project.children = [];
         project.loaded = false;
         project.open = false;
@@ -260,10 +284,12 @@ export class ProjectManager  implements IProjectManager {
     }
 
     private openChildNodes(childrenNodes: IArtifactNode[], childrenData: Models.IArtifact[]) {
+        //go through each node
         angular.forEach(childrenNodes, (node) => {
             let childData = childrenData.filter(function (it) {
                 return it.id === node.id;
             });
+            //if it has children - expand the node
             if (childData[0].hasChildren && childData[0].children) {
                 node.children = childData[0].children.map((it: Models.IArtifact) => {
                     const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
@@ -273,6 +299,7 @@ export class ProjectManager  implements IProjectManager {
                 node.loaded = true;
                 node.open = true;
                 
+                //process its children
                 this.openChildNodes(node.children, childData[0].children);
             }
         });
@@ -291,7 +318,7 @@ export class ProjectManager  implements IProjectManager {
                         projectId: data.id,
                         itemTypeId: Enums.ItemTypePredefined.Project,
                         prefix: "PR",
-                        permissions: 4095,
+                        permissions: this.defaultPermissions,
                         predefinedType: Enums.ItemTypePredefined.Project,
                         hasChildren: true
                     });
@@ -366,7 +393,6 @@ export class ProjectManager  implements IProjectManager {
                     node.open = true;
 
                     this.projectCollection.onNext(this.projectCollection.getValue());
-//                    this.artifactManager.selection.setArtifact(node.artifact, SelectionSource.Explorer);
 
                 }).catch((error: any) => {
                     //ignore authentication errors here
@@ -386,22 +412,6 @@ export class ProjectManager  implements IProjectManager {
             this.projectCollection.onNext(this.projectCollection.getValue());
         }
     }
-
-    // public updateArtifactName(artifact: Models.IArtifact) {
-    //     let project = this.projectCollection.getValue().filter(function(it) {
-    //         return it.id === artifact.projectId;
-    //     })[0];
-    //     if (project) {
-    //         let art = project.artifacts.filter(function(it) {
-    //             return it.id === artifact.id;
-    //         })[0];
-    //         if (art) {
-    //             art.name = artifact.name;
-    //         }
-    //         this.projectCollection.onNext(this.projectCollection.getValue());
-    //     }
-    // }
-
 
     public loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]> {
         return this.projectService.getFolders(id);

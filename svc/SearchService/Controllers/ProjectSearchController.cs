@@ -23,7 +23,7 @@ namespace SearchService.Controllers
         public ProjectSearchController() : this(new SqlProjectSearchRepository())
         {
         }
-        public ProjectSearchController(IProjectSearchRepository projectSearchRepository) : base()
+        public ProjectSearchController(IProjectSearchRepository projectSearchRepository)
         {
             _projectSearchRepository = projectSearchRepository;
         }
@@ -38,13 +38,13 @@ namespace SearchService.Controllers
         /// <response code="401">Unauthorized. The session token is invalid.</response>
         /// <response code="403">Forbidden. The user does not have permissions for the project.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        /// <param name="searchText"></param>
+        /// <param name="searchCriteria"></param>
         /// <param name="resultCount"></param>
         /// <returns></returns>
-        [HttpGet, NoCache]
+        [HttpPost, NoCache]
         [Route("projectsearch"), SessionRequired]
         [ActionName("GetProjectsByName")]
-        public async Task<IEnumerable<ProjectSearchResult>> GetProjectsByName(string searchText, int? resultCount = DefaultResultCount)
+        public async Task<IEnumerable<ProjectSearchResult>> GetProjectsByName([FromBody] ProjectSearchCriteria searchCriteria, int? resultCount = DefaultResultCount)
         {
             if (resultCount == null)
                 resultCount = DefaultResultCount;
@@ -52,7 +52,7 @@ namespace SearchService.Controllers
             if (resultCount > MaxResultCount)
                 resultCount = MaxResultCount;
 
-            if (searchText.Trim().Length <= 0)
+            if (string.IsNullOrEmpty(searchCriteria?.Query) || resultCount <= 0)
             {
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
             }
@@ -65,7 +65,7 @@ namespace SearchService.Controllers
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
 
-            return await _projectSearchRepository.GetProjectsByName(session.UserId, searchText, resultCount.Value);
+            return await _projectSearchRepository.GetProjectsByName(session.UserId, searchCriteria.Query, resultCount.Value);
         }
     }
 }

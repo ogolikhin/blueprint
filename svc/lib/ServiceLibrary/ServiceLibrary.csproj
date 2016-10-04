@@ -128,6 +128,7 @@
     <Compile Include="Repositories\InstanceSettings\IInstanceSettingsRepository.cs" />
     <Compile Include="Repositories\InstanceSettings\SqlInstanceSettingsRepository.cs" />
     <Compile Include="Repositories\IUsersRepository.cs" />
+    <Compile Include="Repositories\JobExecutorStatusRepository.cs" />
     <Compile Include="Repositories\SqlConnectionWrapper.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceConfigRepository.cs" />
     <Compile Include="Repositories\ServiceDependencyStatusRepository.cs" />

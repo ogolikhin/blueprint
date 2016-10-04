@@ -50,5 +50,15 @@ namespace Model.SearchServiceModel
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")] // Ignore this warning.
         HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null);
 
+
+        /// <summary>
+        /// Returns the list of projects name which contains searchText
+        /// </summary>
+        /// <param name="user">The user performing the search.</param>
+        /// <param name="searchText">Text to search</param>
+        /// <param name="resultCount">(optional)The number of search results to return.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Returns a list of projects that have names that match the searchText.</returns>
+        List<ProjectSearchResult> SearchProjects(IUser user, string searchText, int? resultCount = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

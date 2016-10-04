@@ -70,7 +70,7 @@ describe("Artifact Repository", () => {
             expect(data).not.toBeUndefined();
             expect(data.id).toEqual(100);
             expect(data.version).toEqual(1);
-            expect(data.lastSavedOn).toEqual('20160831T16:00:00');
+            expect(data.lastSavedOn).toEqual("20160831T16:00:00");
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));

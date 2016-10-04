@@ -44,11 +44,15 @@ namespace ArtifactStore.Controllers
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/attachment"), SessionRequired]
         [ActionName("GetAttachmentsAndDocumentReferences")]
-        public async Task<FilesInfo> GetAttachmentsAndDocumentReferences(int artifactId, int? subArtifactId = null, bool addDrafts = true)
+        public async Task<FilesInfo> GetAttachmentsAndDocumentReferences(int artifactId, int? versionId = null, int? subArtifactId = null,  bool addDrafts = true)
         {
             if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1))
             {
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
+            if (addDrafts && versionId != null)
+            {
+                addDrafts = false;
             }
 
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
@@ -69,7 +73,7 @@ namespace ArtifactStore.Controllers
                 }
             }
 
-            var result = await AttachmentsRepository.GetAttachmentsAndDocumentReferences(artifactId, session.UserId, subArtifactId, addDrafts);
+            var result = await AttachmentsRepository.GetAttachmentsAndDocumentReferences(artifactId, session.UserId, versionId, subArtifactId, addDrafts);
 
             var artifactIds = new List<int> { artifactId };
             foreach (var documentReference in result.DocumentReferences)

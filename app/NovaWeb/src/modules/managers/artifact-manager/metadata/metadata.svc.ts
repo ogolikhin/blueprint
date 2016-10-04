@@ -300,8 +300,7 @@ export class MetaDataService implements IMetaDataService {
             itemType.predefinedType === Models.ItemTypePredefined.DDShape ||
             itemType.predefinedType === Models.ItemTypePredefined.SBShape ||
             itemType.predefinedType === Models.ItemTypePredefined.UIShape ||
-            itemType.predefinedType === Models.ItemTypePredefined.UCDShape ||
-            itemType.predefinedType === Models.ItemTypePredefined.PROShape ||
+            itemType.predefinedType === Models.ItemTypePredefined.UCDShape ||            
             itemType.predefinedType === Models.ItemTypePredefined.BPShape) {
 
             properties.push(<Models.IPropertyType>{

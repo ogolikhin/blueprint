@@ -1,12 +1,9 @@
 import {IProcessShape, 
-        NodeType, 
         IUserTaskShape, 
         ISystemTaskShape, 
-        IArtifactReference, 
-        IProcess, 
         ProcessLinkModel} from "../../diagram/presentation/graph/models/";
 import * as Enums from "../../../../../main/models/enums";
-import {IProcessViewModel, ProcessViewModel} from "../../diagram/viewmodel/process-viewmodel";
+import {IProcessViewModel} from "../../diagram/viewmodel/process-viewmodel";
 import {ProcessShapeType, ProcessType} from "../../../models/enums";
 
 export interface IModalProcessViewModel {
@@ -101,6 +98,8 @@ export class ModalProcessViewModel implements IModalProcessViewModel {
                         case ProcessShapeType.UserDecision:
                         case ProcessShapeType.End:
                             return true;
+                        default:
+                            break;
                     }
                 }
                 return false;
@@ -121,8 +120,7 @@ export class ModalProcessViewModel implements IModalProcessViewModel {
     public updateProcessType(systemTaskVisibilityEnabled: boolean) {
         if (systemTaskVisibilityEnabled) {
             this.processViewModel.propertyValues["clientType"].value = ProcessType.UserToSystemProcess;
-        }
-        else {
+        } else {
             this.processViewModel.propertyValues["clientType"].value = ProcessType.BusinessProcess;
         }
 

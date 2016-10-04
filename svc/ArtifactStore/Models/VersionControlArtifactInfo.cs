@@ -31,8 +31,8 @@ namespace ArtifactStore.Models
         [JsonProperty]
         public ItemTypePredefined PredefinedType { get; set; }
 
-        [JsonProperty]
-        public int Version { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? Version { get; set; }
 
         [JsonProperty]
         public int VersionCount { get; set; }

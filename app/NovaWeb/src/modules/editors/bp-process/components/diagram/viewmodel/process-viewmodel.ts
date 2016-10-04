@@ -4,6 +4,7 @@ import {IMessageService, Message, MessageType} from "../../../../../core/";
 import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
 import {ProcessModels, ProcessEnums} from "../../../";
 import {ICommunicationManager} from "../../../";
+import { IStatefulArtifact } from "../../../../../managers/artifact-manager/";
 
 export interface IProcessViewModel extends IProcessGraphModel {
     description: string;
@@ -30,6 +31,7 @@ export interface IProcessViewModel extends IProcessGraphModel {
     resetJustCreatedShapeIds();
     addJustCreatedShapeId(id: number);
     isShapeJustCreated(id: number): boolean;
+    statefulArtifact: IStatefulArtifact;
 }
 
 export class ProcessViewModel implements IProcessViewModel {
@@ -517,6 +519,10 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public get isRootScopeConfigValid(): boolean {
         return this._rootScope && this._rootScope.config;
+    }
+
+    public get statefulArtifact(): IStatefulArtifact{
+        return this.processGraphModel.statefulArtifact;
     }
 
     public destroy() {

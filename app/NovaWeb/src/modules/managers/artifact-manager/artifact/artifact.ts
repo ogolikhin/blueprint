@@ -110,9 +110,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 this.artifactState.set(state);
                 deferred.resolve(this);
             }).catch((err) => {
-                if (err.statusCode === 404) {
+                if (err && err.statusCode === 404) {
                     this.artifactState.deleted = true;
                 }
+                
                 deferred.reject(err);
             });
         } else {

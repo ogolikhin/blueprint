@@ -17,7 +17,7 @@ namespace ServiceLibrary.Repositories
         public string Name { get; set; }
         public string AccessInfo { get; set; }
 
-       private enum JobExecutorStatusEnum
+        private enum JobExecutorStatusEnum
         {
            Stopped = 0,
            Started = 1,
@@ -25,7 +25,7 @@ namespace ServiceLibrary.Repositories
            Active = 3,
            NotResponding = 4,
 
-         };
+        };
         public JobExecutorStatusRepository(string cxn, string name,  string dbSchema = ServiceConstants.DefaultDBSchema)
             : this(new SqlConnectionWrapper(cxn), cxn, name)
         {
@@ -43,7 +43,7 @@ namespace ServiceLibrary.Repositories
         private StatusResponse ParseStatus(JobExecutorModel jobex)
         {
 
-            string jobExecutorStatus = Enum.GetName(typeof(JobExecutorStatusEnum), jobex.Status);
+            string jobExecutorStatus = String.Format(CultureInfo.InvariantCulture, "{0} ({1})", jobex.Status, Enum.GetName(typeof(JobExecutorStatusEnum), jobex.Status));
             var timeSpanSinceLastActivity = jobex.CurrentTimestamp.Subtract(jobex.LastActivityTimestamp).TotalMinutes;
             var responseData = new StatusResponse();
 
@@ -51,7 +51,7 @@ namespace ServiceLibrary.Repositories
                 
                     responseData.Name = "JobExecutor-" + jobex.JobServiceId.Remove(jobex.JobServiceId.LastIndexOf("@", StringComparison.Ordinal));
                     responseData.AccessInfo = AccessInfo;
-                    responseData.NoErrors = jobex.Status != (int)JobExecutorStatusEnum.NotResponding ? true : false;
+                    responseData.NoErrors = jobex.Status != (int)JobExecutorStatusEnum.NotResponding;
                     responseData.Result = System.String.Format(CultureInfo.InvariantCulture, 
                         "JobName={0}, Platform= {1}, Type={2}, Status = {3}, LastActivityTimestamp={4}, ExecutingJobMessageId={5}, CurrentTimestamp={6}", 
                         jobex.JobServiceId, jobex.Platform, jobex.Types, jobExecutorStatus, jobex.LastActivityTimestamp, jobex.ExecutingJobMessageId, jobex.CurrentTimestamp);

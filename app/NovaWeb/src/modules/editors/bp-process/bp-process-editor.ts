@@ -22,7 +22,6 @@ export class BpProcessEditor implements ng.IComponentOptions {
 export class BpProcessEditorController extends BpBaseEditor {
     public processDiagram: ProcessDiagram;
     public subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
-    public isLoading: boolean = true;
     
     public static $inject: [string] = [
         "messageService", 
@@ -78,7 +77,6 @@ export class BpProcessEditorController extends BpBaseEditor {
         // here we create a new process diagram  passing in the
         // process artifact and the html element that will contain
         // the graph
-        this.isLoading = false;
         this.processDiagram = new ProcessDiagram(
             this.$rootScope,
             this.$scope,

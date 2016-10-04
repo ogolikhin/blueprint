@@ -1,6 +1,5 @@
 ﻿// References to StorytellerDiagramDirective
 //import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
-import {IProcessService} from "./";
 import {ICommunicationManager} from "./";
 import {ILocalizationService, IMessageService, INavigationService} from "../../core";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
@@ -32,7 +31,6 @@ export class BpProcessEditorController extends BpBaseEditor {
         "$element", 
         "$q",
         "$log",
-        "processService",
         "$uibModal",
         "localization",
         "$timeout", 
@@ -50,7 +48,6 @@ export class BpProcessEditorController extends BpBaseEditor {
         private $element: ng.IAugmentedJQuery,
         private $q: ng.IQService,
         private $log: ng.ILogService,
-        private processService: IProcessService,
         private $uibModal: ng.ui.bootstrap.IModalService,
         private localization: ILocalizationService,
         private $timeout: ng.ITimeoutService,
@@ -70,9 +67,9 @@ export class BpProcessEditorController extends BpBaseEditor {
     }
 
     public onArtifactReady() {
-        // when this method is called we should have a valid 
-        // process artifact in the base class' artifact
-        // property.
+        // when this method is called the process artifact should
+        // be loaded and assigned to the base class' artifact 
+        // property (this.artifact)
 
         // here we create a new process diagram  passing in the
         // process artifact and the html element that will contain
@@ -83,7 +80,6 @@ export class BpProcessEditorController extends BpBaseEditor {
             this.$timeout,
             this.$q,
             this.$log,
-            this.processService,
             this.messageService,
             this.communicationManager,
             this.dialogService,

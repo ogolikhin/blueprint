@@ -1,7 +1,6 @@
 ﻿import {ILocalizationService, IMessageService, Message, MessageType, INavigationService} from "../../../../core";
 import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
-import {IProcessService} from "../../services/process.svc";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
 import {IProcessGraph} from "./presentation/graph/models/";
 import {ProcessGraph} from "./presentation/graph/process-graph";
@@ -25,7 +24,6 @@ export class ProcessDiagram {
         private $timeout: ng.ITimeoutService,
         private $q: ng.IQService,
         private $log: ng.ILogService,
-        private processService: IProcessService,
         private messageService: IMessageService,
         private communicationManager: ICommunicationManager,
         private dialogService: IDialogService,
@@ -132,7 +130,6 @@ export class ProcessDiagram {
                             this.$rootScope,
                             this.$scope,
                             this.htmlElement,
-                            this.processService,
                             this.processViewModel,
                             this.dialogService,
                             this.localization,

@@ -138,6 +138,7 @@ namespace Model
                     public const string DISCARD                     = "svc/bpartifactstore/artifacts/discard";  // XXX: For some reason they decided to put this call in blueprint-current!
                     public const string PUBLISH                     = "svc/bpartifactstore/artifacts/publish";  // XXX: For some reason they decided to put this call in blueprint-current!
                     public const string UNPUBLISHED                 = "svc/bpartifactstore/artifacts/unpublished";
+                    public const string VERSION_CONTROL_INFO_id_    = "svc/artifactstore/artifacts/versioncontrolinfo/{0}";
                 }
 
                 public static class Artifacts_id_

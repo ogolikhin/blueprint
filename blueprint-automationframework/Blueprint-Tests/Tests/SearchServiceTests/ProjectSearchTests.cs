@@ -87,7 +87,7 @@ namespace SearchServiceTests
 
         [TestCase]
         [TestRail(182450)]
-        [Description("Search project, user has admin privilege, check that search result contains one project.")]
+        [Description("Search project, uuser has viewer access to the project, check that search result contains at least one project.")]
         public void SearchProject_UserHasAuthorAccess_ReturnsCorrectProjects()
         {
             // Setup:
@@ -109,7 +109,7 @@ namespace SearchServiceTests
 
         [TestCase]
         [TestRail(182451)]
-        [Description("Search project, user has admin privilege, check that search result contains one project.")]
+        [Description("Search project, user has viewer access to the project, check that search result contains at least one project.")]
         public void SearchProjectByFullName_UserHasAuthorAccess_ReturnsCorrectProjects()
         {
             // Setup:

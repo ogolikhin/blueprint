@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Description;
 
 namespace SearchService.Controllers
 {
@@ -53,7 +52,7 @@ namespace SearchService.Controllers
             if (resultCount > MaxResultCount)
                 resultCount = MaxResultCount;
 
-            if (string.IsNullOrEmpty(searchCriteria?.Query))
+            if (string.IsNullOrEmpty(searchCriteria?.Query) || resultCount <= 0)
             {
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
             }

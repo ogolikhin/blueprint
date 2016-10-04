@@ -38,9 +38,9 @@ namespace ServiceLibrary.Repositories
             var responseData = new StatusResponse();
             try {
                 
-                    responseData.Name = $"JobExecutor-" + jobex.JobServiceId.Remove(jobex.JobServiceId.LastIndexOf("@", StringComparison.Ordinal));
+                    responseData.Name = "JobExecutor-" + jobex.JobServiceId.Remove(jobex.JobServiceId.LastIndexOf("@", StringComparison.Ordinal));
                     responseData.AccessInfo = AccessInfo;
-                    responseData.NoErrors = jobex.Status == 2 && timeSpanSinceLastActivity <= 5 ? true : false;// if status = 2 and timeSpanSinceLastActivity <=5 min then NoErrors = true
+                    responseData.NoErrors = true;
                     responseData.Result = System.String.Format(CultureInfo.InvariantCulture, 
                         "JobName={0}, Platform= {1}, Type={2}, Status = {3}, LastActivityTimestamp={4}, ExecutingJobMessageId={5}, CurrentTimestamp={6}", 
                         jobex.JobServiceId, jobex.Platform, jobex.Types, jobex.Status == 2 ? "Active" : "Down", jobex.LastActivityTimestamp, jobex.ExecutingJobMessageId, jobex.CurrentTimestamp);

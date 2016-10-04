@@ -117,6 +117,23 @@ namespace SearchService.Controllers
         }
 
         [TestMethod]
+        public async Task GetProjects_ResultCountIsNegative_BadRequest()
+        {
+            //Arrange
+            var controller = new ProjectSearchController(_projectSearchRepositoryMock.Object);
+            //Act
+            try
+            {
+                await controller.GetProjectsByName(new ProjectSearchCriteria { Query = "test" }, -1);
+            }
+            catch (HttpResponseException e)
+            {
+                //Assert
+                Assert.AreEqual(HttpStatusCode.BadRequest, e.Response.StatusCode);
+            }
+        }
+
+        [TestMethod]
         public async Task GetProjects_NullSerachCriteria_BadRequest()
         {
             //Arrange

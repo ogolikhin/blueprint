@@ -283,8 +283,6 @@ namespace ArtifactStoreTests
             artifact.Save();
             IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-//            artifact.Lock();
-
             // Execute:
             Assert.DoesNotThrow(() =>
             {

@@ -1,20 +1,25 @@
 ﻿import { ILocalizationService } from "../../../core";
 import { Relationships } from "../../../main";
-import { IDialogService } from "../../../shared";
+import { IDialogSettings, IDialogService, IDialogData } from "../../../shared";
 import { 
     IArtifactManager, 
     IStatefulItem,
     IStatefulArtifact, 
-    IStatefulSubArtifact, 
+    IStatefulSubArtifact,
     IArtifactRelationships
 } from "../../../managers/artifact-manager";
 import { IRelationship, LinkType } from "../../../main/models/relationshipModels";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
+import { ManageTracesDialogController } from "../../../main/components/dialogs/bp-manage-traces";
 
 interface IOptions {
     value: string;
     label: string;
+}
+
+interface IDialogItem {
+    item: IStatefulItem;
 }
 
 export class BPRelationshipsPanel implements ng.IComponentOptions {
@@ -60,7 +65,6 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         private artifactRelationships: IArtifactRelationships,
         private dialogService: IDialogService,
         public bpAccordionPanel: IBpAccordionPanelController
-
     ) {
 
         super($q, artifactManager.selection, bpAccordionPanel);
@@ -192,6 +196,24 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
             if (confirmed) {
                 this.item.relationships.remove([artifact]);
             }
+        });
+    }
+
+    public openManageTraces() {
+        const dialogSettings: IDialogSettings = {
+            okButton: this.localization.get("App_Button_Ok"),
+            template: require("../../../main/components/dialogs/bp-manage-traces/bp-manage-traces.html"),
+            controller: ManageTracesDialogController,
+            css: "nova-open-project manage-traces-wrapper",
+            header: "Manage Traces"
+        };
+
+        let dialogData: IDialogItem = {
+            item: this.item
+        };
+
+        this.dialogService.open(dialogSettings, dialogData).then((result) => {
+            console.log(result);
         });
     }
 

@@ -4,24 +4,38 @@
 <div class="modal-body artifact-picker manage-traces">
     <div>
         <bp-artifact-picker selection-mode="'checkbox'";
-                            show-sub-artifacts="true">
+                            show-sub-artifacts="true"
+                            on-selection-changed="$ctrl.onSelectionChanged(selectedVMs)">
         </bp-artifact-picker>
     </div>
     <div class="trace-direction">
-        <div uib-dropdown>
-            <span uib-dropdown-toggle bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Change_Trace')}}">
-                <i class="icon fonticon-exchange"></i> Trace
-            </span>
+        <div uib-dropdown class="btn-group">
+            <button type="button" class="btn btn-default" ng-click="$ctrl.trace()">
+                <i class="fonticon2-relationship-right" ng-if="$ctrl.traceDirection == 0"></i>
+                <i class="fonticon2-relationship-left" ng-if="$ctrl.traceDirection == 1"></i>
+                <i class="fonticon2-relationship-bi" ng-if="$ctrl.traceDirection == 2"></i>Trace</button>
+            <button type="button" uib-dropdown-toggle class="btn dropdown-toggle" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only"></span>
+            </button>
             <ul class="dropdown-menu">
                 <li>
-                    <a ng-click="$ctrl.setDirection(0)"><i class="fonticon2-relationship-right"></i> {{::$ctrl.localization.get('App_UP_Relationships_To')}}</a></li>
+                    <a ng-click="$ctrl.setTraceDirection(0)"><i class="fonticon2-relationship-right"></i>
+                        {{::$ctrl.localization.get('App_UP_Relationships_To')}}</a>
+                </li>
                 <li>
-                    <a ng-click="$ctrl.setDirection(1)"><i class="fonticon2-relationship-left"></i> {{::$ctrl.localization.get('App_UP_Relationships_From')}}</a></li>
+                    <a ng-click="$ctrl.setTraceDirection(1)"><i class="fonticon2-relationship-left"></i>
+                        {{::$ctrl.localization.get('App_UP_Relationships_From')}}</a>
+                </li>
                 <li>
-                    <a ng-click="$ctrl.setDirection(2)"><i class="fonticon2-relationship-bi"></i> {{::$ctrl.localization.get('App_UP_Relationships_Bidirectional')}}</a></li>
+                    <a ng-click="$ctrl.setTraceDirection(2)"><i class="fonticon2-relationship-bi"></i>
+                        {{::$ctrl.localization.get('App_UP_Relationships_Bidirectional')}}</a>
+                </li>
             </ul>
         </div>
     </div>
+
     <div>
         <div class="actions-panel">
             <div uib-dropdown>
@@ -44,7 +58,7 @@
         <div class="trace-manager-wrapper">
             <!-- Item details -->
                 <bp-manage-traces-item item="item" delete-trace="$ctrl.deleteTrace(item)"
-                      ng-repeat="item in $ctrl.traces" class="clearfix"></bp-manage-traces-item>
+                      ng-repeat="item in $ctrl.manualTraces track by $index" class="clearfix"></bp-manage-traces-item>
             <!-- /Item details -->
         </div>
     </div>

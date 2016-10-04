@@ -129,9 +129,20 @@ bp-utility-panel {
     }
 
     .icon {
-        &:hover {
-            color: $brand-secondary;
-            cursor: pointer;
+        &[ng-click] {
+            &:hover {
+                color: $brand-secondary;
+                cursor: pointer;
+            }
+        }
+    }
+
+    .dropdown {
+        span {
+            .icon:hover {
+                color: $brand-secondary;
+                cursor: pointer;
+            }
         }
     }
 

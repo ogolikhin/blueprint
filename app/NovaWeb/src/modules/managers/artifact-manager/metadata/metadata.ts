@@ -1,7 +1,5 @@
+import { IIStatefulItem } from "../item";
 import { Models } from "../../../main/models";
-import { 
-    IIStatefulItem
-} from "../../models";
 
 export interface IMetaData {
     getItemType(): Models.IItemType;

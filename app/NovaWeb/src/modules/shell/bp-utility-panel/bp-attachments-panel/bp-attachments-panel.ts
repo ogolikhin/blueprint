@@ -9,9 +9,8 @@ import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-up
 import { Helper } from "../../../shared/utils/helper";
 import { ArtifactPickerDialogController, IArtifactPickerOptions } from "../../../main/components/bp-artifact-picker";
 import { IArtifactManager } from "../../../managers";
-import { IStatefulItem } from "../../../managers/models";
+import { IStatefulItem } from "../../../managers/artifact-manager";
 import { 
-    // IArtifactAttachmentsResultSet, 
     IArtifactAttachmentsService, 
     IArtifactDocRef, 
     IStatefulArtifact,
@@ -42,15 +41,12 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public attachmentsList: IArtifactAttachment[];
     public docRefList: IArtifactDocRef[];
     public item: IStatefulItem;
-    public isItemReadOnly: boolean;
-
     public categoryFilter: number;
-    public isLoadingAttachments: boolean = false;
-    public isLoadingDocRefs: boolean = false;
     public filesToUpload: any;
 
     private maxAttachmentFilesizeDefault: number = 10485760; // 10 MB
     private maxNumberAttachmentsDefault: number = 50;
+    private subscribers: Rx.IDisposable[];
     
     constructor(
         $q: ng.IQService,
@@ -64,6 +60,8 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         public bpAccordionPanel: IBpAccordionPanelController) {
 
         super($q, artifactManager.selection, bpAccordionPanel);
+
+        this.subscribers = [];
     }
     
     public addDocRef(): void {
@@ -178,39 +176,26 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
         this.item = subArtifact || artifact;
-        this.getAttachments();
+
+        this.attachmentsList = [];
+        this.docRefList = [];
+        this.subscribers = this.subscribers.filter(sub => { sub.dispose(); return false; });
+
+        if (this.item) {
+            const attachmentsSubscriber = this.item.attachments.getObservable().subscribe(this.attachmentsUpdated);
+            const docRefsSubscriber = this.item.docRefs.getObservable().subscribe(this.docRefsUpdated);
+
+            this.subscribers = [attachmentsSubscriber, docRefsSubscriber];
+        }
 
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
-    private getAttachments() {
-        this.attachmentsList = [];
-
-        if (this.item) {
-            this.isLoadingAttachments = true;
-            this.item.attachments.get().then((attachments: IArtifactAttachment[]) => {
-                this.attachmentsList = attachments;
-                
-                // get doc refs here because they're included in attachments payload
-                this.getDocRefs();
-            }).finally(() => {
-                this.isItemReadOnly = this.item.artifactState.readonly || this.item.deleted;
-                this.isLoadingAttachments = false;
-            });
-        }
+    private attachmentsUpdated = (attachments: IArtifactAttachment[]) => {
+        this.attachmentsList = attachments;
     }
 
-    private getDocRefs() {
-        this.docRefList = [];
-
-        if (this.item) {
-            this.isLoadingDocRefs = true;
-            // don't refresh because they were already retrieved with attachments
-            this.item.docRefs.get(false).then((docrefs: IArtifactDocRef[]) => {
-                this.docRefList = docrefs;
-            }).finally(() => {
-                this.isLoadingDocRefs = false;
-            });
-        }
+    private docRefsUpdated = (docRefs: IArtifactDocRef[]) => {
+        this.docRefList = docRefs;
     }
 }

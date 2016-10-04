@@ -1,6 +1,7 @@
 import * as angular from "angular";
 import "angular-formly";
 import "angular-sanitize";
+import "angular-perfect-scrollbar-2";
 import { ILocalizationService } from "../../../../core";
 import { Models, Enums } from "../../../../main/models";
 import { Helper } from "../../../../shared";

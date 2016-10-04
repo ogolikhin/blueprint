@@ -27,7 +27,7 @@ export function formlyConfig(
     formlyConfig.setWrapper({
         name: "bpFieldLabel",
         template: `<div>
-              <label for="{{id}}" ng-if="to.label && !to.tinymceOption"
+              <label for="{{id}}" ng-if="to.label && !to.hideLabel"
                 class="control-label {{to.labelSrOnly ? 'sr-only' : ''}}">
                 <div bp-tooltip="{{to.label}}" bp-tooltip-truncated="true">{{to.label}}</div><div>:</div>
               </label>

@@ -21,9 +21,9 @@ namespace Model.ArtifactModel.Impl
         public abstract int Id { get; set; }
         public abstract int? ItemTypeId { get; set; }
         public abstract string Name { get; set; }
-        public abstract int ParentId { get; set; }
-        public abstract int ProjectId { get; set; }
-        public abstract int Version { get; set; }
+        public abstract int? ParentId { get; set; }
+        public abstract int? ProjectId { get; set; }
+        public abstract int? Version { get; set; }
 
         #endregion Serialized properties
 
@@ -86,7 +86,7 @@ namespace Model.ArtifactModel.Impl
 
     public class NovaArtifactDetails : NovaArtifactBase, INovaArtifactDetails
     {
-        //this function is used by Newtonsoft.Json to determine when to serialize property. See help for Newtonsoft.Json.Serialization
+        // This function is used by Newtonsoft.Json to determine when to serialize property. See help for Newtonsoft.Json.Serialization.
         public bool ShouldSerializeAttachmentValues()
         {
             return AttachmentValues.Count > 0;
@@ -96,8 +96,8 @@ namespace Model.ArtifactModel.Impl
 
         // NOTE: Keep the properties in this order so the shouldControlJsonChanges option in RestApiFacade works properly.  This is the order of the incoming JSON.
 
-        public override int ProjectId { get; set; }
-        public override int Version { get; set; }
+        public override int? ProjectId { get; set; }
+        public override int? Version { get; set; }
         public List<AttachmentValue> AttachmentValues { get; } = new List<AttachmentValue>();
         public DateTime? CreatedOn { get; set; }
         public DateTime? LastEditedOn { get; set; }
@@ -109,8 +109,10 @@ namespace Model.ArtifactModel.Impl
         public DateTime? LockedDateTime { get; set; }
         public override int Id { get; set; }
         public override string Name { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
         public string Description { get; set; }
-        public override int ParentId { get; set; }
+        public override int? ParentId { get; set; }
         public double? OrderIndex { get; set; }
         public override int? ItemTypeId { get; set; }
         public int ItemTypeVersionId { get; set; }
@@ -263,6 +265,40 @@ namespace Model.ArtifactModel.Impl
             }
         }
 
+        /// <summary>
+        /// Asserts that this INovaArtifactDetails object is equal to the specified INovaVersionControlArtifactInfo.
+        /// </summary>
+        /// <param name="artifact">The INovaVersionControlArtifactInfo to compare against.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public void AssertEquals(INovaVersionControlArtifactInfo artifact)
+        {
+            AssertEquals(this, artifact);
+        }
+
+        /// <summary>
+        /// Asserts that the INovaArtifactDetails & INovaVersionControlArtifactInfo objects are equal.
+        /// </summary>
+        /// <param name="artifact1">The first INovaArtifactDetails to compare against.</param>
+        /// <param name="artifact2">The second INovaVersionControlArtifactInfo to compare against.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public static void AssertEquals(INovaArtifactDetails artifact1, INovaVersionControlArtifactInfo artifact2)
+        {
+            ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
+            ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
+
+            Assert.AreEqual(artifact1.Id, artifact2.Id, "The Id parameters don't match!");
+            Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId  parameters don't match!");
+            Assert.AreEqual(artifact1.LockedDateTime, artifact2.LockedDateTime, "The LockedDateTime  parameters don't match!");
+            Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name  parameters don't match!");
+            Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex  parameters don't match!");
+            Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
+            Assert.AreEqual(artifact1.Permissions, artifact2.Permissions, "The Permissions  parameters don't match!");
+            Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId  parameters don't match!");
+            Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version  parameters don't match!");
+
+            Identification.AssertEquals(artifact1.LockedByUser, artifact2.LockedByUser);
+        }
+
         #endregion Assert functions
 
         #region Other properties
@@ -366,6 +402,9 @@ namespace Model.ArtifactModel.Impl
             [JsonProperty("displayName")]
             public string DisplayName { get; set; }
 
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public bool? IsGroup { get; set; }
+
             /// <summary>
             /// Asserts that this object equals a specified UsersOrGroups object.
             /// </summary>
@@ -376,6 +415,12 @@ namespace Model.ArtifactModel.Impl
 
                 Assert.AreEqual(Id, userOrGroup?.Id, "The Id properties of the user or group don't match!");
                 Assert.AreEqual(DisplayName, userOrGroup?.DisplayName, "The DisplayName properties of the user or group don't match!");
+
+                if (IsGroup != null)
+                {
+                    Assert.AreEqual(IsGroup.Value, (userOrGroup.Type == UsersAndGroupsType.Group),
+                        "IsGroup is {0}, but the UsersAndGroups type is {1}!", IsGroup.Value, userOrGroup.Type);
+                }
             }
 
             /// <summary>
@@ -393,6 +438,15 @@ namespace Model.ArtifactModel.Impl
                 {
                     Assert.AreEqual(identification1.Id, identification2.Id, "The Id properties don't match!");
                     Assert.AreEqual(identification1.DisplayName, identification2.DisplayName, "The DisplayName don't match!");
+
+                    Assert.AreEqual(identification1.IsGroup.HasValue, identification2.IsGroup.HasValue,
+                        "One of the IsGroup properties is null but the other isn't!");
+
+                    if ((identification1.IsGroup != null) && (identification2.IsGroup != null))
+                    {
+                        Assert.AreEqual(identification1.IsGroup.Value, identification2.IsGroup.Value,
+                            "The IsGroup properties don't match!");
+                    }
                 }
             }
         }
@@ -441,16 +495,21 @@ namespace Model.ArtifactModel.Impl
 
         // NOTE: Keep the properties in this order so the shouldControlJsonChanges option in RestApiFacade works properly.  This is the order of the incoming JSON.
 
-        public override int ProjectId { get; set; }
-        public override int Version { get; set; }
+        public override int? ProjectId { get; set; }
+        public override int? Version { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedOn, even if it's null.
         public DateTime? CreatedOn { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedOn, even if it's null.
         public DateTime? LastEditedOn { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedBy, even if it's null.
         public NovaArtifactDetails.Identification CreatedBy { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedBy, even if it's null.
         public NovaArtifactDetails.Identification LastEditedBy { get; set; }
         public override int Id { get; set; }
         public override string Name { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
         public string Description { get; set; }
-        public override int ParentId { get; set; }
+        public override int? ParentId { get; set; }
         public double OrderIndex { get; set; }
         public override int? ItemTypeId { get; set; }
         public string Prefix { get; set; }
@@ -467,6 +526,7 @@ namespace Model.ArtifactModel.Impl
 
         public int Id { get; set; }
         public string Name { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
         public string Description { get; set; }
 
         #endregion Serialized JSON Properties

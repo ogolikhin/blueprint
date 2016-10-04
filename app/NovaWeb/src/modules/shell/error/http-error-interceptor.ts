@@ -35,12 +35,12 @@ export class HttpErrorInterceptor {
                 $message.addError("HttpError_ServiceUnavailable"); // Service is unavailable
             }
             deferred.reject();
-        } else if (response.status === HttpErrorStatusCodes.Unauthorized) {            
+        } else if (response.status === HttpErrorStatusCodes.Unauthorized) {
             $session.onExpired().then(
                 () => {
                     if (!config.dontRetry) {
                         var $http = <ng.IHttpService>this.$injector.get("$http");
-                        HttpErrorInterceptor.applyNewSessionToken(config);                    
+                        HttpErrorInterceptor.applyNewSessionToken(config);
 
                         config.dontRetry = true;
 

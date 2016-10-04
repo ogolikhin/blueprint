@@ -1,6 +1,8 @@
 ﻿import {ItemTypePredefined} from "../../../../../main/models/enums";
 import {Models} from "../../../../../main";
 import {ProcessModels, ProcessEnums} from "../../../";
+import { IStatefulArtifact } from "../../../../../managers/artifact-manager/";
+import { StatefulProcessArtifact } from "../../../process-artifact";
 
 export interface IProcessGraphModel {
 
@@ -42,6 +44,7 @@ export interface IProcessGraphModel {
     updateDecisionDestinationId(decisionId: number, orderIndex: number, newDestinationId: number);
 
     isDecision(id: number): boolean;
+    statefulArtifact: IStatefulArtifact;
 
     destroy();
 }
@@ -412,6 +415,14 @@ export class ProcessGraphModel implements IProcessGraphModel {
         if (link) {
             link.destinationId = newDestinationId;
         }
+    }
+
+    public get statefulArtifact(): IStatefulArtifact{
+        if(this.process instanceof StatefulProcessArtifact)
+        {
+            return <StatefulProcessArtifact> this.process;
+        }
+        return null;        
     }
 
     public destroy() {

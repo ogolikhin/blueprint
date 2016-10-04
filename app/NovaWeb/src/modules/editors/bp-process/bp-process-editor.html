@@ -1,4 +1,9 @@
-﻿<div>
+﻿<div ng-if="$ctrl.isLoading" class="app-loading">
+    <span class="glyphicon glyphicon-refresh spin"></span>
+    <span>Loading...</span>
+</div>
+
+<div ng-show="!$ctrl.isLoading">
     <div class="process-graph-wrapper">
         <div class="process-graph-container">
         </div>

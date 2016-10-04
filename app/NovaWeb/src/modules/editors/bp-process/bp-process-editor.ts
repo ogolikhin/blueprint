@@ -8,6 +8,8 @@ import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artif
 import {IWindowManager, IMainWindow, ResizeCause } from "../../main";
 import {BpBaseEditor, IArtifactManager} from "../bp-base-editor";
 import {IDialogService} from "../../shared";
+import {IDiagramNode} from "./components/diagram/presentation/graph/models/";
+import {ISelection} from "../../managers/artifact-manager";
 
 export class BpProcessEditor implements ng.IComponentOptions {
     public template: string = require("./bp-process-editor.html");
@@ -67,13 +69,29 @@ export class BpProcessEditorController extends BpBaseEditor {
     public $onInit() {
         super.$onInit();
         this.subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this));
+         this.subscribers.push(
+            //subscribe for current artifact change (need to distinct artifact)
+            this.artifactManager.selection.selectionObservable
+                .filter(this.clearSelectionFilter)
+                .subscribeOnNext(this.clearSelection, this)
+        );
     }
 
-    public onLoad() {
-        super.onLoad();
+    private clearSelectionFilter = (selection: ISelection) => {
+        return this.artifact
+               && selection != null
+               && selection.artifact
+               && selection.artifact.id === this.artifact.id
+               && !selection.subArtifact;
     }
 
-    public onUpdate () {
+    private clearSelection(value: ISelection){
+        if(this.processDiagram) {
+            this.processDiagram.clearSelection();
+        }
+    }
+
+    public onArtifactReady() {
         // when this method is called we should have a valid 
         // process artifact in the base class' artifact
         // property.
@@ -81,7 +99,6 @@ export class BpProcessEditorController extends BpBaseEditor {
         // here we create a new process diagram  passing in the
         // process artifact and the html element that will contain
         // the graph
-
         this.processDiagram = new ProcessDiagram(
             this.$rootScope,
             this.$scope,
@@ -98,11 +115,15 @@ export class BpProcessEditorController extends BpBaseEditor {
        
         let htmlElement = this.getHtmlElement();
 
-        this.processDiagram.createDiagram(this.artifact, htmlElement);
+        this.processDiagram.addSelectionListener((element)=>{
+            this.onSelectionChanged(element);
+        })
 
-        super.onUpdate();
+        this.processDiagram.createDiagram(this.artifact, htmlElement);
+        
+        super.onArtifactReady();
     }
-    
+
     public $onDestroy() {
         super.$onDestroy();
 
@@ -144,5 +165,17 @@ export class BpProcessEditorController extends BpBaseEditor {
                 this.processDiagram.resize(0, 0);
             }
         }
+    }
+    
+    private onSelectionChanged = (elements: IDiagramNode[]) => {
+        if(elements.length > 0 ){
+            if(elements[0].model.id <= 0){
+                return;
+            }
+            this.artifactManager.selection.setSubArtifact(this.artifact.subArtifactCollection.get(elements[0].model.id));
+        }
+        else{
+            this.artifactManager.selection.setArtifact(this.artifact);
+        }    
     }
 }

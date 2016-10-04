@@ -1,25 +1,17 @@
 import * as angular from "angular";
-import { ChangeSetCollector } from "../changeset";
-import { Models } from "../../../main/models";
-import { IRelationship, TraceDirection, IArtifactRelationshipsResultSet } from "../../../main/models/relationshipmodels";
-import {
-    ChangeTypeEnum, 
-    IChangeCollector, 
-    IChangeSet
-} from "../";
+import { IIStatefulItem } from "../item";
+import { ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet } from "../changeset";
+import { IRelationship, IArtifactRelationshipsResultSet } from "../../../main/models/relationshipmodels";
 
-import { 
-    IBlock,
-    IIStatefulItem
-} from "../../models";
-
-export interface IArtifactRelationships extends IBlock<IRelationship[]> {
+export interface IArtifactRelationships {
+    // getObservable(): Rx.IObservable<IRelationship[]>;
     observable: Rx.IObservable<IRelationship[]>;
     get(refresh?: boolean): ng.IPromise<IRelationship[]>;
     add(relationships: IRelationship[]);
     remove(relationships: IRelationship[]);
     update(relationships: IRelationship[]);
     changes(): IRelationship[];
+    refresh(): ng.IPromise<IRelationship[]>;
     discard();
     canEdit: boolean;
 }
@@ -31,6 +23,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
     
     private changeset: IChangeCollector;
     private isLoaded: boolean;
+    private loadPromise: ng.IPromise<any>;
     public canEdit: boolean;
 
     constructor(private statefulItem: IIStatefulItem) {
@@ -39,12 +32,6 @@ export class ArtifactRelationships implements IArtifactRelationships {
         this.subject = new Rx.BehaviorSubject<IRelationship[]>(this.relationships);
         this.changeset = new ChangeSetCollector(statefulItem);
     }
-
-    // public initialize(relationships: Relationships.IRelationship[]) {
-    //     this.isLoaded = true;
-    //     this.relationships = relationships;
-    //     this.subject.onNext(this.relationships);
-    // }
 
     // refresh = true: turn lazy loading off, always reload
     public get(refresh: boolean = true): ng.IPromise<IRelationship[]> {
@@ -72,6 +59,28 @@ export class ArtifactRelationships implements IArtifactRelationships {
         return deferred.promise;
     }
 
+    // public getObservable(): Rx.IObservable<IRelationship[]> {
+    //     if (!this.isLoadedOrLoading()) {
+
+    //         this.loadPromise = this.statefulItem.getRelationships().then((result: IRelationship[]) => {
+    //             this.subject.onNext(this.relationships);
+
+    //         }, (error) => {
+    //             this.subject.onError(error);
+
+    //         }).finally(() => {
+    //             this.isLoaded = true;
+    //             this.loadPromise = null;
+    //         });
+    //     }
+        
+    //     return this.subject.filter(it => !!it).asObservable();
+    // }
+
+    protected isLoadedOrLoading() {
+        return this.relationships || this.loadPromise;
+    }
+
     public get observable(): Rx.IObservable<IRelationship[]> {
         return this.subject.asObservable();
     }
@@ -97,8 +106,9 @@ export class ArtifactRelationships implements IArtifactRelationships {
     }
 
     private getKey(relationship: IRelationship) {
-        return `${relationship.itemId}-${relationship.traceType}`
+        return `${relationship.itemId}-${relationship.traceType}`;
     }
+
     public update(docrefs: IRelationship[]): IRelationship[] {
         throw Error("operation not supported");
     }
@@ -133,7 +143,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
 
     private getMatchingRelationshipEntry = (toFind: IRelationship, relationshipList: IRelationship[]) => {
         let matches = relationshipList.filter(a => a.itemId === toFind.itemId && a.traceType === toFind.traceType);
-        if (matches.length !== 1){
+        if (matches.length !== 1) {
             return null;
         } else {
             return matches[0];
@@ -165,5 +175,11 @@ export class ArtifactRelationships implements IArtifactRelationships {
     public discard() {
         this.changeset.reset();
         this.subject.onNext(this.relationships);
+    }
+
+    // TODO: stub, implement
+    public refresh(): ng.IPromise<any> {
+
+        return null;
     }
 }

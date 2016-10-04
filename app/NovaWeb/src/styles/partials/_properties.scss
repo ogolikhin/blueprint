@@ -862,16 +862,21 @@ pagecontent, bp-properties-panel {
         min-height: #{3 * $property-min-height};
         min-width: $property-input-width;
         overflow: auto;
+        -ms-overflow-style: auto;
 
         &:hover,
         &:focus {
-          background: $yellow-pale url('images/editable-icon.png') no-repeat right 5px top 6px;
+          background: $yellow-pale url('images/editable-icon.png') no-repeat right 4px top 6px;
         }
 
         a {
           color: blue;
           cursor: pointer;
           text-decoration: underline;
+        }
+
+        table.mce-item-table td {
+          width: 20px;
         }
       }
 

@@ -42,14 +42,8 @@ namespace ServiceLibrary.Repositories
 
         private StatusResponse ParseStatus(JobExecutorModel jobex)
         {
-           string jobexecutorStatus = null;
-           foreach(int statusOfJob in Enum.GetValues(typeof(JobexecutorStatusEnum)))
-            {
-                if(jobex.Status.Equals(statusOfJob))
-                {
-                    jobexecutorStatus = Enum.GetName(typeof(JobexecutorStatusEnum), statusOfJob);
-                }
-            }
+            string jobexecutorStatus = null;
+            jobexecutorStatus = Enum.GetName(typeof(JobexecutorStatusEnum), jobex.Status);            
             var timeSpanSinceLastActivity = jobex.CurrentTimestamp.Subtract(jobex.LastActivityTimestamp).TotalMinutes;
             var responseData = new StatusResponse();
 

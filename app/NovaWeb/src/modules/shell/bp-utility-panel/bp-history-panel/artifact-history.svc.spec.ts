@@ -1,5 +1,6 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
+import {HttpStatusCode} from "../../../core/http";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {IArtifactHistory, IArtifactHistoryVersion, ArtifactHistory} from "./artifact-history.svc";
 import {Models} from "../../../main";
@@ -14,7 +15,7 @@ describe("Artifact History Service", () => {
     it("get artifact histories with default values", inject(($httpBackend: ng.IHttpBackendService, artifactHistory: IArtifactHistory) => {
         // Arrange
         $httpBackend.expectGET(`/svc/artifactstore/artifacts/306/version?asc=false&limit=10&offset=0`)
-            .respond(200, {
+            .respond(HttpStatusCode.Success, {
                 "artifactId": 306,
                 "artifactHistoryVersions": [
                     {
@@ -123,7 +124,7 @@ describe("Artifact History Service", () => {
     it("get first artifact history", inject(($httpBackend: ng.IHttpBackendService, artifactHistory: IArtifactHistory) => {
         // Arrange
         $httpBackend.expectGET(`/svc/artifactstore/artifacts/306/version?asc=false&limit=1&offset=0`)
-            .respond(200, {
+            .respond(HttpStatusCode.Success, {
                 "artifactId": 306,
                 "artifactHistoryVersions": [
                     {
@@ -160,8 +161,8 @@ describe("Artifact History Service", () => {
     it("gets an error if artifact id is invalid", inject(($httpBackend: ng.IHttpBackendService, artifactHistory: IArtifactHistory) => {
         // Arrange
         $httpBackend.expectGET(`/svc/artifactstore/artifacts/0/version?asc=false&limit=1&offset=0`)
-            .respond(404, {
-                statusCode: 404,
+            .respond(HttpStatusCode.NotFound, {
+                statusCode: HttpStatusCode.NotFound,
                 message: "Couldn't find the artifact"
             });
 
@@ -178,7 +179,7 @@ describe("Artifact History Service", () => {
 
         // Assert
         expect(data).toBeUndefined();
-        expect(error.statusCode).toEqual(404);
+        expect(error.statusCode).toEqual(HttpStatusCode.NotFound);
         $httpBackend.verifyNoOutstandingExpectation();
         $httpBackend.verifyNoOutstandingRequest();
     }));
@@ -186,7 +187,7 @@ describe("Artifact History Service", () => {
     it("get first 2 artifact histories in descending order", inject(($httpBackend: ng.IHttpBackendService, artifactHistory: IArtifactHistory) => {
         // Arrange
         $httpBackend.expectGET(`/svc/artifactstore/artifacts/306/version?asc=false&limit=2&offset=0`)
-            .respond(200, {
+            .respond(HttpStatusCode.Success, {
                 "artifactId": 306,
                 "artifactHistoryVersions": [
                     {
@@ -232,7 +233,7 @@ describe("Artifact History Service", () => {
     it("get first 2 artifact histories in ascending order", inject(($httpBackend: ng.IHttpBackendService, artifactHistory: IArtifactHistory) => {
         // Arrange
         $httpBackend.expectGET(`/svc/artifactstore/artifacts/306/version?asc=true&limit=2&offset=0`)
-            .respond(200, {
+            .respond(HttpStatusCode.Success, {
                 "artifactId": 306,
                 "artifactHistoryVersions": [
                     {

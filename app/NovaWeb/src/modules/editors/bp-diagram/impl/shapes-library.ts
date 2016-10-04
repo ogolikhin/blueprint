@@ -1,5 +1,6 @@
 import {Shapes, ShapeProps, ArrowHeads, UIMockupShapes} from "./utils/constants";
 import {MxFactory, MathExtensions, DiagramHelper} from "./utils/helpers";
+import {HttpStatusCode} from "../../../core/http";
 
 /*
 * Class: CalloutHelper
@@ -341,7 +342,7 @@ export class IconShape extends mxActor {
             var url = mxBasePath + "/icons/main.json";
 
             xmlhttp.onreadystatechange = function () {
-                if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+                if (xmlhttp.readyState === 4 && xmlhttp.status === HttpStatusCode.Success) {
                     IconShape.iconData = JSON.parse(xmlhttp.responseText);
                 }
             };

@@ -810,7 +810,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process, 2)]
         [TestCase(BaseArtifactType.Process, 3)]
         [TestRail(182483)]
-        [Description("Create & save an artifact.  Move the first created artifact to be a child of one of its descendents. If one created it will be circular to itself. Verify returned code 409 Conflict.")]
+        [Description("Publish artifact chain. Save and move the first created artifact to be a child of one of its descendents. If one created it will be circular to itself. Verify returned code 409 Conflict.")]
         public void MoveArtifact_SaveArtifactAndCreateCircularDependency_409Conflict(BaseArtifactType artifactType, int numberOfArtifacts)
         {
             // Setup:

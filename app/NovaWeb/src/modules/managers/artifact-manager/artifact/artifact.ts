@@ -251,16 +251,20 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     //TODO: moved from bp-artifactinfo 
     
     public save(): ng.IPromise<IStatefulArtifact> {
-        let deffered = this.services.getDeferred<IStatefulArtifact>();
+        let deferred = this.services.getDeferred<IStatefulArtifact>();
        
         let changes = this.changes();
         this.services.artifactService.updateArtifact(changes)
             .then((artifact: Models.IArtifact) => {
                 this.discard();
-                this.refresh();
+                this.refresh().then((a) => {
+                    deferred.resolve(a);
+                }).catch((error) => {
+                    deferred.reject(error);
+                });
                 this.services.messageService.addInfo("App_Save_Artifact_Error_200");
             }).catch((error) => {
-                deffered.reject(error);
+                deferred.reject(error);
                 let message: string;
                 // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
                 if (error) {
@@ -294,7 +298,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             }
         );
        
-        return deffered.promise;
+        return deferred.promise;
     }
 
     //TODO: stub - replace with implementation

@@ -1,5 +1,7 @@
 import * as angular from "angular";
 import "angular-formly";
+import "angular-ui-tinymce";
+import "tinymce";
 import { Helper } from "../../../../shared";
 
 export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
@@ -29,21 +31,24 @@ export class BpFieldTextRTFInlineController {
 
     constructor(private $scope: AngularFormly.ITemplateScope) {
         let to: AngularFormly.ITemplateOptions = {
-            tinymceOption: { // this will go to ui-tinymce directive
+            tinymceOptions: { // this will go to ui-tinymce directive
                 inline: true,
                 fixed_toolbar_container: ".tinymce-toolbar-" + $scope.options["key"],
                 menubar: false,
-                toolbar: "fontsize | bold italic underline | forecolor format | link table",
+                toolbar: "fontselect fontsize | bold italic underline | forecolor format | link table",
                 statusbar: false,
                 invalid_elements: "img,frame,iframe,script",
                 invalid_styles: {
                     "*": "background background-image background-color"
                 },
                 paste_remove_styles_if_webkit: false, // https://www.tinymce.com/docs/plugins/paste/#paste_remove_styles_if_webkit
+                paste_retain_style_properties: "all", // https://www.tinymce.com/docs/plugins/paste/#paste_retain_style_properties
+                table_toolbar: "", // https://www.tinymce.com/docs/plugins/table/#table_toolbar
                 // we don't need the autoresize plugin when using the inline version of tinyMCE as the height will
                 // be controlled using CSS (max-height, min-height)
-                plugins: "paste textcolor table noneditable autolink link", // contextmenu",
-                contextmenu: "bold italic underline strikethrough | link inserttable | cell row column deletetable",
+                plugins: "paste textcolor table noneditable autolink link",
+                // plugins: "contextmenu", // https://www.tinymce.com/docs/plugins/contextmenu/
+                // contextmenu: "bold italic underline strikethrough | link inserttable | cell row column deletetable",
                 // paste_preprocess: function (plugin, args) { // https://www.tinymce.com/docs/plugins/paste/#paste_preprocess
                 // },
                 paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
@@ -98,7 +103,9 @@ export class BpFieldTextRTFInlineController {
                             { icon: "bullist", text: " Bulleted list", onclick: function () { tinymce.execCommand("InsertUnorderedList"); } },
                             { icon: "numlist", text: " Numeric list", onclick: function () { tinymce.execCommand("InsertOrderedList"); } },
                             { icon: "outdent", text: " Outdent", onclick: function () { tinymce.execCommand("Outdent"); } },
-                            { icon: "indent", text: " Indent", onclick: function () { tinymce.execCommand("Indent"); } }
+                            { icon: "indent", text: " Indent", onclick: function () { tinymce.execCommand("Indent"); } },
+                            { text: "-" },
+                            { icon: "removeformat", text: " Clear formatting", onclick: function () { tinymce.execCommand("RemoveFormat"); } }
                         ]
                     });
                     editor.addButton("fontsize", {
@@ -138,6 +145,23 @@ export class BpFieldTextRTFInlineController {
             }
         };
         angular.merge($scope.to, to);
+
+        let validators = {
+            // tinyMCE may leave empty tags that cause the value to appear not empty
+            requiredCustom: {
+                expression: function ($viewValue, $modelValue, scope) {
+                    if (scope.to && scope.to.required) {
+                        if (angular.isString($modelValue) && $modelValue.length !== 0) {
+                            let div = document.createElement("div");
+                            div.innerHTML = $modelValue;
+                            return !(div.innerText.trim() === "");
+                        }
+                    }
+                    return true;
+                }
+            }
+        };
+        $scope.options["validators"] = validators;
 
         $scope["$on"]("$destroy", () => {
             this.removeObserver();
@@ -221,6 +245,8 @@ export class BpFieldTextRTFInlineController {
     };
 
     private removeObserver = () => {
-        this.observer.disconnect();
+        if (this.observer) {
+            this.observer.disconnect();
+        }
     };
 }

@@ -11,6 +11,7 @@ from "./models/process-models";
 import { StatefulArtifact, IStatefulArtifact } from "../../managers/artifact-manager/artifact";
 import { Models } from "../../main/models";
 import { IStatefulProcessArtifactServices } from "../../managers/artifact-manager/services";
+import { StatefulProcessSubArtifact } from "./process-subartifact";
 
 export class StatefulProcessArtifact extends StatefulArtifact implements IStatefulArtifact, IProcess {
 
@@ -107,15 +108,24 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
             });
         return processDeffered.promise;
     }
-
-    private onLoad(process: IProcess) {
+    private onLoad(newProcess: IProcess) {
         // TODO: updating name seems to cause an infinite loading of process, something with base class's 'set' logic.
         //(<IProcess>this).name = process.name;
-        (<IProcess>this).shapes = process.shapes;
-        (<IProcess>this).links = process.links;
-        (<IProcess>this).decisionBranchDestinationLinks = process.decisionBranchDestinationLinks;
-        (<IProcess>this).propertyValues = process.propertyValues;
-        (<IProcess>this).requestedVersionInfo = process.requestedVersionInfo;
-        (<IProcess>this).status = process.status;
+        let currentProcess = <IProcess> this;
+        this.initializeSubArtifacts(newProcess);
+        currentProcess.links = newProcess.links;
+        currentProcess.decisionBranchDestinationLinks = newProcess.decisionBranchDestinationLinks;
+        currentProcess.propertyValues = newProcess.propertyValues;
+        currentProcess.requestedVersionInfo = newProcess.requestedVersionInfo;
+        currentProcess.status = newProcess.status;
+    }
+    private initializeSubArtifacts(newProcess: IProcess) {
+
+        let statefulSubArtifacts: StatefulProcessSubArtifact[] = newProcess.shapes.map((shape:IProcessShape) => {
+            return new StatefulProcessSubArtifact(this, shape, this.services);
+        });
+
+        this.shapes = statefulSubArtifacts;
+        this.subArtifactCollection.initialise(statefulSubArtifacts);
     }
 }

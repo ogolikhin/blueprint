@@ -213,6 +213,10 @@ export class PropertyEditor {
                 case Models.PrimitiveType.Text:
                     field.type = context.isRichText ? "bpFieldTextRTFInline" : (context.isMultipleAllowed ? "bpFieldTextMulti" : "bpFieldText");
                     field.defaultValue = context.stringDefaultValue;
+                    if (context.isRichText && Enums.PropertyLookupEnum.Special !== context.lookup) {
+                        field.templateOptions["hideLabel"] = context.isMultipleAllowed ||
+                            Models.PropertyTypePredefined.Description === context.propertyTypePredefined;
+                    }
                     break;
                 case Models.PrimitiveType.Date:
                     field.type = "bpFieldDatepicker";

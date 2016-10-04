@@ -1,6 +1,10 @@
 ﻿import * as angular from "angular";
 import { Models } from "../../main/models";
 
+export enum ProjectServiceStatusCode {
+    ResourceNotFound = 3000
+}
+
 export interface IProjectService {
     abort(): void;
     getFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;

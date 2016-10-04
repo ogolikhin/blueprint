@@ -76,6 +76,8 @@ namespace ArtifactStoreTests
         // TODO: Create folder under project.  Verify success.
         // TODO: Create folder under another folder.  Verify success.
         // TODO: Create artifact with order index before, same as, or after other artifacts.  Verify success.
+        // TODO: Create Collections & Collection Folders.  Verify success.  NOTE: Default collection folder ID of a project is Project ID + 2.
+        // TODO: (CustomData) Create artifact that has required fields.  Verify success.  Try to publish.  Verify error.
 
         #endregion 200 OK tests
 

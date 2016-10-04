@@ -413,7 +413,7 @@ namespace SearchServiceTests
             List<BaseArtifactType> selectedBasedArtifactTypes = new List<BaseArtifactType> { BaseArtifactType.Actor };
 
             // Setup: Create few artifacts to search
-            var publishedArtifacts = SearchServiceTestHelper.SetupFullTextSearchData(_projects, _user, Helper, selectedBaseArtifactTypes: selectedBasedArtifactTypes,timeoutInMilliseconds: 60000);
+            var publishedArtifacts = SearchServiceTestHelper.SetupFullTextSearchData(_projects, _user, Helper, selectedBaseArtifactTypes: selectedBasedArtifactTypes);
 
             // Setup: Create search criteria with search term that matches with current version of artifact(s) description
             var searchCriteria = new FullTextSearchCriteria(publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue, selectedProjectIds);

@@ -17,7 +17,7 @@ namespace ServiceLibrary.Repositories
         public string Name { get; set; }
         public string AccessInfo { get; set; }
 
-       public enum JobexecutorStatusEnum
+       private enum JobexecutorStatusEnum
         {
            Stopped = 0,
            Started = 1,

@@ -99,10 +99,16 @@ namespace Model.ArtifactModel.Impl
         public override int? ProjectId { get; set; }
         public override int? Version { get; set; }
         public List<AttachmentValue> AttachmentValues { get; } = new List<AttachmentValue>();
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
         public DateTime? CreatedOn { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
         public DateTime? LastEditedOn { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
         public Identification CreatedBy { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
         public Identification LastEditedBy { get; set; }
+
         public DateTime? LastSavedOn { get; set; }
         public int Permissions { get; set; }
         public Identification LockedByUser { get; set; }

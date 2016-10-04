@@ -214,8 +214,8 @@ export abstract class StatefulItem implements IIStatefulItem {
     }
     
     protected isFullArtifactLoadedOrLoading() {
-        return this._customProperties && this._customProperties.isLoaded &&
-         this._specialProperties && this._specialProperties.isLoaded || 
+        return (this._customProperties && this._customProperties.isLoaded &&
+         this._specialProperties && this._specialProperties.isLoaded) || 
          this.loadPromise;
     }
 

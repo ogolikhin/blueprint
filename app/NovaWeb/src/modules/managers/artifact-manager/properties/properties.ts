@@ -17,6 +17,7 @@ export class ArtifactProperties implements IArtifactProperties  {
     protected properties: Models.IPropertyValue[];
     private changeset: IChangeCollector;
 
+    //TODO: Remove properties in constructor, not getting used anywhere.
     constructor(private statefulItem: IIStatefulItem, properties?: Models.IPropertyValue[]) {
         this.properties = properties || [];
         this.changeset = new ChangeSetCollector(statefulItem);

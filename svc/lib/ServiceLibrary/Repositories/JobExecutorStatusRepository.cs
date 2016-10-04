@@ -17,14 +17,13 @@ namespace ServiceLibrary.Repositories
         public string Name { get; set; }
         public string AccessInfo { get; set; }
 
-       public enum jobexecutorStatusEnum
+       public enum JobexecutorStatusEnum
         {
-           Stop,
-           Started,
-           Idle,
-           Active,
-           NotResponding,
-           Unknown,
+           Stopped = 0,
+           Started = 1,
+           Idle = 2,
+           Active = 3,
+           NotResponding = 4,
 
          };
         public JobExecutorStatusRepository(string cxn, string name,  string dbSchema = ServiceConstants.DefaultDBSchema)
@@ -44,27 +43,12 @@ namespace ServiceLibrary.Repositories
         private StatusResponse ParseStatus(JobExecutorModel jobex)
         {
            string jobexecutorStatus = null;
-            switch(jobex.Status)
+           foreach(int statusOfJob in Enum.GetValues(typeof(JobexecutorStatusEnum)))
             {
-                case 0:
-                    jobexecutorStatus = jobexecutorStatusEnum.Stop.ToString();
-                    break;
-                case 1:
-                    jobexecutorStatus = jobexecutorStatusEnum.Started.ToString();
-                    break;
-                case 2:
-                    jobexecutorStatus = jobexecutorStatusEnum.Idle.ToString();
-                    break;
-                case 3:
-                    jobexecutorStatus = jobexecutorStatusEnum.Active.ToString();
-                    break;
-                case 4:
-                    jobexecutorStatus = jobexecutorStatusEnum.NotResponding.ToString();
-                    break;
-                default:
-                    jobexecutorStatus = jobexecutorStatusEnum.Unknown.ToString();
-                    break;
-
+                if(jobex.Status.Equals(statusOfJob))
+                {
+                    jobexecutorStatus = Enum.GetName(typeof(JobexecutorStatusEnum), statusOfJob);
+                }
             }
             var timeSpanSinceLastActivity = jobex.CurrentTimestamp.Subtract(jobex.LastActivityTimestamp).TotalMinutes;
             var responseData = new StatusResponse();
@@ -73,7 +57,7 @@ namespace ServiceLibrary.Repositories
                 
                     responseData.Name = "JobExecutor-" + jobex.JobServiceId.Remove(jobex.JobServiceId.LastIndexOf("@", StringComparison.Ordinal));
                     responseData.AccessInfo = AccessInfo;
-                    responseData.NoErrors = true;
+                    responseData.NoErrors = jobexecutorStatus != JobexecutorStatusEnum.NotResponding.ToString()? true : false;
                     responseData.Result = System.String.Format(CultureInfo.InvariantCulture, 
                         "JobName={0}, Platform= {1}, Type={2}, Status = {3}, LastActivityTimestamp={4}, ExecutingJobMessageId={5}, CurrentTimestamp={6}", 
                         jobex.JobServiceId, jobex.Platform, jobex.Types, jobexecutorStatus, jobex.LastActivityTimestamp, jobex.ExecutingJobMessageId, jobex.CurrentTimestamp);

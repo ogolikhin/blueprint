@@ -161,9 +161,12 @@ namespace ArtifactStoreTests
         }
 
         // TODO: Create artifact with missing required fields (name, project id, item type id, parent id).  Verify 400 Bad Request.
+        // TODO: Send a corrupt JSON body.  Verify 400 Bad Request.
         // TODO: Create artifact with parent that user has no access to.  Verify 403.
+        // TODO: Pass non-existent ItemTypeId.  Verify 404 Not Found.
         // TODO: Create artifact with non-existent parent.  Verify 404.
         // TODO: Create folder under non-folder artifact.  Verify 409.
+        // TODO: Create an artifact with ProjectID x with a Parent that exists in project y.  Verify ?? Error.
 
         #endregion Negative tests
 
@@ -203,7 +206,7 @@ namespace ArtifactStoreTests
         /// <param name="artifactName">The name of the artifact.</param>
         /// <param name="parentId">The parent ID of the artifact.</param>
         /// <param name="orderIndex">The order index of the artifact.</param>
-        /// <returns></returns>
+        /// <returns>The artifact that was created.</returns>
         private INovaArtifactDetails CreateInvalidArtifact(IUser user,
             IProject project,
             int itemTypeId,
@@ -213,7 +216,7 @@ namespace ArtifactStoreTests
         {
             artifactName = artifactName ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
-            NovaArtifactDetails jsonBody = new NovaArtifactDetails
+            NovaArtifactDetails artifactDetails = new NovaArtifactDetails
             {
                 Name = artifactName,
                 ProjectId = project.Id,
@@ -221,21 +224,39 @@ namespace ArtifactStoreTests
                 ParentId = parentId ?? project.Id,
                 OrderIndex = orderIndex
             };
+            
+            string jsonBody = JsonConvert.SerializeObject(artifactDetails);
 
+            RestResponse response = CreateInvalidArtifact(user, jsonBody);
+            INovaArtifactDetails createdArtifact = JsonConvert.DeserializeObject<NovaArtifactDetails>(response.Content);
+            
+            return createdArtifact;
+        }
+        
+        /// <summary>
+        /// Tries to create an invalid artifact.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="jsonBody">The JSON body of the request.</param>
+        /// <returns>The REST response.</returns>
+        private RestResponse CreateInvalidArtifact(IUser user, string jsonBody)
+        {
             RestApiFacade restApi = new RestApiFacade(Helper.BlueprintServer.Address, user?.Token?.AccessControlToken);
 
             // Set expectedStatusCodes to 201 Created.
             List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
+            const string contentType = "application/json";
 
-            var newArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails, NovaArtifactDetails>(
+            var response = restApi.SendRequestBodyAndGetResponse(
                 SVC_PATH,
                 RestRequestMethod.POST,
                 jsonBody,
+                contentType,
                 expectedStatusCodes: expectedStatusCodes);
 
-            return newArtifact;
+            return response;
         }
-
+        
         #endregion Private functions
     }
 }

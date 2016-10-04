@@ -130,6 +130,12 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         }
     }
 
+    public canManageTraces(): boolean {
+        // if artifact is locked by other user we still can add/manage traces
+        return !this.item.artifactState.deleted &&               
+                this.item.relationships.canEdit;
+    }
+
     public setSelectedDirection(direction: Relationships.TraceDirection): void {
         let traces = this.selectedTraces[this.item.id],
             selectedTracesLength = traces.length;

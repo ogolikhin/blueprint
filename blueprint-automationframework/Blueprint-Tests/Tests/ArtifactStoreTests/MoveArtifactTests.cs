@@ -64,9 +64,34 @@ namespace ArtifactStoreTests
             Assert.AreEqual(_project.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
         }
 
+        [TestCase(BaseArtifactType.PrimitiveFolder)]
+        [TestRail(0)]
+        [Description("Create & save 3 artifacts. Create chain : grandparent, parent and child. Move parent artifact with a child to be a child of the project.  Verify the moved artifact is returned with the updated Parent ID.")]
+        public void MoveArtifact_SavedArtifactWithDependentChildBecomesChildOfProject_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
+        {
+            // Setup: 
+            IArtifact grandParentArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            IArtifact parentArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType, grandParentArtifact);
+            Helper.CreateAndSaveArtifact(_project, _user, artifactType, parentArtifact);
+
+            INovaArtifactDetails movedArtifactDetails = null;
+
+            parentArtifact.Lock();
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, parentArtifact, _project.Id, _user);
+            }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
+
+            // Verify:
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, parentArtifact.Id);
+            NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
+            Assert.AreEqual(_project.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
+        }
+
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182373)]
-
         [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other.  Verify the moved artifact is returned with the updated Parent ID.")]
         public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
         {
@@ -87,7 +112,30 @@ namespace ArtifactStoreTests
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
+        }
 
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(0)]
+        [Description("Create, publish & save 2 artifacts.  Move one artifact to be a child of the other.  Verify the moved artifact is returned with the updated Parent ID.")]
+        public void MoveArtifact_SavedArtifactBecomesChildOfPublishedArtifact_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            artifact.Lock();
+            INovaArtifactDetails movedArtifactDetails = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, _user);
+            }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
+
+            // Verify:
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
+            Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -116,6 +164,30 @@ namespace ArtifactStoreTests
         }
 
         [TestCase(BaseArtifactType.Process)]
+        [TestRail(0)]
+        [Description("Create & save an artifact.  Move the artifact to the same location.  Verify the moved artifact is returned with the updated Parent ID.")]
+        public void MoveArtifact_SavedArtifact_FromProjectRootToProjectRoot_VerifyParentDidNotChange_200OK(BaseArtifactType artifactType)
+        {
+            INovaArtifactDetails movedArtifactDetails = null;
+
+            // Setup:
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+
+            artifact.Lock();
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, _project.Id, _user);
+            }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
+
+            // Verify:
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
+            Assert.AreEqual(_project.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
+        }
+
+        [TestCase(BaseArtifactType.Process)]
         [TestRail(182402)]
         [Description("Create & publish 2 artifacts.  Move one artifact to be a child of the other.  Send current version of artifact with the message.  Verify the moved artifact is returned with the updated Parent ID.")]
         public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_SendCurrentVersion_200OK(BaseArtifactType artifactType)
@@ -139,7 +211,33 @@ namespace ArtifactStoreTests
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
+        }
 
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(0)]
+        [Description("Create, publish & save 2 artifacts.  Move one artifact to be a child of the other.  Send current version of artifact with the message.  Verify the moved artifact is returned with the updated Parent ID.")]
+        public void MoveArtifact_SavedArtifactBecomesChildOfPublishedArtifact_SendCurrentVersion_200OK(BaseArtifactType artifactType)
+        {
+            const int CURRENT_VERSION_OF_ARTIFACT = 2;
+            INovaArtifactDetails movedArtifactDetails = null;
+
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: CURRENT_VERSION_OF_ARTIFACT);
+            artifact.Save();
+            IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            artifact.Lock();
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, _user, CURRENT_VERSION_OF_ARTIFACT);
+            }, "'POST {0}' should return 200 OK when called with current version!", SVC_PATH);
+
+            // Verify:
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
+            Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
         }
 
         #endregion 200 OK tests
@@ -202,27 +300,42 @@ namespace ArtifactStoreTests
                 "{0} when user tries to move an artifact to different project", expectedExceptionMessage);
         }
 
-        [Ignore(IgnoreReasons.UnderDevelopment)] //Not implemented yet. There is no ability to test Baseline and Review. This will be tested manually
-//        [TestCase(BaseArtifactType.Collection)]
+        [Ignore(IgnoreReasons.DeploymentNotReady)] // The tests might change the state of artifact and lead to chain effect of multiple failures down the road
+        [Category(Categories.CustomData)]
+        [TestCase(181, 182)]
+        [TestCase(183, 185)]
+        [TestCase(180, 1)]
         [TestRail(182408)]
         [Description("Create & publish 2 artifacts of unsupported artifact type. Move an artifact to be a child of the other one.   Verify returned code 403 Forbidden.")]
-        public void MoveArtifact_PublishedArtifactCannotBeMovedForUnsupportedArtifactTypes_403Forbidden(BaseArtifactType artifactType)
+        public void MoveArtifact_PublishedArtifactCannotBeMovedForUnsupportedArtifactTypes_403Forbidden(int artifactIdToMove, int artifactIdMoveTo)
         {
-            // Setup: 
-            IArtifact artifact1 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IArtifact artifact2 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var projects = ProjectFactory.GetProjects(_user, numberOfProjects: 2);
+            Assert.GreaterOrEqual(projects.Count, 2, "This test requires at least 2 projects to exist!");
 
-            artifact1.Lock();
+            NovaArtifactDetails retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_user, artifactIdToMove);
+
+            IArtifact fakeArtifact = ArtifactFactory.CreateArtifact(
+            _project, _user, BaseArtifactType.Actor, retrievedArtifact.Id);   // Don't use Helper because this isn't a real artifact, it's just wrapping the bad artifact ID.
+
+            fakeArtifact.Lock();
+            
+            Artifact.UpdateArtifact(fakeArtifact, _user, retrievedArtifact, Helper.BlueprintServer.Address);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, _user),
-
-                "'POST {0}' should return 403 Forbidden when user tries to move artifact of unsupported artifact type", SVC_PATH);
-
-            // Verify:
-            string expectedExceptionMessage = "Cannot move baselines, collections or reviews.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+            try
+            {
+                var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, fakeArtifact, artifactIdMoveTo, _user),
+               "'POST {0}' should return 403 Forbidden when user tries to move artifact of unsupported artifact type", SVC_PATH);                
+                
+                // Verify:
+                string expectedExceptionMessage = "Cannot move baselines, collections or reviews.";
+                Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
                 "{0} when user tries to move an artifact of unsupported artifact type", expectedExceptionMessage);
+            }
+            finally
+            {
+                fakeArtifact.Publish(_user);
+            }
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -309,7 +422,27 @@ namespace ArtifactStoreTests
 
         #region 404 Not Found tests
 
-//        [TestCase(BaseArtifactType.Process, 0)]   Need to be fixed
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(182403)]
+        [Description("Create & publish an artifact. Move an artifact to be a child of the artifact with Id 0.  Verify returned code 404 Not Found.")]
+        public void MoveArtifact_PublishedArtifactCannotBeMovedToArtifactWithId0_404NotFound(BaseArtifactType artifactType)
+        {
+            const int ARTIFACT_WITH_ID_0 = 0;
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            artifact.Lock();
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, ARTIFACT_WITH_ID_0, _user),
+                "'POST {0}' should return 404 Not Found when user tries to move artifact to one that has Id 0", SVC_PATH);
+
+            // Verify:
+            string expectedExceptionMessage = "<html xmlns=\"http://www.w3.org/1999/xhtml\">";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} when user tries to move an artifact to artifact that has Id 0", expectedExceptionMessage);
+        }
+
         [TestCase(BaseArtifactType.Process, int.MaxValue)]
         [TestRail(182429)]
         [Description("Create & publish an artifact. Move an artifact to be a child of the non existing artifact.  Verify returned code 404 Not Found.")]

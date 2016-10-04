@@ -20,12 +20,12 @@ describe("UserStoryPreviewController", () => {
             $controller: ng.IControllerService,
             $rootScope: ng.IRootScopeService,
             $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance,
-            communicationManager: ICommunicationManager) =>
-        {
-            dialogModel = new UserStoryDialogModel();
-            var controllerScope = $rootScope.$new();
-            controller = $controller(UserStoryPreviewController, { $scope: controllerScope, $uibModalInstance, dialogModel, communicationManager });
-        }));
+            communicationManager: ICommunicationManager) => {
+                dialogModel = new UserStoryDialogModel();
+                var controllerScope = $rootScope.$new();
+                controller = $controller(UserStoryPreviewController, { $scope: controllerScope, $uibModalInstance, dialogModel, communicationManager });
+            }
+        ));
 
     it("controller is defined",
         inject(() => {

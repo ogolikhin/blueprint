@@ -44,8 +44,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FullTextSearchMetadataTests.cs" />
-    <Compile Include="FullTextSearchStatusTests.cs" />
+    <Compile Include="SearchStatusTests.cs" />
     <Compile Include="FullTextSearchTests.cs" />
+    <Compile Include="ProjectSearchTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

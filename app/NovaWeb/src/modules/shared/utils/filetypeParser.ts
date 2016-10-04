@@ -74,9 +74,9 @@
         filename = filename.toLowerCase();
         const fileExt: RegExpMatchArray = filename.match(/([^.]*)$/);
 
-        if(fileExt[0]){
+        if (fileExt[0]) {
             return fileExt[0];
-        }else{
+        } else {
             return "";
         }
     }

@@ -140,11 +140,16 @@ namespace Model.ArtifactModel.Impl
                 BlueprintUrl = this.BlueprintUrl,
                 ArtifactTypeId = this.ArtifactTypeId,
                 ArtifactTypeName = this.ArtifactTypeName,
+                BaseArtifactType = this.BaseArtifactType,
                 AreTracesReadOnly = this.AreTracesReadOnly,
                 AreAttachmentsReadOnly = this.AreAttachmentsReadOnly,
-                AreDocumentReferencesReadOnly = this.AreDocumentReferencesReadOnly
+                AreDocumentReferencesReadOnly = this.AreDocumentReferencesReadOnly,
+                
+                Project = this.Project,
+                Status = this.Status
             };
 
+            DeletedArtifactResults.AddRange(this.DeletedArtifactResults);
             Properties.AddRange(this.Properties);
 
             return artifactBase;

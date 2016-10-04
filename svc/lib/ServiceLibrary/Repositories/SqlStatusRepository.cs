@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using ServiceLibrary.Helpers;
+using System.Collections.Generic;
 
 namespace ServiceLibrary.Repositories
 {
@@ -27,9 +28,23 @@ namespace ServiceLibrary.Repositories
             AccessInfo = accessInfo;
         }
 
-        public async Task<string> GetStatus(int timeout)
+        private async Task<StatusResponse> GetStatus(int timeout)
         {
-            return (await _connectionWrapper.QueryAsync<string>($"{_dbSchema}.GetStatus", commandType: CommandType.StoredProcedure, commandTimeout: timeout)).Single();
+            var result = (await _connectionWrapper.QueryAsync<string>($"{_dbSchema}.GetStatus", commandType: CommandType.StoredProcedure, commandTimeout: timeout)).Single();
+            var responseData = new StatusResponse()
+            {
+                Name = Name,
+                AccessInfo = AccessInfo,
+                Result = result,
+                NoErrors = true
+            };
+            return responseData;
+
+        }
+
+        public async Task<List<StatusResponse>> GetStatuses(int timeout)
+        {
+            return new List<StatusResponse>() { await GetStatus(timeout) };
         }
     }
 }

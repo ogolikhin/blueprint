@@ -2,12 +2,12 @@
 using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
-using Model.FullTextSearchModel.Impl;
 using Model.Impl;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Model.SearchServiceModel.Impl;
 using Utilities;
 using Utilities.Factories;
 
@@ -18,23 +18,26 @@ namespace Helper
         private const int DEFAULT_TIMEOUT_FOR_SEARCH_INDEXER_UPDATE_IN_MS = 30000;
 
         /// <summary>
-        /// Sets up artifact data for Search Service tests
+        /// Sets up artifact data for Full Text Search Service tests
         /// </summary>
         /// <param name="projects">The projects in which the artifacts will be created</param>
         /// <param name="user">The user creating the artifacts</param>
         /// <param name="testHelper">An instance of TestHelper</param>
         /// <param name="selectedBaseArtifactTypes">(optional) list of seletedBaseAritfactTypes will be used to setup search data</param>
         /// <returns>List of created artifacts</returns>
-        public static List<IArtifactBase> SetupSearchData(List<IProject> projects, IUser user, TestHelper testHelper,
-            List<BaseArtifactType> selectedBasedArtifactTypes = null)
+        /// <param name="timeoutInMilliseconds">(optional) Timeout in milliseconds after which search will terminate 
+        /// if not successful </param>
+        public static List<IArtifactBase> SetupFullTextSearchData(List<IProject> projects, IUser user, TestHelper testHelper,
+            List<BaseArtifactType> selectedBaseArtifactTypes = null,
+            int timeoutInMilliseconds = DEFAULT_TIMEOUT_FOR_SEARCH_INDEXER_UPDATE_IN_MS)
         {
             ThrowIf.ArgumentNull(projects, nameof(projects));
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
 
-            Logger.WriteTrace("{0}.{1} called.", nameof(SearchServiceTestHelper), nameof(SetupSearchData));
+            Logger.WriteTrace("{0}.{1} called.", nameof(SearchServiceTestHelper), nameof(SetupFullTextSearchData));
 
-            var baseArtifactTypes = selectedBasedArtifactTypes ?? TestCaseSources.AllArtifactTypesForOpenApiRestMethods;
+            var baseArtifactTypes = selectedBaseArtifactTypes ?? TestCaseSources.AllArtifactTypesForOpenApiRestMethods;
 
             var artifacts = new List<IArtifactBase>();
 
@@ -68,10 +71,10 @@ namespace Helper
 
             // Wait for all artifacts to be available to the search service
             var searchCriteria = new FullTextSearchCriteria(randomArtifactDescription, projects.Select(p => p.Id));
-            WaitForSearchIndexerToUpdate(user, testHelper, searchCriteria, artifacts.Count);
+            WaitForFullTextSearchIndexerToUpdate(user, testHelper, searchCriteria, artifacts.Count,timeoutInMilliseconds: timeoutInMilliseconds);
 
             Logger.WriteInfo("{0} {1} artifacts created.", nameof(SearchServiceTestHelper), artifacts.Count);
-            Logger.WriteTrace("{0}.{1} finished.", nameof(SearchServiceTestHelper), nameof(SetupSearchData));
+            Logger.WriteTrace("{0}.{1} finished.", nameof(SearchServiceTestHelper), nameof(SetupFullTextSearchData));
 
             // Return the full artifact list
             return artifacts;
@@ -88,7 +91,7 @@ namespace Helper
         /// (Default is False => Wait for artifacts to appear instead of disappear)</param>
         /// <param name="timeoutInMilliseconds">(optional) Timeout in milliseconds after which search will terminate 
         /// if not successful </param>
-        public static void  WaitForSearchIndexerToUpdate(
+        public static void  WaitForFullTextSearchIndexerToUpdate(
             IUser user, 
             TestHelper testHelper,
             FullTextSearchCriteria searchCriteria, 
@@ -106,7 +109,7 @@ namespace Helper
             do
             {
                 Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
-                    testHelper.FullTextSearch.SearchMetaData(user, searchCriteria),
+                    testHelper.SearchService.FullTextSearchMetaData(user, searchCriteria),
                     "SearchMetaData() call failed when using following search term: {0}!",
                     searchCriteria.Query);
 

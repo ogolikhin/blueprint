@@ -2,7 +2,7 @@
 import { Helper, IDialogService } from "../../../../shared";
 import { Relationships } from "../../../../main";
 import { IArtifactManager } from "../../../../managers";
-import {IStatefulArtifact} from "../../../../managers/models";
+import { IStatefulArtifact } from "../../../../managers/artifact-manager";
 import { IRelationshipDetailsService } from "../../../";
 
 export class BPArtifactRelationshipItem implements ng.IComponentOptions {
@@ -26,7 +26,7 @@ interface IBPArtifactRelationshipItemController {
     deleteItem: Function;
 }
 
-export class BPArtifactRelationshipItemController implements IBPArtifactRelationshipItemController{
+export class BPArtifactRelationshipItemController implements IBPArtifactRelationshipItemController {
     public static $inject: [string] = [
         "localization",
         "relationshipDetailsService",

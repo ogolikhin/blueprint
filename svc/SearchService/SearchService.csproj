@@ -129,6 +129,7 @@
     <Compile Include="Models\ItemSearchCriteria.cs" />
     <Compile Include="Models\ItemSearchResult.cs" />
     <Compile Include="Models\ItemSearchResultItem.cs" />
+    <Compile Include="Models\ProjectSearchCriteria.cs" />
     <Compile Include="Models\ProjectSearchResult.cs" />
     <Compile Include="Models\SearchCriteria.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

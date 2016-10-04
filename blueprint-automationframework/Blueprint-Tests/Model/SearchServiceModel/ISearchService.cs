@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
-using Model.FullTextSearchModel.Impl;
-using Model.Impl;
+using Model.SearchServiceModel.Impl;
 
-namespace Model.FullTextSearchModel
+namespace Model.SearchServiceModel
 {
-    public interface IFullTextSearch
+    public interface ISearchService
     {
         /// <summary>
         /// Returns a subset of search results based upon the page index that was requested.
@@ -19,7 +17,7 @@ namespace Model.FullTextSearchModel
         /// <param name="pageSize">(optional)The number of search results to return in a single request.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The subset of search results.</returns>
-        FullTextSearchResult Search(IUser user, FullTextSearchCriteria searchCriteria, int? page = null, int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null);
+        FullTextSearchResult FullTextSearch(IUser user, FullTextSearchCriteria searchCriteria, int? page = null, int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Returns the search result metadata indicating what would be returned if the full search 
@@ -31,7 +29,7 @@ namespace Model.FullTextSearchModel
         /// <param name="pageSize">(optional)The number of search results to return in a single request.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The search result metadata.</returns>
-        FullTextSearchMetaDataResult SearchMetaData(IUser user, FullTextSearchCriteria searchCriteria, int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null);
+        FullTextSearchMetaDataResult FullTextSearchMetaData(IUser user, FullTextSearchCriteria searchCriteria, int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets the current status of the SearchService service.
@@ -52,5 +50,15 @@ namespace Model.FullTextSearchModel
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")] // Ignore this warning.
         HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null);
 
+
+        /// <summary>
+        /// Returns the list of projects name which contains searchText
+        /// </summary>
+        /// <param name="user">The user performing the search.</param>
+        /// <param name="searchText">Text to search</param>
+        /// <param name="resultCount">(optional)The number of search results to return.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Returns a list of projects that have names that match the searchText.</returns>
+        List<ProjectSearchResult> SearchProjects(IUser user, string searchText, int? resultCount = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Model.ArtifactModel.Impl
+﻿using Model.ArtifactModel.Enums;
+
+namespace Model.ArtifactModel.Impl
 {
     public class ArtifactReference
     {

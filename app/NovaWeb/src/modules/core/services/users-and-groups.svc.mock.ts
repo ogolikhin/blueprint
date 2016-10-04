@@ -30,8 +30,7 @@ export class UsersAndGroupsServiceMock implements IUsersAndGroupsService {
             deferred.resolve([user]);
         } else if (search === "dontreturn@user.com" || search === "dontreturn") {
             deferred.resolve([]);
-        }
-        else {
+        } else {
             deferred.resolve(UsersAndGroupsServiceMock.result);
         }
         return deferred.promise;

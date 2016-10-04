@@ -689,13 +689,16 @@ namespace SearchServiceTests
         /// <summary>
         ///  For permissions tests, asserts that returned searchResult from the FullTextSearchMetadata call matches what was expected.
         /// </summary>
+        /// <param name="searchResult">The full text metadata search result</param>
         /// <param name="expectedHitCount">The expected number of hits resulting from the search</param>
         /// <param name="expectedTotalPageCount">The expected total page count returned by the search</param>
-        /// <param name="searchResult">The full tex</param>
+
+        /// <param name="pageSize"></param>
         private static void ValidateSearchMetaDataPermissionsTest(
             FullTextSearchMetaDataResult searchResult, 
             int expectedHitCount, 
-            int expectedTotalPageCount)
+            int expectedTotalPageCount,
+            int pageSize = DEFAULT_PAGE_SIZE_VALUE)
         {
             ThrowIf.ArgumentNull(searchResult, nameof(searchResult));
 
@@ -708,9 +711,9 @@ namespace SearchServiceTests
             Assert.That(searchResult.TotalPages.Equals(expectedTotalPageCount),
                 "The expected total page count is {0} but {1} was returned.",
                 expectedTotalPageCount, searchResult.TotalPages);
-            Assert.That(searchResult.PageSize.Equals(DEFAULT_PAGE_SIZE_VALUE),
+            Assert.That(searchResult.PageSize.Equals(pageSize),
                 "The expected default pagesize value is {0} but {1} was found from the returned searchResult.",
-                DEFAULT_PAGE_SIZE_VALUE, searchResult.PageSize);
+                pageSize, searchResult.PageSize);
         }
 
         #endregion Private Functions

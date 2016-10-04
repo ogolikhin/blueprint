@@ -1,5 +1,6 @@
 ﻿import * as angular from "angular";
 import { Models } from "../../main";
+import { ItemTypePredefined } from "../../main/models/enums";
 
 export class Helper {
 
@@ -151,9 +152,16 @@ export class Helper {
     }
 
     public static canUtilityPanelUseSelectedArtifact(artifact: Models.IArtifact): boolean {
-        return artifact &&
-            artifact.prefix &&
-            ["ACO", "_CFL", "PR"].indexOf(artifact.prefix) === -1;
+        const nonStandardTypes = [
+            ItemTypePredefined.Project, 
+            ItemTypePredefined.ArtifactCollection, 
+            ItemTypePredefined.Collections, 
+            ItemTypePredefined.CollectionFolder
+        ];
+
+        return artifact && 
+            artifact.predefinedType != null && 
+            nonStandardTypes.indexOf(artifact.predefinedType) === -1;
     }
 
     public static isInt(n: number): boolean {

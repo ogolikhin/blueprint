@@ -3,6 +3,7 @@
 // import "angular-mocks";
 // import { ComponentTest } from "../../../../util/component.test";
 // import { BPArtifactDocumentItemController} from "./bp-artifact-document-item";
+// import { HttpStatusCode } from "../../../../core/http";
 // import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
 // import { ArtifactAttachmentsService } from "../artifact-attachments.svc";
 // import { IMessageService } from "../../../../shell";
@@ -57,7 +58,7 @@
 //         });
 
 //         $httpBackend.expectGET(`/svc/artifactstore/artifacts/357/attachment?addDrafts=true`)
-//             .respond(200, {
+//             .respond(HttpStatusCode.Success, {
 //                 artifactId: 357,
 //                 subartifactId: null,
 //                 attachments: [
@@ -92,7 +93,7 @@
 //         spyOn(messageService, "addError").and.callFake(() => true);
 
 //         $httpBackend.expectGET(`/svc/artifactstore/artifacts/357/attachment?addDrafts=true`)
-//             .respond(200, {
+//             .respond(HttpStatusCode.Success, {
 //                 artifactId: 357,
 //                 subartifactId: null,
 //                 attachments: [],

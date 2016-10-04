@@ -118,6 +118,19 @@ describe("Formly Text RTF Inline", () => {
         expect((<any>fieldScope).fc.$valid).toBeTruthy();
         expect((<any>fieldScope).fc.$invalid).toBeFalsy();
         expect((<any>fieldScope).fc.$error.required).toBeUndefined();
+        expect((<any>fieldScope).fc.$error.requiredCustom).toBeUndefined();
+    });
+
+    it("should fail if empty-like (empty HTML tags)", function () {
+        compileAndSetupStuff({model: {textRtf: "<div><br> </div>"}});
+
+        let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTFInline")[0];
+        let fieldScope = angular.element(fieldNode).isolateScope();
+
+        expect((<any>fieldScope).fc.$valid).toBeFalsy();
+        expect((<any>fieldScope).fc.$invalid).toBeTruthy();
+        expect((<any>fieldScope).fc.$error.required).toBeUndefined();
+        expect((<any>fieldScope).fc.$error.requiredCustom).toBeTruthy();
     });
 
     // it("should allow changing the value", function () {
@@ -150,7 +163,7 @@ describe("Formly Text RTF Inline", () => {
 
         //Act
         to.tinymceOptions.init_instance_callback(editor);
-changeBody();
+
         //Assert
         expect(editor.formatter.register).toHaveBeenCalled();
         expect(editor.getBody).toHaveBeenCalled();
@@ -193,9 +206,9 @@ changeBody();
         expect(editor.formatter.apply).toHaveBeenCalled();
     });
 
-    function changeBody() {
-        tinymceBody.innerHTML = "<p>body has changed</p>";
-    }
+    // function changeBody() {
+    //     tinymceBody.innerHTML = "<p>body has changed</p>";
+    // }
 
     function compileAndSetupStuff(extraScopeProps?) {
         angular.merge(scope, extraScopeProps);

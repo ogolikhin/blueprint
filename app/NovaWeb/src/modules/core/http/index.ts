@@ -1,7 +1,2 @@
-import "angular";
-
-export interface IHttpInterceptorConfig extends ng.IRequestConfig {
-    ignoreInterceptor: boolean;
-    dontRetry: boolean;
-    dontHandle: boolean;
-}
+export { IHttpInterceptorConfig } from "./http-interceptor-config";
+export { HttpStatusCode } from "./http-status-code";

@@ -2,6 +2,7 @@ import * as angular from "angular";
 import "angular-mocks";
 import { IFileUploadService, FileUploadService, IFileResult } from "./";
 import { Helper } from "../../shared";
+import { HttpStatusCode } from "../../core/http";
 
 describe("File Upload", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -54,7 +55,7 @@ describe("File Upload", () => {
             inject(($httpBackend: ng.IHttpBackendService, fileUploadService: IFileUploadService) => {
             // Arrange
             const file = { name: "empty.txt" };
-            const status = 500;
+            const status = HttpStatusCode.ServerError;
             const data = { message: "Internal Server Error" };
             const expirationDate = new Date();
             $httpBackend.when("POST", `/svc/bpfilestore/files/?expired=${expirationDate.toISOString()}`)

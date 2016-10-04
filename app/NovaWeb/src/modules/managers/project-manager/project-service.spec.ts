@@ -1,6 +1,7 @@
 ﻿// import "angular";
 // import "angular-mocks";
 // import { Models } from "../../main/";
+// import { HttpStatusCode } from "../../core/http";
 // import { IProjectService, ProjectService } from "./project-service";
 // import { ProjectServiceMock } from "./project-service.mock";
 
@@ -15,7 +16,7 @@
 //         it("get one folder - success", inject(($httpBackend: ng.IHttpBackendService, projectRepository: IProjectService) => {
 //                 // Arrange
 //             $httpBackend.expectGET("svc/adminstore/instance/folders/1/children")
-//                 .respond(200, <Models.IProjectNode[]>[
+//                 .respond(HttpStatusCode.Success, <Models.IProjectNode[]>[
 //                     { id: 3, name: "Imported Projects", type: 0, description: "", parentFolderId: 1, hasChildren: false }
 //                     ]);
 
@@ -37,7 +38,7 @@
 //         it("get one folder unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, projectRepository: IProjectService) => {
 //             // Arrange
 //             $httpBackend.expectGET("svc/adminstore/instance/folders/5/children")
-//                 .respond(401);
+//                 .respond(HttpStatusCode.Unauthorized);
                 
 //             // Act
 //             var error: any;
@@ -47,7 +48,7 @@
 
 //             // Assert
 //             expect(error).toBeDefined();
-//             expect(error.statusCode).toEqual(401);
+//             expect(error.statusCode).toEqual(HttpStatusCode.Unauthorized);
 //             expect(error.message).toEqual("Folder_NotFound");
 //             $httpBackend.verifyNoOutstandingExpectation();
 //             $httpBackend.verifyNoOutstandingRequest();
@@ -59,7 +60,7 @@
 //         it("get one project", inject(($httpBackend: ng.IHttpBackendService, projectRepository: IProjectService) => {
 //             // Arrange
 //             $httpBackend.expectGET(`svc/adminstore/instance/projects/10`)
-//                 .respond(200, [
+//                 .respond(HttpStatusCode.Success, [
 //                     {
 //                         id: 10, name: "Project 10", typeId: 0, hasChildren: true, description: "Description"
 //                     }
@@ -84,7 +85,7 @@
 //         it("get project - unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, projectRepository: IProjectService) => {
 //             // Arrange
 //             $httpBackend.expectGET("svc/adminstore/instance/projects/10")
-//                 .respond(401);
+//                 .respond(HttpStatusCode.Unauthorized);
 
 //             // Act
 //             var error: any;
@@ -95,7 +96,7 @@
 //             // Assert
 //             expect(error).toBeDefined();
 //             expect(data).toBeUndefined();
-//             expect(error.statusCode).toEqual(401);
+//             expect(error.statusCode).toEqual(HttpStatusCode.Unauthorized);
 //             expect(error.message).toEqual("Project_NotFound");
 //             $httpBackend.verifyNoOutstandingExpectation();
 //             $httpBackend.verifyNoOutstandingRequest();
@@ -107,7 +108,7 @@
 //         it("get one project", inject(($httpBackend: ng.IHttpBackendService, projectRepository: IProjectService) => {
 //             // Arrange
 //             $httpBackend.expectGET(`svc/artifactstore/projects/10/children`)
-//                 .respond(200, [
+//                 .respond(HttpStatusCode.Success, [
 //                     {
 //                         id: 10, name: "Project 10", typeId: 0, hasChildren: true,
 //                         artifacts: [
@@ -136,7 +137,7 @@
 //         it("get project children", inject(($httpBackend: ng.IHttpBackendService, projectRepository: IProjectService) => {
 //             // Arrange
 //             $httpBackend.expectGET("svc/artifactstore/projects/10/artifacts/111/children")
-//                 .respond(200, [
+//                 .respond(HttpStatusCode.Success, [
 //                     {
 //                         id: 13, name: "Artifact 13", typeId: 14, projectId: 10, predefinedType: 100, parentId: 10, prefix: "AT", hasChildren: false,
 //                     },
@@ -165,7 +166,7 @@
 //         it("get project children - unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, projectRepository: IProjectService) => {
 //             // Arrange
 //             $httpBackend.expectGET("svc/artifactstore/projects/10/artifacts/111/children")
-//                 .respond(401);
+//                 .respond(HttpStatusCode.Unauthorized);
 
 //             // Act
 //             var error: any;
@@ -176,7 +177,7 @@
 //             // Assert
 //             expect(error).toBeDefined();
 //             expect(data).toBeUndefined();
-//             expect(error.statusCode).toEqual(401);
+//             expect(error.statusCode).toEqual(HttpStatusCode.Unauthorized);
 //             expect(error.message).toEqual("Artifact_NotFound");
 //             $httpBackend.verifyNoOutstandingExpectation();
 //             $httpBackend.verifyNoOutstandingRequest();
@@ -188,7 +189,7 @@
 //         it("get - successful", inject(($httpBackend: ng.IHttpBackendService, projectRepository: IProjectService) => {
 //             // Arrange
 //             $httpBackend.expectGET(`svc/artifactstore/projects/10/meta/customtypes`)
-//                 .respond(200, ProjectServiceMock.populateMetaData());
+//                 .respond(HttpStatusCode.Success, ProjectServiceMock.populateMetaData());
 
 //             // Act
 //             var error: any;
@@ -213,7 +214,7 @@
 //         it("get - unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, projectRepository: IProjectService) => {
 //             // Arrange
 //             $httpBackend.expectGET(`svc/artifactstore/projects/10/meta/customtypes`)
-//                 .respond(401);
+//                 .respond(HttpStatusCode.Unauthorized);
 
 //             // Act
 //             var error: any; 
@@ -224,7 +225,7 @@
 //             // Assert
 //             expect(error).toBeDefined();
 //             expect(data).toBeUndefined();
-//             expect(error.statusCode).toEqual(401);
+//             expect(error.statusCode).toEqual(HttpStatusCode.Unauthorized);
 //             expect(error.message).toEqual("Project_NotFound");
 //             $httpBackend.verifyNoOutstandingExpectation();
 //             $httpBackend.verifyNoOutstandingRequest();

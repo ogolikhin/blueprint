@@ -5,6 +5,7 @@ import "angular-sanitize";
 import { ComponentTest } from "../../../../util/component.test";
 import { BPDiscussionReplyItemController } from "./bp-discussion-reply-item";
 import { IReply } from "../artifact-discussions.svc";
+import { HttpStatusCode } from "../../../../core/http";
 import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
 import { ArtifactDiscussionsMock } from "../artifact-discussions.mock";
 import { MessageServiceMock } from "../../../../core/messages/message.mock";
@@ -79,7 +80,7 @@ describe("Component BPDiscussionReplyItem", () => {
             ArtifactDiscussionsMock.prototype.editDiscussionReply = jasmine.createSpy("editDiscussionReply() spy").and.callFake(
                 (): ng.IPromise<IReply> => {
                     deferred.reject({
-                        statusCode: 404,
+                        statusCode: HttpStatusCode.NotFound,
                         errorCode: 2000
                     });
                     return deferred.promise;

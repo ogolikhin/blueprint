@@ -37,7 +37,7 @@ export class BpFieldTextRTFInlineController {
                 statusbar: false,
                 invalid_elements: "img,frame,iframe,script",
                 invalid_styles: {
-                    "*": "background-image" // refine  to intercept images in background shorthand
+                    "*": "background background-image background-color"
                 },
                 paste_remove_styles_if_webkit: false, // https://www.tinymce.com/docs/plugins/paste/#paste_remove_styles_if_webkit
                 // we don't need the autoresize plugin when using the inline version of tinyMCE as the height will
@@ -173,7 +173,7 @@ export class BpFieldTextRTFInlineController {
         for (let i = 0; i < nodeList.length; i++) {
             let element = nodeList[i] as HTMLElement;
 
-            element.removeEventListener("click", this.handleClick)
+            element.removeEventListener("click", this.handleClick);
 
             if (!remove) {
                 angular.element(element).attr("contentEditable", "false");
@@ -181,7 +181,7 @@ export class BpFieldTextRTFInlineController {
 
                 element.addEventListener("mouseover", this.disableEditability);
                 element.addEventListener("mouseout", this.enableEditability);
-                element.addEventListener("click", this.handleClick)
+                element.addEventListener("click", this.handleClick);
             } else {
                 element.removeEventListener("mouseover", this.disableEditability);
                 element.removeEventListener("mouseout", this.enableEditability);

@@ -115,11 +115,12 @@ export class BpProcessEditorController extends BpBaseEditor {
        
         let htmlElement = this.getHtmlElement();
 
-        this.processDiagram.createDiagram(this.artifact, htmlElement);
-        
         this.processDiagram.addSelectionListener((element)=>{
             this.onSelectionChanged(element);
         })
+
+        this.processDiagram.createDiagram(this.artifact, htmlElement);
+        
         super.onArtifactReady();
     }
 
@@ -167,7 +168,10 @@ export class BpProcessEditorController extends BpBaseEditor {
     }
     
     private onSelectionChanged = (elements: IDiagramNode[]) => {
-        if(elements.length > 0){
+        if(elements.length > 0 ){
+            if(elements[0].model.id <= 0){
+                return;
+            }
             this.artifactManager.selection.setSubArtifact(this.artifact.subArtifactCollection.get(elements[0].model.id));
         }
         else{

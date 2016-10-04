@@ -420,6 +420,10 @@ export class ProcessGraph implements IProcessGraph {
             this.nodeLabelEditor.dispose();
         }
 
+         if(this.selectionHelper){
+             this.selectionHelper.destroy();
+         }
+
         this.viewModel.communicationManager.toolbarCommunicationManager.removeClickDeleteObserver(this.deleteShapeHandler);
         
     }

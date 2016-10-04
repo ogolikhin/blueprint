@@ -51,9 +51,9 @@ namespace SearchService.Repositories
                 4353, // Baseline Folder
                 4354, // Artifact Baseline
                 4355, // ArtifactReviewPackage
-                4609,  
-                4610,
-                32769
+                4609, // Collection Folder
+                4610, // Artifact Collection
+                32769 // Data Object
             }));
             prm.Add("@startOffset", startOffset);
             prm.Add("@pageSize", pageSize);            

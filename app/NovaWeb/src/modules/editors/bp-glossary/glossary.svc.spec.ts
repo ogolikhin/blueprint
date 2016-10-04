@@ -4,6 +4,7 @@ import "rx/dist/rx.lite";
 import { LocalizationServiceMock } from "../../core//localization/localization.mock";
 import { IGlossaryService, GlossaryService } from "./glossary.svc";
 import { IArtifact } from "../../main/models/models";
+import { HttpStatusCode } from "../../core/http";
 
 describe("Glossary Service", () => {
 
@@ -18,7 +19,7 @@ describe("Glossary Service", () => {
         // Arrange
         /* tslint:disable:max-line-length */
         $httpBackend.expectGET("/svc/bpartifactstore/glossary/263")
-            .respond(200, {
+            .respond(HttpStatusCode.Success, {
                     "id": 263,
                     "subArtifacts": [
                         {
@@ -62,8 +63,8 @@ describe("Glossary Service", () => {
 
         // Arrange
         $httpBackend.expectGET("/svc/bpartifactstore/glossary/0")
-            .respond(404, {
-                statusCode: 404,
+            .respond(HttpStatusCode.NotFound, {
+                statusCode: HttpStatusCode.NotFound,
                 message: "Couldn't find the artifact"
             });
 
@@ -80,9 +81,8 @@ describe("Glossary Service", () => {
 
         // Assert
         expect(data).toBeUndefined();
-        expect(error.statusCode).toEqual(404);
+        expect(error.statusCode).toEqual(HttpStatusCode.NotFound);
         $httpBackend.verifyNoOutstandingExpectation();
         $httpBackend.verifyNoOutstandingRequest();
     }));
-
 });

@@ -1,5 +1,5 @@
 ﻿import * as angular from "angular";
-import { ILocalizationService, IMessageService } from "../../core";
+import { ILocalizationService, IMessageService, HttpStatusCode } from "../../core";
 import { IDialogService } from "../../shared";
 import { IStatefulArtifactFactory, IStatefulArtifact } from "../artifact-manager/artifact";
 import { Project, ArtifactNode } from "./project";
@@ -159,7 +159,7 @@ export class ProjectManager  implements IProjectManager {
                 this.onGetProjectTreeError(project);
                 defer.reject();
             }
-            if (error.statusCode === 404 && error.errorCode === 3000) {
+            if (error.statusCode === HttpStatusCode.NotFound && error.errorCode === 3000) {
                 //if we're selecting project
                 if (selectedArtifact.id === selectedArtifact.projectId) {
                     this.messageService.addError("Refresh_Project_NotFound");
@@ -177,7 +177,7 @@ export class ProjectManager  implements IProjectManager {
                             defer.reject();
                         }
                     }).catch((innerError: any) => {
-                        if (innerError.statusCode === 404 && innerError.errorCode === 3000) {
+                        if (innerError.statusCode === HttpStatusCode.NotFound && innerError.errorCode === 3000) {
                             //try it with project
                             this.projectService.getArtifacts(project.id).then((data: Models.IArtifact[]) => {
                                 this.messageService.addInfo("Refresh_Artifact_Deleted");

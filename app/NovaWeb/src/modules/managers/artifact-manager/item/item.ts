@@ -9,6 +9,7 @@ import { IDocumentRefs, DocumentRefs } from "../docrefs";
 import { IStatefulArtifactServices } from "../services";
 import { IArtifactProperties } from "../properties";
 import { IArtifactRelationships, ArtifactRelationships } from "../relationships";
+import { HttpStatusCode } from "../../../core";
 
 export interface IStatefulItem extends Models.IArtifact {
     artifactState: IArtifactState;
@@ -280,7 +281,7 @@ export abstract class StatefulItem implements IIStatefulItem {
 
                 deferred.resolve(result);
             }, (error) => {
-                if (error && error.statusCode === 404) {
+                if (error && error.statusCode === HttpStatusCode.NotFound) {
                     this.deleted = true;
                 }
                 deferred.reject(error);
@@ -294,7 +295,7 @@ export abstract class StatefulItem implements IIStatefulItem {
             .then( (result: Relationships.IArtifactRelationshipsResultSet) => {
                 deferred.resolve(result);
             }, (error) => {
-                if (error && error.statusCode === 404) {
+                if (error && error.statusCode === HttpStatusCode.NotFound) {
                     this.deleted = true;
                 }
                 deferred.reject(error);

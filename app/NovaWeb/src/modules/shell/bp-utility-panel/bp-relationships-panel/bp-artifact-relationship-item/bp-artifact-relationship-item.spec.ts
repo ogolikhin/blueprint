@@ -5,6 +5,7 @@ import "angular-sanitize";
 import { ComponentTest } from "../../../../util/component.test";
 import { BPArtifactRelationshipItemController } from "./bp-artifact-relationship-item";
 import { ProcessServiceMock } from "../../../../editors/bp-process/services/process.svc.mock";
+import { HttpStatusCode } from "../../../../core/http";
 import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
 import { SelectionManager } from "../../../../managers/selection-manager/selection-manager";
 import { DialogServiceMock } from "../../../../shared/widgets/bp-dialog/bp-dialog";
@@ -59,7 +60,7 @@ import {
 
             // Arrange
             $httpBackend.expectGET(`/svc/artifactstore/artifacts/1/relationshipdetails`)
-                .respond(200, {
+                .respond(HttpStatusCode.Success, {
                     "artifactId": "1",
                     "description": "desc",
                     "pathToProject": [{ "itemId": 1, "itemName": "Item1", "parentId": 0 }]

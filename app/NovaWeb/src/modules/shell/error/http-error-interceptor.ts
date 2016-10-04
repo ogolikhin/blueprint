@@ -1,16 +1,7 @@
 ﻿import "angular";
 import { ISession } from "../login/session.svc";
 import { SessionTokenHelper } from "../login/session.token.helper";
-import { IMessageService, IHttpInterceptorConfig } from "../../core";
-
-
-export enum HttpErrorStatusCodes {
-    Unavailable = -1,
-    Succsess = 200,
-    Unauthorized = 401,
-    Forbidden = 403,
-    ServerError = 500
-}
+import { IMessageService, IHttpInterceptorConfig, HttpStatusCode } from "../../core";
 
 export class HttpErrorInterceptor {
 
@@ -30,12 +21,12 @@ export class HttpErrorInterceptor {
 
         if (config.ignoreInterceptor) {
             deferred.reject(response);
-        } else if (response.status === HttpErrorStatusCodes.Unavailable) {
+        } else if (response.status === HttpStatusCode.Unavailable) {
             if (!this.canceledByUser(config)) {
                 $message.addError("HttpError_ServiceUnavailable"); // Service is unavailable
             }
             deferred.reject();
-        } else if (response.status === HttpErrorStatusCodes.Unauthorized) {
+        } else if (response.status === HttpStatusCode.Unauthorized) {
             $session.onExpired().then(
                 () => {
                     if (!config.dontRetry) {
@@ -46,18 +37,18 @@ export class HttpErrorInterceptor {
 
                         $http(config).then(retryResponse => deferred.resolve(retryResponse), retryResponse => deferred.reject(retryResponse));
                     } else {
-                        response.status = HttpErrorStatusCodes.Unauthorized;
+                        response.status = HttpStatusCode.Unauthorized;
                         deferred.reject(response);
                     }
                 },
                 () => deferred.reject(response)
             );
-        } else if (response.status === HttpErrorStatusCodes.Forbidden && !config.dontHandle) {
+        } else if (response.status === HttpStatusCode.Forbidden && !config.dontHandle) {
             $message.addError("HttpError_Forbidden"); //Forbidden. The user does not have permissions for the artifact
             //here we need to reject with none object passed in, means that the error has been handled
             deferred.reject();
 
-        } else if (response.status === HttpErrorStatusCodes.ServerError && !config.dontHandle) {
+        } else if (response.status === HttpStatusCode.ServerError && !config.dontHandle) {
             $message.addError("HttpError_InternalServer"); //Internal Server Error. An error occurred.
             //here we need to reject with none object passed in, means that the error has been handled
             deferred.reject();

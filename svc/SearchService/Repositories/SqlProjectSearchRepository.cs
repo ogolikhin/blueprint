@@ -12,8 +12,7 @@ namespace SearchService.Repositories
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
 
-        //private ISearchConfigurationProvider _searchConfigurationProvider;
-        private readonly IFullTextSearchRepository _fullTextSearchRepository;
+        //private ISearchConfigurationProvider _searchConfigurationProvider;        
 
         public SqlProjectSearchRepository() : this(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString))
         {
@@ -21,8 +20,7 @@ namespace SearchService.Repositories
 
         internal SqlProjectSearchRepository(ISqlConnectionWrapper connectionWrapper)
         {
-            ConnectionWrapper = connectionWrapper;
-            _fullTextSearchRepository = new SqlFullTextSearchRepository();
+            ConnectionWrapper = connectionWrapper;            
             //_searchConfigurationProvider = new SearchConfigurationProvider(configuration);
         }
 
@@ -41,6 +39,6 @@ namespace SearchService.Repositories
             searchPrms.Add("@resultCount", resultCount);
 
             return (await ConnectionWrapper.QueryAsync<ProjectSearchResult>("GetProjectsByName", searchPrms, commandType: CommandType.StoredProcedure)).ToList();
-        }        
+        }
     }
 }

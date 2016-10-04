@@ -134,7 +134,7 @@ namespace ArtifactStoreTests
                 // Verify:
                 INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
                 NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
-                Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
+                Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");
             }
             finally
             {
@@ -169,7 +169,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(182480)]
-        [Description("Create & publish a folder.  Move the created artifact to be a parent of a folder of its descendents. Verify returned code 409 Conflict.")]
+        [Description("Create & publish a folder.  Move the created artifact to be a parent of a folder of its descendents. Verify returned code 200 OK.")]
         public void MoveArtifact_PublishFolderAndMoveToBeAChildOfAnotherFolder_200OK()
         {
             INovaArtifactDetails movedArtifactDetails = null;
@@ -189,12 +189,12 @@ namespace ArtifactStoreTests
             // Verify:
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, folder1.Id);
             NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
-            Assert.AreEqual(folder2.Id, movedArtifactDetails.ParentId, "Parent Id of moved folder is not the same as project Id");
+            Assert.AreEqual(folder2.Id, movedArtifactDetails.ParentId, "Parent Id of moved folder is not the same as parent folder Id");
         }
 
         [TestCase]
         [TestRail(182486)]
-        [Description("Create & save a folder.  Move the created artifact to be a parent of a folder of its descendents. Verify returned code 409 Conflict.")]
+        [Description("Create & save a folder.  Move the created artifact to be a parent of a folder of its descendents. Verify returned code 200 OK.")]
         public void MoveArtifact_SaveFolderAndMoveToBeAChildOfAnotherFolder_200OK()
         {
             INovaArtifactDetails movedArtifactDetails = null;
@@ -214,7 +214,7 @@ namespace ArtifactStoreTests
                 // Verify:
                 INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, folder1.Id);
                 NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
-                Assert.AreEqual(folder2.Id, movedArtifactDetails.ParentId, "Parent Id of moved folder is not the same as project Id");
+                Assert.AreEqual(folder2.Id, movedArtifactDetails.ParentId, "Parent Id of moved folder is not the same as parent folder Id");
             }
             finally
             {
@@ -331,7 +331,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182405)]
         [Description("Create & publish two artifacts.  Each one in different project. Move the artifact to be a child of the other in different project. Verify returned code 403 Forbidden.")]
-        public void MoveArtifact_PublishedArtifactMoveToBeAChildOfAnotherInDifferentProject_403Forbidden(BaseArtifactType artifactType)
+        public void MoveArtifact_PublishedArtifactMoveToBeAChildOfAnotherArtifactInDifferentProject_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
             var projects = ProjectFactory.GetProjects(_user, numberOfProjects: 2);
@@ -347,7 +347,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, _user),
-                "'POST {0}' should return 409 Conflict when artifact moved to different project", SVC_PATH);
+                "'POST {0}' should return 403 Forbidden when user tries to move artifact to different project", SVC_PATH);
 
             // Verify:
             string expectedExceptionMessage = "Cannot move artifact to a different project.";
@@ -358,7 +358,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182462)]
         [Description("Create & publish two artifacts.  Each one in different project. Move the artifact to be a child of the other in different project. Verify returned code 403 Forbidden.")]
-        public void MoveArtifact_SavedArtifactMoveToBeAChildOfAnotherInDifferentProject_403Forbidden(BaseArtifactType artifactType)
+        public void MoveArtifact_SavedArtifactMoveToBeAChildOfAnotherArtifactInDifferentProject_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
             var projects = ProjectFactory.GetProjects(_user, numberOfProjects: 2);
@@ -372,7 +372,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, _user),
-                "'POST {0}' should return 409 Conflict when artifact moved to different project", SVC_PATH);
+                "'POST {0}' should return 403 Forbidden when user tries to move artifact to different project", SVC_PATH);
 
             // Verify:
             string expectedExceptionMessage = "Cannot move artifact to a different project.";
@@ -565,7 +565,7 @@ namespace ArtifactStoreTests
         #region 404 Not Found tests
 
         [TestCase(BaseArtifactType.Process)]
-        [TestRail(182403)]
+        [TestRail(182482)]
         [Description("Create & publish an artifact. Move an artifact to be a child of the artifact with Id 0.  Verify returned code 404 Not Found.")]
         public void MoveArtifact_PublishedArtifactCannotBeMovedToArtifactWithId0_404NotFound(BaseArtifactType artifactType)
         {
@@ -586,7 +586,7 @@ namespace ArtifactStoreTests
         }
 
         [TestCase(BaseArtifactType.Process)]
-        [TestRail(0)]
+        [TestRail(182403)]
         [Description("Create & save an artifact. Move an artifact to be a child of the artifact with Id 0.  Verify returned code 404 Not Found.")]
         public void MoveArtifact_SavedArtifactCannotBeMovedToArtifactWithId0_404NotFound(BaseArtifactType artifactType)
         {

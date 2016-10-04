@@ -119,6 +119,8 @@ export interface IProcessGraph {
     updateAfterRender();
     redraw(action: any);
     updateSizeChanges(width?: number, height?: number);
+    addSelectionListener(listener: ISelectionListener);
+    clearSelection();
     destroy();
 }
 

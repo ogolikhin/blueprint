@@ -153,12 +153,12 @@ class BPToolbarController implements IBPToolbarController {
     }
 
     public $onInit() {
-        // const artifactStateSubscriber = this.artifactManager.selection.artifactObservable
-        //     .filter(selection => !!selection)
-        //     .flatMap(selection => selection.getObservable())
-        //     .subscribe(this.displayArtifact); 
+        const artifactStateSubscriber = this.artifactManager.selection.artifactObservable
+            .filter(selection => !!selection)
+            .flatMap(selection => selection.getObservable())
+            .subscribe(this.displayArtifact); 
 
-        // this._subscribers = [ artifactStateSubscriber ];
+        this._subscribers = [ artifactStateSubscriber ];
     }
 
     public $onDestroy() {
@@ -166,11 +166,11 @@ class BPToolbarController implements IBPToolbarController {
         delete this._subscribers;
     }
 
-    // private displayArtifact = (artifact: Models.IArtifact) => {
-    //     this._currentArtifact =
-    //         Helper.canUtilityPanelUseSelectedArtifact(artifact) && 
-    //         (artifact.version > 0) ? artifact.id : null;
-    // }
+    private displayArtifact = (artifact: Models.IArtifact) => {
+        this._currentArtifact =
+            Helper.canUtilityPanelUseSelectedArtifact(artifact) && 
+            (artifact.version > 0) ? artifact.id : null;
+    }
     
     public get canRefreshAll(): boolean{
         return !!this.projectManager.getSelectedProject();

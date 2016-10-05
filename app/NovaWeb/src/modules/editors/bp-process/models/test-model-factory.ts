@@ -1,6 +1,7 @@
 ﻿import {ProcessShapeType, ProcessType} from "./enums";
 import {IProcess, IProcessShape, ProcessModel, ProcessShapeModel} from "./process-models";
 import {ShapesFactory} from "../components/diagram/presentation/graph/shapes/shapes-factory";
+import { StatefulArtifactFactoryMock } from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 export function createProcessModel(id: number = 1, type: ProcessType = ProcessType.BusinessProcess): ProcessModel {
     let process = new ProcessModel(id);
@@ -12262,5 +12263,5 @@ export function createShapesFactoryService(): ShapesFactory {
         "ST_Comments_Label": "Comments"
     };
 
-    return new ShapesFactory(rootScope);
+    return new ShapesFactory(rootScope, new StatefulArtifactFactoryMock());
 }

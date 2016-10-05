@@ -8,7 +8,7 @@ import {IWindowManager, IMainWindow, ResizeCause } from "../../main";
 import {BpBaseEditor, IArtifactManager} from "../bp-base-editor";
 import {IDialogService} from "../../shared";
 import {IDiagramNode} from "./components/diagram/presentation/graph/models/";
-import {ISelection} from "../../managers/artifact-manager";
+import {ISelection, IStatefulArtifactFactory} from "../../managers/artifact-manager";
 
 export class BpProcessEditor implements ng.IComponentOptions {
     public template: string = require("./bp-process-editor.html");
@@ -38,7 +38,8 @@ export class BpProcessEditorController extends BpBaseEditor {
         "$timeout", 
         "communicationManager",
         "dialogService",
-        "navigationService"
+        "navigationService",
+        "statefulArtifactFactory"
     ];
 
     constructor(
@@ -55,7 +56,8 @@ export class BpProcessEditorController extends BpBaseEditor {
         private $timeout: ng.ITimeoutService,
         private communicationManager: ICommunicationManager,
         private dialogService: IDialogService,
-        private navigationService: INavigationService
+        private navigationService: INavigationService,
+        private statefulArtifactFactory: IStatefulArtifactFactory
     ) {
        super(messageService, artifactManager);
 
@@ -95,7 +97,7 @@ export class BpProcessEditorController extends BpBaseEditor {
 
         // here we create a new process diagram  passing in the
         // process artifact and the html element that will contain
-        // the graph
+        // the graph        
         this.processDiagram = new ProcessDiagram(
             this.$rootScope,
             this.$scope,
@@ -106,7 +108,8 @@ export class BpProcessEditorController extends BpBaseEditor {
             this.communicationManager,
             this.dialogService,
             this.localization,
-            this.navigationService
+            this.navigationService,
+            this.statefulArtifactFactory
         );
        
         let htmlElement = this.getHtmlElement();

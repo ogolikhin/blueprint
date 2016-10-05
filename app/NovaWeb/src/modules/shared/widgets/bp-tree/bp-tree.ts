@@ -74,6 +74,7 @@ export interface IBPTreeController {
     //to select a row in in ag-grid (by id)
     selectNode(id: number);
     nodeExists(id: number): boolean;
+    getNodeData(id: number): Object;
     //to reload datasource with data passed, if id specified the data will be loaded to node's children collection
     reload(data?: any[], id?: number);
     showLoading();
@@ -245,6 +246,16 @@ export class BPTreeController implements IBPTreeController {
         });
 
         return found;
+    }
+
+    public getNodeData(id: number): Object {
+        let result: Object = null;
+        this.options.api.getModel().forEachNode(function (it) {
+            if (it.data.id === id) {
+                result = it.data;
+            }
+        });
+        return result;
     }
 
     //sets a new datasource or add a datasource to specific node  children collection

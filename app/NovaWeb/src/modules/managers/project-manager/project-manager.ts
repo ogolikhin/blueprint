@@ -174,8 +174,9 @@ export class ProjectManager  implements IProjectManager {
             if (error.statusCode === HttpStatusCode.NotFound && error.errorCode === ProjectServiceStatusCode.ResourceNotFound) {
                 //if we're selecting project
                 if (selectedArtifact.id === selectedArtifact.projectId) {
-                    this.messageService.addError("Refresh_Project_NotFound");
-                    this.ClearProject(project);
+                    this.dialogService.alert("Refresh_Project_NotFound");
+                    this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(this.getProject(project.id)), 1);
+                    this.projectCollection.onNext(this.projectCollection.getValue());
                     defer.reject();
                 } else {
                     //try with selected artifact's parent
@@ -200,8 +201,9 @@ export class ProjectManager  implements IProjectManager {
                                     defer.reject();
                                 }
                             }).catch((err: any) => {
-                                this.messageService.addError("Refresh_Project_NotFound");
-                                this.ClearProject(project);
+                                this.dialogService.alert("Refresh_Project_NotFound");
+                                this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(this.getProject(project.id)), 1);
+                                this.projectCollection.onNext(this.projectCollection.getValue());
                                 defer.reject();
                             });
                         } else {
@@ -382,7 +384,9 @@ export class ProjectManager  implements IProjectManager {
                 throw new Error("Artifact_NotFound");
             }
 
-            this.projectService.getArtifacts(node.projectId, node.artifact.id)
+            this.navigationService.navigateToMain()
+            .then(() => {
+                this.projectService.getArtifacts(node.projectId, node.artifact.id)
                 .then((data: Models.IArtifact[]) => {
                     node.children = data.map((it: Models.IArtifact) => {
                         const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
@@ -406,6 +410,7 @@ export class ProjectManager  implements IProjectManager {
                         this.projectCollection.onNext(this.projectCollection.getValue());
                     }
                 });
+            });
 
         } catch (ex) {
             this.messageService.addError(ex["message"] || "Artifact_NotFound");

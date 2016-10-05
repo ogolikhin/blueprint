@@ -10,6 +10,8 @@ import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-
 import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
 import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
 import { ModalServiceMock } from "../../../../../../../shell/login/mocks.spec";
+import { IStatefulArtifactFactory } from "../../../../../../../managers/artifact-manager/";
+import { StatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("ProcessEnd test", () => {
     var shapesFactory: ShapesFactory;
@@ -23,6 +25,7 @@ describe("ProcessEnd test", () => {
         $provide.service("$uibModal", ModalServiceMock);
         $provide.service("dialogService", DialogService);
         $provide.service("localization", LocalizationServiceMock);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
     beforeEach(inject((
@@ -30,7 +33,9 @@ describe("ProcessEnd test", () => {
         $rootScope: ng.IRootScopeService, 
         _communicationManager_: ICommunicationManager,
         _dialogService_: DialogService,
-        _localization_: LocalizationServiceMock) => {
+        _localization_: LocalizationServiceMock,
+        statefulArtifactFactory: IStatefulArtifactFactory) => {
+
         rootScope = $rootScope;
         communicationManager = _communicationManager_;
         dialogService = _dialogService_;
@@ -42,7 +47,7 @@ describe("ProcessEnd test", () => {
 
         $rootScope["config"] = {};
         $rootScope["config"].labels = {};
-        shapesFactory = new ShapesFactory($rootScope);
+        shapesFactory = new ShapesFactory($rootScope, statefulArtifactFactory);
         localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
     }));
 

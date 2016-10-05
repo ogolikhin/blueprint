@@ -8,6 +8,7 @@ import {IMessageService} from "../../../core";
 import {PropertyEditor} from "../../../editors/bp-artifact/bp-property-editor";
 import {PropertyContext} from "../../../editors/bp-artifact/bp-property-context";
 import {PropertyLookupEnum, LockedByEnum} from "../../../main/models/enums";
+import { Helper } from "../../../shared/utils/helper";
 import {PropertyEditorFilters} from "./bp-properties-panel-filters";
 
 export class BPPropertiesPanel implements ng.IComponentOptions {
@@ -100,10 +101,15 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             if (subArtifact) {
                 this.selectedArtifact = artifact;
                 this.selectedSubArtifact = subArtifact;
-                //TODO: implement .getObservable
-                this.onUpdate();
-                this.subArtifactSubscriber = this.selectedSubArtifact.getObservable().subscribe(this.onSubArtifactChanged);
-                                
+                if(Helper.hasArtifactEverBeenSavedOrPublished(subArtifact)) {
+                    //TODO: implement .getObservable
+                    this.onUpdate();
+                    this.subArtifactSubscriber = this.selectedSubArtifact.getObservable().subscribe(this.onSubArtifactChanged);
+                }
+                else{
+                    this.reset(); 
+                }
+                
                 // for new selection
 
             } else if (artifact) {
@@ -160,12 +166,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
    
     public onUpdate() {
         try {
-            this.fields = [];
-            this.model = {};
-            this.systemFields = [];
-            this.customFields = [];
-            this.specificFields = [];
-            this.richTextFields = [];    
+            this.reset();       
             
             if (!this.editor || !this.selectedArtifact) {
                 return; 
@@ -272,6 +273,15 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         } else {
             return this.localization.get("Property_Artifact_Section_Name", "Artifact Properties");
         }
+    }
+
+    private reset() {        
+        this.fields = [];
+        this.model = {};
+        this.systemFields = [];
+        this.customFields = [];
+        this.specificFields = [];
+        this.richTextFields = [];      
     }
 }
 

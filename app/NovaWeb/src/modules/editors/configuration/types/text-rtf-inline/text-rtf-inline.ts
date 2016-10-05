@@ -41,10 +41,16 @@ export class BpFieldTextRTFInlineController {
                 invalid_styles: {
                     "*": "background-image"
                 },
+                extended_valid_elements: "a[href|type|title|linkassemblyqualifiedname|text|canclick|isvalid|mentionid|isgroup|email|" +
+                "class|linkfontsize|linkfontfamily|linkfontstyle|linkfontweight|linktextdecoration|linkforeground|style|target|artifactid]",
                 paste_webkit_styles: "none", // https://www.tinymce.com/docs/plugins/paste/#paste_webkit_styles
                 paste_remove_styles_if_webkit: true, // https://www.tinymce.com/docs/plugins/paste/#paste_remove_styles_if_webkit
                 // https://www.tinymce.com/docs/plugins/paste/#paste_retain_style_properties
-                paste_retain_style_properties: "color font-size font-family line-height text-align background background-color",
+                paste_retain_style_properties: "background background-color color " +
+                "font font-family font-size font-style font-weight line-height " +
+                "margin margin-bottom margin-left margin-right margin-top " +
+                "padding padding-bottom padding-left padding-right padding-top " +
+                "text-align text-decoration",
                 table_toolbar: "", // https://www.tinymce.com/docs/plugins/table/#table_toolbar
                 // we don't need the autoresize plugin when using the inline version of tinyMCE as the height will
                 // be controlled using CSS (max-height, min-height)
@@ -184,9 +190,11 @@ export class BpFieldTextRTFInlineController {
         event.preventDefault();
 
         const href = this.href;
-        if (href.indexOf("?ArtifactId=") !== -1) {
+        if (href.indexOf("?ArtifactId=") !== -1 && this.getAttribute("artifactid")) {
             const artifactId = parseInt(href.split("?ArtifactId=")[1], 10);
-            self.location.replace("/#/main/" + artifactId);
+            if (artifactId === parseInt(this.getAttribute("artifactid"), 10)) {
+                self.location.href = "/#/main/" + artifactId;
+            }
         } else {
             window.open(href, "_blank");
         }

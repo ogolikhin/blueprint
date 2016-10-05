@@ -143,7 +143,7 @@ describe("BpArtifactPickerController", () => {
         it("innerRenderer returns correct result", () => {
             // Arrange
             const vm = {name: "name", getIcon() { return "icon"; }} as ArtifactPickerNodeVM<any>;
-            const cell = new HTMLElement();
+            const cell = {} as HTMLElement;
 
             // Act
             const result = controller.columns[0].innerRenderer(vm, cell);

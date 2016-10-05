@@ -47,7 +47,6 @@ export class ArtifactAttachments implements IArtifactAttachments {
         } else {
             this.statefulItem.getAttachmentsDocRefs().then((result: IArtifactAttachmentsResultSet) => {
                 deferred.resolve(result.attachments);
-                this.subject.onNext(this.attachments);
                 this.isLoaded = true;
             }, (error) => {
                 deferred.reject(error);

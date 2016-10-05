@@ -9,6 +9,7 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Models;
 using SearchService.Helpers;
+using ServiceLibrary.Exceptions;
 
 namespace SearchService.Controllers
 {
@@ -19,7 +20,7 @@ namespace SearchService.Controllers
     {
         public override string LogSource => "SearchService.FullTextSearch";
 
-        private ISearchConfigurationProvider _searchConfigurationProvider;
+        private readonly ISearchConfigurationProvider _searchConfigurationProvider;
 
         public FullTextSearchController() : this(new SqlFullTextSearchRepository(), new SearchConfiguration())
         {
@@ -54,12 +55,12 @@ namespace SearchService.Controllers
             var userId = GetUserId();
             if (!userId.HasValue)
             {
-                return Unauthorized();
+                throw new AuthenticationException("Authorization is requried", ErrorCodes.UnauthorizedAccess);
             }
 
             if (!ModelState.IsValid || !ValidateSearchCriteria(searchCriteria))
             {
-                return BadRequest();
+                throw new BadRequestException("Please provide correct search criteria", ErrorCodes.IncorrectSearchCriteria);
             }
 
             int searchPageSize = pageSize.GetValueOrDefault(_searchConfigurationProvider.PageSize);
@@ -102,12 +103,12 @@ namespace SearchService.Controllers
             var userId = GetUserId();
             if (!userId.HasValue)
             {
-                return Unauthorized();
+                throw new AuthenticationException("Authorization is requried", ErrorCodes.UnauthorizedAccess);
             }
 
             if (!ModelState.IsValid || !ValidateSearchCriteria(searchCriteria))
             {
-                return BadRequest();
+                throw new BadRequestException("Please provide correct search criteria", ErrorCodes.IncorrectSearchCriteria);
             }
 
             int searchPageSize = pageSize.GetValueOrDefault(_searchConfigurationProvider.PageSize);

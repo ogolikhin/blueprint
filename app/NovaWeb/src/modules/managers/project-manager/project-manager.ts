@@ -258,13 +258,6 @@ export class ProjectManager  implements IProjectManager {
                 //open any children that have children
                 this.openChildNodes(newProjectNode.children, data);
 
-                if (selectedArtifactId) {
-                    this.artifactManager.get(selectedArtifactId).then((artifact) => {
-                        //artifact.refresh();
-                        this.artifactManager.selection.setArtifact(artifact);
-                    });
-                }
-
                 //update project collection
                 this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(oldProject), 1, newProjectNode);
                 this.projectCollection.onNext(this.projectCollection.getValue());

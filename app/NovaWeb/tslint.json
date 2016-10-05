@@ -61,7 +61,7 @@
     "no-duplicate-key": true,
     "no-duplicate-variable": true,
     "no-empty": true,
-    "no-null-keyword": true,
+    //"no-null-keyword": true,
 
     "no-eval": true,
     "no-var-keyword": true,

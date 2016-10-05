@@ -4,7 +4,7 @@
     </button>
     <div class="search-input">
         <input type="text" class="form-control" placeholder="{{$root.config.labels['Label_Search']}}" ng-model="$ctrl.searchText" />
-        <i class="fonticon-error" ng-show="$ctrl.searchText" ng-click="$ctrl.clearSearch()"></i>
+        <i class="fonticon-error" ng-show="$ctrl.searchText || $ctrl.searchResults" ng-click="$ctrl.clearSearch()"></i>
     </div>
 </form>
 <div class="project-wrapper">

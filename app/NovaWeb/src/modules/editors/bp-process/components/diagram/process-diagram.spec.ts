@@ -1,6 +1,4 @@
 import * as angular from "angular";
-import {ProcessServiceMock} from "../../services/process.svc.mock";
-import {IProcessService} from "../../services/process.svc";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
@@ -15,7 +13,6 @@ import { ModalServiceMock } from "../../../../shell/login/mocks.spec";
 
 describe("ProcessDiagram Tests", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        $provide.service("processModelService", ProcessServiceMock);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("communicationManager", CommunicationManager);
         $provide.service("$uibModal", ModalServiceMock);
@@ -28,7 +25,6 @@ describe("ProcessDiagram Tests", () => {
         timeout: ng.ITimeoutService,
         q: ng.IQService,
         log: ng.ILogService,
-        processModelService: IProcessService,
         messageService: IMessageService;
     let communicationManager: ICommunicationManager,
         dialogService: DialogService,
@@ -43,7 +39,6 @@ describe("ProcessDiagram Tests", () => {
         $timeout: ng.ITimeoutService,
         $q: ng.IQService,
         $log: ng.ILogService,
-        _processModelService_: IProcessService,
         _messageService_: IMessageService, 
         _communicationManager_: ICommunicationManager,
         _dialogService_: DialogService,
@@ -62,7 +57,6 @@ describe("ProcessDiagram Tests", () => {
         timeout = $timeout;
         q = $q;
         log = $log;
-        processModelService = _processModelService_;
         messageService = _messageService_;
         communicationManager = _communicationManager_;
         dialogService = _dialogService_;
@@ -83,7 +77,6 @@ describe("ProcessDiagram Tests", () => {
             timeout,
             q,
             log,
-            processModelService,
             messageService,
             communicationManager,
             dialogService,
@@ -109,7 +102,6 @@ describe("ProcessDiagram Tests", () => {
             timeout,
             q,
             log,
-            processModelService,
             messageService,
             communicationManager,
             dialogService,
@@ -138,7 +130,6 @@ describe("ProcessDiagram Tests", () => {
             timeout,
             q,
             log,
-            processModelService,
             messageService,
             communicationManager,
             dialogService,
@@ -167,7 +158,6 @@ describe("ProcessDiagram Tests", () => {
             timeout,
             q,
             log,
-            processModelService,
             messageService,
             communicationManager,
             dialogService,
@@ -197,7 +187,6 @@ describe("ProcessDiagram Tests", () => {
             timeout,
             q,
             log,
-            processModelService,
             messageService,
             communicationManager,
             dialogService,
@@ -226,7 +215,6 @@ describe("ProcessDiagram Tests", () => {
             timeout,
             q,
             log,
-            processModelService,
             messageService,
             communicationManager,
             dialogService,
@@ -256,7 +244,6 @@ describe("ProcessDiagram Tests", () => {
             timeout,
             q,
             log,
-            processModelService,
             messageService,
             communicationManager,
             dialogService,

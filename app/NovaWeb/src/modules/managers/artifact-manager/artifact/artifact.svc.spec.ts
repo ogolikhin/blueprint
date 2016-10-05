@@ -1,5 +1,6 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
+import {HttpStatusCode} from "../../../core/http";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {Models, IArtifactService, ArtifactService} from "./artifact.svc";
 import {ArtifactServiceMock} from "./artifact.svc.mock";
@@ -16,7 +17,7 @@ describe("Artifact Repository", () => {
         it("get artifact", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
             // Arrange
             $httpBackend.expectGET("/svc/bpartifactstore/artifacts/100")
-                .respond(200, ArtifactServiceMock.createArtifact(100));
+                .respond(HttpStatusCode.Success, ArtifactServiceMock.createArtifact(100));
 
             // Act
             var error: any;
@@ -36,7 +37,7 @@ describe("Artifact Repository", () => {
         it("get one folder unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
             // Arrange
             $httpBackend.expectGET("/svc/bpartifactstore/artifacts/100")
-                .respond(401);
+                .respond(HttpStatusCode.Unauthorized);
                 
             // Act
             var error: any;
@@ -46,7 +47,7 @@ describe("Artifact Repository", () => {
 
             // Assert
             expect(error).toBeDefined();
-            expect(error.statusCode).toEqual(401);
+            expect(error.statusCode).toEqual(HttpStatusCode.Unauthorized);
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));
@@ -57,7 +58,7 @@ describe("Artifact Repository", () => {
         it("update artifact", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
             // Arrange
             $httpBackend.expectPATCH("/svc/bpartifactstore/artifacts/100", angular.toJson(ArtifactServiceMock.createArtifact(100)))
-                .respond(200, ArtifactServiceMock.createLightArtifact(100));
+                .respond(HttpStatusCode.Success, ArtifactServiceMock.createLightArtifact(100));
 
             // Act
             var error: any;
@@ -78,7 +79,7 @@ describe("Artifact Repository", () => {
         it("update artifact unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
             // Arrange
             $httpBackend.expectPATCH("/svc/bpartifactstore/artifacts/100", angular.toJson(ArtifactServiceMock.createArtifact(100)))
-                .respond(401);
+                .respond(HttpStatusCode.Unauthorized);
                 
             // Act
             var error: any;
@@ -88,7 +89,7 @@ describe("Artifact Repository", () => {
 
             // Assert
             expect(error).toBeDefined();
-            expect(error.statusCode).toEqual(401);
+            expect(error.statusCode).toEqual(HttpStatusCode.Unauthorized);
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));

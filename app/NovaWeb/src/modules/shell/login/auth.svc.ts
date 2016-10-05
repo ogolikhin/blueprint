@@ -1,6 +1,6 @@
 ﻿import * as angular from "angular";
 import { SessionTokenHelper } from "./session.token.helper";
-import { ILocalizationService, ISettingsService, IHttpInterceptorConfig } from "../../core";
+import { ILocalizationService, ISettingsService, IHttpInterceptorConfig, HttpStatusCode } from "../../core";
 import { Helper } from "../../shared";
 
 export interface IUser {
@@ -218,7 +218,7 @@ export class AuthSvc implements IAuth {
                     deferred.reject(err);
                 });
         } else {
-            deferred.reject({ statusCode: 500, message: this.localization.get("Login_Auth_SessionTokenRetrievalFailed") });
+            deferred.reject({ statusCode: HttpStatusCode.ServerError, message: this.localization.get("Login_Auth_SessionTokenRetrievalFailed") });
         }
     }
 
@@ -243,12 +243,12 @@ export class AuthSvc implements IAuth {
                 var error = {};
                 let statusCode = result.status;
 
-                if (statusCode === 404) { // NotFound
+                if (statusCode === HttpStatusCode.NotFound) {
                     error = {
                         statusCode: statusCode,
                         message: this.localization.get("Login_Auth_LicenseNotFound_Verbose")
                     };
-                } else if (statusCode === 403) { // Forbidden
+                } else if (statusCode === HttpStatusCode.Forbidden) {
                     error = {
                         statusCode: statusCode,
                         message: this.localization.get("Login_Auth_LicenseLimitReached")
@@ -347,7 +347,6 @@ export class AuthSvc implements IAuth {
                 output += String.fromCharCode((c & 63) | 128);
                 /* tslint:enable:no-bitwise */
             }
-
         }
 
         return output;

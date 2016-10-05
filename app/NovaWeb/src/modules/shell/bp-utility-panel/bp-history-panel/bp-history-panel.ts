@@ -74,14 +74,13 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
             this.artifactHistoryList = [];
             return super.onSelectionChanged(artifact, subArtifact, timeout);
         }
-        if (this.artifactId !== artifact.id) {
-            this.artifactHistoryList = [];
-            this.artifactId = artifact.id;
-            return this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending, timeout)
-                .then( (list: IArtifactHistoryVersion[]) => {
-                    this.artifactHistoryList = list;
-                });
-        }
+        
+        this.artifactHistoryList = [];
+        this.artifactId = artifact.id;
+        return this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending, timeout)
+            .then( (list: IArtifactHistoryVersion[]) => {
+                this.artifactHistoryList = list;
+            });
     }
 
     public loadMoreHistoricalVersions(): ng.IPromise<IArtifactHistoryVersion[]> {

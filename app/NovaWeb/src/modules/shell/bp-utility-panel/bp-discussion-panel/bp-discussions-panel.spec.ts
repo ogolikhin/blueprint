@@ -4,6 +4,7 @@ import "angular-sanitize";
 import "../../";
 import { ComponentTest } from "../../../util/component.test";
 import { BPDiscussionPanelController} from "./bp-discussions-panel";
+import { HttpStatusCode } from "../../../core/http";
 import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
 import { ArtifactDiscussionsMock } from "./artifact-discussions.mock";
 import { SelectionManager } from "./../../../managers/selection-manager/selection-manager";
@@ -122,7 +123,7 @@ describe("Component BPDiscussionPanel", () => {
             ArtifactDiscussionsMock.prototype.getReplies = jasmine.createSpy("getReplies() spy").and.callFake(
                 (): ng.IPromise <IReply[] > => {
                     deferred.reject({
-                        statusCode: 404,
+                        statusCode: HttpStatusCode.NotFound,
                         errorCode: 2000
                     });
                     return deferred.promise;
@@ -185,7 +186,7 @@ describe("Component BPDiscussionPanel", () => {
             ArtifactDiscussionsMock.prototype.addDiscussion = jasmine.createSpy("addDiscussion() spy").and.callFake(
                 (): ng.IPromise<IDiscussion> => {
                     deferred.reject({
-                        statusCode: 404,
+                        statusCode: HttpStatusCode.NotFound,
                         errorCode: 2000
                     });
                     return deferred.promise;
@@ -230,7 +231,7 @@ describe("Component BPDiscussionPanel", () => {
             ArtifactDiscussionsMock.prototype.addDiscussionReply = jasmine.createSpy("addDiscussionReply() spy").and.callFake(
                 (): ng.IPromise<IReply> => {
                     deferred.reject({
-                        statusCode: 404,
+                        statusCode: HttpStatusCode.NotFound,
                         errorCode: 2000
                     });
                     return deferred.promise;

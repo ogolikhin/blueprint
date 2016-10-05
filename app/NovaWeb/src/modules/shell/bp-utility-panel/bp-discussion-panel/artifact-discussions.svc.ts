@@ -1,5 +1,5 @@
 ﻿import * as angular from "angular";
-import { ILocalizationService } from "../../../core";
+import { ILocalizationService, HttpStatusCode } from "../../../core";
 
 export interface IArtifactDiscussions {
     artifactDiscussions: ng.IPromise<IDiscussion[]>;
@@ -247,7 +247,7 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
                     defer.reject();
                     return;
                 }
-                if (errResult.status === 404) {
+                if (errResult.status === HttpStatusCode.NotFound) {
                     msg = this.localization.get("Error_Comment_Deleted", "Error");
                 } else {
                     msg = (errResult.data ? errResult.data.message : "");
@@ -276,7 +276,7 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
                     defer.reject();
                     return;
                 }
-                if (errResult.status === 404) {
+                if (errResult.status === HttpStatusCode.NotFound) {
                     msg = this.localization.get("Error_Comment_Deleted", "Error");
                 } else {
                     msg = (errResult.data ? errResult.data.message : "");

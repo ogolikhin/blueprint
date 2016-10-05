@@ -1,6 +1,6 @@
 import * as angular from "angular";
 import "angular-mocks";
-import { SettingsService, IFileUploadService } from "../../../core";
+import { SettingsService, IFileUploadService, HttpStatusCode } from "../../../core";
 import { FileUploadService } from "../../../core/file-upload";
 import { MessageService } from "../../../shell/";
 import { BpFileUploadStatusController, IUploadStatusDialogData } from "./bp-file-upload-status";
@@ -87,7 +87,7 @@ describe("File Upload Status", () => {
         controller = createController(dialogData);
 
         $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files?.*/g)
-            .respond(200, {guid: "test", uriToFile: "test"});
+            .respond(HttpStatusCode.Success, {guid: "test", uriToFile: "test"});
         $scope.$digest();
         $httpBackend.flush();
 
@@ -109,7 +109,7 @@ describe("File Upload Status", () => {
         controller = createController(dialogData);
 
         $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files?.*/g)
-            .respond(200, {guid: "test", uriToFile: "test"});
+            .respond(HttpStatusCode.Success, {guid: "test", uriToFile: "test"});
         $scope.$digest();
         $httpBackend.flush();
 
@@ -130,7 +130,7 @@ describe("File Upload Status", () => {
         controller = createController(dialogData);
 
         $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files?.*/g)
-            .respond(200, {guid: "test", uriToFile: "test"});
+            .respond(HttpStatusCode.Success, {guid: "test", uriToFile: "test"});
         $scope.$digest();
         $httpBackend.flush();
 
@@ -151,11 +151,11 @@ describe("File Upload Status", () => {
         controller = createController(dialogData);
 
         $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files?.*/g)
-            .respond(200, {guid: "test", uriToFile: "test"});
+            .respond(HttpStatusCode.Success, {guid: "test", uriToFile: "test"});
         $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files?.*/g)
-            .respond(200, {guid: "test", uriToFile: "test"});
+            .respond(HttpStatusCode.Success, {guid: "test", uriToFile: "test"});
         $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files?.*/g)
-            .respond(200, {guid: "test", uriToFile: "test"});
+            .respond(HttpStatusCode.Success, {guid: "test", uriToFile: "test"});
 
         $scope.$digest();
         $httpBackend.flush();
@@ -181,11 +181,11 @@ describe("File Upload Status", () => {
         controller = createController(dialogData);
 
         $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files?.*/g)
-            .respond(200, {guid: "test", uriToFile: "test"});
+            .respond(HttpStatusCode.Success, {guid: "test", uriToFile: "test"});
         $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files?.*/g)
-            .respond(200, {guid: "test", uriToFile: "test"});
+            .respond(HttpStatusCode.Success, {guid: "test", uriToFile: "test"});
         $httpBackend.expectPOST(/.*?svc\/bpfilestore\/files?.*/g)
-            .respond(200, {guid: "test", uriToFile: "test"});
+            .respond(HttpStatusCode.Success, {guid: "test", uriToFile: "test"});
 
         $scope.$digest();
         $httpBackend.flush();

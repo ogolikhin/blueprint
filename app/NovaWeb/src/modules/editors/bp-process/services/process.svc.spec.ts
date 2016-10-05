@@ -1,11 +1,12 @@
 import * as angular from "angular";
 import {ProcessService, IProcessService} from "./process.svc";
-import { MessageServiceMock } from "../../../core/messages/message.mock";
+import {MessageServiceMock} from "../../../core/messages/message.mock";
+import {HttpStatusCode} from "../../../core/http";
 import {createDefaultProcessModel} from "../models/test-model-factory";
 
 describe("Get process data model from the process model service", () => {
 
-    let service: IProcessService, httpBackend;      
+    let service: IProcessService, httpBackend;
    
     // Set up the module
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -122,13 +123,14 @@ describe("Get process data model from the process model service", () => {
                 expect(failureSpy).not.toHaveBeenCalled();
             });
         });
+        
         describe("When process model is not returned from the server", () => {
             it("should reject data through promise if the server is broken", () => {
                 // Arrange
                 var successSpy = jasmine.createSpy("success"),
                     failureSpy = jasmine.createSpy("failure");
                 httpBackend.when("GET", "/svc/components/storyteller/processes/772")
-                    .respond(() => [500, {}, {}, "Internal Server Error"]);
+                    .respond(() => [HttpStatusCode.ServerError, {}, {}, "Internal Server Error"]);
 
                 // Act
                 service.load("772").then(successSpy, failureSpy);
@@ -144,7 +146,7 @@ describe("Get process data model from the process model service", () => {
                 var successSpy = jasmine.createSpy("success"),
                     failureSpy = jasmine.createSpy("failure");
                 httpBackend.when("GET", "/svc/components/storyteller/processes/772")
-                    .respond(() => [404, {}, {}, "Not Found"]);
+                    .respond(() => [HttpStatusCode.NotFound, {}, {}, "Not Found"]);
 
                 // Act
                 service.load("772").then(successSpy, failureSpy);
@@ -179,6 +181,7 @@ describe("Get process data model from the process model service", () => {
                 expect(failureSpy).not.toHaveBeenCalled();
             });
         });
+
         describe("When processes collection is not returned from the server", () => {
             it("should reject data through promise if data is not found", () => {
                 // Arrange
@@ -186,7 +189,7 @@ describe("Get process data model from the process model service", () => {
                     failureSpy = jasmine.createSpy("failure");
                 var projectId = 0;
                 httpBackend.when("GET", `/svc/components/storyteller/projects/${projectId}/processes`)
-                    .respond(() => [404, {}, {}, "Not Found"]);
+                    .respond(() => [HttpStatusCode.NotFound, {}, {}, "Not Found"]);
 
                 // Act
                 service.getProcesses(projectId).then(successSpy, failureSpy);
@@ -198,6 +201,4 @@ describe("Get process data model from the process model service", () => {
             });
         });
     });
-    
 });
-

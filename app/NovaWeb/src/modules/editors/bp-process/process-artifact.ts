@@ -121,7 +121,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     }
     private initializeSubArtifacts(newProcess: IProcess) {
 
-        let statefulSubArtifacts: StatefulProcessSubArtifact[] = newProcess.shapes.map((shape:IProcessShape) => {
+        let statefulSubArtifacts: StatefulProcessSubArtifact[] = newProcess.shapes.map((shape: IProcessShape) => {
             return new StatefulProcessSubArtifact(this, shape, this.services);
         });
 

@@ -1,4 +1,5 @@
 ﻿import { IUsersAndGroupsService, IUserOrGroupInfo } from "./users-and-groups.svc";
+import { HttpStatusCode } from "../../core/http";
 
 export class UserOrGroupInfo implements IUserOrGroupInfo {
     constructor(public name: string,
@@ -23,7 +24,7 @@ export class UsersAndGroupsServiceMock implements IUsersAndGroupsService {
         var deferred = this.$q.defer<IUserOrGroupInfo[]>();
 
         if (search === "error") {
-            deferred.reject({ message: "Server Error", statusCode: 500 });
+            deferred.reject({ message: "Server Error", statusCode: HttpStatusCode.ServerError });
         } else if (search === "return@user.com") {
             var user = new UserOrGroupInfo("test name", "a@a.com", true, false, false);
             user.id = "id";

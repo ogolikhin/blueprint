@@ -122,17 +122,19 @@ export class PropertyEditor {
                         //System property
                         if (angular.isDefined(statefulItem[propertyContext.modelPropertyName])) {
                             modelValue = statefulItem[propertyContext.modelPropertyName];
-                            isModelSet = true;
-                            if (Models.PropertyTypePredefined.Name === propertyContext.propertyTypePredefined &&
-                                statefulItem.readOnlyReuseSettings &&
-                                (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Name) === Enums.ReuseSettings.Name) {
-                                propertyContext.disabled = true;
+                        } else {
+                            modelValue = null;
+                        }
+                        isModelSet = true;
+                        if (Models.PropertyTypePredefined.Name === propertyContext.propertyTypePredefined &&
+                            statefulItem.readOnlyReuseSettings &&
+                            (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Name) === Enums.ReuseSettings.Name) {
+                            propertyContext.disabled = true;
 
-                            } else if (Models.PropertyTypePredefined.Description === propertyContext.propertyTypePredefined &&
-                                statefulItem.readOnlyReuseSettings &&
-                                (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Description) === Enums.ReuseSettings.Description) {
-                                propertyContext.disabled = true;
-                            }
+                        } else if (Models.PropertyTypePredefined.Description === propertyContext.propertyTypePredefined &&
+                            statefulItem.readOnlyReuseSettings &&
+                            (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Description) === Enums.ReuseSettings.Description) {
+                            propertyContext.disabled = true;
                         }
                     } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Custom ) {
                         //Custom property

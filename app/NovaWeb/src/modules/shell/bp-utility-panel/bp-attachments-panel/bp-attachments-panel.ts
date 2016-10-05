@@ -181,12 +181,20 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         this.docRefList = [];
         this.subscribers = this.subscribers.filter(sub => { sub.dispose(); return false; });
 
-        if (this.item && Helper.hasArtifactEverBeenSavedOrPublished(this.item)) {
-            const attachmentsSubscriber = this.item.attachments.getObservable().subscribe(this.attachmentsUpdated);
-            const docRefsSubscriber = this.item.docRefs.getObservable().subscribe(this.docRefsUpdated);
+        if (this.item) {
+            // If artifact does not exist of the server, just initialize with empty lists
+            if (!Helper.hasArtifactEverBeenSavedOrPublished(this.item) && 
+                (this.item.attachments.isLoading || this.item.docRefs.isLoading)) {      
 
-            this.subscribers = [attachmentsSubscriber, docRefsSubscriber];
-        }
+                this.item.attachments.initialize(this.attachmentsList);
+                this.item.docRefs.initialize(this.docRefList);
+            } else {
+                const attachmentsSubscriber = this.item.attachments.getObservable().subscribe(this.attachmentsUpdated);
+                const docRefsSubscriber = this.item.docRefs.getObservable().subscribe(this.docRefsUpdated);
+
+                this.subscribers = [attachmentsSubscriber, docRefsSubscriber];
+            }
+        } 
 
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }

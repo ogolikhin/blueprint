@@ -40,7 +40,8 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process, 2)]
         [TestCase(BaseArtifactType.UseCase, 3)]
         [TestRail(182452)]
-        public void VersionControlInfo_PublishedArtifact_NoChanges_ReturnsArtifactInfo(BaseArtifactType artifactType, int numberOfVersions)
+        [Description("Create & publish an artifact.  Verify the basic artifact information returned with HasChanges flag set to false.")]
+        public void VersionControlInfo_PublishedArtifact_NoChanges_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
@@ -62,7 +63,8 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(182453)]
-        public void VersionControlInfo_SavedArtifact_HasChanges_ReturnsArtifactInfo(BaseArtifactType artifactType)
+        [Description("Create & save an artifact.  Verify the basic artifact information returned with HasChanges flag set to true.")]
+        public void VersionControlInfo_SavedArtifact_HasChanges_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
         {
             // Setup:
             var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
@@ -85,7 +87,8 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process, 2)]
         [TestCase(BaseArtifactType.UseCase, 3)]
         [TestRail(182499)]
-        public void VersionControlInfo_PublishedArtifact_NoChangesForAnotherUser_ReturnsArtifactInfo(BaseArtifactType artifactType, int numberOfVersions)
+        [Description("Create, publish & save an artifact.  Verify the basic artifact information returned with HasChanges flag set to false.")]
+        public void VersionControlInfo_PublishedArtifact_NoChangesForAnotherUser_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
@@ -110,7 +113,8 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(182500)]
-        public void VersionControlInfo_SavedArtifact_HasChangesForAnotherUser_ReturnsArtifactInfo(BaseArtifactType artifactType)
+        [Description("Create, publish & save an artifact.  Create manual trace to another artifact using another user. Verify the basic artifact information returned with HasChanges flag set to true.")]
+        public void VersionControlInfo_SavedArtifact_HasChangesForAnotherUser_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
         {
             // Setup:
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);

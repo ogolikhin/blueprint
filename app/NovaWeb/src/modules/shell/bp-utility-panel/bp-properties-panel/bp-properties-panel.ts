@@ -8,6 +8,7 @@ import {IMessageService} from "../../../core";
 import {PropertyEditor} from "../../../editors/bp-artifact/bp-property-editor";
 import {PropertyContext} from "../../../editors/bp-artifact/bp-property-context";
 import {PropertyLookupEnum, LockedByEnum} from "../../../main/models/enums";
+import {PropertyEditorFilters} from "./bp-properties-panel-filters";
 
 export class BPPropertiesPanel implements ng.IComponentOptions {
     public template: string = require("./bp-properties-panel.html");
@@ -102,7 +103,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                 //TODO: implement .getObservable
                 this.onUpdate();
                 this.subArtifactSubscriber = this.selectedSubArtifact.getObservable().subscribe(this.onSubArtifactChanged);
-                
+                                
                 // for new selection
 
             } else if (artifact) {
@@ -156,7 +157,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     //     }
     //     return deferred.promise;
     // }
-
+   
     public onUpdate() {
         try {
             this.fields = [];
@@ -164,21 +165,28 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             this.systemFields = [];
             this.customFields = [];
             this.specificFields = [];
-            this.richTextFields = [];         
+            this.richTextFields = [];    
             
             if (!this.editor || !this.selectedArtifact) {
                 return; 
             }
-
+            let hiddenPropertyTypes: Models.PropertyTypePredefined[];
             if (this.selectedSubArtifact) {
                 this.editor.load(this.selectedSubArtifact, this.selectedSubArtifact.metadata.getSubArtifactPropertyTypes());
+                hiddenPropertyTypes = PropertyEditorFilters.getPropertyEditorFilters(this.selectedSubArtifact.predefinedType);
             } else {
                 this.editor.load(this.selectedArtifact, this.selectedArtifact.metadata.getArtifactPropertyTypes());
+                hiddenPropertyTypes = PropertyEditorFilters.getPropertyEditorFilters(this.selectedArtifact.predefinedType);
             }
 
             
             this.model = this.editor.getModel();
             this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
+                let propertyContext = field.data as PropertyContext;
+                if (hiddenPropertyTypes.indexOf(propertyContext.propertyTypePredefined) >= 0) {
+                    return;
+                }
+
                 //add property change handler to each field
                 angular.extend(field.templateOptions, {
                     onChange: this.onValueChange.bind(this)

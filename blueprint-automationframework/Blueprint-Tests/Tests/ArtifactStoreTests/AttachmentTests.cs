@@ -549,6 +549,39 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, version2attachment.AttachedFiles.Count, "List of attached files must have 2 items.");
         }
 
+        [TestCase]
+        [TestRail(182503)]
+        [Description("Create and publish artifact (admin), add attachment and publish (author), set artifact's permission to none for author, get attachments for version 1 should return 403 for author.")]
+        public void GetAttachmentSpecifyVersion_UserHaveNoPermissionFromVersion2_Returns403()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            //versionId = 1 - no attachments
+            _group.AssignRoleToProjectOrArtifact(_project, _authorRole);
+            Helper.AdminStore.AddSession(_userAuthorLicense);
+            //_userAuthorLicense has Author access to the project
+
+            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_userAuthorLicense, artifact, new List<INovaFile> { _novaAttachmentFile },
+                Helper.ArtifactStore);
+            Helper.ArtifactStore.PublishArtifact(artifact, _userAuthorLicense);
+            //versionId = 2 - 1 attachment - _novaAttachmentFile
+
+            var noneRole = ProjectRoleFactory.CreateProjectRole(_project, RolePermissions.None);
+            _group.AssignRoleToProjectOrArtifact(_project, noneRole, artifact);
+            //now _userAuthorLicense has no access to artifact
+
+            //get new token with proper access rights
+            Helper.AdminStore.DeleteSession(_userAuthorLicense);
+            Helper.AdminStore.AddSession(_userAuthorLicense);
+
+
+            // Execute &  Verify:
+            Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                Helper.ArtifactStore.GetAttachments(artifact, _userAuthorLicense, versionId: 1);
+            }, "GetAttachments should throw 403 exception for user with no access.");
+        }
+
         #endregion Attachments Versions tests
 
         // TODO: Implement GetAttachment_PublishedArtifactWithDocReferenceUserHasNoPermissionToDocReference_403Forbidden  TestRail ID: 154596

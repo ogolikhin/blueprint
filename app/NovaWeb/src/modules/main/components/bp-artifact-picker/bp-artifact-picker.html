@@ -18,7 +18,7 @@
             </div>
             <div class="search-results" perfect-scrollbar opts="{ minScrollbarLength: 20, scrollXMarginOffset: 4, scrollYMarginOffset: 4}" ng-if="!$ctrl.isSearching && $ctrl.searchResults.length !== 0">
                 <div class="search-result" bp-tooltip="{{searchResult.name}}" bp-tooltip-truncated="true" ng-repeat="searchResult in $ctrl.searchResults" ng-click="$ctrl.project = searchResult">
-                    <i class="icon-project"></i>{{searchResult.name}}
+                    <i class="icon-project"></i><span ng-bind-html="::searchResult.name | bpEscapeAndHighlight:$ctrl.searchText"></span>
                 </div>
             </div>
         </div>

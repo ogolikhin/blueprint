@@ -105,7 +105,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 let state = this.initialize(artifact);
                 //modify states all at once
                 this.artifactState.set(state);
-                deferred.resolve(this);
+                
+                if (state.misplaced) {
+                    deferred.reject(this);
+                } else {
+                    deferred.resolve(this);
+                }
             }).catch((err) => {
                 if (err && err.statusCode === HttpStatusCode.NotFound) {
                     this.artifactState.deleted = true;
@@ -333,9 +338,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 loadPromise,
                 attachmentPromise
             ]).then(() => {
-
-            this.subject.onNext(this);
-            deferred.resolve(this);
+                this.subject.onNext(this);
+                deferred.resolve(this);
         
         }).catch(error => {
             this.subject.onError(error);

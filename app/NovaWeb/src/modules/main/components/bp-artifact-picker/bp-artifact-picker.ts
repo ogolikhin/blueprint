@@ -131,7 +131,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public columns: IColumn[] = [{
         cellClass: (vm: ArtifactPickerNodeVM<any>) => vm.getCellClass(),
         isGroup: true,
-        innerRenderer: (vm: ArtifactPickerNodeVM<any>) => {
+        innerRenderer: (vm: ArtifactPickerNodeVM<any>, eGridCell: HTMLElement) => {
             const icon = vm.getIcon();
             const name = Helper.escapeHTMLText(vm.name);
             return `<span class="ag-group-value-wrapper">${icon}<span>${name}</span></span>`;

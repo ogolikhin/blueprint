@@ -143,9 +143,10 @@ describe("BpArtifactPickerController", () => {
         it("innerRenderer returns correct result", () => {
             // Arrange
             const vm = {name: "name", getIcon() { return "icon"; }} as ArtifactPickerNodeVM<any>;
+            const cell = new HTMLElement();
 
             // Act
-            const result = controller.columns[0].innerRenderer(vm);
+            const result = controller.columns[0].innerRenderer(vm, cell);
 
             // Assert
             expect(result).toEqual(`<span class="ag-group-value-wrapper">icon<span>name</span></span>`);

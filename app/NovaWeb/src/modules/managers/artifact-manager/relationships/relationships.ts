@@ -4,8 +4,7 @@ import { ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet } from
 import { IRelationship, IArtifactRelationshipsResultSet } from "../../../main/models/relationshipmodels";
 
 export interface IArtifactRelationships {
-    // getObservable(): Rx.IObservable<IRelationship[]>;
-    observable: Rx.IObservable<IRelationship[]>;
+    getObservable(): Rx.IObservable<IRelationship[]>;
     get(refresh?: boolean): ng.IPromise<IRelationship[]>;
     add(relationships: IRelationship[]);
     remove(relationships: IRelationship[]);
@@ -59,29 +58,11 @@ export class ArtifactRelationships implements IArtifactRelationships {
         return deferred.promise;
     }
 
-    // public getObservable(): Rx.IObservable<IRelationship[]> {
-    //     if (!this.isLoadedOrLoading()) {
-
-    //         this.loadPromise = this.statefulItem.getRelationships().then((result: IRelationship[]) => {
-    //             this.subject.onNext(this.relationships);
-
-    //         }, (error) => {
-    //             this.subject.onError(error);
-
-    //         }).finally(() => {
-    //             this.isLoaded = true;
-    //             this.loadPromise = null;
-    //         });
-    //     }
-        
-    //     return this.subject.filter(it => !!it).asObservable();
-    // }
-
     protected isLoadedOrLoading() {
         return this.relationships || this.loadPromise;
     }
 
-    public get observable(): Rx.IObservable<IRelationship[]> {
+    public getObservable(): Rx.IObservable<IRelationship[]> {
         return this.subject.asObservable();
     }
 
@@ -177,9 +158,8 @@ export class ArtifactRelationships implements IArtifactRelationships {
         this.subject.onNext(this.relationships);
     }
 
-    // TODO: stub, implement
-    public refresh(): ng.IPromise<any> {
-
-        return null;
+    public refresh(): ng.IPromise<IRelationship[]> {
+        this.isLoaded = false;
+        return this.get(true);
     }
 }

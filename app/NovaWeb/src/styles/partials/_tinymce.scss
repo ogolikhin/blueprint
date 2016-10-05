@@ -4,6 +4,10 @@ body {
     z-index: 65536;
   }
 
+  .mce-resize-bar-dragging { // to get rid of the "move" cursor on tables
+    display: none;
+  }
+
   i.mce-ico.mce-i-font-size::before {
     content: '\e241';
     font-family: 'Glyphicons Halflings' !important;

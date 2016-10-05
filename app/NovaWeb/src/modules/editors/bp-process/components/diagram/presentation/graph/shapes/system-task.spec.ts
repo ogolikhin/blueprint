@@ -2,8 +2,6 @@
 import {ShapesFactory} from "./shapes-factory";
 import {ProcessGraph} from "../process-graph";
 import {ArtifactReferenceLinkMock, ShapeModelMock} from "./shape-model.mock";
-import {ProcessServiceMock} from "../../../../../services/process.svc.mock";
-import {IProcessService} from "../../../../../services/process.svc";
 import {ProcessModel, ProcessShapeModel, ProcessLinkModel} from "../../../../../models/process-models";
 import {ProcessShapeType, ProcessType} from "../../../../../models/enums";
 import {ProcessViewModel, IProcessViewModel} from "../../../viewmodel/process-viewmodel";
@@ -14,6 +12,8 @@ import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-
 import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
 import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
 import { ModalServiceMock } from "../../../../../../../shell/login/mocks.spec";
+import { IStatefulArtifactFactory } from "../../../../../../../managers/artifact-manager/";
+import { StatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("SystemTask", () => {
 
@@ -22,7 +22,7 @@ describe("SystemTask", () => {
     let PERSONA_EDIT_MAXLENGTH = 40;
     let PERSONA_VIEW_MAXLENGTH = 12;
     let shapesFactory: ShapesFactory;
-    let localScope, rootScope, processModelService, wrapper, container;
+    let localScope, rootScope, wrapper, container;
     let communicationManager: ICommunicationManager,
         dialogService: DialogService,
         localization: LocalizationServiceMock;
@@ -30,23 +30,22 @@ describe("SystemTask", () => {
     let testArtifactReferenceLink2 = new ArtifactReferenceLinkMock(2);
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        $provide.service("processModelService", ProcessServiceMock);
         $provide.service("communicationManager", CommunicationManager);
         $provide.service("$uibModal", ModalServiceMock);
         $provide.service("dialogService", DialogService);
         $provide.service("localization", LocalizationServiceMock);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
     beforeEach(inject((
         _$window_: ng.IWindowService,
         $rootScope: ng.IRootScopeService,
-        _processModelService_: IProcessService, 
         _communicationManager_: ICommunicationManager,
         _dialogService_: DialogService,
-        _localization_: LocalizationServiceMock
-    ) => {
+        _localization_: LocalizationServiceMock,
+        statefulArtifactFactory: IStatefulArtifactFactory) => {
+
         rootScope = $rootScope;
-        processModelService = _processModelService_;
         communicationManager = _communicationManager_;
         dialogService = _dialogService_;
         localization = _localization_;
@@ -57,7 +56,7 @@ describe("SystemTask", () => {
 
         $rootScope["config"] = {};
         $rootScope["config"].labels = {};
-        shapesFactory = new ShapesFactory($rootScope);
+        shapesFactory = new ShapesFactory($rootScope, statefulArtifactFactory);
         localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
     }));
 
@@ -70,7 +69,7 @@ describe("SystemTask", () => {
         viewModel.isReadonly = false;
 
         // Act
-        let graph = new ProcessGraph(rootScope, localScope, container, processModelService,  viewModel, dialogService, localization);
+        let graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
 
         let node = new SystemTask(ShapeModelMock.instance().SystemTaskMock(), rootScope, "", null, shapesFactory);
         node.render(graph, 80, 120, false);
@@ -246,7 +245,7 @@ describe("SystemTask", () => {
             processModel = new ProcessViewModel(testModel);
             processModel.communicationManager = communicationManager;
 
-            graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             graph.render(false, null);
         });

@@ -31,7 +31,7 @@ export class BPCommentEditController {
     public isWaiting: boolean = false;
     public emailDiscussionsEnabled: boolean;
     public tinymceOptions = {
-        plugins: "textcolor table noneditable autolink link autoresize mention",
+        plugins: "textcolor table noneditable autolink link autoresize mention paste",
         autoresize_bottom_margin: 0,
         toolbar: "fontsize | bold italic underline | forecolor format | link",
         convert_urls: false,
@@ -40,6 +40,10 @@ export class BPCommentEditController {
         statusbar: false,
         menubar: false,
         extended_valid_elements: MentionService.requiredAttributes,
+        invalid_elements: "img,frame,iframe,script",
+        invalid_styles: {
+            "*": "background-image"
+        },
         mentions: this.mentionService.create(this.emailDiscussionsEnabled),
         init_instance_callback: function (editor) { // https://www.tinymce.com/docs/configure/integration-and-setup/#init_instance_callback
             editor.focus();

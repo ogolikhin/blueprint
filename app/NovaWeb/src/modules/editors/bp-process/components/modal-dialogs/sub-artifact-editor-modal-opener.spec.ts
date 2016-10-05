@@ -37,7 +37,7 @@ describe("SubArtifactEditorModalOpener test", () => {
     let $uibModal: ModalServiceMock;
     let rootScope: any;
     let graph: ProcessGraph;
-    let processModelService, wrapper, container;
+    let wrapper, container;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("communicationManager", CommunicationManager);
@@ -156,7 +156,7 @@ describe("SubArtifactEditorModalOpener test", () => {
         let clientModel = new ProcessGraphModel(process);
         let viewModel = new ProcessViewModel(clientModel);
         viewModel.communicationManager = communicationManager;
-        return new ProcessGraph(rootScope, localScope, container, processModelService,  viewModel, dialogService, localization);
+        return new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
     }
 
 });

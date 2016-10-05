@@ -7,10 +7,9 @@ import { IChangeSet } from "../changeset";
 import { ISubArtifactCollection } from "../sub-artifact";
 import { MetaData } from "../metadata";
 import { IDispose } from "../../models";
-
+import { HttpStatusCode } from "../../../core/http";
 
 export interface IStatefulArtifact extends IStatefulItem, IDispose  {
-
     /**
      * Unload full weight artifact
      */
@@ -23,7 +22,6 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose  {
     refresh(): ng.IPromise<IStatefulArtifact>;
     
     getObservable(): Rx.Observable<IStatefulArtifact>;
-
 }
 
 // TODO: explore the possibility of using an internal interface for services
@@ -62,7 +60,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return this.artifactState.get();
     }
 
-
     public getObservable(): Rx.Observable<IStatefulArtifact> {
         if (!this.isFullArtifactLoadedOrLoading()) {
             this.loadPromise = this.load();
@@ -78,9 +75,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         } else {
 //            this.subject.onNext(this);
         }
+
         return this.subject.filter(it => !!it).asObservable();
     }
-
 
     public discard() {
         super.discard();
@@ -110,7 +107,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 this.artifactState.set(state);
                 deferred.resolve(this);
             }).catch((err) => {
-                if (err && err.statusCode === 404) {
+                if (err && err.statusCode === HttpStatusCode.NotFound) {
                     this.artifactState.deleted = true;
                 }
                 
@@ -138,14 +135,13 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         if (lock.result === Enums.LockResultEnum.Success) {
             this.artifactState.lock(lock);
             if (lock.info.versionId !== this.version) {
-                this.refresh();             
+                this.refresh();
             } else {
                 if (lock.info.parentId !== this.parentId || lock.info.orderIndex !== this.orderIndex) {
                     this.artifactState.misplaced = true;
                 }
                 this.subject.onNext(this);
             }
-
         } else {
             if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
                 this.refresh();
@@ -166,6 +162,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         if (this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
             return;
         }
+
         if (!this.lockPromise) {
 
             let deferred = this.services.getDeferred<IStatefulArtifact>();
@@ -180,8 +177,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             }).catch((err) => {
                 deferred.reject(err);
             });
-
         }
+
         return this.lockPromise;
     }
 
@@ -197,7 +194,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
                 deferred.resolve(result);
             }, (error) => {
-                if (error && error.statusCode === 404) {
+                if (error && error.statusCode === HttpStatusCode.NotFound) {
                     this.deleted = true;
                 }
                 deferred.reject(error);
@@ -211,16 +208,16 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             .then( (result: Relationships.IArtifactRelationshipsResultSet) => {
                 deferred.resolve(result);
             }, (error) => {
-                if (error && error.statusCode === 404) {
+                if (error && error.statusCode === HttpStatusCode.NotFound) {
                     this.deleted = true;
                 }
                 deferred.reject(error);
             });
+
         return deferred.promise;
     }
 
     public changes(): Models.IArtifact {
-        
         if (this.artifactState.invalid) {
             throw new Error("App_Save_Artifact_Error_400_114");
         }
@@ -242,7 +239,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         this.addSubArtifactChanges(delta);
 
         return delta;
-
     }
 
     private addSubArtifactChanges(delta: Models.IArtifact) {
@@ -255,17 +251,20 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     //TODO: moved from bp-artifactinfo 
     
     public save(): ng.IPromise<IStatefulArtifact> {
-        let deffered = this.services.getDeferred<IStatefulArtifact>();
+        let deferred = this.services.getDeferred<IStatefulArtifact>();
        
         let changes = this.changes();
         this.services.artifactService.updateArtifact(changes)
             .then((artifact: Models.IArtifact) => {
                 this.discard();
-                this.refresh();
+                this.refresh().then((a) => {
+                    deferred.resolve(a);
+                }).catch((error) => {
+                    deferred.reject(error);
+                });
                 this.services.messageService.addInfo("App_Save_Artifact_Error_200");
-
             }).catch((error) => {
-                deffered.reject(error);
+                deferred.reject(error);
                 let message: string;
                 // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
                 if (error) {
@@ -275,7 +274,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                         } else {
                             message = this.services.localizationService.get("App_Save_Artifact_Error_400") + error.message;
                         }
-                    } else if (error.statusCode === 404) {
+                    } else if (error.statusCode === HttpStatusCode.NotFound) {
                         message = this.services.localizationService.get("App_Save_Artifact_Error_404");
                     } else if (error.statusCode === 409) {
                         if (error.errorCode === 116) {
@@ -292,13 +291,14 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                     } else {
                         message = this.services.localizationService.get("App_Save_Artifact_Error_Other") + error.statusCode;
                     }
+                    
                     this.services.messageService.addError(message);
                     throw new Error(message);
-                }                                
+                }
             }
         );
        
-        return deffered.promise;
+        return deferred.promise;
     }
 
     //TODO: stub - replace with implementation

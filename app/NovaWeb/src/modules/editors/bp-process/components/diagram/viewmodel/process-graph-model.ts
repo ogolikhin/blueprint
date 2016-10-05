@@ -418,8 +418,7 @@ export class ProcessGraphModel implements IProcessGraphModel {
     }
 
     public get statefulArtifact(): IStatefulArtifact{
-        if(this.process instanceof StatefulProcessArtifact)
-        {
+        if (this.process instanceof StatefulProcessArtifact) {
             return <StatefulProcessArtifact> this.process;
         }
         return null;        

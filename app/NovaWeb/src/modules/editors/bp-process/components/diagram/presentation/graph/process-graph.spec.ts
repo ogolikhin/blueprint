@@ -1,8 +1,6 @@
 ﻿import * as angular from "angular";
 import {ProcessGraph} from "./process-graph";
 import {ShapesFactory} from "./shapes/shapes-factory";
-import {ProcessServiceMock} from "../../../../services/process.svc.mock";
-import {IProcessService} from "../../../../services/process.svc";
 import * as Enums from "../../../../models/enums";
 import * as ProcessModels from "../../../../models/process-models";
 import {MessageServiceMock} from "../../../../../../core/messages/message.mock";
@@ -19,33 +17,34 @@ import { LocalizationServiceMock} from "../../../../../../core/localization/loca
 import { DialogService} from "../../../../../../shared/widgets/bp-dialog";
 import { ModalServiceMock } from "../../../../../../shell/login/mocks.spec";
 import * as TestModels from "../../../../models/test-model-factory";
+import { IStatefulArtifactFactory } from "../../../../../../managers/artifact-manager/";
+import { StatefulArtifactFactoryMock } from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("ProcessGraph", () => {
     let shapesFactory: ShapesFactory;
-    let localScope, rootScope, timeout, processModelService, wrapper, container;
+    let localScope, rootScope, timeout, wrapper, container, statefulArtifactFactory: IStatefulArtifactFactory;
     let communicationManager: ICommunicationManager,
         dialogService: DialogService,
         localization: LocalizationServiceMock;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        $provide.service("processModelService", ProcessServiceMock);
         $provide.service("communicationManager", CommunicationManager);
         $provide.service("$uibModal", ModalServiceMock);
         $provide.service("dialogService", DialogService);
         $provide.service("localization", LocalizationServiceMock);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
     beforeEach(inject((
         _$window_: ng.IWindowService,
         $rootScope: ng.IRootScopeService,
         $timeout: ng.ITimeoutService,
-        _processModelService_: IProcessService, 
         _communicationManager_: ICommunicationManager,
         _dialogService_: DialogService,
-        _localization_: LocalizationServiceMock) => {
+        _localization_: LocalizationServiceMock,
+        _statefulArtifactFactory_: IStatefulArtifactFactory) => {
         rootScope = $rootScope;
         timeout = $timeout;
-        processModelService = _processModelService_;
         communicationManager = _communicationManager_;
         dialogService = _dialogService_;
         localization = _localization_;
@@ -53,6 +52,7 @@ describe("ProcessGraph", () => {
         container = document.createElement("DIV");
         wrapper.appendChild(container);
         document.body.appendChild(wrapper);
+        statefulArtifactFactory = _statefulArtifactFactory_;
 
         $rootScope["config"] = {};
         $rootScope["config"].labels = {
@@ -69,7 +69,7 @@ describe("ProcessGraph", () => {
             "ST_Auto_Insert_Task": "The task and its associated shapes have been moved. Another task has been created at the old location."
         };
         localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
-        shapesFactory = new ShapesFactory(rootScope);
+        shapesFactory = new ShapesFactory(rootScope, _statefulArtifactFactory_);
     }));
 
     describe("isUserSystemProcess", () => {
@@ -187,7 +187,7 @@ describe("ProcessGraph", () => {
                 clientModel = new ProcessGraphModel(process);
                 viewModel = new ProcessViewModel(clientModel);
                 viewModel.communicationManager = communicationManager;
-                graph = new ProcessGraph(rootScope, localScope, container, processModelService,  viewModel, dialogService, localization);
+                graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
             });
 
             afterEach(() => {
@@ -230,7 +230,7 @@ describe("ProcessGraph", () => {
                 clientModel = new ProcessGraphModel(process);
                 viewModel = new ProcessViewModel(clientModel);
                 viewModel.communicationManager = communicationManager;
-                graph = new ProcessGraph(rootScope, localScope, container, processModelService,  viewModel, dialogService, localization);
+                graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
             });
 
             afterEach(() => {
@@ -273,7 +273,7 @@ describe("ProcessGraph", () => {
             clientModel = new ProcessGraphModel(process);
             viewModel = new ProcessViewModel(clientModel);
             viewModel.communicationManager = communicationManager;
-            graph = new ProcessGraph(rootScope, localScope, container, processModelService,  viewModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
 
             // Act
             let result = ProcessDeleteHelper.deleteUserTask(35, null, graph);
@@ -328,7 +328,7 @@ describe("ProcessGraph", () => {
                 clientModel = new ProcessGraphModel(process);
                 viewModel = new ProcessViewModel(clientModel);
                 viewModel.communicationManager = communicationManager;
-                graph = new ProcessGraph(rootScope, localScope, container, processModelService,  viewModel, dialogService, localization);
+                graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
             });
 
             afterEach(() => {
@@ -417,7 +417,7 @@ describe("ProcessGraph", () => {
                 clientModel = new ProcessGraphModel(process);
                 viewModel = new ProcessViewModel(clientModel);
                 viewModel.communicationManager = communicationManager;
-                graph = new ProcessGraph(rootScope, localScope, container, processModelService,  viewModel, dialogService, localization);
+                graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
             });
 
             afterEach(() => {
@@ -599,13 +599,12 @@ describe("ProcessGraph", () => {
             let processModel = new ProcessViewModel(testModel);
             processModel.communicationManager = communicationManager;
             
-            graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
             let shapeLengthBeforeDelete = processModel.shapes.length;
             let linkLengthBeforeDelete = processModel.links.length;
             
             let userTaskShape = shapesFactory.createModelUserTaskShape(2, 1, 20, 2, 0);
-            let shapesFactoryService = new ShapesFactory(rootScope);
-            let userTaskShapeDiagramNode = new UserTask(userTaskShape, rootScope, null, shapesFactoryService);
+            let userTaskShapeDiagramNode = new UserTask(userTaskShape, rootScope, null, shapesFactory);
 
             //Act
             let result = ProcessDeleteHelper.deleteUserTask(userTaskShapeDiagramNode.model.id, null, graph);
@@ -632,7 +631,7 @@ describe("ProcessGraph", () => {
 
             let userTaskShapeDiagramNode = new UserDecision(userTaskShape, rootScope);
 
-            graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             //Act
             let result = ProcessDeleteHelper.deleteUserTask(userTaskShapeDiagramNode.model.id, null, graph);
@@ -661,7 +660,7 @@ describe("ProcessGraph", () => {
 
             let userTaskShapeDiagramNode = new UserDecision(userTaskShape, rootScope);
 
-            graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             //Act
             let result = ProcessDeleteHelper.deleteUserTask(userTaskShapeDiagramNode.model.id, null, graph);
@@ -690,7 +689,7 @@ describe("ProcessGraph", () => {
 
             let userTaskShapeDiagramNode = new UserDecision(userTaskShape, rootScope);
 
-            graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             let shapeIdBeforeUserTask = processModel.links.filter(a => a.destinationId === userTaskShape.id)[0].sourceId;
 
@@ -740,7 +739,7 @@ describe("ProcessGraph", () => {
             let END = 140;
             let processModel = new ProcessViewModel(testModel);
             processModel.communicationManager = communicationManager;
-            graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             // Act
             let result = ProcessDeleteHelper.deleteUserTask(UT3, null, graph);
@@ -764,7 +763,7 @@ describe("ProcessGraph", () => {
             let testModel = TestModels.createInfiniteLoopFromDifferentDecisions();
             let processModel = new ProcessViewModel(testModel);
             processModel.communicationManager = communicationManager;
-            graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
             let utToDelete = 210;
 
             let incomingSystemTaskSameCondition = 200;
@@ -794,7 +793,7 @@ describe("ProcessGraph", () => {
             let processModel = new ProcessViewModel(testModel);
             processModel.communicationManager = communicationManager;
 
-            let graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
             let shapeLengthBeforeDelete = processModel.shapes.length;
             let linkLengthBeforeDelete = processModel.links.length;
 
@@ -823,7 +822,7 @@ describe("ProcessGraph", () => {
             let testModel = TestModels.createUserDecisionTestModel(decisionShape);
             let processModel = new ProcessViewModel(testModel);
             processModel.communicationManager = communicationManager;
-            let graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
             let shapeLengthBeforeDelete = processModel.shapes.length;
             let linkLengthBeforeDelete = processModel.links.length;
 
@@ -853,7 +852,7 @@ describe("ProcessGraph", () => {
             let testModel = TestModels.createUserDecisionTestModel(decisionShape);
             let processModel = new ProcessViewModel(testModel);
             processModel.communicationManager = communicationManager;
-            let graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
             let shapeIdBeforeDecision = processModel.links.filter(a => a.destinationId === decisionShape.id)[0].sourceId;
             let shapeIdToConnectAfterDecision = processModel.links
                 .filter(a => a.sourceId === decisionShape.id)
@@ -884,7 +883,7 @@ describe("ProcessGraph", () => {
             let testModel = TestModels.createSystemDecisionTestModel(decisionShape);
             let processModel = new ProcessViewModel(testModel);
             processModel.communicationManager = communicationManager;
-            let graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
             let shapeLengthBeforeDelete = processModel.shapes.length;
             let linkLengthBeforeDelete = processModel.links.length;
 
@@ -912,7 +911,7 @@ describe("ProcessGraph", () => {
             let testModel = TestModels.createSystemDecisionTestModel(decisionShape);
             let processModel = new ProcessViewModel(testModel);
             processModel.communicationManager = communicationManager;
-            let graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
             let shapeLengthBeforeDelete = processModel.shapes.length;
             let linkLengthBeforeDelete = processModel.links.length;
 
@@ -940,7 +939,7 @@ describe("ProcessGraph", () => {
             let testModel = TestModels.createSystemDecisionTestModel(decisionShape);
             let processModel = new ProcessViewModel(testModel);
             processModel.communicationManager = communicationManager;
-            let graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
             let shapeIdBeforeDecision = processModel.links.filter(a => a.destinationId === decisionShape.id)[0].sourceId;
             let shapeIdToConnectAfterDecision = processModel.links
                 .filter(a => a.sourceId === decisionShape.id)
@@ -1226,7 +1225,7 @@ describe("ProcessGraph", () => {
                     testModel = TestModels.createUserDecisionWithTwoBranchesModel();
                     processModel = new ProcessViewModel(testModel);
                     processModel.communicationManager = communicationManager;
-                    graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+                    graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                     graph.render(true, null);
                 });
 
@@ -1278,7 +1277,7 @@ describe("ProcessGraph", () => {
                     testModel = TestModels.createUserDecisionWithMultipleBranchesModel();
                     processModel = new ProcessViewModel(testModel);
                     processModel.communicationManager = communicationManager;
-                    graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+                    graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                     graph.render(true, null);
                 });
 
@@ -1348,7 +1347,7 @@ describe("ProcessGraph", () => {
                     testModel = TestModels.createMultipleUserDecisionsWithMultipleBranchesModel();
                     processModel = new ProcessViewModel(testModel);
                     processModel.communicationManager = communicationManager;
-                    graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+                    graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                     graph.render(true, null);
                 });
 
@@ -1376,7 +1375,7 @@ describe("ProcessGraph", () => {
                     testModel = TestModels.createSystemDecisionWithTwoBranchesModel();
                     processModel = new ProcessViewModel(testModel);
                     processModel.communicationManager = communicationManager;
-                    graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+                    graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                     graph.render(true, null);
                 });
 
@@ -1416,7 +1415,7 @@ describe("ProcessGraph", () => {
                     testModel = TestModels.createSystemDecisionWithMultipleBranchesModel();
                     processModel = new ProcessViewModel(testModel);
                     processModel.communicationManager = communicationManager;
-                    graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+                    graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                     graph.render(true, null);
                 });
 
@@ -1481,7 +1480,7 @@ describe("ProcessGraph", () => {
             testModel = TestModels.createUserDecisionWithMultipleBranchesModel_V2();
             processModel = new ProcessViewModel(testModel);
             processModel.communicationManager = communicationManager;
-            graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
             graph.render(null, null);
         });
 
@@ -1598,7 +1597,7 @@ describe("ProcessGraph", () => {
         let clientModel = new ProcessGraphModel(process);
         let viewModel = new ProcessViewModel(clientModel);
         viewModel.communicationManager = communicationManager;
-        return new ProcessGraph(rootScope, localScope, container, processModelService,  viewModel, dialogService, localization, messageService);
+        return new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, messageService, null, statefulArtifactFactory);
     }
 });
 

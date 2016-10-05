@@ -26,13 +26,16 @@ export {
     ISettingsService,
     SettingsService,
 };
+
 export {
     IFileUploadService,
     IFileResult
-}
+};
+
 export {
     ILocalizationService,
-    BPLocale} from "./localization/";
+    BPLocale
+} from "./localization/";
 
 export {
     IWindowResize,
@@ -51,10 +54,11 @@ export {
 } from "./messages";
 
 export { 
-    IHttpInterceptorConfig 
+    IHttpInterceptorConfig,
+    HttpStatusCode
 } from "./http";
 
 export {
     INavigationState,
     INavigationService
-} from "./navigation"
+} from "./navigation";

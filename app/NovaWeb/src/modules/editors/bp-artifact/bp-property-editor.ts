@@ -122,17 +122,19 @@ export class PropertyEditor {
                         //System property
                         if (angular.isDefined(statefulItem[propertyContext.modelPropertyName])) {
                             modelValue = statefulItem[propertyContext.modelPropertyName];
-                            isModelSet = true;
-                            if (Models.PropertyTypePredefined.Name === propertyContext.propertyTypePredefined &&
-                                statefulItem.readOnlyReuseSettings &&
-                                (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Name) === Enums.ReuseSettings.Name) {
-                                propertyContext.disabled = true;
+                        } else {
+                            modelValue = null;
+                        }
+                        isModelSet = true;
+                        if (Models.PropertyTypePredefined.Name === propertyContext.propertyTypePredefined &&
+                            statefulItem.readOnlyReuseSettings &&
+                            (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Name) === Enums.ReuseSettings.Name) {
+                            propertyContext.disabled = true;
 
-                            } else if (Models.PropertyTypePredefined.Description === propertyContext.propertyTypePredefined &&
-                                statefulItem.readOnlyReuseSettings &&
-                                (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Description) === Enums.ReuseSettings.Description) {
-                                propertyContext.disabled = true;
-                            }
+                        } else if (Models.PropertyTypePredefined.Description === propertyContext.propertyTypePredefined &&
+                            statefulItem.readOnlyReuseSettings &&
+                            (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Description) === Enums.ReuseSettings.Description) {
+                            propertyContext.disabled = true;
                         }
                     } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Custom ) {
                         //Custom property
@@ -213,6 +215,10 @@ export class PropertyEditor {
                 case Models.PrimitiveType.Text:
                     field.type = context.isRichText ? "bpFieldTextRTFInline" : (context.isMultipleAllowed ? "bpFieldTextMulti" : "bpFieldText");
                     field.defaultValue = context.stringDefaultValue;
+                    if (context.isRichText && Enums.PropertyLookupEnum.Special !== context.lookup) {
+                        field.templateOptions["hideLabel"] = context.isMultipleAllowed ||
+                            Models.PropertyTypePredefined.Description === context.propertyTypePredefined;
+                    }
                     break;
                 case Models.PrimitiveType.Date:
                     field.type = "bpFieldDatepicker";

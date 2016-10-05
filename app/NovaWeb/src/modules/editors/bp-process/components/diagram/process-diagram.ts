@@ -1,13 +1,12 @@
 ﻿import {ILocalizationService, IMessageService, Message, MessageType, INavigationService} from "../../../../core";
 import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
-import {IProcessService} from "../../services/process.svc";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
 import {IProcessGraph, ISelectionListener} from "./presentation/graph/models/";
 import {ProcessGraph} from "./presentation/graph/process-graph";
 import {ICommunicationManager} from "../../../bp-process";
 import {IDialogService} from "../../../../shared";
-import {ShapesFactory} from "./presentation/graph/shapes/shapes-factory";
+import { IStatefulArtifactFactory } from "../../../../managers/artifact-manager";
 
 export class ProcessDiagram {
     public processModel: IProcess;
@@ -17,9 +16,8 @@ export class ProcessDiagram {
     private toggleProcessTypeHandler: string;
     private modelUpdateHandler: string;
     private navigateToAssociatedArtifactHandler: string;
-    private shapesFactory: ShapesFactory;
 
-    private selectionListeners : ISelectionListener[] 
+    private selectionListeners: ISelectionListener[]; 
 
     constructor(
         private $rootScope: ng.IRootScopeService,
@@ -27,12 +25,12 @@ export class ProcessDiagram {
         private $timeout: ng.ITimeoutService,
         private $q: ng.IQService,
         private $log: ng.ILogService,
-        private processService: IProcessService,
         private messageService: IMessageService,
         private communicationManager: ICommunicationManager,
         private dialogService: IDialogService,
         private localization: ILocalizationService,
-        private navigationService: INavigationService) {
+        private navigationService: INavigationService,
+        private statefulArtifactFactory: IStatefulArtifactFactory) {
 
         this.processModel = null;
         this.selectionListeners = [];
@@ -71,9 +69,7 @@ export class ProcessDiagram {
         let processViewModel = this.createProcessViewModel(process);
         // set isSpa flag to true. Note: this flag may no longer be needed.
         processViewModel.isSpa = true;
-
-        this.shapesFactory = new ShapesFactory(this.$rootScope);
-
+                
         //if (processViewModel.isReadonly) this.disableProcessToolbar();
         this.createProcessGraph(processViewModel, useAutolayout, selectedNodeId);
     }
@@ -136,13 +132,12 @@ export class ProcessDiagram {
                             this.$rootScope,
                             this.$scope,
                             this.htmlElement,
-                            this.processService,
                             this.processViewModel,
                             this.dialogService,
                             this.localization,
                             this.messageService,
                             this.$log,
-                            this.shapesFactory);
+                            this.statefulArtifactFactory);
             this.registerSelectionListeners();
         } catch (err) {
             this.handleInitProcessGraphFailed(processViewModel.id, err);
@@ -155,15 +150,15 @@ export class ProcessDiagram {
             this.handleRenderProcessGraphFailed(processViewModel.id, err);
         }
     }
-    private registerSelectionListeners(){
-        for(let listener of this.selectionListeners){
+    private registerSelectionListeners() {
+        for (let listener of this.selectionListeners) {
             this.graph.addSelectionListener(listener);
         }
     }
     public addSelectionListener(listener: ISelectionListener) {
         this.selectionListeners.push(listener);
     }
-    public clearSelection(){
+    public clearSelection() {
         this.graph.clearSelection();
     }
     private resetBeforeLoad() {

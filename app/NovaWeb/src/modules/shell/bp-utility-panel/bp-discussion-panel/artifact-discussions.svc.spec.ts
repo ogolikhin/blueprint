@@ -1,5 +1,6 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
+import {HttpStatusCode} from "../../../core/http";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {IArtifactDiscussions, ArtifactDiscussions, IDiscussionResultSet, IReply, IDiscussion} from "./artifact-discussions.svc";
 
@@ -13,7 +14,7 @@ describe("Artifact Discussion Service", () => {
     it("get artifact discussions with default values", inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
         // Arrange
         $httpBackend.expectGET(`/svc/artifactstore/artifacts/5/discussions`)
-            .respond(200, {
+            .respond(HttpStatusCode.Success, {
                 "canCreate": true,
                 "canDelete": true,
                 "discussions": [
@@ -69,8 +70,8 @@ describe("Artifact Discussion Service", () => {
     it("gets an error if artifact id is invalid", inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
         // Arrange
         $httpBackend.expectGET(`/svc/artifactstore/artifacts/5/discussions`)
-            .respond(404, {
-                statusCode: 404,
+            .respond(HttpStatusCode.NotFound, {
+                statusCode: HttpStatusCode.NotFound,
                 message: "Couldn't find the artifact"
             });
 
@@ -87,7 +88,7 @@ describe("Artifact Discussion Service", () => {
 
         // Assert
         expect(data).toBeUndefined();
-        expect(error.statusCode).toEqual(404);
+        expect(error.statusCode).toEqual(HttpStatusCode.NotFound);
         $httpBackend.verifyNoOutstandingExpectation();
         $httpBackend.verifyNoOutstandingRequest();
     }));
@@ -95,7 +96,7 @@ describe("Artifact Discussion Service", () => {
     it("get artifact replies with default values", inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
         // Arrange
         $httpBackend.expectGET(`/svc/artifactstore/artifacts/5/discussions/2/replies`)
-            .respond(200,
+            .respond(HttpStatusCode.Success,
             [
                 {
                     "replyId": 1,
@@ -134,8 +135,8 @@ describe("Artifact Discussion Service", () => {
     it("gets an error if artifact id is invalid", inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
         // Arrange
         $httpBackend.expectGET(`/svc/artifactstore/artifacts/5/discussions/2/replies`)
-            .respond(404, {
-                statusCode: 404,
+            .respond(HttpStatusCode.NotFound, {
+                statusCode: HttpStatusCode.NotFound,
                 message: "Couldn't find the artifact"
             });
 
@@ -152,7 +153,7 @@ describe("Artifact Discussion Service", () => {
 
         // Assert
         expect(data).toBeUndefined();
-        expect(error.statusCode).toEqual(404);
+        expect(error.statusCode).toEqual(HttpStatusCode.NotFound);
         $httpBackend.verifyNoOutstandingExpectation();
         $httpBackend.verifyNoOutstandingRequest();
     }));
@@ -160,7 +161,7 @@ describe("Artifact Discussion Service", () => {
     it("add discussion returns default discussion", inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
         // Arrange
         $httpBackend.expectPOST(`/svc/components/RapidReview/artifacts/5/discussions`)
-            .respond(200,
+            .respond(HttpStatusCode.Success,
             {
                 "isClosed": false,
                 "status": "",
@@ -198,8 +199,8 @@ describe("Artifact Discussion Service", () => {
     it("add discussion gets an error if artifact id is invalid", inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
         // Arrange
         $httpBackend.expectPOST(`/svc/components/RapidReview/artifacts/5/discussions`)
-            .respond(404, {
-                statusCode: 404,
+            .respond(HttpStatusCode.NotFound, {
+                statusCode: HttpStatusCode.NotFound,
                 message: "Couldn't find the artifact"
             });
 
@@ -216,7 +217,7 @@ describe("Artifact Discussion Service", () => {
 
         // Assert
         expect(data).toBeUndefined();
-        expect(error.statusCode).toEqual(404);
+        expect(error.statusCode).toEqual(HttpStatusCode.NotFound);
         $httpBackend.verifyNoOutstandingExpectation();
         $httpBackend.verifyNoOutstandingRequest();
     }));
@@ -224,7 +225,7 @@ describe("Artifact Discussion Service", () => {
     it("add discussion reply returns default reply", inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
         // Arrange
         $httpBackend.expectPOST(`/svc/components/RapidReview/artifacts/5/discussions/1/reply`)
-            .respond(200,
+            .respond(HttpStatusCode.Success,
             {
                 "replyId": 1,
                 "itemId": 1,
@@ -261,8 +262,8 @@ describe("Artifact Discussion Service", () => {
         inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
             // Arrange
             $httpBackend.expectPOST(`/svc/components/RapidReview/artifacts/5/discussions/1/reply`)
-                .respond(404, {
-                    statusCode: 404,
+                .respond(HttpStatusCode.NotFound, {
+                    statusCode: HttpStatusCode.NotFound,
                     message: "Couldn't find the artifact"
                 });
 
@@ -279,7 +280,7 @@ describe("Artifact Discussion Service", () => {
 
             // Assert
             expect(data).toBeUndefined();
-            expect(error.statusCode).toEqual(404);
+            expect(error.statusCode).toEqual(HttpStatusCode.NotFound);
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));
@@ -287,7 +288,7 @@ describe("Artifact Discussion Service", () => {
     it("edit discussion returns default discussion", inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
         // Arrange
         $httpBackend.expectPATCH(`/svc/components/RapidReview/artifacts/5/discussions/1`)
-            .respond(200,
+            .respond(HttpStatusCode.Success,
             {
                 "replyId": 1,
                 "itemId": 1,
@@ -323,8 +324,8 @@ describe("Artifact Discussion Service", () => {
     it("edit discussion gets an error if artifact id is invalid", inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
         // Arrange
         $httpBackend.expectPATCH(`/svc/components/RapidReview/artifacts/5/discussions/1`)
-            .respond(404, {
-                statusCode: 404,
+            .respond(HttpStatusCode.NotFound, {
+                statusCode: HttpStatusCode.NotFound,
                 message: "Couldn't find the artifact"
             });
 
@@ -341,7 +342,7 @@ describe("Artifact Discussion Service", () => {
 
         // Assert
         expect(data).toBeUndefined();
-        expect(error.statusCode).toEqual(404);
+        expect(error.statusCode).toEqual(HttpStatusCode.NotFound);
         $httpBackend.verifyNoOutstandingExpectation();
         $httpBackend.verifyNoOutstandingRequest();
     }));
@@ -349,7 +350,7 @@ describe("Artifact Discussion Service", () => {
     it("edit discussion reply returns default reply", inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
         // Arrange
         $httpBackend.expectPATCH(`/svc/components/RapidReview/artifacts/5/discussions/1/reply/1`)
-            .respond(200,
+            .respond(HttpStatusCode.Success,
             {
                 "replyId": 1,
                 "itemId": 1,
@@ -386,8 +387,8 @@ describe("Artifact Discussion Service", () => {
         inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
             // Arrange
             $httpBackend.expectPATCH(`/svc/components/RapidReview/artifacts/5/discussions/1/reply/1`)
-                .respond(404, {
-                    statusCode: 404,
+                .respond(HttpStatusCode.NotFound, {
+                    statusCode: HttpStatusCode.NotFound,
                     message: "Couldn't find the artifact"
                 });
 
@@ -404,15 +405,15 @@ describe("Artifact Discussion Service", () => {
 
             // Assert
             expect(data).toBeUndefined();
-            expect(error.statusCode).toEqual(404);
+            expect(error.statusCode).toEqual(HttpStatusCode.NotFound);
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));
     it("successfully deletes reply", inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
         // Arrange
         $httpBackend.expectDELETE(`/svc/components/RapidReview/artifacts/5/deletecomment/1`)
-            .respond(200, {
-                statusCode: 200,
+            .respond(HttpStatusCode.Success, {
+                statusCode: HttpStatusCode.Success,
                 message: "Success"
             });
 
@@ -432,11 +433,11 @@ describe("Artifact Discussion Service", () => {
         $httpBackend.verifyNoOutstandingRequest();
     }));
 
-    it("delete reply failes with 404", inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
+    it("delete reply fails with HttpStatusCode.NotFound", inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
         // Arrange
         $httpBackend.expectDELETE(`/svc/components/RapidReview/artifacts/5/deletecomment/1`)
-            .respond(404, {
-                statusCode: 404,
+            .respond(HttpStatusCode.NotFound, {
+                statusCode: HttpStatusCode.NotFound,
                 message: "Comment Not Found"
             });
         let success: boolean;
@@ -453,7 +454,7 @@ describe("Artifact Discussion Service", () => {
 
         // Assert
         expect(success).toBe(false);
-        expect(errorStatusCode).toBe(404);
+        expect(errorStatusCode).toBe(HttpStatusCode.NotFound);
         $httpBackend.verifyNoOutstandingExpectation();
         $httpBackend.verifyNoOutstandingRequest();
     }));
@@ -461,8 +462,8 @@ describe("Artifact Discussion Service", () => {
     it("successfully deletes thread", inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
         // Arrange
         $httpBackend.expectDELETE(`/svc/components/RapidReview/artifacts/5/deletethread/1`)
-            .respond(200, {
-                statusCode: 200,
+            .respond(HttpStatusCode.Success, {
+                statusCode: HttpStatusCode.Success,
                 message: "Success"
             });
 
@@ -481,11 +482,11 @@ describe("Artifact Discussion Service", () => {
         $httpBackend.verifyNoOutstandingRequest();
     }));
 
-    it("delete thread failes with 404", inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
+    it("delete thread fails with HttpStatusCode.NotFound", inject(($httpBackend: ng.IHttpBackendService, artifactDiscussions: IArtifactDiscussions) => {
         // Arrange
         $httpBackend.expectDELETE(`/svc/components/RapidReview/artifacts/5/deletethread/1`)
-            .respond(404, {
-                statusCode: 404,
+            .respond(HttpStatusCode.NotFound, {
+                statusCode: HttpStatusCode.NotFound,
                 message: "Comment Not Found"
             });
         let success: boolean;
@@ -500,9 +501,8 @@ describe("Artifact Discussion Service", () => {
         $httpBackend.flush();
         // Assert
         expect(success).toBe(false);
-        expect(errorStatusCode).toBe(404);
+        expect(errorStatusCode).toBe(HttpStatusCode.NotFound);
         $httpBackend.verifyNoOutstandingExpectation();
         $httpBackend.verifyNoOutstandingRequest();
     }));
-
 });

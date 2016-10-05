@@ -1,6 +1,4 @@
 import * as angular from "angular";
-import {ProcessServiceMock} from "../../../../../services/process.svc.mock";
-import {IProcessService} from "../../../../../services/process.svc";
 import {ProcessGraph} from "../process-graph";
 import {IProcessViewModel, ProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {ShapesFactory} from "./shapes-factory";
@@ -13,6 +11,8 @@ import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-
 import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
 import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
 import { ModalServiceMock } from "../../../../../../../shell/login/mocks.spec";
+import { IStatefulArtifactFactory } from "../../../../../../../managers/artifact-manager/";
+import { StatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("DiagramNode", () => {
 
@@ -20,27 +20,25 @@ describe("DiagramNode", () => {
         let graph: ProcessGraph;
         let shapesFactory;
         let rootScope: ng.IRootScopeService; 
-        var processModelMock: IProcessService;
         let communicationManager: ICommunicationManager,
             dialogService: DialogService,
             localization: LocalizationServiceMock;
         
         beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-            $provide.service("processModelService", ProcessServiceMock);
             $provide.service("communicationManager", CommunicationManager);
             $provide.service("$uibModal", ModalServiceMock);
             $provide.service("dialogService", DialogService);
             $provide.service("localization", LocalizationServiceMock);
+            $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
         }));
 
         beforeEach(inject((
-            _processModelService_: IProcessService,
             $rootScope: ng.IRootScopeService, 
             _communicationManager_: ICommunicationManager,
             _dialogService_: DialogService,
-            _localization_: LocalizationServiceMock
-        ) => {
-            processModelMock = _processModelService_;
+            _localization_: LocalizationServiceMock,
+            statefulArtifactFactory: IStatefulArtifactFactory) => {
+
             communicationManager = _communicationManager_;
             dialogService = _dialogService_;
             localization = _localization_;
@@ -58,13 +56,12 @@ describe("DiagramNode", () => {
                         "ST_New_System_Task_Persona": "System"
                 }                
             };
-            shapesFactory = new ShapesFactory(rootScope);
+            shapesFactory = new ShapesFactory(rootScope, statefulArtifactFactory);
         }));
 
 
         afterEach(() => {
             graph = null;
-            processModelMock = null;
         });
 
         describe("for user task -> system task model", () => {
@@ -93,7 +90,7 @@ describe("DiagramNode", () => {
                 document.body.appendChild(wrapper);
 
                 graph = new ProcessGraph(rootScope, { graphContainer: container, graphWrapper: wrapper }, 
-                                         container, processModelMock, processModel, dialogService, localization);
+                                         container, processModel, dialogService, localization);
                 graph.render(false, null);
             });
 
@@ -336,7 +333,7 @@ describe("DiagramNode", () => {
                 document.body.appendChild(wrapper);
 
                 graph = new ProcessGraph(rootScope, { graphContainer: container, graphWrapper: wrapper }, 
-                                         container, processModelMock, processModel, dialogService, localization);
+                                         container, processModel, dialogService, localization);
                 graph.render(false, null);
             });
 

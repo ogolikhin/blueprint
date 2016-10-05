@@ -1,5 +1,7 @@
 import * as angular from "angular";
 import "angular-formly";
+import "angular-ui-tinymce";
+import "tinymce";
 import { Helper } from "../../../../shared";
 
 export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
@@ -9,6 +11,7 @@ export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
         $scope.$applyAsync(() => {
             $scope["fc"].$setTouched();
+            ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
 
             let tinymceBody = $element[0].querySelector(".tinymce-body");
             if (tinymceBody) {
@@ -29,46 +32,94 @@ export class BpFieldTextRTFInlineController {
 
     constructor(private $scope: AngularFormly.ITemplateScope) {
         let to: AngularFormly.ITemplateOptions = {
-            tinymceOption: { // this will go to ui-tinymce directive
+            tinymceOptions: { // this will go to ui-tinymce directive
                 inline: true,
                 fixed_toolbar_container: ".tinymce-toolbar-" + $scope.options["key"],
                 menubar: false,
-                toolbar: "fontsize | bold italic underline | forecolor format | link table",
+                toolbar: "fontselect fontsize | bold italic underline | forecolor format | link table",
                 statusbar: false,
                 invalid_elements: "img,frame,iframe,script",
                 invalid_styles: {
-                    "*": "background background-image background-color"
+                    "*": "background-image"
                 },
-                paste_remove_styles_if_webkit: false, // https://www.tinymce.com/docs/plugins/paste/#paste_remove_styles_if_webkit
+                extended_valid_elements: "a[href|type|title|linkassemblyqualifiedname|text|canclick|isvalid|mentionid|isgroup|email|" +
+                "class|linkfontsize|linkfontfamily|linkfontstyle|linkfontweight|linktextdecoration|linkforeground|style|target|artifactid]",
+                // https://www.tinymce.com/docs/configure/content-formatting/#font_formats
+                font_formats: "Open Sans=Open Sans,Portable User Interface,sans-serif;" +
+                "Arial=Arial,Helvetica,sans-serif;" +
+                "Cambria=Cambria,Georgia,serif;" +
+                "Calibri=Calibri,Candara,Segoe,Segoe UI,Optima,sans-serif;" +
+                "Courier New=Courier New,courier,monospace;" +
+                "Times New Roman=Times New Roman,Times,Baskerville,Georgia,serif;" +
+                "Trebuchet MS=Trebuchet MS,Lucida Grande,Lucida Sans Unicode,Lucida Sans,Tahoma,sans-serif;" +
+                "Verdana=Verdana,Geneva,sans-serif;",
+                paste_webkit_styles: "none", // https://www.tinymce.com/docs/plugins/paste/#paste_webkit_styles
+                paste_remove_styles_if_webkit: true, // https://www.tinymce.com/docs/plugins/paste/#paste_remove_styles_if_webkit
+                // https://www.tinymce.com/docs/plugins/paste/#paste_retain_style_properties
+                paste_retain_style_properties: "background background-color color " +
+                "font font-family font-size font-style font-weight line-height " +
+                "margin margin-bottom margin-left margin-right margin-top " +
+                "padding padding-bottom padding-left padding-right padding-top " +
+                "border border-collapse border-color border-style border-width" +
+                "text-align text-decoration vertical-align" +
+                "height width",
+                table_toolbar: "", // https://www.tinymce.com/docs/plugins/table/#table_toolbar
+                table_default_styles: { // https://www.tinymce.com/docs/plugins/table/#table_default_styles
+                    background: "white",
+                    borderColor: "#000",
+                    borderCollapse: "collapse",
+                    borderWidth: "1px"
+                },
+                table_default_attributes: { // https://www.tinymce.com/docs/plugins/table/#table_default_attributes
+                    border: "1",
+                    width: "95%"
+                },
                 // we don't need the autoresize plugin when using the inline version of tinyMCE as the height will
                 // be controlled using CSS (max-height, min-height)
-                plugins: "paste textcolor table noneditable autolink link", // contextmenu",
-                contextmenu: "bold italic underline strikethrough | link inserttable | cell row column deletetable",
+                plugins: "paste textcolor table noneditable autolink link",
+                // plugins: "contextmenu", // https://www.tinymce.com/docs/plugins/contextmenu/
+                // contextmenu: "bold italic underline strikethrough | link inserttable | cell row column deletetable",
                 // paste_preprocess: function (plugin, args) { // https://www.tinymce.com/docs/plugins/paste/#paste_preprocess
                 // },
                 paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
                     Helper.autoLinkURLText(args.node);
                 },
                 init_instance_callback: (editor) => {
-                    editor.formatter.register("font8px", {
+                    editor.formatter.register("font8", {
                         inline: "span",
-                        styles: { "font-size": "8px" }
+                        styles: { "font-size": "8pt" }
                     });
-                    editor.formatter.register("font10px", {
+                    editor.formatter.register("font9", { // default font, equivalent to 12px
                         inline: "span",
-                        styles: { "font-size": "10px" }
+                        styles: { "font-size": "9pt" }
                     });
-                    editor.formatter.register("font12px", {
+                    editor.formatter.register("font10", {
                         inline: "span",
-                        styles: { "font-size": "12px" }
+                        styles: { "font-size": "10pt" }
                     });
-                    editor.formatter.register("font15px", {
+                    editor.formatter.register("font11", {
                         inline: "span",
-                        styles: { "font-size": "15px" }
+                        styles: { "font-size": "11pt" }
                     });
-                    editor.formatter.register("font18px", {
+                    editor.formatter.register("font12", {
                         inline: "span",
-                        styles: { "font-size": "18px" }
+                        styles: { "font-size": "12pt" }
+                    });
+                    editor.formatter.register("font14", {
+                        inline: "span",
+                        styles: { "font-size": "14pt" }
+                    });
+                    editor.formatter.register("font16", {
+                        inline: "span",
+                        styles: { "font-size": "16pt" }
+                    });
+                    editor.formatter.register("font18", {
+                        inline: "span",
+                        styles: { "font-size": "18pt" }
+                    });
+                    editor.formatter.register("font20", {
+                        inline: "span",
+                        styles: { "font-size": "20pt" }
                     });
 
                     let editorBody = editor.getBody();
@@ -98,7 +149,9 @@ export class BpFieldTextRTFInlineController {
                             { icon: "bullist", text: " Bulleted list", onclick: function () { tinymce.execCommand("InsertUnorderedList"); } },
                             { icon: "numlist", text: " Numeric list", onclick: function () { tinymce.execCommand("InsertOrderedList"); } },
                             { icon: "outdent", text: " Outdent", onclick: function () { tinymce.execCommand("Outdent"); } },
-                            { icon: "indent", text: " Indent", onclick: function () { tinymce.execCommand("Indent"); } }
+                            { icon: "indent", text: " Indent", onclick: function () { tinymce.execCommand("Indent"); } },
+                            { text: "-" },
+                            { icon: "removeformat", text: " Clear formatting", onclick: function () { tinymce.execCommand("RemoveFormat"); } }
                         ]
                     });
                     editor.addButton("fontsize", {
@@ -107,37 +160,82 @@ export class BpFieldTextRTFInlineController {
                         icon: "font-size",
                         menu: [
                             {
-                                text: "8px",
+                                text: "8",
                                 onclick: function () {
-                                    editor.formatter.apply("font8px");
+                                    editor.formatter.apply("font8");
                                 }
                             },
                             {
-                                text: "10px",
+                                text: "9",
                                 onclick: function () {
-                                    editor.formatter.apply("font10px");
+                                    editor.formatter.apply("font9");
                                 }
-                            }, {
-                                text: "12px",
+                            },
+                            {
+                                text: "10",
                                 onclick: function () {
-                                    editor.formatter.apply("font12px");
+                                    editor.formatter.apply("font10");
                                 }
-                            }, {
-                                text: "15px",
+                            },
+                            {
+                                text: "11",
                                 onclick: function () {
-                                    editor.formatter.apply("font15px");
+                                    editor.formatter.apply("font11");
                                 }
-                            }, {
-                                text: "18px",
+                            },
+                            {
+                                text: "12",
                                 onclick: function () {
-                                    editor.formatter.apply("font18px");
+                                    editor.formatter.apply("font12");
                                 }
-                            }]
+                            },
+                            {
+                                text: "14",
+                                onclick: function () {
+                                    editor.formatter.apply("font14");
+                                }
+                            },
+                            {
+                                text: "16",
+                                onclick: function () {
+                                    editor.formatter.apply("font16");
+                                }
+                            },
+                            {
+                                text: "18",
+                                onclick: function () {
+                                    editor.formatter.apply("font18");
+                                }
+                            },
+                            {
+                                text: "20",
+                                onclick: function () {
+                                    editor.formatter.apply("font20");
+                                }
+                            }
+                        ]
                     });
                 }
             }
         };
         angular.merge($scope.to, to);
+
+        let validators = {
+            // tinyMCE may leave empty tags that cause the value to appear not empty
+            requiredCustom: {
+                expression: function ($viewValue, $modelValue, scope) {
+                    if (scope.to && scope.to.required) {
+                        if (angular.isString($modelValue) && $modelValue.length !== 0) {
+                            let div = document.createElement("div");
+                            div.innerHTML = $modelValue;
+                            return !(div.innerText.trim() === "");
+                        }
+                    }
+                    return true;
+                }
+            }
+        };
+        $scope.options["validators"] = validators;
 
         $scope["$on"]("$destroy", () => {
             this.removeObserver();
@@ -146,7 +244,9 @@ export class BpFieldTextRTFInlineController {
     }
 
     private disableEditability = (event) => {
-        angular.element(this.$scope["tinymceBody"]).attr("contentEditable", "false");
+        if (this.$scope["tinymceBody"] && !this.$scope["tinymceBody"].classList.contains("mce-edit-focus")) {
+            angular.element(this.$scope["tinymceBody"]).attr("contentEditable", "false");
+        }
     };
 
     private enableEditability = (event) => {
@@ -154,13 +254,16 @@ export class BpFieldTextRTFInlineController {
     };
 
     private handleClick = function(event) {
+        console.log("handleClick");
         event.stopPropagation();
         event.preventDefault();
 
         const href = this.href;
-        if (href.indexOf("?ArtifactId=") !== -1) {
+        if (href.indexOf("?ArtifactId=") !== -1 && this.getAttribute("artifactid")) {
             const artifactId = parseInt(href.split("?ArtifactId=")[1], 10);
-            self.location.replace("/#/main/" + artifactId);
+            if (artifactId === parseInt(this.getAttribute("artifactid"), 10)) {
+                self.location.href = "/#/main/" + artifactId;
+            }
         } else {
             window.open(href, "_blank");
         }
@@ -221,6 +324,8 @@ export class BpFieldTextRTFInlineController {
     };
 
     private removeObserver = () => {
-        this.observer.disconnect();
+        if (this.observer) {
+            this.observer.disconnect();
+        }
     };
 }

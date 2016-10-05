@@ -289,7 +289,7 @@ export class MetaDataService implements IMetaDataService {
             itemType.predefinedType === Models.ItemTypePredefined.PROShape) {
 
             properties.push(<Models.IPropertyType>{
-                name: "Label",
+                name: this.localization.get("Label_Label"),
                 propertyTypePredefined: Models.PropertyTypePredefined.Label,
                 primitiveType: Models.PrimitiveType.Text,
                 isRichText: true
@@ -305,25 +305,25 @@ export class MetaDataService implements IMetaDataService {
             itemType.predefinedType === Models.ItemTypePredefined.PROShape) {
 
             properties.push(<Models.IPropertyType>{
-                name: "X",
+                name: this.localization.get("Label_X"),
                 propertyTypePredefined: Models.PropertyTypePredefined.X,
                 primitiveType: Models.PrimitiveType.Number
             });
 
             properties.push(<Models.IPropertyType>{
-                name: "Y",
+                name: this.localization.get("Label_Y"),
                 propertyTypePredefined: Models.PropertyTypePredefined.Y,
                 primitiveType: Models.PrimitiveType.Number
             });
 
             properties.push(<Models.IPropertyType>{
-                name: "Width",
+                name: this.localization.get("Label_Width"),
                 propertyTypePredefined: Models.PropertyTypePredefined.Width,
                 primitiveType: Models.PrimitiveType.Number
             });
 
             properties.push(<Models.IPropertyType>{
-                name: "Height",
+                name: this.localization.get("Label_Height"),
                 propertyTypePredefined: Models.PropertyTypePredefined.Height,
                 primitiveType: Models.PrimitiveType.Number
             });

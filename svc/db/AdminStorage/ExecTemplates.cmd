@@ -2,6 +2,7 @@
 @REM Then, select the command to run, click Tools then click the new item you added.
 
 FOR /R "./Migration" %%F IN (*.tt) DO "%COMMONPROGRAMFILES(x86)%\Microsoft Shared\TextTemplating\14.0\TextTransform.exe" %%F
+"%COMMONPROGRAMFILES(x86)%\Microsoft Shared\TextTemplating\14.0\TextTransform.exe" "Data\SetApplicationLabels.tt"
 "%COMMONPROGRAMFILES(x86)%\Microsoft Shared\TextTemplating\14.0\TextTransform.exe" "Procedures.tt"
 "%COMMONPROGRAMFILES(x86)%\Microsoft Shared\TextTemplating\14.0\TextTransform.exe" "AdminStorage_Instance.tt"
 "%COMMONPROGRAMFILES(x86)%\Microsoft Shared\TextTemplating\14.0\TextTransform.exe" "AdminStorage_Migration.tt"

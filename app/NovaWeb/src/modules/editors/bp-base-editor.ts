@@ -39,17 +39,16 @@ export class BpBaseEditor {
     public $onDestroy() {
         delete this.artifact;
         this.subscribers.forEach(subscriber => { subscriber.dispose(); });
+        this.artifactManager.selection.clearAll();
         delete this.subscribers;
         this.isDestroyed = true;
     }
 
     protected onArtifactChanged = () =>  {
-        console.log("artifact changed: " + this.artifact.name);
         this.onArtifactReady();
     }
 
     protected onArtifactError = (error: any) => {
-        console.log("artifact error");
         this.onArtifactReady();
     }
 

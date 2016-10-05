@@ -285,7 +285,8 @@ export class MetaDataService implements IMetaDataService {
             itemType.predefinedType === Models.ItemTypePredefined.SBConnector ||
             itemType.predefinedType === Models.ItemTypePredefined.UIConnector ||
             itemType.predefinedType === Models.ItemTypePredefined.BPConnector ||
-            itemType.predefinedType === Models.ItemTypePredefined.UCDConnector) {
+            itemType.predefinedType === Models.ItemTypePredefined.UCDConnector ||
+            itemType.predefinedType === Models.ItemTypePredefined.PROShape) {
 
             properties.push(<Models.IPropertyType>{
                 name: "Label",
@@ -300,7 +301,8 @@ export class MetaDataService implements IMetaDataService {
             itemType.predefinedType === Models.ItemTypePredefined.SBShape ||
             itemType.predefinedType === Models.ItemTypePredefined.UIShape ||
             itemType.predefinedType === Models.ItemTypePredefined.UCDShape ||            
-            itemType.predefinedType === Models.ItemTypePredefined.BPShape) {
+            itemType.predefinedType === Models.ItemTypePredefined.BPShape ||
+            itemType.predefinedType === Models.ItemTypePredefined.PROShape) {
 
             properties.push(<Models.IPropertyType>{
                 name: "X",

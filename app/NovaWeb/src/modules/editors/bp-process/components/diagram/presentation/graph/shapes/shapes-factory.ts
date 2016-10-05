@@ -472,17 +472,6 @@ export class ShapesFactory {
         };
     }
 
-    public translatePropertyValue(hashMapPropertyValue: IPropertyValueInformation): IPropertyValue {        
-        let propertyValue: IPropertyValue = {
-            propertyTypeId: hashMapPropertyValue.typeId,
-            value: hashMapPropertyValue.value,
-            propertyTypePredefined: hashMapPropertyValue.typePredefined,
-            isReuseReadOnly: false,
-            propertyTypeVersionId: null 
-        };
-        return propertyValue;
-    }
-
     public destroy() {
         if (this.settings) {
             this.settings.destroy();

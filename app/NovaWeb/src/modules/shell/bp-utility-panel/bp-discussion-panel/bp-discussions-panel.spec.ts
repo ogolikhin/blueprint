@@ -67,10 +67,15 @@ describe("Component BPDiscussionPanel", () => {
         expect(directiveTest.element.find(".scrollable-content").length).toBe(0);
     });
 
-    fit("should load data for a selected artifact",
+    it("should load data for a selected artifact",
         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
             //Arrange
-            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 2, name: "Project 2", predefinedType: ItemTypePredefined.Project, version: 1});
+            const artifact = statefulArtifactFactory.createStatefulArtifact({
+                id: 2, 
+                name: "Artifact 2", 
+                predefinedType: ItemTypePredefined.Process, 
+                version: 1
+            });
 
             //Act
             artifactManager.selection.setArtifact(artifact);
@@ -81,10 +86,15 @@ describe("Component BPDiscussionPanel", () => {
             expect(vm.artifactDiscussionList.length).toBe(2);
         }));
 
-    it("should not load data for a artifact without prefix",
+    it("should not load data for a artifact of incorrect type",
         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
             //Arrange
-            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 2, name: "Project 2", prefix: "ACO", version: 1});
+            const artifact = statefulArtifactFactory.createStatefulArtifact({
+                id: 2, 
+                name: "Collection", 
+                predefinedType: ItemTypePredefined.Collections, 
+                version: 1
+            });
 
             //Act
             artifactManager.selection.setArtifact(artifact);
@@ -100,7 +110,12 @@ describe("Component BPDiscussionPanel", () => {
         inject(($rootScope: ng.IRootScopeService,
                 artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
+            const artifact = statefulArtifactFactory.createStatefulArtifact({
+                id: 22, 
+                name: "Process 22",
+                predefinedType: ItemTypePredefined.Process, 
+                version: 1
+            });
 
             //Act
             artifactManager.selection.setArtifact(artifact);
@@ -118,7 +133,13 @@ describe("Component BPDiscussionPanel", () => {
         inject(($rootScope: ng.IRootScopeService,
                 artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
             //Arrange
-            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
+            const artifact = statefulArtifactFactory.createStatefulArtifact({
+                id: 22, 
+                name: "Process 22",
+                predefinedType: ItemTypePredefined.Process, 
+                version: 1
+            });
+            
             $rootScope.$digest();
             let deferred = $q.defer();
             ArtifactDiscussionsMock.prototype.getReplies = jasmine.createSpy("getReplies() spy").and.callFake(
@@ -148,7 +169,12 @@ describe("Component BPDiscussionPanel", () => {
         inject(($rootScope: ng.IRootScopeService,
                 artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
+            const artifact = statefulArtifactFactory.createStatefulArtifact({
+                id: 22, 
+                name: "Process 22",
+                predefinedType: ItemTypePredefined.Process, 
+                version: 1
+            });
 
             //Act
             artifactManager.selection.setArtifact(artifact);
@@ -165,7 +191,12 @@ describe("Component BPDiscussionPanel", () => {
         inject(($rootScope: ng.IRootScopeService,
                 artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
+            const artifact = statefulArtifactFactory.createStatefulArtifact({
+                id: 22, 
+                name: "Process 22",
+                predefinedType: ItemTypePredefined.Process, 
+                version: 1
+            });
 
             //Act
             artifactManager.selection.setArtifact(artifact);
@@ -182,7 +213,13 @@ describe("Component BPDiscussionPanel", () => {
         inject(($rootScope: ng.IRootScopeService,
                 artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
             //Arrange
-            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
+            const artifact = statefulArtifactFactory.createStatefulArtifact({
+                id: 22, 
+                name: "Process 22",
+                predefinedType: ItemTypePredefined.Process, 
+                version: 1
+            });
+
             let deferred = $q.defer();
             ArtifactDiscussionsMock.prototype.addDiscussion = jasmine.createSpy("addDiscussion() spy").and.callFake(
                 (): ng.IPromise<IDiscussion> => {
@@ -209,7 +246,12 @@ describe("Component BPDiscussionPanel", () => {
         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager,
                 statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
+            const artifact = statefulArtifactFactory.createStatefulArtifact({
+                id: 22, 
+                name: "Process 22",
+                predefinedType: ItemTypePredefined.Process, 
+                version: 1
+            });
 
             //Act
             artifactManager.selection.setArtifact(artifact);
@@ -227,7 +269,13 @@ describe("Component BPDiscussionPanel", () => {
         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager,
                 statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
             //Arrange
-            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
+            const artifact = statefulArtifactFactory.createStatefulArtifact({
+                id: 22, 
+                name: "Process 22",
+                predefinedType: ItemTypePredefined.Process, 
+                version: 1
+            });
+
             let deferred = $q.defer();
             ArtifactDiscussionsMock.prototype.addDiscussionReply = jasmine.createSpy("addDiscussionReply() spy").and.callFake(
                 (): ng.IPromise<IReply> => {
@@ -254,7 +302,12 @@ describe("Component BPDiscussionPanel", () => {
         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager,
                 statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
+            const artifact = statefulArtifactFactory.createStatefulArtifact({
+                id: 22, 
+                name: "Process 22",
+                predefinedType: ItemTypePredefined.Process, 
+                version: 1
+            });
 
             //Act
             artifactManager.selection.setArtifact(artifact);
@@ -270,7 +323,13 @@ describe("Component BPDiscussionPanel", () => {
         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager,
                 statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
+            const artifact = statefulArtifactFactory.createStatefulArtifact({
+                id: 22, 
+                name: "Process 22",
+                predefinedType: ItemTypePredefined.Process, 
+                version: 1
+            });
+
             vm.showAddComment = true;
 
             //Act
@@ -286,7 +345,13 @@ describe("Component BPDiscussionPanel", () => {
         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager,
                 statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "PRO", version: 1});
+            const artifact = statefulArtifactFactory.createStatefulArtifact({
+                id: 22, 
+                name: "Process 22",
+                predefinedType: ItemTypePredefined.Process, 
+                version: 1
+            });
+            
             vm.showAddComment = true;
 
             //Act

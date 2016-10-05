@@ -17,6 +17,7 @@ export class ProjectExplorerController {
     public tree: IBPTreeController;
     private selected: IArtifactNode;
     private subscribers: Rx.IDisposable[];
+    private numberOfProjectsOnLastLoad: number;
 
     public static $inject: [string] = ["projectManager", "artifactManager", "navigationService"];
     
@@ -105,7 +106,7 @@ export class ProjectExplorerController {
             this.tree.reload(projects);
 
             if (projects && projects.length > 0) {
-                if (!this.selected) {
+                if (!this.selected || this.numberOfProjectsOnLastLoad !== projects.length) {
                     this.selected = projects[0];
                     this.navigationService.navigateToArtifact(this.selected.id);
                 }
@@ -147,6 +148,7 @@ export class ProjectExplorerController {
                 this.artifactManager.selection.setExplorerArtifact(null);
                 this.navigationService.navigateToMain();
             }
+            this.numberOfProjectsOnLastLoad = projects.length;
         }
     }
 

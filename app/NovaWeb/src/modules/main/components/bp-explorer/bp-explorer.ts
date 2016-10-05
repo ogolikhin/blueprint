@@ -112,19 +112,25 @@ export class ProjectExplorerController {
 
                 //if node exists in the tree
                 if (this.tree.nodeExists(this.selected.id)) {
+                    this.tree.selectNode(this.selected.id);
+                    this.navigationService.navigateToArtifact(this.selected.id);
+
                     //replace with a new object from tree, since the selected object may be stale after refresh
                     let selectedObjectInTree: IArtifactNode = <IArtifactNode>this.tree.getNodeData(this.selected.id);
                     if (selectedObjectInTree) {
                         this.selected = selectedObjectInTree;
                     }
-                    
-                    this.tree.selectNode(this.selected.id);
-                    this.navigationService.navigateToArtifact(this.selected.id);
                 } else {
                     //otherwise, if parent node is in the tree
                     if (this.selected.parentNode && this.tree.nodeExists(this.selected.parentNode.id)) {
                         this.tree.selectNode(this.selected.parentNode.id);
                         this.navigationService.navigateToArtifact(this.selected.parentNode.id);
+
+                        //replace with a new object from tree, since the selected object may be stale after refresh
+                        let selectedObjectInTree: IArtifactNode = <IArtifactNode>this.tree.getNodeData(this.selected.parentNode.id);
+                        if (selectedObjectInTree) {
+                            this.selected = selectedObjectInTree;
+                        }
                     } else {
                         //otherwise, try with project node
                         if (this.tree.nodeExists(this.selected.projectId)) {

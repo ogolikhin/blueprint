@@ -107,7 +107,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                     this.subArtifactSubscriber = this.selectedSubArtifact.getObservable().subscribe(this.onSubArtifactChanged);
                 }
                 else{
-                    this.resetFields(); 
+                    this.reset(); 
                 }
                 
                 // for new selection
@@ -166,7 +166,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
    
     public onUpdate() {
         try {
-            this.resetFields();       
+            this.reset();       
             
             if (!this.editor || !this.selectedArtifact) {
                 return; 
@@ -275,7 +275,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         }
     }
 
-    private resetFields(){        
+    private reset() {        
         this.fields = [];
         this.model = {};
         this.systemFields = [];

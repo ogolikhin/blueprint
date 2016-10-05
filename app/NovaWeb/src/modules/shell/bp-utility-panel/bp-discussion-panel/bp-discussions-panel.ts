@@ -96,10 +96,19 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         }
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
-    private resetReadOnly(){    
+
+    private resetReadOnly() {    
+        this.reset();
+        this.setReadOnly();
+    }
+
+    private reset() {        
         this.artifactId = null;
         this.subArtifact = null;
         this.artifactDiscussionList = [];
+    }
+
+    private setReadOnly() {        
         this.canCreate = false;
         this.canDelete = false;
         this.artifactEverPublished = false;

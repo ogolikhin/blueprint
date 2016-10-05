@@ -13,7 +13,9 @@ import { ILocalizationService } from "../../../core";
  *               root-node-visible="false"
  *               columns="$ctrl.columns"
  *               header-height="20"
- *               on-select="$ctrl.onSelect(vm, isSelected, selectedVMs)">
+ *               on-select="$ctrl.onSelect(vm, isSelected, selectedVMs)"
+ *               on-double-click="$ctrl.onDoubleClick(vm)"
+ *               on-error="$ctrl.onError(reason)">
  * </bp-tree-view>
  */
 export class BPTreeViewComponent implements ng.IComponentOptions {
@@ -29,6 +31,8 @@ export class BPTreeViewComponent implements ng.IComponentOptions {
         columns: "<",
         headerHeight: "<",
         onSelect: "&?",
+        onDoubleClick: "&?",
+        onError: "&?"
     };
 }
 
@@ -46,6 +50,8 @@ export interface IBPTreeViewController extends ng.IComponentController {
     columns: IColumn[];
     headerHeight: number;
     onSelect: (param: {vm: ITreeViewNodeVM, isSelected: boolean, selectedVMs: ITreeViewNodeVM[]}) => void;
+    onDoubleClick: (param: {vm: ITreeViewNodeVM}) => void;
+    onError: (param: {reason: any}) => void;
 }
 
 export interface ITreeViewNodeVM {
@@ -62,7 +68,7 @@ export interface IColumn {
     field?: string;
     isGroup?: boolean;
     cellClass?: (vm: ITreeViewNodeVM) => string[];
-    innerRenderer?: (vm: ITreeViewNodeVM) => string;
+    innerRenderer?: (vm: ITreeViewNodeVM, eGridCell: HTMLElement) => string;
 }
 
 export class BPTreeViewController implements IBPTreeViewController {
@@ -81,6 +87,8 @@ export class BPTreeViewController implements IBPTreeViewController {
     public columns: IColumn[];
     public headerHeight: number;
     public onSelect: (param: {vm: ITreeViewNodeVM, isSelected: boolean, selectedVMs: ITreeViewNodeVM[]}) => void;
+    public onDoubleClick: (param: {vm: ITreeViewNodeVM}) => void;
+    public onError: (param: {reason: any}) => void;
 
     constructor(private $q: ng.IQService, private $element: ng.IAugmentedJQuery, private localization: ILocalizationService) {
         this.gridClass = angular.isDefined(this.gridClass) ? this.gridClass : "project-explorer";
@@ -122,6 +130,7 @@ export class BPTreeViewController implements IBPTreeViewController {
             onViewportChanged: this.onViewportChanged,
             onCellClicked: this.onCellClicked,
             onRowSelected: this.onRowSelected,
+            onRowDoubleClicked: this.onRowDoubleClicked,
             onGridReady: this.onGridReady,
             onModelUpdated: this.onModelUpdated
         };
@@ -150,7 +159,8 @@ export class BPTreeViewController implements IBPTreeViewController {
                     cellRenderer: column.isGroup ? "group" : undefined,
                     cellRendererParams: column.isGroup ? {
                         checkbox: this.selectionMode === "checkbox",
-                        innerRenderer: column.innerRenderer ? (params: agGrid.RowNode) => column.innerRenderer(params.data as ITreeViewNodeVM) : undefined,
+                        innerRenderer: column.innerRenderer ?
+                            (params: any) => column.innerRenderer(params.data as ITreeViewNodeVM, params.eGridCell as HTMLElement) : undefined,
                         padding: 20
                     } : undefined,
                     suppressMenu: true,
@@ -193,6 +203,10 @@ export class BPTreeViewController implements IBPTreeViewController {
                             }
                         });
                     }
+                }
+            }).catch(reason => {
+                if (angular.isFunction(this.onError)) {
+                    this.onError({reason: reason});
                 }
             }).finally(() => {
                 if (this.options.api) {
@@ -270,7 +284,11 @@ export class BPTreeViewController implements IBPTreeViewController {
                 if (row) {
                     row.classList.add("ag-row-loading");
                 }
-                vm.loadChildrenAsync().then(() => this.resetGridAsync(true));
+                vm.loadChildrenAsync().then(() => this.resetGridAsync(true)).catch(reason => {
+                    if (angular.isFunction(this.onError)) {
+                        this.onError({reason: reason});
+                    }
+                });
             }
             vm.isExpanded = node.expanded;
         }
@@ -333,6 +351,12 @@ export class BPTreeViewController implements IBPTreeViewController {
             }
         }
         return true;
+    }
+
+    public onRowDoubleClicked = (event: {data: ITreeViewNodeVM}) => {
+        if (this.onDoubleClick) {
+            this.onDoubleClick({vm: event.data});
+        }
     }
 
     public onGridReady = (event?: any) => {

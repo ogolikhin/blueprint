@@ -9,8 +9,7 @@ import {
 } from "../../../../../models/process-models";
 import {ProcessShapeType} from "../../../../../models/enums";
 import {ItemTypePredefined} from "../../../../../../../main/models/enums";
-
-
+import { StatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 export class ArtifactReferenceLinkMock implements IArtifactReferenceLink {
     public sourceId: number;
     public destinationId: number;
@@ -70,7 +69,7 @@ export class ShapeModelMock {
             "ST_Comments_Label": "Comments"
         };
 
-        this.shapesFactory = new ShapesFactory(this.rootScope);
+        this.shapesFactory = new ShapesFactory(this.rootScope, new StatefulArtifactFactoryMock());
 
         this.sampleUserTask.propertyValues["clientType"] = this.shapesFactory.createClientTypeValue(ProcessShapeType.UserTask);
         this.sampleUserTask.propertyValues["persona"] = this.shapesFactory.createPersonaValue("Persona");

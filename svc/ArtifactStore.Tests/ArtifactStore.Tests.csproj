@@ -77,6 +77,7 @@
     </Compile>
     <Compile Include="App_Start\WebApiConfigTests.cs" />
     <Compile Include="Controllers\ArtifactVersionsControllerTest.cs" />
+    <Compile Include="Controllers\AttachmentsControllerTests.cs" />
     <Compile Include="Controllers\DiscussionControllerTest.cs" />
     <Compile Include="Controllers\ProjectMetaControllerTests.cs" />
     <Compile Include="Controllers\RelationshipsControllerTests.cs" />

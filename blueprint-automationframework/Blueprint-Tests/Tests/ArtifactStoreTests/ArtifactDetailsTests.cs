@@ -43,6 +43,8 @@ namespace ArtifactStoreTests
             Helper?.Dispose();
         }
 
+        #region 200 OK Tests
+
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(154601)]
         [Description("Create & publish an artifact, GetArtifactDetails.  Verify the artifact details are returned.")]
@@ -179,6 +181,56 @@ namespace ArtifactStoreTests
 
             Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
         }
+
+        [TestCase]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [TestRail(0)]
+        [Description("GetArtifactDetailsForTheArtifactContainingInlineTrace. Update regular inline trace artifact - Verify that GetArtifactDetails returned updated inline trace information.")]
+        public void GetArtifactDetailsForArtiactWithInlineTrace_UpdateRegularInlineTraceArtifact_VerifyGetArtifactDetailsContainsUpdatedInlineTranceInformation()
+        {
+            // Setup: Create inline trace artifact
+            var mainArtifact = Helper.CreateAndPublishArtifact(_project, _user, Model.ArtifactModel.BaseArtifactType.Actor);
+            var inlineTraceArtifact = Helper.CreateAndPublishArtifact(_project, _user, Model.ArtifactModel.BaseArtifactType.Actor);
+            NovaArtifactDetails inlineTraceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, inlineTraceArtifact.Id);
+
+            // Setup: Update main artifact to have inline trace to inline trace artifact created
+            NovaArtifactDetails artifactDetailsToUpdateMainArtifact = new NovaArtifactDetails
+            {
+                Id = mainArtifact.Id,
+                ProjectId = mainArtifact.ProjectId,
+                ParentId = mainArtifact.ParentId,
+                Version = mainArtifact.Version,
+                Description = CreateArtifactInlineTraceValue(inlineTraceArtifact, inlineTraceArtifactDetails),
+            };
+
+            // Execute: Update main artifact with inline trace to target artifact
+            mainArtifact.Lock();
+            Assert.DoesNotThrow(() => inlineTraceArtifactDetails = Artifact.UpdateArtifact(mainArtifact, _user, artifactDetailsChanges: artifactDetailsToUpdateMainArtifact),
+                "UpdateArtifact call failed when using the following artifact ID: {0}!", mainArtifact.Id);
+
+            // Setup: Update inlinetrace artifact information
+            NovaArtifactDetails artifactDetailsToUpdateInlineTraceArtifact = new NovaArtifactDetails
+            {
+                Id = inlineTraceArtifact.Id,
+                ProjectId = inlineTraceArtifact.ProjectId,
+                ParentId = inlineTraceArtifact.ParentId,
+                Version = inlineTraceArtifact.Version,
+                Name = inlineTraceArtifact.Name + "_NameUpdated"
+            };
+
+            // Execute: Update inlinetrace artifact
+            inlineTraceArtifact.Lock();
+            Assert.DoesNotThrow(() => inlineTraceArtifactDetails = Artifact.UpdateArtifact(inlineTraceArtifact, _user, artifactDetailsChanges: artifactDetailsToUpdateInlineTraceArtifact),
+                "UpdateArtifact call failed when using the following artifact ID: {0}!", inlineTraceArtifact.Id);
+
+            // Execute: Get ArtifactDetails for main artifact
+            var mainArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, mainArtifact.Id);
+
+            // Validation: Verify that returned ArtifactDeatils contains the updated information for InlineTrace
+            Assert.That(mainArtifactDetails.Description.Contains(artifactDetailsToUpdateInlineTraceArtifact.Name), "Expected outcome should contains {0} on returned artifactdetails. Returned inline trace content is {1}.", artifactDetailsToUpdateInlineTraceArtifact.Name, mainArtifactDetails.Description);
+        }
+
+        #endregion 200 OK Tests
 
         [TestCase]
         [TestRail(154701)]
@@ -319,6 +371,22 @@ namespace ArtifactStoreTests
             MessageResult messageResult = JsonConvert.DeserializeObject<MessageResult>(jsonContent, jsonSettings);
 
             Assert.AreEqual(expectedMessage, messageResult.Message, assertMessage, assertMessageParams);
+        }
+
+        /// <summary>
+        /// Creates inline trace text for the provided artifact. For use with RTF properties.
+        /// </summary>
+        /// <param name="inlineTraceArtifact">target artifact for inline traces</param>
+        /// <param name="inlineTraceArtifactDetails">target artifactDetails for inline traces</param>
+        /// <returns>inline trace text</returns>
+        private static string CreateArtifactInlineTraceValue(IArtifact inlineTraceArtifact, INovaArtifactDetails inlineTraceArtifactDetails)
+        {
+            string inlineTraceText = null;
+
+            inlineTraceText = I18NHelper.FormatInvariant("<html><head></head><body style=\"padding: 1px 0px 0px; font-family: 'Portable User Interface'; font-size: 10.67px\"><div style=\"padding: 0px\"><p style=\"margin: 0px\">&#x200b;<a linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null\" canclick=\"True\" isvalid=\"True\" href=\"{0}?ArtifactId={1}\" target=\"_blank\" artifactid=\"{1}\" style=\"font-family: 'Portable User Interface'; font-size: 11px; font-style: normal; font-weight: normal; text-decoration: underline; color: #0000FF\" title=\"Project: akim_project\"><span style=\"font-family: 'Portable User Interface'; font-size: 11px; font-style: normal; font-weight: normal; text-decoration: underline; color: #0000FF\">{2}{1}: {3}</span></a><span style=\"-c1-editable: true; font-family: 'Portable User Interface'; font-size: 10.67px; font-style: normal; font-weight: normal; color: Black\">&#x200b;</span></p></div></body></html>",
+                inlineTraceArtifact.Address, inlineTraceArtifact.Id, inlineTraceArtifactDetails.Prefix, inlineTraceArtifactDetails.Name);
+
+            return inlineTraceText;
         }
 
         #endregion Private functions.

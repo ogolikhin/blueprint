@@ -1,7 +1,6 @@
 ﻿import {ILocalizationService, IMessageService, Message, MessageType, INavigationService} from "../../../../core";
 import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
-import {IProcessService} from "../../services/process.svc";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
 import {IProcessGraph, ISelectionListener} from "./presentation/graph/models/";
 import {ProcessGraph} from "./presentation/graph/process-graph";
@@ -18,7 +17,7 @@ export class ProcessDiagram {
     private modelUpdateHandler: string;
     private navigateToAssociatedArtifactHandler: string;
 
-    private selectionListeners: ISelectionListener[] 
+    private selectionListeners: ISelectionListener[]; 
 
     constructor(
         private $rootScope: ng.IRootScopeService,
@@ -26,7 +25,6 @@ export class ProcessDiagram {
         private $timeout: ng.ITimeoutService,
         private $q: ng.IQService,
         private $log: ng.ILogService,
-        private processService: IProcessService,
         private messageService: IMessageService,
         private communicationManager: ICommunicationManager,
         private dialogService: IDialogService,
@@ -134,7 +132,6 @@ export class ProcessDiagram {
                             this.$rootScope,
                             this.$scope,
                             this.htmlElement,
-                            this.processService,
                             this.processViewModel,
                             this.dialogService,
                             this.localization,
@@ -153,15 +150,15 @@ export class ProcessDiagram {
             this.handleRenderProcessGraphFailed(processViewModel.id, err);
         }
     }
-    private registerSelectionListeners(){
-        for(let listener of this.selectionListeners) {
+    private registerSelectionListeners() {
+        for (let listener of this.selectionListeners) {
             this.graph.addSelectionListener(listener);
         }
     }
     public addSelectionListener(listener: ISelectionListener) {
         this.selectionListeners.push(listener);
     }
-    public clearSelection(){
+    public clearSelection() {
         this.graph.clearSelection();
     }
     private resetBeforeLoad() {

@@ -39,10 +39,12 @@ export class BpFieldTextRTFInlineController {
                 statusbar: false,
                 invalid_elements: "img,frame,iframe,script",
                 invalid_styles: {
-                    "*": "background background-image background-color"
+                    "*": "background-image"
                 },
-                paste_remove_styles_if_webkit: false, // https://www.tinymce.com/docs/plugins/paste/#paste_remove_styles_if_webkit
-                paste_retain_style_properties: "all", // https://www.tinymce.com/docs/plugins/paste/#paste_retain_style_properties
+                paste_webkit_styles: "none", // https://www.tinymce.com/docs/plugins/paste/#paste_webkit_styles
+                paste_remove_styles_if_webkit: true, // https://www.tinymce.com/docs/plugins/paste/#paste_remove_styles_if_webkit
+                // https://www.tinymce.com/docs/plugins/paste/#paste_retain_style_properties
+                paste_retain_style_properties: "color font-size font-family line-height text-align background background-color",
                 table_toolbar: "", // https://www.tinymce.com/docs/plugins/table/#table_toolbar
                 // we don't need the autoresize plugin when using the inline version of tinyMCE as the height will
                 // be controlled using CSS (max-height, min-height)

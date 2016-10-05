@@ -9,7 +9,6 @@ import {IDiagramNode, IDiagramNodeElement} from "./models/";
 import {IProcessShape, IProcessLink} from "./models/";
 import {SourcesAndDestinations, ProcessShapeType} from "./models/";
 import {NodeType, NodeChange} from "./models/";
-import {IProcessService} from "../../../../services/process.svc";
 import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {BpMxGraphModel} from "./bp-mxgraph-model";
 import {ShapesFactory} from "./shapes/shapes-factory";
@@ -62,7 +61,6 @@ export class ProcessGraph implements IProcessGraph {
         public rootScope: any,
         private scope: any,
         private htmlElement: HTMLElement,
-        private processService: IProcessService,
         // #TODO fix up references later 
         //private artifactVersionControlService: Shell.IArtifactVersionControlService,
         public viewModel: IProcessViewModel, 

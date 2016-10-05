@@ -1,7 +1,9 @@
 ﻿import "angular";
 import {
     ILocalizationService,
-    ISettingsService } from "../../core";
+    ISettingsService,
+    HttpStatusCode
+} from "../../core";
 import { ISession } from "./session-interface";
 
 export class ILoginInfo {
@@ -211,7 +213,7 @@ export class LoginCtrl {
 
     private handlePasswordResetErrors(error) {
         this.hasChangePasswordScreenError = true;
-        if (error.statusCode === 401) {
+        if (error.statusCode === HttpStatusCode.Unauthorized) {
             if (error.errorCode === 2000) {
                 this.changePasswordScreenMessage = this.localization.get("Login_Session_EnterCurrentPassword");
             } else if (error.errorCode === 1001) {
@@ -257,7 +259,7 @@ export class LoginCtrl {
             this.isLabelErrorStyleShowing = true;
             this.isTextFieldErrorStyleShowing = false;
 
-        } else if (error.statusCode === 401) {
+        } else if (error.statusCode === HttpStatusCode.Unauthorized) {
             if (error.errorCode === 2000) {
                 if (this.currentFormState === LoginState.SamlLoginForm) {
                     this.errorMessage = this.localization.get("Login_Session_ADUserNotInDB");
@@ -319,11 +321,11 @@ export class LoginCtrl {
                 this.errorMessage = error.message;
                 this.isLabelErrorStyleShowing = true;
             }
-        } else if (error.statusCode === 404) {
+        } else if (error.statusCode === HttpStatusCode.NotFound) {
             this.errorMessage = error.message;
             this.isLabelErrorStyleShowing = true;
             this.isTextFieldErrorStyleShowing = false;
-        } else if (error.statusCode === 403) {
+        } else if (error.statusCode === HttpStatusCode.Forbidden) {
             this.errorMessage = error.message;
             this.isLabelErrorStyleShowing = true;
             this.isTextFieldErrorStyleShowing = false;

@@ -40,6 +40,10 @@ export class BPCommentEditController {
         statusbar: false,
         menubar: false,
         extended_valid_elements: MentionService.requiredAttributes,
+        invalid_elements: "img,frame,iframe,script",
+        invalid_styles: {
+            "*": "background-image"
+        },
         mentions: this.mentionService.create(this.emailDiscussionsEnabled),
         init_instance_callback: function (editor) { // https://www.tinymce.com/docs/configure/integration-and-setup/#init_instance_callback
             editor.focus();

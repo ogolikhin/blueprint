@@ -99,10 +99,16 @@ namespace Model.ArtifactModel.Impl
         public override int? ProjectId { get; set; }
         public override int? Version { get; set; }
         public List<AttachmentValue> AttachmentValues { get; } = new List<AttachmentValue>();
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
         public DateTime? CreatedOn { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
         public DateTime? LastEditedOn { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
         public Identification CreatedBy { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
         public Identification LastEditedBy { get; set; }
+
         public DateTime? LastSavedOn { get; set; }
         public int Permissions { get; set; }
         public Identification LockedByUser { get; set; }
@@ -269,10 +275,11 @@ namespace Model.ArtifactModel.Impl
         /// Asserts that this INovaArtifactDetails object is equal to the specified INovaVersionControlArtifactInfo.
         /// </summary>
         /// <param name="artifact">The INovaVersionControlArtifactInfo to compare against.</param>
+        /// <param name="compareVersions">(optional) Pass false to skip version comparison.  Versions will never be compared if the Version of artifact2 is null.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public void AssertEquals(INovaVersionControlArtifactInfo artifact)
+        public void AssertEquals(INovaVersionControlArtifactInfo artifact, bool compareVersions = true)
         {
-            AssertEquals(this, artifact);
+            AssertEquals(this, artifact, compareVersions);
         }
 
         /// <summary>
@@ -280,8 +287,9 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         /// <param name="artifact1">The first INovaArtifactDetails to compare against.</param>
         /// <param name="artifact2">The second INovaVersionControlArtifactInfo to compare against.</param>
+        /// <param name="compareVersions">(optional) Pass false to skip version comparison.  Versions will never be compared if the Version of artifact2 is null.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertEquals(INovaArtifactDetails artifact1, INovaVersionControlArtifactInfo artifact2)
+        public static void AssertEquals(INovaArtifactDetails artifact1, INovaVersionControlArtifactInfo artifact2, bool compareVersions = true)
         {
             ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
             ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
@@ -294,7 +302,12 @@ namespace Model.ArtifactModel.Impl
             Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
             Assert.AreEqual(artifact1.Permissions, artifact2.Permissions, "The Permissions  parameters don't match!");
             Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId  parameters don't match!");
-            Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version  parameters don't match!");
+
+            // The Version property in VersionControlInfo is always null until the artifact is deleted.
+            if (compareVersions && (artifact2.Version != null))
+            {
+                Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version  parameters don't match!");
+            }
 
             Identification.AssertEquals(artifact1.LockedByUser, artifact2.LockedByUser);
         }

@@ -1,6 +1,5 @@
 ﻿import * as angular from "angular";
-import { ILocalizationService, IMessageService, INavigationService } from "../../core";
-import { HttpErrorStatusCodes } from "../../shell/error/http-error-interceptor";
+import { ILocalizationService, IMessageService, INavigationService, HttpStatusCode } from "../../core";
 import { IDialogService } from "../../shared";
 import { IStatefulArtifactFactory, IStatefulArtifact } from "../artifact-manager/artifact";
 import { Project, ArtifactNode } from "./project";
@@ -171,7 +170,8 @@ export class ProjectManager  implements IProjectManager {
                 this.ClearProject(project);
                 defer.reject();
             }
-            if (error.statusCode === HttpErrorStatusCodes.NotFound && error.errorCode === ProjectServiceStatusCode.ResourceNotFound) {
+            
+            if (error.statusCode === HttpStatusCode.NotFound && error.errorCode === ProjectServiceStatusCode.ResourceNotFound) {
                 //if we're selecting project
                 if (selectedArtifact.id === selectedArtifact.projectId) {
                     this.messageService.addError("Refresh_Project_NotFound");
@@ -189,7 +189,7 @@ export class ProjectManager  implements IProjectManager {
                             defer.reject();
                         }
                     }).catch((innerError: any) => {
-                        if (innerError.statusCode === HttpErrorStatusCodes.NotFound && innerError.errorCode === ProjectServiceStatusCode.ResourceNotFound) {
+                        if (innerError.statusCode === HttpStatusCode.NotFound && innerError.errorCode === ProjectServiceStatusCode.ResourceNotFound) {
                             //try it with project
                             this.projectService.getArtifacts(project.id).then((data: Models.IArtifact[]) => {
                                 this.messageService.addInfo("Refresh_Artifact_Deleted");
@@ -402,7 +402,7 @@ export class ProjectManager  implements IProjectManager {
                         node.children = [];
                         node.loaded = false;
                         node.open = false;
-                        //node.hasChildren = false;                        
+                        //node.hasChildren = false;
                         this.projectCollection.onNext(this.projectCollection.getValue());
                     }
                 });

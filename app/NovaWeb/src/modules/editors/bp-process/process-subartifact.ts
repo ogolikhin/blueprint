@@ -9,12 +9,12 @@ import { StatefulSubArtifact } from "../../managers/artifact-manager/sub-artifac
 import { IStatefulArtifact } from "../../managers/artifact-manager/artifact";
 import { IStatefulArtifactServices } from "../../managers/artifact-manager/services";
 
-export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements IProcessShape{
+export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements IProcessShape {
     
     public propertyValues: IHashMapOfPropertyValues;
     public associatedArtifact: IArtifactReference;
 
-    constructor(artifact: IStatefulArtifact, subartifact: IProcessShape, services: IStatefulArtifactServices){
+    constructor(artifact: IStatefulArtifact, subartifact: IProcessShape, services: IStatefulArtifactServices) {
         super(artifact, subartifact, services);
                 
         this.propertyValues = subartifact.propertyValues;

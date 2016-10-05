@@ -854,7 +854,7 @@ pagecontent, bp-properties-panel {
         border-radius: 0;
         box-shadow: none;
         box-sizing: border-box;
-        color: $gray-dark;
+        color: black;
         font-size: $font-size-normal;
         font-weight: 400;
         max-height: #{15 * $property-min-height};
@@ -863,6 +863,7 @@ pagecontent, bp-properties-panel {
         min-width: $property-input-width;
         overflow: auto;
         -ms-overflow-style: auto;
+        padding: 0 2px 0 0;
 
         &:hover,
         &:focus {

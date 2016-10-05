@@ -62,7 +62,7 @@ describe("BpArtifactPickerController", () => {
         const localization = {} as ILocalizationService;
         projectManager = jasmine.createSpyObj("projectManager", ["getSelectedProject", "getArtifact"]) as IProjectManager;
         (projectManager.getSelectedProject as jasmine.Spy).and.returnValue(project);
-        projectService = { abort: () => {} } as IProjectService;
+        projectService = jasmine.createSpyObj("projectService", ["abort", "searchProjects"]) as IProjectService;
         controller = new BpArtifactPickerController($scope, localization, projectManager, projectService);
     }));
 
@@ -85,10 +85,38 @@ describe("BpArtifactPickerController", () => {
         // Assert
         expect(controller.columns).toBeUndefined();
         expect(controller.onSelect).toBeUndefined();
+        expect(projectService.abort).toHaveBeenCalled();
     });
 
-    describe("columnDefs", () => {
-        it("columnDefs properties are correctly defined", () => {
+    it("clearSearch clears text and results", () => {
+        // Arrange
+
+        // Act
+        controller.clearSearch();
+
+        // Assert
+        expect(controller.searchText).toBeUndefined();
+        expect(controller.searchResults).toBeUndefined();
+    });
+
+    it("search, when search text is not empty, performs search", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
+        // Arrange
+        controller.searchText = "test";
+        const searchResults = [] as Models.IProjectNode[];
+        (projectService.searchProjects as jasmine.Spy).and.returnValue($q.resolve(searchResults));
+
+        // Act
+        controller.search();
+
+        // Assert
+        expect(controller.isSearching).toEqual(true);
+        $rootScope.$digest(); // Resolves promises
+        expect(controller.isSearching).toEqual(false);
+        expect(controller.searchResults).toEqual([]);
+    }));
+
+    describe("columns", () => {
+        it("column properties are correctly defined", () => {
             // Arrange
 
             // Act
@@ -115,9 +143,10 @@ describe("BpArtifactPickerController", () => {
         it("innerRenderer returns correct result", () => {
             // Arrange
             const vm = {name: "name", getIcon() { return "icon"; }} as ArtifactPickerNodeVM<any>;
+            const cell = {} as HTMLElement;
 
             // Act
-            const result = controller.columns[0].innerRenderer(vm);
+            const result = controller.columns[0].innerRenderer(vm, cell);
 
             // Assert
             expect(result).toEqual(`<span class="ag-group-value-wrapper">icon<span>name</span></span>`);
@@ -202,7 +231,7 @@ describe("BpArtifactPickerController", () => {
         } as Models.IProjectNode, true));
     }));
 
-    it("project, when undefined, clears selection and project and sets root node", inject(($browser) => {
+    it("project, when undefined, clears search, selection and project and sets root node", inject(($browser) => {
         // Arrange
         controller.onSelectionChanged = jasmine.createSpy("onSelectionChanged");
 
@@ -211,6 +240,8 @@ describe("BpArtifactPickerController", () => {
 
         // Assert
         $browser.defer.flush(); // wait for $applyAsync()
+        expect(controller.searchText).toBeUndefined();
+        expect(controller.searchResults).toBeUndefined();
         expect(controller.onSelectionChanged).toHaveBeenCalledWith({selectedVMs: []});
         expect(controller.project).toBeUndefined();
         expect(controller.rootNode).toEqual(new InstanceItemNodeVM(projectManager, projectService, controller, {

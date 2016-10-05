@@ -1,7 +1,7 @@
 ﻿import * as angular from "angular";
 import {ILocalizationService } from "../../../core";
 import { Models, IWindowManager } from "../../../main";
-import { ISelectionManager, IStatefulArtifact, IStatefulSubArtifact } from "../../../managers/artifact-manager";
+import { ISelectionManager, IStatefulArtifact, IStatefulSubArtifact, IStatefulItem } from "../../../managers/artifact-manager";
 import {IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import {BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 import {IMessageService} from "../../../core";
@@ -170,20 +170,23 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             if (!this.editor || !this.selectedArtifact) {
                 return; 
             }
-            let hiddenPropertyTypes: Models.PropertyTypePredefined[];
+
+            let propertyEditorFilter = new PropertyEditorFilters(this.localization);
+            let propertyFilters: {[id: string]: boolean};
+
             if (this.selectedSubArtifact) {
                 this.editor.load(this.selectedSubArtifact, this.selectedSubArtifact.metadata.getSubArtifactPropertyTypes());
-                hiddenPropertyTypes = PropertyEditorFilters.getPropertyEditorFilters(this.selectedSubArtifact.predefinedType);
+                propertyFilters = propertyEditorFilter.getPropertyEditorFilters(this.selectedSubArtifact.predefinedType);
             } else {
                 this.editor.load(this.selectedArtifact, this.selectedArtifact.metadata.getArtifactPropertyTypes());
-                hiddenPropertyTypes = PropertyEditorFilters.getPropertyEditorFilters(this.selectedArtifact.predefinedType);
+                propertyFilters = propertyEditorFilter.getPropertyEditorFilters(this.selectedArtifact.predefinedType);
             }
 
             
             this.model = this.editor.getModel();
             this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
                 let propertyContext = field.data as PropertyContext;
-                if (hiddenPropertyTypes.indexOf(propertyContext.propertyTypePredefined) >= 0) {
+                if (propertyContext && propertyFilters[propertyContext.name]) {
                     return;
                 }
 

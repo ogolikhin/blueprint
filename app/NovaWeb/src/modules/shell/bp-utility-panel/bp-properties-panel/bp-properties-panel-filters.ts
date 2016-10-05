@@ -1,20 +1,23 @@
 import { Models} from "../../../main";
+import { ILocalizationService } from "../../../core";
 
 export class PropertyEditorFilters {
 
-    public static getPropertyEditorFilters(itemTypePredefined: Models.ItemTypePredefined): Models.PropertyTypePredefined[]{
-        let propertyTypes: Models.PropertyTypePredefined[] = [];
-        if (itemTypePredefined === Models.ItemTypePredefined.PROShape)
-        {
-            propertyTypes.push(Models.PropertyTypePredefined.X);
-            propertyTypes.push(Models.PropertyTypePredefined.Y);
-            propertyTypes.push(Models.PropertyTypePredefined.Width);
-            propertyTypes.push(Models.PropertyTypePredefined.Height);
-            propertyTypes.push(Models.PropertyTypePredefined.Label);
-            propertyTypes.push(Models.PropertyTypePredefined.Name);            
-            propertyTypes.push(Models.PropertyTypePredefined.Description);
-        }
-        return propertyTypes;
+    constructor(private localization: ILocalizationService) {
+        
     }
+    public getPropertyEditorFilters(itemTypePredefined: Models.ItemTypePredefined): {[id: string]: boolean} {
+        let propertyFilters:{[id: string]: boolean} = {};
+        if (itemTypePredefined === Models.ItemTypePredefined.PROShape) {
+            propertyFilters[this.localization.get("Label_X")] = true;
+            propertyFilters[this.localization.get("Label_Y")] = true;
+            propertyFilters[this.localization.get("Label_Width")] = true;
+            propertyFilters[this.localization.get("Label_Height")] = true;
+            propertyFilters[this.localization.get("Label_Label")] = true;
+            propertyFilters[this.localization.get("Label_Name")] = true;
+            propertyFilters[this.localization.get("Label_Description")] = true;
+        }
 
+        return propertyFilters;
+    }
 }

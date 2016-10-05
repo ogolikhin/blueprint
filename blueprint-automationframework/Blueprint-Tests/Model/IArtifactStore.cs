@@ -21,6 +21,11 @@ namespace Model
     public interface IArtifactStore : IDisposable
     {
         /// <summary>
+        /// Gets the URL address of the server.
+        /// </summary>
+        string Address { get; }
+
+        /// <summary>
         /// Creates a new Nova artifact.
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>

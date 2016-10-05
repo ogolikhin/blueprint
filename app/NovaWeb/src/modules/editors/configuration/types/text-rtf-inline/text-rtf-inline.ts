@@ -11,6 +11,7 @@ export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
         $scope.$applyAsync(() => {
             $scope["fc"].$setTouched();
+            ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
 
             let tinymceBody = $element[0].querySelector(".tinymce-body");
             if (tinymceBody) {

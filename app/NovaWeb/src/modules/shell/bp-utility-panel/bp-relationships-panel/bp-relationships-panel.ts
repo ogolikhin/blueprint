@@ -11,6 +11,7 @@ import {
 import { IRelationship, LinkType } from "../../../main/models/relationshipModels";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
+import { Helper } from "../../../shared/utils/helper";
 
 interface IOptions {
     value: string;
@@ -108,7 +109,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.manualTraces = null;
         this.otherTraces = null;
 
-        if (this.item) {
+        if (this.item && Helper.hasArtifactEverBeenSavedOrPublished(this.item)) {
             this.isLoading = true;            
             this.item.relationships.get().then((relationships: Relationships.IRelationship[]) => {
                 this.allTraces = relationships;
@@ -127,6 +128,14 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
             }).finally(() => {
                 this.isLoading = false;
             });
+        }
+        else{
+            this.otherTraces = [];
+            this.allTraces = [];
+            this.manualTraces = [];
+            this.associations = [];
+            this.actorInherits = [];
+            this.documentReferences = [];
         }
     }
 

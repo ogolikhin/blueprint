@@ -181,7 +181,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         this.docRefList = [];
         this.subscribers = this.subscribers.filter(sub => { sub.dispose(); return false; });
 
-        if (this.item) {
+        if (this.item && Helper.hasArtifactEverBeenSavedOrPublished(this.item)) {
             const attachmentsSubscriber = this.item.attachments.getObservable().subscribe(this.attachmentsUpdated);
             const docRefsSubscriber = this.item.docRefs.getObservable().subscribe(this.docRefsUpdated);
 

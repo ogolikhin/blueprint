@@ -154,6 +154,9 @@ export class Helper {
             artifact.prefix &&
             ["ACO", "_CFL", "PR"].indexOf(artifact.prefix) === -1;
     }
+    public static hasArtifactEverBeenSavedOrPublished(artifact: Models.IArtifact): boolean{
+        return artifact.id > 0; 
+    }
 
     public static isInt(n: number): boolean {
         return parseInt(n.toString(), 10) === n;

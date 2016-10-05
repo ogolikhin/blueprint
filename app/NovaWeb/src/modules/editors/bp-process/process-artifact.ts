@@ -38,40 +38,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     public getServices(): IStatefulProcessArtifactServices {
         return this.services;
     }
-
     
-    // public load(force: boolean = true): ng.IPromise<IStatefulArtifact> {
-        
-    //     const finalDeffered = this.services.getDeferred<IStatefulArtifact>();
-    //     if (this.finalLoadPromise) {
-    //         return this.finalLoadPromise;
-    //     }
-    //     this.finalLoadPromise = finalDeffered.promise;
-
-    //     let artifactPromise = super.load(force);
-    //     let processPromise = this.loadProcess();
-
-    //     let artifactObservable = Rx.Observable.fromPromise(artifactPromise);
-    //     let processObservable = Rx.Observable.fromPromise(processPromise);
-
-    //     let combination = Rx.Observable.merge(artifactObservable, processObservable);
-
-    //     let observer = Rx.Observer.create(
-    //         (result: IStatefulArtifact) => {
-    //         },
-    //         err => {
-    //             this.finalLoadPromise = null;
-    //             finalDeffered.reject(err);
-    //         },
-    //         () => {
-    //             this.finalLoadPromise = null;
-    //             finalDeffered.resolve(this);
-    //         }
-    //     );
-    //     combination.subscribe(observer);
-    //     return finalDeffered.promise;
-    // }
-
     public getObservable(): Rx.Observable<IStatefulArtifact> {
         if (!this.isFullArtifactLoadedOrLoading()) {
             this.loadPromise = this.load();
@@ -91,6 +58,29 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         return this.subject.filter(it => !!it).asObservable();
     }
 
+    public refresh(): ng.IPromise<IStatefulArtifact> {
+
+        const deferred = this.services.getDeferred<IStatefulArtifact>();
+        this.discard();
+
+        this.loadPromise = this.load();
+        this.loadProcessPromise = this.loadProcess();
+
+        this.getServices().$q.all([this.loadPromise, this.loadProcessPromise]).then(() => {
+            this.subject.onNext(this);
+            deferred.resolve(this);
+        }).catch((error) => {
+            this.artifactState.readonly = true;
+            this.subject.onError(error);
+            deferred.reject(error);
+        }).finally(() => {
+            this.loadPromise = null;
+            this.loadProcessPromise = null;
+        });
+
+        return deferred.promise;
+    }
+
     protected isFullArtifactLoadedOrLoading() {
         return (this._customProperties && this._customProperties.isLoaded &&
          this._specialProperties && this._specialProperties.isLoaded)  || 
@@ -108,6 +98,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
             });
         return processDeffered.promise;
     }
+    
     private onLoad(newProcess: IProcess) {
         // TODO: updating name seems to cause an infinite loading of process, something with base class's 'set' logic.
         //(<IProcess>this).name = process.name;

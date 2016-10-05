@@ -6,6 +6,8 @@ import {ItemTypePredefined} from "../../../../main/models/enums";
 import {ISystemTaskShape} from "../diagram/presentation/graph/models/";
 import {IFileUploadService, FileUploadService} from "../../../../core/file-upload/";
 import {UploadImageDirective} from "./upload-image";
+import { IStatefulArtifactFactory } from "../../../../managers/artifact-manager";
+import { StatefulArtifactFactoryMock } from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("UploadImage Directive", () => {
     var element: ng.IAugmentedJQuery;
@@ -33,13 +35,13 @@ describe("UploadImage Directive", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService, $compileProvider: ng.ICompileProvider) => {
         $compileProvider.directive("uploadImage", UploadImageDirective.factory());
         $provide.service("fileUploadService", FileUploadService);
-        $provide.service("shapesFactoryService", ShapesFactory);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
     beforeEach(
         inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService,
-            $templateCache: ng.ITemplateCacheService, $injector: ng.auto.IInjectorService, shapesFactoryService: ShapesFactory) => {
-            shapesFactory = shapesFactoryService;
+            $templateCache: ng.ITemplateCacheService, $injector: ng.auto.IInjectorService, statefulArtifactFactory: IStatefulArtifactFactory) => {
+            shapesFactory = new ShapesFactory($rootScope, statefulArtifactFactory);
             $templateCache.put("/Areas/Web/App/Components/Storyteller/Directives/UploadImageTemplate.html", directiveTemplate);
             scope = $rootScope.$new();
             scope.$parent["vm"] = {

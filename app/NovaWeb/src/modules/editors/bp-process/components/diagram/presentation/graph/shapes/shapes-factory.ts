@@ -143,10 +143,8 @@ export class ShapesFactory {
         }
     }
 
-    public createStatefulSubArtifact(artifact: IStatefulArtifact, subartifact: IProcessShape): StatefulProcessSubArtifact {
-
-        let statefulArtifact =  this.statefulArtifactFactory.createStatefulProcessSubArtifact(artifact, subartifact);
-                
+    public createStatefulSubArtifact(artifact: IStatefulArtifact, subartifact: IProcessShape): StatefulProcessSubArtifact {       
+        let statefulArtifact =  this.statefulArtifactFactory.createStatefulProcessSubArtifact(artifact, subartifact);                
         return statefulArtifact;
     } 
 

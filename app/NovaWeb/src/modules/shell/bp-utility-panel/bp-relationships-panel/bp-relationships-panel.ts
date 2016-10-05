@@ -99,7 +99,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
 
         if (this.item) {
             const relationshipSubscriber = this.item.relationships.getObservable().subscribe(this.onRelationshipUpdate);
-            this.subscribers = [relationshipSubscriber];
+            this.subscribers.push(relationshipSubscriber);
         }
 
         return super.onSelectionChanged(artifact, subArtifact, timeout);

@@ -3,7 +3,7 @@
         <i class="fonticon2-search"></i>
     </button>
     <div class="search-input">
-        <input type="text" class="form-control" placeholder="{{$root.config.labels['Label_Search']}}" ng-model="$ctrl.searchText" />
+        <input type="text" class="form-control" placeholder="{{::$root.config.labels['Label_Search']}}" ng-model="$ctrl.searchText" />
         <i class="fonticon-error" ng-show="$ctrl.searchText || $ctrl.searchResults" ng-click="$ctrl.clearSearch()"></i>
     </div>
 </form>
@@ -11,10 +11,10 @@
     <div class="artifact-picker-container">
         <div class="search-wrapper" ng-if="$ctrl.isSearching || $ctrl.searchResults">
             <div class="search-message" ng-if="$ctrl.isSearching">
-                {{$root.config.labels['Label_Searching']}}
+                {{::$root.config.labels['Label_Searching']}}
             </div>
             <div class="search-message" ng-if="!$ctrl.isSearching && $ctrl.searchResults.length === 0">
-                {{$root.config.labels['Label_No_Results_Found']}}
+                {{::$root.config.labels['Label_No_Results_Found']}}
             </div>
             <div class="search-results" perfect-scrollbar opts="{ minScrollbarLength: 20, scrollXMarginOffset: 4, scrollYMarginOffset: 4}" ng-if="!$ctrl.isSearching && $ctrl.searchResults.length !== 0">
                 <div class="search-result" bp-tooltip="{{searchResult.name}}" bp-tooltip-truncated="true" ng-repeat="searchResult in $ctrl.searchResults" ng-click="$ctrl.project = searchResult">

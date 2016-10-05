@@ -18,7 +18,7 @@ namespace SearchService.Controllers
     public class ItemNameSearchController : LoggableApiController
     {
         public override string LogSource => "SearchService.ItemNameSearch";
-        private const int MaxResultCount = 100;
+        public const int MaxResultCount = 100;
 
         private ISearchConfigurationProvider _searchConfigurationProvider;
 

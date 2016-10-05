@@ -4,7 +4,8 @@ import {IDiagramNode, IProcessShape,
 import {ILayout} from "./models/";
 import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/process-models";
 import {ShapesFactory} from "./shapes/shapes-factory";
-import {DiagramLink} from "./shapes/diagram-link";
+import { DiagramLink } from "./shapes/diagram-link";
+import { StatefulProcessSubArtifact } from "../../../../process-subartifact";
 
 export class ProcessAddHelper {
     public static insertTaskWithUpdate(edge: MxCell, layout: ILayout, shapesFactoryService: ShapesFactory): void {
@@ -54,13 +55,14 @@ export class ProcessAddHelper {
     public static insertUserTaskInternal(layout: ILayout, shapesFactoryService: ShapesFactory) {
         layout.setTempShapeId(layout.getTempShapeId() - 1);
         var userTaskShape = shapesFactoryService.createModelUserTaskShape(layout.viewModel.id, layout.viewModel.projectId, layout.getTempShapeId(), -1, -1);
-        ProcessAddHelper.addShape(userTaskShape, layout);
+        let statefulShape = shapesFactoryService.createStatefulSubArtifact(layout.viewModel.statefulArtifact, userTaskShape);
+        ProcessAddHelper.addShape(statefulShape, layout);
         layout.updateProcessChangedState(userTaskShape.id, NodeChange.Add, false);
 
         return userTaskShape.id;
     }
 
-    private static addShape(processShape: IProcessShape, layout: ILayout): void {
+    private static addShape(processShape: StatefulProcessSubArtifact, layout: ILayout): void {
         if (processShape != null) {
             layout.viewModel.shapes.push(processShape);
             layout.viewModel.addJustCreatedShapeId(processShape.id);
@@ -69,8 +71,10 @@ export class ProcessAddHelper {
 
     public static insertSystemTaskInternal(layout: ILayout, shapesFactoryService: ShapesFactory) {
         layout.setTempShapeId(layout.getTempShapeId() - 1);
-        var systemTaskShape = shapesFactoryService.createModelSystemTaskShape(layout.viewModel.id, layout.viewModel.projectId, layout.getTempShapeId(), -1, -1);
-        ProcessAddHelper.addShape(systemTaskShape, layout);
+        var systemTaskShape = shapesFactoryService.createModelSystemTaskShape(layout.viewModel.id, layout.viewModel.projectId,
+            layout.getTempShapeId(), -1, -1);        
+        let statefulShape = shapesFactoryService.createStatefulSubArtifact(layout.viewModel.statefulArtifact, systemTaskShape);
+        ProcessAddHelper.addShape(statefulShape, layout);
         layout.updateProcessChangedState(systemTaskShape.id, NodeChange.Add, false);
 
         return systemTaskShape.id;
@@ -92,8 +96,10 @@ export class ProcessAddHelper {
     private static insertUserDecisionInternal(sourceIds: number[], destinationId: number, layout: ILayout, shapesFactoryService: ShapesFactory): number {
         layout.setTempShapeId(layout.getTempShapeId() - 1);
         var userDecisionShape = shapesFactoryService.createModelUserDecisionShape(layout.viewModel.id,
-         layout.viewModel.projectId, layout.getTempShapeId(), -1, -1);
-        ProcessAddHelper.addShape(userDecisionShape, layout);
+         layout.viewModel.projectId, layout.getTempShapeId(), -1, -1);;        
+         let statefulShape = shapesFactoryService.createStatefulSubArtifact
+             (layout.viewModel.statefulArtifact, userDecisionShape);
+        ProcessAddHelper.addShape(statefulShape, layout);
 
         // update source decision references
         if (sourceIds.length > 1) {
@@ -205,7 +211,8 @@ export class ProcessAddHelper {
         layout.setTempShapeId(layout.getTempShapeId() - 1);
         var systemDecision = shapesFactoryService.createSystemDecisionShapeModel(layout.getTempShapeId(), 
         layout.viewModel.id, layout.viewModel.projectId, -1, -1);
-        ProcessAddHelper.addShape(systemDecision, layout);
+        let statefulShape = shapesFactoryService.createStatefulSubArtifact(layout.viewModel.statefulArtifact, systemDecision);
+        ProcessAddHelper.addShape(statefulShape, layout);
         layout.updateProcessChangedState(systemDecision.id, NodeChange.Add, false);
 
         layout.updateLink(sourceId, destinationId, systemDecision.id);

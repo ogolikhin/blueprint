@@ -6,6 +6,9 @@ import {IArtifactReference, IArtifactReferenceLink} from "../../../../../models/
 import {IPropertyValueInformation, IProcessShape} from "../../../../../models/process-models";
 import {ISystemTaskShape, IUserTaskShape} from "../../../../../models/process-models";
 import {IdGenerator} from "./id-generator";
+import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../../../../managers/artifact-manager/";
+import {StatefulProcessSubArtifact} from "../../../../../process-subartifact";
+import { IPropertyValue } from "../../../../../../../main/models/models";
 
 export interface IPropertyNameConstantsInformation {
     key: string;
@@ -62,7 +65,7 @@ export class ShapesFactory {
     public Include: IPropertyNameConstantsInformation = { key: "include", name: "Include" };
     public StoryLinks: IPropertyNameConstantsInformation = { key: "storyLinks", name: "StoryLinks" };
 
-    public static $inject = ["$rootScope"];
+    public static $inject = ["$rootScope", "statefulArtifactFactory"];
 
     private settings = new ShapesFactorySettings();
 
@@ -74,7 +77,7 @@ export class ShapesFactory {
         this.settings.setSystemTaskPersona(value);
     }
 
-    constructor(private $rootScope: ng.IRootScopeService) {
+    constructor(private $rootScope: ng.IRootScopeService, private statefulArtifactFactory: IStatefulArtifactFactory) {
 
         var definedSconfig = false;
         if ((<any>this.$rootScope) !== undefined
@@ -139,6 +142,13 @@ export class ShapesFactory {
             }
         }
     }
+
+    public createStatefulSubArtifact(artifact: IStatefulArtifact, subartifact: IProcessShape): StatefulProcessSubArtifact {
+
+        let statefulArtifact =  this.statefulArtifactFactory.createStatefulProcessSubArtifact(artifact, subartifact);
+                
+        return statefulArtifact;
+    } 
 
     public createModelMergeNodeShape(parentId: number, projectId: number, id: number, x: number, y: number) {
         var nameCounter = this._idGenerator.getId(ProcessShapeType.None);
@@ -462,6 +472,17 @@ export class ShapesFactory {
             typeId: -1,
             value: storyLinks
         };
+    }
+
+    public translatePropertyValue(hashMapPropertyValue: IPropertyValueInformation): IPropertyValue {        
+        let propertyValue: IPropertyValue = {
+            propertyTypeId: hashMapPropertyValue.typeId,
+            value: hashMapPropertyValue.value,
+            propertyTypePredefined: hashMapPropertyValue.typePredefined,
+            isReuseReadOnly: false,
+            propertyTypeVersionId: null 
+        };
+        return propertyValue;
     }
 
     public destroy() {

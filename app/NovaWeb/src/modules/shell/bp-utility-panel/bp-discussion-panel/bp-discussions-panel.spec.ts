@@ -12,6 +12,7 @@ import { IReply, IDiscussion } from "./artifact-discussions.svc";
 import { MessageServiceMock } from "../../../core/messages/message.mock";
 import { DialogServiceMock } from "../../../shared/widgets/bp-dialog/bp-dialog";
 import { ProcessServiceMock } from "../../../editors/bp-process/services/process.svc.mock";
+import { ItemTypePredefined } from "../../../main/models/enums";
 import {
     IArtifactManager,
     ArtifactManager,
@@ -66,10 +67,10 @@ describe("Component BPDiscussionPanel", () => {
         expect(directiveTest.element.find(".scrollable-content").length).toBe(0);
     });
 
-    it("should load data for a selected artifact",
+    fit("should load data for a selected artifact",
         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
             //Arrange
-            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 2, name: "Project 2", prefix: "PRO", version: 1});
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 2, name: "Project 2", predefinedType: ItemTypePredefined.Project, version: 1});
 
             //Act
             artifactManager.selection.setArtifact(artifact);

@@ -159,9 +159,7 @@ export class Helper {
             ItemTypePredefined.CollectionFolder
         ];
 
-        return artifact && 
-            artifact.predefinedType != null && 
-            nonStandardTypes.indexOf(artifact.predefinedType) === -1;
+        return artifact && artifact.predefinedType != null && nonStandardTypes.indexOf(artifact.predefinedType) === -1;
     }
 
     public static isInt(n: number): boolean {

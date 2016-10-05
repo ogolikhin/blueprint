@@ -105,7 +105,7 @@ export class ProjectExplorerController {
             this.tree.reload(projects);
 
             if (projects && projects.length > 0) {
-                if (!this.selected || this.selected.projectId !== projects[0].projectId) {
+                if (!this.selected) {
                     this.selected = projects[0];
                     this.navigationService.navigateToArtifact(this.selected.id);
                 }

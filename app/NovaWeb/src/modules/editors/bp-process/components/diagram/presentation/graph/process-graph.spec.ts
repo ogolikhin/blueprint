@@ -17,10 +17,12 @@ import { LocalizationServiceMock} from "../../../../../../core/localization/loca
 import { DialogService} from "../../../../../../shared/widgets/bp-dialog";
 import { ModalServiceMock } from "../../../../../../shell/login/mocks.spec";
 import * as TestModels from "../../../../models/test-model-factory";
+import { IStatefulArtifactFactory } from "../../../../../../managers/artifact-manager/";
+import { StatefulArtifactFactoryMock } from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("ProcessGraph", () => {
     let shapesFactory: ShapesFactory;
-    let localScope, rootScope, timeout, wrapper, container;
+    let localScope, rootScope, timeout, wrapper, container, statefulArtifactFactory: IStatefulArtifactFactory;
     let communicationManager: ICommunicationManager,
         dialogService: DialogService,
         localization: LocalizationServiceMock;
@@ -30,6 +32,7 @@ describe("ProcessGraph", () => {
         $provide.service("$uibModal", ModalServiceMock);
         $provide.service("dialogService", DialogService);
         $provide.service("localization", LocalizationServiceMock);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
     beforeEach(inject((
@@ -38,7 +41,8 @@ describe("ProcessGraph", () => {
         $timeout: ng.ITimeoutService,
         _communicationManager_: ICommunicationManager,
         _dialogService_: DialogService,
-        _localization_: LocalizationServiceMock) => {
+        _localization_: LocalizationServiceMock,
+        _statefulArtifactFactory_: IStatefulArtifactFactory) => {
         rootScope = $rootScope;
         timeout = $timeout;
         communicationManager = _communicationManager_;
@@ -48,6 +52,7 @@ describe("ProcessGraph", () => {
         container = document.createElement("DIV");
         wrapper.appendChild(container);
         document.body.appendChild(wrapper);
+        statefulArtifactFactory = _statefulArtifactFactory_;
 
         $rootScope["config"] = {};
         $rootScope["config"].labels = {
@@ -64,7 +69,7 @@ describe("ProcessGraph", () => {
             "ST_Auto_Insert_Task": "The task and its associated shapes have been moved. Another task has been created at the old location."
         };
         localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
-        shapesFactory = new ShapesFactory(rootScope);
+        shapesFactory = new ShapesFactory(rootScope, _statefulArtifactFactory_);
     }));
 
     describe("isUserSystemProcess", () => {
@@ -599,8 +604,7 @@ describe("ProcessGraph", () => {
             let linkLengthBeforeDelete = processModel.links.length;
             
             let userTaskShape = shapesFactory.createModelUserTaskShape(2, 1, 20, 2, 0);
-            let shapesFactoryService = new ShapesFactory(rootScope);
-            let userTaskShapeDiagramNode = new UserTask(userTaskShape, rootScope, null, shapesFactoryService);
+            let userTaskShapeDiagramNode = new UserTask(userTaskShape, rootScope, null, shapesFactory);
 
             //Act
             let result = ProcessDeleteHelper.deleteUserTask(userTaskShapeDiagramNode.model.id, null, graph);
@@ -1593,7 +1597,7 @@ describe("ProcessGraph", () => {
         let clientModel = new ProcessGraphModel(process);
         let viewModel = new ProcessViewModel(clientModel);
         viewModel.communicationManager = communicationManager;
-        return new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, messageService);
+        return new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, messageService, null, statefulArtifactFactory);
     }
 });
 

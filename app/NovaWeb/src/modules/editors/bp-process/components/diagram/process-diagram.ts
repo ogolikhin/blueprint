@@ -6,7 +6,7 @@ import {IProcessGraph, ISelectionListener} from "./presentation/graph/models/";
 import {ProcessGraph} from "./presentation/graph/process-graph";
 import {ICommunicationManager} from "../../../bp-process";
 import {IDialogService} from "../../../../shared";
-import {ShapesFactory} from "./presentation/graph/shapes/shapes-factory";
+import { IStatefulArtifactFactory } from "../../../../managers/artifact-manager";
 
 export class ProcessDiagram {
     public processModel: IProcess;
@@ -16,7 +16,6 @@ export class ProcessDiagram {
     private toggleProcessTypeHandler: string;
     private modelUpdateHandler: string;
     private navigateToAssociatedArtifactHandler: string;
-    private shapesFactory: ShapesFactory;
 
     private selectionListeners: ISelectionListener[]; 
 
@@ -30,7 +29,8 @@ export class ProcessDiagram {
         private communicationManager: ICommunicationManager,
         private dialogService: IDialogService,
         private localization: ILocalizationService,
-        private navigationService: INavigationService) {
+        private navigationService: INavigationService,
+        private statefulArtifactFactory: IStatefulArtifactFactory) {
 
         this.processModel = null;
         this.selectionListeners = [];
@@ -69,9 +69,7 @@ export class ProcessDiagram {
         let processViewModel = this.createProcessViewModel(process);
         // set isSpa flag to true. Note: this flag may no longer be needed.
         processViewModel.isSpa = true;
-
-        this.shapesFactory = new ShapesFactory(this.$rootScope);
-
+                
         //if (processViewModel.isReadonly) this.disableProcessToolbar();
         this.createProcessGraph(processViewModel, useAutolayout, selectedNodeId);
     }
@@ -139,7 +137,7 @@ export class ProcessDiagram {
                             this.localization,
                             this.messageService,
                             this.$log,
-                            this.shapesFactory);
+                            this.statefulArtifactFactory);
             this.registerSelectionListeners();
         } catch (err) {
             this.handleInitProcessGraphFailed(processViewModel.id, err);
@@ -153,7 +151,7 @@ export class ProcessDiagram {
         }
     }
     private registerSelectionListeners() {
-        for (let listener of this.selectionListeners){
+        for (let listener of this.selectionListeners) {
             this.graph.addSelectionListener(listener);
         }
     }

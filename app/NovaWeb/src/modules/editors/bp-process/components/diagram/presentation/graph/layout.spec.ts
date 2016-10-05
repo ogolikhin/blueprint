@@ -17,6 +17,8 @@ import { DialogService} from "../../../../../../shared/widgets/bp-dialog";
 import { ModalServiceMock } from "../../../../../../shell/login/mocks.spec";
 import {ProcessAddHelper} from "./process-add-helper";
 import {ShapesFactory} from "./shapes/shapes-factory";
+import { IStatefulArtifactFactory } from "../../../../../../managers/artifact-manager/"; 
+import { StatefulArtifactFactoryMock } from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("Layout test", () => {
 
@@ -28,7 +30,8 @@ describe("Layout test", () => {
         communicationManager: ICommunicationManager,
         shapesFactoryService: ShapesFactory,
         dialogService: DialogService,
-        localization: LocalizationServiceMock;
+        localization: LocalizationServiceMock,
+        statefulArtifactFactory: IStatefulArtifactFactory;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("messageService", MessageServiceMock);
@@ -36,6 +39,7 @@ describe("Layout test", () => {
         $provide.service("$uibModal", ModalServiceMock);
         $provide.service("dialogService", DialogService);
         $provide.service("localization", LocalizationServiceMock);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
     let setProcessViewModel = function (model) {
@@ -51,7 +55,8 @@ describe("Layout test", () => {
         messageService: IMessageService, 
         _communicationManager_: ICommunicationManager,
         _dialogService_: DialogService,
-        _localization_: LocalizationServiceMock) => {
+        _localization_: LocalizationServiceMock,
+        _statefulArtifactFactory_: IStatefulArtifactFactory) => {
 
         rootScope = $rootScope;
         msgService = messageService;
@@ -62,6 +67,7 @@ describe("Layout test", () => {
         communicationManager = _communicationManager_;
         dialogService = _dialogService_;
         localization = _localization_;
+        statefulArtifactFactory = _statefulArtifactFactory_;
 
         $rootScope["config"] = {
             labels: {
@@ -89,7 +95,7 @@ describe("Layout test", () => {
             "$rootScope": rootScope
         };
 
-        shapesFactoryService = new ShapesFactory(rootScope);
+        shapesFactoryService = new ShapesFactory(rootScope, statefulArtifactFactory);
     }));
 
     it("Test default process without system tasks", () => {

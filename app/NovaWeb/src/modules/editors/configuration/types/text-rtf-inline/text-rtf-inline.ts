@@ -44,6 +44,7 @@ export class BpFieldTextRTFInlineController {
                 },
                 extended_valid_elements: "a[href|type|title|linkassemblyqualifiedname|text|canclick|isvalid|mentionid|isgroup|email|" +
                 "class|linkfontsize|linkfontfamily|linkfontstyle|linkfontweight|linktextdecoration|linkforeground|style|target|artifactid]",
+                fontsize_formats: "9pt",
                 // https://www.tinymce.com/docs/configure/content-formatting/#font_formats
                 font_formats: "Open Sans=Open Sans,Portable User Interface,sans-serif;" +
                 "Arial=Arial,Helvetica,sans-serif;" +
@@ -224,14 +225,14 @@ export class BpFieldTextRTFInlineController {
             // tinyMCE may leave empty tags that cause the value to appear not empty
             requiredCustom: {
                 expression: function ($viewValue, $modelValue, scope) {
+                    let isEmpty = false;
                     if (scope.to && scope.to.required) {
-                        if (angular.isString($modelValue) && $modelValue.length !== 0) {
-                            let div = document.createElement("div");
-                            div.innerHTML = $modelValue;
-                            return !(div.innerText.trim() === "");
-                        }
+                        let div = document.createElement("div");
+                        div.innerHTML = ($modelValue || "").toString();
+                        isEmpty = div.innerText.trim() === "";
                     }
-                    return true;
+                    scope.options.validation.show = isEmpty;
+                    return !isEmpty;
                 }
             }
         };

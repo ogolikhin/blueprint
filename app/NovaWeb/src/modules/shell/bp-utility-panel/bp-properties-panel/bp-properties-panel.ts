@@ -26,7 +26,6 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         "$q",
         "selectionManager",
         "messageService",
-        "windowManager",
         "localization",
     ];
 
@@ -52,7 +51,6 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         $q: ng.IQService,
         protected selectionManager: ISelectionManager,        
         public messageService: IMessageService,
-        public windowManager: IWindowManager,
         public localization: ILocalizationService,
         public bpAccordionPanel: IBpAccordionPanelController) {
 

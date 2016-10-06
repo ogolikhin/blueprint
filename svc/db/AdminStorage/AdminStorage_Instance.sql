@@ -89,30 +89,31 @@ Change History:
 Date			Name					Change
 2015/11/03		Chris Dufour			Initial Version
 2016/09/29		Areag Osman				Extends character limit for Key & Text columns, adds index for table
+2016/10/06		Areag Osman				Creates a primary key on [Key], [Locale]
 ******************************************************************************************************************************/
 
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ApplicationLabels]') AND type in (N'U'))
 DROP TABLE [dbo].[ApplicationLabels]
 GO
 
-CREATE TABLE [dbo].[ApplicationLabels](
-	[ApplicationLabelId] [int] IDENTITY(1,1) NOT NULL,
-	[Key] [nvarchar](128) NOT NULL,
-	[Locale] [nvarchar](32) NOT NULL,
-	[Text] [nvarchar](512) NOT NULL,
+	CREATE TABLE [dbo].[ApplicationLabels](
+		[ApplicationLabelId] [int] IDENTITY(1,1) NOT NULL,
+		[Key] [nvarchar](128) NOT NULL,
+		[Locale] [nvarchar](32) NOT NULL,
+		[Text] [nvarchar](512) NOT NULL,
 
-	CONSTRAINT [PK_ApplicationLabels_ApplicationLabelId] PRIMARY KEY CLUSTERED 
-	(
-		[ApplicationLabelId] ASC
-	)
-) ON [PRIMARY]
+		CONSTRAINT [PK_ApplicationLabels] PRIMARY KEY NONCLUSTERED 
+		(
+			[Key], [Locale] ASC
+		)
+	) ON [PRIMARY]
 GO
 
 IF EXISTS (SELECT name FROM sys.indexes WHERE name = N'IX_ApplicationLabels_Key_Locale')
 	DROP INDEX IX_ApplicationLabels_Key_Locale on [dbo].[ApplicationLabels]
 GO
 
-CREATE NONCLUSTERED INDEX IX_ApplicationLabels_Key_Locale on  [dbo].[ApplicationLabels] 
+CREATE NONCLUSTERED INDEX IX_ApplicationLabels_Key_Locale on [dbo].[ApplicationLabels] 
 (
 	[Key] ASC,
 	[Locale] ASC
@@ -927,6 +928,11 @@ CREATE TABLE #tempAppLabels (
 	[Key] [nvarchar](128) NOT NULL,
 	[Locale] [nvarchar](32) NOT NULL,
 	[Text] [nvarchar](512) NOT NULL
+
+	CONSTRAINT [PK_ApplicationLabels] PRIMARY KEY NONCLUSTERED 
+	(
+		[Key], [Locale] ASC
+	)
 )
 
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'en-US', N'Yes')
@@ -1072,8 +1078,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_117', 'en-US', N'A property type is out of date.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_123', 'en-US', N'The artifact cannot be saved. It inherits from an actor that already inherits from this artifact. Actor artifacts cannot inherit from each other.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_Other', 'en-US', N'Sorry, but an error has occurred and the artifact cannot be saved. Please contact an administrator.<br><br>')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Refresh_Project_NotFound', 'en-US', N'You have attempted to access a project that has been deleted')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Refresh_Artifact_Deleted', 'en-US', N'The artifact that was selected no longer exists')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Refresh_Project_NotFound', 'en-US', N'You have attempted to access a project that has been deleted.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Refresh_Artifact_Deleted', 'en-US', N'The artifact you were viewing has been deleted. The artifact''s parent or project is now being displayed.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Glossary_Term', 'en-US', N'Term')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Glossary_Definition', 'en-US', N'Definition')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Glossary_Empty', 'en-US', N'No terms have been defined.')
@@ -1310,10 +1316,11 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Page_Label',
 INSERT INTO [dbo].[ApplicationLabels] ([Key], [Locale], [Text])
 SELECT #tempAppLabels.[Key], #tempAppLabels.[Locale], #tempAppLabels.[Text]
   FROM #tempAppLabels
- WHERE NOT EXISTS ( SELECT *
-					  FROM [dbo].[ApplicationLabels] 
-					 WHERE [dbo].[ApplicationLabels].[Key] = #tempAppLabels.[Key]
-					   AND [dbo].[ApplicationLabels].[Locale] = #tempAppLabels.[Locale])
+  LEFT JOIN [dbo].[ApplicationLabels] 
+		ON [dbo].[ApplicationLabels].[Key] = #tempAppLabels.[Key]
+		AND [dbo].[ApplicationLabels].[Locale] = #tempAppLabels.[Locale]
+ WHERE #tempAppLabels.[Key] is NULL
+   AND #tempAppLabels.[Locale] is NULL
 
 -- Update if [Key]/[Locale] combination exists, but text is different
 UPDATE [dbo].[ApplicationLabels]

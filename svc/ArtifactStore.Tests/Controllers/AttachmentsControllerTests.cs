@@ -19,6 +19,7 @@ namespace ArtifactStore.Controllers
     {
         private Mock<IAttachmentsRepository> _attachmentsRepositoryMock;
         private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepositoryMock;
+        private Mock<IArtifactVersionsRepository> _artifactVersionsMock;
         private Session _session;
 
         [TestInitialize]
@@ -29,6 +30,7 @@ namespace ArtifactStore.Controllers
             _session = new Session { UserId = userId };
             _artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
             _attachmentsRepositoryMock = new Mock<IAttachmentsRepository>();
+            _artifactVersionsMock = new Mock<IArtifactVersionsRepository>();
         }
 
         [TestMethod]
@@ -46,7 +48,7 @@ namespace ArtifactStore.Controllers
             int? versionId = null;
             int? subArtifactId = null;
             bool addDrafts = true;
-            var controller = new AttachmentsController(_attachmentsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object)
+            var controller = new AttachmentsController(_attachmentsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsMock.Object)
             {
                 Request = new HttpRequestMessage()
             };
@@ -73,7 +75,7 @@ namespace ArtifactStore.Controllers
             bool addDrafts = true;
 
             _artifactPermissionsRepositoryMock.Setup(a => a.GetItemInfo(1, 1, true,int.MaxValue)).ReturnsAsync(null);
-            var controller = new AttachmentsController(_attachmentsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object)
+            var controller = new AttachmentsController(_attachmentsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsMock.Object)
             {
                 Request = new HttpRequestMessage()
             };
@@ -100,7 +102,7 @@ namespace ArtifactStore.Controllers
             bool addDrafts = true;
 
             _artifactPermissionsRepositoryMock.Setup(a => a.GetItemInfo(2, 1, true, int.MaxValue)).ReturnsAsync(new ItemInfo { ArtifactId = 999 });
-            var controller = new AttachmentsController(_attachmentsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object)
+            var controller = new AttachmentsController(_attachmentsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsMock.Object)
             {
                 Request = new HttpRequestMessage()
             };
@@ -132,7 +134,7 @@ namespace ArtifactStore.Controllers
             _artifactPermissionsRepositoryMock.Setup(a => a.GetArtifactPermissionsInChunks(new List<int> { 1 }, 1, false, int.MaxValue, true))
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { {1, RolePermissions.None } });
 
-            var controller = new AttachmentsController(_attachmentsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object)
+            var controller = new AttachmentsController(_attachmentsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsMock.Object)
             {
                 Request = new HttpRequestMessage()
             };
@@ -168,7 +170,7 @@ namespace ArtifactStore.Controllers
             _artifactPermissionsRepositoryMock.Setup(a => a.GetArtifactPermissionsInChunks(new List<int> { 1, 123 }, 1, false, int.MaxValue, true))
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { 1, RolePermissions.Read }, { 123, RolePermissions.Read } });
 
-            var controller = new AttachmentsController(_attachmentsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object)
+            var controller = new AttachmentsController(_attachmentsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsMock.Object)
             {
                 Request = new HttpRequestMessage()
             };

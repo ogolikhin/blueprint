@@ -883,6 +883,23 @@ namespace Helper
             // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
             return updateProcess ? storyteller.UpdateProcess(user, process) : process;
         }
+
+        /// <summary>
+        /// Find a Property in an enumeration of Properties
+        /// </summary>
+        /// <param name="keyToFind">The property to find</param>
+        /// <param name="propertiesToSearchThrough">The properties to search though</param>
+        /// <returns>The found Property</returns>
+        public static KeyValuePair<string, PropertyValueInformation> FindPropertyValue(string keyToFind,
+        Dictionary<string, PropertyValueInformation> propertiesToSearchThrough)
+        {
+            var propertyFound = propertiesToSearchThrough.ToList().Find(p => string.Equals(p.Key, keyToFind, StringComparison.CurrentCultureIgnoreCase));
+
+            Assert.IsNotNull(propertyFound, "Could not find a Property with Name: {0}", keyToFind);
+
+            return propertyFound;
+        }
+
         #endregion Public Methods
 
         #region Private Methods
@@ -1078,22 +1095,6 @@ namespace Helper
             Assert.That(decisionBranchDesinationLinkCount.Equals(totalNumberOfBranches),
                 "The total number of branches from the process is {0} but The DecisionBranchDestinationLink contains {1} links.",
                 totalNumberOfBranches, decisionBranchDesinationLinkCount);
-        }
-
-        /// <summary>
-        /// Find a Property in an enumeration of Properties
-        /// </summary>
-        /// <param name="keyToFind">The property to find</param>
-        /// <param name="propertiesToSearchThrough">The properties to search though</param>
-        /// <returns>The found Property</returns>
-        private static KeyValuePair<string, PropertyValueInformation> FindPropertyValue(string keyToFind,
-        Dictionary<string, PropertyValueInformation> propertiesToSearchThrough)
-        {
-            var propertyFound = propertiesToSearchThrough.ToList().Find(p => string.Equals(p.Key, keyToFind, StringComparison.CurrentCultureIgnoreCase));
-
-            Assert.IsNotNull(propertyFound, "Could not find a Property with Name: {0}", keyToFind);
-
-            return propertyFound;
         }
 
         /// <summary>

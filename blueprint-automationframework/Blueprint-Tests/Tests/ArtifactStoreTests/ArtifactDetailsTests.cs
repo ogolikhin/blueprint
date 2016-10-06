@@ -29,6 +29,8 @@ namespace ArtifactStoreTests
         private IUser _user = null;
         private IProject _project = null;
 
+        #region Setup and Cleanup
+
         [SetUp]
         public void SetUp()
         {
@@ -42,6 +44,10 @@ namespace ArtifactStoreTests
         {
             Helper?.Dispose();
         }
+
+        #endregion Setup and Cleanup
+
+        #region 200 OK Tests
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(154601)]
@@ -180,6 +186,59 @@ namespace ArtifactStoreTests
             Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
         }
 
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [TestRail(182509)]
+        [Description("Create two artifacts: main artifact that has inline trace to  inlinetrace artifact. Update the inlinetrace artifact information - Verify that GetArtifactDetails returned updated inline trace information.")]
+        public void GetArtifactDetails_CreateAndUpdateInlineTraceArtifact_ReturnsUpdatedInlineTranceInformation(
+            BaseArtifactType baseArtifactType )
+        {
+            // Setup: Create inline trace artifact
+            var mainArtifact = Helper.CreateAndPublishArtifact(_project, _user, baseArtifactType);
+            var inlineTraceArtifact = Helper.CreateAndPublishArtifact(_project, _user, baseArtifactType);
+            NovaArtifactDetails inlineTraceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, inlineTraceArtifact.Id);
+
+            // Setup: Update main artifact to have inline trace to inline trace artifact created
+            NovaArtifactDetails artifactDetailsToUpdateMainArtifact = new NovaArtifactDetails
+            {
+                Id = mainArtifact.Id,
+                ProjectId = mainArtifact.ProjectId,
+                ParentId = mainArtifact.ParentId,
+                Version = mainArtifact.Version,
+                Description = ArtifactStoreHelper.CreateArtifactInlineTraceValue(inlineTraceArtifact, inlineTraceArtifactDetails),
+            };
+
+            // Execute: Update main artifact with inline trace to target artifact
+            mainArtifact.Lock();
+            Assert.DoesNotThrow(() => inlineTraceArtifactDetails = Artifact.UpdateArtifact(mainArtifact, _user, artifactDetailsChanges: artifactDetailsToUpdateMainArtifact),
+                "UpdateArtifact call failed when using the following artifact ID: {0}!", mainArtifact.Id);
+
+            // Setup: Update inlinetrace artifact information
+            NovaArtifactDetails artifactDetailsToUpdateInlineTraceArtifact = new NovaArtifactDetails
+            {
+                Id = inlineTraceArtifact.Id,
+                ProjectId = inlineTraceArtifact.ProjectId,
+                ParentId = inlineTraceArtifact.ParentId,
+                Version = inlineTraceArtifact.Version,
+                Name = inlineTraceArtifact.Name + "_NameUpdated"
+            };
+
+            // Execute: Update inlinetrace artifact
+            inlineTraceArtifact.Lock();
+            Assert.DoesNotThrow(() => inlineTraceArtifactDetails = Artifact.UpdateArtifact(inlineTraceArtifact, _user, artifactDetailsChanges: artifactDetailsToUpdateInlineTraceArtifact),
+                "UpdateArtifact call failed when using the following artifact ID: {0}!", inlineTraceArtifact.Id);
+
+            // Execute: Get ArtifactDetails for main artifact
+            var mainArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, mainArtifact.Id);
+
+            // Validation: Verify that returned ArtifactDeatils contains the updated information for InlineTrace
+            Assert.That(mainArtifactDetails.Description.Contains(artifactDetailsToUpdateInlineTraceArtifact.Name), "Expected outcome should contains {0} on returned artifactdetails. Returned inline trace content is {1}.", artifactDetailsToUpdateInlineTraceArtifact.Name, mainArtifactDetails.Description);
+        }
+
+        #endregion 200 OK Tests
+
+        #region 401 Unauthorized Tests
+
         [TestCase]
         [TestRail(154701)]
         [Description("Create & publish an artifact, GetArtifactDetails but don't send any Session-Token header.  Verify it returns 401 Unauthorized.")]
@@ -208,6 +267,10 @@ namespace ArtifactStoreTests
             }, "'GET {0}' should return 401 Unauthorized when passed a valid artifact ID but an unauthorized token!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
         }
+
+        #endregion 401 Unauthorized Tests
+
+        #region 403 Forbidden Tests
 
         [TestCase]
         [TestRail(154703)]
@@ -249,6 +312,10 @@ namespace ArtifactStoreTests
             AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
                 "If called by a user without permission to the artifact, we should get an error message of '{0}'!", expectedMessage);
         }
+
+        #endregion 403 Forbidden Tests
+
+        #region 404 Not Found Tests
 
         [TestCase]
         [TestRail(154704)]
@@ -296,6 +363,8 @@ namespace ArtifactStoreTests
             AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
                 "If called by a user without permission to the artifact, we should get an error message of '{0}'!", expectedMessage);
         }
+
+        #endregion 404 Not Found Tests
 
         #region Private functions.
 

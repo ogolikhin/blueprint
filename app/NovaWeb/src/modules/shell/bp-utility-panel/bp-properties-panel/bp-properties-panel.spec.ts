@@ -98,7 +98,7 @@ describe("Component BPPropertiesPanel", () => {
 
             // Assert
             expect(observerSpy1).toHaveBeenCalled();            
-        }));
+    }));
 
 
     it("not load properties for undefined artifact",
@@ -212,5 +212,153 @@ describe("Component BPPropertiesPanel", () => {
 
             // Assert                        
             expect(ctrl.richTextFields[0]).toBeTruthy();
+        }));
+
+    it("should return correct property types for a selected sub-artifact",
+        inject(($q: ng.IQService,
+                $rootScope: ng.IRootScopeService, 
+                statefulArtifactFactory: IStatefulArtifactFactory, 
+                artifactManager: IArtifactManager, 
+                artifactService: ArtifactServiceMock,
+                metadataService: MetaDataService) => {
+                 //Arrange                        
+            const artifactModel = { id: 22, name: "Artifact", prefix: "My", predefinedType: Models.ItemTypePredefined.BusinessProcess } as Models.IArtifact;
+            const subArtifactModel = { id: 32, name: "SubArtifact", prefix: "SA", predefinedType: Models.ItemTypePredefined.BPShape } as Models.ISubArtifact;
+
+          
+            spyOn(metadataService, "getSubArtifactItemType").and.returnValue(
+                {   predefinedType: Models.ItemTypePredefined.BPShape,
+                    customProperties: []                        
+                }
+             );   
+
+            const artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);    
+            const subArtifact = statefulArtifactFactory.createStatefulSubArtifact(artifact, subArtifactModel);  
+
+            // Act
+            artifactManager.selection.setArtifact(artifact);            
+            $rootScope.$digest();            
+            artifactManager.selection.setSubArtifact(subArtifact);             
+            $rootScope.$digest();               
+
+            // Assert
+                
+            let propertyContexts: PropertyContext[] = ctrl.specificFields.map(a=>a.data as PropertyContext);
+            let model: any = ctrl.model;
+            expect(propertyContexts.filter(a=>a.name === "Label_X").length).toBe(1);
+            expect(propertyContexts.filter(a=>a.name === "Label_Y").length).toBe(1);
+            expect(propertyContexts.filter(a=>a.name === "Label_Width").length).toBe(1);
+            expect(propertyContexts.filter(a=>a.name === "Label_Height").length).toBe(1);
+    }));
+    it("should contain populated model data for a selected sub-artifact",
+        inject(($q: ng.IQService,
+                $rootScope: ng.IRootScopeService, 
+                statefulArtifactFactory: IStatefulArtifactFactory, 
+                artifactManager: IArtifactManager, 
+                artifactService: ArtifactServiceMock,
+                metadataService: MetaDataService) => {
+            //Arrange                        
+            const artifactModel = { id: 22, name: "Artifact", prefix: "My", predefinedType: Models.ItemTypePredefined.BusinessProcess } as Models.IArtifact;
+            const subArtifactModel = { id: 32, name: "SubArtifact", prefix: "SA", predefinedType: Models.ItemTypePredefined.BPShape } as Models.ISubArtifact;
+
+            let x = 1;
+            let y = 2;
+            let width = 100;
+            let height = 200;
+
+            let xPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValues(1, x, Models.PropertyTypePredefined.X);
+            let yPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValues(1, y, Models.PropertyTypePredefined.Y);
+            let widthPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValues(1, width, Models.PropertyTypePredefined.Width);
+            let heightPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValues(1, height, Models.PropertyTypePredefined.Height);
+            
+            spyOn(metadataService, "getSubArtifactItemType").and.returnValue(
+                {   predefinedType: Models.ItemTypePredefined.BPShape,
+                    customProperties: []                        
+                }
+             );   
+             
+             spyOn(artifactService, "getSubArtifact").and.callFake( (artifactId: number, subArtifactId: number)=>{
+                    let model = {   predefinedType: Models.ItemTypePredefined.BPShape,
+                        specificPropertyValues: [xPropertyValue, yPropertyValue, widthPropertyValue, heightPropertyValue]                  
+                    };
+                    var deferred = $q.defer<any>();
+                    deferred.resolve(model);
+                    return deferred.promise;
+                    
+                }
+             );  
+
+            const artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);    
+            const subArtifact = statefulArtifactFactory.createStatefulSubArtifact(artifact, subArtifactModel);  
+
+            // Act
+            artifactManager.selection.setArtifact(artifact);            
+            $rootScope.$digest();            
+            artifactManager.selection.setSubArtifact(subArtifact);             
+            $rootScope.$digest();               
+
+            // Assert                
+            let model: any = ctrl.model;
+            expect(model.x).toBeDefined();
+            expect(model.y).toBeDefined();
+            expect(model.width).toBeDefined();
+            expect(model.height).toBeDefined();
+            expect(model.x).toBe(x);
+            expect(model.y).toBe(y);
+            expect(model.width).toBe(width);
+            expect(model.height).toBe(height);
+        }));
+    it("should not display properties for a selected process shape ",
+        inject(($q: ng.IQService,
+                $rootScope: ng.IRootScopeService, 
+                statefulArtifactFactory: IStatefulArtifactFactory, 
+                artifactManager: IArtifactManager, 
+                artifactService: ArtifactServiceMock,
+                metadataService: MetaDataService) => {
+            //Arrange                        
+            const artifactModel = { id: 22, name: "Artifact", prefix: "My", predefinedType: Models.ItemTypePredefined.Process } as Models.IArtifact;
+            const subArtifactModel = { id: 32, name: "SubArtifact", prefix: "SA", predefinedType: Models.ItemTypePredefined.PROShape } as Models.ISubArtifact;
+
+            let x = 1;
+            let y = 2;
+            let width = 100;
+            let height = 200;
+            let xPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValues(1, x, Models.PropertyTypePredefined.X);
+            let yPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValues(1, y, Models.PropertyTypePredefined.Y);
+            let widthPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValues(1, width, Models.PropertyTypePredefined.Width);
+            let heightPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValues(1, height, Models.PropertyTypePredefined.Height);
+            
+            spyOn(metadataService, "getSubArtifactItemType").and.returnValue(
+                {   predefinedType: Models.ItemTypePredefined.PROShape,    
+                    customProperties: []                          
+                }
+             );     
+  
+             spyOn(artifactService, "getSubArtifact").and.callFake( (artifactId: number, subArtifactId: number)=>{
+                    let model = {   predefinedType: Models.ItemTypePredefined.PROShape,
+                        specificPropertyValues: [xPropertyValue, yPropertyValue, widthPropertyValue, heightPropertyValue]                  
+                    };
+                    var deferred = $q.defer<any>();
+                    deferred.resolve(model);
+                    return deferred.promise;
+                    
+                }
+             );  
+            const artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);    
+            const subArtifact = statefulArtifactFactory.createStatefulSubArtifact(artifact, subArtifactModel);  
+
+            // Act
+            artifactManager.selection.setArtifact(artifact);            
+            $rootScope.$digest();            
+            artifactManager.selection.setSubArtifact(subArtifact);       
+            $rootScope.$digest();            
+
+            // Assert                
+            let propertyContexts: PropertyContext[] = ctrl.specificFields.map(a=>a.data as PropertyContext);
+            
+            expect(propertyContexts.filter(a=>a.name === "Label_X").length).toBe(0);
+            expect(propertyContexts.filter(a=>a.name === "Label_Y").length).toBe(0);
+            expect(propertyContexts.filter(a=>a.name === "Label_Width").length).toBe(0);
+            expect(propertyContexts.filter(a=>a.name === "Label_Height").length).toBe(0);
         }));
 });

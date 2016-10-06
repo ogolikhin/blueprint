@@ -85,6 +85,18 @@ export class ArtifactServiceMock implements IArtifactService {
         }
         return result;
     }
+
+    public static createSpecificPropertyValues(versionId: number, value: any, typePredefined: Models.PropertyTypePredefined): Models.IPropertyValue {
+
+        var result: Models.IPropertyValue = {
+                propertyTypeId: typePredefined,
+                propertyTypeVersionId: versionId,
+                propertyTypePredefined: typePredefined,
+                value: value
+            };
+        return result;
+    }
+
     public static createSubArtifacts(id: number, count?: number): any[] {
         var result: Models.ISubArtifact[] = [];
         for (var i = 0; i < (count || 0); i++) {
@@ -110,7 +122,7 @@ export class ArtifactServiceMock implements IArtifactService {
 
     public getSubArtifact(artifactId: number, subArtifactId: number): ng.IPromise<Models.ISubArtifact> {
         var deferred = this.$q.defer<any>();
-        deferred.resolve(ArtifactServiceMock.createArtifact(artifactId));
+        deferred.resolve(ArtifactServiceMock.createSubArtifacts(artifactId));
         return deferred.promise;
     }  
     public lock(artifactId: number): ng.IPromise<Models.ILockResult[]> {

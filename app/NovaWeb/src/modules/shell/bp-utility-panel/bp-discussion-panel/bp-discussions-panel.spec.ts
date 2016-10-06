@@ -66,6 +66,37 @@ describe("Component BPDiscussionPanel", () => {
         expect(directiveTest.element.find(".empty-state").length).toBe(1);
         expect(directiveTest.element.find(".scrollable-content").length).toBe(0);
     });
+    
+    it("should be read-only for newly created sub-artifacts",
+        inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
+        //Arrange
+        const artifact = statefulArtifactFactory.createStatefulArtifact({
+            id: 2, 
+            name: "Artifact 2", 
+            predefinedType: ItemTypePredefined.Process, 
+            version: 1
+        });
+        let processShape = {
+                projectId: 1,
+                parentId: 2,
+                id: -2, 
+                name: "SubArtifact 2", 
+                baseItemTypePredefined: ItemTypePredefined.PROShape,
+                typePrefix: "PROS",
+                propertyValues: {},
+                associatedArtifact: null
+                
+        };
+        const subArtifact = statefulArtifactFactory.createStatefulProcessSubArtifact(artifact, processShape);
+
+        //Act
+        artifactManager.selection.setSubArtifact(subArtifact);
+        $rootScope.$digest();
+
+        //Assert
+        expect(vm.canCreate).toBeFalsy();
+        expect(vm.canDelete).toBeFalsy();
+    }));
 
     it("should load data for a selected artifact",
         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {

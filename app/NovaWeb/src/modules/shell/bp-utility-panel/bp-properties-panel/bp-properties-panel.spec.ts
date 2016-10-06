@@ -67,7 +67,7 @@ describe("Component BPPropertiesPanel", () => {
                 artifactService: ArtifactServiceMock, 
                 metadataService: MetaDataService) => {
             //Arrange                        
-            const artifactModel = { id: 22, name: "Artifact", prefix: "My" } as Models.IArtifact;
+            const artifactModel = { id: 22, name: "Artifact", prefix: "My", predefinedType: Models.ItemTypePredefined.Actor } as Models.IArtifact;
             let observerSpy1 = spyOn(artifactService, "getArtifact").and.callThrough();            
             const artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
             // Act
@@ -84,8 +84,8 @@ describe("Component BPPropertiesPanel", () => {
                 artifactManager: IArtifactManager, 
                 artifactService: ArtifactServiceMock) => {
             //Arrange                        
-            const artifactModel = { id: 22, name: "Artifact", prefix: "My" } as Models.IArtifact;
-            const subArtifactModel = { id: 32, name: "SubArtifact", prefix: "SA" } as Models.ISubArtifact;
+            const artifactModel = { id: 22, name: "Artifact", prefix: "My", predefinedType: Models.ItemTypePredefined.Process } as Models.IArtifact;
+            const subArtifactModel = { id: 32, name: "SubArtifact", prefix: "SA", predefinedType: Models.ItemTypePredefined.PROShape } as Models.ISubArtifact;
 
             let observerSpy1 = spyOn(artifactService, "getSubArtifact").and.callThrough();      
 
@@ -108,7 +108,7 @@ describe("Component BPPropertiesPanel", () => {
                 metadataService: MetaDataService
                 ) => {
             //Arrange                                    
-            const subArtifact = { id: 32, name: "SubArtifact", prefix: "SA" } as Models.ISubArtifact;
+            const subArtifact = { id: 32, name: "SubArtifact", prefix: "SA", predefinedType: Models.ItemTypePredefined.PROShape  } as Models.ISubArtifact;
             let observerSpy1 = spyOn(metadataService, "getArtifactPropertyTypes").and.callThrough();            
 
             // Act
@@ -125,7 +125,7 @@ describe("Component BPPropertiesPanel", () => {
             artifactManager: IArtifactManager
             ) => {
             //Arrange                  
-            const artifactModel = { id: 22, name: "Artifact", prefix: "My" } as Models.IArtifact;      
+            const artifactModel = { id: 22, name: "Artifact", prefix: "My", predefinedType: Models.ItemTypePredefined.Process } as Models.IArtifact;      
             ctrl.customFields = [];
             expect(ctrl.editor.propertyContexts).toBeFalsy();
             const artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);    

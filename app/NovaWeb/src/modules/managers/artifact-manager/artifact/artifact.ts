@@ -314,25 +314,28 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     public refresh(): ng.IPromise<IStatefulArtifact> {
+
+        var promisesToExecute: ng.IPromise<any>[];
+
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         this.discard();
 
         let loadPromise = this.load();
         
-        // TODO: also load subartifacts and the rest of the
+        // TODO: also load subartifacts 
         let attachmentPromise: ng.IPromise<any>;
         if (this._attachments) {
             // FYI, this will also reload docRefs so no need to call docRefs.refresh()
             attachmentPromise = this._attachments.refresh();
         }
-
-        // TODO: get promises for other refresh methods in sub-objects
         // let relationshipsPromise: ng.IPromise<any>, subArtifactsPromise: ng.IPromise<any>;
 
-        this.getServices().$q.all([
-                loadPromise,
-                attachmentPromise
-            ]).then(() => {
+        promisesToExecute = [loadPromise, attachmentPromise];
+
+         // get promises for other refresh operations in sub-classes
+        promisesToExecute.concat(this.getPromisesForRefreshOperations());
+
+        this.getServices().$q.all(promisesToExecute).then(() => {
 
             this.subject.onNext(this);
             deferred.resolve(this);
@@ -343,5 +346,14 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         });
 
         return deferred.promise;
+    }
+
+    protected getPromisesForRefreshOperations(): ng.IPromise<any>[]{
+
+        // Note: override in sub-class to return an array of promises 
+        // that wait on data initialization operations at the sub- class 
+        // level
+
+        return [];
     }
 }

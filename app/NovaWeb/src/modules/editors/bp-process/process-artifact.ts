@@ -58,27 +58,17 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         return this.subject.filter(it => !!it).asObservable();
     }
 
-    public refresh(): ng.IPromise<IStatefulArtifact> {
+    public getPromisesForRefreshOperations (): ng.IPromise<any>[] {
+        // Note: this method overrides the base class method of the same name.
+        // It returns promises for operations that are needed to refresh
+        // this process artifact
 
-        const deferred = this.services.getDeferred<IStatefulArtifact>();
-        this.discard();
+        var promises: ng.IPromise<IStatefulArtifact>[];
+        var loadProcessPromise = this.loadProcess();
 
-        this.loadPromise = this.load();
-        this.loadProcessPromise = this.loadProcess();
+        promises = [loadProcessPromise];
 
-        this.getServices().$q.all([this.loadPromise, this.loadProcessPromise]).then(() => {
-            this.subject.onNext(this);
-            deferred.resolve(this);
-        }).catch((error) => {
-            this.artifactState.readonly = true;
-            this.subject.onError(error);
-            deferred.reject(error);
-        }).finally(() => {
-            this.loadPromise = null;
-            this.loadProcessPromise = null;
-        });
-
-        return deferred.promise;
+        return promises;
     }
 
     protected isFullArtifactLoadedOrLoading() {

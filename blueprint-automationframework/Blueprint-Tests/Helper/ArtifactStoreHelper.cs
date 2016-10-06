@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using Common;
 using Model;
 using Model.ArtifactModel;
-using NUnit.Framework;
-using Utilities;
+using Model.ArtifactModel.Impl;
 using Model.Factories;
+using NUnit.Framework;
+using System.Collections.Generic;
 using System.Linq;
-using Common;
+using Utilities;
 using Utilities.Facades;
 
 namespace Helper
@@ -214,6 +215,39 @@ namespace Helper
                 inlineTraceArtifact.Address, inlineTraceArtifact.Id, inlineTraceArtifactDetails.Prefix, inlineTraceArtifactDetails.Name);
 
             return inlineTraceText;
+        }
+
+        /// <summary>
+        /// Check if the inline trace link is valid or not.
+        /// </summary>
+        /// <param name="inlineTraceLink">The inlinetrace link to validate</param>
+        /// <returns> returnes true if the inline trace link is valid inline trace link</returns>
+        private static bool IsValidInlineTrace(string inlineTraceLink)
+        {
+            string validTag = "isValid=\"True\"";
+
+            return inlineTraceLink.Contains(validTag);
+        }
+
+        /// <summary>
+        /// Validates inline trace link returned from artifact details
+        /// </summary>
+        /// <param name="artifactdetails">the artifact details with the inline trace link which needs validation</param>
+        /// <param name="inlineTraceArtifact">the inline trace artifact the inline trace link pointing to</param>
+        /// <param name="validInlineTraceLink">the boolean represents if the link is to be valid or not</param>
+        public static void ValidateInlineTraceLinkFromArtifactDetails(NovaArtifactDetails artifactdetails, IArtifactBase inlineTraceArtifact, bool validInlineTraceLink)
+        {
+            ThrowIf.ArgumentNull(artifactdetails, nameof(artifactdetails));
+            ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
+
+            // Validation: Verify that the artifactDeatils' description field which contain inline trace link contains the valid inline trace information (name of the inline trace artifact)
+            Assert.That(artifactdetails.Description.Contains(inlineTraceArtifact.Name), "Expected outcome should not contains {0} on returned artifactdetails. Returned inline trace content is {1}.", inlineTraceArtifact.Name, artifactdetails.Description);
+
+            if (!validInlineTraceLink)
+            {
+                // Validation: Verify that the artifactdetails' description contains invalid inline trace link
+                Assert.IsFalse(IsValidInlineTrace(artifactdetails.Description), "Expected invalid inlineTraceLink from returned artifactdetails. Returned valid inline trace content. The returned inlinetrace link is {0}.", artifactdetails.Description);
+            }
         }
     }
 }

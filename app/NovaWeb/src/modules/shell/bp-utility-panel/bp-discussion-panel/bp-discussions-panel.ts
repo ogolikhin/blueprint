@@ -72,7 +72,6 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     }
 
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
-        
         //Subscriber to support refresh case.
         this.subscribers = this.subscribers.filter(subscriber => { subscriber.dispose(); return false; });
         if (subArtifact) {

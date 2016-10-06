@@ -77,12 +77,13 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         //Subscriber to support refresh case.
         this.subscribers = this.subscribers.filter(subscriber => { subscriber.dispose(); return false; });
         if (subArtifact) {
-            //TODO: add distinctuntilchanged
             this.subscribers.push(
-                subArtifact.getObservable().subscribe((subartifact) => { this.onSelectionChangedHelper(null, subArtifact, timeout); }));
+                subArtifact.getObservable().distinctUntilChanged((subArtif) => { return subArtif.version; })
+                    .subscribe((subArtif) => { this.onSelectionChangedHelper(null, subArtif, timeout); }));
         } else if (artifact) {
             this.subscribers.push(
-                artifact.getObservable().subscribe((artif) => { this.onSelectionChangedHelper(artif, null, timeout); }));
+                artifact.getObservable().distinctUntilChanged((artif) => { return artif.version; })
+                    .subscribe((artif) => { this.onSelectionChangedHelper(artif, null, timeout); }));
         }
 
         return this.onSelectionChangedHelper(artifact, subArtifact, timeout);

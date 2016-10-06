@@ -216,7 +216,9 @@ namespace Helper
             artifact.Lock(user);
             NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
             foreach (var file in files)
+            {
                 artifactDetails.AttachmentValues.Add(new AttachmentValue(user, file));
+            }   
 
             Artifact.UpdateArtifact(artifact, user, artifactDetails, artifactStore.Address);
             var attachment = artifactStore.GetAttachments(artifact, user);
@@ -237,6 +239,7 @@ namespace Helper
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
             var attachment = artifactStore.GetAttachments(artifact, user);
+            Assert.IsNotNull(attachment, "Getattachments shouldn't return null.");
             Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
             var fileToDelete = attachment.AttachedFiles.FirstOrDefault(f => f.AttachmentId == fileId);
             Assert.AreEqual(fileId, fileToDelete.AttachmentId, "Attachments must contain file with fileId.");

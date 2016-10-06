@@ -20,6 +20,7 @@ namespace Helper
         {
             None,
             Viewer,
+            AuthorFullAccess,
             Author
         }
 
@@ -495,10 +496,16 @@ namespace Helper
         /// <param name="projects">The list of projects that the role is created for</param>
         /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide</param>
         /// <returns></returns>
-        public static IUser CreateUserWithProjectRolePermissions(TestHelper testHelper, ProjectRole role, List<IProject> projects, IArtifactBase artifact = null)
+        public static IUser CreateUserWithProjectRolePermissions(TestHelper testHelper, ProjectRole role,
+            List<IProject> projects, IArtifactBase artifact = null)
         {
             ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
             ThrowIf.ArgumentNull(projects, nameof(projects));
+            Assert.IsFalse((projects.Count > 1) && (artifact != null), "If we want to create artifact assignment we shouldn't use more than one project");
+            if (artifact != null)
+            {
+                Assert.IsTrue(artifact.ProjectId == projects[0].Id, "Artifact should belong to the project");
+            }// TODO: replace List<IProject> with IProject!!!
 
             Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(CreateUserWithProjectRolePermissions));
 
@@ -514,7 +521,7 @@ namespace Helper
                         project, RolePermissions.Read,
                         role.ToString());
                 }
-                else if (role == ProjectRole.Author)
+                else if (role == ProjectRole.AuthorFullAccess)
                 {
                     projectRole = ProjectRoleFactory.CreateProjectRole(
                         project,
@@ -537,6 +544,21 @@ namespace Helper
                         project, RolePermissions.None,
                         role.ToString());
                 }
+                else if (role == ProjectRole.Author)
+                {
+                    projectRole = ProjectRoleFactory.CreateProjectRole(
+                        project,
+                        RolePermissions.Edit |
+                        RolePermissions.CanReport |
+                        RolePermissions.Comment |
+                        RolePermissions.CreateRapidReview |
+                        RolePermissions.ExcelUpdate |
+                        RolePermissions.Read |
+                        RolePermissions.Reuse |
+                        RolePermissions.Share |
+                        RolePermissions.Trace,
+                        role.ToString());
+                }
 
                 var permissionsGroup = testHelper.CreateGroupAndAddToDatabase();
                 permissionsGroup.AddUser(newUser);
@@ -550,6 +572,85 @@ namespace Helper
             Logger.WriteTrace("{0}.{1} finished.", nameof(TestHelper), nameof(CreateUserWithProjectRolePermissions));
 
             return newUser;
+        }
+
+        /// <summary>
+        /// Creates a user with project role permissions for one or more projects.  Optionally, creates role permissions for a single artifact within
+        /// a project.
+        /// </summary>
+        /// <param name="user">User to assign role</param>
+        /// <param name="testHelper">An instance of TestHelper</param>
+        /// <param name="role">Author, Viewer or No permission role</param>
+        /// <param name="project">The project that the role is created for</param>
+        /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide</param>
+        public static void AssignProjectRolePermissionsToUser(IUser user, TestHelper testHelper, ProjectRole role, IProject project, IArtifactBase artifact = null)
+        {
+            ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+            if (artifact != null)
+            {
+                Assert.IsTrue(artifact.ProjectId == project.Id, "Artifact should belong to the project");
+            }
+
+            Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(AssignProjectRolePermissionsToUser));
+
+            IProjectRole projectRole = null;
+
+            if (role == ProjectRole.Viewer)
+            {
+                projectRole = ProjectRoleFactory.CreateProjectRole(
+                        project, RolePermissions.Read,
+                        role.ToString());
+            }
+            else if (role == ProjectRole.AuthorFullAccess)
+            {
+                projectRole = ProjectRoleFactory.CreateProjectRole(
+                        project,
+                        RolePermissions.Delete |
+                        RolePermissions.Edit |
+                        RolePermissions.CanReport |
+                        RolePermissions.Comment |
+                        RolePermissions.DeleteAnyComment |
+                        RolePermissions.CreateRapidReview |
+                        RolePermissions.ExcelUpdate |
+                        RolePermissions.Read |
+                        RolePermissions.Reuse |
+                        RolePermissions.Share |
+                        RolePermissions.Trace,
+                        role.ToString());
+            }
+            else if (role == ProjectRole.None)
+            {
+                projectRole = ProjectRoleFactory.CreateProjectRole(
+                        project, RolePermissions.None,
+                        role.ToString());
+            }
+            else if (role == ProjectRole.Author)
+            {
+                projectRole = ProjectRoleFactory.CreateProjectRole(
+                        project,
+                        RolePermissions.Edit |
+                        RolePermissions.CanReport |
+                        RolePermissions.Comment |
+                        RolePermissions.CreateRapidReview |
+                        RolePermissions.ExcelUpdate |
+                        RolePermissions.Read |
+                        RolePermissions.Reuse |
+                        RolePermissions.Share |
+                        RolePermissions.Trace,
+                        role.ToString());
+            }
+
+            var permissionsGroup = testHelper.CreateGroupAndAddToDatabase();
+            permissionsGroup.AddUser(user);
+            permissionsGroup.AssignRoleToProjectOrArtifact(project, role: projectRole, artifact: artifact);
+
+            testHelper.AdminStore.AddSession(user);
+
+            Logger.WriteInfo("User {0} created.", user.Username);
+
+            Logger.WriteTrace("{0}.{1} finished.", nameof(TestHelper), nameof(AssignProjectRolePermissionsToUser));
         }
 
         #endregion User management

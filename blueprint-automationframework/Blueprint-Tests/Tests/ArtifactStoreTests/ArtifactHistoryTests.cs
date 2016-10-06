@@ -41,8 +41,8 @@ namespace ArtifactStoreTests
         /// Creates an expected ArtifactHistoryVersion that tests can compare against.
         /// </summary>
         /// <param name="versionId">(optional) Default is 1.</param>
-        /// <param name="userId">(optional) Default is _adminUser.UserId.</param>
-        /// <param name="displayName">(optional) Default is _adminUser.DisplayName.</param>
+        /// <param name="userId">(optional) Default is _user.UserId.</param>
+        /// <param name="displayName">(optional) Default is _user.DisplayName.</param>
         /// <param name="hasUserIcon">(optional) Default is false.</param>
         /// <param name="timestamp">(optional) Default is now.</param>
         /// <param name="artifactState">(optional) Default is Published.</param>

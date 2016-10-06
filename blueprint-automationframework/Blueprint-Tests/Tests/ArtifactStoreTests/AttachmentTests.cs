@@ -20,9 +20,7 @@ namespace ArtifactStoreTests
     public class AttachmentTests : TestBase
     {
         private IUser _adminUser = null;
-        private IUser _userAuthorLicense = null;
-        private IProjectRole _authorRole = null;
-        private IGroup _group = null;
+        private IUser _authorUser = null;
         private IProject _project = null;
         private uint _fileSize = (uint)RandomGenerator.RandomNumber(4096);
         private string _fileName = null;
@@ -37,17 +35,15 @@ namespace ArtifactStoreTests
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _userAuthorLicense = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
-            _group = Helper.CreateGroupAndAddToDatabase();
-            _group.AddUser(_userAuthorLicense);
+            _authorUser = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
 
             _project = ProjectFactory.GetProject(_adminUser);
             _fileName = I18NHelper.FormatInvariant("{0}.{1}", RandomGenerator.RandomAlphaNumeric(10), "txt");
             _attachmentFile = FileStoreTestHelper.CreateFileWithRandomByteArray(_fileSize, _fileName, "text/plain");
             _novaAttachmentFile = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime,
                 Helper.FileStore);
-
-            _authorRole = ProjectRoleFactory.CreateProjectRole(_project, RolePermissions.Read | RolePermissions.Edit);
+            _authorUser = TestHelper.CreateUserWithProjectRolePermissions(Helper, TestHelper.ProjectRole.Author,
+                new List<IProject> { _project });
         }
 
         [TearDown]
@@ -55,7 +51,6 @@ namespace ArtifactStoreTests
         {
             Helper?.Dispose();
             _attachmentFile = null;
-            _authorRole.DeleteRole();
         }
 
         [TestCase]
@@ -438,18 +433,15 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.PublishArtifact(artifact, _adminUser);
             //versionId = 2 - 1 attachment - _novaAttachmentFile
 
-            _group.AssignRoleToProjectOrArtifact(_project, _authorRole);
-            Helper.AdminStore.AddSession(_userAuthorLicense);
-
             Attachments version1attachment = null;
             Attachments version2attachment = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                version1attachment = Helper.ArtifactStore.GetAttachments(artifact, _userAuthorLicense, versionId: 1);
-                version2attachment = Helper.ArtifactStore.GetAttachments(artifact, _userAuthorLicense, versionId: 2);
-            }, "GetAttachments shouldn't return any error when passed a a valid versionId.");
+                version1attachment = Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: 1);
+                version2attachment = Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: 2);
+            }, "GetAttachments shouldn't return any error when passed a valid versionId.");
 
             // Verify:
             Assert.AreEqual(0, version1attachment.AttachedFiles.Count, "List of attached files must be empty.");
@@ -464,10 +456,8 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Glossary);
 
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, new List<INovaFile> { _novaAttachmentFile },
-                Helper.ArtifactStore);
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, new List<INovaFile> { _novaAttachmentFile },
-                Helper.ArtifactStore);
+            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact,
+                new List<INovaFile> { _novaAttachmentFile, _novaAttachmentFile }, Helper.ArtifactStore);
             Helper.ArtifactStore.PublishArtifact(artifact, _adminUser);
             //versionId = 1 - 2 attachments - _novaAttachmentFile
             var attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser);
@@ -477,14 +467,11 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.PublishArtifact(artifact, _adminUser);
             //versionId = 1 - 1 attachment
 
-            _group.AssignRoleToProjectOrArtifact(_project, _authorRole);
-            Helper.AdminStore.AddSession(_userAuthorLicense);
-
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                attachment = Helper.ArtifactStore.GetAttachments(artifact, _userAuthorLicense, versionId: 2);
-            }, "GetAttachments shouldn't return any error when passed a a valid versionId.");
+                attachment = Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: 2);
+            }, "GetAttachments shouldn't return any error when passed a valid versionId.");
 
             // Verify:
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "Artifact should have 1 attached file at this stage.");
@@ -492,23 +479,20 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(182501)]
-        [Description("Create and publish artifact, add attachment and publish, get attachments for version 1 and 2, attachments should have expected values.")]
+        [Description("Create and publish artifact, get attachments for version 1, attachments should be empty.")]
         public void GetAttachmentSpecifyVersion_ArtifactNoAttachment_NoAttachmentForLastVersion()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.BusinessProcess);
             //versionId = 1 - no attachment
             
-            _group.AssignRoleToProjectOrArtifact(_project, _authorRole);
-            Helper.AdminStore.AddSession(_userAuthorLicense);
-
             Attachments attachment = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                attachment = Helper.ArtifactStore.GetAttachments(artifact, _userAuthorLicense, versionId: 1);
-            }, "GetAttachments shouldn't return any error when passed a a valid versionId.");
+                attachment = Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: 1);
+            }, "GetAttachments shouldn't return any error when passed a valid versionId.");
 
             // Verify:
             Assert.AreEqual(0, attachment.AttachedFiles.Count, "List of attached files must be empty.");
@@ -531,22 +515,21 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.PublishArtifact(artifact, _adminUser);
             //versionId = 2 - 2 attachments
 
-            _group.AssignRoleToProjectOrArtifact(_project, _authorRole);
-            Helper.AdminStore.AddSession(_userAuthorLicense);
-
             Attachments version1attachment = null;
             Attachments version2attachment = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                version1attachment = Helper.ArtifactStore.GetAttachments(artifact, _userAuthorLicense, versionId: 1);
-                version2attachment = Helper.ArtifactStore.GetAttachments(artifact, _userAuthorLicense, versionId: 2);
-            }, "GetAttachments shouldn't return any error when passed a a valid versionId.");
+                version1attachment = Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: 1);
+                version2attachment = Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: 2);
+            }, "GetAttachments shouldn't return any error when passed a valid versionId.");
 
             // Verify:
             Assert.AreEqual(1, version1attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
             Assert.AreEqual(2, version2attachment.AttachedFiles.Count, "List of attached files must have 2 items.");
+            Assert.IsFalse(version2attachment.AttachedFiles[0].AttachmentId == version2attachment.AttachedFiles[1].AttachmentId);
+            Assert.IsTrue(version2attachment.AttachedFiles[0].AttachmentId == version1attachment.AttachedFiles[0].AttachmentId);
         }
 
         [TestCase]
@@ -558,31 +541,30 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
             //versionId = 1 - no attachments
-            _group.AssignRoleToProjectOrArtifact(_project, _authorRole);
-            Helper.AdminStore.AddSession(_userAuthorLicense);
-            //_userAuthorLicense has Author access to the project
 
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_userAuthorLicense, artifact, new List<INovaFile> { _novaAttachmentFile },
-                Helper.ArtifactStore);
-            Helper.ArtifactStore.PublishArtifact(artifact, _userAuthorLicense);
-            //versionId = 2 - 1 attachment - _novaAttachmentFile
-
-            var noneRole = ProjectRoleFactory.CreateProjectRole(_project, RolePermissions.None);
-            _group.AssignRoleToProjectOrArtifact(_project, noneRole, artifact);
-            //now _userAuthorLicense has no access to artifact
-
-            //get new token with proper access rights
-            Helper.AdminStore.DeleteSession(_userAuthorLicense);
-            Helper.AdminStore.AddSession(_userAuthorLicense);
-
-
-            // Execute &  Verify:
-            Assert.Throws<Http403ForbiddenException>(() =>
+            try
             {
-                Helper.ArtifactStore.GetAttachments(artifact, _userAuthorLicense, versionId: 1);
-            }, "GetAttachments should throw 403 exception for user with no access.");
+                ArtifactStoreHelper.AddArtifactAttachmentAndSave(_authorUser, artifact, new List<INovaFile> { _novaAttachmentFile },
+                Helper.ArtifactStore);
+                Helper.ArtifactStore.PublishArtifact(artifact, _authorUser);
+                //versionId = 2 - 1 attachment - _novaAttachmentFile
 
-            noneRole.DeleteRole();
+                Helper.AdminStore.DeleteSession(_authorUser);//'logoff' before changing permissions
+                TestHelper.AssignProjectRolePermissionsToUser(_authorUser, Helper, TestHelper.ProjectRole.None, _project, artifact);
+                //now _userAuthorLicense has no access to artifact
+
+                // Execute &  Verify:
+                Assert.Throws<Http403ForbiddenException>(() =>
+                {
+                    Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: 1);
+                }, "GetAttachments should throw 403 exception for user with no access.");
+            }
+
+            finally {
+                artifact.Delete(_adminUser);
+                artifact.Publish(_adminUser);
+            }
+            
         }
 
         #endregion Attachments Versions tests

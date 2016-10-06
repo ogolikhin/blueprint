@@ -364,7 +364,7 @@ namespace SearchServiceTests
         }
 
         [TestCase(1, TestHelper.ProjectRole.Viewer)]
-        [TestCase(1, TestHelper.ProjectRole.Author)]
+        [TestCase(1, TestHelper.ProjectRole.AuthorFullAccess)]
         [TestCase(0, TestHelper.ProjectRole.None)]
         [TestRail(182374)]
         [Description("Searching with the search criteria that matches with published artifacts using user have permission to certain project(s). Execute Search - Must return corresponding SearchResult based on user's permission per project")]

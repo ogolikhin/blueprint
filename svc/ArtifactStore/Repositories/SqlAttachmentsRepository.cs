@@ -1,6 +1,7 @@
 ﻿using ArtifactStore.Helpers;
 using ArtifactStore.Models;
 using Dapper;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
@@ -79,7 +80,7 @@ namespace ArtifactStore.Repositories
 
             if (revisionId <= 0)
             {
-                throw new HttpResponseException(HttpStatusCode.NotFound);
+                throw new ResourceNotFoundException(string.Format("Version index (Id:{0}) is not found.", versionId), ErrorCodes.ResourceNotFound);
             }
 
             var attachments = (await GetAttachments(itemId, userId, revisionId, addDrafts)).ToList();

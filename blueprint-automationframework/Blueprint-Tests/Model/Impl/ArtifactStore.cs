@@ -443,7 +443,7 @@ namespace Model.Impl
             return restApi.SendRequestAndDeserializeObject<NovaSubArtifactDetails>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: false);
+                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
         }
 
         /// <seealso cref="IArtifactStore.GetUnpublishedChanges(IUser, List{HttpStatusCode})"/>

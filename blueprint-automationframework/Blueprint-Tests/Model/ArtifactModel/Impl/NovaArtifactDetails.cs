@@ -127,6 +127,10 @@ namespace Model.ArtifactModel.Impl
         public List<CustomProperty> SpecificPropertyValues { get; } = new List<CustomProperty>();
         public int? PredefinedType { get; set; }
 
+        // TODO: found following properties when capturing PATCH /svc/bpartifactstore/artifacts/{artifactID}: 
+        // SubArtifacts, Traces, DocRefValue
+        // Maybe need to add for future integration test...
+
         #endregion Serialized JSON Properties
 
         #region Constructors

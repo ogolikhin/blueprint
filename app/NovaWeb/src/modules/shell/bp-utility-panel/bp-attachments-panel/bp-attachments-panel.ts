@@ -43,6 +43,8 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public item: IStatefulItem;
     public categoryFilter: number;
     public filesToUpload: any;
+    public canAddAttachments: boolean;
+    public canAddDocRefs: boolean;
 
     private maxAttachmentFilesizeDefault: number = 10485760; // 10 MB
     private maxNumberAttachmentsDefault: number = 50;
@@ -179,14 +181,27 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
         this.attachmentsList = [];
         this.docRefList = [];
+        this.canAddAttachments = true;
+        this.canAddDocRefs = true;
+
         this.subscribers = this.subscribers.filter(sub => { sub.dispose(); return false; });
 
         if (this.item) {
-            const attachmentsSubscriber = this.item.attachments.getObservable().subscribe(this.attachmentsUpdated);
-            const docRefsSubscriber = this.item.docRefs.getObservable().subscribe(this.docRefsUpdated);
+            // If artifact does not exist of the server, just initialize with empty lists
+            if (!Helper.hasArtifactEverBeenSavedOrPublished(this.item)) {                
+                this.setReadOnly();
+                if (this.item.attachments.isLoading || this.item.docRefs.isLoading) {      
 
-            this.subscribers = [attachmentsSubscriber, docRefsSubscriber];
-        }
+                    this.item.attachments.initialize(this.attachmentsList);
+                    this.item.docRefs.initialize(this.docRefList);
+                }
+            } else {
+                const attachmentsSubscriber = this.item.attachments.getObservable().subscribe(this.attachmentsUpdated);
+                const docRefsSubscriber = this.item.docRefs.getObservable().subscribe(this.docRefsUpdated);
+
+                this.subscribers = [attachmentsSubscriber, docRefsSubscriber];
+            }
+        } 
 
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
@@ -197,5 +212,10 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
     private docRefsUpdated = (docRefs: IArtifactDocRef[]) => {
         this.docRefList = docRefs;
+    }
+
+    private setReadOnly() {
+        this.canAddAttachments = false;
+        this.canAddDocRefs = false;
     }
 }

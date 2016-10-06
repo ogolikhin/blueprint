@@ -168,9 +168,6 @@ export class BpProcessEditorController extends BpBaseEditor {
     
     private onSelectionChanged = (elements: IDiagramNode[]) => {
         if (elements.length > 0 ) {
-            if (elements[0].model.id <= 0) {
-                return;
-            }
             this.artifactManager.selection.setSubArtifact(this.artifact.subArtifactCollection.get(elements[0].model.id));
         } else {
             this.artifactManager.selection.setArtifact(this.artifact);

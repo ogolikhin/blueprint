@@ -3,12 +3,13 @@ using Helper;
 using Model;
 using Model.ArtifactModel;
 using Model.Factories;
+using Model.Impl;
+using Model.SearchServiceModel.Impl;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Model.SearchServiceModel.Impl;
 using TestCommon;
 using Utilities;
 
@@ -531,9 +532,11 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with invalid Search criteria
             var ex = Assert.Throws<Http400BadRequestException>(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, invalidSearchCriteria), "Nova FullTextSearch call should exit with 400 BadRequestException when using invalid search criteria!");
-            
-            // Validation: Exception should contain empty response content.
-            Assert.That(ex.RestResponse.Content.Length.Equals(0), "FullTextSearch with invalid searchCriteria should return empty content but {0} is returned", ex.RestResponse.Content.ToString());
+
+            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+
+            // Validation: Exception should contain proper errorCode in the response content.
+            Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.IncorrectSearchCriteria), "FullTextSearch with invalid searchCriteria should return {0} errorCode but {1} is returned", ErrorCodes.IncorrectSearchCriteria, serviceErrorMessage.ErrorCode);
         }
 
         [TestCase]
@@ -549,8 +552,10 @@ namespace SearchServiceTests
             // Execute: Execute FullTextSearch with the search term less than minimum size
             var ex = Assert.Throws<Http400BadRequestException>(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, lessThanMinimumSearchTermSearchCriteria), "Nova FullTextSearch call shuold exit with 400 BadRequestException when using less than minium length search term!");
 
-            // Validation: Exception should contain empty response content.
-            Assert.That(ex.RestResponse.Content.Length.Equals(0), "FullTextSearch with invalid searchCriteria should return empty content but {0} is returned", ex.RestResponse.Content.ToString());
+            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+
+            // Validation: Exception should contain proper errorCode in the  response content.
+            Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.IncorrectSearchCriteria), "FullTextSearch with invalid searchCriteria should return {0} errorCode but {1} is returned", ErrorCodes.IncorrectSearchCriteria, serviceErrorMessage.ErrorCode);
         }
 
         #endregion 400 Bad Request Tests

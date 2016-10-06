@@ -84,10 +84,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return this.subject.filter(it => !!it).asObservable();
     }
 
+    //Hook for subclasses to provide additional promises which should be run for obtaining data
     protected getCustomArtifactPromisesForGetObservable() : angular.IPromise<IStatefulArtifact>[]{
         return [];
     }
 
+    //Hook for subclasses to do some post processing  
     protected runPostGetObservable(){
 
     }

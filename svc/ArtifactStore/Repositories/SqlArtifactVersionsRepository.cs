@@ -16,7 +16,7 @@ namespace ArtifactStore.Repositories
     public class SqlArtifactVersionsRepository : IArtifactVersionsRepository
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
-        private readonly SqlArtifactPermissionsRepository _artifactPermissionsRepository;
+        private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
 
         public SqlArtifactVersionsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
@@ -24,9 +24,14 @@ namespace ArtifactStore.Repositories
         }
 
         internal SqlArtifactVersionsRepository(ISqlConnectionWrapper connectionWrapper)
+            : this(connectionWrapper, new SqlArtifactPermissionsRepository(connectionWrapper))
+        {
+        }
+
+        internal SqlArtifactVersionsRepository(ISqlConnectionWrapper connectionWrapper, IArtifactPermissionsRepository artifactPermissionsRepository)
         {
             ConnectionWrapper = connectionWrapper;
-            _artifactPermissionsRepository = new SqlArtifactPermissionsRepository(connectionWrapper);
+            _artifactPermissionsRepository = artifactPermissionsRepository;
         }
 
         private async Task<bool> IncludeDraftVersion(int? userId, int sessionUserId, int artifactId)

@@ -64,7 +64,7 @@ export class DiagramView implements IDiagramView {
     }
 
     public addSelectionListener(listener: ISelectionListener) {
-        if (listener != null) {
+        if (listener) {
             this.selectionListeners.push(listener);
         }
     }
@@ -109,8 +109,8 @@ export class DiagramView implements IDiagramView {
 
     public destroy() {
         this.graph.destroy();
-        this.createdVertices = null;
-        this.selectionListeners = null;
+        delete this.createdVertices;
+        delete this.selectionListeners;
     }
 
     private initGraph() {

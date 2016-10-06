@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using static Model.ArtifactModel.Impl.NovaArtifactDetails;
+using static Model.ArtifactModel.Impl.NovaSubArtifactDetails;
 using Model.ArtifactModel.Impl;
 
 namespace Model.ArtifactModel

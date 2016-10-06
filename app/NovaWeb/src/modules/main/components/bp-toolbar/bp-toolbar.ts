@@ -2,7 +2,7 @@
 import { IDialogSettings, IDialogService } from "../../../shared";
 import { Models} from "../../models";
 import { IArtifactManager, IProjectManager } from "../../../managers";
-
+import { IStatefulArtifact } from "../../../managers/artifact-manager/artifact";
 import { OpenProjectController } from "../dialogs/open-project/open-project";
 import { BPTourController } from "../dialogs/bp-tour/bp-tour";
 import { Helper } from "../../../shared/utils/helper";
@@ -153,24 +153,32 @@ class BPToolbarController implements IBPToolbarController {
     }
 
     public $onInit() {
-        this._subscribers = [
-            this.artifactManager.selection.artifactObservable.subscribe(this.displayArtifact)
-        ];
+        const artifactStateSubscriber = this.artifactManager.selection.artifactObservable
+            .map(selection => {
+                if (!selection) {
+                    this._currentArtifact = null;
+                }
+                return selection;
+            })
+            .filter(selection => !!selection)
+            .flatMap(selection => selection.getObservable())
+            .subscribe(this.displayArtifact);
+
+        this._subscribers = [ artifactStateSubscriber ];
     }
 
     public $onDestroy() {
-        //dispose all subscribers
-        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        this._subscribers.forEach(subscriber => { subscriber.dispose(); });
+        delete this._subscribers;
     }
 
-    private displayArtifact = (artifact: Models.IArtifact) => {
+    private displayArtifact = (artifact: IStatefulArtifact) => {
         this._currentArtifact =
-            Helper.canUtilityPanelUseSelectedArtifact(artifact) && 
-            artifact.version !== 0 ? artifact.id : null;
+            Helper.canUtilityPanelUseSelectedArtifact(artifact) &&
+            (artifact.version > 0) ? artifact.id : null;
     }
-    
+
     public get canRefreshAll(): boolean{
         return !!this.projectManager.getSelectedProject();
     }
-
 }

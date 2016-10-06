@@ -124,6 +124,7 @@
       <LastGenOutput>7.4.0.0.sql</LastGenOutput>
     </Content>
     <Content Include="Migration\7.3.0.0\ModifyAutogrowth.sql" />
+    <Content Include="Migration\7.4.0.0\ModifyApplicationLabels.sql" />
     <Content Include="Procedures.sql">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

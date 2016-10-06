@@ -160,7 +160,12 @@ namespace Model.StorytellerModel.Impl
             return artifacts;
         }
 
-        public List<IStorytellerUserStory> GenerateUserStories(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        /// <seealso cref="IStoryteller.GenerateUserStories(IUser, IProcess, List{HttpStatusCode}, bool, int)"/>
+        public List<IStorytellerUserStory> GenerateUserStories(IUser user,
+            IProcess process,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false,
+            int timeoutRetries = 5)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(GenerateUserStories));
 
@@ -187,12 +192,31 @@ namespace Model.StorytellerModel.Impl
             RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Generating user stories for process ID: {1}, Name: {2}", nameof(Storyteller), process.Id, process.Name);
+            List<StorytellerUserStory> userstoryResults = null;
 
-            var userstoryResults = restApi.SendRequestAndDeserializeObject<List<StorytellerUserStory>>(
-                path,
-                RestRequestMethod.POST,
-                additionalHeaders: additionalHeaders,
-                expectedStatusCodes: expectedStatusCodes);
+            // Hack: Retry this call a certain number of times because it sometimes gets an OperationTimedOutException on slow machines.
+            for (int retry = 0; retry < timeoutRetries; ++retry)
+            {
+                try
+                {
+                    userstoryResults = restApi.SendRequestAndDeserializeObject<List<StorytellerUserStory>>(
+                        path,
+                        RestRequestMethod.POST,
+                        additionalHeaders: additionalHeaders,
+                        expectedStatusCodes: expectedStatusCodes);
+
+                    break;  // If no timeout exception, don't retry.
+                }
+                catch (OperationTimedOutException)
+                {
+                    Logger.WriteError("Caught an OperationTimedOutException while running: 'POST {0}'!", path);
+
+                    if ((retry + 1) >= timeoutRetries)
+                    {
+                        throw;
+                    }
+                }
+            }
 
             // Since Storyteller created the user story artifacts, we aren't tracking them, so we need to tell Delete to also delete children.
             var artifact = Artifacts.Find(a => a.Id == process.Id);

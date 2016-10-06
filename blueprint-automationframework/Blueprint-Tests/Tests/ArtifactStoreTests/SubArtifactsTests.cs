@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Common;
 using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
@@ -112,8 +114,6 @@ namespace ArtifactStoreTests
             CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
         }
 
-        #endregion Process tests
-
         [TestCase]
         [TestRail(165967)]
         [Description("Create default process, delete it, get list of subartifacts - check that it is empty.")]
@@ -132,6 +132,68 @@ namespace ArtifactStoreTests
 
             Assert.AreEqual(0, subArtifacts.Count, "For deleted process GetSubartifacts must return empty list (for Instance Admin).");
         }
+
+        [TestCase]
+        [TestRail(182511)]
+        [Description("Create default process and new artifact. Add inline trace that points to the new artifact to a process subartifact." +
+                     "Verify inline trace added. Modify new artifact name and publish.  Verify inline trace in process subartifact is updated with " +
+                     "the modifed artifact name.")]
+        public void GetSubArtifacts_CreateInlineTraceFromProcessToArtifactThenModifyArtifactName_VerifyInlineTraceUpdatedInProcess()
+        {
+            // Setup:
+            // Create artifact
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+
+            // Create and get the default process
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+
+            // Add an inline trace to the default user task in the process and publish the process
+            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var descriptionProperty = defaultUserTask.PropertyValues.FirstOrDefault(p => p.Key == "description").Value;
+            descriptionProperty.Value = CreateTextForProcessInlineTrace(new List<IArtifact> {artifact});
+
+            Helper.Storyteller.UpdateProcess(_user, returnedProcess);
+            Helper.Storyteller.PublishProcess(_user, returnedProcess);
+
+            // Get the process with the updated inline trace and verify that the trace was added
+            var updatedProcess = Helper.Storyteller.GetProcess(_user, returnedProcess.Id);
+            var updatedDefaultUserTask = updatedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var updatedDescriptionProperty = updatedDefaultUserTask.PropertyValues.FirstOrDefault(p => p.Key == "description").Value;
+
+            Assert.That(updatedDescriptionProperty.Value.ToString().Contains(descriptionProperty.Value.ToString()), "Description properties don't match.");
+
+            // Execute:
+            artifact.Lock();
+
+            // Change the name of artifact
+            var artifactDetailsToUpdateInlineTraceArtifact = new NovaArtifactDetails
+            {
+                Id = artifact.Id,
+                ProjectId = artifact.ProjectId,
+                ParentId = artifact.ParentId,
+                Name = artifact.Name + "_NameUpdated",
+                Version = artifact.Version
+            };
+
+            // Update the artifact with the new name
+            NovaArtifactDetails updatedArtifactDetails = null;
+
+            Assert.DoesNotThrow(() => updatedArtifactDetails = Artifact.UpdateArtifact(artifact, _user, artifactDetailsChanges: artifactDetailsToUpdateInlineTraceArtifact),
+                "UpdateArtifact call failed when using the following artifact ID: {0}!", artifact.Id);
+
+            Helper.ArtifactStore.PublishArtifact(artifact, _user);
+
+            // Get process subartifact details via Nova call
+            var subartifact = Helper.ArtifactStore.GetSubartifactDetails(_user, updatedProcess.Id,
+                updatedDefaultUserTask.Id);
+
+            // Verify:
+            Assert.That(subartifact.Description.Contains(updatedArtifactDetails.Name), "The artifact name was not updated in the sub artifact inline trace.");
+
+            CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
+        }
+
+        #endregion Process tests
 
         #region Custom data tests
 
@@ -252,6 +314,8 @@ namespace ArtifactStoreTests
 
         #endregion Custom Data
 
+        #region Private Methods
+
         private static class UseCaseDisplayNames
         {
             public const string PRECONDITION = "Pre Condition";
@@ -274,5 +338,33 @@ namespace ArtifactStoreTests
                 Assert.IsFalse(s.HasChildren, "Process subartifacts doesn't have children.");
             }
         }
+
+        /// <summary>
+        /// Creates new rich text that includes inline trace(s)
+        /// </summary>
+        /// <param name="artifacts"></param>
+        /// <returns>A formatted rich text string with inlne traces(s)</returns>
+        private static string CreateTextForProcessInlineTrace(IList<IArtifact> artifacts)
+        {
+            var text = string.Empty;
+
+            foreach (var artifact in artifacts)
+            {
+                var openApiProperty = artifact.Properties.FirstOrDefault(p => p.Name == "ID");
+                if (openApiProperty != null)
+                {
+                    text = text + I18NHelper.FormatInvariant("<a " +
+                        "href=\"{0}/?/ArtifactId={1}\" target=\"\" artifactid=\"{1}\"" +
+                        " linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\"" +
+                        " canclick=\"True\" isvalid=\"True\" title=\"Project: {3}\"><span style=\"text-decoration: underline; color: #0000ff\">{4}: {2}</span></a>",
+                        artifact.Address, artifact.Id, artifact.Name, artifact.Project.Name,
+                        openApiProperty.TextOrChoiceValue);
+                }
+            }
+
+            return "<p>" + text + "</p>";
+        }
+
+        #endregion Private Methods
     }
 }

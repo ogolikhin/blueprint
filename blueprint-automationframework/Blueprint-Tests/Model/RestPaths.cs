@@ -155,6 +155,11 @@ namespace Model
                     {
                         public const string REPLIES                 = "svc/artifactstore/artifacts/{0}/discussions/{1}/replies";
                     }
+
+                    public static class Subartifacts_id_
+                    {
+                        public const string SUBARTIFACTS_id         = "svc/bpartifactstore/artifacts/{0}/subartifacts/{1}";
+                    }
                 }
 
                 [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.

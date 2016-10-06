@@ -11,6 +11,11 @@ CREATE TABLE #tempAppLabels (
 	[Key] [nvarchar](128) NOT NULL,
 	[Locale] [nvarchar](32) NOT NULL,
 	[Text] [nvarchar](512) NOT NULL
+
+	CONSTRAINT [PK_ApplicationLabels] PRIMARY KEY NONCLUSTERED 
+	(
+		[Key], [Locale] ASC
+	)
 )
 
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'en-US', N'Yes')
@@ -394,10 +399,11 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Page_Label',
 INSERT INTO [dbo].[ApplicationLabels] ([Key], [Locale], [Text])
 SELECT #tempAppLabels.[Key], #tempAppLabels.[Locale], #tempAppLabels.[Text]
   FROM #tempAppLabels
- WHERE NOT EXISTS ( SELECT *
-					  FROM [dbo].[ApplicationLabels] 
-					 WHERE [dbo].[ApplicationLabels].[Key] = #tempAppLabels.[Key]
-					   AND [dbo].[ApplicationLabels].[Locale] = #tempAppLabels.[Locale])
+  LEFT JOIN [dbo].[ApplicationLabels] 
+		ON [dbo].[ApplicationLabels].[Key] = #tempAppLabels.[Key]
+		AND [dbo].[ApplicationLabels].[Locale] = #tempAppLabels.[Locale]
+ WHERE #tempAppLabels.[Key] is NULL
+   AND #tempAppLabels.[Locale] is NULL
 
 -- Update if [Key]/[Locale] combination exists, but text is different
 UPDATE [dbo].[ApplicationLabels]

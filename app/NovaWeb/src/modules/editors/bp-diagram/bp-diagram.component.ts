@@ -2,7 +2,7 @@ import "angular";
 import "angular-sanitize";
 import { IStencilService } from "./impl/stencil.svc";
 import { ILocalizationService } from "../../core";
-import { IDiagramService, CancelationTokenConstant } from "./diagram.svc";
+import { IDiagramService, DiagramErrors } from "./diagram.svc";
 import { DiagramView } from "./impl/diagram-view";
 import { ISelection, IStatefulArtifactFactory } from "../../managers/artifact-manager";
 import { IDiagram, IShape, IDiagramElement } from "./impl/models";
@@ -43,7 +43,7 @@ export class BPDiagramController extends BpBaseEditor {
     ];
 
     public isLoading: boolean = true;
-    public isBrokenOrOld: boolean = false;
+    public isIncompatible: boolean = false;
     public errorMsg: string;
 
     private diagramView: DiagramView;
@@ -80,7 +80,7 @@ export class BPDiagramController extends BpBaseEditor {
 
     private clearSelectionFilter = (selection: ISelection) => {
         return this.artifact
-               && selection != null
+               && selection
                && selection.artifact
                && selection.artifact.id === this.artifact.id
                && !selection.subArtifact;
@@ -103,6 +103,7 @@ export class BPDiagramController extends BpBaseEditor {
         if (this.isDestroyed) {
             return;
         }
+        this.isIncompatible = false;
         this.cancelationToken = this.$q.defer();
         this.diagramService.getDiagram(this.artifact.id, this.artifact.predefinedType, this.cancelationToken.promise).then(diagram => {
             // TODO: hotfix, remove later
@@ -110,26 +111,18 @@ export class BPDiagramController extends BpBaseEditor {
                 return;
             }
             this.initSubArtifacts(diagram);
-
-            if (diagram.libraryVersion === 0 && diagram.shapes && diagram.shapes.length > 0) {
-                this.isBrokenOrOld = true;
-                this.errorMsg = this.localization.get("Diagram_OldFormat_Message");
-                this.$log.error("Old diagram, libraryVersion is 0");
-            } else {
-                this.isBrokenOrOld = false;
-                this.diagramView = new DiagramView(this.$element[0], this.stencilService);
-                this.diagramView.addSelectionListener((elements) => this.onSelectionChanged(diagram.diagramType, elements));
-                this.stylizeSvg(this.$element, diagram.width, diagram.height);
-                this.diagramView.drawDiagram(diagram);
-            }
+            this.diagramView = new DiagramView(this.$element[0], this.stencilService);
+            this.diagramView.addSelectionListener((elements) => this.onSelectionChanged(diagram.diagramType, elements));
+            this.stylizeSvg(this.$element, diagram.width, diagram.height);
+            this.diagramView.drawDiagram(diagram);
         }).catch((error: any) => {
-            if (error !== CancelationTokenConstant.cancelationToken) {
-                this.isBrokenOrOld = true;
-                this.errorMsg = error.message;
+            if (error === DiagramErrors[DiagramErrors.Incompatible]) {
+                this.isIncompatible = true;
+                this.errorMsg = this.localization.get("Diagram_OldFormat_Message");
                 this.$log.error(error.message);
             }
         }).finally(() => {
-            this.cancelationToken = null;
+            delete this.cancelationToken;
             this.isLoading = false;
         });
     }
@@ -159,11 +152,11 @@ export class BPDiagramController extends BpBaseEditor {
     }
 
     private getUseCaseDiagramArtifact(shape: IShape) {
-        const artifactId = ShapeExtensions.getPropertyByName(shape, ShapeProps.ARTIFACT_ID);
+        const artifactId = parseInt(ShapeExtensions.getPropertyByName(shape, ShapeProps.ARTIFACT_ID), 10);
         if (artifactId != null) {
             return this.artifactManager.get(artifactId);
         }
-        return null;
+        return undefined;
     }
 
     private getSubArtifact(id: number) {
@@ -174,7 +167,7 @@ export class BPDiagramController extends BpBaseEditor {
                 }
             }
         }
-        return null;
+        return undefined;
     }
 
     private initSubArtifacts(diagram: IDiagram) {

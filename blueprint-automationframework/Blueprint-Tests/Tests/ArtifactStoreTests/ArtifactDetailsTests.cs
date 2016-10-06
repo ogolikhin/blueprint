@@ -29,6 +29,8 @@ namespace ArtifactStoreTests
         private IUser _user = null;
         private IProject _project = null;
 
+        #region Setup and Cleanup
+
         [SetUp]
         public void SetUp()
         {
@@ -42,6 +44,8 @@ namespace ArtifactStoreTests
         {
             Helper?.Dispose();
         }
+
+        #endregion Setup and Cleanup
 
         #region 200 OK Tests
 
@@ -182,15 +186,16 @@ namespace ArtifactStoreTests
             Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
         }
 
-        [TestCase]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [Explicit(IgnoreReasons.UnderDevelopment)]
-        [TestRail(0)]
-        [Description("GetArtifactDetailsForTheArtifactContainingInlineTrace. Update regular inline trace artifact - Verify that GetArtifactDetails returned updated inline trace information.")]
-        public void GetArtifactDetailsForArtiactWithInlineTrace_UpdateRegularInlineTraceArtifact_VerifyGetArtifactDetailsContainsUpdatedInlineTranceInformation()
+        [TestRail(182509)]
+        [Description("Create two artifacts: main artifact that has inline trace to  inlinetrace artifact. Update the inlinetrace artifact information - Verify that GetArtifactDetails returned updated inline trace information.")]
+        public void GetArtifactDetails_CreateAndUpdateInlineTraceArtifact_ReturnsUpdatedInlineTranceInformation(
+            BaseArtifactType baseArtifactType )
         {
             // Setup: Create inline trace artifact
-            var mainArtifact = Helper.CreateAndPublishArtifact(_project, _user, Model.ArtifactModel.BaseArtifactType.Actor);
-            var inlineTraceArtifact = Helper.CreateAndPublishArtifact(_project, _user, Model.ArtifactModel.BaseArtifactType.Actor);
+            var mainArtifact = Helper.CreateAndPublishArtifact(_project, _user, baseArtifactType);
+            var inlineTraceArtifact = Helper.CreateAndPublishArtifact(_project, _user, baseArtifactType);
             NovaArtifactDetails inlineTraceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, inlineTraceArtifact.Id);
 
             // Setup: Update main artifact to have inline trace to inline trace artifact created
@@ -200,7 +205,7 @@ namespace ArtifactStoreTests
                 ProjectId = mainArtifact.ProjectId,
                 ParentId = mainArtifact.ParentId,
                 Version = mainArtifact.Version,
-                Description = CreateArtifactInlineTraceValue(inlineTraceArtifact, inlineTraceArtifactDetails),
+                Description = ArtifactStoreHelper.CreateArtifactInlineTraceValue(inlineTraceArtifact, inlineTraceArtifactDetails),
             };
 
             // Execute: Update main artifact with inline trace to target artifact
@@ -232,6 +237,8 @@ namespace ArtifactStoreTests
 
         #endregion 200 OK Tests
 
+        #region 401 Unauthorized Tests
+
         [TestCase]
         [TestRail(154701)]
         [Description("Create & publish an artifact, GetArtifactDetails but don't send any Session-Token header.  Verify it returns 401 Unauthorized.")]
@@ -260,6 +267,10 @@ namespace ArtifactStoreTests
             }, "'GET {0}' should return 401 Unauthorized when passed a valid artifact ID but an unauthorized token!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
         }
+
+        #endregion 401 Unauthorized Tests
+
+        #region 403 Forbidden Tests
 
         [TestCase]
         [TestRail(154703)]
@@ -301,6 +312,10 @@ namespace ArtifactStoreTests
             AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
                 "If called by a user without permission to the artifact, we should get an error message of '{0}'!", expectedMessage);
         }
+
+        #endregion 403 Forbidden Tests
+
+        #region 404 Not Found Tests
 
         [TestCase]
         [TestRail(154704)]
@@ -349,6 +364,8 @@ namespace ArtifactStoreTests
                 "If called by a user without permission to the artifact, we should get an error message of '{0}'!", expectedMessage);
         }
 
+        #endregion 404 Not Found Tests
+
         #region Private functions.
 
         /// <summary>
@@ -371,22 +388,6 @@ namespace ArtifactStoreTests
             MessageResult messageResult = JsonConvert.DeserializeObject<MessageResult>(jsonContent, jsonSettings);
 
             Assert.AreEqual(expectedMessage, messageResult.Message, assertMessage, assertMessageParams);
-        }
-
-        /// <summary>
-        /// Creates inline trace text for the provided artifact. For use with RTF properties.
-        /// </summary>
-        /// <param name="inlineTraceArtifact">target artifact for inline traces</param>
-        /// <param name="inlineTraceArtifactDetails">target artifactDetails for inline traces</param>
-        /// <returns>inline trace text</returns>
-        private static string CreateArtifactInlineTraceValue(IArtifact inlineTraceArtifact, INovaArtifactDetails inlineTraceArtifactDetails)
-        {
-            string inlineTraceText = null;
-
-            inlineTraceText = I18NHelper.FormatInvariant("<html><head></head><body style=\"padding: 1px 0px 0px; font-family: 'Portable User Interface'; font-size: 10.67px\"><div style=\"padding: 0px\"><p style=\"margin: 0px\">&#x200b;<a linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null\" canclick=\"True\" isvalid=\"True\" href=\"{0}?ArtifactId={1}\" target=\"_blank\" artifactid=\"{1}\" style=\"font-family: 'Portable User Interface'; font-size: 11px; font-style: normal; font-weight: normal; text-decoration: underline; color: #0000FF\" title=\"Project: akim_project\"><span style=\"font-family: 'Portable User Interface'; font-size: 11px; font-style: normal; font-weight: normal; text-decoration: underline; color: #0000FF\">{2}{1}: {3}</span></a><span style=\"-c1-editable: true; font-family: 'Portable User Interface'; font-size: 10.67px; font-style: normal; font-weight: normal; color: Black\">&#x200b;</span></p></div></body></html>",
-                inlineTraceArtifact.Address, inlineTraceArtifact.Id, inlineTraceArtifactDetails.Prefix, inlineTraceArtifactDetails.Name);
-
-            return inlineTraceText;
         }
 
         #endregion Private functions.

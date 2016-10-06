@@ -34,6 +34,7 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
     public sortAscending: boolean = false;
     public selectedArtifactVersion: IArtifactHistoryVersion;
     public isLoading: boolean = false;
+    private subscribers: Rx.IDisposable[];
     
     constructor(
         $q: ng.IQService,
@@ -48,6 +49,8 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
             { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },
             { value: true, label: this.localization.get("App_UP_Filter_SortByEarliest") },
         ];
+
+        this.subscribers = [];
     }
 
     public $onInit() {
@@ -70,6 +73,22 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
     }
 
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
+
+        //Subscriber to support refresh case.
+        this.subscribers = this.subscribers.filter(subscriber => { subscriber.dispose(); return false; });
+        if (subArtifact) {
+            //TODO: add distinctuntilchanged
+            this.subscribers.push(
+                subArtifact.getObservable().subscribe((subartifact) => { this.onSelectionChangedHelper(null, subArtifact, timeout); }));
+        } else if (artifact) {
+            this.subscribers.push(
+                artifact.getObservable().subscribe((artif) => { this.onSelectionChangedHelper(artif, null, timeout); }));
+        }
+
+        return this.onSelectionChangedHelper(artifact, subArtifact, timeout);
+    }
+
+    private onSelectionChangedHelper = (artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> => {
         if (artifact == null) {
             this.artifactHistoryList = [];
             return super.onSelectionChanged(artifact, subArtifact, timeout);

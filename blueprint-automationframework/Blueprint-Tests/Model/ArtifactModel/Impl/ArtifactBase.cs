@@ -534,9 +534,9 @@ namespace Model.ArtifactModel.Impl
 
             Id = sourceArtifact.Id;
             Name = skipNullValues ? sourceArtifact.Name ?? Name : sourceArtifact.Name;
-            ParentId = sourceArtifact.ParentId;
-            ProjectId = sourceArtifact.ProjectId;
-            Version = sourceArtifact.Version;
+            ParentId = sourceArtifact.ParentId.Value;
+            ProjectId = sourceArtifact.ProjectId.Value;
+            Version = sourceArtifact.Version.Value;
 
             // Now set the list of Property objects.
             AddOrReplaceTextOrChoiceValueProperty("Name", Name, project, user, skipNullValues);

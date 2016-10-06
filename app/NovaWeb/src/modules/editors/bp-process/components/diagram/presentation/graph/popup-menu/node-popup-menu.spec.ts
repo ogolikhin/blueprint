@@ -7,6 +7,8 @@ import {NodePopupMenu} from "./node-popup-menu";
 import {BpMxGraphModel} from "../bp-mxgraph-model";
 import {ShapesFactory} from "./../shapes/shapes-factory";
 import {ILayout} from "./../models/";
+import { IStatefulArtifactFactory } from "../../../../../../../managers/artifact-manager/";
+import { StatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("Popup Menu test", () => {
     let mxgraph: MxGraph;
@@ -21,12 +23,14 @@ describe("Popup Menu test", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         // inject any services that are required
         $provide.service("localization", LocalizationService);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
     beforeEach(inject((
         _$window_: ng.IWindowService,
         $rootScope: ng.IRootScopeService,
-        _localization_: ILocalizationService) => {
+        _localization_: ILocalizationService,
+        statefulArtifactFactory: IStatefulArtifactFactory) => {
 
         localization = _localization_;
         rootScope = $rootScope;
@@ -50,7 +54,7 @@ describe("Popup Menu test", () => {
         viewModel.isSpa = true;
 
         mxgraph = new mxGraph(htmlElement, new BpMxGraphModel());  
-        shapesFactory = new ShapesFactory(rootScope);
+        shapesFactory = new ShapesFactory(rootScope, statefulArtifactFactory);
     }));
 
     function insertTask(edge: MxCell) {

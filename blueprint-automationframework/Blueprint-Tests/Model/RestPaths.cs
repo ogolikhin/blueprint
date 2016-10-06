@@ -138,6 +138,7 @@ namespace Model
                     public const string DISCARD                     = "svc/bpartifactstore/artifacts/discard";  // XXX: For some reason they decided to put this call in blueprint-current!
                     public const string PUBLISH                     = "svc/bpartifactstore/artifacts/publish";  // XXX: For some reason they decided to put this call in blueprint-current!
                     public const string UNPUBLISHED                 = "svc/bpartifactstore/artifacts/unpublished";
+                    public const string VERSION_CONTROL_INFO_id_    = "svc/artifactstore/artifacts/versioncontrolinfo/{0}";
                 }
 
                 public static class Artifacts_id_
@@ -149,6 +150,7 @@ namespace Model
                     public const string VERSION                     = "svc/artifactstore/artifacts/{0}/version";
                     public const string SUBARTIFACTS                = "svc/artifactstore/artifacts/{0}/subartifacts";
                     public const string TO_id_                      = "svc/bpartifactstore/artifacts/{0}/to/{1}";   // XXX: For some reason they decided to put this call in blueprint-current!
+                    public const string SUBARTIFACTS_id_            = "svc/bpartifactstore/artifacts/{0}/subartifacts/{1}";
 
                     public static class Discussions_id_
                     {
@@ -314,6 +316,8 @@ namespace Model
                 {
                     public const string UPCHECK                     = "svc/searchservice/status/upcheck";
                 }
+
+                public const string PROJECTSEARCH = "svc/searchservice/projectsearch";
             }
 
             public static class Shared

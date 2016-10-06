@@ -9,6 +9,7 @@ import { IDocumentRefs, DocumentRefs } from "../docrefs";
 import { IStatefulArtifactServices } from "../services";
 import { IArtifactProperties } from "../properties";
 import { IArtifactRelationships, ArtifactRelationships } from "../relationships";
+import { HttpStatusCode } from "../../../core";
 
 export interface IStatefulItem extends Models.IArtifact {
     artifactState: IArtifactState;
@@ -214,7 +215,9 @@ export abstract class StatefulItem implements IIStatefulItem {
     }
     
     protected isFullArtifactLoadedOrLoading() {
-        return this._customProperties && this._specialProperties || this.loadPromise;
+        return (this._customProperties && this._customProperties.isLoaded &&
+         this._specialProperties && this._specialProperties.isLoaded) || 
+         this.loadPromise;
     }
 
     public unload() {
@@ -229,6 +232,10 @@ export abstract class StatefulItem implements IIStatefulItem {
         if ( this._attachments) {
             this._attachments.dispose();
             delete this._attachments;
+        }
+        if ( this._docRefs) {
+            this._docRefs.dispose();
+            delete this._docRefs;
         }
 
         //TODO: implement the same for all objects
@@ -278,7 +285,7 @@ export abstract class StatefulItem implements IIStatefulItem {
 
                 deferred.resolve(result);
             }, (error) => {
-                if (error && error.statusCode === 404) {
+                if (error && error.statusCode === HttpStatusCode.NotFound) {
                     this.deleted = true;
                 }
                 deferred.reject(error);
@@ -292,7 +299,7 @@ export abstract class StatefulItem implements IIStatefulItem {
             .then( (result: Relationships.IArtifactRelationshipsResultSet) => {
                 deferred.resolve(result);
             }, (error) => {
-                if (error && error.statusCode === 404) {
+                if (error && error.statusCode === HttpStatusCode.NotFound) {
                     this.deleted = true;
                 }
                 deferred.reject(error);

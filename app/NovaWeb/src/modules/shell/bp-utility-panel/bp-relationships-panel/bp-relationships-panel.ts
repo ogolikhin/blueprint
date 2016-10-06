@@ -11,6 +11,7 @@ import {
 import { IRelationship, LinkType } from "../../../main/models/relationshipModels";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
+import { Helper } from "../../../shared/utils/helper";
 import { ManageTracesDialogController } from "../../../main/components/dialogs/bp-manage-traces";
 
 interface IOptions {
@@ -54,7 +55,6 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public option: string = "1";
     public isLoading: boolean = false;
     public selectedTraces: IArtifactSelectedArtifactMap;
-    public isItemReadOnly: boolean;
     public hasFlagged: boolean = false;
     public hasUnFlagged: boolean = false;
 
@@ -113,7 +113,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.manualTraces = null;
         this.otherTraces = null;
 
-        if (this.item) {
+        if (this.item && Helper.hasArtifactEverBeenSavedOrPublished(this.item)) {
             this.isLoading = true;            
             this.item.relationships.get().then((relationships: Relationships.IRelationship[]) => {
                 this.allTraces = relationships;
@@ -130,10 +130,26 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
 
                 return relationships;
             }).finally(() => {
-                this.isItemReadOnly = this.item.artifactState.readonly || this.item.deleted || !this.item.relationships.canEdit;
                 this.isLoading = false;
             });
         }
+        else {
+            this.reset();
+        }
+    }
+
+    private reset() {
+        this.otherTraces = [];
+        this.allTraces = [];
+        this.manualTraces = [];
+        this.associations = [];
+        this.actorInherits = [];
+        this.documentReferences = [];
+    }
+    public canManageTraces(): boolean {
+        // if artifact is locked by other user we still can add/manage traces
+        return !this.item.artifactState.deleted &&
+                this.item.relationships.canEdit;
     }
 
     public setSelectedDirection(direction: Relationships.TraceDirection): void {

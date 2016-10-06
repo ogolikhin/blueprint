@@ -19,12 +19,12 @@ namespace Model.ArtifactModel.Impl
         public DateTime? LockedDateTime { get; set; }
         public override string Name { get; set; }
         public double OrderIndex { get; set; }
-        public override int ParentId { get; set; }
+        public override int? ParentId { get; set; }
         public int Permissions { get; set; }
         public int PredefinedType { get; set; }
         public string Prefix { get; set; }
-        public override int ProjectId { get; set; }
-        public override int Version { get; set; }
+        public override int? ProjectId { get; set; }
+        public override int? Version { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")] // This property can be null, so setter is needed.
         [JsonConverter(typeof(Deserialization.ConcreteListConverter<INovaArtifact, NovaArtifact>))]

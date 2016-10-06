@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using static Model.ArtifactModel.Impl.NovaArtifactDetails;
+using static Model.ArtifactModel.Impl.NovaSubArtifactDetails;
 using Model.ArtifactModel.Impl;
 
 namespace Model.ArtifactModel
@@ -12,9 +13,9 @@ namespace Model.ArtifactModel
         int Id { get; set; }
         int? ItemTypeId { get; set; }
         string Name { get; set; }
-        int ParentId { get; set; }
-        int ProjectId { get; set; }
-        int Version { get; set; }
+        int? ParentId { get; set; }
+        int? ProjectId { get; set; }
+        int? Version { get; set; }
 
         #endregion Serialized JSON Properties
     }
@@ -125,6 +126,26 @@ namespace Model.ArtifactModel
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         List<INovaSubArtifact> Children { get; set; }
+
+        #endregion Serialized JSON Properties
+    }
+
+    public interface INovaVersionControlArtifactInfo : INovaArtifactBase
+    {
+        #region Serialized JSON Properties
+
+        int? SubArtifactId { get; set; }
+        string Prefix { get; set; }
+        int? PredefinedType { get; set; }
+        int? VersionCount { get; set; }
+        bool? IsDeleted { get; set; }
+        bool? HasChanges { get; set; }
+        double? OrderIndex { get; set; }
+        int? Permissions { get; set; }
+        Identification LockedByUser { get; set; }
+        DateTime? LockedDateTime { get; set; }
+        Identification DeletedByUser { get; set; }
+        DateTime? DeletedDateTime { get; set; }
 
         #endregion Serialized JSON Properties
     }

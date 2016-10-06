@@ -287,6 +287,34 @@ describe("BPTreeViewController", () => {
             $rootScope.$digest(); // Resolves promises
         }));
 
+        it("When root node asynchronous load fails, calls onError correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
+            // Arrange
+            controller.onError = jasmine.createSpy("onError");
+            (controller.options.api.getModel as jasmine.Spy).and.returnValue({ getRowCount() { return 1; }});
+            const reason = "reason";
+            controller.rootNode = {
+                key: "root",
+                isExpandable: true,
+                children: [],
+                isExpanded: false,
+                isSelectable() { return true; },
+                loadChildrenAsync() { return $q.reject(reason); }
+            } as ITreeViewNodeVM;
+
+            // Act
+            controller.resetGridAsync(false).then(() => {
+
+                // Assert
+                expect(controller.options.api.setRowData).toHaveBeenCalledWith([]);
+                expect(controller.options.api.showLoadingOverlay).toHaveBeenCalledWith();
+                expect(controller.onError).toHaveBeenCalledWith({reason: reason});
+                expect(controller.options.api.hideOverlay).toHaveBeenCalledWith();
+                expect(controller.options.api.showNoRowsOverlay).not.toHaveBeenCalled();
+                done();
+            });
+            $rootScope.$digest(); // Resolves promises
+        }));
+
         it("When root node has children, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
             // Arrange
             (controller.options.api.getModel as jasmine.Spy).and.returnValue({ getRowCount() { return 1; }});
@@ -419,6 +447,24 @@ describe("BPTreeViewController", () => {
             expect(vm.loadChildrenAsync).toHaveBeenCalled();
             $rootScope.$digest(); // Resolves promises
             expect(controller.resetGridAsync).toHaveBeenCalledWith(true);
+        }));
+
+        it("onRowGroupOpened, when asynchronous load fails, calls onError correctly", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
+            // Arrange
+            controller.onError = jasmine.createSpy("onError");
+            const vm = jasmine.createSpyObj("vm", ["loadChildrenAsync"]) as ITreeViewNodeVM;
+            (vm.loadChildrenAsync as jasmine.Spy).and.returnValue($q.reject("reason"));
+            vm.isExpandable = true;
+            vm.isExpanded = false;
+            const node = { data: vm, expanded: true } as agGrid.RowNode;
+
+            // Act
+            controller.onRowGroupOpened({node: node});
+
+            // Assert
+            expect(vm.loadChildrenAsync).toHaveBeenCalled();
+            $rootScope.$digest(); // Resolves promises
+            expect(controller.onError).toHaveBeenCalledWith({reason: "reason"});
         }));
 
         it("onRowGroupOpened, when not expandable, does not set isExpanded", () => {
@@ -617,6 +663,18 @@ describe("BPTreeViewController", () => {
 
             // Assert
             expect(controller.onSelect).toHaveBeenCalledWith({vm: vm, isSelected: false, selectedVMs: [vm]});
+        });
+
+        it("onRowDoubleClicked, when not selected, calls onDoubleClick correctly", () => {
+            // Arrange
+            controller.onDoubleClick = jasmine.createSpy("onDoubleClick");
+            const vm = {} as ITreeViewNodeVM;
+
+            // Act
+            controller.onRowDoubleClicked({data: vm});
+
+            // Assert
+            expect(controller.onDoubleClick).toHaveBeenCalledWith({vm: vm});
         });
 
         it("onGridReady calls resetGridAsync correctly", () => {

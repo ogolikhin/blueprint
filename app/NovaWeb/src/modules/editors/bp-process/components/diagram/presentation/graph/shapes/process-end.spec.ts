@@ -4,14 +4,14 @@ import {ShapesFactory} from "./shapes-factory";
 import {ProcessGraph} from "../process-graph";
 import {ProcessModel, ProcessShapeModel} from "../../../../../models/process-models";
 import {ProcessShapeType} from "../../../../../models/enums";
-import {IProcessService} from "../../../../../services/process.svc";
-import {ProcessServiceMock} from "../../../../../services/process.svc.mock";
 import {ProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {NodeType} from "../models/";
 import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process"; 
 import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
 import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
 import { ModalServiceMock } from "../../../../../../../shell/login/mocks.spec";
+import { IStatefulArtifactFactory } from "../../../../../../../managers/artifact-manager/";
+import { StatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("ProcessEnd test", () => {
     var shapesFactory: ShapesFactory;
@@ -21,22 +21,22 @@ describe("ProcessEnd test", () => {
         localization: LocalizationServiceMock;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        $provide.service("processModelService", ProcessServiceMock);
         $provide.service("communicationManager", CommunicationManager);
         $provide.service("$uibModal", ModalServiceMock);
         $provide.service("dialogService", DialogService);
         $provide.service("localization", LocalizationServiceMock);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
     beforeEach(inject((
         _$window_: ng.IWindowService, 
         $rootScope: ng.IRootScopeService, 
-        processModelService: IProcessService, 
         _communicationManager_: ICommunicationManager,
         _dialogService_: DialogService,
-        _localization_: LocalizationServiceMock) => {
+        _localization_: LocalizationServiceMock,
+        statefulArtifactFactory: IStatefulArtifactFactory) => {
+
         rootScope = $rootScope;
-        processModelService = processModelService;
         communicationManager = _communicationManager_;
         dialogService = _dialogService_;
         localization = _localization_;
@@ -47,7 +47,7 @@ describe("ProcessEnd test", () => {
 
         $rootScope["config"] = {};
         $rootScope["config"].labels = {};
-        shapesFactory = new ShapesFactory($rootScope);
+        shapesFactory = new ShapesFactory($rootScope, statefulArtifactFactory);
         localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
     }));
 
@@ -65,7 +65,7 @@ describe("ProcessEnd test", () => {
         viewModel.isReadonly = false;
 
         // Act
-        let graph = new ProcessGraph(rootScope, localScope, container, this.processModelService,  viewModel, dialogService, localization);
+        let graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
 
         var node = new ProcessEnd(testModel);
         node.render(graph, 30, 30, false);

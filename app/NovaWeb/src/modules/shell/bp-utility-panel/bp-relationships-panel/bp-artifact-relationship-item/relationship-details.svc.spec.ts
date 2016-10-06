@@ -1,5 +1,6 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
+import { HttpStatusCode } from "../../../../core/http";
 import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
 import { IRelationshipDetailsService, RelationshipDetailsService } from "./relationship-details.svc";
 import { Relationships } from "../../../../main";
@@ -14,7 +15,7 @@ describe("Artifact Relationships Service", () => {
     it("get artifact details with default values", inject(($httpBackend: ng.IHttpBackendService, artifactRelationships: IRelationshipDetailsService) => {
         // Arrange
         $httpBackend.expectGET(`/svc/artifactstore/artifacts/5/relationshipdetails`)
-            .respond(200,            
+            .respond(HttpStatusCode.Success,
                 {
                     "artifactId": "1",
                     "description": "desc",
@@ -46,8 +47,8 @@ describe("Artifact Relationships Service", () => {
     it("gets an error if artifact id is invalid", inject(($httpBackend: ng.IHttpBackendService, artifactRelationships: IRelationshipDetailsService) => {
         // Arrange
         $httpBackend.expectGET(`/svc/artifactstore/artifacts/5/relationshipdetails`)
-            .respond(404, {
-                statusCode: 404,
+            .respond(HttpStatusCode.NotFound, {
+                statusCode: HttpStatusCode.NotFound,
                 message: "Couldn't find the artifact"
             });
 
@@ -64,7 +65,7 @@ describe("Artifact Relationships Service", () => {
 
         // Assert
         expect(data).toBeUndefined();
-        expect(error.statusCode).toEqual(404);
+        expect(error.statusCode).toEqual(HttpStatusCode.NotFound);
         $httpBackend.verifyNoOutstandingExpectation();
         $httpBackend.verifyNoOutstandingRequest();
     }));

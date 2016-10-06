@@ -1,8 +1,11 @@
-﻿import {ElementType} from "../models/";
+﻿import * as angular from "angular";
+import {ElementType} from "../models/";
 import {DiagramElement, DiagramNodeElement, DiagramNode, UserTask} from "./";
 import {ShapeModelMock} from "./shape-model.mock";
 import {ProcessShapeModel} from "../../../../../models/process-models";
 import {ShapesFactory} from "./shapes-factory";
+import { IStatefulArtifactFactory } from "../../../../../../../managers/artifact-manager/";
+import { StatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("DiagramElement", () => {
     it("should return type passed in the constructor", () => {
@@ -212,7 +215,10 @@ describe("DiagramNodeElement", () => {
         let shapesFactory;
         let root: ng.IRootScopeService;
 
-        beforeEach(inject(($rootScope: ng.IRootScopeService) => {
+        beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+            $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
+        }));
+        beforeEach(inject(($rootScope: ng.IRootScopeService, statefulArtifactFactory:IStatefulArtifactFactory) => {
             $rootScope["config"] = {
                 labels: {
                     "ST_Persona_Label": "Persona",
@@ -221,7 +227,7 @@ describe("DiagramNodeElement", () => {
                 }
             };
             root = $rootScope;
-            shapesFactory = new ShapesFactory(root);
+            shapesFactory = new ShapesFactory(root, statefulArtifactFactory);
         }));
         it("set text element - parent element", () => {
             // Arrange

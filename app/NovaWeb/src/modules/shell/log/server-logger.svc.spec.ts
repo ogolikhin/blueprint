@@ -1,5 +1,6 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
+import {HttpStatusCode} from "../../core/http";
 import {ServerLoggerSvc} from "./server-logger.svc";
 
 describe("ServerLoggerSvc", () => {
@@ -15,7 +16,7 @@ describe("ServerLoggerSvc", () => {
             var inError = { message: "test" };
             var outMessage = { Source: "NovaClient", LogLevel: level, Message: inError.message, StackTrace: "" };
             $httpBackend.expectPOST("/svc/adminstore/log", angular.toJson(outMessage))
-                .respond(200);
+                .respond(HttpStatusCode.Success);
 
             // Act
             serverLogger.log(inError, level).then(() => { success = true; }, () => { success = false; });

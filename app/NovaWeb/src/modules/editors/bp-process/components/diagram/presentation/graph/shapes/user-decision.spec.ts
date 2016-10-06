@@ -2,8 +2,6 @@
 import {ShapesFactory} from "./shapes-factory";
 import {ProcessGraph} from "../process-graph";
 import {ProcessViewModel} from "../../../viewmodel/process-viewmodel";
-import {ProcessServiceMock} from "../../../../../services/process.svc.mock";
-import {IProcessService} from "../../../../../services/process.svc";
 import * as ProcessModels from "../../../../../models/process-models";
 import {UserDecision} from "./";
 import {NodeChange} from "../models/";
@@ -11,33 +9,34 @@ import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-
 import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
 import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
 import { ModalServiceMock } from "../../../../../../../shell/login/mocks.spec";
+import { IStatefulArtifactFactory } from "../../../../../../../managers/artifact-manager/";
+import { StatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("UserDecision", () => {
 
     let shapesFactory: ShapesFactory;
-    let localScope, rootScope, processModelService,  wrapper, container;
+    let localScope, rootScope, wrapper, container;
     let communicationManager: ICommunicationManager,
         dialogService: DialogService,
         localization: LocalizationServiceMock;
     
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        $provide.service("processModelService", ProcessServiceMock);
         $provide.service("communicationManager", CommunicationManager);
         $provide.service("$uibModal", ModalServiceMock);
         $provide.service("dialogService", DialogService);
         $provide.service("localization", LocalizationServiceMock);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
     beforeEach(inject((
         _$window_: ng.IWindowService,
         $rootScope: ng.IRootScopeService,
-        _processModelService_: IProcessService, 
         _communicationManager_: ICommunicationManager,
         _dialogService_: DialogService,
-        _localization_: LocalizationServiceMock
-    ) => {
+        _localization_: LocalizationServiceMock,
+        statefulArtifactFactory: IStatefulArtifactFactory) => {
+
         rootScope = $rootScope;
-        processModelService = _processModelService_;
         communicationManager = _communicationManager_;
         dialogService = _dialogService_;
         localization = _localization_;
@@ -48,7 +47,7 @@ describe("UserDecision", () => {
 
         $rootScope["config"] = {};
         $rootScope["config"].labels = {};
-        shapesFactory = new ShapesFactory($rootScope);
+        shapesFactory = new ShapesFactory($rootScope, statefulArtifactFactory);
         localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
     }));
 
@@ -63,7 +62,7 @@ describe("UserDecision", () => {
         let processViewModel = new ProcessViewModel(testModel);
         processViewModel.communicationManager = communicationManager;
         
-        let graph = new ProcessGraph(rootScope, localScope, container, processModelService,  processViewModel, dialogService, localization);
+        let graph = new ProcessGraph(rootScope, localScope, container, processViewModel, dialogService, localization);
 
         // Act
         graph.render(false, null);

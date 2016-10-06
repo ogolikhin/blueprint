@@ -68,7 +68,9 @@
     <Compile Include="ActorPropertiesTests.cs" />
     <Compile Include="ArtifactDetailsTests.cs" />
     <Compile Include="ArtifactHistoryTests.cs" />
+    <Compile Include="ArtifactVersionControlInfoTests.cs" />
     <Compile Include="AttachmentTests.cs" />
+    <Compile Include="CreateArtifactTests.cs" />
     <Compile Include="DeleteArtifactTests.cs" />
     <Compile Include="DiscardArtifactTests.cs" />
     <Compile Include="DiscussionsTests.cs" />

@@ -2,11 +2,12 @@ import { IMessageService, ILocalizationService } from "../../../core";
 import { IDialogService } from "../../../shared/";
 import { ISession } from "../../../shell/login/session.svc";
 import { IProcessService } from "../../../editors/bp-process/services/process.svc";
+import { IProcessShape } from "../../../editors/bp-process/models/process-models";
 import { Models } from "../../../main/models";
 import { IArtifactAttachmentsService } from "../attachments";
 import { IMetaDataService } from "../metadata";
 import { StatefulSubArtifact, IStatefulSubArtifact } from "../sub-artifact";
-import { IStatefulArtifact, StatefulArtifact, StatefulProcessArtifact } from "../artifact";
+import { IStatefulArtifact, StatefulArtifact, StatefulProcessArtifact, StatefulProcessSubArtifact } from "../artifact";
 import { IArtifactRelationshipsService } from "../relationships";
 import {
     StatefulArtifactServices,
@@ -20,6 +21,7 @@ import { IArtifactService } from "./artifact.svc";
 export interface IStatefulArtifactFactory {
     createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact;
     createStatefulSubArtifact(artifact: IStatefulArtifact, subArtifact: Models.ISubArtifact): IStatefulSubArtifact;
+    createStatefulProcessSubArtifact(artifact: IStatefulArtifact, subArtifact: IProcessShape): StatefulProcessSubArtifact;
 }
 
 export class StatefulArtifactFactory implements IStatefulArtifactFactory {
@@ -74,6 +76,10 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
 
     public createStatefulSubArtifact(artifact: IStatefulArtifact, subArtifact: Models.ISubArtifact): IStatefulSubArtifact {
         return new StatefulSubArtifact(artifact, subArtifact, this.services);
+    }
+
+    public createStatefulProcessSubArtifact(artifact: IStatefulArtifact, subArtifact: IProcessShape): StatefulProcessSubArtifact {
+        return new StatefulProcessSubArtifact(artifact, subArtifact, this.services);
     }
 
     private createStatefulProcessArtifact(artifact: Models.IArtifact): IStatefulArtifact {

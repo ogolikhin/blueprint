@@ -5,6 +5,7 @@ import { IStatefulArtifact } from "../artifact";
 import { StatefulItem, IStatefulItem, IIStatefulItem } from "../item";
 import { IArtifactAttachmentsResultSet } from "../attachments";
 import { MetaData } from "../metadata";
+import { HttpStatusCode } from "../../../core/http";
 
 export interface IIStatefulSubArtifact extends IIStatefulItem {
 }
@@ -108,7 +109,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
                 
                 deferred.resolve(result);
             }, (error) => {
-                if (error && error.statusCode === 404) {
+                if (error && error.statusCode === HttpStatusCode.NotFound) {
                     this.deleted = true;
                 }
                 deferred.reject(error);
@@ -122,7 +123,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
             .then( (result: Relationships.IArtifactRelationshipsResultSet) => {
                 deferred.resolve(result);
             }, (error) => {
-                if (error && error.statusCode === 404) {
+                if (error && error.statusCode === HttpStatusCode.NotFound) {
                     this.deleted = true;
                 }
                 deferred.reject(error);

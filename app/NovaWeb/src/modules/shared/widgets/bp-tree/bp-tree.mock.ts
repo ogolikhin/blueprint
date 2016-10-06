@@ -22,6 +22,10 @@ export class BPTreeControllerMock implements IBPTreeController {
         return true;
     }
 
+    public getNodeData(id: number): Object {
+        return null;
+    }
+
     public reload(data?: any[], id?: number) {
         if (!data) {
             this._datasource = data;

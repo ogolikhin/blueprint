@@ -30,6 +30,7 @@ body {
   background-size: 60%, 120%;
   color: $body-color;
   overflow: auto;
+  overflow-y: hidden;
 }
 
 @import 'partials/navbar';

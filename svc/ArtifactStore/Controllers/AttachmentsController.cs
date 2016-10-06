@@ -16,18 +16,23 @@ namespace ArtifactStore.Controllers
     public class AttachmentsController : LoggableApiController
     {       
         internal readonly IAttachmentsRepository AttachmentsRepository;
-
         internal readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
+        internal readonly IArtifactVersionsRepository ArtifactVersionsRepository;
 
         public override string LogSource { get; } = "ArtifactStore.Attachments";
 
-        public AttachmentsController() : this(new SqlAttachmentsRepository(), new SqlArtifactPermissionsRepository())
+        public AttachmentsController() : this(new SqlAttachmentsRepository(), 
+            new SqlArtifactPermissionsRepository(), 
+            new SqlArtifactVersionsRepository())
         {
         }
-        public AttachmentsController(IAttachmentsRepository attachmentsRepository, IArtifactPermissionsRepository artifactPermissionsRepository) : base()
+        public AttachmentsController(IAttachmentsRepository attachmentsRepository, 
+            IArtifactPermissionsRepository artifactPermissionsRepository, 
+            IArtifactVersionsRepository artifactVersionsRepository) : base()
         {
             AttachmentsRepository = attachmentsRepository;
             ArtifactPermissionsRepository = artifactPermissionsRepository;
+            ArtifactVersionsRepository = artifactVersionsRepository;
         }
 
         /// <summary>
@@ -44,23 +49,26 @@ namespace ArtifactStore.Controllers
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/attachment"), SessionRequired]
         [ActionName("GetAttachmentsAndDocumentReferences")]
-        public async Task<FilesInfo> GetAttachmentsAndDocumentReferences(int artifactId, int? subArtifactId = null, bool addDrafts = true)
+        public async Task<FilesInfo> GetAttachmentsAndDocumentReferences(int artifactId, int? versionId = null, int? subArtifactId = null,  bool addDrafts = true)
         {
             if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1))
             {
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
             }
-
+            if (addDrafts && versionId != null)
+            {
+                addDrafts = false;
+            }
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-
             var itemId = subArtifactId.HasValue ? subArtifactId.Value : artifactId;
-            var itemInfo = (await ArtifactPermissionsRepository.GetItemInfo(itemId, session.UserId, addDrafts));
-
+            var isDeleted = await ArtifactVersionsRepository.IsItemDeleted(itemId);
+            var itemInfo = isDeleted && versionId != null?
+                (await ArtifactVersionsRepository.GetDeletedItemInfo(itemId)) :
+                (await ArtifactPermissionsRepository.GetItemInfo(itemId, session.UserId, addDrafts));
             if (itemInfo == null)
             {
                 throw new HttpResponseException(HttpStatusCode.NotFound);
             }
-
             if (subArtifactId.HasValue)
             {
                 if (itemInfo.ArtifactId != artifactId)
@@ -68,22 +76,17 @@ namespace ArtifactStore.Controllers
                     throw new HttpResponseException(HttpStatusCode.BadRequest);
                 }
             }
-
-            var result = await AttachmentsRepository.GetAttachmentsAndDocumentReferences(artifactId, session.UserId, subArtifactId, addDrafts);
-
+            var result = await AttachmentsRepository.GetAttachmentsAndDocumentReferences(artifactId, session.UserId, versionId, subArtifactId, addDrafts);
             var artifactIds = new List<int> { artifactId };
             foreach (var documentReference in result.DocumentReferences)
             {
                 artifactIds.Add(documentReference.ArtifactId);
             }
-            
             var permissions = await ArtifactPermissionsRepository.GetArtifactPermissionsInChunks(artifactIds, session.UserId);
-
             if(!HasReadPermissions(artifactId, permissions))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
-  
             var docRef = result.DocumentReferences.ToList();
             foreach (var documentReference in docRef)
             {
@@ -92,7 +95,6 @@ namespace ArtifactStore.Controllers
                     result.DocumentReferences.Remove(documentReference);
                 }
             }
-
             return result;
         }
 

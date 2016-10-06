@@ -845,6 +845,26 @@ IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
 Print 'Migrating 7.4.0.0 ...'
 -- -----------------------------------------------------------------------------------------------
 
+-- -----------------------------------------------------------------------------
+-- Modify [dbo].[ApplicationLabels] to have a primary key on [Key] and [Locale]
+-- -----------------------------------------------------------------------------
+
+IF  EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE CONSTRAINT_NAME = 'PK_ApplicationLabels_ApplicationLabelId')
+BEGIN
+
+	-- Remove existing constraint
+	ALTER TABLE [dbo].[ApplicationLabels] 
+	DROP CONSTRAINT [PK_ApplicationLabels_ApplicationLabelId]
+
+	-- Creating primary key on [ApplicationLabelId], [Key], [Locale] in table 'ApplicationLabels'
+	ALTER TABLE [dbo].[ApplicationLabels]
+	ADD CONSTRAINT [PK_ApplicationLabels] PRIMARY KEY NONCLUSTERED 
+	(
+		[Key], [Locale] ASC
+	);
+END
+
+GO
 
 -- -----------------------------------------------------------------------------------------------
 -- Always add your code just above this comment block
@@ -869,6 +889,11 @@ CREATE TABLE #tempAppLabels (
 	[Key] [nvarchar](128) NOT NULL,
 	[Locale] [nvarchar](32) NOT NULL,
 	[Text] [nvarchar](512) NOT NULL
+
+	CONSTRAINT [PK_ApplicationLabels] PRIMARY KEY NONCLUSTERED 
+	(
+		[Key], [Locale] ASC
+	)
 )
 
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'en-US', N'Yes')
@@ -995,7 +1020,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationshi
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Change_Trace', 'en-US', N'Change Direction')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Confirmation_Delete_Trace', 'en-US', N'Please confirm the deletion of the trace.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Confirmation_Delete_Traces', 'en-US', N'Please confirm the deletion of the selected traces ({0}).')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Introduction_Message', 'en-US', N'A short description of what a Trace is. To come from Tech Writer.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Introduction_Message', 'en-US', N'A trace is one type of relationship that can exist between artifacts. Traces define the direction of the relationship.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Add_Relationship', 'en-US', N'Add a trace')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Properties_Loading_Indicator_Label', 'en-US', N'Loading...')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Properties_System_Properties_Label', 'en-US', N'System Properties')
@@ -1014,8 +1039,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_117', 'en-US', N'A property type is out of date.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_123', 'en-US', N'The artifact cannot be saved. It inherits from an actor that already inherits from this artifact. Actor artifacts cannot inherit from each other.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_Other', 'en-US', N'Sorry, but an error has occurred and the artifact cannot be saved. Please contact an administrator.<br><br>')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Refresh_Project_NotFound', 'en-US', N'You have attempted to access a project that has been deleted')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Refresh_Artifact_Deleted', 'en-US', N'The artifact that was selected no longer exists')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Refresh_Project_NotFound', 'en-US', N'You have attempted to access a project that has been deleted.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Refresh_Artifact_Deleted', 'en-US', N'The artifact you were viewing has been deleted. The artifact''s parent or project is now being displayed.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Glossary_Term', 'en-US', N'Term')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Glossary_Definition', 'en-US', N'Definition')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Glossary_Empty', 'en-US', N'No terms have been defined.')
@@ -1090,6 +1115,14 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Project', 'e
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Collections', 'en-US', N'Collections')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_ActorInheritFrom', 'en-US', N'Inherits from')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Group_Identifier', 'en-US', N'(g)')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Search', 'en-US', N'Search')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Searching', 'en-US', N'Searching...')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_No_Results_Found', 'en-US', N'No results found.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_X', 'en-US', N'X')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Y', 'en-US', N'Y')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Width', 'en-US', N'Width')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Height', 'en-US', N'Height')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Label', 'en-US', N'Label')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Diagram_OldFormat_Message', 'en-US', N'This diagram is stored in an old format that is incompatible with this version. To display the diagram, please open it in Silverlight Main Experience, make a modification, and publish it.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Details_FieldNameError', 'en-US', N'The field name isn''t specified')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Datepicker_Today', 'en-US', N'Today')
@@ -1244,10 +1277,11 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Page_Label',
 INSERT INTO [dbo].[ApplicationLabels] ([Key], [Locale], [Text])
 SELECT #tempAppLabels.[Key], #tempAppLabels.[Locale], #tempAppLabels.[Text]
   FROM #tempAppLabels
- WHERE NOT EXISTS ( SELECT *
-					  FROM [dbo].[ApplicationLabels] 
-					 WHERE [dbo].[ApplicationLabels].[Key] = #tempAppLabels.[Key]
-					   AND [dbo].[ApplicationLabels].[Locale] = #tempAppLabels.[Locale])
+  LEFT JOIN [dbo].[ApplicationLabels] 
+		ON [dbo].[ApplicationLabels].[Key] = #tempAppLabels.[Key]
+		AND [dbo].[ApplicationLabels].[Locale] = #tempAppLabels.[Locale]
+ WHERE #tempAppLabels.[Key] is NULL
+   AND #tempAppLabels.[Locale] is NULL
 
 -- Update if [Key]/[Locale] combination exists, but text is different
 UPDATE [dbo].[ApplicationLabels]

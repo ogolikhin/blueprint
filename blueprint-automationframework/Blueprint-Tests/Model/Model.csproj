@@ -64,7 +64,9 @@
     <Compile Include="ArtifactModel\Impl\Discussions.cs" />
     <Compile Include="ArtifactModel\Impl\NovaArtifact.cs" />
     <Compile Include="ArtifactModel\Impl\NovaArtifactDetails.cs" />
+    <Compile Include="ArtifactModel\Impl\NovaSubArtifactDetails.cs" />
     <Compile Include="ArtifactModel\Impl\NovaSubArtifact.cs" />
+    <Compile Include="ArtifactModel\Impl\NovaVersionControlArtifactInfo.cs" />
     <Compile Include="ArtifactModel\Impl\PredefinedProperties\ActorInheritanceValue.cs" />
     <Compile Include="ArtifactModel\Impl\PredefinedProperties\DocumentFileValue.cs" />
     <Compile Include="ArtifactModel\Impl\RapidReviewContent.cs" />
@@ -81,6 +83,7 @@
     <Compile Include="Factories\ProjectRoleFactory.cs" />
     <Compile Include="Factories\SearchServiceFactory.cs" />
     <Compile Include="Factories\SvcSharedFactory.cs" />
+    <Compile Include="SearchServiceModel\Impl\ProjectSearchResult.cs" />
     <Compile Include="IDeepCopyable.cs" />
     <Compile Include="Impl\ProjectRole.cs" />
     <Compile Include="Impl\SvcShared.cs" />

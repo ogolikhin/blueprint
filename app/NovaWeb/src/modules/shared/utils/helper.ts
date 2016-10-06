@@ -1,5 +1,6 @@
 ﻿import * as angular from "angular";
 import { Models } from "../../main";
+import { ItemTypePredefined } from "../../main/models/enums";
 
 export class Helper {
 
@@ -92,7 +93,8 @@ export class Helper {
 
     static autoLinkURLText(node: Node) {
         /* tslint:disable */
-        const urlPattern: RegExp = /(?:(?:ht|f)tp(?:s?)\:\/\/|~\/|\/)?(?:\w+:\w+@)?((?:(?:[-\w\d{1-3}]+\.)+(?:com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|edu|co\.uk|ac\.uk|it|fr|tv|museum|asia|local|travel|[a-z]{2}))|((\b25[0-5]\b|\b[2][0-4][0-9]\b|\b[0-1]?[0-9]?[0-9]\b)(\.(\b25[0-5]\b|\b[2][0-4][0-9]\b|\b[0-1]?[0-9]?[0-9]\b)){3}))(?::[\d]{1,5})?(?:(?:(?:\/(?:[-\w~!$+|.,=]|%[a-f\d]{2})+)+|\/)+|\?|#)?(?:(?:\?(?:[-\w~!$+|.,*:]|%[a-f\d{2}])+=?(?:[-\w~!$+|.,*:=]|%[a-f\d]{2})*)(?:&(?:[-\w~!$+|.,*:]|%[a-f\d{2}])+=?(?:[-\w~!$+|.,*:=]|%[a-f\d]{2})*)*)*(?:#(?:[-\w~!$ |\/.,*:;=]|%[a-f\d]{2})*)?/gi;
+        // const urlPattern: RegExp = /(?:(?:ht|f)tp(?:s?)\:\/\/|~\/|\/)?(?:\w+:\w+@)?((?:(?:[-\w\d{1-3}]+\.)+(?:com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|edu|co\.uk|ac\.uk|it|fr|tv|museum|asia|local|travel|[a-z]{2}))|((\b25[0-5]\b|\b[2][0-4][0-9]\b|\b[0-1]?[0-9]?[0-9]\b)(\.(\b25[0-5]\b|\b[2][0-4][0-9]\b|\b[0-1]?[0-9]?[0-9]\b)){3}))(?::[\d]{1,5})?(?:(?:(?:\/(?:[-\w~!$+|.,=]|%[a-f\d]{2})+)+|\/)+|\?|#)?(?:(?:\?(?:[-\w~!$+|.,*:]|%[a-f\d{2}])+=?(?:[-\w~!$+|.,*:=]|%[a-f\d]{2})*)(?:&(?:[-\w~!$+|.,*:]|%[a-f\d{2}])+=?(?:[-\w~!$+|.,*:=]|%[a-f\d]{2})*)*)*(?:#(?:[-\w~!$ |\/.,*:;=]|%[a-f\d]{2})*)?/gi;
+        const urlPattern: RegExp = /((www\.)|(https?|ftp):\/\/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|([a-zA-Z][-a-zA-Z0-9@:%_\+~#=]{2,256}(\.[a-z]{2,6})?)))(:\d{2,5})?\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)/gi;
         const protocolPattern: RegExp = /((?:ht|f)tp(?:s?)\:\/\/)/;
         /* tslint:enable */
 
@@ -150,9 +152,17 @@ export class Helper {
     }
 
     public static canUtilityPanelUseSelectedArtifact(artifact: Models.IArtifact): boolean {
-        return artifact &&
-            artifact.prefix &&
-            ["ACO", "_CFL", "PR"].indexOf(artifact.prefix) === -1;
+        const nonStandardTypes = [
+            ItemTypePredefined.Project, 
+            ItemTypePredefined.ArtifactCollection, 
+            ItemTypePredefined.Collections, 
+            ItemTypePredefined.CollectionFolder
+        ];
+
+        return artifact && artifact.predefinedType != null && nonStandardTypes.indexOf(artifact.predefinedType) === -1;
+    }
+    public static hasArtifactEverBeenSavedOrPublished(artifact: Models.IArtifact): boolean{
+        return artifact.id > 0; 
     }
 
     public static isInt(n: number): boolean {

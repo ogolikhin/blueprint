@@ -9,7 +9,6 @@ import {IDiagramNode, IDiagramNodeElement} from "./models/";
 import {IProcessShape, IProcessLink} from "./models/";
 import {SourcesAndDestinations, ProcessShapeType} from "./models/";
 import {NodeType, NodeChange} from "./models/";
-import {IProcessService} from "../../../../services/process.svc";
 import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {BpMxGraphModel} from "./bp-mxgraph-model";
 import {ShapesFactory} from "./shapes/shapes-factory";
@@ -24,6 +23,8 @@ import {ProcessAddHelper} from "./process-add-helper";
 import {IDialogSettings, IDialogService} from "../../../../../../shared";
 import {NodePopupMenu} from "./popup-menu/node-popup-menu";
 import {ProcessGraphSelectionHelper} from "./process-graph-selection";
+import { IStatefulArtifactFactory } from "../../../../../../managers/artifact-manager";
+import {ISelectionListener} from "./models/";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
@@ -42,6 +43,7 @@ export class ProcessGraph implements IProcessGraph {
     private deleteShapeHandler: string;
     private popupMenu: NodePopupMenu = null;
     public globalScope: IScopeContext;
+    private shapesFactory: ShapesFactory;
 
     public static get MinConditions(): number {
         return 2;
@@ -59,7 +61,6 @@ export class ProcessGraph implements IProcessGraph {
         public rootScope: any,
         private scope: any,
         private htmlElement: HTMLElement,
-        private processService: IProcessService,
         // #TODO fix up references later 
         //private artifactVersionControlService: Shell.IArtifactVersionControlService,
         public viewModel: IProcessViewModel, 
@@ -67,7 +68,7 @@ export class ProcessGraph implements IProcessGraph {
         private localization: ILocalizationService,
         public messageService: IMessageService = null,
         private $log: ng.ILogService = null,
-        private shapesFactory: ShapesFactory = null) {
+        private statefulArtifactFactory: IStatefulArtifactFactory = null) {
 
         // Creates the graph inside the given container
          
@@ -78,9 +79,7 @@ export class ProcessGraph implements IProcessGraph {
          
         this.mxgraph = new mxGraph(this.htmlElement, new BpMxGraphModel());
 
-        if (!shapesFactory) {
-            this.shapesFactory = new ShapesFactory(this.rootScope);
-        }
+        this.shapesFactory = new ShapesFactory(this.rootScope, this.statefulArtifactFactory);
         
         this.layout = new Layout(this, viewModel, rootScope, this.shapesFactory, this.messageService, this.$log);
        
@@ -120,7 +119,7 @@ export class ProcessGraph implements IProcessGraph {
         this.selectionHelper.addSelectionListener((elements) => {
             this.setDeletable(elements);
         });
-        
+
         this.selectionHelper.initSelection();
 
         this.applyDefaultStyles();
@@ -136,7 +135,14 @@ export class ProcessGraph implements IProcessGraph {
      
         this.initializeGlobalScope();
     }
-
+    public addSelectionListener(listener: ISelectionListener) {
+        if (listener != null) {
+            this.selectionHelper.addSelectionListener(listener);
+        }
+    }
+    public clearSelection() {
+        this.mxgraph.clearSelection();
+    }
     private initializePopupMenu() {
 
         // initialize a popup menu for the graph
@@ -409,6 +415,10 @@ export class ProcessGraph implements IProcessGraph {
         if (this.nodeLabelEditor != null) {
             this.nodeLabelEditor.dispose();
         }
+
+         if (this.selectionHelper) {
+             this.selectionHelper.destroy();
+         }
 
         this.viewModel.communicationManager.toolbarCommunicationManager.removeClickDeleteObserver(this.deleteShapeHandler);
         

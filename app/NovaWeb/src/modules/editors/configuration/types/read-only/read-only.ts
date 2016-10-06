@@ -1,6 +1,7 @@
 import * as angular from "angular";
 import "angular-formly";
 import "angular-sanitize";
+import "angular-perfect-scrollbar-2";
 import { ILocalizationService } from "../../../../core";
 import { Models, Enums } from "../../../../main/models";
 import { Helper } from "../../../../shared";
@@ -9,6 +10,17 @@ export class BPFieldReadOnly implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldReadOnly";
     public template: string = require("./read-only.template.html");
     public wrapper: string = "bpFieldLabel";
+    public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
+        $scope.$applyAsync(() => {
+            const data: any = $scope["options"].data;
+            if (data.isRichText && (data.isMultipleAllowed || Models.PropertyTypePredefined.Description === data.propertyTypePredefined)) {
+                let richtextBody = $element[0].querySelector(".richtext-body");
+                if (richtextBody) {
+                    Helper.autoLinkURLText(richtextBody);
+                }
+            }
+        });
+    };
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldReadOnlyController;
 }
 

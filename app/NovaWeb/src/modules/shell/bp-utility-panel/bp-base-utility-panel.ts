@@ -13,11 +13,6 @@ export class BPBaseUtilityPanelController {
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {
-        // const stateObservable = this.stateManager.stateChange.asObservable()
-        //     .filter((is: ItemState) => {
-        //         return !this.itemState || is.isReadonly !== this.itemState.isReadonly;
-        //     })
-        //     .subscribeOnNext(this.stateChanged, this);
         const selectionObservable = this.selectionManager.selectionObservable;
         const panelActiveObservable = this.bpAccordionPanel.isActiveObservable; 
         const artifactOrVisibilityChange: Rx.IDisposable = 
@@ -40,10 +35,6 @@ export class BPBaseUtilityPanelController {
         //dispose all subscribers
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
-
-    // protected stateChanged(state: ItemState) {
-    //     this.itemState = state;
-    // }
 
     private selectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact) {
         if (this.timeout) {

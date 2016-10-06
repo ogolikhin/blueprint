@@ -1,13 +1,15 @@
 ﻿import * as angular from "angular";
 import {ILocalizationService } from "../../../core";
 import { Models, IWindowManager } from "../../../main";
-import { ISelectionManager, IStatefulArtifact, IStatefulSubArtifact } from "../../../managers/artifact-manager";
+import { ISelectionManager, IStatefulArtifact, IStatefulSubArtifact, IStatefulItem } from "../../../managers/artifact-manager";
 import {IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import {BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 import {IMessageService} from "../../../core";
 import {PropertyEditor} from "../../../editors/bp-artifact/bp-property-editor";
 import {PropertyContext} from "../../../editors/bp-artifact/bp-property-context";
 import {PropertyLookupEnum, LockedByEnum} from "../../../main/models/enums";
+import { Helper } from "../../../shared/utils/helper";
+import {PropertyEditorFilters} from "./bp-properties-panel-filters";
 
 export class BPPropertiesPanel implements ng.IComponentOptions {
     public template: string = require("./bp-properties-panel.html");
@@ -99,9 +101,14 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             if (subArtifact) {
                 this.selectedArtifact = artifact;
                 this.selectedSubArtifact = subArtifact;
-                //TODO: implement .getObservable
-                this.onUpdate();
-                this.subArtifactSubscriber = this.selectedSubArtifact.getObservable().subscribe(this.onSubArtifactChanged);
+                if(Helper.hasArtifactEverBeenSavedOrPublished(subArtifact)) {
+                    //TODO: implement .getObservable
+                    this.onUpdate();
+                    this.subArtifactSubscriber = this.selectedSubArtifact.getObservable().subscribe(this.onSubArtifactChanged);
+                }
+                else{
+                    this.reset(); 
+                }
                 
                 // for new selection
 
@@ -156,29 +163,34 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     //     }
     //     return deferred.promise;
     // }
-
+   
     public onUpdate() {
         try {
-            this.fields = [];
-            this.model = {};
-            this.systemFields = [];
-            this.customFields = [];
-            this.specificFields = [];
-            this.richTextFields = [];         
+            this.reset();       
             
             if (!this.editor || !this.selectedArtifact) {
                 return; 
             }
 
+            let propertyEditorFilter = new PropertyEditorFilters(this.localization);
+            let propertyFilters: {[id: string]: boolean};
+
             if (this.selectedSubArtifact) {
                 this.editor.load(this.selectedSubArtifact, this.selectedSubArtifact.metadata.getSubArtifactPropertyTypes());
+                propertyFilters = propertyEditorFilter.getPropertyEditorFilters(this.selectedSubArtifact.predefinedType);
             } else {
                 this.editor.load(this.selectedArtifact, this.selectedArtifact.metadata.getArtifactPropertyTypes());
+                propertyFilters = propertyEditorFilter.getPropertyEditorFilters(this.selectedArtifact.predefinedType);
             }
 
             
             this.model = this.editor.getModel();
             this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
+                let propertyContext = field.data as PropertyContext;
+                if (propertyContext && propertyFilters[propertyContext.name]) {
+                    return;
+                }
+
                 //add property change handler to each field
                 angular.extend(field.templateOptions, {
                     onChange: this.onValueChange.bind(this)
@@ -261,6 +273,15 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         } else {
             return this.localization.get("Property_Artifact_Section_Name", "Artifact Properties");
         }
+    }
+
+    private reset() {        
+        this.fields = [];
+        this.model = {};
+        this.systemFields = [];
+        this.customFields = [];
+        this.specificFields = [];
+        this.richTextFields = [];      
     }
 }
 

@@ -13,6 +13,7 @@ export interface IProjectService {
     getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta>;
     getSubArtifactTree(artifactId: number): ng.IPromise<Models.ISubArtifactNode[]>;
     getProjectTree(projectId: number, artifactId: number, loadChildren?: boolean): ng.IPromise<Models.IArtifact[]>;
+    searchProjects(query: string, resultCount?: number): ng.IPromise<Models.IProjectNode[]>;
 }
 
 export class ProjectService implements IProjectService {
@@ -208,5 +209,34 @@ export class ProjectService implements IProjectService {
             }
         );
         return defer.promise;
+    }
+
+    public searchProjects(query: string, resultCount: number = 100): ng.IPromise<Models.IProjectNode[]> {
+        this.canceler = this.$q.defer<any>();
+
+        const requestObj: ng.IRequestConfig = {
+            url: `/svc/searchservice/projectsearch?resultCount=${resultCount}`,
+            data: {Query: query},
+            method: "POST",
+            timeout: this.canceler.promise
+        };
+
+        return this.$http(requestObj).then(
+            (result: ng.IHttpPromiseCallbackArg<{projectId: number, projectName: string}[]>) => {
+                return result.data.map(r => ({
+                    id: r.projectId,
+                    type: Models.ProjectNodeType.Project,
+                    name: r.projectName,
+                    parentFolderId: undefined,
+                    hasChildren: undefined
+                }));
+            },
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                return this.$q.reject(errResult ? {
+                    statusCode: errResult.status,
+                    message: (errResult.data ? errResult.data.message : "")
+                } : undefined);
+            }
+        );
     }
 }

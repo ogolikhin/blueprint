@@ -233,6 +233,10 @@ export abstract class StatefulItem implements IIStatefulItem {
             this._attachments.dispose();
             delete this._attachments;
         }
+        if ( this._docRefs) {
+            this._docRefs.dispose();
+            delete this._docRefs;
+        }
 
         //TODO: implement the same for all objects
     }

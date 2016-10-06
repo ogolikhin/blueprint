@@ -31,7 +31,7 @@ export class BPCommentEditController {
     public isWaiting: boolean = false;
     public emailDiscussionsEnabled: boolean;
     public tinymceOptions = {
-        plugins: "textcolor table noneditable autolink link autoresize mention",
+        plugins: "textcolor table noneditable autolink link autoresize mention paste",
         autoresize_bottom_margin: 0,
         toolbar: "fontsize | bold italic underline | forecolor format | link",
         convert_urls: false,

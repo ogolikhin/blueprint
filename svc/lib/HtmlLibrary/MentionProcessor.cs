@@ -79,7 +79,7 @@ namespace HtmlLibrary
                         }
                         styleAttribute.Value = newStyleString;
                     }
-                    mention.InnerHtml = spanNode != null ? spanNode.OuterHtml : null;
+                    mention.InnerHtml = spanNode != null ? spanNode.OuterHtml : "";
                 }
             }
             return xDoc.DocumentNode.OuterHtml;

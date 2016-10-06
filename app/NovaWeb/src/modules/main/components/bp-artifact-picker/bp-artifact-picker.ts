@@ -53,11 +53,26 @@ export interface IArtifactPickerOptions {
     showSubArtifacts?: boolean;
 }
 
-export class BpArtifactPickerController implements ng.IComponentController, IArtifactPickerOptions {
+export interface IArtifactPickerController extends IArtifactPickerOptions {
+    searchText: string;
+    clearSearch(): void;
+    search(): void;
+    isSearching: boolean;
+    searchResults: Models.IProjectNode[];
+    project: Models.IProject;
+    rootNode: InstanceItemNodeVM;
+    columns: IColumn[];
+    onSelect: (vm: ArtifactPickerNodeVM<any>, isSelected: boolean, selectedVMs: ArtifactPickerNodeVM<any>[]) => void;
+}
+
+export class BpArtifactPickerController implements ng.IComponentController, IArtifactPickerController {
     public selectableItemTypes: Models.ItemTypePredefined[];
     public selectionMode: "single" | "multiple" | "checkbox";
     public showSubArtifacts: boolean;
     public onSelectionChanged: (params: {selectedVMs: ArtifactPickerNodeVM<any>[]}) => void;
+    public searchText: string = "";
+    public isSearching: boolean = false;
+    public searchResults: Models.IProjectNode[];
 
     static $inject = [
         "$scope",
@@ -65,7 +80,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         "projectManager",
         "projectService"
     ];
-        
+
     constructor(
         private $scope: ng.IScope,
         private localization: ILocalizationService,
@@ -98,10 +113,25 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         });
     }
 
+    public clearSearch(): void {
+        this.searchText = undefined;
+        this.searchResults = undefined;
+    }
+
+    public search(): void {
+        if (this.searchText) {
+            this.isSearching = true;
+            this.projectService.searchProjects(this.searchText).then(result => {
+                this.searchResults = result;
+                this.isSearching = false;
+            });
+        }
+    }
+
     public columns: IColumn[] = [{
         cellClass: (vm: ArtifactPickerNodeVM<any>) => vm.getCellClass(),
         isGroup: true,
-        innerRenderer: (vm: ArtifactPickerNodeVM<any>) => {
+        innerRenderer: (vm: ArtifactPickerNodeVM<any>, eGridCell: HTMLElement) => {
             const icon = vm.getIcon();
             const name = Helper.escapeHTMLText(vm.name);
             return `<span class="ag-group-value-wrapper">${icon}<span>${name}</span></span>`;
@@ -129,6 +159,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     }
 
     public set project(project: Models.IProject) {
+        this.clearSearch();
         this.setSelectedVMs([]);
         this._project = project;
         if (project) {

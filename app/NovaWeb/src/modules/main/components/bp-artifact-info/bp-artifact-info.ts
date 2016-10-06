@@ -57,7 +57,7 @@ export class BpArtifactInfoController {
         private windowManager: IWindowManager,
         private loadingOverlayService: ILoadingOverlayService,
         protected navigationService: INavigationService,
-        private projectManager: IProjectManager
+        protected projectManager: IProjectManager
     ) {
         this.initProperties();
         this.subscribers = [];
@@ -106,6 +106,8 @@ export class BpArtifactInfoController {
     public onError = (error: any) => {
         if (this.artifact.artifactState.deleted) {
             this.dialogService.alert("Artifact_Lock_DoesNotExist");
+        } else if (this.artifact.artifactState.misplaced) {
+            //Occurs when refreshing an artifact that's been moved; do nothing
         } else {
             this.messageService.addError(error);
         }
@@ -272,9 +274,10 @@ export class BpArtifactInfoController {
                 //this.dialogService.alert(error.message);
                 //this.navigationService.navigateToArtifact(currentArtifact.parentId);
                 //this.artifactManager.remove(currentArtifact.id);
-                if (error.statusCode === 404) {
-                    this.projectManager.refresh(this.projectManager.getSelectedProject());
-                }
+
+                // We're not interested in the error type.
+                // sometimes this error is created by artifact.load(), which returns the statefulArtifact instead of an error object.
+                this.projectManager.refresh(this.projectManager.getSelectedProject());
             }).finally(() => {
                 this.loadingOverlayService.endLoading(overlayId);
             });

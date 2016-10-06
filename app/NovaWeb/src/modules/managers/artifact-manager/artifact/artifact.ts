@@ -137,9 +137,11 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             if (lock.info.versionId !== this.version) {
                 this.refresh();
             } else {
+                /* #DEBUG 
                 if (lock.info.parentId !== this.parentId || lock.info.orderIndex !== this.orderIndex) {
                     this.artifactState.misplaced = true;
                 }
+                */
                 this.subject.onNext(this);
             }
         } else {
@@ -159,10 +161,11 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     public lock(): ng.IPromise<IStatefulArtifact> {
+        /* #DEBUG
         if (this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
             return;
         }
-
+        */
         if (!this.lockPromise) {
 
             let deferred = this.services.getDeferred<IStatefulArtifact>();

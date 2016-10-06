@@ -5,18 +5,8 @@ import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
 import {ProcessModels, ProcessEnums} from "../../../";
 import {ICommunicationManager} from "../../../";
 import { IStatefulArtifact } from "../../../../../managers/artifact-manager/";
+import { StatefulProcessArtifact } from "../../../process-artifact";
 import { StatefulProcessSubArtifact } from "../../../process-subartifact";
-
-// #DEBUG 
-export class ShapesCollection {
-    constructor(private process: any, private shapes: ProcessModels.IProcessShape[]) {
-    }
-    public push(shape: ProcessModels.IProcessShape) {
-        let ssa = new StatefulProcessSubArtifact(this.process, shape, this.process.getServices());
-        this.shapes.push(ssa);
-        this.process.subArtifactCollection.add(ssa);
-    }
-}
 
 export interface IProcessViewModel extends IProcessGraphModel {
     description: string;
@@ -44,7 +34,7 @@ export interface IProcessViewModel extends IProcessGraphModel {
     addJustCreatedShapeId(id: number);
     isShapeJustCreated(id: number): boolean;
     statefulArtifact: IStatefulArtifact;
-    addStatefulShape(processShape: ProcessModels.IProcessShape, statefulArtifact: any);
+    addStatefulShape(processShape: ProcessModels.IProcessShape);
     removeStatefulShape(shapeId: number);
 }
 
@@ -65,9 +55,8 @@ export class ProcessViewModel implements IProcessViewModel {
     private _shapeLimit: number = this.DEFAULT_SHAPE_LIMIT;
     private _communicationManager: ICommunicationManager;
     private _justCreatedShapeIds: number[] = [];
-    private _shapesCollection: ShapesCollection = null;
-
-    constructor(process, rootScope?: any, scope?: any, messageService?: IMessageService) {
+  
+    constructor(private process, rootScope?: any, scope?: any, messageService?: IMessageService) {
 
         this.updateProcessGraphModel(process);
         this._rootScope = rootScope;
@@ -79,11 +68,8 @@ export class ProcessViewModel implements IProcessViewModel {
         if (messageService) {
             this._messageService = messageService;
         }
-
-        // #DEBUG
-        this._shapesCollection = new ShapesCollection(process, this.processGraphModel.shapes);
     }
-
+    
     public get isReadonly(): boolean {
         return this._isReadonly;
     }
@@ -290,11 +276,7 @@ export class ProcessViewModel implements IProcessViewModel {
     public get baseItemTypePredefined(): Enums.ItemTypePredefined {
         return this.processGraphModel.baseItemTypePredefined;
     }
-    // #DEBUG
-    public get shapesCollection(): ShapesCollection {
-        return this._shapesCollection;
-    }
-
+   
     public get shapes(): ProcessModels.IProcessShape[] {
         return this.processGraphModel.shapes;
     }
@@ -330,16 +312,23 @@ export class ProcessViewModel implements IProcessViewModel {
     public get status(): ProcessModels.IItemStatus {
         return this.processGraphModel.status;
     }
+     
+    public addStatefulShape(processShape: ProcessModels.IProcessShape) {
 
-    public addStatefulShape(processShape: ProcessModels.IProcessShape, statefulArtifact: any) {
-        let statefulShape = new StatefulProcessSubArtifact(statefulArtifact, processShape, statefulArtifact.getServices());
+        let statefulShape = new StatefulProcessSubArtifact(this.process,
+            processShape, this.process.getServices());
+
         this.shapes.push(processShape);
-        this.statefulArtifact.subArtifactCollection.add(statefulShape);
+        // cast process as an IStatefulArtifact 
+        let statefulArtifact: IStatefulArtifact = this.process; 
+        statefulArtifact.subArtifactCollection.add(statefulShape);
     }
 
     public removeStatefulShape(shapeId: number) {
         this.shapes = this.shapes.filter(shape => { return shape.id !== shapeId; });
-        this.statefulArtifact.subArtifactCollection.remove(shapeId);
+        // cast process as an IStatefulArtifact 
+        let statefulArtifact: IStatefulArtifact = this.process; 
+        statefulArtifact.subArtifactCollection.remove(shapeId);
     }
 
     public updateTree() {
@@ -483,10 +472,6 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public get isRootScopeConfigValid(): boolean {
         return this._rootScope && this._rootScope.config;
-    }
-
-    public get statefulArtifact(): IStatefulArtifact{
-        return this.processGraphModel.statefulArtifact;
     }
 
     public destroy() {

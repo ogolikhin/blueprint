@@ -104,7 +104,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
             return new StatefulProcessSubArtifact(this, shape, this.services);
         });
 
-        this.shapes = statefulSubArtifacts;
+        this.shapes = newProcess.shapes;
         this.subArtifactCollection.initialise(statefulSubArtifacts);
     }
 }

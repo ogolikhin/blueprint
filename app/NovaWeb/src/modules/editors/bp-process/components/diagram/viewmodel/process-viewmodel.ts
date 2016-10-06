@@ -44,7 +44,8 @@ export interface IProcessViewModel extends IProcessGraphModel {
     addJustCreatedShapeId(id: number);
     isShapeJustCreated(id: number): boolean;
     statefulArtifact: IStatefulArtifact;
-    shapesCollection: ShapesCollection;
+    addStatefulShape(processShape: ProcessModels.IProcessShape, statefulArtifact: any);
+    removeStatefulShape(shapeId: number);
 }
 
 export class ProcessViewModel implements IProcessViewModel {
@@ -300,7 +301,7 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public set shapes(newValue: ProcessModels.IProcessShape[]) {
         this.processGraphModel.shapes = newValue;
-    }
+    }    
 
     public get links(): ProcessModels.IProcessLinkModel[] {
         return <ProcessModels.IProcessLinkModel[]>this.processGraphModel.links;
@@ -328,6 +329,17 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public get status(): ProcessModels.IItemStatus {
         return this.processGraphModel.status;
+    }
+
+    public addStatefulShape(processShape: ProcessModels.IProcessShape, statefulArtifact: any) {
+        let statefulShape = new StatefulProcessSubArtifact(statefulArtifact, processShape, statefulArtifact.getServices());
+        this.shapes.push(processShape);
+        this.statefulArtifact.subArtifactCollection.add(statefulShape);
+    }
+
+    public removeStatefulShape(shapeId: number) {
+        this.shapes = this.shapes.filter(shape => { return shape.id !== shapeId; });
+        this.statefulArtifact.subArtifactCollection.remove(shapeId);
     }
 
     public updateTree() {

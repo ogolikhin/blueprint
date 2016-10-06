@@ -1,4 +1,8 @@
-﻿namespace Helper
+﻿// This is the global error code being used for Blueprint/Services project, (interval API services)
+// This code will be updated based on the change from Bluerprint project 
+// Location of the source code: lib/ServiceLibraryHelpers/ErrorCodes.cs
+
+namespace Helper
 {
     public static class ErrorCodes
     {

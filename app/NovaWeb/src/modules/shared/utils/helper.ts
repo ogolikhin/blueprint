@@ -133,6 +133,15 @@ export class Helper {
         }
     };
 
+    static tagsContainText(htmlText: string): boolean {
+        let div = document.createElement("div");
+        div.innerHTML = (htmlText || "").toString();
+        let content = div.innerText.trim();
+        content = content.replace(/\s/gi, ""); // remove any "spacing" characters
+        content = content.replace(/[^\x00-\x7F]/gi, ""); // remove non ASCII characters
+        return content !== "";
+    }
+
     public static toFlat(root: any): any[] {
         var stack: any[] = angular.isArray(root) ? root.slice() : [root], array: any[] = [];
         while (stack.length !== 0) {

@@ -126,6 +126,10 @@ describe("to and from HTML", () => {
 <a href="/folder1/accepted" class="label" title="Accepted">Accepted</a>
 <a href="/folder2/declined" class="label" title="Declined">Declined</a>
 <a href="#" onclick="javascript:alert('Popup!')" style="font-family:'Wingdings';" class="popup" title="Popup">Popup</a></div>`;
+    let emptyHtml = `<div><h3 class="heading" style="font-family: Wingdings"></h3>
+<a href="/folder1/accepted" class="label" title="Accepted"></a>
+<a href="/folder2/declined" class="label" title="Declined"></a>
+<a href="#" onclick="javascript:alert('Popup!')" style="font-family:'Wingdings';" class="popup" title="Popup"></a></div>`;
 
     describe("stripHTMLTags", () => {
         it("retrieves the text content of an HTML structure", () => {
@@ -169,6 +173,30 @@ Popup`);
 
             // Assert
             expect(text).not.toContain("Wingdings");
+        });
+    });
+
+    describe("tagsContainText", () => {
+        it("returns true when there is text in a HTML structure", () => {
+            // Arrange
+            let bool;
+
+            // Act
+            bool = Helper.tagsContainText(html);
+
+            // Assert
+            expect(bool).toBeTruthy();
+        });
+
+        it("returns false when there is no text in a HTML structure", () => {
+            // Arrange
+            let bool;
+
+            // Act
+            bool = Helper.tagsContainText(emptyHtml);
+
+            // Assert
+            expect(bool).toBeFalsy();
         });
     });
 });

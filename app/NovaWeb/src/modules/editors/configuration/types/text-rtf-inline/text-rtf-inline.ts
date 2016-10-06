@@ -227,9 +227,7 @@ export class BpFieldTextRTFInlineController {
                 expression: function ($viewValue, $modelValue, scope) {
                     let isEmpty = false;
                     if (scope.to && scope.to.required) {
-                        let div = document.createElement("div");
-                        div.innerHTML = ($modelValue || "").toString();
-                        isEmpty = div.innerText.trim() === "";
+                        isEmpty = !Helper.tagsContainText($modelValue);
                     }
                     scope.options.validation.show = isEmpty;
                     return !isEmpty;

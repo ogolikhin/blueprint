@@ -14,6 +14,7 @@ export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements 
     public propertyValues: IHashMapOfPropertyValues;
     public associatedArtifact: IArtifactReference;
     public baseItemTypePredefined: ItemTypePredefined;
+    public typePrefix: string;
 
     constructor(artifact: IStatefulArtifact, subartifact: IProcessShape, services: IStatefulArtifactServices) {
         super(artifact, subartifact, services);        
@@ -21,10 +22,11 @@ export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements 
         this.propertyValues = subartifact.propertyValues;
         this.associatedArtifact = subartifact.associatedArtifact;
         this.baseItemTypePredefined = subartifact.baseItemTypePredefined;
+        this.typePrefix = subartifact.typePrefix;
     }
     
-    public get typePrefix(): string{
-        return this.prefix;
+    public get prefix(): string{
+        return this.typePrefix;
     }
 
     public get predefinedType(): ItemTypePredefined {

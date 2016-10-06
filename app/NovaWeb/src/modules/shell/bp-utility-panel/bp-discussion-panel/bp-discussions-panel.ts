@@ -74,7 +74,9 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
             this.artifactId = artifact.id;
             this.subArtifact = subArtifact;
-            if (artifact.version) {
+            if (this.subArtifact && !Helper.hasArtifactEverBeenSavedOrPublished(subArtifact)) {  
+                this.resetReadOnly();
+            } else if (artifact.version) {
                 return this.setEverPublishedAndDiscussions(artifact.version, timeout);
             } else {
                 // TODO: return this.artifactManager.selection.getArtifact().load()
@@ -90,14 +92,26 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                 // });
             }
         } else {
-            this.artifactId = null;
-            this.subArtifact = null;
-            this.artifactDiscussionList = [];
-            this.canCreate = false;
-            this.canDelete = false;
-            this.artifactEverPublished = false;
+            this.resetReadOnly();
         }
         return super.onSelectionChanged(artifact, subArtifact, timeout);
+    }
+
+    private resetReadOnly() {    
+        this.reset();
+        this.setReadOnly();
+    }
+
+    private reset() {        
+        this.artifactId = null;
+        this.subArtifact = null;
+        this.artifactDiscussionList = [];
+    }
+
+    private setReadOnly() {        
+        this.canCreate = false;
+        this.canDelete = false;
+        this.artifactEverPublished = false;
     }
 
     private setControllerFieldsAndFlags(discussionResultSet: IDiscussionResultSet) {

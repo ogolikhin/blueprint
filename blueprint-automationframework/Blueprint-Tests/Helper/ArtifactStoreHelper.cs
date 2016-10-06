@@ -250,5 +250,24 @@ namespace Helper
 
             Artifact.UpdateArtifact(artifact, user, artifactDetails, artifactStore.Address);
         }
+
+        /// <summary>
+        /// Creates inline trace text for the provided artifact. For use with RTF properties.
+        /// </summary>
+        /// <param name="inlineTraceArtifact">target artifact for inline traces</param>
+        /// <param name="inlineTraceArtifactDetails">target artifactDetails for inline traces</param>
+        /// <returns>inline trace text</returns>
+        public static string CreateArtifactInlineTraceValue(IArtifactBase inlineTraceArtifact, INovaArtifactDetails inlineTraceArtifactDetails)
+        {
+            ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
+            ThrowIf.ArgumentNull(inlineTraceArtifactDetails, nameof(inlineTraceArtifactDetails));
+
+            string inlineTraceText = null;
+
+            inlineTraceText = I18NHelper.FormatInvariant("<html><head></head><body style=\"padding: 1px 0px 0px; font-family: 'Portable User Interface'; font-size: 10.67px\"><div style=\"padding: 0px\"><p style=\"margin: 0px\">&#x200b;<a linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null\" canclick=\"True\" isvalid=\"True\" href=\"{0}?ArtifactId={1}\" target=\"_blank\" artifactid=\"{1}\" style=\"font-family: 'Portable User Interface'; font-size: 11px; font-style: normal; font-weight: normal; text-decoration: underline; color: #0000FF\" title=\"Project: akim_project\"><span style=\"font-family: 'Portable User Interface'; font-size: 11px; font-style: normal; font-weight: normal; text-decoration: underline; color: #0000FF\">{2}{1}: {3}</span></a><span style=\"-c1-editable: true; font-family: 'Portable User Interface'; font-size: 10.67px; font-style: normal; font-weight: normal; color: Black\">&#x200b;</span></p></div></body></html>",
+                inlineTraceArtifact.Address, inlineTraceArtifact.Id, inlineTraceArtifactDetails.Prefix, inlineTraceArtifactDetails.Name);
+
+            return inlineTraceText;
+        }
     }
 }

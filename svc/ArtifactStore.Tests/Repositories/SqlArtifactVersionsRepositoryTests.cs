@@ -537,5 +537,107 @@ namespace ArtifactStore.Repositories
             Assert.IsNotNull(artifactInfo.DeletedByUser.Id);
             Assert.IsTrue(artifactInfo.DeletedByUser.Id.Value == latestDeletedByUserId);
         }
+
+        [TestMethod]
+        public async Task GetVersionControlArtifactInfoAsync_NoChangesLockedBySomeoneElse()
+        {
+            // Arrange
+            int userId = 1, itemId = 11, artifactId = 10, lockedByUserId = 2;
+
+            SqlConnectionWrapperMock connectionWrapperMock = new SqlConnectionWrapperMock();
+            connectionWrapperMock.SetupQueryAsync("GetArtifactBasicDetails",
+                new Dictionary<string, object> { { "@userId", userId }, { "@itemId", itemId } },
+                new List<ArtifactBasicDetails> { new ArtifactBasicDetails
+                {
+                     ItemId = itemId,
+                     ArtifactId = artifactId,
+                     HasDraftRelationships = false,
+                     UserId = userId,
+                     LockedByUserId = lockedByUserId,
+                }});
+
+            Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
+            artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
+                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+                .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } });
+
+            SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
+                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
+
+            // Act
+            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, userId));
+
+            // Assert
+            connectionWrapperMock.Verify();
+            Assert.IsFalse(artifactInfo.HasChanges);
+        }
+
+        [TestMethod]
+        public async Task GetVersionControlArtifactInfoAsync_NoChangesDraftRelationships()
+        {
+            // Arrange
+            int userId = 1, itemId = 11, artifactId = 10, lockedByUserId = 2;
+
+            SqlConnectionWrapperMock connectionWrapperMock = new SqlConnectionWrapperMock();
+            connectionWrapperMock.SetupQueryAsync("GetArtifactBasicDetails",
+                new Dictionary<string, object> { { "@userId", userId }, { "@itemId", itemId } },
+                new List<ArtifactBasicDetails> { new ArtifactBasicDetails
+                {
+                     ItemId = itemId,
+                     ArtifactId = artifactId,
+                     HasDraftRelationships = true,
+                     UserId = userId,
+                     LockedByUserId = lockedByUserId,
+                }});
+
+            Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
+            artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
+                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+                .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } });
+
+            SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
+                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
+
+            // Act
+            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, userId));
+
+            // Assert
+            connectionWrapperMock.Verify();
+            Assert.IsTrue(artifactInfo.HasChanges);
+        }
+
+        [TestMethod]
+        public async Task GetVersionControlArtifactInfoAsync_HasChangesLockedByMe()
+        {
+            // Arrange
+            int userId = 1, itemId = 11, artifactId = 10;
+
+            SqlConnectionWrapperMock connectionWrapperMock = new SqlConnectionWrapperMock();
+            connectionWrapperMock.SetupQueryAsync("GetArtifactBasicDetails",
+                new Dictionary<string, object> { { "@userId", userId }, { "@itemId", itemId } },
+                new List<ArtifactBasicDetails> { new ArtifactBasicDetails
+                {
+                     ItemId = itemId,
+                     ArtifactId = artifactId,
+                     HasDraftRelationships = false,
+                     UserId = userId,
+                     LockedByUserId = userId,
+                }});
+
+            Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
+            artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
+                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+                .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } });
+
+            SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
+                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
+
+            // Act
+            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, userId));
+
+            // Assert
+            connectionWrapperMock.Verify();
+            Assert.IsTrue(artifactInfo.HasChanges);
+        }
     }
 }

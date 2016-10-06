@@ -845,6 +845,26 @@ IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.4.0') <> 0)
 Print 'Migrating 7.4.0.0 ...'
 -- -----------------------------------------------------------------------------------------------
 
+-- -----------------------------------------------------------------------------
+-- Modify [dbo].[ApplicationLabels] to have a primary key on [Key] and [Locale]
+-- -----------------------------------------------------------------------------
+
+IF  EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE CONSTRAINT_NAME = 'PK_ApplicationLabels_ApplicationLabelId')
+BEGIN
+
+	-- Remove existing constraint
+	ALTER TABLE [dbo].[ApplicationLabels] 
+	DROP CONSTRAINT [PK_ApplicationLabels_ApplicationLabelId]
+
+	-- Creating primary key on [ApplicationLabelId], [Key], [Locale] in table 'ApplicationLabels'
+	ALTER TABLE [dbo].[ApplicationLabels]
+	ADD CONSTRAINT [PK_ApplicationLabels] PRIMARY KEY NONCLUSTERED 
+	(
+		[Key], [Locale] ASC
+	);
+END
+
+GO
 
 -- -----------------------------------------------------------------------------------------------
 -- Always add your code just above this comment block
@@ -869,6 +889,11 @@ CREATE TABLE #tempAppLabels (
 	[Key] [nvarchar](128) NOT NULL,
 	[Locale] [nvarchar](32) NOT NULL,
 	[Text] [nvarchar](512) NOT NULL
+
+	CONSTRAINT [PK_ApplicationLabels] PRIMARY KEY NONCLUSTERED 
+	(
+		[Key], [Locale] ASC
+	)
 )
 
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'en-US', N'Yes')
@@ -1252,10 +1277,11 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Page_Label',
 INSERT INTO [dbo].[ApplicationLabels] ([Key], [Locale], [Text])
 SELECT #tempAppLabels.[Key], #tempAppLabels.[Locale], #tempAppLabels.[Text]
   FROM #tempAppLabels
- WHERE NOT EXISTS ( SELECT *
-					  FROM [dbo].[ApplicationLabels] 
-					 WHERE [dbo].[ApplicationLabels].[Key] = #tempAppLabels.[Key]
-					   AND [dbo].[ApplicationLabels].[Locale] = #tempAppLabels.[Locale])
+  LEFT JOIN [dbo].[ApplicationLabels] 
+		ON [dbo].[ApplicationLabels].[Key] = #tempAppLabels.[Key]
+		AND [dbo].[ApplicationLabels].[Locale] = #tempAppLabels.[Locale]
+ WHERE #tempAppLabels.[Key] is NULL
+   AND #tempAppLabels.[Locale] is NULL
 
 -- Update if [Key]/[Locale] combination exists, but text is different
 UPDATE [dbo].[ApplicationLabels]

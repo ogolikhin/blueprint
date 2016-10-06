@@ -38,7 +38,7 @@
     "moment": "2.14.1",
     "ng-draggable": "~1.0.0",
     "rx": "^4.1.0",
-    "tinymce": "^4.4.3",
+    "tinymce": "^4.4.4",
     "ui-select": "^0.19.1"
   },
   "devDependencies": {

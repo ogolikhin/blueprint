@@ -76,18 +76,15 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         this.subscribers = this.subscribers.filter(subscriber => { subscriber.dispose(); return false; });
         if (subArtifact) {
             this.subscribers.push(
-                subArtifact.getObservable().subscribe((subartifact) => { this.onSelectionChangedHelper(null, subArtifact, timeout); }));
+                subArtifact.getObservable().subscribe((subArtif) => { this.onSelectedItemModified(artifact, subArtif, timeout); }));
         } else if (artifact) {
             this.subscribers.push(
-                artifact.getObservable().subscribe((artif) => { this.onSelectionChangedHelper(artif, null, timeout); }));
+                artifact.getObservable().subscribe((artif) => { this.onSelectedItemModified(artif, null, timeout); }));
         }
-
-        this.onSelectionChangedHelper(artifact, subArtifact, timeout);
-
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
-    private onSelectionChangedHelper = (artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>) => {
+    private onSelectedItemModified = (artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>) => {
         this.artifactDiscussionList = [];
         this.showAddComment = false;
         if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
@@ -95,21 +92,8 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
             this.subArtifact = subArtifact;
             if (this.subArtifact && !Helper.hasArtifactEverBeenSavedOrPublished(subArtifact)) {  
                 this.resetReadOnly();
-            } else if (artifact.version) {
-                return this.setEverPublishedAndDiscussions(artifact.version, timeout);
-            } else {
-                // TODO: return this.artifactManager.selection.getArtifact().load()
-                // -----------------------------------------------------------------
-                // return this.artifactService.getArtifact(artifact.id, timeout).then((result: IStatefulArtifact) => {
-                //     artifact = result;
-                //     this.setEverPublishedAndDiscussions(artifact.version, timeout);
-                // }).catch((error: any) => {
-                //     if (error) {
-                //         this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
-                //     }
-                //     artifact = null;
-                // });
             }
+            return this.setEverPublishedAndDiscussions(artifact.version, timeout);
         } else {
             this.resetReadOnly();
         }

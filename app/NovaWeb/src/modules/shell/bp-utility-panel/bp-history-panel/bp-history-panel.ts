@@ -78,11 +78,11 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         this.subscribers = this.subscribers.filter(subscriber => { subscriber.dispose(); return false; });
         if (subArtifact) {
             this.subscribers.push(
-                subArtifact.getObservable().distinctUntilChanged((subArtif) => { return subArtif.version; })
+                subArtifact.getObservable().distinctUntilChanged(subArtif => subArtif.version)
                     .subscribe((subArtif) => { this.onSelectionChangedHelper(null, subArtif, timeout); }));
         } else if (artifact) {
             this.subscribers.push(
-                artifact.getObservable().distinctUntilChanged((artif) => { return artif.version; })
+                artifact.getObservable().distinctUntilChanged(artif => artif.version)
                     .subscribe((artif) => { this.onSelectionChangedHelper(artif, null, timeout); }));
         }
 

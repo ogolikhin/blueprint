@@ -272,7 +272,9 @@ export class BpArtifactInfoController {
                 //this.dialogService.alert(error.message);
                 //this.navigationService.navigateToArtifact(currentArtifact.parentId);
                 //this.artifactManager.remove(currentArtifact.id);
-                this.projectManager.refresh(this.projectManager.getSelectedProject());
+                if (error.statusCode === 404) {
+                    this.projectManager.refresh(this.projectManager.getSelectedProject());
+                }
             }).finally(() => {
                 this.loadingOverlayService.endLoading(overlayId);
             });

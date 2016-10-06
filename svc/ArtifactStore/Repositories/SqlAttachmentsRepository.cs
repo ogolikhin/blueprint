@@ -8,7 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace ArtifactStore.Repositories
 {
@@ -73,6 +75,11 @@ namespace ArtifactStore.Repositories
             if (versionId.HasValue)
             {
                 revisionId = await ItemInfoRepository.GetRevisionIdByVersionIndex(artifactId, versionId.Value);
+            }
+
+            if (revisionId <= 0)
+            {
+                throw new HttpResponseException(HttpStatusCode.NotFound);
             }
 
             var attachments = (await GetAttachments(itemId, userId, revisionId, addDrafts)).ToList();

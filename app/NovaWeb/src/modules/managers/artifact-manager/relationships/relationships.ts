@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import { IIStatefulItem } from "../item";
 import { ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet } from "../changeset";
-import { IRelationship, IArtifactRelationshipsResultSet } from "../../../main/models/relationshipmodels";
+import { IRelationship, IArtifactRelationshipsResultSet, LinkType } from "../../../main/models/relationshipmodels";
 
 export interface IArtifactRelationships {
     // getObservable(): Rx.IObservable<IRelationship[]>;
@@ -13,7 +13,13 @@ export interface IArtifactRelationships {
     changes(): IRelationship[];
     refresh(): ng.IPromise<IRelationship[]>;
     discard();
+    updateManual(relationships: IRelationship[]);
     canEdit: boolean;
+}
+
+export interface IResult {
+    found: boolean;
+    index: number;
 }
 
 export class ArtifactRelationships implements IArtifactRelationships {
@@ -38,8 +44,9 @@ export class ArtifactRelationships implements IArtifactRelationships {
         const deferred = this.statefulItem.getServices().getDeferred<IRelationship[]>();
 
         if (this.isLoaded && !refresh) {
-            deferred.resolve(this.relationships);
-            this.subject.onNext(this.relationships);
+            let copy = angular.copy(this.relationships);
+            deferred.resolve(copy);
+            this.subject.onNext(copy);
         } else {
             this.statefulItem.getRelationships().then((result: IArtifactRelationshipsResultSet) => {
                 const manual = result.manualTraces || [];
@@ -113,10 +120,23 @@ export class ArtifactRelationships implements IArtifactRelationships {
         throw Error("operation not supported");
     }
 
+    public updateManual(relationships: IRelationship[]) {
+        this.relationships = this.relationships.filter((relationship: IRelationship) =>
+                relationship.traceType !== LinkType.Manual);
+
+        this.relationships = this.relationships.concat(relationships);
+
+        this.statefulItem.lock();
+
+        this.subject.onNext(this.relationships);
+
+        return this.relationships;
+    }
+
     public remove(relationships: IRelationship[]): IRelationship[] {
         if (relationships) {
             relationships.map((relationship: IRelationship) => {
-                const foundRelationshipIndex = this.relationships.indexOf(relationship);
+                const foundRelationshipIndex = this.inArray(this.relationships, relationship).index;
 
                 if (foundRelationshipIndex > -1) {
                     this.relationships.splice(foundRelationshipIndex, 1);
@@ -134,6 +154,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
             this.subject.onNext(this.relationships);
         }
 
+        console.log("inside remove");
         return this.relationships;
     }
 
@@ -181,5 +202,21 @@ export class ArtifactRelationships implements IArtifactRelationships {
     public refresh(): ng.IPromise<any> {
 
         return null;
+    }
+
+    public inArray(array, item) {
+        let found = false,
+            index = -1;
+        if (array) {
+            for (let i = 0; i < array.length; i++) {
+                if (array[i].itemId === item.itemId) {
+                    found = true;
+                    index = i;
+                    break;
+                }
+            }
+        }
+
+        return <IResult>{ "found": found, "index": index };
     }
 }

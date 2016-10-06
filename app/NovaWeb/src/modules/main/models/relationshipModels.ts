@@ -19,6 +19,12 @@ export interface IRelationship {
     readOnly: boolean;
 }
 
+export interface IDialogItem {
+    manualTraces: IRelationship[];
+    artifactId: number;
+    isItemReadOnly: boolean;
+}
+
 export interface IArtifactRelationshipsResultSet {
     manualTraces: IRelationship[];
     otherTraces: IRelationship[];

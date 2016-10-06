@@ -1,14 +1,15 @@
-﻿import { ILocalizationService } from "../../../core";
+﻿import * as angular from "angular";
+import { ILocalizationService } from "../../../core";
 import { Relationships } from "../../../main";
-import { IDialogSettings, IDialogService, IDialogData } from "../../../shared";
+import { IDialogSettings, IDialogService } from "../../../shared";
 import { 
     IArtifactManager, 
     IStatefulItem,
     IStatefulArtifact, 
     IStatefulSubArtifact,
-    IArtifactRelationships
+    IArtifactRelationships,
 } from "../../../managers/artifact-manager";
-import { IRelationship, LinkType } from "../../../main/models/relationshipModels";
+import { IRelationship, LinkType, IDialogItem } from "../../../main/models/relationshipModels";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 import { Helper } from "../../../shared/utils/helper";
@@ -17,10 +18,6 @@ import { ManageTracesDialogController } from "../../../main/components/dialogs/b
 interface IOptions {
     value: string;
     label: string;
-}
-
-interface IDialogItem {
-    item: IStatefulItem;
 }
 
 export class BPRelationshipsPanel implements ng.IComponentOptions {
@@ -57,6 +54,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public selectedTraces: IArtifactSelectedArtifactMap;
     public hasFlagged: boolean = false;
     public hasUnFlagged: boolean = false;
+    public copyItem: Function;
 
     constructor(
         $q: ng.IQService,
@@ -109,13 +107,13 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     }
 
 
-    private getRelationships() {
+    private getRelationships(refresh?: boolean) {
         this.manualTraces = null;
         this.otherTraces = null;
 
         if (this.item && Helper.hasArtifactEverBeenSavedOrPublished(this.item)) {
             this.isLoading = true;            
-            this.item.relationships.get().then((relationships: Relationships.IRelationship[]) => {
+            this.item.relationships.get(refresh).then((relationships: Relationships.IRelationship[]) => {
                 this.allTraces = relationships;
                 this.manualTraces = relationships
                     .filter((relationship: Relationships.IRelationship) => 
@@ -132,8 +130,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
             }).finally(() => {
                 this.isLoading = false;
             });
-        }
-        else {
+        } else {
             this.reset();
         }
     }
@@ -211,6 +208,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace")).then( (confirmed) => {
             if (confirmed) {
                 this.item.relationships.remove([artifact]);
+                this.getRelationships(false);
             }
         });
     }
@@ -224,12 +222,23 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
             header: "Manage Traces"
         };
 
-        let dialogData: IDialogItem = {
-            item: this.item
+        let data: IDialogItem = {
+            manualTraces: angular.copy(this.manualTraces2),
+            artifactId: this.item.id,
+            isItemReadOnly: this.isItemReadOnly
         };
 
-        this.dialogService.open(dialogSettings, dialogData).then((result) => {
-            console.log(result);
+        this.dialogService.open(dialogSettings, data).then((result) => {
+
+            data.manualTraces = data.manualTraces.map(function (trace) {
+                trace.isSelected = false;
+                return trace;
+            });
+
+            this.manualTraces = data.manualTraces;
+            this.item.relationships.updateManual(data.manualTraces);
+            //this.item.relationships.add(data.manualTraces);
+            this.getRelationships(false);
         });
     }
 

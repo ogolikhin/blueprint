@@ -266,7 +266,7 @@ namespace Model
         /// <param name="subArtifactId">Id of the subArtifact</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The requested subArtifact</returns>
-        INovaSubArtifactDetails GetSubartifactDetails(IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null);
+        NovaSubArtifactDetails GetSubartifactDetails(IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets list of unpublished changes for the specified user.

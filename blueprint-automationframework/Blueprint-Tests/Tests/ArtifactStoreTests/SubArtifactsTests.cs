@@ -158,7 +158,7 @@ namespace ArtifactStoreTests
             // Get the process with the updated inline trace and verify that the trace was added
             var updatedProcess = Helper.Storyteller.GetProcess(_user, returnedProcess.Id);
             var updatedDefaultUserTask = updatedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            var updatedDescriptionProperty = updatedDefaultUserTask.PropertyValues.FirstOrDefault(p => p.Key == "description").Value;
+            var updatedDescriptionProperty = StorytellerTestHelper.FindPropertyValue("description", updatedDefaultUserTask.PropertyValues).Value;
 
             Assert.That(updatedDescriptionProperty.Value.ToString().Contains(descriptionProperty.Value.ToString()), "Description properties don't match.");
 
@@ -176,19 +176,18 @@ namespace ArtifactStoreTests
             };
 
             // Update the artifact with the new name
-            NovaArtifactDetails updatedArtifactDetails = null;
-
-            Assert.DoesNotThrow(() => updatedArtifactDetails = Artifact.UpdateArtifact(artifact, _user, artifactDetailsChanges: artifactDetailsToUpdateInlineTraceArtifact),
-                "UpdateArtifact call failed when using the following artifact ID: {0}!", artifact.Id);
-
+            var updatedArtifactDetails = Artifact.UpdateArtifact(artifact, _user, artifactDetailsChanges: artifactDetailsToUpdateInlineTraceArtifact);
             Helper.ArtifactStore.PublishArtifact(artifact, _user);
 
             // Get process subartifact details via Nova call
-            var subartifact = Helper.ArtifactStore.GetSubartifactDetails(_user, updatedProcess.Id,
-                updatedDefaultUserTask.Id);
+            NovaSubArtifactDetails subartifactDetails = null;
+
+            Assert.DoesNotThrow(() => subartifactDetails = Helper.ArtifactStore.GetSubartifactDetails(_user, updatedProcess.Id,
+                updatedDefaultUserTask.Id), "GetSubartifactDetails call failed when using the following subartifact ID: {0}!", updatedDefaultUserTask.Id);
+ 
 
             // Verify:
-            Assert.That(subartifact.Description.Contains(updatedArtifactDetails.Name), "The artifact name was not updated in the sub artifact inline trace.");
+            Assert.That(subartifactDetails.Description.Contains(updatedArtifactDetails.Name), "The artifact name was not updated in the sub artifact inline trace.");
 
             CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
         }
@@ -342,7 +341,7 @@ namespace ArtifactStoreTests
         /// <summary>
         /// Creates new rich text that includes inline trace(s)
         /// </summary>
-        /// <param name="artifacts"></param>
+        /// <param name="artifacts">The artifacts being added as inline traces</param>
         /// <returns>A formatted rich text string with inlne traces(s)</returns>
         private static string CreateTextForProcessInlineTrace(IList<IArtifact> artifacts)
         {
@@ -362,7 +361,9 @@ namespace ArtifactStoreTests
                 }
             }
 
-            return "<p>" + text + "</p>";
+            Assert.IsFalse(string.IsNullOrWhiteSpace(text), "Text for inline trace was null or whitespace!");
+
+            return I18NHelper.FormatInvariant("<p>{0}</p>", text);
         }
 
         #endregion Private Methods

@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace Model.ArtifactModel.Impl
 {
-    public class NovaSubArtifactDetails : INovaSubArtifactDetails
+    public class NovaSubArtifactDetails
     {
         #region Serialized JSON Properties
 
@@ -41,13 +41,7 @@ namespace Model.ArtifactModel.Impl
 
             public int PropertyTypeId { get; set; }
 
-            public int PropertyTypeVersionId { get; set; }
-
-            //this function is used by Newtonsoft.Json to determine when to serialize property. See help for Newtonsoft.Json.Serialization
-            public bool ShouldSerializePropertyTypeVersionId()
-            {
-                return PropertyTypeVersionId != 0;
-            }
+            public int? PropertyTypeVersionId { get; set; }
 
             public int PropertyTypePredefined { get; set; }
 

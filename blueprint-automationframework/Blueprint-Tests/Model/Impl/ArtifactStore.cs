@@ -435,9 +435,9 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetSubartifactDetails(IUser, int, int, List{HttpStatusCode})"/>
-        public INovaSubArtifactDetails GetSubartifactDetails(IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null)
+        public NovaSubArtifactDetails GetSubartifactDetails(IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.Subartifacts_id_.SUBARTIFACTS_id, artifactId, subArtifactId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_, artifactId, subArtifactId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             return restApi.SendRequestAndDeserializeObject<NovaSubArtifactDetails>(

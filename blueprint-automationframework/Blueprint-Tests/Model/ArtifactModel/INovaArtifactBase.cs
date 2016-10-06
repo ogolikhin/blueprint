@@ -130,37 +130,6 @@ namespace Model.ArtifactModel
         #endregion Serialized JSON Properties
     }
 
-    public interface INovaSubArtifactDetails
-    {
-        #region Serialized JSON Properties
-
-        int Id { get; set; }
-
-        string Name { get; set; }
-
-        string Description { get; set; }
-
-        int ParentId { get; set; }
-
-        double OrderIndex { get; set; }
-
-        int ItemTypeId { get; set; }
-
-        int ItemTypeVersionId { get; set; }
-
-        int PredefinedType { get; set; }
-
-        string Prefix { get; set; }
-
-        bool IsDeleted { get; set; }
-
-        List<SubArtifactCustomProperty> CustomPropertyValues { get; }
-
-        List<SubArtifactCustomProperty> SpecificPropertyValues { get; }
-
-        #endregion Serialized JSON Properties
-    }
-
     public interface INovaVersionControlArtifactInfo : INovaArtifactBase
     {
         #region Serialized JSON Properties

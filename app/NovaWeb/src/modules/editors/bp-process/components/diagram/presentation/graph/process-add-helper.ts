@@ -61,11 +61,12 @@ export class ProcessAddHelper {
 
         return userTaskShape.id;
     }
-
+    // #DEBUG
     private static addShape(processShape: IProcessShape, layout: ILayout, shapesFactoryService: ShapesFactory): void {
         if (processShape != null) {
-            let statefulShape = shapesFactoryService.createStatefulSubArtifact(layout.viewModel.statefulArtifact, processShape);            
-            layout.viewModel.shapes.push(statefulShape);
+            //let statefulShape = shapesFactoryService.createStatefulSubArtifact(layout.viewModel.statefulArtifact, processShape);            
+            //layout.viewModel.shapes.push(statefulShape);
+            layout.viewModel.shapesCollection.push(processShape);
             layout.viewModel.addJustCreatedShapeId(processShape.id);
         }
     }
@@ -96,7 +97,7 @@ export class ProcessAddHelper {
     private static insertUserDecisionInternal(sourceIds: number[], destinationId: number, layout: ILayout, shapesFactoryService: ShapesFactory): number {
         layout.setTempShapeId(layout.getTempShapeId() - 1);
         var userDecisionShape = shapesFactoryService.createModelUserDecisionShape(layout.viewModel.id,
-         layout.viewModel.projectId, layout.getTempShapeId(), -1, -1);;        
+         layout.viewModel.projectId, layout.getTempShapeId(), -1, -1);    
         
         ProcessAddHelper.addShape(userDecisionShape, layout, shapesFactoryService);
 

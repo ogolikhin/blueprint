@@ -5,6 +5,18 @@ import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
 import {ProcessModels, ProcessEnums} from "../../../";
 import {ICommunicationManager} from "../../../";
 import { IStatefulArtifact } from "../../../../../managers/artifact-manager/";
+import { StatefulProcessSubArtifact } from "../../../process-subartifact";
+
+// #DEBUG 
+export class ShapesCollection {
+    constructor(private process: any, private shapes: ProcessModels.IProcessShape[]) {
+    }
+    public push(shape: ProcessModels.IProcessShape) {
+        let ssa = new StatefulProcessSubArtifact(this.process, shape, this.process.getServices());
+        this.shapes.push(ssa);
+        this.process.subArtifactCollection.add(ssa);
+    }
+}
 
 export interface IProcessViewModel extends IProcessGraphModel {
     description: string;
@@ -32,6 +44,7 @@ export interface IProcessViewModel extends IProcessGraphModel {
     addJustCreatedShapeId(id: number);
     isShapeJustCreated(id: number): boolean;
     statefulArtifact: IStatefulArtifact;
+    shapesCollection: ShapesCollection;
 }
 
 export class ProcessViewModel implements IProcessViewModel {
@@ -51,6 +64,7 @@ export class ProcessViewModel implements IProcessViewModel {
     private _shapeLimit: number = this.DEFAULT_SHAPE_LIMIT;
     private _communicationManager: ICommunicationManager;
     private _justCreatedShapeIds: number[] = [];
+    private _shapesCollection: ShapesCollection = null;
 
     constructor(process, rootScope?: any, scope?: any, messageService?: IMessageService) {
 
@@ -58,18 +72,15 @@ export class ProcessViewModel implements IProcessViewModel {
         this._rootScope = rootScope;
         if (scope) {
             this._scope = scope;
-           // this.subscribeToToolbarEvents();
             this.getConfigurationSettings(); 
         }
-
-        //if (header) {
-        //    this._header = header;
-        //    this.initHeader();
-        //}
-
+        
         if (messageService) {
             this._messageService = messageService;
         }
+
+        // #DEBUG
+        this._shapesCollection = new ShapesCollection(process, this.processGraphModel.shapes);
     }
 
     public get isReadonly(): boolean {
@@ -78,24 +89,14 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public set isReadonly(value) {
         this._isReadonly = value;
-        //if (this.header) {
-        //this._header.isReadonly = value;
-        //}
     }
-
-    //public get header(): IProcessHeader {
-    //    return this._header;
-    //}
-
+    
     public get showLock(): boolean {
         return this._showLock;
     }
 
     public set showLock(value: boolean) {
         this._showLock = value;
-        //if (this.header) {
-        //    this._header.showLock = value;
-        //}
     }
 
     public get showLockOpen(): boolean {
@@ -104,9 +105,6 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public set showLockOpen(value: boolean) {
         this._showLockOpen = value;
-        //if (this.header) {
-        //    this._header.showLockOpen = value;
-        //}
     }
 
     public get isLocked(): boolean {
@@ -118,11 +116,6 @@ export class ProcessViewModel implements IProcessViewModel {
         this.status.isLocked = value;
         this.showLock = this.status.isLocked && !this.status.isLockedByMe;
         this.showLockOpen = this.status.isLocked && this.status.isLockedByMe;
-
-        //if (this.header) {
-        //    this.header.showLock = this.showLock;
-        //    this.header.showLockOpen = this.showLockOpen;
-        //}
     }
 
     public get isLockedByMe(): boolean {
@@ -135,11 +128,6 @@ export class ProcessViewModel implements IProcessViewModel {
 
         this.showLock = this.status.isLocked && !this.status.isLockedByMe;
         this.showLockOpen = this.status.isLocked && this.status.isLockedByMe;
-
-        //if (this.header) {
-        //    this.header.showLock = this.showLock;
-        //    this.header.showLockOpen = this.showLockOpen;
-        //}
     }
 
     public get isChanged(): boolean {
@@ -148,9 +136,6 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public set isChanged(value: boolean) {
         this._isChanged = value;
-        //if (this.header) {
-        //    this.header.isChanged = value;
-        //}
     }
 
     public get shapeLimit(): number {
@@ -209,19 +194,7 @@ export class ProcessViewModel implements IProcessViewModel {
 
         this.isChanged = false;
         this.isReadonly = process.status.isReadOnly;
-        //if (this.header) {
-        //    this.header.name = process.name;
-        //    this.header.description = this.getPropertyValue(process, "description");
-        //}
     }
-
-    //private getPropertyValue(process: ProcessModels.IProcess, propertyName: string) {
-    //    if (process == null || process.propertyValues == null || process.propertyValues[propertyName] == null) {
-    //        return null;
-    //    }
-
-    //    return process.propertyValues[propertyName].value;
-    //}
 
     public get processType(): ProcessEnums.ProcessType {
         return this.propertyValues["clientType"].value;
@@ -315,6 +288,10 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public get baseItemTypePredefined(): Enums.ItemTypePredefined {
         return this.processGraphModel.baseItemTypePredefined;
+    }
+    // #DEBUG
+    public get shapesCollection(): ShapesCollection {
+        return this._shapesCollection;
     }
 
     public get shapes(): ProcessModels.IProcessShape[] {
@@ -462,32 +439,7 @@ export class ProcessViewModel implements IProcessViewModel {
     public isShapeJustCreated(id: number): boolean {
         return this._justCreatedShapeIds.filter(newId => id === newId).length > 0;
     }
-
-    //private subscribeToToolbarEvents() {
-    //    // subscribe to toolbar commands using the event bus 
-    //    if (this._scope.subscribe) {
-    //        if (this._unsubscribeToolbarEvents.length > 0) {
-    //            // remove previous event listeners 
-    //            this.removeToolbarEventListeners();
-    //        }
-    //        this._unsubscribeToolbarEvents.push(
-    //            this._scope.subscribe("Toolbar:ResetLock", (event, target) => {
-    //                this.resetLock();
-    //            })
-    //        );
-    //    }
-    //}
-
-    //private removeToolbarEventListeners() {
-    //    if (this._unsubscribeToolbarEvents.length > 0) {
-    //        for (var i = 0; i < this._unsubscribeToolbarEvents.length; i++) {
-    //            this._unsubscribeToolbarEvents[i]();
-    //            this._unsubscribeToolbarEvents[i] = null;
-    //        }
-    //    }
-    //    this._unsubscribeToolbarEvents = [];
-    //}
-
+    
     private getConfigurationSettings() {
         // get configuration settings from rootscope configuration object 
         // and assign to viewmodel properties
@@ -526,8 +478,6 @@ export class ProcessViewModel implements IProcessViewModel {
     }
 
     public destroy() {
-        //this.removeToolbarEventListeners();
-        //this._header = null;
         this._scope = null;
         if (this.processGraphModel != null) {
             this.processGraphModel.destroy();

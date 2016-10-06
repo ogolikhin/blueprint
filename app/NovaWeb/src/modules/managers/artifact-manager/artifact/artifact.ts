@@ -333,7 +333,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         promisesToExecute = [loadPromise, attachmentPromise];
 
          // get promises for other refresh operations in sub-classes
-        promisesToExecute.concat(this.getPromisesForRefreshOperations());
+        promisesToExecute.concat(this.getCustomArtifactPromisesForRefresh());
 
         this.getServices().$q.all(promisesToExecute).then(() => {
 
@@ -348,7 +348,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return deferred.promise;
     }
 
-    protected getPromisesForRefreshOperations(): ng.IPromise<any>[]{
+    protected getCustomArtifactPromisesForRefresh(): ng.IPromise<any>[]{
 
         // Note: override in sub-class to return an array of promises 
         // that wait on data initialization operations at the sub- class 

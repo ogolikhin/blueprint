@@ -7,11 +7,11 @@
             <input type="text" value="{{fileName}}" class="form-control" readonly bp-tooltip="{{fileName}}" bp-tooltip-truncated="true" />
         </span>
         <span class="input-group-addon">
-            <span class="icon fonticon2-delete" ng-class="{disabled: to.disabled}" ng-click="deleteFile()"></span>
+            <span class="icon fonticon2-delete" ng-class="{disabled: to.disabled||to.isReadOnly}" ng-click="deleteFile()"></span>
         </span>
         <span class="input-group-addon">
-            <label class="btn btn-primary btn-small" ng-disabled="to.disabled" bp-tooltip="{{changeLabelText}}">
-                <input bp-file-upload="onFileSelect(files, callback)" type="file" multiple="1" class="file-input" ng-disabled="to.disabled">
+            <label class="btn btn-primary btn-small" ng-disabled="to.disabled||to.isReadOnly" bp-tooltip="{{changeLabelText}}">
+                <input bp-file-upload="onFileSelect(files, callback)" type="file" multiple="1" class="file-input" ng-disabled="to.disabled||to.isReadOnly">
                 {{changeLabelText}}
             </label>
         </span>
@@ -29,8 +29,8 @@
             <input type="text" class="form-control" readonly />
         </span>
         <span class="input-group-addon">
-            <label class="btn btn-primary btn-small" ng-disabled="to.disabled" bp-tooltip="{{uploadLabelText}}">
-                <input bp-file-upload="onFileSelect(files, callback)" type="file" multiple="1" class="file-input" ng-disabled="to.disabled">
+            <label class="btn btn-primary btn-small" ng-disabled="to.disabled||to.isReadOnly" bp-tooltip="{{uploadLabelText}}">
+                <input bp-file-upload="onFileSelect(files, callback)" type="file" multiple="1" class="file-input" ng-disabled="to.disabled||to.isReadOnly">
                 {{uploadLabelText}}
             </label>
         </span>

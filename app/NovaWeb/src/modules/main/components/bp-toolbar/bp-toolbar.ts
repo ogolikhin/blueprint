@@ -2,7 +2,7 @@
 import { IDialogSettings, IDialogService } from "../../../shared";
 import { Models} from "../../models";
 import { IArtifactManager, IProjectManager } from "../../../managers";
-
+import { IStatefulArtifact } from "../../../managers/artifact-manager/artifact";
 import { OpenProjectController } from "../dialogs/open-project/open-project";
 import { BPTourController } from "../dialogs/bp-tour/bp-tour";
 import { Helper } from "../../../shared/utils/helper";
@@ -154,9 +154,15 @@ class BPToolbarController implements IBPToolbarController {
 
     public $onInit() {
         const artifactStateSubscriber = this.artifactManager.selection.artifactObservable
+            .map(selection => {
+                if (!selection) {
+                    this._currentArtifact = null;
+                }
+                return selection;
+            })
             .filter(selection => !!selection)
             .flatMap(selection => selection.getObservable())
-            .subscribe(this.displayArtifact); 
+            .subscribe(this.displayArtifact);
 
         this._subscribers = [ artifactStateSubscriber ];
     }
@@ -166,12 +172,12 @@ class BPToolbarController implements IBPToolbarController {
         delete this._subscribers;
     }
 
-    private displayArtifact = (artifact: Models.IArtifact) => {
+    private displayArtifact = (artifact: IStatefulArtifact) => {
         this._currentArtifact =
-            Helper.canUtilityPanelUseSelectedArtifact(artifact) && 
+            Helper.canUtilityPanelUseSelectedArtifact(artifact) &&
             (artifact.version > 0) ? artifact.id : null;
     }
-    
+
     public get canRefreshAll(): boolean{
         return !!this.projectManager.getSelectedProject();
     }

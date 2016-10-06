@@ -64,8 +64,7 @@ export class ProcessAddHelper {
 
     private static addShape(processShape: IProcessShape, layout: ILayout, shapesFactoryService: ShapesFactory): void {
         if (processShape != null) {
-            let statefulShape = shapesFactoryService.createStatefulSubArtifact(layout.viewModel.statefulArtifact, processShape);            
-            layout.viewModel.shapes.push(statefulShape);
+            layout.viewModel.addStatefulShape(processShape, layout.viewModel.statefulArtifact);
             layout.viewModel.addJustCreatedShapeId(processShape.id);
         }
     }

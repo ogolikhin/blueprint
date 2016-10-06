@@ -531,9 +531,9 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with invalid Search criteria
             var ex = Assert.Throws<Http400BadRequestException>(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, invalidSearchCriteria), "Nova FullTextSearch call should exit with 400 BadRequestException when using invalid search criteria!");
-            
+
             // Validation: Exception should contain empty response content.
-            Assert.That(ex.RestResponse.Content.Length.Equals(0), "FullTextSearch with invalid searchCriteria should return empty content but {0} is returned", ex.RestResponse.Content.ToString());
+            Assert.That(ex.RestResponse.Content.Contains(ErrorCodes.IncorrectSearchCriteria + ""), "FullTextSearch with invalid searchCriteria should return {0} errorCode but {1} is returned", ErrorCodes.IncorrectSearchCriteria, ex.RestResponse.Content.ToString());
         }
 
         [TestCase]
@@ -550,7 +550,7 @@ namespace SearchServiceTests
             var ex = Assert.Throws<Http400BadRequestException>(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, lessThanMinimumSearchTermSearchCriteria), "Nova FullTextSearch call shuold exit with 400 BadRequestException when using less than minium length search term!");
 
             // Validation: Exception should contain empty response content.
-            Assert.That(ex.RestResponse.Content.Length.Equals(0), "FullTextSearch with invalid searchCriteria should return empty content but {0} is returned", ex.RestResponse.Content.ToString());
+            Assert.That(ex.RestResponse.Content.Contains(ErrorCodes.IncorrectSearchCriteria + ""), "FullTextSearch with invalid searchCriteria should return {0} errorCode but {1} is returned", ErrorCodes.IncorrectSearchCriteria, ex.RestResponse.Content.ToString());
         }
 
         #endregion 400 Bad Request Tests

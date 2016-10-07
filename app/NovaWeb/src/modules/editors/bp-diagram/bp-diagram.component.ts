@@ -161,7 +161,7 @@ export class BPDiagramController extends BpBaseEditor {
 
     private getUseCaseDiagramArtifact(shape: IShape) {
         const artifactId = parseInt(ShapeExtensions.getPropertyByName(shape, ShapeProps.ARTIFACT_ID), 10);
-        if (artifactId != null) {
+        if (isFinite(artifactId)) {
             return this.artifactManager.get(artifactId);
         }
         return undefined;

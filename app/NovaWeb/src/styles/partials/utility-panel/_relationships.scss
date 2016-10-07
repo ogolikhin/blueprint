@@ -160,6 +160,7 @@ bp-relationships-panel {
                 padding-left: 3px;
 
                 .desc {
+                    word-wrap:break-word;
                     font-size: $font-size-smaller;
                     padding-left: 2px;
                 }
@@ -171,6 +172,8 @@ bp-relationships-panel {
                     height: 10px;
                     display: inline-block;
                     margin-left: 8px;
+                    float: left;
+                    margin-right: 2px;
                 }
 
                 .bolded-text {

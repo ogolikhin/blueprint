@@ -188,7 +188,7 @@ namespace ArtifactStoreTests
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(182509)]
-        [Description("Create two artifacts: main artifact that has inline trace to inlinetrace artifact. Update the inlinetrace artifact information - Verify that GetArtifactDetails call returns updated inline trace information.")]
+        [Description("Create two artifacts: main artifact that has inline trace to inlinetrace artifact. Update the inlinetrace artifact information - Verify that GetArtifactDetails call returns updated inlinetrace information.")]
         public void GetArtifactDetails_UpdateInlineTraceArtifact_ReturnsUpdatedInlineTraceLink(
             BaseArtifactType baseArtifactType )
         {
@@ -234,6 +234,60 @@ namespace ArtifactStoreTests
 
             // Validation: Verify that returned ArtifactDeatils contains the updated information for InlineTrace
             ArtifactStoreHelper.ValidateInlineTraceLinkFromArtifactDetails(mainArtifactDetails, inlineTraceArtifact, true);
+        }
+
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
+        [TestRail(182552)]
+        [Description("Create two artifacts: main and inlinetrace on different project. Update the inlinetrace artifact information - Verify that GetArtifactDetails call returns updated inline trace information.")]
+        public void GetArtifactDetails_UpdateInlineTraceArtifactOnDifferentProject_ReturnsUpdatedInlineTraceLink(
+    BaseArtifactType baseArtifactType)
+        {
+            // Setup: Get projects available from testing environment
+            var mainProject = _projects[0];
+            var secondProject = _projects[1];
+
+            // Setup: Create two artifacts: main artifact under main project and inlinetrace artifact under the second project
+            var mainArtifact = Helper.CreateAndPublishArtifact(mainProject, _user, baseArtifactType);
+            var inlineTraceArtifact = Helper.CreateAndPublishArtifact(secondProject, _user, baseArtifactType);
+            NovaArtifactDetails inlineTraceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, inlineTraceArtifact.Id);
+
+            // Setup: Update main artifact to have inline trace to inline trace artifact created
+            NovaArtifactDetails artifactDetailsToUpdateMainArtifact = new NovaArtifactDetails
+            {
+                Id = mainArtifact.Id,
+                ProjectId = mainArtifact.ProjectId,
+                ParentId = mainArtifact.ParentId,
+                Version = mainArtifact.Version,
+                Description = ArtifactStoreHelper.CreateArtifactInlineTraceValue(inlineTraceArtifact, inlineTraceArtifactDetails),
+            };
+
+            // Execute: Update and publish the main artifact with inline trace to target artifact
+            mainArtifact.Lock();
+            Assert.DoesNotThrow(() => inlineTraceArtifactDetails = Artifact.UpdateArtifact(mainArtifact, _user, artifactDetailsChanges: artifactDetailsToUpdateMainArtifact),
+                "UpdateArtifact call failed when using the following artifact ID: {0}!", mainArtifact.Id);
+            mainArtifact.Publish();
+
+            // Setup: Update inlinetrace artifact information
+            NovaArtifactDetails artifactDetailsToUpdateInlineTraceArtifact = new NovaArtifactDetails
+            {
+                Id = inlineTraceArtifact.Id,
+                ProjectId = inlineTraceArtifact.ProjectId,
+                ParentId = inlineTraceArtifact.ParentId,
+                Version = inlineTraceArtifact.Version,
+                Name = inlineTraceArtifact.Name + "_NameUpdated"
+            };
+
+            // Execute: Update and publish the inlinetrace artifact
+            inlineTraceArtifact.Lock();
+            Assert.DoesNotThrow(() => inlineTraceArtifactDetails = Artifact.UpdateArtifact(inlineTraceArtifact, _user, artifactDetailsChanges: artifactDetailsToUpdateInlineTraceArtifact),
+                "UpdateArtifact call failed when using the following artifact ID: {0}!", inlineTraceArtifact.Id);
+            inlineTraceArtifact.Publish();
+
+            // Execute: Get ArtifactDetails for main artifact
+            var mainArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, mainArtifact.Id);
+
+            // Validation: Verify that returned ArtifactDeatils contains invalid inlinetraceLink to the inlineTraceArtifact
+            ArtifactStoreHelper.ValidateInlineTraceLinkFromArtifactDetails(mainArtifactDetails, inlineTraceArtifact, validInlineTraceLink: false);
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
@@ -315,10 +369,9 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateInlineTraceLinkFromArtifactDetails(mainArtifactDetailsWithUserWithPermissionOnMainProject, inlineTraceArtifact, validInlineTraceLink: false);
         }
 
-
         #endregion 200 OK Tests
 
-        #region 401 Unauthorized Tests
+            #region 401 Unauthorized Tests
 
         [TestCase]
         [TestRail(154701)]

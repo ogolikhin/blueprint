@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Common;
 using Model;
 using Model.ArtifactModel;
@@ -42,6 +43,7 @@ namespace Helper
         public List<IProject> Projects { get; } = new List<IProject>();
         public List<IUser> Users { get; } = new List<IUser>();
         public List<IGroup> Groups { get; } = new List<IGroup>();
+        public List<IProjectRole> ProjectRoles { get; } = new List<IProjectRole>();
 
         #region IArtifactObserver methods
 
@@ -49,10 +51,11 @@ namespace Helper
         public void NotifyArtifactDeletion(IEnumerable<int> deletedArtifactIds)
         {
             ThrowIf.ArgumentNull(deletedArtifactIds, nameof(deletedArtifactIds));
+            var artifactIds = deletedArtifactIds as IList<int> ?? deletedArtifactIds.ToList();
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
-                nameof(TestHelper), nameof(TestHelper.NotifyArtifactDeletion), String.Join(", ", deletedArtifactIds));
+                nameof(TestHelper), nameof(TestHelper.NotifyArtifactDeletion), String.Join(", ", artifactIds));
 
-            foreach (var deletedArtifactId in deletedArtifactIds)
+            foreach (var deletedArtifactId in artifactIds)
             {
                 Artifacts.ForEach(a =>
                 {
@@ -71,10 +74,11 @@ namespace Helper
         public void NotifyArtifactPublish(IEnumerable<int> publishedArtifactIds)
         {
             ThrowIf.ArgumentNull(publishedArtifactIds, nameof(publishedArtifactIds));
+            var artifactIds = publishedArtifactIds as IList<int> ?? publishedArtifactIds.ToList();
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
-                nameof(TestHelper), nameof(TestHelper.NotifyArtifactPublish), String.Join(", ", publishedArtifactIds));
+                nameof(TestHelper), nameof(TestHelper.NotifyArtifactPublish), String.Join(", ", artifactIds));
 
-            foreach (var publishedArtifactId in publishedArtifactIds)
+            foreach (var publishedArtifactId in artifactIds)
             {
                 Artifacts.ForEach(a =>
                 {
@@ -583,6 +587,11 @@ namespace Helper
                         role.ToString());
             }
 
+            if (projectRole != null)
+            {
+                testHelper.ProjectRoles.Add(projectRole);
+            }
+
             var permissionsGroup = testHelper.CreateGroupAndAddToDatabase();
             permissionsGroup.AddUser(user);
             permissionsGroup.AssignRoleToProjectOrArtifact(project, role: projectRole, artifact: artifact);
@@ -772,20 +781,41 @@ namespace Helper
                 if (Groups != null)
                 {
                     Logger.WriteDebug("Deleting all groups created by this TestHelper instance...");
+
                     foreach (var group in Groups)
                     {
                         group.DeleteGroup();
                     }
                 }
 
-                foreach (var project in Projects)
+                if (ProjectRoles != null)
                 {
-                    project.DeleteProject();
+                    Logger.WriteDebug("Deleting all project roles created by this TestHelper instance...");
+
+                    foreach (var role in ProjectRoles)
+                    {
+                        role.DeleteRole();
+                    }
                 }
 
-                foreach (var user in Users)
+                if (Projects != null)
                 {
-                    user.DeleteUser();
+                    Logger.WriteDebug("Deleting all projects created by this TestHelper instance...");
+
+                    foreach (var project in Projects)
+                    {
+                        project.DeleteProject();
+                    }
+                }
+
+                if (Users != null)
+                {
+                    Logger.WriteDebug("Deleting all users created by this TestHelper instance...");
+
+                    foreach (var user in Users)
+                    {
+                        user.DeleteUser();
+                    }
                 }
             }
 

@@ -95,7 +95,7 @@ namespace CommonServiceTests
 
             Assert.DoesNotThrow(() => { artifact.Save(user); });
             NovaPublishArtifactResult publishResult = null;
-            Assert.DoesNotThrow(() => { publishResult = artifact.NovaPublish(user); });
+            Assert.DoesNotThrow(() => { publishResult = artifact.StorytellerPublish(user); });
             Assert.AreEqual(NovaPublishArtifactResult.Result.Success, publishResult.StatusCode, "NovaPublish failed!");
 
             Assert.DoesNotThrow(() => { artifact.Delete(user); });

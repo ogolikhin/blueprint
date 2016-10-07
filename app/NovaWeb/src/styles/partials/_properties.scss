@@ -890,8 +890,7 @@ pagecontent, bp-properties-panel {
       }
 
       .has-error {
-        .tinymce-body,
-        .tinymce-body[contenteditable="true"] {
+        .mce-tinymce {
           border-color: $brand-error;
         }
       }

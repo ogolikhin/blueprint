@@ -29,11 +29,10 @@ export class BpFieldTextRTFController {
     static $inject: [string] = ["$scope"];
 
     private observer: MutationObserver;
-    private onChange: AngularFormly.IExpressionFunction | string;
-    // private contentBody: string;
+    private contentBody: string;
 
     constructor(private $scope: AngularFormly.ITemplateScope) {
-        this.onChange = $scope.to.onChange; // notify of change event function
+        let onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
         $scope.to.onChange = () => { };
 
         /* tslint:disable:max-line-length */
@@ -47,8 +46,9 @@ export class BpFieldTextRTFController {
                 menubar: false,
                 toolbar: "fontselect fontsize | bold italic underline | forecolor format | link table",
                 statusbar: false,
-                content_style: `body.mce-content-body { font-family: 'Open Sans', sans-serif; font-size: 9pt }
-                body:hover, body:focus { background: ${bodyBgColor} url(${bodyBgImage}) no-repeat right 5px top 6px }`,
+                content_style: `body.mce-content-body { font-family: 'Open Sans', sans-serif; font-size: 9pt; }
+                body:hover, body:focus { background: ${bodyBgColor} url(${bodyBgImage}) no-repeat right 5px top 6px; }
+                a:hover { cursor: pointer !important; }`,
                 invalid_elements: "img,frame,iframe,script",
                 invalid_styles: {
                     "*": "background-image"
@@ -160,10 +160,14 @@ export class BpFieldTextRTFController {
                         this.observer.observe(editor.getBody(), observerConfig);
                     }
 
-                    this.setContentBody(editor.getBody());
+                    this.contentBody = editor.getBody().innerHTML;
 
-                    editor.on("Dirty", (e) => {
-                        this.setContentBody(editor.getBody());
+                    editor.on("Change", (e) => {
+                        let contentBody = editor.getBody().innerHTML;
+                        if (this.contentBody !== contentBody) {
+                            this.contentBody = contentBody;
+                            onChange(contentBody, $scope.fields[0], $scope);
+                        }
                     });
 
                     editor.on("Focus", (e) => {
@@ -287,23 +291,7 @@ export class BpFieldTextRTFController {
         });
     }
 
-    private setContentBody = (tags) => {
-        // console.log(tags)
-        // console.log("here");
-    };
-
-    private disableEditability = (event) => {
-        if (this.$scope["tinymceBody"] && !this.$scope["tinymceBody"].classList.contains("mce-edit-focus")) {
-            angular.element(this.$scope["tinymceBody"]).attr("contentEditable", "false");
-        }
-    };
-
-    private enableEditability = (event) => {
-        angular.element(this.$scope["tinymceBody"]).attr("contentEditable", "true");
-    };
-
     private handleClick = function(event) {
-        console.log("handleClick");
         event.stopPropagation();
         event.preventDefault();
 
@@ -311,7 +299,7 @@ export class BpFieldTextRTFController {
         if (href.indexOf("?ArtifactId=") !== -1 && this.getAttribute("artifactid")) {
             const artifactId = parseInt(href.split("?ArtifactId=")[1], 10);
             if (artifactId === parseInt(this.getAttribute("artifactid"), 10)) {
-                self.location.href = "/#/main/" + artifactId;
+                console.log("Should GOTO " + artifactId);
             }
         } else {
             window.open(href, "_blank");
@@ -325,18 +313,13 @@ export class BpFieldTextRTFController {
         for (let i = 0; i < nodeList.length; i++) {
             let element = nodeList[i] as HTMLElement;
 
-            element.removeEventListener("click", this.handleClick);
-
             if (!remove) {
                 angular.element(element).attr("contentEditable", "false");
                 angular.element(element).attr("data-mce-contenteditable", "false");
 
-                element.addEventListener("mouseover", this.disableEditability);
-                element.addEventListener("mouseout", this.enableEditability);
                 element.addEventListener("click", this.handleClick);
             } else {
-                element.removeEventListener("mouseover", this.disableEditability);
-                element.removeEventListener("mouseout", this.enableEditability);
+                element.removeEventListener("click", this.handleClick);
             }
         }
     };

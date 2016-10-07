@@ -193,7 +193,7 @@ namespace ArtifactStoreTests
         public void GetArtifactDetails_UpdateInlineTraceArtifact_ReturnsUpdatedInlineTraceLink(
             BaseArtifactType baseArtifactType )
         {
-            // Setup: Create tow artifacts: main artifact and inline trace artifact with the same user on the same project
+            // Setup: Create to artifacts: main artifact and inline trace artifact with the same user on the same project
             var mainArtifact = Helper.CreateAndPublishArtifact(_projects[0], _user, baseArtifactType);
             var inlineTraceArtifact = Helper.CreateAndPublishArtifact(_projects[0], _user, baseArtifactType);
             NovaArtifactDetails inlineTraceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, inlineTraceArtifact.Id);

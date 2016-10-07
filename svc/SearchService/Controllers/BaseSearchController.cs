@@ -18,7 +18,7 @@ namespace SearchService.Controllers
             var userId = GetUserId();
             if (!userId.HasValue)
             {
-                throw new AuthenticationException("Authorization is requried", ErrorCodes.UnauthorizedAccess);
+                throw new AuthenticationException("Authorization is required", ErrorCodes.UnauthorizedAccess);
             }
             return userId.Value;
         }

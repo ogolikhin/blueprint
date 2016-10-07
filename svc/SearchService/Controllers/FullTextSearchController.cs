@@ -7,6 +7,7 @@ using SearchService.Models;
 using SearchService.Repositories;
 using ServiceLibrary.Attributes;
 using SearchService.Helpers;
+using ServiceLibrary.Helpers;
 
 namespace SearchService.Controllers
 {
@@ -43,6 +44,7 @@ namespace SearchService.Controllers
         /// <response code="400">Bad Request.</response>
         /// <response code="404">Not Found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
+        /// /// <response code="500">Service Not Available.</response>
         [HttpPost, NoCache, SessionRequired]
         [Route("")]
         [ResponseType(typeof(FullTextSearchResult))]
@@ -51,7 +53,7 @@ namespace SearchService.Controllers
             // get the UserId from the session
             var userId = ValidateAndExtractUserId();
 
-            ValidateCriteria(searchCriteria);
+            ValidateCriteria(searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
 
             int searchPageSize = GetPageSize(_searchConfigurationProvider, pageSize);
             

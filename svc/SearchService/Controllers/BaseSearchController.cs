@@ -23,10 +23,10 @@ namespace SearchService.Controllers
             return userId.Value;
         }
 
-        protected void ValidateCriteria(ISearchCriteria searchCriteria)
+        protected void ValidateCriteria(ISearchCriteria searchCriteria, int minSearchQueryLimit = 1)
         {
 
-            if (!ModelState.IsValid || !ValidateSearchCriteria(searchCriteria))
+            if (!ModelState.IsValid || !ValidateSearchCriteria(searchCriteria, minSearchQueryLimit))
             {
                 throw new BadRequestException("Please provide correct search criteria", ErrorCodes.IncorrectSearchCriteria);
             }
@@ -56,20 +56,9 @@ namespace SearchService.Controllers
                 startCounter = defaultCounterValue;
             }
             return startCounter;
-            //searchPage = page.HasValue && page.Value > 0 ? page.Value : 1;
-            //return userId;
         }
 
-        protected bool ValidateSearchCriteria(ISearchCriteria searchCriteria, int minSearchQueryLimit = 1)
-        {
-            if (string.IsNullOrWhiteSpace(searchCriteria?.Query) ||
-                searchCriteria.Query.Trim().Length < minSearchQueryLimit ||
-                !searchCriteria.ProjectIds.Any())
-            {
-                return false;
-            }
-            return true;
-        }
+       
 
         #endregion
 
@@ -84,6 +73,17 @@ namespace SearchService.Controllers
             }
             var session = sessionValue as Session;
             return session?.UserId;
+        }
+
+        private bool ValidateSearchCriteria(ISearchCriteria searchCriteria, int minSearchQueryLimit = 1)
+        {
+            if (string.IsNullOrWhiteSpace(searchCriteria?.Query) ||
+                searchCriteria.Query.Trim().Length < minSearchQueryLimit ||
+                !searchCriteria.ProjectIds.Any())
+            {
+                return false;
+            }
+            return true;
         }
 
         #endregion

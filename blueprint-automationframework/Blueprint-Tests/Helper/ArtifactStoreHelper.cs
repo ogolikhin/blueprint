@@ -3,13 +3,12 @@ using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.NovaModel;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 using Utilities;
 using Utilities.Facades;
-using Model.NovaModel;
-using Model.ArtifactModel.Impl;
 
 namespace Helper
 {

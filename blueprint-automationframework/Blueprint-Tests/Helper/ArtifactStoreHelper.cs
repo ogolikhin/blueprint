@@ -297,13 +297,16 @@ namespace Helper
             ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
 
             // Validation: Verify that the artifactDeatils' description field which contain inline trace link contains the valid inline trace information (name of the inline trace artifact)
-            Assert.That(artifactdetails.Description.Contains(inlineTraceArtifact.Name), "Expected outcome should not contains {0} on returned artifactdetails. Returned inline trace content is {1}.", inlineTraceArtifact.Name, artifactdetails.Description);
+            Assert.That(artifactdetails.Description.Contains(inlineTraceArtifact.Name), 
+                "Expected outcome should not contains {0} on returned artifactdetails. Returned inline trace content is {1}.", 
+                inlineTraceArtifact.Name, 
+                artifactdetails.Description);
 
-            if (!validInlineTraceLink)
-            {
-                // Validation: Verify that the artifactdetails' description contains invalid inline trace link
-                Assert.IsFalse(IsValidInlineTrace(artifactdetails.Description), "Expected invalid inlineTraceLink from returned artifactdetails. Returned valid inline trace content. The returned inlinetrace link is {0}.", artifactdetails.Description);
-            }
+            Assert.AreEqual(validInlineTraceLink, IsValidInlineTrace(artifactdetails.Description),
+                "Expected {0} for valid inline trace but {1} was returned. The returned inlinetrace link is {2}.",
+                validInlineTraceLink,
+                !validInlineTraceLink,
+                artifactdetails.Description);
         }
 
         /// <summary>
@@ -318,13 +321,16 @@ namespace Helper
             ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
 
             // Validation: Verify that the subArtifactDetails' description field which contain inline trace link contains the valid inline trace information (name of the inline trace artifact)
-            Assert.That(subArtifactdetails.Description.Contains(inlineTraceArtifact.Name), "Expected outcome does not contain {0} on returned artifactdetails. Returned inline trace content is {1}.", inlineTraceArtifact.Name, subArtifactdetails.Description);
+            Assert.That(subArtifactdetails.Description.Contains(inlineTraceArtifact.Name), 
+                "Expected outcome does not contain {0} on returned artifactdetails. Returned inline trace content is {1}.", 
+                inlineTraceArtifact.Name, 
+                subArtifactdetails.Description);
 
-            if (!validInlineTraceLink)
-            {
-                // Validation: Verify that the artifactdetails' description contains invalid inline trace link
-                Assert.IsFalse(IsValidInlineTrace(subArtifactdetails.Description), "Expected invalid inlineTraceLink from returned artifactdetails. Returned valid inline trace content. The returned inlinetrace link is {0}.", subArtifactdetails.Description);
-            }
+            Assert.AreEqual(validInlineTraceLink, IsValidInlineTrace(subArtifactdetails.Description), 
+                "Expected {0} for valid inline trace but {1} was returned. The returned inlinetrace link is {2}.", 
+                validInlineTraceLink, 
+                !validInlineTraceLink, 
+                subArtifactdetails.Description);
         }
 
         /// <summary>

@@ -493,8 +493,13 @@ namespace Helper
         /// <param name="testHelper">An instance of TestHelper</param>
         /// <param name="role">Author, Viewer or No permission role</param>
         /// <param name="projects">The list of projects that the role is created for</param>
+        /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide</param>
         /// <returns>Created authenticated user with required premissions</returns>
-        public static IUser CreateUserWithProjectRolePermissions(TestHelper testHelper, ProjectRole role, List<IProject> projects)
+        public static IUser CreateUserWithProjectRolePermissions(
+            TestHelper testHelper, 
+            ProjectRole role, 
+            List<IProject> projects, 
+            IArtifactBase artifact = null)
         {
             ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
             ThrowIf.ArgumentNull(projects, nameof(projects));
@@ -503,9 +508,11 @@ namespace Helper
 
             var newUser = testHelper.CreateUserAndAddToDatabase(instanceAdminRole: null);
 
+            testHelper.AdminStore.AddSession(newUser);
+
             foreach (var project in projects)
             {
-                AssignProjectRolePermissionsToUser(newUser, testHelper, role, project);
+                AssignProjectRolePermissionsToUser(newUser, testHelper, role, project, artifact);
             }
 
             Logger.WriteInfo("User {0} created.", newUser.Username);
@@ -513,6 +520,32 @@ namespace Helper
             Logger.WriteTrace("{0}.{1} finished.", nameof(TestHelper), nameof(CreateUserWithProjectRolePermissions));
 
             return newUser;
+        }
+
+        /// <summary>
+        /// Creates a user with project role permissions for the specified project. Optionally, creates role permissions for a single artifact within
+        /// a project.
+        /// </summary>
+        /// <param name="testHelper">An instance of TestHelper</param>
+        /// <param name="role">Author, Viewer or No permission role</param>
+        /// <param name="project">The project that the role is created for</param>
+        /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide</param>
+        /// <returns>Newly created, authenticated user with required premissions</returns>
+        public static IUser CreateUserWithProjectRolePermissions(
+            TestHelper testHelper, 
+            ProjectRole role,
+            IProject project, 
+            IArtifactBase artifact = null)
+        {
+            ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            if (artifact != null)
+            {
+                Assert.IsTrue(artifact.ProjectId == project.Id, "Artifact should belong to the project");
+            }
+
+            return CreateUserWithProjectRolePermissions(testHelper, role, new List<IProject> { project }, artifact);
         }
 
         /// <summary>
@@ -524,6 +557,7 @@ namespace Helper
         /// <param name="role">Author, Viewer or No permission role</param>
         /// <param name="project">The project that the role is created for</param>
         /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide</param>
+        /// after adding a new permissions role</param>
         public static void AssignProjectRolePermissionsToUser(IUser user, TestHelper testHelper, ProjectRole role, IProject project, IArtifactBase artifact = null)
         {
             ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
@@ -587,39 +621,9 @@ namespace Helper
             permissionsGroup.AddUser(user);
             permissionsGroup.AssignRoleToProjectOrArtifact(project, role: projectRole, artifact: artifact);
 
-            testHelper.AdminStore.AddSession(user, force: true);//we need new Session-Token to get proper premission(?)
-
             Logger.WriteInfo("User {0} created.", user.Username);
 
             Logger.WriteTrace("{0}.{1} finished.", nameof(TestHelper), nameof(AssignProjectRolePermissionsToUser));
-        }
-
-        /// <summary>
-        /// Creates a user with project role permissions for the specified project. Optionally, creates role permissions for a single artifact within
-        /// a project.
-        /// </summary>
-        /// <param name="testHelper">An instance of TestHelper</param>
-        /// <param name="role">Author, Viewer or No permission role</param>
-        /// <param name="project">The project that the role is created for</param>
-        /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide</param>
-        /// <returns>Newly created, authenticated user with required premissions</returns>
-        public static IUser CreateUserWithProjectRolePermissions(TestHelper testHelper, ProjectRole role,
-            IProject project, IArtifactBase artifact = null)
-        {
-            ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
-            ThrowIf.ArgumentNull(project, nameof(project));
-            if (artifact != null)
-            {
-                Assert.IsTrue(artifact.ProjectId == project.Id, "Artifact should belong to the project");
-            }
-
-            Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(CreateUserWithProjectRolePermissions));
-
-            var newUser = testHelper.CreateUserAndAddToDatabase(instanceAdminRole: null);
-
-            AssignProjectRolePermissionsToUser(newUser, testHelper, role, project, artifact);
-
-            return newUser;
         }
 
         #endregion User management

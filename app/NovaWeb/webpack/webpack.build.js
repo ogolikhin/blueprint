@@ -66,16 +66,21 @@ module.exports = {
             // {output}/file.txt
              { from: '**/*.view.html' },
              { from: './web.config' },
-             { from: '../node_modules/bowser/bowser.js', to: './static/bowser.js' },
              { from: './unsupported-browser', to: './static' },
+
+             { from: '../node_modules/bowser/bowser.js', to: './static/bowser.js' },
              { from: '../node_modules/tinymce/plugins', to: './libs/tinymce/plugins' },
              { from: '../node_modules/tinymce/themes', to: './libs/tinymce/themes' },
              { from: '../node_modules/tinymce/skins', to: './libs/tinymce/skins' },
+
              { from: '../libs/tinymce/plugins/tinymce-mention', to: './libs/tinymce/plugins/mention' },
+
              { from: '../libs/mxClient/icons', to: './libs/mxClient/icons' },
              { from: '../libs/mxClient/images', to: './libs/mxClient/images' },
              { from: '../libs/mxClient/stencils', to: './libs/mxClient/stencils' },
+
              { from: '../assets', to: './static'},
+
              { from: '../src/modules/editors/bp-process/styles/images', to: './static/bp-process/images' },
              { from: '../src/styles/images/icons', to: './static/images/icons' }
 

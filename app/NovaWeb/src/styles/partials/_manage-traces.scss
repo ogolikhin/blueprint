@@ -128,9 +128,14 @@
       border: solid 1px $gray-lightest;
       border-radius: $border-radius-amount;
 
-      .trace{
-        border-bottom: 1px solid $gray-lightest;
+      bp-manage-traces-item{
+        display: block;
+
+        .trace{
+          border-bottom: 1px solid $gray-lightest;
+        }
       }
+
 
       .trace-main{
         padding: 10px 0 5px;

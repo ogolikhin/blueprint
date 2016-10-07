@@ -252,6 +252,26 @@ namespace Helper
         }
 
         /// <summary>
+        /// Creates a new NovaArtifactDetails with the published artifact
+        /// </summary>
+        /// <param name="publishedArtiact">The published artifact which contains properties that NovaArtiactDetails refers to</param>
+        /// <param name="user">The user who will create the artifact.</param>
+        /// <returns>NovaArtifactDetails</returns>
+        public static INovaArtifactDetails CreateNovaArtifactDetailsWithArtifact(IArtifactBase publishedArtiact)
+        {
+            ThrowIf.ArgumentNull(publishedArtiact, nameof(publishedArtiact));
+
+            NovaArtifactDetails novaArtifactDetails = new NovaArtifactDetails
+            {
+                Id = publishedArtiact.Id,
+                ProjectId = publishedArtiact.ProjectId,
+                ParentId = publishedArtiact.ParentId,
+                Version = publishedArtiact.Version,
+            };
+            return novaArtifactDetails;
+        }
+
+        /// <summary>
         /// Creates inline trace text for the provided artifact. For use with RTF properties.
         /// </summary>
         /// <param name="inlineTraceArtifact">target artifact for inline traces</param>

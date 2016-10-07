@@ -160,9 +160,9 @@ bp-relationships-panel {
                 padding-left: 3px;
 
                 .desc {
+                    word-wrap:break-word;
                     font-size: $font-size-smaller;
                     padding-left: 2px;
-                    word-wrap:break-word;
                 }
 
                 .left-arrow {

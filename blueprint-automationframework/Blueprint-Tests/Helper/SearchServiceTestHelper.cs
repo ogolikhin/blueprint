@@ -48,23 +48,22 @@ namespace Helper
             {
                 var randomArtifactName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
 
-                // Create artifact in first project with random Name & Description
-                var artifact = testHelper.CreateAndPublishArtifact(projects.First(), user, artifactType);
-                artifact.Lock();
+                foreach (var project in projects)
+                {
+                    // Create artifact in first project with random Name & Description
+                    var artifact = testHelper.CreateAndSaveArtifact(project, user, artifactType);
+                    artifact.Lock();
 
-                UpdateArtifactProperty(testHelper, user, projects.First(), artifact, artifactType, "Name", randomArtifactName );
-                UpdateArtifactProperty(testHelper, user, projects.First(), artifact, artifactType, "Description", randomArtifactDescription);
+                    var propertiesToUpdate = new Dictionary<string, object>
+                    {
+                        {"Name", randomArtifactName},
+                        {"Description", randomArtifactDescription}
+                    };
 
-                artifacts.Add(artifact);
+                    UpdateArtifactProperties(testHelper, user, project, artifact, artifactType, propertiesToUpdate);
 
-                // Create artifact in last project with same Name and Description
-                artifact = testHelper.CreateAndPublishArtifact(projects.Last(), user, artifactType);
-                artifact.Lock();
-
-                UpdateArtifactProperty(testHelper, user, projects.Last(), artifact, artifactType, "Name", randomArtifactName);
-                UpdateArtifactProperty(testHelper, user, projects.Last(), artifact, artifactType, "Description", randomArtifactDescription);
-
-                artifacts.Add(artifact);
+                    artifacts.Add(artifact);
+                }
             }
 
             ArtifactBase.PublishArtifacts(artifacts, artifacts.First().Address, user);
@@ -187,7 +186,6 @@ namespace Helper
         }
 
 
-
         /// <summary>
         /// Updates an artifact property
         /// </summary>
@@ -196,15 +194,49 @@ namespace Helper
         /// <param name="project">The project containing the artifact</param>
         /// <param name="artifact">The artifact to update.</param>
         /// <param name="artifactType">The type of artifact.</param>
-        /// <param name="propertyToChange">Property to change.</param>
-        /// <param name="value">The value to what property will be changed</param>
-        public static void UpdateArtifactProperty<T>(TestHelper testHelper, IUser user, IProject project, IArtifact artifact, BaseArtifactType artifactType, string propertyToChange, T value)
+        /// <param name="propertyToUpdate">Property to update.</param>
+        /// <param name="value">The value to what property will be updated</param>
+        public static void UpdateArtifactProperty<T>(TestHelper testHelper, IUser user, IProject project, IArtifact artifact, BaseArtifactType artifactType, string propertyToUpdate, T value)
         {
             ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
 
             var artifactDetails = testHelper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
 
-            SetProperty(propertyToChange, value, ref artifactDetails);
+            SetProperty(propertyToUpdate, value, ref artifactDetails);
+
+            NovaArtifactDetails updateResult = null;
+
+            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, user, artifactDetails, testHelper.BlueprintServer.Address),
+                "Exception caught while trying to update an artifact of type: '{0}'!", artifactType);
+
+            Assert.AreEqual(artifactDetails.CreatedBy?.DisplayName, updateResult.CreatedBy?.DisplayName, "The CreatedBy properties don't match!");
+
+            var openApiArtifact = OpenApiArtifact.GetArtifact(testHelper.BlueprintServer.Address, project, artifact.Id, user);
+            updateResult.AssertEquals(artifactDetails);
+
+            TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
+        }
+
+        /// <summary>
+        /// Updates artifact properties
+        /// </summary>
+        /// <param name="testHelper">An instance of TestHelper</param>
+        /// <param name="user">The user updating the artifact</param>
+        /// <param name="project">The project containing the artifact</param>
+        /// <param name="artifact">The artifact to update.</param>
+        /// <param name="artifactType">The type of artifact.</param>
+        /// <param name="propertiesToUpdate">Dictionary of properties to update (Key: property name; Value: property value</param>
+        public static void UpdateArtifactProperties<T>(TestHelper testHelper, IUser user, IProject project, IArtifact artifact, BaseArtifactType artifactType, Dictionary<string, T> propertiesToUpdate)
+        {
+            ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
+            ThrowIf.ArgumentNull(propertiesToUpdate, nameof(propertiesToUpdate));
+
+            var artifactDetails = testHelper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
+
+            foreach (var kvp in propertiesToUpdate)
+            {
+                SetProperty(kvp.Key, kvp.Value, ref artifactDetails);
+            }
 
             NovaArtifactDetails updateResult = null;
 

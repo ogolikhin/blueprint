@@ -91,11 +91,18 @@ export class BPDiagramController extends BpBaseEditor {
         if (this.cancelationToken) {
             this.cancelationToken.resolve();
         }
-        this.$element.off("click", this.stopPropagation);
 
+        this.destroyDiagramView();
+
+        this.$element.off("click", this.stopPropagation);
+    }
+
+    private destroyDiagramView() {
         if (this.diagramView) {
+            this.diagramView.clearSelection();
             this.diagramView.destroy();
         }
+        delete this.diagramView;
     }
 
     public onArtifactReady() {
@@ -103,6 +110,7 @@ export class BPDiagramController extends BpBaseEditor {
         if (this.isDestroyed) {
             return;
         }
+        this.destroyDiagramView();
         this.isIncompatible = false;
         this.cancelationToken = this.$q.defer();
         this.diagramService.getDiagram(this.artifact.id, this.artifact.predefinedType, this.cancelationToken.promise).then(diagram => {
@@ -153,7 +161,7 @@ export class BPDiagramController extends BpBaseEditor {
 
     private getUseCaseDiagramArtifact(shape: IShape) {
         const artifactId = parseInt(ShapeExtensions.getPropertyByName(shape, ShapeProps.ARTIFACT_ID), 10);
-        if (artifactId != null) {
+        if (isFinite(artifactId)) {
             return this.artifactManager.get(artifactId);
         }
         return undefined;

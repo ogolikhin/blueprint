@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Utilities;
 using Utilities.Facades;
+using Model.NovaModel;
+using Model.ArtifactModel.Impl;
 
 namespace Helper
 {
@@ -196,6 +198,58 @@ namespace Helper
                 contentType);
 
             return response.Content;
+        }
+
+        /// <summary>
+        /// Attaches file to the artifact (Save changes).
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
+        /// <param name="artifact">Artifact.</param>
+        /// <param name="files">List of files to attach.</param>
+        /// <param name="artifactStore">IArtifactStore.</param>
+        public static void AddArtifactAttachmentAndSave(IUser user, IArtifact artifact, List<INovaFile> files, IArtifactStore artifactStore)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(files, nameof(files));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
+            artifact.Lock(user);
+            NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            foreach (var file in files)
+            {
+                artifactDetails.AttachmentValues.Add(new AttachmentValue(user, file));
+            }   
+
+            Artifact.UpdateArtifact(artifact, user, artifactDetails, artifactStore.Address);
+            var attachment = artifactStore.GetAttachments(artifact, user);
+            Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
+        }
+
+        /// <summary>
+        /// deletes file from the artifact (Save changes).
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
+        /// <param name="artifact">Artifact.</param>
+        /// <param name="fileId">Id of the file to delete. File must be attached to the artifact.</param>
+        /// <param name="artifactStore">IArtifactStore.</param>
+        public static void DeleteArtifactAttachmentAndSave(IUser user, IArtifact artifact, int fileId, IArtifactStore artifactStore)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
+            var attachment = artifactStore.GetAttachments(artifact, user);
+            Assert.IsNotNull(attachment, "Getattachments shouldn't return null.");
+            Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
+            var fileToDelete = attachment.AttachedFiles.FirstOrDefault(f => f.AttachmentId == fileId);
+            Assert.AreEqual(fileId, fileToDelete.AttachmentId, "Attachments must contain file with fileId.");
+
+            artifact.Lock(user);
+            NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            artifactDetails.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
+
+            Artifact.UpdateArtifact(artifact, user, artifactDetails, artifactStore.Address);
         }
 
         /// <summary>

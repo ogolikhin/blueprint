@@ -5,7 +5,7 @@ export interface IBPToolbarOption {
 export interface IBPButtonToolbarOption extends IBPToolbarOption {
     click: () => void;
     icon: string;
-    isDisabled?: boolean;
+    disabled?: boolean;
     label?: string;
     tooltip?: string;
 }
@@ -13,17 +13,22 @@ export interface IBPButtonToolbarOption extends IBPToolbarOption {
 export interface IBPDropdownMenuItemToolbarOption {
     label: string;
     click: () => void;
-    isDisabled?: boolean;
+    disabled?: boolean;
 }
 
 export interface IBPDropdownToolbarOption extends IBPToolbarOption {
     icon: string;
-    menuItems: IBPDropdownMenuItemToolbarOption[];
+    options: IBPDropdownMenuItemToolbarOption[];
     label?: string;
-    isDisabled?: boolean;
+    disabled?: boolean;
 }
 
 export interface IBPToggleToolbarOption extends IBPToolbarOption {
-    toggleOptions: IBPButtonToolbarOption[];
-    isDisabled?: boolean;
+    options: IBPButtonToolbarOption[];
+    disabled?: boolean;
+}
+
+export interface IBPButtonGroupToolbarOption extends IBPToolbarOption {
+    options: IBPToolbarOption[];
+    disabled?: boolean;
 }

@@ -1,0 +1,5 @@
+<div class="btn-group">
+    <button ng-repeat="option in $ctrl.options" class="btn btn-primary btn-small" ng-disabled="option.disabled" bp-tooltip="{{option.tooltip}}" ng-click="option.click()">
+        <span ng-if="option.icon" ng-class="option.icon"></span> {{option.label}}
+    </button>
+</div>

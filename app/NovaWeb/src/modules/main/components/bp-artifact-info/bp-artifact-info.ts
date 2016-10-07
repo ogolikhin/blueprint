@@ -12,10 +12,8 @@ import {
     IDialogSettings, 
     IDialogService, 
     IBPToolbarOption, 
-    IBPButtonToolbarOption, 
-    IBPDropdownToolbarOption, 
-    IBPDropdownMenuItemToolbarOption, 
-    IBPToggleToolbarOption
+    BPButtonToolbarOption, 
+    BPButtonGroupToolbarOption
 } from "../../../shared";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
@@ -121,6 +119,7 @@ export class BpArtifactInfoController {
         } else {
             this.messageService.addError(error);
         }
+        
         this.onArtifactChanged();
     }
 
@@ -137,7 +136,7 @@ export class BpArtifactInfoController {
         this.selfLocked = false;
         this.isLegacy = false;
         this.artifactClass = null;
-        this.toolbarOptions = null;
+        this.toolbarOptions = [];
 
         if (this.lockMessage) {
             this.messageService.deleteMessageById(this.lockMessage.id);
@@ -228,64 +227,49 @@ export class BpArtifactInfoController {
         return style;
     }
 
-    private updateToolbarOptions(): void {
-        this.toolbarOptions = [
-            <IBPButtonToolbarOption>{
-                type: "button",
-                click: () => console.log("Clicked delete button"),
-                icon: "fonticon fonticon2-delete",
-                tooltip: "Delete",
-                isDisabled: false
-            },
-            <IBPDropdownToolbarOption> {
-                type: "dropdown",
-                icon: "fonticon fonticon2-news",
-                menuItems: [
-                    <IBPDropdownMenuItemToolbarOption>{
-                        label: "Test1",
-                        click: () => console.log("Test1 clicked"),
-                        isDisabled: false
-                    },
-                    <IBPDropdownMenuItemToolbarOption>{
-                        label: "Test2",
-                        click: () => console.log("Test2 clicked"),
-                        isDisabled: false
-                    },
-                    <IBPDropdownMenuItemToolbarOption>{
-                        label: "Test3",
-                        click: () => console.log("Test3 clicked"),
-                        isDisabled: true
-                    },
-                    <IBPDropdownMenuItemToolbarOption>{
-                        label: "Test4",
-                        click: () => console.log("Test4 clicked"),
-                        isDisabled: true
-                    }
-                ],
-                // label: "Test Menu",
-                isDisabled: false
-            },
-            <IBPToggleToolbarOption>{
-                type: "toggle",
-                toggleOptions: [
-                    <IBPButtonToolbarOption>{
-                        type: "button",
-                        click: () => console.log("Clicked add button"),
-                        icon: "fonticon fonticon2-user-user",
-                        tooltip: "Add",
-                        isDisabled: false
-                    },
-                    <IBPButtonToolbarOption>{
-                        type: "button",
-                        click: () => console.log("Clicked remove button"),
-                        icon: "fonticon fonticon2-user-system",
-                        tooltip: "Remove",
-                        isDisabled: false
-                    }
-                ],
-                isDisabled: false
-            }
-        ];
+    protected updateToolbarOptions(): void {
+        this.toolbarOptions.push(
+            new BPButtonGroupToolbarOption(
+                new BPButtonToolbarOption(
+                    () => console.log("Save button clicked"),
+                    () => true,
+                    "fonticon fonticon2-save",
+                    "Save"
+                ),
+                new BPButtonToolbarOption(
+                    () => console.log("Publish button clicked"),
+                    () => true,
+                    "fonticon fonticon2-publish",
+                    "Publish"
+                ),
+                new BPButtonToolbarOption(
+                    () => console.log("Discard button clicked"),
+                    () => true,
+                    "fonticon fonticon2-discard",
+                    "Discard"
+                ),
+                new BPButtonToolbarOption(
+                    () => console.log("Refresh button clicked"),
+                    () => true,
+                    "fonticon fonticon2-refresh",
+                    "Refresh"
+                ),
+                new BPButtonToolbarOption(
+                    () => console.log("Delete button clicked"),
+                    () => true,
+                    "fonticon fonticon2-delete",
+                    "Delete"
+                )
+            ),
+            new BPButtonGroupToolbarOption(
+                new BPButtonToolbarOption(
+                    () => console.log("Impact Analysis button clicked"),
+                    () => true,
+                    "fonticon fonticon2-impact-analysis",
+                    "Impact Analysis"
+                )
+            )
+        );
     }
 
     private onWidthResized(mainWindow: IMainWindow) {
@@ -294,6 +278,7 @@ export class BpArtifactInfoController {
             const sidebarSize: number = 270; // MUST match $sidebar-size in styles/modules/_variables.scss
             let sidebarsWidth: number = 20 * 2; // main content area padding
             sidebarWrapper = document.querySelector(".bp-sidebar-wrapper");
+
             if (sidebarWrapper) {
                 for (let c = 0; c < sidebarWrapper.classList.length; c++) {
                     if (sidebarWrapper.classList[c].indexOf("-panel-visible") !== -1) {
@@ -301,6 +286,7 @@ export class BpArtifactInfoController {
                     }
                 }
             }
+
             if (this.$element.length) {
                 let container: HTMLElement = this.$element[0];
                 let toolbar: Element = container.querySelector(".page-top-toolbar");

@@ -1,13 +1,16 @@
 import {IBPDropdownToolbarOption, IBPDropdownMenuItemToolbarOption} from "./bp-toolbar-option";
 
-export class BPDropdown implements IBPDropdownToolbarOption {
+export class BPDropdownToolbarOption implements IBPDropdownToolbarOption {
+    private _options: IBPDropdownMenuItemToolbarOption[];
+
     constructor(
-        private _menuItems: IBPDropdownMenuItemToolbarOption[],
         private _canClick: () => boolean,
         private _icon: string,
         private _label?: string,
-        private _tooltip?: string
+        private _tooltip?: string,
+        ... options: IBPDropdownMenuItemToolbarOption[]
     ) {
+        this._options = options;
     }
 
     public get type(): string {
@@ -18,12 +21,12 @@ export class BPDropdown implements IBPDropdownToolbarOption {
         return this._icon;
     }
 
-    public get isDisabled(): boolean {
+    public get disabled(): boolean {
         return !this._canClick();
     }
 
-    public get menuItems(): IBPDropdownMenuItemToolbarOption[] {
-        return this._menuItems;
+    public get options(): IBPDropdownMenuItemToolbarOption[] {
+        return this._options;
     }
 
     public get label(): string {
@@ -35,7 +38,7 @@ export class BPDropdown implements IBPDropdownToolbarOption {
     }
 }
 
-export class BPDropdownMenuItem implements IBPDropdownMenuItemToolbarOption {
+export class BPDropdownMenuItemToolbarOption implements IBPDropdownMenuItemToolbarOption {
     constructor(
         private _label: string,
         private _click: () => void,
@@ -51,23 +54,7 @@ export class BPDropdownMenuItem implements IBPDropdownMenuItemToolbarOption {
         return this._click;
     }
 
-    public get isDisabled(): boolean {
+    public get disabled(): boolean {
         return !this._canClick();
-    }
-}
-
-export class BPUserStoryGenerationDropdown extends BPDropdown {
-    constructor(
-        generateAll: () => void,
-        generateSelected: () => void,
-        canGenerate: () => boolean
-    ) {
-        const menuItems: IBPDropdownMenuItemToolbarOption[] = [];
-        menuItems.push(
-            new BPDropdownMenuItem("Generate All", generateAll, canGenerate),
-            new BPDropdownMenuItem("Generate Selected", generateAll, canGenerate)
-        );
-
-        super(menuItems, canGenerate, "fonticon fonticon2-news", undefined, "Generate User Stories");
     }
 }

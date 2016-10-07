@@ -16,12 +16,13 @@ export {
     IDialogSettings,
     IDialogService,
     IDialogData,
-    BaseDialogController,
     IBPToolbarOption,
-    IBPButtonToolbarOption,
-    IBPDropdownToolbarOption,
-    IBPDropdownMenuItemToolbarOption,
-    IBPToggleToolbarOption
+    BaseDialogController,
+    BPButtonToolbarOption,
+    BPDropdownToolbarOption,
+    BPDropdownMenuItemToolbarOption,
+    BPToggleToolbarOption,
+    BPButtonGroupToolbarOption
 } from "./widgets"
 
 export {

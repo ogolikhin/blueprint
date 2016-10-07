@@ -1,12 +1,12 @@
 import {IBPButtonToolbarOption} from "./bp-toolbar-option";
 
-export class BPButton implements IBPButtonToolbarOption {
+export class BPButtonToolbarOption implements IBPButtonToolbarOption {
     constructor(
         private _click: () => void,
         private _canClick: () => boolean,
         private _icon: string,
-        private _label?: string,
-        private _tooltip?: string
+        private _tooltip?: string,
+        private _label?: string
     ) {
     }
 
@@ -18,7 +18,7 @@ export class BPButton implements IBPButtonToolbarOption {
         return this._icon;
     }
 
-    public get isDisabled(): boolean {
+    public get disabled(): boolean {
         return !this._canClick();
     }
 

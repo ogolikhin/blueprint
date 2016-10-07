@@ -9,6 +9,13 @@ import { ILoadingOverlayService } from "../../../../core/loading-overlay";
 import { INavigationService } from "../../../../core/navigation/navigation.svc";
 import { IArtifactReference, IBreadcrumbService } from "../../services/breadcrumb.svc";
 import { IBreadcrumbLink } from "../../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
+import { 
+    BPButtonToolbarOption,
+    BPDropdownToolbarOption, 
+    BPDropdownMenuItemToolbarOption,
+    BPToggleToolbarOption, 
+    BPButtonGroupToolbarOption 
+} from "../../../../shared";
 
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("./bp-process-header.html");
@@ -115,5 +122,43 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
 
     public clickDelete() {
         this.toolbarCommunicationManager.clickDelete();
+    }
+
+    protected updateToolbarOptions(): void {
+        super.updateToolbarOptions();
+
+        this.toolbarOptions.push(
+            new BPDropdownToolbarOption(
+                () => true,
+                "fonticon fonticon2-news",
+                undefined,
+                "Generate User Stories",
+                new BPDropdownMenuItemToolbarOption(
+                    "Generate from Task",
+                    () => "Generate from Task clicked",
+                    () => true
+                ),
+                new BPDropdownMenuItemToolbarOption(
+                    "Generate All", 
+                    () => "Generate All clicked", 
+                    () => true
+                )
+            ),
+            new BPToggleToolbarOption(
+                () => true,
+                new BPButtonToolbarOption(
+                    () => "Business Process toggled",
+                    () => true,
+                    "fonticon fonticon2-user-user",
+                    "Business Process mode"
+                ),
+                new BPButtonToolbarOption(
+                    () => "User-To-System Process toggled",
+                    () => true,
+                    "fonticon fonticon2-user-system",
+                    "User-System Process mode"
+                )
+            )
+        );
     }
 }

@@ -2,11 +2,20 @@ bp-toolbar-2 {
     display: flex;
     flex-direction: row;
 
-    button.btn {
-        min-width: 0;
+    bp-toolbar-button-group .btn-group {
+        display: flex;
+        flex-direction: row;
+    }
+
+    button, label.btn {
+        height: 26px;
     }
 
     .dropdown {
+        ul {
+            z-index: 999;
+        }
+
         a {
             cursor: pointer;
         }
@@ -20,4 +29,9 @@ bp-toolbar-2 {
             color:#aaa !important;
         }
     }
+}
+
+bp-toolbar-2 > * {
+    margin-left: 5px;
+    margin-right: 5px;
 }

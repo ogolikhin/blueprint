@@ -55,8 +55,9 @@ export {
 
 export {
     IBPToolbarOption,
-    IBPButtonToolbarOption,
-    IBPDropdownToolbarOption,
-    IBPDropdownMenuItemToolbarOption,
-    IBPToggleToolbarOption
+    BPButtonToolbarOption,
+    BPDropdownToolbarOption,
+    BPDropdownMenuItemToolbarOption,
+    BPToggleToolbarOption,
+    BPButtonGroupToolbarOption
 } from "./bp-toolbar";

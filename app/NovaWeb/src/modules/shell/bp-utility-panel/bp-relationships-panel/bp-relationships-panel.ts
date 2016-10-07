@@ -143,7 +143,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         }
     }
 
-    private setRelationships(relationships: Relationships.IRelationship[]) {
+    public setRelationships(relationships: Relationships.IRelationship[]) {
         this.allTraces = relationships;
         this.manualTraces = relationships
             .filter((relationship: Relationships.IRelationship) =>

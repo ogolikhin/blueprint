@@ -187,7 +187,6 @@ namespace ArtifactStoreTests
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestRail(182509)]
         [Description("Create two artifacts: main artifact that has inline trace to inlinetrace artifact. Update the inlinetrace artifact information - Verify that GetArtifactDetails call returns updated inline trace information.")]
         public void GetArtifactDetails_UpdateInlineTraceArtifact_ReturnsUpdatedInlineTraceLink(
@@ -238,7 +237,6 @@ namespace ArtifactStoreTests
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestRail(182549)]
         [Description("Create two artifacts: main and inlinetrace. Delete the inlinetrace artifact. - Verify that GetArtifactDetails call returns invalid inline trace link")]
         public void GetArtifactDetails_DeletedInlinetraceArtifact_ReturnsInvalidInlineTraceLink(
@@ -277,7 +275,6 @@ namespace ArtifactStoreTests
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestRail(182550)]
         [Description("Create two artifacts: main and inlinetrace on different project. - Verify that GetArtifactDetails call returns invalid inline trace link if the user doesn't have the access permission for the inlinetrace artifact")]
         public void GetArtifactDetails_GetArtifactDetailsUsingUserWithoutPermissionToInlineTraceArtifact_ReturnsInvalidInlineTraceLink(

@@ -3,6 +3,7 @@ import {Models} from "../../../../../main";
 import {ProcessModels, ProcessEnums} from "../../../";
 import { IStatefulArtifact } from "../../../../../managers/artifact-manager/";
 import { StatefulProcessArtifact } from "../../../process-artifact";
+import { StatefulProcessSubArtifact } from "../../../process-subartifact";
 
 export interface IProcessGraphModel {
 
@@ -92,6 +93,7 @@ export class ProcessGraphModel implements IProcessGraphModel {
 
     public set shapes(newValue: ProcessModels.IProcessShape[]) {
         this.process.shapes = newValue;
+        this.statefulArtifact.subArtifactCollection.initialise(<StatefulProcessSubArtifact[]>newValue);
     }
 
     public get links(): ProcessModels.IProcessLinkModel[] {

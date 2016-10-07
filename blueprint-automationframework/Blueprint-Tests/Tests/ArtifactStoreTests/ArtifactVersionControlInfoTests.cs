@@ -2,6 +2,7 @@
 using Helper;
 using Model;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
 using TestCommon;
@@ -33,11 +34,14 @@ namespace ArtifactStoreTests
 
         #region 200 OK tests
 
+        #region Artifact Changes
+
         [TestCase(BaseArtifactType.Actor, 1)]
         [TestCase(BaseArtifactType.Process, 2)]
         [TestCase(BaseArtifactType.UseCase, 3)]
         [TestRail(182452)]
-        public void VersionControlInfo_PublishedArtifact_ReturnsArtifactInfo(BaseArtifactType artifactType, int numberOfVersions)
+        [Description("Create & publish an artifact.  Verify the basic artifact information returned with HasChanges flag set to false.")]
+        public void VersionControlInfo_PublishedArtifact_NoChanges_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
@@ -52,12 +56,15 @@ namespace ArtifactStoreTests
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
             artifactDetails.AssertEquals(artifactBaseInfo);
+
+            Assert.IsTrue(artifactBaseInfo.HasChanges.HasValue, "HasChanges property should have value");
+            Assert.IsFalse(artifactBaseInfo.HasChanges.Value, "HasChanges property should be false");
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(182453)]
-        public void VersionControlInfo_SavedArtifact_ReturnsArtifactInfo(BaseArtifactType artifactType)
+        [Description("Create & save an artifact.  Verify the basic artifact information returned with HasChanges flag set to true.")]
+        public void VersionControlInfo_SavedArtifact_HasChanges_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
         {
             // Setup:
             var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
@@ -69,15 +76,97 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            Assert.IsTrue(artifactBaseInfo.HasChanges.HasValue, "HasChanges property should have value");
+            Assert.IsTrue(artifactBaseInfo.HasChanges.Value, "HasChanges property should be true");
 
-            artifactDetails.AssertEquals(artifactBaseInfo);
+            Assert.IsNotNull(artifactBaseInfo.LockedDateTime, "LockedDateTime should have value");
+            Assert.AreEqual(artifactBaseInfo.LockedByUser.Id, _user.Id, "GetArtifactDetails should have the same Id as GetVersionControlInfo");
         }
 
-        // TODO: Locked Artifact without changes.
-        // TODO: Locked Artifact with changes.
-        // TODO: Locked Artifact without changes for another user.
-        // TODO: Locked Artifact with changes for another user.
+        [TestCase(BaseArtifactType.Actor)]
+        [TestRail(182500)]
+        [Description("Create, publish & save an artifact.  Create manual trace to the artifact using another user. Verify another user gets basic artifact information with HasChanges flag set to true.")]
+        public void VersionControlInfo_CreateTraceForArtifact_ReturnsArtifactInfoWithHasChangesTrue_200OK(BaseArtifactType artifactType)
+        {
+            //Setup
+            IArtifact artifact = CreateArtifactWithTrace(artifactType, TraceDirection.From, _user);
+
+            //Execute
+            var basicArtifactInfo = GetArtifactBaseInfo(artifact.Id, _user);
+
+            // Verify:
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, basicArtifactInfo.Id);
+            artifactDetails.AssertEquals(basicArtifactInfo);
+
+            Assert.IsTrue(basicArtifactInfo.HasChanges.HasValue, "HasChanges property should have value");
+            Assert.IsTrue(basicArtifactInfo.HasChanges.Value, "HasChanges property should be true");
+        }
+
+        [TestCase(BaseArtifactType.Actor)]
+        [TestRail(182504)]
+        [Description("Create, publish & save an artifact.  Create manual trace to the artifact with current user. Verify another user gets basic artifact information with HasChanges flag set to false.")]
+        public void VersionControlInfo_CreateTraceForArtifactByDifferentUser_ReturnsArtifactInfoWithHasChangesTrue_200OK(BaseArtifactType artifactType)
+        {
+            //Setup
+            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            IArtifact artifact = CreateArtifactWithTrace(artifactType, TraceDirection.From, _user);
+
+            //Execute
+            var basicArtifactInfo = GetArtifactBaseInfo(artifact.Id, anotherUser);
+
+            // Verify:
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, basicArtifactInfo.Id);
+            artifactDetails.AssertEquals(basicArtifactInfo);
+
+            Assert.IsTrue(basicArtifactInfo.HasChanges.HasValue, "HasChanges property should have value");
+            Assert.IsFalse(basicArtifactInfo.HasChanges.Value, "HasChanges property should be false");
+        }
+
+        [TestCase(BaseArtifactType.Actor, 1)]
+        [TestCase(BaseArtifactType.Process, 2)]
+        [TestCase(BaseArtifactType.UseCase, 3)]
+        [TestRail(182499)]
+        [Description("Create, publish & lock an artifact.  Verify the basic artifact information for another user returned with HasChanges flag set to false.")]
+        public void VersionControlInfo_PublishedAndLockedArtifact_NoChangesForAnotherUser_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
+            artifact.Lock(_user);
+
+            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+
+            // Execute:
+            INovaVersionControlArtifactInfo basicArtifactInfo = GetArtifactBaseInfo(artifact.Id, anotherUser);
+
+            // Verify:
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(anotherUser, artifact.Id);
+
+            artifactDetails.AssertEquals(basicArtifactInfo);
+
+            Assert.IsTrue(basicArtifactInfo.HasChanges.HasValue, "HasChanges property should have value");
+            Assert.IsFalse(basicArtifactInfo.HasChanges.Value, "HasChanges property should be false");
+        }
+
+        [TestCase(BaseArtifactType.Actor)]
+        [TestRail(182551)]
+        [Description("Create, publish & lock an artifact.  Verify the basic artifact information returned with HasChanges flag set to true.")]
+        public void VersionControlInfo_PublishedAndLockedArtifact_HasChanges_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            artifact.Lock();
+
+            // Execute:
+            INovaVersionControlArtifactInfo basicArtifactInfo = GetArtifactBaseInfo(artifact.Id, _user);
+
+            // Verify:
+            Assert.IsTrue(basicArtifactInfo.HasChanges.HasValue, "HasChanges property should have value");
+            Assert.IsTrue(basicArtifactInfo.HasChanges.Value, "HasChanges property should be true");
+
+            Assert.IsNotNull(basicArtifactInfo.LockedDateTime, "LockedDateTime should have value");
+            Assert.AreEqual(basicArtifactInfo.LockedByUser.Id, _user.Id, "GetArtifactDetails should have the same Id as GetVersionControlInfo");
+        }
+        #endregion Artifact Changes
 
         // TODO: Unpublished Sub-artifact in published artifact.
         // TODO: Unpublished Sub-artifact in unpublished artifact.
@@ -110,5 +199,44 @@ namespace ArtifactStoreTests
         // TODO: Call GetVersionControlInfo with an unpublished sub-artifact of an unpublished artifact with a different user.  Verify 404 Not Found.
 
         #endregion Negative tests
+
+        #region private calls
+
+        /// <summary>
+        /// Creates two artifacts and adds trace by user specified in parameteres
+        /// </summary>
+        /// <param name="artifactType">Artifact type of artifacts to be created</param>
+        /// <param name="trace">Direction of trace</param>
+        /// <param name="user"></param>
+        /// <returns>Artifact with the trace</returns>
+        private IArtifact CreateArtifactWithTrace(BaseArtifactType artifactType, TraceDirection trace, IUser user)
+        {
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, user, artifactType);
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, user, BaseArtifactType.UseCase);
+
+            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
+                    targetArtifact, trace, user);
+
+            return sourceArtifact;
+        }
+
+        /// <summary>
+        /// Gets Artifact Base Information from artifact with specific Id
+        /// </summary>
+        /// <param name="artifactId">The Id of artifact</param>
+        /// <param name="user">User who tries to get basic artifact information</param>
+        /// <returns>Basic artifact information</returns>
+        private INovaVersionControlArtifactInfo GetArtifactBaseInfo(int artifactId, IUser user)
+        {
+            INovaVersionControlArtifactInfo artifactBaseInfo = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => artifactBaseInfo = Helper.ArtifactStore.GetVersionControlInfo(user, artifactId),
+                    "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+
+            return artifactBaseInfo;
+        }
+
+        #endregion private calls
     }
 }

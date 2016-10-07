@@ -7,13 +7,14 @@ export class BPManageTracesItem implements ng.IComponentOptions {
     public template: string = require("./bp-manage-traces-item.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPManageTracesItemController;
     public bindings: any = {
-        item: "=",
+        item: "<",
         selectedTraces: "=",
         deleteTrace: "&",
         isItemReadOnly: "<"
     };
 }
 
+//TODO remove after lodash implemented
 export interface IResult {
     found: boolean;
     index: number;
@@ -23,7 +24,7 @@ interface IBPManageTracesItemController {
     deleteTrace: Function;
 }
 
-export class BPManageTracesItemController implements IBPManageTracesItemController {
+export class BPManageTracesItemController implements IBPManageTracesItemController, ng.IComponentController  {
     public static $inject: [string] = [
         "localization",
         "dialogService"
@@ -40,6 +41,7 @@ export class BPManageTracesItemController implements IBPManageTracesItemControll
     ) {
     }
 
+    //TODO replace with lodash when added
     public inArray(array) {
         let found = false,
             index = -1;
@@ -57,16 +59,14 @@ export class BPManageTracesItemController implements IBPManageTracesItemControll
     }
 
     public selectTrace() {
-        if (!this.item.isSelected) {
-            if (this.selectedTraces) {
-                let res = this.inArray(this.selectedTraces);
+        if (this.selectedTraces) {
+            let res = this.inArray(this.selectedTraces);
+
+            if (!this.item.isSelected) {
                 if (!res.found) {
                     this.selectedTraces.push(this.item);
                 }
-            }
-        } else {
-            if (this.selectedTraces) {
-                let res = this.inArray(this.selectedTraces);
+            } else {
                 if (res.found) {
                     this.selectedTraces.splice(res.index, 1);
                 }
@@ -84,7 +84,7 @@ export class BPManageTracesItemController implements IBPManageTracesItemControll
 
     public toggleFlag() {
         if (this.item.hasAccess) {
-            this.item.suspect = this.item.suspect === true ? false : true;
+            this.item.suspect = !this.item.suspect;
         }
     }
 }

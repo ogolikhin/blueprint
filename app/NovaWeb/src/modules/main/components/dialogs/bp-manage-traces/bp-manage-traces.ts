@@ -60,7 +60,7 @@ export class ManageTracesDialogController extends BaseDialogController {
 
     public clearSelected() {
         if (this.selectedTraces[this.data.artifactId]) {
-            this.selectedTraces[this.data.artifactId].forEach(function (item) {
+            this.selectedTraces[this.data.artifactId].forEach( (item) => {
                 item.isSelected = false;
             });
         }
@@ -70,7 +70,7 @@ export class ManageTracesDialogController extends BaseDialogController {
 
     public getManualTraces() {
         if (this.data.manualTraces) {
-            this.manualTraces = (this.data.manualTraces.map(function (item: Relationships.IRelationshipView) {
+            this.manualTraces = (this.data.manualTraces.map( (item: Relationships.IRelationshipView) => {
                 let typeName = Models.ItemTypePredefined[item.primitiveItemTypePredefined];
 
                 if (typeName) {

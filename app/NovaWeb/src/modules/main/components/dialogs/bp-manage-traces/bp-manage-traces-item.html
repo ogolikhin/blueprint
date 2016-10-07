@@ -25,16 +25,16 @@
                         <i class="icon fonticon-exchange" ng-class="{disabled: !$ctrl.item.hasAccess || $ctrl.isItemReadOnly || $ctrl.item.readOnly}"></i>
                     </span>
                     <ul class="dropdown-menu"  ng-hide="!$ctrl.item.hasAccess || $ctrl.isItemReadOnly || $ctrl.item.readOnly">
-                        <li ng-class="{disabled: $ctrl.item.traceDirection == 0}">
+                        <li ng-class="{disabled: $ctrl.item.traceDirection === 0}">
                             <a ng-click="$ctrl.setDirection(0)"><i class="fonticon2-relationship-right"></i> {{::$ctrl.localization.get('App_UP_Relationships_To')}}</a></li>
-                        <li ng-class="{disabled: $ctrl.item.traceDirection == 1}">
+                        <li ng-class="{disabled: $ctrl.item.traceDirection === 1}">
                             <a ng-click="$ctrl.setDirection(1)"><i class="fonticon2-relationship-left"></i> {{::$ctrl.localization.get('App_UP_Relationships_From')}}</a></li>
-                        <li ng-class="{disabled: $ctrl.item.traceDirection == 2}">
+                        <li ng-class="{disabled: $ctrl.item.traceDirection === 2}">
                             <a ng-click="$ctrl.setDirection(2)"><i class="fonticon2-relationship-bi"></i> {{::$ctrl.localization.get('App_UP_Relationships_Bidirectional')}}</a></li>
                     </ul>
                 </div>
                 <i class="icon fonticon-flag-1" ng-click="$ctrl.toggleFlag()"
-                    ng-class="{'fonticon-flag-empty': $ctrl.item.suspect == true,
+                    ng-class="{'fonticon-flag-empty': $ctrl.item.suspect,
                     disabled: !$ctrl.item.hasAccess || $ctrl.isItemReadOnly || $ctrl.item.readOnly}"
                    bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Flag_Trace')}}"></i>
 

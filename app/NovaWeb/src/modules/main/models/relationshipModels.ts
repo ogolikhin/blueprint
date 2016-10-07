@@ -19,6 +19,10 @@ export interface IRelationship {
     readOnly: boolean;
 }
 
+export interface IRelationshipView extends IRelationship {
+    cssClass: string;
+}
+
 export interface IDialogItem {
     manualTraces: IRelationship[];
     artifactId: number;

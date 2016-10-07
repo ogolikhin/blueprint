@@ -29,7 +29,6 @@ export class BPManageTracesItemController implements IBPManageTracesItemControll
         "dialogService"
     ];
 
-    public isSelected: boolean = false;
     public deleteTrace: Function;
     public selectedTraces: Relationships.IRelationship[];
     public item: Relationships.IRelationship;

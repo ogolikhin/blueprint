@@ -1,6 +1,6 @@
 import { ILocalizationService } from "../../../../core";
-import { BaseDialogController, IDialogSettings, IDialogService } from "../../../../shared";
-import { Relationships } from "../../../models";
+import { BaseDialogController, IDialogSettings, IDialogService, Helper } from "../../../../shared";
+import { Relationships, Models } from "../../../models";
 import { IDialogItem } from "../../../models/relationshipModels";
 import { ArtifactPickerNodeVM } from "../../bp-artifact-picker/bp-artifact-picker-node-vm";
 import {
@@ -28,7 +28,7 @@ export class ManageTracesDialogController extends BaseDialogController {
 
     public item: IStatefulItem;
     public relationshipsList: IArtifactRelationships;
-    public manualTraces: any;
+    public manualTraces: Relationships.IRelationshipView[];
     public allTraces: Relationships.IRelationship[];
     public otherTraces: Relationships.IRelationship[];
     public isLoading: boolean = false;
@@ -37,11 +37,12 @@ export class ManageTracesDialogController extends BaseDialogController {
     public hasFlagged: boolean = false;
     public hasUnFlagged: boolean = false;
     public artifactId: number;
+    public isChanged: boolean = false;
 
     public options = [
-        { value: "1", label: "To" },
-        { value: "2", label: "From" },
-        { value: "3", label: "Bidirectional" },
+        { value: "1", label: this.localization.get("App_UP_Relationships_To") },
+        { value: "2", label: this.localization.get("App_UP_Relationships_From") },
+        { value: "3", label: this.localization.get("App_UP_Relationships_Bidirectional") },
     ];
 
     constructor($uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
@@ -62,39 +63,67 @@ export class ManageTracesDialogController extends BaseDialogController {
     }
 
     public clearSelected() {
+        if (this.selectedTraces[this.data.artifactId]) {
+            this.selectedTraces[this.data.artifactId].forEach(function (item) {
+                item.isSelected = false;
+            });
+        }
+
         this.selectedTraces[this.data.artifactId] = [];
     }
 
     public getManualTraces() {
         if (this.data.manualTraces) {
-            this.manualTraces = this.data.manualTraces;
+            this.manualTraces = (this.data.manualTraces.map(function (item: Relationships.IRelationshipView) {
+                let typeName = Models.ItemTypePredefined[item.primitiveItemTypePredefined];
+
+                if (typeName) {
+                    item.cssClass = "icon-" + Helper.toDashCase(typeName);
+                }
+
+                return item;
+            })) as Relationships.IRelationshipView[];
+
             this.artifactId = this.data.artifactId;
             this.isItemReadOnly = this.data.isItemReadOnly;
         }
     }
 
     public trace(): void {
-        let selected = [];
+        let selected = [],
+            selectedVMs = this.selectedVMs,
+            selectedVMsLength = selectedVMs.length;
 
-        for (let i = 0; i < this.selectedVMs.length; i++) {
+        for (let i = 0; i < selectedVMsLength; i++) {
 
-            let currentItem = this.selectedVMs[i];
+            let currentItem = selectedVMs[i],
+                currentItemModel = currentItem.model;
 
-            currentItem.model.itemId = currentItem.model.id;
-            currentItem.model.artifactId = currentItem.model.id;
+            currentItemModel.itemId = currentItemModel.id;
+            currentItemModel.artifactId = currentItemModel.id;
 
-            let res = this.inArray(this.manualTraces, currentItem.model);
+            let res = this.inArray(this.manualTraces, currentItemModel);
+
+            let typeName = Models.ItemTypePredefined[currentItemModel.predefinedType];
+
+            let cssClass;
+
+            if (typeName) {
+                cssClass = "icon-" + Helper.toDashCase(typeName);
+            }
 
             if (!res.found) {
-                currentItem.model.traceType = Relationships.LinkType.Manual;
-                currentItem.model.artifactName = currentItem.model.name;
-                currentItem.model.itemName = currentItem.model.name;
-                currentItem.model.itemTypePrefix = currentItem.model.prefix;
-                currentItem.model.traceDirection = this.direction;
-                currentItem.model.projectName = currentItem.model.parent.name;
-                currentItem.model.hasAccess = true;
-                currentItem.model.suspect = false;
-                selected.push(currentItem.model);
+                currentItemModel.traceType = Relationships.LinkType.Manual;
+                currentItemModel.artifactName = currentItemModel.name || currentItemModel.displayName;
+                currentItemModel.itemName = currentItemModel.name || currentItemModel.displayName;
+                currentItemModel.itemTypePrefix = currentItemModel.prefix;
+                currentItemModel.traceDirection = this.direction;
+                currentItemModel.projectName = currentItemModel.parent ? currentItemModel.parent.name :
+                    currentItem["options"].project.name;
+                currentItemModel.hasAccess = true;
+                currentItemModel.suspect = false;
+                currentItemModel.cssClass = cssClass;
+                selected.push(currentItemModel);
             }
         }
 
@@ -158,6 +187,12 @@ export class ManageTracesDialogController extends BaseDialogController {
         this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace")).then( (confirmed) => {
             if (confirmed) {
                 this.remove([artifact], this.manualTraces);
+
+                let res = this.inArray(this.selectedTraces[this.data.artifactId], artifact);
+
+                if (res.found) {
+                    this.selectedTraces[this.data.artifactId].splice(res.index, 1);
+                }
             }
         });
     }

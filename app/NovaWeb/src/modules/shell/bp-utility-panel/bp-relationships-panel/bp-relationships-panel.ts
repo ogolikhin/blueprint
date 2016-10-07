@@ -54,7 +54,6 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public selectedTraces: IArtifactSelectedArtifactMap;
     public hasFlagged: boolean = false;
     public hasUnFlagged: boolean = false;
-    public copyItem: Function;
 
     constructor(
         $q: ng.IQService,
@@ -63,6 +62,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         private artifactRelationships: IArtifactRelationships,
         private dialogService: IDialogService,
         public bpAccordionPanel: IBpAccordionPanelController
+
     ) {
 
         super($q, artifactManager.selection, bpAccordionPanel);
@@ -143,6 +143,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.actorInherits = [];
         this.documentReferences = [];
     }
+
     public canManageTraces(): boolean {
         // if artifact is locked by other user we still can add/manage traces
         return !this.item.artifactState.deleted &&
@@ -225,7 +226,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         let data: IDialogItem = {
             manualTraces: angular.copy(this.manualTraces2),
             artifactId: this.item.id,
-            isItemReadOnly: this.isItemReadOnly
+            isItemReadOnly: false
         };
 
         this.dialogService.open(dialogSettings, data).then((result) => {
@@ -237,7 +238,6 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
 
             this.manualTraces = data.manualTraces;
             this.item.relationships.updateManual(data.manualTraces);
-            //this.item.relationships.add(data.manualTraces);
             this.getRelationships(false);
         });
     }

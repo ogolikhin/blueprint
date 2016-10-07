@@ -281,13 +281,59 @@ namespace ArtifactStoreTests
             Assert.IsFalse(basicArtifactInfo.HasChanges.Value, "HasChanges property should be false");
         }
 
-        // TODO: Unpublished Sub-artifact in published artifact.
-        // TODO: Unpublished Sub-artifact in unpublished artifact.
-        // TODO: Published Sub-artifact.
-        // TODO: Published Sub-artifact in locked Artifact without changes.
-        // TODO: Published Sub-artifact in locked Artifact with changes.
-        // TODO: Published Sub-artifact in locked Artifact without changes for another user.
-        // TODO: Published Sub-artifact in locked Artifact with changes for another user.
+        [TestCase(BaseArtifactType.UseCase)]
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(182554)]
+        [Description("Create, publish & lock an artifact with subartifact. Verify user gets basic artifact information with subartifact Id.")]
+        public void VersionControlInfo_PublishedeSubArtifactLockedArtifact_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+
+            Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
+
+            artifact.Lock();
+
+            // Execute
+            var basicArtifactInfo = GetArtifactBaseInfo(subArtifacts[0].Id, _user);
+
+            // Verify
+            Assert.IsNotNull(basicArtifactInfo.SubArtifactId, "There is no sub-artifact id in the returned basic artifact info responce");
+            Assert.AreEqual(subArtifacts[0].Id, basicArtifactInfo.SubArtifactId, "Sub-artifact Id in Basic Artifact info is different from Id of sub-artifact sent in get artifact base infor request");
+
+            Assert.IsTrue(basicArtifactInfo.HasChanges.HasValue, "HasChanges property should be null");
+            Assert.IsTrue(basicArtifactInfo.HasChanges.Value, "HasChanges property should be true");
+        }
+
+        [TestCase(BaseArtifactType.UseCase)]
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(182555)]
+        [Description("Create, publish & lock an artifact with subartifact. Verify another user gets basic artifact information with subartifact Id.")]
+        public void VersionControlInfo_PublishedeSubArtifactLockedArtifactAnotherUser_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+
+            Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
+
+            artifact.Lock();
+
+            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+
+            // Execute
+            var basicArtifactInfo = GetArtifactBaseInfo(subArtifacts[0].Id, anotherUser);
+
+            // Verify
+            Assert.IsNotNull(basicArtifactInfo.SubArtifactId, "There is no sub-artifact id in the returned basic artifact info responce");
+            Assert.AreEqual(subArtifacts[0].Id, basicArtifactInfo.SubArtifactId, "Sub-artifact Id in Basic Artifact info is different from Id of sub-artifact sent in get artifact base infor request");
+
+            Assert.IsTrue(basicArtifactInfo.HasChanges.HasValue, "HasChanges property should be null");
+            Assert.IsFalse(basicArtifactInfo.HasChanges.Value, "HasChanges property should be false");
+        }
 
         #endregion Sub-Artifact
         // TODO: Published deleted Artifact(- isDeleted= false).

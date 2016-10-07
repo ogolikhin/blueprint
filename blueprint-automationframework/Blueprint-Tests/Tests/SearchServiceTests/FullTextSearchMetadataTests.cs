@@ -381,7 +381,7 @@ namespace SearchServiceTests
             ValidateSearchMetaDataPermissionsTest(fullTextSearchMetaDataResult, expectedHitCount, expectedTotalPageCount);
         }
 
-        [TestCase(13, 2, TestHelper.ProjectRole.Author)]
+        [TestCase(13, 2, TestHelper.ProjectRole.AuthorFullAccess)]
         [TestCase(13, 2, TestHelper.ProjectRole.Viewer)]
         [TestCase(0, 0, TestHelper.ProjectRole.None)]
         [TestRail(182372)]
@@ -420,7 +420,7 @@ namespace SearchServiceTests
             ValidateSearchMetaDataPermissionsTest(fullTextSearchMetaDataResult, expectedHitCount, expectedTotalPageCount);
         }
 
-        [TestCase(26, 3, TestHelper.ProjectRole.Author)]
+        [TestCase(26, 3, TestHelper.ProjectRole.AuthorFullAccess)]
         [TestCase(26, 3, TestHelper.ProjectRole.Viewer)]
         [TestCase(0, 0, TestHelper.ProjectRole.None)]
         [TestRail(182376)]
@@ -564,7 +564,7 @@ namespace SearchServiceTests
             // Create user with author project role to project
             var userWithProjectRole = TestHelper.CreateUserWithProjectRolePermissions(
                 Helper,
-                TestHelper.ProjectRole.Author,
+                TestHelper.ProjectRole.AuthorFullAccess,
                 _projects);
 
             // Replace the valid AccessControlToken with an invalid token

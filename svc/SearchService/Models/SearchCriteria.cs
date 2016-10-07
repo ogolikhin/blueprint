@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace SearchService.Models
 {
 
-    public class SearchCriteria
+    public class SearchCriteria : ISearchCriteria
     {
         [Required]
         public string Query { get; set; }

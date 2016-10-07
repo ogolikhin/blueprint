@@ -1,7 +1,6 @@
 ﻿using Model.Impl;
 using Utilities.Factories;
 using Utilities;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Model.Factories
 {
@@ -14,25 +13,27 @@ namespace Model.Factories
         /// <param name="permissions">Permissions for new role. Use | to combine permissions.</param>
         /// <param name="name">(Optional) The name of the role. By default a random value is used.</param>
         /// <returns>The created Role.</returns>
-        public static IProjectRole CreateProjectRole (IProject project, RolePermissions permissions, string name = null)
+        public static IProjectRole CreateProjectRole(IProject project, RolePermissions permissions, string name = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
+
             if (name == null)
             {
                 name = RandomGenerator.RandomAlphaNumeric(7);
             }
+
             string description = RandomGenerator.RandomAlphaNumeric(10);
             IProjectRole role = new ProjectRole(project.Id, name, description, permissions);
             role.AddRoleToDatabase();
             return role;
         }
 
-        [SuppressMessage("Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue")]
         /// <summary>
         /// These roles id are from DB - it will work only for project with Id=1 (what we have in DB after restoring from backup).
         /// </summary>
         public enum DeployedProjectRole
-        {//
+        {
+            None = 0,
             Author = 1,
             Collaborator = 2,
             ProjectAdministrator = 3,

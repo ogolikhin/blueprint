@@ -63,10 +63,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     public getObservable(): Rx.Observable<IStatefulArtifact> {
         if (!this.isFullArtifactLoadedOrLoading()) {
             this.loadPromise = this.load();
-            var customPromises = this.getCustomArtifactPromisesForGetObservable();
+            const customPromises = this.getCustomArtifactPromisesForGetObservable();
 
-            var promisesToExecute  = [this.loadPromise];
-            promisesToExecute = promisesToExecute.concat(customPromises);
+            const promisesToExecute  = [this.loadPromise].concat(customPromises);            
 
             this.getServices().$q.all(promisesToExecute).then(() => {
                 this.subject.onNext(this);
@@ -85,12 +84,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     //Hook for subclasses to provide additional promises which should be run for obtaining data
-    protected getCustomArtifactPromisesForGetObservable() : angular.IPromise<IStatefulArtifact>[]{
+    protected getCustomArtifactPromisesForGetObservable(): angular.IPromise<IStatefulArtifact>[] {
         return [];
     }
 
     //Hook for subclasses to do some post processing  
-    protected runPostGetObservable(){
+    protected runPostGetObservable() {
 
     }
 
@@ -120,7 +119,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 let state = this.initialize(artifact);
                 //modify states all at once
                 this.artifactState.set(state);
-                deferred.resolve(this);
+                
+                if (state.misplaced) {
+                    deferred.reject(this);
+                } else {
+                    deferred.resolve(this);
+                }
             }).catch((err) => {
                 if (err && err.statusCode === HttpStatusCode.NotFound) {
                     this.artifactState.deleted = true;
@@ -334,28 +338,31 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         let loadPromise = this.load();
         
-        // TODO: also load subartifacts and the rest of the
-        let attachmentPromise: ng.IPromise<any>;
+        let attachmentPromise, relationshipPromise: ng.IPromise<any>;
         if (this._attachments) {
-            // FYI, this will also reload docRefs so no need to call docRefs.refresh()
+            //this will also reload docRefs, so no need to call docRefs.refresh()
             attachmentPromise = this._attachments.refresh();
         }
 
-        // TODO: get promises for other refresh methods in sub-objects
-        // let relationshipsPromise: ng.IPromise<any>, subArtifactsPromise: ng.IPromise<any>;
+        if (this._relationships) {
+            relationshipPromise = this._relationships.refresh();
+        }
+
+        //History and Discussions refresh independently, triggered by artifact's observable.
 
         this.getServices().$q.all([
                 loadPromise,
-                attachmentPromise
+                attachmentPromise,
+                relationshipPromise
             ]).then(() => {
+                this.subject.onNext(this);
+                deferred.resolve(this);
+            }).catch(error => {
+                deferred.reject(error);
 
-            this.subject.onNext(this);
-            deferred.resolve(this);
-        
-        }).catch(error => {
-            this.subject.onError(error);
-            deferred.reject(error);
-        });
+                //This steals control flow, don't put anything after it.
+                this.subject.onError(error);
+            });
 
         return deferred.promise;
     }

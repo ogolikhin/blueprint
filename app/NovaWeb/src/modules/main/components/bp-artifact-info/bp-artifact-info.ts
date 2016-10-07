@@ -6,6 +6,7 @@ import { Helper, IDialogSettings, IDialogService, IDialogData } from "../../../s
 import { ArtifactPickerDialogController, IArtifactPickerOptions } from "../bp-artifact-picker";
 import { ILoadingOverlayService } from "../../../core/loading-overlay";
 import { IArtifactManager, IStatefulArtifact } from "../../../managers/artifact-manager";
+import { IProjectManager } from "../../../managers/project-manager";
 import { INavigationService } from "../../../core/navigation/navigation.svc";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
@@ -27,7 +28,8 @@ export class BpArtifactInfoController {
         "dialogService", 
         "windowManager", 
         "loadingOverlayService",
-        "navigationService"
+        "navigationService",
+        "projectManager"
     ];
 
     private subscribers: Rx.IDisposable[];
@@ -54,7 +56,8 @@ export class BpArtifactInfoController {
         private dialogService: IDialogService,
         private windowManager: IWindowManager,
         private loadingOverlayService: ILoadingOverlayService,
-        protected navigationService: INavigationService
+        protected navigationService: INavigationService,
+        protected projectManager: IProjectManager
     ) {
         this.initProperties();
         this.subscribers = [];
@@ -103,6 +106,8 @@ export class BpArtifactInfoController {
     public onError = (error: any) => {
         if (this.artifact.artifactState.deleted) {
             this.dialogService.alert("Artifact_Lock_DoesNotExist");
+        } else if (this.artifact.artifactState.misplaced) {
+            //Occurs when refreshing an artifact that's been moved; do nothing
         } else {
             this.messageService.addError(error);
         }
@@ -261,14 +266,18 @@ export class BpArtifactInfoController {
 
     public refresh() {
         //loading overlay
-        let overlayId = this.loadingOverlayService.beginLoading();
-        let currentArtifact = this.artifactManager.selection.getArtifact();
+        const overlayId = this.loadingOverlayService.beginLoading();
+        const currentArtifact = this.artifactManager.selection.getArtifact();
         
         currentArtifact.refresh()
             .catch((error) => {
-                this.dialogService.alert(error.message);
-                this.navigationService.navigateToArtifact(currentArtifact.parentId);
-                this.artifactManager.remove(currentArtifact.id);
+                //this.dialogService.alert(error.message);
+                //this.navigationService.navigateToArtifact(currentArtifact.parentId);
+                //this.artifactManager.remove(currentArtifact.id);
+
+                // We're not interested in the error type.
+                // sometimes this error is created by artifact.load(), which returns the statefulArtifact instead of an error object.
+                this.projectManager.refresh(this.projectManager.getSelectedProject());
             }).finally(() => {
                 this.loadingOverlayService.endLoading(overlayId);
             });

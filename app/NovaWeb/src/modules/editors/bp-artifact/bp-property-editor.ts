@@ -284,9 +284,9 @@ export class PropertyEditor {
 
         }
         if (field.templateOptions.disabled) {
-            field.templateOptions["isReadOnly"] = true;
             if (field.type !== "bpFieldImage" &&
-                field.type !== "bpFieldInheritFrom") {
+                field.type !== "bpFieldInheritFrom" &&
+                field.type !== "bpDocumentFile") {
                 field.type = "bpFieldReadOnly";
             }
         }

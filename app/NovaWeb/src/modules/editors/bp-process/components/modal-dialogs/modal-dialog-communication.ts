@@ -1,5 +1,5 @@
 import {ModalDialogType} from "./base-modal-dialog-controller";
-import {CommunicationWrapper, ICommunicationWrapper} from "./communication-wrapper";
+import {CommunicationWrapper, ICommunicationWrapper} from "../../services/communication-wrapper";
 
 export interface IModalDialogCommunication {
     registerSetGraphObserver(observer: any);

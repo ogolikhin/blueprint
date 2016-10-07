@@ -160,12 +160,11 @@ namespace Model.StorytellerModel.Impl
             return artifacts;
         }
 
-        /// <seealso cref="IStoryteller.GenerateUserStories(IUser, IProcess, List{HttpStatusCode}, bool, int)"/>
+        /// <seealso cref="IStoryteller.GenerateUserStories(IUser, IProcess, List{HttpStatusCode}, bool)"/>
         public List<IStorytellerUserStory> GenerateUserStories(IUser user,
             IProcess process,
             List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false,
-            int timeoutRetries = 5)
+            bool sendAuthorizationAsCookie = false)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(GenerateUserStories));
 
@@ -194,29 +193,11 @@ namespace Model.StorytellerModel.Impl
             Logger.WriteInfo("{0} Generating user stories for process ID: {1}, Name: {2}", nameof(Storyteller), process.Id, process.Name);
             List<StorytellerUserStory> userstoryResults = null;
 
-            // Hack: Retry this call a certain number of times because it sometimes gets an OperationTimedOutException on slow machines.
-            for (int retry = 0; retry < timeoutRetries; ++retry)
-            {
-                try
-                {
-                    userstoryResults = restApi.SendRequestAndDeserializeObject<List<StorytellerUserStory>>(
-                        path,
-                        RestRequestMethod.POST,
-                        additionalHeaders: additionalHeaders,
-                        expectedStatusCodes: expectedStatusCodes);
-
-                    break;  // If no timeout exception, don't retry.
-                }
-                catch (OperationTimedOutException)
-                {
-                    Logger.WriteError("Caught an OperationTimedOutException while running: 'POST {0}'!", path);
-
-                    if ((retry + 1) >= timeoutRetries)
-                    {
-                        throw;
-                    }
-                }
-            }
+            userstoryResults = restApi.SendRequestAndDeserializeObject<List<StorytellerUserStory>>(
+                path,
+                RestRequestMethod.POST,
+                additionalHeaders: additionalHeaders,
+                expectedStatusCodes: expectedStatusCodes);
 
             // Since Storyteller created the user story artifacts, we aren't tracking them, so we need to tell Delete to also delete children.
             var artifact = Artifacts.Find(a => a.Id == process.Id);

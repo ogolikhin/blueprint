@@ -238,7 +238,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
             template: require("../../../main/components/dialogs/bp-manage-traces/bp-manage-traces.html"),
             controller: ManageTracesDialogController,
             css: "nova-open-project manage-traces-wrapper",
-            header: "Manage Traces"
+            header: this.localization.get("App_UP_Relationships_Manage_Traces")
         };
 
         let data: IDialogItem = {

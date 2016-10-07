@@ -134,7 +134,6 @@ export class ArtifactRelationships implements IArtifactRelationships {
             this.subject.onNext(this.relationships);
         }
 
-        console.log("inside remove");
         return this.relationships;
     }
 

@@ -33,7 +33,6 @@ export interface IProcessViewModel extends IProcessGraphModel {
     resetJustCreatedShapeIds();
     addJustCreatedShapeId(id: number);
     isShapeJustCreated(id: number): boolean;
-    statefulArtifact: IStatefulArtifact;
     addStatefulShape(processShape: ProcessModels.IProcessShape);
     removeStatefulShape(shapeId: number);
 }

@@ -57,7 +57,6 @@ module.exports = {
         new ExtractTextPlugin("[name].css"),
         new webpack.HotModuleReplacementPlugin(),
         new webpack.optimize.CommonsChunkPlugin("vendor", "vendor.bundle.js"),
-
         new CopyWebpackPlugin([
             // {output}/file.txt
             {from: '**/*.view.html'},
@@ -89,7 +88,6 @@ module.exports = {
             mxClientCss: path.resolve(__dirname, '../libs/mxClient/css')
         }
     },
-
     module: {
         loaders: loaders,
         preLoaders: preLoaders,
@@ -98,7 +96,6 @@ module.exports = {
     resolveLoader: {
         modulesDirectories: ["node_modules"]
     },
-
     'html-minify-loader': {
         empty: true,
         dom: {

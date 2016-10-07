@@ -15,6 +15,7 @@ import "./bp-collapsible";
 import "./bp-file-upload";
 import "./bp-toggle";
 import "./bp-breadcrumb";
+import "./bp-toolbar";
 
 angular.module("bp.widgets", [
     "bp.widgets.dialog",
@@ -32,9 +33,30 @@ angular.module("bp.widgets", [
     "bp.widgets.collapsible",
     "bp.widgets.fileupload",
     "bp.widgets.toggle",
-    "bp.widgets.breadcrumb"
+    "bp.widgets.breadcrumb",
+    "bp.widgets.toolbar"
 ]);
     
-export { IUploadStatusDialogData } from "./bp-file-upload-status/bp-file-upload-status";
-export { IBPTreeController, ITreeNode } from "./bp-tree"
-export { IDialogSettings, IDialogData, IDialogService, BaseDialogController} from "./bp-dialog";
+export { 
+    IUploadStatusDialogData 
+} from "./bp-file-upload-status/bp-file-upload-status";
+
+export { 
+    IBPTreeController, 
+    ITreeNode 
+} from "./bp-tree"
+
+export { 
+    IDialogSettings, 
+    IDialogData, 
+    IDialogService, 
+    BaseDialogController 
+} from "./bp-dialog";
+
+export {
+    IBPToolbarOption,
+    IBPButtonToolbarOption,
+    IBPDropdownToolbarOption,
+    IBPDropdownMenuItemToolbarOption,
+    IBPToggleToolbarOption
+} from "./bp-toolbar";

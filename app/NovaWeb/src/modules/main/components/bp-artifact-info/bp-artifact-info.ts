@@ -2,12 +2,21 @@
 import { Models, Enums } from "../../models";
 import { IWindowManager, IMainWindow, ResizeCause } from "../../services";
 import { IMessageService, Message, MessageType, ILocalizationService } from "../../../core";
-import { Helper, IDialogSettings, IDialogService } from "../../../shared";
 import { ArtifactPickerDialogController, IArtifactPickerOptions } from "../bp-artifact-picker";
 import { ILoadingOverlayService } from "../../../core/loading-overlay";
 import { IArtifactManager, IStatefulArtifact } from "../../../managers/artifact-manager";
 import { IProjectManager } from "../../../managers/project-manager";
 import { INavigationService } from "../../../core/navigation/navigation.svc";
+import { 
+    Helper, 
+    IDialogSettings, 
+    IDialogService, 
+    IBPToolbarOption, 
+    IBPButtonToolbarOption, 
+    IBPDropdownToolbarOption, 
+    IBPDropdownMenuItemToolbarOption, 
+    IBPToggleToolbarOption
+} from "../../../shared";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -46,6 +55,7 @@ export class BpArtifactInfoController {
     public artifactTypeId: number;
     public artifactTypeIcon: number;
     public artifactTypeDescription: string;
+    public toolbarOptions: IBPToolbarOption[];
 
     constructor(
         public $scope: ng.IScope,
@@ -116,7 +126,7 @@ export class BpArtifactInfoController {
 
     private initProperties() {
         this.artifactName = null;
-        this.artifactType = null;   
+        this.artifactType = null;
         this.artifactTypeId = null;
         this.artifactTypeIcon = null;
         this.artifactTypeDescription = null;
@@ -127,6 +137,8 @@ export class BpArtifactInfoController {
         this.selfLocked = false;
         this.isLegacy = false;
         this.artifactClass = null;
+        this.toolbarOptions = null;
+
         if (this.lockMessage) {
             this.messageService.deleteMessageById(this.lockMessage.id);
             this.lockMessage = null;
@@ -135,17 +147,24 @@ export class BpArtifactInfoController {
 
     private updateProperties(artifact: IStatefulArtifact) {
         this.initProperties();
+
         if (!artifact) {
             return;
         }
+
+        this.updateToolbarOptions();
+
         this.artifactName = artifact.name || "";
+
         let itemType = artifact.metadata.getItemType(); 
         if (itemType) {
             this.artifactTypeId = itemType.id;
             this.artifactType = itemType.name || Models.ItemTypePredefined[itemType.predefinedType] || "";
+            
             if (itemType.iconImageId && angular.isNumber(itemType.iconImageId)) {
                 this.artifactTypeIcon = itemType.iconImageId;
             }
+
             this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
         }
         
@@ -162,10 +181,12 @@ export class BpArtifactInfoController {
 
         this.isReadonly = artifact.artifactState.readonly;
         this.isChanged = artifact.artifactState.dirty;
+
         switch (artifact.artifactState.lockedBy) {
             case Enums.LockedByEnum.CurrentUser:
                 this.selfLocked = true;
                 break;
+
             case Enums.LockedByEnum.OtherUser:
                  let msg = artifact.artifactState.lockOwner ? "Locked by " + artifact.artifactState.lockOwner : "Locked "; 
                  if (artifact.artifactState.lockDateTime) {
@@ -173,12 +194,13 @@ export class BpArtifactInfoController {
                  }
                 this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
                 break;
+
             default:
                 break;
         }
+
         if (artifact.artifactState.misplaced) {
-            this.dialogService.alert("Artifact_Lock_DoesNotExist").then(() => {
-            }) ;
+            this.dialogService.alert("Artifact_Lock_DoesNotExist").then(() => {}) ;
         } 
     }
 
@@ -204,6 +226,66 @@ export class BpArtifactInfoController {
         }
 
         return style;
+    }
+
+    private updateToolbarOptions(): void {
+        this.toolbarOptions = [
+            <IBPButtonToolbarOption>{
+                type: "button",
+                click: () => console.log("Clicked delete button"),
+                icon: "fonticon fonticon2-delete",
+                tooltip: "Delete",
+                isDisabled: false
+            },
+            <IBPDropdownToolbarOption> {
+                type: "dropdown",
+                icon: "fonticon fonticon2-news",
+                menuItems: [
+                    <IBPDropdownMenuItemToolbarOption>{
+                        label: "Test1",
+                        click: () => console.log("Test1 clicked"),
+                        isDisabled: false
+                    },
+                    <IBPDropdownMenuItemToolbarOption>{
+                        label: "Test2",
+                        click: () => console.log("Test2 clicked"),
+                        isDisabled: false
+                    },
+                    <IBPDropdownMenuItemToolbarOption>{
+                        label: "Test3",
+                        click: () => console.log("Test3 clicked"),
+                        isDisabled: true
+                    },
+                    <IBPDropdownMenuItemToolbarOption>{
+                        label: "Test4",
+                        click: () => console.log("Test4 clicked"),
+                        isDisabled: true
+                    }
+                ],
+                // label: "Test Menu",
+                isDisabled: false
+            },
+            <IBPToggleToolbarOption>{
+                type: "toggle",
+                toggleOptions: [
+                    <IBPButtonToolbarOption>{
+                        type: "button",
+                        click: () => console.log("Clicked add button"),
+                        icon: "fonticon fonticon2-user-user",
+                        tooltip: "Add",
+                        isDisabled: false
+                    },
+                    <IBPButtonToolbarOption>{
+                        type: "button",
+                        click: () => console.log("Clicked remove button"),
+                        icon: "fonticon fonticon2-user-system",
+                        tooltip: "Remove",
+                        isDisabled: false
+                    }
+                ],
+                isDisabled: false
+            }
+        ];
     }
 
     private onWidthResized(mainWindow: IMainWindow) {

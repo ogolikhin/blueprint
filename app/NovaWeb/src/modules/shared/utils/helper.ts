@@ -133,6 +133,67 @@ export class Helper {
         }
     };
 
+    static addTableBorders(node: Node) {
+        // if it's not an Element node we exit
+        if (node.nodeType !== 1) {
+            return;
+        }
+
+        let element = node as HTMLElement;
+        let tds = element.querySelectorAll("td");
+        [].forEach.call(tds, function(td) {
+            if (td.style.borderStyle === "" || td.style.borderStyle.indexOf("none") !== -1) {
+                td.style.borderStyle = "solid";
+            }
+            if (td.style.borderWidth === "" || td.style.borderWidth.match(/(\D0p?)|(^0p?)/gi)) {
+                td.style.borderWidth = "1px";
+            }
+            if (td.style.borderColor === "" || td.style.borderColor === "transparent") {
+                td.style.borderColor = "black";
+            }
+        });
+    };
+
+    static setFontFamilyOrOpenSans(node: Node) {
+        // if it's not an Element node we exit
+        if (node.nodeType !== 1) {
+            return;
+        }
+
+        // if it has children, we go deeper
+        if (node.hasChildNodes()) {
+            [].forEach.call(node.childNodes, function(child) {
+                if (child.nodeType === 1) { // we dig into HTML children only
+                    Helper.setFontFamilyOrOpenSans(child);
+                } else if (child.nodeType === 3) {
+                    let parent = child.parentNode;
+                    if (parent.nodeType === 1) {
+                        parent = parent as HTMLElement;
+                        let element = parent;
+                        let fontFamily = element.style.fontFamily;
+                        while (fontFamily === "" && element.parentElement) {
+                            element = element.parentElement;
+                            fontFamily = element.style.fontFamily;
+                        }
+                        if (fontFamily === "") {
+                            fontFamily = "'Open Sans'";
+                        }
+                        if (parent.tagName.toUpperCase() !== "SPAN") {
+                            let span = document.createElement("SPAN");
+                            span.style.fontFamily = fontFamily;
+                            span.appendChild(child);
+                            parent.appendChild(span);
+                        } else {
+                            if (parent.style.fontFamily === "") {
+                                parent.style.fontFamily = fontFamily;
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    };
+
     static tagsContainText(htmlText: string): boolean {
         let div = document.createElement("div");
         div.innerHTML = (htmlText || "").toString();
@@ -164,7 +225,7 @@ export class Helper {
             artifact.prefix &&
             ["ACO", "_CFL", "PR"].indexOf(artifact.prefix) === -1;
     }
-    public static hasArtifactEverBeenSavedOrPublished(artifact: Models.IArtifact): boolean{
+    public static hasArtifactEverBeenSavedOrPublished(artifact: Models.IArtifact): boolean {
         return artifact.id > 0; 
     }
 

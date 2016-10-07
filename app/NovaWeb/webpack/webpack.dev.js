@@ -7,7 +7,8 @@ var loaders = require("./loaders");
 var vendor_libs = require('./vendors');
 var proxy_config = require('./proxy.dev');
 
-var APP = path.join(__dirname, '../src');
+var _APP = path.join(__dirname, './../src');
+
 
 var del = require('del');
 del(['dist/*']);
@@ -33,7 +34,7 @@ if (process.argv.some(isDebug)) {
 }
 
 module.exports = {
-    context: APP,
+    context: _APP,
     entry: {
         app: ['webpack/hot/dev-server', './index.ts'],
         vendor: vendor_libs

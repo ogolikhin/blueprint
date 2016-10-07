@@ -7,20 +7,20 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var loaders = require("./loaders");
 var vendor_libs = require('./vendors');
 var _DIST = path.resolve('./dist');
-var APP = path.join(__dirname, '../src');
+var _APP = path.join(__dirname, './../src');
 
 var del = require('del');
 del(['dist/*']);
 
 module.exports = {
-    context: APP,
+    context: _APP,
     entry: {
-        app: ['webpack/hot/dev-server', './index.ts'],
+        app: './index.ts',
         vendor: vendor_libs
     },
     output: {
         publicPath: "/novaweb/",
-        path: path.resolve(_DIST + '../dist/novaweb/'),
+        path: path.resolve(_DIST + '/novaweb/'),
         filename: '[name].bundle.js'
     },
     plugins: [

@@ -162,6 +162,7 @@ bp-relationships-panel {
                 .desc {
                     font-size: $font-size-smaller;
                     padding-left: 2px;
+                    word-wrap:break-word;
                 }
 
                 .left-arrow {
@@ -171,6 +172,8 @@ bp-relationships-panel {
                     height: 10px;
                     display: inline-block;
                     margin-left: 8px;
+                    float: left;
+                    margin-right: 2px;
                 }
 
                 .bolded-text {

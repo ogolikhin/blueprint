@@ -872,25 +872,31 @@ pagecontent, bp-properties-panel {
         width: 100%;
       }
 
+      .mce-tinymce {
+        border: 0;
+        border-radius: 0;
+      }
+
+      .mce-toolbar-grp {
+        border-color: $gray-lighter;
+        border-width: 1px 1px 0 !important;;
+      }
+
+      .mce-edit-area {
+        border-color: $gray-lighter;
+        border-width: 1px !important;
+      }
+
       .tinymce-toolbar-hidden {
         margin-top: 0;
 
         .mce-toolbar-grp {
           display: none;
         }
-
-        .mce-edit-area {
-          border: 0;
-        }
-      }
-
-      .mce-tinymce {
-        border: solid 1px $gray-lightest;
-        border-radius: 0;
       }
 
       .has-error {
-        .mce-tinymce {
+        .mce-edit-area {
           border-color: $brand-error;
         }
       }

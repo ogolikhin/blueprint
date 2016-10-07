@@ -1,7 +1,6 @@
 ﻿import "angular-ui-tinymce";
 import { IMentionService, MentionService } from "./mention.svc";
 
-
 export class BPCommentEdit implements ng.IComponentOptions {
     public template: string = require("./bp-comment-edit.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPCommentEditController;
@@ -22,6 +21,7 @@ export class BPCommentEditController {
     constructor(private $q: ng.IQService, private mentionService: IMentionService) {
     }
 
+    private commentEditor: TinyMceEditor;
     public cancelComment: Function;
     public postComment: Function;
     public addButtonText: string;
@@ -45,7 +45,8 @@ export class BPCommentEditController {
             "*": "background-image"
         },
         mentions: this.mentionService.create(this.emailDiscussionsEnabled),
-        init_instance_callback: function (editor) { // https://www.tinymce.com/docs/configure/integration-and-setup/#init_instance_callback
+        init_instance_callback: (editor) => { // https://www.tinymce.com/docs/configure/integration-and-setup/#init_instance_callback
+            this.commentEditor = editor;
             editor.focus();
             editor.formatter.register("font8px", {
                 inline: "span",
@@ -75,11 +76,11 @@ export class BPCommentEditController {
                 text: "",
                 icon: "format",
                 menu: [
-                    { icon: "strikethrough", text: " Strikethrough", onclick: function () { tinymce.execCommand("strikethrough"); } },
-                    { icon: "bullist", text: " Bulleted list", onclick: function () { tinymce.execCommand("InsertUnorderedList"); } },
-                    { icon: "numlist", text: " Numeric list", onclick: function () { tinymce.execCommand("InsertOrderedList"); } },
-                    { icon: "outdent", text: " Outdent", onclick: function () { tinymce.execCommand("Outdent"); } },
-                    { icon: "indent", text: " Indent", onclick: function () { tinymce.execCommand("Indent"); } }
+                    { icon: "strikethrough", text: " Strikethrough", onclick: function () { editor.editorCommands.execCommand("strikethrough"); } },
+                    { icon: "bullist", text: " Bulleted list", onclick: function () { editor.editorCommands.execCommand("InsertUnorderedList"); } },
+                    { icon: "numlist", text: " Numeric list", onclick: function () { editor.editorCommands.execCommand("InsertOrderedList"); } },
+                    { icon: "outdent", text: " Outdent", onclick: function () { editor.editorCommands.execCommand("Outdent"); } },
+                    { icon: "indent", text: " Indent", onclick: function () { editor.editorCommands.execCommand("Indent"); } }
                 ]
             });
             editor.addButton("fontsize", {
@@ -121,7 +122,7 @@ export class BPCommentEditController {
     public callPostComment() {
         if (!this.isWaiting) {
             this.isWaiting = true;
-            this.postComment({ comment: tinymce.activeEditor ? tinymce.activeEditor.contentDocument.body.innerHTML : "" }).finally(() => {
+            this.postComment({ comment: this.commentEditor ? (<any>this.commentEditor).contentDocument.body.innerHTML : "" }).finally(() => {
                 this.isWaiting = false;
             });
         }

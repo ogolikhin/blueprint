@@ -93,14 +93,15 @@ namespace Utilities.Facades
         /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
         /// <param name="queryParameters">(optional) List of query parameters to add to the request.</param>
         /// <param name="cookies">(optional) List of cookies to add to the request.</param>
+        /// <param name="requestTimeout">(optional) The request timeout in milliseconds.  Default timeout is 5 mins.</param>
         /// <returns>An IRestRequest object.</returns>
         private IRestRequest CreateRequest(RestClient client,
             string resourcePath,
             RestRequestMethod method,
             Dictionary<string, string> additionalHeaders = null,
             Dictionary<string, string> queryParameters = null,
-            Dictionary<string, string> cookies = null
-            )
+            Dictionary<string, string> cookies = null,
+            int requestTimeout = 300000)
         {
             // Only use BasicAuthenticator if we passed a Username & Password but no Token.
             // NOTE: This should only be needed in the OpenApi Login REST call.
@@ -159,6 +160,7 @@ namespace Utilities.Facades
                 }
             }
 
+            request.Timeout = requestTimeout;
             return request;
         }
 

@@ -159,6 +159,7 @@ namespace Utilities.Facades
                 }
             }
 
+            request.Timeout = 300 * 1000;   // Set timeout to 5 mins.
             return request;
         }
 

@@ -190,7 +190,7 @@ namespace ArtifactStoreTests
         [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestRail(182509)]
         [Description("Create two artifacts: main artifact that has inline trace to inlinetrace artifact. Update the inlinetrace artifact information - Verify that GetArtifactDetails call returns updated inline trace information.")]
-        public void GetArtifactDetails_UpdateInlineTraceArtifact_ReturnsUpdatedInlineTranceLink(
+        public void GetArtifactDetails_UpdateInlineTraceArtifact_ReturnsUpdatedInlineTraceLink(
             BaseArtifactType baseArtifactType )
         {
             // Setup: Create tow artifacts: main artifact and inline trace artifact with the same user on the same project
@@ -280,7 +280,7 @@ namespace ArtifactStoreTests
         [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestRail(182550)]
         [Description("Create two artifacts: main and inlinetrace on different project. - Verify that GetArtifactDetails call returns invalid inline trace link if the user doesn't have the access permission for the inlinetrace artifact")]
-        public void GetArtifactDetails_GetArtifactDetailsUsingUserWithoutPermissionToInlineTraceArtifact_ReturnsInvalidInlineTranceLink(
+        public void GetArtifactDetails_GetArtifactDetailsUsingUserWithoutPermissionToInlineTraceArtifact_ReturnsInvalidInlineTraceLink(
             BaseArtifactType baseArtifactType )
         {
             // Setup: Get projects available from testing environment

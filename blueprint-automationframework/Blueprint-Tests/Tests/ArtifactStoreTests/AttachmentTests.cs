@@ -42,8 +42,7 @@ namespace ArtifactStoreTests
             _attachmentFile = FileStoreTestHelper.CreateFileWithRandomByteArray(_fileSize, _fileName, "text/plain");
             _novaAttachmentFile = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime,
                 Helper.FileStore);
-            _authorUser = TestHelper.CreateUserWithProjectRolePermissions(Helper, TestHelper.ProjectRole.Author,
-                new List<IProject> { _project });
+            _authorUser = TestHelper.CreateUserWithProjectRolePermissions(Helper, TestHelper.ProjectRole.Author, _project);
         }
 
         [TearDown]
@@ -528,12 +527,13 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, version1attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
             Assert.AreEqual(2, version2attachment.AttachedFiles.Count, "List of attached files must have 2 items.");
-            Assert.IsFalse(version2attachment.AttachedFiles[0].AttachmentId == version2attachment.AttachedFiles[1].AttachmentId);
-            Assert.IsTrue(version2attachment.AttachedFiles[0].AttachmentId == version1attachment.AttachedFiles[0].AttachmentId);
+            Assert.IsFalse(version2attachment.AttachedFiles[0].AttachmentId == version2attachment.AttachedFiles[1].AttachmentId,
+                "AttachmentId should be different for different attachments.");
+            Assert.IsTrue(version2attachment.AttachedFiles[0].AttachmentId == version1attachment.AttachedFiles[0].AttachmentId,
+                "AttachmentId for the file must be the same across all versions.");
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.UnderDevelopment)]// artifact deletion in TearDown gives 401
         [TestRail(182503)]
         [Description("Create and publish artifact (admin), add attachment and publish (author), set artifact's permission to none for author, get attachments for version 1 should return 403 for author.")]
         public void GetAttachmentSpecifyVersion_UserHaveNoPermissionFromVersion2_Returns403()
@@ -549,7 +549,6 @@ namespace ArtifactStoreTests
                 Helper.ArtifactStore.PublishArtifact(artifact, _authorUser);
                 //versionId = 2 - 1 attachment - _novaAttachmentFile
 
-                Helper.AdminStore.DeleteSession(_authorUser);//'logoff' before changing permissions
                 TestHelper.AssignProjectRolePermissionsToUser(_authorUser, Helper, TestHelper.ProjectRole.None, _project, artifact);
                 //now _userAuthorLicense has no access to artifact
 

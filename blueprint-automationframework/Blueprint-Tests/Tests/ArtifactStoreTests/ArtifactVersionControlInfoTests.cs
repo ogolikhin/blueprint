@@ -148,7 +148,7 @@ namespace ArtifactStoreTests
         }
 
         [TestCase(BaseArtifactType.Actor)]
-        [TestRail(0)]
+        [TestRail(182551)]
         [Description("Create, publish & lock an artifact.  Verify the basic artifact information returned with HasChanges flag set to true.")]
         public void VersionControlInfo_PublishedAndLockedArtifact_HasChanges_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
         {

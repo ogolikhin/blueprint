@@ -508,8 +508,6 @@ namespace Helper
                 AssignProjectRolePermissionsToUser(newUser, testHelper, role, project);
             }
 
-            testHelper.AdminStore.AddSession(newUser);
-
             Logger.WriteInfo("User {0} created.", newUser.Username);
 
             Logger.WriteTrace("{0}.{1} finished.", nameof(TestHelper), nameof(CreateUserWithProjectRolePermissions));

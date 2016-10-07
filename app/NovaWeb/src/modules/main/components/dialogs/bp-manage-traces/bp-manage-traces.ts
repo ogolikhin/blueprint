@@ -58,10 +58,6 @@ export class ManageTracesDialogController extends BaseDialogController {
         this.clearSelected();
     };
 
-    public $onChanges(changesObj) {
-        console.log(changesObj);
-    }
-
     public clearSelected() {
         if (this.selectedTraces[this.data.artifactId]) {
             this.selectedTraces[this.data.artifactId].forEach(function (item) {

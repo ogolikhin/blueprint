@@ -126,6 +126,10 @@ describe("to and from HTML", () => {
 <a href="/folder1/accepted" class="label" title="Accepted">Accepted</a>
 <a href="/folder2/declined" class="label" title="Declined">Declined</a>
 <a href="#" onclick="javascript:alert('Popup!')" style="font-family:'Wingdings';" class="popup" title="Popup">Popup</a></div>`;
+    let emptyHtml = `<div><h3 class="heading" style="font-family: Wingdings"></h3>
+<a href="/folder1/accepted" class="label" title="Accepted"></a>
+<a href="/folder2/declined" class="label" title="Declined"></a>
+<a href="#" onclick="javascript:alert('Popup!')" style="font-family:'Wingdings';" class="popup" title="Popup"></a></div>`;
 
     describe("stripHTMLTags", () => {
         it("retrieves the text content of an HTML structure", () => {
@@ -170,6 +174,95 @@ Popup`);
             // Assert
             expect(text).not.toContain("Wingdings");
         });
+    });
+
+    describe("tagsContainText", () => {
+        it("returns true when there is text in a HTML structure", () => {
+            // Arrange
+            let bool;
+
+            // Act
+            bool = Helper.tagsContainText(html);
+
+            // Assert
+            expect(bool).toBeTruthy();
+        });
+
+        it("returns false when there is no text in a HTML structure", () => {
+            // Arrange
+            let bool;
+
+            // Act
+            bool = Helper.tagsContainText(emptyHtml);
+
+            // Assert
+            expect(bool).toBeFalsy();
+        });
+    });
+});
+
+describe("addTableBorders", () => {
+    it("should add default borders to cells with no borders", () => {
+        // Arrange/Act
+        let node = document.createElement("div");
+        /* tslint:disable */
+        node.innerHTML = `<table>
+<tr>
+    <td>A</td>
+    <td style="border-color: transparent; border-width: 0 10px 10pt">B</td>
+</tr>
+<tr>
+    <td style="border-color: red; border-width: 2px">C</td>
+    <td style="border-color: green;">C</td>
+</tr>
+</table>`;
+        /* tslint:enable */
+
+        Helper.addTableBorders(node);
+
+        let td = node.querySelectorAll("td");
+        // Assert
+        expect(td[0].style.borderWidth).toBe("1px");
+        expect(td[1].style.borderWidth).toBe("1px");
+        expect(td[2].style.borderWidth).toBe("2px");
+        expect(td[3].style.borderWidth).toBe("1px");
+        expect(td[0].style.borderColor).toBe("black");
+        expect(td[1].style.borderColor).toBe("black");
+        expect(td[2].style.borderColor).toBe("red");
+        expect(td[3].style.borderColor).toBe("green");
+    });
+});
+
+describe("setFontFamilyOrOpenSans", () => {
+    it("should add Open Sans if the tags don't have a font definition", () => {
+        // Arrange/Act
+        let node = document.createElement("div");
+        /* tslint:disable */
+        node.innerHTML = "<table><tr><td>Table</td></tr></table>" +
+            "<p style='font-family: Arial, sans-serif'>Arial Default</p>" +
+            "<p style='font-family: Arial, sans-serif'><em>Arial Em</em></p>" +
+            "<p style='font-family: Arial, sans-serif'><strong>Arial Strong</strong></p>" +
+            "<p>Default</p>" +
+            "<p><em>Em</em></p>" +
+            "<p><strong>Strong</strong></p>" +
+            "<p style='font-family: Arial, sans-serif'><strong><span style='font-size: 18px'>Bold 18px</span></strong></p>" +
+            "<p style='font-family: Arial, sans-serif'><em><span style='font-family: Verdana'>Verdana Em</span></em></p>";
+        /* tslint:enable */
+
+        Helper.setFontFamilyOrOpenSans(node);
+
+        let td = node.querySelector("td");
+        let p = node.querySelectorAll("p");
+        // Assert
+        expect((<HTMLElement> td.firstElementChild).style.fontFamily).toContain("Open Sans");
+        expect((<HTMLElement> p[0].firstElementChild).style.fontFamily).toContain("Arial");
+        expect((<HTMLElement> p[1].firstElementChild.firstElementChild).style.fontFamily).toContain("Arial");
+        expect((<HTMLElement> p[2].firstElementChild.firstElementChild).style.fontFamily).toContain("Arial");
+        expect((<HTMLElement> p[3].firstElementChild).style.fontFamily).toContain("Open Sans");
+        expect((<HTMLElement> p[4].firstElementChild.firstElementChild).style.fontFamily).toContain("Open Sans");
+        expect((<HTMLElement> p[5].firstElementChild.firstElementChild).style.fontFamily).toContain("Open Sans");
+        expect((<HTMLElement> p[6].firstElementChild.firstElementChild).style.fontFamily).toContain("Arial");
+        expect((<HTMLElement> p[7].firstElementChild.firstElementChild).style.fontFamily).toContain("Verdana");
     });
 });
 

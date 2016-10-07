@@ -42,7 +42,7 @@ namespace SearchService.Repositories
 
             var prm = new DynamicParameters();
             prm.Add("@userId", userId);
-            prm.Add("@query", GetQuery(searchCriteria.Query));
+            prm.Add("@query", searchCriteria.Query);
             prm.Add("@projectIds", SqlMapperHelper.ToInt32Collection(searchCriteria.ProjectIds));            
             prm.Add("@primitiveItemTypePredefineds", SqlMapperHelper.ToInt32Collection(new[]
             {

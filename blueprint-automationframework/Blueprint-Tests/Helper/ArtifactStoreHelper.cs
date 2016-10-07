@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using Common;
 using Model;
 using Model.ArtifactModel;
-using NUnit.Framework;
-using Utilities;
+using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.NovaModel;
+using NUnit.Framework;
+using System.Collections.Generic;
 using System.Linq;
-using Common;
+using Utilities;
 using Utilities.Facades;
 
 namespace Helper
@@ -195,6 +197,110 @@ namespace Helper
                 contentType);
 
             return response.Content;
+        }
+
+        /// <summary>
+        /// Attaches file to the artifact (Save changes).
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
+        /// <param name="artifact">Artifact.</param>
+        /// <param name="files">List of files to attach.</param>
+        /// <param name="artifactStore">IArtifactStore.</param>
+        public static void AddArtifactAttachmentAndSave(IUser user, IArtifact artifact, List<INovaFile> files, IArtifactStore artifactStore)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(files, nameof(files));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
+            artifact.Lock(user);
+            NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            foreach (var file in files)
+            {
+                artifactDetails.AttachmentValues.Add(new AttachmentValue(user, file));
+            }   
+
+            Artifact.UpdateArtifact(artifact, user, artifactDetails, artifactStore.Address);
+            var attachment = artifactStore.GetAttachments(artifact, user);
+            Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
+        }
+
+        /// <summary>
+        /// deletes file from the artifact (Save changes).
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
+        /// <param name="artifact">Artifact.</param>
+        /// <param name="fileId">Id of the file to delete. File must be attached to the artifact.</param>
+        /// <param name="artifactStore">IArtifactStore.</param>
+        public static void DeleteArtifactAttachmentAndSave(IUser user, IArtifact artifact, int fileId, IArtifactStore artifactStore)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
+            var attachment = artifactStore.GetAttachments(artifact, user);
+            Assert.IsNotNull(attachment, "Getattachments shouldn't return null.");
+            Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
+            var fileToDelete = attachment.AttachedFiles.FirstOrDefault(f => f.AttachmentId == fileId);
+            Assert.AreEqual(fileId, fileToDelete.AttachmentId, "Attachments must contain file with fileId.");
+
+            artifact.Lock(user);
+            NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            artifactDetails.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
+
+            Artifact.UpdateArtifact(artifact, user, artifactDetails, artifactStore.Address);
+        }
+
+        /// <summary>
+        /// Creates inline trace text for the provided artifact. For use with RTF properties.
+        /// </summary>
+        /// <param name="inlineTraceArtifact">target artifact for inline traces</param>
+        /// <param name="inlineTraceArtifactDetails">target artifactDetails for inline traces</param>
+        /// <returns>inline trace text</returns>
+        public static string CreateArtifactInlineTraceValue(IArtifactBase inlineTraceArtifact, INovaArtifactDetails inlineTraceArtifactDetails)
+        {
+            ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
+            ThrowIf.ArgumentNull(inlineTraceArtifactDetails, nameof(inlineTraceArtifactDetails));
+
+            string inlineTraceText = null;
+
+            inlineTraceText = I18NHelper.FormatInvariant("<html><head></head><body style=\"padding: 1px 0px 0px; font-family: 'Portable User Interface'; font-size: 10.67px\"><div style=\"padding: 0px\"><p style=\"margin: 0px\">&#x200b;<a linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null\" canclick=\"True\" isvalid=\"True\" href=\"{0}?ArtifactId={1}\" target=\"_blank\" artifactid=\"{1}\" style=\"font-family: 'Portable User Interface'; font-size: 11px; font-style: normal; font-weight: normal; text-decoration: underline; color: #0000FF\" title=\"Project: akim_project\"><span style=\"font-family: 'Portable User Interface'; font-size: 11px; font-style: normal; font-weight: normal; text-decoration: underline; color: #0000FF\">{2}{1}: {3}</span></a><span style=\"-c1-editable: true; font-family: 'Portable User Interface'; font-size: 10.67px; font-style: normal; font-weight: normal; color: Black\">&#x200b;</span></p></div></body></html>",
+                inlineTraceArtifact.Address, inlineTraceArtifact.Id, inlineTraceArtifactDetails.Prefix, inlineTraceArtifactDetails.Name);
+
+            return inlineTraceText;
+        }
+
+        /// <summary>
+        /// Check if the inline trace link is valid or not.
+        /// </summary>
+        /// <param name="inlineTraceLink">The inlinetrace link to validate</param>
+        /// <returns> returnes true if the inline trace link is valid inline trace link</returns>
+        private static bool IsValidInlineTrace(string inlineTraceLink)
+        {
+            string validTag = "isValid=\"True\"";
+
+            return inlineTraceLink.Contains(validTag);
+        }
+
+        /// <summary>
+        /// Validates inline trace link returned from artifact details
+        /// </summary>
+        /// <param name="artifactdetails">the artifact details with the inline trace link which needs validation</param>
+        /// <param name="inlineTraceArtifact">the inline trace artifact the inline trace link pointing to</param>
+        /// <param name="validInlineTraceLink">the boolean represents if the link is to be valid or not</param>
+        public static void ValidateInlineTraceLinkFromArtifactDetails(NovaArtifactDetails artifactdetails, IArtifactBase inlineTraceArtifact, bool validInlineTraceLink)
+        {
+            ThrowIf.ArgumentNull(artifactdetails, nameof(artifactdetails));
+            ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
+
+            // Validation: Verify that the artifactDeatils' description field which contain inline trace link contains the valid inline trace information (name of the inline trace artifact)
+            Assert.That(artifactdetails.Description.Contains(inlineTraceArtifact.Name), "Expected outcome should not contains {0} on returned artifactdetails. Returned inline trace content is {1}.", inlineTraceArtifact.Name, artifactdetails.Description);
+
+            if (!validInlineTraceLink)
+            {
+                // Validation: Verify that the artifactdetails' description contains invalid inline trace link
+                Assert.IsFalse(IsValidInlineTrace(artifactdetails.Description), "Expected invalid inlineTraceLink from returned artifactdetails. Returned valid inline trace content. The returned inlinetrace link is {0}.", artifactdetails.Description);
+            }
         }
     }
 }

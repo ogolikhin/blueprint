@@ -43,9 +43,8 @@ export class ArtifactRelationships implements IArtifactRelationships {
         const deferred = this.statefulItem.getServices().getDeferred<IRelationship[]>();
 
         if (this.isLoaded && !refresh) {
-            let copy = angular.copy(this.relationships);
-            deferred.resolve(copy);
-            this.subject.onNext(copy);
+            deferred.resolve(this.relationships);
+            this.subject.onNext(this.relationships);
         } else {
             this.statefulItem.getRelationships().then((result: IArtifactRelationshipsResultSet) => {
                 const manual = result.manualTraces || [];

@@ -144,11 +144,13 @@
         },
         getAllDataAttributes: function (el) {
             var o = {};
-            Array.prototype.slice.call(el.attributes).forEach(function (at) {
-                if (/^data-/.test(at.name)) {
-                    o[at.name.replace(/^data-/, "")] = at.value;
-                }
-            });
+            if (el.attributes) {
+                Array.prototype.slice.call(el.attributes).forEach(function (at) {
+                    if (/^data-/.test(at.name)) {
+                        o[at.name.replace(/^data-/, "")] = at.value;
+                    }
+                });
+            }
             return o;
         },
         closest: function (el, selector) {

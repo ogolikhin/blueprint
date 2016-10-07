@@ -75,8 +75,12 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         //Subscriber to support refresh case.
         this.subscribers = this.subscribers.filter(subscriber => { subscriber.dispose(); return false; });
         if (subArtifact) {
-            this.subscribers.push(
-                subArtifact.getObservable().subscribe((subArtif) => { this.onSelectedItemModified(artifact, subArtif, timeout); }));
+            if (!Helper.hasArtifactEverBeenSavedOrPublished(subArtifact)) {  
+                this.resetReadOnly();
+            } else {
+                this.subscribers.push(
+                    subArtifact.getObservable().subscribe((subArtif) => { this.onSelectedItemModified(artifact, subArtif, timeout); }));
+            }
         } else if (artifact) {
             this.subscribers.push(
                 artifact.getObservable().subscribe((artif) => { this.onSelectedItemModified(artif, null, timeout); }));
@@ -89,10 +93,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         this.showAddComment = false;
         if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
             this.artifactId = artifact.id;
-            this.subArtifact = subArtifact;
-            if (this.subArtifact && !Helper.hasArtifactEverBeenSavedOrPublished(subArtifact)) {  
-                this.resetReadOnly();
-            }
+            this.subArtifact = subArtifact;           
             return this.setEverPublishedAndDiscussions(artifact.version, timeout);
         } else {
             this.resetReadOnly();

@@ -237,8 +237,6 @@ namespace ArtifactStoreTests
             return artifactBaseInfo;
         }
 
-//        private VerifyBasicArtifactInfo
-
         #endregion private calls
     }
 }

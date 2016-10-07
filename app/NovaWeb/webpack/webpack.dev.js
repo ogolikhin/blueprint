@@ -2,6 +2,7 @@ var webpack = require('webpack');
 var path = require('path');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 var loaders = require("./loaders");
 var vendor_libs = require('./vendors');
@@ -41,7 +42,7 @@ module.exports = {
     },
     output: {
         publicPath: "/novaweb/",
-        path: path.resolve(APP + '../dist/novaweb/'),
+        path: path.resolve(_APP + '../dist/novaweb/'),
         filename: '[name].bundle.js'
     },
     devServer: {
@@ -55,6 +56,11 @@ module.exports = {
         historyApiFallback: true
     },
     plugins: [
+        new HtmlWebpackPlugin({
+            template: './index.html',
+            filename: '../index.html',
+            inject: false
+        }),
         new ExtractTextPlugin("[name].css"),
         new webpack.HotModuleReplacementPlugin(),
         new webpack.optimize.CommonsChunkPlugin("vendor", "vendor.bundle.js"),

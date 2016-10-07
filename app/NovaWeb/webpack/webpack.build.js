@@ -3,6 +3,7 @@ var path = require('path');
 
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 var loaders = require("./loaders");
 var vendor_libs = require('./vendors');
@@ -24,6 +25,16 @@ module.exports = {
         filename: '[name].bundle.js'
     },
     plugins: [
+        new HtmlWebpackPlugin({
+            template: './index.html',
+            filename: '../index.html',
+            inject: false,
+            minify:{
+                collapseWhitespace:true,
+                removeComments:true,
+                caseSensitive:true
+            }
+        }),
         new ExtractTextPlugin("[name].css"),
         new webpack.optimize.UglifyJsPlugin({
             compress: {

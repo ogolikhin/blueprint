@@ -266,10 +266,10 @@ describe("Component BPPropertiesPanel", () => {
             let width = 100;
             let height = 200;
 
-            let xPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValues(1, x, Models.PropertyTypePredefined.X);
-            let yPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValues(1, y, Models.PropertyTypePredefined.Y);
-            let widthPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValues(1, width, Models.PropertyTypePredefined.Width);
-            let heightPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValues(1, height, Models.PropertyTypePredefined.Height);
+            let xPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValue(1, x, Models.PropertyTypePredefined.X);
+            let yPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValue(1, y, Models.PropertyTypePredefined.Y);
+            let widthPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValue(1, width, Models.PropertyTypePredefined.Width);
+            let heightPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValue(1, height, Models.PropertyTypePredefined.Height);
             
             spyOn(metadataService, "getSubArtifactItemType").and.returnValue(
                 {   predefinedType: Models.ItemTypePredefined.BPShape,
@@ -323,10 +323,10 @@ describe("Component BPPropertiesPanel", () => {
             let y = 2;
             let width = 100;
             let height = 200;
-            let xPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValues(1, x, Models.PropertyTypePredefined.X);
-            let yPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValues(1, y, Models.PropertyTypePredefined.Y);
-            let widthPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValues(1, width, Models.PropertyTypePredefined.Width);
-            let heightPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValues(1, height, Models.PropertyTypePredefined.Height);
+            let xPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValue(1, x, Models.PropertyTypePredefined.X);
+            let yPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValue(1, y, Models.PropertyTypePredefined.Y);
+            let widthPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValue(1, width, Models.PropertyTypePredefined.Width);
+            let heightPropertyValue:Models.IPropertyValue = ArtifactServiceMock.createSpecificPropertyValue(1, height, Models.PropertyTypePredefined.Height);
             
             spyOn(metadataService, "getSubArtifactItemType").and.returnValue(
                 {   predefinedType: Models.ItemTypePredefined.PROShape,    

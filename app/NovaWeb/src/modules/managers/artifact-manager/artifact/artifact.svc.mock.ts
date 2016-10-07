@@ -86,7 +86,7 @@ export class ArtifactServiceMock implements IArtifactService {
         return result;
     }
 
-    public static createSpecificPropertyValues(versionId: number, value: any, typePredefined: Models.PropertyTypePredefined): Models.IPropertyValue {
+    public static createSpecificPropertyValue(versionId: number, value: any, typePredefined: Models.PropertyTypePredefined): Models.IPropertyValue {
 
         var result: Models.IPropertyValue = {
                 propertyTypeId: typePredefined,

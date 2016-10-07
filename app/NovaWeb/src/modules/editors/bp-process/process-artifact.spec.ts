@@ -159,7 +159,7 @@ describe("StatefulProcessArtifact", () => {
             expect(processArtifact.subArtifactCollection.list().length).toBe(processArtifact.shapes.length);        
         });
         
-        it("IProcessShapes are StatefulProcessSubArtifacts", () => {
+        it("IProcessShapes are StatefulProcessSubArtifacts with a valid state", () => {
             //Act
             processArtifact.getObservable();
             $rootScope.$digest();

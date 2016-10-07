@@ -560,7 +560,7 @@ namespace Helper
         /// <param name="testHelper">An instance of TestHelper</param>
         /// <param name="role">Author, Viewer or No permission role</param>
         /// <param name="project">The project that the role is created for</param>
-        /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide</param>
+        /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide
         /// after adding a new permissions role</param>
         public static void AssignProjectRolePermissionsToUser(IUser user, TestHelper testHelper, ProjectRole role, IProject project, IArtifactBase artifact = null)
         {

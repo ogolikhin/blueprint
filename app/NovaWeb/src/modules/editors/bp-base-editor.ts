@@ -25,9 +25,10 @@ export class BpBaseEditor {
             if (artifact) {
                 this.isLoading = true;
                 this.artifact = artifact;
-                this.artifactManager.selection.setArtifact(this.artifact);
                 //TODO come up with better way to fix bug in use case diagram when user selects actor/ use case
                 this.artifactManager.selection.setExplorerArtifact(this.artifact);
+                this.artifactManager.selection.setArtifact(this.artifact);
+                
                 const artifactObserver = artifact.getObservable()
                         .subscribe(this.onArtifactChanged, this.onArtifactError);
 

@@ -2,7 +2,7 @@ import { IWindowManager,  } from "../../../../main/services";
 import { BpArtifactInfoController } from "../../../../main/components/bp-artifact-info/bp-artifact-info";
 import { IMessageService, ILocalizationService} from "../../../../core";
 import { IDialogService } from "../../../../shared";
-import { IArtifactManager } from "../../../../managers";
+import { IArtifactManager, IProjectManager } from "../../../../managers";
 import { IToolbarCommunication } from "./toolbar-communication";
 import { ICommunicationManager } from "../../"; 
 import { ILoadingOverlayService } from "../../../../core/loading-overlay";
@@ -36,7 +36,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "communicationManager", 
         "loadingOverlayService",
         "navigationService",
-        "breadcrumbService"
+        "breadcrumbService",
+        "projectManager"
     ];
     
     constructor(
@@ -50,7 +51,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         communicationManager: ICommunicationManager,
         loadingOverlayService: ILoadingOverlayService,
         navigationService: INavigationService,
-        private breadcrumbService: IBreadcrumbService
+        private breadcrumbService: IBreadcrumbService,
+        protected projectManager: IProjectManager
     ) {
         super(
             $scope,
@@ -61,7 +63,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             dialogService,
             windowManager,
             loadingOverlayService,
-            navigationService
+            navigationService,
+            projectManager
         );
 
         this.breadcrumbLinks = [];

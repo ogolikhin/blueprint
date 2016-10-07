@@ -176,13 +176,13 @@ export class BpFieldTextRTFInlineController {
                         text: "",
                         icon: "format",
                         menu: [
-                            { icon: "strikethrough", text: " Strikethrough", onclick: function () { tinymce.execCommand("strikethrough"); } },
-                            { icon: "bullist", text: " Bulleted list", onclick: function () { tinymce.execCommand("InsertUnorderedList"); } },
-                            { icon: "numlist", text: " Numeric list", onclick: function () { tinymce.execCommand("InsertOrderedList"); } },
-                            { icon: "outdent", text: " Outdent", onclick: function () { tinymce.execCommand("Outdent"); } },
-                            { icon: "indent", text: " Indent", onclick: function () { tinymce.execCommand("Indent"); } },
+                            { icon: "strikethrough", text: " Strikethrough", onclick: function () { editor.editorCommands.execCommand("strikethrough"); } },
+                            { icon: "bullist", text: " Bulleted list", onclick: function () { editor.editorCommands.execCommand("InsertUnorderedList"); } },
+                            { icon: "numlist", text: " Numeric list", onclick: function () { editor.editorCommands.execCommand("InsertOrderedList"); } },
+                            { icon: "outdent", text: " Outdent", onclick: function () { editor.editorCommands.execCommand("Outdent"); } },
+                            { icon: "indent", text: " Indent", onclick: function () { editor.editorCommands.execCommand("Indent"); } },
                             { text: "-" },
-                            { icon: "removeformat", text: " Clear formatting", onclick: function () { tinymce.execCommand("RemoveFormat"); } }
+                            { icon: "removeformat", text: " Clear formatting", onclick: function () { editor.editorCommands.execCommand("RemoveFormat"); } }
                         ]
                     });
                     editor.addButton("fontsize", {

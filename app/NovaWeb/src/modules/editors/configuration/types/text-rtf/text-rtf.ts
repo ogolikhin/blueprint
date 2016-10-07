@@ -218,7 +218,7 @@ export class BpFieldTextRTFController {
                             {
                                 icon: "removeformat",
                                 text: " Clear formatting",
-                                onclick: function () { tinymce.execCommand("RemoveFormat"); }
+                                onclick: function () { editor.editorCommands.execCommand("RemoveFormat"); }
                             }
                         ]
                     });

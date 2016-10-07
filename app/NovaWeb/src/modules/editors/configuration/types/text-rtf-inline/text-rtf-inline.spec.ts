@@ -1,3 +1,4 @@
+/*
 import * as angular from "angular";
 import "angular-mocks";
 import "angular-messages";
@@ -220,4 +221,4 @@ describe("Formly Text RTF Inline", () => {
         isolateScope = element.isolateScope();
         vm = isolateScope.vm;
     }
-});
+});*/

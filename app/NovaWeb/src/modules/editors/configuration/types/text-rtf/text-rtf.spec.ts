@@ -60,6 +60,9 @@ describe("Formly Text RTF", () => {
     }
     let menuItems: IMenuItem[];
     let editor = {
+        editorCommands: {
+            execCommand: (command: string) => { }
+        },
         formatter: {
             apply: () => { },
             register: (a, b) => { }
@@ -73,7 +76,8 @@ describe("Formly Text RTF", () => {
         },
         getBody: () => {
             return tinymceBody;
-        }
+        },
+        on: () => { }
     };
 
     beforeEach(

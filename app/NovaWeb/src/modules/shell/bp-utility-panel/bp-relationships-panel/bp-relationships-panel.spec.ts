@@ -99,6 +99,40 @@ describe("Component BPRelationshipsPanel", () => {
             expect(directiveTest.element.find(".filter-bar").length).toBe(0);
             expect(directiveTest.element.find(".empty-state").length).toBe(1);
         }));
+    
+    it("should have empty traces for newly created sub-artifacts",
+        inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
+        //Arrange
+        const artifact = statefulArtifactFactory.createStatefulArtifact({
+            id: 2, 
+            name: "Artifact 2", 
+            version: 1
+        });
+        let processShape = {
+                projectId: 1,
+                parentId: 2,
+                id: -2, 
+                name: "SubArtifact 2", 
+                baseItemTypePredefined: null,
+                typePrefix: "PROS",
+                propertyValues: {},
+                associatedArtifact: null
+                
+        };
+        const subArtifact = statefulArtifactFactory.createStatefulProcessSubArtifact(artifact, processShape);
+
+        //Act
+        artifactManager.selection.setSubArtifact(subArtifact);
+        $rootScope.$digest();
+
+        //Assert
+        expect(vm.allTraces.length).toBe(0);
+        expect(vm.associations.length).toBe(0);
+        expect(vm.manualTraces.length).toBe(0);
+        expect(vm.otherTraces.length).toBe(0);
+        expect(vm.actorInherits.length).toBe(0);
+        expect(vm.documentReferences.length).toBe(0);
+    }));
 
     it("should load data for a selected artifact",
         inject(($rootScope: ng.IRootScopeService, processService: IProcessService, artifactManager: IArtifactManager,

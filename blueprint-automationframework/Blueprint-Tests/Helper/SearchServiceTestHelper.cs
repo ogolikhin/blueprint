@@ -52,7 +52,6 @@ namespace Helper
                 {
                     // Create artifact in first project with random Name & Description
                     var artifact = testHelper.CreateAndSaveArtifact(project, user, artifactType);
-                    artifact.Lock();
 
                     var propertiesToUpdate = new Dictionary<string, object>
                     {

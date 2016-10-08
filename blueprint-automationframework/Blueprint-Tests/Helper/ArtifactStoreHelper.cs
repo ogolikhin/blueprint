@@ -282,7 +282,7 @@ namespace Helper
         {
             const string validTag = "isValid=\"True\"";
 
-            return inlineTraceLink.Contains(validTag);
+            return inlineTraceLink.ToUpper(CultureInfo.InvariantCulture).Contains(validTag.ToUpper(CultureInfo.InvariantCulture));
         }
 
         /// <summary>

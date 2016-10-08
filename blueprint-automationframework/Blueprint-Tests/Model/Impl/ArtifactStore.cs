@@ -756,6 +756,7 @@ namespace Model.Impl
                         continue;
                     }
 
+                    publishedArtifact.LockOwner = null;
                     publishedArtifact.IsSaved = false;
 
                     // If the artifact was marked for deletion, then this publish operation actually deleted the artifact.

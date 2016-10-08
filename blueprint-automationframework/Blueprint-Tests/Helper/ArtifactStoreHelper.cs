@@ -6,6 +6,7 @@ using Model.Factories;
 using Model.NovaModel;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Utilities;
 using Utilities.Facades;
@@ -255,6 +256,26 @@ namespace Helper
         }
 
         /// <summary>
+        /// Creates a new NovaArtifactDetails with the published artifact
+        /// </summary>
+        /// <param name="artifact">The artifact which contains properties that NovaArtiactDetails refers to</param>
+        /// <param name="user">The user who will create the artifact.</param>
+        /// <returns>NovaArtifactDetails</returns>
+        public static NovaArtifactDetails CreateNovaArtifactDetailsWithArtifact(IArtifactBase artifact)
+        {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            NovaArtifactDetails novaArtifactDetails = new NovaArtifactDetails
+            {
+                Id = artifact.Id,
+                ProjectId = artifact.ProjectId,
+                ParentId = artifact.ParentId,
+                Version = artifact.Version,
+            };
+            return novaArtifactDetails;
+        }
+
+        /// <summary>
         /// Creates inline trace text for the provided artifact. For use with RTF properties.
         /// </summary>
         /// <param name="inlineTraceArtifact">target artifact for inline traces</param>
@@ -282,7 +303,7 @@ namespace Helper
         {
             const string validTag = "isValid=\"True\"";
 
-            return inlineTraceLink.Contains(validTag);
+            return inlineTraceLink.ToUpper(CultureInfo.InvariantCulture).Contains(validTag.ToUpper(CultureInfo.InvariantCulture));
         }
 
         /// <summary>

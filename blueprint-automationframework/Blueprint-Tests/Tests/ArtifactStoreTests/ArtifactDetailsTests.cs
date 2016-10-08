@@ -221,7 +221,7 @@ namespace ArtifactStoreTests
             var mainArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, mainArtifact.Id);
 
             // Validation: Verify that returned ArtifactDeatils contains the updated information for InlineTrace
-            ArtifactStoreHelper.ValidateInlineTraceLinkFromArtifactDetails(mainArtifactDetails, inlineTraceArtifact, true);
+            ArtifactStoreHelper.ValidateInlineTraceLinkFromArtifactDetails(mainArtifactDetails, inlineTraceArtifact, validInlineTraceLink: true);
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
@@ -262,8 +262,8 @@ namespace ArtifactStoreTests
             // Execute: Get ArtifactDetails for main artifact
             var mainArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, mainArtifact.Id);
 
-            // Validation: Verify that returned ArtifactDeatils contains invalid inline traceLink to the inlineTraceArtifact
-            ArtifactStoreHelper.ValidateInlineTraceLinkFromArtifactDetails(mainArtifactDetails, inlineTraceArtifact, validInlineTraceLink: false);
+            // Validation: Verify that returned ArtifactDeatils contains valid inline traceLink to the inlineTraceArtifact
+            ArtifactStoreHelper.ValidateInlineTraceLinkFromArtifactDetails(mainArtifactDetails, inlineTraceArtifact, validInlineTraceLink: true);
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]

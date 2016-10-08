@@ -197,23 +197,23 @@ namespace ArtifactStoreTests
             var inlineTraceArtifact = Helper.CreateAndPublishArtifact(_projects[0], _user, baseArtifactType);
             NovaArtifactDetails inlineTraceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, inlineTraceArtifact.Id);
 
-            // Setup: Update main artifact to have inline trace to inline trace artifact created
-            INovaArtifactDetails artifactDetailsToUpdateMainArtifact = ArtifactStoreHelper.CreateNovaArtifactDetailsWithArtifact(mainArtifact);
+            // Update main artifact to have inline trace to inline trace artifact created
+            NovaArtifactDetails artifactDetailsToUpdateMainArtifact = ArtifactStoreHelper.CreateNovaArtifactDetailsWithArtifact(mainArtifact);
             artifactDetailsToUpdateMainArtifact.Description = ArtifactStoreHelper.CreateArtifactInlineTraceValue(inlineTraceArtifact, inlineTraceArtifactDetails);
 
-            // Setup: Update and publish the main artifact with inline trace to target artifact
+            // Update and publish the main artifact with inline trace to target artifact
             mainArtifact.Lock();
-            Assert.DoesNotThrow(() => inlineTraceArtifactDetails = Artifact.UpdateArtifact(mainArtifact, _user, artifactDetailsChanges: (NovaArtifactDetails)artifactDetailsToUpdateMainArtifact),
+            Assert.DoesNotThrow(() => inlineTraceArtifactDetails = Artifact.UpdateArtifact(mainArtifact, _user, artifactDetailsChanges: artifactDetailsToUpdateMainArtifact),
                 "UpdateArtifact call failed when using the following artifact ID: {0}!", mainArtifact.Id);
             mainArtifact.Publish();
 
-            // Setup: Update inline trace artifact information
-            INovaArtifactDetails artifactDetailsToUpdateInlineTraceArtifact = ArtifactStoreHelper.CreateNovaArtifactDetailsWithArtifact(inlineTraceArtifact);
+            // Update inline trace artifact information
+            NovaArtifactDetails artifactDetailsToUpdateInlineTraceArtifact = ArtifactStoreHelper.CreateNovaArtifactDetailsWithArtifact(inlineTraceArtifact);
             artifactDetailsToUpdateInlineTraceArtifact.Name = inlineTraceArtifact.Name + "_NameUpdated";
 
-            // Setup: Update and publish the inline trace artifact
+            // Update and publish the inline trace artifact
             inlineTraceArtifact.Lock();
-            Assert.DoesNotThrow(() => inlineTraceArtifactDetails = Artifact.UpdateArtifact(inlineTraceArtifact, _user, artifactDetailsChanges: (NovaArtifactDetails)artifactDetailsToUpdateInlineTraceArtifact),
+            Assert.DoesNotThrow(() => inlineTraceArtifactDetails = Artifact.UpdateArtifact(inlineTraceArtifact, _user, artifactDetailsChanges: artifactDetailsToUpdateInlineTraceArtifact),
                 "UpdateArtifact call failed when using the following artifact ID: {0}!", inlineTraceArtifact.Id);
             inlineTraceArtifact.Publish();
 
@@ -234,28 +234,28 @@ namespace ArtifactStoreTests
             var mainProject = _projects[0];
             var secondProject = _projects[1];
 
-            // Setup: Create two artifacts: main artifact under main project and inline trace artifact under the second project
+            // Create two artifacts: main artifact under main project and inline trace artifact under the second project
             var mainArtifact = Helper.CreateAndPublishArtifact(mainProject, _user, baseArtifactType);
             var inlineTraceArtifact = Helper.CreateAndPublishArtifact(secondProject, _user, baseArtifactType);
             NovaArtifactDetails inlineTraceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, inlineTraceArtifact.Id);
 
-            // Setup: Update main artifact to have inline trace to inline trace artifact created
-            INovaArtifactDetails artifactDetailsToUpdateMainArtifact = ArtifactStoreHelper.CreateNovaArtifactDetailsWithArtifact(mainArtifact);
+            // Update main artifact to have inline trace to inline trace artifact created
+            NovaArtifactDetails artifactDetailsToUpdateMainArtifact = ArtifactStoreHelper.CreateNovaArtifactDetailsWithArtifact(mainArtifact);
             artifactDetailsToUpdateMainArtifact.Description = ArtifactStoreHelper.CreateArtifactInlineTraceValue(inlineTraceArtifact, inlineTraceArtifactDetails);
 
-            // Setup: Update and publish the main artifact with inline trace to target artifact
+            // Update and publish the main artifact with inline trace to target artifact
             mainArtifact.Lock();
-            Assert.DoesNotThrow(() => inlineTraceArtifactDetails = Artifact.UpdateArtifact(mainArtifact, _user, artifactDetailsChanges: (NovaArtifactDetails)artifactDetailsToUpdateMainArtifact),
+            Assert.DoesNotThrow(() => inlineTraceArtifactDetails = Artifact.UpdateArtifact(mainArtifact, _user, artifactDetailsChanges: artifactDetailsToUpdateMainArtifact),
                 "UpdateArtifact call failed when using the following artifact ID: {0}!", mainArtifact.Id);
             mainArtifact.Publish();
 
-            // Setup: Update inline trace artifact information
-            INovaArtifactDetails artifactDetailsToUpdateInlineTraceArtifact = ArtifactStoreHelper.CreateNovaArtifactDetailsWithArtifact(inlineTraceArtifact);
+            // Update inline trace artifact information
+            NovaArtifactDetails artifactDetailsToUpdateInlineTraceArtifact = ArtifactStoreHelper.CreateNovaArtifactDetailsWithArtifact(inlineTraceArtifact);
             artifactDetailsToUpdateInlineTraceArtifact.Name = inlineTraceArtifact.Name + "_NameUpdated";
 
-            // Setup: Update and publish the inline trace artifact
+            // Update and publish the inline trace artifact
             inlineTraceArtifact.Lock();
-            Assert.DoesNotThrow(() => inlineTraceArtifactDetails = Artifact.UpdateArtifact(inlineTraceArtifact, _user, artifactDetailsChanges: (NovaArtifactDetails)artifactDetailsToUpdateInlineTraceArtifact),
+            Assert.DoesNotThrow(() => inlineTraceArtifactDetails = Artifact.UpdateArtifact(inlineTraceArtifact, _user, artifactDetailsChanges: artifactDetailsToUpdateInlineTraceArtifact),
                 "UpdateArtifact call failed when using the following artifact ID: {0}!", inlineTraceArtifact.Id);
             inlineTraceArtifact.Publish();
 
@@ -277,17 +277,17 @@ namespace ArtifactStoreTests
             var inlineTraceArtifact = Helper.CreateAndPublishArtifact(_projects[0], _user, baseArtifactType);
             NovaArtifactDetails inlineTraceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, inlineTraceArtifact.Id);
 
-            // Setup: Update main artifact to have inline trace to inline trace artifact created
-            INovaArtifactDetails artifactDetailsToUpdateMainArtifact = ArtifactStoreHelper.CreateNovaArtifactDetailsWithArtifact(mainArtifact);
+            // Update main artifact to have inline trace to inline trace artifact created
+            NovaArtifactDetails artifactDetailsToUpdateMainArtifact = ArtifactStoreHelper.CreateNovaArtifactDetailsWithArtifact(mainArtifact);
             artifactDetailsToUpdateMainArtifact.Description = ArtifactStoreHelper.CreateArtifactInlineTraceValue(inlineTraceArtifact, inlineTraceArtifactDetails);
 
-            // Setup:  Update and publish the main artifact with inline trace to target artifact
+            // Update and publish the main artifact with inline trace to target artifact
             mainArtifact.Lock();
-            Assert.DoesNotThrow(() => inlineTraceArtifactDetails = Artifact.UpdateArtifact(mainArtifact, _user, artifactDetailsChanges: (NovaArtifactDetails)artifactDetailsToUpdateMainArtifact),
+            Assert.DoesNotThrow(() => inlineTraceArtifactDetails = Artifact.UpdateArtifact(mainArtifact, _user, artifactDetailsChanges: artifactDetailsToUpdateMainArtifact),
                 "UpdateArtifact call failed when using the following artifact ID: {0}!", mainArtifact.Id);
             mainArtifact.Publish();
 
-            // Setup: Delete and publish the inline trace artifact
+            // Delete and publish the inline trace artifact
             inlineTraceArtifact.Delete();
             inlineTraceArtifact.Publish();
 
@@ -308,22 +308,22 @@ namespace ArtifactStoreTests
             var mainProject = _projects[0];
             var secondProject = _projects[1];
 
-            // Setup: Create two artifacts: main artifact under main project and inline trace artifact under the second project
+            // Create two artifacts: main artifact under main project and inline trace artifact under the second project
             var mainArtifact = Helper.CreateAndPublishArtifact(mainProject, _user, baseArtifactType);
             var inlineTraceArtifact = Helper.CreateAndPublishArtifact(secondProject, _user, baseArtifactType);
             NovaArtifactDetails inlineTraceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, inlineTraceArtifact.Id);
 
-            // Setup: Update main artifact to have inline trace to inline trace artifact created
-            INovaArtifactDetails artifactDetailsToUpdateMainArtifact = ArtifactStoreHelper.CreateNovaArtifactDetailsWithArtifact(mainArtifact);
+            // Update main artifact to have inline trace to inline trace artifact created
+            NovaArtifactDetails artifactDetailsToUpdateMainArtifact = ArtifactStoreHelper.CreateNovaArtifactDetailsWithArtifact(mainArtifact);
             artifactDetailsToUpdateMainArtifact.Description = ArtifactStoreHelper.CreateArtifactInlineTraceValue(inlineTraceArtifact, inlineTraceArtifactDetails);
 
-            // Setup: Update and publish the main artifact with inline trace to target artifact
+            // Update and publish the main artifact with inline trace to target artifact
             mainArtifact.Lock();
             Assert.DoesNotThrow(() => inlineTraceArtifactDetails = Artifact.UpdateArtifact(mainArtifact, _user, artifactDetailsChanges: (NovaArtifactDetails)artifactDetailsToUpdateMainArtifact),
                 "UpdateArtifact call failed when using the following artifact ID: {0}!", mainArtifact.Id);
             mainArtifact.Publish();
 
-            // Setup: Create user with a permission only on main project
+            // Create user with a permission only on main project
             var userWithPermissionOnMainProject = TestHelper.CreateUserWithProjectRolePermissions(Helper, role: TestHelper.ProjectRole.Author, projects: new List<IProject> { mainProject });
 
             // Execute: Get ArtifactDetails for the main artifact using the user without permission to inline trace artifact

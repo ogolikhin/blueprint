@@ -254,19 +254,19 @@ namespace Helper
         /// <summary>
         /// Creates a new NovaArtifactDetails with the published artifact
         /// </summary>
-        /// <param name="publishedArtiact">The published artifact which contains properties that NovaArtiactDetails refers to</param>
+        /// <param name="artifact">The artifact which contains properties that NovaArtiactDetails refers to</param>
         /// <param name="user">The user who will create the artifact.</param>
         /// <returns>NovaArtifactDetails</returns>
-        public static INovaArtifactDetails CreateNovaArtifactDetailsWithArtifact(IArtifactBase publishedArtiact)
+        public static NovaArtifactDetails CreateNovaArtifactDetailsWithArtifact(IArtifactBase artifact)
         {
-            ThrowIf.ArgumentNull(publishedArtiact, nameof(publishedArtiact));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
             NovaArtifactDetails novaArtifactDetails = new NovaArtifactDetails
             {
-                Id = publishedArtiact.Id,
-                ProjectId = publishedArtiact.ProjectId,
-                ParentId = publishedArtiact.ParentId,
-                Version = publishedArtiact.Version,
+                Id = artifact.Id,
+                ProjectId = artifact.ProjectId,
+                ParentId = artifact.ParentId,
+                Version = artifact.Version,
             };
             return novaArtifactDetails;
         }

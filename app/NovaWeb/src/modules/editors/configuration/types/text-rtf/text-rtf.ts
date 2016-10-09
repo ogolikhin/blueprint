@@ -277,6 +277,7 @@ export class BpFieldTextRTFController {
                     if (scope.to && scope.to.required) {
                         isEmpty = !Helper.tagsContainText($modelValue);
                     }
+                    scope.to["isInvalid"] = isEmpty;
                     scope.options.validation.show = isEmpty;
                     return !isEmpty;
                 }

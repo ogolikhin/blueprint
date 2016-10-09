@@ -41,6 +41,16 @@
       padding-bottom: 3px;
     }
   }
+
+  > li.invalid {
+    > a,
+    > a:hover,
+    > a:focus {
+      border: 0;
+      border-bottom: 4px solid $brand-error;
+      padding-bottom: 3px;
+    }
+  }
 }
 
 // proof of concept

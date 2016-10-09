@@ -214,14 +214,14 @@ export class PropertyEditor {
             switch (context.primitiveType) {
                 case Models.PrimitiveType.Text:
                     field.type = context.isRichText ? (
-                        context.isMultipleAllowed ? "bpFieldTextRTF" : "bpFieldTextRTFInline"
+                        context.isMultipleAllowed ||
+                        Models.PropertyTypePredefined.Description === context.propertyTypePredefined ? "bpFieldTextRTF" : "bpFieldTextRTFInline"
                     ) : (
                         context.isMultipleAllowed ? "bpFieldTextMulti" : "bpFieldText"
                     );
                     field.defaultValue = context.stringDefaultValue;
                     if (context.isRichText && Enums.PropertyLookupEnum.Special !== context.lookup) {
-                        field.templateOptions["hideLabel"] = context.isMultipleAllowed ||
-                            Models.PropertyTypePredefined.Description === context.propertyTypePredefined;
+                        field.templateOptions["hideLabel"] = field.type === "bpFieldTextRTF";
                     }
                     break;
                 case Models.PrimitiveType.Date:

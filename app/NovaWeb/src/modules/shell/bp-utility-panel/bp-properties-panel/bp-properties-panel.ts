@@ -101,12 +101,11 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             if (subArtifact) {
                 this.selectedArtifact = artifact;
                 this.selectedSubArtifact = subArtifact;
-                if(Helper.hasArtifactEverBeenSavedOrPublished(subArtifact)) {
+                if (Helper.hasArtifactEverBeenSavedOrPublished(subArtifact)) {
                     //TODO: implement .getObservable
                     this.onUpdate();
                     this.subArtifactSubscriber = this.selectedSubArtifact.getObservable().subscribe(this.onSubArtifactChanged);
-                }
-                else{
+                } else {
                     this.reset(); 
                 }
                 
@@ -131,14 +130,15 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             this.artifactSubscriber.dispose();
         }
             
-    }
+    };
+
     protected onSubArtifactChanged = (it) => {
         this.onUpdate();
         if (this.subArtifactSubscriber) {
             this.subArtifactSubscriber.dispose();
         }
             
-    }
+    };
 
     // private onLoad(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<void> {
     //     let deferred = this.$q.defer<any>();
@@ -225,13 +225,12 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             return;
         }
 
+        //re-group fields
         if (true === propertyContext.isRichText && PropertyLookupEnum.Special === propertyContext.lookup) {
             this.systemFields.push(field);
-            return;
-        }
-
-        //re-group fields
-        if (true === propertyContext.isRichText) {
+        } else if (true === propertyContext.isRichText &&
+            (true === propertyContext.isMultipleAllowed || Models.PropertyTypePredefined.Description === propertyContext.propertyTypePredefined)
+        ) {
             this.richTextFields.push(field);
         } else if (PropertyLookupEnum.System === propertyContext.lookup) {
             this.systemFields.push(field);

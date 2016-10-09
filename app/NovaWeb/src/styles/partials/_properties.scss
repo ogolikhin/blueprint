@@ -879,7 +879,17 @@ pagecontent, bp-properties-panel {
 
       .mce-toolbar-grp {
         border-color: $gray-lighter;
-        border-width: 1px 1px 0 !important;;
+        border-width: 1px 1px 0 !important;
+        padding: 0;
+
+        .mce-flow-layout-item {
+          margin: 0;
+        }
+
+        .mce-btn button {
+          line-height: 19px;
+          padding: 3px 7px;
+        }
       }
 
       .mce-edit-area {

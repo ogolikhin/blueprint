@@ -35,6 +35,12 @@ export class BpFieldTextRTFController {
         let onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
         $scope.to.onChange = () => { };
 
+        const allowedFonts = ["Open Sans", "Arial", "Cambria", "Calibri", "Courier New", "Times New Roman", "Trebuchet MS", "Verdana"];
+        let fontFormats = "";
+        allowedFonts.forEach(function (font) {
+            fontFormats += `${font}=` + (font.indexOf(" ") !== -1 ? `"${font}";` : `${font};`);
+        });
+
         /* tslint:disable:max-line-length */
         const bodyBgColor = "#fbf8e7"; // this is $yellow-pale as defined in styles/modules/_variables.scss
         // pencil icon
@@ -56,14 +62,7 @@ export class BpFieldTextRTFController {
                 extended_valid_elements: "a[href|type|title|linkassemblyqualifiedname|text|canclick|isvalid|mentionid|isgroup|email|" +
                 "class|linkfontsize|linkfontfamily|linkfontstyle|linkfontweight|linktextdecoration|linkforeground|style|target|artifactid]",
                 // https://www.tinymce.com/docs/configure/content-formatting/#font_formats
-                font_formats: `Open Sans='Open Sans';` + //Portable User Interface,sans-serif
-                `Arial=Arial;` + //Helvetica,sans-serif
-                `Cambria=Cambria;` + //Georgia,serif
-                `Calibri=Calibri;` + //Candara,Segoe,Segoe UI,Optima,sans-serif
-                `Courier New="Courier New";` + //courier,monospace
-                `Times New Roman="Times New Roman";` + //Times,Baskerville,Georgia,serif
-                `Trebuchet MS="Trebuchet MS";` + //Lucida Grande,Lucida Sans Unicode,Lucida Sans,Tahoma,sans-serif
-                `Verdana=Verdana;`, //Geneva,sans-serif
+                font_formats: fontFormats,
                 // paste_enable_default_filters: false, // https://www.tinymce.com/docs/plugins/paste/#paste_enable_default_filters
                 paste_webkit_styles: "none", // https://www.tinymce.com/docs/plugins/paste/#paste_webkit_styles
                 paste_remove_styles_if_webkit: true, // https://www.tinymce.com/docs/plugins/paste/#paste_remove_styles_if_webkit
@@ -102,7 +101,7 @@ export class BpFieldTextRTFController {
                 paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
                     Helper.autoLinkURLText(args.node);
                     Helper.addTableBorders(args.node);
-                    Helper.setFontFamilyOrOpenSans(args.node);
+                    Helper.setFontFamilyOrOpenSans(args.node, allowedFonts);
                 },
                 init_instance_callback: (editor) => {
                     editor.formatter.register("font8", {
@@ -145,7 +144,7 @@ export class BpFieldTextRTFController {
                     let editorBody = editor.getBody();
                     Helper.autoLinkURLText(editorBody);
                     Helper.addTableBorders(editorBody);
-                    Helper.setFontFamilyOrOpenSans(editorBody);
+                    Helper.setFontFamilyOrOpenSans(editorBody, allowedFonts);
                     this.handleLinks(editorBody.querySelectorAll("a"));
 
                     // MutationObserver

@@ -1,8 +1,8 @@
 import { ILocalizationService } from "../../../../core";
 import { BaseDialogController, IDialogSettings, IDialogService, Helper } from "../../../../shared";
 import { Relationships, Models } from "../../../models";
-import { IDialogItem } from "../../../models/relationshipModels";
-import { ArtifactPickerNodeVM } from "../../bp-artifact-picker/bp-artifact-picker-node-vm";
+import { IDialogRelationshipItem } from "../../../models/relationshipModels";
+import { ArtifactPickerNodeVM, ArtifactNodeVM } from "../../bp-artifact-picker/bp-artifact-picker-node-vm";
 import {
     IStatefulItem,
     IArtifactManager,
@@ -50,7 +50,7 @@ export class ManageTracesDialogController extends BaseDialogController {
                 public localization: ILocalizationService,
                 public artifactManager: IArtifactManager,
                 public artifactRelationships: IArtifactRelationships,
-                public data: IDialogItem,
+                public data: IDialogRelationshipItem,
                 private dialogService: IDialogService,
     ) {
         super($uibModalInstance, dialogSettings);
@@ -96,7 +96,8 @@ export class ManageTracesDialogController extends BaseDialogController {
                 currentItemModel = currentItem.model;
 
             currentItemModel.itemId = currentItemModel.id;
-            currentItemModel.artifactId = currentItemModel.id;
+
+            currentItemModel.artifactId = currentItem instanceof ArtifactNodeVM ? currentItemModel.id : currentItemModel.parentId;
 
             let res = this.inArray(this.manualTraces, currentItemModel);
 
@@ -145,7 +146,7 @@ export class ManageTracesDialogController extends BaseDialogController {
             selectedTracesLength = traces.length;
 
         for (let i = 0; i < selectedTracesLength; i++) {
-            if (traces[i].hasAccess === true) {
+            if (traces[i].hasAccess) {
                 if (traces[i].suspect === true) {
                     this.hasFlagged = true;
                 }else {
@@ -155,7 +156,7 @@ export class ManageTracesDialogController extends BaseDialogController {
         }
 
         for (let i = 0; i < selectedTracesLength; i++) {
-            if (traces[i].hasAccess === true) {
+            if (traces[i].hasAccess) {
                 if (this.hasFlagged === true && this.hasUnFlagged !== true) {
                     traces[i].suspect = false;
                 } else {
@@ -179,6 +180,7 @@ export class ManageTracesDialogController extends BaseDialogController {
         });
     }
 
+    //TODO replace inArray when lodash added
     public deleteTrace(artifact: Relationships.IRelationship): void {
         this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace")).then( (confirmed) => {
             if (confirmed) {
@@ -206,6 +208,7 @@ export class ManageTracesDialogController extends BaseDialogController {
         }
     }
 
+    //TODO replace inArray when lodash added
     public inArray(array, item) {
         let found = false,
             index = -1;

@@ -9,7 +9,7 @@ import {
     IStatefulSubArtifact,
     IArtifactRelationships,
 } from "../../../managers/artifact-manager";
-import { IRelationship, LinkType, IDialogItem } from "../../../main/models/relationshipModels";
+import { IRelationship, LinkType, IDialogRelationshipItem } from "../../../main/models/relationshipModels";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 import { Helper } from "../../../shared/utils/helper";
@@ -241,7 +241,8 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
             header: this.localization.get("App_UP_Relationships_Manage_Traces")
         };
 
-        let data: IDialogItem = {
+        //TODO replace copy when lodash available
+        let data: IDialogRelationshipItem = {
             manualTraces: angular.copy(this.manualTraces2),
             artifactId: this.item.id,
             isItemReadOnly: false
@@ -249,7 +250,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
 
         this.dialogService.open(dialogSettings, data).then((result) => {
 
-            data.manualTraces = data.manualTraces.map(function (trace) {
+            data.manualTraces = data.manualTraces.map( (trace) => {
                 trace.isSelected = false;
                 return trace;
             });

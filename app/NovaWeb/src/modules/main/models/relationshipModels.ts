@@ -23,7 +23,7 @@ export interface IRelationshipView extends IRelationship {
     cssClass: string;
 }
 
-export interface IDialogItem {
+export interface IDialogRelationshipItem {
     manualTraces: IRelationship[];
     artifactId: number;
     isItemReadOnly: boolean;

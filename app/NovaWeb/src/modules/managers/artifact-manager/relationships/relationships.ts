@@ -8,7 +8,7 @@ export interface IArtifactRelationships {
     get(refresh?: boolean): ng.IPromise<IRelationship[]>;
     add(relationships: IRelationship[]);
     remove(relationships: IRelationship[]);
-    update(relationships: IRelationship[]);
+    update(relationships: IRelationship[]): IRelationship[];
     changes(): IRelationship[];
     refresh(): ng.IPromise<IRelationship[]>;
     discard();
@@ -100,7 +100,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
         throw Error("operation not supported");
     }
 
-    public updateManual(relationships: IRelationship[]) {
+    public updateManual(relationships: IRelationship[]): IRelationship[] {
         this.relationships = this.relationships.filter((relationship: IRelationship) =>
                 relationship.traceType !== LinkType.Manual);
 

@@ -92,7 +92,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         }
         
         //re-group fields
-        if (true === propertyContext.isRichText) {
+        if (true === propertyContext.isRichText && true === propertyContext.isMultipleAllowed) {
             this.richTextFields.push(field);
         } else if (Enums.PropertyLookupEnum.System === propertyContext.lookup) {
             this.systemFields.push(field);

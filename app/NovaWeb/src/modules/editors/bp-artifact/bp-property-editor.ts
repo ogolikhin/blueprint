@@ -213,7 +213,11 @@ export class PropertyEditor {
         } else {
             switch (context.primitiveType) {
                 case Models.PrimitiveType.Text:
-                    field.type = context.isRichText ? "bpFieldTextRTF" : (context.isMultipleAllowed ? "bpFieldTextMulti" : "bpFieldText");
+                    field.type = context.isRichText ? (
+                        context.isMultipleAllowed ? "bpFieldTextRTF" : "bpFieldTextRTFInline"
+                    ) : (
+                        context.isMultipleAllowed ? "bpFieldTextMulti" : "bpFieldText"
+                    );
                     field.defaultValue = context.stringDefaultValue;
                     if (context.isRichText && Enums.PropertyLookupEnum.Special !== context.lookup) {
                         field.templateOptions["hideLabel"] = context.isMultipleAllowed ||

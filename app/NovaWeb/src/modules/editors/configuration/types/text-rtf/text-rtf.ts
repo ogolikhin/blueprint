@@ -93,9 +93,9 @@ export class BpFieldTextRTFController {
                 paste_preprocess: function (plugin, args) { // https://www.tinymce.com/docs/plugins/paste/#paste_preprocess
                     // remove generic font family
                     let content = args.content;
-                    content = content.replace(/, ?sans-serif;/gi, ";");
-                    content = content.replace(/, ?serif;/gi, ";");
-                    content = content.replace(/, ?monospace;/gi, ";");
+                    content = content.replace(/, ?sans-serif([;'"])/gi, "$1");
+                    content = content.replace(/, ?serif([;'"])/gi, "$1");
+                    content = content.replace(/, ?monospace([;'"])/gi, "$1");
                     args.content = content;
                 },
                 paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
@@ -156,13 +156,13 @@ export class BpFieldTextRTFController {
                         });
 
                         const observerConfig = { attributes: false, childList: true, characterData: false, subtree: true };
-                        this.observer.observe(editor.getBody(), observerConfig);
+                        this.observer.observe(editorBody, observerConfig);
                     }
 
-                    this.contentBody = editor.getBody().innerHTML;
+                    this.contentBody = editorBody.innerHTML;
 
                     editor.on("Change", (e) => {
-                        let contentBody = editor.getBody().innerHTML;
+                        let contentBody = editorBody.innerHTML;
                         if (this.contentBody !== contentBody) {
                             this.contentBody = contentBody;
                             onChange(contentBody, $scope.fields[0], $scope);

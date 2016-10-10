@@ -35,6 +35,12 @@ export class BpFieldTextRTFController {
         let onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
         $scope.to.onChange = () => { };
 
+        const allowedFonts = ["Open Sans", "Arial", "Cambria", "Calibri", "Courier New", "Times New Roman", "Trebuchet MS", "Verdana"];
+        let fontFormats = "";
+        allowedFonts.forEach(function (font) {
+            fontFormats += `${font}=` + (font.indexOf(" ") !== -1 ? `"${font}";` : `${font};`);
+        });
+
         /* tslint:disable:max-line-length */
         const bodyBgColor = "#fbf8e7"; // this is $yellow-pale as defined in styles/modules/_variables.scss
         // pencil icon
@@ -46,8 +52,9 @@ export class BpFieldTextRTFController {
                 menubar: false,
                 toolbar: "fontselect fontsize | bold italic underline | forecolor format | link table",
                 statusbar: false,
-                content_style: `body.mce-content-body { font-family: 'Open Sans', sans-serif; font-size: 9pt; }
-                body:hover, body:focus { background: ${bodyBgColor} url(${bodyBgImage}) no-repeat right 5px top 6px; }
+                content_style: `html { overflow: visible !important; }
+                body.mce-content-body { font-family: 'Open Sans', sans-serif; font-size: 9pt; }
+                body:hover, body:focus { background: ${bodyBgColor} url(${bodyBgImage}) no-repeat right 5px top 6px; background-attachment: fixed; }
                 a:hover { cursor: pointer !important; }`,
                 invalid_elements: "img,frame,iframe,script",
                 invalid_styles: {
@@ -56,14 +63,7 @@ export class BpFieldTextRTFController {
                 extended_valid_elements: "a[href|type|title|linkassemblyqualifiedname|text|canclick|isvalid|mentionid|isgroup|email|" +
                 "class|linkfontsize|linkfontfamily|linkfontstyle|linkfontweight|linktextdecoration|linkforeground|style|target|artifactid]",
                 // https://www.tinymce.com/docs/configure/content-formatting/#font_formats
-                font_formats: `Open Sans='Open Sans';` + //Portable User Interface,sans-serif
-                `Arial=Arial;` + //Helvetica,sans-serif
-                `Cambria=Cambria;` + //Georgia,serif
-                `Calibri=Calibri;` + //Candara,Segoe,Segoe UI,Optima,sans-serif
-                `Courier New="Courier New";` + //courier,monospace
-                `Times New Roman="Times New Roman";` + //Times,Baskerville,Georgia,serif
-                `Trebuchet MS="Trebuchet MS";` + //Lucida Grande,Lucida Sans Unicode,Lucida Sans,Tahoma,sans-serif
-                `Verdana=Verdana;`, //Geneva,sans-serif
+                font_formats: fontFormats,
                 // paste_enable_default_filters: false, // https://www.tinymce.com/docs/plugins/paste/#paste_enable_default_filters
                 paste_webkit_styles: "none", // https://www.tinymce.com/docs/plugins/paste/#paste_webkit_styles
                 paste_remove_styles_if_webkit: true, // https://www.tinymce.com/docs/plugins/paste/#paste_remove_styles_if_webkit
@@ -94,15 +94,15 @@ export class BpFieldTextRTFController {
                 paste_preprocess: function (plugin, args) { // https://www.tinymce.com/docs/plugins/paste/#paste_preprocess
                     // remove generic font family
                     let content = args.content;
-                    content = content.replace(/, ?sans-serif;/gi, ";");
-                    content = content.replace(/, ?serif;/gi, ";");
-                    content = content.replace(/, ?monospace;/gi, ";");
+                    content = content.replace(/, ?sans-serif([;'"])/gi, "$1");
+                    content = content.replace(/, ?serif([;'"])/gi, "$1");
+                    content = content.replace(/, ?monospace([;'"])/gi, "$1");
                     args.content = content;
                 },
                 paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
                     Helper.autoLinkURLText(args.node);
                     Helper.addTableBorders(args.node);
-                    Helper.setFontFamilyOrOpenSans(args.node);
+                    Helper.setFontFamilyOrOpenSans(args.node, allowedFonts);
                 },
                 init_instance_callback: (editor) => {
                     editor.formatter.register("font8", {
@@ -145,7 +145,7 @@ export class BpFieldTextRTFController {
                     let editorBody = editor.getBody();
                     Helper.autoLinkURLText(editorBody);
                     Helper.addTableBorders(editorBody);
-                    Helper.setFontFamilyOrOpenSans(editorBody);
+                    Helper.setFontFamilyOrOpenSans(editorBody, allowedFonts);
                     this.handleLinks(editorBody.querySelectorAll("a"));
 
                     // MutationObserver
@@ -157,13 +157,13 @@ export class BpFieldTextRTFController {
                         });
 
                         const observerConfig = { attributes: false, childList: true, characterData: false, subtree: true };
-                        this.observer.observe(editor.getBody(), observerConfig);
+                        this.observer.observe(editorBody, observerConfig);
                     }
 
-                    this.contentBody = editor.getBody().innerHTML;
+                    this.contentBody = editorBody.innerHTML;
 
                     editor.on("Change", (e) => {
-                        let contentBody = editor.getBody().innerHTML;
+                        let contentBody = editorBody.innerHTML;
                         if (this.contentBody !== contentBody) {
                             this.contentBody = contentBody;
                             onChange(contentBody, $scope.fields[0], $scope);
@@ -278,6 +278,7 @@ export class BpFieldTextRTFController {
                     if (scope.to && scope.to.required) {
                         isEmpty = !Helper.tagsContainText($modelValue);
                     }
+                    scope.to["isInvalid"] = isEmpty;
                     scope.options.validation.show = isEmpty;
                     return !isEmpty;
                 }

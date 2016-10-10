@@ -63,10 +63,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     public getObservable(): Rx.Observable<IStatefulArtifact> {
         if (!this.isFullArtifactLoadedOrLoading()) {
             this.loadPromise = this.load();
-            var customPromises = this.getCustomArtifactPromisesForGetObservable();
+            const customPromises = this.getCustomArtifactPromisesForGetObservable();
 
-            var promisesToExecute  = [this.loadPromise];
-            promisesToExecute = promisesToExecute.concat(customPromises);
+            const promisesToExecute  = [this.loadPromise].concat(customPromises);            
 
             this.getServices().$q.all(promisesToExecute).then(() => {
                 this.subject.onNext(this);

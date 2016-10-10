@@ -365,8 +365,8 @@ namespace SearchServiceTests
         }
 
         [TestCase(1, TestHelper.ProjectRole.Viewer)]
-        [TestCase(1, TestHelper.ProjectRole.Author)]
-        [TestCase(0, TestHelper.ProjectRole.None)]
+        [TestCase(1, TestHelper.ProjectRole.AuthorFullAccess)]
+        [TestCase(1, TestHelper.ProjectRole.None)]
         [TestRail(182374)]
         [Description("Searching with the search criteria that matches with published artifacts using user have permission to certain project(s). Execute Search - Must return corresponding SearchResult based on user's permission per project")]
         public void FullTextSearch_SearchWithPermissionOnProjects_VerifyCorrespondingFullTextSearchItemsOnSearchResult(
@@ -391,6 +391,10 @@ namespace SearchServiceTests
 
             // Setup: Create user with the specific permission on project(s)
             var userWithSelectiveProjectPermission = TestHelper.CreateUserWithProjectRolePermissions(Helper, role: projectRole, projects: selectedProjects);
+            if (projectRole.Equals(TestHelper.ProjectRole.None))
+            {
+                publishedArtifactsForSelectedProjects.Clear();
+            }
 
             // Setup: Set the pageSize that displays all expecting search results for the user with permission on selected project(s)
             var customSearchPageSize = publishedArtifactsForSelectedProjects.Count();

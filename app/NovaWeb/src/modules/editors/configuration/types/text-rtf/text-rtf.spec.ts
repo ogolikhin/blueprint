@@ -1,4 +1,3 @@
-/*
 import * as angular from "angular";
 import "angular-mocks";
 import "angular-messages";
@@ -8,24 +7,26 @@ import "angular-ui-tinymce";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "tinymce";
+import { Helper } from "../../../../shared";
+import { BpFieldTextRTFController } from "./text-rtf";
 import { createFormlyModule } from "../../formly-config.mock";
 
-describe("Formly Text RTF Inline", () => {
+describe("Formly Text RTF", () => {
     let fieldsDefinition = [
         {
-            type: "bpFieldTextRTFInline",
+            type: "bpFieldTextRTF",
             key: "textRtf",
             templateOptions: {
                 required: true
             }
         },
         {
-            type: "bpFieldTextRTFInline",
+            type: "bpFieldTextRTF",
             key: "textRtfNotVal"
         }
     ];
 
-    let moduleName = createFormlyModule("formlyModuleTextRTFInline", [
+    let moduleName = createFormlyModule("formlyModuleTextRTF", [
         "ui.tinymce",
         "formly",
         "formlyBootstrap"
@@ -40,10 +41,12 @@ describe("Formly Text RTF Inline", () => {
     let template = `<formly-dir model="model"></formly-dir>`;
     let compile, scope, rootScope, element, node, isolateScope, vm;
 
+    let controller: BpFieldTextRTFController;
+
     let tinymceBody = document.createElement("div");
-    tinymceBody.innerHTML = `<p>This is a normal text</p><p>This is BOLD</p><p>This is ITALIC</p><p></p>` +
-        `<p>This is a link created as normal text: http://www.google.com</p>` +
-        `<p>This is a <a href="http://www.yahoo.com">link created inside Silverlight</a></p>` +
+    tinymceBody.innerHTML = `<p style="font-family: 'Courier New', monospace">This is a normal text</p><p>This is BOLD</p><p>This is ITALIC</p><p></p>` +
+        `<p style="font-family: 'Open Sans', sans-serif;">This is a link created as normal text: http://www.google.com</p>` +
+        `<p style="font-family: 'Times New Roman', serif;">This is a <a href="http://www.yahoo.com">link created inside Silverlight</a></p>` +
         `<p>This is an inline trace <a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink,` +
         ` BluePrintSys.RC.Client.SL.RichText, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null" canclick="True" isvalid="True"` +
         ` href="http://localhost:9801/?ArtifactId=365" target="_blank" artifactid="365">AC365: New Actor #365</a></p>`;
@@ -61,6 +64,9 @@ describe("Formly Text RTF Inline", () => {
     }
     let menuItems: IMenuItem[];
     let editor = {
+        editorCommands: {
+            execCommand: (command: string) => { }
+        },
         formatter: {
             apply: () => { },
             register: (a, b) => { }
@@ -74,16 +80,23 @@ describe("Formly Text RTF Inline", () => {
         },
         getBody: () => {
             return tinymceBody;
+        },
+        on: (eventName: string, callBack: Function) => {
+            callBack.call(null);
         }
     };
 
     beforeEach(
         inject(
-            ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+            ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $controller: ng.IControllerService) => {
                 rootScope = $rootScope;
                 compile = $compile;
                 scope = rootScope.$new();
                 scope.model = {};
+                scope.options = {};
+                scope.to = {};
+                scope.tinymceBody = tinymceBody;
+                controller = $controller(BpFieldTextRTFController, { $scope: scope });
             }
         )
     );
@@ -91,7 +104,7 @@ describe("Formly Text RTF Inline", () => {
     it("should be initialized properly", function () {
         compileAndSetupStuff({model: {textRtf: ""}});
 
-        let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTFInline");
+        let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTF");
         let fieldScope = angular.element(fieldNode[0]).isolateScope();
 
         expect(fieldNode.length).toBe(2);
@@ -102,7 +115,7 @@ describe("Formly Text RTF Inline", () => {
     it("should fail if empty", function () {
         compileAndSetupStuff({model: {textRtf: ""}});
 
-        let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTFInline")[0];
+        let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTF")[0];
         let fieldScope = angular.element(fieldNode).isolateScope();
 
         expect((<any>fieldScope).fc.$valid).toBeFalsy();
@@ -113,7 +126,7 @@ describe("Formly Text RTF Inline", () => {
     it("should succeed if empty, as not required", function () {
         compileAndSetupStuff({model: {textRtfNotVal: ""}});
 
-        let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTFInline")[1];
+        let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTF")[1];
         let fieldScope = angular.element(fieldNode).isolateScope();
 
         expect((<any>fieldScope).fc.$valid).toBeTruthy();
@@ -125,7 +138,7 @@ describe("Formly Text RTF Inline", () => {
     it("should fail if empty-like (empty HTML tags)", function () {
         compileAndSetupStuff({model: {textRtf: "<div><br> </div>"}});
 
-        let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTFInline")[0];
+        let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTF")[0];
         let fieldScope = angular.element(fieldNode).isolateScope();
 
         expect((<any>fieldScope).fc.$valid).toBeFalsy();
@@ -134,33 +147,16 @@ describe("Formly Text RTF Inline", () => {
         expect((<any>fieldScope).fc.$error.requiredCustom).toBeTruthy();
     });
 
-    // it("should allow changing the value", function () {
-    //     compileAndSetupStuff({model: {textRtf: "abcdefg"}});
-    //
-    //     let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTFInline")[0];
-    //     let fieldScope = angular.element(fieldNode).isolateScope();
-    //     let fieldGroup = fieldNode.querySelector(".tinymce-group");
-    //     console.log(fieldGroup);
-    //     let fieldInput = fieldNode.querySelector(".tinymce-body");
-    //
-    //     fieldInput.innerHTML = "hijklmno";
-    //     angular.element(fieldInput).triggerHandler("change");
-    //
-    //     expect((<any>fieldScope).fc.$valid).toBeTruthy();
-    //     expect((<any>fieldScope).fc.$invalid).toBeFalsy();
-    //     expect(scope.model.textRtf).not.toBe("abcdefg");
-    //     expect(scope.model.textRtf).toBe("hijklmno");
-    // });
-
-    it("tinyMCE init_instance_callback should call register and getBody", function () {
+    it("tinyMCE init_instance_callback should call register, getBody, on", function () {
         compileAndSetupStuff({model: {textRtf: ""}});
 
-        let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTFInline")[0];
+        let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTF")[0];
         let fieldScope = angular.element(fieldNode).isolateScope();
         let to = fieldScope["to"];
 
         spyOn(editor.formatter, "register").and.callThrough();
         spyOn(editor, "getBody").and.callThrough();
+        spyOn(editor, "on").and.callThrough();
 
         //Act
         to.tinymceOptions.init_instance_callback(editor);
@@ -168,12 +164,13 @@ describe("Formly Text RTF Inline", () => {
         //Assert
         expect(editor.formatter.register).toHaveBeenCalled();
         expect(editor.getBody).toHaveBeenCalled();
+        expect(editor.on).toHaveBeenCalled();
     });
 
     it("tinyMCE setup should call addButton", function () {
         compileAndSetupStuff({model: {textRtf: ""}});
 
-        let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTFInline")[0];
+        let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTF")[0];
         let fieldScope = angular.element(fieldNode).isolateScope();
         let to = fieldScope["to"];
 
@@ -189,7 +186,7 @@ describe("Formly Text RTF Inline", () => {
     it("tinyMCE setup should call apply after onclick call", function () {
         compileAndSetupStuff({model: {textRtf: ""}});
 
-        let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTFInline")[0];
+        let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTF")[0];
         let fieldScope = angular.element(fieldNode).isolateScope();
         let to = fieldScope["to"];
 
@@ -207,6 +204,65 @@ describe("Formly Text RTF Inline", () => {
         expect(editor.formatter.apply).toHaveBeenCalled();
     });
 
+    it("tinyMCE paste_preprocess should remove generic font families", function () {
+        compileAndSetupStuff({model: {textRtf: ""}});
+
+        let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTF")[0];
+        let fieldScope = angular.element(fieldNode).isolateScope();
+        let to = fieldScope["to"];
+        let args = {
+            content: tinymceBody.innerHTML
+        };
+
+        //Act
+        to.tinymceOptions.paste_preprocess(null, args);
+        let testDiv = document.createElement("div");
+        testDiv.innerHTML = args.content;
+        let p = testDiv.querySelectorAll("p");
+
+        //Assert
+        expect(p[0].style.fontFamily).not.toContain("monospace");
+        expect(p[1].style.fontFamily).not.toContain("sans-serif");
+        expect(p[1].style.fontFamily).not.toContain("serif");
+    });
+
+    it("tinyMCE paste_postprocess should run tags cleanup functions", function () {
+        compileAndSetupStuff({model: {textRtf: ""}});
+
+        let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTF")[0];
+        let fieldScope = angular.element(fieldNode).isolateScope();
+        let to = fieldScope["to"];
+        let args = {
+            node: tinymceBody
+        };
+        spyOn(Helper, "autoLinkURLText").and.callThrough();
+        spyOn(Helper, "addTableBorders").and.callThrough();
+        spyOn(Helper, "setFontFamilyOrOpenSans").and.callThrough();
+
+        //Act
+        to.tinymceOptions.paste_postprocess(null, args);
+
+        //Assert
+        expect(Helper.autoLinkURLText).toHaveBeenCalled();
+        expect(Helper.addTableBorders).toHaveBeenCalled();
+        expect(Helper.setFontFamilyOrOpenSans).toHaveBeenCalled();
+    });
+
+    // it("tinyMCE handles mutations", function () {
+    //     compileAndSetupStuff({model: {textRtf: ""}});
+    //
+    //     let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTF")[0];
+    //     let fieldScope = angular.element(fieldNode).isolateScope();
+    //     let to = fieldScope["to"];
+    //
+    //     //Act
+    //     to.tinymceOptions.init_instance_callback(editor);
+    //     let span = document.createElement("span");
+    //     span.innerHTML = "Added span";
+    //
+    //     editor.getBody().appendChild(span);
+    // });
+
     // function changeBody() {
     //     tinymceBody.innerHTML = "<p>body has changed</p>";
     // }
@@ -221,4 +277,4 @@ describe("Formly Text RTF Inline", () => {
         isolateScope = element.isolateScope();
         vm = isolateScope.vm;
     }
-});*/
+});

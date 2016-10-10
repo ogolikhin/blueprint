@@ -14,7 +14,7 @@
     <div class="inheritance-path" ng-hide="model[options.key].actorName.length > 0">  </div>
 
     <div ng-show="model[options.key].actorName.length > 0" class="bp-input-group-addon icon-wrapper">
-                        <span class="icon fonticon2-delete" ng-click="!to.disabled && deleteBaseActor()"
+                        <span class="icon fonticon2-delete" ng-click="!(to.disabled) && deleteBaseActor()"
                               ng-class="{disabled: to.disabled}" bp-tooltip="Delete"></span>
     </div>
     <div ng-show="model[options.key].actorName.length > 0" class="bp-input-group-addon">

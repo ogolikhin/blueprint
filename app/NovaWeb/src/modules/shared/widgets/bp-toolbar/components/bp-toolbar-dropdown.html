@@ -5,7 +5,7 @@
     </button>
     <ul uib-dropdown-menu class="dropdown-menu">
         <li ng-repeat="action in $ctrl.actions">
-            <a ng-class="{'disabled': action.disabled}" ng-click="action.disabled ? undefined : action.click()">{{action.label}}</a>
+            <a ng-class="{'disabled': action.disabled}" ng-click="action.disabled ? undefined : action.execute()">{{action.label}}</a>
         </li>
     </ul>
 </div>

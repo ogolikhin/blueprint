@@ -1252,6 +1252,9 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Publish_User_St
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Search_Project_Scope_Mentions', 'en-US', N'#mention artifacts from the current project only')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_ProcessType_BusinessProcess_Label', 'en-US', N'Business Process mode')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_ProcessType_UserToSystemProcess_Label', 'en-US', N'User-System Process mode')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Generate_Toolbar_Button', 'en-US', N'User Stories')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Generate_All_Contextual_Toolbar_Button', 'en-US', N'Generate All')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Generate_Contextual_Toolbar_Button', 'en-US', N'Generate from Task')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ag-Grid_noRowsToShow', 'en-US', N'Empty')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'fr-CA', N'Oui')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_No', 'fr-CA', N'Non')
@@ -1317,10 +1320,10 @@ INSERT INTO [dbo].[ApplicationLabels] ([Key], [Locale], [Text])
 SELECT #tempAppLabels.[Key], #tempAppLabels.[Locale], #tempAppLabels.[Text]
   FROM #tempAppLabels
   LEFT JOIN [dbo].[ApplicationLabels] 
-		ON [dbo].[ApplicationLabels].[Key] = #tempAppLabels.[Key]
+		ON	[dbo].[ApplicationLabels].[Key] = #tempAppLabels.[Key]
 		AND [dbo].[ApplicationLabels].[Locale] = #tempAppLabels.[Locale]
- WHERE #tempAppLabels.[Key] is NULL
-   AND #tempAppLabels.[Locale] is NULL
+ WHERE [dbo].[ApplicationLabels].[Key] is NULL
+   AND [dbo].[ApplicationLabels].[Locale] is NULL
 
 -- Update if [Key]/[Locale] combination exists, but text is different
 UPDATE [dbo].[ApplicationLabels]

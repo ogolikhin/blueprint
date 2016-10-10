@@ -6,17 +6,11 @@ import { IArtifactManager, IProjectManager } from "../../../../managers";
 import { IStatefulArtifact } from "../../../../managers/artifact-manager";
 import { IToolbarCommunication } from "./toolbar-communication";
 import { ICommunicationManager } from "../../";
-import { ProcessType } from "../../models/enums";
 import { ILoadingOverlayService } from "../../../../core/loading-overlay";
 import { INavigationService } from "../../../../core/navigation/navigation.svc";
 import { IArtifactReference, IBreadcrumbService } from "../../services/breadcrumb.svc";
 import { IBreadcrumbLink } from "../../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
-import { 
-    BPDropdownItemAction,
-    BPDropdownAction, 
-    BPToggleItemAction,
-    BPToggleAction
-} from "../../../../shared";
+import { GenerateUserStoriesAction, ToggleProcessTypeAction } from "./actions";
 import { StatefulProcessArtifact } from "../../process-artifact";
 
 export class BpProcessHeader implements ng.IComponentOptions {
@@ -130,46 +124,14 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         super.updateToolbarOptions(artifact);
 
         const processArtifact = artifact as StatefulProcessArtifact;
+        
         if (!processArtifact) {
             return;
         }
 
         this.toolbarActions.push(
-            new BPDropdownAction(
-                () => true,
-                "fonticon fonticon2-news",
-                undefined,
-                "Generate User Stories",
-                new BPDropdownItemAction(
-                    "Generate from Task",
-                    () => "Generate from Task clicked",
-                    () => true
-                ),
-                new BPDropdownItemAction(
-                    "Generate All", 
-                    () => "Generate All clicked", 
-                    () => true
-                )
-            ),
-            new BPToggleAction(
-                <ProcessType>processArtifact.propertyValues["clientType"].value,
-                (value: ProcessType) => {
-                    this.toolbarCommunicationManager.toggleProcessType(value);
-                },
-                () => !processArtifact.artifactState.readonly,
-                new BPToggleItemAction(
-                    "fonticon fonticon2-user-user",
-                    ProcessType.BusinessProcess,
-                    false,
-                    this.localization.get("ST_ProcessType_BusinessProcess_Label")
-                ),
-                new BPToggleItemAction(
-                    "fonticon fonticon2-user-system",
-                    ProcessType.UserToSystemProcess,
-                    false,
-                    this.localization.get("ST_ProcessType_UserToSystemProcess_Label") 
-                )
-            )
+            new GenerateUserStoriesAction(processArtifact, this.artifactManager.selection, this.localization),
+            new ToggleProcessTypeAction(processArtifact, this.toolbarCommunicationManager, this.localization)
         );
     }
 }

@@ -351,6 +351,9 @@ ST_Publish_User_Story, "Publish User Story"
 ST_Search_Project_Scope_Mentions, "#mention artifacts from the current project only"
 ST_ProcessType_BusinessProcess_Label, "Business Process mode"
 ST_ProcessType_UserToSystemProcess_Label, "User-System Process mode"
+ST_Generate_Toolbar_Button, "User Stories"
+ST_Generate_All_Contextual_Toolbar_Button, "Generate All"
+ST_Generate_Contextual_Toolbar_Button, "Generate from Task"
 
 # ag-Grid
 ag-Grid_noRowsToShow,"Empty"

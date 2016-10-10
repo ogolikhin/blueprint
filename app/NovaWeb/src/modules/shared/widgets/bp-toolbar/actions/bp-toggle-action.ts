@@ -73,7 +73,10 @@ export class BPToggleAction implements IBPToggleAction {
 
     public set currentValue(value: any) {
         this._currentValue = value;
-        this.toggle(value);
+
+        if (this.toggle) {
+            this.toggle(value);
+        }
     }
 
     public get disabled(): boolean {

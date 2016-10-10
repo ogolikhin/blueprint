@@ -1,7 +1,7 @@
 import {IBPAction} from "./bp-action";
 
 export interface IBPButtonAction extends IBPAction {
-    click: () => void;
+    execute: () => void;
     icon: string;
     disabled?: boolean;
     label?: string;
@@ -10,8 +10,8 @@ export interface IBPButtonAction extends IBPAction {
 
 export class BPButtonAction implements IBPButtonAction {
     constructor(
-        private _click: () => void,
-        private _canClick: () => boolean,
+        private _execute: () => void,
+        private _canExecute: () => boolean,
         private _icon: string,
         private _tooltip?: string,
         private _label?: string
@@ -27,11 +27,11 @@ export class BPButtonAction implements IBPButtonAction {
     }
 
     public get disabled(): boolean {
-        return !this._canClick();
+        return this._canExecute && !this._canExecute();
     }
 
-    public get click(): () => void {
-        return this._click;
+    public get execute(): () => void {
+        return this._execute;
     }
 
     public get label(): string {

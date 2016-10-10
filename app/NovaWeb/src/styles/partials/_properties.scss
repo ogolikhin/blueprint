@@ -16,6 +16,7 @@ $richtext-fontcolor: #000;
 $richtext-linkcolor: #00f;
 $richtext-fontsize: 9pt;
 $richtext-fontfamily: $font-family-base;
+$richtext-y-scrollbar-width: 12px;
 
 pagecontent, bp-properties-panel {
   .properties {
@@ -613,8 +614,8 @@ pagecontent, bp-properties-panel {
           color: $richtext-fontcolor;
           font-family: $richtext-fontfamily;
           font-size: $richtext-fontsize;
-          max-height: #{15 * $property-min-height};
-          min-height: #{3 * $property-min-height};
+          max-height: 400px;
+          min-height: 100px;
           min-width: $property-input-width;
           padding: 0;
 
@@ -869,7 +870,7 @@ pagecontent, bp-properties-panel {
       .tinymce-group {
         display: block;
         margin-top: -28px;
-        width: 100%;
+        width: calc(100% - #{$richtext-y-scrollbar-width});
       }
 
       .mce-tinymce {
@@ -879,7 +880,17 @@ pagecontent, bp-properties-panel {
 
       .mce-toolbar-grp {
         border-color: $gray-lighter;
-        border-width: 1px 1px 0 !important;;
+        border-width: 1px 1px 0 !important;
+        padding: 0;
+
+        .mce-flow-layout-item {
+          margin: 0;
+        }
+
+        .mce-btn button {
+          line-height: 19px;
+          padding: 3px 7px;
+        }
       }
 
       .mce-edit-area {
@@ -1273,6 +1284,10 @@ pagecontent, bp-properties-panel {
 }
 
 .tab-pane {
+  border: solid 1px $gray-lighter;
+  border-radius: $border-radius-amount;
+  padding: 18px #{20px - $richtext-y-scrollbar-width} 18px 20px;
+
   .formly {
     margin: 0;
     min-width: $property-input-width;
@@ -1293,9 +1308,28 @@ pagecontent, bp-properties-panel {
     }
 
     .formly-field-bpFieldReadOnly {
-      > div,
-      .input-group {
+      > div {
         width: 100%;
+      }
+
+      .input-group {
+        display: block;
+
+        .richtext-body {
+          display: inline-block;
+          margin-right: $richtext-y-scrollbar-width;
+        }
+
+        &::after {
+          background: $white;
+          content: '';
+          display: block;
+          height: 100%;
+          position: absolute;
+          right: 0;
+          top: 0;
+          width: $richtext-y-scrollbar-width;
+        }
       }
     }
   }

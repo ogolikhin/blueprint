@@ -59,7 +59,7 @@ namespace Model
             ItemTypePredefined baseArtifactType,
             string name,
             IProject project,
-            INovaArtifactDetails parentArtifact = null,
+            INovaArtifactBase parentArtifact = null,
             double? orderIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null);
 

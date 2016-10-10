@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using Model.Impl;
 using System.Net;
+using Model.ArtifactModel.Enums;
+using Model.ArtifactModel.Impl;
 
 namespace Model
 {
@@ -51,6 +53,14 @@ namespace Model
         /// Deletes a project on the Blueprint server.
         /// </summary>
         void DeleteProject();
+
+        /// <summary>
+        /// Gets the default collection folder for this project.
+        /// </summary>
+        /// <param name="address">The base Uri address of the ArtifactStore server.</param>
+        /// <param name="user">The user to authenticate to the server with.</param>
+        /// <returns>The default collection folder for this project.</returns>
+        NovaArtifact GetDefaultCollectionFolder(string address, IUser user);
 
         /// <summary>
         /// Gets a list of all projects on the Blueprint server.

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
+using NUnit.Framework;
 using TestConfig;
 using Utilities;
 using Utilities.Factories;
@@ -89,16 +90,11 @@ namespace Model.Factories
 
             artifact.Project = project;
             artifact.ProjectId = project.Id;
-            if (parent == null)
-            {
-                artifact.ParentId = project.Id;
-            }
-            else
-            {
-                artifact.ParentId = parent.Id;
-            }
+            artifact.ParentId = parent?.Id ?? project.Id;
             
             var projectArtifactType = project.ArtifactTypes.Find(at => at.BaseArtifactType.Equals(artifactType));
+            Assert.NotNull(projectArtifactType, "No custom artifact type was found in project '{0}' for BaseArtifactType: {1}!",
+                project.Name, artifactType);
             artifact.ArtifactTypeId = projectArtifactType.Id;
             artifact.ArtifactTypeName = projectArtifactType.Name;
             artifact.Name = "Artifact_" + artifact.ArtifactTypeName + "_" + RandomGenerator.RandomAlphaNumeric(5);

@@ -54,8 +54,6 @@ namespace ArtifactStoreTests
         [TestCase(ArtifactTypePredefined.UIMockup)]
         [TestCase(ArtifactTypePredefined.UseCase)]
         [TestCase(ArtifactTypePredefined.UseCaseDiagram)]
-        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection, Explicit = true, IgnoreReason = IgnoreReasons.UnderDevelopment)]
-        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder, Explicit = true, IgnoreReason = IgnoreReasons.UnderDevelopment)]
         [TestRail(154745)]
         [Description("Create an artifact of a supported type in the project root.  Get the artifact.  " +
             "Verify the artifact returned has the same properties as the artifact we created.")]
@@ -87,8 +85,6 @@ namespace ArtifactStoreTests
         [TestCase(ArtifactTypePredefined.UIMockup)]
         [TestCase(ArtifactTypePredefined.UseCase)]
         [TestCase(ArtifactTypePredefined.UseCaseDiagram)]
-        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection, Explicit = true, IgnoreReason = IgnoreReasons.UnderDevelopment)]
-        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder, Explicit = true, IgnoreReason = IgnoreReasons.UnderDevelopment)]
         [TestRail(182496)]
         [Description("Create an artifact of a supported type under a folder.  Get the artifact.  " +
             "Verify the artifact returned has the same properties as the artifact we created.")]
@@ -111,8 +107,60 @@ namespace ArtifactStoreTests
             artifactDetails.AssertEquals(newArtifact);
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/fLwHeWHR  Properties missing from Create JSON.
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
+        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
+        [TestRail(182594)]
+        [Description("Create an artifact of a supported type under a folder.  Get the artifact.  " +
+            "Verify the artifact returned has the same properties as the artifact we created.")]
+        public void CreateArtifact_ValidCollectionOrCollectionFolder_CanGetArtifact(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            var collectionFolder = GetDefaultCollectionFolder(_project);
+
+            // Execute:
+            INovaArtifactDetails newArtifact = null;
+
+            Assert.DoesNotThrow(() =>
+                newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, collectionFolder, BaseArtifactType.PrimitiveFolder),
+                "'POST {0}' should return 200 OK when trying to create an artifact of type: '{1}'!",
+                SVC_PATH, artifactType);
+
+            // Verify:
+            Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
+//            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
+//            artifactDetails.AssertEquals(newArtifact);
+            GetArtifactDetailsAndCompareWithCreatedArtifact(newArtifact);   // TODO: Remove this and uncomment above 2 lines if https://trello.com/c/fLwHeWHR is fixed.
+        }
+
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/fLwHeWHR  Properties missing from Create JSON.
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/uRSJMjPa  Cannot create an Artifact Collection under a Collections sub-folder.
+        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
+        [TestRail(182595)]
+        [Description("Create an artifact of a supported type under a folder.  Get the artifact.  " +
+            "Verify the artifact returned has the same properties as the artifact we created.")]
+        public void CreateArtifact_ValidCollectionOrCollectionFolderUnderCollectionFolder_CanGetArtifact(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            var collectionFolder = GetDefaultCollectionFolder(_project);
+            var parentCollectionsFolder = CreateArtifactWithRandomName(artifactType, _user, _project, collectionFolder, BaseArtifactType.PrimitiveFolder);
+
+            // Execute:
+            INovaArtifactDetails newArtifact = null;
+
+            Assert.DoesNotThrow(() =>
+                newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, parentCollectionsFolder, BaseArtifactType.PrimitiveFolder),
+                "'POST {0}' should return 200 OK when trying to create an artifact of type: '{1}'!",
+                SVC_PATH, artifactType);
+
+            // Verify:
+            Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
+//            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
+//            artifactDetails.AssertEquals(newArtifact);
+            GetArtifactDetailsAndCompareWithCreatedArtifact(newArtifact);   // TODO: Remove this and uncomment above 2 lines if https://trello.com/c/fLwHeWHR is fixed.
+        }
+
         // TODO: Create artifact with order index before, same as, or after other artifacts.  Verify success.
-        // TODO: Create Collections & Collection Folders.  Verify success.  NOTE: Default collection folder ID of a project is Project ID + 2.
         // TODO: (CustomData) Create artifact that has required fields.  Verify success.  Try to publish.  Verify error.
 
         #endregion 200 OK tests
@@ -209,6 +257,37 @@ namespace ArtifactStoreTests
         #region Private functions
 
         /// <summary>
+        /// Gets the artifact details for the specified artifact and compares it against the artifact we created.
+        /// </summary>
+        /// <param name="createdArtifact">The INovaArtifactDetails that was created by ArtifactStore.</param>
+        /// <exception cref="AssertionException">If any of the expected properties are different.</exception>
+        // TODO: Remove this function if https://trello.com/c/fLwHeWHR is fixed.
+        public void GetArtifactDetailsAndCompareWithCreatedArtifact(INovaArtifactDetails createdArtifact)
+        {
+            ThrowIf.ArgumentNull(createdArtifact, nameof(createdArtifact));
+
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, createdArtifact.Id);
+
+            Assert.AreEqual(artifactDetails.Id, createdArtifact.Id, "The Id parameters don't match!");
+            Assert.AreEqual(artifactDetails.ItemTypeId, createdArtifact.ItemTypeId, "The ItemTypeId  parameters don't match!");
+            Assert.AreEqual(artifactDetails.Name, createdArtifact.Name, "The Name  parameters don't match!");
+            Assert.AreEqual(artifactDetails.ParentId, createdArtifact.ParentId, "The ParentId  parameters don't match!");
+            Assert.AreEqual(artifactDetails.PredefinedType, createdArtifact.PredefinedType, "The PredefinedType  parameters don't match!");
+            Assert.AreEqual(artifactDetails.ProjectId, createdArtifact.ProjectId, "The ProjectId  parameters don't match!");
+            // TODO: The following properties are not returned because of bug: https://trello.com/c/fLwHeWHR
+            /*
+            Assert.AreEqual(artifactDetails.Description, createdArtifact.Description, "The Description  parameters don't match!");
+            Assert.AreEqual(artifactDetails.Permissions, createdArtifact.Permissions, "The Permissions  parameters don't match!");
+            Assert.AreEqual(artifactDetails.OrderIndex, createdArtifact.OrderIndex, "The OrderIndex  parameters don't match!");
+            Assert.AreEqual(artifactDetails.ItemTypeVersionId, createdArtifact.ItemTypeVersionId, "The ItemTypeVersionId  parameters don't match!");
+            Assert.AreEqual(artifactDetails.LockedDateTime, createdArtifact.LockedDateTime, "The LockedDateTime  parameters don't match!");
+            Assert.AreEqual(artifactDetails.Version, createdArtifact.Version, "The Version  parameters don't match!");
+            Assert.AreEqual(artifactDetails.CreatedOn, createdArtifact.CreatedOn, "The CreatedOn  parameters don't match!");
+            Assert.AreEqual(artifactDetails.LastEditedOn, createdArtifact.LastEditedOn, "The LastEditedOn  parameters don't match!");
+            */
+        }
+
+        /// <summary>
         /// Asserts that the specified RestResponse contains the expected error message.
         /// </summary>
         /// <param name="restReponse">The RestResponse that contains the message.</param>
@@ -227,16 +306,19 @@ namespace ArtifactStoreTests
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="project">The project where the artifact will be created.</param>
         /// <param name="parent">(optional) The parent of the artifact to be created.</param>
+        /// <param name="baseType">(optional) You can select a different BaseArtifactType here other than what's in the novaArtifact.
+        ///     Use this for artifact types that don't exist in the BaseArtifactType enum.</param>
         /// <returns>The artifact that was created.</returns>
         private INovaArtifactDetails CreateArtifactWithRandomName(ItemTypePredefined artifactType,
             IUser user,
             IProject project,
-            INovaArtifactDetails parent = null)
+            INovaArtifactBase parent = null,
+            BaseArtifactType? baseType = null)
         {
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
             var artifact = Helper.ArtifactStore.CreateArtifact(user, artifactType, artifactName, project, parent);
 
-            WrapNovaArtifact(artifact, project, user);
+            WrapNovaArtifact(artifact, project, user, baseType);
 
             return artifact;
         }
@@ -250,13 +332,16 @@ namespace ArtifactStoreTests
         /// <param name="artifactName">The name of the artifact.</param>
         /// <param name="parentId">The parent ID of the artifact.</param>
         /// <param name="orderIndex">The order index of the artifact.</param>
+        /// <param name="baseType">(optional) You can select a different BaseArtifactType here other than what's in the novaArtifact.
+        ///     Use this for artifact types that don't exist in the BaseArtifactType enum.</param>
         /// <returns>The artifact that was created.</returns>
         private INovaArtifactDetails CreateArtifact(IUser user,
             IProject project,
             int itemTypeId,
             string artifactName = null,
             int? parentId = null,
-            double? orderIndex = null)
+            double? orderIndex = null,
+            BaseArtifactType? baseType = null)
         {
             artifactName = artifactName ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
@@ -274,7 +359,7 @@ namespace ArtifactStoreTests
             RestResponse response = CreateArtifactFromJson(user, jsonBody);
             INovaArtifactDetails createdArtifact = JsonConvert.DeserializeObject<NovaArtifactDetails>(response.Content);
 
-            WrapNovaArtifact(createdArtifact, project, user);
+            WrapNovaArtifact(createdArtifact, project, user, baseType);
 
             return createdArtifact;
         }
@@ -304,21 +389,49 @@ namespace ArtifactStoreTests
         }
 
         /// <summary>
+        /// Gets the default Collections folder for the project and returns only the Id, PredefinedType, ProjectId and ItemTypeId.
+        /// </summary>
+        /// <param name="project">The project whose collections folder you want to get.</param>
+        /// <returns>The default Collections folder for the project.</returns>
+        private INovaArtifactBase GetDefaultCollectionFolder(IProject project)
+        {
+            NovaArtifact collectionFolder = project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
+
+            return new NovaArtifactDetails
+            {
+                Id = collectionFolder.Id,
+                PredefinedType = collectionFolder.PredefinedType,
+                ProjectId = project.Id,
+                ItemTypeId = collectionFolder.ItemTypeId
+            };
+        }
+
+        /// <summary>
         /// Wraps an INovaArtifactDetails in an IArtifactBase and adds it Helper.Artifacts so it gets disposed properly.
         /// </summary>
         /// <param name="novaArtifact">The INovaArtifactDetails that was created by ArtifactStore.</param>
         /// <param name="project">The project where this artifact exists.</param>
         /// <param name="user">The user that created this artifact.</param>
+        /// <param name="baseType">(optional) You can select a different BaseArtifactType here other than what's in the novaArtifact.
+        ///     Use this for artifact types that don't exist in the BaseArtifactType enum.</param>
         /// <returns>The IArtifactBase wrapper for the novaArtifact.</returns>
-        private IArtifactBase WrapNovaArtifact(INovaArtifactDetails novaArtifact, IProject project, IUser user)
+        private IArtifactBase WrapNovaArtifact(INovaArtifactDetails novaArtifact,
+            IProject project,
+            IUser user,
+            BaseArtifactType? baseType = null)
         {
             ThrowIf.ArgumentNull(novaArtifact, nameof(novaArtifact));
 
             Assert.NotNull(novaArtifact.PredefinedType, "PredefinedType is null in the Nova Artifact!");
 
+            if (baseType == null)
+            {
+                baseType = ((ItemTypePredefined) novaArtifact.PredefinedType.Value).ToBaseArtifactType();
+            }
+
             IArtifactBase artifact = ArtifactFactory.CreateArtifact(project,
                 user,
-                ((ItemTypePredefined)novaArtifact.PredefinedType.Value).ToBaseArtifactType(),
+                baseType.Value,
                 novaArtifact.Id);
 
             artifact.IsSaved = true;

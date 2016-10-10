@@ -5,6 +5,8 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net;
 using Common;
+using Model.ArtifactModel.Enums;
+using Model.ArtifactModel.Impl;
 using Utilities;
 using Utilities.Facades;
 
@@ -64,6 +66,13 @@ namespace Model.Impl
         public void DeleteProject()
         {
             throw new NotImplementedException();
+        }
+
+        /// <seealso cref="IProject.GetDefaultCollectionFolder(string, IUser)"/>
+        public NovaArtifact GetDefaultCollectionFolder(string address, IUser user)
+        {
+            var novaArtifacts = ArtifactStore.GetProjectChildrenByProjectId(address, Id, user);
+            return novaArtifacts.Find(a => a.PredefinedType == (int)BaselineAndCollectionTypePredefined.CollectionFolder);
         }
 
         /// <summary>

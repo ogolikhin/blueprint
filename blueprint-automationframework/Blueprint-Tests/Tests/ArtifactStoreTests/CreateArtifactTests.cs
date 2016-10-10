@@ -395,7 +395,7 @@ namespace ArtifactStoreTests
         /// <returns>The default Collections folder for the project.</returns>
         private INovaArtifactBase GetDefaultCollectionFolder(IProject project)
         {
-            NovaArtifact collectionFolder = project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
+            INovaArtifact collectionFolder = project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
 
             return new NovaArtifactDetails
             {

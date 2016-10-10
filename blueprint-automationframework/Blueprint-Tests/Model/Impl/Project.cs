@@ -5,8 +5,8 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net;
 using Common;
+using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
-using Model.ArtifactModel.Impl;
 using Utilities;
 using Utilities.Facades;
 
@@ -69,7 +69,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IProject.GetDefaultCollectionFolder(string, IUser)"/>
-        public NovaArtifact GetDefaultCollectionFolder(string address, IUser user)
+        public INovaArtifact GetDefaultCollectionFolder(string address, IUser user)
         {
             var novaArtifacts = ArtifactStore.GetProjectChildrenByProjectId(address, Id, user);
             return novaArtifacts.Find(a => a.PredefinedType == (int)BaselineAndCollectionTypePredefined.CollectionFolder);

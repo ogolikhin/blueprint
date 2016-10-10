@@ -1,7 +1,7 @@
 export {
     ToggleProcessTypeAction
-} from "./toggle-process-type";
+} from "./toggle-process-type-action";
 
 export {
     GenerateUserStoriesAction
-} from "./generate-user-stories";
+} from "./generate-user-stories-action";

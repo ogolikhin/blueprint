@@ -11,10 +11,17 @@ import {
     Helper, 
     IDialogSettings, 
     IDialogService, 
-    IBPAction, 
-    BPButtonAction, 
+    IBPAction,
     BPButtonGroupAction
 } from "../../../shared";
+import { 
+    SaveAction, 
+    PublishAction, 
+    DiscardAction, 
+    RefreshAction, 
+    DeleteAction, 
+    OpenImpactAnalysisAction 
+} from "./actions";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -230,47 +237,13 @@ export class BpArtifactInfoController {
     protected updateToolbarOptions(artifact: IStatefulArtifact): void {
         this.toolbarActions.push(
             new BPButtonGroupAction(
-                new BPButtonAction(
-                    () => console.log("Save button clicked"),
-                    () => true,
-                    "fonticon fonticon2-save",
-                    "Save"
-                ),
-                new BPButtonAction(
-                    () => console.log("Publish button clicked"),
-                    () => true,
-                    "fonticon fonticon2-publish",
-                    "Publish"
-                ),
-                new BPButtonAction(
-                    () => console.log("Discard button clicked"),
-                    () => true,
-                    "fonticon fonticon2-discard",
-                    "Discard"
-                ),
-                new BPButtonAction(
-                    () => console.log("Refresh button clicked"),
-                    () => true,
-                    "fonticon fonticon2-refresh",
-                    "Refresh"
-                ),
-                new BPButtonAction(
-                    () => {
-                        console.log("Delete button clicked");
-                    },
-                    () => true,
-                    "fonticon fonticon2-delete",
-                    "Delete"
-                )
+                new SaveAction(artifact, this.localization, this.messageService, this.loadingOverlayService, this.artifactManager),
+                new PublishAction(artifact, this.localization),
+                new DiscardAction(artifact, this.localization),
+                new RefreshAction(this.localization, this.projectManager, this.artifactManager, this.loadingOverlayService),
+                new DeleteAction(artifact, this.localization, this.dialogService)
             ),
-            new BPButtonGroupAction(
-                new BPButtonAction(
-                    () => console.log("Impact Analysis button clicked"),
-                    () => true,
-                    "fonticon fonticon2-impact-analysis",
-                    "Impact Analysis"
-                )
-            )
+            new OpenImpactAnalysisAction(artifact, this.localization)
         );
     }
 
@@ -301,19 +274,6 @@ export class BpArtifactInfoController {
         }
     }
 
-    public saveChanges() {
-        let overlayId: number = this.loadingOverlayService.beginLoading();
-        try {
-            this.artifactManager.selection.getArtifact().save().finally(() => {
-                this.loadingOverlayService.endLoading(overlayId);
-            });
-        } catch (err) {
-            this.messageService.addError(err);
-            this.loadingOverlayService.endLoading(overlayId);
-            throw err;
-        }
-    }
-
     public openPicker($event: MouseEvent) {
         const dialogSettings: IDialogSettings = {
             okButton: this.localization.get("App_Button_Ok"),
@@ -333,23 +293,4 @@ export class BpArtifactInfoController {
             console.log(items);
         });
     }
-
-    public refresh() {
-        //loading overlay
-        const overlayId = this.loadingOverlayService.beginLoading();
-        const currentArtifact = this.artifactManager.selection.getArtifact();
-        
-        currentArtifact.refresh()
-            .catch((error) => {
-                //this.dialogService.alert(error.message);
-                //this.navigationService.navigateToArtifact(currentArtifact.parentId);
-                //this.artifactManager.remove(currentArtifact.id);
-
-                // We're not interested in the error type.
-                // sometimes this error is created by artifact.load(), which returns the statefulArtifact instead of an error object.
-                this.projectManager.refresh(this.projectManager.getSelectedProject());
-            }).finally(() => {
-                this.loadingOverlayService.endLoading(overlayId);
-            });
-      }
 }

@@ -3,6 +3,7 @@ import { BpArtifactInfoController } from "../../../../main/components/bp-artifac
 import { IMessageService, ILocalizationService} from "../../../../core";
 import { IDialogService } from "../../../../shared";
 import { IArtifactManager, IProjectManager } from "../../../../managers";
+import { IStatefulArtifact } from "../../../../managers/artifact-manager";
 import { IToolbarCommunication } from "./toolbar-communication";
 import { ICommunicationManager } from "../../";
 import { ProcessType } from "../../models/enums";
@@ -16,6 +17,7 @@ import {
     BPToggleItemAction,
     BPToggleAction
 } from "../../../../shared";
+import { StatefulProcessArtifact } from "../../process-artifact";
 
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("./bp-process-header.html");
@@ -124,8 +126,13 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         this.toolbarCommunicationManager.clickDelete();
     }
 
-    protected updateToolbarOptions(): void {
-        super.updateToolbarOptions();
+    protected updateToolbarOptions(artifact: IStatefulArtifact): void {
+        super.updateToolbarOptions(artifact);
+
+        const processArtifact = artifact as StatefulProcessArtifact;
+        if (!processArtifact) {
+            return;
+        }
 
         this.toolbarActions.push(
             new BPDropdownAction(
@@ -145,18 +152,22 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                 )
             ),
             new BPToggleAction(
-                () => true,
+                <ProcessType>processArtifact.propertyValues["clientType"].value,
+                (value: ProcessType) => {
+                    this.toolbarCommunicationManager.toggleProcessType(value);
+                },
+                () => !processArtifact.artifactState.readonly,
                 new BPToggleItemAction(
                     "fonticon fonticon2-user-user",
                     ProcessType.BusinessProcess,
-                    () => true,
-                    "Business Process mode"
+                    false,
+                    this.localization.get("ST_ProcessType_BusinessProcess_Label")
                 ),
                 new BPToggleItemAction(
                     "fonticon fonticon2-user-system",
                     ProcessType.UserToSystemProcess,
-                    () => true,
-                    "User-System Process mode"
+                    false,
+                    this.localization.get("ST_ProcessType_UserToSystemProcess_Label") 
                 )
             )
         );

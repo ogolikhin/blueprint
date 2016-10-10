@@ -12,7 +12,7 @@ export class BPToggleItemAction implements IBPToggleItemAction {
     constructor(
         private _icon: string,
         private _value: any,
-        private _canExecute?: () => boolean,
+        private _disabled?: boolean,
         private _tooltip?: string,
         private _label?: string
     ) {
@@ -27,7 +27,7 @@ export class BPToggleItemAction implements IBPToggleItemAction {
     }
 
     public get disabled(): boolean {
-        return this._canExecute && this._canExecute();
+        return this._disabled;
     }
 
     public get tooltip(): string {
@@ -41,17 +41,22 @@ export class BPToggleItemAction implements IBPToggleItemAction {
 
 export interface IBPToggleAction extends IBPAction {
     actions: IBPToggleItemAction[];
+    currentValue: any;
     disabled?: boolean;
 }
 
 export class BPToggleAction implements IBPToggleAction {
     private _actions: IBPToggleItemAction[];
+    private _currentValue: any;
     
     constructor(
-        private _canToggle: () => boolean,
+        private initialValue: any,
+        private toggle: (value: any) => void,
+        private canToggle?: () => boolean,
         ... actions: IBPToggleItemAction[]
     ) {
         this._actions = actions;
+        this._currentValue = initialValue;
     }
 
     public get type(): string {
@@ -62,7 +67,16 @@ export class BPToggleAction implements IBPToggleAction {
         return this._actions;
     }
 
+    public get currentValue(): any {
+        return this._currentValue;
+    }
+
+    public set currentValue(value: any) {
+        this._currentValue = value;
+        this.toggle(value);
+    }
+
     public get disabled(): boolean {
-        return !this._canToggle();
+        return this.canToggle && !this.canToggle();
     }
 }

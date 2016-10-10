@@ -58,12 +58,12 @@ export class BpArtifactInfoController {
     constructor(
         public $scope: ng.IScope,
         private $element: ng.IAugmentedJQuery,
-        private artifactManager: IArtifactManager,
-        private localization: ILocalizationService,
-        private messageService: IMessageService,
-        private dialogService: IDialogService,
-        private windowManager: IWindowManager,
-        private loadingOverlayService: ILoadingOverlayService,
+        protected artifactManager: IArtifactManager,
+        protected localization: ILocalizationService,
+        protected messageService: IMessageService,
+        protected dialogService: IDialogService,
+        protected windowManager: IWindowManager,
+        protected loadingOverlayService: ILoadingOverlayService,
         protected navigationService: INavigationService,
         protected projectManager: IProjectManager
     ) {
@@ -151,7 +151,7 @@ export class BpArtifactInfoController {
             return;
         }
 
-        this.updateToolbarOptions();
+        this.updateToolbarOptions(artifact);
 
         this.artifactName = artifact.name || "";
 
@@ -227,7 +227,7 @@ export class BpArtifactInfoController {
         return style;
     }
 
-    protected updateToolbarOptions(): void {
+    protected updateToolbarOptions(artifact: IStatefulArtifact): void {
         this.toolbarActions.push(
             new BPButtonGroupAction(
                 new BPButtonAction(
@@ -255,7 +255,9 @@ export class BpArtifactInfoController {
                     "Refresh"
                 ),
                 new BPButtonAction(
-                    () => console.log("Delete button clicked"),
+                    () => {
+                        console.log("Delete button clicked");
+                    },
                     () => true,
                     "fonticon fonticon2-delete",
                     "Delete"

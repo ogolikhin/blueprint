@@ -1,7 +1,7 @@
 <div ng-switch="$ctrl.action.type">
     <bp-toolbar-button ng-switch-when="button" click="$ctrl.action.click()" icon="{{$ctrl.action.icon}}" disabled="$ctrl.action.disabled" label="{{$ctrl.action.label}}" tooltip="{{$ctrl.action.tooltip}}"></bp-toolbar-button>
     <bp-toolbar-dropdown ng-switch-when="dropdown" actions="$ctrl.action.actions" icon="{{$ctrl.action.icon}}" disabled="$ctrl.action.disabled" label="{{$ctrl.action.label}}" tooltip="{{$ctrl.action.tooltip}}"></bp-toolbar-dropdown>
-    <bp-toolbar-toggle ng-switch-when="toggle" actions="$ctrl.action.actions" disabled="$ctrl.action.disabled"></bp-toolbar-toggle>
+    <bp-toolbar-toggle ng-switch-when="toggle" actions="$ctrl.action.actions" current-value="$ctrl.action.currentValue" disabled="$ctrl.action.disabled"></bp-toolbar-toggle>
     <bp-toolbar-button-group ng-switch-when="buttongroup" actions="$ctrl.action.actions"></bp-toolbar-button-group>
     <button ng-switch-default class="btn btn-primary btn-small">
         <span class="glyphicon glyphicon-exclamation-sign"></span>

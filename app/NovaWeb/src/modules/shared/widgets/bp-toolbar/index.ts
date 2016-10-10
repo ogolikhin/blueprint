@@ -1,6 +1,12 @@
 import * as angular from "angular";
-import {BPToolbar} from "./bp-toolbar";
-import {BPToolbarElement, BPToolbarButton, BPToolbarDropdown, BPToolbarToggle, BPToolbarButtonGroup} from "./components";
+import {
+    BPToolbar, 
+    BPToolbarElement, 
+    BPToolbarButton, 
+    BPToolbarDropdown, 
+    BPToolbarToggle, 
+    BPToolbarButtonGroup
+} from "./components";
 
 angular.module("bp.widgets.toolbar", [])
     .component("bpToolbar2", new BPToolbar())

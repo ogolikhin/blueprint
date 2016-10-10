@@ -1,4 +1,8 @@
 export {
+    BPToolbar
+} from "./bp-toolbar";
+
+export {
     BPToolbarElement
 } from "./bp-toolbar-element";
 

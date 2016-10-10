@@ -1,4 +1,4 @@
-import {IBPToolbarOption} from "./options/bp-toolbar-option";
+import {IBPToolbarOption} from "../options/bp-toolbar-option";
 
 export class BPToolbar implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BPToolbarController;

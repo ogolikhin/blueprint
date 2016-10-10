@@ -29,73 +29,57 @@ export class BpFieldTextRTFInlineController {
     static $inject: [string] = ["$scope"];
 
     private observer: MutationObserver;
-    private onChange: AngularFormly.IExpressionFunction | string;
-    //private contentBody: string;
+    private contentBody: string;
 
     constructor(private $scope: AngularFormly.ITemplateScope) {
-        this.onChange = $scope.to.onChange; // notify of change event function
+        let onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
         $scope.to.onChange = () => { };
+
+        const allowedFonts = ["Open Sans", "Arial", "Cambria", "Calibri", "Courier New", "Times New Roman", "Trebuchet MS", "Verdana"];
+        let fontFormats = "";
+        allowedFonts.forEach(function (font) {
+            fontFormats += `${font}=` + (font.indexOf(" ") !== -1 ? `"${font}";` : `${font};`);
+        });
 
         let to: AngularFormly.ITemplateOptions = {
             tinymceOptions: { // this will go to ui-tinymce directive
-                //inline: true,
+                inline: true,
                 fixed_toolbar_container: ".tinymce-toolbar-" + $scope.options["key"],
                 menubar: false,
-                toolbar: "fontselect fontsize | bold italic underline | forecolor format | link table",
+                toolbar: "fontselect fontsize bold italic underline forecolor format link",
                 statusbar: false,
-                invalid_elements: "img,frame,iframe,script",
+                invalid_elements: "p,br,hr,img,frame,iframe,script,table,thead,tbody,tr,td,ul,ol,li,dd,dt,dl,div,input,select,textarea",
                 invalid_styles: {
-                    "*": "background-image"
+                    "*": "background-image display margin padding float"
                 },
                 extended_valid_elements: "a[href|type|title|linkassemblyqualifiedname|text|canclick|isvalid|mentionid|isgroup|email|" +
                 "class|linkfontsize|linkfontfamily|linkfontstyle|linkfontweight|linktextdecoration|linkforeground|style|target|artifactid]",
                 // https://www.tinymce.com/docs/configure/content-formatting/#font_formats
-                font_formats: `Open Sans='Open Sans';` + //Portable User Interface,sans-serif
-                `Arial=Arial;` + //Helvetica,sans-serif
-                `Cambria=Cambria;` + //Georgia,serif
-                `Calibri=Calibri;` + //Candara,Segoe,Segoe UI,Optima,sans-serif
-                `Courier New="Courier New";` + //courier,monospace
-                `Times New Roman="Times New Roman";` + //Times,Baskerville,Georgia,serif
-                `Trebuchet MS="Trebuchet MS";` + //Lucida Grande,Lucida Sans Unicode,Lucida Sans,Tahoma,sans-serif
-                `Verdana=Verdana;`, //Geneva,sans-serif
+                font_formats: fontFormats,
                 // paste_enable_default_filters: false, // https://www.tinymce.com/docs/plugins/paste/#paste_enable_default_filters
                 paste_webkit_styles: "none", // https://www.tinymce.com/docs/plugins/paste/#paste_webkit_styles
                 paste_remove_styles_if_webkit: true, // https://www.tinymce.com/docs/plugins/paste/#paste_remove_styles_if_webkit
                 // https://www.tinymce.com/docs/plugins/paste/#paste_retain_style_properties
                 paste_retain_style_properties: "background background-color color " +
-                "font font-family font-size font-style font-weight line-height " +
-                "margin margin-bottom margin-left margin-right margin-top " +
-                "padding padding-bottom padding-left padding-right padding-top " +
-                "border-collapse border-color border-style border-width " +
-                "text-align text-decoration vertical-align " +
-                "height width",
+                "font font-family font-size font-style font-weight " +
+                "text-decoration",
                 paste_filter_drop: false,
-                table_toolbar: "", // https://www.tinymce.com/docs/plugins/table/#table_toolbar
-                table_default_styles: { // https://www.tinymce.com/docs/plugins/table/#table_default_styles
-                    background: "white",
-                    borderColor: "#000",
-                    borderCollapse: "collapse",
-                    borderWidth: "1px"
-                },
-                table_default_attributes: { // https://www.tinymce.com/docs/plugins/table/#table_default_attributes
-                    border: "1",
-                    width: "95%"
-                },
                 // we don't need the autoresize plugin when using the inline version of tinyMCE as the height will
                 // be controlled using CSS (max-height, min-height)
-                plugins: "paste textcolor table noneditable autolink link",
+                plugins: "paste textcolor noneditable autolink link",
                 // plugins: "contextmenu", // https://www.tinymce.com/docs/plugins/contextmenu/
                 // contextmenu: "bold italic underline strikethrough | link inserttable | cell row column deletetable",
                 paste_preprocess: function (plugin, args) { // https://www.tinymce.com/docs/plugins/paste/#paste_preprocess
                     // remove generic font family
                     let content = args.content;
-                    content = content.replace(/, ?sans-serif;/gi, ";");
-                    content = content.replace(/, ?serif;/gi, ";");
-                    content = content.replace(/, ?monospace;/gi, ";");
+                    content = content.replace(/, ?sans-serif([;'"])/gi, "$1");
+                    content = content.replace(/, ?serif([;'"])/gi, "$1");
+                    content = content.replace(/, ?monospace([;'"])/gi, "$1");
                     args.content = content;
                 },
                 paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
                     Helper.autoLinkURLText(args.node);
+                    Helper.setFontFamilyOrOpenSans(args.node, allowedFonts);
                 },
                 init_instance_callback: (editor) => {
                     editor.formatter.register("font8", {
@@ -137,6 +121,7 @@ export class BpFieldTextRTFInlineController {
 
                     let editorBody = editor.getBody();
                     Helper.autoLinkURLText(editorBody);
+                    Helper.setFontFamilyOrOpenSans(editorBody, allowedFonts);
                     this.handleLinks(editorBody.querySelectorAll("a"));
 
                     // MutationObserver
@@ -148,25 +133,25 @@ export class BpFieldTextRTFInlineController {
                         });
 
                         const observerConfig = { attributes: false, childList: true, characterData: false, subtree: true };
-                        this.observer.observe(editor.getBody(), observerConfig);
+                        this.observer.observe(editorBody, observerConfig);
                     }
 
-                    this.setContentBody(editor.getBody());
+                    this.contentBody = editorBody.innerHTML;
 
-                    editor.on("Dirty", (e) => {
-                        this.setContentBody(editor.getBody());
+                    editor.on("Change", (e) => {
+                        let contentBody = editorBody.innerHTML;
+                        if (this.contentBody !== contentBody) {
+                            this.contentBody = contentBody;
+                            onChange(contentBody, $scope.fields[0], $scope);
+                        }
                     });
 
                     editor.on("Focus", (e) => {
-                        if (editor.editorContainer) {
-                            editor.editorContainer.parentElement.classList.remove("tinymce-toolbar-hidden");
-                        }
+                        editorBody.parentElement.classList.remove("tinymce-toolbar-hidden");
                     });
 
                     editor.on("Blur", (e) => {
-                        if (editor.editorContainer) {
-                            editor.editorContainer.parentElement.classList.add("tinymce-toolbar-hidden");
-                        }
+                            editorBody.parentElement.classList.add("tinymce-toolbar-hidden");
                     });
                 },
                 setup: function (editor) {
@@ -176,73 +161,60 @@ export class BpFieldTextRTFInlineController {
                         text: "",
                         icon: "format",
                         menu: [
-                            { icon: "strikethrough", text: " Strikethrough", onclick: function () { editor.editorCommands.execCommand("strikethrough"); } },
-                            { icon: "bullist", text: " Bulleted list", onclick: function () { editor.editorCommands.execCommand("InsertUnorderedList"); } },
-                            { icon: "numlist", text: " Numeric list", onclick: function () { editor.editorCommands.execCommand("InsertOrderedList"); } },
-                            { icon: "outdent", text: " Outdent", onclick: function () { editor.editorCommands.execCommand("Outdent"); } },
-                            { icon: "indent", text: " Indent", onclick: function () { editor.editorCommands.execCommand("Indent"); } },
+                            {
+                                icon: "strikethrough",
+                                text: " Strikethrough",
+                                onclick: function () { editor.editorCommands.execCommand("Strikethrough"); }
+                            },
                             { text: "-" },
-                            { icon: "removeformat", text: " Clear formatting", onclick: function () { editor.editorCommands.execCommand("RemoveFormat"); } }
+                            {
+                                icon: "removeformat",
+                                text: " Clear formatting",
+                                onclick: function () { editor.editorCommands.execCommand("RemoveFormat"); }
+                            }
                         ]
                     });
                     editor.addButton("fontsize", {
+                        title: "Font Size",
                         type: "menubutton", // https://www.tinymce.com/docs/demo/custom-toolbar-menu-button/
                         text: "",
                         icon: "font-size",
                         menu: [
                             {
                                 text: "8",
-                                onclick: function () {
-                                    editor.formatter.apply("font8");
-                                }
+                                onclick: function () { editor.formatter.apply("font8"); }
                             },
                             {
                                 text: "9",
-                                onclick: function () {
-                                    editor.formatter.apply("font9");
-                                }
+                                onclick: function () { editor.formatter.apply("font9"); }
                             },
                             {
                                 text: "10",
-                                onclick: function () {
-                                    editor.formatter.apply("font10");
-                                }
+                                onclick: function () { editor.formatter.apply("font10"); }
                             },
                             {
                                 text: "11",
-                                onclick: function () {
-                                    editor.formatter.apply("font11");
-                                }
+                                onclick: function () { editor.formatter.apply("font11"); }
                             },
                             {
                                 text: "12",
-                                onclick: function () {
-                                    editor.formatter.apply("font12");
-                                }
+                                onclick: function () { editor.formatter.apply("font12"); }
                             },
                             {
                                 text: "14",
-                                onclick: function () {
-                                    editor.formatter.apply("font14");
-                                }
+                                onclick: function () { editor.formatter.apply("font14"); }
                             },
                             {
                                 text: "16",
-                                onclick: function () {
-                                    editor.formatter.apply("font16");
-                                }
+                                onclick: function () { editor.formatter.apply("font16"); }
                             },
                             {
                                 text: "18",
-                                onclick: function () {
-                                    editor.formatter.apply("font18");
-                                }
+                                onclick: function () { editor.formatter.apply("font18"); }
                             },
                             {
                                 text: "20",
-                                onclick: function () {
-                                    editor.formatter.apply("font20");
-                                }
+                                onclick: function () { editor.formatter.apply("font20"); }
                             }
                         ]
                     });
@@ -272,23 +244,7 @@ export class BpFieldTextRTFInlineController {
         });
     }
 
-    private setContentBody = (tags) => {
-        console.log(tags);
-        console.log("here");
-    };
-
-    private disableEditability = (event) => {
-        if (this.$scope["tinymceBody"] && !this.$scope["tinymceBody"].classList.contains("mce-edit-focus")) {
-            angular.element(this.$scope["tinymceBody"]).attr("contentEditable", "false");
-        }
-    };
-
-    private enableEditability = (event) => {
-        angular.element(this.$scope["tinymceBody"]).attr("contentEditable", "true");
-    };
-
     private handleClick = function(event) {
-        console.log("handleClick");
         event.stopPropagation();
         event.preventDefault();
 
@@ -296,7 +252,7 @@ export class BpFieldTextRTFInlineController {
         if (href.indexOf("?ArtifactId=") !== -1 && this.getAttribute("artifactid")) {
             const artifactId = parseInt(href.split("?ArtifactId=")[1], 10);
             if (artifactId === parseInt(this.getAttribute("artifactid"), 10)) {
-                self.location.href = "/#/main/" + artifactId;
+                console.log("Should GOTO " + artifactId);
             }
         } else {
             window.open(href, "_blank");
@@ -310,18 +266,13 @@ export class BpFieldTextRTFInlineController {
         for (let i = 0; i < nodeList.length; i++) {
             let element = nodeList[i] as HTMLElement;
 
-            element.removeEventListener("click", this.handleClick);
-
             if (!remove) {
                 angular.element(element).attr("contentEditable", "false");
                 angular.element(element).attr("data-mce-contenteditable", "false");
 
-                element.addEventListener("mouseover", this.disableEditability);
-                element.addEventListener("mouseout", this.enableEditability);
                 element.addEventListener("click", this.handleClick);
             } else {
-                element.removeEventListener("mouseover", this.disableEditability);
-                element.removeEventListener("mouseout", this.enableEditability);
+                element.removeEventListener("click", this.handleClick);
             }
         }
     };

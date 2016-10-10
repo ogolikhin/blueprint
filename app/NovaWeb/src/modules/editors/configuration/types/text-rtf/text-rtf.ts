@@ -54,7 +54,8 @@ export class BpFieldTextRTFController {
                 statusbar: false,
                 content_style: `html { overflow: visible !important; }
                 body.mce-content-body { font-family: 'Open Sans', sans-serif; font-size: 9pt; }
-                body:hover, body:focus { background: ${bodyBgColor} url(${bodyBgImage}) no-repeat right 5px top 6px; background-attachment: fixed; }
+                body:hover { background: ${bodyBgColor} url(${bodyBgImage}) no-repeat right 5px top 6px; background-attachment: fixed; }
+                body:focus { background: ${bodyBgColor}; }
                 a:hover { cursor: pointer !important; }`,
                 invalid_elements: "img,frame,iframe,script",
                 invalid_styles: {
@@ -223,6 +224,7 @@ export class BpFieldTextRTFController {
                         ]
                     });
                     editor.addButton("fontsize", {
+                        title: "Font Size",
                         type: "menubutton", // https://www.tinymce.com/docs/demo/custom-toolbar-menu-button/
                         text: "",
                         icon: "font-size",

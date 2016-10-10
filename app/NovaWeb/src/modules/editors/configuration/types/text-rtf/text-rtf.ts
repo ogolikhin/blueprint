@@ -52,8 +52,9 @@ export class BpFieldTextRTFController {
                 menubar: false,
                 toolbar: "fontselect fontsize | bold italic underline | forecolor format | link table",
                 statusbar: false,
-                content_style: `body.mce-content-body { font-family: 'Open Sans', sans-serif; font-size: 9pt; }
-                body:hover, body:focus { background: ${bodyBgColor} url(${bodyBgImage}) no-repeat right 5px top 6px; }
+                content_style: `html { overflow: visible !important; }
+                body.mce-content-body { font-family: 'Open Sans', sans-serif; font-size: 9pt; }
+                body:hover, body:focus { background: ${bodyBgColor} url(${bodyBgImage}) no-repeat right 5px top 6px; background-attachment: fixed; }
                 a:hover { cursor: pointer !important; }`,
                 invalid_elements: "img,frame,iframe,script",
                 invalid_styles: {

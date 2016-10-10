@@ -1,4 +1,6 @@
-﻿namespace Model.ArtifactModel.Enums
+﻿using System.Collections.Generic;
+
+namespace Model.ArtifactModel.Enums
 {
     /// <summary>
     /// Contains extention functions for the ItemTypePredefined enum.
@@ -6,6 +8,43 @@
     /// </summary>
     public static class ItemTypePredefinedExtension
     {
+        /// <summary>
+        /// This is a map of ItemTypePredefined enum values to BaseArtifactType enum values.
+        /// </summary>
+        internal static Dictionary<ItemTypePredefined, BaseArtifactType> ItemTypePredefinedToBaseArtifactTypeMap { get; } =
+            new Dictionary<ItemTypePredefined, BaseArtifactType>
+        {
+            {ItemTypePredefined.None,                     BaseArtifactType.Undefined},
+            {ItemTypePredefined.PrimitiveFolder,          BaseArtifactType.PrimitiveFolder},
+            {ItemTypePredefined.Glossary,                 BaseArtifactType.Glossary},
+            {ItemTypePredefined.TextualRequirement,       BaseArtifactType.TextualRequirement},
+            {ItemTypePredefined.BusinessProcess,          BaseArtifactType.BusinessProcess},
+            {ItemTypePredefined.Actor,                    BaseArtifactType.Actor},
+            {ItemTypePredefined.UseCase,                  BaseArtifactType.UseCase},
+            {ItemTypePredefined.DataElement,              BaseArtifactType.DataElement},
+            {ItemTypePredefined.UIMockup,                 BaseArtifactType.UIMockup},
+            {ItemTypePredefined.GenericDiagram,           BaseArtifactType.GenericDiagram},
+            {ItemTypePredefined.Document,                 BaseArtifactType.Document},
+            {ItemTypePredefined.Storyboard,               BaseArtifactType.Storyboard},
+            {ItemTypePredefined.DomainDiagram,            BaseArtifactType.DomainDiagram},
+            {ItemTypePredefined.UseCaseDiagram,           BaseArtifactType.UseCaseDiagram},
+            {ItemTypePredefined.Baseline,                 BaseArtifactType.Baseline},
+            {ItemTypePredefined.BaselineFolder,           BaseArtifactType.BaselineFolder},
+            {ItemTypePredefined.ArtifactBaseline,         BaseArtifactType.ArtifactBaseline},
+            {ItemTypePredefined.ArtifactReviewPackage,    BaseArtifactType.ArtifactReviewPackage},
+            {ItemTypePredefined.Process,                  BaseArtifactType.Process}
+        };
+
+        /// <summary>
+        /// Converts this ItemTypePredefined enum value to its BaseArtifactType equivalent.
+        /// </summary>
+        /// <param name="itemType">The ItemTypePredefined to convert.</param>
+        /// <returns>The BaseArtifactType version of this ItemTypePredefined.</returns>
+        public static BaseArtifactType ToBaseArtifactType(this ItemTypePredefined itemType)
+        {
+            return ItemTypePredefinedToBaseArtifactTypeMap[itemType];
+        }
+
         /// <summary>
         /// Returns true if this is a primitive artifact type.
         /// </summary>

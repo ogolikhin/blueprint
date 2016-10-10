@@ -47,7 +47,7 @@ namespace CommonServiceTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                publishResult = artifact.NovaPublish(_user);
+                publishResult = artifact.StorytellerPublish(_user);
             }, "Publish failed when publishing a saved artifact!");
 
             // Verify:
@@ -70,7 +70,7 @@ namespace CommonServiceTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                publishResult = artifact.NovaPublish(_user);
+                publishResult = artifact.StorytellerPublish(_user);
             }, "Running Publish with a published artifact should return 200 OK!");
 
             // Verify:

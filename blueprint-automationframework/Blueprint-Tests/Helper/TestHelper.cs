@@ -82,6 +82,8 @@ namespace Helper
             {
                 Artifacts.ForEach(a =>
                 {
+                    a.LockOwner = null;
+
                     if (a.Id == publishedArtifactId)
                     {
                         if (a.IsMarkedForDeletion)

@@ -1,6 +1,6 @@
 ﻿import * as angular from "angular";
+import * as _ from "lodash";
 import { ILocalizationService } from "../../core";
-import { Helper } from "../../shared";
 import { Models } from "../../main";
 import { IArtifactManager, ISelection, IStatefulItem } from "../../managers/artifact-manager";
 import { ItemTypePredefined } from "../../main/models/enums";
@@ -101,7 +101,7 @@ export class BPUtilityPanelController {
     private onItemChanged = (item: IStatefulItem) => {
         if (item != null) {
             this._currentItem = `${(item.prefix || "")}${item.id}: ${item.name}`;
-            this._currentItemClass = "icon-" + Helper.toDashCase(Models.ItemTypePredefined[item.predefinedType] || "");
+            this._currentItemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[item.predefinedType] || "");
             this._currentItemType = item.itemTypeId;
             this._currentItemIcon = null;
             //TODO: (PP) Please fix this for both artifact and subartifact

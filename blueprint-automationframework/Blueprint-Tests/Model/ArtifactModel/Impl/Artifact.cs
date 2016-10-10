@@ -339,12 +339,14 @@ namespace Model.ArtifactModel.Impl
             return returnedArtifactProperties[0];
         }
 
-        public NovaPublishArtifactResult NovaPublish(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        /// <seealso cref="IArtifact.StorytellerPublish(IUser, List{HttpStatusCode}, bool)"/>
+        public NovaPublishArtifactResult StorytellerPublish(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
-            return PublishArtifact(artifactToPublish: this, user: user, expectedStatusCodes: expectedStatusCodes,
+            return StorytellerPublishArtifact(artifactToPublish: this, user: user, expectedStatusCodes: expectedStatusCodes,
                 sendAuthorizationAsCookie: sendAuthorizationAsCookie);
         }
 
+        /// <seealso cref="IArtifact.PostRaptorDiscussions(string, IUser, List{HttpStatusCode})"/>
         public IRaptorComment PostRaptorDiscussions(string discussionsText,
             IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -786,7 +788,7 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Publish a single artifact on Blueprint server.
+        /// Publish a single artifact on Blueprint server.  This is only used in Storyteller.
         /// (Runs: /svc/shared/artifacts/publish)
         /// </summary>
         /// <param name="artifactToPublish">The artifact to publish</param>
@@ -794,8 +796,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>Resut of Publish operation</returns>
-        ///TODO: override the Publish() function in the Artifact class to call this PublishArtifact() function
-        public static NovaPublishArtifactResult PublishArtifact(IArtifactBase artifactToPublish,
+        public static NovaPublishArtifactResult StorytellerPublishArtifact(IArtifactBase artifactToPublish,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)

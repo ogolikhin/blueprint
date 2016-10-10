@@ -167,7 +167,7 @@ export class BpFieldTextRTFController {
                         let contentBody = editorBody.innerHTML;
                         if (this.contentBody !== contentBody) {
                             this.contentBody = contentBody;
-                            onChange(contentBody, $scope.fields[0], $scope);
+                            onChange(contentBody, $scope.options, $scope);
                         }
                     });
 

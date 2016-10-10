@@ -1,10 +1,10 @@
-import {IBPDropdownMenuItemToolbarOption} from "../options/bp-toolbar-option";
+import {IBPDropdownItemAction} from "../actions";
 
 export class BPToolbarDropdown implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BPToolbarDropdownController;
     public template: string = require("./bp-toolbar-dropdown.html");
     public bindings: {[boundProperty: string]: string} = {
-        options: "<",
+        actions: "<",
         icon: "@",
         disabled: "=?",
         label: "@?",
@@ -13,7 +13,7 @@ export class BPToolbarDropdown implements ng.IComponentOptions {
 }
 
 export class BPToolbarDropdownController implements ng.IComponentController {
-    public options: IBPDropdownMenuItemToolbarOption[];
+    public actions: IBPDropdownItemAction[];
     public icon: string;
     public disabled: boolean;
     public label?: string;

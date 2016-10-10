@@ -54,10 +54,11 @@ export {
 } from "./bp-dialog";
 
 export {
-    IBPToolbarOption,
-    BPButtonToolbarOption,
-    BPDropdownToolbarOption,
-    BPDropdownMenuItemToolbarOption,
-    BPToggleToolbarOption,
-    BPButtonGroupToolbarOption
+    IBPAction,
+    BPButtonAction,
+    BPDropdownItemAction,
+    BPDropdownAction,
+    BPToggleItemAction,
+    BPToggleAction,
+    BPButtonGroupAction
 } from "./bp-toolbar";

@@ -1,13 +1,13 @@
-import {IBPButtonToolbarOption} from "../options/bp-toolbar-option";
+import {IBPButtonAction} from "../actions";
 
 export class BPToolbarButtonGroup implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BPToolbarButtonGroupController;
     public template: string = require("./bp-toolbar-button-group.html");
     public bindings: { [boundProperty: string]: string } = {
-        options: "<"
+        actions: "<"
     };
 }
 
 export class BPToolbarButtonGroupController implements ng.IComponentController {
-    public options: IBPButtonToolbarOption[];
+    public actions: IBPButtonAction[];
 }

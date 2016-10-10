@@ -4,17 +4,17 @@ import { IMessageService, ILocalizationService} from "../../../../core";
 import { IDialogService } from "../../../../shared";
 import { IArtifactManager, IProjectManager } from "../../../../managers";
 import { IToolbarCommunication } from "./toolbar-communication";
-import { ICommunicationManager } from "../../"; 
+import { ICommunicationManager } from "../../";
+import { ProcessType } from "../../models/enums";
 import { ILoadingOverlayService } from "../../../../core/loading-overlay";
 import { INavigationService } from "../../../../core/navigation/navigation.svc";
 import { IArtifactReference, IBreadcrumbService } from "../../services/breadcrumb.svc";
 import { IBreadcrumbLink } from "../../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
 import { 
-    BPButtonToolbarOption,
-    BPDropdownToolbarOption, 
-    BPDropdownMenuItemToolbarOption,
-    BPToggleToolbarOption, 
-    BPButtonGroupToolbarOption 
+    BPDropdownItemAction,
+    BPDropdownAction, 
+    BPToggleItemAction,
+    BPToggleAction
 } from "../../../../shared";
 
 export class BpProcessHeader implements ng.IComponentOptions {
@@ -127,35 +127,35 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
     protected updateToolbarOptions(): void {
         super.updateToolbarOptions();
 
-        this.toolbarOptions.push(
-            new BPDropdownToolbarOption(
+        this.toolbarActions.push(
+            new BPDropdownAction(
                 () => true,
                 "fonticon fonticon2-news",
                 undefined,
                 "Generate User Stories",
-                new BPDropdownMenuItemToolbarOption(
+                new BPDropdownItemAction(
                     "Generate from Task",
                     () => "Generate from Task clicked",
                     () => true
                 ),
-                new BPDropdownMenuItemToolbarOption(
+                new BPDropdownItemAction(
                     "Generate All", 
                     () => "Generate All clicked", 
                     () => true
                 )
             ),
-            new BPToggleToolbarOption(
+            new BPToggleAction(
                 () => true,
-                new BPButtonToolbarOption(
-                    () => "Business Process toggled",
-                    () => true,
+                new BPToggleItemAction(
                     "fonticon fonticon2-user-user",
+                    ProcessType.BusinessProcess,
+                    () => true,
                     "Business Process mode"
                 ),
-                new BPButtonToolbarOption(
-                    () => "User-To-System Process toggled",
-                    () => true,
+                new BPToggleItemAction(
                     "fonticon fonticon2-user-system",
+                    ProcessType.UserToSystemProcess,
+                    () => true,
                     "User-System Process mode"
                 )
             )

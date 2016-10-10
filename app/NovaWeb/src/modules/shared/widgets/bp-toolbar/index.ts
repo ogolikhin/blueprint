@@ -17,10 +17,11 @@ angular.module("bp.widgets.toolbar", [])
     .component("bpToolbarButtonGroup", new BPToolbarButtonGroup());
 
 export {
-    IBPToolbarOption,
-    BPButtonToolbarOption,
-    BPDropdownToolbarOption,
-    BPDropdownMenuItemToolbarOption,
-    BPToggleToolbarOption,
-    BPButtonGroupToolbarOption
-} from "./options";
+    IBPAction,
+    BPButtonAction,
+    BPDropdownItemAction,
+    BPDropdownAction,
+    BPToggleItemAction,
+    BPToggleAction,
+    BPButtonGroupAction
+} from "./actions";

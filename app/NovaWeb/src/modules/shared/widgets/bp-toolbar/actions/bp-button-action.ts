@@ -1,6 +1,14 @@
-import {IBPButtonToolbarOption} from "./bp-toolbar-option";
+import {IBPAction} from "./bp-action";
 
-export class BPButtonToolbarOption implements IBPButtonToolbarOption {
+export interface IBPButtonAction extends IBPAction {
+    click: () => void;
+    icon: string;
+    disabled?: boolean;
+    label?: string;
+    tooltip?: string;
+}
+
+export class BPButtonAction implements IBPButtonAction {
     constructor(
         private _click: () => void,
         private _canClick: () => boolean,

@@ -11,9 +11,9 @@ import {
     Helper, 
     IDialogSettings, 
     IDialogService, 
-    IBPToolbarOption, 
-    BPButtonToolbarOption, 
-    BPButtonGroupToolbarOption
+    IBPAction, 
+    BPButtonAction, 
+    BPButtonGroupAction
 } from "../../../shared";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
@@ -53,7 +53,7 @@ export class BpArtifactInfoController {
     public artifactTypeId: number;
     public artifactTypeIcon: number;
     public artifactTypeDescription: string;
-    public toolbarOptions: IBPToolbarOption[];
+    public toolbarActions: IBPAction[];
 
     constructor(
         public $scope: ng.IScope,
@@ -136,7 +136,7 @@ export class BpArtifactInfoController {
         this.selfLocked = false;
         this.isLegacy = false;
         this.artifactClass = null;
-        this.toolbarOptions = [];
+        this.toolbarActions = [];
 
         if (this.lockMessage) {
             this.messageService.deleteMessageById(this.lockMessage.id);
@@ -228,41 +228,41 @@ export class BpArtifactInfoController {
     }
 
     protected updateToolbarOptions(): void {
-        this.toolbarOptions.push(
-            new BPButtonGroupToolbarOption(
-                new BPButtonToolbarOption(
+        this.toolbarActions.push(
+            new BPButtonGroupAction(
+                new BPButtonAction(
                     () => console.log("Save button clicked"),
                     () => true,
                     "fonticon fonticon2-save",
                     "Save"
                 ),
-                new BPButtonToolbarOption(
+                new BPButtonAction(
                     () => console.log("Publish button clicked"),
                     () => true,
                     "fonticon fonticon2-publish",
                     "Publish"
                 ),
-                new BPButtonToolbarOption(
+                new BPButtonAction(
                     () => console.log("Discard button clicked"),
                     () => true,
                     "fonticon fonticon2-discard",
                     "Discard"
                 ),
-                new BPButtonToolbarOption(
+                new BPButtonAction(
                     () => console.log("Refresh button clicked"),
                     () => true,
                     "fonticon fonticon2-refresh",
                     "Refresh"
                 ),
-                new BPButtonToolbarOption(
+                new BPButtonAction(
                     () => console.log("Delete button clicked"),
                     () => true,
                     "fonticon fonticon2-delete",
                     "Delete"
                 )
             ),
-            new BPButtonGroupToolbarOption(
-                new BPButtonToolbarOption(
+            new BPButtonGroupAction(
+                new BPButtonAction(
                     () => console.log("Impact Analysis button clicked"),
                     () => true,
                     "fonticon fonticon2-impact-analysis",

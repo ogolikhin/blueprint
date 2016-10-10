@@ -1,6 +1,6 @@
 <div class="btn-group" data-toggle="buttons">
-    <label class="btn btn-primary btn-small" ng-repeat="option in $ctrl.options track by $index" ng-disabled="option.disabled || $ctrl.disabled" bp-tooltip="{{option.tooltip}}">
-        <input type="radio" name="options" id="$index" ng-value="$ctrl.selectedValue" autocomplete="off">
-        <span ng-if="option.icon" ng-class="option.icon"></span> {{option.label}}
+    <label class="btn btn-primary btn-small" ng-repeat="action in $ctrl.actions track by $index" ng-disabled="action.disabled || $ctrl.disabled" bp-tooltip="{{action.tooltip}}">
+        <input type="radio" name="actions" id="$index" ng-value="$ctrl.selectedValue" autocomplete="off">
+        <span ng-if="action.icon" ng-class="action.icon"></span> {{action.label}}
     </label>
 </div>

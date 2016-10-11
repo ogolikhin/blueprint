@@ -37,7 +37,7 @@ namespace SearchService.Controllers
         /// <summary>
         /// Perform an Item search by Name
         /// </summary>
-        /// <param name="searchCriteria">SearchCriteria object</param>
+        /// <param name="searchCriteria">SearchCriteria object</param>      
         /// <param name="startOffset">Search start offset</param>
         /// <param name="pageSize">Page Size</param>
         /// <response code="200">OK.</response>
@@ -62,10 +62,13 @@ namespace SearchService.Controllers
 
             results.PageItemCount = results.SearchItems.Count();
 
-            // TODO Get Search Artifact Path
-            foreach (var searchItem in results.SearchItems)
+            if (searchCriteria.IncludeArtifactPath)
             {
-                searchItem.ArtifactPath = ArtifactPathStub;
+                // TODO Get Search Artifact Path
+                foreach (var searchItem in results.SearchItems)
+                {
+                    searchItem.ArtifactPath = ArtifactPathStub;
+                }
             }
 
             return Ok(results);

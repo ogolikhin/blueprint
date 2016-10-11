@@ -106,7 +106,16 @@ export class ArtifactRelationships implements IArtifactRelationships {
 
         this.relationships = this.relationships.concat(relationships);
 
-        this.statefulItem.lock();
+        this.relationships.map((relationship: IRelationship) => {
+            const changeset = {
+                type: ChangeTypeEnum.Add,
+                key: this.getKey(relationship),
+                value: relationship
+            } as IChangeSet;
+            this.changeset.add(changeset);
+
+            this.statefulItem.lock();
+        });
 
         this.subject.onNext(this.relationships);
 

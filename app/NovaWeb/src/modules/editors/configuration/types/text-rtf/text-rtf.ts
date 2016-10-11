@@ -91,7 +91,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 plugins: "paste textcolor table noneditable autolink link autoresize",
                 autoresize_on_init: false,
                 autoresize_min_height: 125,
-                autoresize_max_height: 400,
+                autoresize_max_height: 350,
                 autoresize_overflow_padding: 0,
                 // plugins: "contextmenu", // https://www.tinymce.com/docs/plugins/contextmenu/
                 // contextmenu: "bold italic underline strikethrough | link inserttable | cell row column deletetable",
@@ -164,14 +164,9 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         this.observer.observe(editorBody, observerConfig);
                     }
 
-                    let contentBody = editorBody.innerHTML.replace(bogusRegEx, "");
-
+                    // tinyMCE seems to fire 2 onChange events every time
                     editor.on("Change", (e) => {
-                        const _contentBody = editorBody.innerHTML.replace(bogusRegEx, "");
-                        if (contentBody !== _contentBody) {
-                            contentBody = _contentBody;
-                            onChange(contentBody, $scope.options, $scope);
-                        }
+                        onChange(editorBody.innerHTML.replace(bogusRegEx, ""), $scope.options, $scope);
                     });
 
                     editor.on("Focus", (e) => {

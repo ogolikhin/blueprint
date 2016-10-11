@@ -5,6 +5,7 @@ import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
 import {ProcessModels, ProcessEnums} from "../../../";
 import {ICommunicationManager} from "../../../";
 import { IStatefulArtifact } from "../../../../../managers/artifact-manager/";
+import { StatefulProcessSubArtifact } from "../../../process-subartifact";
 
 export interface IProcessViewModel extends IProcessGraphModel {
     description: string;
@@ -31,7 +32,8 @@ export interface IProcessViewModel extends IProcessGraphModel {
     resetJustCreatedShapeIds();
     addJustCreatedShapeId(id: number);
     isShapeJustCreated(id: number): boolean;
-    statefulArtifact: IStatefulArtifact;
+    addShape(processShape: ProcessModels.IProcessShape);
+    removeShape(shapeId: number);
 }
 
 export class ProcessViewModel implements IProcessViewModel {
@@ -51,51 +53,35 @@ export class ProcessViewModel implements IProcessViewModel {
     private _shapeLimit: number = this.DEFAULT_SHAPE_LIMIT;
     private _communicationManager: ICommunicationManager;
     private _justCreatedShapeIds: number[] = [];
-
-    constructor(process, rootScope?: any, scope?: any, messageService?: IMessageService) {
+  
+    constructor(private process, rootScope?: any, scope?: any, messageService?: IMessageService) {
 
         this.updateProcessGraphModel(process);
         this._rootScope = rootScope;
         if (scope) {
             this._scope = scope;
-           // this.subscribeToToolbarEvents();
             this.getConfigurationSettings(); 
         }
-
-        //if (header) {
-        //    this._header = header;
-        //    this.initHeader();
-        //}
-
+        
         if (messageService) {
             this._messageService = messageService;
         }
     }
-
+    
     public get isReadonly(): boolean {
         return this._isReadonly;
     }
 
     public set isReadonly(value) {
         this._isReadonly = value;
-        //if (this.header) {
-        //this._header.isReadonly = value;
-        //}
     }
-
-    //public get header(): IProcessHeader {
-    //    return this._header;
-    //}
-
+    
     public get showLock(): boolean {
         return this._showLock;
     }
 
     public set showLock(value: boolean) {
         this._showLock = value;
-        //if (this.header) {
-        //    this._header.showLock = value;
-        //}
     }
 
     public get showLockOpen(): boolean {
@@ -104,9 +90,6 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public set showLockOpen(value: boolean) {
         this._showLockOpen = value;
-        //if (this.header) {
-        //    this._header.showLockOpen = value;
-        //}
     }
 
     public get isLocked(): boolean {
@@ -118,11 +101,6 @@ export class ProcessViewModel implements IProcessViewModel {
         this.status.isLocked = value;
         this.showLock = this.status.isLocked && !this.status.isLockedByMe;
         this.showLockOpen = this.status.isLocked && this.status.isLockedByMe;
-
-        //if (this.header) {
-        //    this.header.showLock = this.showLock;
-        //    this.header.showLockOpen = this.showLockOpen;
-        //}
     }
 
     public get isLockedByMe(): boolean {
@@ -135,11 +113,6 @@ export class ProcessViewModel implements IProcessViewModel {
 
         this.showLock = this.status.isLocked && !this.status.isLockedByMe;
         this.showLockOpen = this.status.isLocked && this.status.isLockedByMe;
-
-        //if (this.header) {
-        //    this.header.showLock = this.showLock;
-        //    this.header.showLockOpen = this.showLockOpen;
-        //}
     }
 
     public get isChanged(): boolean {
@@ -148,9 +121,6 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public set isChanged(value: boolean) {
         this._isChanged = value;
-        //if (this.header) {
-        //    this.header.isChanged = value;
-        //}
     }
 
     public get shapeLimit(): number {
@@ -209,19 +179,7 @@ export class ProcessViewModel implements IProcessViewModel {
 
         this.isChanged = false;
         this.isReadonly = process.status.isReadOnly;
-        //if (this.header) {
-        //    this.header.name = process.name;
-        //    this.header.description = this.getPropertyValue(process, "description");
-        //}
     }
-
-    //private getPropertyValue(process: ProcessModels.IProcess, propertyName: string) {
-    //    if (process == null || process.propertyValues == null || process.propertyValues[propertyName] == null) {
-    //        return null;
-    //    }
-
-    //    return process.propertyValues[propertyName].value;
-    //}
 
     public get processType(): ProcessEnums.ProcessType {
         return this.propertyValues["clientType"].value;
@@ -316,14 +274,14 @@ export class ProcessViewModel implements IProcessViewModel {
     public get baseItemTypePredefined(): Enums.ItemTypePredefined {
         return this.processGraphModel.baseItemTypePredefined;
     }
-
+   
     public get shapes(): ProcessModels.IProcessShape[] {
         return this.processGraphModel.shapes;
     }
 
     public set shapes(newValue: ProcessModels.IProcessShape[]) {
         this.processGraphModel.shapes = newValue;
-    }
+    }    
 
     public get links(): ProcessModels.IProcessLinkModel[] {
         return <ProcessModels.IProcessLinkModel[]>this.processGraphModel.links;
@@ -351,6 +309,34 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public get status(): ProcessModels.IItemStatus {
         return this.processGraphModel.status;
+    }
+
+    protected addStatefulShape(processShape: ProcessModels.IProcessShape) {
+
+        let statefulShape = new StatefulProcessSubArtifact(this.process,
+            processShape, this.process.getServices());
+
+        let statefulArtifact: IStatefulArtifact = this.process; 
+
+        statefulArtifact.subArtifactCollection.add(statefulShape);
+    }
+     
+    public addShape(processShape: ProcessModels.IProcessShape) {
+
+        this.shapes.push(processShape);
+
+        this.addStatefulShape(processShape);
+    }
+
+    public removeShape(shapeId: number) {
+        this.shapes = this.shapes.filter(shape => { return shape.id !== shapeId; });
+        this.removeStatefulShape(shapeId);
+    }
+    protected removeStatefulShape(shapeId: number) {
+        this.shapes = this.shapes.filter(shape => { return shape.id !== shapeId; });
+        // cast process as an IStatefulArtifact 
+        let statefulArtifact: IStatefulArtifact = this.process;
+        statefulArtifact.subArtifactCollection.remove(shapeId);
     }
 
     public updateTree() {
@@ -462,32 +448,7 @@ export class ProcessViewModel implements IProcessViewModel {
     public isShapeJustCreated(id: number): boolean {
         return this._justCreatedShapeIds.filter(newId => id === newId).length > 0;
     }
-
-    //private subscribeToToolbarEvents() {
-    //    // subscribe to toolbar commands using the event bus 
-    //    if (this._scope.subscribe) {
-    //        if (this._unsubscribeToolbarEvents.length > 0) {
-    //            // remove previous event listeners 
-    //            this.removeToolbarEventListeners();
-    //        }
-    //        this._unsubscribeToolbarEvents.push(
-    //            this._scope.subscribe("Toolbar:ResetLock", (event, target) => {
-    //                this.resetLock();
-    //            })
-    //        );
-    //    }
-    //}
-
-    //private removeToolbarEventListeners() {
-    //    if (this._unsubscribeToolbarEvents.length > 0) {
-    //        for (var i = 0; i < this._unsubscribeToolbarEvents.length; i++) {
-    //            this._unsubscribeToolbarEvents[i]();
-    //            this._unsubscribeToolbarEvents[i] = null;
-    //        }
-    //    }
-    //    this._unsubscribeToolbarEvents = [];
-    //}
-
+    
     private getConfigurationSettings() {
         // get configuration settings from rootscope configuration object 
         // and assign to viewmodel properties
@@ -521,13 +482,7 @@ export class ProcessViewModel implements IProcessViewModel {
         return this._rootScope && this._rootScope.config;
     }
 
-    public get statefulArtifact(): IStatefulArtifact{
-        return this.processGraphModel.statefulArtifact;
-    }
-
     public destroy() {
-        //this.removeToolbarEventListeners();
-        //this._header = null;
         this._scope = null;
         if (this.processGraphModel != null) {
             this.processGraphModel.destroy();

@@ -35,8 +35,7 @@ namespace ArtifactStoreTests
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _authorUser = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
-
+            
             _project = ProjectFactory.GetProject(_adminUser);
             _fileName = I18NHelper.FormatInvariant("{0}.{1}", RandomGenerator.RandomAlphaNumeric(10), "txt");
             _attachmentFile = FileStoreTestHelper.CreateFileWithRandomByteArray(_fileSize, _fileName, "text/plain");

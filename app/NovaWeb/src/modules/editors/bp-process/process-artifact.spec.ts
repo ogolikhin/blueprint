@@ -7,6 +7,8 @@ import { ProcessServiceMock } from "./services/process.svc.mock";
 import { IStatefulProcessArtifactServices, StatefulArtifactServices, StatefulProcessArtifactServices } from "../../managers/artifact-manager/services";
 import { StatefulProcessArtifact } from "./process-artifact";
 import { StatefulProcessSubArtifact } from "./process-subartifact";
+import { IStatefulSubArtifact } from "../../managers/artifact-manager/sub-artifact/sub-artifact";
+
 
 import { Models } from "../../main/models";
 
@@ -159,14 +161,13 @@ describe("StatefulProcessArtifact", () => {
             expect(processArtifact.subArtifactCollection.list().length).toBe(processArtifact.shapes.length);        
         });
         
-        it("IProcessShapes are StatefulProcessSubArtifacts with a valid state", () => {
+        it("IProcessShapes are subArtifactCollection with a valid state", () => {
             //Act
             processArtifact.getObservable();
             $rootScope.$digest();
 
             //Assert
-            let shapes = processArtifact.shapes;
-            let statefulSubArtifact: StatefulProcessSubArtifact =  <StatefulProcessSubArtifact>shapes[0];
+            let statefulSubArtifact: IStatefulSubArtifact = processArtifact.subArtifactCollection.list()[0];
             expect(statefulSubArtifact.artifactState).not.toBeUndefined();        
         });
 

@@ -1,9 +1,6 @@
 ﻿import {ItemTypePredefined} from "../../../../../main/models/enums";
 import {Models} from "../../../../../main";
 import {ProcessModels, ProcessEnums} from "../../../";
-import { IStatefulArtifact } from "../../../../../managers/artifact-manager/";
-import { StatefulProcessArtifact } from "../../../process-artifact";
-import { StatefulProcessSubArtifact } from "../../../process-subartifact";
 
 export interface IProcessGraphModel {
 
@@ -41,12 +38,8 @@ export interface IProcessGraphModel {
     getBranchDestinationId(decisionId: number, firstShapeInConditionId: number): number;
     isInSameFlow(id: number, otherId: number): boolean;
     isInChildFlow(id: number, otherId: number): boolean;
-
     updateDecisionDestinationId(decisionId: number, orderIndex: number, newDestinationId: number);
-
     isDecision(id: number): boolean;
-    statefulArtifact: IStatefulArtifact;
-
     destroy();
 }
 
@@ -92,11 +85,7 @@ export class ProcessGraphModel implements IProcessGraphModel {
     }
 
     public set shapes(newValue: ProcessModels.IProcessShape[]) {
-        this.process.shapes = newValue;
-        //TODO: This is to prevent unit tests from failing. Need to change unit tests to include stateful artifact in the models.
-        if (this.statefulArtifact) {
-            this.statefulArtifact.subArtifactCollection.initialise(<StatefulProcessSubArtifact[]>newValue);
-        }
+        this.process.shapes = newValue;       
     }
 
     public get links(): ProcessModels.IProcessLinkModel[] {
@@ -421,14 +410,7 @@ export class ProcessGraphModel implements IProcessGraphModel {
             link.destinationId = newDestinationId;
         }
     }
-
-    public get statefulArtifact(): IStatefulArtifact{
-        if (this.process instanceof StatefulProcessArtifact) {
-            return <StatefulProcessArtifact> this.process;
-        }
-        return null;        
-    }
-
+ 
     public destroy() {
         this.tree = null;
         this.linkIndex = [];

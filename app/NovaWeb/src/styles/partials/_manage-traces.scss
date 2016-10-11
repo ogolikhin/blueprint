@@ -1,3 +1,5 @@
+$modal-side-clearance: 8px;
+
 .manage-traces-wrapper{
 
   .disabled {
@@ -8,7 +10,7 @@
 
   &.modal{
     .modal-dialog{
-      min-width: 820px;
+      min-width: #{830px + (2 * $modal-side-clearance)};
     }
   }
 

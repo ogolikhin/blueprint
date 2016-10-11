@@ -91,7 +91,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 plugins: "paste textcolor table noneditable autolink link autoresize",
                 autoresize_on_init: false,
                 autoresize_min_height: 125,
-                autoresize_max_height: 400,
+                autoresize_max_height: 350,
                 autoresize_overflow_padding: 0,
                 // plugins: "contextmenu", // https://www.tinymce.com/docs/plugins/contextmenu/
                 // contextmenu: "bold italic underline strikethrough | link inserttable | cell row column deletetable",

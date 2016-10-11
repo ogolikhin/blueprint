@@ -125,8 +125,8 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                     this.handleLinks(editorBody.querySelectorAll("a"));
 
                     // MutationObserver
-                    const MutationObserver = window["MutationObserver"] || window["WebKitMutationObserver"] || window["MozMutationObserver"];
-                    if (!angular.isUndefined(MutationObserver)) {
+                    const mutationObserver = window["MutationObserver"] || window["WebKitMutationObserver"] || window["MozMutationObserver"];
+                    if (!angular.isUndefined(mutationObserver)) {
                         // create an observer instance
                         this.observer = new MutationObserver((mutations) => {
                             mutations.forEach(this.handleMutation);

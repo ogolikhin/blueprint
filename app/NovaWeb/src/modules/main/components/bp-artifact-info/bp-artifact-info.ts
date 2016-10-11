@@ -2,12 +2,26 @@
 import { Models, Enums } from "../../models";
 import { IWindowManager, IMainWindow, ResizeCause } from "../../services";
 import { IMessageService, Message, MessageType, ILocalizationService } from "../../../core";
-import { Helper, IDialogSettings, IDialogService, IDialogData } from "../../../shared";
 import { ArtifactPickerDialogController, IArtifactPickerOptions } from "../bp-artifact-picker";
 import { ILoadingOverlayService } from "../../../core/loading-overlay";
 import { IArtifactManager, IStatefulArtifact } from "../../../managers/artifact-manager";
 import { IProjectManager } from "../../../managers/project-manager";
 import { INavigationService } from "../../../core/navigation/navigation.svc";
+import {
+    Helper,
+    IDialogSettings,
+    IDialogService,
+    IBPAction,
+    BPButtonGroupAction
+} from "../../../shared";
+import {
+    SaveAction,
+    PublishAction,
+    DiscardAction,
+    RefreshAction,
+    DeleteAction,
+    OpenImpactAnalysisAction
+} from "./actions";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -46,16 +60,17 @@ export class BpArtifactInfoController {
     public artifactTypeId: number;
     public artifactTypeIcon: number;
     public artifactTypeDescription: string;
+    public toolbarActions: IBPAction[];
 
     constructor(
         public $scope: ng.IScope,
         private $element: ng.IAugmentedJQuery,
-        private artifactManager: IArtifactManager,
-        private localization: ILocalizationService,
-        private messageService: IMessageService,
-        private dialogService: IDialogService,
-        private windowManager: IWindowManager,
-        private loadingOverlayService: ILoadingOverlayService,
+        protected artifactManager: IArtifactManager,
+        protected localization: ILocalizationService,
+        protected messageService: IMessageService,
+        protected dialogService: IDialogService,
+        protected windowManager: IWindowManager,
+        protected loadingOverlayService: ILoadingOverlayService,
         protected navigationService: INavigationService,
         protected projectManager: IProjectManager
     ) {
@@ -111,12 +126,13 @@ export class BpArtifactInfoController {
         } else {
             this.messageService.addError(error);
         }
+
         this.onArtifactChanged();
     }
 
     private initProperties() {
         this.artifactName = null;
-        this.artifactType = null;   
+        this.artifactType = null;
         this.artifactTypeId = null;
         this.artifactTypeIcon = null;
         this.artifactTypeDescription = null;
@@ -127,6 +143,8 @@ export class BpArtifactInfoController {
         this.selfLocked = false;
         this.isLegacy = false;
         this.artifactClass = null;
+        this.toolbarActions = [];
+
         if (this.lockMessage) {
             this.messageService.deleteMessageById(this.lockMessage.id);
             this.lockMessage = null;
@@ -135,17 +153,24 @@ export class BpArtifactInfoController {
 
     private updateProperties(artifact: IStatefulArtifact) {
         this.initProperties();
+
         if (!artifact) {
             return;
         }
+
+        this.updateToolbarOptions(artifact);
+
         this.artifactName = artifact.name || "";
-        let itemType = artifact.metadata.getItemType(); 
+
+        let itemType = artifact.metadata.getItemType();
         if (itemType) {
             this.artifactTypeId = itemType.id;
             this.artifactType = itemType.name || Models.ItemTypePredefined[itemType.predefinedType] || "";
+
             if (itemType.iconImageId && angular.isNumber(itemType.iconImageId)) {
                 this.artifactTypeIcon = itemType.iconImageId;
             }
+
             this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
         }
         
@@ -162,10 +187,12 @@ export class BpArtifactInfoController {
 
         this.isReadonly = artifact.artifactState.readonly;
         this.isChanged = artifact.artifactState.dirty;
+
         switch (artifact.artifactState.lockedBy) {
             case Enums.LockedByEnum.CurrentUser:
                 this.selfLocked = true;
                 break;
+
             case Enums.LockedByEnum.OtherUser:
                  let msg = artifact.artifactState.lockOwner ? "Locked by " + artifact.artifactState.lockOwner : "Locked "; 
                  if (artifact.artifactState.lockDateTime) {
@@ -173,12 +200,13 @@ export class BpArtifactInfoController {
                  }
                 this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
                 break;
+
             default:
                 break;
         }
+
         if (artifact.artifactState.misplaced) {
-            this.dialogService.alert("Artifact_Lock_DoesNotExist").then(() => {
-            }) ;
+            this.dialogService.alert("Artifact_Lock_DoesNotExist").then(() => {}) ;
         } 
     }
 
@@ -206,12 +234,26 @@ export class BpArtifactInfoController {
         return style;
     }
 
+    protected updateToolbarOptions(artifact: IStatefulArtifact): void {
+        this.toolbarActions.push(
+            new BPButtonGroupAction(
+                new SaveAction(artifact, this.localization, this.messageService, this.loadingOverlayService, this.artifactManager),
+                new PublishAction(artifact, this.localization),
+                new DiscardAction(artifact, this.localization),
+                new RefreshAction(this.localization, this.projectManager, this.artifactManager, this.loadingOverlayService),
+                new DeleteAction(artifact, this.localization, this.dialogService)
+            ),
+            new OpenImpactAnalysisAction(artifact, this.localization)
+        );
+    }
+
     private onWidthResized(mainWindow: IMainWindow) {
         if (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
             let sidebarWrapper: Element;
             const sidebarSize: number = 270; // MUST match $sidebar-size in styles/modules/_variables.scss
             let sidebarsWidth: number = 20 * 2; // main content area padding
             sidebarWrapper = document.querySelector(".bp-sidebar-wrapper");
+
             if (sidebarWrapper) {
                 for (let c = 0; c < sidebarWrapper.classList.length; c++) {
                     if (sidebarWrapper.classList[c].indexOf("-panel-visible") !== -1) {
@@ -219,6 +261,7 @@ export class BpArtifactInfoController {
                     }
                 }
             }
+
             if (this.$element.length) {
                 let container: HTMLElement = this.$element[0];
                 let toolbar: Element = container.querySelector(".page-top-toolbar");
@@ -228,19 +271,6 @@ export class BpArtifactInfoController {
                         "100%" : "calc(100% - " + toolbar.clientWidth + "px)");
                 }
             }
-        }
-    }
-
-    public saveChanges() {
-        let overlayId: number = this.loadingOverlayService.beginLoading();
-        try {
-            this.artifactManager.selection.getArtifact().save().finally(() => {
-                this.loadingOverlayService.endLoading(overlayId);
-            });
-        } catch (err) {
-            this.messageService.addError(err);
-            this.loadingOverlayService.endLoading(overlayId);
-            throw err;
         }
     }
 
@@ -263,23 +293,4 @@ export class BpArtifactInfoController {
             console.log(items);
         });
     }
-
-    public refresh() {
-        //loading overlay
-        const overlayId = this.loadingOverlayService.beginLoading();
-        const currentArtifact = this.artifactManager.selection.getArtifact();
-        
-        currentArtifact.refresh()
-            .catch((error) => {
-                //this.dialogService.alert(error.message);
-                //this.navigationService.navigateToArtifact(currentArtifact.parentId);
-                //this.artifactManager.remove(currentArtifact.id);
-
-                // We're not interested in the error type.
-                // sometimes this error is created by artifact.load(), which returns the statefulArtifact instead of an error object.
-                this.projectManager.refresh(this.projectManager.getSelectedProject());
-            }).finally(() => {
-                this.loadingOverlayService.endLoading(overlayId);
-            });
-      }
 }

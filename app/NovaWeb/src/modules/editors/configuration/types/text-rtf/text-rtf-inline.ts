@@ -40,6 +40,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
         allowedFonts.forEach(function (font) {
             fontFormats += `${font}=` + (font.indexOf(" ") !== -1 ? `"${font}";` : `${font};`);
         });
+        const bogusRegEx = /<br data-mce-bogus="1">/gi;
 
         let to: AngularFormly.ITemplateOptions = {
             tinymceOptions: { // this will go to ui-tinymce directive
@@ -48,12 +49,13 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                 menubar: false,
                 toolbar: "fontselect fontsize bold italic underline forecolor format link",
                 statusbar: false,
-                invalid_elements: "p,br,hr,img,frame,iframe,script,table,thead,tbody,tr,td,ul,ol,li,dd,dt,dl,div,input,select,textarea",
+                valid_elements: "span[*],a[*],strong/b,em/i,u,sup,sub",
+                extended_valid_elements: "a[href|type|title|linkassemblyqualifiedname|text|canclick|isvalid|mentionid|isgroup|email|" +
+                "class|linkfontsize|linkfontfamily|linkfontstyle|linkfontweight|linktextdecoration|linkforeground|style|target|artifactid]",
+                //invalid_elements: "p,br,hr,img,frame,iframe,script,table,thead,tbody,tr,td,ul,ol,li,dd,dt,dl,div,input,select,textarea",
                 invalid_styles: {
                     "*": "background-image display margin padding float"
                 },
-                extended_valid_elements: "a[href|type|title|linkassemblyqualifiedname|text|canclick|isvalid|mentionid|isgroup|email|" +
-                "class|linkfontsize|linkfontfamily|linkfontstyle|linkfontweight|linktextdecoration|linkforeground|style|target|artifactid]",
                 // https://www.tinymce.com/docs/configure/content-formatting/#font_formats
                 font_formats: fontFormats,
                 // paste_enable_default_filters: false, // https://www.tinymce.com/docs/plugins/paste/#paste_enable_default_filters
@@ -136,11 +138,12 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                         this.observer.observe(editorBody, observerConfig);
                     }
 
-                    let contentBody = editorBody.innerHTML;
+                    let contentBody = editorBody.innerHTML.replace(bogusRegEx, "");
 
                     editor.on("Change", (e) => {
-                        if (contentBody !== editorBody.innerHTML) {
-                            contentBody = editorBody.innerHTML;
+                        const _contentBody = editorBody.innerHTML.replace(bogusRegEx, "");
+                        if (contentBody !== _contentBody) {
+                            contentBody = _contentBody;
                             onChange(contentBody, $scope.options, $scope);
                         }
                     });

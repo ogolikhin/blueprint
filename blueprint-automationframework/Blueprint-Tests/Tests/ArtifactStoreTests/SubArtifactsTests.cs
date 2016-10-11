@@ -297,7 +297,7 @@ namespace ArtifactStoreTests
                      "Verify inline trace added. Delete new artifact name and publish.  Verify that GetArtifactDetails call returns invalid " +
                      "inline trace link if the user doesn't have the access permission for the inline trace artifact")]
         public void GetSubArtifacts_CreateInlineTraceFromProcessSubArtifactToArtifactGetSubArtifactDetailsUsingUserWithoutPermissionToInlineTraceArtifact_VerifyInlineTraceIsMarkedInvalid(
-    BaseArtifactType baseArtifactType)
+            BaseArtifactType baseArtifactType)
         {
             // Setup: Get projects available from testing environment
             var mainProject = _projects.FirstOrDefault();

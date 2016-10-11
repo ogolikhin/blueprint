@@ -4,18 +4,8 @@ import "angular-mocks";
 import { BPFieldBaseRTFController } from "./base-rtf-controller";
 
 describe("Formly Base RTF Controller", () => {
-    let controller: BPFieldBaseRTFController,
-        $controller: ng.IControllerService,
-        scope;
-
-    function createKeyEvent(keyCode: number, eventType: string = "keydown"): KeyboardEvent {
-        let keyEvent = document.createEvent("Event");
-        keyEvent.initEvent(eventType, true, true);
-        keyEvent["which"] = keyCode;
-        keyEvent["keyCode"] = keyCode;
-
-        return keyEvent as KeyboardEvent;
-    }
+    let scope, rootScope;
+    let controller: BPFieldBaseRTFController;
 
     function createMouseEvent(eventType: string = "click"): MouseEvent {
         let mouseEvent = document.createEvent("MouseEvent");
@@ -32,24 +22,23 @@ describe("Formly Base RTF Controller", () => {
     }
 
     beforeEach(
-        inject((
-            _$controller_
-            ) => {
-                $controller = _$controller_;
+        inject(
+            ($rootScope: ng.IRootScopeService, $controller: ng.IControllerService) => {
+                rootScope = $rootScope;
+                scope = rootScope.$new();
+                controller = $controller(BPFieldBaseRTFController, { $scope: scope });
+                angular.element("body").append(`<div class="container">` +
+                    `<a class="added" href="http://www.yahoo.com/">Link #1</a>` +
+                    `<a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink,` +
+                    ` BluePrintSys.RC.Client.SL.RichText, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null"` +
+                    ` class="removed" canclick="True" isvalid="True"` +
+                    ` href="http://localhost:9801/?ArtifactId=365" target="_blank" artifactid="365">Inline trace #1</a>` +
+                    `<p class="added"><a href="http://www.google.com/">Link #2</a></p>` +
+                    `<p class="removed"><a href="http://www.cnn.com/">Link #3</a></p>` +
+                    `</div>`);
             }
         )
     );
-
-    beforeEach(() => {
-        scope = {};
-        controller = $controller(BPFieldBaseRTFController, { $scope: scope });
-        angular.element("body").append(`<div class="container">` +
-            `<a href="http://www.yahoo.com/">Link to website</a>` +
-            `<a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink,` +
-            ` BluePrintSys.RC.Client.SL.RichText, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null" canclick="True" isvalid="True"` +
-            ` href="http://localhost:9801/?ArtifactId=365" target="_blank" artifactid="365">Inline trace</a>` +
-            `</div>`);
-    });
 
     describe("handleClick", () => {
         it("click on a link opens a new window", () => {
@@ -57,9 +46,7 @@ describe("Formly Base RTF Controller", () => {
             let mouseEvent: MouseEvent = createMouseEvent();
             aTag.addEventListener("click", controller.handleClick);
 
-            spyOn(window, "open").and.callFake(function() {
-                return true;
-            });
+            spyOn(window, "open").and.callFake(function() { });
 
             aTag.dispatchEvent(mouseEvent);
 
@@ -74,9 +61,7 @@ describe("Formly Base RTF Controller", () => {
             let mouseEvent: MouseEvent = createMouseEvent();
             aTag.addEventListener("click", controller.handleClick);
 
-            spyOn(console, "log").and.callFake(function() {
-                return true;
-            });
+            spyOn(console, "log").and.callFake(function() { });
 
             aTag.dispatchEvent(mouseEvent);
 
@@ -90,12 +75,8 @@ describe("Formly Base RTF Controller", () => {
         it("adds event listners and attributes", () => {
             let container = angular.element(".container")[0];
             let aTags = container.querySelectorAll("a");
-            spyOn(aTags[0], "addEventListener").and.callFake(function() {
-                return true;
-            });
-            spyOn(aTags[1], "addEventListener").and.callFake(function() {
-                return true;
-            });
+            spyOn(aTags[0], "addEventListener").and.callFake(function() { });
+            spyOn(aTags[1], "addEventListener").and.callFake(function() { });
 
             controller.handleLinks(aTags);
 
@@ -110,12 +91,8 @@ describe("Formly Base RTF Controller", () => {
         it("removes event listners", () => {
             let container = angular.element(".container")[0];
             let aTags = container.querySelectorAll("a");
-            spyOn(aTags[0], "removeEventListener").and.callFake(function() {
-                return true;
-            });
-            spyOn(aTags[1], "removeEventListener").and.callFake(function() {
-                return true;
-            });
+            spyOn(aTags[0], "removeEventListener").and.callFake(function() { });
+            spyOn(aTags[1], "removeEventListener").and.callFake(function() { });
 
             controller.handleLinks(aTags);
             controller.handleLinks(aTags, true);
@@ -124,6 +101,29 @@ describe("Formly Base RTF Controller", () => {
             expect(aTags[0].removeEventListener).toHaveBeenCalledWith("click", controller.handleClick);
             expect(aTags[1].removeEventListener).toHaveBeenCalled();
             expect(aTags[1].removeEventListener).toHaveBeenCalledWith("click", controller.handleClick);
+        });
+    });
+
+    describe("handleMutation", () => {
+        it("adds/removes event listners on mutated A tags", () => {
+            let container = angular.element("body")[0].querySelector(".container");
+            let mutationRecord: MutationRecord = {
+                type: "childList",
+                target: container,
+                addedNodes: container.querySelectorAll(".added"),
+                removedNodes: container.querySelectorAll(".removed"),
+                previousSibling: null,
+                nextSibling: null,
+                attributeName: null,
+                attributeNamespace: null,
+                oldValue: null
+            };
+            spyOn(controller, "handleLinks").and.callFake(function() { });
+
+            controller.handleMutation(mutationRecord);
+
+            expect(controller.handleLinks).toHaveBeenCalled();
+            expect(controller.handleLinks).toHaveBeenCalledTimes(4);
         });
     });
 

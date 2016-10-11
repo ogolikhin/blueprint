@@ -407,10 +407,10 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
 
         this.addOverlays(mxGraph);
 
-        this.commentsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 116, 4, 
-                                   "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
-        this.relationshipButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 92, 4, 
-                                       "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
+        this.relationshipButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 116, 4,
+            "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
+        this.commentsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 92, 4,
+            "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
         this.linkButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 68, 4, "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
         // #TODO get license info fron Nova shell
         //if (graph.viewModel.isReadonly && graph.viewModel.licenseType === Shell.LicenseTypeEnum.Viewer) {

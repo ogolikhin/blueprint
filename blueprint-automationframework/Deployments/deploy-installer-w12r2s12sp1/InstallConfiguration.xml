@@ -25,7 +25,7 @@
     <AccountType>LocalSystem</AccountType>
   </JobExecutorInfo>
   <BlueprintDatabaseInfo>
-    <DBServerLocation>localhost</DBServerLocation>
+    <DBServerLocation>localhost\sqlserver2012</DBServerLocation>
     <DBName>Blueprint</DBName>
     <IsWindowsAuthentication>false</IsWindowsAuthentication>
     <DBAdminUserName>sa</DBAdminUserName>

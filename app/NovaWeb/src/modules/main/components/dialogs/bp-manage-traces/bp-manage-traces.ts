@@ -1,3 +1,4 @@
+import * as _ from "lodash";
 import { ILocalizationService } from "../../../../core";
 import { BaseDialogController, IDialogSettings, IDialogService, Helper } from "../../../../shared";
 import { Relationships, Models } from "../../../models";
@@ -11,11 +12,6 @@ import {
 
 export interface IArtifactSelectedArtifactMap {
     [artifactId: number]: Relationships.IRelationship[];
-}
-
-interface IResult {
-    found: boolean;
-    index: number;
 }
 
 export class ManageTracesDialogController extends BaseDialogController {
@@ -99,7 +95,7 @@ export class ManageTracesDialogController extends BaseDialogController {
 
             currentItemModel.artifactId = currentItem instanceof ArtifactNodeVM ? currentItemModel.id : currentItemModel.parentId;
 
-            let res = this.inArray(this.manualTraces, currentItemModel);
+            let res = _.find(this.manualTraces, {itemId: currentItemModel.itemId});
 
             let typeName = Models.ItemTypePredefined[currentItemModel.predefinedType];
 
@@ -109,7 +105,7 @@ export class ManageTracesDialogController extends BaseDialogController {
                 cssClass = "icon-" + Helper.toDashCase(typeName);
             }
 
-            if (!res.found) {
+            if (!res) {
                 currentItemModel.traceType = Relationships.LinkType.Manual;
                 currentItemModel.artifactName = currentItemModel.name || currentItemModel.displayName;
                 currentItemModel.itemName = currentItemModel.name || currentItemModel.displayName;
@@ -180,17 +176,10 @@ export class ManageTracesDialogController extends BaseDialogController {
         });
     }
 
-    //TODO replace inArray when lodash added
     public deleteTrace(artifact: Relationships.IRelationship): void {
         this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace")).then( (confirmed) => {
             if (confirmed) {
                 this.remove([artifact], this.manualTraces);
-
-                let res = this.inArray(this.selectedTraces[this.data.artifactId], artifact);
-
-                if (res.found) {
-                    this.selectedTraces[this.data.artifactId].splice(res.index, 1);
-                }
             }
         });
     }
@@ -206,23 +195,6 @@ export class ManageTracesDialogController extends BaseDialogController {
         for (let i = 0; i < selectedTracesLength; i++) {
                 traces[i].traceDirection = direction;
         }
-    }
-
-    //TODO replace inArray when lodash added
-    public inArray(array, item) {
-        let found = false,
-            index = -1;
-        if (array) {
-            for (let i = 0; i < array.length; i++) {
-                if (array[i].itemId === item.itemId) {
-                    found = true;
-                    index = i;
-                    break;
-                }
-            }
-        }
-
-        return <IResult>{ "found": found, "index": index };
     }
 
     public remove(relationships: Relationships.IRelationship[],

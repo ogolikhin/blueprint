@@ -12,9 +12,6 @@ var postLoaders = [
       }
 ];
 var preLoaders = [
-      // Tslint loader support for *.ts files
-      //
-      // See: https://github.com/wbuchwalter/tslint-loader
       {
           test: /\.ts$/,
           loader: 'tslint-loader',
@@ -28,7 +25,7 @@ var sourceMap = "eval";
 if (process.argv.some(isDebug)) {
     postLoaders = [];
     preLoaders = [];
-    sourceMap = "source-map-inline"
+    sourceMap = "source-map-inline";
     console.log("Is Debug");
 }
 

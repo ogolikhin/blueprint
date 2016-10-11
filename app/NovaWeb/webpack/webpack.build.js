@@ -79,6 +79,13 @@ module.exports = {
     },
     module:{
         loaders: loaders,
+        preLoaders: [
+            {
+                test: /\.ts$/,
+                loader: 'tslint-loader',
+                exclude: ['../node_modules']
+            }
+        ],
         noParse: [/angular-perfect-scrollbar-2/]
     },
     resolveLoader: {

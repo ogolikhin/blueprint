@@ -51,5 +51,6 @@ describe("BPToggleAction", () => {
 
         // assert
         expect(executeSpy).toHaveBeenCalledWith(2);
+        expect(toggleAction.currentValue).toBe(2);
     });
 });

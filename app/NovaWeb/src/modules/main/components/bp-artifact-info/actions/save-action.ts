@@ -49,7 +49,7 @@ export class SaveAction extends BPButtonAction {
 
                 return true;
             },
-            "fonticon fonticon2-save",
+            "fonticon2-save-line",
             localization.get("App_Toolbar_Save")
         );
     }

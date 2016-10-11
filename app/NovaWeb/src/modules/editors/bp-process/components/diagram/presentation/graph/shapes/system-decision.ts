@@ -8,7 +8,7 @@ import {IDialogParams} from "../../../../messages/message-dialog";
 import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
-
+import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 
 
 export class SystemDecision extends UserTaskChildElement<IProcessShape> implements IDecision, IUserTaskChildElement {
@@ -27,14 +27,14 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
     private detailsButton: Button;
     private deleteShapeButton: Button;
 
-
     private rootScope: any;
+    private processDiagramManager: IProcessDiagramCommunication;
 
     constructor(model: IProcessShape, rootScope: any, nodeFactorySettings: NodeFactorySettings = null) {
         super(model, NodeType.SystemDecision);
 
         this.rootScope = rootScope;
-        this.initButtons(model.id.toString(), nodeFactorySettings);
+        this.initButtons(model.id.toString(), nodeFactorySettings);        
     }
 
     private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
@@ -54,7 +54,7 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
 
         if (nodeFactorySettings && nodeFactorySettings.isDeleteShapeEnabled) {
             this.deleteShapeButton.setClickAction(() => {
-                console.log("Delete System Decision shape clicked");
+                this.processDiagramManager.clickDelete();
             });
         } else {
             this.deleteShapeButton.setClickAction(() => { });
@@ -92,6 +92,8 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
 
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
 
+        this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;
+        
         var mxGraph = graph.getMxGraph();
 
         var fillColor = this.DEFAULT_FILL_COLOR;

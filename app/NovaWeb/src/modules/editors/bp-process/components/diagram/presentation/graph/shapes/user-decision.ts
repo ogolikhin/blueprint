@@ -8,6 +8,7 @@ import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
+import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 
 export class UserDecision extends DiagramNode<IProcessShape> implements IDecision {
     private LABEL_EDIT_MAXLENGTH = 32;
@@ -22,6 +23,7 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
     private deleteShapeButton:Button;    
 
     private rootScope: any;
+    private processDiagramManager: IProcessDiagramCommunication;
 
     constructor(model: IProcessShape, rootScope: any, nodeFactorySettings: NodeFactorySettings = null) {
         super(model, NodeType.UserDecision);
@@ -49,7 +51,7 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
 
         if (nodeFactorySettings && nodeFactorySettings.isDeleteShapeEnabled) {
             this.deleteShapeButton.setClickAction(() => {
-                console.log("Delete User Decision shape clicked");
+                this.processDiagramManager.clickDelete();
             });
         } else {
             this.deleteShapeButton.setClickAction(() => { });
@@ -113,6 +115,8 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
     }
 
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
+
+        this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;
 
         var mxGraph = graph.getMxGraph();
         var fillColor = "#FFFFFF";

@@ -16,7 +16,6 @@ export class RefreshAction extends BPButtonAction {
                 //loading overlay
                 const overlayId = this.loadingOverlayService.beginLoading();
                 const currentArtifact = this.artifactManager.selection.getArtifact();
-                const artifactNameBeforeRefresh = currentArtifact.name;
 
                 currentArtifact.refresh()
                     .catch((error) => {

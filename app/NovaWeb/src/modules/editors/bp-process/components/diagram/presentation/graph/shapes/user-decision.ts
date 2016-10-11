@@ -16,7 +16,11 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
     private USER_DECISION_HEIGHT = 120;
     private USER_DECISION_SHIFT = 33;
     private BUTTON_SIZE = 16;
+    private DELETE_SHAPE_OFFSET = 3;
+    
     private detailsButton: Button;
+    private deleteShapeButton:Button;    
+
     private rootScope: any;
 
     constructor(model: IProcessShape, rootScope: any, nodeFactorySettings: NodeFactorySettings = null) {
@@ -27,6 +31,7 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
     }
 
     private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
+        //Details button
         this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, "/novaweb/static/bp-process/images/adddetails-neutral.svg");
 
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
@@ -38,6 +43,21 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
         this.detailsButton.setHoverImage("/novaweb/static/bp-process/images/adddetails-hover.svg");
         this.detailsButton.setDisabledImage("/novaweb/static/bp-process/images/adddetails-mute.svg");
         this.detailsButton.setTooltip(this.rootScope.config.labels["ST_Settings_Label"]);
+
+        //Delete process shape button
+        this.deleteShapeButton = new Button(`DS${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, "/novaweb/static/bp-process/images/delete-neutral.svg");
+
+        if (nodeFactorySettings && nodeFactorySettings.isDeleteShapeEnabled) {
+            this.deleteShapeButton.setClickAction(() => {
+                console.log("Delete User Decision shape clicked");
+            });
+        } else {
+            this.deleteShapeButton.setClickAction(() => { });
+        }
+
+        this.deleteShapeButton.setHoverImage("/novaweb/static/bp-process/images/delete-hover.svg");
+        this.deleteShapeButton.setDisabledImage("/novaweb/static/bp-process/images/delete-inactive.svg");
+        this.deleteShapeButton.setTooltip(this.rootScope.config.labels["ST_Settings_Label"]);
     }
 
     public setLabelWithRedrawUi(value: string) {
@@ -137,6 +157,14 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
         if (!graph.viewModel.isReadonly) {
             this.showMenu(mxGraph);
         }
+
+        this.deleteShapeButton.render(
+            mxGraph,
+            this,
+            this.USER_DECISION_WIDTH / 2 - this.BUTTON_SIZE / 2,
+            this.BUTTON_SIZE + this.DELETE_SHAPE_OFFSET,
+            "shape=ellipse;strokeColor=none;fillColor=none;selectable=0"
+        );
 
         this.detailsButton.render(
             mxGraph,

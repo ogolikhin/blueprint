@@ -13,7 +13,7 @@ describe("BPDropdownItemAction", () => {
         // assert
         expect(dropdownItemAction.label).toBe(label);
         expect(dropdownItemAction.execute).toEqual(execute);
-        expect(dropdownItemAction.disabled).toEqual(!canExecute);
+        expect(dropdownItemAction.disabled).toEqual(!canExecute());
     });
 });
 

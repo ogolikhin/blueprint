@@ -171,9 +171,9 @@ export class ProjectExplorerController {
     }
 
     public onSelectedArtifactChange = (artifact: IStatefulArtifact) => {
+        //If the artifact's name changes (on refresh), we reload the project so the change is reflected in the explorer.
         if (artifact.name !== this.selectedArtifactNameBeforeChange) {
-            this.projectManager.refreshProjectCollection();
-            this.selectedArtifactNameBeforeChange = artifact.name;
+            this.onLoadProject(this.projectManager.projectCollection.getValue());
         }
     }
 

@@ -17,7 +17,7 @@ namespace SearchService.Controllers
         private readonly IProjectSearchRepository _projectSearchRepository;
         private const int MaxResultCount = 100;
         private const int DefaultResultCount = 20;
-        private const char DefaultSeparator = '/';
+        private const string DefaultSeparator = "/";
 
         public override string LogSource => "SearchService.ProjectSearch";
 
@@ -49,12 +49,12 @@ namespace SearchService.Controllers
         public async Task<IEnumerable<ProjectSearchResult>> GetProjectsByName(
             [FromBody] ProjectSearchCriteria searchCriteria, 
             int? resultCount = DefaultResultCount,
-            char? separatorChar = DefaultSeparator)
+            string separatorChar = DefaultSeparator)
         {
             if (resultCount == null)
                 resultCount = DefaultResultCount;
 
-            if (separatorChar == null)
+            if (string.IsNullOrEmpty(separatorChar))
                 separatorChar = DefaultSeparator;
 
             if (resultCount > MaxResultCount)
@@ -77,7 +77,7 @@ namespace SearchService.Controllers
                 session.UserId, 
                 searchCriteria.Query, 
                 resultCount.Value,
-                separatorChar.Value);
+                separatorChar);
         }
     }
 }

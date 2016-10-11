@@ -27,7 +27,7 @@ namespace SearchService.Repositories
             const int userId = 1;
             const int resultCount = 1;
             const string searchText = "test";
-            const char separatorChar = '/';
+            const string separatorChar = "/";
             _cxn.SetupQueryAsync("GetProjectsByName",
                 new Dictionary<string, object> { { "userId", userId }, { "projectName", searchText }, { "resultCount", resultCount }, { "separatorChar", separatorChar } },
                 new List<ProjectSearchResult>());

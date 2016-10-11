@@ -36,8 +36,8 @@ namespace SearchService.Controllers
             //Arrange
             const int projectId = 10;
             var searchCriteria = new ProjectSearchCriteria {Query = "Test"};
-            var project = new ProjectSearchResult { ProjectId = projectId, ProjectName = searchCriteria.Query };
-            _projectSearchRepositoryMock.Setup(m => m.GetProjectsByName(1, searchCriteria.Query, 20, '/')).ReturnsAsync(new[] { project });
+            var project = new ProjectSearchResult { Id = projectId, Name = searchCriteria.Query };
+            _projectSearchRepositoryMock.Setup(m => m.GetProjectsByName(1, searchCriteria.Query, 20, "/")).ReturnsAsync(new[] { project });
             var controller = new ProjectSearchController(_projectSearchRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage()
@@ -50,7 +50,7 @@ namespace SearchService.Controllers
             Assert.IsNotNull(result);
             var projectSearchResults = result as IList<ProjectSearchResult> ?? result.ToList();
             Assert.AreEqual(projectSearchResults.Count, 1);
-            Assert.AreEqual(projectId, projectSearchResults[0].ProjectId);
+            Assert.AreEqual(projectId, projectSearchResults[0].Id);
         }
 
         [TestMethod]
@@ -59,8 +59,8 @@ namespace SearchService.Controllers
             //Arrange
             const int projectId = 10;
             var searchCriteria = new ProjectSearchCriteria { Query = "Test" };
-            var project = new ProjectSearchResult { ProjectId = projectId, ProjectName = searchCriteria.Query };
-            _projectSearchRepositoryMock.Setup(m => m.GetProjectsByName(1, searchCriteria.Query, 20, '/')).ReturnsAsync(new[] { project });
+            var project = new ProjectSearchResult { Id = projectId, Name = searchCriteria.Query };
+            _projectSearchRepositoryMock.Setup(m => m.GetProjectsByName(1, searchCriteria.Query, 20, "/")).ReturnsAsync(new[] { project });
             var controller = new ProjectSearchController(_projectSearchRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage()
@@ -73,7 +73,7 @@ namespace SearchService.Controllers
             Assert.IsNotNull(result);
             var projectSearchResults = result as IList<ProjectSearchResult> ?? result.ToList();
             Assert.AreEqual(projectSearchResults.Count, 1);
-            Assert.AreEqual(projectId, projectSearchResults[0].ProjectId);
+            Assert.AreEqual(projectId, projectSearchResults[0].Id);
         }
 
         [TestMethod]
@@ -82,8 +82,8 @@ namespace SearchService.Controllers
             //Arrange
             const int projectId = 10;
             var searchCriteria = new ProjectSearchCriteria { Query = "Test" };
-            var project = new ProjectSearchResult { ProjectId = projectId, ProjectName = searchCriteria.Query };
-            _projectSearchRepositoryMock.Setup(m => m.GetProjectsByName(1, searchCriteria.Query, 100, '/')).ReturnsAsync(new[] { project });
+            var project = new ProjectSearchResult { Id = projectId, Name = searchCriteria.Query };
+            _projectSearchRepositoryMock.Setup(m => m.GetProjectsByName(1, searchCriteria.Query, 100, "/")).ReturnsAsync(new[] { project });
             var controller = new ProjectSearchController(_projectSearchRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage()
@@ -96,7 +96,7 @@ namespace SearchService.Controllers
             Assert.IsNotNull(result);
             var projectSearchResults = result as IList<ProjectSearchResult> ?? result.ToList();
             Assert.AreEqual(projectSearchResults.Count, 1);
-            Assert.AreEqual(projectId, projectSearchResults[0].ProjectId);
+            Assert.AreEqual(projectId, projectSearchResults[0].Id);
         }
 
         [TestMethod]
@@ -156,8 +156,8 @@ namespace SearchService.Controllers
             //Arrange
             const int projectId = 10;
             var searchCriteria = new ProjectSearchCriteria { Query = "Test" };
-            var project = new ProjectSearchResult { ProjectId = projectId, ProjectName = searchCriteria.Query };
-            _projectSearchRepositoryMock.Setup(m => m.GetProjectsByName(1, searchCriteria.Query, 100, '/')).ReturnsAsync(new[] { project });
+            var project = new ProjectSearchResult { Id = projectId, Name = searchCriteria.Query };
+            _projectSearchRepositoryMock.Setup(m => m.GetProjectsByName(1, searchCriteria.Query, 100, "/")).ReturnsAsync(new[] { project });
             var controller = new ProjectSearchController(_projectSearchRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage()

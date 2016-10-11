@@ -1,0 +1,5 @@
+<div class="btn-group" data-toggle="buttons">
+    <label class="btn btn-primary btn-small" ng-repeat="action in $ctrl.actions track by $index" ng-model="$ctrl.currentValue" uib-btn-radio="{{action.value}}" ng-disabled="action.disabled || $ctrl.disabled" bp-tooltip="{{action.tooltip}}">
+        <span ng-if="action.icon" ng-class="action.icon"></span> {{action.label}}
+    </label>
+</div>

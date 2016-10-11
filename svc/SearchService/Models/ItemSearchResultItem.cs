@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Newtonsoft.Json;
 
 namespace SearchService.Models
 {
@@ -19,6 +20,9 @@ namespace SearchService.Models
 
         public string TypeName { get; set; }
 
-        public string TypePrefix { get; set; }        
+        public string TypePrefix { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string ArtifactPath { get; set; }
     }
 }

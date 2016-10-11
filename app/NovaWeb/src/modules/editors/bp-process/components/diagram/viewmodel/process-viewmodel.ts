@@ -5,7 +5,6 @@ import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
 import {ProcessModels, ProcessEnums} from "../../../";
 import {ICommunicationManager} from "../../../";
 import { IStatefulArtifact } from "../../../../../managers/artifact-manager/";
-import { StatefulProcessArtifact } from "../../../process-artifact";
 import { StatefulProcessSubArtifact } from "../../../process-subartifact";
 
 export interface IProcessViewModel extends IProcessGraphModel {

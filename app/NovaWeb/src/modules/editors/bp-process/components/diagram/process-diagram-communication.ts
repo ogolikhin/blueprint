@@ -1,4 +1,4 @@
-import { ICommunicationWrapper, CommunicationWrapper } from "../modal-dialogs/communication-wrapper";
+import { ICommunicationWrapper, CommunicationWrapper } from "../../services/communication-wrapper";
 
 export interface IProcessDiagramCommunication {
     registerModelUpdateObserver(observer: any);

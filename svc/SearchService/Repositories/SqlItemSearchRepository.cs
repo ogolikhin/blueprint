@@ -42,7 +42,7 @@ namespace SearchService.Repositories
 
             var prm = new DynamicParameters();
             prm.Add("@userId", userId);
-            prm.Add("@query", GetQuery(searchCriteria.Query));
+            prm.Add("@query", searchCriteria.Query);
             prm.Add("@projectIds", SqlMapperHelper.ToInt32Collection(searchCriteria.ProjectIds));            
             prm.Add("@primitiveItemTypePredefineds", SqlMapperHelper.ToInt32Collection(new[]
             {
@@ -71,15 +71,6 @@ namespace SearchService.Repositories
             result.SearchItems = queryResult;
 
             return result;
-        }        
-
-        private string GetQuery(string input)
-        {
-            //Unfortunately, double-quotes have special meaning inside FTI, so even if you parameterize it, the FTI engine treats it as a phrase delimiter. 
-            //doubling the quote to "" fixes it. 
-            //Likewise, ' needs to be doubled to '' before passing to FTI (completely separate to TSQL escaping)
-            return string.IsNullOrWhiteSpace(input) ? string.Empty :
-                string.Format(CultureInfo.InvariantCulture, "\"{0}\"", input.Replace("'", "''").Replace("\"", "\"\""));
-        }
+        }                
     }
 }

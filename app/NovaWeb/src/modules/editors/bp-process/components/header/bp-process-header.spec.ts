@@ -23,6 +23,8 @@ import {BreadcrumbServiceMock} from "../../services/breadcrumb.svc.mock";
 import {SelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {SessionSvcMock} from "../../../../shell/login/mocks.spec";
 import {WindowResize} from "../../../../core/services/window-resize";
+import {ProjectManager} from "../../../../managers/project-manager/project-manager";
+import {ProjectService} from "../../../../managers/project-manager/project-service";
 
 describe("BpProcessHeader", () => {
     let $rootScope: ng.IRootScopeService;
@@ -50,6 +52,8 @@ describe("BpProcessHeader", () => {
         $provide.service("artifactService", ArtifactService);
         $provide.service("artifactAttachments", ArtifactAttachmentsService);
         $provide.service("artifactRelationships", ArtifactRelationshipsService);
+        $provide.service("projectManager", ProjectManager);
+        $provide.service("projectService", ProjectService);
     }));
 
     beforeEach(inject((

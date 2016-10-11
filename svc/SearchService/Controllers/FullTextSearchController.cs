@@ -5,18 +5,16 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using SearchService.Models;
 using SearchService.Repositories;
-using ServiceLibrary.Helpers;
 using ServiceLibrary.Attributes;
-using ServiceLibrary.Models;
 using SearchService.Helpers;
-using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
 
 namespace SearchService.Controllers
 {
     [ApiControllerJsonConfig]
     [BaseExceptionFilter]
     [RoutePrefix("FullTextSearch")]
-    public class FullTextSearchController : LoggableApiController
+    public class FullTextSearchController : BaseSearchController
     {
         public override string LogSource => "SearchService.FullTextSearch";
 
@@ -27,7 +25,7 @@ namespace SearchService.Controllers
         }
 
         private readonly IFullTextSearchRepository _fullTextSearchRepository;
-        public FullTextSearchController(IFullTextSearchRepository fullTextSearchRepository, ISearchConfiguration configuration)
+        internal FullTextSearchController(IFullTextSearchRepository fullTextSearchRepository, ISearchConfiguration configuration)
         {
             _fullTextSearchRepository = fullTextSearchRepository;
 
@@ -46,40 +44,31 @@ namespace SearchService.Controllers
         /// <response code="400">Bad Request.</response>
         /// <response code="404">Not Found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
+        /// /// <response code="500">Service Not Available.</response>
         [HttpPost, NoCache, SessionRequired]
         [Route("")]
         [ResponseType(typeof(FullTextSearchResult))]
         public async Task<IHttpActionResult> Post([FromBody] SearchCriteria searchCriteria, int? page = null, int? pageSize = null)
         {
             // get the UserId from the session
-            var userId = GetUserId();
-            if (!userId.HasValue)
-            {
-                throw new AuthenticationException("Authorization is requried", ErrorCodes.UnauthorizedAccess);
-            }
+            var userId = ValidateAndExtractUserId();
 
-            if (!ModelState.IsValid || !ValidateSearchCriteria(searchCriteria))
-            {
-                throw new BadRequestException("Please provide correct search criteria", ErrorCodes.IncorrectSearchCriteria);
-            }
+            ValidateCriteria(searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
 
-            int searchPageSize = pageSize.GetValueOrDefault(_searchConfigurationProvider.PageSize);
-            if (searchPageSize <= 0)
-            {
-                searchPageSize = _searchConfigurationProvider.PageSize;
-            }
-
-            int searchPage = page.HasValue && page.Value > 0 ? page.Value : 1;
-
-            var results = await _fullTextSearchRepository.Search(userId.Value, searchCriteria, searchPage, searchPageSize);
+            int searchPageSize = GetPageSize(_searchConfigurationProvider, pageSize);
+            
+            int searchPage = GetStartCounter(page, 1, 1);
+            
+            var results = await _fullTextSearchRepository.Search(userId, searchCriteria, searchPage, searchPageSize);
 
             results.Page = searchPage;
             results.PageSize = searchPageSize;
             results.PageItemCount = results.FullTextSearchItems.Count();
 
             return Ok(results);
-
         }
+
+        
 
         #endregion
 
@@ -100,24 +89,13 @@ namespace SearchService.Controllers
         public async Task<IHttpActionResult> MetaData([FromBody] SearchCriteria searchCriteria, int? pageSize = null)
         {
             // get the UserId from the session
-            var userId = GetUserId();
-            if (!userId.HasValue)
-            {
-                throw new AuthenticationException("Authorization is requried", ErrorCodes.UnauthorizedAccess);
-            }
+            int userId = ValidateAndExtractUserId();
 
-            if (!ModelState.IsValid || !ValidateSearchCriteria(searchCriteria))
-            {
-                throw new BadRequestException("Please provide correct search criteria", ErrorCodes.IncorrectSearchCriteria);
-            }
+            ValidateCriteria(searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
 
-            int searchPageSize = pageSize.GetValueOrDefault(_searchConfigurationProvider.PageSize);
-            if (searchPageSize <= 0)
-            {
-                searchPageSize = _searchConfigurationProvider.PageSize;
-            }
+            int searchPageSize = GetPageSize(_searchConfigurationProvider, pageSize);
 
-            var results = await _fullTextSearchRepository.SearchMetaData(userId.Value, searchCriteria);
+            var results = await _fullTextSearchRepository.SearchMetaData(userId, searchCriteria);
 
             results.PageSize = searchPageSize;
             results.TotalPages = results.TotalCount >= 0 ? (int)Math.Ceiling((double)results.TotalCount / searchPageSize) : -1;
@@ -125,33 +103,11 @@ namespace SearchService.Controllers
             return Ok(results);
         }
 
-        #endregion
 
-        #region Private
-
-        private int? GetUserId()
-        {
-            object sessionValue;
-            if (!Request.Properties.TryGetValue(ServiceConstants.SessionProperty, out sessionValue))
-            {
-                return null;
-            }
-            var session = sessionValue as Session;
-            return session?.UserId;
-        }
-
-        private bool ValidateSearchCriteria(SearchCriteria searchCriteria)
-        {
-            if (string.IsNullOrWhiteSpace(searchCriteria?.Query) || 
-                searchCriteria.Query.Trim().Length < ServiceConstants.MinSearchQueryCharLimit || 
-                !searchCriteria.ProjectIds.Any())
-            {
-                return false;
-            }
-            return true;
-        }
 
         #endregion
+
+        
 
     }
 }

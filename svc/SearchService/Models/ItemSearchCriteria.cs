@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace SearchService.Models
 {
 
-    public class ItemSearchCriteria
+    public class ItemSearchCriteria : ISearchCriteria
     {
         [Required]
         public string Query { get; set; }
@@ -12,6 +12,8 @@ namespace SearchService.Models
         [Required]
         public IEnumerable<int> ProjectIds { get; set; }              
 
-        public IEnumerable<int> ItemTypeIds { get; set; }        
+        public IEnumerable<int> ItemTypeIds { get; set; }
+
+        public bool IncludeArtifactPath { get; set; }
     }
 }

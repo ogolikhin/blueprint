@@ -13,13 +13,14 @@ import { MessageServiceMock } from "../../../core/messages/message.mock";
 import { DialogServiceMock } from "../../../shared/widgets/bp-dialog/bp-dialog";
 import { ProcessServiceMock } from "../../../editors/bp-process/services/process.svc.mock";
 import { ItemTypePredefined } from "../../../main/models/enums";
+import { ArtifactServiceMock } from "./../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {
     IArtifactManager,
     ArtifactManager,
     IStatefulArtifactFactory,
     StatefulArtifactFactory,
+    StatefulArtifact,
     MetaDataService,
-    ArtifactService,
     ArtifactAttachmentsService,
     ArtifactRelationshipsService }
     from "../../../managers/artifact-manager";
@@ -42,7 +43,7 @@ describe("Component BPDiscussionPanel", () => {
         $provide.service("messageService", MessageServiceMock);
         $provide.service("dialogService", DialogServiceMock);
         $provide.service("selectionManager", SelectionManager);
-        $provide.service("artifactService", ArtifactService);
+        $provide.service("artifactService", ArtifactServiceMock);
         $provide.service("artifactManager", ArtifactManager);
         $provide.service("artifactAttachments", ArtifactAttachmentsService);
         $provide.service("metadataService", MetaDataService);
@@ -54,6 +55,9 @@ describe("Component BPDiscussionPanel", () => {
     beforeEach(inject(() => {
         directiveTest = new ComponentTest<BPDiscussionPanelController>(template, "bp-discussion-panel");
         vm = directiveTest.createComponentWithMockParent({}, "bpAccordionPanel", bpAccordionPanelController);
+
+        // We can't use `() => {}` because typescript will do `t = this` for us, and we'll get the wrong 'this'.
+        spyOn(StatefulArtifact.prototype, "getObservable").and.callFake(function(){ return (new Rx.BehaviorSubject(this)).asObservable(); });
     }));
 
     afterEach(() => {
@@ -66,6 +70,37 @@ describe("Component BPDiscussionPanel", () => {
         expect(directiveTest.element.find(".empty-state").length).toBe(1);
         expect(directiveTest.element.find(".scrollable-content").length).toBe(0);
     });
+    
+    it("should be read-only for newly created sub-artifacts",
+        inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
+        //Arrange
+        const artifact = statefulArtifactFactory.createStatefulArtifact({
+            id: 2, 
+            name: "Artifact 2", 
+            predefinedType: ItemTypePredefined.Process, 
+            version: 1
+        });
+        let processShape = {
+                projectId: 1,
+                parentId: 2,
+                id: -2, 
+                name: "SubArtifact 2", 
+                baseItemTypePredefined: ItemTypePredefined.PROShape,
+                typePrefix: "PROS",
+                propertyValues: {},
+                associatedArtifact: null
+                
+        };
+        const subArtifact = statefulArtifactFactory.createStatefulProcessSubArtifact(artifact, processShape);
+
+        //Act
+        artifactManager.selection.setSubArtifact(subArtifact);
+        $rootScope.$digest();
+
+        //Assert
+        expect(vm.canCreate).toBeFalsy();
+        expect(vm.canDelete).toBeFalsy();
+    }));
 
     it("should load data for a selected artifact",
         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {

@@ -9,6 +9,10 @@ export interface IProcessDiagramCommunication {
     removeNavigateToAssociatedArtifactObserver(observer: any);
     navigateToAssociatedArtifact(artifactId: number, enableTracking?: boolean);
 
+    registerClickDeleteObserver(observer: any);
+    removeClickDeleteObserver(observer: any);
+    clickDelete();
+
     onDestroy();
 }
 
@@ -16,10 +20,14 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
     private setModelUpdateSubject: ICommunicationWrapper;
     private setNavigateToAssociatedArtifactSubject: ICommunicationWrapper;
 
+    private setClickDeleteSubject: ICommunicationWrapper;    
+
     constructor() {
         // Create subjects
         this.setModelUpdateSubject = new CommunicationWrapper();
         this.setNavigateToAssociatedArtifactSubject = new CommunicationWrapper();
+
+        this.setClickDeleteSubject = new CommunicationWrapper();
     };
 
     // Model update
@@ -46,10 +54,24 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
 
     public navigateToAssociatedArtifact(id: number, enableTracking?: boolean) {
         this.setNavigateToAssociatedArtifactSubject.notify({ id: id, enableTracking: enableTracking });
+    }    
+
+    // Click delete
+    public registerClickDeleteObserver(observer: any): string {
+        return this.setClickDeleteSubject.subscribe(observer);
     }
+
+    public removeClickDeleteObserver(handler: string) {
+        this.setClickDeleteSubject.disposeObserver(handler);
+    }
+
+    public clickDelete() {
+        this.setClickDeleteSubject.notify(true);
+    }    
 
     public onDestroy() {
         this.setModelUpdateSubject.dispose();
         this.setNavigateToAssociatedArtifactSubject.dispose();
+        this.setClickDeleteSubject.dispose();
     }
 }

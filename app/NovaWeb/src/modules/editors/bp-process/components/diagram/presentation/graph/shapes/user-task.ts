@@ -78,7 +78,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         if (nodeFactorySettings && nodeFactorySettings.isRelationshipButtonEnabled) {            
             this.deleteShapeButton.setClickAction(() => 
             {
-                console.log("Delete User Task Shape Clicked");
+                this.processDiagramManager.clickDelete();
             });
         } else {
             this.deleteShapeButton.setClickAction(() => { });

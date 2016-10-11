@@ -1,5 +1,5 @@
 ﻿import * as angular from "angular";
-import { Models, Enums } from "../../../main/models";
+import {Models, Enums} from "../../../main/models";
 export {Models, Enums}
 
 export interface IArtifactService {
@@ -93,7 +93,7 @@ export class ArtifactService implements IArtifactService {
     }
 
 
-    public updateArtifact(artifact: Models.IArtifact): ng.IPromise<Models.IArtifact>  {
+    public updateArtifact(artifact: Models.IArtifact): ng.IPromise<Models.IArtifact> {
         var defer = this.$q.defer<Models.IArtifact>();
 
         this.$http.patch(`/svc/bpartifactstore/artifacts/${artifact.id}`, angular.toJson(artifact)).then(

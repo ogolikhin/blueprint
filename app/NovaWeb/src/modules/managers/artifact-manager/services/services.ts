@@ -1,10 +1,10 @@
-import { IMessageService, ILocalizationService } from "../../../core/";
-import { IDialogService } from "../../../shared/";
-import { ISession } from "../../../shell/login/session.svc";
-import { IArtifactService } from "../artifact";
-import { IMetaDataService } from "../metadata";
-import { IArtifactAttachmentsService } from "../attachments";
-import { IArtifactRelationshipsService } from "../relationships";
+import {IMessageService, ILocalizationService} from "../../../core/";
+import {IDialogService} from "../../../shared/";
+import {ISession} from "../../../shell/login/session.svc";
+import {IArtifactService} from "../artifact";
+import {IMetaDataService} from "../metadata";
+import {IArtifactAttachmentsService} from "../attachments";
+import {IArtifactRelationshipsService} from "../relationships";
 
 
 export interface IStatefulArtifactServices {
@@ -48,7 +48,7 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
     public get dialogService(): IDialogService {
         return this._dialogService;
     }
-    
+
     public get localizationService(): ILocalizationService {
         return this._localizationService;
     }
@@ -56,11 +56,11 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
     public get artifactService(): IArtifactService {
         return this._artifactService;
     }
-    
+
     public get attachmentService(): IArtifactAttachmentsService {
         return this._attachmentService;
     }
-    
+
     public get relationshipsService(): IArtifactRelationshipsService {
         return this._relationshipsService;
     }
@@ -68,7 +68,7 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
     public get metaDataService(): IMetaDataService {
         return this._metadataService;
     }
-    
+
     // public request<T>(request: ng.IRequestConfig): ng.IPromise<T> {
     //     var defer = this.services.$q.defer<T>();
     //     this.$http(request).then(

@@ -4,7 +4,7 @@ import {IMessageService, Message, MessageType} from "../../../../../core/";
 import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
 import {ProcessModels, ProcessEnums} from "../../../";
 import {ICommunicationManager} from "../../../";
-import { IStatefulArtifact } from "../../../../../managers/artifact-manager/";
+import {IStatefulArtifact} from "../../../../../managers/artifact-manager/";
 
 export interface IProcessViewModel extends IProcessGraphModel {
     description: string;
@@ -58,8 +58,8 @@ export class ProcessViewModel implements IProcessViewModel {
         this._rootScope = rootScope;
         if (scope) {
             this._scope = scope;
-           // this.subscribeToToolbarEvents();
-            this.getConfigurationSettings(); 
+            // this.subscribeToToolbarEvents();
+            this.getConfigurationSettings();
         }
 
         //if (header) {
@@ -356,6 +356,7 @@ export class ProcessViewModel implements IProcessViewModel {
     public updateTree() {
         this.processGraphModel.updateTree();
     }
+
     public updateTreeAndFlows() {
         this.processGraphModel.updateTreeAndFlows();
     }
@@ -521,7 +522,7 @@ export class ProcessViewModel implements IProcessViewModel {
         return this._rootScope && this._rootScope.config;
     }
 
-    public get statefulArtifact(): IStatefulArtifact{
+    public get statefulArtifact(): IStatefulArtifact {
         return this.processGraphModel.statefulArtifact;
     }
 

@@ -14,8 +14,8 @@
             "check-lowercase"
         ],
         "curly": true,
-        "eofline": true,
-        "forin": true,
+        //"eofline": true,
+        //"forin": true,
         "indent": [
             true,
             "spaces"
@@ -77,8 +77,6 @@
         "one-line": [
             true,
             "check-open-brace",
-            "check-catch",
-            "check-else",
             "check-whitespace"
         ],
         "quotemark": [
@@ -124,16 +122,17 @@
             "check-separator",
             "check-type"
         ],
+        /*"only-arrow-functions": [
+            true,
+            "allow-declarations"
+        ],*/
         "trailing-comma": [
             true,
             {
                 "multiline": "never",
                 "singleline": "never"
             }
-        ],
-        "only-arrow-functions": [
-            true,
-            "allow-declarations"
         ]
+
     }
 }

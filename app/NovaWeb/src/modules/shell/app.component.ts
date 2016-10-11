@@ -20,7 +20,7 @@ export class AppController {
     static $inject: [string] = ["$state", "session", "settings", "$window"];
 
     constructor(private $state: ng.ui.IStateService, private session: ISession,
-        private settings: ISettingsService, private $window: ng.IWindowService) {
+                private settings: ISettingsService, private $window: ng.IWindowService) {
     }
 
     public get currentUser(): IUser {

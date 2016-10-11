@@ -3,24 +3,24 @@ import {NodeType} from "./models/";
 
 
 export class ProcessCellRenderer extends mxCellRenderer {
-   
+
     public installCellOverlayListeners(state, overlay, shape) {
         super.installCellOverlayListeners(state, overlay, shape);
 
-        var graph = state.view.graph;
+        const graph = state.view.graph;
         mxEvent.addGestureListeners(shape.node, (evt) => {
             // set a flag on the event object to show the node popup menu
             // if the source of this mouse click is an overlay on
             // an edge or an overlay on a user decision shape or an
             // overlay on a system decision shape
 
-            var diagramNode = <IDiagramNode>state.cell;
+            const diagramNode = <IDiagramNode>state.cell;
             if (state.cell.edge === true || this.isUserDecision(diagramNode) || this.isSystemDecision(diagramNode)) {
-                 evt["InsertNodeIcon"] = true;
+                evt["InsertNodeIcon"] = true;
             }
 
             graph.fireMouseEvent(mxEvent.MOUSE_DOWN, new mxMouseEvent(evt, state));
-            
+
         });
     }
 
@@ -28,8 +28,8 @@ export class ProcessCellRenderer extends mxCellRenderer {
         let uc: boolean = false;
         if (diagramNode && diagramNode.getNodeType) {
             uc = diagramNode.getNodeType() === NodeType.UserDecision;
-        } 
-        return uc;     
+        }
+        return uc;
     }
 
     private isSystemDecision(diagramNode: IDiagramNode): boolean {

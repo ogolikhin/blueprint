@@ -10,7 +10,6 @@ import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
 
 
-
 export class SystemDecision extends UserTaskChildElement<IProcessShape> implements IDecision, IUserTaskChildElement {
 
     private SYSTEM_DECISION_WIDTH = 120;
@@ -38,7 +37,9 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
             this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemDecisionDetailsDialogType));
         } else {
-            this.detailsButton.setClickAction(() => { });
+            this.detailsButton.setClickAction(() => {
+                //fixme: why is this block empty? if its empty make it null or undefined
+            });
         }
         this.detailsButton.setHoverImage("/novaweb/static/bp-process/images/adddetails-hover.svg");
         this.detailsButton.setDisabledImage("/novaweb/static/bp-process/images/adddetails-mute.svg");
@@ -72,18 +73,18 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
 
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
 
-        var mxGraph = graph.getMxGraph();
+        const mxGraph = graph.getMxGraph();
 
-        var fillColor = this.DEFAULT_FILL_COLOR;
+        let fillColor = this.DEFAULT_FILL_COLOR;
         if (this.model.id < 0) {
             fillColor = justCreated ? this.newShapeColor : this.NEW_FILL_COLOR;
         }
 
-        this.insertVertex(mxGraph, this.model.id.toString(), null, x, y, this.SYSTEM_DECISION_WIDTH, this.SYSTEM_DECISION_HEIGHT, 
+        this.insertVertex(mxGraph, this.model.id.toString(), null, x, y, this.SYSTEM_DECISION_WIDTH, this.SYSTEM_DECISION_HEIGHT,
             "shape=rhombus;strokeColor=" + this.DEFAULT_BORDER_COLOR + ";fillColor=" + fillColor +
             ";fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=12;foldable=0;");
 
-        var textLabelStyle: LabelStyle = new LabelStyle(
+        const textLabelStyle: LabelStyle = new LabelStyle(
             "Open Sans",
             12,
             "transparent",
@@ -95,7 +96,9 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
             this.SYSTEM_DECISION_WIDTH - 30,
             "#4C4C4C"
         );
-        this.textLabel = new Label((value: string) => { this.label = value; },
+        this.textLabel = new Label((value: string) => {
+                this.label = value;
+            },
             graph.getHtmlElement(),
             this.model.id.toString(),
             "Label-B" + this.model.id.toString(),
@@ -121,8 +124,8 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
 
     public getElementTextLength(cell: MxCell): number {
         /*
-        * get the maximum length of text that can be entered
-        */
+         * get the maximum length of text that can be entered
+         */
         return this.LABEL_EDIT_MAXLENGTH;
     }
 
@@ -130,11 +133,11 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
 
         /***
          * This function returns formatted text to the getLabel()
-         * function to display the label  
+         * function to display the label
          */
 
         if (cell && text) {
-            var maxLen: number = this.LABEL_VIEW_MAXLENGTH;
+            const maxLen: number = this.LABEL_VIEW_MAXLENGTH;
 
             if (text.length > maxLen) {
                 text = text.substr(0, maxLen) + " ...";
@@ -146,15 +149,16 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
 
     public setElementText(cell: MxCell, text: string) {
         /*
-        * save text for the node or for an element within
-        * the node
-        */
+         * save text for the node or for an element within
+         * the node
+         */
         this.label = text;
     }
+
     public getFirstSystemTask(graph: IProcessGraph): ISystemTask {
-        var targets = this.getTargets(graph.getMxGraphModel());
+        const targets = this.getTargets(graph.getMxGraphModel());
         if (targets) {
-            var firstTarget = targets[0];
+            const firstTarget = targets[0];
             if (firstTarget != null && firstTarget.getNodeType() === NodeType.SystemTask) {
                 return <ISystemTask>firstTarget;
             }
@@ -180,6 +184,7 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
         //    this.model.id,
         //    dialogType);
     }
+
     public getDeleteDialogParameters(): IDialogParams {
         let dialogParams: IDialogParams = {};
         dialogParams.message = this.rootScope.config.labels["ST_Confirm_Delete_System_Decision"];
@@ -191,7 +196,7 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
     }
 
     public getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape {
-        var id = graph.getDecisionBranchDestLinkForIndex(this.model.id, orderIndex).destinationId;
+        const id = graph.getDecisionBranchDestLinkForIndex(this.model.id, orderIndex).destinationId;
         return graph.getShapeById(id);
     }
 }

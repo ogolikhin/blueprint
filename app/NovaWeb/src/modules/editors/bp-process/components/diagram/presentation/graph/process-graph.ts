@@ -23,7 +23,7 @@ import {ProcessAddHelper} from "./process-add-helper";
 import {IDialogSettings, IDialogService} from "../../../../../../shared";
 import {NodePopupMenu} from "./popup-menu/node-popup-menu";
 import {ProcessGraphSelectionHelper} from "./process-graph-selection";
-import { IStatefulArtifactFactory } from "../../../../../../managers/artifact-manager";
+import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-manager";
 import {ISelectionListener} from "./models/";
 
 export class ProcessGraph implements IProcessGraph {
@@ -33,7 +33,7 @@ export class ProcessGraph implements IProcessGraph {
     public nodeLabelEditor: NodeLabelEditor;
     //#TODO fix up references later 
     //public dragDropHandler: IDragDropHandler;
-    private mxgraph: MxGraph;    
+    private mxgraph: MxGraph;
     private isIe11: boolean;
     private selectionHelper: ProcessGraphSelectionHelper = null;
     private executionEnvironmentDetector: any;
@@ -57,32 +57,31 @@ export class ProcessGraph implements IProcessGraph {
         return this.viewModel.isUserToSystemProcess;
     }
 
-    constructor(
-        public rootScope: any,
-        private scope: any,
-        private htmlElement: HTMLElement,
-        // #TODO fix up references later 
-        //private artifactVersionControlService: Shell.IArtifactVersionControlService,
-        public viewModel: IProcessViewModel, 
-        private dialogService: IDialogService,
-        private localization: ILocalizationService,
-        public messageService: IMessageService = null,
-        private $log: ng.ILogService = null,
-        private statefulArtifactFactory: IStatefulArtifactFactory = null) {
+    constructor(public rootScope: any,
+                private scope: any,
+                private htmlElement: HTMLElement,
+                // #TODO fix up references later 
+                //private artifactVersionControlService: Shell.IArtifactVersionControlService,
+                public viewModel: IProcessViewModel,
+                private dialogService: IDialogService,
+                private localization: ILocalizationService,
+                public messageService: IMessageService = null,
+                private $log: ng.ILogService = null,
+                private statefulArtifactFactory: IStatefulArtifactFactory = null) {
 
         // Creates the graph inside the given container
-         
+
         // This is temporary code. It will be replaced with 
         // a class that wraps this global functionality.   
-        let w: any = window; 
+        let w: any = window;
         this.executionEnvironmentDetector = new w.executionEnvironmentDetector();
-         
+
         this.mxgraph = new mxGraph(this.htmlElement, new BpMxGraphModel());
 
         this.shapesFactory = new ShapesFactory(this.rootScope, this.statefulArtifactFactory);
-        
+
         this.layout = new Layout(this, viewModel, rootScope, this.shapesFactory, this.messageService, this.$log);
-       
+
         // this.viewModel.licenseType = processModelService && processModelService.licenseType;
         this.init();
     }
@@ -102,9 +101,9 @@ export class ProcessGraph implements IProcessGraph {
 
         ConnectorStyles.createStyles();
         NodeShapes.register(this.mxgraph);
-         
+
         this.addMouseEventListener(this.mxgraph);
-        
+
         // Enables tooltips in the graph
         //this.graph.setTooltips(true);
 
@@ -124,29 +123,32 @@ export class ProcessGraph implements IProcessGraph {
 
         this.applyDefaultStyles();
         this.applyReadOnlyStyles();
-       
+
         this.initializePopupMenu();
 
         if (!this.viewModel.isReadonly) {
             // #TODO: fix up these references later 
             // this.dragDropHandler = new DragDropHandler(this);
-             this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
+            this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         }
-     
+
         this.initializeGlobalScope();
     }
+
     public addSelectionListener(listener: ISelectionListener) {
         if (listener != null) {
             this.selectionHelper.addSelectionListener(listener);
         }
     }
+
     public clearSelection() {
         this.mxgraph.clearSelection();
     }
+
     private initializePopupMenu() {
 
         // initialize a popup menu for the graph
-     
+
         this.popupMenu = new NodePopupMenu(
             this.layout,
             this.shapesFactory,
@@ -168,9 +170,9 @@ export class ProcessGraph implements IProcessGraph {
                 this.nodeLabelEditor.init();
             }
 
-            this.deleteShapeHandler = 
-               this.viewModel.communicationManager.toolbarCommunicationManager.registerClickDeleteObserver(this.deleteShape);
-            
+            this.deleteShapeHandler =
+                this.viewModel.communicationManager.toolbarCommunicationManager.registerClickDeleteObserver(this.deleteShape);
+
         } catch (e) {
             this.logError(e);
             if (this.messageService) {
@@ -196,11 +198,11 @@ export class ProcessGraph implements IProcessGraph {
             model.endUpdate();
         }
     }
-    
+
     public getMxGraph(): MxGraph {
         return this.mxgraph;
     }
- 
+
     public getMxGraphModel() {
         return this.mxgraph.getModel();
     }
@@ -210,7 +212,7 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     private getDecisionConditionInsertMethod(decisionId: number): (decisionId: number, layout: ILayout,
-        shapesFactoryService: ShapesFactory, label?: string, conditionDestinationId?: number) => number {
+                                                                   shapesFactoryService: ShapesFactory, label?: string, conditionDestinationId?: number) => number {
         let shapeType = this.viewModel.getShapeTypeById(decisionId);
 
         switch (shapeType) {
@@ -298,7 +300,7 @@ export class ProcessGraph implements IProcessGraph {
             yPosition += (element.offsetTop);
             element = element.offsetParent;
         }
-        return { x: xPosition, y: yPosition };
+        return {x: xPosition, y: yPosition};
     }
 
     private getMinHeight(): string {
@@ -389,10 +391,10 @@ export class ProcessGraph implements IProcessGraph {
         mxConstants.CURSOR_BEND_HANDLE = "default";
         mxConstants.CURSOR_TERMINAL_HANDLE = "default";
     }
- 
+
 
     public destroy() {
-        
+
         if (this.viewModel.isSpa) {
             window.removeEventListener("resize", this.resizeWrapper, true);
         }
@@ -416,12 +418,12 @@ export class ProcessGraph implements IProcessGraph {
             this.nodeLabelEditor.dispose();
         }
 
-         if (this.selectionHelper) {
-             this.selectionHelper.destroy();
-         }
+        if (this.selectionHelper) {
+            this.selectionHelper.destroy();
+        }
 
         this.viewModel.communicationManager.toolbarCommunicationManager.removeClickDeleteObserver(this.deleteShapeHandler);
-        
+
     }
 
     private addMouseEventListener(graph: MxGraph) {
@@ -462,7 +464,8 @@ export class ProcessGraph implements IProcessGraph {
                         }
                     }
                 },
-                mouseUp: function (sender, me) { },
+                mouseUp: function (sender, me) {
+                },
                 onMouseEnter: function (sender, evt, state) {
                     if (state != null) {
                         if (state.cell != null && state.cell.onMouseEnter != null) {
@@ -583,7 +586,7 @@ export class ProcessGraph implements IProcessGraph {
         if (selectedNodes.length > 0) {
             let selectedNode: IDiagramNode = selectedNodes[0];
             let dialogParameters = selectedNode.getDeleteDialogParameters();
-        
+
             this.dialogService.open(<IDialogSettings>{
                 okButton: this.localization.get("App_Button_Ok"),
                 template: require("../../../../../../shared/widgets/bp-dialog/bp-dialog.html"),
@@ -594,10 +597,11 @@ export class ProcessGraph implements IProcessGraph {
                     if (selectedNode.getNodeType() === NodeType.UserTask) {
                         ProcessDeleteHelper.deleteUserTask(selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
                     } else if (selectedNode.getNodeType() === NodeType.UserDecision || selectedNode.getNodeType() === NodeType.SystemDecision) {
-                        ProcessDeleteHelper.deleteDecision(selectedNode.model.id, 
-                        (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this, this.shapesFactory);
+                        ProcessDeleteHelper.deleteDecision(selectedNode.model.id,
+                            (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this, this.shapesFactory);
                     }
-                };
+                }
+                ;
             });
         }
     }
@@ -611,7 +615,7 @@ export class ProcessGraph implements IProcessGraph {
         if (sources.length > 1) {
             this.updateBranchDestinationId(shapeId, newDestinationId);
         }
-        let originalShapeSourcesAndDestinations: SourcesAndDestinations = { sourceIds: [], destinationIds: [] };
+        let originalShapeSourcesAndDestinations: SourcesAndDestinations = {sourceIds: [], destinationIds: []};
         for (let sourceId of sources) {
             let linkIndex = this.viewModel.getLinkIndex(sourceId, shapeId);
             let link = this.viewModel.links[linkIndex];
@@ -690,8 +694,7 @@ export class ProcessGraph implements IProcessGraph {
                         this.logInfo("Call cell.setCellVisible, value = " + value);
                         cell.setCellVisible(this.mxgraph, value);
                     }
-                    if (cell.getNodeType() === NodeType.SystemDecision &&
-                        !this.viewModel.isReadonly) {
+                    if (cell.getNodeType() === NodeType.SystemDecision && !this.viewModel.isReadonly) {
                         if (value) {
                             (<SystemDecision>cell).showMenu(this.mxgraph);
                         } else {
@@ -713,7 +716,7 @@ export class ProcessGraph implements IProcessGraph {
         let ver = parseInt(myBrowser.version, 10);
         this.isIe11 = (myBrowser.msie && (ver === 11));
     }
-    
+
     private getSelectedNodes(): Array<IDiagramNode> {
         var elements = <Array<IDiagramNode>>this.mxgraph.getSelectionCells();
         elements = elements.filter(e => e instanceof DiagramNode);
@@ -802,14 +805,14 @@ export class ProcessGraph implements IProcessGraph {
         for (let index = 0; index < context.currentMappings.length; index++) {
             let mapping = context.currentMappings[index];
             currentShapeInfo.parentConditions.push(mapping);
-        };
+        }
+        ;
         return currentShapeInfo;
     }
-    private getScopeInternal(
-        context: IScopeContext,
-        stopCondition: IStopTraversalCondition,
-        getNextIds: INextIdsProvider
-    ): void {
+
+    private getScopeInternal(context: IScopeContext,
+                             stopCondition: IStopTraversalCondition,
+                             getNextIds: INextIdsProvider): void {
         if (stopCondition(context)) {
             return;
         }

@@ -1,51 +1,51 @@
 $modal-tour-height: 703px;
 .modal.nova-tour {
-  text-align: center;
+    text-align: center;
 
-  .modal-dialog {
-    height: $modal-tour-height;
-    min-width: 0px;
-    max-height: 90%;
-    max-width: 90%;
-    width: #{1000px + (2 * $modal-side-clearance)};
-    padding: 0;
+    .modal-dialog {
+        height: $modal-tour-height;
+        min-width: 0px;
+        max-height: 90%;
+        max-width: 90%;
+        width: #{1000px + (2 * $modal-side-clearance)};
+        padding: 0;
 
-    .modal-content {
-      border: none;
-      border-radius: 0px;
-      background: transparent;
-    }
+        .modal-content {
+            border: none;
+            border-radius: 0px;
+            background: transparent;
+        }
 
-    .fonticon-close {
-        position: absolute;
-        top: -3px;
-        right: -35px;
-        cursor: pointer;
-        color: #ddd;
-        transition: all 0.2s ease;
+        .fonticon-close {
+            position: absolute;
+            top: -3px;
+            right: -35px;
+            cursor: pointer;
+            color: #ddd;
+            transition: all 0.2s ease;
 
-        &:hover {
-            color: #fff;
+            &:hover {
+                color: #fff;
+            }
+        }
+
+        img {
+            width: 100%;
+            height: auto;
         }
     }
 
-    img {
-        width: 100%;
-        height: auto;
+    .carousel-indicators li {
+        border-color: #666;
+        &.active {
+            background: #666;
+        }
     }
-  }
 
-  .carousel-indicators li {
-    border-color: #666;
-    &.active {
-        background: #666;
+    .carousel-control {
+        top: inherit;
+        bottom: 45px;
+        color: #666;
+        text-shadow: none;
     }
-  }
-
-  .carousel-control {
-      top: inherit;
-      bottom: 45px;
-      color: #666;
-      text-shadow: none;
-  }
 }

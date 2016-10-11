@@ -1,9 +1,9 @@
-﻿import { IMessageService } from "../core";
-import { IArtifactManager, IProjectManager } from "../managers";
-import { IStatefulArtifact } from "../managers/artifact-manager";
-import { Models, Enums } from "../main/models";
+﻿import {IMessageService} from "../core";
+import {IArtifactManager, IProjectManager} from "../managers";
+import {IStatefulArtifact} from "../managers/artifact-manager";
+import {Models, Enums} from "../main/models";
 
-export { IArtifactManager, IProjectManager, IStatefulArtifact, IMessageService, Models, Enums }
+export {IArtifactManager, IProjectManager, IStatefulArtifact, IMessageService, Models, Enums}
 
 export class BpBaseEditor {
     protected subscribers: Rx.IDisposable[];
@@ -11,13 +11,13 @@ export class BpBaseEditor {
     public artifact: IStatefulArtifact;
     public isLoading: boolean;
 
-    constructor(
-        public messageService: IMessageService,
-        public artifactManager: IArtifactManager) {
+    constructor(public messageService: IMessageService,
+                public artifactManager: IArtifactManager) {
         this.subscribers = [];
     }
 
-    public $onInit() { }
+    public $onInit() {
+    }
 
     public $onChanges(obj: any) {
         this.isDestroyed = false;
@@ -28,9 +28,9 @@ export class BpBaseEditor {
                 //TODO come up with better way to fix bug in use case diagram when user selects actor/ use case
                 this.artifactManager.selection.setExplorerArtifact(this.artifact);
                 this.artifactManager.selection.setArtifact(this.artifact);
-                
+
                 const artifactObserver = artifact.getObservable()
-                        .subscribe(this.onArtifactChanged, this.onArtifactError);
+                    .subscribe(this.onArtifactChanged, this.onArtifactError);
 
                 this.subscribers = [artifactObserver];
             }
@@ -39,13 +39,15 @@ export class BpBaseEditor {
 
     public $onDestroy() {
         delete this.artifact;
-        this.subscribers.forEach(subscriber => { subscriber.dispose(); });
+        this.subscribers.forEach(subscriber => {
+            subscriber.dispose();
+        });
         this.artifactManager.selection.clearAll();
         delete this.subscribers;
         this.isDestroyed = true;
     }
 
-    protected onArtifactChanged = () =>  {
+    protected onArtifactChanged = () => {
         this.onArtifactReady();
     }
 

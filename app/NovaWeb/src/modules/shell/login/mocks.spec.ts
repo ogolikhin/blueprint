@@ -28,14 +28,16 @@ export class SettingsMock implements ISettingsService {
 }
 
 export class WindowMock {
-    public location = { origin: "http://localhost:9876" };
-    public open() { }
+    public location = {origin: "http://localhost:9876"};
+
+    public open() {
+    }
 }
 
 export class SessionSvcMock implements ISession {
 
     public static $inject = ["$q"];
-    public currentUser: IUser = <IUser>{ id: 1, displayName: "Default Instance Admin", login: "admin" };
+    public currentUser: IUser = <IUser>{id: 1, displayName: "Default Instance Admin", login: "admin"};
 
     constructor(private $q: ng.IQService) {
     }
@@ -50,7 +52,7 @@ export class SessionSvcMock implements ISession {
 
     public ensureAuthenticated() {
         var deferred = this.$q.defer<any>();
-        this.currentUser = <IUser>{ displayName: "Default Instance Admin", login: "admin" };
+        this.currentUser = <IUser>{displayName: "Default Instance Admin", login: "admin"};
         deferred.resolve();
         return deferred.promise;
     }
@@ -69,14 +71,14 @@ export class SessionSvcMock implements ISession {
 
     public login(username: string, password: string, overrideSession: boolean) {
         var deferred = this.$q.defer<any>();
-        this.currentUser = <IUser>{ displayName: "Default Instance Admin", login: "admin" };
+        this.currentUser = <IUser>{displayName: "Default Instance Admin", login: "admin"};
         deferred.resolve();
         return deferred.promise;
     }
 
     public loginWithSaml(overrideSession: boolean) {
         var deferred = this.$q.defer<any>();
-        this.currentUser = <IUser>{ displayName: "Default Instance Admin", login: "admin" };
+        this.currentUser = <IUser>{displayName: "Default Instance Admin", login: "admin"};
         deferred.resolve();
         return deferred.promise;
     }
@@ -91,26 +93,27 @@ export class SessionSvcMock implements ISession {
 export class AuthSvcMock implements IAuth {
 
     public static $inject = ["$q"];
+
     constructor(private $q: ng.IQService) {
     }
 
     public getCurrentUser(): ng.IPromise<IUser> {
         var deferred = this.$q.defer<IUser>();
-        var user: IUser = <IUser>{ displayName: "Default Instance Admin", login: "admin" };
+        var user: IUser = <IUser>{displayName: "Default Instance Admin", login: "admin"};
         deferred.resolve(user);
         return deferred.promise;
     }
 
     public login(userName: string, password: string, overrideSession: boolean): ng.IPromise<IUser> {
         var deferred = this.$q.defer<IUser>();
-        var user: IUser = <IUser>{ displayName: "Default Instance Admin", login: "admin" };
+        var user: IUser = <IUser>{displayName: "Default Instance Admin", login: "admin"};
         deferred.resolve(user);
         return deferred.promise;
     }
 
     public loginWithSaml(overrideSession: boolean = false, prevLogin: string): ng.IPromise<IUser> {
         var deferred = this.$q.defer<IUser>();
-        var user: IUser = <IUser>{ displayName: "Default Instance Admin", login: "admin" };
+        var user: IUser = <IUser>{displayName: "Default Instance Admin", login: "admin"};
         deferred.resolve(user);
         return deferred.promise;
     }
@@ -130,6 +133,7 @@ export class AuthSvcMock implements IAuth {
 
 export class ModalServiceMock implements ng.ui.bootstrap.IModalService {
     public static $inject = ["$q", "$timeout", "$rootScope"];
+
     constructor(private $q: ng.IQService, private $timeout: ng.ITimeoutService, private $rootScope: ng.IRootScopeService) {
         this.instanceMock = new ModalServiceInstanceMock(this.$q);
     }
@@ -140,7 +144,7 @@ export class ModalServiceMock implements ng.ui.bootstrap.IModalService {
     public open(options: ng.ui.bootstrap.IModalSettings): ng.ui.bootstrap.IModalServiceInstance {
         // typescript trick
         var controller: any = <any>options.controller;
-        
+
         /* tslint:disable:no-unused-variable */
         var ctrl = new controller(
             new LocalizationServiceMock(this.$rootScope),

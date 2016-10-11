@@ -1,4 +1,4 @@
-﻿import { ChangeTypeEnum } from "../../managers/artifact-manager/changeset";
+﻿import {ChangeTypeEnum} from "../../managers/artifact-manager/changeset";
 export interface IRelationship {
     artifactId: number;
     artifactTypePrefix: string;

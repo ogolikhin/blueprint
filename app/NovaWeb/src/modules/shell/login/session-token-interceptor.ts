@@ -2,7 +2,8 @@
 import {SessionTokenHelper} from "./session.token.helper";
 
 export class SessionTokenInterceptor {
-    constructor() { }
+    constructor() {
+    }
 
     public request = (config: ng.IRequestConfig) => {
         if (config.headers && config.headers[SessionTokenHelper.SESSION_TOKEN_KEY]) {

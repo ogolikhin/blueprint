@@ -1,12 +1,12 @@
 ﻿import * as angular from "angular";
-import { Models } from "../../main";
-import { ItemTypePredefined } from "../../main/models/enums";
+import {Models} from "../../main";
+import {ItemTypePredefined} from "../../main/models/enums";
 
 export class Helper {
 
-    static get UID(): string {        
+    static get UID(): string {
         return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-            /* tslint:disable:no-bitwise */ 
+            /* tslint:disable:no-bitwise */
             var r = Math.random() * 16 | 0, v = c === "x" ? r : (r & 0x3 | 0x8);
             /* tslint:enable:no-bitwise */
             return v.toString(16);
@@ -14,18 +14,18 @@ export class Helper {
     }
 
     static toDashCase(token: string): string {
-        token = token.replace(/(\B[A-Z][a-z]+)/g, function(match) {
+        token = token.replace(/(\B[A-Z][a-z]+)/g, function (match) {
             return "-" + match.toLowerCase();
         });
         return token.toLowerCase();
     };
 
     static toCamelCase(token: string): string {
-        token = token.replace(/[\-_\s]+(.)?/g, function(match, chr) {
+        token = token.replace(/[\-_\s]+(.)?/g, function (match, chr) {
             return chr ? chr.toUpperCase() : "";
         });
         // Ensure 1st char is always lowercase
-        return token.replace(/^([A-Z])/, function(match, chr) {
+        return token.replace(/^([A-Z])/, function (match, chr) {
             return chr ? chr.toLowerCase() : "";
         });
     };
@@ -60,7 +60,7 @@ export class Helper {
         var stack = [], keys = [];
 
         if (cycleReplacer == null) {
-            cycleReplacer = function(key, value) {
+            cycleReplacer = function (key, value) {
                 if (stack[0] === value) {
                     return "[Circular ~]";
                 }
@@ -68,7 +68,7 @@ export class Helper {
             };
         }
 
-        return function(key, value) {
+        return function (key, value) {
             if (stack.length > 0) {
                 var thisPos = stack.indexOf(this);
                 ~thisPos ? stack.splice(thisPos + 1) : stack.push(this);
@@ -110,7 +110,7 @@ export class Helper {
 
         // if it has children, we go deeper
         if (node.hasChildNodes()) {
-            [].forEach.call(node.childNodes, function(child) {
+            [].forEach.call(node.childNodes, function (child) {
                 if (child.nodeType === 1) { // we dig into HTML children only
                     Helper.autoLinkURLText(child);
                 } else if (child.nodeType === 3) {
@@ -142,7 +142,7 @@ export class Helper {
 
         let element = node as HTMLElement;
         let tds = element.querySelectorAll("td");
-        [].forEach.call(tds, function(td) {
+        [].forEach.call(tds, function (td) {
             if (td.style.borderStyle === "" || td.style.borderStyle.indexOf("none") !== -1) {
                 td.style.borderStyle = "solid";
             }
@@ -163,7 +163,7 @@ export class Helper {
 
         // if it has children, we go deeper
         if (node.hasChildNodes()) {
-            [].forEach.call(node.childNodes, function(child) {
+            [].forEach.call(node.childNodes, function (child) {
                 if (child.nodeType === 1) { // we dig into HTML children only
                     Helper.setFontFamilyOrOpenSans(child, allowedFonts);
                 } else if (child.nodeType === 3) {
@@ -180,10 +180,10 @@ export class Helper {
                             fontFamily = "'Open Sans'";
                         } else if (allowedFonts && allowedFonts.length) {
                             let isFontAllowed = false;
-                            allowedFonts.forEach(function(allowedFont) {
-                                isFontAllowed = isFontAllowed || fontFamily.split(",").some(function(font) {
-                                    return font.toLowerCase().trim().indexOf(allowedFont.toLowerCase()) !== -1;
-                                });
+                            allowedFonts.forEach(function (allowedFont) {
+                                isFontAllowed = isFontAllowed || fontFamily.split(",").some(function (font) {
+                                        return font.toLowerCase().trim().indexOf(allowedFont.toLowerCase()) !== -1;
+                                    });
                             });
                             if (!isFontAllowed) {
                                 fontFamily += ",'Open Sans'";
@@ -231,20 +231,21 @@ export class Helper {
 
     public static canUtilityPanelUseSelectedArtifact(artifact: Models.IArtifact): boolean {
         const nonStandardTypes = [
-            ItemTypePredefined.Project, 
-            ItemTypePredefined.ArtifactCollection, 
-            ItemTypePredefined.Collections, 
+            ItemTypePredefined.Project,
+            ItemTypePredefined.ArtifactCollection,
+            ItemTypePredefined.Collections,
             ItemTypePredefined.CollectionFolder
         ];
 
         return artifact && artifact.predefinedType != null && nonStandardTypes.indexOf(artifact.predefinedType) === -1;
     }
+
     public static hasArtifactEverBeenSavedOrPublished(artifact: Models.IArtifact): boolean {
-        return artifact.id > 0; 
+        return artifact.id > 0;
     }
 
     public static isInt(n: number): boolean {
         return parseInt(n.toString(), 10) === n;
-    }    
+    }
 }
 

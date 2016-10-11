@@ -24,9 +24,10 @@ describe("Embedded ag-grid events", () => {
     var controller: BPTreeController;
     var $scope, elem;
     var gridApi = new GridApi();
-    gridApi.setFocusedCell = () => { };
+    gridApi.setFocusedCell = () => {
+    };
 
-    beforeEach(inject(function(_$q_, _$rootScope_, _$compile_, $timeout) {
+    beforeEach(inject(function (_$q_, _$rootScope_, _$compile_, $timeout) {
         $scope = _$rootScope_.$new();
 
         elem = angular.element(`<div ag-grid="$ctrl.gridOptions" class="ag-grid"></div>`);
@@ -38,8 +39,12 @@ describe("Embedded ag-grid events", () => {
             headerName: "Header",
             field: "name",
             cellClassRules: {
-                "has-children": function (params) { return params.data.type === "Folder" && params.data.hasChildren; },
-                "is-project": function (params) { return params.data.type === "Project"; }
+                "has-children": function (params) {
+                    return params.data.type === "Folder" && params.data.hasChildren;
+                },
+                "is-project": function (params) {
+                    return params.data.type === "Project";
+                }
             },
             cellRenderer: "group",
             cellRendererParams: {
@@ -112,7 +117,7 @@ describe("Embedded ag-grid events", () => {
             TheName: "name"
         };
         // Act
-        controller.reload([{ itemId: 1, TheName: `Name 1` }]);
+        controller.reload([{itemId: 1, TheName: `Name 1`}]);
         // Assert
         //let data = controller.options.api.getRenderedNodes();
         expect(dataFromCall).toEqual(jasmine.any(Array));
@@ -137,7 +142,7 @@ describe("Embedded ag-grid events", () => {
         };
         $scope.$apply();
 
-        controller.reload([{ itemId: 1, TheName: `Name 1` }]);
+        controller.reload([{itemId: 1, TheName: `Name 1`}]);
         // Assert
         //let data = controller.options.api.getRenderedNodes();
         expect(dataFromCall).toEqual(jasmine.any(Array));
@@ -148,7 +153,6 @@ describe("Embedded ag-grid events", () => {
         expect(dataFromCall[0]["TheName"]).toBeDefined();
 
     }));
-
 
 
     it("add nodes", inject(($q: ng.IQService) => {
@@ -163,8 +167,8 @@ describe("Embedded ag-grid events", () => {
         $scope.$apply();
 
         controller.reload([
-            { id: 1, Name: `Name 1` },
-            { id: 2, Name: `Name 2` }
+            {id: 1, Name: `Name 1`},
+            {id: 2, Name: `Name 2`}
         ]);
         // Assert
         //let data = controller.options.api.getRenderedNodes();
@@ -183,14 +187,14 @@ describe("Embedded ag-grid events", () => {
         $scope.$apply();
 
         controller.reload([
-            { id: 1, Name: `Name 1` },
-            { id: 2, Name: `Name 2` }
+            {id: 1, Name: `Name 1`},
+            {id: 2, Name: `Name 2`}
         ]);
-        controller.reload( [
-            { id: 3, Name: `Name 3` },
-            { id: 4, Name: `Name 4` }
+        controller.reload([
+            {id: 3, Name: `Name 3`},
+            {id: 4, Name: `Name 4`}
         ], 1);
-        
+
         // Assert
         //let data = controller.options.api.getRenderedNodes();
         expect(dataFromCall).toEqual(jasmine.any(Array));
@@ -202,5 +206,4 @@ describe("Embedded ag-grid events", () => {
     }));
 
 
-    
 });

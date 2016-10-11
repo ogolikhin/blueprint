@@ -7,8 +7,8 @@ import {NodePopupMenu} from "./node-popup-menu";
 import {BpMxGraphModel} from "../bp-mxgraph-model";
 import {ShapesFactory} from "./../shapes/shapes-factory";
 import {ILayout} from "./../models/";
-import { IStatefulArtifactFactory } from "../../../../../../../managers/artifact-manager/";
-import { StatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {IStatefulArtifactFactory} from "../../../../../../../managers/artifact-manager/";
+import {StatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("Popup Menu test", () => {
     let mxgraph: MxGraph;
@@ -26,11 +26,10 @@ describe("Popup Menu test", () => {
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
-    beforeEach(inject((
-        _$window_: ng.IWindowService,
-        $rootScope: ng.IRootScopeService,
-        _localization_: ILocalizationService,
-        statefulArtifactFactory: IStatefulArtifactFactory) => {
+    beforeEach(inject((_$window_: ng.IWindowService,
+                       $rootScope: ng.IRootScopeService,
+                       _localization_: ILocalizationService,
+                       statefulArtifactFactory: IStatefulArtifactFactory) => {
 
         localization = _localization_;
         rootScope = $rootScope;
@@ -47,13 +46,13 @@ describe("Popup Menu test", () => {
         htmlElement = document.createElement("DIV");
         wrapper.appendChild(htmlElement);
         document.body.appendChild(wrapper);
-  
+
         processModel = new ProcessModel();
         viewModel = new ProcessViewModel(processModel);
         viewModel.isReadonly = false;
         viewModel.isSpa = true;
 
-        mxgraph = new mxGraph(htmlElement, new BpMxGraphModel());  
+        mxgraph = new mxGraph(htmlElement, new BpMxGraphModel());
         shapesFactory = new ShapesFactory(rootScope, statefulArtifactFactory);
     }));
 
@@ -82,7 +81,7 @@ describe("Popup Menu test", () => {
         // Arrange
 
         // Act
-     
+
         var popupMenu = new NodePopupMenu(
             layout,
             shapesFactory,
@@ -166,9 +165,9 @@ describe("Popup Menu test", () => {
 
     it("The menu should have the option to 'Add Branch' when edge is false and node type is 'UserDecision' ", () => {
         // Arrange
-        
+
         // Act
-      
+
         var popupMenu = new NodePopupMenu(
             layout,
             shapesFactory,
@@ -184,7 +183,8 @@ describe("Popup Menu test", () => {
         popupMenu.insertionPoint = new mxCell("test", null, null);
         popupMenu.insertionPoint["__proto__"]["edge"] = false;
         popupMenu.insertionPoint["__proto__"]["vertex"] = true;
-        popupMenu.insertionPoint["getNodeType"] = () => { };
+        popupMenu.insertionPoint["getNodeType"] = () => {
+        };
 
         var menu = new mxPopupMenu();
         menu["div"] = document.createElement("div");

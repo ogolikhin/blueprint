@@ -1,54 +1,58 @@
 <!--ToDo: remove table... why a table? Table is for tabular data and this is not data but presentation.-->
-<table><tr><td>
-	<h1>Blueprint</h1>
-	<h2>Sorry! Your operating system or browser is not supported.</h2>
-	<div class="supported-platforms">
-		<p>We currently support the following:</p>
-		<div class="supported-platforms-row">
-			<div class="supported-platform windows">
-				<h3>Windows 7 / 8.x / 10<span>Desktop</span></h3>
-				<ul>
-					<li>Internet Explorer 11</li>
-					<li>Chrome 50 or later</li>
-				</ul>
-			</div>
-			<div class="supported-platform apple">
-				<h3>Mac OS X 10.9 or later<span>Desktop</span></h3>
-				<ul>
-					<li>Chrome 50 or later</li>
-				</ul>
-			</div>
-		</div>
-		<!-- Removing tablet and mobile support for MVP -->
-		<!-- <div class="supported-platforms-row">
- 			<div class="supported-platform android">
- 				<h3>Android 5.0 or later<span>Tablet</span></h3>
- 				<ul>
- 					<li>Chrome 40 or later</li>
- 				</ul>
- 			</div>
- 			<div class="supported-platform apple">
- 				<h3>iOS 9 or later<span>Tablet</span></h3>
- 				<ul>
- 					<li>Safari</li>
- 					<li>Chrome 40 or later</li>
- 				</ul>
- 			</div>
- 		</div> -->
-	</div>
-	<button class="btn btn-primary" id="unsupported-browser-proceed-btn">Proceed&nbsp;&nbsp;&gt;&gt;</button>
-</td></tr></table>
+<table>
+    <tr>
+        <td>
+            <h1>Blueprint</h1>
+            <h2>Sorry! Your operating system or browser is not supported.</h2>
+            <div class="supported-platforms">
+                <p>We currently support the following:</p>
+                <div class="supported-platforms-row">
+                    <div class="supported-platform windows">
+                        <h3>Windows 7 / 8.x / 10<span>Desktop</span></h3>
+                        <ul>
+                            <li>Internet Explorer 11</li>
+                            <li>Chrome 50 or later</li>
+                        </ul>
+                    </div>
+                    <div class="supported-platform apple">
+                        <h3>Mac OS X 10.9 or later<span>Desktop</span></h3>
+                        <ul>
+                            <li>Chrome 50 or later</li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Removing tablet and mobile support for MVP -->
+                <!-- <div class="supported-platforms-row">
+                     <div class="supported-platform android">
+                         <h3>Android 5.0 or later<span>Tablet</span></h3>
+                         <ul>
+                             <li>Chrome 40 or later</li>
+                         </ul>
+                     </div>
+                     <div class="supported-platform apple">
+                         <h3>iOS 9 or later<span>Tablet</span></h3>
+                         <ul>
+                             <li>Safari</li>
+                             <li>Chrome 40 or later</li>
+                         </ul>
+                     </div>
+                 </div> -->
+            </div>
+            <button class="btn btn-primary" id="unsupported-browser-proceed-btn">Proceed&nbsp;&nbsp;&gt;&gt;</button>
+        </td>
+    </tr>
+</table>
 <script>
     /*FixMe: inline scripting is not supported. please move to an external file and inject/reference*/
-	function proceedWithUnsupportedBrowser() {
+    function proceedWithUnsupportedBrowser() {
 
-		var divUnsupportedBrowser = document.getElementById("unsupported-browser-container");
-		divUnsupportedBrowser.parentNode.removeChild(divUnsupportedBrowser);
+        var divUnsupportedBrowser = document.getElementById("unsupported-browser-container");
+        divUnsupportedBrowser.parentNode.removeChild(divUnsupportedBrowser);
 
-		window.appBootstrap.initApp();
+        window.appBootstrap.initApp();
 
-		return false;
-	}
+        return false;
+    }
 
-	document.getElementById('unsupported-browser-proceed-btn').onclick = proceedWithUnsupportedBrowser;
+    document.getElementById('unsupported-browser-proceed-btn').onclick = proceedWithUnsupportedBrowser;
 </script>

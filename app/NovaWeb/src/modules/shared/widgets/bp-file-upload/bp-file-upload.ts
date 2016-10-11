@@ -13,12 +13,13 @@ export class BPFileUpload implements ng.IDirective {
             const files = $element[0].files;
 
             if (files && files.length > 0) {
-                $scope.onFileUpload({ files: files, callback: clearSelectedFiles });
+                $scope.onFileUpload({files: files, callback: clearSelectedFiles});
             }
         });
     };
 
-    constructor() {}
+    constructor() {
+    }
 
     public static factory() {
         const directive = () => new BPFileUpload();

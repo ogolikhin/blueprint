@@ -1,8 +1,8 @@
 ﻿import * as angular from "angular";
-import { ILocalizationService } from "../../../../core";
-import { Helper, IBPTreeController, IDialogSettings, BaseDialogController, IDialogService } from "../../../../shared";
-import { Models } from "../../../models";
-import { IProjectManager } from "../../../../managers";
+import {ILocalizationService} from "../../../../core";
+import {Helper, IBPTreeController, IDialogSettings, BaseDialogController, IDialogService} from "../../../../shared";
+import {Models} from "../../../models";
+import {IProjectManager} from "../../../../managers";
 
 export interface IOpenProjectController {
     propertyMap: any;
@@ -20,15 +20,14 @@ export class OpenProjectController extends BaseDialogController implements IOpen
     private tree: IBPTreeController;
 
     static $inject = ["$scope", "localization", "$uibModalInstance", "projectManager", "dialogService", "dialogSettings", "$sce"];
-    constructor(
-        private $scope: ng.IScope,
-        private localization: ILocalizationService,
-        $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
-        private manager: IProjectManager,
-        private dialogService: IDialogService,
-        dialogSettings: IDialogSettings,
-        private $sce: ng.ISCEService
-    ) {
+
+    constructor(private $scope: ng.IScope,
+                private localization: ILocalizationService,
+                $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
+                private manager: IProjectManager,
+                private dialogService: IDialogService,
+                dialogSettings: IDialogSettings,
+                private $sce: ng.ISCEService) {
         super($uibModalInstance, dialogSettings);
 
     };
@@ -36,7 +35,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
     public propertyMap = {
         id: "id",
         type: "type",
-        name: "name", 
+        name: "name",
         hasChildren: "hasChildren",
         children: "children",
         loaded: "loaded",
@@ -57,6 +56,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
     public get hasError(): boolean {
         return Boolean(this._errorMessage);
     }
+
     public get errorMessage(): string {
         return this._errorMessage;
     }
@@ -68,6 +68,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
     public get selectedItem() {
         return this._selectedItem;
     }
+
     private _selectedDescription: string;
 
     public get selectedDescription() {
@@ -110,9 +111,15 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         headerName: this.localization.get("App_Header_Name"),
         field: "name",
         cellClassRules: {
-            "has-children": function(params) { return params.data.hasChildren; },
-            "is-folder": function (params) { return params.data.type === 0; },
-            "is-project": function (params) { return params.data.type === 1; }
+            "has-children": function (params) {
+                return params.data.hasChildren;
+            },
+            "is-folder": function (params) {
+                return params.data.type === 0;
+            },
+            "is-project": function (params) {
+                return params.data.type === 1;
+            }
         },
         cellRenderer: "group",
         cellRendererParams: {
@@ -127,15 +134,15 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         },
         suppressMenu: true,
         suppressSorting: true,
-        suppressFiltering : true
+        suppressFiltering: true
     }];
 
-    public doLoad = (prms: any): any[] => { 
+    public doLoad = (prms: any): any[] => {
         //check passed in parameter
         let self = this;
         let id = (prms && angular.isNumber(prms.id)) ? prms.id : null;
         this.manager.loadFolders(id)
-            .then((nodes: Models.IProjectNode[]) => { 
+            .then((nodes: Models.IProjectNode[]) => {
                 self.tree.reload(nodes, id);
                 if (self.tree.isEmpty) {
                     this._errorMessage = this.localization.get("Project_NoProjectsAvailable");

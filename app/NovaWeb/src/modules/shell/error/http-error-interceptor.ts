@@ -1,11 +1,12 @@
 ﻿import "angular";
-import { ISession } from "../login/session.svc";
-import { SessionTokenHelper } from "../login/session.token.helper";
-import { IMessageService, IHttpInterceptorConfig, HttpStatusCode } from "../../core";
+import {ISession} from "../login/session.svc";
+import {SessionTokenHelper} from "../login/session.token.helper";
+import {IMessageService, IHttpInterceptorConfig, HttpStatusCode} from "../../core";
 
 export class HttpErrorInterceptor {
 
     static $inject: [string] = ["$injector"];
+
     constructor(private $injector: ng.auto.IInjectorService) {
     }
 
@@ -52,7 +53,7 @@ export class HttpErrorInterceptor {
             $message.addError("HttpError_InternalServer"); //Internal Server Error. An error occurred.
             //here we need to reject with none object passed in, means that the error has been handled
             deferred.reject();
-        
+
         } else {
             $log.error(response.data);
             deferred.reject(response);

@@ -1,6 +1,6 @@
 import * as angular from "angular";
-import { ILocalizationService } from "../../../core";
-import { Models } from "../../../main/models";
+import {ILocalizationService} from "../../../core";
+import {Models} from "../../../main/models";
 
 export interface IMetaDataService {
     load(projectId?: number);
@@ -23,23 +23,22 @@ class ProjectMetaData {
 export class MetaDataService implements IMetaDataService {
 
     private collection: ProjectMetaData[] = [];
-    
+
     public static $inject = [
         "$q",
         "$http",
         "localization"
     ];
 
-    constructor(
-        private $q: ng.IQService,
-        private $http: ng.IHttpService,
-        private localization: ILocalizationService) {
+    constructor(private $q: ng.IQService,
+                private $http: ng.IHttpService,
+                private localization: ILocalizationService) {
     }
 
     public load(projectId?: number, force: boolean = false): ng.IPromise<ProjectMetaData> {
         let deferred = this.$q.defer<ProjectMetaData>();
         let metadata = this.get(projectId);
-        if (!force && metadata ) {
+        if (!force && metadata) {
             deferred.resolve(metadata);
         } else {
             let url: string = `svc/artifactstore/projects/${projectId}/meta/customtypes`;
@@ -47,7 +46,7 @@ export class MetaDataService implements IMetaDataService {
             this.$http.get<Models.IProjectMeta>(url).then(
                 (result: ng.IHttpPromiseCallbackArg<Models.IProjectMeta>) => {
                     if (angular.isArray(result.data.artifactTypes)) {
-                        //add specific types 
+                        //add specific types
                         result.data.artifactTypes.unshift(
                             <Models.IItemType>{
                                 id: -1,
@@ -64,7 +63,7 @@ export class MetaDataService implements IMetaDataService {
                         );
                     }
                     metadata = new ProjectMetaData(projectId, result.data);
-                    this.collection.push(metadata); 
+                    this.collection.push(metadata);
                     deferred.resolve(metadata);
                 },
                 (errResult: ng.IHttpPromiseCallbackArg<any>) => {
@@ -78,7 +77,6 @@ export class MetaDataService implements IMetaDataService {
                     };
                     deferred.reject(error);
                 }
-                
             );
 
         }
@@ -88,14 +86,14 @@ export class MetaDataService implements IMetaDataService {
 
     public get(projectId: number): ProjectMetaData {
         return this.collection.filter((it: ProjectMetaData) => it.id === projectId)[0];
-    }    
+    }
 
     public remove(projectId: number) {
         this.collection = this.collection.filter((it: ProjectMetaData) => {
             return it.id !== projectId;
         });
     }
-    
+
 
     public getArtifactItemType(projectId: number, itemTypeId: number): Models.IItemType {
         let itemType = {} as  Models.IItemType;
@@ -104,8 +102,8 @@ export class MetaDataService implements IMetaDataService {
             itemType = metadata.data.artifactTypes.filter((it: Models.IItemType) => {
                 return it.id === itemTypeId;
             })[0];
-        } 
-        
+        }
+
         return itemType;
     }
 
@@ -116,8 +114,8 @@ export class MetaDataService implements IMetaDataService {
             itemType = metadata.data.subArtifactTypes.filter((it: Models.IItemType) => {
                 return it.id === itemTypeId;
             })[0];
-        } 
-        
+        }
+
         return itemType;
     }
 
@@ -126,7 +124,7 @@ export class MetaDataService implements IMetaDataService {
         let properties: Models.IPropertyType[] = [];
 
         let projectMeta = this.get(projectId);
-        let itemType = this.getArtifactItemType(projectId, itemTypeId);        
+        let itemType = this.getArtifactItemType(projectId, itemTypeId);
 
         properties.push(...this.getArtifactSystemPropertyTypes(projectMeta, itemType));
         //add custom property types
@@ -139,7 +137,7 @@ export class MetaDataService implements IMetaDataService {
         let properties: Models.IPropertyType[] = [];
 
         let projectMeta = this.get(projectId);
-        let itemType = this.getSubArtifactItemType(projectId, itemTypeId);        
+        let itemType = this.getSubArtifactItemType(projectId, itemTypeId);
         if (itemType) {
 
             properties.push(...this.getSubArtifactSystemPropertyTypes(itemType));
@@ -157,7 +155,7 @@ export class MetaDataService implements IMetaDataService {
         // projectMeta: Models.IProjectMeta): Models.IPropertyType[] {
         let properties: Models.IPropertyType[] = [];
 
-        //add system properties  
+        //add system properties
         properties.push(<Models.IPropertyType>{
             name: this.localization.get("Label_Name"),
             propertyTypePredefined: Models.PropertyTypePredefined.Name,
@@ -177,7 +175,7 @@ export class MetaDataService implements IMetaDataService {
                 return data.artifactTypes.filter((it: Models.IItemType) => {
                     return (itemType && (itemType.predefinedType === it.predefinedType));
                 });
-            } (projectMeta ? projectMeta.data : null).map(function (it) {
+            }(projectMeta ? projectMeta.data : null).map(function (it) {
                 return <Models.IOption>{
                     id: it.id,
                     value: it.name
@@ -195,7 +193,7 @@ export class MetaDataService implements IMetaDataService {
             name: this.localization.get("Label_CreatedOn"),
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
             primitiveType: Models.PrimitiveType.Date,
-            stringDefaultValue: "Never published", 
+            stringDefaultValue: "Never published",
             disabled: true
         });
         properties.push(<Models.IPropertyType>{
@@ -267,11 +265,11 @@ export class MetaDataService implements IMetaDataService {
         });
 
         if (itemType.predefinedType === Models.ItemTypePredefined.Step) {
-           properties.push(<Models.IPropertyType>{
-               name: "Step Of",
-               propertyTypePredefined: Models.PropertyTypePredefined.StepOf,
-               primitiveType: Models.PrimitiveType.Choice,               
-           });
+            properties.push(<Models.IPropertyType>{
+                name: "Step Of",
+                propertyTypePredefined: Models.PropertyTypePredefined.StepOf,
+                primitiveType: Models.PrimitiveType.Choice,
+            });
         }
 
         if (itemType.predefinedType === Models.ItemTypePredefined.GDShape ||
@@ -300,7 +298,7 @@ export class MetaDataService implements IMetaDataService {
             itemType.predefinedType === Models.ItemTypePredefined.DDShape ||
             itemType.predefinedType === Models.ItemTypePredefined.SBShape ||
             itemType.predefinedType === Models.ItemTypePredefined.UIShape ||
-            itemType.predefinedType === Models.ItemTypePredefined.UCDShape ||            
+            itemType.predefinedType === Models.ItemTypePredefined.UCDShape ||
             itemType.predefinedType === Models.ItemTypePredefined.BPShape ||
             itemType.predefinedType === Models.ItemTypePredefined.PROShape) {
 
@@ -342,9 +340,6 @@ export class MetaDataService implements IMetaDataService {
         }
         return properties;
     }
-
-
-
 
 
 }

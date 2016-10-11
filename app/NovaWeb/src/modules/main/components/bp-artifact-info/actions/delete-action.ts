@@ -4,11 +4,9 @@ import {ILocalizationService} from "../../../../core";
 import {ItemTypePredefined} from "../../../../main/models/enums";
 
 export class DeleteAction extends BPButtonAction {
-    constructor(
-        artifact: IStatefulArtifact,
-        localization: ILocalizationService,
-        dialogService: IDialogService
-    ) {
+    constructor(artifact: IStatefulArtifact,
+                localization: ILocalizationService,
+                dialogService: IDialogService) {
         super(
             () => {
                 dialogService.open(<IDialogSettings>{
@@ -20,7 +18,8 @@ export class DeleteAction extends BPButtonAction {
                     if (confirm) {
                         dialogService.alert("you clicked confirm!");
                         this.deleteArtifact();
-                    };
+                    }
+                    ;
                 });
             },
             () => {
@@ -29,7 +28,7 @@ export class DeleteAction extends BPButtonAction {
                 }
 
                 const invalidTypes = [
-                    ItemTypePredefined.Project, 
+                    ItemTypePredefined.Project,
                     ItemTypePredefined.Collections
                 ];
 

@@ -1,6 +1,6 @@
 import * as ProcessModels from "../models/process-models";
-import { IMessageService } from "../../../core";
-export { ProcessModels }
+import {IMessageService} from "../../../core";
+export {ProcessModels}
 
 export interface IProcessService {
     load(processId: string, versionId?: number, revisionId?: number, baselineId?: number, readOnly?: boolean): ng.IPromise<ProcessModels.IProcess>;
@@ -13,12 +13,11 @@ export class ProcessService implements IProcessService {
         "$q",
         "messageService"
     ];
-    
-    constructor(
-        private $http: ng.IHttpService,
-        private $q: ng.IQService,
-        private messageService: IMessageService) {
-        
+
+    constructor(private $http: ng.IHttpService,
+                private $q: ng.IQService,
+                private messageService: IMessageService) {
+
     }
 
     public load(processId: string, versionId?: number, revisionId?: number, baselineId?: number, readOnly?: boolean): ng.IPromise<ProcessModels.IProcess> {
@@ -40,13 +39,13 @@ export class ProcessService implements IProcessService {
 
         this.$http.get<ProcessModels.IProcess>(restPath, requestConfig).then(
             (result: ng.IHttpPromiseCallbackArg<ProcessModels.IProcess>) => {
-            
+
                 result["versionId"] = queryParamData.versionId;
                 result["revisionId"] = queryParamData.revisionId;
                 result["baselineId"] = queryParamData.baselineId;
 
                 deferred.resolve(result.data);
-            
+
             }, (result: ng.IHttpPromiseCallbackArg<any>) => {
                 if (!result) {
                     deferred.reject();
@@ -62,7 +61,7 @@ export class ProcessService implements IProcessService {
         return deferred.promise;
     }
 
-   
+
     public getProcesses(projectId: number): ng.IPromise<ProcessModels.IArtifactReference[]> {
         const restPath = `/svc/components/storyteller/projects/${projectId}/processes`;
         var deferred = this.$q.defer<ProcessModels.IArtifactReference[]>();

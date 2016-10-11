@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import "angular-formly";
-import { ILocalizationService } from "../../../../core";
-import { BPFieldBaseController } from "../base-controller";
+import {ILocalizationService} from "../../../../core";
+import {BPFieldBaseController} from "../base-controller";
 
 export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldSelectMulti";
@@ -93,7 +93,9 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                 noMatch: localization.get("Property_No_Matching_Options")
             },
             isChoiceSelected: function (item, $select): boolean {
-                return $select.selected.map(function (e) { return e[$scope.to.valueProp]; }).indexOf(item[$scope.to.valueProp]) !== -1;
+                return $select.selected.map(function (e) {
+                        return e[$scope.to.valueProp];
+                    }).indexOf(item[$scope.to.valueProp]) !== -1;
             },
             areStillChoicesAvailable: function ($select): boolean {
                 return $select.items.some((elem) => {
@@ -262,7 +264,9 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                         $select.items = this.items.slice(this.startingItem, this.startingItem + this.maxItemsToRender);
                     }
 
-                    $select.activeIndex = $select.items.map(function (e) { return e[$scope.to.valueProp]; }).indexOf($item[$scope.to.valueProp]);
+                    $select.activeIndex = $select.items.map(function (e) {
+                        return e[$scope.to.valueProp];
+                    }).indexOf($item[$scope.to.valueProp]);
                 }
                 options.validation.show = formControl.$invalid;
                 this.toggleScrollbar(true);
@@ -278,7 +282,9 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                     $select.items = this.items.slice(this.startingItem, this.startingItem + this.maxItemsToRender);
                 }
 
-                let currentItem = $select.items.map(function (e) { return e[$scope.to.valueProp]; }).indexOf($item[$scope.to.valueProp]);
+                let currentItem = $select.items.map(function (e) {
+                    return e[$scope.to.valueProp];
+                }).indexOf($item[$scope.to.valueProp]);
 
                 $scope["$applyAsync"](() => {
                     if ($scope["uiSelectContainer"]) {

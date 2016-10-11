@@ -29,23 +29,24 @@ export class UploadImageDirective implements ng.IDirective {
     public restrict = "E";
     public defaultName = "default";
 
-    constructor(private fileUploadService: IFileUploadService, private $window: ng.IWindowService, 
-    private $timeout: ng.ITimeoutService, private $compile: ng.ICompileService) {
+    constructor(private fileUploadService: IFileUploadService, private $window: ng.IWindowService,
+                private $timeout: ng.ITimeoutService, private $compile: ng.ICompileService) {
     }
+
     public static factory(): ng.IDirectiveFactory {
-        var directive: ng.IDirectiveFactory = (fileUploadService: IFileUploadService, 
-        $window: ng.IWindowService, $timeout: ng.ITimeoutService, $compile: ng.ICompileService) =>
+        var directive: ng.IDirectiveFactory = (fileUploadService: IFileUploadService,
+                                               $window: ng.IWindowService, $timeout: ng.ITimeoutService, $compile: ng.ICompileService) =>
             new UploadImageDirective(fileUploadService, $window, $timeout, $compile);
         directive.$inject = ["fileUploadService", "$window", "$timeout", "$compile"];
         return directive;
     }
+
     public link: ng.IDirectiveLinkFn = ($scope: IUploadImageScope, $element: ng.IAugmentedJQuery, attr: ng.IAttributes) => {
         $scope.imageUploaded = false;
 
         $scope.isReadonly = $scope.$parent["vm"].isReadonly;
 
-        if (!!$scope.systemTaskModel &&
-            !!$scope.systemTaskModel.associatedImageUrl) {
+        if (!!$scope.systemTaskModel && !!$scope.systemTaskModel.associatedImageUrl) {
 
             this.createImage($scope, $element, attr);
         }
@@ -105,6 +106,7 @@ export class UploadImageDirective implements ng.IDirective {
             }
         };
     };
+
     private createImage($scope: IUploadImageScope, $element: ng.IAugmentedJQuery, attr: ng.IAttributes) {
 
         // forcing reload by adding query parameter http://stackoverflow.com/questions/18845298/forcing-a-ng-src-reload

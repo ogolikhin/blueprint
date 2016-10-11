@@ -1,21 +1,21 @@
 import "angular";
 import "angular-sanitize";
-import { IStencilService } from "./impl/stencil.svc";
-import { ILocalizationService } from "../../core";
-import { IDiagramService, DiagramErrors } from "./diagram.svc";
-import { DiagramView } from "./impl/diagram-view";
-import { ISelection, IStatefulArtifactFactory } from "../../managers/artifact-manager";
-import { IDiagram, IShape, IDiagramElement } from "./impl/models";
-import { SafaryGestureHelper } from "./impl/utils/gesture-helper";
-import { Diagrams, Shapes, ShapeProps } from "./impl/utils/constants";
-import { ShapeExtensions } from "./impl/utils/helpers";
-import { ItemTypePredefined } from "./../../main/models/enums";
-import { IItem } from "./../../main/models/models";
+import {IStencilService} from "./impl/stencil.svc";
+import {ILocalizationService} from "../../core";
+import {IDiagramService, DiagramErrors} from "./diagram.svc";
+import {DiagramView} from "./impl/diagram-view";
+import {ISelection, IStatefulArtifactFactory} from "../../managers/artifact-manager";
+import {IDiagram, IShape, IDiagramElement} from "./impl/models";
+import {SafaryGestureHelper} from "./impl/utils/gesture-helper";
+import {Diagrams, Shapes, ShapeProps} from "./impl/utils/constants";
+import {ShapeExtensions} from "./impl/utils/helpers";
+import {ItemTypePredefined} from "./../../main/models/enums";
+import {IItem} from "./../../main/models/models";
 
-import { 
-    IArtifactManager, 
+import {
+    IArtifactManager,
     IMessageService,
-    BpBaseEditor 
+    BpBaseEditor
 } from "../bp-base-editor";
 
 export class BPDiagram implements ng.IComponentOptions {
@@ -29,8 +29,8 @@ export class BPDiagram implements ng.IComponentOptions {
 export class BPDiagramController extends BpBaseEditor {
 
     public static $inject: [string] = [
-        "messageService", 
-        "artifactManager", 
+        "messageService",
+        "artifactManager",
         "$element",
         "$q",
         "$sanitize",
@@ -49,20 +49,19 @@ export class BPDiagramController extends BpBaseEditor {
     private diagramView: DiagramView;
     private cancelationToken: ng.IDeferred<any>;
 
-    constructor(
-        public messageService: IMessageService,
-        public artifactManager: IArtifactManager,
-        private $element: ng.IAugmentedJQuery,
-        private $q: ng.IQService,
-        private $sanitize: any,
-        private stencilService: IStencilService,
-        private diagramService: IDiagramService,
-        private localization: ILocalizationService,
-        private $rootScope: ng.IRootScopeService,
-        private $log: ng.ILogService,
-        private statefulArtifactFactory: IStatefulArtifactFactory) {
-            super(messageService, artifactManager);
-            new SafaryGestureHelper().disableGestureSupport(this.$element);
+    constructor(public messageService: IMessageService,
+                public artifactManager: IArtifactManager,
+                private $element: ng.IAugmentedJQuery,
+                private $q: ng.IQService,
+                private $sanitize: any,
+                private stencilService: IStencilService,
+                private diagramService: IDiagramService,
+                private localization: ILocalizationService,
+                private $rootScope: ng.IRootScopeService,
+                private $log: ng.ILogService,
+                private statefulArtifactFactory: IStatefulArtifactFactory) {
+        super(messageService, artifactManager);
+        new SafaryGestureHelper().disableGestureSupport(this.$element);
     }
 
     public $onInit() {
@@ -80,10 +79,10 @@ export class BPDiagramController extends BpBaseEditor {
 
     private clearSelectionFilter = (selection: ISelection) => {
         return this.artifact
-               && selection
-               && selection.artifact
-               && selection.artifact.id === this.artifact.id
-               && !selection.subArtifact;
+            && selection
+            && selection.artifact
+            && selection.artifact.id === this.artifact.id
+            && !selection.subArtifact;
     }
 
     public $onDestroy() {
@@ -152,7 +151,7 @@ export class BPDiagramController extends BpBaseEditor {
                     }
                 } else {
                     this.artifactManager.selection.setSubArtifact(this.getSubArtifact(element.id));
-                } 
+                }
             } else {
                 this.artifactManager.selection.setArtifact(this.artifact);
             }
@@ -226,7 +225,7 @@ export class BPDiagramController extends BpBaseEditor {
             case Diagrams.USECASE_DIAGRAM:
                 item.prefix = element.isShape ? "UCDS" : "UCDC";
                 item.predefinedType = element.isShape ? ItemTypePredefined.UCDShape : ItemTypePredefined.UCDConnector;
-                break;    
+                break;
             default:
                 break;
         }

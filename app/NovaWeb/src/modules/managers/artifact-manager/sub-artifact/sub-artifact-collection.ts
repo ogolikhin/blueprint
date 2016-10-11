@@ -1,7 +1,7 @@
-import { ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector  } from "../changeset";
-import { IStatefulArtifactServices } from "../services";
-import { IIStatefulArtifact } from "../artifact";
-import { IStatefulSubArtifact } from "../sub-artifact";
+import {ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector} from "../changeset";
+import {IStatefulArtifactServices} from "../services";
+import {IIStatefulArtifact} from "../artifact";
+import {IStatefulSubArtifact} from "../sub-artifact";
 
 export interface ISubArtifactCollection {
     initialise(artifacts: IStatefulSubArtifact[]);
@@ -38,7 +38,7 @@ export class StatefulSubArtifactCollection implements ISubArtifactCollection {
     public get(id: number): IStatefulSubArtifact {
         return this.subArtifactList.filter((subArtifact: IStatefulSubArtifact) => subArtifact.id === id)[0] || null;
     }
-    
+
     public add(subArtifact: IStatefulSubArtifact): IStatefulSubArtifact {
         const length = this.subArtifactList.push(subArtifact);
 
@@ -75,10 +75,12 @@ export class StatefulSubArtifactCollection implements ISubArtifactCollection {
     }
 
     public discard() {
-        this.subArtifactList.forEach(subArtifact => { subArtifact.discard(); });
+        this.subArtifactList.forEach(subArtifact => {
+            subArtifact.discard();
+        });
     }
 
     public update(id: number) {
-        // TODO: 
+        // TODO:
     }
 }

@@ -1,11 +1,11 @@
 ﻿import * as angular from "angular";
-import { Models} from "../../models";
-import { Helper, IBPTreeController } from "../../../shared";
-import { IProjectManager, IArtifactManager} from "../../../managers";
-import { Project } from "../../../managers/project-manager";
-import { IStatefulArtifact } from "../../../managers/artifact-manager";
-import { IArtifactNode } from "../../../managers/project-manager";
-import { INavigationService } from "../../../core/navigation/navigation.svc";
+import {Models} from "../../models";
+import {Helper, IBPTreeController} from "../../../shared";
+import {IProjectManager, IArtifactManager} from "../../../managers";
+import {Project} from "../../../managers/project-manager";
+import {IStatefulArtifact} from "../../../managers/artifact-manager";
+import {IArtifactNode} from "../../../managers/project-manager";
+import {INavigationService} from "../../../core/navigation/navigation.svc";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
@@ -20,12 +20,10 @@ export class ProjectExplorerController {
     private numberOfProjectsOnLastLoad: number;
 
     public static $inject: [string] = ["projectManager", "artifactManager", "navigationService"];
-    
-    constructor(
-        private projectManager: IProjectManager,
-        private artifactManager: IArtifactManager,
-        private navigationService: INavigationService
-    ) { 
+
+    constructor(private projectManager: IProjectManager,
+                private artifactManager: IArtifactManager,
+                private navigationService: INavigationService) {
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -36,10 +34,13 @@ export class ProjectExplorerController {
             this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
         ];
     }
-    
+
     public $onDestroy() {
         //dispose all subscribers
-        this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => {
+            it.dispose();
+            return false;
+        });
     }
 
     // the object defines how data will map to ITreeNode
@@ -53,7 +54,7 @@ export class ProjectExplorerController {
         children: "children",
         loaded: "loaded",
         open: "open"
-    }; 
+    };
 
     public columns = [{
         headerName: "",
@@ -75,7 +76,7 @@ export class ProjectExplorerController {
 
             return css;
         },
-        
+
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
@@ -102,7 +103,7 @@ export class ProjectExplorerController {
         // At this point the tree component (bp-tree) is not created yet due to component hierachy (dependant) 
         // so, just need to do an extra check if the component has created
         if (this.tree) {
-            
+
             this.tree.reload(projects);
 
             if (projects && projects.length > 0) {
@@ -158,7 +159,7 @@ export class ProjectExplorerController {
             //notify the repository to load the node children
             this.projectManager.loadArtifact(prms.id);
         }
-        
+
         return null;
     };
 
@@ -180,8 +181,9 @@ export class ProjectExplorerController {
                 loaded: node.loaded,
                 open: node.open
             });
-        };
-        
+        }
+        ;
+
         return artifactNode.artifact;
     };
 }

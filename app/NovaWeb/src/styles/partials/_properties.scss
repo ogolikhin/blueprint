@@ -19,1499 +19,1499 @@ $richtext-fontfamily: $font-family-base;
 $richtext-y-scrollbar-width: 12px;
 
 pagecontent, bp-properties-panel {
-  .properties {
-    border: solid 1px $gray-lighter;
-    min-width: $properties-min-width;
-
-    + .properties {
-      margin-top: 15px;
-    }
-
-    &::after {
-      clear: both;
-      content: '';
-      display: table;
-    }
-
-    > .heading {
-      color: $gray-dark;
-      cursor: pointer;
-      font-size: $font-size-big;
-      font-weight: 600;
-      line-height: 1em;
-      min-height: 36px;
-      padding: 11px 14px 11px 9px;
-
-      &::before {
-        border-left: 5px solid transparent;
-        border-right: 5px solid transparent;
-        border-top: 5px dashed;
-        border-top: 5px solid \9
-      ;
-        content: '';
-        display: inline-block;
-        height: 0;
-        margin-right: 5px;
-        position: relative;
-        top: -2px;
-        width: 0;
-      }
-    }
-
-    &.collapsed {
-      > .heading::before {
-        border-bottom: 5px solid transparent;
-        border-left: 5px dashed;
-        border-left: 5px solid \9
-      ;
-        border-top: 5px solid transparent;
-        left: 3px;
-        top: 0;
-      }
-
-      .content {
-        display: none;
-      }
-    }
-  }
-
-  .formly {
-    align-content: flex-start;
-    align-items: flex-start;
-    display: flex;
-    flex-wrap: wrap;
-    font-size: .9rem;
-    justify-content: space-between;
-    margin: 0 $property-horiz-spacing;
-    min-width: $property-width - $property-label-width;
-    padding: 0 0 10px;
-
-    // create "padding" to align un-even numbers of property groups
-    &::after,
-    &::before {
-      content: '';
-      display: flex;
-      //flex: 392px;
-      flex-grow: 0;
-      flex-shrink: 1;
-      order: 0;
-      width: $property-width;
-    }
-
-    &::before {
-      order: 1;
-    }
-
-    > div:last-child {
-      display: none;
-    }
-
-    .formly-field {
-      align-items: flex-start;
-      border-left: solid $property-horiz-spacing transparent;
-      border-right: solid $property-horiz-spacing transparent;
-      display: flex;
-      flex-basis: auto;
-      flex-grow: 0;
-      flex-shrink: 1;
-      flex-wrap: wrap;
-      font-size: 0; // to eliminate empty space. Must redefine font-size in children!
-      margin: 0 0 12px;
-      min-height: $property-min-height;
-      order: 0;
-      width: $property-width;
-
-      .form-group {
-        margin: 0;
-      }
-
-      .form-control {
-        z-index: auto;
-      }
-
-      label {
-        color: $gray-dark;
-        display: inline-flex;
-        font-size: $font-size-normal;
-        font-weight: 400;
-        margin: 6px 4px 0 0;
-        padding: 0;
-        vertical-align: top;
-        width: #{$property-label-width - 4px};
-
-        div:first-child {
-          flex-grow: 1;
-          flex-shrink: 1;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-
-        div:last-child {
-          flex-grow: 100;
-          flex-shrink: 0;
-          width: 3.5px;
-        }
-      }
-
-      input,
-      textarea,
-      select {
-        border: solid 1px $gray-lightest;
-        border-radius: 0;
-        box-shadow: none !important;
-        box-sizing: border-box;
-        color: $gray-dark;
-        display: inline-block;
-        font-size: $font-size-normal;
-        font-weight: 400;
-        height: $property-min-height;
-        max-width: $property-input-width;
-        min-height: $property-min-height;
-        padding: 0 $property-padding-default;
-        width: $property-input-width;
-      }
-
-      input,
-      textarea {
-        &[disabled] {
-          background: transparent;
-          border-color: transparent;
-          cursor: default;
-
-          & + .input-group-btn {
-            display: none;
-          }
-        }
-
-        &::-ms-clear {
-          display: none;
-        }
-      }
-
-      input {
-        &:not([disabled]):focus,
-        &:not([disabled]):hover {
-          background: $yellow-pale url('images/editable-icon.png') no-repeat right 5px top 6px;
-          padding-right: 20px;
-        }
-
-        &[type="date"]:hover,
-        &[type="date"]:focus {
-          background: $yellow-pale;
-          padding-right: $property-padding-default;
-        }
-      }
-
-      textarea {
-        min-height: $property-multiple-height;
-        overflow: auto;
-        -ms-overflow-style: auto;
-        padding: 5px 17px 0 $property-padding-default;
-
-        &:not([disabled]):focus,
-        &:not([disabled]):hover {
-          background: $yellow-pale url('images/editable-icon.png') no-repeat right 4px top 6px;
-          overflow: auto;
-          -ms-overflow-style: auto;
-        }
-      }
-
-      .ui-select-single {
-        .ui-select-search {
-          min-width: $property-input-width;
-        }
-
-        &.no-custom {
-          .ui-select-search {
-            background: url('images/typeahead-arrow.png') no-repeat right top;
-
-            &:hover,
-            &:focus {
-              background-color: $yellow-pale;
-            }
-          }
-        }
-
-        .ui-select-toggle {
-          background: $white;
-          border: solid 1px $gray-lightest;
-          border-radius: 0;
-          box-shadow: none !important;
-          box-sizing: border-box;
-          color: $gray-dark;
-          display: block;
-          font-size: $font-size-normal;
-          font-weight: 400;
-          height: $property-min-height;
-          line-height: $property-min-height;
-          max-width: $property-input-width;
-          min-height: $property-min-height;
-          overflow: hidden;
-          padding: 0 $property-padding-default;
-          text-align: left;
-          width: $property-input-width;
-
-          &:hover,
-          &:focus {
-            background-color: $yellow-pale;
-          }
-        }
-
-        .caret.pull-right {
-          background: url('images/typeahead-arrow.png') no-repeat;
-          border: 0;
-          display: block;
-          height: 26px;
-          position: absolute;
-          right: 0;
-          top: 0;
-          width: 23px;
-        }
-
-        .ui-select-placeholder {
-          color: $gray-lighter;
-        }
-
-        .ui-select-match-item-chosen {
-          overflow: hidden;
-          padding: 0;
-          text-overflow: ellipsis;
-          white-space: pre;
-          width: #{$property-input-width - 30px};
-        }
-
-        .ui-select-choices {
-          border-color: $gray-lighter;
-          border-radius: 0;
-          border-width: 1px;
-          max-height: #{$property-choice-height * 10};
-          overflow: auto;
-          -ms-overflow-style: auto;
-          padding: 0;
-          top: $property-min-height;
-          width: $property-input-width;
-
-          .ui-select-choices-row {
-            height: $property-choice-height;
-
-            .ui-select-choices-row-inner {
-              color: $gray-darker;
-              cursor: pointer;
-              text-decoration: none;
-
-              .ui-select-choice-item {
-                font-size: 1.2rem;
-                line-height: $property-choice-height;
-                overflow: hidden;
-                padding: 0 8px;
-                text-overflow: ellipsis;
-                white-space: pre;
-                width: 100%;
-
-                &::before {
-                  content: '';
-                  display: inline-block;
-                  width: 12px;
-                }
-
-                .bp-highlight {
-                  text-decoration: underline;
-                }
-              }
-
-              &:hover .ui-select-choice-item {
-                background: $brand-secondary;
-                color: $white;
-
-                &::before {
-                  content: '\2713';
-                }
-              }
-            }
-          }
-
-          .ui-select-choices-row.disabled {
-            .ui-select-choices-row-inner {
-              cursor: not-allowed;
-
-              .ui-select-choice-item {
-                background: transparent;
-                color: $gray;
-
-                &::before {
-                  content: '\2713';
-                }
-
-                .bp-highlight {
-                  text-decoration: none;
-                }
-              }
-            }
-          }
-
-          .ui-select-choices-row.active {
-            .ui-select-choices-row-inner {
-              .ui-select-choice-item {
-                background: $brand-secondary;
-                color: $white;
-
-                &::before {
-                  content: '\2713';
-                }
-              }
-            }
-          }
-        }
-
-        .ui-select-no-choice {
-          border-color: $gray-lighter;
-          border-radius: 0;
-          border-width: 1px;
-          font-size: 1.2rem;
-          line-height: $property-choice-height;
-          padding: 0 8px;
-          top: #{$property-choice-height + 4px};
-          width: $property-input-width;
-        }
-
-        .ui-select-offscreen {
-          clip: rect(0 0 0 0) !important;
-          width: 1px !important;
-          height: 1px !important;
-          border: 0 !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          overflow: hidden !important;
-          position: absolute !important;
-          outline: 0 !important;
-          left: 0px !important;
-          top: 0px !important;
-        }
-      }
-
-      $ui-select-input-height: $property-min-height - 4px;
-      .ui-select-multiple {
-        border: 0;
-        box-shadow: none !important;
-        float: none;
-        height: $property-min-height;
-        max-width: #{$property-input-width - 20px};
-        overflow: visible;
-        padding: 0;
-        width: #{$property-input-width - 20px};
-
-        > div {
-          border: solid 1px $gray-lightest;
-          max-height: $property-multiple-height;
-          overflow: auto;
-          -ms-overflow-style: auto;
-          padding: 0;
-          width: $property-input-width;
-
-          &:focus,
-          &:hover {
-            background: $yellow-pale url('images/editable-icon.png') no-repeat right 4px top 6px;
-          }
-
-          &::before {
-            background: transparent;
-            content: ' ';
-            display: block;
-            float: right;
-            height: $ui-select-input-height;
-            width: 20px;
-          }
-        }
-
-        &.has-scrollbar > div::before {
-          content: none;
-        }
-
-        .ui-select-match-item {
-          background: $gray-lightest;
-          border-color: $gray-lighter;
-          border-width: 1px;
-          box-shadow: none;
-          margin: 2px;
-          max-width: calc(100% - 24px);
-          min-width: calc((100% - 32px) / 3);
-          outline: none;
-          padding: 0;
-
-          span.close {
-            color: $gray;
-            font-size: 16px;
-            line-height: 18px;
-            opacity: 1;
-            text-shadow: none;
-            width: 20px;
-          }
-
-          span:not(.close) {
-            float: left;
-            max-width: calc(100% - 20px);
-          }
-
-          &.btn-primary {
-            background: $brand-secondary;
-            border-color: $brand-secondary;
-
-            span.close,
-            .ui-select-match-item-chosen {
-              color: $white;
-            }
-          }
-        }
-
-        .ui-select-match-item-chosen {
-          color: $gray-darker;
-          font-size: 1.2rem;
-          line-height: 18px;
-          overflow: hidden;
-          padding-left: 4px;
-          text-overflow: ellipsis;
-          white-space: pre;
-        }
-
-        input,
-        input:hover,
-        input:focus {
-          background: transparent;
-          border: 0;
-          font-size: 1.2rem;
-          height: $ui-select-input-height;
-          line-height: $ui-select-input-height;
-          margin: 0;
-          max-height: $ui-select-input-height;
-          min-height: $ui-select-input-height;
-          outline: none;
-          padding: 0 0 0 6px;
-        }
-
-        .ui-select-choices {
-          border-color: $gray-lighter;
-          border-radius: 0;
-          border-width: 1px;
-          max-height: #{$property-choice-height * 10};
-          overflow: auto;
-          -ms-overflow-style: auto;
-          padding: 0;
-          width: $property-input-width;
-
-          .ui-select-choices-row {
-            height: $property-choice-height;
-
-            .ui-select-choices-row-inner {
-              color: $gray-darker;
-              cursor: pointer;
-              text-decoration: none;
-
-              .ui-select-choice-item {
-                font-size: 1.2rem;
-                line-height: $property-choice-height;
-                overflow: hidden;
-                padding: 0 8px;
-                text-overflow: ellipsis;
-                white-space: pre;
-                width: 100%;
-
-                &::before {
-                  content: '';
-                  display: inline-block;
-                  width: 12px;
-                }
-
-                .bp-highlight {
-                  text-decoration: underline;
-                }
-              }
-            }
-          }
-
-          &:not(.disable-highlight) {
-            .ui-select-choices-row.active .ui-select-choice-item,
-            .ui-select-choices-row-inner:hover .ui-select-choice-item {
-              background: $brand-secondary;
-              color: $white;
-
-              &::before {
-                content: '\2713';
-              }
-            }
-          }
-
-          .ui-select-choices-row.disabled {
-            .ui-select-choices-row-inner {
-              cursor: not-allowed;
-
-              .ui-select-choice-item {
-                background: transparent;
-                color: $gray;
-
-                &::before {
-                  content: '\2713';
-                }
-
-                .bp-highlight {
-                  text-decoration: none;
-                }
-              }
-            }
-          }
-        }
-
-        .ui-select-no-choice {
-          border-color: $gray-lighter;
-          border-radius: 0;
-          border-width: 1px;
-          font-size: 1.2rem;
-          line-height: $property-choice-height;
-          padding: 0 8px;
-          width: $property-input-width;
-        }
-      }
-
-      .read-only-input {
-        box-sizing: border-box;
-        color: $gray-dark;
-        font-size: $font-size-normal;
-        font-weight: 400;
-
-        &.simple,
-        &.multiple {
-          border: solid 1px transparent;
-          max-width: $property-input-width;
-          overflow: hidden;
-          padding: 0 $property-padding-default;
-          width: $property-input-width;
-        }
-
-        &.simple {
-          height: $property-min-height;
-          line-height: $property-min-height;
-          text-overflow: ellipsis;
-          white-space: pre;
-        }
-
-        &.multiple {
-          margin-top: 5px;
-          max-height: #{2.5 * $property-min-height};
-          min-height: #{$property-min-height - 5px};
-          padding-bottom: 4px;
-
-          .choice {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: pre;
-          }
-        }
-
-        &.richtext {
-          color: $richtext-fontcolor;
-          font-family: $richtext-fontfamily;
-          font-size: $richtext-fontsize;
-          max-height: 400px;
-          min-height: 100px;
-          min-width: $property-input-width;
-          padding: 0;
-
-          a {
-            color: $richtext-linkcolor;
-            cursor: pointer;
-            text-decoration: underline;
-          }
-
-          table {
-            border-collapse: collapse;
-            border-color: $richtext-fontcolor;
-            border-style: solid;
-            border-width: 1px;
-            width: 90%;
-
-            td {
-              border-color: $richtext-fontcolor;
-              border-style: solid;
-              border-width: 1px;
-              padding: 0 7px;
-            }
-          }
-        }
-      }
-
-      .overflow-fade {
-        background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
-        display: none;
-        height: 10px;
-        margin-top: -10px;
-        position: relative;
-      }
-
-      .read-only-input.ps-active-y + .overflow-fade {
-        display: block;
-      }
-
-      .has-messages {
-        display: inline-table;
-        position: relative;
-        vertical-align: top;
-
-        input.has-icon {
-          border-bottom-right-radius: 0;
-          border-right: 0;
-          border-top-right-radius: 0;
-          max-width: $property-input-with-icon-width;
-          width: $property-input-with-icon-width;
-        }
-
-        .input-group-btn {
-          width: $property-input-icon-width;
-
-          > .btn {
-            border: solid 1px $gray-lightest;
-            color: $gray-dark !important;
-            line-height: #{$property-min-height - 2px};
-            margin-left: 0;
-            min-width: $property-input-icon-width;
-            padding: 0;
-            text-align: center;
-            width: $property-input-icon-width;
-
-            &:active,
-            &:hover {
-              background: $gray-lightest;
-              box-shadow: none;
-            }
-          }
-        }
-      }
-
-      select {
-        padding: 2px;
-
-        &[multiple] {
-          height: #{2.5 * $property-min-height};
-        }
-
-        &:not([multiple]) {
-          background: $white $property-select-background repeat-y right 7px top 0;
-          -ms-overflow-style: scrollbar;
-        }
-
-        &[disabled] {
-          cursor: default;
-        }
-
-        &:not([disabled]):hover {
-          background-color: $yellow-pale;
-        }
-      }
-
-      .error-messages {
-        bottom: calc((#{$font-size-smaller} + 2px) * -1);
-        position: absolute;
-        right: 0;
-
-        .message {
-          font-size: $font-size-smaller;
-          white-space: nowrap;
-        }
-      }
-
-      &.formly-field-bpFieldSelectMulti .error-messages,
-      &.formly-field-bpFieldUserPicker .error-messages {
-        right: -20px;
-      }
-
-      .has-error {
-        textarea,
-        input,
-        .ui-select-container > div,
-        .ui-select-single .ui-select-toggle {
-          border-color: $gray-lightest;
-          border-bottom-color: $brand-error;
-        }
-
-        select {
-          border-color: $brand-error;
-        }
-
-        .error-messages {
-          color: $brand-error;
-        }
-      }
-
-      .read-only {
-        background: transparent !important;
-        border-color: transparent !important;
-        cursor: default !important;
-        padding-right: $property-padding-default !important;
-      }
-    }
-
-    $user-picker-choice-size: 40px;
-    $user-picker-results-count: 56px;
-    .formly-field-bpFieldUserPicker {
-      .ui-select-multiple .ui-select-choices {
-        display: flex;
-        flex-flow: column nowrap;
-        max-height: #{5 * $user-picker-choice-size + $user-picker-results-count + 2px}; //2px is the top and bottom border
-        min-height: #{1 * $user-picker-choice-size + 2px};
-        overflow: hidden;
-
-        .ui-select-choices-group {
-          max-height: 100%;
-          overflow: auto;
-
-          bp-avatar {
-            height: #{$user-picker-choice-size - 12px};
-            margin: 6px 2px;
-            width: #{$user-picker-choice-size - 12px};
-
-            .avatar-placeholder .initials {
-              font-size: $font-size-smaller;
-            }
-          }
-        }
-
-        .ui-select-choices-row {
-          height: $user-picker-choice-size;
-
-          .ui-select-choices-row-inner {
-            .ui-select-choice-item {
-              display: flex;
-              flex-flow: row nowrap;
-              height: $user-picker-choice-size;
-              line-height: 100%;
-              overflow: hidden;
-              padding: 0 8px;
-              text-overflow: clip;
-              white-space: normal;
-
-              &::before {
-                flex: none;
-                padding-top: 14px;
-              }
-
-              .ui-select-choice-info {
-                overflow: hidden;
-                padding: 6px 0 6px 4px;
-
-                div {
-                  overflow: hidden;
-                  text-overflow: ellipsis;
-                  white-space: nowrap;
-
-                  &:first-child {
-                    line-height: 16px;
-                  }
-
-                  &:last-child {
-                    font-size: $font-size-smaller;
-                    line-height: #{$user-picker-choice-size - 12px - 16px};
-                  }
-                }
-              }
-
-              .ui-select-choice-icon {
-                flex: none;
-                height: $user-picker-choice-size;
-                line-height: $user-picker-choice-size;
-                text-align: center;
-                width: #{$user-picker-choice-size - 8px};
-              }
-            }
-          }
-        }
-
-        .ui-select-results-count {
-          border-top: solid 1px $gray-lighter;
-          flex: none;
-          height: $user-picker-results-count;
-
-          div {
-            font-size: $font-size-normal;
-            height: 27px;
-            padding: 9px 0 0;
-            text-align: center;
-          }
-
-          button {
-            background: $white;
-            border: 0;
-            color: $brand-secondary;
-            font-size: $font-size-big;
-            font-weight: 600;
-            height: 20px;
-            line-height: 20px;
-            outline: none;
-            padding: 0;
-            width: 100%;
-
-            &:hover,
-            &:focus,
-            &:active {
-              background: $brand-secondary;
-              color: $white;
-            }
-          }
-        }
-      }
-    }
-
-    .formly-field-bpFieldTextRTF {
-      > div {
-        width: 100%;
-      }
-
-      .tinymce-group {
-        display: block;
-        margin-top: -28px;
-        width: calc(100% - #{$richtext-y-scrollbar-width});
-      }
-
-      .mce-tinymce {
-        border: 0;
-        border-radius: 0;
-      }
-
-      .mce-toolbar-grp {
-        border-color: $gray-lighter;
-        border-width: 1px 1px 0 !important;
-        padding: 0;
-
-        .mce-flow-layout-item {
-          margin: 0;
-        }
-
-        .mce-btn button {
-          line-height: 19px;
-          padding: 3px 7px;
-        }
-      }
-
-      .mce-edit-area {
-        border-color: $gray-lighter;
-        border-width: 1px !important;
-      }
-
-      .tinymce-toolbar-hidden {
-        margin-top: 0;
-
-        .mce-toolbar-grp {
-          display: none;
-        }
-      }
-
-      .has-error {
-        .mce-edit-area {
-          border-color: $brand-error;
-        }
-      }
-    }
-
-    .formly-field-bpFieldTextRTFInline {
-      > div {
-        width: 100%;
-      }
-
-      $tinymce-toolbar-height: 27px;
-      .mce-panel,
-      .mce-abs-layout {
-        // since it's hidden on init, tinyMCE cannot calculate the dimensions by itself
-        height: $tinymce-toolbar-height !important;
-        width: #{$property-input-width - 2px} !important;
-      }
-
-      .mce-toolbar-grp {
-        border: 0;
-        padding: 0;
-
-        .mce-flow-layout-item {
-          margin: 0;
-        }
-
-        .mce-btn button {
-          line-height: 19px;
-          padding: 3px 3px;
-        }
-
-        .mce-menubtn:first-child button span { // font-family button
-          text-overflow: initial;
-          width: 33px;
-
-          &::before {
-            color: #333;
-            content: '\e01a';
-            display: inline-block;
-            font-family: 'tinymce';
-            font-size: 22px;
-            -moz-osx-font-smoothing: grayscale;
-            -webkit-font-smoothing: antialiased;
-            font-style: normal;
-            font-variant: normal;
-            font-weight: normal;
-            height: 16px;
-            line-height: 16px;
-            margin-right: 40px;
-            overflow: hidden;
-            vertical-align: text-top;
-            width: 20px;
-          }
-        }
-      }
-
-      .tinymce-toolbar {
-        height: #{$tinymce-toolbar-height + 2px};
-        margin: -#{$tinymce-toolbar-height + 2px} 0 0;
-      }
-
-      .tinymce-toolbar-hidden {
-        .tinymce-toolbar {
-          display: none;
-        }
-      }
-
-      .tinymce-body,
-      .tinymce-body[contenteditable="true"] {
-        border: solid 1px $gray-lightest;
-        border-radius: 0;
-        box-shadow: none;
-        box-sizing: border-box;
-        color: $richtext-fontcolor;
-        font-family: $richtext-fontfamily;
-        font-size: $richtext-fontsize;
-        font-weight: 400;
-        line-height: $property-min-height;
-        max-height: $property-min-height;
-        min-height: $property-min-height;
-        outline: none;
-        overflow: hidden;
-        padding: 0 2px 0 0;
-        white-space: nowrap;
-        width: $property-input-width;
-
-        &:focus,
-        &:hover {
-          background: $yellow-pale url('images/editable-icon.png') no-repeat right 4px top 6px;
-        }
-
-        a {
-          color: $richtext-linkcolor;
-          cursor: pointer;
-          text-decoration: underline;
-        }
-      }
-
-      .has-error {
-        .tinymce-body,
-        .tinymce-body[contenteditable="true"] {
-          border-bottom-color: $brand-error;
-        }
-      }
-    }
-
-    .formly-field-bpFieldDatepicker {
-      button {
-        border-radius: 0;
-      }
-
-      .has-error button {
-        border-bottom-color: $brand-error !important;
-      }
-    }
-
-    .formly-field-bpFieldImage {
-      width: #{$property-width * .4};
-
-      .inheritance-group {
-        &.inheritance-group-wrapper {
-          display: flex;
-          align-items: center;
-
-          input[type=file] {
-            display: none;
-          }
-        }
-
-        .icon {
-          display: inline-block;
-          padding-left: 9px;
-          padding-top: 28px;
-          cursor: pointer;
-          &.disabled {
-            opacity: $default-disabled-opacity;
-            cursor: not-allowed;
-          }
-        }
-
-        .actor-image-wrapper {
-          display: inline-flex;
-          align-items: center;
-          width: 90px;
-          height: 120px;
-          border: 1px solid $gray-lightest;
-          box-sizing: content-box;
-
-          span {
-            width: 90px;
-            height: 120px;
-            background: url('images/icons/user-default.svg') left top no-repeat;
-            display: inline-block;
-            background-color: $gray;
-            vertical-align: middle;
-          }
-
-          label {
-            width: 90px;
-            height: 120px;
-            display: block;
-            margin: 0;
-            box-sizing: content-box;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: 50% 50%;
-          }
-
-          ~ label {
-            display: inline-block;
-            width: auto;
-          }
-        }
-
-        .image-actor-group {
-          font-size: $font-size-normal;
-          margin: 5px 9px;
-          &.glyphicon-plus {
-            background-color: $blue-light;
-            color: $white;
-            padding: 4px 3px 4px 4px;
-            border-radius: $border-radius-small;
-            cursor: pointer;
-            &.disabled {
-              background-color: $gray;
-              cursor: not-allowed;
-            }
-          }
-        }
-      }
-    }
-
-    $property-inheritance-width: $property-width * 1.6; //change to 2.5 to span 3 columns instead of 2
-    .formly-field-bpFieldInheritFrom {
-      padding-top: 49px;
-      display: block;
-      max-width: $property-inheritance-width;
-      min-width: $property-input-width;
-      width: 100%;
-
-      .icon {
-        cursor: pointer;
-        margin-right: 5px;
-        &.disabled {
-          opacity: $default-disabled-opacity;
-          cursor: not-allowed;
-        }
-      }
-      .din {
-        display: inline-block;
-        padding-top: 10px;
-        padding-right: 2px;
-      }
-
-      .inheritance-group {
-        display: inline-flex;
-        font-size: $font-size-normal;
-        width: calc(100% - #{$property-label-width});
-
-        button {
-          &.disabled, &[disabled] {
-            background-color: $gray-lighter;
-            border-color: $gray-light;
-            color: $gray-light;
-            opacity: 1;
-          }
-        }
-
-        .bp-input-group-addon {
-          &.icon-wrapper {
-            line-height: #{$property-min-height + 6px}; // height of input box plus padding
-            display: inline-block;
-            padding-right: 2px;
-          }
-        }
-        .inheritance-path {
-          border-color: $gray-lighter;
-          background-color: $gray-lightest;
-          border-width: 1px;
-          flex-grow: 1;
-          flex-shrink: 1;
-          height: $property-min-height;
-          line-height: $property-min-height;
-          min-width: $property-input-width - 90px;
-          @include text-ellipsis-flex-width(999px);
-          padding: 0 $property-padding-default;
-          margin-top: 2px;
-          margin-right: 8px;
-          max-width: calc(100% - 40px);
-          .path-wrapper {
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-          span {
-            &::before {
-              content: ' > ';
-            }
-
-            &:first-child {
-              &::before {
-                content: '';
-              }
-            }
-          }
-        }
-
-        .inheritance-tools {
-          flex-grow: 0;
-          flex-shrink: 0;
-          margin: 5px 9px;
-        }
-      }
-    }
-
-    .form-control-wrapper {
-      display: table-cell;
-      width: 100%;
-      max-width: 100%;
-      box-sizing: border-box;
-      padding: 4px;
-
-      .form-control {
-        width: 100%;
-        max-width: 100%;
-        margin: 2px;
-        background-color: white;
-        background-image: none !important;
-        &:hover {
-          background-image: none !important;
-        }
-      }
-    }
-
-    .formly-field-bpDocumentFile {
-      width: 100% !important;
-      .input-group-addon {
-        padding: 0;
-        background-color: transparent;
-        border: none;
-        label {
-          padding: 5px 9px;
-          min-width: 20px;
-          text-align: center;
-          width: auto !important;
-          margin: 5px 5px 5px;
-          font-size: $font-size-big;
-          input[type=file] {
-            display: none;
-          }
-          &.btn-small {
-            padding: 5px 10px;
-            min-width: 20px;
-            font-size: 1.2rem;
-          }
-          &.btn-primary {
-            background-color: transparent;
-            border: 1px solid $gray-light;
-            color: $gray-light;
-            &:hover,
-            &:focus,
-            &:active {
-              background-color: transparent;
-              border-color: $brand-secondary;
-              color: $brand-secondary;
-            }
-          }
-        }
-
-        .icon {
-          display: inline-block;
-          line-height: #{$property-min-height + 12px}; // so it's the same height as the input field (which has 2px margin + 4px padding top and bottom)
-          padding-left: $padding-smaller;
-          padding-right: $padding-smaller;
-          &.disabled {
-            cursor: not-allowed;
-            opacity: $default-disabled-opacity;
-          }
-        }
-        &:not(:first-child):not(:last-child) {
-          padding-right: 5px;
-          .icon {
-            padding-right: $padding-smaller - 5px;
-          }
-        }
-      }
-
-      .thumb {
-        width: 30px;
-        height: 30px;
-        &.fonticon2-attachment {
-          padding-top: 10px;
-        }
-      }
-      .form-control-wrapper {
-        display: table-cell;
-        width: 100%;
-        max-width: 100%;
-        box-sizing: border-box;
-        padding: 4px;
-
-        .form-control {
-          background: $white;
-          margin: 2px;
-          max-width: 100%;
-          width: 100%;
-
-          &:hover,
-          &:focus {
-            background: $white;
-            padding-right: $property-padding-default;
-          }
-        }
-      }
-    }
-  }
-}
-
-.single-column-property .formly .formly-field label {
-  margin-right: 0;
-  padding: 0;
-  width: $property-input-width;
-}
-
-.tab-pane {
-  border: solid 1px $gray-lighter;
-  border-radius: $border-radius-amount;
-  padding: 18px #{20px - $richtext-y-scrollbar-width} 18px 20px;
-
-  .formly {
-    margin: 0;
-    min-width: $property-input-width;
-    padding: 0;
-
-    .formly-field {
-      border: 0;
-      margin: 0;
-      padding: 0;
-      width: 100%;
-    }
-
-    .form-tinymce {
-      border: 0;
-      margin: 0 -2px;
-      padding: 2px;
-      width: calc(100% + 4px);
-    }
-
-    .formly-field-bpFieldReadOnly {
-      > div {
-        width: 100%;
-      }
-
-      .input-group {
-        display: block;
-
-        .richtext-body {
-          display: inline-block;
-          margin-right: $richtext-y-scrollbar-width;
+    .properties {
+        border: solid 1px $gray-lighter;
+        min-width: $properties-min-width;
+
+        + .properties {
+            margin-top: 15px;
         }
 
         &::after {
-          background: $white;
-          content: '';
-          display: block;
-          height: 100%;
-          position: absolute;
-          right: 0;
-          top: 0;
-          width: $richtext-y-scrollbar-width;
+            clear: both;
+            content: '';
+            display: table;
         }
-      }
+
+        > .heading {
+            color: $gray-dark;
+            cursor: pointer;
+            font-size: $font-size-big;
+            font-weight: 600;
+            line-height: 1em;
+            min-height: 36px;
+            padding: 11px 14px 11px 9px;
+
+            &::before {
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-top: 5px dashed;
+                border-top: 5px solid \9
+            ;
+                content: '';
+                display: inline-block;
+                height: 0;
+                margin-right: 5px;
+                position: relative;
+                top: -2px;
+                width: 0;
+            }
+        }
+
+        &.collapsed {
+            > .heading::before {
+                border-bottom: 5px solid transparent;
+                border-left: 5px dashed;
+                border-left: 5px solid \9
+            ;
+                border-top: 5px solid transparent;
+                left: 3px;
+                top: 0;
+            }
+
+            .content {
+                display: none;
+            }
+        }
     }
-  }
+
+    .formly {
+        align-content: flex-start;
+        align-items: flex-start;
+        display: flex;
+        flex-wrap: wrap;
+        font-size: .9rem;
+        justify-content: space-between;
+        margin: 0 $property-horiz-spacing;
+        min-width: $property-width - $property-label-width;
+        padding: 0 0 10px;
+
+        // create "padding" to align un-even numbers of property groups
+        &::after,
+        &::before {
+            content: '';
+            display: flex;
+            //flex: 392px;
+            flex-grow: 0;
+            flex-shrink: 1;
+            order: 0;
+            width: $property-width;
+        }
+
+        &::before {
+            order: 1;
+        }
+
+        > div:last-child {
+            display: none;
+        }
+
+        .formly-field {
+            align-items: flex-start;
+            border-left: solid $property-horiz-spacing transparent;
+            border-right: solid $property-horiz-spacing transparent;
+            display: flex;
+            flex-basis: auto;
+            flex-grow: 0;
+            flex-shrink: 1;
+            flex-wrap: wrap;
+            font-size: 0; // to eliminate empty space. Must redefine font-size in children!
+            margin: 0 0 12px;
+            min-height: $property-min-height;
+            order: 0;
+            width: $property-width;
+
+            .form-group {
+                margin: 0;
+            }
+
+            .form-control {
+                z-index: auto;
+            }
+
+            label {
+                color: $gray-dark;
+                display: inline-flex;
+                font-size: $font-size-normal;
+                font-weight: 400;
+                margin: 6px 4px 0 0;
+                padding: 0;
+                vertical-align: top;
+                width: #{$property-label-width - 4px};
+
+                div:first-child {
+                    flex-grow: 1;
+                    flex-shrink: 1;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+
+                div:last-child {
+                    flex-grow: 100;
+                    flex-shrink: 0;
+                    width: 3.5px;
+                }
+            }
+
+            input,
+            textarea,
+            select {
+                border: solid 1px $gray-lightest;
+                border-radius: 0;
+                box-shadow: none !important;
+                box-sizing: border-box;
+                color: $gray-dark;
+                display: inline-block;
+                font-size: $font-size-normal;
+                font-weight: 400;
+                height: $property-min-height;
+                max-width: $property-input-width;
+                min-height: $property-min-height;
+                padding: 0 $property-padding-default;
+                width: $property-input-width;
+            }
+
+            input,
+            textarea {
+                &[disabled] {
+                    background: transparent;
+                    border-color: transparent;
+                    cursor: default;
+
+                    & + .input-group-btn {
+                        display: none;
+                    }
+                }
+
+                &::-ms-clear {
+                    display: none;
+                }
+            }
+
+            input {
+                &:not([disabled]):focus,
+                &:not([disabled]):hover {
+                    background: $yellow-pale url('images/editable-icon.png') no-repeat right 5px top 6px;
+                    padding-right: 20px;
+                }
+
+                &[type="date"]:hover,
+                &[type="date"]:focus {
+                    background: $yellow-pale;
+                    padding-right: $property-padding-default;
+                }
+            }
+
+            textarea {
+                min-height: $property-multiple-height;
+                overflow: auto;
+                -ms-overflow-style: auto;
+                padding: 5px 17px 0 $property-padding-default;
+
+                &:not([disabled]):focus,
+                &:not([disabled]):hover {
+                    background: $yellow-pale url('images/editable-icon.png') no-repeat right 4px top 6px;
+                    overflow: auto;
+                    -ms-overflow-style: auto;
+                }
+            }
+
+            .ui-select-single {
+                .ui-select-search {
+                    min-width: $property-input-width;
+                }
+
+                &.no-custom {
+                    .ui-select-search {
+                        background: url('images/typeahead-arrow.png') no-repeat right top;
+
+                        &:hover,
+                        &:focus {
+                            background-color: $yellow-pale;
+                        }
+                    }
+                }
+
+                .ui-select-toggle {
+                    background: $white;
+                    border: solid 1px $gray-lightest;
+                    border-radius: 0;
+                    box-shadow: none !important;
+                    box-sizing: border-box;
+                    color: $gray-dark;
+                    display: block;
+                    font-size: $font-size-normal;
+                    font-weight: 400;
+                    height: $property-min-height;
+                    line-height: $property-min-height;
+                    max-width: $property-input-width;
+                    min-height: $property-min-height;
+                    overflow: hidden;
+                    padding: 0 $property-padding-default;
+                    text-align: left;
+                    width: $property-input-width;
+
+                    &:hover,
+                    &:focus {
+                        background-color: $yellow-pale;
+                    }
+                }
+
+                .caret.pull-right {
+                    background: url('images/typeahead-arrow.png') no-repeat;
+                    border: 0;
+                    display: block;
+                    height: 26px;
+                    position: absolute;
+                    right: 0;
+                    top: 0;
+                    width: 23px;
+                }
+
+                .ui-select-placeholder {
+                    color: $gray-lighter;
+                }
+
+                .ui-select-match-item-chosen {
+                    overflow: hidden;
+                    padding: 0;
+                    text-overflow: ellipsis;
+                    white-space: pre;
+                    width: #{$property-input-width - 30px};
+                }
+
+                .ui-select-choices {
+                    border-color: $gray-lighter;
+                    border-radius: 0;
+                    border-width: 1px;
+                    max-height: #{$property-choice-height * 10};
+                    overflow: auto;
+                    -ms-overflow-style: auto;
+                    padding: 0;
+                    top: $property-min-height;
+                    width: $property-input-width;
+
+                    .ui-select-choices-row {
+                        height: $property-choice-height;
+
+                        .ui-select-choices-row-inner {
+                            color: $gray-darker;
+                            cursor: pointer;
+                            text-decoration: none;
+
+                            .ui-select-choice-item {
+                                font-size: 1.2rem;
+                                line-height: $property-choice-height;
+                                overflow: hidden;
+                                padding: 0 8px;
+                                text-overflow: ellipsis;
+                                white-space: pre;
+                                width: 100%;
+
+                                &::before {
+                                    content: '';
+                                    display: inline-block;
+                                    width: 12px;
+                                }
+
+                                .bp-highlight {
+                                    text-decoration: underline;
+                                }
+                            }
+
+                            &:hover .ui-select-choice-item {
+                                background: $brand-secondary;
+                                color: $white;
+
+                                &::before {
+                                    content: '\2713';
+                                }
+                            }
+                        }
+                    }
+
+                    .ui-select-choices-row.disabled {
+                        .ui-select-choices-row-inner {
+                            cursor: not-allowed;
+
+                            .ui-select-choice-item {
+                                background: transparent;
+                                color: $gray;
+
+                                &::before {
+                                    content: '\2713';
+                                }
+
+                                .bp-highlight {
+                                    text-decoration: none;
+                                }
+                            }
+                        }
+                    }
+
+                    .ui-select-choices-row.active {
+                        .ui-select-choices-row-inner {
+                            .ui-select-choice-item {
+                                background: $brand-secondary;
+                                color: $white;
+
+                                &::before {
+                                    content: '\2713';
+                                }
+                            }
+                        }
+                    }
+                }
+
+                .ui-select-no-choice {
+                    border-color: $gray-lighter;
+                    border-radius: 0;
+                    border-width: 1px;
+                    font-size: 1.2rem;
+                    line-height: $property-choice-height;
+                    padding: 0 8px;
+                    top: #{$property-choice-height + 4px};
+                    width: $property-input-width;
+                }
+
+                .ui-select-offscreen {
+                    clip: rect(0 0 0 0) !important;
+                    width: 1px !important;
+                    height: 1px !important;
+                    border: 0 !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    overflow: hidden !important;
+                    position: absolute !important;
+                    outline: 0 !important;
+                    left: 0px !important;
+                    top: 0px !important;
+                }
+            }
+
+            $ui-select-input-height: $property-min-height - 4px;
+            .ui-select-multiple {
+                border: 0;
+                box-shadow: none !important;
+                float: none;
+                height: $property-min-height;
+                max-width: #{$property-input-width - 20px};
+                overflow: visible;
+                padding: 0;
+                width: #{$property-input-width - 20px};
+
+                > div {
+                    border: solid 1px $gray-lightest;
+                    max-height: $property-multiple-height;
+                    overflow: auto;
+                    -ms-overflow-style: auto;
+                    padding: 0;
+                    width: $property-input-width;
+
+                    &:focus,
+                    &:hover {
+                        background: $yellow-pale url('images/editable-icon.png') no-repeat right 4px top 6px;
+                    }
+
+                    &::before {
+                        background: transparent;
+                        content: ' ';
+                        display: block;
+                        float: right;
+                        height: $ui-select-input-height;
+                        width: 20px;
+                    }
+                }
+
+                &.has-scrollbar > div::before {
+                    content: none;
+                }
+
+                .ui-select-match-item {
+                    background: $gray-lightest;
+                    border-color: $gray-lighter;
+                    border-width: 1px;
+                    box-shadow: none;
+                    margin: 2px;
+                    max-width: calc(100% - 24px);
+                    min-width: calc((100% - 32px) / 3);
+                    outline: none;
+                    padding: 0;
+
+                    span.close {
+                        color: $gray;
+                        font-size: 16px;
+                        line-height: 18px;
+                        opacity: 1;
+                        text-shadow: none;
+                        width: 20px;
+                    }
+
+                    span:not(.close) {
+                        float: left;
+                        max-width: calc(100% - 20px);
+                    }
+
+                    &.btn-primary {
+                        background: $brand-secondary;
+                        border-color: $brand-secondary;
+
+                        span.close,
+                        .ui-select-match-item-chosen {
+                            color: $white;
+                        }
+                    }
+                }
+
+                .ui-select-match-item-chosen {
+                    color: $gray-darker;
+                    font-size: 1.2rem;
+                    line-height: 18px;
+                    overflow: hidden;
+                    padding-left: 4px;
+                    text-overflow: ellipsis;
+                    white-space: pre;
+                }
+
+                input,
+                input:hover,
+                input:focus {
+                    background: transparent;
+                    border: 0;
+                    font-size: 1.2rem;
+                    height: $ui-select-input-height;
+                    line-height: $ui-select-input-height;
+                    margin: 0;
+                    max-height: $ui-select-input-height;
+                    min-height: $ui-select-input-height;
+                    outline: none;
+                    padding: 0 0 0 6px;
+                }
+
+                .ui-select-choices {
+                    border-color: $gray-lighter;
+                    border-radius: 0;
+                    border-width: 1px;
+                    max-height: #{$property-choice-height * 10};
+                    overflow: auto;
+                    -ms-overflow-style: auto;
+                    padding: 0;
+                    width: $property-input-width;
+
+                    .ui-select-choices-row {
+                        height: $property-choice-height;
+
+                        .ui-select-choices-row-inner {
+                            color: $gray-darker;
+                            cursor: pointer;
+                            text-decoration: none;
+
+                            .ui-select-choice-item {
+                                font-size: 1.2rem;
+                                line-height: $property-choice-height;
+                                overflow: hidden;
+                                padding: 0 8px;
+                                text-overflow: ellipsis;
+                                white-space: pre;
+                                width: 100%;
+
+                                &::before {
+                                    content: '';
+                                    display: inline-block;
+                                    width: 12px;
+                                }
+
+                                .bp-highlight {
+                                    text-decoration: underline;
+                                }
+                            }
+                        }
+                    }
+
+                    &:not(.disable-highlight) {
+                        .ui-select-choices-row.active .ui-select-choice-item,
+                        .ui-select-choices-row-inner:hover .ui-select-choice-item {
+                            background: $brand-secondary;
+                            color: $white;
+
+                            &::before {
+                                content: '\2713';
+                            }
+                        }
+                    }
+
+                    .ui-select-choices-row.disabled {
+                        .ui-select-choices-row-inner {
+                            cursor: not-allowed;
+
+                            .ui-select-choice-item {
+                                background: transparent;
+                                color: $gray;
+
+                                &::before {
+                                    content: '\2713';
+                                }
+
+                                .bp-highlight {
+                                    text-decoration: none;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                .ui-select-no-choice {
+                    border-color: $gray-lighter;
+                    border-radius: 0;
+                    border-width: 1px;
+                    font-size: 1.2rem;
+                    line-height: $property-choice-height;
+                    padding: 0 8px;
+                    width: $property-input-width;
+                }
+            }
+
+            .read-only-input {
+                box-sizing: border-box;
+                color: $gray-dark;
+                font-size: $font-size-normal;
+                font-weight: 400;
+
+                &.simple,
+                &.multiple {
+                    border: solid 1px transparent;
+                    max-width: $property-input-width;
+                    overflow: hidden;
+                    padding: 0 $property-padding-default;
+                    width: $property-input-width;
+                }
+
+                &.simple {
+                    height: $property-min-height;
+                    line-height: $property-min-height;
+                    text-overflow: ellipsis;
+                    white-space: pre;
+                }
+
+                &.multiple {
+                    margin-top: 5px;
+                    max-height: #{2.5 * $property-min-height};
+                    min-height: #{$property-min-height - 5px};
+                    padding-bottom: 4px;
+
+                    .choice {
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: pre;
+                    }
+                }
+
+                &.richtext {
+                    color: $richtext-fontcolor;
+                    font-family: $richtext-fontfamily;
+                    font-size: $richtext-fontsize;
+                    max-height: 400px;
+                    min-height: 100px;
+                    min-width: $property-input-width;
+                    padding: 0;
+
+                    a {
+                        color: $richtext-linkcolor;
+                        cursor: pointer;
+                        text-decoration: underline;
+                    }
+
+                    table {
+                        border-collapse: collapse;
+                        border-color: $richtext-fontcolor;
+                        border-style: solid;
+                        border-width: 1px;
+                        width: 90%;
+
+                        td {
+                            border-color: $richtext-fontcolor;
+                            border-style: solid;
+                            border-width: 1px;
+                            padding: 0 7px;
+                        }
+                    }
+                }
+            }
+
+            .overflow-fade {
+                background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+                display: none;
+                height: 10px;
+                margin-top: -10px;
+                position: relative;
+            }
+
+            .read-only-input.ps-active-y + .overflow-fade {
+                display: block;
+            }
+
+            .has-messages {
+                display: inline-table;
+                position: relative;
+                vertical-align: top;
+
+                input.has-icon {
+                    border-bottom-right-radius: 0;
+                    border-right: 0;
+                    border-top-right-radius: 0;
+                    max-width: $property-input-with-icon-width;
+                    width: $property-input-with-icon-width;
+                }
+
+                .input-group-btn {
+                    width: $property-input-icon-width;
+
+                    > .btn {
+                        border: solid 1px $gray-lightest;
+                        color: $gray-dark !important;
+                        line-height: #{$property-min-height - 2px};
+                        margin-left: 0;
+                        min-width: $property-input-icon-width;
+                        padding: 0;
+                        text-align: center;
+                        width: $property-input-icon-width;
+
+                        &:active,
+                        &:hover {
+                            background: $gray-lightest;
+                            box-shadow: none;
+                        }
+                    }
+                }
+            }
+
+            select {
+                padding: 2px;
+
+                &[multiple] {
+                    height: #{2.5 * $property-min-height};
+                }
+
+                &:not([multiple]) {
+                    background: $white $property-select-background repeat-y right 7px top 0;
+                    -ms-overflow-style: scrollbar;
+                }
+
+                &[disabled] {
+                    cursor: default;
+                }
+
+                &:not([disabled]):hover {
+                    background-color: $yellow-pale;
+                }
+            }
+
+            .error-messages {
+                bottom: calc((#{$font-size-smaller} + 2px) * -1);
+                position: absolute;
+                right: 0;
+
+                .message {
+                    font-size: $font-size-smaller;
+                    white-space: nowrap;
+                }
+            }
+
+            &.formly-field-bpFieldSelectMulti .error-messages,
+            &.formly-field-bpFieldUserPicker .error-messages {
+                right: -20px;
+            }
+
+            .has-error {
+                textarea,
+                input,
+                .ui-select-container > div,
+                .ui-select-single .ui-select-toggle {
+                    border-color: $gray-lightest;
+                    border-bottom-color: $brand-error;
+                }
+
+                select {
+                    border-color: $brand-error;
+                }
+
+                .error-messages {
+                    color: $brand-error;
+                }
+            }
+
+            .read-only {
+                background: transparent !important;
+                border-color: transparent !important;
+                cursor: default !important;
+                padding-right: $property-padding-default !important;
+            }
+        }
+
+        $user-picker-choice-size: 40px;
+        $user-picker-results-count: 56px;
+        .formly-field-bpFieldUserPicker {
+            .ui-select-multiple .ui-select-choices {
+                display: flex;
+                flex-flow: column nowrap;
+                max-height: #{5 * $user-picker-choice-size + $user-picker-results-count + 2px}; //2px is the top and bottom border
+                min-height: #{1 * $user-picker-choice-size + 2px};
+                overflow: hidden;
+
+                .ui-select-choices-group {
+                    max-height: 100%;
+                    overflow: auto;
+
+                    bp-avatar {
+                        height: #{$user-picker-choice-size - 12px};
+                        margin: 6px 2px;
+                        width: #{$user-picker-choice-size - 12px};
+
+                        .avatar-placeholder .initials {
+                            font-size: $font-size-smaller;
+                        }
+                    }
+                }
+
+                .ui-select-choices-row {
+                    height: $user-picker-choice-size;
+
+                    .ui-select-choices-row-inner {
+                        .ui-select-choice-item {
+                            display: flex;
+                            flex-flow: row nowrap;
+                            height: $user-picker-choice-size;
+                            line-height: 100%;
+                            overflow: hidden;
+                            padding: 0 8px;
+                            text-overflow: clip;
+                            white-space: normal;
+
+                            &::before {
+                                flex: none;
+                                padding-top: 14px;
+                            }
+
+                            .ui-select-choice-info {
+                                overflow: hidden;
+                                padding: 6px 0 6px 4px;
+
+                                div {
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                    white-space: nowrap;
+
+                                    &:first-child {
+                                        line-height: 16px;
+                                    }
+
+                                    &:last-child {
+                                        font-size: $font-size-smaller;
+                                        line-height: #{$user-picker-choice-size - 12px - 16px};
+                                    }
+                                }
+                            }
+
+                            .ui-select-choice-icon {
+                                flex: none;
+                                height: $user-picker-choice-size;
+                                line-height: $user-picker-choice-size;
+                                text-align: center;
+                                width: #{$user-picker-choice-size - 8px};
+                            }
+                        }
+                    }
+                }
+
+                .ui-select-results-count {
+                    border-top: solid 1px $gray-lighter;
+                    flex: none;
+                    height: $user-picker-results-count;
+
+                    div {
+                        font-size: $font-size-normal;
+                        height: 27px;
+                        padding: 9px 0 0;
+                        text-align: center;
+                    }
+
+                    button {
+                        background: $white;
+                        border: 0;
+                        color: $brand-secondary;
+                        font-size: $font-size-big;
+                        font-weight: 600;
+                        height: 20px;
+                        line-height: 20px;
+                        outline: none;
+                        padding: 0;
+                        width: 100%;
+
+                        &:hover,
+                        &:focus,
+                        &:active {
+                            background: $brand-secondary;
+                            color: $white;
+                        }
+                    }
+                }
+            }
+        }
+
+        .formly-field-bpFieldTextRTF {
+            > div {
+                width: 100%;
+            }
+
+            .tinymce-group {
+                display: block;
+                margin-top: -28px;
+                width: calc(100% - #{$richtext-y-scrollbar-width});
+            }
+
+            .mce-tinymce {
+                border: 0;
+                border-radius: 0;
+            }
+
+            .mce-toolbar-grp {
+                border-color: $gray-lighter;
+                border-width: 1px 1px 0 !important;
+                padding: 0;
+
+                .mce-flow-layout-item {
+                    margin: 0;
+                }
+
+                .mce-btn button {
+                    line-height: 19px;
+                    padding: 3px 7px;
+                }
+            }
+
+            .mce-edit-area {
+                border-color: $gray-lighter;
+                border-width: 1px !important;
+            }
+
+            .tinymce-toolbar-hidden {
+                margin-top: 0;
+
+                .mce-toolbar-grp {
+                    display: none;
+                }
+            }
+
+            .has-error {
+                .mce-edit-area {
+                    border-color: $brand-error;
+                }
+            }
+        }
+
+        .formly-field-bpFieldTextRTFInline {
+            > div {
+                width: 100%;
+            }
+
+            $tinymce-toolbar-height: 27px;
+            .mce-panel,
+            .mce-abs-layout {
+                // since it's hidden on init, tinyMCE cannot calculate the dimensions by itself
+                height: $tinymce-toolbar-height !important;
+                width: #{$property-input-width - 2px} !important;
+            }
+
+            .mce-toolbar-grp {
+                border: 0;
+                padding: 0;
+
+                .mce-flow-layout-item {
+                    margin: 0;
+                }
+
+                .mce-btn button {
+                    line-height: 19px;
+                    padding: 3px 3px;
+                }
+
+                .mce-menubtn:first-child button span { // font-family button
+                    text-overflow: initial;
+                    width: 33px;
+
+                    &::before {
+                        color: #333;
+                        content: '\e01a';
+                        display: inline-block;
+                        font-family: 'tinymce';
+                        font-size: 22px;
+                        -moz-osx-font-smoothing: grayscale;
+                        -webkit-font-smoothing: antialiased;
+                        font-style: normal;
+                        font-variant: normal;
+                        font-weight: normal;
+                        height: 16px;
+                        line-height: 16px;
+                        margin-right: 40px;
+                        overflow: hidden;
+                        vertical-align: text-top;
+                        width: 20px;
+                    }
+                }
+            }
+
+            .tinymce-toolbar {
+                height: #{$tinymce-toolbar-height + 2px};
+                margin: -#{$tinymce-toolbar-height + 2px} 0 0;
+            }
+
+            .tinymce-toolbar-hidden {
+                .tinymce-toolbar {
+                    display: none;
+                }
+            }
+
+            .tinymce-body,
+            .tinymce-body[contenteditable="true"] {
+                border: solid 1px $gray-lightest;
+                border-radius: 0;
+                box-shadow: none;
+                box-sizing: border-box;
+                color: $richtext-fontcolor;
+                font-family: $richtext-fontfamily;
+                font-size: $richtext-fontsize;
+                font-weight: 400;
+                line-height: $property-min-height;
+                max-height: $property-min-height;
+                min-height: $property-min-height;
+                outline: none;
+                overflow: hidden;
+                padding: 0 2px 0 0;
+                white-space: nowrap;
+                width: $property-input-width;
+
+                &:focus,
+                &:hover {
+                    background: $yellow-pale url('images/editable-icon.png') no-repeat right 4px top 6px;
+                }
+
+                a {
+                    color: $richtext-linkcolor;
+                    cursor: pointer;
+                    text-decoration: underline;
+                }
+            }
+
+            .has-error {
+                .tinymce-body,
+                .tinymce-body[contenteditable="true"] {
+                    border-bottom-color: $brand-error;
+                }
+            }
+        }
+
+        .formly-field-bpFieldDatepicker {
+            button {
+                border-radius: 0;
+            }
+
+            .has-error button {
+                border-bottom-color: $brand-error !important;
+            }
+        }
+
+        .formly-field-bpFieldImage {
+            width: #{$property-width * .4};
+
+            .inheritance-group {
+                &.inheritance-group-wrapper {
+                    display: flex;
+                    align-items: center;
+
+                    input[type=file] {
+                        display: none;
+                    }
+                }
+
+                .icon {
+                    display: inline-block;
+                    padding-left: 9px;
+                    padding-top: 28px;
+                    cursor: pointer;
+                    &.disabled {
+                        opacity: $default-disabled-opacity;
+                        cursor: not-allowed;
+                    }
+                }
+
+                .actor-image-wrapper {
+                    display: inline-flex;
+                    align-items: center;
+                    width: 90px;
+                    height: 120px;
+                    border: 1px solid $gray-lightest;
+                    box-sizing: content-box;
+
+                    span {
+                        width: 90px;
+                        height: 120px;
+                        background: url('images/icons/user-default.svg') left top no-repeat;
+                        display: inline-block;
+                        background-color: $gray;
+                        vertical-align: middle;
+                    }
+
+                    label {
+                        width: 90px;
+                        height: 120px;
+                        display: block;
+                        margin: 0;
+                        box-sizing: content-box;
+                        background-size: contain;
+                        background-repeat: no-repeat;
+                        background-position: 50% 50%;
+                    }
+
+                    ~ label {
+                        display: inline-block;
+                        width: auto;
+                    }
+                }
+
+                .image-actor-group {
+                    font-size: $font-size-normal;
+                    margin: 5px 9px;
+                    &.glyphicon-plus {
+                        background-color: $blue-light;
+                        color: $white;
+                        padding: 4px 3px 4px 4px;
+                        border-radius: $border-radius-small;
+                        cursor: pointer;
+                        &.disabled {
+                            background-color: $gray;
+                            cursor: not-allowed;
+                        }
+                    }
+                }
+            }
+        }
+
+        $property-inheritance-width: $property-width * 1.6; //change to 2.5 to span 3 columns instead of 2
+        .formly-field-bpFieldInheritFrom {
+            padding-top: 49px;
+            display: block;
+            max-width: $property-inheritance-width;
+            min-width: $property-input-width;
+            width: 100%;
+
+            .icon {
+                cursor: pointer;
+                margin-right: 5px;
+                &.disabled {
+                    opacity: $default-disabled-opacity;
+                    cursor: not-allowed;
+                }
+            }
+            .din {
+                display: inline-block;
+                padding-top: 10px;
+                padding-right: 2px;
+            }
+
+            .inheritance-group {
+                display: inline-flex;
+                font-size: $font-size-normal;
+                width: calc(100% - #{$property-label-width});
+
+                button {
+                    &.disabled, &[disabled] {
+                        background-color: $gray-lighter;
+                        border-color: $gray-light;
+                        color: $gray-light;
+                        opacity: 1;
+                    }
+                }
+
+                .bp-input-group-addon {
+                    &.icon-wrapper {
+                        line-height: #{$property-min-height + 6px}; // height of input box plus padding
+                        display: inline-block;
+                        padding-right: 2px;
+                    }
+                }
+                .inheritance-path {
+                    border-color: $gray-lighter;
+                    background-color: $gray-lightest;
+                    border-width: 1px;
+                    flex-grow: 1;
+                    flex-shrink: 1;
+                    height: $property-min-height;
+                    line-height: $property-min-height;
+                    min-width: $property-input-width - 90px;
+                    @include text-ellipsis-flex-width(999px);
+                    padding: 0 $property-padding-default;
+                    margin-top: 2px;
+                    margin-right: 8px;
+                    max-width: calc(100% - 40px);
+                    .path-wrapper {
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                    span {
+                        &::before {
+                            content: ' > ';
+                        }
+
+                        &:first-child {
+                            &::before {
+                                content: '';
+                            }
+                        }
+                    }
+                }
+
+                .inheritance-tools {
+                    flex-grow: 0;
+                    flex-shrink: 0;
+                    margin: 5px 9px;
+                }
+            }
+        }
+
+        .form-control-wrapper {
+            display: table-cell;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            padding: 4px;
+
+            .form-control {
+                width: 100%;
+                max-width: 100%;
+                margin: 2px;
+                background-color: white;
+                background-image: none !important;
+                &:hover {
+                    background-image: none !important;
+                }
+            }
+        }
+
+        .formly-field-bpDocumentFile {
+            width: 100% !important;
+            .input-group-addon {
+                padding: 0;
+                background-color: transparent;
+                border: none;
+                label {
+                    padding: 5px 9px;
+                    min-width: 20px;
+                    text-align: center;
+                    width: auto !important;
+                    margin: 5px 5px 5px;
+                    font-size: $font-size-big;
+                    input[type=file] {
+                        display: none;
+                    }
+                    &.btn-small {
+                        padding: 5px 10px;
+                        min-width: 20px;
+                        font-size: 1.2rem;
+                    }
+                    &.btn-primary {
+                        background-color: transparent;
+                        border: 1px solid $gray-light;
+                        color: $gray-light;
+                        &:hover,
+                        &:focus,
+                        &:active {
+                            background-color: transparent;
+                            border-color: $brand-secondary;
+                            color: $brand-secondary;
+                        }
+                    }
+                }
+
+                .icon {
+                    display: inline-block;
+                    line-height: #{$property-min-height + 12px}; // so it's the same height as the input field (which has 2px margin + 4px padding top and bottom)
+                    padding-left: $padding-smaller;
+                    padding-right: $padding-smaller;
+                    &.disabled {
+                        cursor: not-allowed;
+                        opacity: $default-disabled-opacity;
+                    }
+                }
+                &:not(:first-child):not(:last-child) {
+                    padding-right: 5px;
+                    .icon {
+                        padding-right: $padding-smaller - 5px;
+                    }
+                }
+            }
+
+            .thumb {
+                width: 30px;
+                height: 30px;
+                &.fonticon2-attachment {
+                    padding-top: 10px;
+                }
+            }
+            .form-control-wrapper {
+                display: table-cell;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                padding: 4px;
+
+                .form-control {
+                    background: $white;
+                    margin: 2px;
+                    max-width: 100%;
+                    width: 100%;
+
+                    &:hover,
+                    &:focus {
+                        background: $white;
+                        padding-right: $property-padding-default;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.single-column-property .formly .formly-field label {
+    margin-right: 0;
+    padding: 0;
+    width: $property-input-width;
+}
+
+.tab-pane {
+    border: solid 1px $gray-lighter;
+    border-radius: $border-radius-amount;
+    padding: 18px #{20px - $richtext-y-scrollbar-width} 18px 20px;
+
+    .formly {
+        margin: 0;
+        min-width: $property-input-width;
+        padding: 0;
+
+        .formly-field {
+            border: 0;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+        }
+
+        .form-tinymce {
+            border: 0;
+            margin: 0 -2px;
+            padding: 2px;
+            width: calc(100% + 4px);
+        }
+
+        .formly-field-bpFieldReadOnly {
+            > div {
+                width: 100%;
+            }
+
+            .input-group {
+                display: block;
+
+                .richtext-body {
+                    display: inline-block;
+                    margin-right: $richtext-y-scrollbar-width;
+                }
+
+                &::after {
+                    background: $white;
+                    content: '';
+                    display: block;
+                    height: 100%;
+                    position: absolute;
+                    right: 0;
+                    top: 0;
+                    width: $richtext-y-scrollbar-width;
+                }
+            }
+        }
+    }
 }
 
 bp-properties-panel {
-  .properties.collapsed {
-    margin-bottom: 0;
-  }
+    .properties.collapsed {
+        margin-bottom: 0;
+    }
 
-  .tab-pane {
-    padding: 8px #{20px - $richtext-y-scrollbar-width} 8px 15px;
-  }
+    .tab-pane {
+        padding: 8px #{20px - $richtext-y-scrollbar-width} 8px 15px;
+    }
 }
 
 pagecontent {
-  .system-properties {
-    &.collapse:not(.in) .formly .formly-field:first-child {
-      width: 100%;
-    }
+    .system-properties {
+        &.collapse:not(.in) .formly .formly-field:first-child {
+            width: 100%;
+        }
 
-    &.collapse {
-      display: block !important;
-      height: #{$property-min-height + 12px} !important;
+        &.collapse {
+            display: block !important;
+            height: #{$property-min-height + 12px} !important;
 
-      &.in {
-        height: auto !important;
-      }
+            &.in {
+                height: auto !important;
+            }
+        }
     }
-  }
 }
 
 .uib-datepicker-popup {
-  border-color: $brand-secondary;
-  border-radius: 0;
-  padding: 0 0 7px;
+    border-color: $brand-secondary;
+    border-radius: 0;
+    padding: 0 0 7px;
 
-  li > .uib-datepicker {
-    margin-top: -1px;
-  }
-
-  table.uib-daypicker,
-  table.uib-monthpicker,
-  table.uib-yearpicker {
-    margin: 0 -1px;
-    outline: none;
-    width: $property-input-width;
-
-    thead tr:first-child th {
-      button {
-        border-color: $brand-secondary;
-      }
-
-      &:first-child button {
-        border-right: 0;
-        color: $brand-secondary;
-      }
-
-      &:last-child button {
-        border-left: 0;
-        color: $brand-secondary;
-      }
-    }
-  }
-
-  table.uib-yearpicker {
-    tbody tr:first-child td {
-      padding-top: 8px;
+    li > .uib-datepicker {
+        margin-top: -1px;
     }
 
-    tbody td {
-      border: solid 1px transparent;
-      width: 52px;
+    table.uib-daypicker,
+    table.uib-monthpicker,
+    table.uib-yearpicker {
+        margin: 0 -1px;
+        outline: none;
+        width: $property-input-width;
 
-      &:first-child {
-        padding-left: 5px;
-        width: 57px;
-      }
+        thead tr:first-child th {
+            button {
+                border-color: $brand-secondary;
+            }
 
-      &:last-child {
-        padding-right: 6px;
-        width: 58px;
-      }
+            &:first-child button {
+                border-right: 0;
+                color: $brand-secondary;
+            }
 
-      .btn {
-        width: 100%;
-      }
-    }
-  }
-
-  table.uib-monthpicker {
-    tbody tr:first-child td {
-      padding-top: 8px;
-    }
-
-    tbody td {
-      border: solid 1px transparent;
-      width: 87px;
-
-      &:first-child {
-        padding-left: 5px;
-        width: 92px;
-      }
-
-      &:last-child {
-        padding-right: 6px;
-        width: 93px;
-      }
-
-      .btn {
-        width: 100%;
-      }
-    }
-  }
-
-  table.uib-daypicker {
-    thead tr:last-child th,
-    tbody td {
-      border: solid 1px transparent;
-      line-height: 28px;
-      width: 37px;
-
-      &:first-child {
-        padding-left: 6px;
-        width: 43px;
-      }
-
-      &:last-child {
-        padding-right: 7px;
-        width: 44px;
-      }
-    }
-  }
-
-  .btn {
-    border-radius: 0 !important;
-    color: $gray-dark;
-    min-width: 36px;
-    outline: none;
-    padding: 5px 10px;
-
-    &:active,
-    &:hover {
-      background: $blue-lightest;
-      border-color: $brand-secondary;
-      box-shadow: none;
+            &:last-child button {
+                border-left: 0;
+                color: $brand-secondary;
+            }
+        }
     }
 
-    &.active {
-      background: $brand-secondary !important;
-      box-shadow: none;
-      color: $white;
+    table.uib-yearpicker {
+        tbody tr:first-child td {
+            padding-top: 8px;
+        }
+
+        tbody td {
+            border: solid 1px transparent;
+            width: 52px;
+
+            &:first-child {
+                padding-left: 5px;
+                width: 57px;
+            }
+
+            &:last-child {
+                padding-right: 6px;
+                width: 58px;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
     }
 
-    span {
-      color: inherit;
-    }
-    .btn-bp-small{
-      margin-left:5px;
-      padding:5px 9px;
-      min-width: 20px;
-      &.disabled{
-        background-color: $gray-lightest;
-      }
-    }
-  }
+    table.uib-monthpicker {
+        tbody tr:first-child td {
+            padding-top: 8px;
+        }
 
-  .uib-button-bar {
-    padding: 10px 6px 0;
+        tbody td {
+            border: solid 1px transparent;
+            width: 87px;
 
-    .btn-info,
-    .btn-danger,
-    .btn-success {
-      background: $white;
-      border-color: $gray-lighter;
-      border-radius: 4px !important;
-      float: none;
+            &:first-child {
+                padding-left: 5px;
+                width: 92px;
+            }
+
+            &:last-child {
+                padding-right: 6px;
+                width: 93px;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
     }
-  }
+
+    table.uib-daypicker {
+        thead tr:last-child th,
+        tbody td {
+            border: solid 1px transparent;
+            line-height: 28px;
+            width: 37px;
+
+            &:first-child {
+                padding-left: 6px;
+                width: 43px;
+            }
+
+            &:last-child {
+                padding-right: 7px;
+                width: 44px;
+            }
+        }
+    }
+
+    .btn {
+        border-radius: 0 !important;
+        color: $gray-dark;
+        min-width: 36px;
+        outline: none;
+        padding: 5px 10px;
+
+        &:active,
+        &:hover {
+            background: $blue-lightest;
+            border-color: $brand-secondary;
+            box-shadow: none;
+        }
+
+        &.active {
+            background: $brand-secondary !important;
+            box-shadow: none;
+            color: $white;
+        }
+
+        span {
+            color: inherit;
+        }
+        .btn-bp-small {
+            margin-left: 5px;
+            padding: 5px 9px;
+            min-width: 20px;
+            &.disabled {
+                background-color: $gray-lightest;
+            }
+        }
+    }
+
+    .uib-button-bar {
+        padding: 10px 6px 0;
+
+        .btn-info,
+        .btn-danger,
+        .btn-success {
+            background: $white;
+            border-color: $gray-lighter;
+            border-radius: 4px !important;
+            float: none;
+        }
+    }
 }

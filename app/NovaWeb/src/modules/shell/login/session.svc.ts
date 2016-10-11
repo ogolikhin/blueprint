@@ -1,21 +1,21 @@
 ﻿import "angular";
-import { ILocalizationService } from "../../core/";
-import { IDialogService } from "../../shared/";
-import { IAuth, IUser} from "./auth.svc";
-import { ISession } from "./session-interface";
+import {ILocalizationService} from "../../core/";
+import {IDialogService} from "../../shared/";
+import {IAuth, IUser} from "./auth.svc";
+import {ISession} from "./session-interface";
 import {LoginCtrl, ILoginInfo} from "./login.ctrl";
 
-export { ISession }
+export {ISession}
 
 export class SessionSvc implements ISession {
 
     static $inject: [string] = ["$q", "auth", "$uibModal", "localization", "dialogService"];
-    constructor(
-        private $q: ng.IQService,
-        private auth: IAuth,
-        private $uibModal: ng.ui.bootstrap.IModalService,
-        private localization: ILocalizationService,
-        private dialogService: IDialogService) {
+
+    constructor(private $q: ng.IQService,
+                private auth: IAuth,
+                private $uibModal: ng.ui.bootstrap.IModalService,
+                private localization: ILocalizationService,
+                private dialogService: IDialogService) {
     }
 
     private _modalInstance: ng.ui.bootstrap.IModalServiceInstance;
@@ -63,7 +63,7 @@ export class SessionSvc implements ISession {
             },
             (error) => {
                 defer.reject(error);
-        });
+            });
         return defer.promise;
     }
 
@@ -84,8 +84,9 @@ export class SessionSvc implements ISession {
     }
 
     private onExpiredDefer: ng.IDeferred<any>;
+
     public onExpired(): ng.IPromise<any> {
-        
+
         if (!this._isExpired) {
             this._isExpired = true;
             this.onExpiredDefer = this.$q.defer();
@@ -141,19 +142,19 @@ export class SessionSvc implements ISession {
                         this.dialogService
                             .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"))
                             .then((confirmed: boolean) => {
-                            if (confirmed) {
-                                this.loginWithSaml(true).then(
-                                    () => {
-                                        this._isExpired = false;
-                                        done.resolve();
-                                    },
-                                    (err) => {
-                                        this.showLogin(done, err);
-                                    });
-                            } else {
-                                this.showLogin(done);
-                            }
-                        }).finally(() => {
+                                if (confirmed) {
+                                    this.loginWithSaml(true).then(
+                                        () => {
+                                            this._isExpired = false;
+                                            done.resolve();
+                                        },
+                                        (err) => {
+                                            this.showLogin(done, err);
+                                        });
+                                } else {
+                                    this.showLogin(done);
+                                }
+                            }).finally(() => {
                             confirmationDialog = null;
                         });
                     } else if (result.userName && result.password) {
@@ -173,8 +174,8 @@ export class SessionSvc implements ISession {
                                     this.showLogin(done);
                                 }
                             }).finally(() => {
-                                confirmationDialog = null;
-                            });
+                            confirmationDialog = null;
+                        });
                     } else {
                         this.showLogin(done);
                     }

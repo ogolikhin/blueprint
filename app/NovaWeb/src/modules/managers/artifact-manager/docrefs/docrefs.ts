@@ -1,7 +1,7 @@
-import { IIStatefulItem } from "../item";
-import { IDispose } from "../../models";
-import { ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector } from "../changeset";
-import { IArtifactAttachmentsResultSet, IArtifactDocRef } from "../attachments";
+import {IIStatefulItem} from "../item";
+import {IDispose} from "../../models";
+import {ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector} from "../changeset";
+import {IArtifactAttachmentsResultSet, IArtifactDocRef} from "../attachments";
 
 export interface IDocumentRefs extends IDispose {
     isLoading: boolean;
@@ -67,32 +67,32 @@ export class DocumentRefs implements IDocumentRefs {
                     this.loadPromise = null;
                 });
         }
-        
+
         return this.subject.filter(it => !!it).asObservable();
     }
 
     protected isLoadedOrLoading() {
         return this.docrefs || this.loadPromise;
     }
-    
+
 
     public add(docrefs: IArtifactDocRef[]): IArtifactDocRef[] {
         if (docrefs) {
             docrefs.map((docref: IArtifactDocRef) => {
                 this.docrefs.push(docref);
-                
+
                 const changeset = {
                     type: ChangeTypeEnum.Add,
                     key: docref.artifactId,
                     value: docref
                 } as IChangeSet;
                 this.changeset.add(changeset);
-                
+
                 this.statefulItem.lock();
             });
             this.subject.onNext(this.docrefs);
         }
-        
+
         return this.docrefs;
     }
 
@@ -107,14 +107,14 @@ export class DocumentRefs implements IDocumentRefs {
 
                 if (foundDocRefIndex > -1) {
                     this.docrefs.splice(foundDocRefIndex, 1);
-                    
+
                     const changeset = {
                         type: ChangeTypeEnum.Delete,
                         key: docref.artifactId,
                         value: docref
                     } as IChangeSet;
                     this.changeset.add(changeset);
-                    
+
                     this.statefulItem.lock();
                 }
             });

@@ -12,13 +12,13 @@ import {UserTask, UserDecision, Condition} from "./shapes/";
 import {NodeChange, NodeType} from "./models/";
 import {ProcessValidator} from "./process-graph-validator";
 import {ProcessDeleteHelper} from "./process-delete-helper";
-import {ICommunicationManager, CommunicationManager} from "../../../../../bp-process"; 
-import { LocalizationServiceMock} from "../../../../../../core/localization/localization.mock";
-import { DialogService} from "../../../../../../shared/widgets/bp-dialog";
-import { ModalServiceMock } from "../../../../../../shell/login/mocks.spec";
+import {ICommunicationManager, CommunicationManager} from "../../../../../bp-process";
+import {LocalizationServiceMock} from "../../../../../../core/localization/localization.mock";
+import {DialogService} from "../../../../../../shared/widgets/bp-dialog";
+import {ModalServiceMock} from "../../../../../../shell/login/mocks.spec";
 import * as TestModels from "../../../../models/test-model-factory";
-import { IStatefulArtifactFactory } from "../../../../../../managers/artifact-manager/";
-import { StatefulArtifactFactoryMock } from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-manager/";
+import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("ProcessGraph", () => {
     let shapesFactory: ShapesFactory;
@@ -35,14 +35,13 @@ describe("ProcessGraph", () => {
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
-    beforeEach(inject((
-        _$window_: ng.IWindowService,
-        $rootScope: ng.IRootScopeService,
-        $timeout: ng.ITimeoutService,
-        _communicationManager_: ICommunicationManager,
-        _dialogService_: DialogService,
-        _localization_: LocalizationServiceMock,
-        _statefulArtifactFactory_: IStatefulArtifactFactory) => {
+    beforeEach(inject((_$window_: ng.IWindowService,
+                       $rootScope: ng.IRootScopeService,
+                       $timeout: ng.ITimeoutService,
+                       _communicationManager_: ICommunicationManager,
+                       _dialogService_: DialogService,
+                       _localization_: LocalizationServiceMock,
+                       _statefulArtifactFactory_: IStatefulArtifactFactory) => {
         rootScope = $rootScope;
         timeout = $timeout;
         communicationManager = _communicationManager_;
@@ -68,7 +67,7 @@ describe("ProcessGraph", () => {
             "ST_Add_CannotAdd_MaximumConditionsReached": "Cannot add any more conditions because the maximum number of conditions has been reached.",
             "ST_Auto_Insert_Task": "The task and its associated shapes have been moved. Another task has been created at the old location."
         };
-        localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
+        localScope = {graphContainer: container, graphWrapper: wrapper, isSpa: false};
         shapesFactory = new ShapesFactory(rootScope, _statefulArtifactFactory_);
     }));
 
@@ -373,7 +372,7 @@ describe("ProcessGraph", () => {
                 expect(process.shapes.length).toBe(8);
                 expect(hasShapes(process, userTaskId, systemTaskId)).toBe(false);
                 expect(hasLinksFor(process, userTaskId, systemTaskId)).toBe(false);
-                expect(process.links.filter((link) => link.sourceId ===  userDecisionId).length).toBe(2);
+                expect(process.links.filter((link) => link.sourceId === userDecisionId).length).toBe(2);
                 expect(conditionDestinationCountBefore).toBe(2);
                 expect(conditionDestinationCountAfter).toBe(1);
             });
@@ -404,7 +403,7 @@ describe("ProcessGraph", () => {
                 expect(process.shapes.length).toBe(8);
                 expect(hasShapes(process, userTaskId, systemTaskId)).toBe(false);
                 expect(hasLinksFor(process, userTaskId, systemTaskId)).toBe(false);
-                expect(process.links.filter((link) => link.sourceId ===  userDecisionId).length).toBe(2);
+                expect(process.links.filter((link) => link.sourceId === userDecisionId).length).toBe(2);
                 expect(conditionDestinationCountBefore).toBe(2);
                 expect(conditionDestinationCountAfter).toBe(1);
             });
@@ -598,11 +597,11 @@ describe("ProcessGraph", () => {
             let testModel = TestModels.createSimpleProcessModelWithSystemDecision();
             let processModel = new ProcessViewModel(testModel);
             processModel.communicationManager = communicationManager;
-            
+
             graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
             let shapeLengthBeforeDelete = processModel.shapes.length;
             let linkLengthBeforeDelete = processModel.links.length;
-            
+
             let userTaskShape = shapesFactory.createModelUserTaskShape(2, 1, 20, 2, 0);
             let userTaskShapeDiagramNode = new UserTask(userTaskShape, rootScope, null, shapesFactory);
 
@@ -617,11 +616,11 @@ describe("ProcessGraph", () => {
         it("simple case, correct number of shapes/links", () => {
 
             /* Before deletion:
-                start-> ST1 -> UT -> ST2 -> UT1 -> ST3 -> END
+             start-> ST1 -> UT -> ST2 -> UT1 -> ST3 -> END
 
-                After deletion:
-                start -> ST1 -> UT1 -> ST3 -> END
-            */
+             After deletion:
+             start -> ST1 -> UT1 -> ST3 -> END
+             */
 
             //Arrange
             let userTaskShape = shapesFactory.createModelUserTaskShape(2, 1, 20, 2, 0);
@@ -645,12 +644,12 @@ describe("ProcessGraph", () => {
         it("deletes system decision after it (with all shapes in branch), correct number of shapes/links", () => {
 
             /* Before deletion:
-                start -> ST1 -> UT1 -> ST2 -> UT2 -> SD -> ST3 -> END
-                                                        -> ST3 -> END
+             start -> ST1 -> UT1 -> ST2 -> UT2 -> SD -> ST3 -> END
+             -> ST3 -> END
 
-                After deletion:
-                start -> ST1 -> UT1 -> ST2 -> END
-            */
+             After deletion:
+             start -> ST1 -> UT1 -> ST2 -> END
+             */
 
             //Arrange
             let userTaskShape = shapesFactory.createModelUserTaskShape(2, 1, 280, 4, 0);
@@ -674,12 +673,12 @@ describe("ProcessGraph", () => {
         it("deletes system decision after it (with all shapes in branch), correct link source and destination", () => {
 
             /* Before deletion:
-                start -> ST1 -> UT1 -> ST2 -> UT2 -> SD -> ST3 -> END
-                                                        -> ST3 -> END
+             start -> ST1 -> UT1 -> ST2 -> UT2 -> SD -> ST3 -> END
+             -> ST3 -> END
 
-                After deletion:
-                start -> ST1 -> UT1 -> ST2 -> END
-            */
+             After deletion:
+             start -> ST1 -> UT1 -> ST2 -> END
+             */
 
             //Arrange
             let userTaskShape = shapesFactory.createModelUserTaskShape(2, 1, 280, 4, 0);
@@ -699,7 +698,7 @@ describe("ProcessGraph", () => {
             let result = ProcessDeleteHelper.deleteUserTask(userTaskShapeDiagramNode.model.id, null, graph);
 
             let linksContainingDecision = processModel.links.filter(a => a.sourceId === userTaskShapeDiagramNode.id ||
-                a.destinationId === userTaskShapeDiagramNode.id).length;
+            a.destinationId === userTaskShapeDiagramNode.id).length;
             let updatedLink = processModel.links.filter(a => a.sourceId === shapeIdBeforeUserTask);
 
             // Assert
@@ -716,7 +715,7 @@ describe("ProcessGraph", () => {
             process = TestModels.createTwoUserTaskModel();
             graph = createGraph(process);
             let userTaskId = 35;
-            let test = { action: null };
+            let test = {action: null};
             let spy = spyOn(test, "action");
 
             // Act
@@ -1090,7 +1089,7 @@ describe("ProcessGraph", () => {
 
                     // Assert
                     expect(spy).toHaveBeenCalled();
-                    expect(process.links.filter(link => link.sourceId ===  decisionId).length).toBe(3);
+                    expect(process.links.filter(link => link.sourceId === decisionId).length).toBe(3);
                 });
 
                 it("fails if maximum number of conditions reached", () => {
@@ -1268,12 +1267,12 @@ describe("ProcessGraph", () => {
             describe("in user decision with multiple branches", () => {
                 beforeEach(() => {
                     /*
-                        start -> pre -> ud -> ut1 -> st1 -> end
-                                            ->ut2 -> st2 -> end
-                                            ->ut3 -> st3 -> end
-                                            ->ut4 -> st4 -> end
-   
-                    */
+                     start -> pre -> ud -> ut1 -> st1 -> end
+                     ->ut2 -> st2 -> end
+                     ->ut3 -> st3 -> end
+                     ->ut4 -> st4 -> end
+
+                     */
                     testModel = TestModels.createUserDecisionWithMultipleBranchesModel();
                     processModel = new ProcessViewModel(testModel);
                     processModel.communicationManager = communicationManager;
@@ -1299,13 +1298,13 @@ describe("ProcessGraph", () => {
                     // Assert
                     expect(processModel.shapes.length).toEqual(10);
                     expect(processModel.shapes.filter((s) =>
-                        s.id === userTaskId ||
-                        s.id === systemTaskId).length).toEqual(0);
+                    s.id === userTaskId ||
+                    s.id === systemTaskId).length).toEqual(0);
                     expect(processModel.links.filter((l) =>
-                        l.sourceId === userTaskId ||
-                        l.destinationId === userTaskId ||
-                        l.sourceId === systemTaskId ||
-                        l.destinationId === systemTaskId).length).toEqual(0);
+                    l.sourceId === userTaskId ||
+                    l.destinationId === userTaskId ||
+                    l.sourceId === systemTaskId ||
+                    l.destinationId === systemTaskId).length).toEqual(0);
                 });
 
                 it("deletes multiple branches successfully", () => {
@@ -1324,19 +1323,19 @@ describe("ProcessGraph", () => {
                     // Assert
                     expect(processModel.shapes.length).toEqual(8);
                     expect(processModel.shapes.filter((s) =>
-                        s.id === userTask1Id ||
-                        s.id === systemTask1Id ||
-                        s.id === userTask2Id ||
-                        s.id === systemTask2Id).length).toEqual(0);
+                    s.id === userTask1Id ||
+                    s.id === systemTask1Id ||
+                    s.id === userTask2Id ||
+                    s.id === systemTask2Id).length).toEqual(0);
                     expect(processModel.links.filter((l) =>
-                        l.sourceId === userTask1Id ||
-                        l.destinationId === userTask1Id ||
-                        l.sourceId === systemTask1Id ||
-                        l.destinationId === systemTask1Id ||
-                        l.sourceId === userTask2Id ||
-                        l.destinationId === userTask2Id ||
-                        l.sourceId === systemTask2Id ||
-                        l.destinationId === systemTask2Id).length).toEqual(0);
+                    l.sourceId === userTask1Id ||
+                    l.destinationId === userTask1Id ||
+                    l.sourceId === systemTask1Id ||
+                    l.destinationId === systemTask1Id ||
+                    l.sourceId === userTask2Id ||
+                    l.destinationId === userTask2Id ||
+                    l.sourceId === systemTask2Id ||
+                    l.destinationId === systemTask2Id).length).toEqual(0);
                     expect(conditionDestinationCountBefore).toBe(3);
                     expect(conditionDestinationCountAfter).toBe(1);
                 });
@@ -1436,10 +1435,10 @@ describe("ProcessGraph", () => {
                     // Assert
                     expect(processModel.shapes.length).toEqual(7);
                     expect(processModel.shapes.filter((s) =>
-                        s.id === systemTaskId).length).toEqual(0);
+                    s.id === systemTaskId).length).toEqual(0);
                     expect(processModel.links.filter((l) =>
-                        l.sourceId === systemTaskId ||
-                        l.destinationId === systemTaskId).length).toEqual(0);
+                    l.sourceId === systemTaskId ||
+                    l.destinationId === systemTaskId).length).toEqual(0);
                 });
 
                 it("deletes multiple branches successfully", () => {
@@ -1454,13 +1453,13 @@ describe("ProcessGraph", () => {
                     // Assert
                     expect(processModel.shapes.length).toEqual(6);
                     expect(processModel.shapes.filter((s) =>
-                        s.id === systemTask1Id ||
-                        s.id === systemTask2Id).length).toEqual(0);
+                    s.id === systemTask1Id ||
+                    s.id === systemTask2Id).length).toEqual(0);
                     expect(processModel.links.filter((l) =>
-                        l.sourceId === systemTask1Id ||
-                        l.destinationId === systemTask1Id ||
-                        l.sourceId === systemTask2Id ||
-                        l.destinationId === systemTask2Id).length).toEqual(0);
+                    l.sourceId === systemTask1Id ||
+                    l.destinationId === systemTask1Id ||
+                    l.sourceId === systemTask2Id ||
+                    l.destinationId === systemTask2Id).length).toEqual(0);
                 });
             });
         });
@@ -1472,11 +1471,11 @@ describe("ProcessGraph", () => {
         let graph: ProcessGraph;
         beforeEach(() => {
             /*
-            start -> pre - ud -> ut1 -> st1 ->                  ut5 -> st5 ->  end
-                                -> ut2 -> st2 -> ut6 -> st6 -> 
-                                -> ut3 -> st3 ->
-                                -> ut4 -> st4 ->
-            */
+             start -> pre - ud -> ut1 -> st1 ->                  ut5 -> st5 ->  end
+             -> ut2 -> st2 -> ut6 -> st6 -> 
+             -> ut3 -> st3 ->
+             -> ut4 -> st4 ->
+             */
             testModel = TestModels.createUserDecisionWithMultipleBranchesModel_V2();
             processModel = new ProcessViewModel(testModel);
             processModel.communicationManager = communicationManager;
@@ -1487,30 +1486,30 @@ describe("ProcessGraph", () => {
         describe("getValidMergeNodes", () => {
             it("simple test", () => {
                 // Arrange
-                let ud_ut3_link: ProcessModels.IProcessLink = processModel.links.filter(a => a.sourceId ===  4 && a.destinationId ===  9)[0];
+                let ud_ut3_link: ProcessModels.IProcessLink = processModel.links.filter(a => a.sourceId === 4 && a.destinationId === 9)[0];
 
                 // Act
                 let scopeNodes = graph.getValidMergeNodes(ud_ut3_link);
 
                 // Assert
                 expect(scopeNodes.length).toEqual(4);
-                expect(scopeNodes.filter(a => a.model.name ===  "ud").length).toBe(1);
-                expect(scopeNodes.filter(a => a.model.name ===  "ut6").length).toBe(1);
-                expect(scopeNodes.filter(a => a.model.name ===  "ut5").length).toBe(1);
-                expect(scopeNodes.filter(a => a.model.name ===  "end").length).toBe(1);
+                expect(scopeNodes.filter(a => a.model.name === "ud").length).toBe(1);
+                expect(scopeNodes.filter(a => a.model.name === "ut6").length).toBe(1);
+                expect(scopeNodes.filter(a => a.model.name === "ut5").length).toBe(1);
+                expect(scopeNodes.filter(a => a.model.name === "end").length).toBe(1);
             });
 
             it("does not include items in own branch", () => {
                 // Arrange
-                let ud_ut2_link: ProcessModels.IProcessLink = processModel.links.filter(a => a.sourceId ===  4 && a.destinationId ===  7)[0];
+                let ud_ut2_link: ProcessModels.IProcessLink = processModel.links.filter(a => a.sourceId === 4 && a.destinationId === 7)[0];
 
                 // Act
                 let scopeNodes = graph.getValidMergeNodes(ud_ut2_link);
 
                 // Assert
                 expect(scopeNodes.length).toEqual(3);
-                expect(scopeNodes.filter(a => a.model.name ===  "ut6").length).toBe(0);
-                expect(scopeNodes.filter(a => a.model.name ===  "ut2").length).toBe(0);
+                expect(scopeNodes.filter(a => a.model.name === "ut6").length).toBe(0);
+                expect(scopeNodes.filter(a => a.model.name === "ut2").length).toBe(0);
             });
 
             it("returns end in case of user decision with no-op in first condition", () => {
@@ -1524,7 +1523,7 @@ describe("ProcessGraph", () => {
 
                 // Assert
                 expect(result.length).toBe(2);
-                expect(result.filter(node => node.getNodeType() ===  NodeType.ProcessEnd).length).toBeGreaterThan(0);
+                expect(result.filter(node => node.getNodeType() === NodeType.ProcessEnd).length).toBeGreaterThan(0);
             });
         });
 
@@ -1532,7 +1531,7 @@ describe("ProcessGraph", () => {
 
             // Arrange
             let decisionId = 4;
-            let ud_ut3_link: ProcessModels.IProcessLink = processModel.links.filter(a => a.sourceId ===  decisionId && a.destinationId ===  9)[0];
+            let ud_ut3_link: ProcessModels.IProcessLink = processModel.links.filter(a => a.sourceId === decisionId && a.destinationId === 9)[0];
 
             let condition = Condition.create(ud_ut3_link, null, null);
 
@@ -1545,16 +1544,16 @@ describe("ProcessGraph", () => {
         it("updateMergeNode - simple update", () => {
             // Arrange
             /*
-            UDPATED->
+             UDPATED->
 
-                start -> pre - ud -> ut1 -> st1 ----------------> ut5 -> st5 ->  end
-                                -> ut2 -> st2 -> ut6 -> st6 -> 
-                                -> ut3 -> st3 ----------------------------->
-                                -> ut4 -> st4-------------- ->
-            */
+             start -> pre - ud -> ut1 -> st1 ----------------> ut5 -> st5 ->  end
+             -> ut2 -> st2 -> ut6 -> st6 -> 
+             -> ut3 -> st3 ----------------------------->
+             -> ut4 -> st4-------------- ->
+             */
             let decisionId = 4;
             let endId = 17;
-            let ud_ut3_link: ProcessModels.IProcessLink = processModel.links.filter(a => a.sourceId ===  decisionId && a.destinationId ===  9)[0];
+            let ud_ut3_link: ProcessModels.IProcessLink = processModel.links.filter(a => a.sourceId === decisionId && a.destinationId === 9)[0];
             let mergeNode = <IDiagramNode>{
                 model: {
                     id: endId
@@ -1567,7 +1566,7 @@ describe("ProcessGraph", () => {
             let isUpdated = graph.updateMergeNode(decisionId, condition);
 
             // Assert
-            let decisionScopesToEnd = processModel.decisionBranchDestinationLinks.filter(a => a.sourceId ===  decisionId && a.destinationId ===  endId);
+            let decisionScopesToEnd = processModel.decisionBranchDestinationLinks.filter(a => a.sourceId === decisionId && a.destinationId === endId);
             expect(isUpdated).toBeTruthy();
             expect(decisionScopesToEnd.length).toEqual(1);
         });
@@ -1578,7 +1577,7 @@ describe("ProcessGraph", () => {
     }
 
     function hasLink(process: ProcessModels.IProcess, sourceId: number, destinationId: number): boolean {
-        return process.links.filter((link) => link.sourceId ===  sourceId && link.destinationId ===  destinationId).length > 0;
+        return process.links.filter((link) => link.sourceId === sourceId && link.destinationId === destinationId).length > 0;
     }
 
     function hasLinksFor(process: ProcessModels.IProcess, ...id: number[]): boolean {

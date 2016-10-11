@@ -1,18 +1,18 @@
-﻿import { ILocalizationService, ISettingsService, IMessageService } from "../../../core";
-import { Models} from "../../../main";
-import { ISession } from "../../../shell";
-import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
-import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
-import { IDialogSettings, IDialogService } from "../../../shared";
-import { IUploadStatusDialogData } from "../../../shared/widgets";
-import { BpFileUploadStatusController } from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
-import { Helper } from "../../../shared/utils/helper";
-import { ArtifactPickerDialogController, IArtifactPickerOptions } from "../../../main/components/bp-artifact-picker";
-import { IArtifactManager } from "../../../managers";
-import { IStatefulItem } from "../../../managers/artifact-manager";
-import { 
-    IArtifactAttachmentsService, 
-    IArtifactDocRef, 
+﻿import {ILocalizationService, ISettingsService, IMessageService} from "../../../core";
+import {Models} from "../../../main";
+import {ISession} from "../../../shell";
+import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
+import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
+import {IDialogSettings, IDialogService} from "../../../shared";
+import {IUploadStatusDialogData} from "../../../shared/widgets";
+import {BpFileUploadStatusController} from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
+import {Helper} from "../../../shared/utils/helper";
+import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
+import {IArtifactManager} from "../../../managers";
+import {IStatefulItem} from "../../../managers/artifact-manager";
+import {
+    IArtifactAttachmentsService,
+    IArtifactDocRef,
     IStatefulArtifact,
     IStatefulSubArtifact,
     IArtifactAttachment
@@ -49,23 +49,22 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     private maxAttachmentFilesizeDefault: number = 10485760; // 10 MB
     private maxNumberAttachmentsDefault: number = 50;
     private subscribers: Rx.IDisposable[];
-    
-    constructor(
-        $q: ng.IQService,
-        private localization: ILocalizationService,
-        protected artifactManager: IArtifactManager,
-        private session: ISession,
-        private artifactAttachments: IArtifactAttachmentsService,
-        private settingsService: ISettingsService,
-        private dialogService: IDialogService,
-        private messageService: IMessageService,
-        public bpAccordionPanel: IBpAccordionPanelController) {
+
+    constructor($q: ng.IQService,
+                private localization: ILocalizationService,
+                protected artifactManager: IArtifactManager,
+                private session: ISession,
+                private artifactAttachments: IArtifactAttachmentsService,
+                private settingsService: ISettingsService,
+                private dialogService: IDialogService,
+                private messageService: IMessageService,
+                public bpAccordionPanel: IBpAccordionPanelController) {
 
         super($q, artifactManager.selection, bpAccordionPanel);
 
         this.subscribers = [];
     }
-    
+
     public addDocRef(): void {
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get("App_Button_Open"),
@@ -91,7 +90,9 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
                     itemTypePrefix: artifact.prefix,
                     referencedDate: new Date().toISOString()
                 };
-                var isContainingDocRef = this.docRefList.filter((docref) => { return docref.artifactId === newDoc.artifactId; }).length > 0;
+                var isContainingDocRef = this.docRefList.filter((docref) => {
+                        return docref.artifactId === newDoc.artifactId;
+                    }).length > 0;
                 if (isContainingDocRef) {
                     this.messageService.addError(this.localization.get("App_UP_Attachments_Add_Same_DocRef_Error"));
                 } else {
@@ -184,13 +185,16 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         this.canAddAttachments = true;
         this.canAddDocRefs = true;
 
-        this.subscribers = this.subscribers.filter(sub => { sub.dispose(); return false; });
+        this.subscribers = this.subscribers.filter(sub => {
+            sub.dispose();
+            return false;
+        });
 
         if (this.item) {
             // If artifact does not exist of the server, just initialize with empty lists
-            if (!Helper.hasArtifactEverBeenSavedOrPublished(this.item)) {                
+            if (!Helper.hasArtifactEverBeenSavedOrPublished(this.item)) {
                 this.setReadOnly();
-                if (this.item.attachments.isLoading || this.item.docRefs.isLoading) {      
+                if (this.item.attachments.isLoading || this.item.docRefs.isLoading) {
 
                     this.item.attachments.initialize(this.attachmentsList);
                     this.item.docRefs.initialize(this.docRefList);
@@ -201,7 +205,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
                 this.subscribers = [attachmentsSubscriber, docRefsSubscriber];
             }
-        } 
+        }
 
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }

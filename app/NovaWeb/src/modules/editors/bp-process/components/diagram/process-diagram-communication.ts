@@ -1,4 +1,4 @@
-import { ICommunicationWrapper, CommunicationWrapper } from "../../services/communication-wrapper";
+import {ICommunicationWrapper, CommunicationWrapper} from "../../services/communication-wrapper";
 
 export interface IProcessDiagramCommunication {
     registerModelUpdateObserver(observer: any);
@@ -45,7 +45,7 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
     }
 
     public navigateToAssociatedArtifact(id: number, enableTracking?: boolean) {
-        this.setNavigateToAssociatedArtifactSubject.notify({ id: id, enableTracking: enableTracking });
+        this.setNavigateToAssociatedArtifactSubject.notify({id: id, enableTracking: enableTracking});
     }
 
     public onDestroy() {

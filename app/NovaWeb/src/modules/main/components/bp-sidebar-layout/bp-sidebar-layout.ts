@@ -35,8 +35,8 @@ export class BpSidebarLayout implements ng.IComponentOptions {
 export class BpSidebarLayoutCtrl implements ISidebarController {
 
     static $inject: [string] = ["$scope", "$element"];
-    public  isLeftToggled: boolean;
-    public  isRightToggled: boolean;
+    public isLeftToggled: boolean;
+    public isRightToggled: boolean;
 
     public leftPanelTitle: string;
     public rightPanelTitle: string;
@@ -45,6 +45,7 @@ export class BpSidebarLayoutCtrl implements ISidebarController {
         this.isLeftToggled = false;
         this.isRightToggled = false;
     }
+
     public $onInit() {
     }
 
@@ -55,12 +56,12 @@ export class BpSidebarLayoutCtrl implements ISidebarController {
 
     public toggleLeft(evt: ng.IAngularEvent) {
         evt.preventDefault();
-        this.togglePanel({ id: Enums.ILayoutPanel.Left });
+        this.togglePanel({id: Enums.ILayoutPanel.Left});
     }
 
     public toggleRight(evt: ng.IAngularEvent) {
         evt.preventDefault();
-        this.togglePanel({ id: Enums.ILayoutPanel.Right });
+        this.togglePanel({id: Enums.ILayoutPanel.Right});
     }
 
 

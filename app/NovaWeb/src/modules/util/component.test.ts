@@ -23,7 +23,7 @@ export class ComponentTest<TController> {
         this.scope.$digest();
         return this.element.controller(this.registerName);
     }
-    
+
     public createComponentWithMockParent(attributes: any, parentName: string, parentController: any): TController {
         this.scope = this.rootScope.$new();
         // TODO: figure out how to add scope variables to child controller

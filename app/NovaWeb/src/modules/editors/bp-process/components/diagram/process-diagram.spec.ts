@@ -4,14 +4,14 @@ import {IMessageService} from "../../../../core/messages/message.svc";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 import {ProcessDiagram} from "./process-diagram";
-import {ICommunicationManager, CommunicationManager} from "../../../bp-process"; 
+import {ICommunicationManager, CommunicationManager} from "../../../bp-process";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {DialogService} from "../../../../shared/widgets/bp-dialog";
 import {ProcessType} from "../../models/enums";
 import * as TestModels from "../../models/test-model-factory";
-import { ModalServiceMock } from "../../../../shell/login/mocks.spec";
-import { IStatefulArtifactFactory } from "../../../../managers/artifact-manager";
-import { StatefulArtifactFactoryMock } from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ModalServiceMock} from "../../../../shell/login/mocks.spec";
+import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
+import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("ProcessDiagram Tests", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -38,17 +38,16 @@ describe("ProcessDiagram Tests", () => {
     let container: HTMLElement,
         wrapper: HTMLElement;
 
-    beforeEach(inject((
-        $rootScope: ng.IRootScopeService,
-        $timeout: ng.ITimeoutService,
-        $q: ng.IQService,
-        $log: ng.ILogService,
-        _messageService_: IMessageService, 
-        _communicationManager_: ICommunicationManager,
-        _dialogService_: DialogService,
-        _localization_: LocalizationServiceMock,
-        _navigationService_: INavigationService,
-        _statefulArtifactFactory_: IStatefulArtifactFactory) => {
+    beforeEach(inject(($rootScope: ng.IRootScopeService,
+                       $timeout: ng.ITimeoutService,
+                       $q: ng.IQService,
+                       $log: ng.ILogService,
+                       _messageService_: IMessageService,
+                       _communicationManager_: ICommunicationManager,
+                       _dialogService_: DialogService,
+                       _localization_: LocalizationServiceMock,
+                       _navigationService_: INavigationService,
+                       _statefulArtifactFactory_: IStatefulArtifactFactory) => {
 
         $rootScope["config"] = {
             settings: {
@@ -92,7 +91,7 @@ describe("ProcessDiagram Tests", () => {
         );
 
         let model = TestModels.createDefaultProcessModel();
-          
+
         // act
         diagram.createDiagram(model, container);
         rootScope.$apply();
@@ -236,7 +235,7 @@ describe("ProcessDiagram Tests", () => {
 
         let model = TestModels.createDefaultProcessModel();
         model.propertyValues["clientType"].value = ProcessType.BusinessProcess;
-        
+
         diagram.createDiagram(model, container);
         rootScope.$apply();
 

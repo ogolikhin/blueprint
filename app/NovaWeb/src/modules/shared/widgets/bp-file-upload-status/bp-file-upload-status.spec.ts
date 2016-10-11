@@ -1,16 +1,20 @@
 import * as angular from "angular";
 import "angular-mocks";
-import { SettingsService, IFileUploadService, HttpStatusCode } from "../../../core";
-import { FileUploadService } from "../../../core/file-upload";
-import { MessageService } from "../../../shell/";
-import { BpFileUploadStatusController, IUploadStatusDialogData } from "./bp-file-upload-status";
-import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
-import { DialogServiceMock } from "../../../shared/widgets/bp-dialog/bp-dialog";
+import {SettingsService, IFileUploadService, HttpStatusCode} from "../../../core";
+import {FileUploadService} from "../../../core/file-upload";
+import {MessageService} from "../../../shell/";
+import {BpFileUploadStatusController, IUploadStatusDialogData} from "./bp-file-upload-status";
+import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
 
 class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
-    public close(result?: any): void {}
-    public dismiss(reason?: any): void {}
-    public result: angular.IPromise<any>;   
+    public close(result?: any): void {
+    }
+
+    public dismiss(reason?: any): void {
+    }
+
+    public result: angular.IPromise<any>;
     public opened: angular.IPromise<any>;
     public rendered: angular.IPromise<any>;
     public closed: angular.IPromise<any>;
@@ -21,7 +25,7 @@ describe("File Upload Status", () => {
     let controller: BpFileUploadStatusController;
     let fileUploadService: IFileUploadService;
     let dialogService: DialogServiceMock;
-    
+
     function createController(dialogData: IUploadStatusDialogData): BpFileUploadStatusController {
         const dialogSettings = {
             okButton: "Attach",
@@ -36,7 +40,7 @@ describe("File Upload Status", () => {
             localization,
             fileUploadService,
             $filter,
-            new ModalServiceInstanceMock(), 
+            new ModalServiceInstanceMock(),
             dialogService,
             dialogSettings,
             dialogData
@@ -57,15 +61,13 @@ describe("File Upload Status", () => {
         $provide.value("bpFilesizeFilter", mockBpFilesizeFilter);
     }));
 
-    beforeEach(inject((
-        _$q_: ng.IQService,
-        _fileUploadService_: IFileUploadService,
-        _$filter_: ng.IFilterService,
-        $rootScope: ng.IRootScopeService,
-        _localization_: LocalizationServiceMock,
-        $compile: ng.ICompileService,
-        _dialogService_: DialogServiceMock
-    ) => {
+    beforeEach(inject((_$q_: ng.IQService,
+                       _fileUploadService_: IFileUploadService,
+                       _$filter_: ng.IFilterService,
+                       $rootScope: ng.IRootScopeService,
+                       _localization_: LocalizationServiceMock,
+                       $compile: ng.ICompileService,
+                       _dialogService_: DialogServiceMock) => {
         $scope = $rootScope.$new();
         $q = _$q_;
         localization = _localization_;
@@ -100,8 +102,8 @@ describe("File Upload Status", () => {
     it("should not upload files if there's more than the limit", inject(($httpBackend: ng.IHttpBackendService) => {
         const dialogData = {
             files: [
-                <File>{name: "testName1"}, 
-                <File>{name: "testName2"}, 
+                <File>{name: "testName1"},
+                <File>{name: "testName2"},
                 <File>{name: "testName3"}],
             maxAttachmentFilesize: 10 * 1024 * 1024,
             maxNumberAttachments: 1
@@ -121,8 +123,8 @@ describe("File Upload Status", () => {
     it("should not upload files they're over filesize limit", inject(($httpBackend: ng.IHttpBackendService) => {
         const dialogData = {
             files: [
-                <File>{name: "testName1", size: 123}, 
-                <File>{name: "testName2", size: 10485761}, 
+                <File>{name: "testName1", size: 123},
+                <File>{name: "testName2", size: 10485761},
                 <File>{name: "testName3", size: 55555555}],
             maxAttachmentFilesize: 10485760, // 10 MB
             maxNumberAttachments: 5
@@ -142,8 +144,8 @@ describe("File Upload Status", () => {
     it("should remove a file when it's cancelled", inject(($httpBackend: ng.IHttpBackendService) => {
         const dialogData = {
             files: [
-                <File>{name: "testName1", size: 123}, 
-                <File>{name: "testName2", size: 10485}, 
+                <File>{name: "testName1", size: 123},
+                <File>{name: "testName2", size: 10485},
                 <File>{name: "testName3", size: 10000}],
             maxAttachmentFilesize: 10485760, // 10 MB
             maxNumberAttachments: 5
@@ -159,7 +161,7 @@ describe("File Upload Status", () => {
 
         $scope.$digest();
         $httpBackend.flush();
-        
+
         // Act
         controller.cancelUpload(controller.files[0]);
 
@@ -172,8 +174,8 @@ describe("File Upload Status", () => {
     it("should return all uploaded files on OK", inject(($httpBackend: ng.IHttpBackendService) => {
         const dialogData = {
             files: [
-                <File>{name: "testName1", size: 12345}, 
-                <File>{name: "testName2", size: 10485}, 
+                <File>{name: "testName1", size: 12345},
+                <File>{name: "testName2", size: 10485},
                 <File>{name: "testName3", size: 10000}],
             maxAttachmentFilesize: 10485760, // 10 MB
             maxNumberAttachments: 5
@@ -189,7 +191,7 @@ describe("File Upload Status", () => {
 
         $scope.$digest();
         $httpBackend.flush();
-        
+
         // Act
         controller.ok();
 

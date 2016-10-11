@@ -170,9 +170,8 @@ export class BPTreeInlineEditing implements ng.IDirective {
         }
     };
 
-    constructor(
-        $timeout
-        //list of other dependencies*/
+    constructor($timeout
+                //list of other dependencies*/
     ) {
         this.timeout = $timeout;
         this.editing = false;
@@ -180,10 +179,9 @@ export class BPTreeInlineEditing implements ng.IDirective {
     }
 
     public static factory() {
-        const directive = (
-            $timeout
-        //list of dependencies
-        ) => new BPTreeInlineEditing (
+        const directive = ($timeout
+                           //list of dependencies
+        ) => new BPTreeInlineEditing(
             $timeout
             //list of other dependencies
         );
@@ -202,4 +200,4 @@ export class BPTreeInlineEditing implements ng.IDirective {
  http://blog.aaronholmes.net/writing-angularjs-directives-as-typescript-classes/
  http://stackoverflow.com/questions/23535994/implementing-angularjs-directives-as-classes-in-typescript
  http://devartisans.com/articles/angularjs-directives-typescript
-*/
+ */

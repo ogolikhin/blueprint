@@ -1,17 +1,17 @@
-﻿import { ILocalizationService } from "../../../core";
-import { Relationships } from "../../../main";
-import { IDialogService } from "../../../shared";
-import { 
-    IArtifactManager, 
+﻿import {ILocalizationService} from "../../../core";
+import {Relationships} from "../../../main";
+import {IDialogService} from "../../../shared";
+import {
+    IArtifactManager,
     IStatefulItem,
-    IStatefulArtifact, 
-    IStatefulSubArtifact, 
+    IStatefulArtifact,
+    IStatefulSubArtifact,
     IArtifactRelationships
 } from "../../../managers/artifact-manager";
-import { IRelationship, LinkType } from "../../../main/models/relationshipModels";
-import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
-import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
-import { Helper } from "../../../shared/utils/helper";
+import {IRelationship, LinkType} from "../../../main/models/relationshipModels";
+import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
+import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
+import {Helper} from "../../../shared/utils/helper";
 
 interface IOptions {
     value: string;
@@ -54,20 +54,17 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public hasUnFlagged: boolean = false;
     private subscribers: Rx.IDisposable[];
 
-    constructor(
-        $q: ng.IQService,
-        private localization: ILocalizationService,
-        protected artifactManager: IArtifactManager,
-        private artifactRelationships: IArtifactRelationships,
-        private dialogService: IDialogService,
-        public bpAccordionPanel: IBpAccordionPanelController
-
-    ) {
+    constructor($q: ng.IQService,
+                private localization: ILocalizationService,
+                protected artifactManager: IArtifactManager,
+                private artifactRelationships: IArtifactRelationships,
+                private dialogService: IDialogService,
+                public bpAccordionPanel: IBpAccordionPanelController) {
 
         super($q, artifactManager.selection, bpAccordionPanel);
 
-        this.options = [     
-            { value: "1", label: "Add new" }           
+        this.options = [
+            {value: "1", label: "Add new"}
         ];
 
         this.subscribers = [];
@@ -78,7 +75,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     }
 
     public $onDestroy() {
-        super.$onDestroy();   
+        super.$onDestroy();
         this.manualTraces = null;
         this.otherTraces = null;
         this.selectedTraces = null;
@@ -87,12 +84,15 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.actorInherits = null;
     }
 
-    protected onSelectionChanged (artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact,
-                                  timeout: ng.IPromise<void>): ng.IPromise<any> {
+    protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact,
+                                 timeout: ng.IPromise<void>): ng.IPromise<any> {
         this.hasFlagged = false;
         this.hasUnFlagged = false;
 
-        this.subscribers = this.subscribers.filter(subscriber => { subscriber.dispose(); return false; });
+        this.subscribers = this.subscribers.filter(subscriber => {
+            subscriber.dispose();
+            return false;
+        });
 
         this.item = subArtifact || artifact;
         this.getRelationships();
@@ -109,7 +109,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.setRelationships(relationships);
     }
 
-    public get manualTraces2 (): Relationships.IRelationship[]{
+    public get manualTraces2(): Relationships.IRelationship[] {
         if (this.allTraces) {
             return this.allTraces.filter((relationship: Relationships.IRelationship) =>
             relationship.traceType === Relationships.LinkType.Manual);
@@ -123,7 +123,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.otherTraces = null;
 
         if (this.item && Helper.hasArtifactEverBeenSavedOrPublished(this.item)) {
-            this.isLoading = true;            
+            this.isLoading = true;
             this.item.relationships.get().then((relationships: Relationships.IRelationship[]) => {
                 this.setRelationships(relationships);
 
@@ -143,11 +143,11 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     private setRelationships(relationships: Relationships.IRelationship[]) {
         this.allTraces = relationships;
         this.manualTraces = relationships
-            .filter((relationship: Relationships.IRelationship) => 
-                relationship.traceType === Relationships.LinkType.Manual);
+            .filter((relationship: Relationships.IRelationship) =>
+            relationship.traceType === Relationships.LinkType.Manual);
         this.otherTraces = relationships
-            .filter((relationship: Relationships.IRelationship) => 
-                relationship.traceType !== Relationships.LinkType.Manual);
+            .filter((relationship: Relationships.IRelationship) =>
+            relationship.traceType !== Relationships.LinkType.Manual);
     }
 
     private reset() {
@@ -161,8 +161,8 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
 
     public canManageTraces(): boolean {
         // if artifact is locked by other user we still can add/manage traces
-        return !this.item.artifactState.deleted &&               
-                this.item.relationships.canEdit;
+        return !this.item.artifactState.deleted &&
+            this.item.relationships.canEdit;
     }
 
     public setSelectedDirection(direction: Relationships.TraceDirection): void {
@@ -188,7 +188,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
             if (traces[i].hasAccess === true) {
                 if (traces[i].suspect === true) {
                     this.hasFlagged = true;
-                }else {
+                } else {
                     this.hasUnFlagged = true;
                 }
             }
@@ -211,7 +211,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         let confirmation = this.localization.get("Confirmation_Delete_Traces")
             .replace("{0}", selectedTracesLength.toString());
 
-        this.dialogService.confirm(confirmation).then( (confirmed) => {
+        this.dialogService.confirm(confirmation).then((confirmed) => {
             if (confirmed) {
                 this.item.relationships.remove(artifacts);
 
@@ -221,7 +221,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     }
 
     public deleteTrace(artifact: Relationships.IRelationship): void {
-        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace")).then( (confirmed) => {
+        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace")).then((confirmed) => {
             if (confirmed) {
                 this.item.relationships.remove([artifact]);
             }

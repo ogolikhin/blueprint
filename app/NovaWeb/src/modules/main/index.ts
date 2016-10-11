@@ -18,7 +18,7 @@ import "./components";
 import "./router";
 import "./services";
 import "./view";
-import { formlyConfig } from "../editors/";
+import {formlyConfig} from "../editors/";
 
 config.$inject = ["$rootScope", "$state"];
 
@@ -27,7 +27,7 @@ declare var BUILD_YEAR: string;
 
 
 export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateService) {
-    $rootScope["config"] = window["config"] || { settings: {}, labels: {} };
+    $rootScope["config"] = window["config"] || {settings: {}, labels: {}};
     $rootScope["version"] = VERSION.split(".")[0] + "." + VERSION.split(".")[1] + " (" + VERSION.replace("-", ".") + ")";
     $rootScope["year"] = BUILD_YEAR;
 

@@ -1,6 +1,6 @@
 import {
     INotifyModelChanged, ProcessShapeType,
-    NodeChange, IScopeContext, 
+    NodeChange, IScopeContext,
     IProcessLink, IConditionContext
 } from "./models/";
 import {IProcessGraph} from "./models/";
@@ -12,7 +12,7 @@ import {ShapesFactory} from "./shapes/shapes-factory";
 export class ProcessDeleteHelper {
 
     public static deleteUserTask(userTaskId: number, postDeleteFunction: INotifyModelChanged = null,
-        processGraph: IProcessGraph): boolean {
+                                 processGraph: IProcessGraph): boolean {
 
         let newDestinationId: number = processGraph.viewModel.getFirstNonSystemShapeId(userTaskId);
         let previousShapeIds: number[] = processGraph.viewModel.getPrevShapeIds(userTaskId);
@@ -30,8 +30,8 @@ export class ProcessDeleteHelper {
     }
 
     public static deleteDecision(decisionId: number, postDeleteFunction: INotifyModelChanged = null,
-        processGraph: IProcessGraph, shapesFactoryService: ShapesFactory): boolean {
-            
+                                 processGraph: IProcessGraph, shapesFactoryService: ShapesFactory): boolean {
+
         if (!this.canDeleteDecision(decisionId, processGraph)) {
             return false;
         }
@@ -64,10 +64,10 @@ export class ProcessDeleteHelper {
     }
 
     private static canDeleteUserTask(userTaskId: number, previousShapeIds: number[],
-        newDestinationId: number, processGraph: IProcessGraph): boolean {
-        let rootScope: any = processGraph.rootScope; 
+                                     newDestinationId: number, processGraph: IProcessGraph): boolean {
+        let rootScope: any = processGraph.rootScope;
         let messageService: IMessageService = processGraph.messageService;
-            
+
         let errorMessage: string;
         let canDelete: boolean = true;
 
@@ -128,10 +128,10 @@ export class ProcessDeleteHelper {
     }
 
     private static canDeleteDecisionConditions(decisionId: number, targetIds: number[],
-        processGraph: IProcessGraph): boolean {
-        let rootScope: any = processGraph.rootScope; 
+                                               processGraph: IProcessGraph): boolean {
+        let rootScope: any = processGraph.rootScope;
         let messageService: IMessageService = processGraph.messageService;
-            
+
         let canDelete: boolean = true;
         let errorMessage: string;
 
@@ -160,8 +160,8 @@ export class ProcessDeleteHelper {
     }
 
     private static deleteUserTaskInternal(userTaskId: number, previousShapeIds: number[], newDestinationId: number,
-        processGraph: IProcessGraph): void {
-            
+                                          processGraph: IProcessGraph): void {
+
         if (this.isLastUserTaskInCondition(userTaskId, previousShapeIds, newDestinationId, processGraph)) {
             let decisionId = this.getConnectedDecisionId(previousShapeIds, processGraph);
             this.deleteDecisionBranches(decisionId, [userTaskId], processGraph);
@@ -180,8 +180,8 @@ export class ProcessDeleteHelper {
     }
 
     public static deleteDecisionBranches(decisionId: number, targetIds: number[],
-        processGraph: IProcessGraph): boolean {
-            
+                                         processGraph: IProcessGraph): boolean {
+
         if (!this.canDeleteDecisionConditions(decisionId, targetIds, processGraph)) {
             return false;
         }
@@ -212,7 +212,7 @@ export class ProcessDeleteHelper {
         processGraph.notifyUpdateInModel(NodeChange.Remove, decisionId);
 
         return true;
-    }    
+    }
 
     private static getConnectedDecisionId(previousIds: number[], processGraph: IProcessGraph): number {
         for (let previousId of previousIds) {
@@ -253,8 +253,8 @@ export class ProcessDeleteHelper {
 
         for (let visitedId in scopeContext.visitedIds) {
             if (scopeContext.visitedIds.hasOwnProperty(visitedId)) {
-                var id: number = Number(visitedId);
-
+                const id: number = Number(visitedId);
+//fixme: using continue is a bad practice. program defensivly and check for condition and if not meet throw errors
                 if (id === originalDecisionId) {
                     continue;
                 }
@@ -322,9 +322,13 @@ export class ProcessDeleteHelper {
     }
 
     private static deleteShapesAndLinksByIds(shapesToBeDeletedIds: number[], processGraph: IProcessGraph) {
-        for (var i in shapesToBeDeletedIds) {
-            processGraph.viewModel.shapes = processGraph.viewModel.shapes.filter(shape => { return shape.id !== shapesToBeDeletedIds[i]; });
-            processGraph.viewModel.links = processGraph.viewModel.links.filter(link => { return link.sourceId !== shapesToBeDeletedIds[i]; });
+        for (let i in shapesToBeDeletedIds) {
+            processGraph.viewModel.shapes = processGraph.viewModel.shapes.filter(shape => {
+                return shape.id !== shapesToBeDeletedIds[i];
+            });
+            processGraph.viewModel.links = processGraph.viewModel.links.filter(link => {
+                return link.sourceId !== shapesToBeDeletedIds[i];
+            });
         }
     }
 

@@ -16,6 +16,6 @@ angular.module("bp.editors", [
 
 ]);
 
-export { formlyConfig } from "./configuration/formly-config"
+export {formlyConfig} from "./configuration/formly-config"
 
 

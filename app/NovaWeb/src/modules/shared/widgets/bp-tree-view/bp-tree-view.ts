@@ -1,10 +1,10 @@
 import * as angular from "angular";
 import * as agGrid from "ag-grid/main";
-import { ILocalizationService } from "../../../core";
+import {ILocalizationService} from "../../../core";
 
 /**
  * Usage:
- * 
+ *
  * <bp-tree-view grid-class="project-tree"
  *               row-buffer="200"
  *               selection-mode="'single'"
@@ -232,7 +232,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                 if (viewport.getAttribute("data-ps-id")) {
                     // perfect-scrollbar has been initialized on the element (data-ps-id is not falsy)
                     const allColumnIds = [];
-                    this.options.columnDefs.forEach(function(columnDef) {
+                    this.options.columnDefs.forEach(function (columnDef) {
                         allColumnIds.push(columnDef.field);
                     });
                     this.options.columnApi.autoSizeColumns(allColumnIds);
@@ -329,7 +329,11 @@ export class BPTreeViewController implements IBPTreeViewController {
                 node.setSelectedParams({newValue: true, clearSelection: true});
             }
         } else if (vm.isSelectable()) {
-            node.setSelectedParams({newValue: true, clearSelection: !multiSelectKeyPressed, rangeSelect: shiftKeyPressed});
+            node.setSelectedParams({
+                newValue: true,
+                clearSelection: !multiSelectKeyPressed,
+                rangeSelect: shiftKeyPressed
+            });
         }
     }
 
@@ -340,7 +344,11 @@ export class BPTreeViewController implements IBPTreeViewController {
         if (isSelected && (!vm.isSelectable() || !this.isVisible(node))) {
             node.setSelected(false);
         } else if (this.onSelect) {
-            this.onSelect({vm: vm, isSelected: isSelected, selectedVMs: this.options.api.getSelectedRows() as ITreeViewNodeVM[]});
+            this.onSelect({
+                vm: vm,
+                isSelected: isSelected,
+                selectedVMs: this.options.api.getSelectedRows() as ITreeViewNodeVM[]
+            });
         }
     }
 

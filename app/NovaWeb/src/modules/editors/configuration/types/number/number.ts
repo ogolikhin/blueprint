@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import "angular-formly";
-import { ILocalizationService } from "../../../../core";
-import { BPFieldBaseController } from "../base-controller";
+import {ILocalizationService} from "../../../../core";
+import {BPFieldBaseController} from "../base-controller";
 
 export class BPFieldNumber implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldNumber";
@@ -45,7 +45,7 @@ export class BpFieldNumberController extends BPFieldBaseController {
                 expression: function ($viewValue, $modelValue, scope) {
                     let value = $modelValue || $viewValue;
                     return !value || angular.isNumber(
-                        localization.current.toNumber(value, scope.options.data.isValidated ? scope.to.decimalPlaces : null)
+                            localization.current.toNumber(value, scope.options.data.isValidated ? scope.to.decimalPlaces : null)
                         );
                 }
             },

@@ -4,10 +4,8 @@ import {ILocalizationService} from "../../../../core";
 import {ItemTypePredefined} from "../../../../main/models/enums";
 
 export class DiscardAction extends BPButtonAction {
-    constructor(
-        artifact: IStatefulArtifact,
-        localization: ILocalizationService
-    ) {
+    constructor(artifact: IStatefulArtifact,
+                localization: ILocalizationService) {
         super(
             (): void => {
                 artifact.discard();
@@ -18,7 +16,7 @@ export class DiscardAction extends BPButtonAction {
                 }
 
                 const invalidTypes = [
-                    ItemTypePredefined.Project, 
+                    ItemTypePredefined.Project,
                     ItemTypePredefined.Collections
                 ];
 

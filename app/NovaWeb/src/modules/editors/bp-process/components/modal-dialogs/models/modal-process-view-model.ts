@@ -1,7 +1,9 @@
-import {IProcessShape, 
-        IUserTaskShape, 
-        ISystemTaskShape, 
-        ProcessLinkModel} from "../../diagram/presentation/graph/models/";
+import {
+    IProcessShape,
+    IUserTaskShape,
+    ISystemTaskShape,
+    ProcessLinkModel
+} from "../../diagram/presentation/graph/models/";
 import * as Enums from "../../../../../main/models/enums";
 import {IProcessViewModel} from "../../diagram/viewmodel/process-viewmodel";
 import {ProcessShapeType, ProcessType} from "../../../models/enums";
@@ -32,15 +34,16 @@ export interface IModalProcessViewModel {
 }
 
 export class ModalProcessViewModel implements IModalProcessViewModel {
-    
-    constructor(public processViewModel: IProcessViewModel) {} 
-    
+
+    constructor(public processViewModel: IProcessViewModel) {
+    }
+
     //public processModel: IProcess;
-    
+
     public get isUnpublished(): boolean {
         return this.processViewModel.isUnpublished;
     }
-    
+
     public get isChanged(): boolean {
         return this.processViewModel.isChanged;
     }
@@ -48,13 +51,13 @@ export class ModalProcessViewModel implements IModalProcessViewModel {
     public set isChanged(value: boolean) {
         this.processViewModel.isChanged = value;
     }
-    
+
     public get licenseType(): Enums.LicenseTypeEnum {
         return this.processViewModel.licenseType;
     }
 
     //load(processId: string, versionId?: number, revisionId?: number, baselineId?: number, readOnly?: boolean): ng.IPromise<IProcess>;
-    
+
     //save(): ng.IPromise<IProcess>;
 
     public dispose() {
@@ -109,7 +112,7 @@ export class ModalProcessViewModel implements IModalProcessViewModel {
     }
 
     // Returns all processes in specified project
-    
+
     // TODO look at this later
     //getProcesses(projectId: number): ng.IPromise<IArtifactReference[]>;
 

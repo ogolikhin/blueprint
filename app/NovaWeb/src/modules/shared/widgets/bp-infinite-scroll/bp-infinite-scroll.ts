@@ -14,7 +14,7 @@ export class BPInfiniteScroll implements ng.IDirective {
 
                 if (promise !== null) {
                     showLoader();
-                    promise.finally( () => {
+                    promise.finally(() => {
                         hideLoader();
                     });
                 }
@@ -52,13 +52,12 @@ export class BPInfiniteScroll implements ng.IDirective {
         }
     };
 
-    constructor(
-        //list of other dependencies
-    ) { }
+    constructor(//list of other dependencies
+    ) {
+    }
 
     public static factory() {
-        const directive = (
-            //list of dependencies
+        const directive = (//list of dependencies
         ) => new BPInfiniteScroll(
             //list of other dependencies
         );

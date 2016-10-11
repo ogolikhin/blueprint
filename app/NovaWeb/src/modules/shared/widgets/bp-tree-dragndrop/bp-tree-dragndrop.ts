@@ -11,10 +11,10 @@ export class BPTreeDragndrop implements ng.IDirective {
     private typeNotDraggable: number[] = [
         172, //Collections
         169  //Baseline and reviews
-        ];
+    ];
 
     public link: Function = ($scope: ng.IScope, $element: ng.IAugmentedJQuery, $attrs: ng.IAttributes) => {
-        var getNode = function(targetPath, nodesObj) {
+        var getNode = function (targetPath, nodesObj) {
             var node = nodesObj;
             var indexes = targetPath.split("/");
 
@@ -31,13 +31,13 @@ export class BPTreeDragndrop implements ng.IDirective {
             return node;
         };
 
-        var adjustPath = function(sourcePath, targetPath) {
+        var adjustPath = function (sourcePath, targetPath) {
             var sourceIndexes = sourcePath.split("/");
             var targetIndexes = targetPath.split("/");
             var maxPathLength = sourceIndexes.length > targetIndexes.length ? sourceIndexes.length : targetIndexes.length;
             var s, t, i;
 
-            for (i = 0; i < maxPathLength; i ++) {
+            for (i = 0; i < maxPathLength; i++) {
                 s = i < sourceIndexes.length ? parseInt(sourceIndexes[i], 10) : -1;
                 t = i < targetIndexes.length ? parseInt(targetIndexes[i], 10) : -1;
 
@@ -51,7 +51,7 @@ export class BPTreeDragndrop implements ng.IDirective {
             return targetIndexes.join("/");
         };
 
-        var insertNodeByIndex = function(targetPath, nodeToInsert, nodesObj, position) {
+        var insertNodeByIndex = function (targetPath, nodeToInsert, nodesObj, position) {
             var node = nodesObj;
             var indexes = targetPath.split("/");
             var folderId;
@@ -115,7 +115,7 @@ export class BPTreeDragndrop implements ng.IDirective {
             }
         };
 
-        var extractNodeByIndex = function(sourcePath, nodesObj) {
+        var extractNodeByIndex = function (sourcePath, nodesObj) {
             var node = nodesObj;
             var indexes = sourcePath.split("/");
 
@@ -241,10 +241,9 @@ export class BPTreeDragndrop implements ng.IDirective {
         }, 100);
     };
 
-    constructor(
-        $compile,
-        $timeout
-        //list of other dependencies*/
+    constructor($compile,
+                $timeout
+                //list of other dependencies*/
     ) {
         this.isMoving = false;
         this.movingFrom = "";
@@ -253,11 +252,10 @@ export class BPTreeDragndrop implements ng.IDirective {
     }
 
     public static factory() {
-        const directive = (
-            $compile,
-            $timeout
-            //list of dependencies
-        ) => new BPTreeDragndrop (
+        const directive = ($compile,
+                           $timeout
+                           //list of dependencies
+        ) => new BPTreeDragndrop(
             $compile,
             $timeout
             //list of other dependencies

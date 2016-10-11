@@ -1,4 +1,4 @@
-import { ICommunicationWrapper, CommunicationWrapper } from "../../services/communication-wrapper";
+import {ICommunicationWrapper, CommunicationWrapper} from "../../services/communication-wrapper";
 
 export interface IToolbarCommunication {
     registerToggleProcessTypeObserver(observer: any);

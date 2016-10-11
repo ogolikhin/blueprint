@@ -52,7 +52,8 @@ export class PreviewWingDirective implements ng.IDirective {
     public controllerAs = "wingCtrl";
     public bindToController = true;
 
-    public template: string = require("./preview-wing.html"); ;
+    public template: string = require("./preview-wing.html");
+;
 
     public link(scope, elem, attr, ctrl) {
         function activateLinks() {

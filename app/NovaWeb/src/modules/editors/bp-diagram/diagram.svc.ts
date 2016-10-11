@@ -12,7 +12,8 @@ export interface IDiagramService {
 export enum DiagramErrors {
     Cancelled = 0,
     Incompatible = 1
-};
+}
+;
 
 export class DiagramService implements IDiagramService {
 
@@ -72,7 +73,7 @@ export class DiagramService implements IDiagramService {
                 delete this.promises[id];
                 if (!result) {
                     deferred.reject();
-                    return;   
+                    return;
                 }
                 if (result.status <= 0) {
                     deferred.reject(DiagramErrors.Cancelled);
@@ -81,8 +82,8 @@ export class DiagramService implements IDiagramService {
                     deferred.reject(result.data);
                 }
             }).finally(() => {
-                delete this.promises[id];
-            });
+            delete this.promises[id];
+        });
     }
 
     public isDiagram(itemType: ItemTypePredefined) {

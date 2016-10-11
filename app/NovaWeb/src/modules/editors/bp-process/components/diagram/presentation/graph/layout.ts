@@ -23,7 +23,7 @@ import {Connector} from "./shapes/connector";
 import {ProcessAddHelper} from "./process-add-helper";
 import {ProcessDeleteHelper} from "./process-delete-helper";
 
-export var tempShapeId: number = 0;
+export let tempShapeId: number = 0;
 
 export class Layout implements ILayout {
     private mxgraph: MxGraph = null;
@@ -32,13 +32,12 @@ export class Layout implements ILayout {
     private edgesGeo: EdgeGeo[] = [];
     private DRAG_PREVIEW_TO_EDGE_DISTANCE = 50;
 
-    constructor(
-        private processGraph: IProcessGraph,
-        public viewModel: IProcessViewModel,
-        private rootScope: any,
-        private shapesFactoryService: ShapesFactory,
-        private messageService: IMessageService,
-        private $log: ng.ILogService) {
+    constructor(private processGraph: IProcessGraph,
+                public viewModel: IProcessViewModel,
+                private rootScope: any,
+                private shapesFactoryService: ShapesFactory,
+                private messageService: IMessageService,
+                private $log: ng.ILogService) {
 
         // cache reference to mxGraph
         this.mxgraph = processGraph.getMxGraph();
@@ -48,14 +47,14 @@ export class Layout implements ILayout {
         this.tempId = 0;
 
     }
- 
+
     public render(useAutolayout: boolean, selectedNodeId: number) {
-        var graphModel: MxGraphModel = this.mxgraph.getModel();
-        var i, j;
-        var link: IProcessLinkModel;
-        var linksMap = [];
-        var processValidator = new ProcessValidator();
-      
+        const graphModel: MxGraphModel = this.mxgraph.getModel();
+        let i, j;
+        let link: IProcessLinkModel;
+        const linksMap = [];
+        const processValidator = new ProcessValidator();
+
         this.viewModel.updateTreeAndFlows();
 
         if (useAutolayout) {
@@ -96,37 +95,38 @@ export class Layout implements ILayout {
 
         try {
             for (i in this.viewModel.shapes) {
-                var shape: IProcessShape = this.viewModel.shapes[i];
-                var node: IDiagramNode = NodeFactory.createNode(shape, this.rootScope, this.shapesFactoryService, nodeFactorySettings);
+                    const shape: IProcessShape = this.viewModel.shapes[i];
+                    const node: IDiagramNode = NodeFactory.createNode(shape, this.rootScope, this.shapesFactoryService, nodeFactorySettings);
 
-                if (node != null) {
-                    node.render(this.processGraph, this.getXbyColumn(node.column), this.getYbyRow(node.row),
-                        this.viewModel.isShapeJustCreated(shape.id));
+                    if (node != null) {
+                        node.render(this.processGraph, this.getXbyColumn(node.column), this.getYbyRow(node.row),
+                            this.viewModel.isShapeJustCreated(shape.id));
 
-                    // Hide system tasks for process types different than 'Business Process'
-                    if (this.viewModel.propertyValues["clientType"].value !== ProcessType.UserToSystemProcess) {
-                        if (node.getNodeType() === NodeType.SystemTask) {
-                            (<SystemTask>node).setCellVisible(this.mxgraph, false);
-                        }
-                        if (node.getNodeType() === NodeType.SystemDecision) {
-                            (<SystemDecision>node).hideMenu(this.mxgraph);
+                        // Hide system tasks for process types different than 'Business Process'
+                        if (this.viewModel.propertyValues["clientType"].value !== ProcessType.UserToSystemProcess) {
+                            if (node.getNodeType() === NodeType.SystemTask) {
+                                (<SystemTask>node).setCellVisible(this.mxgraph, false);
+                            }
+                            if (node.getNodeType() === NodeType.SystemDecision) {
+                                (<SystemDecision>node).hideMenu(this.mxgraph);
+                            }
                         }
                     }
-                }
             }
 
             for (i in linksMap) {
-                var linkArray: Array<IProcessLinkModel> = linksMap[i];
+                const linkArray: Array<IProcessLinkModel> = linksMap[i];
                 if (linkArray.length === 1) {
                     this.addConnector(graphModel, linkArray[0]);
-                } else {
-                    var destinationNode: IDiagramNode = graphModel.getCell(linkArray[0].destinationId.toString());
+                }
+                else {
+                    const destinationNode: IDiagramNode = graphModel.getCell(linkArray[0].destinationId.toString());
 
                     // Add merging point for links with the same destination
-                    var mergingPointShape = this.shapesFactoryService.createModelMergeNodeShape(this.viewModel.id,
+                    const mergingPointShape = this.shapesFactoryService.createModelMergeNodeShape(this.viewModel.id,
                         this.viewModel.projectId, --tempShapeId, destinationNode.column - 1, destinationNode.row);
 
-                    var mergingPoint = new MergingPoint(mergingPointShape);
+                    const mergingPoint = new MergingPoint(mergingPointShape);
                     mergingPoint.render(this.processGraph, this.getXbyColumn(mergingPoint.column), this.getYbyRow(mergingPoint.row), false);
 
                     // Add connectors to the merging point
@@ -152,10 +152,10 @@ export class Layout implements ILayout {
             graphModel.endUpdate();
 
             this.viewModel.communicationManager.modalDialogManager.setGraph(this.getGraph);
-            
+
             for (i in this.viewModel.shapes) {
-                var thisShape: IProcessShape = this.viewModel.shapes[i];
-                var thisNode = this.processGraph.getNodeById(thisShape.id.toString());
+                const thisShape: IProcessShape = this.viewModel.shapes[i];
+                const thisNode = this.processGraph.getNodeById(thisShape.id.toString());
                 thisNode.renderLabels();
             }
 
@@ -182,7 +182,7 @@ export class Layout implements ILayout {
             this.viewModel.resetJustCreatedShapeIds();
 
             setTimeout(() => this.processGraph.updateAfterRender(), 100);
-            
+
         }
 
         if (selectedNodeId) {
@@ -195,35 +195,35 @@ export class Layout implements ILayout {
     }
 
     public getTempShapeId(): number {
-         return tempShapeId;
-     }
-     
+        return tempShapeId;
+    }
+
     public setTempShapeId(id: number) {
-         tempShapeId = id;
-     }
+        tempShapeId = id;
+    }
 
     public scrollShapeToView(shapeId: string) {
-        var node = this.getNodeById(shapeId);
+        const node = this.getNodeById(shapeId);
         if (node) {
             (<any>this.mxgraph).scrollCellToVisible(node, true);
         }
     }
 
     public getDropEdgeState(mouseCoordinates: MxPoint): any {
-        var view: MxGraphView = this.mxgraph.getView();
-        var edge: MxCell = null;
-        var state = null;
+        const view: MxGraphView = this.mxgraph.getView();
+        let edge: MxCell = null;
+        let state = null;
         for (let edgeGeo of this.edgesGeo) {
             if (edgeGeo) {
-                for (var i = 1; i < edgeGeo.state.absolutePoints.length; i++) {
+                for (let i = 1; i < edgeGeo.state.absolutePoints.length; i++) {
 
-                    var p1 = edgeGeo.state.absolutePoints[i - 1];
-                    var p2 = edgeGeo.state.absolutePoints[i];
+                    const p1 = edgeGeo.state.absolutePoints[i - 1];
+                    const p2 = edgeGeo.state.absolutePoints[i];
 
                     if (p1.y === p2.y) {
-                        // horizontal 
-                        var fromX = Math.min(p1.x, p2.x);
-                        var toX = Math.max(p1.x, p2.x);
+                        // horizontal
+                        const  fromX = Math.min(p1.x, p2.x);
+                        const toX = Math.max(p1.x, p2.x);
                         if ((mouseCoordinates.x > fromX) && (mouseCoordinates.x < toX) &&
                             Math.abs(mouseCoordinates.y - p1.y) < this.DRAG_PREVIEW_TO_EDGE_DISTANCE) {
                             edge = edgeGeo.edge;
@@ -231,8 +231,8 @@ export class Layout implements ILayout {
                         }
                     } else {
                         // vertical
-                        var fromY = Math.min(p1.y, p2.y);
-                        var toY = Math.max(p1.y, p2.y);
+                        const  fromY = Math.min(p1.y, p2.y);
+                        const  toY = Math.max(p1.y, p2.y);
                         if ((mouseCoordinates.y > fromY) && (mouseCoordinates.y < toY) &&
                             Math.abs(mouseCoordinates.x - p1.x) < this.DRAG_PREVIEW_TO_EDGE_DISTANCE) {
                             edge = edgeGeo.edge;
@@ -269,7 +269,7 @@ export class Layout implements ILayout {
     }
 
     public updateProcessChangedState(id: number, change: NodeChange = NodeChange.Add, redraw: boolean = false) {
-        var eventArguments = {
+        const eventArguments = {
             processId: this.viewModel.id,
             nodeChanges: [
                 {
@@ -279,11 +279,11 @@ export class Layout implements ILayout {
                 }
             ]
         };
-        var evt = document.createEvent("CustomEvent");
+        const evt = document.createEvent("CustomEvent");
         evt.initCustomEvent("graphUpdated", true, true, eventArguments);
         window.dispatchEvent(evt);
     }
-    
+
 
     public getConditionDestination(decisionId: number): IProcessShape {
         if (this.viewModel.isDecision(decisionId)) {
@@ -294,7 +294,7 @@ export class Layout implements ILayout {
 
         return null;
     }
-    
+
     // #UNUSED
     //private isConditionDestinationInScope(decisionId: number, orderindex: number, scopeIds: number[]) {
     //    return scopeIds.indexOf(this.graph.getDecisionBranchDestLinkForIndex(decisionId, orderindex).destinationId) > -1;
@@ -319,8 +319,8 @@ export class Layout implements ILayout {
 
     private replaceUserTask(userTaskId: number, previousIds: number[], nextId: number): NewUserTaskInfo {
         // add user task and system task shapes
-        var newUserTaskId = ProcessAddHelper.insertUserTaskInternal(this, this.shapesFactoryService);
-        var newSystemId = ProcessAddHelper.insertSystemTaskInternal(this, this.shapesFactoryService);
+        const newUserTaskId = ProcessAddHelper.insertUserTaskInternal(this, this.shapesFactoryService);
+        const newSystemId = ProcessAddHelper.insertSystemTaskInternal(this, this.shapesFactoryService);
 
         if (previousIds.length > 1) {
             this.updateBranchDestinationId(userTaskId, newUserTaskId);
@@ -369,7 +369,7 @@ export class Layout implements ILayout {
         this.updateDestinationsIfDestinationIsDraggedShape(newSourcesAndDestinations, originalSourcesWithNewDestinations,
             userTaskShapeId, oldAfterShapeId, newUserTask);
 
-        // if edge source ids contains system task id of the user task you're dragging, 
+        // if edge source ids contains system task id of the user task you're dragging,
         // need to add the before system task id of selected dragging user task as part of list of source ids.
         this.addAdditionaSourcesAndDestinations(newSourcesAndDestinations, systemTaskShapeId, oldAfterShapeId, oldBeforeShapeIds, newUserTask);
 
@@ -401,12 +401,11 @@ export class Layout implements ILayout {
         this.viewModel.communicationManager.processDiagramCommunication.modelUpdate(userTaskShapeId);
     }
 
-    private addAdditionaSourcesAndDestinations(
-        newSourcesAndDestinations: SourcesAndDestinations,
-        systemTaskShapeId: number,
-        oldAfterShapeId: number,
-        oldBeforeShapeIds: number[],
-        newUserTask: NewUserTaskInfo) {
+    private addAdditionaSourcesAndDestinations(newSourcesAndDestinations: SourcesAndDestinations,
+                                               systemTaskShapeId: number,
+                                               oldAfterShapeId: number,
+                                               oldBeforeShapeIds: number[],
+                                               newUserTask: NewUserTaskInfo) {
         if (newSourcesAndDestinations.sourceIds.filter(id => systemTaskShapeId === id).length > 0) {
             if (newUserTask) {
                 newSourcesAndDestinations.sourceIds.push(newUserTask.systemTaskId);
@@ -421,12 +420,12 @@ export class Layout implements ILayout {
             }
         }
     }
-    private updateDestinationsIfDestinationIsDraggedShape(
-        newSourcesAndDestinations: SourcesAndDestinations,
-        originalSourcesWithNewDestinations: SourcesAndDestinations,
-        userTaskShapeId: number,
-        oldAfterShapeId,
-        newUserTask: NewUserTaskInfo = null) {
+
+    private updateDestinationsIfDestinationIsDraggedShape(newSourcesAndDestinations: SourcesAndDestinations,
+                                                          originalSourcesWithNewDestinations: SourcesAndDestinations,
+                                                          userTaskShapeId: number,
+                                                          oldAfterShapeId,
+                                                          newUserTask: NewUserTaskInfo = null) {
         for (let i = 0; i < newSourcesAndDestinations.destinationIds.length; i++) {
             if (newSourcesAndDestinations.destinationIds[i] === userTaskShapeId) {
                 if (newUserTask) {
@@ -478,10 +477,10 @@ export class Layout implements ILayout {
     public getRowByY(y: number): number {
         return (y - GRAPH_TOP) / GRAPH_ROW_HEIGHT;
     }
- 
+
     private getEdgeCellState(edge: MxCell): MxCellState {
-        var view: MxGraphView = this.mxgraph.getView();
-        var state = view.getState(edge);
+        const view: MxGraphView = this.mxgraph.getView();
+        const state = view.getState(edge);
         return state;
     }
 
@@ -549,6 +548,7 @@ export class Layout implements ILayout {
             link.destinationId = newDestinationId;
         });
     }
+
     // #UNUSED
     //private getBranchDestinationIds(decisionId: number): number[] {
     //    if (this.viewmodel.decisionBranchDestinationLinks == null) {
@@ -576,23 +576,27 @@ export class Layout implements ILayout {
         }
 
         return this.viewModel.getShapeById(shapeId);
-    } 
+    }
 
     private selectNode(node) {
         if (node) {
-            var evt = { consume() { } };
+            const evt = {
+                consume() {
+                    //fixme: why is this empty? it should be undefined or have a return
+                }
+            };
             this.mxgraph.selectCellForEvent(node, evt);
         }
     }
 
     public getDefaultBranchLabel(decisionId: number): string {
-        var nextLinks = this.viewModel.getNextShapeIds(decisionId);
-        var branchIndex = nextLinks ? nextLinks.length + 1 : 1;
+        const nextLinks = this.viewModel.getNextShapeIds(decisionId);
+        const branchIndex = nextLinks ? nextLinks.length + 1 : 1;
         return `${this.rootScope.config.labels["ST_Decision_Modal_New_System_Task_Edge_Label"]}${branchIndex}`;
     }
-    
+
     public updateLink(sourceId: number, oldDestinationId: number, newDestinationId: number) {
-        var index: number = this.viewModel.getLinkIndex(sourceId, oldDestinationId);
+        const index: number = this.viewModel.getLinkIndex(sourceId, oldDestinationId);
         if (index > -1) {
             this.viewModel.links[index].destinationId = newDestinationId;
         }
@@ -605,6 +609,7 @@ export class Layout implements ILayout {
             }
         }
     }
+
     // #UNUSED
     //private deleteLink(sourceId: number, destinationId: number): void {
     //    var links = this.viewmodel.links.filter(link => {
@@ -618,6 +623,7 @@ export class Layout implements ILayout {
             this.$log.error(arg);
         }
     }
+
     // #UNUSED
     //private logInfo(arg: any) {
     //    if (this.$log) {

@@ -1,14 +1,15 @@
 export interface ICommunicationWrapper {
-    subscribe(observer: any) : string;
+    subscribe(observer: any): string;
     notify(param: any);
     disposeObserver(handler: string);
     dispose();
 }
 
 export class CommunicationWrapper implements ICommunicationWrapper {
-    private subject: Rx.ReplaySubject<any>; 
+    private subject: Rx.ReplaySubject<any>;
     private handlersHash = [];
-    constructor () {
+
+    constructor() {
         this.subject = new Rx.ReplaySubject<any>(0);
     }
 

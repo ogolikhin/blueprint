@@ -1,7 +1,16 @@
 ﻿import * as angular from "angular";
-import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, RolePermissions, ReuseSettings, TraceType, TraceDirection, LockResultEnum } from "./enums";
-import { IArtifactAttachment, IArtifactDocRef } from "../../managers/artifact-manager";
-import { IRelationship } from "./relationshipmodels";
+import {
+    ItemTypePredefined,
+    PropertyTypePredefined,
+    PrimitiveType,
+    RolePermissions,
+    ReuseSettings,
+    TraceType,
+    TraceDirection,
+    LockResultEnum
+} from "./enums";
+import {IArtifactAttachment, IArtifactDocRef} from "../../managers/artifact-manager";
+import {IRelationship} from "./relationshipmodels";
 
 export enum ArtifactStateEnum {
     Published = 0,
@@ -76,7 +85,7 @@ export interface IArtifact extends IItem {
     orderIndex?: number;
     version?: number;
 
-    createdOn?: Date; 
+    createdOn?: Date;
     lastEditedOn?: Date;
     createdBy?: IUserGroup;
     lastEditedBy?: IUserGroup;
@@ -134,7 +143,7 @@ export interface IPropertyType {
     isValidated?: boolean;
     validValues?: IOption[];
     defaultValidValueId?: number;
-    
+
     // Extra properties. Maintaned by client
     propertyTypePredefined?: PropertyTypePredefined;
     disabled?: boolean;
@@ -152,7 +161,7 @@ export interface IActorInheritancePropertyValue {
     actorName: string;
     actorPrefix: string;
     actorId: number;
-    hasAccess: boolean;    
+    hasAccess: boolean;
 
     // client side use only
     isProjectPathVisible: boolean;
@@ -160,7 +169,7 @@ export interface IActorInheritancePropertyValue {
 
 export interface IActorImagePropertyValue {
     url: string;
-    guid: string;    
+    guid: string;
 
     // for client use only
     imageSource: string;
@@ -176,7 +185,7 @@ export interface IProjectMeta {
 export interface IProject extends IArtifact {
     description?: string;
     meta?: IProjectMeta;
-    
+
 }
 
 // export class Project implements IProject { 
@@ -258,6 +267,7 @@ export class Artifact implements IArtifact {
     constructor(...data: any[]) { //
         angular.extend(this, ...data);
     };
+
     public id: number;
     public name: string;
     public projectId: number;
@@ -277,7 +287,7 @@ export interface IEditorContext {
     artifact?: IArtifact;
     type?: IItemType;
 }
- 
+
 
 export interface ILockResult {
     result: LockResultEnum;
@@ -301,6 +311,4 @@ export interface IVersionInfo {
 }
 
 
-
- 
-export {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection };
+export {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection};

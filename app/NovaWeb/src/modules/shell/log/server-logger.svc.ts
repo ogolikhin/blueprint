@@ -19,6 +19,7 @@ interface IServerLogModel {
 
 export class ServerLoggerSvc implements IServerLogger {
     static $inject: [string] = ["$injector"];
+
     constructor(private $injector: ng.auto.IInjectorService) {
     }
 
@@ -39,10 +40,11 @@ export class ServerLoggerSvc implements IServerLogger {
         $http.post("/svc/adminstore/log", angular.toJson(logMessage))
             .then(() => {
                 deferred.resolve();
-                }, () => {
+            }, () => {
                 deferred.reject();
             });
 
         return deferred.promise;
     };
-};
+}
+;

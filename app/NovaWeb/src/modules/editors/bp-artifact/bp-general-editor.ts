@@ -1,5 +1,5 @@
 ﻿import {
-    Models, Enums, 
+    Models, Enums,
     BpArtifactEditor,
     PropertyContext,
     ILocalizationService,
@@ -20,18 +20,16 @@ export class BpArtifactGeneralEditor implements ng.IComponentOptions {
 export class BpGeneralArtifactEditorController extends BpArtifactEditor {
     public static $inject: [string] = ["messageService", "artifactManager", "windowManager", "localization"];
 
-    constructor(
-        messageService: IMessageService,
-        artifactManager: IArtifactManager,
-        windowManager: IWindowManager,
-        localization: ILocalizationService
-    ) {
+    constructor(messageService: IMessageService,
+                artifactManager: IArtifactManager,
+                windowManager: IWindowManager,
+                localization: ILocalizationService) {
         super(messageService, artifactManager, windowManager, localization);
     }
 
     public activeTab: number;
     public systemFields: AngularFormly.IFieldConfigurationObject[];
-    public noteFields: AngularFormly.IFieldConfigurationObject[]; 
+    public noteFields: AngularFormly.IFieldConfigurationObject[];
 
     public $onDestroy() {
         delete this.systemFields;
@@ -47,8 +45,8 @@ export class BpGeneralArtifactEditorController extends BpArtifactEditor {
         return this.noteFields && this.noteFields.length > 0;
     }
 
-     
-    public clearFields() { 
+
+    public clearFields() {
         this.systemFields = [];
         this.noteFields = [];
     }

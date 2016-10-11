@@ -30,7 +30,7 @@ export class BPAvatarController {
     public getAvatarBg(name: string): string {
         return "#" + this.stringToHex(name);
     }
-    
+
     public getAvatarInitials(name: string): string {
         let userNames: string[] = name.trim().split(" ");
         let user: string = "";
@@ -40,7 +40,7 @@ export class BPAvatarController {
             userNames.splice(1, userNames.length - 2);
         }
 
-        userNames.map( (value: string) => {
+        userNames.map((value: string) => {
             user += value.charAt(0);
         });
 
@@ -57,10 +57,14 @@ export class BPAvatarController {
             color: string = "";
 
         // str to hash
-        for (let i = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash)) {};
+        for (let i = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash)) {
+        }
+        ;
 
         // int/hash to hex
-        for (let i = 0; i < 3; color += ("00" + ((hash >> i++ * 8) & 0xFF).toString(16)).slice(-2)) {};
+        for (let i = 0; i < 3; color += ("00" + ((hash >> i++ * 8) & 0xFF).toString(16)).slice(-2)) {
+        }
+        ;
 
         return color;
         /* tslint:enable:no-bitwise */
@@ -71,8 +75,8 @@ export class BPAvatarController {
         const c = color.substring(1);  // strip #
         const rgb = parseInt(c, 16);   // convert rrggbb to decimal
         const r = (rgb >> 16) & 0xff;  // extract red
-        const g = (rgb >>  8) & 0xff;  // extract green
-        const b = (rgb >>  0) & 0xff;  // extract blue
+        const g = (rgb >> 8) & 0xff;  // extract green
+        const b = (rgb >> 0) & 0xff;  // extract blue
 
         const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
 

@@ -1,5 +1,5 @@
 ﻿import * as angular from "angular";
-import { Models } from "../../main/models";
+import {Models} from "../../main/models";
 
 export enum ProjectServiceStatusCode {
     ResourceNotFound = 3000
@@ -21,9 +21,8 @@ export class ProjectService implements IProjectService {
 
     private canceler: ng.IDeferred<any>;
 
-    constructor(
-        private $q: ng.IQService,
-        private $http: ng.IHttpService) {
+    constructor(private $q: ng.IQService,
+                private $http: ng.IHttpService) {
     }
 
     public abort(): void {
@@ -55,7 +54,7 @@ export class ProjectService implements IProjectService {
             }
         );
         return defer.promise;
-    } 
+    }
 
     public getProject(id?: number): ng.IPromise<Models.IProjectNode> {
         const defer = this.$q.defer<any>();
@@ -84,7 +83,7 @@ export class ProjectService implements IProjectService {
             }
         );
         return defer.promise;
-    } 
+    }
 
     public getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
         if (projectId && projectId === artifactId) {

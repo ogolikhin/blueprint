@@ -3,10 +3,8 @@ import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {ILocalizationService} from "../../../../core";
 
 export class OpenImpactAnalysisAction extends BPButtonAction {
-    constructor(
-        artifact: IStatefulArtifact,
-        localization: ILocalizationService
-    ) {
+    constructor(artifact: IStatefulArtifact,
+                localization: ILocalizationService) {
         super(
             () => {
                 let url = `Web/#/ImpactAnalysis/${artifact.id}`;

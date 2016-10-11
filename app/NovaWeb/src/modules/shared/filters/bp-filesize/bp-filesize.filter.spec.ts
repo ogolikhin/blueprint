@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "../";
-import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 
 describe("The test filter", () => {
     let $filter;
@@ -25,7 +25,7 @@ describe("The test filter", () => {
         // Assert
         expect(result).toEqual("0 Filesize_Bytes");
     });
-    
+
     it("should show bytes", () => {
         // Arrange
         const input = 100;

@@ -6,11 +6,9 @@ import {StatefulProcessSubArtifact} from "../../../process-subartifact";
 import {ProcessShapeType} from "../../../models/enums";
 
 export class GenerateUserStoriesAction extends BPDropdownAction {
-    constructor(
-        processArtifact: StatefulProcessArtifact,
-        selectionManager: ISelectionManager,
-        localization: ILocalizationService
-    ) {
+    constructor(processArtifact: StatefulProcessArtifact,
+                selectionManager: ISelectionManager,
+                localization: ILocalizationService) {
         super(
             () => !processArtifact.artifactState.readonly,
             "fonticon fonticon2-news",
@@ -44,10 +42,10 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                 }
             ),
             new BPDropdownItemAction(
-                localization.get("ST_Generate_All_Contextual_Toolbar_Button"), 
+                localization.get("ST_Generate_All_Contextual_Toolbar_Button"),
                 () => {
                     console.log("'Generate All' clicked");
-                }, 
+                },
                 () => !processArtifact.artifactState.readonly
             )
         );

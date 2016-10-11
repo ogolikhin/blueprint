@@ -1,8 +1,8 @@
-﻿import { IShape } from "../impl/models";
-import { Shapes } from "./utils/constants";
-import { Style, Styles } from "./utils/style-builder";
-import { MxFactory, ShapeExtensions } from "./utils/helpers";
-import { AbstractShapeFactory, IShapeTemplates } from "./abstract-diagram-factory";
+﻿import {IShape} from "../impl/models";
+import {Shapes} from "./utils/constants";
+import {Style, Styles} from "./utils/style-builder";
+import {MxFactory, ShapeExtensions} from "./utils/helpers";
+import {AbstractShapeFactory, IShapeTemplates} from "./abstract-diagram-factory";
 
 export class BusinessProcessShapeFactory extends AbstractShapeFactory {
     public initTemplates(templates: IShapeTemplates) {
@@ -342,7 +342,7 @@ export class BusinessProcessShapeFactory extends AbstractShapeFactory {
         }
 
 
-        this.setMarkerStyleAndInsert (isCompensationMarker,
+        this.setMarkerStyleAndInsert(isCompensationMarker,
             taskOrSubprocess,
             isCompensationMarkerHorizontalOffset - isCompensationMarkerHorizontalLeftShift * (markerSize / 2 + 3),
             isCompensationMarkerVerticalOffset,
@@ -397,7 +397,7 @@ export class BusinessProcessShapeFactory extends AbstractShapeFactory {
 
         if (eventType != null
             && (eventType === "IntermediateThrowing"
-                || eventType === "IntermediateCatching" || eventType === "IntermediateNonInterrupting")) {
+            || eventType === "IntermediateCatching" || eventType === "IntermediateNonInterrupting")) {
             const innerEllipseWidth = (shape.width - 5) < 0 ? 0 : shape.width - 5;
             let innerEllipseHeight = (shape.height - 5) < 0 ? 0 : shape.height - 5;
             if (innerEllipseHeight % 2 === 1) {

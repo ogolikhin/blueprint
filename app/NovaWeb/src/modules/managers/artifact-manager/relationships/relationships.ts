@@ -1,7 +1,7 @@
 import * as angular from "angular";
-import { IIStatefulItem } from "../item";
-import { ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet } from "../changeset";
-import { IRelationship, IArtifactRelationshipsResultSet } from "../../../main/models/relationshipmodels";
+import {IIStatefulItem} from "../item";
+import {ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet} from "../changeset";
+import {IRelationship, IArtifactRelationshipsResultSet} from "../../../main/models/relationshipmodels";
 
 export interface IArtifactRelationships {
     getObservable(): Rx.IObservable<IRelationship[]>;
@@ -19,7 +19,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
     private relationships: IRelationship[];
     private originalRelationships: IRelationship[];
     private subject: Rx.BehaviorSubject<IRelationship[]>;
-    
+
     private changeset: IChangeCollector;
     private isLoaded: boolean;
     private loadPromise: ng.IPromise<any>;
@@ -70,19 +70,19 @@ export class ArtifactRelationships implements IArtifactRelationships {
         if (relationships) {
             relationships.map((relationship: IRelationship) => {
                 this.relationships.push(relationship);
-                
+
                 const changeset = {
                     type: ChangeTypeEnum.Add,
                     key: this.getKey(relationship),
                     value: relationship
                 } as IChangeSet;
                 this.changeset.add(changeset);
-                
+
                 this.statefulItem.lock();
             });
             this.subject.onNext(this.relationships);
         }
-        
+
         return this.relationships;
     }
 
@@ -101,14 +101,14 @@ export class ArtifactRelationships implements IArtifactRelationships {
 
                 if (foundRelationshipIndex > -1) {
                     this.relationships.splice(foundRelationshipIndex, 1);
-                    
+
                     const changeset = {
                         type: ChangeTypeEnum.Delete,
                         key: relationship.artifactId,
                         value: relationship
                     } as IChangeSet;
                     this.changeset.add(changeset);
-                    
+
                     this.statefulItem.lock();
                 }
             });

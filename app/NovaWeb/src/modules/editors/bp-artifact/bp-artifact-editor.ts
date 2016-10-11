@@ -1,28 +1,28 @@
 import * as angular from "angular";
-import { ILocalizationService, Message } from "../../core";
-import { IWindowManager, IMainWindow } from "../../main";
+import {ILocalizationService, Message} from "../../core";
+import {IWindowManager, IMainWindow} from "../../main";
 //import { Models, Enums } from "../../main";
-import { 
-    Models, Enums, 
-    IArtifactManager, 
-    IStatefulArtifact, 
+import {
+    Models, Enums,
+    IArtifactManager,
+    IStatefulArtifact,
     IMessageService,
-    BpBaseEditor 
+    BpBaseEditor
 } from "../bp-base-editor";
 
-import { PropertyEditor} from "./bp-property-editor";
-import { PropertyContext} from "./bp-property-context";
+import {PropertyEditor} from "./bp-property-editor";
+import {PropertyContext} from "./bp-property-context";
 
-export { 
-    ILocalizationService, 
-    IArtifactManager, 
+export {
+    ILocalizationService,
+    IArtifactManager,
     IStatefulArtifact,
-    IMessageService,  
-    IWindowManager, 
-    PropertyContext, 
-    Models, 
-    Enums, 
-    Message 
+    IMessageService,
+    IWindowManager,
+    PropertyContext,
+    Models,
+    Enums,
+    Message
 }
 
 export class BpArtifactEditor extends BpBaseEditor {
@@ -33,12 +33,10 @@ export class BpArtifactEditor extends BpBaseEditor {
 
     public editor: PropertyEditor;
 
-    constructor(
-        public messageService: IMessageService,
-        public artifactManager: IArtifactManager,
-        public windowManager: IWindowManager,
-        public localization: ILocalizationService
-    ) {
+    constructor(public messageService: IMessageService,
+                public artifactManager: IArtifactManager,
+                public windowManager: IWindowManager,
+                public localization: ILocalizationService) {
         super(messageService, artifactManager);
     }
 
@@ -61,19 +59,20 @@ export class BpArtifactEditor extends BpBaseEditor {
     }
 
 
-    public clearFields() { 
+    public clearFields() {
         this.model = {};
-        this.fields = []; 
+        this.fields = [];
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
-        if (!angular.isArray(this.fields)) { }
+        if (!angular.isArray(this.fields)) {
+        }
         this.fields.push(field);
     }
 
 
     public onArtifactReady() {
-        if ( this.editor  && this.artifact) {
+        if (this.editor && this.artifact) {
             this.clearFields();
 
             this.model = this.editor.load(this.artifact, this.artifact.metadata.getArtifactPropertyTypes());
@@ -92,7 +91,7 @@ export class BpArtifactEditor extends BpBaseEditor {
                         field.type !== "bpFieldInheritFrom") {
                         field.type = "bpFieldReadOnly";
                     }
-                }           
+                }
                 this.onFieldUpdate(field);
 
             });
@@ -132,7 +131,7 @@ export class BpArtifactEditor extends BpBaseEditor {
                 switch (context.lookup) {
                     case Enums.PropertyLookupEnum.Custom:
                         this.artifact.customProperties.set(context.modelPropertyName as number, value);
-                    break;
+                        break;
                     case Enums.PropertyLookupEnum.Special:
                         this.artifact.specialProperties.set(context.modelPropertyName as number, value);
                         break;

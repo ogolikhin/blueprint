@@ -19,12 +19,12 @@ describe("LayoutCalculator ", () => {
     });
     var createNode = (graph: FlowGraph): Node => {
         var node = graph.createNode();
-        node.size = { width: 150, height: 60 };
+        node.size = {width: 150, height: 60};
         return node;
     };
     var createBranchingNode = (graph: FlowGraph): Node => {
         var node = graph.createNode();
-        node.size = { width: 30, height: 30 };
+        node.size = {width: 30, height: 30};
         return node;
     };
 
@@ -96,9 +96,9 @@ describe("LayoutCalculator ", () => {
         //assert
         var allNodes = graph.getMainFlow().getNodes();
         expect(allNodes.length).toEqual(3);
-        expect(allNodes[0].position).toEqual({ x: 30, y: 22.5 });
-        expect(allNodes[1].position).toEqual({ x: 30, y: 120 });
-        expect(allNodes[2].position).toEqual({ x: 30, y: 210 });
+        expect(allNodes[0].position).toEqual({x: 30, y: 22.5});
+        expect(allNodes[1].position).toEqual({x: 30, y: 120});
+        expect(allNodes[2].position).toEqual({x: 30, y: 210});
     });
 
     it("arrangeGraph method: correct number of connectors (3 nodes in main flow)", () => {
@@ -153,14 +153,14 @@ describe("LayoutCalculator ", () => {
         //assert
         var allNodes = graph.getMainFlow().getNodes();
         expect(allNodes.length).toEqual(4);
-        expect(allNodes[0].position).toEqual({ x: 240, y: 22.5 });
-        expect(allNodes[1].position).toEqual({ x: 300, y: 120 });
-        expect(allNodes[2].position).toEqual({ x: 240, y: 180 });
-        expect(allNodes[3].position).toEqual({ x: 240, y: 270 });
+        expect(allNodes[0].position).toEqual({x: 240, y: 22.5});
+        expect(allNodes[1].position).toEqual({x: 300, y: 120});
+        expect(allNodes[2].position).toEqual({x: 240, y: 180});
+        expect(allNodes[3].position).toEqual({x: 240, y: 270});
         var alternateFlows = graph.getAlternateFlows();
         expect(alternateFlows.length).toEqual(2);
-        expect(alternateFlows[0].getFirstNode().position).toEqual({ x: 450, y: 180 });
-        expect(alternateFlows[1].getFirstNode().position).toEqual({ x: 30, y: 180 });
+        expect(alternateFlows[0].getFirstNode().position).toEqual({x: 450, y: 180});
+        expect(alternateFlows[1].getFirstNode().position).toEqual({x: 30, y: 180});
     });
 
     it("arrangeGraph method: correct branching node connections' points (2 alternate flows on the same node in main flow)", () => {
@@ -202,8 +202,8 @@ describe("LayoutCalculator ", () => {
         });
         expect(branchingNodeConnectors.length).toEqual(3);
         expect(branchingNodeConnectors[0].getPoints()).toEqual([]);
-        expect(branchingNodeConnectors[1].getPoints()).toEqual([{ x: 330, y: 135 }, { x: 525, y: 135 }, { x: 525, y: 180 }]);
-        expect(branchingNodeConnectors[2].getPoints()).toEqual([{ x: 300, y: 135 }, { x: 105, y: 135 }, { x: 105, y: 180 }]);
+        expect(branchingNodeConnectors[1].getPoints()).toEqual([{x: 330, y: 135}, {x: 525, y: 135}, {x: 525, y: 180}]);
+        expect(branchingNodeConnectors[2].getPoints()).toEqual([{x: 300, y: 135}, {x: 105, y: 135}, {x: 105, y: 180}]);
     });
 
     it("arrangeGraph method: correct nodes' position (1 alternate flow on a node in main flow and one nested alternate flow)", () => {
@@ -256,21 +256,21 @@ describe("LayoutCalculator ", () => {
         //assert
         var allNodes = graph.getMainFlow().getNodes();
         expect(allNodes.length).toEqual(6);
-        expect(allNodes[0].position).toEqual({ x: 30, y: 22.5 });
-        expect(allNodes[1].position).toEqual({ x: 30, y: 120 });
-        expect(allNodes[2].position).toEqual({ x: 90, y: 210 });
-        expect(allNodes[3].position).toEqual({ x: 30, y: 270 });
-        expect(allNodes[4].position).toEqual({ x: 30, y: 360 });
-        expect(allNodes[5].position).toEqual({ x: 30, y: 630 });
+        expect(allNodes[0].position).toEqual({x: 30, y: 22.5});
+        expect(allNodes[1].position).toEqual({x: 30, y: 120});
+        expect(allNodes[2].position).toEqual({x: 90, y: 210});
+        expect(allNodes[3].position).toEqual({x: 30, y: 270});
+        expect(allNodes[4].position).toEqual({x: 30, y: 360});
+        expect(allNodes[5].position).toEqual({x: 30, y: 630});
 
         expect(alternateFlow1.getNodes().length).toEqual(4);
-        expect(alternateFlow1.getNodes()[0].position).toEqual({ x: 240, y: 270 });
-        expect(alternateFlow1.getNodes()[1].position).toEqual({ x: 300, y: 375 });
-        expect(alternateFlow1.getNodes()[2].position).toEqual({ x: 240, y: 450 });
-        expect(alternateFlow1.getNodes()[3].position).toEqual({ x: 240, y: 540 });
+        expect(alternateFlow1.getNodes()[0].position).toEqual({x: 240, y: 270});
+        expect(alternateFlow1.getNodes()[1].position).toEqual({x: 300, y: 375});
+        expect(alternateFlow1.getNodes()[2].position).toEqual({x: 240, y: 450});
+        expect(alternateFlow1.getNodes()[3].position).toEqual({x: 240, y: 540});
 
         expect(nestedAlternateFlow.getNodes().length).toEqual(1);
-        expect(nestedAlternateFlow.getNodes()[0].position).toEqual({ x: 450, y: 450 });
+        expect(nestedAlternateFlow.getNodes()[0].position).toEqual({x: 450, y: 450});
     });
 
     it("arrangeGraph method: correct end nodes connections' points (1 alternate flow on a node in main flow and one nested alternate flow)", () => {
@@ -325,8 +325,14 @@ describe("LayoutCalculator ", () => {
             return c.isReturnConnector;
         });
         expect(endNodeConnectors.length).toEqual(2);
-        expect(endNodeConnectors[0].getPoints()).toEqual([{ x: 315, y: 600 }, { x: 315, y: 615 }, { x: 105, y: 615 }, { x: 105, y: 630 }]);
-        expect(endNodeConnectors[1].getPoints()).toEqual([{ x: 525, y: 510 }, { x: 525, y: 525 }, { x: 195, y: 525 }, { x: 195, y: 105 }, { x: 105, y: 105 }, { x: 105, y: 120 }]);
+        expect(endNodeConnectors[0].getPoints()).toEqual([{x: 315, y: 600}, {x: 315, y: 615}, {x: 105, y: 615}, {
+            x: 105,
+            y: 630
+        }]);
+        expect(endNodeConnectors[1].getPoints()).toEqual([{x: 525, y: 510}, {x: 525, y: 525}, {x: 195, y: 525}, {
+            x: 195,
+            y: 105
+        }, {x: 105, y: 105}, {x: 105, y: 120}]);
     });
 
     it("arrangeGraph method: correct end nodes connections' points (2 alternate flows on the second node in main flow and 2 alternate flows on the third node in main flow)", () => {
@@ -394,10 +400,22 @@ describe("LayoutCalculator ", () => {
             return c.isReturnConnector;
         });
         expect(endNodeConnectors.length).toEqual(4);
-        expect(endNodeConnectors[0].getPoints()).toEqual([{ x: 525, y: 330 }, { x: 525, y: 405 }, { x: 405, y: 405 }, { x: 405, y: 495 }, { x: 315, y: 495 }, { x: 315, y: 510 }]);
-        expect(endNodeConnectors[1].getPoints()).toEqual([{ x: 105, y: 330 }, { x: 105, y: 405 }, { x: 225, y: 405 }, { x: 225, y: 495 }, { x: 315, y: 495 }, { x: 315, y: 510 }]);
-        expect(endNodeConnectors[2].getPoints()).toEqual([{ x: 105, y: 480 }, { x: 105, y: 495 }, { x: 225, y: 495 }, { x: 225, y: 105 }, { x: 315, y: 105 }, { x: 315, y: 120 }]);
-        expect(endNodeConnectors[3].getPoints()).toEqual([{ x: 525, y: 480 }, { x: 525, y: 495 }, { x: 405, y: 495 }, { x: 405, y: 105 }, { x: 315, y: 105 }, { x: 315, y: 120 }]);
+        expect(endNodeConnectors[0].getPoints()).toEqual([{x: 525, y: 330}, {x: 525, y: 405}, {x: 405, y: 405}, {
+            x: 405,
+            y: 495
+        }, {x: 315, y: 495}, {x: 315, y: 510}]);
+        expect(endNodeConnectors[1].getPoints()).toEqual([{x: 105, y: 330}, {x: 105, y: 405}, {x: 225, y: 405}, {
+            x: 225,
+            y: 495
+        }, {x: 315, y: 495}, {x: 315, y: 510}]);
+        expect(endNodeConnectors[2].getPoints()).toEqual([{x: 105, y: 480}, {x: 105, y: 495}, {x: 225, y: 495}, {
+            x: 225,
+            y: 105
+        }, {x: 315, y: 105}, {x: 315, y: 120}]);
+        expect(endNodeConnectors[3].getPoints()).toEqual([{x: 525, y: 480}, {x: 525, y: 495}, {x: 405, y: 495}, {
+            x: 405,
+            y: 105
+        }, {x: 315, y: 105}, {x: 315, y: 120}]);
     });
 
     it("arrangeGraph method: correct nodes' position (1 alternate flows and 1 collapsed alternate flow on the same node in main flow)", () => {
@@ -448,16 +466,16 @@ describe("LayoutCalculator ", () => {
         //assert
         var allNodes = graph.getMainFlow().getNodes();
         expect(allNodes.length).toEqual(4);
-        expect(allNodes[0].position).toEqual({ x: 240, y: 22.5 });
-        expect(allNodes[1].position).toEqual({ x: 300, y: 120 });
-        expect(allNodes[2].position).toEqual({ x: 240, y: 180 });
-        expect(allNodes[3].position).toEqual({ x: 240, y: 450 });
+        expect(allNodes[0].position).toEqual({x: 240, y: 22.5});
+        expect(allNodes[1].position).toEqual({x: 300, y: 120});
+        expect(allNodes[2].position).toEqual({x: 240, y: 180});
+        expect(allNodes[3].position).toEqual({x: 240, y: 450});
         var alternateFlows = graph.getAlternateFlows();
         expect(alternateFlows.length).toEqual(2);
-        expect(alternateFlows[0].position).toEqual({ x: -5, y: -5 });
-        expect(alternateFlows[0].size).toEqual({ width: 610, height: 430 });
+        expect(alternateFlows[0].position).toEqual({x: -5, y: -5});
+        expect(alternateFlows[0].size).toEqual({width: 610, height: 430});
 
-        expect(alternateFlows[1].position).toEqual({ x: 25, y: 175 });
-        expect(alternateFlows[1].size).toEqual({ width: 160, height: 70 });
+        expect(alternateFlows[1].position).toEqual({x: 25, y: 175});
+        expect(alternateFlows[1].size).toEqual({width: 160, height: 70});
     });
 });

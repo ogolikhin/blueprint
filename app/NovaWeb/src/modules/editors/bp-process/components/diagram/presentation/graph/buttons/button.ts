@@ -47,7 +47,7 @@ export class Button extends DiagramElement implements IOverlayHandler, IMouseEve
 
     public setHoverImage(hoverImageUrl: string) {
         this.hoverImageUrl = hoverImageUrl;
-        //set a flag only if imageurl is assigned. 
+        //set a flag only if imageurl is assigned.
         this.canMouseOver(Boolean(this.hoverImageUrl));
     }
 
@@ -128,7 +128,7 @@ export class Button extends DiagramElement implements IOverlayHandler, IMouseEve
     public onMouseLeave(sender: MxGraph, evt) {
         if (this._canMouseOver) {
             //update current image bease on current state
-            var img = this._isActive ? this.activeImageUrl : (this.isEnabled ? this.neutralImageUrl : this.disabledImageUrl);
+            const img = this._isActive ? this.activeImageUrl : (this.isEnabled ? this.neutralImageUrl : this.disabledImageUrl);
             //verify if image is assigned
             if (img) {
                 this.currentImageUrl = img;
@@ -145,16 +145,17 @@ export class Button extends DiagramElement implements IOverlayHandler, IMouseEve
     }
 
     public onMouseUp(sender: MxGraph, evt) {
+//fixme: if this is not used, why does it exist?
     }
 
     private raiseButtonUpdatedEvent() {
-        var evt = document.createEvent("CustomEvent");
-        evt.initCustomEvent("buttonUpdated", true, true, { id: this.getId() });
+        const evt = document.createEvent("CustomEvent");
+        evt.initCustomEvent("buttonUpdated", true, true, {id: this.getId()});
         window.dispatchEvent(evt);
     }
 
     private createOverlay(imageUrl: string, width: number, height: number, cursor: string = "default") {
-        var overlay = new mxCellOverlay(new mxImage(imageUrl, width, height), this.tooltip);
+        let overlay = new mxCellOverlay(new mxImage(imageUrl, width, height), this.tooltip);
         overlay.cursor = cursor;
         overlay.align = mxConstants.ALIGN_CENTER;
         overlay.verticalAlign = mxConstants.ALIGN_MIDDLE;
@@ -163,7 +164,7 @@ export class Button extends DiagramElement implements IOverlayHandler, IMouseEve
     }
 
     private addOverlay(graph: MxGraph, imageUrl: string, width: number, height: number, cursor: string = "default") {
-        var overlay = this.createOverlay(imageUrl, width, height, cursor);
+        const overlay = this.createOverlay(imageUrl, width, height, cursor);
         graph.addCellOverlay(this, overlay);
 
         return overlay;

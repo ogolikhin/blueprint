@@ -14,9 +14,10 @@ export interface IShapeTemplateFactory {
     enabledToolTips(): boolean;
 }
 
+
 /*
-* The class must be implemented as abstract one.
-*/
+ * The class must be implemented as abstract one.
+ */
 export class AbstractShapeFactory implements IShapeTemplateFactory {
 
     private templates: IShapeTemplates = null;
@@ -52,9 +53,10 @@ export class AbstractShapeFactory implements IShapeTemplateFactory {
     }
 
     /*
-    * The method must be implemented as abstract one.
-    */
+     * The method must be implemented as abstract one.
+     */
     public initTemplates(templates: IShapeTemplates) {
+//fixme: why is this empty, if its not used remove it
     }
 
     public createDefaultVertex(shape: IShape, style?: Style, disableLabel?: boolean): MxCell {
@@ -66,7 +68,9 @@ export class AbstractShapeFactory implements IShapeTemplateFactory {
         }
         let cell = MxFactory.vertex(shape, MxFactory.geometry(shape.x, shape.y, shape.width, shape.height), styleStr);
         if (disableLabel) {
-            cell.getLabel = () => { return null; };
+            cell.getLabel = () => {
+                return null;
+            };
         }
         return cell;
     }
@@ -121,15 +125,19 @@ export class AbstractShapeFactory implements IShapeTemplateFactory {
     };
 
     /*
-    * Virtual method, do not delete.
-    */
+     * Virtual method, do not delete.
+     */
     public customizeCallout(shape: IShape, callout: MxCell) {
+//fixme: why is this empty, if its not used remove it
+
     }
 
     /*
-    * Virtual method, do not delete
-    */
+     * Virtual method, do not delete
+     */
     public customizeCalloutStyle(shape: IShape, style: Style) {
+//fixme: why is this empty, if its not used remove it
+
     }
 
     public moveCalloutAnchorPosition(shape: IShape, style: Style) {

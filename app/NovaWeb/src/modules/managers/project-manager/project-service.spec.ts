@@ -1,28 +1,30 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
-import { Models } from "../../main/";
-import { HttpStatusCode } from "../../core/http";
-import { IProjectService, ProjectService } from "./project-service";
-import { ProjectServiceMock } from "./project-service.mock";
+import {Models} from "../../main/";
+import {HttpStatusCode} from "../../core/http";
+import {IProjectService, ProjectService} from "./project-service";
+import {ProjectServiceMock} from "./project-service.mock";
 
 describe("Project Repository", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("projectService", ProjectService);
     }));
-    
+
     describe("getFolders", () => {
         it("get one folder - success", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
             // Arrange
             $httpBackend.expectGET("svc/adminstore/instance/folders/1/children")
                 .respond(HttpStatusCode.Success, <Models.IProjectNode[]>[
-                    { id: 3, name: "Imported Projects", type: 0, description: "", parentFolderId: 1, hasChildren: false }
-                    ]);
+                    {id: 3, name: "Imported Projects", type: 0, description: "", parentFolderId: 1, hasChildren: false}
+                ]);
 
             // Act
             var error: any;
             var data: Models.IProjectNode[];
-            projectService.getFolders().then((responce) => { data = responce; }, (err) => error = err);
+            projectService.getFolders().then((responce) => {
+                data = responce;
+            }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -38,11 +40,13 @@ describe("Project Repository", () => {
             // Arrange
             $httpBackend.expectGET("svc/adminstore/instance/folders/5/children")
                 .respond(HttpStatusCode.Unauthorized);
-                
+
             // Act
             var error: any;
             var data: Models.IProjectNode[];
-            projectService.getFolders(5).then((responce) => { data = responce; }, (err) => error = err);
+            projectService.getFolders(5).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -67,7 +71,9 @@ describe("Project Repository", () => {
             // Act
             var error: any;
             var data: Models.IProjectNode;
-            projectService.getProject(10).then((responce) => { data = responce; }, (err) => error = err);
+            projectService.getProject(10).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -88,7 +94,9 @@ describe("Project Repository", () => {
             // Act
             var error: any;
             var data: Models.IProjectNode;
-            projectService.getProject(10).then((responce) => { data = responce; }, (err) => error = err);
+            projectService.getProject(10).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -110,7 +118,14 @@ describe("Project Repository", () => {
                         id: 10, name: "Project 10", typeId: 0, hasChildren: true,
                         artifacts: [
                             {
-                                id: 11, name: "Artifact 11", typeId: 10, projectId: 10, predefinedType: 100, parentId: 10, prefix: "AT", hasChildren: false,
+                                id: 11,
+                                name: "Artifact 11",
+                                typeId: 10,
+                                projectId: 10,
+                                predefinedType: 100,
+                                parentId: 10,
+                                prefix: "AT",
+                                hasChildren: false,
                             }
                         ]
                     }
@@ -119,7 +134,9 @@ describe("Project Repository", () => {
             // Act
             var error: any;
             var data: Models.IArtifact[];
-            projectService.getArtifacts(10).then((responce) => { data = responce; }, (err) => error = err);
+            projectService.getArtifacts(10).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -135,20 +152,35 @@ describe("Project Repository", () => {
             // Arrange
             $httpBackend.expectGET("svc/artifactstore/projects/10/artifacts/111/children")
                 .respond(HttpStatusCode.Success, [
-                    {
-                        id: 13, name: "Artifact 13", typeId: 14, projectId: 10, predefinedType: 100, parentId: 10, prefix: "AT", hasChildren: false,
-                    },
-                    {
-                        id: 14, name: "Artifact 14", typeId: 14, projectId: 10, predefinedType: 100, parentId: 10, prefix: "AT", hasChildren: true,
-                    }
-                ]
-
+                        {
+                            id: 13,
+                            name: "Artifact 13",
+                            typeId: 14,
+                            projectId: 10,
+                            predefinedType: 100,
+                            parentId: 10,
+                            prefix: "AT",
+                            hasChildren: false,
+                        },
+                        {
+                            id: 14,
+                            name: "Artifact 14",
+                            typeId: 14,
+                            projectId: 10,
+                            predefinedType: 100,
+                            parentId: 10,
+                            prefix: "AT",
+                            hasChildren: true,
+                        }
+                    ]
                 );
 
             // Act
             var error: any;
             var data: Models.IArtifact[];
-            projectService.getArtifacts(10, 111).then((responce) => { data = responce; }, (err) => error = err);
+            projectService.getArtifacts(10, 111).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -168,7 +200,9 @@ describe("Project Repository", () => {
             // Act
             var error: any;
             var data: Models.IArtifact[];
-            projectService.getArtifacts(10, 111).then((responce) => { data = responce; }, (err) => error = err);
+            projectService.getArtifacts(10, 111).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -190,7 +224,9 @@ describe("Project Repository", () => {
             // Act
             var error: any;
             var data: Models.IProjectMeta;
-            projectService.getProjectMeta(10).then((responce) => { data = responce; }, (err) => error = err);
+            projectService.getProjectMeta(10).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -212,9 +248,11 @@ describe("Project Repository", () => {
                 .respond(HttpStatusCode.Unauthorized);
 
             // Act
-            var error: any; 
+            var error: any;
             var data: Models.IProjectMeta;
-            projectService.getProjectMeta(10).then((responce) => { data = responce; }, (err) => error = err);
+            projectService.getProjectMeta(10).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -232,7 +270,10 @@ describe("Project Repository", () => {
             // Arrange
             const query = "new";
             $httpBackend.expectPOST("/svc/searchservice/projectsearch?resultCount=100", {Query: query})
-                .respond(HttpStatusCode.Success, [{projectId: 1, projectName: "New project 1"}, {projectId: 2, projectName: "New project 2"}]);
+                .respond(HttpStatusCode.Success, [{projectId: 1, projectName: "New project 1"}, {
+                    projectId: 2,
+                    projectName: "New project 2"
+                }]);
 
             // Act
             let data: Models.IProjectNode[];
@@ -243,8 +284,20 @@ describe("Project Repository", () => {
             $httpBackend.flush();
             expect(error).toBeUndefined();
             expect(data).toEqual([
-                {id: 1, name: "New project 1", type: Models.ProjectNodeType.Project, parentFolderId: undefined, hasChildren: undefined},
-                {id: 2, name: "New project 2", type: Models.ProjectNodeType.Project, parentFolderId: undefined, hasChildren: undefined}
+                {
+                    id: 1,
+                    name: "New project 1",
+                    type: Models.ProjectNodeType.Project,
+                    parentFolderId: undefined,
+                    hasChildren: undefined
+                },
+                {
+                    id: 2,
+                    name: "New project 2",
+                    type: Models.ProjectNodeType.Project,
+                    parentFolderId: undefined,
+                    hasChildren: undefined
+                }
             ]);
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();

@@ -1,5 +1,5 @@
-import { IArtifactRelationshipsService } from "./relationships.svc";
-import { Relationships } from "../../../main";
+import {IArtifactRelationshipsService} from "./relationships.svc";
+import {Relationships} from "../../../main";
 
 export class ArtifactRelationshipsMock implements IArtifactRelationshipsService {
 
@@ -7,12 +7,13 @@ export class ArtifactRelationshipsMock implements IArtifactRelationshipsService 
 
     public artifactHistory;
 
-    constructor(private $q: ng.IQService) { }
+    constructor(private $q: ng.IQService) {
+    }
 
     public getRelationships(artifactId: number): ng.IPromise<Relationships.IArtifactRelationshipsResultSet> {
-        const deferred = this.$q.defer<any>();        
+        const deferred = this.$q.defer<any>();
 
-        const mockOtherTraces = [           
+        const mockOtherTraces = [
             {
                 "artifactId": "1",
                 "artifactTypePrefix": "PRE",
@@ -61,19 +62,19 @@ export class ArtifactRelationshipsMock implements IArtifactRelationshipsService 
 
         const mockManualTraces = [
             {
-            "artifactId": "1",
-            "artifactTypePrefix": "PRE",
-            "artifactName": "Artifact1",
-            "itemId": "2",
-            "itemTypePrefix": "PRE",
-            "itemName": "Item1",
-            "projectId": "1",
-            "projectName": "Project1",
-            "traceDirection": {},
-            "traceType": 2,
-            "suspect": false,
-            "hasAccess": true,
-            "primitiveItemTypePredefined": "1"
+                "artifactId": "1",
+                "artifactTypePrefix": "PRE",
+                "artifactName": "Artifact1",
+                "itemId": "2",
+                "itemTypePrefix": "PRE",
+                "itemName": "Item1",
+                "projectId": "1",
+                "projectName": "Project1",
+                "traceDirection": {},
+                "traceType": 2,
+                "suspect": false,
+                "hasAccess": true,
+                "primitiveItemTypePredefined": "1"
             },
             {
                 "artifactId": "3",
@@ -106,9 +107,9 @@ export class ArtifactRelationshipsMock implements IArtifactRelationshipsService 
 
         var details = {
 
-            "artifactId" : "1",
+            "artifactId": "1",
             "description": "desc",
-            "pathToProject": [{ "itemId": 1, "itemName": "Item1", "parentId": 0}]
+            "pathToProject": [{"itemId": 1, "itemName": "Item1", "parentId": 0}]
         };
 
         deferred.resolve(details);

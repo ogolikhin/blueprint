@@ -1,6 +1,6 @@
 ﻿import * as angular from "angular";
-import { ILocalizationService, IUsersAndGroupsService, IUserOrGroupInfo } from "../../../../core";
-import { Helper } from "../../../../shared/utils/helper";
+import {ILocalizationService, IUsersAndGroupsService, IUserOrGroupInfo} from "../../../../core";
+import {Helper} from "../../../../shared/utils/helper";
 
 // TinyMCE mention plugin interface - https://github.com/CogniStreamer/tinyMCE-mention
 export interface ITinyMceMentionOptions<T> {
@@ -65,10 +65,10 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
                 (users) => {
                     if (users && users.length === 0 && MentionService.emailValidator.test(query)) {
                         process([<IUserOrGroupInfo>
-                            {
-                                name: query,
-                                email: query
-                            }
+                        {
+                            name: query,
+                            email: query
+                        }
                         ]);
                     } else {
                         process(users);
@@ -183,7 +183,7 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
         if (person.id) {
             const id = person.id.slice(1);
             // This conversion is necessary because mentions plugin casts all fields into strings on select, and is cased differently on different browsers.
-            let isgroup = (person["isgroup"] === "true" || person["isGroup"] === "true") ? "True" : "False"; 
+            let isgroup = (person["isgroup"] === "true" || person["isGroup"] === "true") ? "True" : "False";
             return `mentionid="${id}" isgroup="${isgroup}"`;
         }
         return "";

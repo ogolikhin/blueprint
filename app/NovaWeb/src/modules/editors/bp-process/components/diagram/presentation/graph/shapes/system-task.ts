@@ -43,13 +43,11 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
 
     public callout: DiagramNodeElement;
 
-    constructor(
-        model: ISystemTaskShape,
-        rootScope: any,
-        private defaultPersonaValue: string,
-        private nodeFactorySettings: NodeFactorySettings = null,
-        private shapesFactory: ShapesFactory
-    ) {
+    constructor(model: ISystemTaskShape,
+                rootScope: any,
+                private defaultPersonaValue: string,
+                private nodeFactorySettings: NodeFactorySettings = null,
+                private shapesFactory: ShapesFactory) {
         super(model, NodeType.SystemTask);
 
         this.rootScope = rootScope;
@@ -67,42 +65,42 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     }
 
     private initChildElements(justCreated: boolean) {
-        var modelId = this.model.id.toString();
+        const modelId = this.model.id.toString();
 
         // initialize origin
-        var originGeometry = new mxGeometry(this.SYSTEM_TASK_WIDTH / 2 - this.ORIGIN_DIAMETER / 2, 
-                                            this.SYSTEM_TASK_HEIGHT, this.ORIGIN_DIAMETER, this.ORIGIN_DIAMETER);
+        const originGeometry = new mxGeometry(this.SYSTEM_TASK_WIDTH / 2 - this.ORIGIN_DIAMETER / 2,
+            this.SYSTEM_TASK_HEIGHT, this.ORIGIN_DIAMETER, this.ORIGIN_DIAMETER);
         originGeometry.relative = false;
-        this.origin = new DiagramNodeElement("O" + modelId, ElementType.SystemTaskOrigin, null, originGeometry, 
-                                             "shape=ellipse;strokeColor=#d4d5da;fillColor=#d4d5da;selectable=0;editable=0");
+        this.origin = new DiagramNodeElement("O" + modelId, ElementType.SystemTaskOrigin, null, originGeometry,
+            "shape=ellipse;strokeColor=#d4d5da;fillColor=#d4d5da;selectable=0;editable=0");
         this.origin.setVertex(true);
 
         //initialize call-out
-        var calloutGeometry = new mxGeometry(0, 0, this.SYSTEM_TASK_WIDTH, this.SYSTEM_TASK_HEIGHT);
-        this.callout = new DiagramNodeElement("C" + modelId, ElementType.Shape, null, calloutGeometry, 
+        const calloutGeometry = new mxGeometry(0, 0, this.SYSTEM_TASK_WIDTH, this.SYSTEM_TASK_HEIGHT);
+        this.callout = new DiagramNodeElement("C" + modelId, ElementType.Shape, null, calloutGeometry,
             "shape=systemTask;strokeColor=#53BBED;fillColor=#FFFFFF;fontColor=#4C4C4C;fontFamily=Open Sans," +
             " sans-serif;fontStyle=1;fontSize=11;foldable=0;shadow=0;editable=0;selectable=0");
         this.callout.setVertex(true);
 
         //initialize header
-        var persona = this.persona;
+        let persona = this.persona;
         if (persona == null) {
             persona = this.defaultPersonaValue;
         }
 
-        var headerGeometry = new mxGeometry(0.5, 0.5, this.SYSTEM_TASK_WIDTH - 1, 20);
-        this.header = new DiagramNodeElement("H" + modelId, ElementType.SystemTaskHeader, null, headerGeometry, 
-        "shape=label;strokeColor=none;fillColor=#E2F3FF;fontColor=#009cde;fontFamily=Open Sans, sans-serif;fontSize=11;editable=0;selectable=0");
+        const headerGeometry = new mxGeometry(0.5, 0.5, this.SYSTEM_TASK_WIDTH - 1, 20);
+        this.header = new DiagramNodeElement("H" + modelId, ElementType.SystemTaskHeader, null, headerGeometry,
+            "shape=label;strokeColor=none;fillColor=#E2F3FF;fontColor=#009cde;fontFamily=Open Sans, sans-serif;fontSize=11;editable=0;selectable=0");
         this.header.setVertex(true);
 
         //initialize body
-        var fillColor = "#FFFFFF";
+        let fillColor = "#FFFFFF";
         if (this.model.id < 0) {
             fillColor = justCreated ? this.newShapeColor : "#FBF8E7";
         }
 
-        var bodyGeometry = new mxGeometry(0.5, 20.5, this.SYSTEM_TASK_WIDTH - 1.5, 47);
-        this.bodyCell = new DiagramNodeElement("B" + modelId, ElementType.Shape, null, bodyGeometry, 
+        const bodyGeometry = new mxGeometry(0.5, 20.5, this.SYSTEM_TASK_WIDTH - 1.5, 47);
+        this.bodyCell = new DiagramNodeElement("B" + modelId, ElementType.Shape, null, bodyGeometry,
             "shape=label;strokeColor=none;fillColor=" + fillColor + ";fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=11;" +
             "foldable=0;shadow=0;editable=0;selectable=0");
         this.bodyCell.setVertex(true);
@@ -117,7 +115,9 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
             // #TODO interaction with utility panel is different in Nova
             //this.commentsButton.setClickAction(() => this.openPropertiesDialog(this.rootScope, Shell.UtilityTab.discussions));
         } else {
-            this.commentsButton.setClickAction(() => { });
+            this.commentsButton.setClickAction(() => {
+                //fixme: why is this block empty? remove the function or make it null as this is not used
+            });
         }
 
         this.commentsButton.setTooltip(this.getLocalizedLabel("ST_Comments_Label"));
@@ -136,10 +136,14 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         this.relationshipButton.isEnabled = !this.isNew;
 
         if (nodeFactorySettings && nodeFactorySettings.isRelationshipButtonEnabled) {
+            //fixme: why is this block empty? Invert the if statement so this is not needed
+
             // TODO interaction with utility panel is different in Nova
             // this.relationshipButton.setClickAction(() => this.openPropertiesDialog(this.rootScope, Shell.UtilityTab.relationships));
         } else {
-            this.relationshipButton.setClickAction(() => { });
+            this.relationshipButton.setClickAction(() => {
+                //fixme: why is this block empty? remove the function or make it null as this is not used
+            });
         }
 
         this.relationshipButton.setTooltip(this.getLocalizedLabel("ST_Relationships_Label"));
@@ -160,7 +164,10 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         if (nodeFactorySettings && nodeFactorySettings.isLinkButtonEnabled) {
             this.linkButton.setClickAction(() => this.navigateToProcess());
         } else {
-            this.linkButton.setClickAction(() => { });
+            this.linkButton.setClickAction(() => {
+                //fixme: why is this block empty? remove the function or make it null as this is not used
+
+            });
         }
 
         this.linkButton.setTooltip(this.getLocalizedLabel("ST_Userstory_Label"));
@@ -181,7 +188,10 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         if (nodeFactorySettings && nodeFactorySettings.isMockupButtonEnabled) {
             this.mockupButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemTaskDetailsDialogType));
         } else {
-            this.mockupButton.setClickAction(() => { });
+            this.mockupButton.setClickAction(() => {
+                //fixme: why is this block empty? remove the function or make it null as this is not used
+
+            });
         }
 
         this.mockupButton.setTooltip(this.getLocalizedLabel("ST_Mockup_Label"));
@@ -199,7 +209,10 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
             this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemTaskDetailsDialogType));
         } else {
-            this.detailsButton.setClickAction(() => { });
+            this.detailsButton.setClickAction(() => {
+                //fixme: why is this block empty? remove the function or make it null as this is not used
+
+            });
         }
 
         this.detailsButton.setTooltip(this.getLocalizedLabel("ST_Settings_Label"));
@@ -221,7 +234,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     }
 
     public set persona(value: string) {
-        var valueChanged = this.setPropertyValue("persona", value);
+        const valueChanged = this.setPropertyValue("persona", value);
 
         if (valueChanged) {
             if (this.personaLabel) {
@@ -237,7 +250,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     }
 
     public set description(value: string) {
-        var valueChanged = this.setPropertyValue("description", value);
+        const valueChanged = this.setPropertyValue("description", value);
         if (valueChanged) {
             this.notify(NodeChange.Update);
         }
@@ -248,7 +261,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     }
 
     public set associatedImageUrl(value: string) {
-        var valueChanged = this.setPropertyValue("associatedImageUrl", value);
+        const valueChanged = this.setPropertyValue("associatedImageUrl", value);
         if (valueChanged) {
             this.notify(NodeChange.Update);
         }
@@ -259,7 +272,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     }
 
     public set imageId(value: string) {
-        var valueChanged = this.setPropertyValue("imageId", value);
+        const valueChanged = this.setPropertyValue("imageId", value);
         if (valueChanged) {
             this.notify(NodeChange.Update);
             if (!Boolean(value)) {
@@ -287,7 +300,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     }
 
     public getX(): number {
-        var shift = this.SYSTEM_TASK_SHIFT;
+        let shift = this.SYSTEM_TASK_SHIFT;
         if (this.model.propertyValues["clientType"].value === ProcessShapeType.PreconditionSystemTask) {
             shift = this.PRECONDITION_TASK_SHIFT;
         }
@@ -316,6 +329,8 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     }
 
     public deleteNode(graph: IProcessGraph) {
+        //fixme: why is this block empty? remove the function or make it null as this is not used
+
     }
 
     public renderLabels() {
@@ -327,9 +342,9 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         this.dialogManager = graph.viewModel.communicationManager.modalDialogManager;
         this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;
 
-        var mxGraph = graph.getMxGraph();
+        const mxGraph = graph.getMxGraph();
 
-        var shift = this.SYSTEM_TASK_SHIFT;
+        let shift = this.SYSTEM_TASK_SHIFT;
 
         this.initChildElements(justCreated);
 
@@ -337,13 +352,13 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
             shift = this.PRECONDITION_TASK_SHIFT;
         }
 
-        var modelId = this.model.id.toString();
+        const modelId = this.model.id.toString();
 
         // shape
-        var shapeWidth = this.SYSTEM_TASK_WIDTH;
-        var shapeHeight = this.SYSTEM_TASK_HEIGHT + this.ORIGIN_DIAMETER;
-        this.insertVertex(mxGraph, modelId, null, x - shift, y - (shapeHeight / 2) + this.ORIGIN_DIAMETER / 2, shapeWidth, shapeHeight, 
-                          "shape=systemTask;strokeColor=none;fillColor=none;foldable=0;editable=0");
+        const shapeWidth = this.SYSTEM_TASK_WIDTH;
+        const shapeHeight = this.SYSTEM_TASK_HEIGHT + this.ORIGIN_DIAMETER;
+        this.insertVertex(mxGraph, modelId, null, x - shift, y - (shapeHeight / 2) + this.ORIGIN_DIAMETER / 2, shapeWidth, shapeHeight,
+            "shape=systemTask;strokeColor=none;fillColor=none;foldable=0;editable=0");
 
         // origin
         mxGraph.addCell(this.origin, this);
@@ -352,7 +367,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         mxGraph.addCell(this.callout, this);
 
         //header
-        var personaLabelStyle: LabelStyle = new LabelStyle(
+        const personaLabelStyle: LabelStyle = new LabelStyle(
             "Open Sans",
             11,
             "#E2F3FF",
@@ -364,7 +379,9 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
             this.header.getWidth() - 4,
             "#4C4C4C"
         );
-        this.personaLabel = new Label((value: string) => { this.persona = value; },
+        this.personaLabel = new Label((value: string) => {
+                this.persona = value;
+            },
             graph.getHtmlElement(),
             this.model.id.toString(),
             "Label-H" + this.model.id.toString(),
@@ -374,10 +391,10 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
             this.PERSONA_VIEW_MAXLENGTH,
             graph.viewModel.isReadonly);
 
-        var cell = mxGraph.addCell(this.header, this.callout);
+        let cell = mxGraph.addCell(this.header, this.callout);
 
         // body
-        var textLabelStyle: LabelStyle = new LabelStyle(
+        const textLabelStyle: LabelStyle = new LabelStyle(
             "Open Sans",
             12,
             "transparent",
@@ -389,7 +406,9 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
             this.bodyCell.getWidth() - 4,
             "#4C4C4C"
         );
-        this.textLabel = new Label((value: string) => { this.label = value; },
+        this.textLabel = new Label((value: string) => {
+                this.label = value;
+            },
             graph.getHtmlElement(),
             this.model.id.toString(),
             "Label-B" + this.model.id.toString(),
@@ -407,25 +426,25 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
 
         this.addOverlays(mxGraph);
 
-        this.commentsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 116, 4, 
-                                   "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
-        this.relationshipButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 92, 4, 
-                                       "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
+        this.commentsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 116, 4,
+            "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
+        this.relationshipButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 92, 4,
+            "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
         this.linkButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 68, 4, "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
         // #TODO get license info fron Nova shell
         //if (graph.viewModel.isReadonly && graph.viewModel.licenseType === Shell.LicenseTypeEnum.Viewer) {
         //    this.linkButton.disable();
         //}
-        this.mockupButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 44, 4, 
-                                 "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
-        this.detailsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 20, 4, 
-                                  "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
+        this.mockupButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 44, 4,
+            "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
+        this.detailsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 20, 4,
+            "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
 
         return this;
     }
 
     private addOverlays(graph: MxGraph) {
-        var overlays = graph.getCellOverlays(this);
+        let overlays = graph.getCellOverlays(this);
 
         if (overlays != null) {
             graph.removeCellOverlays(this);
@@ -444,8 +463,8 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         }
 
         // DO NOT DELETE!!! this is needed for the labels functionality
-        this.addOverlay(graph, this, null, this.SYSTEM_TASK_WIDTH, this.SYSTEM_TASK_HEIGHT, null, 
-                        mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, this.SYSTEM_TASK_WIDTH / 2, this.SYSTEM_TASK_HEIGHT / 2);
+        this.addOverlay(graph, this, null, this.SYSTEM_TASK_WIDTH, this.SYSTEM_TASK_HEIGHT, null,
+            mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, this.SYSTEM_TASK_WIDTH / 2, this.SYSTEM_TASK_HEIGHT / 2);
     }
 
     public setCellVisible(graph: MxGraph, value: boolean) {
@@ -464,7 +483,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
 
     private openDialog(dialogType: ModalDialogType) {
         this.dialogManager.openDialog(this.model.id, dialogType);
-        
+
         // #TODO implement new mechanism for opening modal dialogs
         //this.rootScope.$broadcast(BaseModalDialogController.dialogOpenEventName,
         //    this.model.id,
@@ -472,12 +491,12 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     }
 
     public getElementTextLength(cell: MxCell): number {
-         
-        // get the maximum length of text that can be entered
-        
-        var maxLen: number = this.LABEL_EDIT_MAXLENGTH;
 
-        var element = <IDiagramNodeElement>cell;
+        // get the maximum length of text that can be entered
+
+        let maxLen: number = this.LABEL_EDIT_MAXLENGTH;
+
+        const element = <IDiagramNodeElement>cell;
         if (element.getElementType() === ElementType.SystemTaskHeader) {
             maxLen = this.PERSONA_EDIT_MAXLENGTH;
         } else {
@@ -488,15 +507,15 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
 
     public formatElementText(cell: MxCell, text: string): string {
 
-         
-         // This function returns formatted text to the getLabel()
-         // function to display the node's label and persona  
-         
+
+        // This function returns formatted text to the getLabel()
+        // function to display the node's label and persona
+
 
         if (cell && text) {
-            var maxLen: number = this.LABEL_VIEW_MAXLENGTH;
+            let maxLen: number = this.LABEL_VIEW_MAXLENGTH;
 
-            var element = <IDiagramNodeElement>cell;
+            const element = <IDiagramNodeElement>cell;
             if (element.getElementType() === ElementType.SystemTaskHeader) {
                 maxLen = this.PERSONA_VIEW_MAXLENGTH;
             } else {
@@ -512,12 +531,12 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     }
 
     public setElementText(cell: MxCell, text: string) {
-        
+
         // save text for the node or for an element within
         // the node
-        
 
-        var element = <IDiagramNodeElement>cell;
+
+        const element = <IDiagramNodeElement>cell;
 
         if (element.getElementType() === ElementType.SystemTaskHeader) {
             this.persona = text;
@@ -525,6 +544,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
             this.label = text;
         }
     }
+
     public getLabelCell(): MxCell {
         return this.bodyCell;
     }

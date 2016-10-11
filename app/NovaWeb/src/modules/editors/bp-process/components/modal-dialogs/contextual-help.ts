@@ -1,14 +1,12 @@
-
-export class ContextualHelpController  {
+export class ContextualHelpController {
 
     public static $inject = [
         "$uibModalInstance",
         "imageAttributes"
     ];
 
-    constructor(
-        private $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance,
-        private imageAttributes: any) {
+    constructor(private $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance,
+                private imageAttributes: any) {
     }
 
     public cancel() {
@@ -27,7 +25,8 @@ export class ContextualHelpDirective implements ng.IDirective {
                             <img ng-click="showHelp()"" />
                         </div>`;
 
-    constructor(private $uibModal: angular.ui.bootstrap.IModalService) { }
+    constructor(private $uibModal: angular.ui.bootstrap.IModalService) {
+    }
 
     public static factory(): ng.IDirectiveFactory {
         const directive: ng.IDirectiveFactory = ($uibModal: angular.ui.bootstrap.IModalService) => new ContextualHelpDirective($uibModal);

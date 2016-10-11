@@ -123,14 +123,12 @@ export class BPTooltip implements ng.IDirective {
         }
     };
 
-    constructor(
-        //list of other dependencies
+    constructor(//list of other dependencies
     ) {
     }
 
     public static factory() {
-        const directive = (
-            //list of dependencies
+        const directive = (//list of dependencies
         ) => new BPTooltip(
             //list of other dependencies
         );

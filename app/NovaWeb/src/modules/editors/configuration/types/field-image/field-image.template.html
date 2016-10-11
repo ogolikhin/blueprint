@@ -1,7 +1,9 @@
 <div class="inheritance-group inheritance-group-wrapper">
                     <span class="actor-image-wrapper">
-                        <label ng-if="model[options.key].imageSource" ng-style="{'background-image': 'url(' + model[options.key].imageSource + ')'}" >
-                            <input bp-file-upload="onFileSelect(files, callback)" type="file" accept="image/jpeg, image/jpg, image/png"
+                        <label ng-if="model[options.key].imageSource"
+                               ng-style="{'background-image': 'url(' + model[options.key].imageSource + ')'}">
+                            <input bp-file-upload="onFileSelect(files, callback)" type="file"
+                                   accept="image/jpeg, image/jpg, image/png"
                                    ng-disabled="to.disabled">
                         </label>
                         <span ng-if="!model[options.key].imageSource"></span>

@@ -167,21 +167,28 @@ $modal-open-project-height: 450px;
     }
 
     .search-result {
-      @include text-ellipsis-flex-width(100%);
-      font-size: 1.2rem;
-      line-height: 18px;
-      cursor: default;
+      display: flex;
+      border: 1px solid $gray-lightest;
 
       & > i {
-        display: inline-block;
-        width: 25px;
-        padding-left: 5px;
+        font-size: 24px;
+        line-height: 1.5em;
         color: $brand-secondary;
-        border: 1px solid transparent;
       }
 
       &:hover {
         background-color: $tree-hover-background;
+      }
+    }
+
+    .search-details {
+      min-width: 0;
+
+      & > div {
+        @include text-ellipsis-flex-width(unset);
+        font-size: 1.2rem;
+        line-height: 18px;
+        cursor: default;
       }
     }
 

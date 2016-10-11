@@ -164,7 +164,8 @@ export class ProjectExplorerController {
     };
 
     public doSelect = (node: IArtifactNode) => {
-        if (!this.selected || this.selected.id !== node.id || this.selected.id !== this.artifactManager.selection.getArtifact().id) {
+        const selectedArtifact = this.artifactManager.selection.getArtifact();
+        if (!this.selected || this.selected.id !== node.id || (selectedArtifact && this.selected.id !== selectedArtifact.id)) {
             this.doSync(node);
             this.selected = node;
             this.tree.selectNode(node.id);

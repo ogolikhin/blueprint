@@ -46,9 +46,18 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         this.loadProcessPromise = this.loadProcess();
         return [this.loadProcessPromise];
     }
-
+   
     protected runPostGetObservable() {
         this.loadProcessPromise = null;
+    }
+
+    public getCustomArtifactPromisesForRefresh (): ng.IPromise<any>[] {
+        // Returns promises for operations that are needed to refresh
+        // this process artifact
+
+        var loadProcessPromise = this.loadProcess();
+
+        return [loadProcessPromise];
     }
 
     protected isFullArtifactLoadedOrLoading() {
@@ -85,7 +94,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
             return new StatefulProcessSubArtifact(this, shape, this.services);
         });
 
-        this.shapes = statefulSubArtifacts;
+        this.shapes = newProcess.shapes;
         this.subArtifactCollection.initialise(statefulSubArtifacts);
     }
 }

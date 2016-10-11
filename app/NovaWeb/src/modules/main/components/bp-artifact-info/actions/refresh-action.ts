@@ -40,7 +40,7 @@ export class RefreshAction extends BPButtonAction {
 
                 return true;
             },
-            "fonticon fonticon2-refresh",
+            "fonticon2-refresh-line",
             localization.get("App_Toolbar_Refresh")
         );
     }

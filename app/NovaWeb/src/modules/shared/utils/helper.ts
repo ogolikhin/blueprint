@@ -168,7 +168,7 @@ export class Helper {
                     Helper.setFontFamilyOrOpenSans(child, allowedFonts);
                 } else if (child.nodeType === 3) {
                     let parent = child.parentNode;
-                    if (parent.nodeType === 1) {
+                    if (parent && parent.nodeType === 1) {
                         parent = parent as HTMLElement;
                         let element = parent;
                         let fontFamily = element.style.fontFamily;
@@ -192,7 +192,8 @@ export class Helper {
                         if (parent.tagName.toUpperCase() !== "SPAN") {
                             let span = document.createElement("SPAN");
                             span.style.fontFamily = fontFamily;
-                            span.appendChild(child);
+                            span.innerHTML = parent.innerHTML;
+                            parent.innerHTML = "";
                             parent.appendChild(span);
                         } else {
                             parent.style.fontFamily = fontFamily;

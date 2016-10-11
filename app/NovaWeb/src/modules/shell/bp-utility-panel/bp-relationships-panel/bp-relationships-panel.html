@@ -7,8 +7,8 @@
     <div class="add-empty"
          ng-if="$ctrl.item && !($ctrl.manualTraces2.length || $ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && !$ctrl.isLoading">
         <p>{{ $ctrl.localization.get('App_UP_Relationships_Introduction_Message') }}</p>
-        <label class="btn btn-secondary btn-small" ng-class="{'disabled': !$ctrl.canManageTraces() }">
-            {{::$ctrl.localization.get('App_UP_Relationships_Add_Relationship') }}
+        <label class="btn btn-secondary btn-small" ng-class="{'disabled': !$ctrl.canManageTraces() }"
+               ng-click="$ctrl.openManageTraces()">{{::$ctrl.localization.get('App_UP_Relationships_Add_Relationship') }}
         </label>
     </div>
 </div>
@@ -50,7 +50,8 @@
 
 <div class="filter-bar" ng-if="!$ctrl.isLoading &&  ($ctrl.manualTraces2.length || $ctrl.otherTraces.length)">
 
-    <label class="btn btn-secondary btn-small pull-right" ng-class="{'disabled': !$ctrl.canManageTraces() }">
+    <label class="btn btn-secondary btn-small pull-right" ng-class="{'disabled': !$ctrl.canManageTraces() }"
+           ng-click="$ctrl.openManageTraces()">
         {{::$ctrl.localization.get('App_UP_Relationships_Manage_Traces') }}
     </label>
     <div class="tabs">

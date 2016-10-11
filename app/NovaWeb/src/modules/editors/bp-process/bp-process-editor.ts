@@ -95,7 +95,12 @@ export class BpProcessEditorController extends BpBaseEditor {
 
         // here we create a new process diagram  passing in the
         // process artifact and the html element that will contain
-        // the graph        
+        // the graph  
+              
+        if (this.processDiagram) {
+            this.destroy();
+        }
+
         this.processDiagram = new ProcessDiagram(
             this.$rootScope,
             this.$scope,

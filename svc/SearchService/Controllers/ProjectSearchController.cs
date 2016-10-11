@@ -17,6 +17,7 @@ namespace SearchService.Controllers
         private readonly IProjectSearchRepository _projectSearchRepository;
         private const int MaxResultCount = 100;
         private const int DefaultResultCount = 20;
+        private const string DefaultSeparator = "/";
 
         public override string LogSource => "SearchService.ProjectSearch";
 
@@ -40,14 +41,21 @@ namespace SearchService.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         /// <param name="searchCriteria"></param>
         /// <param name="resultCount"></param>
+        /// <param name="separatorChar"></param>
         /// <returns></returns>
         [HttpPost, NoCache]
         [Route("projectsearch"), SessionRequired]
         [ActionName("GetProjectsByName")]
-        public async Task<IEnumerable<ProjectSearchResult>> GetProjectsByName([FromBody] ProjectSearchCriteria searchCriteria, int? resultCount = DefaultResultCount)
+        public async Task<IEnumerable<ProjectSearchResult>> GetProjectsByName(
+            [FromBody] ProjectSearchCriteria searchCriteria, 
+            int? resultCount = DefaultResultCount,
+            string separatorChar = DefaultSeparator)
         {
             if (resultCount == null)
                 resultCount = DefaultResultCount;
+
+            if (string.IsNullOrEmpty(separatorChar))
+                separatorChar = DefaultSeparator;
 
             if (resultCount > MaxResultCount)
                 resultCount = MaxResultCount;
@@ -65,7 +73,11 @@ namespace SearchService.Controllers
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
 
-            return await _projectSearchRepository.GetProjectsByName(session.UserId, searchCriteria.Query, resultCount.Value);
+            return await _projectSearchRepository.GetProjectsByName(
+                session.UserId, 
+                searchCriteria.Query, 
+                resultCount.Value,
+                separatorChar);
         }
     }
 }

@@ -6,7 +6,6 @@ import {ILayout} from "./models/";
 import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/process-models";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import {DiagramLink} from "./shapes/diagram-link";
-import {StatefulProcessSubArtifact} from "../../../../process-subartifact";
 
 export class ProcessAddHelper {
     public static insertTaskWithUpdate(edge: MxCell, layout: ILayout, shapesFactoryService: ShapesFactory): void {
@@ -62,11 +61,11 @@ export class ProcessAddHelper {
 
         return userTaskShape.id;
     }
-
+    // #DEBUG
     private static addShape(processShape: IProcessShape, layout: ILayout, shapesFactoryService: ShapesFactory): void {
         if (processShape != null) {
-            let statefulShape = shapesFactoryService.createStatefulSubArtifact(layout.viewModel.statefulArtifact, processShape);
-            layout.viewModel.shapes.push(statefulShape);
+            let statefulShape = shapesFactoryService.createStatefulSubArtifact(layout.viewModel.statefulArtifact, processShape);            
+            layout.viewModel.addShape(processShape);
             layout.viewModel.addJustCreatedShapeId(processShape.id);
         }
     }

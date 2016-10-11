@@ -40,9 +40,7 @@
         > a,
         > a:hover,
         > a:focus {
-            border: 0;
-            border-bottom: 4px solid $brand-error;
-            padding-bottom: 3px;
+      color: $brand-error;
         }
     }
 }

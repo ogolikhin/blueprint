@@ -30,7 +30,7 @@ export class PublishAction extends BPButtonAction {
 
                 return true;
             },
-            "fonticon fonticon2-publish",
+            "fonticon2-publish-line",
             localization.get("App_Toolbar_Publish")
         );
     }

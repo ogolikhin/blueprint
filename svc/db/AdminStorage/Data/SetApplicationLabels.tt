@@ -45,10 +45,10 @@ INSERT INTO [dbo].[ApplicationLabels] ([Key], [Locale], [Text])
 SELECT #tempAppLabels.[Key], #tempAppLabels.[Locale], #tempAppLabels.[Text]
   FROM #tempAppLabels
   LEFT JOIN [dbo].[ApplicationLabels] 
-		ON [dbo].[ApplicationLabels].[Key] = #tempAppLabels.[Key]
+		ON	[dbo].[ApplicationLabels].[Key] = #tempAppLabels.[Key]
 		AND [dbo].[ApplicationLabels].[Locale] = #tempAppLabels.[Locale]
- WHERE #tempAppLabels.[Key] is NULL
-   AND #tempAppLabels.[Locale] is NULL
+ WHERE [dbo].[ApplicationLabels].[Key] is NULL
+   AND [dbo].[ApplicationLabels].[Locale] is NULL
 
 -- Update if [Key]/[Locale] combination exists, but text is different
 UPDATE [dbo].[ApplicationLabels]

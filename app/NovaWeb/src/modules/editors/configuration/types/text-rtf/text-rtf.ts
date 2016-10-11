@@ -164,14 +164,9 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         this.observer.observe(editorBody, observerConfig);
                     }
 
-                    let contentBody = editorBody.innerHTML.replace(bogusRegEx, "");
-
+                    // tinyMCE seems to fire 2 onChange events every time
                     editor.on("Change", (e) => {
-                        const _contentBody = editorBody.innerHTML.replace(bogusRegEx, "");
-                        if (contentBody !== _contentBody) {
-                            contentBody = _contentBody;
-                            onChange(contentBody, $scope.options, $scope);
-                        }
+                        onChange(editorBody.innerHTML.replace(bogusRegEx, ""), $scope.options, $scope);
                     });
 
                     editor.on("Focus", (e) => {

@@ -55,7 +55,7 @@ namespace ArtifactStoreTests
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
-            artifactDetails.AssertEquals(artifactBaseInfo);
+            ArtifactStoreHelper.AssertEquals(artifactDetails,artifactBaseInfo);
 
             Assert.IsTrue(artifactBaseInfo.HasChanges.HasValue, "HasChanges property should have value");
             Assert.IsFalse(artifactBaseInfo.HasChanges.Value, "HasChanges property should be false");
@@ -96,7 +96,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, basicArtifactInfo.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertEquals(artifactDetails, basicArtifactInfo);
 
             Assert.IsTrue(basicArtifactInfo.HasChanges.HasValue, "HasChanges property should have value");
             Assert.IsTrue(basicArtifactInfo.HasChanges.Value, "HasChanges property should be true");
@@ -116,7 +116,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, basicArtifactInfo.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertEquals(artifactDetails, basicArtifactInfo);
 
             Assert.IsTrue(basicArtifactInfo.HasChanges.HasValue, "HasChanges property should have value");
             Assert.IsFalse(basicArtifactInfo.HasChanges.Value, "HasChanges property should be false");
@@ -141,7 +141,7 @@ namespace ArtifactStoreTests
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(anotherUser, artifact.Id);
 
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertEquals(artifactDetails, basicArtifactInfo);
 
             Assert.IsTrue(basicArtifactInfo.HasChanges.HasValue, "HasChanges property should have value");
             Assert.IsFalse(basicArtifactInfo.HasChanges.Value, "HasChanges property should be false");

@@ -60,7 +60,8 @@ namespace ArtifactStoreTests
 
             // Verify:
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, parentArtifact.Id);
-            NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
+            ArtifactStoreHelper.AssertEquals(artifactDetails, movedArtifactDetails);
+
             Assert.AreEqual(_project.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
         }
 
@@ -84,7 +85,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, parentArtifact.Id);
-            NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
+            ArtifactStoreHelper.AssertEquals(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(_project.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
         }
 
@@ -108,7 +109,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-            NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
+            ArtifactStoreHelper.AssertEquals(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
         }
 
@@ -133,7 +134,7 @@ namespace ArtifactStoreTests
 
                 // Verify:
                 INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-                NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
+                ArtifactStoreHelper.AssertEquals(artifactDetails, movedArtifactDetails);
                 Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");
             }
             finally
@@ -162,7 +163,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-            NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
+            ArtifactStoreHelper.AssertEquals(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(_project.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
 
         }
@@ -188,7 +189,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, folder1.Id);
-            NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
+            ArtifactStoreHelper.AssertEquals(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(folder2.Id, movedArtifactDetails.ParentId, "Parent Id of moved folder is not the same as parent folder Id");
         }
 
@@ -213,7 +214,7 @@ namespace ArtifactStoreTests
 
                 // Verify:
                 INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, folder1.Id);
-                NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
+                ArtifactStoreHelper.AssertEquals(artifactDetails, movedArtifactDetails);
                 Assert.AreEqual(folder2.Id, movedArtifactDetails.ParentId, "Parent Id of moved folder is not the same as parent folder Id");
             }
             finally
@@ -240,7 +241,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-            NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
+            ArtifactStoreHelper.AssertEquals(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(_project.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
         }
 
@@ -266,7 +267,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-            NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
+            ArtifactStoreHelper.AssertEquals(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
         }
 
@@ -291,7 +292,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-            NovaArtifactDetails.AssertEquals(artifactDetails, movedArtifactDetails);
+            ArtifactStoreHelper.AssertEquals(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");
         }
 

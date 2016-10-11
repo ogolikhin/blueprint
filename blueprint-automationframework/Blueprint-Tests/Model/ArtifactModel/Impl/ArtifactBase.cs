@@ -634,7 +634,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">A user to authenticate with.</param>
         /// <param name="userType">(optional) Specify whether the value being added is a user or group.</param>
         private void AddOrReplaceUsersAndGroupsProperty(string propertyName,
-            NovaArtifactDetails.Identification propertyValue,
+            Identification propertyValue,
             IProject project,
             IUser user,
             UsersAndGroupsType userType = UsersAndGroupsType.User)

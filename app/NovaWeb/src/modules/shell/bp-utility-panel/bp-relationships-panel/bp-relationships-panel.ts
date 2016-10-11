@@ -243,7 +243,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         };
 
         let data: IDialogRelationshipItem = {
-            manualTraces: _.cloneDeep(this.manualTraces2),
+            manualTraces: angular.copy(this.manualTraces2),
             artifactId: this.item.id,
             isItemReadOnly: false
         };

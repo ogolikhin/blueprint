@@ -56,12 +56,12 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 body.mce-content-body { font-family: 'Open Sans', sans-serif; font-size: 9pt; overflow: visible !important; }
                 body:hover, body:focus { background: ${bodyBgColor} url(${bodyBgImage}) no-repeat right 4px top 6px; background-attachment: fixed; }
                 a:hover { cursor: pointer !important; }`,
+                extended_valid_elements: "a[href|type|title|linkassemblyqualifiedname|text|canclick|isvalid|mentionid|isgroup|email|" +
+                "class|linkfontsize|linkfontfamily|linkfontstyle|linkfontweight|linktextdecoration|linkforeground|style|target|artifactid]",
                 invalid_elements: "img,frame,iframe,script",
                 invalid_styles: {
                     "*": "background-image"
                 },
-                extended_valid_elements: "a[href|type|title|linkassemblyqualifiedname|text|canclick|isvalid|mentionid|isgroup|email|" +
-                "class|linkfontsize|linkfontfamily|linkfontstyle|linkfontweight|linktextdecoration|linkforeground|style|target|artifactid]",
                 // https://www.tinymce.com/docs/configure/content-formatting/#font_formats
                 font_formats: fontFormats,
                 // paste_enable_default_filters: false, // https://www.tinymce.com/docs/plugins/paste/#paste_enable_default_filters

@@ -42,7 +42,7 @@ namespace ArtifactStoreTests
             _attachmentFile = FileStoreTestHelper.CreateFileWithRandomByteArray(_fileSize, _fileName, "text/plain");
             _novaAttachmentFile = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime,
                 Helper.FileStore);
-            _authorUser = TestHelper.CreateUserWithProjectRolePermissions(Helper, TestHelper.ProjectRole.Author, _project);
+            _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
         }
 
         [TearDown]
@@ -549,7 +549,7 @@ namespace ArtifactStoreTests
                 Helper.ArtifactStore.PublishArtifact(artifact, _authorUser);
                 //versionId = 2 - 1 attachment - _novaAttachmentFile
 
-                TestHelper.AssignProjectRolePermissionsToUser(_authorUser, Helper, TestHelper.ProjectRole.None, _project, artifact);
+                Helper.AssignProjectRolePermissionsToUser(_authorUser, TestHelper.ProjectRole.None, _project, artifact);
                 //now _userAuthorLicense has no access to artifact
 
                 // Execute &  Verify:

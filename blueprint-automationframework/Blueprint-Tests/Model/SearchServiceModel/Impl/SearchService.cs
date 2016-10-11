@@ -87,7 +87,7 @@ namespace Model.SearchServiceModel.Impl
             return restResponse;
         }
 
-        /// <seealso cref="FullTextSearch.SearchProjects(IUser, string, int, List{HttpStatusCode})"/>
+        /// <seealso cref="ISearchService.SearchProjects(IUser, string, int, List{HttpStatusCode})"/>
         public List<ProjectSearchResult> SearchProjects(IUser user, string searchText, int? resultCount = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -120,7 +120,39 @@ namespace Model.SearchServiceModel.Impl
             return projects;
         }
 
-        /// <seealso cref="IFullTextSearch.GetStatus(string, List{HttpStatusCode})"/>
+        /// <seealso cref="ISearchService.SearchItems(IUser, FullTextSearchCriteria, int?, int?, List{HttpStatusCode})"/>
+        public ItemSearchResult SearchItems(IUser user, FullTextSearchCriteria searchCriteria, int? start = null, int? size = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(searchCriteria, nameof(searchCriteria));
+
+            var queryParams = new Dictionary<string, string>();
+
+            if (size != null)
+            {
+                queryParams.Add("pageSize", size.ToString());
+            }
+            if (start != null)
+            {
+                queryParams.Add("startOffset", start.ToString());
+            }
+
+            var tokenValue = user.Token?.AccessControlToken;
+
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var itemSearchResult = restApi.SendRequestAndDeserializeObject<ItemSearchResult, FullTextSearchCriteria>(
+                RestPaths.Svc.SearchService.ITEMSEARCH,
+                RestRequestMethod.POST,
+                searchCriteria,
+                queryParameters: queryParams,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
+
+            return itemSearchResult;
+        }
+
+        /// <seealso cref="ISearchService.GetStatus(string, List{HttpStatusCode})"/>
         public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
         {
             return GetStatus(RestPaths.Svc.SearchService.STATUS, preAuthorizedKey, expectedStatusCodes);

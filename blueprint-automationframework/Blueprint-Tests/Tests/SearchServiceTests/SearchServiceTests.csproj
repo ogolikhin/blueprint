@@ -43,6 +43,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArtifactsSearchTests.cs" />
     <Compile Include="FullTextSearchMetadataTests.cs" />
     <Compile Include="SearchStatusTests.cs" />
     <Compile Include="FullTextSearchTests.cs" />

@@ -246,10 +246,11 @@ describe("setFontFamilyOrOpenSans", () => {
             "<p><em>Em</em></p>" +
             "<p><strong>Strong</strong></p>" +
             "<p style='font-family: Arial, sans-serif'><strong><span style='font-size: 18px'>Bold 18px</span></strong></p>" +
-            "<p style='font-family: Arial, sans-serif'><em><span style='font-family: Verdana'>Verdana Em</span></em></p>";
+            "<p style='font-family: Arial, sans-serif'><em><span style='font-family: Verdana, sans-serif'>Verdana Em</span></em></p>" +
+            "<p style='font-family: Arial, sans-serif'><em><span style='font-family: Invalid Font'>Verdana Em</span></em></p>";
         /* tslint:enable */
 
-        Helper.setFontFamilyOrOpenSans(node);
+        Helper.setFontFamilyOrOpenSans(node, ["Arial", "Verdana"]);
 
         let td = node.querySelector("td");
         let p = node.querySelectorAll("p");
@@ -263,6 +264,7 @@ describe("setFontFamilyOrOpenSans", () => {
         expect((<HTMLElement> p[5].firstElementChild.firstElementChild).style.fontFamily).toContain("Open Sans");
         expect((<HTMLElement> p[6].firstElementChild.firstElementChild).style.fontFamily).toContain("Arial");
         expect((<HTMLElement> p[7].firstElementChild.firstElementChild).style.fontFamily).toContain("Verdana");
+        expect((<HTMLElement> p[8].firstElementChild.firstElementChild).style.fontFamily).toContain("Open Sans");
     });
 });
 

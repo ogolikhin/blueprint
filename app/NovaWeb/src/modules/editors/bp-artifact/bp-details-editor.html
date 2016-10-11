@@ -32,7 +32,8 @@
 
             <uib-tabset ng-if="$ctrl.isRichTextPropertyAvailable">
                 <uib-tab ng-repeat="field in $ctrl.richTextFields"
-                         heading="{{field.data.name}}">
+                         heading="{{field.data.name}}"
+                         class="{{field.templateOptions['isInvalid'] ? 'invalid' : ''}}">
                     <formly-form model="$ctrl.model" fields="[field]">
                     </formly-form>
                 </uib-tab>

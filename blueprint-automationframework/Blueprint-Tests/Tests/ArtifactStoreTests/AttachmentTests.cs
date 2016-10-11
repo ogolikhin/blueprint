@@ -42,7 +42,7 @@ namespace ArtifactStoreTests
             _attachmentFile = FileStoreTestHelper.CreateFileWithRandomByteArray(_fileSize, _fileName, "text/plain");
             _novaAttachmentFile = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime,
                 Helper.FileStore);
-            _authorUser = TestHelper.CreateUserWithProjectRolePermissions(Helper, TestHelper.ProjectRole.Author, _project);
+            _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
         }
 
         [TearDown]
@@ -549,7 +549,7 @@ namespace ArtifactStoreTests
                 Helper.ArtifactStore.PublishArtifact(artifact, _authorUser);
                 //versionId = 2 - 1 attachment - _novaAttachmentFile
 
-                TestHelper.AssignProjectRolePermissionsToUser(_authorUser, Helper, TestHelper.ProjectRole.None, _project, artifact);
+                Helper.AssignProjectRolePermissionsToUser(_authorUser, TestHelper.ProjectRole.None, _project, artifact);
                 //now _userAuthorLicense has no access to artifact
 
                 // Execute &  Verify:
@@ -564,6 +564,33 @@ namespace ArtifactStoreTests
                 artifact.Publish(_adminUser);
             }
             
+        }
+
+        [TestCase(0)]
+        [TestCase(-1)]
+        [TestCase(2)]
+        [TestRail(182553)]
+        [Description("Create and publish artifact with attachment, get attachments non-existing version, 404 should be returned.")]
+        public void GetAttachmentSpecifyVersion_VersionNotExist_Returned404(int versionId)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            
+            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, new List<INovaFile> { _novaAttachmentFile },
+                Helper.ArtifactStore);
+            Helper.ArtifactStore.PublishArtifact(artifact, _adminUser);
+            //versionId = 1 - 1 attachment - _novaAttachmentFile
+
+            string messageText = I18NHelper.FormatInvariant("Version index (Id:{0}) is not found.", versionId);
+            IServiceErrorMessage errorMessage = ServiceErrorMessageFactory.CreateServiceErrorMessage(ErrorCodes.ResourceNotFound,
+                messageText);
+
+            // Execute & Verify:
+            Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: versionId,
+                    expectedServiceErrorMessage: errorMessage);
+            }, "GetAttachments should return 404 error when passed a non-existing valid versionId.");
         }
 
         #endregion Attachments Versions tests

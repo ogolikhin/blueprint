@@ -60,19 +60,6 @@ class BPToolbarController implements IBPToolbarController {
             case `projectcloseall`:
                 this.projectManager.remove(true);
                 break;
-            case `deleteartifact`:
-                this.dialogService.open(<IDialogSettings>{
-                    okButton: this.localization.get("App_Button_Ok"),
-                    template: require("../../../shared/widgets/bp-dialog/bp-dialog.html"),
-                    header: this.localization.get("App_DialogTitle_Alert"),
-                    message: "Are you sure you would like to delete the artifact"
-                }).then((confirm: boolean) => {
-                    if (confirm) {
-                        this.dialogService.alert("you clicked confirm!");
-                        this.deleteArtifact();
-                    };
-                });
-                break;
             case `openproject`:
                 this.dialogService.open(<IDialogSettings>{
                     okButton: this.localization.get("App_Button_Open"),
@@ -124,10 +111,6 @@ class BPToolbarController implements IBPToolbarController {
                     throw err;
                 }
                 break;
-            case `gotoimpactanalysis`:
-                let url = `Web/#/ImpactAnalysis/${this._currentArtifact}`;
-                window.open(url);
-                break;
             default:
                 this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
                 break;
@@ -141,15 +124,6 @@ class BPToolbarController implements IBPToolbarController {
         }
         evt.preventDefault();
         evt.stopImmediatePropagation();
-    }
-
-    //temporary
-    private deleteArtifact() {
-    }
-
-    public goToImpactAnalysis() {
-        let url = `Web/#/ImpactAnalysis/${this._currentArtifact}`;
-        window.open(url);
     }
 
     public $onInit() {

@@ -70,7 +70,7 @@ export class ManageTracesDialogController extends BaseDialogController {
                 let typeName = Models.ItemTypePredefined[item.primitiveItemTypePredefined];
 
                 if (typeName) {
-                    item.cssClass = "icon-" + Helper.toDashCase(typeName);
+                    item.cssClass = "icon-" + _.kebabCase(typeName);
                 }
 
                 return item;
@@ -102,7 +102,7 @@ export class ManageTracesDialogController extends BaseDialogController {
             let cssClass;
 
             if (typeName) {
-                cssClass = "icon-" + Helper.toDashCase(typeName);
+                cssClass = "icon-" + _.kebabCase(typeName);
             }
 
             if (!res) {

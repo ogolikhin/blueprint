@@ -41,7 +41,7 @@ namespace SearchService.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         /// <param name="searchCriteria"></param>
         /// <param name="resultCount"></param>
-        /// <param name="separatorChar"></param>
+        /// <param name="separatorString"></param>
         /// <returns></returns>
         [HttpPost, NoCache]
         [Route("projectsearch"), SessionRequired]
@@ -49,13 +49,13 @@ namespace SearchService.Controllers
         public async Task<IEnumerable<ProjectSearchResult>> GetProjectsByName(
             [FromBody] ProjectSearchCriteria searchCriteria, 
             int? resultCount = DefaultResultCount,
-            string separatorChar = DefaultSeparator)
+            string separatorString = DefaultSeparator)
         {
             if (resultCount == null)
                 resultCount = DefaultResultCount;
 
-            if (string.IsNullOrEmpty(separatorChar))
-                separatorChar = DefaultSeparator;
+            if (string.IsNullOrEmpty(separatorString))
+                separatorString = DefaultSeparator;
 
             if (resultCount > MaxResultCount)
                 resultCount = MaxResultCount;
@@ -77,7 +77,7 @@ namespace SearchService.Controllers
                 session.UserId, 
                 searchCriteria.Query, 
                 resultCount.Value,
-                separatorChar);
+                separatorString);
         }
     }
 }

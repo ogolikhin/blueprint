@@ -30,19 +30,19 @@ namespace SearchService.Repositories
         /// <param name="userId">User Id</param>
         /// <param name="searchText">Search Text</param>
         /// <param name="resultCount">Result Count</param>
-        /// <param name="separatorChar">Separator Character</param>
+        /// <param name="separatorString">Separator String</param>
         /// <returns></returns>
         public async Task<IEnumerable<ProjectSearchResult>> GetProjectsByName(
             int userId, 
             string searchText, 
             int resultCount,
-            string separatorChar)
+            string separatorString)
         {
             var searchPrms = new DynamicParameters();
             searchPrms.Add("@userId", userId);
             searchPrms.Add("@projectName", searchText);
             searchPrms.Add("@resultCount", resultCount);
-            searchPrms.Add("@separatorChar", separatorChar);
+            searchPrms.Add("@separatorString", separatorString);
 
             return (await ConnectionWrapper.QueryAsync<ProjectSearchResult>(
                 "GetProjectsByName", 

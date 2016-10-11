@@ -192,7 +192,7 @@ pagecontent, bp-properties-panel {
       input {
         &:not([disabled]):focus,
         &:not([disabled]):hover {
-          background: $yellow-pale url('images/editable-icon.png') no-repeat right 5px top 6px;
+          background: $yellow-pale url('images/editable-icon.png') no-repeat right 4px top 6px;
           padding-right: 20px;
         }
 
@@ -612,7 +612,7 @@ pagecontent, bp-properties-panel {
           font-family: $richtext-fontfamily;
           font-size: $richtext-fontsize;
           max-height: 350px;
-          min-height: 125px;
+          min-height: 150px;
           min-width: $property-input-width;
           padding: 0;
 
@@ -994,6 +994,11 @@ pagecontent, bp-properties-panel {
         &:focus,
         &:hover {
           background: $yellow-pale url('images/editable-icon.png') no-repeat right 4px top 6px;
+          padding-right: 20px;
+        }
+
+        > p {
+          overflow: hidden;
         }
 
         a {

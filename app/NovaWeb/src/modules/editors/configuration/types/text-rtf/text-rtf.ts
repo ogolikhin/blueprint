@@ -54,7 +54,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 statusbar: false,
                 content_style: `html { overflow: auto !important; }
                 body.mce-content-body { font-family: 'Open Sans', sans-serif; font-size: 9pt; min-height: 100px; 
-                overflow: visible !important; padding-bottom: 0 !important; }
+                margin: 8px 20px 8px 8px; overflow: visible !important; padding-bottom: 20px !important; }
                 body:hover, body:focus { background: ${bodyBgColor} url(${bodyBgImage}) no-repeat right 4px top 6px; background-attachment: fixed; }
                 a:hover { cursor: pointer !important; }
                 p { margin: 0 0 8px; }`,
@@ -89,8 +89,8 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                     width: "95%"
                 },
                 plugins: "paste textcolor table noneditable autolink link autoresize",
-                autoresize_on_init: false,
-                autoresize_min_height: 125,
+                autoresize_on_init: true,
+                autoresize_min_height: 150,
                 autoresize_max_height: 350,
                 autoresize_overflow_padding: 0,
                 // plugins: "contextmenu", // https://www.tinymce.com/docs/plugins/contextmenu/

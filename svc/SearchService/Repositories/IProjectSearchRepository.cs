@@ -10,6 +10,6 @@ namespace SearchService.Repositories
             int userId,
             string searchText,
             int resultCount,
-            string separatorChar);
+            string separatorString);
     }
 }

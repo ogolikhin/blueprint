@@ -1,4 +1,5 @@
 ﻿import * as angular from "angular";
+import * as _ from "lodash";
 import { ILocalizationService } from "../../../core";
 import { Relationships } from "../../../main";
 import { IDialogSettings, IDialogService } from "../../../shared";
@@ -241,9 +242,8 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
             header: this.localization.get("App_UP_Relationships_Manage_Traces")
         };
 
-        //TODO replace copy when lodash available
         let data: IDialogRelationshipItem = {
-            manualTraces: angular.copy(this.manualTraces2),
+            manualTraces: _.clone(this.manualTraces2),
             artifactId: this.item.id,
             isItemReadOnly: false
         };

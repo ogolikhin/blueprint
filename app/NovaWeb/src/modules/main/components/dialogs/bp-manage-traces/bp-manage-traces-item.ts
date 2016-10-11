@@ -1,3 +1,4 @@
+import * as _ from "lodash";
 import { ILocalizationService } from "../../../../core";
 import { IDialogService } from "../../../../shared";
 import { Relationships } from "../../../models";
@@ -12,12 +13,6 @@ export class BPManageTracesItem implements ng.IComponentOptions {
         deleteTrace: "&",
         isItemReadOnly: "<"
     };
-}
-
-//TODO remove after lodash implemented
-export interface IResult {
-    found: boolean;
-    index: number;
 }
 
 interface IBPManageTracesItemController {
@@ -41,34 +36,17 @@ export class BPManageTracesItemController implements IBPManageTracesItemControll
     ) {
     }
 
-    //TODO replace with lodash when added
-    public inArray(array) {
-        let found = false,
-            index = -1;
-        if (array) {
-            for (let i = 0; i < array.length; i++) {
-                if (array[i].itemId === this.item.itemId) {
-                    found = true;
-                    index = i;
-                    break;
-                }
-            }
-        }
-
-        return <IResult>{ "found": found, "index": index };
-    }
-
     public selectTrace() {
         if (this.selectedTraces) {
-            let res = this.inArray(this.selectedTraces);
+            let index = _.findIndex(this.selectedTraces, {itemId: this.item.itemId});
 
             if (!this.item.isSelected) {
-                if (!res.found) {
+                if (index === -1) {
                     this.selectedTraces.push(this.item);
                 }
             } else {
-                if (res.found) {
-                    this.selectedTraces.splice(res.index, 1);
+                if (index > -1) {
+                    this.selectedTraces.splice(index, 1);
                 }
             }
         }

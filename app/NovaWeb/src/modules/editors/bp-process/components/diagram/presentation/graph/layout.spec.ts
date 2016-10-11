@@ -137,6 +137,9 @@ describe("Layout test", () => {
         let processModel = setProcessViewModel(testModel);
         let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
+        //bypass testing adding stateful shapes logic here
+        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+
         // Act
         graph.render(false, null);
         ProcessAddHelper.insertTaskWithUpdate(graph.getNodeById("15").getConnectableElement().edges[1], graph.layout, shapesFactoryService);
@@ -164,6 +167,9 @@ describe("Layout test", () => {
         var testModel = TestModels.createDefaultProcessModel();
         let processModel = setProcessViewModel(testModel);
         var graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+
+        //bypass testing adding stateful shapes logic here
+        spyOn(processModel, "addStatefulShape").and.returnValue(null);
 
         // Act
         graph.render(false, null);
@@ -193,6 +199,9 @@ describe("Layout test", () => {
         var graph = new ProcessGraph(rootScope, { graphContainer: container, graphWrapper: wrapper }, 
             container, processModel, dialogService, localization);
         graph.layout.setTempShapeId(0);
+
+        //bypass testing adding stateful shapes logic here
+        spyOn(processModel, "addStatefulShape").and.returnValue(null);
 
         // Act
         graph.render(false, null);
@@ -248,6 +257,9 @@ describe("Layout test", () => {
         let link = new ProcessLinkModel(0, 20, 25);
         let diagramLink = new DiagramLink(link, null);
 
+        //bypass testing adding stateful shapes logic here
+        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+
         // Act
         graph.render(false, null);
 
@@ -294,6 +306,9 @@ describe("Layout test", () => {
         var graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.layout.setTempShapeId(0);
 
+        //bypass testing adding stateful shapes logic here
+        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+
         // Act
         graph.render(true, null);
         ProcessAddHelper.insertUserDecision(graph.getNodeById("27").getConnectableElement().edges[1],
@@ -330,6 +345,9 @@ describe("Layout test", () => {
         var graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.layout.setTempShapeId(0);
 
+        //bypass testing adding stateful shapes logic here
+        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+
         // Act
         graph.render(true, null);
         ProcessAddHelper.insertUserDecision(graph.getNodeById("30").getConnectableElement().edges[0],
@@ -364,6 +382,9 @@ describe("Layout test", () => {
         var graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.layout.setTempShapeId(0);
 
+        //bypass testing adding stateful shapes logic here
+        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+
         // Act
         graph.render(true, null);
         ProcessAddHelper.insertTaskWithUpdate(graph.getNodeById("25").getConnectableElement().edges[1],
@@ -393,6 +414,9 @@ describe("Layout test", () => {
             graph.render(true, selectedNodeId);
         });
 
+        //bypass testing adding stateful shapes logic here
+        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+
         // Act
         graph.render(true, null);
         ProcessAddHelper.insertTaskWithUpdate(graph.getNodeById("25").getConnectableElement().edges[1],
@@ -415,6 +439,9 @@ describe("Layout test", () => {
             graph.render(true, selectedNodeId);
         });
 
+        //bypass testing adding stateful shapes logic here
+        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+
         // Act
         graph.render(true, null);
         ProcessAddHelper.insertUserDecision(graph.getNodeById("30").getConnectableElement().edges[0],
@@ -432,6 +459,9 @@ describe("Layout test", () => {
         var graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(false, null);
 
+        //bypass testing adding stateful shapes logic here
+        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+
         // Act
         //Assert
         expect(() => {
@@ -445,6 +475,9 @@ describe("Layout test", () => {
         let processModel = setProcessViewModel(testModel);
         var graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(false, null);
+
+        //bypass testing adding stateful shapes logic here
+        spyOn(processModel, "addStatefulShape").and.returnValue(null);
 
         // Act
         //Assert
@@ -955,6 +988,10 @@ describe("Layout test", () => {
                 let udId = 25;
                 let endId = 60;
 
+                //bypass testing adding stateful shapes logic here,cannot extract this spyOn logic out since
+                //test models used in each test are different and only generated in each test
+                spyOn(processModel, "addStatefulShape").and.returnValue(null);
+
                 let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 processGraph.render(true, false);
 
@@ -973,10 +1010,13 @@ describe("Layout test", () => {
             it("succeeds if no user task exist in first condition", () => {
                 // Arrange
                 let process = TestModels.createUserDecisionWithoutUserTaskInFirstConditionModel();
-                let viewModel = setProcessViewModel(process);
-                var graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
+                let processModel = setProcessViewModel(process);
+                var graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 let decisionId = 40;
                 let expectedConditions = 3;
+
+                //bypass testing adding stateful shapes logic here
+                spyOn(processModel, "addStatefulShape").and.returnValue(null);
 
                 // Act
                 ProcessAddHelper.insertUserDecisionCondition(decisionId, graph.layout, shapesFactoryService);
@@ -993,6 +1033,9 @@ describe("Layout test", () => {
                 let ut4Id = 40;
                 let sdId = 25;
                 let endId = 50;
+
+                //bypass testing adding stateful shapes logic here
+                spyOn(processModel, "addStatefulShape").and.returnValue(null);
 
                 let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 processGraph.render(true, false);
@@ -1014,6 +1057,9 @@ describe("Layout test", () => {
                 let sd1Id = 25;
                 let ut4Id = 50;
 
+                //bypass testing adding stateful shapes logic here
+                spyOn(processModel, "addStatefulShape").and.returnValue(null);
+
                 let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 processGraph.render(true, false);
 
@@ -1031,6 +1077,9 @@ describe("Layout test", () => {
                 let sd2Id = 35;
                 let ut4Id = 50;
                 let endId = 60;
+
+                //bypass testing adding stateful shapes logic here
+                spyOn(processModel, "addStatefulShape").and.returnValue(null);
 
                 let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 processGraph.render(true, false);
@@ -1054,6 +1103,9 @@ describe("Layout test", () => {
             let processModel = new ProcessViewModel(testModel, rootScope, localScope, msgService);
             processModel.communicationManager = communicationManager;
             var graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+
+            //bypass testing adding stateful shapes logic here
+            spyOn(processModel, "addStatefulShape").and.returnValue(null);
 
             // Act
             graph.render(false, null);
@@ -1081,6 +1133,9 @@ describe("Layout test", () => {
             let processModel = new ProcessViewModel(testModel, rootScope, localScope, msgService);
             processModel.communicationManager = communicationManager;
             var graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+
+            //bypass testing adding stateful shapes logic here
+            spyOn(processModel, "addStatefulShape").and.returnValue(null);
 
             // Act
             graph.render(false, null);

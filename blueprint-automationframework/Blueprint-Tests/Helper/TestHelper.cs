@@ -511,12 +511,12 @@ namespace Helper
 
             var newUser = CreateUserAndAddToDatabase(instanceAdminRole: null);
 
-            AdminStore.AddSession(newUser);
-
             foreach (var project in projects)
             {
                 AssignProjectRolePermissionsToUser(newUser, role, project, artifact);
             }
+
+            AdminStore.AddSession(newUser);//assign premission and after it authenticate, reverse doesn't work - need to investigate!
 
             Logger.WriteInfo("User {0} created.", newUser.Username);
 

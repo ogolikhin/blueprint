@@ -4,7 +4,6 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
-using Model.ArtifactModel.Impl;
 using Model.NovaModel;
 using Model.Factories;
 using NUnit.Framework;
@@ -59,7 +58,8 @@ namespace ArtifactStoreTests
                 "Artifact shouldn't have attachments at this point.");
 
             // Execute:
-            Assert.DoesNotThrow(() => AddArtifactAttachmentAndSave(_user, artifact, new List<INovaFile> { _attachmentFile }, Helper.BlueprintServer.Address),
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.AddArtifactAttachmentAndSave(_user, artifact,
+                new List<INovaFile> { _attachmentFile }, Helper.ArtifactStore),
                 "Exception caught while trying to update an artifact!");
 
             // Verify:
@@ -77,13 +77,14 @@ namespace ArtifactStoreTests
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.TextualRequirement);
-            AddArtifactAttachmentAndSave(_user, artifact, new List<INovaFile> { _attachmentFile }, Helper.BlueprintServer.Address);
+            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_user, artifact, new List<INovaFile> { _attachmentFile },
+                Helper.ArtifactStore);
             artifact.Publish(_user);
             var attachment = Helper.ArtifactStore.GetAttachments(artifact, _user);
 
             // Execute:
-            Assert.DoesNotThrow(() => DeleteArtifactAttachmentAndSave(_user, artifact, attachment.AttachedFiles[0].AttachmentId,
-                Helper.BlueprintServer.Address), "Exception caught while trying to update an artifact!");
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.DeleteArtifactAttachmentAndSave(_user, artifact,
+                attachment.AttachedFiles[0].AttachmentId, Helper.ArtifactStore), "Exception caught while trying to update an artifact!");
             attachment = Helper.ArtifactStore.GetAttachments(artifact, _user);
 
             // Verify:
@@ -106,8 +107,10 @@ namespace ArtifactStoreTests
                 "Artifact shouldn't have attachments at this point.");
 
             // Execute:
-            Assert.DoesNotThrow(() => AddArtifactAttachmentAndSave(_user, artifact, new List<INovaFile> { _attachmentFile, attachmentFile1 },
-                Helper.BlueprintServer.Address), "Exception caught while trying to update an artifact!");
+            Assert.DoesNotThrow(() =>
+            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_user, artifact,
+            new List<INovaFile> { _attachmentFile, attachmentFile1 }, Helper.ArtifactStore),
+            "Exception caught while trying to update an artifact!");
 
             // Verify:
             var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
@@ -128,7 +131,8 @@ namespace ArtifactStoreTests
                 "Artifact shouldn't have attachments at this point.");
 
             // Execute:
-            Assert.Throws<Http409ConflictException>(() => AddArtifactAttachmentAndSave(_user, artifact, new List<INovaFile> { _attachmentFile }, Helper.BlueprintServer.Address),
+            Assert.Throws<Http409ConflictException>(() => ArtifactStoreHelper.AddArtifactAttachmentAndSave(_user, artifact,
+                new List<INovaFile> { _attachmentFile }, Helper.ArtifactStore),
                 "Unexpected Exception caught while trying to update an artifact!");
             
             // Verify:
@@ -136,47 +140,6 @@ namespace ArtifactStoreTests
             Assert.AreEqual(0, attachmentAfterTest.AttachedFiles.Count,
                 "Artifact shouldn't have at this point.");
             Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
-        }
-
-
-        /// <summary>
-        /// Attaches file to the artifact (Save changes).
-        /// </summary>
-        /// <param name="user">User to perform an operation.</param>
-        /// <param name="artifact">Artifact.</param>
-        /// <param name="files">List of files to attach.</param>
-        /// <param name="address">The address of the ArtifactStore service.</param>
-        private void AddArtifactAttachmentAndSave(IUser user, IArtifact artifact, List<INovaFile> files, string address)
-        {
-            artifact.Lock(user);
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
-            foreach (var file in files)
-            artifactDetails.AttachmentValues.Add(new AttachmentValue(user, file));
-
-            Artifact.UpdateArtifact(artifact, user, artifactDetails, address);
-            var attachment = Helper.ArtifactStore.GetAttachments(artifact, _user);
-            Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
-        }
-
-        /// <summary>
-        /// deletes file from the artifact (Save changes).
-        /// </summary>
-        /// <param name="user">User to perform an operation.</param>
-        /// <param name="artifact">Artifact.</param>
-        /// <param name="fileId">Id of the file to delete. File must be attached to the artifact.</param>
-        /// <param name="address">The address of the ArtifactStore service.</param>
-        private void DeleteArtifactAttachmentAndSave(IUser user, IArtifact artifact, int fileId, string address)
-        {
-            var attachment = Helper.ArtifactStore.GetAttachments(artifact, _user);
-            Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
-            var fileToDelete = attachment.AttachedFiles.FirstOrDefault(f => f.AttachmentId == fileId);
-            Assert.AreEqual(fileId, fileToDelete.AttachmentId, "Attachments must contain file with fileId.");
-
-            artifact.Lock(user);
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
-            artifactDetails.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
-
-            Artifact.UpdateArtifact(artifact, user, artifactDetails, address);
         }
     }
 }

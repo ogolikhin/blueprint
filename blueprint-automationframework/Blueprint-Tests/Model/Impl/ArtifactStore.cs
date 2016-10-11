@@ -270,8 +270,8 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetAttachments(IArtifactBase, IUser, bool?, int?, List{HttpStatusCode})"/>
-        public Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null, int? subArtifactId = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
+        public Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null, int? versionId = null,
+            int? subArtifactId = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -282,6 +282,11 @@ namespace Model.Impl
             if (addDrafts != null)
             {
                 queryParameters.Add("addDrafts", addDrafts.ToString());
+            }
+
+            if (versionId != null)
+            {
+                queryParameters.Add("versionId", versionId.ToString());
             }
 
             if (subArtifactId != null)
@@ -432,6 +437,18 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
 
             return subartifacts.ConvertAll(o => (INovaSubArtifact)o);
+        }
+
+        /// <seealso cref="IArtifactStore.GetSubartifactDetails(IUser, int, int, List{HttpStatusCode})"/>
+        public NovaSubArtifactDetails GetSubartifactDetails(IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_, artifactId, subArtifactId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            return restApi.SendRequestAndDeserializeObject<NovaSubArtifactDetails>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
         }
 
         /// <seealso cref="IArtifactStore.GetUnpublishedChanges(IUser, List{HttpStatusCode})"/>
@@ -739,6 +756,7 @@ namespace Model.Impl
                         continue;
                     }
 
+                    publishedArtifact.LockOwner = null;
                     publishedArtifact.IsSaved = false;
 
                     // If the artifact was marked for deletion, then this publish operation actually deleted the artifact.

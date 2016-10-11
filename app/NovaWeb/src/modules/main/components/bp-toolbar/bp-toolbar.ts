@@ -2,7 +2,7 @@
 import { IDialogSettings, IDialogService } from "../../../shared";
 import { Models} from "../../models";
 import { IArtifactManager, IProjectManager } from "../../../managers";
-
+import { IStatefulArtifact } from "../../../managers/artifact-manager/artifact";
 import { OpenProjectController } from "../dialogs/open-project/open-project";
 import { BPTourController } from "../dialogs/bp-tour/bp-tour";
 import { Helper } from "../../../shared/utils/helper";
@@ -60,19 +60,6 @@ class BPToolbarController implements IBPToolbarController {
             case `projectcloseall`:
                 this.projectManager.remove(true);
                 break;
-            case `deleteartifact`:
-                this.dialogService.open(<IDialogSettings>{
-                    okButton: this.localization.get("App_Button_Ok"),
-                    template: require("../../../shared/widgets/bp-dialog/bp-dialog.html"),
-                    header: this.localization.get("App_DialogTitle_Alert"),
-                    message: "Are you sure you would like to delete the artifact"
-                }).then((confirm: boolean) => {
-                    if (confirm) {
-                        this.dialogService.alert("you clicked confirm!");
-                        this.deleteArtifact();
-                    };
-                });
-                break;
             case `openproject`:
                 this.dialogService.open(<IDialogSettings>{
                     okButton: this.localization.get("App_Button_Open"),
@@ -124,10 +111,6 @@ class BPToolbarController implements IBPToolbarController {
                     throw err;
                 }
                 break;
-            case `gotoimpactanalysis`:
-                let url = `Web/#/ImpactAnalysis/${this._currentArtifact}`;
-                window.open(url);
-                break;
             default:
                 this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
                 break;
@@ -143,34 +126,33 @@ class BPToolbarController implements IBPToolbarController {
         evt.stopImmediatePropagation();
     }
 
-    //temporary
-    private deleteArtifact() {
-    }
-
-    public goToImpactAnalysis() {
-        let url = `Web/#/ImpactAnalysis/${this._currentArtifact}`;
-        window.open(url);
-    }
-
     public $onInit() {
-        this._subscribers = [
-            this.artifactManager.selection.artifactObservable.subscribe(this.displayArtifact)
-        ];
+        const artifactStateSubscriber = this.artifactManager.selection.artifactObservable
+            .map(selection => {
+                if (!selection) {
+                    this._currentArtifact = null;
+                }
+                return selection;
+            })
+            .filter(selection => !!selection)
+            .flatMap(selection => selection.getObservable())
+            .subscribe(this.displayArtifact);
+
+        this._subscribers = [ artifactStateSubscriber ];
     }
 
     public $onDestroy() {
-        //dispose all subscribers
-        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        this._subscribers.forEach(subscriber => { subscriber.dispose(); });
+        delete this._subscribers;
     }
 
-    private displayArtifact = (artifact: Models.IArtifact) => {
+    private displayArtifact = (artifact: IStatefulArtifact) => {
         this._currentArtifact =
-            Helper.canUtilityPanelUseSelectedArtifact(artifact) && 
-            artifact.version !== 0 ? artifact.id : null;
+            Helper.canUtilityPanelUseSelectedArtifact(artifact) &&
+            (artifact.version > 0) ? artifact.id : null;
     }
-    
+
     public get canRefreshAll(): boolean{
         return !!this.projectManager.getSelectedProject();
     }
-
 }

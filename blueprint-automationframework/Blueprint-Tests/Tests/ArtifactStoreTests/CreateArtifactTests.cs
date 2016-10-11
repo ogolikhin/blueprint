@@ -57,15 +57,17 @@ namespace ArtifactStoreTests
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection, Explicit = true, IgnoreReason = IgnoreReasons.UnderDevelopment)]
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder, Explicit = true, IgnoreReason = IgnoreReasons.UnderDevelopment)]
         [TestRail(154745)]
-        [Description("Create an artifact of a supported type.  Get the artifact.  Verify the artifact returned has the same properties as the artifact we created.")]
-        public void CreateArtifact_ValidArtifactType_CanGetArtifact(ItemTypePredefined artifactType)
+        [Description("Create an artifact of a supported type in the project root.  Get the artifact.  " +
+            "Verify the artifact returned has the same properties as the artifact we created.")]
+        public void CreateArtifact_ValidArtifactTypeUnderProject_CanGetArtifact(ItemTypePredefined artifactType)
         {
             // Execute:
             INovaArtifactDetails newArtifact = null;
 
             Assert.DoesNotThrow(() =>
                 newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project),
-                "Exception caught while trying to create an artifact of type: '{0}'!", artifactType);
+                "'POST {0}' should return 200 OK when trying to create an artifact of type: '{1}'!",
+                SVC_PATH, artifactType);
 
             // Verify:
             Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
@@ -73,8 +75,42 @@ namespace ArtifactStoreTests
             artifactDetails.AssertEquals(newArtifact);
         }
 
-        // TODO: Create folder under project.  Verify success.
-        // TODO: Create folder under another folder.  Verify success.
+        [TestCase(ArtifactTypePredefined.Actor)]
+        [TestCase(ArtifactTypePredefined.BusinessProcess)]
+        [TestCase(ArtifactTypePredefined.Document)]
+        [TestCase(ArtifactTypePredefined.DomainDiagram)]
+        [TestCase(ArtifactTypePredefined.GenericDiagram)]
+        [TestCase(ArtifactTypePredefined.Glossary)]
+        [TestCase(ArtifactTypePredefined.PrimitiveFolder)]
+        [TestCase(ArtifactTypePredefined.Storyboard)]
+        [TestCase(ArtifactTypePredefined.TextualRequirement)]
+        [TestCase(ArtifactTypePredefined.UIMockup)]
+        [TestCase(ArtifactTypePredefined.UseCase)]
+        [TestCase(ArtifactTypePredefined.UseCaseDiagram)]
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection, Explicit = true, IgnoreReason = IgnoreReasons.UnderDevelopment)]
+        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder, Explicit = true, IgnoreReason = IgnoreReasons.UnderDevelopment)]
+        [TestRail(182496)]
+        [Description("Create an artifact of a supported type under a folder.  Get the artifact.  " +
+            "Verify the artifact returned has the same properties as the artifact we created.")]
+        public void CreateArtifact_ValidArtifactTypeUnderFolder_CanGetArtifact(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            INovaArtifactDetails parentFolder = CreateArtifactWithRandomName(ItemTypePredefined.PrimitiveFolder, _user, _project);
+
+            // Execute:
+            INovaArtifactDetails newArtifact = null;
+
+            Assert.DoesNotThrow(() =>
+                newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, parentFolder),
+                "'POST {0}' should return 200 OK when trying to create an artifact of type: '{1}'!",
+                SVC_PATH, artifactType);
+
+            // Verify:
+            Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
+            artifactDetails.AssertEquals(newArtifact);
+        }
+
         // TODO: Create artifact with order index before, same as, or after other artifacts.  Verify success.
         // TODO: Create Collections & Collection Folders.  Verify success.  NOTE: Default collection folder ID of a project is Project ID + 2.
         // TODO: (CustomData) Create artifact that has required fields.  Verify success.  Try to publish.  Verify error.
@@ -140,7 +176,7 @@ namespace ArtifactStoreTests
                 InstanceAdminRole.BlueprintAnalytics);
 
             // Execute & Verify:
-            Assert.Throws<Http403ForbiddenException>(() => CreateInvalidArtifact(userWithoutPermission,
+            Assert.Throws<Http403ForbiddenException>(() => CreateArtifact(userWithoutPermission,
                 _project, (int)ItemTypePredefined.Process),
                 "'POST {0}' should return 403 Forbidden if the user doesn't have permission to add artifacts!", SVC_PATH);
         }
@@ -156,7 +192,7 @@ namespace ArtifactStoreTests
             IProject fakeProject = ProjectFactory.CreateProject(id: projectId);
 
             // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => CreateInvalidArtifact(_user, fakeProject, (int)ItemTypePredefined.Process),
+            Assert.Throws<Http404NotFoundException>(() => CreateArtifact(_user, fakeProject, (int)ItemTypePredefined.Process),
                 "'POST {0}' should return 404 Not Found if the Project ID doesn't exist!", SVC_PATH);
         }
 
@@ -190,15 +226,23 @@ namespace ArtifactStoreTests
         /// <param name="artifactType">The type of artifact to create.</param>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="project">The project where the artifact will be created.</param>
+        /// <param name="parent">(optional) The parent of the artifact to be created.</param>
         /// <returns>The artifact that was created.</returns>
-        private INovaArtifactDetails CreateArtifactWithRandomName(ItemTypePredefined artifactType, IUser user, IProject project)
+        private INovaArtifactDetails CreateArtifactWithRandomName(ItemTypePredefined artifactType,
+            IUser user,
+            IProject project,
+            INovaArtifactDetails parent = null)
         {
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
-            return Helper.ArtifactStore.CreateArtifact(user, artifactType, artifactName, project);
+            var artifact = Helper.ArtifactStore.CreateArtifact(user, artifactType, artifactName, project, parent);
+
+            WrapNovaArtifact(artifact, project, user);
+
+            return artifact;
         }
 
         /// <summary>
-        /// Tries to create an invalid artifact.
+        /// Tries to create an artifact (which could be invalid).
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="project">The project where the artifact will be created.</param>
@@ -207,7 +251,7 @@ namespace ArtifactStoreTests
         /// <param name="parentId">The parent ID of the artifact.</param>
         /// <param name="orderIndex">The order index of the artifact.</param>
         /// <returns>The artifact that was created.</returns>
-        private INovaArtifactDetails CreateInvalidArtifact(IUser user,
+        private INovaArtifactDetails CreateArtifact(IUser user,
             IProject project,
             int itemTypeId,
             string artifactName = null,
@@ -227,19 +271,21 @@ namespace ArtifactStoreTests
             
             string jsonBody = JsonConvert.SerializeObject(artifactDetails);
 
-            RestResponse response = CreateInvalidArtifact(user, jsonBody);
+            RestResponse response = CreateArtifactFromJson(user, jsonBody);
             INovaArtifactDetails createdArtifact = JsonConvert.DeserializeObject<NovaArtifactDetails>(response.Content);
-            
+
+            WrapNovaArtifact(createdArtifact, project, user);
+
             return createdArtifact;
         }
         
         /// <summary>
-        /// Tries to create an invalid artifact.
+        /// Tries to create an artifact based on the supplied JSON body.
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="jsonBody">The JSON body of the request.</param>
         /// <returns>The REST response.</returns>
-        private RestResponse CreateInvalidArtifact(IUser user, string jsonBody)
+        private RestResponse CreateArtifactFromJson(IUser user, string jsonBody)
         {
             RestApiFacade restApi = new RestApiFacade(Helper.BlueprintServer.Address, user?.Token?.AccessControlToken);
 
@@ -255,6 +301,30 @@ namespace ArtifactStoreTests
                 expectedStatusCodes: expectedStatusCodes);
 
             return response;
+        }
+
+        /// <summary>
+        /// Wraps an INovaArtifactDetails in an IArtifactBase and adds it Helper.Artifacts so it gets disposed properly.
+        /// </summary>
+        /// <param name="novaArtifact">The INovaArtifactDetails that was created by ArtifactStore.</param>
+        /// <param name="project">The project where this artifact exists.</param>
+        /// <param name="user">The user that created this artifact.</param>
+        /// <returns>The IArtifactBase wrapper for the novaArtifact.</returns>
+        private IArtifactBase WrapNovaArtifact(INovaArtifactDetails novaArtifact, IProject project, IUser user)
+        {
+            ThrowIf.ArgumentNull(novaArtifact, nameof(novaArtifact));
+
+            Assert.NotNull(novaArtifact.PredefinedType, "PredefinedType is null in the Nova Artifact!");
+
+            IArtifactBase artifact = ArtifactFactory.CreateArtifact(project,
+                user,
+                ((ItemTypePredefined)novaArtifact.PredefinedType.Value).ToBaseArtifactType(),
+                novaArtifact.Id);
+
+            artifact.IsSaved = true;
+            Helper.Artifacts.Add(artifact);
+
+            return artifact;
         }
         
         #endregion Private functions

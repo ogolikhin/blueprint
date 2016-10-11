@@ -76,7 +76,7 @@ namespace ArtifactStoreTests
             artifact.Lock();
             UpdateDocumentFile_CanGetAttachment(_user, artifact, uploadedFile);
             //
-            artifact.NovaPublish(_user);
+            artifact.StorytellerPublish(_user);
             artifact.Lock(_user);
             //
             // Execute & Verify:
@@ -101,7 +101,7 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Document);
             artifact.Lock(_user);
             UpdateDocumentFile_CanGetAttachment(_user, artifact, uploadedFile1);
-            artifact.NovaPublish(_user);
+            artifact.StorytellerPublish(_user);
             artifact.Lock(_user);
             var uploadedFile2 = Helper.FileStore.AddFile(file2, _user, expireTime: expireTime, useMultiPartMime: true);
 

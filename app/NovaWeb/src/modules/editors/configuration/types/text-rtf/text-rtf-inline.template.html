@@ -1,6 +1,6 @@
-<div class="tinymce-group has-messages">
+<div class="tinymce-group has-messages tinymce-toolbar-hidden">
 	<div class="tinymce-toolbar" ng-class="'tinymce-toolbar-' + options.key"></div>
-	<div ui-tinymce="to.tinymceOptions" ng-model="model[options.key]" class="tinymce-body ps-child" ng-class="'tinymce-body-' + options.key"></div>
+	<div ui-tinymce="to.tinymceOptions" ng-model="model[options.key]" class="tinymce-body" ng-class="'tinymce-body-' + options.key"></div>
 	<div ng-messages="fc.$error" ng-if="showError" class="error-messages">
 		<div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
 	</div>

@@ -4,6 +4,7 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
@@ -112,8 +113,6 @@ namespace ArtifactStoreTests
             CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
         }
 
-        #endregion Process tests
-
         [TestCase]
         [TestRail(165967)]
         [Description("Create default process, delete it, get list of subartifacts - check that it is empty.")]
@@ -132,6 +131,116 @@ namespace ArtifactStoreTests
 
             Assert.AreEqual(0, subArtifacts.Count, "For deleted process GetSubartifacts must return empty list (for Instance Admin).");
         }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
+        [TestCase(BaseArtifactType.Actor)]
+        [TestRail(182511)]
+        [Description("Create default process and new artifact. Add inline trace that points to the new artifact to a process subartifact." +
+                     "Verify inline trace added. Modify new artifact name and publish.  Verify inline trace in process subartifact is updated with " +
+                     "the modifed artifact name.")]
+        public void GetSubArtifacts_CreateInlineTraceFromProcessSubArtifactToArtifactThenModifyArtifactName_VerifyInlineTraceUpdatedInProcess(
+            BaseArtifactType baseArtifactType)
+        {
+            // Setup:
+            // Create artifact
+            var inlineTraceArtifact = Helper.CreateAndPublishArtifact(_project, _user, baseArtifactType);
+
+            // Create and get the default process
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+
+            // Add an inline trace to the default user task in the process and publish the process
+            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var descriptionProperty = StorytellerTestHelper.FindPropertyValue("description", defaultUserTask.PropertyValues).Value;
+            descriptionProperty.Value = ArtifactStoreHelper.CreateTextForProcessInlineTrace(new List<IArtifact> {inlineTraceArtifact});
+
+            Helper.Storyteller.UpdateProcess(_user, returnedProcess);
+            Helper.Storyteller.PublishProcess(_user, returnedProcess);
+
+            // Get the process with the updated inline trace and verify that the trace was added
+            var updatedProcess = Helper.Storyteller.GetProcess(_user, returnedProcess.Id);
+            var updatedDefaultUserTask = updatedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var updatedDescriptionProperty = StorytellerTestHelper.FindPropertyValue("description", updatedDefaultUserTask.PropertyValues).Value;
+
+            Assert.That(updatedDescriptionProperty.Value.ToString().Contains(descriptionProperty.Value.ToString()), "Description properties don't match.");
+
+            // Execute:
+            inlineTraceArtifact.Lock();
+
+            // Change the name of artifact
+            var artifactDetailsToUpdateInlineTraceArtifact = new NovaArtifactDetails
+            {
+                Id = inlineTraceArtifact.Id,
+                ProjectId = inlineTraceArtifact.ProjectId,
+                ParentId = inlineTraceArtifact.ParentId,
+                Name = inlineTraceArtifact.Name + "_NameUpdated",
+                Version = inlineTraceArtifact.Version
+            };
+
+            // Update the artifact with the new name
+            Artifact.UpdateArtifact(inlineTraceArtifact, _user, artifactDetailsChanges: artifactDetailsToUpdateInlineTraceArtifact);
+            Helper.ArtifactStore.PublishArtifact(inlineTraceArtifact, _user);
+
+            // Get process subartifact details via Nova call
+            NovaSubArtifactDetails subArtifactDetails = null;
+
+            Assert.DoesNotThrow(() => subArtifactDetails = Helper.ArtifactStore.GetSubartifactDetails(_user, updatedProcess.Id,
+                updatedDefaultUserTask.Id), "GetSubartifactDetails call failed when using the following subartifact ID: {0}!", updatedDefaultUserTask.Id);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifactDetails, inlineTraceArtifact, validInlineTraceLink: true);
+
+            CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
+        }
+
+        [TestCase(BaseArtifactType.Actor)]
+        [TestRail(182559)]
+        [Description("Create default process and new artifact. Add inline trace that points to the new artifact to a process subartifact." +
+                     "Verify inline trace added. Delete new artifact name and publish.  Verify inline trace in process subartifact is marked " +
+                     "tas invalid.")]
+        public void GetSubArtifacts_CreateInlineTraceFromProcessSubArtifactToArtifactThenDeleteArtifact_VerifyInlineTraceIsMarkedInvalid(
+            BaseArtifactType baseArtifactType)
+        {
+
+            // Setup:
+            // Create artifact
+            var inlineTraceArtifact = Helper.CreateAndPublishArtifact(_project, _user, baseArtifactType);
+
+            // Create and get the default process
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+
+            // Add an inline trace to the default user task in the process and publish the process
+            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var descriptionProperty = StorytellerTestHelper.FindPropertyValue("description", defaultUserTask.PropertyValues).Value;
+            descriptionProperty.Value = ArtifactStoreHelper.CreateTextForProcessInlineTrace(new List<IArtifact> { inlineTraceArtifact });
+
+            Helper.Storyteller.UpdateProcess(_user, returnedProcess);
+            Helper.Storyteller.PublishProcess(_user, returnedProcess);
+
+            // Get the process with the updated inline trace and verify that the trace was added
+            var updatedProcess = Helper.Storyteller.GetProcess(_user, returnedProcess.Id);
+            var updatedDefaultUserTask = updatedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var updatedDescriptionProperty = StorytellerTestHelper.FindPropertyValue("description", updatedDefaultUserTask.PropertyValues).Value;
+
+            Assert.That(updatedDescriptionProperty.Value.ToString().Contains(descriptionProperty.Value.ToString()), "Description properties don't match.");
+
+            // Execute:
+            inlineTraceArtifact.Lock();
+            inlineTraceArtifact.Delete();
+            inlineTraceArtifact.Publish();
+
+            // Get process subartifact details via Nova call
+            NovaSubArtifactDetails subArtifactDetails = null;
+
+            Assert.DoesNotThrow(() => subArtifactDetails = Helper.ArtifactStore.GetSubartifactDetails(_user, updatedProcess.Id,
+                updatedDefaultUserTask.Id), "GetSubartifactDetails call failed when using the following subartifact ID: {0}!", updatedDefaultUserTask.Id);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifactDetails, inlineTraceArtifact, validInlineTraceLink: false);
+
+            CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
+        }
+
+        #endregion Process tests
 
         #region Custom data tests
 
@@ -252,6 +361,8 @@ namespace ArtifactStoreTests
 
         #endregion Custom Data
 
+        #region Private Methods
+
         private static class UseCaseDisplayNames
         {
             public const string PRECONDITION = "Pre Condition";
@@ -274,5 +385,7 @@ namespace ArtifactStoreTests
                 Assert.IsFalse(s.HasChildren, "Process subartifacts doesn't have children.");
             }
         }
+
+        #endregion Private Methods
     }
 }

@@ -1,13 +1,10 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using SearchService.Models;
 using SearchService.Repositories;
-using ServiceLibrary.Helpers;
 using ServiceLibrary.Attributes;
-using ServiceLibrary.Models;
 using SearchService.Helpers;
 
 namespace SearchService.Controllers
@@ -15,10 +12,11 @@ namespace SearchService.Controllers
     [ApiControllerJsonConfig]
     [BaseExceptionFilter]
     [RoutePrefix("ItemNameSearch")]
-    public class ItemNameSearchController : LoggableApiController
+    public class ItemNameSearchController : BaseSearchController
     {
         public override string LogSource => "SearchService.ItemNameSearch";
         public const int MaxResultCount = 100;
+        private const string ArtifactPathStub = "Selected Project > Selected Folder > Selected Artifact";
 
         private ISearchConfigurationProvider _searchConfigurationProvider;
 
@@ -27,7 +25,7 @@ namespace SearchService.Controllers
         }
 
         private readonly IItemSearchRepository _itemSearchRepository;
-        public ItemNameSearchController(IItemSearchRepository itemSearchRepository, ISearchConfiguration configuration)
+        internal ItemNameSearchController(IItemSearchRepository itemSearchRepository, ISearchConfiguration configuration)
         {
             _itemSearchRepository = itemSearchRepository;
 
@@ -39,7 +37,7 @@ namespace SearchService.Controllers
         /// <summary>
         /// Perform an Item search by Name
         /// </summary>
-        /// <param name="searchCriteria">SearchCriteria object</param>
+        /// <param name="searchCriteria">SearchCriteria object</param>      
         /// <param name="startOffset">Search start offset</param>
         /// <param name="pageSize">Page Size</param>
         /// <response code="200">OK.</response>
@@ -52,69 +50,34 @@ namespace SearchService.Controllers
         public async Task<IHttpActionResult> Post([FromBody] ItemSearchCriteria searchCriteria, int? startOffset = null, int? pageSize = null)
         {
             // get the UserId from the session
-            var userId = GetUserId();
-            if (!userId.HasValue)
-            {
-                return Unauthorized();
-            }
+            var userId = ValidateAndExtractUserId();
 
-            if (!ModelState.IsValid || !ValidateSearchCriteria(searchCriteria))
-            {
-                return BadRequest();
-            }
+            ValidateCriteria(searchCriteria);
 
-            int searchPageSize = pageSize.GetValueOrDefault(_searchConfigurationProvider.PageSize);
-            if (searchPageSize <= 0)
-            {
-                searchPageSize = _searchConfigurationProvider.PageSize;
-            }
+            int searchPageSize = GetPageSize(_searchConfigurationProvider, pageSize, MaxResultCount);
 
-            if (searchPageSize > MaxResultCount)
-            {
-                searchPageSize = MaxResultCount;
-            }
+            int searchStartOffset = GetStartCounter(startOffset, 0, 0);
 
-            int searchStartOffset = startOffset.GetValueOrDefault(0);
-            if (searchStartOffset < 0)
-            {
-                searchStartOffset = 0;
-            }
+            var results = await _itemSearchRepository.FindItemByName(userId, searchCriteria, searchStartOffset, searchPageSize);
 
-            var results = await _itemSearchRepository.FindItemByName(userId.Value, searchCriteria, searchStartOffset, searchPageSize);
-            
             results.PageItemCount = results.SearchItems.Count();
+
+            if (searchCriteria.IncludeArtifactPath)
+            {
+                // TODO Get Search Artifact Path
+                foreach (var searchItem in results.SearchItems)
+                {
+                    searchItem.ArtifactPath = ArtifactPathStub;
+                }
+            }
 
             return Ok(results);
 
         }
 
-        #endregion        
-
-        #region Private
-
-        private int? GetUserId()
-        {
-            object sessionValue;
-            if (!Request.Properties.TryGetValue(ServiceConstants.SessionProperty, out sessionValue))
-            {
-                return null;
-            }
-            var session = sessionValue as Session;
-            return session?.UserId;
-        }
-
-        private bool ValidateSearchCriteria(ItemSearchCriteria searchCriteria)
-        {
-            if (string.IsNullOrWhiteSpace(searchCriteria?.Query) || 
-                //searchCriteria.Query.Trim().Length < ServiceConstants.MinSearchQueryCharLimit || 
-                !searchCriteria.ProjectIds.Any())
-            {
-                return false;
-            }
-            return true;
-        }
-
         #endregion
+
+
 
     }
 }

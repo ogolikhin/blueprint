@@ -24,24 +24,13 @@ export class FileUploadService implements IFileUploadService {
         private $log: ng.ILogService) {
     }
 
-    private encodeRFC5987ValueChars (str) {
-        return encodeURIComponent(str).
-            // Note that although RFC3986 reserves "!", RFC5987 does not,
-            // so we do not need to escape it
-            replace(/['()]/g, window["escape"]). // i.e., %27 %28 %29
-            replace(/\*/g, "%2A").
-                // The following are not required for percent-encoding per RFC5987, 
-                // so we can allow for a little better readability over the wire: |`^
-                replace(/%(?:7C|60|5E)/g, window["unescape"]);
-    }
-
     public uploadToFileStore(
         file: File,
         expirationDate?: Date, 
         progress?: (ev: ProgressEvent) => any, 
         cancelPromise?: ng.IPromise<any>): ng.IPromise<IFileResult> {
 
-        const filename: string = this.encodeRFC5987ValueChars(file.name);
+        const filename: string = encodeURIComponent(file.name);
         const deferred = this.$q.defer<IFileResult>();
         const request: ng.IRequestConfig | any = {
             headers: {

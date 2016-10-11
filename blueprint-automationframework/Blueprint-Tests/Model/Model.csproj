@@ -54,6 +54,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArtifactModel\Enums\BaseArtifactTypeExtensions.cs" />
     <Compile Include="ArtifactModel\Enums\ItemTypePredefined.cs" />
     <Compile Include="ArtifactModel\Enums\ItemTypePredefinedExtension.cs" />
     <Compile Include="ArtifactModel\IArtifactObserver.cs" />
@@ -64,6 +65,7 @@
     <Compile Include="ArtifactModel\Impl\Discussions.cs" />
     <Compile Include="ArtifactModel\Impl\NovaArtifact.cs" />
     <Compile Include="ArtifactModel\Impl\NovaArtifactDetails.cs" />
+    <Compile Include="ArtifactModel\Impl\NovaSubArtifactDetails.cs" />
     <Compile Include="ArtifactModel\Impl\NovaSubArtifact.cs" />
     <Compile Include="ArtifactModel\Impl\NovaVersionControlArtifactInfo.cs" />
     <Compile Include="ArtifactModel\Impl\PredefinedProperties\ActorInheritanceValue.cs" />

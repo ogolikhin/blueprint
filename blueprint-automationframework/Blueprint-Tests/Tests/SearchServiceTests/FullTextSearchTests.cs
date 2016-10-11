@@ -3,12 +3,13 @@ using Helper;
 using Model;
 using Model.ArtifactModel;
 using Model.Factories;
+using Model.Impl;
+using Model.SearchServiceModel.Impl;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Model.SearchServiceModel.Impl;
 using TestCommon;
 using Utilities;
 
@@ -364,8 +365,8 @@ namespace SearchServiceTests
         }
 
         [TestCase(1, TestHelper.ProjectRole.Viewer)]
-        [TestCase(1, TestHelper.ProjectRole.Author)]
-        [TestCase(0, TestHelper.ProjectRole.None)]
+        [TestCase(1, TestHelper.ProjectRole.AuthorFullAccess)]
+        [TestCase(1, TestHelper.ProjectRole.None)]
         [TestRail(182374)]
         [Description("Searching with the search criteria that matches with published artifacts using user have permission to certain project(s). Execute Search - Must return corresponding SearchResult based on user's permission per project")]
         public void FullTextSearch_SearchWithPermissionOnProjects_VerifyCorrespondingFullTextSearchItemsOnSearchResult(
@@ -390,6 +391,10 @@ namespace SearchServiceTests
 
             // Setup: Create user with the specific permission on project(s)
             var userWithSelectiveProjectPermission = TestHelper.CreateUserWithProjectRolePermissions(Helper, role: projectRole, projects: selectedProjects);
+            if (projectRole.Equals(TestHelper.ProjectRole.None))
+            {
+                publishedArtifactsForSelectedProjects.Clear();
+            }
 
             // Setup: Set the pageSize that displays all expecting search results for the user with permission on selected project(s)
             var customSearchPageSize = publishedArtifactsForSelectedProjects.Count();
@@ -531,9 +536,11 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with invalid Search criteria
             var ex = Assert.Throws<Http400BadRequestException>(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, invalidSearchCriteria), "Nova FullTextSearch call should exit with 400 BadRequestException when using invalid search criteria!");
-            
-            // Validation: Exception should contain empty response content.
-            Assert.That(ex.RestResponse.Content.Length.Equals(0), "FullTextSearch with invalid searchCriteria should return empty content but {0} is returned", ex.RestResponse.Content.ToString());
+
+            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+
+            // Validation: Exception should contain proper errorCode in the response content.
+            Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.IncorrectSearchCriteria), "FullTextSearch with invalid searchCriteria should return {0} errorCode but {1} is returned", ErrorCodes.IncorrectSearchCriteria, serviceErrorMessage.ErrorCode);
         }
 
         [TestCase]
@@ -549,8 +556,10 @@ namespace SearchServiceTests
             // Execute: Execute FullTextSearch with the search term less than minimum size
             var ex = Assert.Throws<Http400BadRequestException>(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, lessThanMinimumSearchTermSearchCriteria), "Nova FullTextSearch call shuold exit with 400 BadRequestException when using less than minium length search term!");
 
-            // Validation: Exception should contain empty response content.
-            Assert.That(ex.RestResponse.Content.Length.Equals(0), "FullTextSearch with invalid searchCriteria should return empty content but {0} is returned", ex.RestResponse.Content.ToString());
+            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+
+            // Validation: Exception should contain proper errorCode in the  response content.
+            Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.IncorrectSearchCriteria), "FullTextSearch with invalid searchCriteria should return {0} errorCode but {1} is returned", ErrorCodes.IncorrectSearchCriteria, serviceErrorMessage.ErrorCode);
         }
 
         #endregion 400 Bad Request Tests

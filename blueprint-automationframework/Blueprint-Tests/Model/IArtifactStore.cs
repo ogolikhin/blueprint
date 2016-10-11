@@ -21,6 +21,11 @@ namespace Model
     public interface IArtifactStore : IDisposable
     {
         /// <summary>
+        /// Gets the URL address of the server.
+        /// </summary>
+        string Address { get; }
+
+        /// <summary>
         /// Creates a new Nova artifact.
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
@@ -210,8 +215,8 @@ namespace Model
         /// <param name="subArtifactId">(optional) The ID of a sub-artifact of this artifact that has the attachment to get.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Attachment object for the specified artifact/subartifact.</returns>
-        Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null, int? subArtifactId = null,
-            List<HttpStatusCode> expectedStatusCodes = null);
+        Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null, int? versionId = null,
+            int? subArtifactId = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets relationships for the specified artifact/subartifact
@@ -256,6 +261,17 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>List of subartifacts.</returns>
         List<INovaSubArtifact> GetSubartifacts(IUser user, int artifactId, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets subartifact details.
+        /// (Runs: GET svc/artifactstore/artifacts/{artifactId}/subartifacts/{subArtifactId})
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">Id of artifact.</param>
+        /// <param name="subArtifactId">Id of the subArtifact</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The requested subArtifact</returns>
+        NovaSubArtifactDetails GetSubartifactDetails(IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets list of unpublished changes for the specified user.

@@ -40,6 +40,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
         allowedFonts.forEach(function (font) {
             fontFormats += `${font}=` + (font.indexOf(" ") !== -1 ? `"${font}";` : `${font};`);
         });
+        const bogusRegEx = /<br data-mce-bogus="1">/gi;
 
         let to: AngularFormly.ITemplateOptions = {
             tinymceOptions: { // this will go to ui-tinymce directive
@@ -137,11 +138,12 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                         this.observer.observe(editorBody, observerConfig);
                     }
 
-                    let contentBody = editorBody.innerHTML;
+                    let contentBody = editorBody.innerHTML.replace(bogusRegEx, "");
 
                     editor.on("Change", (e) => {
-                        if (contentBody !== editorBody.innerHTML) {
-                            contentBody = editorBody.innerHTML;
+                        const _contentBody = editorBody.innerHTML.replace(bogusRegEx, "");
+                        if (contentBody !== _contentBody) {
+                            contentBody = _contentBody;
                             onChange(contentBody, $scope.options, $scope);
                         }
                     });

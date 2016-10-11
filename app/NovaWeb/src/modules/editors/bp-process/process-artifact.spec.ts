@@ -6,6 +6,7 @@ import { ProcessServiceMock } from "./services/process.svc.mock";
 
 import { IStatefulProcessArtifactServices, StatefulArtifactServices, StatefulProcessArtifactServices } from "../../managers/artifact-manager/services";
 import { StatefulProcessArtifact } from "./process-artifact";
+import { StatefulProcessSubArtifact } from "./process-subartifact";
 
 import { Models } from "../../main/models";
 
@@ -114,33 +115,61 @@ describe("StatefulProcessArtifact", () => {
         //Assert
         expect(isLoaded).toBeTruthy();
     });
-    it("Load - process service updates are reflected on model", () => {
-        //Arrange
+
+    describe("Load - process service updates are reflected on model", ()=>{
+
+        let processArtifact: StatefulProcessArtifact,
+            model: IProcess;
+        beforeEach(()=>{                
+            const artifact = {
+                id: 1,
+                name: "",
+                projectId: 1,
+                predefinedType: Models.ItemTypePredefined.TextualRequirement
+            } as Models.IArtifact;
+
+
+            processArtifact = new StatefulProcessArtifact(artifact, services);
+
+            model = TestModels.createDefaultProcessModel();
+
+            let loadSpy = spyOn(services.processService, "load");
+            loadSpy.and.returnValue($q.when(model));
+        })
         
-        const artifact = {
-            id: 1,
-            name: "",
-            projectId: 1,
-            predefinedType: Models.ItemTypePredefined.TextualRequirement
-        } as Models.IArtifact;
+        it("IProcess is populated", () => {
+             //Act
+            processArtifact.getObservable();
+            $rootScope.$digest();
+
+            //Assert
+            let process: IProcess = processArtifact;
+            expect(process.shapes.length).toBe(model.shapes.length);
+            expect(process.links.length).toBe(model.links.length);
+            expect(process.baseItemTypePredefined).toBe(processArtifact.predefinedType);
+            expect(process.typePrefix).toBe(processArtifact.prefix);
+        });
+
+        it("subArtifactCollection is populated", () => {
+            //Act
+            processArtifact.getObservable();
+            $rootScope.$digest();
+
+            //Assert
+            expect(processArtifact.subArtifactCollection.list().length).toBe(processArtifact.shapes.length);        
+        });
+        
+        it("IProcessShapes are StatefulProcessSubArtifacts with a valid state", () => {
+            //Act
+            processArtifact.getObservable();
+            $rootScope.$digest();
+
+            //Assert
+            let shapes = processArtifact.shapes;
+            let statefulSubArtifact: StatefulProcessSubArtifact =  <StatefulProcessSubArtifact>shapes[0];
+            expect(statefulSubArtifact.artifactState).not.toBeUndefined();        
+        });
 
 
-        let processArtifact = new StatefulProcessArtifact(artifact, services);
-
-        let model = TestModels.createDefaultProcessModel();
-
-        let loadSpy = spyOn(services.processService, "load");
-        loadSpy.and.returnValue($q.when(model));
-
-        //Act
-        processArtifact.getObservable();
-        $rootScope.$digest();
-
-        //Assert
-        let process: IProcess = processArtifact;
-        expect(process.shapes.length).toBe(model.shapes.length);
-        expect(process.links.length).toBe(model.links.length);
-        expect(process.baseItemTypePredefined).toBe(processArtifact.predefinedType);
-        expect(process.typePrefix).toBe(processArtifact.prefix);
     });
 });

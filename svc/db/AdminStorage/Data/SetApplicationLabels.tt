@@ -20,6 +20,11 @@ CREATE TABLE #tempAppLabels (
 	[Key] [nvarchar](128) NOT NULL,
 	[Locale] [nvarchar](32) NOT NULL,
 	[Text] [nvarchar](512) NOT NULL
+
+	CONSTRAINT [PK_ApplicationLabels] PRIMARY KEY NONCLUSTERED 
+	(
+		[Key], [Locale] ASC
+	)
 )
 
 <#	List<string[]> allApplicationLabels = new List<string[]>();
@@ -39,10 +44,11 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('<#=appLabel[0]#>',
 INSERT INTO [dbo].[ApplicationLabels] ([Key], [Locale], [Text])
 SELECT #tempAppLabels.[Key], #tempAppLabels.[Locale], #tempAppLabels.[Text]
   FROM #tempAppLabels
- WHERE NOT EXISTS ( SELECT *
-					  FROM [dbo].[ApplicationLabels] 
-					 WHERE [dbo].[ApplicationLabels].[Key] = #tempAppLabels.[Key]
-					   AND [dbo].[ApplicationLabels].[Locale] = #tempAppLabels.[Locale])
+  LEFT JOIN [dbo].[ApplicationLabels] 
+		ON	[dbo].[ApplicationLabels].[Key] = #tempAppLabels.[Key]
+		AND [dbo].[ApplicationLabels].[Locale] = #tempAppLabels.[Locale]
+ WHERE [dbo].[ApplicationLabels].[Key] is NULL
+   AND [dbo].[ApplicationLabels].[Locale] is NULL
 
 -- Update if [Key]/[Locale] combination exists, but text is different
 UPDATE [dbo].[ApplicationLabels]

@@ -116,6 +116,7 @@ $modal-open-project-height: 450px;
       }
 
       .form-control {
+        padding-right: 31px;
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
       }
@@ -123,8 +124,10 @@ $modal-open-project-height: 450px;
       .fonticon-error {
         position: absolute;
         color: $brand-secondary;
-        top: 9px;
+        top: 0px;
         right: 0;
+        height: 34px;
+        padding-top: 8px;
 
         &::before {
           font-size: 2.2rem;

@@ -17,6 +17,7 @@ module.exports = [
     'rx/dist/rx.lite.js',
     'tinymce',
     'moment',
+    'lodash',
     // 'mxClient', TODO: now it's duplicated/included into app.js'
     'mxClientCss/common.css',
     'mxClientCss/explorer.css',

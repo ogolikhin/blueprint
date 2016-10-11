@@ -16,6 +16,7 @@ $richtext-fontcolor: #000;
 $richtext-linkcolor: #00f;
 $richtext-fontsize: 9pt;
 $richtext-fontfamily: $font-family-base;
+$richtext-y-scrollbar-width: 12px;
 
 pagecontent, bp-properties-panel {
   .properties {
@@ -135,8 +136,8 @@ pagecontent, bp-properties-panel {
         font-weight: 400;
         margin: 6px 4px 0 0;
         padding: 0;
-        width: #{$property-label-width - 4px};
         vertical-align: top;
+        width: #{$property-label-width - 4px};
 
         div:first-child {
           flex-grow: 1;
@@ -189,8 +190,8 @@ pagecontent, bp-properties-panel {
       }
 
       input {
-        &:not([disabled]):hover,
-        &:not([disabled]):focus {
+        &:not([disabled]):focus,
+        &:not([disabled]):hover {
           background: $yellow-pale url('images/editable-icon.png') no-repeat right 5px top 6px;
           padding-right: 20px;
         }
@@ -204,18 +205,15 @@ pagecontent, bp-properties-panel {
 
       textarea {
         min-height: $property-multiple-height;
-        //overflow: hidden;
         overflow: auto;
         -ms-overflow-style: auto;
         padding: 5px 17px 0 $property-padding-default;
 
-        &:not([disabled]):hover,
-        &:not([disabled]):focus {
-          background: $yellow-pale url('images/editable-icon.png') no-repeat right 5px top 6px;
+        &:not([disabled]):focus,
+        &:not([disabled]):hover {
+          background: $yellow-pale url('images/editable-icon.png') no-repeat right 4px top 6px;
           overflow: auto;
           -ms-overflow-style: auto;
-          //padding-right: 0;
-
         }
       }
 
@@ -411,8 +409,8 @@ pagecontent, bp-properties-panel {
           padding: 0;
           width: $property-input-width;
 
-          &:hover,
-          &:focus {
+          &:focus,
+          &:hover {
             background: $yellow-pale url('images/editable-icon.png') no-repeat right 4px top 6px;
           }
 
@@ -613,8 +611,8 @@ pagecontent, bp-properties-panel {
           color: $richtext-fontcolor;
           font-family: $richtext-fontfamily;
           font-size: $richtext-fontsize;
-          max-height: #{15 * $property-min-height};
-          min-height: #{3 * $property-min-height};
+          max-height: 400px;
+          min-height: 125px;
           min-width: $property-input-width;
           padding: 0;
 
@@ -625,12 +623,16 @@ pagecontent, bp-properties-panel {
           }
 
           table {
-            border: solid 1px $richtext-fontcolor;
             border-collapse: collapse;
+            border-color: $richtext-fontcolor;
+            border-style: solid;
+            border-width: 1px;
             width: 90%;
 
             td {
-              border: solid 1px $richtext-fontcolor;
+              border-color: $richtext-fontcolor;
+              border-style: solid;
+              border-width: 1px;
               padding: 0 7px;
             }
           }
@@ -857,21 +859,117 @@ pagecontent, bp-properties-panel {
       }
     }
 
-    .formly-field-bpFieldTextRTF,
-    .formly-field-bpFieldTextRTFInline {
+    .formly-field-bpFieldTextRTF {
       > div {
         width: 100%;
       }
 
       .tinymce-group {
         display: block;
+        margin-top: -28px;
+        width: calc(100% - #{$richtext-y-scrollbar-width});
+      }
+
+      .mce-tinymce {
+        border: 0;
+        border-radius: 0;
+      }
+
+      .mce-toolbar-grp {
+        border-color: $gray-lighter;
+        border-width: 1px 1px 0 !important;
+        padding: 0;
+
+        .mce-flow-layout-item {
+          margin: 0;
+        }
+
+        .mce-btn button {
+          line-height: 19px;
+          padding: 3px 7px;
+        }
+      }
+
+      .mce-edit-area {
+        border-color: $gray-lighter;
+        border-width: 1px !important;
+      }
+
+      .tinymce-toolbar-hidden {
+        margin-top: 0;
+
+        .mce-toolbar-grp {
+          display: none;
+        }
+      }
+
+      .has-error {
+        .mce-edit-area {
+          border-color: $brand-error;
+        }
+      }
+    }
+
+    .formly-field-bpFieldTextRTFInline {
+      > div {
         width: 100%;
       }
 
-      $tinymce-toolbar-height: 38px;
+      $tinymce-toolbar-height: 27px;
+      .mce-panel,
+      .mce-abs-layout {
+        // since it's hidden on init, tinyMCE cannot calculate the dimensions by itself
+        height: $tinymce-toolbar-height !important;
+        width: #{$property-input-width - 2px} !important;
+      }
+
+      .mce-toolbar-grp {
+        border: 0;
+        padding: 0;
+
+        .mce-flow-layout-item {
+          margin: 0;
+        }
+
+        .mce-btn button {
+          line-height: 19px;
+          padding: 3px 3px;
+        }
+
+        .mce-menubtn:first-child button span { // font-family button
+          text-overflow: initial;
+          width: 33px;
+
+          &::before {
+            color: #333;
+            content: '\e01a';
+            display: inline-block;
+            font-family: 'tinymce';
+            font-size: 22px;
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-font-smoothing: antialiased;
+            font-style: normal;
+            font-variant: normal;
+            font-weight: normal;
+            height: 16px;
+            line-height: 16px;
+            margin-right: 40px;
+            overflow: hidden;
+            vertical-align: text-top;
+            width: 20px;
+          }
+        }
+      }
+
       .tinymce-toolbar {
-        height: $tinymce-toolbar-height;
-        margin-top: -$tinymce-toolbar-height;
+        height: #{$tinymce-toolbar-height + 2px};
+        margin: -#{$tinymce-toolbar-height + 2px} 0 0;
+      }
+
+      .tinymce-toolbar-hidden {
+        .tinymce-toolbar {
+          display: none;
+        }
       }
 
       .tinymce-body,
@@ -884,42 +982,31 @@ pagecontent, bp-properties-panel {
         font-family: $richtext-fontfamily;
         font-size: $richtext-fontsize;
         font-weight: 400;
-        max-height: #{15 * $property-min-height};
-        max-width: 100%;
-        min-height: #{3 * $property-min-height};
-        min-width: $property-input-width;
-        overflow: auto;
-        -ms-overflow-style: auto;
+        line-height: $property-min-height;
+        max-height: $property-min-height;
+        min-height: $property-min-height;
+        outline: none;
+        overflow: hidden;
         padding: 0 2px 0 0;
+        white-space: nowrap;
+        width: $property-input-width;
 
-        //&:not(.mce-edit-focus) {
-          &:hover,
-          &:focus {
-            background: $yellow-pale url('images/editable-icon.png') no-repeat right 4px top 6px;
-          }
-        //}
+        &:focus,
+        &:hover {
+          background: $yellow-pale url('images/editable-icon.png') no-repeat right 4px top 6px;
+        }
 
         a {
           color: $richtext-linkcolor;
           cursor: pointer;
           text-decoration: underline;
         }
-
-        table {
-          border: solid 1px $richtext-fontcolor;
-          border-collapse: collapse;
-
-          td {
-            border: solid 1px $richtext-fontcolor;
-            padding: 0 7px;
-          }
-        }
       }
 
       .has-error {
         .tinymce-body,
         .tinymce-body[contenteditable="true"] {
-          border-color: $brand-error;
+          border-bottom-color: $brand-error;
         }
       }
     }
@@ -938,76 +1025,76 @@ pagecontent, bp-properties-panel {
       width: #{$property-width * .4};
 
       .inheritance-group {
-        &.inheritance-group-wrapper{
+        &.inheritance-group-wrapper {
           display: flex;
           align-items: center;
 
-          input[type=file]{
-            display:none;
+          input[type=file] {
+            display: none;
           }
         }
 
-        .icon{
+        .icon {
           display: inline-block;
-          padding-left: 9px ;
+          padding-left: 9px;
           padding-top: 28px;
           cursor: pointer;
-          &.disabled{
+          &.disabled {
             opacity: $default-disabled-opacity;
             cursor: not-allowed;
           }
         }
 
-        .actor-image-wrapper{
+        .actor-image-wrapper {
           display: inline-flex;
           align-items: center;
-          width:90px;
-          height:120px;
+          width: 90px;
+          height: 120px;
           border: 1px solid $gray-lightest;
           box-sizing: content-box;
 
-          span{
-            width:90px;
-            height:120px;
+          span {
+            width: 90px;
+            height: 120px;
             background: url('images/icons/user-default.svg') left top no-repeat;
             display: inline-block;
             background-color: $gray;
-            vertical-align:middle;
+            vertical-align: middle;
           }
 
-          label{
-            width:90px;
-            height:120px;
+          label {
+            width: 90px;
+            height: 120px;
             display: block;
-            margin:0;
+            margin: 0;
             box-sizing: content-box;
             background-size: contain;
             background-repeat: no-repeat;
             background-position: 50% 50%;
           }
 
-          ~label{
+          ~ label {
             display: inline-block;
-            width:auto;
+            width: auto;
           }
         }
 
         .image-actor-group {
           font-size: $font-size-normal;
           margin: 5px 9px;
-          &.glyphicon-plus{
+          &.glyphicon-plus {
             background-color: $blue-light;
             color: $white;
             padding: 4px 3px 4px 4px;
             border-radius: $border-radius-small;
-            cursor:pointer;
-            &.disabled{
+            cursor: pointer;
+            &.disabled {
               background-color: $gray;
               cursor: not-allowed;
             }
           }
         }
-     }
+      }
     }
 
     $property-inheritance-width: $property-width * 1.6; //change to 2.5 to span 3 columns instead of 2
@@ -1018,15 +1105,15 @@ pagecontent, bp-properties-panel {
       min-width: $property-input-width;
       width: 100%;
 
-      .icon{
-        cursor:pointer;
+      .icon {
+        cursor: pointer;
         margin-right: 5px;
-        &.disabled{
+        &.disabled {
           opacity: $default-disabled-opacity;
           cursor: not-allowed;
         }
       }
-      .din{
+      .din {
         display: inline-block;
         padding-top: 10px;
         padding-right: 2px;
@@ -1037,8 +1124,8 @@ pagecontent, bp-properties-panel {
         font-size: $font-size-normal;
         width: calc(100% - #{$property-label-width});
 
-        button{
-          &.disabled, &[disabled]{
+        button {
+          &.disabled, &[disabled] {
             background-color: $gray-lighter;
             border-color: $gray-light;
             color: $gray-light;
@@ -1046,8 +1133,8 @@ pagecontent, bp-properties-panel {
           }
         }
 
-        .bp-input-group-addon{
-          &.icon-wrapper{
+        .bp-input-group-addon {
+          &.icon-wrapper {
             line-height: #{$property-min-height + 6px}; // height of input box plus padding
             display: inline-block;
             padding-right: 2px;
@@ -1067,7 +1154,7 @@ pagecontent, bp-properties-panel {
           margin-top: 2px;
           margin-right: 8px;
           max-width: calc(100% - 40px);
-          .path-wrapper{
+          .path-wrapper {
             overflow: hidden;
             text-overflow: ellipsis;
           }
@@ -1092,86 +1179,82 @@ pagecontent, bp-properties-panel {
       }
     }
 
-
-    .form-control-wrapper{
+    .form-control-wrapper {
       display: table-cell;
       width: 100%;
       max-width: 100%;
       box-sizing: border-box;
-      padding:4px;
+      padding: 4px;
 
-      .form-control{
-        width:100%;
-        max-width:100%;
-        margin:2px;
+      .form-control {
+        width: 100%;
+        max-width: 100%;
+        margin: 2px;
         background-color: white;
         background-image: none !important;
-        &:hover{
+        &:hover {
           background-image: none !important;
         }
       }
     }
 
-    .formly-field-bpDocumentFile{
+    .formly-field-bpDocumentFile {
       width: 100% !important;
       .input-group-addon {
-        padding:0;
+        padding: 0;
         background-color: transparent;
-        border:none;
-        label{
-            padding: 5px 9px ;
-            min-width: 20px;
-            text-align: center;
-            width: auto !important;
-            margin: 5px 5px 5px;
-            font-size:  $font-size-big;
-            input[type=file]{
-                display:none;
-            }
-            &.btn-small{
-              padding:5px 10px;
-              min-width: 20px;
-              font-size: 1.2rem;
+        border: none;
+        label {
+          padding: 5px 9px;
+          min-width: 20px;
+          text-align: center;
+          width: auto !important;
+          margin: 5px 5px 5px;
+          font-size: $font-size-big;
+          input[type=file] {
+            display: none;
           }
-            &.btn-primary {
-                background-color: transparent;
-                border: 1px solid $gray-light;
-                color: $gray-light;
-                &:hover,
-                &:focus,
-                &:active {
-                    background-color: transparent;
-                    border-color: $brand-secondary;
-                    color: $brand-secondary;
-              }
+          &.btn-small {
+            padding: 5px 10px;
+            min-width: 20px;
+            font-size: 1.2rem;
+          }
+          &.btn-primary {
+            background-color: transparent;
+            border: 1px solid $gray-light;
+            color: $gray-light;
+            &:hover,
+            &:focus,
+            &:active {
+              background-color: transparent;
+              border-color: $brand-secondary;
+              color: $brand-secondary;
             }
+          }
         }
-
 
         .icon {
           display: inline-block;
           line-height: #{$property-min-height + 12px}; // so it's the same height as the input field (which has 2px margin + 4px padding top and bottom)
           padding-left: $padding-smaller;
           padding-right: $padding-smaller;
-          &.disabled{
-            opacity: $default-disabled-opacity;
+          &.disabled {
             cursor: not-allowed;
+            opacity: $default-disabled-opacity;
           }
         }
         &:not(:first-child):not(:last-child) {
-           padding-right: 5px;
-            .icon {
-                padding-right: $padding-smaller - 5px;
-            }
+          padding-right: 5px;
+          .icon {
+            padding-right: $padding-smaller - 5px;
           }
+        }
       }
-       
 
-
-      .thumb{
-        width:30px;
-        height:30px;
-        &.fonticon2-attachment{
+      .thumb {
+        width: 30px;
+        height: 30px;
+        &.fonticon2-attachment {
           padding-top: 10px;
         }
       }
@@ -1197,21 +1280,6 @@ pagecontent, bp-properties-panel {
       }
     }
   }
-
-  .system-properties {
-    &.collapse:not(.in) .formly .formly-field:first-child {
-      width: 100%;
-    }
-
-    &.collapse {
-      display: block !important;
-      height: #{$property-min-height + 12px} !important;
-
-      &.in {
-        height: auto !important;
-      }
-    }
-  }
 }
 
 .single-column-property .formly .formly-field label {
@@ -1221,6 +1289,10 @@ pagecontent, bp-properties-panel {
 }
 
 .tab-pane {
+  border: solid 1px $gray-lighter;
+  border-radius: $border-radius-amount;
+  padding: 18px #{20px - $richtext-y-scrollbar-width} 18px 20px;
+
   .formly {
     margin: 0;
     min-width: $property-input-width;
@@ -1241,9 +1313,55 @@ pagecontent, bp-properties-panel {
     }
 
     .formly-field-bpFieldReadOnly {
-      > div,
-      .input-group {
+      > div {
         width: 100%;
+      }
+
+      .input-group {
+        display: block;
+
+        .richtext-body {
+          display: inline-block;
+          margin-right: $richtext-y-scrollbar-width;
+        }
+
+        &::after {
+          background: $white;
+          content: '';
+          display: block;
+          height: 100%;
+          position: absolute;
+          right: 0;
+          top: 0;
+          width: $richtext-y-scrollbar-width;
+        }
+      }
+    }
+  }
+}
+
+bp-properties-panel {
+  .properties.collapsed {
+    margin-bottom: 0;
+  }
+
+  .tab-pane {
+    padding: 8px #{20px - $richtext-y-scrollbar-width} 8px 15px;
+  }
+}
+
+pagecontent {
+  .system-properties {
+    &.collapse:not(.in) .formly .formly-field:first-child {
+      width: 100%;
+    }
+
+    &.collapse {
+      display: block !important;
+      height: #{$property-min-height + 12px} !important;
+
+      &.in {
+        height: auto !important;
       }
     }
   }

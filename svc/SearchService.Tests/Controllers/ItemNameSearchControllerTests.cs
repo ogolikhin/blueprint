@@ -1,15 +1,13 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Web.Http;
 using System.Web.Http.Results;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using SearchService.Helpers;
 using SearchService.Models;
 using SearchService.Repositories;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 
@@ -73,11 +71,11 @@ namespace SearchService.Controllers
             {
                 await controller.Post(searchCriteria, startOffset, pageSize);
             }
-            catch (HttpResponseException e)
+            catch (AuthenticationException e)
             {
                 //Assert
-                Assert.AreEqual(HttpStatusCode.Forbidden, e.Response.StatusCode);
-            }            
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, e.ErrorCode);
+            }
         }
 
         [TestMethod]
@@ -94,10 +92,10 @@ namespace SearchService.Controllers
             {
                 await controller.Post(null);
             }
-            catch (HttpResponseException e)
+            catch (BadRequestException e)
             {
                 //Assert
-                Assert.AreEqual(HttpStatusCode.BadRequest, e.Response.StatusCode);
+                Assert.AreEqual(ErrorCodes.IncorrectSearchCriteria, e.ErrorCode);
             }
         }
 
@@ -115,10 +113,10 @@ namespace SearchService.Controllers
             {
                 await controller.Post(new ItemSearchCriteria { Query = "" });
             }
-            catch (HttpResponseException e)
+            catch (BadRequestException e)
             {
                 //Assert
-                Assert.AreEqual(HttpStatusCode.BadRequest, e.Response.StatusCode);
+                Assert.AreEqual(ErrorCodes.IncorrectSearchCriteria, e.ErrorCode);
             }
         }
 

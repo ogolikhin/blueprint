@@ -38,24 +38,19 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     public getServices(): IStatefulProcessArtifactServices {
         return this.services;
     }
+
+    protected getCustomArtifactPromisesForGetObservable() : angular.IPromise<IStatefulArtifact>[]{
+        this.loadProcessPromise = this.loadProcess();
+        return [this.loadProcessPromise];
+    }
     
     public getObservable(): Rx.Observable<IStatefulArtifact> {
         if (!this.isFullArtifactLoadedOrLoading()) {
             this.loadPromise = this.load();
             this.loadProcessPromise = this.loadProcess();
 
-            this.getServices().$q.all([this.loadPromise, this.loadProcessPromise]).then(() => {
-                this.subject.onNext(this);
-            }).catch((error) => {
-                this.artifactState.readonly = true;
-                this.subject.onError(error);
-            }).finally(() => {
-                this.loadPromise = null;
-                this.loadProcessPromise = null;
-            });
-        }
-
-        return this.subject.filter(it => !!it).asObservable();
+    protected runPostGetObservable(){
+        this.loadProcessPromise = null;
     }
 
     public getCustomArtifactPromisesForRefresh (): ng.IPromise<any>[] {
@@ -70,9 +65,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     }
 
     protected isFullArtifactLoadedOrLoading() {
-        return (this._customProperties && this._customProperties.isLoaded &&
-         this._specialProperties && this._specialProperties.isLoaded)  || 
-         this.loadPromise || this.loadProcessPromise;
+        return super.isFullArtifactLoadedOrLoading() || this.loadProcessPromise;
     }
 
     private loadProcess(): ng.IPromise<IStatefulArtifact> {
@@ -86,7 +79,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
             });
         return processDeffered.promise;
     }
-    
+
     private onLoad(newProcess: IProcess) {
         // TODO: updating name seems to cause an infinite loading of process, something with base class's 'set' logic.
         //(<IProcess>this).name = process.name;
@@ -98,6 +91,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         currentProcess.requestedVersionInfo = newProcess.requestedVersionInfo;
         currentProcess.status = newProcess.status;
     }
+    
     private initializeSubArtifacts(newProcess: IProcess) {
 
         let statefulSubArtifacts: StatefulProcessSubArtifact[] = newProcess.shapes.map((shape: IProcessShape) => {

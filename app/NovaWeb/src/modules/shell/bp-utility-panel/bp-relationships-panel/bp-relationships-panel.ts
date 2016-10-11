@@ -52,6 +52,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public selectedTraces: IArtifactSelectedArtifactMap;
     public hasFlagged: boolean = false;
     public hasUnFlagged: boolean = false;
+    private subscribers: Rx.IDisposable[];
 
     constructor(
         $q: ng.IQService,
@@ -68,6 +69,8 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.options = [     
             { value: "1", label: "Add new" }           
         ];
+
+        this.subscribers = [];
     }
 
     public $onInit() {
@@ -89,21 +92,31 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.hasFlagged = false;
         this.hasUnFlagged = false;
 
+        this.subscribers = this.subscribers.filter(subscriber => { subscriber.dispose(); return false; });
+
         this.item = subArtifact || artifact;
         this.getRelationships();
 
+        if (this.item) {
+            const relationshipSubscriber = this.item.relationships.getObservable().subscribe(this.onRelationshipUpdate);
+            this.subscribers.push(relationshipSubscriber);
+        }
+
         return super.onSelectionChanged(artifact, subArtifact, timeout);
+    }
+
+    public onRelationshipUpdate = (relationships: Relationships.IRelationship[]) => {
+        this.setRelationships(relationships);
     }
 
     public get manualTraces2 (): Relationships.IRelationship[]{
         if (this.allTraces) {
             return this.allTraces.filter((relationship: Relationships.IRelationship) =>
             relationship.traceType === Relationships.LinkType.Manual);
-        }else {
+        } else {
             return [];
         }
     }
-
 
     private getRelationships() {
         this.manualTraces = null;
@@ -112,13 +125,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         if (this.item && Helper.hasArtifactEverBeenSavedOrPublished(this.item)) {
             this.isLoading = true;            
             this.item.relationships.get().then((relationships: Relationships.IRelationship[]) => {
-                this.allTraces = relationships;
-                this.manualTraces = relationships
-                    .filter((relationship: Relationships.IRelationship) => 
-                        relationship.traceType === Relationships.LinkType.Manual);
-                this.otherTraces = relationships
-                    .filter((relationship: Relationships.IRelationship) => 
-                        relationship.traceType !== Relationships.LinkType.Manual);
+                this.setRelationships(relationships);
 
                 this.selectedTraces = {};
                 this.selectedTraces[this.item.id] = [];
@@ -128,10 +135,19 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
             }).finally(() => {
                 this.isLoading = false;
             });
-        }
-        else {
+        } else {
             this.reset();
         }
+    }
+
+    private setRelationships(relationships: Relationships.IRelationship[]) {
+        this.allTraces = relationships;
+        this.manualTraces = relationships
+            .filter((relationship: Relationships.IRelationship) => 
+                relationship.traceType === Relationships.LinkType.Manual);
+        this.otherTraces = relationships
+            .filter((relationship: Relationships.IRelationship) => 
+                relationship.traceType !== Relationships.LinkType.Manual);
     }
 
     private reset() {
@@ -142,6 +158,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.actorInherits = [];
         this.documentReferences = [];
     }
+
     public canManageTraces(): boolean {
         // if artifact is locked by other user we still can add/manage traces
         return !this.item.artifactState.deleted &&               

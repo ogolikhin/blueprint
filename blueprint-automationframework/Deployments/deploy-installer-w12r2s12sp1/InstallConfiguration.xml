@@ -8,7 +8,7 @@
     <SiteName>Blueprint</SiteName>
     <SitePort>80</SitePort>
     <SiteAuxiliaryPort>83</SiteAuxiliaryPort>
-    <SiteHostName>deploy-installer-w12r2s12.blueprintsys.net</SiteHostName>
+    <SiteHostName>deploy-installer-w12r2s12sp1.blueprintsys.net</SiteHostName>
     <EnableHTTPSBinding>false</EnableHTTPSBinding>
     <IsAppPoolAccountCustom>false</IsAppPoolAccountCustom>
     <PhoneHomeSendUsageInfo>true</PhoneHomeSendUsageInfo>

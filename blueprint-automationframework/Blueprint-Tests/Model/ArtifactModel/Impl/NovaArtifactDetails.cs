@@ -127,6 +127,10 @@ namespace Model.ArtifactModel.Impl
         public List<CustomProperty> SpecificPropertyValues { get; } = new List<CustomProperty>();
         public int? PredefinedType { get; set; }
 
+        // TODO: found following properties when capturing PATCH /svc/bpartifactstore/artifacts/{artifactID}: 
+        // SubArtifacts, Traces, DocRefValue
+        // Maybe need to add for future integration test...
+
         #endregion Serialized JSON Properties
 
         #region Constructors
@@ -302,6 +306,8 @@ namespace Model.ArtifactModel.Impl
             Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
             Assert.AreEqual(artifact1.Permissions, artifact2.Permissions, "The Permissions  parameters don't match!");
             Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId  parameters don't match!");
+            Assert.AreEqual(artifact1.PredefinedType, artifact2.PredefinedType, "The PredefinedType  parameters don't match!");
+            Assert.AreEqual(artifact1.Prefix, artifact2.Prefix, "The Prefix  parameters don't match!");
 
             // The Version property in VersionControlInfo is always null until the artifact is deleted.
             if (compareVersions && (artifact2.Version != null))

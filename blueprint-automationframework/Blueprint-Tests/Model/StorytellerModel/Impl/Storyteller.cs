@@ -160,7 +160,11 @@ namespace Model.StorytellerModel.Impl
             return artifacts;
         }
 
-        public List<IStorytellerUserStory> GenerateUserStories(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        /// <seealso cref="IStoryteller.GenerateUserStories(IUser, IProcess, List{HttpStatusCode}, bool)"/>
+        public List<IStorytellerUserStory> GenerateUserStories(IUser user,
+            IProcess process,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(GenerateUserStories));
 
@@ -187,8 +191,9 @@ namespace Model.StorytellerModel.Impl
             RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Generating user stories for process ID: {1}, Name: {2}", nameof(Storyteller), process.Id, process.Name);
+            List<StorytellerUserStory> userstoryResults = null;
 
-            var userstoryResults = restApi.SendRequestAndDeserializeObject<List<StorytellerUserStory>>(
+            userstoryResults = restApi.SendRequestAndDeserializeObject<List<StorytellerUserStory>>(
                 path,
                 RestRequestMethod.POST,
                 additionalHeaders: additionalHeaders,

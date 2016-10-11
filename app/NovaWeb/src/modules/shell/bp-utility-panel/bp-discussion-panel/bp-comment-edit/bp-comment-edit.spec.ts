@@ -48,11 +48,17 @@ describe("Component BPCommentEdit", () => {
             vm.postComment = () => { };
             vm.isWaiting = false;
             let formatter = {};
+            let body = {};
+            let contentDocument = {
+                body: body
+            };
             let editor = {
-                formatter: formatter
+                formatter: formatter,
+                contentDocument: contentDocument
             };
             formatter["register"] = (a, b) => { };
             editor["focus"] = () => { };
+            body["innerHTML"] = "<p></p>";
             vm.tinymceOptions.init_instance_callback(editor);
             vm.postComment = (): ng.IPromise<any> => {
                 const defer = $q.defer();
@@ -126,14 +132,20 @@ describe("Component BPCommentEdit", () => {
                 }
             };
             let apply = {};
+            let execCommand = {};
             let formatter = {
                 apply: apply
             };
+            let editorCommands = {
+                execCommand: execCommand
+            };
             let editor = {
                 addButton: addButton,
-                formatter: formatter
+                formatter: formatter,
+                editorCommands: editorCommands
             };
             editor.formatter.apply = () => { };
+            editor.editorCommands.execCommand = (command: string) => { };
             spyOn(editor.formatter, "apply").and.callThrough();
 
             //Act

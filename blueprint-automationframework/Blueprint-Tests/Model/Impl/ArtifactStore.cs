@@ -9,6 +9,7 @@ using Model.ArtifactModel.Impl;
 using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
+using Newtonsoft.Json;
 
 namespace Model.Impl
 {
@@ -269,9 +270,9 @@ namespace Model.Impl
             return discussionReplies;
         }
 
-        /// <seealso cref="IArtifactStore.GetAttachments(IArtifactBase, IUser, bool?, int?, List{HttpStatusCode})"/>
-        public Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null, int? subArtifactId = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetAttachments(IArtifactBase, IUser, bool?, int?, int?, List{HttpStatusCode}, IServiceErrorMessage)"/>
+        public Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null, int? versionId = null,
+            int? subArtifactId = null, List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -284,6 +285,11 @@ namespace Model.Impl
                 queryParameters.Add("addDrafts", addDrafts.ToString());
             }
 
+            if (versionId != null)
+            {
+                queryParameters.Add("versionId", versionId.ToString());
+            }
+
             if (subArtifactId != null)
             {
                 queryParameters.Add("subArtifactId", subArtifactId.ToString());
@@ -291,13 +297,29 @@ namespace Model.Impl
 
             var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
 
-            var attachment = restApi.SendRequestAndDeserializeObject<Attachments>(
+            try
+            {
+                var attachment = restApi.SendRequestAndDeserializeObject<Attachments>(
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes);
 
-            return attachment;
+                return attachment;
+            }
+            catch (Exception)
+            {
+                Logger.WriteDebug("Content = '{0}'", restApi.Content);
+
+                if (expectedServiceErrorMessage != null)
+                {
+                    var serviceErrorMessage = JsonConvert.DeserializeObject<ServiceErrorMessage>(restApi.Content);
+                    Assert.That(expectedServiceErrorMessage.Equals(serviceErrorMessage),
+                        "Response message is different from expected!");
+                }
+
+                throw;
+            }
         }
 
         /// <seealso cref="IArtifactStore.GetRelationships(IUser, IArtifactBase, int?, bool?, List{HttpStatusCode})"/>
@@ -432,6 +454,18 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
 
             return subartifacts.ConvertAll(o => (INovaSubArtifact)o);
+        }
+
+        /// <seealso cref="IArtifactStore.GetSubartifactDetails(IUser, int, int, List{HttpStatusCode})"/>
+        public NovaSubArtifactDetails GetSubartifactDetails(IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_, artifactId, subArtifactId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            return restApi.SendRequestAndDeserializeObject<NovaSubArtifactDetails>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
         }
 
         /// <seealso cref="IArtifactStore.GetUnpublishedChanges(IUser, List{HttpStatusCode})"/>
@@ -739,6 +773,7 @@ namespace Model.Impl
                         continue;
                     }
 
+                    publishedArtifact.LockOwner = null;
                     publishedArtifact.IsSaved = false;
 
                     // If the artifact was marked for deletion, then this publish operation actually deleted the artifact.

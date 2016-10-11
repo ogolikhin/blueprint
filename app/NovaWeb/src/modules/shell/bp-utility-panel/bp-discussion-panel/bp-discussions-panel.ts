@@ -1,6 +1,6 @@
 ﻿import { ILocalizationService, IMessageService } from "../../../core";
 // import { IArtifactService} from "../../../main";
-import { IArtifactManager, IStatefulArtifact, IStatefulSubArtifact } from "../../../managers/artifact-manager";
+import { IArtifactManager, IStatefulArtifact, IStatefulSubArtifact, IStatefulItem } from "../../../managers/artifact-manager";
 import { IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply } from "./artifact-discussions.svc";
 import { IDialogService } from "../../../shared";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
@@ -39,6 +39,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     public artifactEverPublished: boolean = false;
     public showAddComment: boolean = false;
     public emailDiscussionsEnabled: boolean = false;
+    private subscribers: Rx.IDisposable[];
 
     constructor(
         private localization: ILocalizationService,
@@ -50,6 +51,8 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         public bpAccordionPanel: IBpAccordionPanelController) {
 
         super($q, artifactManager.selection, bpAccordionPanel);
+
+        this.subscribers = [];
 
         //this.sortOptions = [
         //    { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },
@@ -69,32 +72,32 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     }
 
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
+        //Subscriber to support refresh case.
+        this.subscribers = this.subscribers.filter(subscriber => { subscriber.dispose(); return false; });
+        if (subArtifact) {
+            if (!Helper.hasArtifactEverBeenSavedOrPublished(subArtifact)) {  
+                this.resetReadOnly();
+            } else {
+                this.subscribers.push(
+                    subArtifact.getObservable().subscribe((subArtif) => { this.onSelectedItemModified(artifact, subArtif, timeout); }));
+            }
+        } else if (artifact) {
+            this.subscribers.push(
+                artifact.getObservable().subscribe((artif) => { this.onSelectedItemModified(artif, null, timeout); }));
+        }
+        return super.onSelectionChanged(artifact, subArtifact, timeout);
+    }
+
+    private onSelectedItemModified = (artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>) => {
         this.artifactDiscussionList = [];
         this.showAddComment = false;
         if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
             this.artifactId = artifact.id;
-            this.subArtifact = subArtifact;
-            if (this.subArtifact && !Helper.hasArtifactEverBeenSavedOrPublished(subArtifact)) {  
-                this.resetReadOnly();
-            } else if (artifact.version) {
-                return this.setEverPublishedAndDiscussions(artifact.version, timeout);
-            } else {
-                // TODO: return this.artifactManager.selection.getArtifact().load()
-                // -----------------------------------------------------------------
-                // return this.artifactService.getArtifact(artifact.id, timeout).then((result: IStatefulArtifact) => {
-                //     artifact = result;
-                //     this.setEverPublishedAndDiscussions(artifact.version, timeout);
-                // }).catch((error: any) => {
-                //     if (error) {
-                //         this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
-                //     }
-                //     artifact = null;
-                // });
-            }
+            this.subArtifact = subArtifact;           
+            return this.setEverPublishedAndDiscussions(artifact.version, timeout);
         } else {
             this.resetReadOnly();
         }
-        return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
     private resetReadOnly() {    
@@ -151,7 +154,6 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         }
     }
 
-    /* tslint:disable:no-unused-variable */
     public addArtifactDiscussion(comment: string): ng.IPromise<IDiscussion> {
         let artifactId = this.subArtifact ? this.subArtifact.id : this.artifactId;
         return this.artifactDiscussions.addDiscussion(artifactId, comment)
@@ -166,9 +168,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                 return null;
             });
     }
-    /* tslint:disable:no-unused-variable */
 
-    /* tslint:disable:no-unused-variable */
     public addDiscussionReply(discussion: IDiscussion, comment: string): ng.IPromise<IReply> {
         let artifactId = this.subArtifact ? this.subArtifact.id : this.artifactId;
         return this.artifactDiscussions.addDiscussionReply(artifactId, discussion.discussionId, comment)
@@ -186,7 +186,6 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                 return null;
             });
     }
-    /* tslint:disable:no-unused-variable */
 
     public newCommentClick(): void {
         if (this.canCreate) {

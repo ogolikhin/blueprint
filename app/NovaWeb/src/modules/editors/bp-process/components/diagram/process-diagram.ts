@@ -87,12 +87,6 @@ export class ProcessDiagram {
             this.processViewModel.communicationManager.processDiagramCommunication
                 .removeNavigateToAssociatedArtifactObserver(this.navigateToAssociatedArtifactHandler);
         }
-
-        let isProcessTypeToggleEnabled = !this.processViewModel.isReadonly && !this.processViewModel.isHistorical;
-        this.processViewModel
-            .communicationManager
-            .toolbarCommunicationManager
-            .enableProcessTypeToggle(isProcessTypeToggleEnabled, this.processViewModel.processType);
         
         this.toggleProcessTypeHandler = this.processViewModel.communicationManager.toolbarCommunicationManager
             .registerToggleProcessTypeObserver(this.processTypeChanged);

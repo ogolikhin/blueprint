@@ -64,7 +64,7 @@ export class ProcessAddHelper {
     // #DEBUG
     private static addShape(processShape: IProcessShape, layout: ILayout, shapesFactoryService: ShapesFactory): void {
         if (processShape != null) {
-            layout.viewModel.addStatefulShape(processShape);
+            layout.viewModel.addShape(processShape);
             layout.viewModel.addJustCreatedShapeId(processShape.id);
         }
     }

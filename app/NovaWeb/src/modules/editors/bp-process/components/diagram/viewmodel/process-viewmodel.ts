@@ -34,6 +34,8 @@ export interface IProcessViewModel extends IProcessGraphModel {
     addJustCreatedShapeId(id: number);
     isShapeJustCreated(id: number): boolean;
     addStatefulShape(processShape: ProcessModels.IProcessShape);
+    addShape(processShape: ProcessModels.IProcessShape);
+    removeShape(shapeId: number);
     removeStatefulShape(shapeId: number);
 }
 
@@ -311,22 +313,32 @@ export class ProcessViewModel implements IProcessViewModel {
     public get status(): ProcessModels.IItemStatus {
         return this.processGraphModel.status;
     }
-     
+
     public addStatefulShape(processShape: ProcessModels.IProcessShape) {
 
         let statefulShape = new StatefulProcessSubArtifact(this.process,
             processShape, this.process.getServices());
 
-        this.shapes.push(processShape);
-        // cast process as an IStatefulArtifact 
         let statefulArtifact: IStatefulArtifact = this.process; 
+
         statefulArtifact.subArtifactCollection.add(statefulShape);
     }
+     
+    public addShape(processShape: ProcessModels.IProcessShape) {
 
+        this.shapes.push(processShape);
+
+        this.addStatefulShape(processShape);
+    }
+
+    public removeShape(shapeId: number) {
+        this.shapes = this.shapes.filter(shape => { return shape.id !== shapeId; });
+        this.removeStatefulShape(shapeId);
+    }
     public removeStatefulShape(shapeId: number) {
         this.shapes = this.shapes.filter(shape => { return shape.id !== shapeId; });
         // cast process as an IStatefulArtifact 
-        let statefulArtifact: IStatefulArtifact = this.process; 
+        let statefulArtifact: IStatefulArtifact = this.process;
         statefulArtifact.subArtifactCollection.remove(shapeId);
     }
 

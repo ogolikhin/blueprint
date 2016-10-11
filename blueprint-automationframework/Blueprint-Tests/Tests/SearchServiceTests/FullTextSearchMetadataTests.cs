@@ -405,8 +405,7 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
 
             // Create user with project role to only 1 project
-            var userWithProjectRole = TestHelper.CreateUserWithProjectRolePermissions(
-                Helper,
+            var userWithProjectRole = Helper.CreateUserWithProjectRolePermissions(
                 projectRole,
                 new List<IProject> {_projects.First()});
 
@@ -444,8 +443,7 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
 
             // Create user with project role with permissions to all projects
-            var userWithProjectRole = TestHelper.CreateUserWithProjectRolePermissions(
-                Helper,
+            var userWithProjectRole = Helper.CreateUserWithProjectRolePermissions(
                 projectRole,
                 _projects);
 
@@ -562,8 +560,7 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
 
             // Create user with author project role to project
-            var userWithProjectRole = TestHelper.CreateUserWithProjectRolePermissions(
-                Helper,
+            var userWithProjectRole = Helper.CreateUserWithProjectRolePermissions(
                 TestHelper.ProjectRole.AuthorFullAccess,
                 _projects);
 

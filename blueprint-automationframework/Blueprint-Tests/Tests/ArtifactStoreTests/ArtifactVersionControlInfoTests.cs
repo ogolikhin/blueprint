@@ -309,6 +309,8 @@ namespace ArtifactStoreTests
         }
 
         #endregion Sub-Artifact
+
+        #region Deleted
         // TODO: Published deleted Artifact(- isDeleted= false).
         // TODO: Saved deleted Artifact.
         // TODO: Saved deleted Artifact for another user.
@@ -317,6 +319,8 @@ namespace ArtifactStoreTests
         // TODO: Published deleted Sub-artifact in live Artifact.
         // TODO: Saved deleted Sub-artifact in live Artifact.
         // TODO: Saved deleted Sub-artifact in live Artifact for another user.
+
+        #endregion Deleted
 
         #endregion 200 OK tests
 

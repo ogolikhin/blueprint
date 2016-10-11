@@ -374,10 +374,10 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             "shape=rectangle;strokeColor=#D4D5DA;fillColor=#FFFFFF;gradientColor=#DDDDDD;foldable=0;editable=0;selectable=0");
 
         this.addOverlays(mxGraph);
-
-        this.commentsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 118, 10,
+        
+        this.relationshipButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 118, 10,
             "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
-        this.relationshipButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 94, 10,
+        this.commentsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 94, 10,
             "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
         this.linkButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 70, 10,
             "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");

@@ -1,5 +1,5 @@
 export interface ICommunicationWrapper {
-    subscribe(observer: any) : string;
+    subscribe(observer: any): string;
     notify(param: any);
     disposeObserver(handler: string);
     dispose();

@@ -5,7 +5,6 @@ import {ILayout} from "./models/";
 import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/process-models";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import { DiagramLink } from "./shapes/diagram-link";
-import { StatefulProcessSubArtifact } from "../../../../process-subartifact";
 
 export class ProcessAddHelper {
     public static insertTaskWithUpdate(edge: MxCell, layout: ILayout, shapesFactoryService: ShapesFactory): void {
@@ -61,11 +60,10 @@ export class ProcessAddHelper {
 
         return userTaskShape.id;
     }
-
+    // #DEBUG
     private static addShape(processShape: IProcessShape, layout: ILayout, shapesFactoryService: ShapesFactory): void {
         if (processShape != null) {
-            let statefulShape = shapesFactoryService.createStatefulSubArtifact(layout.viewModel.statefulArtifact, processShape);            
-            layout.viewModel.shapes.push(statefulShape);
+            layout.viewModel.addShape(processShape);
             layout.viewModel.addJustCreatedShapeId(processShape.id);
         }
     }
@@ -96,7 +94,7 @@ export class ProcessAddHelper {
     private static insertUserDecisionInternal(sourceIds: number[], destinationId: number, layout: ILayout, shapesFactoryService: ShapesFactory): number {
         layout.setTempShapeId(layout.getTempShapeId() - 1);
         var userDecisionShape = shapesFactoryService.createModelUserDecisionShape(layout.viewModel.id,
-         layout.viewModel.projectId, layout.getTempShapeId(), -1, -1);;        
+         layout.viewModel.projectId, layout.getTempShapeId(), -1, -1);    
         
         ProcessAddHelper.addShape(userDecisionShape, layout, shapesFactoryService);
 

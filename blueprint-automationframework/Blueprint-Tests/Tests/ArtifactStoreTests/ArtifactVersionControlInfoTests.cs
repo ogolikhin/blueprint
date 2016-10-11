@@ -59,7 +59,7 @@ namespace ArtifactStoreTests
 
             artifactDetails.AssertEquals(basicArtifactInfo);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges : false, isDeleted : false);
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges : false, isDeleted : false, versionBiggerThan0 : true);
         }
 
         [TestCase(BaseArtifactType.Actor)]
@@ -77,7 +77,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false);
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges : true, isDeleted : false, versionBiggerThan0 : false);
         }
 
         [TestCase(BaseArtifactType.Actor)]
@@ -121,7 +121,7 @@ namespace ArtifactStoreTests
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, basicArtifactInfo.Id);
             artifactDetails.AssertEquals(basicArtifactInfo);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false);
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, versionBiggerThan0 : true);
         }
 
         [TestCase(BaseArtifactType.Actor, 3)]
@@ -146,7 +146,7 @@ namespace ArtifactStoreTests
 
             artifactDetails.AssertEquals(basicArtifactInfo);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false);
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, versionBiggerThan0 : true);
         }
 
         [TestCase(BaseArtifactType.Actor)]
@@ -165,7 +165,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false);
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, versionBiggerThan0: true);
         }
         #endregion Artifact Changes
 
@@ -190,7 +190,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, subArtifacts[0].Id),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId : subArtifacts[0].Id);
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, versionBiggerThan0: false, subArtifactId : subArtifacts[0].Id);
         }
 
         [TestCase(BaseArtifactType.UseCase, 2)]
@@ -216,13 +216,13 @@ namespace ArtifactStoreTests
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, basicArtifactInfo.Id);
             artifactDetails.AssertEquals(basicArtifactInfo);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId : subArtifacts[0].Id);
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, versionBiggerThan0: true, subArtifactId : subArtifacts[0].Id);
         }
 
         [TestCase]
         [TestRail(182606)]
         [Description("Create & publish an artifact.  Change sub-artifact & save. Verify another user gets basic artifact information with subartifact Id.")]
-        public void VersionControlInfo_PublishedArtifactSubartifactUpdated_AnotherUserGetsBasicInfo_ReturnsArtifactInfo_200OK()
+        public void VersionControlInfo_PublishedArtifactSubArtifactUpdated_AnotherUserGetsBasicInfo_ReturnsArtifactInfo_200OK()
         {
             // Setup:
 
@@ -250,7 +250,45 @@ namespace ArtifactStoreTests
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
             artifactDetails.AssertEquals(basicArtifactInfo);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: subArtifacts[0].Id);
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, versionBiggerThan0: true, subArtifactId: subArtifacts[0].Id);
+        }
+
+        [TestCase]
+        [TestRail(182933)]
+        [Description("Create & save an artifact.  Add sub-artifact & save. Verify user gets basic artifact information with subartifact Id.")]
+        public void VersionControlInfo_SavedArtifactUpdatedWithSubArtifact_ReturnsArtifactInfo_200OK()
+        {
+            // Setup:
+
+            // Create a Process artifact
+            var processArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user);
+
+            // Get the process artifact
+            var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
+
+            // Add UserTasks - iteration
+            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find outgoing process link for precondition task
+            var processLink = process.GetOutgoingLinkForShape(precondition);
+
+            var userTask = process.AddUserAndSystemTask(processLink);
+
+            Helper.Storyteller.UpdateProcess(_user, process);
+
+            // Get the process artifact
+            process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
+
+            userTask = process.GetProcessShapeByShapeName(userTask.Name);
+
+            INovaVersionControlArtifactInfo basicArtifactInfo = null;
+
+            // Execute
+            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, userTask.Id),
+                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+
+            // Verify
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, versionBiggerThan0 : false, subArtifactId : userTask.Id);
         }
 
         [TestCase(BaseArtifactType.UseCase)]
@@ -275,7 +313,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: subArtifacts[0].Id);
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, versionBiggerThan0: true, subArtifactId: subArtifacts[0].Id);
         }
 
         [TestCase(BaseArtifactType.UseCase)]
@@ -302,7 +340,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: subArtifacts[0].Id);
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, versionBiggerThan0: true, subArtifactId: subArtifacts[0].Id);
         }
 
         #endregion Sub-Artifact
@@ -331,7 +369,7 @@ namespace ArtifactStoreTests
             // Verify
             artifactDetails.AssertEquals(basicArtifactInfo);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: true);
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: true, versionBiggerThan0: true);
         }
 
         [TestCase(BaseArtifactType.Actor)]
@@ -351,7 +389,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: true);
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: true, versionBiggerThan0: true);
         }
 
         [TestCase(BaseArtifactType.Actor)]
@@ -373,7 +411,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false);
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, versionBiggerThan0: true);
         }
 
         [TestCase(BaseArtifactType.UseCase)]
@@ -397,7 +435,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: true, subArtifactId: subArtifacts[0].Id);
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: true, versionBiggerThan0: true, subArtifactId: subArtifacts[0].Id);
         }
 
         [TestCase(BaseArtifactType.UseCase)]
@@ -423,7 +461,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: subArtifacts[0].Id);
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, versionBiggerThan0: true, subArtifactId: subArtifacts[0].Id);
         }
 
         [TestCase]
@@ -464,7 +502,7 @@ namespace ArtifactStoreTests
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, basicArtifactInfo.Id);
             artifactDetails.AssertEquals(basicArtifactInfo);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: userTask.Id);
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, versionBiggerThan0: true, subArtifactId: userTask.Id);
         }
 
         [TestCase]
@@ -488,7 +526,7 @@ namespace ArtifactStoreTests
 
             var userTask = process.AddUserAndSystemTask(processLink);
 
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            Helper.Storyteller.UpdateProcess(_user, process);
 
             // Get the process artifact
             process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
@@ -502,7 +540,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: userTask.Id);
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, versionBiggerThan0: true, subArtifactId: userTask.Id);
         }
 
         [TestCase]
@@ -545,7 +583,7 @@ namespace ArtifactStoreTests
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, basicArtifactInfo.Id);
             artifactDetails.AssertEquals(basicArtifactInfo);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: userTask.Id);
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, versionBiggerThan0: true, subArtifactId: userTask.Id);
         }
 
         #endregion Delete
@@ -627,9 +665,9 @@ namespace ArtifactStoreTests
         #region Not found
 
         [TestCase(int.MaxValue)]
-        [TestRail(0)]
+        [TestRail(182860)]
         [Description("User tries to get basic information of artifact that does not exist.  Verify returned code 404 Not Found.")]
-        public void VersionControlInfo_CannotFindNonExistingArtifact_404NotFound(int artifactId)
+        public void VersionControlInfoWithArtifactId_CannotFindNonExistingArtifact_404NotFound(int artifactId)
         {
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetVersionControlInfo(_user, artifactId),
@@ -641,25 +679,103 @@ namespace ArtifactStoreTests
                 "{0} when user tries to get basic information of artifact that does not exist", expectedExceptionMessage);
         }
 
-        [TestCase(1)]
-        [TestRail(0)]
-        [Description("User tries to get basic information of artifact that does not exist.  Verify returned code 404 Not Found.")]
-        public void VersionControlInfo_CannotFindNonExistingArtifact_404NotFound_Id0(int artifactId)
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(182861)]
+        [Description("Another user tries to get basic information of artifact that was saved but not published.  Verify returned code 404 Not Found.")]
+        public void VersionControlInfoWithArtifactId_CannotFindSavedArtifactFrom_AnotherUser_404NotFound(BaseArtifactType artifactType)
         {
+            // Setup:
+            var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+
+            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetVersionControlInfo(_user, artifactId),
-                 "'GET {0}' should return 404 Not found when user tries to access basic artifact information of artifact that does not exist!", SVC_PATH);
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetVersionControlInfo(anotherUser, artifact.Id),
+                 "'GET {0}' should return 404 Not found when another user tries to access basic artifact information of artifact that was saved but not published!", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "Item (Id:" + artifactId + ") is not found.";
+            string expectedExceptionMessage = "Item (Id:" + artifact.Id + ") is not found.";
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to get basic information of artifact that does not exist", expectedExceptionMessage);
+                "{0} when another user tries to get basic information of artifact that was saved but not published", expectedExceptionMessage);
         }
 
-        // TODO: Call GetVersionControlInfo with a non-existent artifact ID.  Verify 404 Not Found.
-        // TODO: Call GetVersionControlInfo with an unpublished artifact with a different user.  Verify 404 Not Found.
-        // TODO: Call GetVersionControlInfo with an unpublished sub-artifact of a published artifact with a different user.  Verify 404 Not Found.
-        // TODO: Call GetVersionControlInfo with an unpublished sub-artifact of an unpublished artifact with a different user.  Verify 404 Not Found.
+        [TestCase]
+        [TestRail(182862)]
+        [Description("Another user tries to get basic information of sub-artifact that was saved but not published in published artifact.  Verify returned code 404 Not Found.")]
+        public void VersionControlInfoWithSubArtifactId_CannotFindSavedSubArtifactInPublishedArtifact_AnotherUser_404NotFound()
+        {
+            // Setup:
+            // Create a Process artifact
+            var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(project: _project, user: _user);
+
+            // Get the process artifact
+            var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
+
+            // Add UserTasks - iteration
+            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find outgoing process link for precondition task
+            var processLink = process.GetOutgoingLinkForShape(precondition);
+
+            var userTask = process.AddUserAndSystemTask(processLink);
+
+            Helper.Storyteller.UpdateProcess(_user, process);
+
+            // Get the process artifact
+            process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
+
+            userTask = process.GetProcessShapeByShapeName(userTask.Name);
+
+            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetVersionControlInfo(anotherUser, userTask.Id),
+                 "'GET {0}' should return 404 Not found when another user tries to access basic artifact information of sub-artifact that was saved but not published!", SVC_PATH);
+
+            // Verify:
+            string expectedExceptionMessage = "Item (Id:" + userTask.Id + ") is not found.";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} when another user tries to get basic information of sub-artifact that was saved but not published", expectedExceptionMessage);
+        }
+
+        [TestCase]
+        [TestRail(182864)]
+        [Description("Another user tries to get basic information of sub-artifact that was saved but not published in saved artifact.  Verify returned code 404 Not Found.")]
+        public void VersionControlInfoWithSubArtifactId_CannotFindSavedSubArtifactInSavedArtifact_AnotherUser_404NotFound()
+        {
+            // Setup:
+            // Create a Process artifact
+            var processArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user);
+
+            // Get the process artifact
+            var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
+
+            // Add UserTasks - iteration
+            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find outgoing process link for precondition task
+            var processLink = process.GetOutgoingLinkForShape(precondition);
+
+            var userTask = process.AddUserAndSystemTask(processLink);
+
+            Helper.Storyteller.UpdateProcess(_user, process);
+
+            // Get the process artifact
+            process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
+
+            userTask = process.GetProcessShapeByShapeName(userTask.Name);
+
+            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetVersionControlInfo(anotherUser, userTask.Id),
+                 "'GET {0}' should return 404 Not found when another user tries to access basic artifact information of sub-artifact that was saved but not published!", SVC_PATH);
+
+            // Verify:
+            string expectedExceptionMessage = "Item (Id:" + userTask.Id + ") is not found.";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} when another user tries to get basic information of sub-artifact that was saved but not published", expectedExceptionMessage);
+        }
 
         #endregion Not found
 
@@ -692,7 +808,7 @@ namespace ArtifactStoreTests
         /// <param name="hasChanges">Indicator of changes in an artifact</param>
         /// <param name="isDeleted">Indicator if artifact was deleted</param>
         /// <param name="subArtifactId">Id of requested subartifact</param>
-        private static void VerifyBasicInformationResponse(INovaVersionControlArtifactInfo basicArtifactInfo, bool hasChanges, bool isDeleted, int? subArtifactId = null)
+        private static void VerifyBasicInformationResponse(INovaVersionControlArtifactInfo basicArtifactInfo, bool hasChanges, bool isDeleted, bool versionBiggerThan0, int? subArtifactId = null)
         {
             Assert.NotNull(basicArtifactInfo, "basicArtifactInfo shouldn't be null!");
 
@@ -710,7 +826,7 @@ namespace ArtifactStoreTests
 
             if (hasChanges == true)
             {
-                Assert.IsNotNull(basicArtifactInfo.LockedByUser.Id, "LockedDateTime should have value");
+                Assert.IsNotNull(basicArtifactInfo.LockedByUser.Id, "LockedByUser should have value");
                 Assert.IsNotNull(basicArtifactInfo.LockedDateTime, "LockedDateTime should have value");
             }
 
@@ -718,6 +834,11 @@ namespace ArtifactStoreTests
             {
                 Assert.AreEqual(subArtifactId, basicArtifactInfo.SubArtifactId.Value, "Sub-artifact Id is " + basicArtifactInfo.SubArtifactId.Value + " and different from expected " + subArtifactId);
             }
+
+            if (versionBiggerThan0 == true)
+                Assert.IsTrue(basicArtifactInfo.VersionCount > 0);
+            else
+                Assert.IsTrue(basicArtifactInfo.VersionCount == 0);
         }
 
         #endregion private calls

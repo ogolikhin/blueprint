@@ -115,6 +115,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
             this.changeset.add(changeset);
         });
 
+
         this.statefulItem.lock();
 
         this.subject.onNext(this.relationships);

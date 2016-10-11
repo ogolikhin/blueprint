@@ -19,12 +19,6 @@ export class RefreshAction extends BPButtonAction {
                 const artifactNameBeforeRefresh = currentArtifact.name;
 
                 currentArtifact.refresh()
-                    .then((artifact) => {
-                        if (artifact.name !== artifactNameBeforeRefresh) {
-                            //Name changed, update the explorer.
-                            //projectManager.triggerProjectCollectionChange();
-                        }
-                    })
                     .catch((error) => {
                         // We're not interested in the error type.
                         // sometimes this error is created by artifact.load(), which returns the statefulArtifact instead of an error object.

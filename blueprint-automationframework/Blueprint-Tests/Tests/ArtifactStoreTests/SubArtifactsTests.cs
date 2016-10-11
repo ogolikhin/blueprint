@@ -194,10 +194,9 @@ namespace ArtifactStoreTests
                      "artifact to a process subartifact.  Verify inline trace added. Modify new artifact name and publish.  Verify inline trace " +
                      "in process subartifact is updated with the modifed artifact name from the other project.")]
         public void GetSubArtifacts_CreateInlineTraceFromProcessSubArtifactToArtifactInDifferentProjectThenModifyArtifactName_VerifyInlineTraceUpdatedInProcess(
-    BaseArtifactType baseArtifactType)
+            BaseArtifactType baseArtifactType)
         {
             // Setup:
-
             var mainProject = _projects.FirstOrDefault();
             var secondProject = _projects.LastOrDefault();
 
@@ -251,9 +250,8 @@ namespace ArtifactStoreTests
                      "Verify inline trace added. Delete new artifact name and publish.  Verify inline trace in process subartifact is marked " +
                      "tas invalid.")]
         public void GetSubArtifacts_CreateInlineTraceFromProcessSubArtifactToArtifactThenDeleteArtifact_VerifyInlineTraceIsMarkedInvalid(
-            BaseArtifactType baseArtifactType)
+               BaseArtifactType baseArtifactType)
         {
-
             // Setup:
             // Create artifact
             var inlineTraceArtifact = Helper.CreateAndPublishArtifact(_projects.FirstOrDefault(), _user, baseArtifactType);
@@ -293,7 +291,53 @@ namespace ArtifactStoreTests
             CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
         }
 
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
+        [TestRail(182600)]
+        [Description("Create default process and new artifact. Add inline trace that points to the new artifact to a process subartifact." +
+                     "Verify inline trace added. Delete new artifact name and publish.  Verify that GetArtifactDetails call returns invalid " +
+                     "inline trace link if the user doesn't have the access permission for the inline trace artifact")]
+        public void GetSubArtifacts_CreateInlineTraceFromProcessSubArtifactToArtifactGetSubArtifactDetailsUsingUserWithoutPermissionToInlineTraceArtifact_VerifyInlineTraceIsMarkedInvalid(
+    BaseArtifactType baseArtifactType)
+        {
+            // Setup: Get projects available from testing environment
+            var mainProject = _projects.FirstOrDefault();
+            var secondProject = _projects.LastOrDefault();
 
+            // Create artifact
+            var inlineTraceArtifact = Helper.CreateAndPublishArtifact(mainProject, _user, baseArtifactType);
+
+            // Create and get the default process in a different project from the previously created artifact
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, secondProject, _user);
+
+            // Add an inline trace to the default user task in the process and publish the process
+            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var descriptionProperty = StorytellerTestHelper.FindPropertyValue("description", defaultUserTask.PropertyValues).Value;
+            descriptionProperty.Value = ArtifactStoreHelper.CreateTextForProcessInlineTrace(new List<IArtifact> { inlineTraceArtifact });
+
+            Helper.Storyteller.UpdateProcess(_user, returnedProcess);
+            Helper.Storyteller.PublishProcess(_user, returnedProcess);
+
+            // Get the process with the updated inline trace and verify that the trace was added
+            var updatedProcess = Helper.Storyteller.GetProcess(_user, returnedProcess.Id);
+            var updatedDefaultUserTask = updatedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var updatedDescriptionProperty = StorytellerTestHelper.FindPropertyValue("description", updatedDefaultUserTask.PropertyValues).Value;
+
+            Assert.That(updatedDescriptionProperty.Value.ToString().Contains(descriptionProperty.Value.ToString()), "Description properties don't match.");
+
+            // Create user with a permission only on second project
+            var userWithPermissionOnSecondProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, new List<IProject> { secondProject });
+
+            // Get process subartifact details via Nova call
+            NovaSubArtifactDetails subArtifactDetails = null;
+
+            Assert.DoesNotThrow(() => subArtifactDetails = Helper.ArtifactStore.GetSubartifactDetails(userWithPermissionOnSecondProject, updatedProcess.Id,
+                updatedDefaultUserTask.Id), "GetSubartifactDetails call failed when using the following subartifact ID: {0}!", updatedDefaultUserTask.Id);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifactDetails, inlineTraceArtifact, validInlineTraceLink: false);
+
+            CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
+        }
 
         #endregion Process tests
 

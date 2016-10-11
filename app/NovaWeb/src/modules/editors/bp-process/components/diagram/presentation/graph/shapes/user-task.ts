@@ -34,7 +34,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private personaLabel: ILabel;
     private footerCell: MxCell;
     private commentsButton: Button;
-    private deleteShapeButtong: Button;
+    private deleteShapeButton: Button;
     private detailsButton: Button;
     private previewButton: Button;
     private linkButton: Button;
@@ -72,21 +72,21 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
     public initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
         //Delete Shape
-        this.deleteShapeButtong = new Button(`DS${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("delete-neutral.svg"));
-        this.deleteShapeButtong.isEnabled = true;
+        this.deleteShapeButton = new Button(`DS${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("delete-neutral.svg"));
+        this.deleteShapeButton.isEnabled = true;
 
         if (nodeFactorySettings && nodeFactorySettings.isRelationshipButtonEnabled) {            
-            this.deleteShapeButtong.setClickAction(() => 
+            this.deleteShapeButton.setClickAction(() => 
             {
                 console.log("Delete User Task Shape Clicked");
             });
         } else {
-            this.deleteShapeButtong.setClickAction(() => { });
+            this.deleteShapeButton.setClickAction(() => { });
         }
 
-        this.deleteShapeButtong.setTooltip(this.rootScope.config.labels["ST_Relationships_Label"]);
-        this.deleteShapeButtong.setActiveImage(this.getImageSource("delete-active.svg"));
-        this.deleteShapeButtong.setHoverImage(this.getImageSource("delete-hover.svg"));
+        this.deleteShapeButton.setTooltip(this.rootScope.config.labels["ST_Relationships_Label"]);
+        this.deleteShapeButton.setActiveImage(this.getImageSource("delete-active.svg"));
+        this.deleteShapeButton.setHoverImage(this.getImageSource("delete-hover.svg"));
         
         //Shape Comments
         this.commentsButton = new Button(`CB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("comments-neutral.svg"));
@@ -373,7 +373,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         this.addOverlays(mxGraph);
         
-        this.deleteShapeButtong.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 118, 10,
+        this.deleteShapeButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 118, 10,
             "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
         this.commentsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 94, 10,
             "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");

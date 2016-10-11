@@ -32,12 +32,13 @@ export interface IProjectManager extends IDispose {
     add(data: Models.IProject);
     remove(all?: boolean): void;
     refresh(data: Models.IProject);
+    refreshProjectCollection(): void;
     loadArtifact(id: number): void;
     loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
     getProject(id: number);
     getArtifactNode(id: number): IArtifactNode;
     getArtifact(id: number): IStatefulArtifact;
-    getSelectedProject(): Project; 
+    getSelectedProject(): Project;
 }
 
 
@@ -152,6 +153,12 @@ export class ProjectManager  implements IProjectManager {
         return defer.promise; 
     }
     
+    public refreshProjectCollection() {
+        this.navigationService.navigateToMain().then(() => {
+            this.projectCollection.onNext(this.projectCollection.getValue());
+        });
+    }
+
     private doRefresh(project: Project, selectedArtifact: IStatefulArtifact, defer: any, currentProject: Models.IProject) {
         let selectedArtifactNode = this.getArtifactNode(selectedArtifact.id);
         

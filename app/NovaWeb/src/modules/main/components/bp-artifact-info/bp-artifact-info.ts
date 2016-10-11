@@ -235,13 +235,20 @@ export class BpArtifactInfoController {
     }
 
     protected updateToolbarOptions(artifact: IStatefulArtifact): void {
+        const deleteDialogSettings = <IDialogSettings>{
+            okButton: this.localization.get("App_Button_Ok"),
+            template: require("../../../shared/widgets/bp-dialog/bp-dialog.html"),
+            header: this.localization.get("App_DialogTitle_Alert"),
+            message: "Are you sure you would like to delete the artifact?"
+        };
+
         this.toolbarActions.push(
             new BPButtonGroupAction(
                 new SaveAction(artifact, this.localization, this.messageService, this.loadingOverlayService, this.artifactManager),
                 new PublishAction(artifact, this.localization),
                 new DiscardAction(artifact, this.localization),
                 new RefreshAction(this.localization, this.projectManager, this.artifactManager, this.loadingOverlayService),
-                new DeleteAction(artifact, this.localization, this.dialogService)
+                new DeleteAction(artifact, this.localization, this.dialogService, deleteDialogSettings)
             ),
             new OpenImpactAnalysisAction(artifact, this.localization)
         );

@@ -45,6 +45,7 @@
         .dropdown{
           margin-left: 10px;
 
+
           .dropdown-menu{
             margin-top: 0;
           }
@@ -52,8 +53,6 @@
           i{
             &:before{
               font-size: $font-size-smaller;
-              line-height: 40%;
-              display: inline;
             }
           }
 
@@ -64,6 +63,11 @@
             border-radius: $border-radius-small;
 
             &:first-child{
+              i{
+                overflow: hidden;
+                height: $font-size-smaller;
+                display: inline-block;
+              }
               &:focus{
                 background: $white;
                 border-color: $gray-lighter;

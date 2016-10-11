@@ -9,6 +9,7 @@ using Model.ArtifactModel.Impl;
 using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
+using Newtonsoft.Json;
 
 namespace Model.Impl
 {
@@ -269,9 +270,9 @@ namespace Model.Impl
             return discussionReplies;
         }
 
-        /// <seealso cref="IArtifactStore.GetAttachments(IArtifactBase, IUser, bool?, int?, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.GetAttachments(IArtifactBase, IUser, bool?, int?, int?, List{HttpStatusCode}, IServiceErrorMessage)"/>
         public Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null, int? versionId = null,
-            int? subArtifactId = null, List<HttpStatusCode> expectedStatusCodes = null)
+            int? subArtifactId = null, List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -296,13 +297,29 @@ namespace Model.Impl
 
             var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
 
-            var attachment = restApi.SendRequestAndDeserializeObject<Attachments>(
+            try
+            {
+                var attachment = restApi.SendRequestAndDeserializeObject<Attachments>(
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes);
 
-            return attachment;
+                return attachment;
+            }
+            catch (Exception)
+            {
+                Logger.WriteDebug("Content = '{0}'", restApi.Content);
+
+                if (expectedServiceErrorMessage != null)
+                {
+                    var serviceErrorMessage = JsonConvert.DeserializeObject<ServiceErrorMessage>(restApi.Content);
+                    Assert.That(expectedServiceErrorMessage.Equals(serviceErrorMessage),
+                        "Response message is different from expected!");
+                }
+
+                throw;
+            }
         }
 
         /// <seealso cref="IArtifactStore.GetRelationships(IUser, IArtifactBase, int?, bool?, List{HttpStatusCode})"/>

@@ -3,12 +3,15 @@ import { BpArtifactInfoController } from "../../../../main/components/bp-artifac
 import { IMessageService, ILocalizationService} from "../../../../core";
 import { IDialogService } from "../../../../shared";
 import { IArtifactManager, IProjectManager } from "../../../../managers";
+import { IStatefulArtifact } from "../../../../managers/artifact-manager";
 import { IToolbarCommunication } from "./toolbar-communication";
-import { ICommunicationManager } from "../../"; 
+import { ICommunicationManager } from "../../";
 import { ILoadingOverlayService } from "../../../../core/loading-overlay";
 import { INavigationService } from "../../../../core/navigation/navigation.svc";
 import { IArtifactReference, IBreadcrumbService } from "../../services/breadcrumb.svc";
 import { IBreadcrumbLink } from "../../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
+import { GenerateUserStoriesAction, ToggleProcessTypeAction } from "./actions";
+import { StatefulProcessArtifact } from "../../process-artifact";
 
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("./bp-process-header.html");
@@ -115,5 +118,20 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
 
     public clickDelete() {
         this.toolbarCommunicationManager.clickDelete();
+    }
+
+    protected updateToolbarOptions(artifact: IStatefulArtifact): void {
+        super.updateToolbarOptions(artifact);
+
+        const processArtifact = artifact as StatefulProcessArtifact;
+        
+        if (!processArtifact) {
+            return;
+        }
+
+        this.toolbarActions.push(
+            new GenerateUserStoriesAction(processArtifact, this.artifactManager.selection, this.localization),
+            new ToggleProcessTypeAction(processArtifact, this.toolbarCommunicationManager, this.localization)
+        );
     }
 }

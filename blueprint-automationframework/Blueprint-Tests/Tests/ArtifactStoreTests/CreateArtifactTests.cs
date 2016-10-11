@@ -176,7 +176,7 @@ namespace ArtifactStoreTests
                 InstanceAdminRole.BlueprintAnalytics);
 
             // Execute & Verify:
-            Assert.Throws<Http403ForbiddenException>(() => CreateInvalidArtifact(userWithoutPermission,
+            Assert.Throws<Http403ForbiddenException>(() => CreateArtifact(userWithoutPermission,
                 _project, (int)ItemTypePredefined.Process),
                 "'POST {0}' should return 403 Forbidden if the user doesn't have permission to add artifacts!", SVC_PATH);
         }
@@ -192,7 +192,7 @@ namespace ArtifactStoreTests
             IProject fakeProject = ProjectFactory.CreateProject(id: projectId);
 
             // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => CreateInvalidArtifact(_user, fakeProject, (int)ItemTypePredefined.Process),
+            Assert.Throws<Http404NotFoundException>(() => CreateArtifact(_user, fakeProject, (int)ItemTypePredefined.Process),
                 "'POST {0}' should return 404 Not Found if the Project ID doesn't exist!", SVC_PATH);
         }
 
@@ -228,14 +228,21 @@ namespace ArtifactStoreTests
         /// <param name="project">The project where the artifact will be created.</param>
         /// <param name="parent">(optional) The parent of the artifact to be created.</param>
         /// <returns>The artifact that was created.</returns>
-        private INovaArtifactDetails CreateArtifactWithRandomName(ItemTypePredefined artifactType, IUser user, IProject project, INovaArtifactDetails parent = null)
+        private INovaArtifactDetails CreateArtifactWithRandomName(ItemTypePredefined artifactType,
+            IUser user,
+            IProject project,
+            INovaArtifactDetails parent = null)
         {
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
-            return Helper.ArtifactStore.CreateArtifact(user, artifactType, artifactName, project, parent);
+            var artifact = Helper.ArtifactStore.CreateArtifact(user, artifactType, artifactName, project, parent);
+
+            WrapNovaArtifact(artifact, project, user);
+
+            return artifact;
         }
 
         /// <summary>
-        /// Tries to create an invalid artifact.
+        /// Tries to create an artifact (which could be invalid).
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="project">The project where the artifact will be created.</param>
@@ -244,7 +251,7 @@ namespace ArtifactStoreTests
         /// <param name="parentId">The parent ID of the artifact.</param>
         /// <param name="orderIndex">The order index of the artifact.</param>
         /// <returns>The artifact that was created.</returns>
-        private INovaArtifactDetails CreateInvalidArtifact(IUser user,
+        private INovaArtifactDetails CreateArtifact(IUser user,
             IProject project,
             int itemTypeId,
             string artifactName = null,
@@ -266,7 +273,9 @@ namespace ArtifactStoreTests
 
             RestResponse response = CreateArtifactFromJson(user, jsonBody);
             INovaArtifactDetails createdArtifact = JsonConvert.DeserializeObject<NovaArtifactDetails>(response.Content);
-            
+
+            WrapNovaArtifact(createdArtifact, project, user);
+
             return createdArtifact;
         }
         
@@ -292,6 +301,30 @@ namespace ArtifactStoreTests
                 expectedStatusCodes: expectedStatusCodes);
 
             return response;
+        }
+
+        /// <summary>
+        /// Wraps an INovaArtifactDetails in an IArtifactBase and adds it Helper.Artifacts so it gets disposed properly.
+        /// </summary>
+        /// <param name="novaArtifact">The INovaArtifactDetails that was created by ArtifactStore.</param>
+        /// <param name="project">The project where this artifact exists.</param>
+        /// <param name="user">The user that created this artifact.</param>
+        /// <returns>The IArtifactBase wrapper for the novaArtifact.</returns>
+        private IArtifactBase WrapNovaArtifact(INovaArtifactDetails novaArtifact, IProject project, IUser user)
+        {
+            ThrowIf.ArgumentNull(novaArtifact, nameof(novaArtifact));
+
+            Assert.NotNull(novaArtifact.PredefinedType, "PredefinedType is null in the Nova Artifact!");
+
+            IArtifactBase artifact = ArtifactFactory.CreateArtifact(project,
+                user,
+                ((ItemTypePredefined)novaArtifact.PredefinedType.Value).ToBaseArtifactType(),
+                novaArtifact.Id);
+
+            artifact.IsSaved = true;
+            Helper.Artifacts.Add(artifact);
+
+            return artifact;
         }
         
         #endregion Private functions

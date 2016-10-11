@@ -67,14 +67,6 @@
                 <span>{{::$root.config.labels["App_Toolbar_Refresh_All"]}}</span>
             </a>
         </li>
-        <li>
-            <a href="#" id="deleteartifact" ng-click="$ctrl.execute($event)">
-                <div class="icon-container">
-                    <i class="fonticon fonticon2-delete"></i>
-                </div>
-                <span>{{::$root.config.labels["App_Toolbar_Delete"]}}</span>
-            </a>
-        </li>
         <li class="separator"></li>
         <li>
             <a href="#" id="refresh" ng-click="$ctrl.execute($event)">
@@ -93,8 +85,5 @@
                 </div>
                 <span>{{::$root.config.labels["App_Toolbar_Tour"]}}</span></a>
         </li>
-    </ul>
-    <ul class="nav navbar-nav nav-right" ng-show="$ctrl.currentArtifact">
-        <li><a href="#" id="goToImpactAnalysis" ng-click="$ctrl.execute($event)"><i class="fonticon-bp-impact-analysis"></i></a></li>
     </ul>
 </div>

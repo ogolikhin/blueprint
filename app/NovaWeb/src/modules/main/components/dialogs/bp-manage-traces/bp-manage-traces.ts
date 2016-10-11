@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import { ILocalizationService } from "../../../../core";
-import { BaseDialogController, IDialogSettings, IDialogService, Helper } from "../../../../shared";
+import { BaseDialogController, IDialogSettings, IDialogService } from "../../../../shared";
 import { Relationships, Models } from "../../../models";
 import { IDialogRelationshipItem } from "../../../models/relationshipModels";
 import { ArtifactPickerNodeVM, ArtifactNodeVM } from "../../bp-artifact-picker/bp-artifact-picker-node-vm";
@@ -24,7 +24,6 @@ export class ManageTracesDialogController extends BaseDialogController {
 
     public item: IStatefulItem;
     public relationshipsList: IArtifactRelationships;
-    public manualTraces: Relationships.IRelationshipView[];
     public allTraces: Relationships.IRelationship[];
     public otherTraces: Relationships.IRelationship[];
     public isLoading: boolean = false;
@@ -64,13 +63,9 @@ export class ManageTracesDialogController extends BaseDialogController {
         this.selectedTraces[this.data.artifactId] = [];
     }
 
-    public updateTraces() {
-        this.data.manualTraces = this.manualTraces;
-    }
-
     public getManualTraces() {
         if (this.data.manualTraces) {
-            this.manualTraces = (this.data.manualTraces.map( (item: Relationships.IRelationshipView) => {
+            this.data.manualTraces = (this.data.manualTraces.map( (item: Relationships.IRelationshipView) => {
                 let typeName = Models.ItemTypePredefined[item.primitiveItemTypePredefined];
 
                 if (typeName) {
@@ -99,7 +94,7 @@ export class ManageTracesDialogController extends BaseDialogController {
 
             currentItemModel.artifactId = currentItem instanceof ArtifactNodeVM ? currentItemModel.id : currentItemModel.parentId;
 
-            let res = _.find(this.manualTraces, {itemId: currentItemModel.itemId});
+            let res = _.find(this.data.manualTraces, {itemId: currentItemModel.itemId});
 
             let typeName = Models.ItemTypePredefined[currentItemModel.predefinedType];
 
@@ -124,8 +119,7 @@ export class ManageTracesDialogController extends BaseDialogController {
             }
         }
 
-        this.manualTraces = this.manualTraces.concat(selected);
-        this.updateTraces();
+        this.data.manualTraces = this.data.manualTraces.concat(selected);
     }
 
 
@@ -164,7 +158,6 @@ export class ManageTracesDialogController extends BaseDialogController {
                 }
             }
         }
-        this.updateTraces();
     }
 
     public deleteTraces(): void {
@@ -175,8 +168,7 @@ export class ManageTracesDialogController extends BaseDialogController {
 
         this.dialogService.confirm(confirmation).then( (confirmed) => {
             if (confirmed) {
-                this.remove(this.selectedTraces[this.data.artifactId], this.manualTraces);
-                this.updateTraces();
+                this.remove(this.selectedTraces[this.data.artifactId], this.data.manualTraces);
                 this.clearSelected();
             }
         });
@@ -185,15 +177,13 @@ export class ManageTracesDialogController extends BaseDialogController {
     public deleteTrace(artifact: Relationships.IRelationship): void {
         this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace")).then( (confirmed) => {
             if (confirmed) {
-                this.remove([artifact], this.manualTraces);
+                this.remove([artifact], this.data.manualTraces);
 
                 let index = _.findIndex(this.selectedTraces[this.data.artifactId], {itemId: artifact.itemId});
 
                 if (index > -1) {
                     this.selectedTraces[this.data.artifactId].splice(index, 1);
                 }
-
-                this.updateTraces();
             }
         });
     }
@@ -209,7 +199,6 @@ export class ManageTracesDialogController extends BaseDialogController {
         for (let i = 0; i < selectedTracesLength; i++) {
                 traces[i].traceDirection = direction;
         }
-        this.updateTraces();
     }
 
     public remove(relationships: Relationships.IRelationship[],

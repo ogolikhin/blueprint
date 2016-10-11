@@ -62,7 +62,7 @@ namespace Model.SearchServiceModel
         List<ProjectSearchResult> SearchProjects(IUser user, string searchText, int? resultCount = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Returns the list of artifacts(subartifacts? that match the searchCriteria.
+        /// Returns the list of artifacts(subartifacts?) that match the searchCriteria.
         /// </summary>
         /// <param name="user">The user performing the search.</param>
         /// <param name="searchCriteria">Text to search, list of projects(Ids), list of ItemTypes(Ids)</param>

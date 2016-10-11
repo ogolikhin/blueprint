@@ -16,6 +16,7 @@ namespace SearchService.Controllers
     {
         public override string LogSource => "SearchService.ItemNameSearch";
         public const int MaxResultCount = 100;
+        private const string ArtifactPathStub = "Selected Project > Selected Folder > Selected Artifact";
 
         private ISearchConfigurationProvider _searchConfigurationProvider;
 
@@ -60,6 +61,12 @@ namespace SearchService.Controllers
             var results = await _itemSearchRepository.FindItemByName(userId, searchCriteria, searchStartOffset, searchPageSize);
 
             results.PageItemCount = results.SearchItems.Count();
+
+            // TODO Get Search Artifact Path
+            foreach (var searchItem in results.SearchItems)
+            {
+                searchItem.ArtifactPath = ArtifactPathStub;
+            }
 
             return Ok(results);
 

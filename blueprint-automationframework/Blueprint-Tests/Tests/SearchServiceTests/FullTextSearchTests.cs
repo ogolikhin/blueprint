@@ -355,7 +355,7 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Name")).TextOrChoiceValue, selectedProjectIds);
 
             // Setup: Create user with no permission on any project
-            var userWithNoPermissionOnAnyProject = TestHelper.CreateUserWithProjectRolePermissions(Helper, role: TestHelper.ProjectRole.None, projects: _projects);
+            var userWithNoPermissionOnAnyProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, projects: _projects);
 
             // Execute: Execute FullTextSearch with search terms that matches published artifact(s) name
             Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(userWithNoPermissionOnAnyProject, searchCriteria), "Nova FullTextSearch call failed when using following search term: {0} which matches with published artifacts!", searchCriteria.Query);
@@ -390,7 +390,7 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue, projectIds: searchProjectIds);
 
             // Setup: Create user with the specific permission on project(s)
-            var userWithSelectiveProjectPermission = TestHelper.CreateUserWithProjectRolePermissions(Helper, role: projectRole, projects: selectedProjects);
+            var userWithSelectiveProjectPermission = Helper.CreateUserWithProjectRolePermissions(projectRole, projects: selectedProjects);
             if (projectRole.Equals(TestHelper.ProjectRole.None))
             {
                 publishedArtifactsForSelectedProjects.Clear();

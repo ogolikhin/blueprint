@@ -36,7 +36,7 @@ namespace SearchService.Repositories
             int userId, 
             string searchText, 
             int resultCount,
-            char separatorChar)
+            string separatorChar)
         {
             var searchPrms = new DynamicParameters();
             searchPrms.Add("@userId", userId);

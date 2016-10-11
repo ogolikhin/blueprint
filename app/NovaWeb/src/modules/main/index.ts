@@ -5,7 +5,6 @@ import "angular-ui-router";
 import "angular-ui-bootstrap";
 import "angular-ui-tinymce";
 import "ui-select";
-require("script!mxClient");
 import * as agGrid from "ag-grid/main";
 import * as agGridEnterprise from "ag-grid-enterprise/main";
 import "ng-draggable";

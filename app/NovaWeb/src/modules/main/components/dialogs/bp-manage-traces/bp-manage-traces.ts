@@ -64,6 +64,10 @@ export class ManageTracesDialogController extends BaseDialogController {
         this.selectedTraces[this.data.artifactId] = [];
     }
 
+    public updateTraces() {
+        this.data.manualTraces = this.manualTraces;
+    }
+
     public getManualTraces() {
         if (this.data.manualTraces) {
             this.manualTraces = (this.data.manualTraces.map( (item: Relationships.IRelationshipView) => {
@@ -121,7 +125,7 @@ export class ManageTracesDialogController extends BaseDialogController {
         }
 
         this.manualTraces = this.manualTraces.concat(selected);
-        this.data.manualTraces = this.manualTraces;
+        this.updateTraces();
     }
 
 
@@ -160,6 +164,7 @@ export class ManageTracesDialogController extends BaseDialogController {
                 }
             }
         }
+        this.updateTraces();
     }
 
     public deleteTraces(): void {
@@ -171,6 +176,7 @@ export class ManageTracesDialogController extends BaseDialogController {
         this.dialogService.confirm(confirmation).then( (confirmed) => {
             if (confirmed) {
                 this.remove(this.selectedTraces[this.data.artifactId], this.manualTraces);
+                this.updateTraces();
                 this.clearSelected();
             }
         });
@@ -180,6 +186,14 @@ export class ManageTracesDialogController extends BaseDialogController {
         this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace")).then( (confirmed) => {
             if (confirmed) {
                 this.remove([artifact], this.manualTraces);
+
+                let index = _.findIndex(this.selectedTraces[this.data.artifactId], {itemId: artifact.itemId});
+
+                if (index > -1) {
+                    this.selectedTraces[this.data.artifactId].splice(index, 1);
+                }
+
+                this.updateTraces();
             }
         });
     }
@@ -195,6 +209,7 @@ export class ManageTracesDialogController extends BaseDialogController {
         for (let i = 0; i < selectedTracesLength; i++) {
                 traces[i].traceDirection = direction;
         }
+        this.updateTraces();
     }
 
     public remove(relationships: Relationships.IRelationship[],

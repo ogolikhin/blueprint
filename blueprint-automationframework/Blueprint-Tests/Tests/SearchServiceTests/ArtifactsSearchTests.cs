@@ -22,6 +22,8 @@ namespace SearchServiceTests
     public class ArtifactsSearchTests : TestBase
     {
         private IUser _adminUser = null;
+        private IUser _authorUser = null;
+        private IProject _project = null;
         private List<IProject> _projects = null;
 
         [SetUp]
@@ -30,6 +32,8 @@ namespace SearchServiceTests
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _projects = ProjectFactory.GetAllProjects(_adminUser, shouldRetrievePropertyTypes: true);
+            _project = ProjectFactory.GetProject(_adminUser);
+            _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
         }
 
         [TearDown]
@@ -39,38 +43,43 @@ namespace SearchServiceTests
         }
 
         [TestCase]
-        [TestRail(1)]
-        [Description("Searching with optional parameter, page. Execute Search - Must return SearchResult that uses the page value.")]
+        [TestRail(182900)]
+        [Description("Search published artifact by random part of its name, verify search results.")]
         public void SearchArtifact_AllProjects_VerifySearchResult()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_projects[0], _adminUser, BaseArtifactType.GenericDiagram);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.GenericDiagram);
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new FullTextSearchCriteria(GetRandomSubString(artifact.Name), selectedProjectIds);
             ItemSearchResult results = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_adminUser, searchCriteria); },
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria); },
                 "no errors");
 
             // Verify:
-            Assert.IsTrue(results.SearchItems.Count > 0, "non-empty list");
-            Assert.IsTrue(artifact.Id == results.SearchItems[0].ArtifactId, "must have expected artifact.");
+            Assert.IsTrue(results.SearchItems.Count > 0, "List of SearchItems shouldn't be empty.");
+            Assert.IsTrue(artifact.Id == results.SearchItems[0].ArtifactId, "Published artifact must be in search results.");
         }
 
-        private static string GetRandomSubString(string name)
+        /// <summary>
+        /// Returns random substring with non-zero length from input string
+        /// </summary>
+        /// <param name="inputString">string to create substring from</param>
+        /// <return>Random substring with non-zero length</return>
+        private static string GetRandomSubString(string inputString)
         {
-            var initialLength = name.Length;
+            var initialLength = inputString.Length;
 
             if (initialLength <= 1)
             {
-                return name;
+                return inputString;
             }
             else
             {
                 var startIndex = RandomGenerator.RandomNumber(initialLength - 1);
                 var length = 1 + RandomGenerator.RandomNumber(initialLength - startIndex - 1);
-                return name.Substring(startIndex, length);
+                return inputString.Substring(startIndex, length);
             }
         }
     }

@@ -34,7 +34,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private personaLabel: ILabel;
     private footerCell: MxCell;
     private commentsButton: Button;
-    private relationshipButton: Button;
+    private deleteShapeButton: Button;
     private detailsButton: Button;
     private previewButton: Button;
     private linkButton: Button;
@@ -71,6 +71,23 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
+        //Delete Shape
+        this.deleteShapeButton = new Button(`DS${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("delete-neutral.svg"));
+        this.deleteShapeButton.isEnabled = true;
+
+        if (nodeFactorySettings && nodeFactorySettings.isRelationshipButtonEnabled) {            
+            this.deleteShapeButton.setClickAction(() => 
+            {
+                console.log("Delete User Task Shape Clicked");
+            });
+        } else {
+            this.deleteShapeButton.setClickAction(() => { });
+        }
+
+        this.deleteShapeButton.setTooltip(this.rootScope.config.labels["ST_Relationships_Label"]);
+        this.deleteShapeButton.setActiveImage(this.getImageSource("delete-active.svg"));
+        this.deleteShapeButton.setHoverImage(this.getImageSource("delete-hover.svg"));
+        
         //Shape Comments
         this.commentsButton = new Button(`CB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("comments-neutral.svg"));
         this.commentsButton.isEnabled = !this.isNew;
@@ -92,26 +109,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             }
         }
 
-        //Shape Traces
-        this.relationshipButton = new Button(`RB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("relationship-neutral.svg"));
-        this.relationshipButton.isEnabled = !this.isNew;
-
-        if (nodeFactorySettings && nodeFactorySettings.isRelationshipButtonEnabled) {
-             // #TODO integrate with utility panel in Nova
-            //this.relationshipButton.setClickAction(() => this.openPropertiesDialog(this.rootScope, Shell.UtilityTab.relationships));
-        } else {
-            this.relationshipButton.setClickAction(() => { });
-        }
-
-        this.relationshipButton.setTooltip(this.rootScope.config.labels["ST_Relationships_Label"]);
-        this.relationshipButton.setActiveImage(this.getImageSource("relationship-active.svg"));
-        this.relationshipButton.setHoverImage(this.getImageSource("relationship-active.svg"));
-
-        if (this.relationshipButton.isEnabled) {
-            if (this.model.flags && this.model.flags.hasTraces) {
-                this.relationshipButton.activate();
-            }
-        }
+        
 
         //Included Artifacts Button
         this.linkButton = new Button(`LB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("include-neutral.svg"));
@@ -375,7 +373,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         this.addOverlays(mxGraph);
         
-        this.relationshipButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 118, 10,
+        this.deleteShapeButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 118, 10,
             "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
         this.commentsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 94, 10,
             "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
@@ -507,8 +505,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         if (this.userStoryId !== value) {
             this.setPropertyValue("storyLinks", { associatedReferenceArtifactId: value });
             if (this.previewButton && value > 0) {
-                this.previewButton.activate();
-                this.relationshipButton.activate();
+                this.previewButton.activate();                
             }
         }
     }

@@ -22,7 +22,12 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
     private NEW_FILL_COLOR: string = "#FBF8E7";
     private MENU_SIZE: number = 16;
     private BUTTON_SIZE: number = 16;
+    private DELETE_SHAPE_OFFSET = 3;
+
     private detailsButton: Button;
+    private deleteShapeButton: Button;
+
+
     private rootScope: any;
 
     constructor(model: IProcessShape, rootScope: any, nodeFactorySettings: NodeFactorySettings = null) {
@@ -43,6 +48,21 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
         this.detailsButton.setHoverImage("/novaweb/static/bp-process/images/adddetails-hover.svg");
         this.detailsButton.setDisabledImage("/novaweb/static/bp-process/images/adddetails-mute.svg");
         this.detailsButton.setTooltip(this.rootScope.config.labels["ST_Settings_Label"]);
+
+        //Delete process shape button
+        this.deleteShapeButton = new Button(`DS${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, "/novaweb/static/bp-process/images/delete-neutral.svg");
+
+        if (nodeFactorySettings && nodeFactorySettings.isDeleteShapeEnabled) {
+            this.deleteShapeButton.setClickAction(() => {
+                console.log("Delete System Decision shape clicked");
+            });
+        } else {
+            this.deleteShapeButton.setClickAction(() => { });
+        }
+
+        this.deleteShapeButton.setHoverImage("/novaweb/static/bp-process/images/delete-hover.svg");
+        this.deleteShapeButton.setDisabledImage("/novaweb/static/bp-process/images/delete-inactive.svg");
+        this.deleteShapeButton.setTooltip(this.rootScope.config.labels["ST_Settings_Label"]);
     }
 
     public setLabelWithRedrawUi(value: string) {
@@ -108,6 +128,14 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
         if (!graph.viewModel.isReadonly) {
             this.showMenu(mxGraph);
         }
+
+        this.deleteShapeButton.render(
+            mxGraph,
+            this,
+            this.SYSTEM_DECISION_WIDTH / 2 - this.BUTTON_SIZE / 2,
+            this.BUTTON_SIZE + this.DELETE_SHAPE_OFFSET,
+            "shape=ellipse;strokeColor=none;fillColor=none;selectable=0"
+        );
 
         this.detailsButton.render(mxGraph, this, this.SYSTEM_DECISION_WIDTH / 2 - this.BUTTON_SIZE / 2, this.SYSTEM_DECISION_HEIGHT - this.BUTTON_SIZE - 10,
             "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");

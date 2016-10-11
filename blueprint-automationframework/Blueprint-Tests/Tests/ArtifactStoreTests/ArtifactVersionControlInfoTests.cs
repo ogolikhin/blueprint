@@ -220,48 +220,6 @@ namespace ArtifactStoreTests
             VerifyBasicInformationResponce(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: subArtifacts[0].Id);
         }
 
-        [Ignore(IgnoreReasons.UnderDevelopment)] // Update artifact with sub-artifact is not implemented yet (Better to avoid artifact.Sae() in this test since Save changes also artifact description.
-        [Description("Create & save an artifact.  Add to this artifact sub-artifact & save. Verify user gets basic artifact information with subartifact Id.")]
-        public void VersionControlInfo_CreateAndSaveSubArtifactInPublishedArtifactForAnotherUser_ReturnsArtifactInfo_200OK()
-        {
-            // Setup:
-
-            // Create a Process artifact
-            var processArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user);
-
-            // Get the process artifact
-            var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
-
-            // Add UserTasks - iteration
-            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
-
-            // Find outgoing process link for precondition task
-            var processLink = process.GetOutgoingLinkForShape(precondition);
-
-            var userTask = process.AddUserAndSystemTask(processLink);
-
-            NovaArtifactDetails retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
-            retrievedArtifact.Name = "Sub-artifact_" + retrievedArtifact.Name;
-            Artifact.UpdateArtifact(processArtifact, _user, retrievedArtifact, Helper.BlueprintServer.Address);
-
-            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-
-            INovaVersionControlArtifactInfo basicArtifactInfo = null;
-
-            // Execute
-            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(anotherUser, userTask.Id),
-                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
-
-            // Verify
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, basicArtifactInfo.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo);
-
-            Assert.IsNotNull(basicArtifactInfo.SubArtifactId, "There is no sub-artifact id in the returned basic artifact info responce");
-            Assert.AreEqual(userTask.Id, basicArtifactInfo.SubArtifactId, "Sub-artifact Id in Basic Artifact info is different from Id of sub-artifact sent in get artifact base infor request");
-
-            Assert.IsTrue(basicArtifactInfo.HasChanges.HasValue, "HasChanges property should be null");
-            Assert.IsFalse(basicArtifactInfo.HasChanges.Value, "HasChanges property should be false");
-        }
 
         [TestCase(BaseArtifactType.UseCase)]
         [TestCase(BaseArtifactType.Process)]
@@ -366,7 +324,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(182564)]
-        [Description("Create, publish & delete an artifact. Verify user gets basic artifact information.")]
+        [Description("Create, publish & delete an artifact. Another user gets basic information. Verify user gets basic artifact information.")]
         public void VersionControlInfo_PublishArtifactDeletedAndAccessedByAnotherUser_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
         {
             // Setup:
@@ -389,7 +347,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.UseCase)]
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182565)]
-        [Description("Create, publish & delete an artifact. Another user tries to get basic information. Verify user gets basic artifact information.")]
+        [Description("Create, publish & delete an artifact with sub-artifacts. Verify user gets basic artifact information.")]
         public void VersionControlInfo_PublishArtifactWithSubArtifactDeleted_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
         {
             // Setup:
@@ -413,8 +371,8 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.UseCase)]
         [TestCase(BaseArtifactType.Process)]
-        [TestRail(0)]
-        [Description("Create, publish & delete an artifact. Another user gets basic information. Verify basic artifact information.")]
+        [TestRail(182593)]
+        [Description("Create, publish & delete an artifact with sub-artifacts. Another user gets basic information. Verify basic artifact information.")]
         public void VersionControlInfo_PublishArtifactWithSubArtifactDeleted_AnotherUserGetsBasicInfo_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
         {
             // Setup:
@@ -438,14 +396,127 @@ namespace ArtifactStoreTests
             VerifyBasicInformationResponce(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: subArtifacts[0].Id);
         }
 
-        // TODO: Published deleted Artifact(- isDeleted= false).
-        // TODO: Saved deleted Artifact.
-        // TODO: Saved deleted Artifact for another user.
-        // TODO: Sub-Artifact in published deleted Artifact(- isDeleted= false).
-        // TODO: Sub-Artifact in saved deleted Artifact.
-        // TODO: Published deleted Sub-artifact in live Artifact.
-        // TODO: Saved deleted Sub-artifact in live Artifact.
-        // TODO: Saved deleted Sub-artifact in live Artifact for another user.        
+        [TestCase]
+        [TestRail(182601)]
+        [Description("Create & publish process artifact.  Add to this artifact sub-artifact & publish. Verify user gets basic artifact information with subartifact Id.")]
+        public void VersionControlInfo_PublishArtifact_CreateAndPublishSubArtifact_ReturnsArtifactInfo_200OK()
+        {
+            // Setup:
+
+            // Create a Process artifact
+            var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(project: _project, user: _user);
+
+            // Get the process artifact
+            var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
+
+            // Add UserTasks - iteration
+            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find outgoing process link for precondition task
+            var processLink = process.GetOutgoingLinkForShape(precondition);
+
+            var userTask = process.AddUserAndSystemTask(processLink);
+
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _user);
+
+            // Get the process artifact
+            process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
+
+            userTask = process.GetProcessShapeByShapeName(userTask.Name);
+
+            INovaVersionControlArtifactInfo basicArtifactInfo = null;
+
+            // Execute
+            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, userTask.Id),
+                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+
+            // Verify
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, basicArtifactInfo.Id);
+            artifactDetails.AssertEquals(basicArtifactInfo);
+
+            VerifyBasicInformationResponce(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: userTask.Id);
+        }
+
+        [TestCase]
+        [TestRail(182602)]
+        [Description("Create & publish process artifact.  Add to this artifact sub-artifact & save. Verify user gets basic artifact information with subartifact Id.")]
+        public void VersionControlInfo_PublishArtifact_CreateAndSaveSubArtifact_ReturnsArtifactInfo_200OK()
+        {
+            // Setup:
+
+            // Create a Process artifact
+            var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(project: _project, user: _user);
+
+            // Get the process artifact
+            var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
+
+            // Add UserTasks - iteration
+            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find outgoing process link for precondition task
+            var processLink = process.GetOutgoingLinkForShape(precondition);
+
+            var userTask = process.AddUserAndSystemTask(processLink);
+
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+
+            // Get the process artifact
+            process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
+
+            userTask = process.GetProcessShapeByShapeName(userTask.Name);
+
+            INovaVersionControlArtifactInfo basicArtifactInfo = null;
+
+            // Execute
+            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, userTask.Id),
+                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+
+            // Verify
+            VerifyBasicInformationResponce(basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: userTask.Id);
+        }
+
+        [TestCase]
+        [TestRail(182605)]
+        [Description("Create & publish process artifact.  Add to this artifact sub-artifact & publish. Verify user gets basic artifact information with subartifact Id.")]
+        public void VersionControlInfo_PublishArtifact_CreateAndPublishSubArtifact_AnotherUserReturnsArtifactInfo_200OK()
+        {
+            // Setup:
+
+            // Create a Process artifact
+            var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(project: _project, user: _user);
+
+            // Get the process artifact
+            var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
+
+            // Add UserTasks - iteration
+            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find outgoing process link for precondition task
+            var processLink = process.GetOutgoingLinkForShape(precondition);
+
+            var userTask = process.AddUserAndSystemTask(processLink);
+
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _user);
+
+            // Get the process artifact
+            process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
+
+            userTask = process.GetProcessShapeByShapeName(userTask.Name);
+
+            INovaVersionControlArtifactInfo basicArtifactInfo = null;
+
+            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+
+            // Execute
+            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(anotherUser, userTask.Id),
+                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+
+            // Verify
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, basicArtifactInfo.Id);
+            artifactDetails.AssertEquals(basicArtifactInfo);
+
+            VerifyBasicInformationResponce(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: userTask.Id);
+        }
 
         #endregion Delete
 

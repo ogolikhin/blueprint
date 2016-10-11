@@ -2,6 +2,7 @@ import * as angular from "angular";
 import "angular-formly";
 import "angular-ui-tinymce";
 import "tinymce";
+import { BPFieldBaseRTFController } from "./base-rtf-controller";
 import { Helper } from "../../../../shared";
 
 export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
@@ -25,13 +26,12 @@ export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
     }
 }
 
-export class BpFieldTextRTFInlineController {
+export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
     static $inject: [string] = ["$scope"];
 
-    private observer: MutationObserver;
-    private contentBody: string;
-
     constructor(private $scope: AngularFormly.ITemplateScope) {
+        super();
+
         let onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
         $scope.to.onChange = () => { };
 
@@ -136,22 +136,25 @@ export class BpFieldTextRTFInlineController {
                         this.observer.observe(editorBody, observerConfig);
                     }
 
-                    this.contentBody = editorBody.innerHTML;
+                    let contentBody = editorBody.innerHTML;
 
                     editor.on("Change", (e) => {
-                        let contentBody = editorBody.innerHTML;
-                        if (this.contentBody !== contentBody) {
-                            this.contentBody = contentBody;
+                        if (contentBody !== editorBody.innerHTML) {
+                            contentBody = editorBody.innerHTML;
                             onChange(contentBody, $scope.options, $scope);
                         }
                     });
 
                     editor.on("Focus", (e) => {
-                        editorBody.parentElement.classList.remove("tinymce-toolbar-hidden");
+                        if (editorBody.parentElement) {
+                            editorBody.parentElement.classList.remove("tinymce-toolbar-hidden");
+                        }
                     });
 
                     editor.on("Blur", (e) => {
+                        if (editorBody.parentElement) {
                             editorBody.parentElement.classList.add("tinymce-toolbar-hidden");
+                        }
                     });
                 },
                 setup: function (editor) {
@@ -243,74 +246,4 @@ export class BpFieldTextRTFInlineController {
             this.handleLinks(this.$scope["tinymceBody"].querySelectorAll("a"), true);
         });
     }
-
-    private handleClick = function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-
-        const href = this.href;
-        if (href.indexOf("?ArtifactId=") !== -1 && this.getAttribute("artifactid")) {
-            const artifactId = parseInt(href.split("?ArtifactId=")[1], 10);
-            if (artifactId === parseInt(this.getAttribute("artifactid"), 10)) {
-                console.log("Should GOTO " + artifactId);
-            }
-        } else {
-            window.open(href, "_blank");
-        }
-    };
-
-    private handleLinks = (nodeList: Node[] | NodeList, remove: boolean = false) => {
-        if (nodeList.length === 0) {
-            return;
-        }
-        for (let i = 0; i < nodeList.length; i++) {
-            let element = nodeList[i] as HTMLElement;
-
-            if (!remove) {
-                angular.element(element).attr("contentEditable", "false");
-                angular.element(element).attr("data-mce-contenteditable", "false");
-
-                element.addEventListener("click", this.handleClick);
-            } else {
-                element.removeEventListener("click", this.handleClick);
-            }
-        }
-    };
-
-    private handleMutation = (mutation: MutationRecord) => {
-        let addedNodes = mutation.addedNodes;
-        let removedNodes = mutation.removedNodes;
-        if (addedNodes) {
-            for (let i = 0; i < addedNodes.length; i++) {
-                let node = addedNodes[i];
-                if (node.nodeType === 1) { // ELEMENT_NODE
-                    if (node.nodeName.toUpperCase() === "A") {
-                        this.handleLinks([node]);
-                    } else {
-                        let element = node as HTMLElement;
-                        this.handleLinks(element.querySelectorAll("a"));
-                    }
-                }
-            }
-        }
-        if (removedNodes) {
-            for (let i = 0; i < removedNodes.length; i++) {
-                let node = removedNodes[i];
-                if (node.nodeType === 1) { // ELEMENT_NODE
-                    if (node.nodeName.toUpperCase() === "A") {
-                        this.handleLinks([node], true);
-                    } else {
-                        let element = node as HTMLElement;
-                        this.handleLinks(element.querySelectorAll("a"), true);
-                    }
-                }
-            }
-        }
-    };
-
-    private removeObserver = () => {
-        if (this.observer) {
-            this.observer.disconnect();
-        }
-    };
 }

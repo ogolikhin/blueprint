@@ -2,6 +2,7 @@ import * as angular from "angular";
 import "angular-formly";
 import "angular-ui-tinymce";
 import "tinymce";
+import { BPFieldBaseRTFController } from "./base-rtf-controller";
 import { Helper } from "../../../../shared";
 
 export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
@@ -25,13 +26,12 @@ export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     }
 }
 
-export class BpFieldTextRTFController {
+export class BpFieldTextRTFController extends BPFieldBaseRTFController {
     static $inject: [string] = ["$scope"];
 
-    private observer: MutationObserver;
-    private contentBody: string;
-
     constructor(private $scope: AngularFormly.ITemplateScope) {
+        super();
+
         let onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
         $scope.to.onChange = () => { };
 
@@ -52,10 +52,9 @@ export class BpFieldTextRTFController {
                 menubar: false,
                 toolbar: "fontselect fontsize | bold italic underline | forecolor format | link table",
                 statusbar: false,
-                content_style: `html { overflow: visible !important; }
-                body.mce-content-body { font-family: 'Open Sans', sans-serif; font-size: 9pt; }
-                body:hover { background: ${bodyBgColor} url(${bodyBgImage}) no-repeat right 5px top 6px; background-attachment: fixed; }
-                body:focus { background: ${bodyBgColor}; }
+                content_style: `html { overflow: auto !important; }
+                body.mce-content-body { font-family: 'Open Sans', sans-serif; font-size: 9pt; overflow: visible !important; }
+                body:hover, body:focus { background: ${bodyBgColor} url(${bodyBgImage}) no-repeat right 4px top 6px; background-attachment: fixed; }
                 a:hover { cursor: pointer !important; }`,
                 invalid_elements: "img,frame,iframe,script",
                 invalid_styles: {
@@ -161,12 +160,11 @@ export class BpFieldTextRTFController {
                         this.observer.observe(editorBody, observerConfig);
                     }
 
-                    this.contentBody = editorBody.innerHTML;
+                    let contentBody = editorBody.innerHTML;
 
                     editor.on("Change", (e) => {
-                        let contentBody = editorBody.innerHTML;
-                        if (this.contentBody !== contentBody) {
-                            this.contentBody = contentBody;
+                        if (contentBody !== editorBody.innerHTML) {
+                            contentBody = editorBody.innerHTML;
                             onChange(contentBody, $scope.options, $scope);
                         }
                     });
@@ -293,74 +291,4 @@ export class BpFieldTextRTFController {
             this.handleLinks(this.$scope["tinymceBody"].querySelectorAll("a"), true);
         });
     }
-
-    private handleClick = function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-
-        const href = this.href;
-        if (href.indexOf("?ArtifactId=") !== -1 && this.getAttribute("artifactid")) {
-            const artifactId = parseInt(href.split("?ArtifactId=")[1], 10);
-            if (artifactId === parseInt(this.getAttribute("artifactid"), 10)) {
-                console.log("Should GOTO " + artifactId);
-            }
-        } else {
-            window.open(href, "_blank");
-        }
-    };
-
-    private handleLinks = (nodeList: Node[] | NodeList, remove: boolean = false) => {
-        if (nodeList.length === 0) {
-            return;
-        }
-        for (let i = 0; i < nodeList.length; i++) {
-            let element = nodeList[i] as HTMLElement;
-
-            if (!remove) {
-                angular.element(element).attr("contentEditable", "false");
-                angular.element(element).attr("data-mce-contenteditable", "false");
-
-                element.addEventListener("click", this.handleClick);
-            } else {
-                element.removeEventListener("click", this.handleClick);
-            }
-        }
-    };
-
-    private handleMutation = (mutation: MutationRecord) => {
-        let addedNodes = mutation.addedNodes;
-        let removedNodes = mutation.removedNodes;
-        if (addedNodes) {
-            for (let i = 0; i < addedNodes.length; i++) {
-                let node = addedNodes[i];
-                if (node.nodeType === 1) { // ELEMENT_NODE
-                    if (node.nodeName.toUpperCase() === "A") {
-                        this.handleLinks([node]);
-                    } else {
-                        let element = node as HTMLElement;
-                        this.handleLinks(element.querySelectorAll("a"));
-                    }
-                }
-            }
-        }
-        if (removedNodes) {
-            for (let i = 0; i < removedNodes.length; i++) {
-                let node = removedNodes[i];
-                if (node.nodeType === 1) { // ELEMENT_NODE
-                    if (node.nodeName.toUpperCase() === "A") {
-                        this.handleLinks([node], true);
-                    } else {
-                        let element = node as HTMLElement;
-                        this.handleLinks(element.querySelectorAll("a"), true);
-                    }
-                }
-            }
-        }
-    };
-
-    private removeObserver = () => {
-        if (this.observer) {
-            this.observer.disconnect();
-        }
-    };
 }

@@ -91,7 +91,7 @@ namespace SearchService.Controllers
             // get the UserId from the session
             int userId = ValidateAndExtractUserId();
 
-            ValidateCriteria(searchCriteria);
+            ValidateCriteria(searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
 
             int searchPageSize = GetPageSize(_searchConfigurationProvider, pageSize);
 

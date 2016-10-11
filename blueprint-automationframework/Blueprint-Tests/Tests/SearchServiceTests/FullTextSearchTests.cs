@@ -355,7 +355,7 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Name")).TextOrChoiceValue, selectedProjectIds);
 
             // Setup: Create user with no permission on any project
-            var userWithNoPermissionOnAnyProject = TestHelper.CreateUserWithProjectRolePermissions(Helper, role: TestHelper.ProjectRole.None, projects: _projects);
+            var userWithNoPermissionOnAnyProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, projects: _projects);
 
             // Execute: Execute FullTextSearch with search terms that matches published artifact(s) name
             Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(userWithNoPermissionOnAnyProject, searchCriteria), "Nova FullTextSearch call failed when using following search term: {0} which matches with published artifacts!", searchCriteria.Query);
@@ -366,7 +366,7 @@ namespace SearchServiceTests
 
         [TestCase(1, TestHelper.ProjectRole.Viewer)]
         [TestCase(1, TestHelper.ProjectRole.AuthorFullAccess)]
-        [TestCase(0, TestHelper.ProjectRole.None)]
+        [TestCase(1, TestHelper.ProjectRole.None)]
         [TestRail(182374)]
         [Description("Searching with the search criteria that matches with published artifacts using user have permission to certain project(s). Execute Search - Must return corresponding SearchResult based on user's permission per project")]
         public void FullTextSearch_SearchWithPermissionOnProjects_VerifyCorrespondingFullTextSearchItemsOnSearchResult(
@@ -390,7 +390,11 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue, projectIds: searchProjectIds);
 
             // Setup: Create user with the specific permission on project(s)
-            var userWithSelectiveProjectPermission = TestHelper.CreateUserWithProjectRolePermissions(Helper, role: projectRole, projects: selectedProjects);
+            var userWithSelectiveProjectPermission = Helper.CreateUserWithProjectRolePermissions(projectRole, projects: selectedProjects);
+            if (projectRole.Equals(TestHelper.ProjectRole.None))
+            {
+                publishedArtifactsForSelectedProjects.Clear();
+            }
 
             // Setup: Set the pageSize that displays all expecting search results for the user with permission on selected project(s)
             var customSearchPageSize = publishedArtifactsForSelectedProjects.Count();

@@ -398,6 +398,7 @@ namespace Model.ArtifactModel.Impl
 
                 if (publishedResult.ResultCode == HttpStatusCode.OK)
                 {
+                    publishedArtifact.LockOwner = null;
                     publishedArtifact.IsSaved = false;
 
                     // If the artifact was marked for deletion, then this publish operation actually deleted the artifact.
@@ -682,6 +683,7 @@ namespace Model.ArtifactModel.Impl
             foreach (var artifact in artifactList.ToArray())
             {
                 artifactList.Remove(artifact);
+                IUser user = artifact.LockOwner ?? artifact.CreatedBy;
 
                 if (artifact.IsDeleted)
                 {
@@ -689,30 +691,17 @@ namespace Model.ArtifactModel.Impl
                 }
                 else if (artifact.IsPublished)
                 {
-                    if (!artifact.IsMarkedForDeletion)
-                    {
-                        Logger.WriteDebug("Deleting artifact ID: {0}.", artifact.Id);
-                        artifact.Delete(artifact.LockOwner, deleteChildren: true);
-                    }
-
-                    Logger.WriteDebug("Publishing deleted artifact ID: {0}.", artifact.Id);
-                    artifact.Publish(artifact.LockOwner);
+                    DeleteAndPublishArtifact(artifact, user);
                 }
                 else if (artifact.IsSaved)
                 {
-                    Logger.WriteDebug("Adding artifact ID {0} to list of saved artifacts to discard.", artifact.Id);
-
-                    if ((artifact.LockOwner != null) && savedArtifactsDictionary.ContainsKey(artifact.LockOwner))
+                    if (savedArtifactsDictionary.ContainsKey(user))
                     {
-                        savedArtifactsDictionary[artifact.LockOwner].Add(artifact);
-                    }
-                    else if (savedArtifactsDictionary.ContainsKey(artifact.CreatedBy))
-                    {
-                        savedArtifactsDictionary[artifact.CreatedBy].Add(artifact);
+                        savedArtifactsDictionary[user].Add(artifact);
                     }
                     else
                     {
-                        savedArtifactsDictionary.Add(artifact.CreatedBy, new List<IArtifactBase> { artifact });
+                        savedArtifactsDictionary.Add(user, new List<IArtifactBase> { artifact });
                     }
                 }
 
@@ -720,12 +709,28 @@ namespace Model.ArtifactModel.Impl
             }
 
             // For each user that created artifacts, discard the list of artifacts they created.
-            // TODO: This workaround shouldn't be needed anymore.  OpenAPI should now be able to delete unpublished artifacts without having to call discard.
             foreach (IUser user in savedArtifactsDictionary.Keys)
             {
                 Logger.WriteDebug("*** Discarding all unpublished artifacts created by user: '{0}'.", user.Username);
                 Artifact.DiscardArtifacts(savedArtifactsDictionary[user], savedArtifactsDictionary[user].First().Address, user);
             }
+        }
+
+        /// <summary>
+        /// Delete (if not already marked for deletion) and publish the artifact using the specified user.
+        /// </summary>
+        /// <param name="artifact">The artifact to delete and publish.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        private static void DeleteAndPublishArtifact(IArtifactBase artifact, IUser user)
+        {
+            if (!artifact.IsMarkedForDeletion && artifact.IsPublished)
+            {
+                Logger.WriteDebug("Deleting artifact ID: {0}.", artifact.Id);
+                artifact.Delete(artifact.LockOwner, deleteChildren: true);
+            }
+
+            Logger.WriteDebug("Publishing deleted artifact ID: {0}.", artifact.Id);
+            artifact.Publish(user);
         }
     }
 

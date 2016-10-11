@@ -59,7 +59,66 @@ namespace SearchServiceTests
 
             // Verify:
             Assert.IsTrue(results.SearchItems.Count > 0, "List of SearchItems shouldn't be empty.");
-            Assert.IsTrue(artifact.Id == results.SearchItems[0].ArtifactId, "Published artifact must be in search results.");
+            CompareArtifactWithSearchItem(artifact, results.SearchItems[0]);
+        }
+
+        [TestCase]
+        [TestRail(1)]
+        [Description("Search published artifact by full name, verify search results.")]
+        public void SearchArtifactByFullName_AllProjects_VerifySearchResult()
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.GenericDiagram);
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
+            ItemSearchResult results = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria); },
+                "no errors");
+
+            // Verify:
+            Assert.IsTrue(results.SearchItems.Count > 0, "List of SearchItems shouldn't be empty.");
+            CompareArtifactWithSearchItem(artifact, results.SearchItems[0]);
+        }
+
+        [TestCase]
+        [TestRail(2)]
+        [Description("Search published artifact by full name, verify search results.")]
+        public void SearchArtifactNonExistingName_AllProjects_VerifyEmptyResult()
+        {
+            // Setup:
+            Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.GenericDiagram);
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria(RandomGenerator.RandomLowerCase(50), selectedProjectIds);
+            ItemSearchResult results = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria); },
+                "no errors");
+
+            // Verify:
+            Assert.IsTrue(results.SearchItems.Count == 0, "List of SearchItems should be empty.");
+        }
+
+        [TestCase]
+        [TestRail(3)]
+        [Description("Search published artifact by full name, verify search results.")]
+        public void SearchDraftArtifactByFullName_AllProjects_VerifySearchResult()
+        {
+            // Setup:
+            var artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.GenericDiagram);
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
+            ItemSearchResult results = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria); },
+                "no errors");
+
+            // Verify:
+            Assert.IsTrue(results.SearchItems.Count > 0, "List of SearchItems shouldn't be empty.");
+            CompareArtifactWithSearchItem(artifact, results.SearchItems[0]);
         }
 
         /// <summary>
@@ -81,6 +140,19 @@ namespace SearchServiceTests
                 var length = 1 + RandomGenerator.RandomNumber(initialLength - startIndex - 1);
                 return inputString.Substring(startIndex, length);
             }
+        }
+
+        /// <summary>
+        /// Compares Artifact with SearchItem
+        /// </summary>
+        /// <param name="artifact">artifact to compare</param>
+        /// <param name="searchItem">searchItem to compare</param>
+        private static void CompareArtifactWithSearchItem(IArtifact artifact, SearchItem searchItem)
+        {
+            Assert.AreEqual(searchItem.ArtifactId, artifact.Id, "");
+            Assert.AreEqual(searchItem.Name, artifact.Name, ".");
+            Assert.AreEqual(searchItem.ProjectId, artifact.ProjectId, "..");
+            Assert.AreEqual(searchItem.TypeName, artifact.ArtifactTypeName, "..");
         }
     }
 }

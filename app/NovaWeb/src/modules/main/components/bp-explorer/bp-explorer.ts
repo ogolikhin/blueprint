@@ -16,7 +16,9 @@ export class ProjectExplorer implements ng.IComponentOptions {
 export class ProjectExplorerController {
     public tree: IBPTreeController;
     private subscribers: Rx.IDisposable[];
+    private selectedArtifactSubscriber: Rx.IDisposable;
     private numberOfProjectsOnLastLoad: number;
+    private selectedArtifactNameBeforeChange: string;
 
     public static $inject: [string] = ["projectManager", "artifactManager", "navigationService"];
     
@@ -44,9 +46,7 @@ export class ProjectExplorerController {
         }
     }
 
-    private selectedArtifactSubscriber: Rx.IDisposable;
     private _selected: IArtifactNode;
-    private selectedArtifactNameBeforeChange: string;
     private get selected() {
         return this._selected;
     }

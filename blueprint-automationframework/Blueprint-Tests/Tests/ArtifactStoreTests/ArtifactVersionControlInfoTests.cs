@@ -222,9 +222,8 @@ namespace ArtifactStoreTests
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId : subArtifacts[0].Id);
         }
 
-//        [Ignore(IgnoreReasons.UnderDevelopment)] // Update artifact with sub-artifact is not implemented yet (Better to avoid artifact.Save() in this test since Save changes also artifact description.
         [TestCase]
-        [TestRail(0)]
+        [TestRail(182606)]
         [Description("Create & publish an artifact.  Change sub-artifact & save. Verify another user gets basic artifact information with subartifact Id.")]
         public void VersionControlInfo_PublishedArtifactSubartifactUpdated_AnotherUserGetsBasicInfo_ReturnsArtifactInfo_200OK()
         {

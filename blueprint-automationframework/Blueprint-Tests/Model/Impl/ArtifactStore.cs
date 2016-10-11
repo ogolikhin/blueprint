@@ -270,7 +270,7 @@ namespace Model.Impl
             return discussionReplies;
         }
 
-        /// <seealso cref="IArtifactStore.GetAttachments(IArtifactBase, IUser, bool?, int?, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.GetAttachments(IArtifactBase, IUser, bool?, int?, int?, List{HttpStatusCode}, IServiceErrorMessage)"/>
         public Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null, int? versionId = null,
             int? subArtifactId = null, List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null)
         {
@@ -307,7 +307,6 @@ namespace Model.Impl
 
                 return attachment;
             }
-            
             catch (Exception)
             {
                 Logger.WriteDebug("Content = '{0}'", restApi.Content);

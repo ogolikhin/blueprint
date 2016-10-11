@@ -582,14 +582,15 @@ namespace ArtifactStoreTests
             //versionId = 1 - 1 attachment - _novaAttachmentFile
 
             string messageText = I18NHelper.FormatInvariant("Version index (Id:{0}) is not found.", versionId);
-            IServiceErrorMessage errorMessage = ServiceErrorMessageFactory.CreateServiceErrorMessage(3000, messageText);
+            IServiceErrorMessage errorMessage = ServiceErrorMessageFactory.CreateServiceErrorMessage(ErrorCodes.ResourceNotFound,
+                messageText);
 
             // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: versionId,
                     expectedServiceErrorMessage: errorMessage);
-            }, "GetAttachments should return 409 error when passed a non-existing valid versionId.");
+            }, "GetAttachments should return 404 error when passed a non-existing valid versionId.");
         }
 
         #endregion Attachments Versions tests

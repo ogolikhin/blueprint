@@ -88,11 +88,7 @@ export class ProcessGraphModel implements IProcessGraphModel {
     }
 
     public set shapes(newValue: ProcessModels.IProcessShape[]) {
-        this.process.shapes = newValue;
-        //TODO: This is to prevent unit tests from failing. Need to change unit tests to include stateful artifact in the models.
-        if (this.statefulArtifact) {
-            this.statefulArtifact.subArtifactCollection.initialise(<StatefulProcessSubArtifact[]>newValue);
-        }
+        this.process.shapes = newValue;       
     }
 
     public get links(): ProcessModels.IProcessLinkModel[] {

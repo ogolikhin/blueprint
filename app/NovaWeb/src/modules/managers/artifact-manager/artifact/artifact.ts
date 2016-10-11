@@ -342,25 +342,28 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         let loadPromise = this.load();
         promisesToExecute.push(loadPromise);
 
-        // TODO: also load subartifacts 
         let attachmentPromise: ng.IPromise<any>;
+
         if (this._attachments) {
             //this will also reload docRefs, so no need to call docRefs.refresh()
             attachmentPromise = this._attachments.refresh();
             promisesToExecute.push(attachmentPromise);
         }
 
+        let relationshipPromise: ng.IPromise<any>;
+
         if (this._relationships) {
             relationshipPromise = this._relationships.refresh();
+            promisesToExecute.push(relationshipPromise);
         }
 
         //History and Discussions refresh independently, triggered by artifact's observable.
 
-        this.getServices().$q.all([
-                loadPromise,
-                attachmentPromise,
-                relationshipPromise
-            ]).then(() => {
+        // get promises for custom artifact refresh operations 
+        promisesToExecute.push.apply(promisesToExecute,
+            this.getCustomArtifactPromisesForRefresh());
+
+        this.getServices().$q.all(promisesToExecute).then(() => {
                 this.subject.onNext(this);
                 deferred.resolve(this);
             }).catch(error => {
@@ -369,28 +372,15 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 //This steals control flow, don't put anything after it.
                 this.subject.onError(error);
             });
-        // let relationshipsPromise: ng.IPromise<any>, subArtifactsPromise: ng.IPromise<any>;
-       
-        promisesToExecute.push.apply(promisesToExecute,
-            this.getCustomArtifactPromisesForRefresh());
- 
-        this.getServices().$q.all(promisesToExecute).then(() => {
-            this.subject.onNext(this);
-            deferred.resolve(this);
-        }).catch(error => {
-            this.subject.onError(error);
-            deferred.reject(error);
-        });
-
+        
+        
         return deferred.promise;
     }
 
     protected getCustomArtifactPromisesForRefresh(): ng.IPromise<any>[]{
 
         // Note: override in sub-class to return an array of promises 
-        // that wait on data initialization operations at the sub- class 
-        // level
-
+        // for custom artifact refresh operations 
         return [];
     }
 }

@@ -10,7 +10,7 @@
     </div>
     <div class="trace-direction">
         <label>
-            Trace path
+            {{::$ctrl.localization.get('App_UP_Relationships_Add_Trace') }}
         </label>
         <div uib-dropdown class="btn-group">
             <button type="button" class="btn btn-default" ng-click="$ctrl.trace()" ng-class="{disabled: $ctrl.selectedVMs.length == 0}">

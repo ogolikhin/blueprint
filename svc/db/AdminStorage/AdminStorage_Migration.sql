@@ -1018,6 +1018,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationshi
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Delete', 'en-US', N'Delete')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Delete_Traces', 'en-US', N'Delete Traces')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Change_Trace', 'en-US', N'Change Direction')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Add_Trace', 'en-US', N'Add Trace')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Confirmation_Delete_Trace', 'en-US', N'Please confirm the deletion of the trace.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Confirmation_Delete_Traces', 'en-US', N'Please confirm the deletion of the selected traces ({0}).')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Relationships_Introduction_Message', 'en-US', N'A trace is one type of relationship that can exist between artifacts. Traces define the direction of the relationship.')

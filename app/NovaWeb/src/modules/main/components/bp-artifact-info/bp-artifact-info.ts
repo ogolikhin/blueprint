@@ -7,20 +7,20 @@ import { ILoadingOverlayService } from "../../../core/loading-overlay";
 import { IArtifactManager, IStatefulArtifact } from "../../../managers/artifact-manager";
 import { IProjectManager } from "../../../managers/project-manager";
 import { INavigationService } from "../../../core/navigation/navigation.svc";
-import { 
-    Helper, 
-    IDialogSettings, 
-    IDialogService, 
+import {
+    Helper,
+    IDialogSettings,
+    IDialogService,
     IBPAction,
     BPButtonGroupAction
 } from "../../../shared";
-import { 
-    SaveAction, 
-    PublishAction, 
-    DiscardAction, 
-    RefreshAction, 
-    DeleteAction, 
-    OpenImpactAnalysisAction 
+import {
+    SaveAction,
+    PublishAction,
+    DiscardAction,
+    RefreshAction,
+    DeleteAction,
+    OpenImpactAnalysisAction
 } from "./actions";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
@@ -126,7 +126,7 @@ export class BpArtifactInfoController {
         } else {
             this.messageService.addError(error);
         }
-        
+
         this.onArtifactChanged();
     }
 
@@ -162,11 +162,11 @@ export class BpArtifactInfoController {
 
         this.artifactName = artifact.name || "";
 
-        let itemType = artifact.metadata.getItemType(); 
+        let itemType = artifact.metadata.getItemType();
         if (itemType) {
             this.artifactTypeId = itemType.id;
             this.artifactType = itemType.name || Models.ItemTypePredefined[itemType.predefinedType] || "";
-            
+
             if (itemType.iconImageId && angular.isNumber(itemType.iconImageId)) {
                 this.artifactTypeIcon = itemType.iconImageId;
             }

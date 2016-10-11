@@ -27,18 +27,27 @@ namespace SearchService.Repositories
         /// <summary>
         /// Performs searching projects by name
         /// </summary>
-        /// <param name="userId">UserId</param>
-        /// <param name="searchText">SearchText</param>
-        /// <param name="resultCount">ResultCount</param>
+        /// <param name="userId">User Id</param>
+        /// <param name="searchText">Search Text</param>
+        /// <param name="resultCount">Result Count</param>
+        /// <param name="separatorChar">Separator Character</param>
         /// <returns></returns>
-        public async Task<IEnumerable<ProjectSearchResult>> GetProjectsByName(int userId, string searchText, int resultCount)
+        public async Task<IEnumerable<ProjectSearchResult>> GetProjectsByName(
+            int userId, 
+            string searchText, 
+            int resultCount,
+            char separatorChar)
         {
             var searchPrms = new DynamicParameters();
             searchPrms.Add("@userId", userId);
             searchPrms.Add("@projectName", searchText);
             searchPrms.Add("@resultCount", resultCount);
+            searchPrms.Add("@separatorChar", separatorChar);
 
-            return (await ConnectionWrapper.QueryAsync<ProjectSearchResult>("GetProjectsByName", searchPrms, commandType: CommandType.StoredProcedure)).ToList();
+            return (await ConnectionWrapper.QueryAsync<ProjectSearchResult>(
+                "GetProjectsByName", 
+                searchPrms, 
+                commandType: CommandType.StoredProcedure)).ToList();
         }
     }
 }

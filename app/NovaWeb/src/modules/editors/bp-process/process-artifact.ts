@@ -39,7 +39,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         return this.services;
     }
 
-    protected getCustomArtifactPromisesForGetObservable() : angular.IPromise<IStatefulArtifact>[]{
+    protected getCustomArtifactPromisesForGetObservable(): angular.IPromise<IStatefulArtifact>[] {
         this.loadProcessPromise = this.loadProcess();
         return [this.loadProcessPromise];
     }

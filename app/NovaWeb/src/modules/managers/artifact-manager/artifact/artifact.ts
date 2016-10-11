@@ -377,7 +377,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return deferred.promise;
     }
 
-    protected getCustomArtifactPromisesForRefresh(): ng.IPromise<any>[]{
+    protected getCustomArtifactPromisesForRefresh(): ng.IPromise<any>[] {
 
         // Note: override in sub-class to return an array of promises 
         // for custom artifact refresh operations 

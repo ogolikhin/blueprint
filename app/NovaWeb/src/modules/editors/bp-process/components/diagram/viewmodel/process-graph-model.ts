@@ -1,9 +1,6 @@
 ﻿import {ItemTypePredefined} from "../../../../../main/models/enums";
 import {Models} from "../../../../../main";
 import {ProcessModels, ProcessEnums} from "../../../";
-import { IStatefulArtifact } from "../../../../../managers/artifact-manager/";
-import { StatefulProcessArtifact } from "../../../process-artifact";
-import { StatefulProcessSubArtifact } from "../../../process-subartifact";
 
 export interface IProcessGraphModel {
 

@@ -5,7 +5,6 @@ import {ILayout} from "./models/";
 import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/process-models";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import { DiagramLink } from "./shapes/diagram-link";
-import { StatefulProcessSubArtifact } from "../../../../process-subartifact";
 
 export class ProcessAddHelper {
     public static insertTaskWithUpdate(edge: MxCell, layout: ILayout, shapesFactoryService: ShapesFactory): void {

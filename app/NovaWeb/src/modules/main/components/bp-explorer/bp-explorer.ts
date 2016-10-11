@@ -163,13 +163,10 @@ export class ProjectExplorerController {
     };
 
     public doSelect = (node: IArtifactNode) => {
-        const selectedArtifact = this.artifactManager.selection.getArtifact();
-        if (!this.selected || this.selected.id !== node.id || (selectedArtifact && this.selected.id !== selectedArtifact.id)) {
-            this.doSync(node);
-            this.selected = node;
-            this.tree.selectNode(node.id);
-            this.navigationService.navigateToArtifact(node.id);
-        }
+        this.doSync(node);
+        this.selected = node;
+        this.tree.selectNode(node.id);
+        this.navigationService.navigateToArtifact(node.id);
     };
 
     public doSync = (node: IArtifactNode): IStatefulArtifact => {

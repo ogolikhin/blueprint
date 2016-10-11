@@ -19,6 +19,8 @@ namespace SearchService.Models
 
         public string TypeName { get; set; }
 
-        public string TypePrefix { get; set; }        
+        public string TypePrefix { get; set; }
+
+        public string ArtifactPath { get; set; }
     }
 }

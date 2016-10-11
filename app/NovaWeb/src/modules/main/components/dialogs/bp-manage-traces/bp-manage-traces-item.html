@@ -21,8 +21,9 @@
         <div class="col-md-12">
             <div class="icons">
                 <div uib-dropdown>
-                    <span uib-dropdown-toggle bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Change_Trace')}}">
-                        <i class="icon fonticon-exchange" ng-class="{disabled: !$ctrl.item.hasAccess || $ctrl.isItemReadOnly || $ctrl.item.readOnly}"></i>
+                    <span uib-dropdown-toggle>
+                        <i class="icon fonticon-exchange"  bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Change_Trace')}}"
+                           ng-class="{disabled: !$ctrl.item.hasAccess || $ctrl.isItemReadOnly || $ctrl.item.readOnly}"></i>
                     </span>
                     <ul class="dropdown-menu"  ng-hide="!$ctrl.item.hasAccess || $ctrl.isItemReadOnly || $ctrl.item.readOnly">
                         <li ng-class="{disabled: $ctrl.item.traceDirection === 0}">

@@ -187,7 +187,6 @@ namespace ArtifactStoreTests
             CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(182596)]
         [Description("Create default process and new artifact in a different project from the process. Add inline trace that points to the new " +

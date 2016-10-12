@@ -233,7 +233,7 @@ export class ManageTracesDialogController extends BaseDialogController {
                 }
             });
         }
-
+        this.disableTrace();
         return traces;
     }
 }

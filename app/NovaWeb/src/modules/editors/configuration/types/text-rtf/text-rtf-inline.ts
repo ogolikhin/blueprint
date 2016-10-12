@@ -44,6 +44,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
             fontFormats += `${font}=` + (font.indexOf(" ") !== -1 ? `"${font}";` : `${font};`);
         });
         const bogusRegEx = /<br data-mce-bogus="1">/gi;
+        const zeroWidthNoBreakSpaceRegEx = /[\ufeff\u200b]/g;
 
         let to: AngularFormly.ITemplateOptions = {
             tinymceOptions: { // this will go to ui-tinymce directive
@@ -143,7 +144,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                     }
 
                     // we store the initial value so IE doesn't mark the field dirty just for clicking it!
-                    initialContent = editorBody.innerHTML.replace(bogusRegEx, "");
+                    initialContent = editorBody.innerHTML.replace(bogusRegEx, "").replace(zeroWidthNoBreakSpaceRegEx, "");
 
                     editor.on("Focus", (e) => {
                         if (editorBody.parentElement) {
@@ -231,7 +232,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
             requiredCustom: {
                 expression: function ($viewValue, $modelValue, scope) {
                     if (initialContent !== null) { // run this part after the field had the chance to load the content
-                        let content = editorBody.innerHTML.replace(bogusRegEx, "");
+                        let content = editorBody.innerHTML.replace(bogusRegEx, "").replace(zeroWidthNoBreakSpaceRegEx, "");
                         if (content !== initialContent) {
                             onChange(content.replace(bogusRegEx, ""), scope.options, scope);
                         }

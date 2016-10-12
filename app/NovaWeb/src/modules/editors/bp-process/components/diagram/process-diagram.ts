@@ -7,6 +7,7 @@ import {ProcessGraph} from "./presentation/graph/process-graph";
 import {ICommunicationManager} from "../../../bp-process";
 import {IDialogService} from "../../../../shared";
 import { IStatefulArtifactFactory } from "../../../../managers/artifact-manager";
+import {ProcessEvents} from "./process-diagram-communication";
 
 export class ProcessDiagram {
     public processModel: IProcess;
@@ -85,7 +86,7 @@ export class ProcessDiagram {
             this.processViewModel.communicationManager.processDiagramCommunication
                 .removeModelUpdateObserver(this.modelUpdateHandler);
             this.processViewModel.communicationManager.processDiagramCommunication
-                .removeNavigateToAssociatedArtifactObserver(this.navigateToAssociatedArtifactHandler);
+                .unregister(ProcessEvents.NavigateToAssociatedArtifact, this.navigateToAssociatedArtifactHandler);
         }
         
         this.toggleProcessTypeHandler = this.processViewModel.communicationManager.toolbarCommunicationManager
@@ -93,7 +94,7 @@ export class ProcessDiagram {
         this.modelUpdateHandler = this.processViewModel.communicationManager.processDiagramCommunication
             .registerModelUpdateObserver(this.modelUpdate);
         this.navigateToAssociatedArtifactHandler = this.processViewModel.communicationManager.processDiagramCommunication
-            .registerNavigateToAssociatedArtifactObserver(this.navigateToAssociatedArtifact);
+            .register(ProcessEvents.NavigateToAssociatedArtifact, this.navigateToAssociatedArtifact);
         
         return this.processViewModel;
     }
@@ -173,7 +174,7 @@ export class ProcessDiagram {
                 this.communicationManager.processDiagramCommunication
                     .removeModelUpdateObserver(this.modelUpdateHandler);
                 this.communicationManager.processDiagramCommunication
-                    .removeNavigateToAssociatedArtifactObserver(this.navigateToAssociatedArtifactHandler);
+                    .unregister(ProcessEvents.NavigateToAssociatedArtifact, this.navigateToAssociatedArtifactHandler);
             }
         }
 

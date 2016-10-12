@@ -9,12 +9,8 @@ export enum ProcessEvents{
 export interface IProcessDiagramCommunication {
     registerModelUpdateObserver(observer: any);
     removeModelUpdateObserver(observer: any);
-    modelUpdate(selectedNodeId: number);
-
-    registerNavigateToAssociatedArtifactObserver(observer: any);
-    removeNavigateToAssociatedArtifactObserver(observer: any);
-    navigateToAssociatedArtifact(artifactId: number, enableTracking?: boolean);
-
+    modelUpdate(selectedNodeId: number);    
+    
     register(event: ProcessEvents, observer: any) : string;
     unregister(event: ProcessEvents, observerHandler: string);
     action(event: ProcessEvents, eventPayload?: any);
@@ -46,20 +42,7 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
 
     public modelUpdate(selectedNodeId: number) {
         this.setModelUpdateSubject.notify(selectedNodeId);
-    }
-
-    // Navigate to associated artifact
-    public registerNavigateToAssociatedArtifactObserver(observer: any): string {
-        return this.setNavigateToAssociatedArtifactSubject.subscribe(observer);
-    }
-
-    public removeNavigateToAssociatedArtifactObserver(handler: string) {
-        this.setNavigateToAssociatedArtifactSubject.disposeObserver(handler);
-    }
-
-    public navigateToAssociatedArtifact(id: number, enableTracking?: boolean) {
-        this.setNavigateToAssociatedArtifactSubject.notify({ id: id, enableTracking: enableTracking });
-    }
+    }   
 
     //Generic handlers
     public register(event: ProcessEvents, observer: any): string{
@@ -71,7 +54,7 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
                     return this.registerModelUpdateObserver(observer);
                 }
             case ProcessEvents.NavigateToAssociatedArtifact:{
-                    return this.registerNavigateToAssociatedArtifactObserver(observer);
+                    return this.setNavigateToAssociatedArtifactSubject.subscribe(observer);
                 }
         }
     }
@@ -87,7 +70,7 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
                     break;
                 }
             case ProcessEvents.NavigateToAssociatedArtifact:{
-                    this.removeNavigateToAssociatedArtifactObserver(observerHandler);
+                   this.setNavigateToAssociatedArtifactSubject.disposeObserver(observerHandler);
                     break;
                 }
         }
@@ -97,13 +80,17 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
     public action(event: ProcessEvents, eventPayload?: any){
         switch(event){
             case ProcessEvents.DeleteShape:{
-                    return this.setClickDeleteSubject.notify(true);
+                    this.setClickDeleteSubject.notify(true);
+                    break;
                 }
             case ProcessEvents.ModelUpdate:{
-                    return this.modelUpdate(eventPayload);
+                    this.modelUpdate(eventPayload);
+                    break;
                 }
             case ProcessEvents.NavigateToAssociatedArtifact:{
-                    return this.navigateToAssociatedArtifact(eventPayload.id, eventPayload.enableTracking);
+                    this.setNavigateToAssociatedArtifactSubject.notify({ id: eventPayload.id, 
+                        enableTracking: eventPayload.enableTracking });
+                        break;                    
                 }
         }
 

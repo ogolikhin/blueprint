@@ -287,11 +287,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
 
     public canGenerateUserStory(): boolean {
         return false;
-    }
-
-    public getImageSource(image: string) {
-        return "/novaweb/static/bp-process/images/" + image;
-    }
+    }    
 
     // TODO: communication with utility panel is different in Nova
     public openPropertiesDialog(scope: ng.IRootScopeService, tab: string) {

@@ -2,7 +2,7 @@ import * as angular from "angular";
 import "angular-mocks";
 import "../../../";
 import {RefreshAction} from "./refresh-action";
-import {IStatefulArtifact, IStatefulArtifactFactory, IArtifactManager, ArtifactManager} from "../../../../managers/artifact-manager";
+import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ILocalizationService} from "../../../../core";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
@@ -22,7 +22,6 @@ describe("RefreshAction", () => {
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("projectManager", ProjectManager);
-        $provide.service("artifactManager", ArtifactManager);
         $provide.service("loadingOverlayService", LoadingOverlayService);
         $provide.service("$log", LogMock);
     }));
@@ -175,7 +174,6 @@ describe("RefreshAction", () => {
             statefulArtifactFactory: IStatefulArtifactFactory, 
             localization: ILocalizationService,
             projectManager: IProjectManager,
-            artifactManager: IArtifactManager,
             loadingOverlayService: ILoadingOverlayService) => {
         // arrange
         artifact = statefulArtifactFactory.createStatefulArtifact(

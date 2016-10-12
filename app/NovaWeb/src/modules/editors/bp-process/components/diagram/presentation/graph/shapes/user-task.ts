@@ -15,6 +15,7 @@ import {Label, LabelStyle} from "../labels/label";
 import {SystemDecision} from "./";
 import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
 import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
+import {ProcessEvents} from "../../../process-diagram-communication";
 
 export class UserStoryProperties implements IUserStoryProperties {
     public nfr: IArtifactProperty;
@@ -78,7 +79,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         if (nodeFactorySettings && nodeFactorySettings.isRelationshipButtonEnabled) {            
             this.deleteShapeButton.setClickAction(() => 
             {
-                this.processDiagramManager.clickDelete();
+                this.processDiagramManager.action(ProcessEvents.DeleteShape);
             });
         } else {
             this.deleteShapeButton.setClickAction(() => { });

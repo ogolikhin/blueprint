@@ -9,7 +9,7 @@ import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
 import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
-
+import {ProcessEvents} from "../../../process-diagram-communication";
 
 export class SystemDecision extends UserTaskChildElement<IProcessShape> implements IDecision, IUserTaskChildElement {
 
@@ -54,7 +54,7 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
 
         if (nodeFactorySettings && nodeFactorySettings.isDeleteShapeEnabled) {
             this.deleteShapeButton.setClickAction(() => {
-                this.processDiagramManager.clickDelete();
+                this.processDiagramManager.action(ProcessEvents.DeleteShape);
             });
         } else {
             this.deleteShapeButton.setClickAction(() => { });

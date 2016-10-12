@@ -25,6 +25,7 @@ import {NodePopupMenu} from "./popup-menu/node-popup-menu";
 import {ProcessGraphSelectionHelper} from "./process-graph-selection";
 import { IStatefulArtifactFactory } from "../../../../../../managers/artifact-manager";
 import {ISelectionListener} from "./models/";
+import {ProcessEvents} from "../../process-diagram-communication";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
@@ -166,7 +167,7 @@ export class ProcessGraph implements IProcessGraph {
             }
 
             this.deleteShapeHandler = 
-               this.viewModel.communicationManager.processDiagramCommunication.registerClickDeleteObserver(this.deleteShape);
+               this.viewModel.communicationManager.processDiagramCommunication.register(ProcessEvents.DeleteShape, this.deleteShape);
             
         } catch (e) {
             this.logError(e);
@@ -417,7 +418,7 @@ export class ProcessGraph implements IProcessGraph {
              this.selectionHelper.destroy();
          }
 
-        this.viewModel.communicationManager.processDiagramCommunication.removeClickDeleteObserver(this.deleteShapeHandler);
+        this.viewModel.communicationManager.processDiagramCommunication.unregister(ProcessEvents.DeleteShape, this.deleteShapeHandler);
         
     }
 

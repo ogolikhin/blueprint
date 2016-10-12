@@ -55,6 +55,7 @@ describe("Component BPManageTracesItem", () => {
     });
 
 
+    
     it("check toggleFlag if item.hasAccess", () => {
         //Arrange
         vm.item.hasAccess = true;

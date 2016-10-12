@@ -2,7 +2,7 @@ import * as angular from "angular";
 import "angular-mocks";
 import "../../../";
 import {RefreshAction} from "./refresh-action";
-import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
+import {IStatefulArtifact, IStatefulArtifactFactory, IMetaDataService, MetaDataService} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ILocalizationService} from "../../../../core";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
@@ -23,6 +23,7 @@ describe("RefreshAction", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("projectManager", ProjectManager);
         $provide.service("loadingOverlayService", LoadingOverlayService);
+        $provide.service("metaDataService", MetaDataService);
         $provide.service("$log", LogMock);
     }));
 
@@ -43,7 +44,8 @@ describe("RefreshAction", () => {
         inject((
             projectManager: IProjectManager,
             statefulArtifactFactory: IStatefulArtifactFactory, 
-            loadingOverlayService: ILoadingOverlayService
+            loadingOverlayService: ILoadingOverlayService,
+            metaDataService: IMetaDataService
             ) => {
         // arrange
         const localization: ILocalizationService = null;
@@ -51,7 +53,7 @@ describe("RefreshAction", () => {
 
         // act
         try {
-            new RefreshAction(artifact, localization, projectManager, loadingOverlayService);
+            new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService);
         } catch (exception) {
             error = exception;
         }
@@ -65,7 +67,8 @@ describe("RefreshAction", () => {
         inject((
             localization: ILocalizationService,
             statefulArtifactFactory: IStatefulArtifactFactory, 
-            loadingOverlayService: ILoadingOverlayService
+            loadingOverlayService: ILoadingOverlayService,
+            metaDataService: IMetaDataService
             ) => {
         // arrange
         const projectManager: IProjectManager = null;
@@ -73,7 +76,7 @@ describe("RefreshAction", () => {
 
         // act
         try {
-            new RefreshAction(artifact, localization, projectManager, loadingOverlayService);
+            new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService);
         } catch (exception) {
             error = exception;
         }
@@ -88,7 +91,7 @@ describe("RefreshAction", () => {
             localization: ILocalizationService,
             projectManager: IProjectManager,
             loadingOverlayService: ILoadingOverlayService,
-            statefulArtifactFactory: IStatefulArtifactFactory
+            metaDataService: IMetaDataService,
             ) => {
         // arrange
         artifact = null;
@@ -96,7 +99,7 @@ describe("RefreshAction", () => {
 
         // act
         try {
-            new RefreshAction(artifact, localization, projectManager, loadingOverlayService);
+            new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService);
         } catch (exception) {
             error = exception;
         }
@@ -110,7 +113,7 @@ describe("RefreshAction", () => {
         inject((
             localization: ILocalizationService,
             projectManager: IProjectManager,
-            statefulArtifactFactory: IStatefulArtifactFactory, 
+            metaDataService: IMetaDataService
             ) => {
         // arrange
         const loadingOverlayService: ILoadingOverlayService = null;
@@ -118,7 +121,7 @@ describe("RefreshAction", () => {
 
         // act
         try {
-            new RefreshAction(artifact, localization, projectManager, loadingOverlayService);
+            new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService);
         } catch (exception) {
             error = exception;
         }
@@ -128,12 +131,35 @@ describe("RefreshAction", () => {
         expect(error).toEqual(new Error("Loading overlay service not provided or is null"));
     }));
 
+    it("throws exception when metaDataService is null", 
+        inject((
+            localization: ILocalizationService,
+            projectManager: IProjectManager,
+            loadingOverlayService: ILoadingOverlayService
+            ) => {
+        // arrange
+        const metaDataService: IMetaDataService = null;
+        let error: Error = null;
+
+        // act
+        try {
+            new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService);
+        } catch (exception) {
+            error = exception;
+        }
+
+        // assert
+        expect(error).not.toBeNull();
+        expect(error).toEqual(new Error("MetaData service not provided or is null"));
+    }));
+
     it("is disabled when artifact is dirty", 
         inject((
             statefulArtifactFactory: IStatefulArtifactFactory, 
             localization: ILocalizationService,
             projectManager: IProjectManager,
-            loadingOverlayService: ILoadingOverlayService) => {
+            loadingOverlayService: ILoadingOverlayService,
+            metaDataService: IMetaDataService) => {
         // arrange
         artifact = statefulArtifactFactory.createStatefulArtifact(
             { 
@@ -146,7 +172,7 @@ describe("RefreshAction", () => {
         artifact.artifactState.dirty = true;
 
         // act
-        const refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService);
+        const refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService);
 
         // assert
         expect(refreshAction.disabled).toBe(true);
@@ -157,7 +183,8 @@ describe("RefreshAction", () => {
             statefulArtifactFactory: IStatefulArtifactFactory, 
             localization: ILocalizationService,
             projectManager: IProjectManager,
-            loadingOverlayService: ILoadingOverlayService) => {
+            loadingOverlayService: ILoadingOverlayService,
+            metaDataService: IMetaDataService) => {
         // arrange
         artifact = statefulArtifactFactory.createStatefulArtifact(
             {
@@ -166,7 +193,7 @@ describe("RefreshAction", () => {
             });
 
         // act
-        const refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService);
+        const refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService);
 
         // assert
         expect(refreshAction.disabled).toBe(true);
@@ -177,7 +204,8 @@ describe("RefreshAction", () => {
             statefulArtifactFactory: IStatefulArtifactFactory, 
             localization: ILocalizationService,
             projectManager: IProjectManager,
-            loadingOverlayService: ILoadingOverlayService) => {
+            loadingOverlayService: ILoadingOverlayService,
+            metaDataService: IMetaDataService) => {
         // arrange
         artifact = statefulArtifactFactory.createStatefulArtifact(
             { 
@@ -186,7 +214,7 @@ describe("RefreshAction", () => {
             });
 
         // act
-        const refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService);
+        const refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService);
 
         // assert
         expect(refreshAction.disabled).toBe(true);
@@ -197,7 +225,8 @@ describe("RefreshAction", () => {
             statefulArtifactFactory: IStatefulArtifactFactory, 
             localization: ILocalizationService,
             projectManager: IProjectManager,
-            loadingOverlayService: ILoadingOverlayService) => {
+            loadingOverlayService: ILoadingOverlayService,
+            metaDataService: IMetaDataService) => {
         // arrange
         artifact = statefulArtifactFactory.createStatefulArtifact(
             { 
@@ -209,7 +238,7 @@ describe("RefreshAction", () => {
             });
 
         // act
-        const refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService);
+        const refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService);
 
         // assert
         expect(refreshAction.disabled).toBe(false);
@@ -226,7 +255,8 @@ describe("RefreshAction", () => {
             statefulArtifactFactory: IStatefulArtifactFactory, 
             localization: ILocalizationService,
             projectManager: IProjectManager,
-            loadingOverlayService: ILoadingOverlayService
+            loadingOverlayService: ILoadingOverlayService,
+            metaDataService: IMetaDataService
         ) => {
             // arrange
             artifact = statefulArtifactFactory.createStatefulArtifact(
@@ -237,7 +267,7 @@ describe("RefreshAction", () => {
                 lockedDateTime: null,
                 permissions: RolePermissions.Edit
             });
-            refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService);
+            refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService);
             beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading").and.callThrough();
             refreshSpy = spyOn(artifact, "refresh");
             projectRefreshSpy = spyOn(projectManager, "refresh").and.callThrough();

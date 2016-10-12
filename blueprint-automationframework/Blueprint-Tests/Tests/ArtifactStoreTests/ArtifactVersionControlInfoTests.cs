@@ -634,8 +634,8 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182859)]
-        [Description("Create & publish an artifact. User without permissions tries to access basic artifact information.  Verify returned code 403 Forbidden.")]
-        public void VersionControlInfoWithArtifactId_PublishedArtifact_UserWithoutPermissionsToArtifact_403Forbidden(BaseArtifactType artifactType)
+        [Description("Create & publish an artifact.  User without permissions to project tries to access basic artifact information.  Verify returned code 403 Forbidden.")]
+        public void VersionControlInfoWithArtifactId_PublishedArtifact_UserWithoutPermissionsToProject_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
@@ -651,7 +651,27 @@ namespace ArtifactStoreTests
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
                 "Expected '{0}' error when user without permissions tries to get basic artifact information.", expectedExceptionMessage);
         }
-        // TODO: Call GetVersionControlInfo with an artifact the git user doesn't have access to.  Verify 403 Forbiden.
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(183363)]
+        [Description("Create & publish an artifact. User without permissions to artifact tries to access basic artifact information.  Verify returned code 403 Forbidden.")]
+        public void VersionControlInfoWithArtifactId_PublishedArtifact_UserWithoutPermissionsToArtifact_403Forbidden(BaseArtifactType artifactType)
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            // Create a user that has access to the project but not the artifact.
+            IUser userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+            Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, artifact);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetVersionControlInfo(userWithoutPermissions, artifact.Id),
+                "'GET {0}' should return 403 Forbidden when user without permissions tries to access basic artifact information!", SVC_PATH);
+
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifact.Id);
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "Expected '{0}' error when user without permissions tries to get basic artifact information.", expectedExceptionMessage);
+        }
 
         #endregion 403 Forbidden
 

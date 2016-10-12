@@ -159,3 +159,27 @@ export class DialogServiceMock implements IDialogService {
         backdrop: false
     };
 }
+
+export class DataMock{
+    public static $inject = ["$q"];
+    constructor(private $q: ng.IQService) { }
+
+
+    public dialogData: IDialogData = {
+        manualTraces: [],
+        artifactId: 1,
+        isItemReadOnly: false
+    };
+}
+
+export class DialogSettingsMock{
+    public static $inject = ["$q"];
+    constructor(private $q: ng.IQService) { }
+
+
+    public dialogSettings: IDialogSettings = {
+
+    };
+}
+
+

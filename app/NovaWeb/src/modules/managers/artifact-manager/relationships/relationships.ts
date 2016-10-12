@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import {IIStatefulItem} from "../item";
 import {ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet} from "../changeset";
-import { IRelationship, IArtifactRelationshipsResultSet, LinkType } from "../../../main/models/relationshipModels";
+import {IRelationship, IArtifactRelationshipsResultSet, LinkType} from "../../../main/models/relationshipModels";
 
 export interface IArtifactRelationships {
     getObservable(): Rx.IObservable<IRelationship[]>;
@@ -102,7 +102,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
 
     public updateManual(relationships: IRelationship[]): IRelationship[] {
         this.relationships = this.relationships.filter((relationship: IRelationship) =>
-                relationship.traceType !== LinkType.Manual);
+        relationship.traceType !== LinkType.Manual);
 
         this.relationships = this.relationships.concat(relationships);
 
@@ -205,6 +205,6 @@ export class ArtifactRelationships implements IArtifactRelationships {
             }
         }
 
-        return <IResult>{ "found": found, "index": index };
+        return <IResult>{"found": found, "index": index};
     }
 }

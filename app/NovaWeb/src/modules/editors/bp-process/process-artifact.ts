@@ -51,7 +51,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         this.loadProcessPromise = null;
     }
 
-    public getCustomArtifactPromisesForRefresh (): ng.IPromise<any>[] {
+    public getCustomArtifactPromisesForRefresh(): ng.IPromise<any>[] {
         // Returns promises for operations that are needed to refresh
         // this process artifact
 

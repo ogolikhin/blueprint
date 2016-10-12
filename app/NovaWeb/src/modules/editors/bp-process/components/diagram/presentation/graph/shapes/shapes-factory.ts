@@ -163,7 +163,7 @@ export class ShapesFactory {
     }
 
     public createModelUserTaskShape(parentId: number, projectId: number, id: number, x: number, y: number): IUserTaskShape {
-        const  nameCounter = this._idGenerator.getId(ProcessShapeType.UserTask);
+        const nameCounter = this._idGenerator.getId(ProcessShapeType.UserTask);
 
         // hard coded strings, if change, please search above chars and replace the other place on server side
         // replace "Process_DefaultUserTask_Name" in StringTokens.resx

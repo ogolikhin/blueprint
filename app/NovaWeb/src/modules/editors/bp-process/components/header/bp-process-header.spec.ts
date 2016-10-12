@@ -11,11 +11,11 @@ import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog"
 import {WindowManager} from "../../../../main";
 import {CommunicationManager} from "../../";
 import {
-    ArtifactManager, 
-    ArtifactService, 
-    MetaDataService, 
-    StatefulArtifactFactory, 
-    ArtifactAttachmentsService, 
+    ArtifactManager,
+    ArtifactService,
+    MetaDataService,
+    StatefulArtifactFactory,
+    ArtifactAttachmentsService,
     ArtifactRelationshipsService
 } from "../../../../managers/artifact-manager";
 import {LoadingOverlayService} from "../../../../core/loading-overlay";
@@ -56,13 +56,11 @@ describe("BpProcessHeader", () => {
         $provide.service("projectService", ProjectService);
     }));
 
-    beforeEach(inject((
-        _$rootScope_: ng.IRootScopeService, 
-        _$compile_: ng.ICompileService, 
-        _$q_: ng.IQService, 
-        _breadcrumbService_: IBreadcrumbService, 
-        _navigationService_: INavigationService
-    ) => {
+    beforeEach(inject((_$rootScope_: ng.IRootScopeService,
+                       _$compile_: ng.ICompileService,
+                       _$q_: ng.IQService,
+                       _breadcrumbService_: IBreadcrumbService,
+                       _navigationService_: INavigationService) => {
         $rootScope = _$rootScope_;
         $q = _$q_;
         $compile = _$compile_;
@@ -75,10 +73,10 @@ describe("BpProcessHeader", () => {
         const deferred = $q.defer();
         deferred.resolve([
             // should have isEnabled = false since no link
-            { id: 0, name: "link0" },
-            { id: 1, name: "link1", link: "http//link1" },
+            {id: 0, name: "link0"},
+            {id: 1, name: "link1", link: "http//link1"},
             // should have isEnabled = false since last link
-            { id: 2, name: "link2", link: "http://link2" }
+            {id: 2, name: "link2", link: "http://link2"}
         ]);
         spyOn(breadcrumbService, "getReferences").and.returnValue(deferred.promise);
 
@@ -86,9 +84,9 @@ describe("BpProcessHeader", () => {
         const element = $compile(template)($rootScope.$new());
         controller = element.controller("bpProcessHeader");
 
-        const link0 = <IBreadcrumbLink>{ id: 0, name: "link0", isEnabled: false };
-        const link1 = <IBreadcrumbLink>{ id: 1, name: "link1", isEnabled: true };
-        const link2 = <IBreadcrumbLink>{ id: 2, name: "link2", isEnabled: false };
+        const link0 = <IBreadcrumbLink>{id: 0, name: "link0", isEnabled: false};
+        const link1 = <IBreadcrumbLink>{id: 1, name: "link1", isEnabled: true};
+        const link2 = <IBreadcrumbLink>{id: 2, name: "link2", isEnabled: false};
 
         // act
         $rootScope.$digest();
@@ -126,7 +124,7 @@ describe("BpProcessHeader", () => {
 
         it("doesn't navigate to link that's not part of the breadcrumb", () => {
             // arrange
-            const link = <IBreadcrumbLink>{ id: 0, name: "enabled link", isEnabled: true };
+            const link = <IBreadcrumbLink>{id: 0, name: "enabled link", isEnabled: true};
             const navigateBackSpy = spyOn(navigationService, "navigateBack");
             controller.breadcrumbLinks = [];
 
@@ -139,7 +137,7 @@ describe("BpProcessHeader", () => {
 
         it("does not navigate to disabled link", () => {
             // arrange
-            const link = <IBreadcrumbLink>{ id: 0, name: "disabled link", isEnabled: false };
+            const link = <IBreadcrumbLink>{id: 0, name: "disabled link", isEnabled: false};
             const navigateBackSpy = spyOn(navigationService, "navigateBack");
             controller.breadcrumbLinks = [link];
 
@@ -152,7 +150,7 @@ describe("BpProcessHeader", () => {
 
         it("navigates to enabled link", () => {
             // arrange
-            const link = <IBreadcrumbLink>{ id: 0, name: "enabled link", isEnabled: true };
+            const link = <IBreadcrumbLink>{id: 0, name: "enabled link", isEnabled: true};
             const navigateBackSpy = spyOn(navigationService, "navigateBack");
             controller.breadcrumbLinks = [link];
 

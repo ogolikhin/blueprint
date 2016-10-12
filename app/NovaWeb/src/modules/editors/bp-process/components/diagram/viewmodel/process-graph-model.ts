@@ -85,7 +85,7 @@ export class ProcessGraphModel implements IProcessGraphModel {
     }
 
     public set shapes(newValue: ProcessModels.IProcessShape[]) {
-        this.process.shapes = newValue;       
+        this.process.shapes = newValue;
     }
 
     public get links(): ProcessModels.IProcessLinkModel[] {
@@ -410,7 +410,7 @@ export class ProcessGraphModel implements IProcessGraphModel {
             link.destinationId = newDestinationId;
         }
     }
- 
+
     public destroy() {
         this.tree = null;
         this.linkIndex = [];

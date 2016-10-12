@@ -68,7 +68,7 @@ export class UsecaseShapeFactory extends AbstractShapeFactory {
         style[mxConstants.STYLE_STROKEWIDTH] = UsecaseShapeFactory.DEFAULT_SHAPE_STROKE_WIDTH;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
         style[mxConstants.STYLE_OVERFLOW] = "hidden";
-        const  external = this.isExternalFlowShape(<IStep>shape.element);
+        const external = this.isExternalFlowShape(<IStep>shape.element);
         if (this.isCondition(<IStep>shape.element)) {
             style[mxConstants.STYLE_FILLCOLOR] = UsecaseShapeFactory.CONDITION_FILL_COLOR;
             style[mxConstants.STYLE_GRADIENTCOLOR] = UsecaseShapeFactory.CONDITION_GRADIENT_COLOR;
@@ -79,7 +79,7 @@ export class UsecaseShapeFactory extends AbstractShapeFactory {
         }
         let cell = this.createCellWithTooltip(shape, style);
         if (external) {
-            const  geometry = MxFactory.geometry(1, 1, 12, 25);
+            const geometry = MxFactory.geometry(1, 1, 12, 25);
             geometry.relative = true;
             geometry.offset = MxFactory.point(-15, -28);
             style = new Style();

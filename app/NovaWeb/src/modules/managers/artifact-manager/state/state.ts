@@ -25,7 +25,7 @@ export interface IArtifactState extends IState, IDispose {
 
 export class ArtifactState implements IArtifactState {
     private state: IState = {
-        lockedBy: Enums.LockedByEnum.None,
+        lockedBy: Enums.LockedByEnum.None
     };
 
     constructor(private artifact: IIStatefulArtifact) {
@@ -34,11 +34,13 @@ export class ArtifactState implements IArtifactState {
     }
 
     public dispose() {
+        //fixme: empty functions should be removed as empty does nothing thus not needed
+
     }
 
     private reset(): IState {
         return this.state = {
-            lockedBy: Enums.LockedByEnum.None,
+            lockedBy: Enums.LockedByEnum.None
         };
     }
 

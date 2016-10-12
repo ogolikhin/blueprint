@@ -115,8 +115,7 @@ export class ProcessGraphSelectionHelper {
     }
 
     private hasInvisibleSelectedSystemTask(evt): boolean {
-        return  evt.properties.removed.filter(e => e instanceof SystemTask).length > 0 &&
-        !evt.properties.removed.filter(e => e instanceof SystemTask)[0].callout.isVisible();
+        return evt.properties.removed.filter(e => e instanceof SystemTask).length > 0 && !evt.properties.removed.filter(e => e instanceof SystemTask)[0].callout.isVisible();
     }
 
 }

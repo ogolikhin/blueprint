@@ -31,7 +31,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         "$q",
         "selectionManager",
         "messageService",
-        "localization",
+        "localization"
     ];
 
     public form: angular.IFormController;

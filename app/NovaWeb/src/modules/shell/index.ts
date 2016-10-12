@@ -37,7 +37,7 @@ import "../shared/filters";
 
 export {IUser, ISession, RelationshipDetailsService, IRelationshipDetailsService}
 export {IServerLogger} from "./log/server-logger.svc";
-export {IMessageService, IMessage, MessageType, MessageService, Message,} from "../core";
+export {IMessageService, IMessage, MessageType, MessageService, Message} from "../core";
 
 angular.module("app.shell",
     [

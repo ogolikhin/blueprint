@@ -12,7 +12,7 @@ angular.module("bp.editors", [
     "bp.editors.glossary",
     "bp.editors.details",
     "bp.editors.diagram",
-    "bp.editors.process",
+    "bp.editors.process"
 
 ]);
 

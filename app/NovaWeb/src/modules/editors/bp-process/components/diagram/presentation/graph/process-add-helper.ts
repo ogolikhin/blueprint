@@ -1,10 +1,11 @@
-import {IDiagramNode, IProcessShape,
+import {
+    IDiagramNode, IProcessShape,
     NodeChange, ProcessShapeType, IProcessLink
 } from "./models/";
 import {ILayout} from "./models/";
 import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/process-models";
 import {ShapesFactory} from "./shapes/shapes-factory";
-import { DiagramLink } from "./shapes/diagram-link";
+import {DiagramLink} from "./shapes/diagram-link";
 
 export class ProcessAddHelper {
     public static insertTaskWithUpdate(edge: MxCell, layout: ILayout, shapesFactoryService: ShapesFactory): void {
@@ -60,6 +61,7 @@ export class ProcessAddHelper {
 
         return userTaskShape.id;
     }
+
     // #DEBUG
     private static addShape(processShape: IProcessShape, layout: ILayout, shapesFactoryService: ShapesFactory): void {
         if (processShape != null) {
@@ -182,8 +184,8 @@ export class ProcessAddHelper {
         }
     }
 
-    public static insertUserDecisionCondition (decisionId: number, layout: ILayout,
-                                               shapesFactoryService: ShapesFactory, label?: string, conditionDestinationId?: number): number {
+    public static insertUserDecisionCondition(decisionId: number, layout: ILayout,
+                                              shapesFactoryService: ShapesFactory, label?: string, conditionDestinationId?: number): number {
         if (!conditionDestinationId) {
             let branchDestination: IProcessShape = layout.getConditionDestination(decisionId);
             conditionDestinationId = branchDestination.id;

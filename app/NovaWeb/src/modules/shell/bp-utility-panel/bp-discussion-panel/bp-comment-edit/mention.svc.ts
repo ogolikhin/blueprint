@@ -132,7 +132,7 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
         if (person.id) {
             // this.query is defined in the caller context (mention plugin)
             const query = MentionService.escapeRegExp(this.queryText);
-            var nameString: string = Helper.escapeHTMLText(person.name);
+            let nameString: string = Helper.escapeHTMLText(person.name);
             if (boldName) {
                 nameString = `<strong>${MentionService.highlight(query, nameString)}</strong>`;
             } else {

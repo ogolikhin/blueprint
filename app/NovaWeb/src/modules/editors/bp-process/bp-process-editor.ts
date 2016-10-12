@@ -90,13 +90,13 @@ export class BpProcessEditorController extends BpBaseEditor {
 
     public onArtifactReady() {
         // when this method is called the process artifact should
-        // be loaded and assigned to the base class' artifact 
+        // be loaded and assigned to the base class' artifact
         // property (this.artifact)
 
         // here we create a new process diagram  passing in the
         // process artifact and the html element that will contain
-        // the graph  
-              
+        // the graph
+
         if (this.processDiagram) {
             this.destroy();
         }

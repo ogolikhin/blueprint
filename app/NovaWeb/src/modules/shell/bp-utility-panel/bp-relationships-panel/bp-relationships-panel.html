@@ -8,7 +8,8 @@
          ng-if="$ctrl.item && !($ctrl.manualTraces2.length || $ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && !$ctrl.isLoading">
         <p>{{ $ctrl.localization.get('App_UP_Relationships_Introduction_Message') }}</p>
         <label class="btn btn-secondary btn-small" ng-class="{'disabled': !$ctrl.canManageTraces() }"
-               ng-click="$ctrl.openManageTraces()">{{::$ctrl.localization.get('App_UP_Relationships_Add_Relationship') }}
+               ng-click="$ctrl.openManageTraces()">{{::$ctrl.localization.get('App_UP_Relationships_Add_Relationship')
+            }}
         </label>
     </div>
 </div>

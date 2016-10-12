@@ -321,10 +321,12 @@ export class ProcessDeleteHelper {
             mappingTargetConditionTargetCondition.orderindex === currentCondition.orderindex;
     }
 
-  private static deleteShapesAndLinksByIds(shapesToBeDeletedIds: number[], processGraph: IProcessGraph) {
+    private static deleteShapesAndLinksByIds(shapesToBeDeletedIds: number[], processGraph: IProcessGraph) {
         for (let i in shapesToBeDeletedIds) {
             processGraph.viewModel.removeShape(shapesToBeDeletedIds[i]);
-            processGraph.viewModel.links = processGraph.viewModel.links.filter(link => { return link.sourceId !== shapesToBeDeletedIds[i]; });
+            processGraph.viewModel.links = processGraph.viewModel.links.filter(link => {
+                return link.sourceId !== shapesToBeDeletedIds[i];
+            });
         }
     }
 

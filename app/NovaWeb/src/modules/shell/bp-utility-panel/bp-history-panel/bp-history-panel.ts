@@ -46,7 +46,7 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
 
         this.sortOptions = [
             {value: false, label: this.localization.get("App_UP_Filter_SortByLatest")},
-            {value: true, label: this.localization.get("App_UP_Filter_SortByEarliest")},
+            {value: true, label: this.localization.get("App_UP_Filter_SortByEarliest")}
         ];
 
         this.subscribers = [];

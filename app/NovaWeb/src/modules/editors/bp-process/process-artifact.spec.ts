@@ -11,7 +11,7 @@ import {
 } from "../../managers/artifact-manager/services";
 import {StatefulProcessArtifact} from "./process-artifact";
 import {StatefulProcessSubArtifact} from "./process-subartifact";
-import { IStatefulSubArtifact } from "../../managers/artifact-manager/sub-artifact/sub-artifact";
+import {IStatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact/sub-artifact";
 
 
 import {Models} from "../../main/models";

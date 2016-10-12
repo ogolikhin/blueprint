@@ -2,19 +2,19 @@
 import * as _ from "lodash";
 import {ILocalizationService} from "../../../core";
 import {Relationships} from "../../../main";
-import { IDialogSettings, IDialogService } from "../../../shared";
+import {IDialogSettings, IDialogService} from "../../../shared";
 import {
     IArtifactManager,
     IStatefulItem,
     IStatefulArtifact,
     IStatefulSubArtifact,
-    IArtifactRelationships,
+    IArtifactRelationships
 } from "../../../managers/artifact-manager";
-import { IRelationship, LinkType, IDialogRelationshipItem } from "../../../main/models/relationshipModels";
+import {IRelationship, LinkType, IDialogRelationshipItem} from "../../../main/models/relationshipModels";
 import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
 import {Helper} from "../../../shared/utils/helper";
-import { ManageTracesDialogController } from "../../../main/components/dialogs/bp-manage-traces";
+import {ManageTracesDialogController} from "../../../main/components/dialogs/bp-manage-traces";
 
 interface IOptions {
     value: string;
@@ -250,7 +250,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
 
         this.dialogService.open(dialogSettings, data).then((result) => {
 
-            data.manualTraces = data.manualTraces.map( (trace) => {
+            data.manualTraces = data.manualTraces.map((trace) => {
                 trace.isSelected = false;
                 return trace;
             });

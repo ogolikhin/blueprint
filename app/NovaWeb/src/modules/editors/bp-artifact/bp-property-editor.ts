@@ -3,7 +3,7 @@ import {BPLocale, ILocalizationService} from "../../core";
 import {Enums, Models} from "../../main";
 import {PropertyContext} from "./bp-property-context";
 import {IStatefulItem} from "../../managers/artifact-manager";
-import { Helper } from "../../shared/utils/helper";
+import {Helper} from "../../shared/utils/helper";
 
 export class PropertyEditor {
 
@@ -204,7 +204,7 @@ export class PropertyEditor {
             templateOptions: {
                 label: context.name,
                 required: context.isRequired,
-                disabled: context.disabled,
+                disabled: context.disabled
             },
             expressionProperties: {}
         };

@@ -207,6 +207,7 @@ export class BpArtifactInfoController {
 
         if (artifact.artifactState.misplaced) {
             this.dialogService.alert("Artifact_Lock_DoesNotExist").then(() => {
+                //fixme: empty functions should be removed as empty does nothing thus not needed
             });
         }
     }

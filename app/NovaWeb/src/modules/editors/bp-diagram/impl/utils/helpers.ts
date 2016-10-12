@@ -370,7 +370,7 @@ export class DiagramHelper {
 
         } catch (e) {
             //fixme: catch must not be empty on try catch as this is a costly operation and must ALWYS return something
-                    }
+        }
 
         let rtn = "";
 

@@ -1,9 +1,9 @@
 import * as _ from "lodash";
-import { ILocalizationService } from "../../../../core";
-import { BaseDialogController, IDialogSettings, IDialogService } from "../../../../shared";
-import { Relationships, Models } from "../../../models";
-import { IDialogRelationshipItem } from "../../../models/relationshipModels";
-import { ArtifactPickerNodeVM, ArtifactNodeVM } from "../../bp-artifact-picker/bp-artifact-picker-node-vm";
+import {ILocalizationService} from "../../../../core";
+import {BaseDialogController, IDialogSettings, IDialogService} from "../../../../shared";
+import {Relationships, Models} from "../../../models";
+import {IDialogRelationshipItem} from "../../../models/relationshipModels";
+import {ArtifactPickerNodeVM, ArtifactNodeVM} from "../../bp-artifact-picker/bp-artifact-picker-node-vm";
 import {
     IStatefulItem,
     IArtifactManager,
@@ -18,8 +18,8 @@ export class ManageTracesDialogController extends BaseDialogController {
     public static $inject = ["$uibModalInstance", "dialogSettings", "localization",
         "artifactManager", "artifactRelationships", "dialogData", "dialogService"];
 
-    public  traceDirection: Relationships.TraceDirection = 0;
-    public  direction: Relationships.TraceDirection = 0;
+    public traceDirection: Relationships.TraceDirection = 0;
+    public direction: Relationships.TraceDirection = 0;
     private selectedVMs: ArtifactPickerNodeVM<any>[];
 
     public item: IStatefulItem;
@@ -35,8 +35,8 @@ export class ManageTracesDialogController extends BaseDialogController {
     public isChanged: boolean = false;
 
     public options = [
-        { value: "1", label: this.localization.get("App_UP_Relationships_To") },
-        { value: "2", label: this.localization.get("App_UP_Relationships_From") },
+        {value: "1", label: this.localization.get("App_UP_Relationships_To")},
+        {value: "2", label: this.localization.get("App_UP_Relationships_From")},
         {value: "3", label: this.localization.get("App_UP_Relationships_Bidirectional")}
     ];
 
@@ -46,8 +46,7 @@ export class ManageTracesDialogController extends BaseDialogController {
                 public artifactManager: IArtifactManager,
                 public artifactRelationships: IArtifactRelationships,
                 public data: IDialogRelationshipItem,
-                private dialogService: IDialogService,
-    ) {
+                private dialogService: IDialogService,) {
         super($uibModalInstance, dialogSettings);
         this.getManualTraces();
         this.clearSelected();
@@ -55,7 +54,7 @@ export class ManageTracesDialogController extends BaseDialogController {
 
     public clearSelected() {
         if (this.selectedTraces[this.data.artifactId]) {
-            this.selectedTraces[this.data.artifactId].forEach( (item) => {
+            this.selectedTraces[this.data.artifactId].forEach((item) => {
                 item.isSelected = false;
             });
         }
@@ -65,7 +64,7 @@ export class ManageTracesDialogController extends BaseDialogController {
 
     public getManualTraces() {
         if (this.data.manualTraces) {
-            this.data.manualTraces = (this.data.manualTraces.map( (item: Relationships.IRelationshipView) => {
+            this.data.manualTraces = (this.data.manualTraces.map((item: Relationships.IRelationshipView) => {
                 let typeName = Models.ItemTypePredefined[item.primitiveItemTypePredefined];
 
                 if (typeName) {
@@ -143,7 +142,7 @@ export class ManageTracesDialogController extends BaseDialogController {
             if (traces[i].hasAccess) {
                 if (traces[i].suspect === true) {
                     this.hasFlagged = true;
-                }else {
+                } else {
                     this.hasUnFlagged = true;
                 }
             }
@@ -166,7 +165,7 @@ export class ManageTracesDialogController extends BaseDialogController {
         let confirmation = this.localization.get("Confirmation_Delete_Traces")
             .replace("{0}", selectedTracesLength.toString());
 
-        this.dialogService.confirm(confirmation).then( (confirmed) => {
+        this.dialogService.confirm(confirmation).then((confirmed) => {
             if (confirmed) {
                 this.remove(this.selectedTraces[this.data.artifactId], this.data.manualTraces);
                 this.clearSelected();
@@ -175,7 +174,7 @@ export class ManageTracesDialogController extends BaseDialogController {
     }
 
     public deleteTrace(artifact: Relationships.IRelationship): void {
-        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace")).then( (confirmed) => {
+        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace")).then((confirmed) => {
             if (confirmed) {
                 this.remove([artifact], this.data.manualTraces);
 
@@ -197,7 +196,7 @@ export class ManageTracesDialogController extends BaseDialogController {
             selectedTracesLength = traces.length;
 
         for (let i = 0; i < selectedTracesLength; i++) {
-                traces[i].traceDirection = direction;
+            traces[i].traceDirection = direction;
         }
     }
 

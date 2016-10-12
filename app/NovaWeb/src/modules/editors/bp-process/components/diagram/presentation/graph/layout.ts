@@ -95,23 +95,23 @@ export class Layout implements ILayout {
 
         try {
             for (i in this.viewModel.shapes) {
-                    const shape: IProcessShape = this.viewModel.shapes[i];
-                    const node: IDiagramNode = NodeFactory.createNode(shape, this.rootScope, this.shapesFactoryService, nodeFactorySettings);
+                const shape: IProcessShape = this.viewModel.shapes[i];
+                const node: IDiagramNode = NodeFactory.createNode(shape, this.rootScope, this.shapesFactoryService, nodeFactorySettings);
 
-                    if (node != null) {
-                        node.render(this.processGraph, this.getXbyColumn(node.column), this.getYbyRow(node.row),
-                            this.viewModel.isShapeJustCreated(shape.id));
+                if (node != null) {
+                    node.render(this.processGraph, this.getXbyColumn(node.column), this.getYbyRow(node.row),
+                        this.viewModel.isShapeJustCreated(shape.id));
 
-                        // Hide system tasks for process types different than 'Business Process'
-                        if (this.viewModel.propertyValues["clientType"].value !== ProcessType.UserToSystemProcess) {
-                            if (node.getNodeType() === NodeType.SystemTask) {
-                                (<SystemTask>node).setCellVisible(this.mxgraph, false);
-                            }
-                            if (node.getNodeType() === NodeType.SystemDecision) {
-                                (<SystemDecision>node).hideMenu(this.mxgraph);
-                            }
+                    // Hide system tasks for process types different than 'Business Process'
+                    if (this.viewModel.propertyValues["clientType"].value !== ProcessType.UserToSystemProcess) {
+                        if (node.getNodeType() === NodeType.SystemTask) {
+                            (<SystemTask>node).setCellVisible(this.mxgraph, false);
+                        }
+                        if (node.getNodeType() === NodeType.SystemDecision) {
+                            (<SystemDecision>node).hideMenu(this.mxgraph);
                         }
                     }
+                }
             }
 
             for (i in linksMap) {
@@ -222,7 +222,7 @@ export class Layout implements ILayout {
 
                     if (p1.y === p2.y) {
                         // horizontal
-                        const  fromX = Math.min(p1.x, p2.x);
+                        const fromX = Math.min(p1.x, p2.x);
                         const toX = Math.max(p1.x, p2.x);
                         if ((mouseCoordinates.x > fromX) && (mouseCoordinates.x < toX) &&
                             Math.abs(mouseCoordinates.y - p1.y) < this.DRAG_PREVIEW_TO_EDGE_DISTANCE) {
@@ -231,8 +231,8 @@ export class Layout implements ILayout {
                         }
                     } else {
                         // vertical
-                        const  fromY = Math.min(p1.y, p2.y);
-                        const  toY = Math.max(p1.y, p2.y);
+                        const fromY = Math.min(p1.y, p2.y);
+                        const toY = Math.max(p1.y, p2.y);
                         if ((mouseCoordinates.y > fromY) && (mouseCoordinates.y < toY) &&
                             Math.abs(mouseCoordinates.x - p1.x) < this.DRAG_PREVIEW_TO_EDGE_DISTANCE) {
                             edge = edgeGeo.edge;

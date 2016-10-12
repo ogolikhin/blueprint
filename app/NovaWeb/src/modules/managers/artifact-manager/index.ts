@@ -27,7 +27,7 @@ import {
     IArtifactAttachments,
     IArtifactDocRef,
     IArtifactAttachmentsResultSet,
-    IArtifactAttachmentsService,
+    IArtifactAttachmentsService
 } from "./attachments";
 
 import {IMetaData, MetaDataService, IMetaDataService} from "./metadata";

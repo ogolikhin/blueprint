@@ -316,7 +316,7 @@ export class IconShape extends mxActor {
         let strokeDashArray = canvas.node.getAttribute("stroke-dasharray");
         if (strokeDashArray) {
             let newStrockDashArray = [];
-            strokeDashArray.split(" ").forEach( (value) => {
+            strokeDashArray.split(" ").forEach((value) => {
                 newStrockDashArray.push(value / adjustedStokeRatio);
             });
             canvas.node.setAttribute("stroke-dasharray", newStrockDashArray.join(" "));
@@ -351,7 +351,7 @@ export class IconShape extends mxActor {
             const xmlhttp = new XMLHttpRequest();
             const url = mxBasePath + "/icons/main.json";
 
-            xmlhttp.onreadystatechange =  () => {
+            xmlhttp.onreadystatechange = () => {
                 if (xmlhttp.readyState === 4 && xmlhttp.status === HttpStatusCode.Success) {
                     IconShape.iconData = JSON.parse(xmlhttp.responseText);
                 }

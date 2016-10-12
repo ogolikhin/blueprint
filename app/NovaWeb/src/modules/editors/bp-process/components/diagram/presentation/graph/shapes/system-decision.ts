@@ -53,16 +53,16 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
         this.deleteShapeButton = new Button(`DS${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, "/novaweb/static/bp-process/images/delete-neutral.svg");
 
         if (nodeFactorySettings && nodeFactorySettings.isDeleteShapeEnabled) {
+            this.deleteShapeButton.setHoverImage("/novaweb/static/bp-process/images/delete-hover.svg");
             this.deleteShapeButton.setClickAction(() => {
                 this.processDiagramManager.action(ProcessEvents.DeleteShape);
             });
         } else {
+            this.deleteShapeButton.setDisabledImage("/novaweb/static/bp-process/images/delete-inactive.svg");
             this.deleteShapeButton.setClickAction(() => { });
-        }
-
-        this.deleteShapeButton.setHoverImage("/novaweb/static/bp-process/images/delete-hover.svg");
-        this.deleteShapeButton.setDisabledImage("/novaweb/static/bp-process/images/delete-inactive.svg");
-        this.deleteShapeButton.setTooltip(this.rootScope.config.labels["ST_Settings_Label"]);
+        }        
+        
+        this.deleteShapeButton.setTooltip(this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"]);
     }
 
     public setLabelWithRedrawUi(value: string) {

@@ -121,20 +121,20 @@ namespace Model.SearchServiceModel.Impl
         }
 
         /// <seealso cref="ISearchService.SearchItems(IUser, FullTextSearchCriteria, int?, int?, List{HttpStatusCode})"/>
-        public ItemSearchResult SearchItems(IUser user, FullTextSearchCriteria searchCriteria, int? start = null, int? size = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public ItemSearchResult SearchItems(IUser user, FullTextSearchCriteria searchCriteria, int? startOffset = null, int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(searchCriteria, nameof(searchCriteria));
 
             var queryParams = new Dictionary<string, string>();
 
-            if (size != null)
+            if (pageSize != null)
             {
-                queryParams.Add("pageSize", size.ToString());
+                queryParams.Add("pageSize", pageSize.ToString());
             }
-            if (start != null)
+            if (startOffset != null)
             {
-                queryParams.Add("startOffset", start.ToString());
+                queryParams.Add("startOffset", startOffset.ToString());
             }
 
             var tokenValue = user.Token?.AccessControlToken;
@@ -142,7 +142,7 @@ namespace Model.SearchServiceModel.Impl
             var restApi = new RestApiFacade(Address, tokenValue);
 
             var itemSearchResult = restApi.SendRequestAndDeserializeObject<ItemSearchResult, FullTextSearchCriteria>(
-                RestPaths.Svc.SearchService.ITEMSEARCH,
+                RestPaths.Svc.SearchService.ITEMNAMESEARCH,
                 RestRequestMethod.POST,
                 searchCriteria,
                 queryParameters: queryParams,

@@ -318,7 +318,7 @@ namespace Model
                 }
 
                 public const string PROJECTSEARCH                   = "svc/searchservice/projectsearch";
-                public const string ITEMSEARCH                      = "svc/searchservice/ItemNameSearch";
+                public const string ITEMNAMESEARCH                      = "svc/searchservice/ItemNameSearch";
             }
 
             public static class Shared

@@ -66,9 +66,11 @@ namespace Model.SearchServiceModel
         /// </summary>
         /// <param name="user">The user performing the search.</param>
         /// <param name="searchCriteria">Text to search, list of projects(Ids), list of ItemTypes(Ids)</param>
-        /// <param name="resultCount">(optional)The number of search results to return.</param>
+        /// <param name="startOffset">(optional)An index to a subset of search results the length of which is determined 
+        /// by the pageSize argument.</param>
+        /// <param name="pageSize">(optional)The number of search results to return in a single request.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Returns the list of artifacts that match the searchCriteria.</returns>
-        ItemSearchResult SearchItems(IUser user, FullTextSearchCriteria searchCriteria, int? start = null, int? size = null, List<HttpStatusCode> expectedStatusCodes = null);
+        ItemSearchResult SearchItems(IUser user, FullTextSearchCriteria searchCriteria, int? startOffset = null, int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

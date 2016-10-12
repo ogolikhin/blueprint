@@ -45,6 +45,22 @@ describe("OpenImpactAnalysisAction", () => {
         expect(openImpactAnalysisAction.disabled).toBe(true);
     }));
 
+    it("is disabled when artifact predefined type is null", inject((
+        statefulArtifactFactory: IStatefulArtifactFactory,
+        localization: ILocalizationService) => {
+        // arrange
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({ 
+            id: 1, 
+            predefinedType: null
+        });
+
+        // act
+        const openImpactAnalysisAction = new OpenImpactAnalysisAction(artifact, localization);
+
+        // assert
+        expect(openImpactAnalysisAction.disabled).toBe(true);
+    }));
+
     it("is disabled for Project artifact", inject((
         statefulArtifactFactory: IStatefulArtifactFactory,
         localization: ILocalizationService) => {

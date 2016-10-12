@@ -1,7 +1,7 @@
 import {BPButtonAction} from "../../../../shared";
-import {Helper} from "../../../../shared/utils/helper";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {ILocalizationService} from "../../../../core";
+import {ItemTypePredefined} from "../../../../main/models/enums";
 
 export class OpenImpactAnalysisAction extends BPButtonAction {
     constructor(
@@ -18,7 +18,22 @@ export class OpenImpactAnalysisAction extends BPButtonAction {
                 window.open(url);
             },
             () => {
-                if (!Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
+                if (!artifact) {
+                    return false;
+                }
+
+                if (!artifact.predefinedType) {
+                    return false;
+                }
+
+                const invalidTypes = [
+                    ItemTypePredefined.Project, 
+                    ItemTypePredefined.ArtifactCollection, 
+                    ItemTypePredefined.Collections, 
+                    ItemTypePredefined.CollectionFolder
+                ];
+
+                if (invalidTypes.indexOf(artifact.predefinedType) >= 0) {
                     return false;
                 }
 

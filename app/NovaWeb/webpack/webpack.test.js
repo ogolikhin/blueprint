@@ -43,6 +43,10 @@ module.exports = {
         mxClient: path.resolve(__dirname, '../libs/mxClient/js/mxClient.js')
     }
   },
+    tslint: {
+        emitErrors: true,
+        failOnHint: true
+    },
   resolveLoader: {
     modulesDirectories: ["node_modules"]
   },

@@ -91,6 +91,10 @@ module.exports = {
             mxClientCss: path.resolve(__dirname, '../libs/mxClient/css')
         }
     },
+    tslint: {
+        emitErrors: true,
+        failOnHint: true
+    },
     module: {
         loaders: loaders,
         preLoaders: [

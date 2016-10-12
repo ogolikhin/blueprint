@@ -29,10 +29,10 @@ module.exports = {
             template: './index.html',
             filename: '../index.html',
             inject: false,
-            minify:{
-                collapseWhitespace:true,
-                removeComments:true,
-                caseSensitive:true
+            minify: {
+                collapseWhitespace: true,
+                removeComments: true,
+                caseSensitive: true
             }
         }),
         new ExtractTextPlugin("[name].css"),
@@ -82,7 +82,11 @@ module.exports = {
             mxClientCss: path.resolve(__dirname, '../libs/mxClient/css')
         }
     },
-    module:{
+    tslint: {
+        emitErrors: true,
+        failOnHint: true
+    },
+    module: {
         loaders: loaders,
         preLoaders: [
             {

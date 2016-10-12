@@ -7,16 +7,24 @@ export class DeleteAction extends BPButtonAction {
     constructor(
         artifact: IStatefulArtifact,
         localization: ILocalizationService,
-        dialogService: IDialogService
+        dialogService: IDialogService,
+        deleteDialogSettings: IDialogSettings
     ) {
+        if (!localization) {
+            throw new Error("Localization service not provided or is null");
+        }
+
+        if (!dialogService) {
+            throw new Error("Dialog service not provided or is null");
+        }
+
+        if (!deleteDialogSettings) {
+            throw new Error("Delete dialog settings not provided or is null");
+        }
+        
         super(
             () => {
-                dialogService.open(<IDialogSettings>{
-                    okButton: localization.get("App_Button_Ok"),
-                    template: require("../../../../shared/widgets/bp-dialog/bp-dialog.html"),
-                    header: localization.get("App_DialogTitle_Alert"),
-                    message: "Are you sure you would like to delete the artifact?"
-                }).then((confirm: boolean) => {
+                dialogService.open(deleteDialogSettings).then((confirm: boolean) => {
                     if (confirm) {
                         dialogService.alert("you clicked confirm!");
                         this.deleteArtifact();

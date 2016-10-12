@@ -3,6 +3,7 @@ import { BPLocale, ILocalizationService} from "../../core";
 import { Enums, Models} from "../../main";
 import { PropertyContext} from "./bp-property-context";
 import { IStatefulItem} from "../../managers/artifact-manager";
+import { Helper } from "../../shared/utils/helper";
 
 export class PropertyEditor {
 
@@ -58,6 +59,9 @@ export class PropertyEditor {
                 return null; // we probably should not return in this case
 
             default:
+                if (context.isRichText) {
+                    return Helper.tagsContainText($value) ? $value : ""; // tinyMCE returns empty tags (e.g. <p></p> when there is no content)
+                }
                 return $value;
         }
     }

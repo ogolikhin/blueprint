@@ -4,7 +4,7 @@ import { ItemTypePredefined } from "../../main/models/enums";
 
 export class Helper {
 
-    static get UID(): string {        
+    static get UID(): string {
         return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
             /* tslint:disable:no-bitwise */ 
             var r = Math.random() * 16 | 0, v = c === "x" ? r : (r & 0x3 | 0x8);
@@ -168,7 +168,7 @@ export class Helper {
                     Helper.setFontFamilyOrOpenSans(child, allowedFonts);
                 } else if (child.nodeType === 3) {
                     let parent = child.parentNode;
-                    if (parent.nodeType === 1) {
+                    if (parent && parent.nodeType === 1) {
                         parent = parent as HTMLElement;
                         let element = parent;
                         let fontFamily = element.style.fontFamily;
@@ -192,7 +192,8 @@ export class Helper {
                         if (parent.tagName.toUpperCase() !== "SPAN") {
                             let span = document.createElement("SPAN");
                             span.style.fontFamily = fontFamily;
-                            span.appendChild(child);
+                            span.innerHTML = parent.innerHTML;
+                            parent.innerHTML = "";
                             parent.appendChild(span);
                         } else {
                             parent.style.fontFamily = fontFamily;
@@ -239,6 +240,7 @@ export class Helper {
 
         return artifact && artifact.predefinedType != null && nonStandardTypes.indexOf(artifact.predefinedType) === -1;
     }
+
     public static hasArtifactEverBeenSavedOrPublished(artifact: Models.IArtifact): boolean {
         return artifact.id > 0; 
     }

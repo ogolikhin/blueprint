@@ -78,7 +78,7 @@ namespace ArtifactStoreTests
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             artifactDetails.AssertEquals(basicArtifactInfo, compareLockInfo: false);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, versionCount: 0);
+            VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: false, versionCount: 0);
         }
 
         [TestCase(BaseArtifactType.Actor)]
@@ -88,7 +88,8 @@ namespace ArtifactStoreTests
         public void VersionControlInfoWithArtifactId_PublishArtifactWithTrace_ReturnsArtifactInfoWithHasChangesTrue_200OK(BaseArtifactType artifactType)
         {
             //Setup
-            IArtifact artifact = CreateArtifactWithTrace(artifactType, TraceDirection.From, _user);
+            IArtifact artifact = CreatePublishedArtifactWithTrace(artifactType, TraceDirection.From, _user);
+            artifact.Lock();
 
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
@@ -111,7 +112,7 @@ namespace ArtifactStoreTests
         {
             //Setup
             IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            IArtifact artifact = CreateArtifactWithTrace(artifactType, TraceDirection.From, _user);
+            IArtifact artifact = CreatePublishedArtifactWithTrace(artifactType, TraceDirection.From, _user);
 
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
@@ -171,7 +172,7 @@ namespace ArtifactStoreTests
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             artifactDetails.AssertEquals(basicArtifactInfo);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false,
+            VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: false,
                 versionCount: artifactDetails.Version);
         }
         #endregion Artifact Changes
@@ -201,7 +202,7 @@ namespace ArtifactStoreTests
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             artifactDetails.AssertEquals(basicArtifactInfo, compareLockInfo: false);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: subArtifacts[0].Id,
+            VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: subArtifacts[0].Id,
                 versionCount: 0);
         }
 
@@ -293,7 +294,7 @@ namespace ArtifactStoreTests
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             artifactDetails.AssertEquals(basicArtifactInfo);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: subArtifacts[0].Id,
+            VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: subArtifacts[0].Id,
                 versionCount: artifactDetails.Version);
         }
 
@@ -381,7 +382,7 @@ namespace ArtifactStoreTests
             
             artifactDetails.AssertEquals(basicArtifactInfo);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: true,
+            VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: true,
                 version: artifactDetails.Version, versionCount: artifactDetails.Version);
         }
 
@@ -437,7 +438,7 @@ namespace ArtifactStoreTests
             // Verify:
             artifactDetails.AssertEquals(basicArtifactInfo);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: true, subArtifactId: subArtifacts[0].Id,
+            VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: true, subArtifactId: subArtifacts[0].Id,
                 version: artifactDetails.Version, versionCount: artifactDetails.Version);
         }
 
@@ -595,13 +596,13 @@ namespace ArtifactStoreTests
         #region private calls
 
         /// <summary>
-        /// Creates two artifacts and adds trace by user specified in parameteres
+        /// Create and publish two artifacts and adds trace by user specified in parameters.
         /// </summary>
         /// <param name="artifactType">Artifact type of artifacts to be created</param>
         /// <param name="trace">Direction of trace</param>
         /// <param name="user"></param>
         /// <returns>Artifact with the trace</returns>
-        private IArtifact CreateArtifactWithTrace(BaseArtifactType artifactType, TraceDirection trace, IUser user)
+        private IArtifact CreatePublishedArtifactWithTrace(BaseArtifactType artifactType, TraceDirection trace, IUser user)
         {
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, user, artifactType);
             IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, user, BaseArtifactType.UseCase);
@@ -670,13 +671,13 @@ namespace ArtifactStoreTests
                 Assert.IsNotNull(basicArtifactInfo.DeletedByUser, "DeletedByUser should have value");
                 Assert.IsNotNull(basicArtifactInfo.DeletedDateTime, "DeletedDateTime should have value");
             }
-            /*
+            
             if (hasChanges == true)
             {
                 Assert.IsNotNull(basicArtifactInfo.LockedByUser.Id, "LockedByUser should have value");
                 Assert.IsNotNull(basicArtifactInfo.LockedDateTime, "LockedDateTime should have value");
             }
-            */
+            
             if (basicArtifactInfo.SubArtifactId != null)
             {
                 Assert.AreEqual(subArtifactId, basicArtifactInfo.SubArtifactId.Value,

@@ -7,7 +7,8 @@ export class Helper {
     static get UID(): string {
         return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
             /* tslint:disable:no-bitwise */
-            var r = Math.random() * 16 | 0, v = c === "x" ? r : (r & 0x3 | 0x8);
+            const r = Math.random() * 16 | 0;
+            const v = c === "x" ? r : (r & 0x3 | 0x8);
             /* tslint:enable:no-bitwise */
             return v.toString(16);
         });
@@ -31,13 +32,13 @@ export class Helper {
     };
 
     static stripHTMLTags = (stringToSanitize: string): string => {
-        var stringSanitizer = window.document.createElement("DIV");
+        const stringSanitizer = window.document.createElement("DIV");
         stringSanitizer.innerHTML = stringToSanitize;
         return stringSanitizer.textContent || stringSanitizer.innerText || "";
     };
 
     static escapeHTMLText = (stringToEscape: string): string => {
-        var stringEscaper = window.document.createElement("TEXTAREA");
+        const stringEscaper = window.document.createElement("TEXTAREA");
         stringEscaper.textContent = stringToEscape;
         return stringEscaper.innerHTML;
     };
@@ -214,13 +215,13 @@ export class Helper {
     }
 
     public static toFlat(root: any): any[] {
-        var stack: any[] = angular.isArray(root) ? root.slice() : [root], array: any[] = [];
+        const stack: any[] = angular.isArray(root) ? root.slice() : [root], array: any[] = [];
         while (stack.length !== 0) {
-            var node = stack.shift();
+            const node = stack.shift();
             array.push(node);
             if (angular.isArray(node.children)) {
 
-                for (var i = node.children.length - 1; i >= 0; i--) {
+                for (let i = node.children.length - 1; i >= 0; i--) {
                     stack.push(node.children[i]);
                 }
                 node.children = null;
@@ -249,4 +250,3 @@ export class Helper {
         return parseInt(n.toString(), 10) === n;
     }
 }
-

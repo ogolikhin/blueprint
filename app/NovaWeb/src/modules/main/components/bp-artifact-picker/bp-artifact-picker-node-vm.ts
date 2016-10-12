@@ -53,7 +53,7 @@ export class InstanceItemNodeVM extends ArtifactPickerNodeVM<Models.IProjectNode
     }
 
     public getCellClass(): string[] {
-        var result = super.getCellClass();
+        const result = super.getCellClass();
         switch (this.model.type) {
             case Models.ProjectNodeType.Folder:
                 result.push("is-folder");
@@ -95,7 +95,7 @@ export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
     }
 
     public getCellClass(): string[] {
-        var result = super.getCellClass();
+        const result = super.getCellClass();
         switch (this.model.predefinedType) {
             case Models.ItemTypePredefined.PrimitiveFolder:
                 result.push("is-folder");
@@ -104,7 +104,7 @@ export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
                 result.push("is-project");
                 break;
             default:
-                var typeName = Models.ItemTypePredefined[this.model.predefinedType];
+                const typeName = Models.ItemTypePredefined[this.model.predefinedType];
                 if (typeName) {
                     result.push("is-" + Helper.toDashCase(typeName));
                 }
@@ -150,7 +150,7 @@ export class SubArtifactContainerNodeVM extends ArtifactPickerNodeVM<Models.IArt
     }
 
     public getCellClass(): string[] {
-        var result = super.getCellClass();
+        const result = super.getCellClass();
         result.push("is-subartifact");
         return result;
     }
@@ -174,7 +174,7 @@ export class SubArtifactNodeVM extends ArtifactPickerNodeVM<Models.ISubArtifactN
     }
 
     public getCellClass(): string[] {
-        var result = super.getCellClass();
+        const result = super.getCellClass();
         result.push("is-subartifact");
         return result;
     }

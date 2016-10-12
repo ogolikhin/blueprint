@@ -61,7 +61,7 @@ export class ModalProcessViewModel implements IModalProcessViewModel {
     //save(): ng.IPromise<IProcess>;
 
     public dispose() {
-
+//fixme: why does this exist if its empty?
     };
 
     public getNextNode(node: ISystemTaskShape): IProcessShape {

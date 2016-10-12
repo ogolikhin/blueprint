@@ -2,7 +2,7 @@ import * as angular from "angular";
 import "angular-formly";
 import {ILocalizationService} from "../../../../core";
 import {BPFieldBaseController} from "../base-controller";
-
+//fixme: only one class per file
 export class BPFieldNumber implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldNumber";
     public extends: string = "input";
@@ -16,6 +16,8 @@ export class BPFieldNumber implements AngularFormly.ITypeOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldNumberController;
 
     constructor() {
+        //fixme: empty constructors can be removed
+
     }
 }
 

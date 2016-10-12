@@ -4,7 +4,7 @@ import "angular-ui-tinymce";
 import "tinymce";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
 import {Helper} from "../../../../shared";
-
+//fixme: only one class per file
 export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTF";
     public template: string = require("./text-rtf.template.html");
@@ -23,6 +23,7 @@ export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldTextRTFController;
 
     constructor() {
+        //fixme: empty constructors can be removed
     }
 }
 
@@ -34,6 +35,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
 
         let onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
         $scope.to.onChange = () => {
+        //fixme: if this function is blank why does it exist?
         };
 
         const allowedFonts = ["Open Sans", "Arial", "Cambria", "Calibri", "Courier New", "Times New Roman", "Trebuchet MS", "Verdana"];

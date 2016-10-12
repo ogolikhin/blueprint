@@ -1,5 +1,4 @@
-﻿﻿
-import "angular";
+﻿import "angular";
 import {ILocalizationService, IMessageService} from "../../../../core";
 import {IDialogSettings, IDialogService} from "../../../../shared";
 import {BPFieldBaseController} from "../base-controller";
@@ -97,7 +96,7 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
                         deleteBaseActor();
 
                     }
-                    var artifactPath = getArtifactPath(artifact);
+                    const artifactPath = getArtifactPath(artifact);
                     $scope.model[$scope.options["key"]] = {
                         actorName: artifact.name,
                         actorId: artifact.id,
@@ -107,8 +106,8 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
                         isProjectPathVisible: isArtifactactPathFitToControl(artifact.prefix, artifact.name, artifact.id, artifactPath)
                     };
                     currentModelVal = $scope.model[$scope.options["key"]];
-                    var changedResult = {
-                        actorId: artifact.id,
+                    const changedResult = {
+                        actorId: artifact.id
                     };
                     onChange(changedResult, getInheritanceField(), $scope);
                 }

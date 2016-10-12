@@ -1,23 +1,35 @@
 {
-  "compilerOptions": {
-    "target": "es5",
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": false,
-    "noImplicitReturns": false,
-    "noImplicitThis": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "removeComments": true,
-    "sourceMap": true,
-    "module": "commonjs",
-    "experimentalDecorators": true,
-    "outDir": "out"
-  },
-  "exclude": [
-    "out",
-    "node_modules",
-    "dist",
-    "dev",
-    "reports"
-  ]
+    "compilerOptions": {
+        "target": "es5",
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitAny": false,
+        "noImplicitReturns": false,
+        "noImplicitThis": false,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "removeComments": true,
+        "sourceMap": true,
+        "module": "commonjs",
+        "experimentalDecorators": true,
+        "outDir": "out",
+        "noEmitHelpers": true
+    },
+    "exclude": [
+        "out",
+        "node_modules",
+        "dist",
+        "dev",
+        "reports"
+    ],
+    "files": [
+        "./typings.json",
+        "./node_modules/@types/angular",
+        "./node_modules/@types/angular-formly",
+        "./node_modules/@types/angular-mocks",
+        "./node_modules/@types/angular-ui-bootstrap",
+        "./node_modules/@types/angular-ui-router",
+        "./node_modules/@types/jasmine",
+        "./node_modules/@types/jquery",
+        "./node_modules/@types/lodash"
+    ]
 }

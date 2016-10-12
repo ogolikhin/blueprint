@@ -38,7 +38,7 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
                 $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance,
                 dialogModel: SubArtifactDialogModel,
                 private communicationManager: ICommunicationManager,
-                // TODO look at this later 
+                // TODO look at this later
                 //private artifactSearchService: Shell.IArtifactSearchService,
                 $rootScope: ng.IRootScopeService,
                 private $q: ng.IQService,
@@ -71,7 +71,7 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         //         return filtered.slice(0, 10).sort(this.sortById);
         //     });
 
-        // TODO look at this later 
+        // TODO look at this later
         // this.getLinkableArtifacts = (viewValue: string) => {
         //     this.clearFileds();
 
@@ -276,11 +276,11 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
             return;
         }
 
-        var n = document.createTextNode(" ");
-        element.appendChild(n);
-
+        let node = document.createTextNode(" ");
+        element.appendChild(node);
+//fixme: use the $timeout services not setTimeout
         setTimeout(function () {
-            n.parentNode.removeChild(n);
+            node.parentNode.removeChild(node);
         }, 20);
     }
 

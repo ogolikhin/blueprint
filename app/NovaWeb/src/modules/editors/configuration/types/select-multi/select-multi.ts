@@ -35,6 +35,8 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldSelectMultiController;
 
     constructor() {
+        //fixme: empty constructors can be removed
+
     }
 }
 

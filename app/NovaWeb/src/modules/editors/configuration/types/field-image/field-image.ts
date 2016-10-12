@@ -71,7 +71,7 @@ export class BPFieldImageController extends BPFieldBaseController {
 
                 if (uploadList && uploadList.length > 0) {
                     let image = uploadList[0];
-                    var reader = new FileReader();
+                    const reader = new FileReader();
                     reader.readAsDataURL(image.file);
 
                     reader.onload = function (e) {

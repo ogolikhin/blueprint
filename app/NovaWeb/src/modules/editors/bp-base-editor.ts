@@ -17,6 +17,7 @@ export class BpBaseEditor {
     }
 
     public $onInit() {
+//fixme: empty methods should be removed
     }
 
     public $onChanges(obj: any) {

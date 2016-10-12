@@ -84,12 +84,12 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         };
 
         if (this._selectedItem.description) {
-            var description = this._selectedItem.description;
-            var virtualDiv = window.document.createElement("DIV");
+            const description = this._selectedItem.description;
+            const virtualDiv = window.document.createElement("DIV");
             virtualDiv.innerHTML = description;
 
-            var aTags = virtualDiv.querySelectorAll("a");
-            for (var a = 0; a < aTags.length; a++) {
+            const aTags = virtualDiv.querySelectorAll("a");
+            for (let a = 0; a < aTags.length; a++) {
                 aTags[a].setAttribute("target", "_blank");
             }
             this._selectedDescription = this.$sce.trustAsHtml(Helper.stripWingdings(virtualDiv.innerHTML));
@@ -100,7 +100,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
     }
 
     private onEnterKeyPressed = (e: any) => {
-        var key = e.which || e.keyCode;
+        const key = e.which || e.keyCode;
         if (key === 13) {
             //user pressed Enter key on project
             this.ok();

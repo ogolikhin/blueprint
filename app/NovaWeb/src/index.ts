@@ -1,3 +1,4 @@
+import "ts-helpers";
 import "angular";
 import "./modules/main/";
 // load our default (non specific) css

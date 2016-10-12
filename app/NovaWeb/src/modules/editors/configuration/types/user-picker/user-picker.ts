@@ -59,6 +59,7 @@ export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldUserPickerController;
 
     constructor() {
+        //fixme: empty constructors can be removed
     }
 }
 

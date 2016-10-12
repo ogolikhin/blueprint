@@ -1,3 +1,4 @@
+//fixme: each file can only contain one class
 import * as angular from "angular";
 import "angular-formly";
 import "angular-ui-tinymce";
@@ -23,6 +24,7 @@ export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldTextRTFInlineController;
 
     constructor() {
+        //fixme: empty constructors can be removed
     }
 }
 
@@ -34,6 +36,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
 
         let onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
         $scope.to.onChange = () => {
+            //fixme: if the function is blank it should not exist
         };
 
         const allowedFonts = ["Open Sans", "Arial", "Cambria", "Calibri", "Courier New", "Times New Roman", "Trebuchet MS", "Verdana"];

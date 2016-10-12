@@ -365,10 +365,12 @@ export class DiagramHelper {
         let formatDate: (date: Date, format: string) => string;
 
         try {
+            //fixme: this is not the right way to use an angular date filter. you shoud use $filter(filtername)(data)
             formatDate = <(date: Date, format: string) => string>angular.injector(["ng"]).get("$filter")("date");
 
         } catch (e) {
-        }
+            //fixme: catch must not be empty on try catch as this is a costly operation and must ALWYS return something
+                    }
 
         let rtn = "";
 

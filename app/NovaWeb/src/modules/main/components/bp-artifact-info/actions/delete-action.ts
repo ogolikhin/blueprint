@@ -19,7 +19,6 @@ export class DeleteAction extends BPButtonAction {
                         dialogService.alert("you clicked confirm!");
                         this.deleteArtifact();
                     }
-                    ;
                 });
             },
             () => {
@@ -48,5 +47,6 @@ export class DeleteAction extends BPButtonAction {
     }
 
     private deleteArtifact() {
+//fixme: if this is not needed, it should be not here or undefined
     }
 }

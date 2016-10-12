@@ -66,6 +66,7 @@ export class BpArtifactEditor extends BpBaseEditor {
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
         if (!angular.isArray(this.fields)) {
+        //fixme: why is this empty? if it does nothing remove it!
         }
         this.fields.push(field);
     }

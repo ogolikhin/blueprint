@@ -62,7 +62,7 @@ export class SubArtifactEditorModalOpener {
         try {
             let graph = this.getGraph();
 
-            // get read-only status from viewmodel's isReadonly property 
+            // get read-only status from viewmodel's isReadonly property
 
             let viewModel = graph.viewModel; //<IProcessViewModel>($scope.$parent["vm"].processDiagram.processViewModel);
             if (viewModel) {
@@ -88,11 +88,11 @@ export class SubArtifactEditorModalOpener {
     };
 
     public getSubArtifactDialogModel(shapeId: number, graph: IProcessGraph): SubArtifactDialogModel {
-        var userTaskDialogModel = new SubArtifactDialogModel();
+        const userTaskDialogModel = new SubArtifactDialogModel();
         userTaskDialogModel.subArtifactId = shapeId;
-        var node = graph.getNodeById(userTaskDialogModel.subArtifactId.toString());
-        var userTaskNode: UserTask;
-        var systemTaskNode: SystemTask;
+        const node = graph.getNodeById(userTaskDialogModel.subArtifactId.toString());
+        let userTaskNode: UserTask;
+        let systemTaskNode: SystemTask;
         if (node.getNodeType() === NodeType.UserTask) {
             userTaskNode = <UserTask>node;
             let nextNodes = userTaskNode.getNextSystemTasks(graph);

@@ -10,12 +10,17 @@
   }
 &[disabled],
   &[disabled]:hover,
+  &[disabled]:focus,
   &.disabled,
-  &.disabled:hover{
+  &.disabled:hover,
+  &.disabled:focus {
     background-color: $gray-lighter ;
-    border-color: $gray-light;
-    color: $gray-light;
+    border-color: #bbb;
+    color: #bbb;
     opacity: 1;
+      &.active {
+          background-color: transparent;
+      }
   }
 }
 .btn-primary {
@@ -24,7 +29,8 @@
     color: $gray-light;
     &:hover,
     &:focus,
-    &:active {
+    &:active
+    &.active {
         background-color: transparent;
         border-color: $brand-secondary;
         color: $brand-secondary;
@@ -36,7 +42,8 @@
   color: $white;
   &:hover,
   &:focus,
-  &:active {
+  &:active,
+  &.active {
     background-color: darken($brand-secondary, 10%);
     border-color: darken($brand-secondary, 10%);
     color: $white;
@@ -48,7 +55,8 @@
   color: $white;
   &:hover,
   &:focus,
-  &:active {
+  &:active,
+  &.active {
     background-color: darken($brand-warning, 10%);
     border-color: darken($brand-warning, 10%);
     color: $white;
@@ -60,9 +68,11 @@
   color: $brand-secondary;
   &:hover,
   &:focus,
-  &:active {
+  &:active,
+  &.active {
     background-color: $brand-secondary;
     border: solid 1px $brand-secondary;
     color: $white;
   }
 }
+

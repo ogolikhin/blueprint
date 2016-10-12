@@ -6,6 +6,7 @@ import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ILocalizationService} from "../../../../core";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {ItemTypePredefined, RolePermissions} from "../../../../main/models/enums";
 
 describe("OpenImpactAnalysisAction", () => {
     beforeEach(angular.mock.module("app.main"));
@@ -42,6 +43,64 @@ describe("OpenImpactAnalysisAction", () => {
 
         // assert
         expect(openImpactAnalysisAction.disabled).toBe(true);
+    }));
+
+    it("is disabled for Project artifact", inject((
+        statefulArtifactFactory: IStatefulArtifactFactory,
+        localization: ILocalizationService) => {
+        // arrange
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({ 
+            id: 1, 
+            predefinedType: ItemTypePredefined.Project
+        });
+
+        // act
+        const openImpactAnalysisAction = new OpenImpactAnalysisAction(artifact, localization);
+
+        // assert
+        expect(openImpactAnalysisAction.disabled).toBe(true);
+    }));
+
+    it("is disabled for new artifact", inject((
+        statefulArtifactFactory: IStatefulArtifactFactory,
+        localization: ILocalizationService) => {
+        // arrange
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+            { 
+                id: 1, 
+                predefinedType: ItemTypePredefined.Actor, 
+                lockedByUser: null,
+                lockedDateTime: null,
+                permissions: RolePermissions.Edit,
+                version: -1
+            });
+
+        // act
+        const openImpactAnalysisAction = new OpenImpactAnalysisAction(artifact, localization);
+
+        // assert
+        expect(openImpactAnalysisAction.disabled).toBe(true);
+    }));
+
+    it("is enabled for published artifact", inject((
+        statefulArtifactFactory: IStatefulArtifactFactory,
+        localization: ILocalizationService) => {
+        // arrange
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+            { 
+                id: 1, 
+                predefinedType: ItemTypePredefined.Actor, 
+                lockedByUser: null,
+                lockedDateTime: null,
+                permissions: RolePermissions.Edit,
+                version: 1
+            });
+
+        // act
+        const openImpactAnalysisAction = new OpenImpactAnalysisAction(artifact, localization);
+
+        // assert
+        expect(openImpactAnalysisAction.disabled).toBe(false);
     }));
 
     it("opens new window when executed", inject((statefulArtifactFactory: IStatefulArtifactFactory, localization: ILocalizationService) => {

@@ -3,7 +3,7 @@ import {ICommunicationWrapper, CommunicationWrapper} from "../../services/commun
 export interface IToolbarCommunication {
     registerToggleProcessTypeObserver(observer: any);
     removeToggleProcessTypeObserver(observer: any);
-    toggleProcessType(processType: number);  
+    toggleProcessType(processType: number);
 
     onDestroy();
 }
@@ -11,12 +11,11 @@ export interface IToolbarCommunication {
 export class ToolbarCommunication implements IToolbarCommunication {
     private setToggleProcessTypeSubject: ICommunicationWrapper;
 
-    
 
     constructor() {
         // Create subjects
         this.setToggleProcessTypeSubject = new CommunicationWrapper();
-        
+
     };
 
     // Toggle process type
@@ -30,9 +29,9 @@ export class ToolbarCommunication implements IToolbarCommunication {
 
     public toggleProcessType(processType: number) {
         this.setToggleProcessTypeSubject.notify(processType);
-    }    
+    }
 
     public onDestroy() {
-        this.setToggleProcessTypeSubject.dispose();        
+        this.setToggleProcessTypeSubject.dispose();
     }
 }

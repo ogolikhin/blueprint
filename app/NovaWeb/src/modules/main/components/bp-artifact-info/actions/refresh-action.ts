@@ -6,12 +6,10 @@ import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {ItemTypePredefined} from "../../../../main/models/enums";
 
 export class RefreshAction extends BPButtonAction {
-    constructor(
-        artifact: IStatefulArtifact,
-        localization: ILocalizationService,
-        projectManager: IProjectManager,
-        loadingOverlayService: ILoadingOverlayService
-    ) {
+    constructor(artifact: IStatefulArtifact,
+                localization: ILocalizationService,
+                projectManager: IProjectManager,
+                loadingOverlayService: ILoadingOverlayService) {
         if (!artifact) {
             throw new Error("Artifact not provided or is null");
         }
@@ -43,8 +41,8 @@ export class RefreshAction extends BPButtonAction {
                             loadingOverlayService.endLoading(refreshOverlayId);
                         });
                     }).finally(() => {
-                        loadingOverlayService.endLoading(overlayId);
-                    });
+                    loadingOverlayService.endLoading(overlayId);
+                });
             },
             (): boolean => {
                 if (artifact.predefinedType === ItemTypePredefined.Project || artifact.predefinedType === ItemTypePredefined.Collections) {

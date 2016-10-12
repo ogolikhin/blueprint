@@ -25,9 +25,9 @@ export class OpenImpactAnalysisAction extends BPButtonAction {
                 }
 
                 const invalidTypes = [
-                    ItemTypePredefined.Project, 
-                    ItemTypePredefined.ArtifactCollection, 
-                    ItemTypePredefined.Collections, 
+                    ItemTypePredefined.Project,
+                    ItemTypePredefined.ArtifactCollection,
+                    ItemTypePredefined.Collections,
                     ItemTypePredefined.CollectionFolder
                 ];
 

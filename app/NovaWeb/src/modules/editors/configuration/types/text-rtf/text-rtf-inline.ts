@@ -63,7 +63,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                 invalid_styles: {
                     "*": "background-image display margin padding float"
                 },
-                object_resizing : false, // https://www.tinymce.com/docs/configure/advanced-editing-behavior/#object_resizing
+                object_resizing: false, // https://www.tinymce.com/docs/configure/advanced-editing-behavior/#object_resizing
                 // https://www.tinymce.com/docs/configure/content-formatting/#font_formats
                 font_formats: fontFormats,
                 // paste_enable_default_filters: false, // https://www.tinymce.com/docs/plugins/paste/#paste_enable_default_filters

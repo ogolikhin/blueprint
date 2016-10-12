@@ -19,9 +19,9 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
     private USER_DECISION_SHIFT = 33;
     private BUTTON_SIZE = 16;
     private DELETE_SHAPE_OFFSET = 3;
-    
+
     private detailsButton: Button;
-    private deleteShapeButton:Button;    
+    private deleteShapeButton: Button;
 
     private rootScope: any;
     private processDiagramManager: IProcessDiagramCommunication;
@@ -59,9 +59,11 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
             });
         } else {
             this.deleteShapeButton.setDisabledImage("/novaweb/static/bp-process/images/delete-inactive.svg");
-            this.deleteShapeButton.setClickAction(() => { });
-        }        
-        
+            this.deleteShapeButton.setClickAction(() => {
+                //fixme: empty blocks should be removed
+            });
+        }
+
         this.deleteShapeButton.setTooltip(this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"]);
     }
 

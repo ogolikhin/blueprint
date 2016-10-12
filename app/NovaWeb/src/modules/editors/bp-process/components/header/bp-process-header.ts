@@ -70,7 +70,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
 
         this.breadcrumbLinks = [];
         this.isDeleteButtonEnabled = false;
-        this.toolbarCommunicationManager = communicationManager.toolbarCommunicationManager;        
+        this.toolbarCommunicationManager = communicationManager.toolbarCommunicationManager;
     }
 
     public $onInit() {
@@ -91,9 +91,9 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
     }
 
     public $onDestroy() {
-        super.$onDestroy();        
+        super.$onDestroy();
     }
-    
+
     public navigateTo = (link: IBreadcrumbLink): void => {
         if (!!link && link.isEnabled) {
             const index = this.breadcrumbLinks.indexOf(link);
@@ -102,7 +102,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                 this.navigationService.navigateBack(index);
             }
         }
-    }    
+    }
 
     protected updateToolbarOptions(artifact: IStatefulArtifact): void {
         super.updateToolbarOptions(artifact);

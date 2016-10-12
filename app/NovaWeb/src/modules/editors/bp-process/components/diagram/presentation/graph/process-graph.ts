@@ -98,7 +98,7 @@ export class ProcessGraph implements IProcessGraph {
         // add selection event handlers
         this.selectionHelper.addSelectionListener((elements) => {
             this.highlightNodeEdges(elements);
-        });        
+        });
         this.selectionHelper.initSelection();
         this.applyDefaultStyles();
         this.applyReadOnlyStyles();
@@ -144,7 +144,7 @@ export class ProcessGraph implements IProcessGraph {
                 this.nodeLabelEditor.init();
             }
             this.deleteShapeHandler =
-               this.viewModel.communicationManager.processDiagramCommunication.register(ProcessEvents.DeleteShape, this.deleteShape);
+                this.viewModel.communicationManager.processDiagramCommunication.register(ProcessEvents.DeleteShape, this.deleteShape);
         } catch (e) {
             this.logError(e);
             if (this.messageService) {
@@ -908,7 +908,7 @@ export class ProcessGraph implements IProcessGraph {
             return true;
         }
         return false;
-    }    
+    }
 
     private highlightNodeEdges(nodes: Array<IDiagramNode>) {
         this.clearHighlightEdges();

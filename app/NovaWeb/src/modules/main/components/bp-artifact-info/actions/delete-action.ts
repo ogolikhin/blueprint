@@ -6,8 +6,8 @@ import {ItemTypePredefined} from "../../../../main/models/enums";
 export class DeleteAction extends BPButtonAction {
     constructor(artifact: IStatefulArtifact,
                 localization: ILocalizationService,
-        dialogService: IDialogService,
-        deleteDialogSettings: IDialogSettings
+                dialogService: IDialogService,
+                deleteDialogSettings: IDialogSettings) {
         if (!localization) {
             throw new Error("Localization service not provided or is null");
         }
@@ -19,7 +19,7 @@ export class DeleteAction extends BPButtonAction {
         if (!deleteDialogSettings) {
             throw new Error("Delete dialog settings not provided or is null");
         }
-        
+
         super(
             () => {
                 dialogService.open(deleteDialogSettings).then((confirm: boolean) => {
@@ -27,6 +27,7 @@ export class DeleteAction extends BPButtonAction {
                         dialogService.alert("you clicked confirm!");
                         this.deleteArtifact();
                     }
+                    ;
                 });
             },
             () => {
@@ -55,6 +56,6 @@ export class DeleteAction extends BPButtonAction {
     }
 
     private deleteArtifact() {
-//fixme: if this is not needed, it should be not here or undefined
+        //fixme: empty blocks should be removed
     }
 }

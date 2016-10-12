@@ -33,7 +33,7 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
         super(model, NodeType.SystemDecision);
 
         this.rootScope = rootScope;
-        this.initButtons(model.id.toString(), nodeFactorySettings);        
+        this.initButtons(model.id.toString(), nodeFactorySettings);
     }
 
     private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
@@ -60,9 +60,11 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
             });
         } else {
             this.deleteShapeButton.setDisabledImage("/novaweb/static/bp-process/images/delete-inactive.svg");
-            this.deleteShapeButton.setClickAction(() => { });
-        }        
-        
+            this.deleteShapeButton.setClickAction(() => {
+                //fixme: empty blocks should be removed
+            });
+        }
+
         this.deleteShapeButton.setTooltip(this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"]);
     }
 
@@ -94,8 +96,8 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
 
         this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;
-        
-const mxGraph = graph.getMxGraph();
+
+        const mxGraph = graph.getMxGraph();
 
         let fillColor = this.DEFAULT_FILL_COLOR;
         if (this.model.id < 0) {

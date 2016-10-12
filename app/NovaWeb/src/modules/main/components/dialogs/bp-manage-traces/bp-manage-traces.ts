@@ -46,7 +46,7 @@ export class ManageTracesDialogController extends BaseDialogController {
                 public artifactManager: IArtifactManager,
                 public artifactRelationships: IArtifactRelationships,
                 public data: IDialogRelationshipItem,
-                private dialogService: IDialogService,) {
+                private dialogService: IDialogService) {
         super($uibModalInstance, dialogSettings);
         this.getManualTraces();
         this.clearSelected();
@@ -196,7 +196,7 @@ export class ManageTracesDialogController extends BaseDialogController {
     }
 
     private remove(relationships: Relationships.IRelationship[],
-                  traces: Relationships.IRelationship[]): Relationships.IRelationship[] {
+                   traces: Relationships.IRelationship[]): Relationships.IRelationship[] {
         if (relationships) {
             relationships.forEach((relationship: Relationships.IRelationship) => {
                 const foundRelationshipIndex = traces.indexOf(relationship);

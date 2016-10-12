@@ -233,7 +233,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         });
     }
 
-    public setItemDirection(trace: IRelationship): void { 
+    public setItemDirection(trace: IRelationship): void {
         // this is called after we update direction. all it does is trigger dirty/save state.
         this.item.relationships.updateManual(this.manualTraces);
     }

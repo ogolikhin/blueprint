@@ -3,6 +3,7 @@ import {ILoadingOverlayService} from "../../../../core/loading-overlay";
 import {BPButtonAction} from "../../../../shared";
 import {IProjectManager} from "../../../../managers/project-manager";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
+import {ItemTypePredefined} from "../../../../main/models/enums";
 
 export class RefreshAction extends BPButtonAction {
     constructor(
@@ -46,6 +47,10 @@ export class RefreshAction extends BPButtonAction {
                     });
             },
             (): boolean => {
+                if (artifact.predefinedType === ItemTypePredefined.Project || artifact.predefinedType === ItemTypePredefined.Collections) {
+                    return false;
+                }
+
                 if (artifact.artifactState.dirty) {
                     return false;
                 }

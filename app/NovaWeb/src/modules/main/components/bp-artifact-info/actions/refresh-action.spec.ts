@@ -128,23 +128,6 @@ describe("RefreshAction", () => {
         expect(error).toEqual(new Error("Loading overlay service not provided or is null"));
     }));
 
-    it("is disabled when artifact is read-only", 
-        inject((
-            statefulArtifactFactory: IStatefulArtifactFactory, 
-            localization: ILocalizationService,
-            projectManager: IProjectManager,
-            loadingOverlayService: ILoadingOverlayService) => {
-        // arrange
-        artifact = statefulArtifactFactory.createStatefulArtifact({ id: 1 });
-        artifact.artifactState.readonly = true;
-
-        // act
-        const refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService);
-
-        // assert
-        expect(refreshAction.disabled).toBe(true);
-    }));
-
     it("is disabled when artifact is dirty", 
         inject((
             statefulArtifactFactory: IStatefulArtifactFactory, 

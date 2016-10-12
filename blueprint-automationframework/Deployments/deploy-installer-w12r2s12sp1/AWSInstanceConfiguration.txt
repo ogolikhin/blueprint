@@ -1,4 +1,5 @@
 NAME = deploy-installer-w12r2s12sp1
-AMI_ID = ami-15216e02
+AMI_ID = ami-75612b62
 ELASTIC_IP = 52.55.170.69
 DATABASE_BACKUP_FILE_NAME = IntegrationTestDBBackups-SQL2012-NoFilestream.zip
+DATABASE_HOST_NAME = localhost

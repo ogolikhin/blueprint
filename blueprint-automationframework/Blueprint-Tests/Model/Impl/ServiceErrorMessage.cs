@@ -1,4 +1,7 @@
 ﻿
+using NUnit.Framework;
+using Utilities;
+
 namespace Model.Impl
 {
     public class ServiceErrorMessage : IServiceErrorMessage
@@ -13,19 +16,26 @@ namespace Model.Impl
             this.Message = message;
         }
 
+        /// <seealso cref="IServiceErrorMessage.AssertEquals(IServiceErrorMessage)"/>
+        public void AssertEquals(IServiceErrorMessage expectedErrorMessage)
+        {
+            ThrowIf.ArgumentNull(expectedErrorMessage, nameof(expectedErrorMessage));
+
+            AssertEquals(this, expectedErrorMessage);
+        }
+
         /// <summary>
         /// Tests whether the specified ServiceErrorMessage is equal to this one.
         /// </summary>
-        /// <param name="session">The ServiceErrorMessage to compare.</param>
-        /// <returns>True if the objects are equal, otherwise false.</returns>
-        public bool Equals(IServiceErrorMessage errorMessage)
+        /// <param name="actualError">The actual error received.</param>
+        /// <param name="expectedErrorMessage">The ServiceErrorMessage to compare.</param>
+        public static void AssertEquals(IServiceErrorMessage actualError, IServiceErrorMessage expectedErrorMessage)
         {
-            if (errorMessage == null)
-            {
-                return false;
-            }
+            ThrowIf.ArgumentNull(actualError, nameof(actualError));
+            ThrowIf.ArgumentNull(expectedErrorMessage, nameof(expectedErrorMessage));
 
-            return (this.ErrorCode == errorMessage.ErrorCode) && (this.Message == errorMessage.Message);
+            Assert.AreEqual(expectedErrorMessage.ErrorCode, actualError.ErrorCode, "The ErrorCode's don't match!");
+            Assert.AreEqual(expectedErrorMessage.Message, actualError.Message, "The Messages don't match!");
         }
     }
 }

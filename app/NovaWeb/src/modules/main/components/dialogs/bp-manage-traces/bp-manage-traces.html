@@ -3,7 +3,7 @@
 </div>
 <div class="modal-body artifact-picker manage-traces">
     <div>
-        <bp-artifact-picker selection-mode="'checkbox'" ;
+        <bp-artifact-picker selection-mode="'checkbox'";
                             show-sub-artifacts="true"
                             on-selection-changed="$ctrl.onSelectionChanged(selectedVMs)">
         </bp-artifact-picker>
@@ -14,11 +14,8 @@
         </label>
         <div uib-dropdown class="btn-group">
             <button type="button" class="btn btn-default" ng-click="$ctrl.trace()"
-                    ng-class="{disabled: $ctrl.selectedVMs.length == 0}">
-                <i class="fonticon2-relationship-right" ng-if="$ctrl.direction === 0"></i><i
-                class="fonticon2-relationship-left" ng-if="$ctrl.direction === 1"></i><i
-                class="fonticon2-relationship-bi" ng-if="$ctrl.direction === 2"></i>Trace
-            </button>
+                    ng-class="{disabled: $ctrl.selectedVMs.length === 0 || $ctrl.isTraceDisabled}">
+                <i class="fonticon2-relationship-right" ng-if="$ctrl.direction === 0"></i><i class="fonticon2-relationship-left" ng-if="$ctrl.direction === 1"></i><i class="fonticon2-relationship-bi" ng-if="$ctrl.direction === 2"></i>Trace</button>
             <button type="button" uib-dropdown-toggle class="btn dropdown-toggle" data-toggle="dropdown"
                     aria-haspopup="true" aria-expanded="false">
                 <span class="caret"></span>
@@ -44,36 +41,29 @@
     <div>
         <div class="actions-panel" ng-class="{'active-panel': $ctrl.selectedTraces[$ctrl.data.artifactId].length > 0}">
             <div uib-dropdown>
-                <span uib-dropdown-toggle
-                      bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Change_Trace')}}">
+                <span uib-dropdown-toggle bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Change_Trace')}}">
                     <i class="icon fonticon-exchange"></i>
                 </span>
                 <ul class="dropdown-menu">
                     <li>
-                        <a ng-click="$ctrl.setSelectedDirection(0)"><i class="fonticon2-relationship-right"></i>
-                            {{::$ctrl.localization.get('App_UP_Relationships_To')}}</a></li>
+                        <a ng-click="$ctrl.setSelectedDirection(0)"><i class="fonticon2-relationship-right"></i> {{::$ctrl.localization.get('App_UP_Relationships_To')}}</a></li>
                     <li>
-                        <a ng-click="$ctrl.setSelectedDirection(1)"><i class="fonticon2-relationship-left"></i>
-                            {{::$ctrl.localization.get('App_UP_Relationships_From')}}</a></li>
+                        <a ng-click="$ctrl.setSelectedDirection(1)"><i class="fonticon2-relationship-left"></i> {{::$ctrl.localization.get('App_UP_Relationships_From')}}</a></li>
                     <li>
-                        <a ng-click="$ctrl.setSelectedDirection(2)"><i class="fonticon2-relationship-bi"></i>
-                            {{::$ctrl.localization.get('App_UP_Relationships_Bidirectional')}}</a></li>
+                        <a ng-click="$ctrl.setSelectedDirection(2)"><i class="fonticon2-relationship-bi"></i> {{::$ctrl.localization.get('App_UP_Relationships_Bidirectional')}}</a></li>
                 </ul>
             </div>
             <i class="icon fonticon-flag-1" ng-click="$ctrl.toggleTraces()"
                bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Flag_Traces') }}"></i>
-            <i class="icon fonticon-delete-filled"
-               ng-click="$ctrl.deleteTraces($ctrl.selectedTraces[$ctrl.data.item.id])"
+            <i class="icon fonticon-delete-filled" ng-click="$ctrl.deleteTraces($ctrl.selectedTraces[$ctrl.data.item.id])"
                bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Delete_Traces') }}"></i>
         </div>
 
-        <div class="trace-manager-wrapper" perfect-scrollbar>
+        <div id="trace-manager-wrapper" class="trace-manager-wrapper" perfect-scrollbar>
             <!-- Item details -->
-            <bp-manage-traces-item item="item" delete-trace="$ctrl.deleteTrace(item)"
-                                   selected-traces="$ctrl.selectedTraces[$ctrl.data.artifactId]"
-                                   is-item-read-only="$ctrl.isItemReadOnly"
-                                   ng-repeat="item in $ctrl.data.manualTraces track by $index"
-                                   class="clearfix"></bp-manage-traces-item>
+                <bp-manage-traces-item item="item" delete-trace="$ctrl.deleteTrace(item)"
+                      selected-traces="$ctrl.selectedTraces[$ctrl.data.artifactId]" is-item-read-only="$ctrl.isItemReadOnly"
+                      ng-repeat="item in $ctrl.data.manualTraces track by $index" class="clearfix"></bp-manage-traces-item>
             <!-- /Item details -->
         </div>
     </div>

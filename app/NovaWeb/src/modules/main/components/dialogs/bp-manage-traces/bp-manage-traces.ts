@@ -16,7 +16,7 @@ export interface IArtifactSelectedArtifactMap {
 
 export class ManageTracesDialogController extends BaseDialogController {
     public static $inject = ["$uibModalInstance", "dialogSettings", "localization",
-        "artifactManager", "artifactRelationships", "dialogData", "dialogService"];
+        "artifactManager", "artifactRelationships", "dialogData", "dialogService", "$timeout"];
 
     public traceDirection: Relationships.TraceDirection = 0;
     public direction: Relationships.TraceDirection = 0;
@@ -26,8 +26,10 @@ export class ManageTracesDialogController extends BaseDialogController {
     public relationshipsList: IArtifactRelationships;
     public allTraces: Relationships.IRelationship[];
     public otherTraces: Relationships.IRelationship[];
+    public  scroller;
     public isLoading: boolean = false;
     public isItemReadOnly: boolean;
+    public isTraceDisabled: boolean;
     public selectedTraces: IArtifactSelectedArtifactMap = {};
     public hasFlagged: boolean = false;
     public hasUnFlagged: boolean = false;
@@ -47,6 +49,7 @@ export class ManageTracesDialogController extends BaseDialogController {
                 public artifactRelationships: IArtifactRelationships,
                 public data: IDialogRelationshipItem,
                 private dialogService: IDialogService) {
+                private $timeout: ng.ITimeoutService
         super($uibModalInstance, dialogSettings);
         this.getManualTraces();
         this.clearSelected();
@@ -119,6 +122,13 @@ export class ManageTracesDialogController extends BaseDialogController {
         }
 
         this.data.manualTraces = this.data.manualTraces.concat(selected);
+
+        this.$timeout(() => {
+            this.scroller = document.getElementById("trace-manager-wrapper");
+            this.scroller.scrollTop = this.scroller.scrollHeight;
+        });
+
+        this.disableTrace();
     }
 
     public setDirection(direction: Relationships.TraceDirection): void {
@@ -184,6 +194,22 @@ export class ManageTracesDialogController extends BaseDialogController {
 
     public onSelectionChanged(selectedVMs: ArtifactPickerNodeVM<any>[]): void {
         this.selectedVMs = selectedVMs;
+
+        this.disableTrace();
+    }
+
+    private disableTrace() {
+        let found = false;
+
+        _.each(this.data.manualTraces, (trace) => {
+            if (_.find(this.selectedVMs, (o) => {
+                    return o.model.id === trace.itemId;
+                })) {
+                found = true;
+            }
+        });
+
+        this.isTraceDisabled = found ? true : false;
     }
 
     public setSelectedDirection(direction: Relationships.TraceDirection): void {
@@ -206,7 +232,7 @@ export class ManageTracesDialogController extends BaseDialogController {
                 }
             });
         }
-
+        this.disableTrace();
         return traces;
     }
 }

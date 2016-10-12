@@ -22,6 +22,7 @@ import {DiagramLink} from "./shapes/diagram-link";
 import {Connector} from "./shapes/connector";
 import {ProcessAddHelper} from "./process-add-helper";
 import {ProcessDeleteHelper} from "./process-delete-helper";
+import {IStatefulSubArtifact} from "../../../../../../managers/artifact-manager";
 
 export var tempShapeId: number = 0;
 
@@ -98,7 +99,12 @@ export class Layout implements ILayout {
         try {
             for (i in this.viewModel.shapes) {
                 var shape: IProcessShape = this.viewModel.shapes[i];
-                var node: IDiagramNode = NodeFactory.createNode(shape, this.rootScope, this.shapesFactoryService, nodeFactorySettings);
+                var node: IDiagramNode = NodeFactory.createNode(
+                    shape, 
+                    this.rootScope, 
+                    this.shapesFactoryService, 
+                    nodeFactorySettings
+                );
 
                 if (node != null) {
                     node.render(this.processGraph, this.getXbyColumn(node.column), this.getYbyRow(node.row),

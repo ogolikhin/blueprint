@@ -1,6 +1,7 @@
-﻿import {IProcessShape} from "../../../../../models/process-models";
-import {IProcessGraph, IDiagramNode} from "./../models/";
-import {IDiagramLink, IDiagramNodeElement} from "./../models/";
+﻿import {IProcessShape, IArtifactUpdateModel, PropertyTypePredefined, IPropertyValueInformation} from "../../../../../models/process-models";
+import {ArtifactUpdateType} from  "../../../../../models/enums";
+import * as Enums from "../../../../../../../main/models/enums";
+import {IProcessGraph, IDiagramNode, IDiagramLink, IDiagramNodeElement} from "./../models/";
 import {DiagramNodeElement} from "./diagram-element";
 import {ElementType, Direction, NodeType, NodeChange} from "./../models/";
 import {IDialogParams} from "../../../../messages/message-dialog";
@@ -21,6 +22,34 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
 
         this.model = model;
         this.nodeType = nodeType;
+    }
+
+    protected sendUpdatedSubArtifactModel(name: string, updateType: ArtifactUpdateType = ArtifactUpdateType.SubArtifact, value?) {
+        const updateModel: IArtifactUpdateModel = {
+            updateType: updateType,
+            propertyValue: this.getPropertyValue(name), 
+            subArtifactId: this.model.id
+        }; 
+        if (updateModel.propertyValue === null) {  
+            let propertyValue: IPropertyValueInformation;          
+            if (name === "name") {
+                propertyValue = {
+                    propertyName: "name",
+                    typePredefined: PropertyTypePredefined.Name,
+                    value: this.model.name,
+                    typeId: 0
+                };
+            } else {
+                propertyValue = {
+                    propertyName: name,
+                    typePredefined: PropertyTypePredefined.None,
+                    value: value,
+                    typeId: 0
+                }
+            }
+            updateModel.propertyValue = propertyValue;
+        }       
+        this.notify(updateModel);
     }
 
     public getNode(): IDiagramNode {
@@ -56,7 +85,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
             if (redrawCellLabel) {
                 this.updateCellLabel(value);
             } else {
-                this.notify(NodeChange.Update);
+                this.sendUpdatedSubArtifactModel("name");
             }
         }
     }
@@ -262,7 +291,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
 
         var previousValue = this.model.propertyValues[propertyName].value;
         if (previousValue !== newValue) {
-            this.model.propertyValues[propertyName].value = newValue;
+            this.model.propertyValues[propertyName].value = newValue;            
             return true;
         }
 

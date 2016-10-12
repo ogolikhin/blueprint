@@ -1,10 +1,12 @@
 ﻿import {IDiagramElement, IDiagramNode} from "./../models/";
 import {IDiagramNodeElement, ILabel} from "./../models/";
 import {ElementType, NodeChange} from "./../models/";
+import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 
 export class DiagramElement extends mxCell implements IDiagramElement {
     private elementType: ElementType;
     textLabel: ILabel;
+    processDiagramManager: IProcessDiagramCommunication;
 
     constructor(id: any, type: ElementType = ElementType.Undefined, value?: string, geometry?: MxGeometry, style?: string) {
         super(value, geometry, style);
@@ -68,56 +70,13 @@ export class DiagramElement extends mxCell implements IDiagramElement {
     }
 
 
-    protected _isChanged: boolean;
-
-    public get isChanged(): boolean {
-        return this._isChanged;
-    }
-
     private _redraw: boolean;
     private _isNotificationPending: boolean = false;
 
-    public notify(change: NodeChange, redraw: boolean = false, callback?: any) {
-        this._isChanged = true;
-
-        if (this._redraw || redraw) {
-            this._redraw = true;
-        } else {
-            this._redraw = false;
-        }
-
-        if (!this._isNotificationPending) {
-            this._isNotificationPending = true;
-
-            this.raiseChangedEvent(change, this._redraw);
-            this._isNotificationPending = false;
-            this._redraw = false;
-
-            if (callback != null) {
-                callback();
-            }
-        } else {
-            if (callback != null) {
-                callback();
-            }
-        }
+    public notify(updateModel) {        
+        this.processDiagramManager.artifactUpdate(updateModel);
     }
-
-    private raiseChangedEvent(change: NodeChange, redraw: boolean) {
-        var eventArguments = {
-            processId: this.getParentId(),
-            nodeChanges: [
-                {
-                    nodeId: this.getId(),
-                    change: change,
-                    redraw: redraw
-                }
-            ]
-        };
-        var evt = document.createEvent("CustomEvent");
-        evt.initCustomEvent("graphUpdated", true, true, eventArguments);
-        window.dispatchEvent(evt);
-    }
+    
 }
 
 export class DiagramNodeElement extends DiagramElement implements IDiagramNodeElement {

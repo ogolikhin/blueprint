@@ -1,4 +1,4 @@
-﻿import {IArtifactProperty, IUserTaskShape} from "../../../../../models/process-models";
+﻿import {IArtifactProperty, IUserTaskShape, IArtifactUpdateModel} from "../../../../../models/process-models";
 import {ItemIndicatorFlags} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {IProcessGraph, IDiagramNode} from "../models/";
@@ -41,7 +41,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private linkButton: Button;
     private rootScope: any;
     private dialogManager: IModalDialogCommunication;
-    private processDiagramManager: IProcessDiagramCommunication;
     
     // #UNUSED
     // private _userStoryId: number;
@@ -189,9 +188,8 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             if (this.personaLabel) {
                 this.personaLabel.text = value;
                 this.shapesFactoryService.setUserTaskPersona(value);
-            }
-
-            this.notify(NodeChange.Update, false);
+            } 
+            this.sendUpdatedSubArtifactModel("persona");
         }
     }
 
@@ -201,8 +199,8 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
     public set description(value: string) {
         var valueChanged = this.setPropertyValue("description", value);
-        if (valueChanged) {
-            this.notify(NodeChange.Update, false);
+        if (valueChanged) {          
+            this.sendUpdatedSubArtifactModel("description");
         }
     }
 
@@ -212,8 +210,8 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
     public set objective(value: string) {
         var valueChanged = this.setPropertyValue("itemLabel", value);
-        if (valueChanged) {
-            this.notify(NodeChange.Update);
+        if (valueChanged) {           
+            this.sendUpdatedSubArtifactModel("itemLabel");
         }
     }
 
@@ -223,8 +221,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
     public set associatedArtifact(value: any) {
         if (this.model != null && this.model.associatedArtifact !== value) {
-            this.model.associatedArtifact = value;
-            this.notify(NodeChange.Update);
+            this.model.associatedArtifact = value;           
+            this.sendUpdatedSubArtifactModel("associatedArtifact", value);
+
             if (!value || value === null) {
                 this.linkButton.disable();
             } else {

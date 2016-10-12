@@ -1,15 +1,20 @@
 import { ICommunicationWrapper, CommunicationWrapper } from "../../services/communication-wrapper";
+import { IPropertyValueInformation, IArtifactUpdateModel } from "../../models/process-models";
 
 export enum ProcessEvents{
     DeleteShape,
     ModelUpdate,
-    NavigateToAssociatedArtifact
+    NavigateToAssociatedArtifact,
+    ArtifactUpdate
 }
-
 export interface IProcessDiagramCommunication {
     registerModelUpdateObserver(observer: any);
     removeModelUpdateObserver(observer: any);
-    modelUpdate(selectedNodeId: number);    
+    modelUpdate(selectedNodeId: number);   
+
+    registerArtifactUpdateObserver(observer: any);
+    removeArtifactUpdateObserver(observer: any);
+    artifactUpdate(artifactUpdateModel: IArtifactUpdateModel); 
     
     register(event: ProcessEvents, observer: any) : string;
     unregister(event: ProcessEvents, observerHandler: string);
@@ -21,14 +26,15 @@ export interface IProcessDiagramCommunication {
 export class ProcessDiagramCommunication implements IProcessDiagramCommunication {
     private setModelUpdateSubject: ICommunicationWrapper;
     private setNavigateToAssociatedArtifactSubject: ICommunicationWrapper;
-
     private setClickDeleteSubject: ICommunicationWrapper;    
+    private setArtifactUpdateSubject: ICommunicationWrapper;    
 
     constructor() {
         // Create subjects
         this.setModelUpdateSubject = new CommunicationWrapper();
         this.setNavigateToAssociatedArtifactSubject = new CommunicationWrapper();
         this.setClickDeleteSubject = new CommunicationWrapper();
+        this.setArtifactUpdateSubject = new CommunicationWrapper();
     };
 
     // Model update
@@ -44,6 +50,17 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
         this.setModelUpdateSubject.notify(selectedNodeId);
     }   
 
+    // SubArtifacts update
+    public registerArtifactUpdateObserver(observer: any): string {
+        return this.setModelUpdateSubject.subscribe(observer);
+    }
+    public removeArtifactUpdateObserver(handler: string) {
+        this.setModelUpdateSubject.disposeObserver(handler);
+    }
+
+    public artifactUpdate(subArtifactUpdateModel: IArtifactUpdateModel) {
+        this.setModelUpdateSubject.notify(subArtifactUpdateModel);
+    }   
     //Generic handlers
     public register(event: ProcessEvents, observer: any): string{
         switch(event){
@@ -55,6 +72,9 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
                 }
             case ProcessEvents.NavigateToAssociatedArtifact:{
                     return this.setNavigateToAssociatedArtifactSubject.subscribe(observer);
+                }
+            case ProcessEvents.ArtifactUpdate: {
+                    return this.setArtifactUpdateSubject.subscribe(observer);
                 }
         }
     }
@@ -72,6 +92,10 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
             case ProcessEvents.NavigateToAssociatedArtifact:{
                    this.setNavigateToAssociatedArtifactSubject.disposeObserver(observerHandler);
                     break;
+                }
+            case ProcessEvents.ArtifactUpdate: {
+                   this.setArtifactUpdateSubject.disposeObserver(observerHandler);
+                   break;
                 }
         }
 
@@ -92,6 +116,11 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
                         enableTracking: eventPayload.enableTracking });
                         break;                    
                 }
+                
+            case ProcessEvents.ArtifactUpdate: {
+                   this.artifactUpdate(eventPayload);
+                   break;
+                }
         }
 
     }
@@ -101,5 +130,6 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
         this.setModelUpdateSubject.dispose();
         this.setNavigateToAssociatedArtifactSubject.dispose();
         this.setClickDeleteSubject.dispose();
+        this.setArtifactUpdateSubject.dispose();
     }
 }

@@ -1,6 +1,7 @@
 ﻿import {IProcessGraph, IDiagramNode} from "../models/";
 import {IDiagramElement, IMenuContainer} from "../models/";
-import {IProcessLinkModel} from "../../../../../models/process-models";
+import {IProcessLinkModel, IArtifactUpdateModel, PropertyTypePredefined, IPropertyValueInformation} from "../../../../../models/process-models";
+import {ArtifactUpdateType} from "../../../../../models/enums";
 import {NodeType, NodeChange, ElementType} from "../models/";
 import {Label, LabelStyle} from "../labels/label";
 import {DiagramElement} from "./diagram-element";
@@ -40,6 +41,7 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
     }
 
     public initializeLabel(graph: IProcessGraph, sourceNode: IDiagramNode, targetNode: IDiagramNode) {
+        this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;
         if (sourceNode.getNodeType() === NodeType.SystemDecision || sourceNode.getNodeType() === NodeType.UserDecision) {
 
             let XandY = this.getXandYForLabel(sourceNode, targetNode);
@@ -105,8 +107,17 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
             if (this.textLabel) {
                 this.textLabel.text = value;
             }
-
-            this.notify(NodeChange.Update, true);
+            const propertyValue: IPropertyValueInformation = {
+                    propertyName: "label",
+                    typePredefined: PropertyTypePredefined.None,
+                    value: value,
+                    typeId: 0
+                };
+            const updateModel: IArtifactUpdateModel = {
+                updateType: ArtifactUpdateType.LinkLabel,
+                propertyValue: propertyValue
+                };
+            this.notify(updateModel);
         }
     }
 

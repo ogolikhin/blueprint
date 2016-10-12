@@ -38,3 +38,8 @@ export const enum ItemIndicatorFlags {
     HasManualReuseOrOtherTraces = 4,
     HasLast24HoursChanges = 8
 }
+
+export const enum ArtifactUpdateType {
+    SubArtifact = 0,
+    LinkLabel = 1
+}

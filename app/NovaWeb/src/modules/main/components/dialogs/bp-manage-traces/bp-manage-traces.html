@@ -14,7 +14,7 @@
         </label>
         <div uib-dropdown class="btn-group">
             <button type="button" class="btn btn-default" ng-click="$ctrl.trace()"
-                    ng-class="{disabled: $ctrl.selectedVMs.length == 0 || $ctrl.isTraceDisabled}">
+                    ng-class="{disabled: $ctrl.selectedVMs.length === 0 || $ctrl.isTraceDisabled}">
                 <i class="fonticon2-relationship-right" ng-if="$ctrl.direction === 0"></i><i class="fonticon2-relationship-left" ng-if="$ctrl.direction === 1"></i><i class="fonticon2-relationship-bi" ng-if="$ctrl.direction === 2"></i>Trace</button>
             <button type="button" uib-dropdown-toggle class="btn dropdown-toggle" data-toggle="dropdown"
                     aria-haspopup="true" aria-expanded="false">

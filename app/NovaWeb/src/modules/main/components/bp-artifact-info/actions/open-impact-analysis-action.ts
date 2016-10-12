@@ -1,6 +1,7 @@
 import {BPButtonAction} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {ILocalizationService} from "../../../../core";
+import {ItemTypePredefined} from "../../../../main/models/enums";
 
 export class OpenImpactAnalysisAction extends BPButtonAction {
     constructor(
@@ -16,7 +17,21 @@ export class OpenImpactAnalysisAction extends BPButtonAction {
                 let url = `Web/#/ImpactAnalysis/${artifact.id}`;
                 window.open(url);
             },
-            () => !!artifact,
+            () => {
+                if (!artifact) {
+                    return false;
+                }
+
+                const invalidTypes = [
+                    ItemTypePredefined.Project
+                ];
+
+                if (invalidTypes.indexOf(artifact.predefinedType) >= 0) {
+                    return false;
+                }
+
+                return true;
+            },
             "fonticon fonticon2-impact-analysis",
             localization.get("App_Toolbar_Open_Impact_Analysis")
         );

@@ -6,6 +6,7 @@ import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ILocalizationService} from "../../../../core";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {ItemTypePredefined} from "../../../../main/models/enums";
 
 describe("OpenImpactAnalysisAction", () => {
     beforeEach(angular.mock.module("app.main"));
@@ -36,6 +37,22 @@ describe("OpenImpactAnalysisAction", () => {
     it("is disabled when artifact is null", inject((localization: ILocalizationService) => {
         // arrange
         const artifact: IStatefulArtifact = null;
+
+        // act
+        const openImpactAnalysisAction = new OpenImpactAnalysisAction(artifact, localization);
+
+        // assert
+        expect(openImpactAnalysisAction.disabled).toBe(true);
+    }));
+
+    it("is disabled for Project artifact", inject((
+        statefulArtifactFactory: IStatefulArtifactFactory,
+        localization: ILocalizationService) => {
+        // arrange
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({ 
+            id: 1, 
+            predefinedType: ItemTypePredefined.Project
+        });
 
         // act
         const openImpactAnalysisAction = new OpenImpactAnalysisAction(artifact, localization);

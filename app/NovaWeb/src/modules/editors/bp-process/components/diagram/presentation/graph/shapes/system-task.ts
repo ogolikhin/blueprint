@@ -13,6 +13,7 @@ import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
 import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
 import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
+import {ProcessEvents} from "../../../process-diagram-communication";
 
 export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implements ISystemTask, IUserTaskChildElement {
 
@@ -438,7 +439,9 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
             return;
         }
 
-        this.processDiagramManager.navigateToAssociatedArtifact(this.associatedArtifact.id, true);
+        this.processDiagramManager.action(ProcessEvents.NavigateToAssociatedArtifact, {
+            id: this.associatedArtifact.id,
+            enableTracking: true});
     }
 
     private openDialog(dialogType: ModalDialogType) {

@@ -425,8 +425,10 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         if (this.associatedArtifact == null) {
             return;
         }
-
-        this.processDiagramManager.navigateToAssociatedArtifact(this.associatedArtifact.id, true);
+        
+        this.processDiagramManager.action(ProcessEvents.NavigateToAssociatedArtifact, {
+            id: this.associatedArtifact.id,
+            enableTracking: true});
     }
 
     private openDialog(dialogType: ModalDialogType) {

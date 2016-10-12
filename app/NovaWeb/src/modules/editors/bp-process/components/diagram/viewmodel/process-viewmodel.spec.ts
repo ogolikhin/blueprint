@@ -1,15 +1,19 @@
 ﻿import * as angular from "angular";
-import { IArtifactService } from "../../../../../managers/artifact-manager/";
-import { ArtifactServiceMock } from "../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
-import { ProcessServiceMock } from "../../../services/process.svc.mock";
-import { IProcessService } from "../../../services/process.svc";
-import { StatefulProcessArtifact } from "../../../process-artifact";
-import { StatefulProcessSubArtifact } from "../../../process-subartifact";
-import { Models } from "../../../../../main/models";
-import { ProcessViewModel } from "./process-viewmodel";
+import {IArtifactService} from "../../../../../managers/artifact-manager/";
+import {ArtifactServiceMock} from "../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {ProcessServiceMock} from "../../../services/process.svc.mock";
+import {IProcessService} from "../../../services/process.svc";
+import {StatefulProcessArtifact} from "../../../process-artifact";
+import {StatefulProcessSubArtifact} from "../../../process-subartifact";
+import {Models} from "../../../../../main/models";
+import {ProcessViewModel} from "./process-viewmodel";
 import * as TestModels from "../../../models/test-model-factory";
 import {ProcessShapeType, ProcessType} from "../../../models//enums";
-import { IStatefulProcessArtifactServices, StatefulArtifactServices, StatefulProcessArtifactServices } from "../../../../../managers/artifact-manager/services";
+import {
+    IStatefulProcessArtifactServices,
+    StatefulArtifactServices,
+    StatefulProcessArtifactServices
+} from "../../../../../managers/artifact-manager/services";
 
 describe("ProcessViewModel", () => {
     let services: IStatefulProcessArtifactServices;
@@ -21,12 +25,10 @@ describe("ProcessViewModel", () => {
         $provide.service("processService", ProcessServiceMock);
     }));
 
-    beforeEach(inject((
-        _$rootScope_: ng.IRootScopeService,
-        _$q_: ng.IQService,
-        artifactService: IArtifactService,
-        processService: IProcessService
-    ) => {
+    beforeEach(inject((_$rootScope_: ng.IRootScopeService,
+                       _$q_: ng.IQService,
+                       artifactService: IArtifactService,
+                       processService: IProcessService) => {
         $rootScope = _$rootScope_;
         $q = _$q_;
         let artitfactServices = new StatefulArtifactServices(_$q_, null, null, null, null, artifactService, null, null, null);
@@ -87,5 +89,5 @@ describe("ProcessViewModel", () => {
 
         //Assert
         expect(processArtifact.subArtifactCollection.list().length).toBe(0);
-    });    
+    });
 });

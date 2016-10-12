@@ -26,7 +26,7 @@ export class ManageTracesDialogController extends BaseDialogController {
     public relationshipsList: IArtifactRelationships;
     public allTraces: Relationships.IRelationship[];
     public otherTraces: Relationships.IRelationship[];
-    public  scroller;
+    public scroller;
     public isLoading: boolean = false;
     public isItemReadOnly: boolean;
     public isTraceDisabled: boolean;
@@ -48,8 +48,9 @@ export class ManageTracesDialogController extends BaseDialogController {
                 public artifactManager: IArtifactManager,
                 public artifactRelationships: IArtifactRelationships,
                 public data: IDialogRelationshipItem,
-                private dialogService: IDialogService) {
-                private $timeout: ng.ITimeoutService
+                private dialogService: IDialogService,
+                private $timeout: ng.ITimeoutService) {
+
         super($uibModalInstance, dialogSettings);
         this.getManualTraces();
         this.clearSelected();

@@ -32,6 +32,9 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
     constructor(private $scope: AngularFormly.ITemplateScope) {
         super();
 
+        // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
+        let initialContent = null;
+        let editorBody = null;
         let onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
         $scope.to.onChange = () => { };
 
@@ -41,6 +44,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
             fontFormats += `${font}=` + (font.indexOf(" ") !== -1 ? `"${font}";` : `${font};`);
         });
         const bogusRegEx = /<br data-mce-bogus="1">/gi;
+        const zeroWidthNoBreakSpaceRegEx = /[\ufeff\u200b]/g;
 
         let to: AngularFormly.ITemplateOptions = {
             tinymceOptions: { // this will go to ui-tinymce directive
@@ -56,6 +60,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                 invalid_styles: {
                     "*": "background-image display margin padding float"
                 },
+                object_resizing : false, // https://www.tinymce.com/docs/configure/advanced-editing-behavior/#object_resizing
                 // https://www.tinymce.com/docs/configure/content-formatting/#font_formats
                 font_formats: fontFormats,
                 // paste_enable_default_filters: false, // https://www.tinymce.com/docs/plugins/paste/#paste_enable_default_filters
@@ -121,7 +126,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                         styles: { "font-size": "20pt" }
                     });
 
-                    let editorBody = editor.getBody();
+                    editorBody = editor.getBody();
                     Helper.autoLinkURLText(editorBody);
                     Helper.setFontFamilyOrOpenSans(editorBody, allowedFonts);
                     this.handleLinks(editorBody.querySelectorAll("a"));
@@ -138,10 +143,8 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                         this.observer.observe(editorBody, observerConfig);
                     }
 
-                    // tinyMCE seems to fire 2 onChange events every time
-                    editor.on("Change", (e) => {
-                        onChange(editorBody.innerHTML.replace(bogusRegEx, ""), $scope.options, $scope);
-                    });
+                    // we store the initial value so IE doesn't mark the field dirty just for clicking it!
+                    initialContent = editorBody.innerHTML.replace(bogusRegEx, "").replace(zeroWidthNoBreakSpaceRegEx, "");
 
                     editor.on("Focus", (e) => {
                         if (editorBody.parentElement) {
@@ -228,6 +231,13 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
             // tinyMCE may leave empty tags that cause the value to appear not empty
             requiredCustom: {
                 expression: function ($viewValue, $modelValue, scope) {
+                    if (initialContent !== null) { // run this part after the field had the chance to load the content
+                        let content = editorBody.innerHTML.replace(bogusRegEx, "").replace(zeroWidthNoBreakSpaceRegEx, "");
+                        if (content !== initialContent) {
+                            onChange(content.replace(bogusRegEx, ""), scope.options, scope);
+                        }
+                    }
+
                     let isEmpty = false;
                     if (scope.to && scope.to.required) {
                         isEmpty = !Helper.tagsContainText($modelValue);

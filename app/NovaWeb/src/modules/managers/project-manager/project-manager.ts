@@ -31,13 +31,15 @@ export interface IProjectManager extends IDispose {
     initialize();
     add(data: Models.IProject);
     remove(all?: boolean): void;
-    refresh(data: Models.IProject);
+    refresh(data: Models.IProject): ng.IPromise<any>;
+    refreshAll(): ng.IPromise<any>;
     loadArtifact(id: number): void;
     loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
     getProject(id: number);
     getArtifactNode(id: number): IArtifactNode;
     getArtifact(id: number): IStatefulArtifact;
-    getSelectedProject(): Project;
+    getSelectedProject(): Project; 
+    triggerProjectCollectionRefresh(); 
 }
 
 
@@ -110,61 +112,88 @@ export class ProjectManager  implements IProjectManager {
         return this._projectCollection || (this._projectCollection = new Rx.BehaviorSubject<Project[]>([]));
     }
 
-    public refresh(currentProject: Models.IProject): ng.IPromise<any> {
+    public triggerProjectCollectionRefresh() {
+        this.navigationService.navigateToMain().then(() => {
+            this.projectCollection.onNext(this.projectCollection.getValue());
+        });
+    }
+
+    public refreshAll(): ng.IPromise<any> {
+        let defer = this.$q.defer<any>();
+
+        let refreshQueue = [];
+
+        this.projectCollection.getValue().forEach((project) => {
+            refreshQueue.push(this.refresh(project));
+        });
+
+        this.$q.all(refreshQueue).then(() => {
+            defer.resolve();
+        }).catch(() => {
+            defer.reject();
+        }).finally(() => {
+            this.triggerProjectCollectionRefresh();
+        });
+
+        return defer.promise; 
+    }
+
+    public refresh(projectToRefresh: Models.IProject): ng.IPromise<any> {
         let defer = this.$q.defer<any>();
         
         let project: Project;
-        if (!currentProject) {
+        if (!projectToRefresh) {
             throw new Error("Project_NotFound");
         }
-        project = this.getProject(currentProject.id);
+        project = this.getProject(projectToRefresh.id);
         if (!project) {
             throw new Error("Project_NotFound");
         }
         
         let selectedArtifact = this.artifactManager.selection.getArtifact();
         
-        this.navigationService.navigateToMain()
-        .then(() => {
-            //if selected artifact is dirty - perform autosave
-            if (selectedArtifact.artifactState.dirty) {
-                selectedArtifact.autosave()
-                .then(() => {
-                    this.doRefresh(project, selectedArtifact, defer, currentProject);
-                }).catch(() => {
-                    //something went wrong - ask user if they want to force refresh
-                    this.dialogService.confirm(this.localization.get("Confirmation_Continue_Refresh"))
-                    .then((confirmed: boolean) => {
-                        if (confirmed) {
-                            this.doRefresh(project, selectedArtifact, defer, currentProject);
-                        }else {
-                            defer.reject();
-                        }
-                    });
-                });
-            } else {
-                this.doRefresh(project, selectedArtifact, defer, currentProject);
-            }
+        //if selected artifact is dirty and is in the project being refreshed - perform autosave
+        let autosavePromise = this.$q.defer<any>();
+        if (selectedArtifact.artifactState.dirty && selectedArtifact.projectId === projectToRefresh.id) {
+            autosavePromise.promise =  selectedArtifact.autosave();
+        } else {
+            autosavePromise.resolve();
+        }
+
+        autosavePromise.promise.then(() => {
+            this.doRefresh(project, selectedArtifact, defer, projectToRefresh);
         }).catch(() => {
-            defer.reject();
+            //something went wrong - ask user if they want to force refresh
+            this.dialogService.confirm(this.localization.get("Confirmation_Continue_Refresh"))
+            .then((confirmed: boolean) => {
+                if (confirmed) {
+                    this.doRefresh(project, selectedArtifact, defer, projectToRefresh);
+                }else {
+                    defer.reject();
+                }
+            });
         });
-        
+            
         return defer.promise; 
     }
 
-    private doRefresh(project: Project, selectedArtifact: IStatefulArtifact, defer: any, currentProject: Models.IProject) {
-        let selectedArtifactNode = this.getArtifactNode(selectedArtifact.id);
+    private doRefresh(project: Project, expandToArtifact: IStatefulArtifact, defer: any, projectToRefresh: Models.IProject) {
+        let selectedArtifactNode = this.getArtifactNode(expandToArtifact.id);
+
+        //if the artifact provided is not in the current project - just expand project node
+        if (expandToArtifact.projectId !== projectToRefresh.id) {
+            expandToArtifact = this.getArtifact(projectToRefresh.id);
+        }
         
         //try with selected artifact
-        this.projectService.getProjectTree(project.id, selectedArtifact.id, selectedArtifactNode.open)
+        this.projectService.getProjectTree(project.id, expandToArtifact.id, selectedArtifactNode.open)
         .then((data: Models.IArtifact[]) => {
-            if (this.ProcessProjectTree(project, data, selectedArtifact.id)) {
+            this.ProcessProjectTree(project, data).then(() => {
                 defer.resolve();
-            } else {
+            }).catch(() => {
                 this.ClearProject(project);
-                //this.loadArtifact(selectedArtifact.id);
                 defer.reject();
-            }
+            });
         }).catch((error: any) => {
             if (!error) {
                 this.ClearProject(project);
@@ -173,37 +202,35 @@ export class ProjectManager  implements IProjectManager {
             
             if (error.statusCode === HttpStatusCode.NotFound && error.errorCode === ProjectServiceStatusCode.ResourceNotFound) {
                 //if we're selecting project
-                if (selectedArtifact.id === selectedArtifact.projectId) {
+                if (expandToArtifact.id === expandToArtifact.projectId) {
                     this.dialogService.alert("Refresh_Project_NotFound");
                     this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(this.getProject(project.id)), 1);
-                    this.projectCollection.onNext(this.projectCollection.getValue());
                     defer.reject();
                 } else {
                     //try with selected artifact's parent
-                    this.projectService.getProjectTree(project.id, selectedArtifact.parentId, true)
+                    this.projectService.getProjectTree(project.id, expandToArtifact.parentId, true)
                     .then((data: Models.IArtifact[]) => {
                         this.messageService.addWarning("Refresh_Artifact_Deleted");
-                        if (this.ProcessProjectTree(project, data)) {
+                        this.ProcessProjectTree(project, data).then(() => {
                             defer.resolve();
-                        } else {
+                        }).catch(() => {
                             this.ClearProject(project);
                             defer.reject();
-                        }
+                        });
                     }).catch((innerError: any) => {
                         if (innerError.statusCode === HttpStatusCode.NotFound && innerError.errorCode === ProjectServiceStatusCode.ResourceNotFound) {
                             //try it with project
                             this.projectService.getArtifacts(project.id).then((data: Models.IArtifact[]) => {
                                 this.messageService.addWarning("Refresh_Artifact_Deleted");
-                                if (this.ProcessProjectTree(project, data)) {
+                                this.ProcessProjectTree(project, data).then(() => {
                                     defer.resolve();
-                                } else {
+                                }).catch(() => {
                                     this.ClearProject(project);
                                     defer.reject();
-                                }
+                                });
                             }).catch((err: any) => {
                                 this.dialogService.alert("Refresh_Project_NotFound");
                                 this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(this.getProject(project.id)), 1);
-                                this.projectCollection.onNext(this.projectCollection.getValue());
                                 defer.reject();
                             });
                         } else {
@@ -221,7 +248,9 @@ export class ProjectManager  implements IProjectManager {
         });
     }
     
-    private ProcessProjectTree(project: Project, data: Models.IArtifact[], selectedArtifactId?: number): boolean {
+    private ProcessProjectTree(project: Project, data: Models.IArtifact[]): ng.IPromise<any>  {
+        let defer = this.$q.defer<any>();
+
         let oldProjectId: number = project.id;
         let oldProject = this.getProject(oldProjectId);
         this.artifactManager.removeAll(oldProjectId);
@@ -260,22 +289,24 @@ export class ProjectManager  implements IProjectManager {
 
                 //update project collection
                 this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(oldProject), 1, newProjectNode);
-                this.projectCollection.onNext(this.projectCollection.getValue());
                 oldProject.dispose();
+
+                defer.resolve();
             }).catch(() => {
-                return false;
+                defer.reject();
             });
         }).catch(() => {
-            return false;
+            defer.reject();
         });
-        return true;
+
+        return defer.promise;
     }
     
     private ClearProject(project: Project) {
         project.children = [];
         project.loaded = false;
         project.open = false;
-        this.projectCollection.onNext(this.projectCollection.getValue());
+        //this.projectCollection.onNext(this.projectCollection.getValue());
     }
 
     private openChildNodes(childrenNodes: IArtifactNode[], childrenData: Models.IArtifact[]) {

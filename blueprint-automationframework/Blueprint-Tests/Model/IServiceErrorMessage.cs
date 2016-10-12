@@ -7,6 +7,10 @@ namespace Model
         int ErrorCode { get; }
         string Message { get; }
 
-        bool Equals(IServiceErrorMessage errorMessage);
+        /// <summary>
+        /// Tests whether the specified ServiceErrorMessage is equal to this one.
+        /// </summary>
+        /// <param name="expectedErrorMessage">The expected ServiceErrorMessage to compare against.</param>
+        void AssertEquals(IServiceErrorMessage expectedErrorMessage);
     }
 }

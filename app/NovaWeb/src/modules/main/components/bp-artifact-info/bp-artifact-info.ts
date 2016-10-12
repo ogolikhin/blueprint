@@ -2,9 +2,8 @@
 import { Models, Enums } from "../../models";
 import { IWindowManager, IMainWindow, ResizeCause } from "../../services";
 import { IMessageService, Message, MessageType, ILocalizationService } from "../../../core";
-import { ArtifactPickerDialogController, IArtifactPickerOptions } from "../bp-artifact-picker";
 import { ILoadingOverlayService } from "../../../core/loading-overlay";
-import { IArtifactManager, IStatefulArtifact } from "../../../managers/artifact-manager";
+import { IArtifactManager, IStatefulArtifact, IMetaDataService } from "../../../managers/artifact-manager";
 import { IProjectManager } from "../../../managers/project-manager";
 import { INavigationService } from "../../../core/navigation/navigation.svc";
 import {
@@ -43,7 +42,8 @@ export class BpArtifactInfoController {
         "windowManager", 
         "loadingOverlayService",
         "navigationService",
-        "projectManager"
+        "projectManager",
+        "metadataService"
     ];
 
     private subscribers: Rx.IDisposable[];
@@ -72,7 +72,8 @@ export class BpArtifactInfoController {
         protected windowManager: IWindowManager,
         protected loadingOverlayService: ILoadingOverlayService,
         protected navigationService: INavigationService,
-        protected projectManager: IProjectManager
+        protected projectManager: IProjectManager,
+        protected metadataService: IMetaDataService
     ) {
         this.initProperties();
         this.subscribers = [];
@@ -247,7 +248,7 @@ export class BpArtifactInfoController {
                 new SaveAction(artifact, this.localization, this.messageService, this.loadingOverlayService),
                 new PublishAction(artifact, this.localization),
                 new DiscardAction(artifact, this.localization),
-                new RefreshAction(this.localization, this.projectManager, this.artifactManager, this.loadingOverlayService),
+                new RefreshAction(artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService),
                 new DeleteAction(artifact, this.localization, this.dialogService, deleteDialogSettings)
             ),
             new OpenImpactAnalysisAction(artifact, this.localization)
@@ -279,25 +280,5 @@ export class BpArtifactInfoController {
                 }
             }
         }
-    }
-
-    public openPicker($event: MouseEvent) {
-        const dialogSettings: IDialogSettings = {
-            okButton: this.localization.get("App_Button_Ok"),
-            template: require("../bp-artifact-picker/bp-artifact-picker-dialog.html"),
-            controller: ArtifactPickerDialogController,
-            css: "nova-open-project",
-            header: "Some header"
-        };
-
-        const dialogData: IArtifactPickerOptions = {
-            selectableItemTypes: $event.altKey ? [Models.ItemTypePredefined.Document] : undefined,
-            selectionMode: $event.shiftKey ? "multiple" : ($event.ctrlKey || $event.metaKey) ? "checkbox" : "single",
-            showSubArtifacts: true
-        };
-
-        this.dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {
-            console.log(items);
-        });
     }
 }

@@ -25,6 +25,7 @@ import {NodePopupMenu} from "./popup-menu/node-popup-menu";
 import {ProcessGraphSelectionHelper} from "./process-graph-selection";
 import { IStatefulArtifactFactory } from "../../../../../../managers/artifact-manager";
 import {ISelectionListener} from "./models/";
+import {ProcessEvents} from "../../process-diagram-communication";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
@@ -115,10 +116,7 @@ export class ProcessGraph implements IProcessGraph {
         // add selection event handlers
         this.selectionHelper.addSelectionListener((elements) => {
             this.highlightNodeEdges(elements);
-        });
-        this.selectionHelper.addSelectionListener((elements) => {
-            this.setDeletable(elements);
-        });
+        });        
 
         this.selectionHelper.initSelection();
 
@@ -169,7 +167,7 @@ export class ProcessGraph implements IProcessGraph {
             }
 
             this.deleteShapeHandler = 
-               this.viewModel.communicationManager.toolbarCommunicationManager.registerClickDeleteObserver(this.deleteShape);
+               this.viewModel.communicationManager.processDiagramCommunication.register(ProcessEvents.DeleteShape, this.deleteShape);
             
         } catch (e) {
             this.logError(e);
@@ -420,7 +418,7 @@ export class ProcessGraph implements IProcessGraph {
              this.selectionHelper.destroy();
          }
 
-        this.viewModel.communicationManager.toolbarCommunicationManager.removeClickDeleteObserver(this.deleteShapeHandler);
+        this.viewModel.communicationManager.processDiagramCommunication.unregister(ProcessEvents.DeleteShape, this.deleteShapeHandler);
         
     }
 
@@ -1018,22 +1016,7 @@ export class ProcessGraph implements IProcessGraph {
             return true;
         }
         return false;
-    }
-
-    private setDeletable(elements: Array<IDiagramNode>) {
-        // notify if selected shape is deletable
-        if (elements) {
-            let deletable = elements.length > 0;
-            if (deletable) {
-                let element: IDiagramNode = elements[0];
-                deletable = element.getNodeType() === NodeType.UserDecision ||
-                    element.getNodeType() === NodeType.SystemDecision ||
-                    element.getNodeType() === NodeType.UserTask;
-            }
-
-            this.viewModel.communicationManager.toolbarCommunicationManager.enableDelete(deletable);
-        }
-    }
+    }    
 
     private highlightNodeEdges(nodes: Array<IDiagramNode>) {
         this.clearHighlightEdges();

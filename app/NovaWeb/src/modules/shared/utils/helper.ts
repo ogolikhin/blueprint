@@ -4,7 +4,7 @@ import { ItemTypePredefined } from "../../main/models/enums";
 
 export class Helper {
 
-    static get UID(): string {        
+    static get UID(): string {
         return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
             /* tslint:disable:no-bitwise */ 
             var r = Math.random() * 16 | 0, v = c === "x" ? r : (r & 0x3 | 0x8);
@@ -240,6 +240,7 @@ export class Helper {
 
         return artifact && artifact.predefinedType != null && nonStandardTypes.indexOf(artifact.predefinedType) === -1;
     }
+
     public static hasArtifactEverBeenSavedOrPublished(artifact: Models.IArtifact): boolean {
         return artifact.id > 0; 
     }

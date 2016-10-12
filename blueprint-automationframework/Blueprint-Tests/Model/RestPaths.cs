@@ -321,7 +321,8 @@ namespace Model
                     public const string UPCHECK                     = "svc/searchservice/status/upcheck";
                 }
 
-                public const string PROJECTSEARCH = "svc/searchservice/projectsearch";
+                public const string PROJECTSEARCH                   = "svc/searchservice/projectsearch";
+                public const string ITEMNAMESEARCH                      = "svc/searchservice/ItemNameSearch";
             }
 
             public static class Shared

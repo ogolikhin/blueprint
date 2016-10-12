@@ -1,4 +1,6 @@
 import * as angular from "angular";
+import "angular-mocks";
+import ".";
 import {BPBreadcrumbController} from "./bp-breadcrumb";
 import {IBreadcrumbLink} from "./breadcrumb-link";
 
@@ -32,13 +34,15 @@ describe("BPBreadcrumbComponent", () => {
 
     it("correctly binds properties and events", () => {
         // arrange
-        const template = `<bp-breadcrumb links="[{id: 0, name: 'test0', isEnabled: true}]" on-navigate="navigateTo(link)"></bp-breadcrumb>`;
+        const template = `<bp-breadcrumb links="links" on-navigate="navigateTo(link)"></bp-breadcrumb>`;
+        const links = [{id: 0, name: "test0", isEnabled: true}];
+        $scope["links"] = links;
 
         // act
         const controller = <BPBreadcrumbController>$compile(template)($scope).controller("bpBreadcrumb");
 
         // assert
-        expect(controller.links).toEqual([{id: 0, name: "test0", isEnabled: true}]);
+        expect(controller.links).toEqual(links);
         expect(angular.isFunction(controller.onNavigate)).toEqual(true);
     });
 

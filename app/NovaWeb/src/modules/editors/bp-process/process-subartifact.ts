@@ -17,7 +17,7 @@ export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements 
     public typePrefix: string;
 
     constructor(artifact: IStatefulArtifact, subartifact: IProcessShape, services: IStatefulArtifactServices) {
-        super(artifact, subartifact, services);        
+        super(artifact, subartifact, services);
             
         this.propertyValues = subartifact.propertyValues;
         this.associatedArtifact = subartifact.associatedArtifact;

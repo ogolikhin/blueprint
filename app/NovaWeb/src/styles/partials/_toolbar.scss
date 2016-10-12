@@ -136,7 +136,7 @@ bp-toolbar {
 }
 bp-toolbar-toggle {
     > .btn-group .btn-primary {
-        &.active, &:hover, &:active, &:focus {
+        &.active, &:active, &.active:hover {
         background-color: $gray-dark;
         color: #fff;
         }

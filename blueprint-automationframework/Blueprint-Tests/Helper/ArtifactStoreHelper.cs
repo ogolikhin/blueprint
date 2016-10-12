@@ -390,7 +390,7 @@ namespace Helper
         /// <param name="novaArtifactBase">The INovaArtifactBase to compare against.</param>
         /// <param name="artifactBase">The IArtifactBase to compare against.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertEquals(INovaArtifactBase novaArtifactBase, IArtifactBase artifactBase)
+        public static void AssertArtifactsEqual(INovaArtifactBase novaArtifactBase, IArtifactBase artifactBase)
         {
             ThrowIf.ArgumentNull(novaArtifactBase, nameof(novaArtifactBase));
             ThrowIf.ArgumentNull(artifactBase, nameof(artifactBase));
@@ -409,7 +409,7 @@ namespace Helper
         /// <param name="artifact1">The first INovaArtifactDetails to compare against.</param>
         /// <param name="artifact2">The second INovaArtifactDetails to compare against.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertEquals(INovaArtifactDetails artifact1, INovaArtifactDetails artifact2)
+        public static void AssertArtifactsEqual(INovaArtifactDetails artifact1, INovaArtifactDetails artifact2)
         {
             ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
             ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
@@ -457,7 +457,7 @@ namespace Helper
         /// <param name="skipDatesAndDescription">(optional) Pass true to skip comparing the Created*, LastEdited* and Description properties.
         ///     This is needed when comparing the response of the GetUnpublishedChanges REST call which always returns null for those fields.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertEquals(INovaArtifactDetails artifact1, INovaArtifactResponse artifact2, bool skipDatesAndDescription = false)
+        public static void AssertArtifactsEqual(INovaArtifactDetails artifact1, INovaArtifactResponse artifact2, bool skipDatesAndDescription = false)
         {
             ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
             ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
@@ -488,7 +488,7 @@ namespace Helper
         /// <param name="artifact2">The second INovaVersionControlArtifactInfo to compare against.</param>
         /// <param name="compareVersions">(optional) Pass false to skip version comparison.  Versions will never be compared if the Version of artifact2 is null.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertEquals(INovaArtifactDetails artifact1, INovaVersionControlArtifactInfo artifact2, bool compareVersions = true)
+        public static void AssertArtifactsEqual(INovaArtifactDetails artifact1, INovaVersionControlArtifactInfo artifact2, bool compareVersions = true)
         {
             ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
             ThrowIf.ArgumentNull(artifact2, nameof(artifact2));

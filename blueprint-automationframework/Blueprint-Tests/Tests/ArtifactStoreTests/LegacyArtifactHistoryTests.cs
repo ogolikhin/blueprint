@@ -53,7 +53,7 @@ namespace ArtifactStoreTests
             }, "'GET {0}' should return 200 OK when passed a valid diagram artifact ID!", RestPaths.Svc.ArtifactStore.DIAGRAM_id_);
 
             // Validation: Verify that the returned from GetNovaDiagramArtifact is valid format
-            ArtifactStoreHelper.AssertEquals(diagramArtifact, retrievedArtifact);
+            ArtifactStoreHelper.AssertArtifactsEqual(diagramArtifact, retrievedArtifact);
         }
 
         #endregion 200 OK Tests

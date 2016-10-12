@@ -211,7 +211,7 @@ namespace Helper
             Assert.AreEqual(artifactDetails.CreatedBy?.DisplayName, updateResult.CreatedBy?.DisplayName, "The CreatedBy properties don't match!");
 
             var openApiArtifact = OpenApiArtifact.GetArtifact(testHelper.BlueprintServer.Address, project, artifact.Id, user);
-            ArtifactStoreHelper.AssertEquals(updateResult, artifactDetails);
+            ArtifactStoreHelper.AssertArtifactsEqual(updateResult, artifactDetails);
 
             TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
         }
@@ -245,7 +245,7 @@ namespace Helper
             Assert.AreEqual(artifactDetails.CreatedBy?.DisplayName, updateResult.CreatedBy?.DisplayName, "The CreatedBy properties don't match!");
 
             var openApiArtifact = OpenApiArtifact.GetArtifact(testHelper.BlueprintServer.Address, project, artifact.Id, user);
-            ArtifactStoreHelper.AssertEquals(updateResult, artifactDetails);
+            ArtifactStoreHelper.AssertArtifactsEqual(updateResult, artifactDetails);
 
             TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
         }

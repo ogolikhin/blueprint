@@ -64,7 +64,7 @@ namespace ArtifactStoreTests
                 artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
-            ArtifactStoreHelper.AssertEquals(artifactDetails, retrievedArtifact);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifact);
 
             Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
         }
@@ -106,7 +106,7 @@ namespace ArtifactStoreTests
                 artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
-            ArtifactStoreHelper.AssertEquals(artifactDetails, retrievedArtifactVersion);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion);
 
             Assert.IsEmpty(artifactDetails.SpecificPropertyValues,
                 "SpecificPropertyValues isn't implemented yet so it should be empty!");
@@ -140,7 +140,7 @@ namespace ArtifactStoreTests
                 artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id, versionId: 1);
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
-            ArtifactStoreHelper.AssertEquals(artifactDetails, retrievedArtifactVersion1);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion1);
 
             Assert.IsEmpty(artifactDetails.SpecificPropertyValues,
                 "SpecificPropertyValues isn't implemented yet so it should be empty!");
@@ -178,7 +178,7 @@ namespace ArtifactStoreTests
                 artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id, versionId: 1);
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
-            ArtifactStoreHelper.AssertEquals(artifactDetails, retrievedArtifactVersion1);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion1);
 
             Assert.IsEmpty(artifactDetails.SpecificPropertyValues,
                 "SpecificPropertyValues isn't implemented yet so it should be empty!");

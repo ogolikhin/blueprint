@@ -72,7 +72,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
-            ArtifactStoreHelper.AssertEquals(artifactDetails, artifactDetails);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetails);
         }
 
         [TestCase(ArtifactTypePredefined.Actor)]
@@ -108,7 +108,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
-            ArtifactStoreHelper.AssertEquals(artifactDetails, newArtifact);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, newArtifact);
         }
 
         // TODO: Create artifact with order index before, same as, or after other artifacts.  Verify success.

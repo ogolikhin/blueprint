@@ -700,7 +700,7 @@ namespace ArtifactStoreTests
             foreach (var artifact in artifacts)
             {
                 var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-                ArtifactStoreHelper.AssertEquals(artifactDetails, artifact);
+                ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifact);
             }
         }
 

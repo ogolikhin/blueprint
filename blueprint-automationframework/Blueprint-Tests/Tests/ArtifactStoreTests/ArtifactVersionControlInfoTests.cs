@@ -598,17 +598,17 @@ namespace ArtifactStoreTests
         /// <summary>
         /// Create and publish two artifacts and adds trace by user specified in parameters.
         /// </summary>
-        /// <param name="artifactType">Artifact type of artifacts to be created</param>
-        /// <param name="trace">Direction of trace</param>
-        /// <param name="user"></param>
-        /// <returns>Artifact with the trace</returns>
-        private IArtifact CreatePublishedArtifactWithTrace(BaseArtifactType artifactType, TraceDirection trace, IUser user)
+        /// <param name="artifactType">Artifact type of artifacts to be created.</param>
+        /// <param name="traceDirection">Direction of trace.</param>
+        /// <param name="user">The user that will create the artifacts and traces.</param>
+        /// <returns>Artifact with the trace.</returns>
+        private IArtifact CreatePublishedArtifactWithTrace(BaseArtifactType artifactType, TraceDirection traceDirection, IUser user)
         {
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, user, artifactType);
             IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, user, BaseArtifactType.UseCase);
 
             OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                    targetArtifact, trace, user);
+                    targetArtifact, traceDirection, user);
 
             return sourceArtifact;
         }

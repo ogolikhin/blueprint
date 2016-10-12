@@ -1,6 +1,6 @@
 import { IDialogSettings, IDialogData } from "../../../../shared/widgets/bp-dialog/bp-dialog";
 
-export class DataMock{
+export class DataMock {
     public static $inject = ["$q"];
     constructor(private $q: ng.IQService) { }
 
@@ -12,7 +12,7 @@ export class DataMock{
     };
 }
 
-export class DialogSettingsMock{
+export class DialogSettingsMock {
     public static $inject = ["$q"];
     constructor(private $q: ng.IQService) { }
 

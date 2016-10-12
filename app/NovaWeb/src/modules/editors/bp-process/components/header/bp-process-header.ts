@@ -3,7 +3,7 @@ import { BpArtifactInfoController } from "../../../../main/components/bp-artifac
 import { IMessageService, ILocalizationService} from "../../../../core";
 import { IDialogService } from "../../../../shared";
 import { IArtifactManager, IProjectManager } from "../../../../managers";
-import { IStatefulArtifact } from "../../../../managers/artifact-manager";
+import { IStatefulArtifact, IMetaDataService } from "../../../../managers/artifact-manager";
 import { IToolbarCommunication } from "./toolbar-communication";
 import { ICommunicationManager } from "../../";
 import { ILoadingOverlayService } from "../../../../core/loading-overlay";
@@ -24,7 +24,6 @@ export class BpProcessHeader implements ng.IComponentOptions {
 
 export class BpProcessHeaderController extends BpArtifactInfoController {
     private toolbarCommunicationManager: IToolbarCommunication;
-    private enableDeleteButtonHandler: string;
     public breadcrumbLinks: IBreadcrumbLink[];
     public isDeleteButtonEnabled: boolean;
     
@@ -40,7 +39,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "loadingOverlayService",
         "navigationService",
         "breadcrumbService",
-        "projectManager"
+        "projectManager",
+        "metadataService"
     ];
     
     constructor(
@@ -55,7 +55,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         loadingOverlayService: ILoadingOverlayService,
         navigationService: INavigationService,
         private breadcrumbService: IBreadcrumbService,
-        protected projectManager: IProjectManager
+        protected projectManager: IProjectManager,
+        protected metadataService: IMetaDataService
     ) {
         super(
             $scope,
@@ -67,7 +68,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             windowManager,
             loadingOverlayService,
             navigationService,
-            projectManager
+            projectManager,
+            metadataService
         );
 
         this.breadcrumbLinks = [];

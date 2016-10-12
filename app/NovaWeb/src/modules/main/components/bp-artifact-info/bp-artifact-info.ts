@@ -3,7 +3,7 @@ import { Models, Enums } from "../../models";
 import { IWindowManager, IMainWindow, ResizeCause } from "../../services";
 import { IMessageService, Message, MessageType, ILocalizationService } from "../../../core";
 import { ILoadingOverlayService } from "../../../core/loading-overlay";
-import { IArtifactManager, IStatefulArtifact } from "../../../managers/artifact-manager";
+import { IArtifactManager, IStatefulArtifact, IMetaDataService } from "../../../managers/artifact-manager";
 import { IProjectManager } from "../../../managers/project-manager";
 import { INavigationService } from "../../../core/navigation/navigation.svc";
 import {
@@ -42,7 +42,8 @@ export class BpArtifactInfoController {
         "windowManager", 
         "loadingOverlayService",
         "navigationService",
-        "projectManager"
+        "projectManager",
+        "metadataService"
     ];
 
     private subscribers: Rx.IDisposable[];
@@ -71,7 +72,8 @@ export class BpArtifactInfoController {
         protected windowManager: IWindowManager,
         protected loadingOverlayService: ILoadingOverlayService,
         protected navigationService: INavigationService,
-        protected projectManager: IProjectManager
+        protected projectManager: IProjectManager,
+        protected metadataService: IMetaDataService
     ) {
         this.initProperties();
         this.subscribers = [];
@@ -246,7 +248,7 @@ export class BpArtifactInfoController {
                 new SaveAction(artifact, this.localization, this.messageService, this.loadingOverlayService),
                 new PublishAction(artifact, this.localization),
                 new DiscardAction(artifact, this.localization),
-                new RefreshAction(artifact, this.localization, this.projectManager, this.loadingOverlayService),
+                new RefreshAction(artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService),
                 new DeleteAction(artifact, this.localization, this.dialogService, deleteDialogSettings)
             ),
             new OpenImpactAnalysisAction(artifact, this.localization)

@@ -60,7 +60,6 @@ namespace SearchServiceTests
             // Verify:
             Assert.IsTrue(results.SearchItems.Count > 0, "List of SearchItems shouldn't be empty.");
             Assert.That(results.SearchItems.Exists(si => si.ArtifactId == artifact.Id), "Published artifact must be in search results.");
-            Assert.IsTrue(artifact.Id == results.SearchItems[0].ArtifactId, "Published artifact must be in search results.");
         }
 
         /// <summary>

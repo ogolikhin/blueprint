@@ -18,7 +18,7 @@ export class HttpErrorInterceptor {
 
         let config = (response.config || {}) as IHttpInterceptorConfig;
 
-        var deferred: ng.IDeferred<any> = $q.defer();
+        const deferred: ng.IDeferred<any> = $q.defer();
 
         if (config.ignoreInterceptor) {
             deferred.reject(response);
@@ -31,7 +31,7 @@ export class HttpErrorInterceptor {
             $session.onExpired().then(
                 () => {
                     if (!config.dontRetry) {
-                        var $http = <ng.IHttpService>this.$injector.get("$http");
+                        const $http = <ng.IHttpService>this.$injector.get("$http");
                         HttpErrorInterceptor.applyNewSessionToken(config);
 
                         config.dontRetry = true;
@@ -78,7 +78,7 @@ export class HttpErrorInterceptor {
     }
 
     private static applyNewSessionToken(config: ng.IRequestConfig) {
-        var token = SessionTokenHelper.getSessionToken();
+        const token = SessionTokenHelper.getSessionToken();
         if (token) {
             if (!config.headers) {
                 config.headers = {};

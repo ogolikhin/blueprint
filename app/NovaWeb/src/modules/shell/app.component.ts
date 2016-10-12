@@ -29,7 +29,7 @@ export class AppController {
 
     public logout(evt: ng.IAngularEvent) {
         evt.preventDefault();
-        var promise: ng.IPromise<any> = this.session.logout();
+        const promise: ng.IPromise<any> = this.session.logout();
         promise.finally(() => this.$state.reload());
     }
 
@@ -42,17 +42,17 @@ export class AppController {
 
     private popUpWindowInCenterOfParent(url: string, title: string, width: number, height: number, $window: ng.IWindowService) {
         //Calculate position for new window based on parent's center. http://stackoverflow.com/a/5681473
-        var parentLeft: number = $window.screenLeft ? $window.screenLeft : $window.screenX;
-        var parentTop: number = $window.screenTop ? $window.screenTop : $window.screenY;
-        var parentCenterX: number = parentLeft + ($window.outerWidth / 2);
-        var parentCenterY: number = parentTop + ($window.outerHeight / 2);
-        var left: number = parentCenterX - (width / 2);
-        var top: number = parentCenterY - (height / 2);
+        const parentLeft: number = $window.screenLeft ? $window.screenLeft : $window.screenX;
+        const parentTop: number = $window.screenTop ? $window.screenTop : $window.screenY;
+        const parentCenterX: number = parentLeft + ($window.outerWidth / 2);
+        const parentCenterY: number = parentTop + ($window.outerHeight / 2);
+        const left: number = parentCenterX - (width / 2);
+        const top: number = parentCenterY - (height / 2);
 
         //Note: Hiding the URL bar is no longer possible in most browsers (security feature).
         //Note2: Chrome ignores 'width' if you don't also specify 'height
         /* tslint:disable */
-        var windowFeatures: string = "toolbar = no, location = no, directories = no, status = no, menubar = no, titlebar = no, scrollbars = no, resizable = yes, copyhistory = no, width = " + width + ", height = " + height + ", top = " + top + ", left = " + left;
+        const windowFeatures: string = "toolbar = no, location = no, directories = no, status = no, menubar = no, titlebar = no, scrollbars = no, resizable = yes, copyhistory = no, width = " + width + ", height = " + height + ", top = " + top + ", left = " + left;
         /*tslint:enable*/
 
         return $window.open(url, title, windowFeatures);

@@ -32,7 +32,7 @@ export class ArtifactStateController {
     }
 
     public navigateToSubRoute(artifactType: Models.ItemTypePredefined, artifact: IStatefulArtifact) {
-        var params = {context: artifact.id};
+        const params = {context: artifact.id};
         switch (artifactType) {
             case Models.ItemTypePredefined.GenericDiagram:
             case Models.ItemTypePredefined.BusinessProcess:

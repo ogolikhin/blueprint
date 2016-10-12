@@ -43,7 +43,7 @@ export class SessionSvc implements ISession {
     }
 
     public logout(): ng.IPromise<any> {
-        var defer = this.$q.defer();
+        const defer = this.$q.defer();
         this.auth.logout(this._currentUser, false).then(() => defer.resolve());
         if (this._currentUser) {
             this._prevLogin = "";
@@ -54,7 +54,7 @@ export class SessionSvc implements ISession {
     }
 
     public login(username: string, password: string, overrideSession: boolean): ng.IPromise<any> {
-        var defer = this.$q.defer();
+        const defer = this.$q.defer();
 
         this.auth.login(username, password, overrideSession).then(
             (user) => {
@@ -68,7 +68,7 @@ export class SessionSvc implements ISession {
     }
 
     public loginWithSaml(overrideSession: boolean): ng.IPromise<any> {
-        var defer = this.$q.defer();
+        const defer = this.$q.defer();
 
         this.auth.loginWithSaml(overrideSession, this._prevLogin).then(
             (user) => {
@@ -102,7 +102,7 @@ export class SessionSvc implements ISession {
         if (this._currentUser || this._modalInstance) {
             return this.$q.resolve();
         }
-        var defer = this.$q.defer();
+        const defer = this.$q.defer();
         this._loginMsg = this.localization.get("Login_Session_EnterCredentials");
         this._isForceSameUsername = false;
         this.auth.getCurrentUser().then(
@@ -134,7 +134,7 @@ export class SessionSvc implements ISession {
             this._modalInstance.result.then((result: ILoginInfo) => {
 
                 if (result) {
-                    var confirmationDialog: ng.ui.bootstrap.IModalServiceInstance;
+                    let confirmationDialog: ng.ui.bootstrap.IModalServiceInstance;
                     if (result.loginSuccessful) {
                         this._isExpired = false;
                         done.resolve();
@@ -189,7 +189,7 @@ export class SessionSvc implements ISession {
     }
 
     public resetPassword(login: string, oldPassword: string, newPassword: string): ng.IPromise<any> {
-        var defer = this.$q.defer();
+        const defer = this.$q.defer();
 
         this.auth.resetPassword(login, oldPassword, newPassword).then(
             () => {

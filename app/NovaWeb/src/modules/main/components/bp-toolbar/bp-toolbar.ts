@@ -53,7 +53,7 @@ class BPToolbarController implements IBPToolbarController {
             return;
         }
         evt.preventDefault();
-        var element = evt.currentTarget;
+        const element = evt.currentTarget;
         switch (element.id.toLowerCase()) {
             case `projectclose`:
                 this.projectManager.remove();

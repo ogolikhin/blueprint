@@ -44,7 +44,6 @@ namespace Helper
 
             // This keeps the artifact description constant for all created artifacts
             var randomArtifactDescription = "Description " + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
-            var htmlArtifactDescription = CreateTextForArtifactDescription(randomArtifactDescription);
 
             foreach (var artifactType in baseArtifactTypes)
             {
@@ -58,7 +57,7 @@ namespace Helper
                     var propertiesToUpdate = new Dictionary<string, object>
                     {
                         {"Name", randomArtifactName},
-                        {"Description", htmlArtifactDescription}
+                        {"Description", WebUtility.HtmlEncode(randomArtifactDescription)}
                     };
 
                     UpdateArtifactProperties(testHelper, user, project, artifact, artifactType, propertiesToUpdate);
@@ -250,20 +249,6 @@ namespace Helper
             updateResult.AssertEquals(artifactDetails);
 
             TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
-        }
-
-        /// <summary>
-        /// Creates new rich text that includes the html encoded description text
-        /// </summary>
-        /// <param name="plainTextDescription">The plain text value of the description property</param>
-        /// <returns>A formatted rich text string including the html encoded description text</returns>
-        public static string CreateTextForArtifactDescription(string plainTextDescription)
-        {
-            var htmlEncodedDescription = WebUtility.HtmlEncode(plainTextDescription);
-
-            return I18NHelper.FormatInvariant("<html><head></head><body style=\"padding: 1px 0px 0px; font-family: " +
-                "'Portable User Interface'; font-size: 10.67px\"><div style=\"padding: 0px\"><p style=\"margin: 0px\">{0}</p>" +
-                "</div></body></html>", htmlEncodedDescription);
         }
 
         #region private methods

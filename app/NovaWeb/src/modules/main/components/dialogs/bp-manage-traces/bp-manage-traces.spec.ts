@@ -5,8 +5,8 @@ import "angular-sanitize";
 import { Relationships } from "../../../../main";
 import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
 import {ManageTracesDialogController} from "./bp-manage-traces";
-import { DialogServiceMock, DataMock, IDialogSettings, DialogSettingsMock } from "../../../../shared/widgets/bp-dialog/bp-dialog";
-import { IRelationship, LinkType, IDialogRelationshipItem } from "../../../../main/models/relationshipModels";
+import { DialogServiceMock, IDialogSettings } from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import { DataMock, DialogSettingsMock } from "./bp-manage-traces.mock";
 import { ModalServiceInstanceMock, ModalServiceMock } from "../../../../shell/login/mocks.spec";
 
 

@@ -13,7 +13,8 @@
             {{::$ctrl.localization.get('App_UP_Relationships_Add_Trace') }}
         </label>
         <div uib-dropdown class="btn-group">
-            <button type="button" class="btn btn-default" ng-click="$ctrl.trace()" ng-class="{disabled: $ctrl.selectedVMs.length == 0}">
+            <button type="button" class="btn btn-default" ng-click="$ctrl.trace()"
+                    ng-class="{disabled: $ctrl.selectedVMs.length == 0 || $ctrl.isTraceDisabled}">
                 <i class="fonticon2-relationship-right" ng-if="$ctrl.direction === 0"></i><i class="fonticon2-relationship-left" ng-if="$ctrl.direction === 1"></i><i class="fonticon2-relationship-bi" ng-if="$ctrl.direction === 2"></i>Trace</button>
             <button type="button" uib-dropdown-toggle class="btn dropdown-toggle" data-toggle="dropdown"
                     aria-haspopup="true" aria-expanded="false">
@@ -58,7 +59,7 @@
                bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Delete_Traces') }}"></i>
         </div>
 
-        <div class="trace-manager-wrapper" perfect-scrollbar>
+        <div id="trace-manager-wrapper" class="trace-manager-wrapper" perfect-scrollbar>
             <!-- Item details -->
                 <bp-manage-traces-item item="item" delete-trace="$ctrl.deleteTrace(item)"
                       selected-traces="$ctrl.selectedTraces[$ctrl.data.artifactId]" is-item-read-only="$ctrl.isItemReadOnly"

@@ -37,7 +37,11 @@ export class RefreshAction extends BPButtonAction {
                     .catch((error) => {
                         // We're not interested in the error type.
                         // sometimes this error is created by artifact.load(), which returns the statefulArtifact instead of an error object.
-                        projectManager.refresh(projectManager.getSelectedProject());
+                        const refreshOverlayId = loadingOverlayService.beginLoading();
+                        projectManager.refresh(projectManager.getSelectedProject()).finally(() => {
+                            projectManager.triggerProjectCollectionRefresh();
+                            loadingOverlayService.endLoading(refreshOverlayId);
+                        });
                     }).finally(() => {
                         loadingOverlayService.endLoading(overlayId);
                     });

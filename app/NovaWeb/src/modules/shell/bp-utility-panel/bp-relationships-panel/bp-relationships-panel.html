@@ -5,8 +5,8 @@
 
     <div class="add-empty" ng-if="$ctrl.item && !($ctrl.manualTraces2.length || $ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && !$ctrl.isLoading">
         <p>{{ $ctrl.localization.get('App_UP_Relationships_Introduction_Message') }}</p>
-        <label class="btn btn-secondary btn-small" ng-class="{'disabled': !$ctrl.canManageTraces() }">
-            {{::$ctrl.localization.get('App_UP_Relationships_Add_Relationship') }}
+        <label class="btn btn-secondary btn-small" ng-class="{'disabled': !$ctrl.canManageTraces() }"
+               ng-click="$ctrl.openManageTraces()">{{::$ctrl.localization.get('App_UP_Relationships_Add_Relationship') }}
         </label>
     </div>
 </div>
@@ -48,7 +48,8 @@
 
 <div class="filter-bar" ng-if="!$ctrl.isLoading &&  ($ctrl.manualTraces2.length || $ctrl.otherTraces.length)">
     
-    <label class="btn btn-secondary btn-small pull-right" ng-class="{'disabled': !$ctrl.canManageTraces() }">
+    <label class="btn btn-secondary btn-small pull-right" ng-class="{'disabled': !$ctrl.canManageTraces() }"
+           ng-click="$ctrl.openManageTraces()">
         {{::$ctrl.localization.get('App_UP_Relationships_Manage_Traces') }}
     </label>
     <div class="tabs">
@@ -68,8 +69,15 @@
         <div ng-repeat="artifact in $ctrl.manualTraces2"
              class="artifact-item-wrapper">
             <div class="separator"></div>
-            <bp-artifact-relationship-item artifact="::artifact" selectable="true" is-item-read-only="$ctrl.item.artifactState.readonly"
-                selected-traces="$ctrl.selectedTraces[$ctrl.item.id]" delete-item="$ctrl.deleteTrace(artifact)"></bp-artifact-relationship-item>
+            <bp-artifact-relationship-item 
+                                           artifact="::artifact" 
+                                           selectable="true" 
+                                           is-item-read-only="$ctrl.item.isItemReadOnly"
+                                           selected-traces="$ctrl.selectedTraces[$ctrl.item.id]"
+                                           set-item-direction="$ctrl.setItemDirection(artifact)"
+                                           toggle-item-flag="$ctrl.toggleItemFlag(artifact)"
+                                           delete-item="$ctrl.deleteTrace(artifact)">
+            </bp-artifact-relationship-item>
         </div>
     </div>
     <div ng-if="!$ctrl.manualTraces2.length && $ctrl.categoryFilter ===1"

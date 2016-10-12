@@ -13,6 +13,7 @@ import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
 import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
 import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
+import {ProcessEvents} from "../../../process-diagram-communication";
 
 export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implements ISystemTask, IUserTaskChildElement {
 
@@ -33,7 +34,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     private bodyCell: DiagramNodeElement;
     private footerCell: MxCell;
     private commentsButton: Button;
-    private relationshipButton: Button;
+    
     private detailsButton: Button;
     private linkButton: Button;
     private mockupButton: Button;
@@ -108,7 +109,8 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         this.bodyCell.setVertex(true);
     }
 
-    private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
+    private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {        
+        
         //Shape Comments
         this.commentsButton = new Button(`CB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("comments-neutral.svg"));
         this.commentsButton.isEnabled = !this.isNew;
@@ -131,27 +133,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
             }
         }
 
-        //Shape Traces
-        this.relationshipButton = new Button(`RB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("relationship-neutral.svg"));
-        this.relationshipButton.isEnabled = !this.isNew;
-
-        if (nodeFactorySettings && nodeFactorySettings.isRelationshipButtonEnabled) {
-            // TODO interaction with utility panel is different in Nova
-            // this.relationshipButton.setClickAction(() => this.openPropertiesDialog(this.rootScope, Shell.UtilityTab.relationships));
-        } else {
-            this.relationshipButton.setClickAction(() => { });
-        }
-
-        this.relationshipButton.setTooltip(this.getLocalizedLabel("ST_Relationships_Label"));
-
-        if (this.relationshipButton.isEnabled) {
-            this.relationshipButton.setActiveImage(this.getImageSource("relationship-active.svg"));
-            this.relationshipButton.setHoverImage(this.getImageSource("relationship-active.svg"));
-
-            if (this.model.flags && this.model.flags.hasTraces) {
-                this.relationshipButton.activate();
-            }
-        }
+        
 
         //Included Artifacts Button
         this.linkButton = new Button(`LB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("include-neutral.svg"));
@@ -406,19 +388,17 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
             "shape=rectangle;foldable=0;strokeColor=none;fillColor=#FFFFFF;gradientColor=#DDDDDD;selectable=0");
 
         this.addOverlays(mxGraph);
-
-        this.commentsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 116, 4, 
-                                   "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
-        this.relationshipButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 92, 4, 
-                                       "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
-        this.linkButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 68, 4, "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
+        
+        this.commentsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 112, 4,
+            "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
+        this.linkButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 82, 4, "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
         // #TODO get license info fron Nova shell
         //if (graph.viewModel.isReadonly && graph.viewModel.licenseType === Shell.LicenseTypeEnum.Viewer) {
         //    this.linkButton.disable();
         //}
-        this.mockupButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 44, 4, 
+        this.mockupButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 52, 4, 
                                  "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
-        this.detailsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 20, 4, 
+        this.detailsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 22, 4, 
                                   "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
 
         return this;
@@ -459,7 +439,9 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
             return;
         }
 
-        this.processDiagramManager.navigateToAssociatedArtifact(this.associatedArtifact.id, true);
+        this.processDiagramManager.action(ProcessEvents.NavigateToAssociatedArtifact, {
+            id: this.associatedArtifact.id,
+            enableTracking: true});
     }
 
     private openDialog(dialogType: ModalDialogType) {

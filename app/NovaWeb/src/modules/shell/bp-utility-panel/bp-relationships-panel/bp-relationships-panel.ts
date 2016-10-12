@@ -1,17 +1,20 @@
-﻿import { ILocalizationService } from "../../../core";
+﻿import * as angular from "angular";
+import * as _ from "lodash";
+import { ILocalizationService } from "../../../core";
 import { Relationships } from "../../../main";
-import { IDialogService } from "../../../shared";
+import { IDialogSettings, IDialogService } from "../../../shared";
 import { 
     IArtifactManager, 
     IStatefulItem,
     IStatefulArtifact, 
-    IStatefulSubArtifact, 
-    IArtifactRelationships
+    IStatefulSubArtifact,
+    IArtifactRelationships,
 } from "../../../managers/artifact-manager";
-import { IRelationship, LinkType } from "../../../main/models/relationshipModels";
+import { IRelationship, LinkType, IDialogRelationshipItem } from "../../../main/models/relationshipModels";
 import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
 import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
 import { Helper } from "../../../shared/utils/helper";
+import { ManageTracesDialogController } from "../../../main/components/dialogs/bp-manage-traces";
 
 interface IOptions {
     value: string;
@@ -118,13 +121,14 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         }
     }
 
-    private getRelationships() {
+
+    private getRelationships(refresh?: boolean) {
         this.manualTraces = null;
         this.otherTraces = null;
 
         if (this.item && Helper.hasArtifactEverBeenSavedOrPublished(this.item)) {
             this.isLoading = true;            
-            this.item.relationships.get().then((relationships: Relationships.IRelationship[]) => {
+            this.item.relationships.get(refresh).then((relationships: Relationships.IRelationship[]) => {
                 this.setRelationships(relationships);
 
                 this.selectedTraces = {};
@@ -140,13 +144,13 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         }
     }
 
-    private setRelationships(relationships: Relationships.IRelationship[]) {
+    public setRelationships(relationships: Relationships.IRelationship[]) {
         this.allTraces = relationships;
         this.manualTraces = relationships
-            .filter((relationship: Relationships.IRelationship) => 
+            .filter((relationship: Relationships.IRelationship) =>
                 relationship.traceType === Relationships.LinkType.Manual);
         this.otherTraces = relationships
-            .filter((relationship: Relationships.IRelationship) => 
+            .filter((relationship: Relationships.IRelationship) =>
                 relationship.traceType !== Relationships.LinkType.Manual);
     }
 
@@ -224,7 +228,48 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace")).then( (confirmed) => {
             if (confirmed) {
                 this.item.relationships.remove([artifact]);
+                this.getRelationships(false);
             }
+        });
+    }
+
+    public setItemDirection(trace: IRelationship): void { 
+        // this is called after we update direction. all it does is trigger dirty/save state.
+        this.item.relationships.updateManual(this.manualTraces);
+    }
+
+    public toggleItemFlag(trace: IRelationship) {
+        if (trace.hasAccess) {
+            trace.suspect = trace.suspect === true ? false : true;
+            this.item.relationships.updateManual(this.manualTraces);
+        }
+    }
+
+    public openManageTraces() {
+        const dialogSettings: IDialogSettings = {
+            okButton: this.localization.get("App_Button_Ok"),
+            template: require("../../../main/components/dialogs/bp-manage-traces/bp-manage-traces.html"),
+            controller: ManageTracesDialogController,
+            css: "nova-open-project manage-traces-wrapper",
+            header: this.localization.get("App_UP_Relationships_Manage_Traces")
+        };
+
+        let data: IDialogRelationshipItem = {
+            manualTraces: angular.copy(this.manualTraces2),
+            artifactId: this.item.id,
+            isItemReadOnly: false
+        };
+
+        this.dialogService.open(dialogSettings, data).then((result) => {
+
+            data.manualTraces = data.manualTraces.map( (trace) => {
+                trace.isSelected = false;
+                return trace;
+            });
+
+            this.manualTraces = data.manualTraces;
+            this.item.relationships.updateManual(data.manualTraces);
+            this.getRelationships(false);
         });
     }
 

@@ -128,11 +128,14 @@ export class BpArtifactEditor extends BpBaseEditor {
                 if (!context) {
                     return;
                 }
+                if (!this.editor) {
+                    return;
+                }
                 let value = this.editor.convertToModelValue($field, $value);
                 switch (context.lookup) {
                     case Enums.PropertyLookupEnum.Custom:
                         this.artifact.customProperties.set(context.modelPropertyName as number, value);
-                    break;
+                        break;
                     case Enums.PropertyLookupEnum.Special:
                         this.artifact.specialProperties.set(context.modelPropertyName as number, value);
                         break;
@@ -140,7 +143,6 @@ export class BpArtifactEditor extends BpBaseEditor {
                         this.artifact[context.modelPropertyName] = value;
                         break;
                 }
-
 
                 if ($scope["form"]) {
                     this.artifact.artifactState.invalid = $scope["form"].$$parentForm.$invalid;

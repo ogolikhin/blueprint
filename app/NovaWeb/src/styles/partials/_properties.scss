@@ -136,8 +136,8 @@ pagecontent, bp-properties-panel {
         font-weight: 400;
         margin: 6px 4px 0 0;
         padding: 0;
-        width: #{$property-label-width - 4px};
         vertical-align: top;
+        width: #{$property-label-width - 4px};
 
         div:first-child {
           flex-grow: 1;
@@ -190,9 +190,9 @@ pagecontent, bp-properties-panel {
       }
 
       input {
-        &:not([disabled]):hover,
-        &:not([disabled]):focus {
-          background: $yellow-pale url('images/editable-icon.png') no-repeat right 5px top 6px;
+        &:not([disabled]):focus,
+        &:not([disabled]):hover {
+          background: $yellow-pale url('images/editable-icon.png') no-repeat right 4px top 6px;
           padding-right: 20px;
         }
 
@@ -205,18 +205,15 @@ pagecontent, bp-properties-panel {
 
       textarea {
         min-height: $property-multiple-height;
-        //overflow: hidden;
         overflow: auto;
         -ms-overflow-style: auto;
         padding: 5px 17px 0 $property-padding-default;
 
-        &:not([disabled]):hover,
-        &:not([disabled]):focus {
-          background: $yellow-pale url('images/editable-icon.png') no-repeat right 5px top 6px;
+        &:not([disabled]):focus,
+        &:not([disabled]):hover {
+          background: $yellow-pale url('images/editable-icon.png') no-repeat right 4px top 6px;
           overflow: auto;
           -ms-overflow-style: auto;
-          //padding-right: 0;
-
         }
       }
 
@@ -412,8 +409,8 @@ pagecontent, bp-properties-panel {
           padding: 0;
           width: $property-input-width;
 
-          &:hover,
-          &:focus {
+          &:focus,
+          &:hover {
             background: $yellow-pale url('images/editable-icon.png') no-repeat right 4px top 6px;
           }
 
@@ -614,8 +611,8 @@ pagecontent, bp-properties-panel {
           color: $richtext-fontcolor;
           font-family: $richtext-fontfamily;
           font-size: $richtext-fontsize;
-          max-height: 400px;
-          min-height: 100px;
+          max-height: 350px;
+          min-height: 150px;
           min-width: $property-input-width;
           padding: 0;
 
@@ -918,19 +915,61 @@ pagecontent, bp-properties-panel {
         width: 100%;
       }
 
-      .tinymce-group {
-        display: block;
-        width: 100%;
+      $tinymce-toolbar-height: 27px;
+      .mce-panel,
+      .mce-abs-layout {
+        // since it's hidden on init, tinyMCE cannot calculate the dimensions by itself
+        height: $tinymce-toolbar-height !important;
+        width: #{$property-input-width - 2px} !important;
       }
 
-      $tinymce-toolbar-height: 38px;
+      .mce-toolbar-grp {
+        border: 0;
+        padding: 0;
+
+        .mce-flow-layout-item {
+          margin: 0;
+        }
+
+        .mce-btn button {
+          line-height: 19px;
+          padding: 3px 3px;
+        }
+
+        .mce-menubtn:first-child button span { // font-family button
+          text-overflow: initial;
+          width: 33px;
+
+          &::before {
+            color: #333;
+            content: '\e01a';
+            display: inline-block;
+            font-family: 'tinymce';
+            font-size: 22px;
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-font-smoothing: antialiased;
+            font-style: normal;
+            font-variant: normal;
+            font-weight: normal;
+            height: 16px;
+            line-height: 16px;
+            margin-right: 40px;
+            overflow: hidden;
+            vertical-align: text-top;
+            width: 20px;
+          }
+        }
+      }
+
       .tinymce-toolbar {
-        height: $tinymce-toolbar-height;
-        margin-top: -$tinymce-toolbar-height;
+        height: #{$tinymce-toolbar-height + 2px};
+        margin: -#{$tinymce-toolbar-height + 2px} 0 0;
       }
 
-      .tinymce-toolbar-hidden .mce-toolbar-grp {
-        display: none;
+      .tinymce-toolbar-hidden {
+        .tinymce-toolbar {
+          display: none;
+        }
       }
 
       .tinymce-body,
@@ -943,46 +982,36 @@ pagecontent, bp-properties-panel {
         font-family: $richtext-fontfamily;
         font-size: $richtext-fontsize;
         font-weight: 400;
-        max-height: #{15 * $property-min-height};
-        max-width: 100%;
-        min-height: #{3 * $property-min-height};
-        min-width: $property-input-width;
-        overflow: auto;
-        -ms-overflow-style: auto;
+        line-height: $property-min-height;
+        max-height: $property-min-height;
+        min-height: $property-min-height;
+        outline: none;
+        overflow: hidden;
         padding: 0 2px 0 0;
+        white-space: nowrap;
+        width: $property-input-width;
 
-        //&:not(.mce-edit-focus) {
-        &:hover,
-        &:focus {
+        &:focus,
+        &:hover {
           background: $yellow-pale url('images/editable-icon.png') no-repeat right 4px top 6px;
+          padding-right: 20px;
         }
-        //}
+
+        > p {
+          overflow: hidden;
+        }
 
         a {
           color: $richtext-linkcolor;
           cursor: pointer;
           text-decoration: underline;
         }
-
-        table {
-          border-collapse: collapse;
-          border-color: $richtext-fontcolor;
-          border-style: solid;
-          border-width: 1px;
-
-          td {
-            border-color: $richtext-fontcolor;
-            border-style: solid;
-            border-width: 1px;
-            padding: 0 7px;
-          }
-        }
       }
 
       .has-error {
         .tinymce-body,
         .tinymce-body[contenteditable="true"] {
-          border-color: $brand-error;
+          border-bottom-color: $brand-error;
         }
       }
     }
@@ -1215,8 +1244,8 @@ pagecontent, bp-properties-panel {
           padding-left: $padding-smaller;
           padding-right: $padding-smaller;
           &.disabled {
-            opacity: $default-disabled-opacity;
             cursor: not-allowed;
+            opacity: $default-disabled-opacity;
           }
         }
         &:not(:first-child):not(:last-child) {

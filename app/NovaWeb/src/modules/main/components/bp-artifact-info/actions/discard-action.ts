@@ -36,7 +36,7 @@ export class DiscardAction extends BPButtonAction {
 
                 return true;
             },
-            "fonticon fonticon2-discard",
+            "fonticon2-discard-line",
             localization.get("App_Toolbar_Discard")
         );
     }

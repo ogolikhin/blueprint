@@ -32,7 +32,7 @@ export class RefreshAction extends BPButtonAction {
                 //loading overlay
                 const overlayId = loadingOverlayService.beginLoading();
                 const currentArtifact = artifactManager.selection.getArtifact();
-                
+
                 currentArtifact.refresh()
                     .catch((error) => {
                         // We're not interested in the error type.
@@ -58,7 +58,7 @@ export class RefreshAction extends BPButtonAction {
 
                 return true;
             },
-            "fonticon fonticon2-refresh",
+            "fonticon2-refresh-line",
             localization.get("App_Toolbar_Refresh")
         );
     }

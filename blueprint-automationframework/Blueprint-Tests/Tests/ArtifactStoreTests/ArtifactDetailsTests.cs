@@ -324,7 +324,7 @@ namespace ArtifactStoreTests
             mainArtifact.Publish();
 
             // Create user with a permission only on main project
-            var userWithPermissionOnMainProject = TestHelper.CreateUserWithProjectRolePermissions(Helper, role: TestHelper.ProjectRole.Author, projects: new List<IProject> { mainProject });
+            var userWithPermissionOnMainProject = Helper.CreateUserWithProjectRolePermissions(role: TestHelper.ProjectRole.Author, projects: new List<IProject> { mainProject });
 
             // Execute: Get ArtifactDetails for the main artifact using the user without permission to inline trace artifact
             var mainArtifactDetailsWithUserWithPermissionOnMainProject = Helper.ArtifactStore.GetArtifactDetails(userWithPermissionOnMainProject, mainArtifact.Id);

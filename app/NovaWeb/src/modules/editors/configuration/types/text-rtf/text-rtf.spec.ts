@@ -248,25 +248,6 @@ describe("Formly Text RTF", () => {
         expect(Helper.setFontFamilyOrOpenSans).toHaveBeenCalled();
     });
 
-    // it("tinyMCE handles mutations", function () {
-    //     compileAndSetupStuff({model: {textRtf: ""}});
-    //
-    //     let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTF")[0];
-    //     let fieldScope = angular.element(fieldNode).isolateScope();
-    //     let to = fieldScope["to"];
-    //
-    //     //Act
-    //     to.tinymceOptions.init_instance_callback(editor);
-    //     let span = document.createElement("span");
-    //     span.innerHTML = "Added span";
-    //
-    //     editor.getBody().appendChild(span);
-    // });
-
-    // function changeBody() {
-    //     tinymceBody.innerHTML = "<p>body has changed</p>";
-    // }
-
     function compileAndSetupStuff(extraScopeProps?) {
         angular.merge(scope, extraScopeProps);
         element = compile(template)(scope);

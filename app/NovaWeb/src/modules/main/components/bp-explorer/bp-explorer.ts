@@ -15,9 +15,10 @@ export class ProjectExplorer implements ng.IComponentOptions {
 
 export class ProjectExplorerController {
     public tree: IBPTreeController;
-    private selected: IArtifactNode;
     private subscribers: Rx.IDisposable[];
+    private selectedArtifactSubscriber: Rx.IDisposable;
     private numberOfProjectsOnLastLoad: number;
+    private selectedArtifactNameBeforeChange: string;
 
     public static $inject: [string] = ["projectManager", "artifactManager", "navigationService"];
     
@@ -40,6 +41,23 @@ export class ProjectExplorerController {
     public $onDestroy() {
         //dispose all subscribers
         this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        if (this.selectedArtifactSubscriber) {
+            this.selectedArtifactSubscriber.dispose();
+        }
+    }
+
+    private _selected: IArtifactNode;
+    private get selected() {
+        return this._selected;
+    }
+    private set selected(value: IArtifactNode) {
+        this._selected = value;
+        this.selectedArtifactNameBeforeChange = value.name;
+        //Dispose of old subscriber and subscribe to new artifact.
+        if (this.selectedArtifactSubscriber) {
+            this.selectedArtifactSubscriber.dispose();
+        }
+        this.selectedArtifactSubscriber = value.artifact.getObservable().subscribeOnNext(this.onSelectedArtifactChange);
     }
 
     // the object defines how data will map to ITreeNode
@@ -152,6 +170,13 @@ export class ProjectExplorerController {
         }
     }
 
+    public onSelectedArtifactChange = (artifact: IStatefulArtifact) => {
+        //If the artifact's name changes (on refresh), we reload the project so the change is reflected in the explorer.
+        if (artifact.name !== this.selectedArtifactNameBeforeChange) {
+            this.onLoadProject(this.projectManager.projectCollection.getValue());
+        }
+    }
+
     public doLoad = (prms: Models.IProject): any[] => {
         //the explorer must be empty on a first load
         if (prms) {
@@ -163,12 +188,10 @@ export class ProjectExplorerController {
     };
 
     public doSelect = (node: IArtifactNode) => {
-        if (!this.selected || this.selected.id !== node.id || this.selected.id !== this.artifactManager.selection.getArtifact().id) {
-            this.doSync(node);
-            this.selected = node;
-            this.tree.selectNode(node.id);
-            this.navigationService.navigateToArtifact(node.id);
-        }
+        this.doSync(node);
+        this.selected = node;
+        this.tree.selectNode(node.id);
+        this.navigationService.navigateToArtifact(node.id);
     };
 
     public doSync = (node: IArtifactNode): IStatefulArtifact => {

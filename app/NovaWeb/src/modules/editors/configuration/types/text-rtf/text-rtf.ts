@@ -32,6 +32,9 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
     constructor(private $scope: AngularFormly.ITemplateScope) {
         super();
 
+        // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
+        let initialContent = null;
+        let editorBody = null;
         let onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
         $scope.to.onChange = () => { };
 
@@ -146,7 +149,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         styles: { "font-size": "20pt" }
                     });
 
-                    let editorBody = editor.getBody();
+                    editorBody = editor.getBody();
                     Helper.autoLinkURLText(editorBody);
                     Helper.addTableBorders(editorBody);
                     Helper.setFontFamilyOrOpenSans(editorBody, allowedFonts);
@@ -164,10 +167,8 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         this.observer.observe(editorBody, observerConfig);
                     }
 
-                    // tinyMCE seems to fire 2 onChange events every time
-                    editor.on("Change", (e) => {
-                        onChange(editorBody.innerHTML.replace(bogusRegEx, ""), $scope.options, $scope);
-                    });
+                    // we store the initial value so IE doesn't mark the field dirty just for clicking it!
+                    initialContent = editorBody.innerHTML.replace(bogusRegEx, "");
 
                     editor.on("Focus", (e) => {
                         if (editor.editorContainer) {
@@ -274,6 +275,13 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
             // tinyMCE may leave empty tags that cause the value to appear not empty
             requiredCustom: {
                 expression: function ($viewValue, $modelValue, scope) {
+                    if (initialContent !== null) { // run this part after the field had the chance to load the content
+                        let content = editorBody.innerHTML.replace(bogusRegEx, "");
+                        if (content !== initialContent) {
+                            onChange(content.replace(bogusRegEx, ""), scope.options, scope);
+                        }
+                    }
+
                     let isEmpty = false;
                     if (scope.to && scope.to.required) {
                         isEmpty = !Helper.tagsContainText($modelValue);

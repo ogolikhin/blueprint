@@ -8,7 +8,6 @@ import {ISystemTaskShape, IUserTaskShape} from "../../../../../models/process-mo
 import {IdGenerator} from "./id-generator";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../../../../managers/artifact-manager/";
 import {StatefulProcessSubArtifact} from "../../../../../process-subartifact";
-import { IPropertyValue } from "../../../../../../../main/models/models";
 
 export interface IPropertyNameConstantsInformation {
     key: string;

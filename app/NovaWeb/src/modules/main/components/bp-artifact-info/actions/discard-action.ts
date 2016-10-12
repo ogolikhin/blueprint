@@ -8,6 +8,10 @@ export class DiscardAction extends BPButtonAction {
         artifact: IStatefulArtifact,
         localization: ILocalizationService
     ) {
+        if (!localization) {
+            throw new Error("Localization service not provided or is null");
+        }
+
         super(
             (): void => {
                 artifact.discard();
@@ -32,7 +36,7 @@ export class DiscardAction extends BPButtonAction {
 
                 return true;
             },
-            "fonticon fonticon2-discard",
+            "fonticon2-discard-line",
             localization.get("App_Toolbar_Discard")
         );
     }

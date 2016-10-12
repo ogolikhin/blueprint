@@ -1,8 +1,8 @@
-<div ng-class="{'selected' : $ctrl.item.isSelected}" class="trace">
+<div ng-class="{'selected' : $ctrl.item.isSelected}" class="trace" ng-if="$ctrl.item.hasAccess">
     <div class="trace-main">
         <div>
             <input type="checkbox" ng-checked="$ctrl.item.isSelected"
-                   ng-disabled="!$ctrl.item.hasAccess || $ctrl.isItemReadOnly  || $ctrl.item.readOnly"
+                   ng-disabled="$ctrl.isItemReadOnly  || $ctrl.item.readOnly"
                    bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Select')}}"
                    ng-click="$ctrl.selectTrace()"/>
         </div>
@@ -23,9 +23,9 @@
                 <div uib-dropdown>
                     <span uib-dropdown-toggle>
                         <i class="icon fonticon-exchange"  bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Change_Trace')}}"
-                           ng-class="{disabled: !$ctrl.item.hasAccess || $ctrl.isItemReadOnly || $ctrl.item.readOnly}"></i>
+                           ng-class="{disabled: $ctrl.isItemReadOnly || $ctrl.item.readOnly}"></i>
                     </span>
-                    <ul class="dropdown-menu"  ng-hide="!$ctrl.item.hasAccess || $ctrl.isItemReadOnly || $ctrl.item.readOnly">
+                    <ul class="dropdown-menu"  ng-hide="$ctrl.isItemReadOnly || $ctrl.item.readOnly">
                         <li ng-class="{disabled: $ctrl.item.traceDirection === 0}">
                             <a ng-click="$ctrl.setDirection(0)"><i class="fonticon2-relationship-right"></i> {{::$ctrl.localization.get('App_UP_Relationships_To')}}</a></li>
                         <li ng-class="{disabled: $ctrl.item.traceDirection === 1}">
@@ -36,11 +36,11 @@
                 </div>
                 <i class="icon fonticon-flag-1" ng-click="$ctrl.toggleFlag()"
                     ng-class="{'fonticon-flag-empty': $ctrl.item.suspect,
-                    disabled: !$ctrl.item.hasAccess || $ctrl.isItemReadOnly || $ctrl.item.readOnly}"
+                    disabled: $ctrl.isItemReadOnly || $ctrl.item.readOnly}"
                    bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Flag_Trace')}}"></i>
 
                 <i class="icon fonticon-delete-filled" ng-click="$ctrl.deleteTrace()"
-                   ng-class="{disabled: !$ctrl.item.hasAccess || $ctrl.isItemReadOnly || $ctrl.item.readOnly}"
+                   ng-class="{disabled: $ctrl.isItemReadOnly || $ctrl.item.readOnly}"
                    bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Delete')}}"></i>
             </div>
         </div>

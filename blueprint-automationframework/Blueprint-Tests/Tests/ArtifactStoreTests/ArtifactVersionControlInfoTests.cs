@@ -5,7 +5,6 @@ using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.StorytellerModel;
-using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
 using TestCommon;
@@ -58,7 +57,7 @@ namespace ArtifactStoreTests
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges : false, isDeleted : false);
         }
@@ -97,7 +96,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, basicArtifactInfo.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             Assert.IsTrue(basicArtifactInfo.HasChanges.HasValue, "HasChanges property should have value");
             Assert.IsTrue(basicArtifactInfo.HasChanges.Value, "HasChanges property should be true");
@@ -120,7 +119,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, basicArtifactInfo.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false);
         }
@@ -147,7 +146,7 @@ namespace ArtifactStoreTests
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(anotherUser, artifact.Id);
 
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false);
         }
@@ -217,7 +216,7 @@ namespace ArtifactStoreTests
 
             // Verify
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, basicArtifactInfo.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId : subArtifacts[0].Id);
         }
@@ -251,7 +250,7 @@ namespace ArtifactStoreTests
 
             // Verify
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId : subArtifacts[0].Id);
         }

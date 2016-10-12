@@ -32,7 +32,7 @@ namespace SearchServiceTests
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _projects = ProjectFactory.GetAllProjects(_adminUser, shouldRetrievePropertyTypes: true);
-            _project = ProjectFactory.GetProject(_adminUser);
+            _project = _projects[0];
             _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
         }
 
@@ -59,6 +59,8 @@ namespace SearchServiceTests
 
             // Verify:
             Assert.IsTrue(results.SearchItems.Count > 0, "List of SearchItems shouldn't be empty.");
+            Assert.That(results.SearchItems.Exists(si => si.ArtifactId == artifact.Id), "Published artifact must be in search results.");
+            Assert.IsTrue(artifact.Id == results.SearchItems[0].ArtifactId, "Published artifact must be in search results.");
             CompareArtifactWithSearchItem(artifact, results.SearchItems[0]);
         }
 
@@ -138,6 +140,7 @@ namespace SearchServiceTests
             {
                 var startIndex = RandomGenerator.RandomNumber(initialLength - 1);
                 var length = 1 + RandomGenerator.RandomNumber(initialLength - startIndex - 1);
+                Logger.WriteInfo("inputString - {0}, searchString - {1}", inputString, inputString.Substring(startIndex, length));
                 return inputString.Substring(startIndex, length);
             }
         }

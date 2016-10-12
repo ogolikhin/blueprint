@@ -37,7 +37,7 @@ export interface IProjectManager extends IDispose {
     getProject(id: number);
     getArtifactNode(id: number): IArtifactNode;
     getArtifact(id: number): IStatefulArtifact;
-    getSelectedProject(): Project; 
+    getSelectedProject(): Project;
 }
 
 
@@ -151,7 +151,7 @@ export class ProjectManager  implements IProjectManager {
         
         return defer.promise; 
     }
-    
+
     private doRefresh(project: Project, selectedArtifact: IStatefulArtifact, defer: any, currentProject: Models.IProject) {
         let selectedArtifactNode = this.getArtifactNode(selectedArtifact.id);
         

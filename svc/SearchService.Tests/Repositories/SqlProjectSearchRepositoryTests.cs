@@ -27,12 +27,12 @@ namespace SearchService.Repositories
             const int userId = 1;
             const int resultCount = 1;
             const string searchText = "test";
-            const char separatorChar = '/';
+            const string separatorString = "/";
             _cxn.SetupQueryAsync("GetProjectsByName",
-                new Dictionary<string, object> { { "userId", userId }, { "projectName", searchText }, { "resultCount", resultCount }, { "separatorChar", separatorChar } },
+                new Dictionary<string, object> { { "userId", userId }, { "projectName", searchText }, { "resultCount", resultCount }, { "separatorString", separatorString } },
                 new List<ProjectSearchResult>());
             // Act
-            var result = (await _projectSearchRepository.GetProjectsByName(userId, searchText, resultCount, separatorChar)).ToList();
+            var result = (await _projectSearchRepository.GetProjectsByName(userId, searchText, resultCount, separatorString)).ToList();
             Assert.AreEqual(0, result.Count);
         }
     }

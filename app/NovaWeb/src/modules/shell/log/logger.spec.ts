@@ -2,6 +2,7 @@
 import "angular-mocks";
 import { IServerLogger } from "./server-logger.svc";
 import { Logger } from "./logger";
+import { LogMock } from "./server-logger.svc.mock";
 
 //global buffer to check logger output
 var msg: string;
@@ -21,14 +22,6 @@ export class ServerLoggerMock implements IServerLogger {
         deferred.resolve();
         return deferred.promise;
     }
-}
-
-export class LogMock {
-    public apply() { }
-    public error() { }
-    public debug() { }
-    public info() { }
-    public warn() { }
 }
 
 describe("Logger", () => {

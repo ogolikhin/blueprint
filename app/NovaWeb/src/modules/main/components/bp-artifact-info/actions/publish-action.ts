@@ -8,6 +8,10 @@ export class PublishAction extends BPButtonAction {
         artifact: IStatefulArtifact,
         localization: ILocalizationService
     ) {
+        if (!localization) {
+            throw new Error("Localization service not provided or is null");
+        }
+        
         super(
             (): void => {
                 artifact.publish();
@@ -32,7 +36,7 @@ export class PublishAction extends BPButtonAction {
 
                 return true;
             },
-            "fonticon fonticon2-publish",
+            "fonticon2-publish-line",
             localization.get("App_Toolbar_Publish")
         );
     }

@@ -11,9 +11,9 @@ namespace Model.SearchServiceModel.Impl
 
     public class SearchItem
     {
-        public int ProjectId { get; set; }
+        public int? ProjectId { get; set; }
 
-        public int ArtifactId { get; set; }
+        public int? ArtifactId { get; set; }
 
         public int ItemId { get; set; }
 

@@ -5,7 +5,7 @@
     ILocalizationService,
     IMessageService,
     IArtifactManager,
-    IWindowManager,
+    IWindowManager
 } from "./bp-artifact-editor";
 
 export class BpArtifactGeneralEditor implements ng.IComponentOptions {
@@ -13,7 +13,7 @@ export class BpArtifactGeneralEditor implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BpGeneralArtifactEditorController;
     public controllerAs = "$ctrl";
     public bindings: any = {
-        context: "<",
+        context: "<"
     };
 }
 

@@ -10,11 +10,11 @@ export class BPTreeInlineEditing implements ng.IDirective {
     private valueFrom: string;
 
     public link: Function = ($scope: ng.IScope, $element: ng.IAugmentedJQuery, $attrs: ng.IAttributes) => {
-        var self = this;
+        const self = this;
         self.valueFrom = $attrs["bpTreeInlineEditing"];
 
-        var Controller = null;
-        var parent = $scope.$parent;
+        let Controller = null;
+        let parent = $scope.$parent;
         while (parent.$parent) {
             parent = parent.$parent;
             if (parent["$ctrl"] && parent["$ctrl"]._datasource) {
@@ -22,19 +22,19 @@ export class BPTreeInlineEditing implements ng.IDirective {
             }
         }
 
-        var containerCell: Element;
-        var containerRow: Element;
-        var gridBody: Element;
+        let containerCell: Element;
+        let containerRow: Element;
+        let gridBody: Element;
+        let data;
+        let currentValue;
+        let span;
 
         if (Controller) {
-            var data = $scope["data"];
-            var currentValue = data[self.valueFrom];
-
-            var span = $element[0];
+            data = $scope["data"];
+            currentValue = data[self.valueFrom];
+            span = $element[0];
             span.removeAttribute("bp-tree-inline-editing");
-
             containerCell = Helper.findAncestorByCssClass(span, "ag-cell");
-
             containerCell.addEventListener("keydown", inputEventHandler);
             containerCell.addEventListener("keypress", inputEventHandler);
             if (!data.hasChildren) { // enables double-click renaming only on non folders
@@ -43,14 +43,14 @@ export class BPTreeInlineEditing implements ng.IDirective {
         }
 
         function stopEditing() {
-            var editSpan = containerCell.querySelector(".ag-group-inline-edit") as HTMLElement;
-            var valueSpan = containerCell.querySelector(".ag-group-value-wrapper span:not(.ag-group-inline-edit)") as HTMLElement;
+            const editSpan = containerCell.querySelector(".ag-group-inline-edit") as HTMLElement;
+            const valueSpan = containerCell.querySelector(".ag-group-value-wrapper span:not(.ag-group-inline-edit)") as HTMLElement;
             if (self.editing && editSpan && valueSpan) {
-                var input = editSpan.querySelector("input") as HTMLInputElement;
+                const input = editSpan.querySelector("input") as HTMLInputElement;
                 input.removeEventListener("blur", stopEditing);
                 input.removeEventListener("keydown", inputEventHandler);
                 input.removeEventListener("click", inputEventHandler);
-                var newValue = input.value.trim();
+                const newValue = input.value.trim();
                 // to avoid any strange combination of characters (e.g. Ctrl+Z) or empty strings. Do we need more validation?
                 if (newValue !== "" && newValue.charCodeAt(0) > 32) {
                     valueSpan.textContent = newValue;
@@ -58,7 +58,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
                 } else {
                     valueSpan.textContent = currentValue;
                 }
-                var parentSpan = editSpan.parentElement;
+                const parentSpan = editSpan.parentElement;
                 parentSpan.removeChild(editSpan);
                 valueSpan.style.display = "inline-block";
                 // reset the focus on the container div so that the keyboard navigation can resume
@@ -74,14 +74,14 @@ export class BPTreeInlineEditing implements ng.IDirective {
 
         function inlineEdit() {
             self.selectedNode = Controller.options.api.getSelectedNodes()[0];
-            var valueSpan = containerCell.querySelector(".ag-group-value-wrapper span:not(.ag-group-inline-edit)") as HTMLElement;
+            const valueSpan = containerCell.querySelector(".ag-group-value-wrapper span:not(.ag-group-inline-edit)") as HTMLElement;
             containerRow = Helper.findAncestorByCssClass(span, "ag-row");
             gridBody = Helper.findAncestorByCssClass(span, "ag-body");
             if (!self.editing && valueSpan) {
-                var editSpan = document.createElement("span");
+                const editSpan = document.createElement("span");
                 editSpan.className = "ag-group-inline-edit";
 
-                var input = document.createElement("input");
+                const input = document.createElement("input");
                 input.setAttribute("type", "text");
                 if (angular.element(containerRow).hasClass("ag-row-draggable")) {
                     input.setAttribute("ng-cancel-drag", "");
@@ -110,24 +110,24 @@ export class BPTreeInlineEditing implements ng.IDirective {
         // by keypress. An uppercase "A" is reported as 65 by all events. Because of this distinction, when catching
         // special keystrokes such as arrow keys, .keydown() or .keyup() is a better choice.
         function inputEventHandler(e) {
-            var key = e.which || e.keyCode;
+            const key = e.which || e.keyCode;
 
             if (self.editing) {
-                var editSpan = containerCell.querySelector(".ag-group-inline-edit");
+                const editSpan = containerCell.querySelector(".ag-group-inline-edit");
                 if (editSpan) {
-                    var input = editSpan.querySelector("input") as HTMLInputElement;
-                    var inputValue = input.value;
-                    var selectionStart = input.selectionStart;
-                    var selectionEnd = input.selectionEnd;
+                    const input = editSpan.querySelector("input") as HTMLInputElement;
+                    let inputValue = input.value;
+                    let selectionStart = input.selectionStart;
+                    let selectionEnd = input.selectionEnd;
 
                     if (e.type === "keypress") {
                         // Do we need to filter the input?
                         //var validCharacters = /[a-zA-Z0-9 ]/;
-                        var char = String.fromCharCode(key);
+                        const char = String.fromCharCode(key);
 
                         //if (validCharacters.test(char)) {
-                        var firstToken = inputValue.substring(0, selectionStart);
-                        var secondToken = inputValue.substring(selectionEnd);
+                        const firstToken = inputValue.substring(0, selectionStart);
+                        const secondToken = inputValue.substring(selectionEnd);
                         inputValue = firstToken + char + secondToken;
                         input.value = inputValue;
 
@@ -149,7 +149,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
             } else {
                 if (key === 13 && data.Type === "Folder") {
                     //user pressed Enter key on folder, do nothing and let ag-grid open/close the folder, unless editing
-                    var element = e.target || e.srcElement;
+                    const element = e.target || e.srcElement;
                     if (element.tagName.toLowerCase() !== "input") {
                         console.log("pressed Enter on folder: I should open/close [" + data.id + ": " + data.name + "]");
                     } else {

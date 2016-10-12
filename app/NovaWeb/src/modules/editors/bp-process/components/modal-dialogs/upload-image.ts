@@ -34,8 +34,8 @@ export class UploadImageDirective implements ng.IDirective {
     }
 
     public static factory(): ng.IDirectiveFactory {
-        var directive: ng.IDirectiveFactory = (fileUploadService: IFileUploadService,
-                                               $window: ng.IWindowService, $timeout: ng.ITimeoutService, $compile: ng.ICompileService) =>
+        const directive: ng.IDirectiveFactory = (fileUploadService: IFileUploadService,
+                                                 $window: ng.IWindowService, $timeout: ng.ITimeoutService, $compile: ng.ICompileService) =>
             new UploadImageDirective(fileUploadService, $window, $timeout, $compile);
         directive.$inject = ["fileUploadService", "$window", "$timeout", "$compile"];
         return directive;
@@ -51,10 +51,10 @@ export class UploadImageDirective implements ng.IDirective {
             this.createImage($scope, $element, attr);
         }
 
-        var uploadImageCntr = $element.find("#upload-image");
+        const uploadImageCntr = $element.find("#upload-image");
 
         $scope.uploadImage = () => {
-            var fileInput = uploadImageCntr;
+            const fileInput = uploadImageCntr;
             fileInput.click();
         };
 
@@ -65,7 +65,7 @@ export class UploadImageDirective implements ng.IDirective {
         };
 
         $scope.clearImage = () => {
-            var fileInput = uploadImageCntr;
+            const fileInput = uploadImageCntr;
             fileInput.val("");
             this.clearImageContainer($scope, $element, attr);
             this.toggleButtons($scope, $element, false);
@@ -80,9 +80,9 @@ export class UploadImageDirective implements ng.IDirective {
         $scope.fileChanged = (element: any) => {
             $scope.typeError = false;
             $scope.sizeError = false;
-            var dataFile = element.files[0];
+            const dataFile = element.files[0];
             if (dataFile) { //datafile is defined only if the user selects a file, on delete it is null
-                var type = (dataFile.type || "").toLowerCase();
+                let type = (dataFile.type || "").toLowerCase();
                 if (type.indexOf("/") > -1) {
                     type = type.split("/")[1];
                 }
@@ -95,7 +95,7 @@ export class UploadImageDirective implements ng.IDirective {
                     return;
                 }
                 // Create new file in filestore as a temporary file with expirary 1 day.
-                var expirationDate = new Date();
+                const expirationDate = new Date();
                 expirationDate.setDate(expirationDate.getDate() + 1);
                 this.fileUploadService.uploadToFileStore(dataFile, expirationDate).then((result: IFileResult) => {
                     $scope.systemTaskModel.associatedImageUrl = result.uriToFile;
@@ -113,7 +113,7 @@ export class UploadImageDirective implements ng.IDirective {
         $scope.imageUrl = $scope.systemTaskModel.associatedImageUrl;
         let decacheValue = "decache=" + Math.random();
         //if query parameter already exists in the image then append the decache value to query parameter
-        //else create query parameter 
+        //else create query parameter
         if ($scope.imageUrl.indexOf("?") > 0) {
             $scope.imageUrl += "&" + decacheValue;
         } else {
@@ -128,8 +128,8 @@ export class UploadImageDirective implements ng.IDirective {
     }
 
     private clearImageContainer($scope: IUploadImageScope, $element: ng.IAugmentedJQuery, attr: ng.IAttributes) {
-        var result = document.getElementsByClassName("file-upload_preview");
-        var wrappedResult = angular.element(result);
+        const result = document.getElementsByClassName("file-upload_preview");
+        const wrappedResult = angular.element(result);
         wrappedResult.empty();
     }
 

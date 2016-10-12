@@ -1,4 +1,4 @@
-import {IWindowManager,} from "../../../../main/services";
+import {IWindowManager} from "../../../../main/services";
 import {BpArtifactInfoController} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
 import {IMessageService, ILocalizationService} from "../../../../core";
 import {IDialogService} from "../../../../shared";

@@ -19,6 +19,7 @@ export class BPFileUpload implements ng.IDirective {
     };
 
     constructor() {
+//fixme: empty constructors can be removed as not needed
     }
 
     public static factory() {

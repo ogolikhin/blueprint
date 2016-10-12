@@ -238,9 +238,9 @@ export class BPDiagramController extends BpBaseEditor {
     }
 
     private stylizeSvg($element: ng.IAugmentedJQuery, width: number, height: number) {
-        var w = width + "px";
-        var h = height + "px";
-        var svg = $element.find("svg");
+        const w = width + "px";
+        const h = height + "px";
+        const svg = $element.find("svg");
 
         svg.css("width", w);
         svg.css("height", h);

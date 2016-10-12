@@ -3,28 +3,6 @@ import * as Grid from "ag-grid/main";
 import {ILocalizationService} from "../../../core";
 import {RowNode} from "ag-grid/main";
 
-/*
- tslint:disable
- */ /*
- Sample template. See following parameters:
- <bp-tree
- grid-class="project_explorer" - wrapper css class name
- row-buffer="200" - number of rendered outside the scrollable viewable area the ag-grid renders. Having a buffer means the grid will have rows ready to show as the user slowly scrolls vertically.
- row-height="24" - row height in pixels
- header-height="20" - header height in pixels. Set to 0 to disable
- enable-editing-on="name,desc" - list of column where to activate inline editing
- enable-dragndrop="true" - enable rows drag and drop
- grid-columns="$ctrl.columns"  - column definition
- on-load="$ctrl.doLoad(prms)"  - gets data to load tree root nodes or a sub-tree (child node)
- on-select="$ctrl.doSelect(item)"> - to be called then a node is selected
- on-row-click="$ctrl.doRowClick(prms)" - to be called when a row is clicked
- on-row-dblclick="$ctrl.doRowDblClick(prms)" - to be called when a row is double-clicked (will cancel single-click)
- on-row-post-create="$ctrl.doRowPostCreate(prms)" - to be called after a row is created
- </bp-tree>
- */ /*
- tslint:enable
- */
-
 export class BPTreeComponent implements ng.IComponentOptions {
     public template: string = require("./bp-tree.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPTreeController;
@@ -439,7 +417,7 @@ export class BPTreeController implements IBPTreeController {
     };
 
     private cellFocused = (params: any) => {
-        var model = this.options.api.getModel();
+        const model = this.options.api.getModel();
         let selectedRow = model.getRow(params.rowIndex);
         this.rowSelected(selectedRow);
     };

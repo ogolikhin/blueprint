@@ -6,7 +6,7 @@ import {
     IArtifactManager,
     IMessageService,
     IWindowManager,
-    PropertyContext,
+    PropertyContext
 } from "./bp-artifact-editor";
 
 import {IDialogService} from "../../shared";
@@ -17,7 +17,7 @@ export class BpArtifactDetailsEditor implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactDetailsEditorController;
     public controllerAs = "$ctrl";
     public bindings: any = {
-        context: "<",
+        context: "<"
     };
 }
 

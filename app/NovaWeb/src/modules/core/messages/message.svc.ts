@@ -76,7 +76,7 @@ export class MessageService implements IMessageService {
 
     private clearMessages(): void {
         if (this._messages) {
-            for (var msg in this._messages) {
+            for (let msg in this._messages) {
                 this.cancelTimer(msg["id"]);
             }
             this._messages.length = 0;

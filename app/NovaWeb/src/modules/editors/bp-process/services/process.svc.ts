@@ -64,7 +64,7 @@ export class ProcessService implements IProcessService {
 
     public getProcesses(projectId: number): ng.IPromise<ProcessModels.IArtifactReference[]> {
         const restPath = `/svc/components/storyteller/projects/${projectId}/processes`;
-        var deferred = this.$q.defer<ProcessModels.IArtifactReference[]>();
+        const deferred = this.$q.defer<ProcessModels.IArtifactReference[]>();
 
         this.$http.get<ProcessModels.IArtifactReference[]>(restPath).then(
             (result: ng.IHttpPromiseCallbackArg<ProcessModels.IArtifactReference[]>) => {

@@ -90,7 +90,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     //Hook for subclasses to do some post processing
     protected runPostGetObservable() {
-
+//fixme: if empty function should be removed or return undefined
     }
 
     public discard() {
@@ -360,7 +360,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         //History and Discussions refresh independently, triggered by artifact's observable.
 
-        // get promises for custom artifact refresh operations 
+        // get promises for custom artifact refresh operations
         promisesToExecute.push.apply(promisesToExecute,
             this.getCustomArtifactPromisesForRefresh());
 
@@ -373,15 +373,15 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             //This steals control flow, don't put anything after it.
             this.subject.onError(error);
         });
-        
-        
+
+
         return deferred.promise;
     }
 
     protected getCustomArtifactPromisesForRefresh(): ng.IPromise<any>[] {
 
-        // Note: override in sub-class to return an array of promises 
-        // for custom artifact refresh operations 
+        // Note: override in sub-class to return an array of promises
+        // for custom artifact refresh operations
         return [];
     }
 }

@@ -71,7 +71,7 @@ export class MetaDataService implements IMetaDataService {
                         deferred.reject();
                         return;
                     }
-                    var error = {
+                    const error = {
                         statusCode: errResult.status,
                         message: "Project_NotFound"
                     };
@@ -222,18 +222,18 @@ export class MetaDataService implements IMetaDataService {
                 properties.push({
                     name: this.localization.get("Label_ActorImage", "Image"), //TODO localize
                     propertyTypePredefined: Models.PropertyTypePredefined.Image,
-                    primitiveType: Models.PrimitiveType.Image,
+                    primitiveType: Models.PrimitiveType.Image
                 }, {
                     name: this.localization.get("Label_ActorInheritFrom", "Inherit from"), //TODO localize
                     propertyTypePredefined: Models.PropertyTypePredefined.ActorInheritance,
-                    primitiveType: Models.PrimitiveType.ActorInheritance,
+                    primitiveType: Models.PrimitiveType.ActorInheritance
                 });
                 break;
             case Models.ItemTypePredefined.Document:
                 properties.push({
                     name: this.localization.get("Label_DocumentFile", "DocumentFile"), //TODO localize
                     propertyTypePredefined: Models.PropertyTypePredefined.DocumentFile,
-                    primitiveType: Models.PrimitiveType.DocumentFile,
+                    primitiveType: Models.PrimitiveType.DocumentFile
                 });
                 break;
             default:
@@ -268,7 +268,7 @@ export class MetaDataService implements IMetaDataService {
             properties.push(<Models.IPropertyType>{
                 name: "Step Of",
                 propertyTypePredefined: Models.PropertyTypePredefined.StepOf,
-                primitiveType: Models.PrimitiveType.Choice,
+                primitiveType: Models.PrimitiveType.Choice
             });
         }
 

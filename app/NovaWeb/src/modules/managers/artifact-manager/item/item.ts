@@ -214,6 +214,7 @@ export abstract class StatefulItem implements IIStatefulItem {
     }
 
     public lock() {
+        //fixme: if empty function should be removed or return undefined
     }
 
     protected isFullArtifactLoadedOrLoading() {
@@ -240,7 +241,7 @@ export abstract class StatefulItem implements IIStatefulItem {
             delete this._docRefs;
         }
         //TODO: REMOVE WHEN AUTO-SAVE GETS COMPLETED. AUTO-SAVE SHOULD ALREADY HAVE THIS FLAG SET TO FALSE.
-        if(this.artifactState) {
+        if (this.artifactState) {
             this.artifactState.dirty = false;
         }
         //TODO: implement the same for all objects
@@ -330,7 +331,7 @@ export abstract class StatefulItem implements IIStatefulItem {
         return delta;
     }
 
-    //TODO: moved from bp-artifactinfo 
+    //TODO: moved from bp-artifactinfo
 
     abstract artifactState: IArtifactState;
 

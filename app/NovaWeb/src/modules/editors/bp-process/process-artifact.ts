@@ -46,7 +46,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         this.loadProcessPromise = this.loadProcess();
         return [this.loadProcessPromise];
     }
-   
+
     protected runPostGetObservable() {
         this.loadProcessPromise = null;
     }
@@ -55,7 +55,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         // Returns promises for operations that are needed to refresh
         // this process artifact
 
-        var loadProcessPromise = this.loadProcess();
+        const loadProcessPromise = this.loadProcess();
 
         return [loadProcessPromise];
     }

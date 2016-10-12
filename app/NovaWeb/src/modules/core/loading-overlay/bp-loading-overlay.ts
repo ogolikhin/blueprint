@@ -21,5 +21,6 @@ export class BpLoadingOverlayController implements IBpLoadingOverlayController {
     }
 
     public $onDestroy() {
+//fixme: if block is empty remove it.
     }
 }

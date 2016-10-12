@@ -164,7 +164,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 id: project.id,
                 type: Models.ProjectNodeType.Project,
                 name: project.name,
-                hasChildren: project.hasChildren,
+                hasChildren: project.hasChildren
             } as Models.IProjectNode, true);
         } else {
             this.currentSelectionMode = "single";

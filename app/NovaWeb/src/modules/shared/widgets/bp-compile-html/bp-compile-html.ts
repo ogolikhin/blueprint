@@ -23,15 +23,15 @@ export class BPCompileHtml implements ng.IDirective {
     }
 
     public link: ng.IDirectiveLinkFn = ($scope: IBPCompileHtmlScope, $element: ng.IAugmentedJQuery) => {
-        var template = $scope.bpCompileHtml;
+        const template = $scope.bpCompileHtml;
 
         if (template && template.charAt(0) !== "<") {
             $element.replaceWith(template);
             return;
         }
 
-        var linker: ng.ITemplateLinkingFunction = this.$compile(template);
-        var content = linker($scope);
+        const linker: ng.ITemplateLinkingFunction = this.$compile(template);
+        const content = linker($scope);
         $element.replaceWith(content);
     };
 }

@@ -7,7 +7,7 @@ import { ArtifactPickerNodeVM, ArtifactNodeVM } from "../../bp-artifact-picker/b
 import {
     IStatefulItem,
     IArtifactManager,
-    IArtifactRelationships,
+    IArtifactRelationships
 } from "../../../../managers/artifact-manager";
 
 export interface IArtifactSelectedArtifactMap {
@@ -37,7 +37,7 @@ export class ManageTracesDialogController extends BaseDialogController {
     public options = [
         { value: "1", label: this.localization.get("App_UP_Relationships_To") },
         { value: "2", label: this.localization.get("App_UP_Relationships_From") },
-        { value: "3", label: this.localization.get("App_UP_Relationships_Bidirectional") },
+        {value: "3", label: this.localization.get("App_UP_Relationships_Bidirectional")}
     ];
 
     constructor($uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,

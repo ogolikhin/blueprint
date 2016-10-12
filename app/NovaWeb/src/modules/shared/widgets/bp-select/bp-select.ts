@@ -33,6 +33,7 @@ export class BPSelectController implements IBPSelectController {
     public selectedOption: IOption;
 
     constructor() {
+        //fixme: empty constructors are not needed
     }
 
     public $onChanges(changesObj) {

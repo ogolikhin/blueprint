@@ -22,7 +22,7 @@ export class BpSidebarLayout implements ng.IComponentOptions {
             isRightToggled: "<",
             leftPanelTitle: "@",
             rightPanelTitle: "@",
-            togglePanel: "&?",
+            togglePanel: "&?"
         };
         this.transclude = {
             "content-left": "bpSidebarLayoutContentLeft",
@@ -47,9 +47,12 @@ export class BpSidebarLayoutCtrl implements ISidebarController {
     }
 
     public $onInit() {
+//fixme: empty blocks should be removed
     }
 
     public $onChanged(obj: any) {
+//fixme: empty blocks should be removed
+
     }
 
     public togglePanel: Function;

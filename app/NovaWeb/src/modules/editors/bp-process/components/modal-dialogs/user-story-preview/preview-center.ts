@@ -38,15 +38,15 @@ export class PreviewCenterController {
     ];
 
     public resizeContentAreas = function (isTabSetVisible) {
-        var availHeight = window.innerHeight ? window.innerHeight :
+        const availHeight = window.innerHeight ? window.innerHeight :
             (document.documentElement && document.documentElement.clientHeight ? document.documentElement.clientHeight :
                 (document.body ? document.body.clientHeight : screen.availHeight));
         //unfortunately this is very dependant on the way the GWT window is made :-(
         //the following is based on 930px (availHeight) - (25px (hidden tabs) or 192px (visible tabs) - 500px of other elements)
-        var tabSetHeight = isTabSetVisible ? 201 : 25;
-        var compensationValue = 500;
-        var acceptanceCriteriaMaxHeight = availHeight - compensationValue - tabSetHeight;
-        var acceptanceCriteria = <any>document.body.querySelector(".modal-content-autoscroll");
+        const tabSetHeight = isTabSetVisible ? 201 : 25;
+        const compensationValue = 500;
+        const acceptanceCriteriaMaxHeight = availHeight - compensationValue - tabSetHeight;
+        const acceptanceCriteria = <any>document.body.querySelector(".modal-content-autoscroll");
         if (acceptanceCriteria) {
             acceptanceCriteria.setAttribute("style", "max-height:" + acceptanceCriteriaMaxHeight + "px");
         }
@@ -78,7 +78,7 @@ export class PreviewCenterController {
             return;
         }
 
-        var n = document.createTextNode(" ");
+        const n = document.createTextNode(" ");
         element.appendChild(n);
 
         setTimeout(function () {
@@ -88,11 +88,8 @@ export class PreviewCenterController {
 
     public strIsNotEmpty = (value: string): boolean => {
         //todo: Settings of tinymce should be changed
-        if (value && value.trim().replace("\u200B", "").length > 0) {
-            return true;
-        }
-        return false;
-    }
+        return !!(value && value.trim().replace("\u200B", "").length > 0);
+    };
 
     public static getTaskLabelNameValue(name: string, label: string): string {
         if (label && 0 !== label.length) {
@@ -105,7 +102,7 @@ export class PreviewCenterController {
     }
 
     public static getTaskLabel(task: IDiagramNode): string {
-        var label: string = "";
+        let label: string = "";
         if (task.model && task.model.propertyValues["label"] && task.model.propertyValues["label"]) {
             label = task.model.propertyValues["label"].value;
         }

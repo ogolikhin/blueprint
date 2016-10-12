@@ -31,7 +31,7 @@ export class ProjectExplorerController {
         //use context reference as the last parameter on subscribe...
         this.subscribers = [
             //subscribe for project collection update
-            this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
+            this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this)
         ];
     }
 
@@ -100,7 +100,7 @@ export class ProjectExplorerController {
 
     private onLoadProject = (projects: Project[]) => {
         //NOTE: this method is called during "$onInit" and as a part of "Rx.BehaviorSubject" initialization.
-        // At this point the tree component (bp-tree) is not created yet due to component hierachy (dependant) 
+        // At this point the tree component (bp-tree) is not created yet due to component hierachy (dependant)
         // so, just need to do an extra check if the component has created
         if (this.tree) {
 

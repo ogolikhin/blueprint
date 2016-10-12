@@ -52,8 +52,8 @@ export class BPInfiniteScroll implements ng.IDirective {
         }
     };
 
-    constructor(//list of other dependencies
-    ) {
+    constructor() {
+        //fixme: empty constructors are not needed
     }
 
     public static factory() {

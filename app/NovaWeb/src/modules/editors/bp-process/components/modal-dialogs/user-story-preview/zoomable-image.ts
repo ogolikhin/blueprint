@@ -54,7 +54,7 @@ export class ZoomableImageDirective implements ng.IDirective {
                 template: `<div class="image-preview">
                                 <i class="fonticon-close" ng-click="vm.cancel()"></i>
                                 <img ng-src="{{ vm.imageAttributes.image }}" alt="{{ vm.imageAttributes.alt }}" />
-                            </div>`,
+                            </div>`
             });
         };
     };

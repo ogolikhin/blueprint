@@ -164,7 +164,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                         padding: 20
                     } : undefined,
                     suppressMenu: true,
-                    suppressSorting: true,
+                    suppressSorting: true
                 } as agGrid.ColDef;
             }));
 

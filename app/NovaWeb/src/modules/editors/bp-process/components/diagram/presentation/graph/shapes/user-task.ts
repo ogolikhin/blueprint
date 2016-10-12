@@ -76,18 +76,20 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         this.deleteShapeButton = new Button(`DS${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("delete-neutral.svg"));
         this.deleteShapeButton.isEnabled = true;
 
-        if (nodeFactorySettings && nodeFactorySettings.isRelationshipButtonEnabled) {            
+        if (nodeFactorySettings && nodeFactorySettings.isDeleteShapeEnabled) {
+            this.deleteShapeButton.setActiveImage(this.getImageSource("delete-active.svg"));
+            this.deleteShapeButton.setHoverImage(this.getImageSource("delete-hover.svg"));            
             this.deleteShapeButton.setClickAction(() => 
             {
                 this.processDiagramManager.action(ProcessEvents.DeleteShape);
             });
         } else {
+            this.deleteShapeButton.setDisabledImage("/novaweb/static/bp-process/images/delete-inactive.svg");
             this.deleteShapeButton.setClickAction(() => { });
         }
 
-        this.deleteShapeButton.setTooltip(this.rootScope.config.labels["ST_Relationships_Label"]);
-        this.deleteShapeButton.setActiveImage(this.getImageSource("delete-active.svg"));
-        this.deleteShapeButton.setHoverImage(this.getImageSource("delete-hover.svg"));
+        this.deleteShapeButton.setTooltip(this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"]);
+        
         
         //Shape Comments
         this.commentsButton = new Button(`CB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("comments-neutral.svg"));

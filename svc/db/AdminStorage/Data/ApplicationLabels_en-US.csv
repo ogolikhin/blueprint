@@ -345,6 +345,7 @@ ST_Inline_Traces_Search_No_Matches_Found, "No matches found"
 ST_Inline_Traces_Search_Bad_Request, "Bad search request"
 ST_Search_Project_Scope_Mentions_Includes, "#mention or include artifacts from the current project only"
 ST_System_Task_Name_Helper_Text, "The system will be [Response]"
+ST_Shapes_Delete_Tooltip, "Delete Shape"
 
 ST_Given_Label, "Given"
 ST_Then_Label, "Then"

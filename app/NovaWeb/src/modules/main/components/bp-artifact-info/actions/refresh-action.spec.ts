@@ -104,7 +104,7 @@ describe("RefreshAction", () => {
 
         // assert
         expect(error).not.toBeNull();
-        expect(error).toEqual(new Error("Artifact manager not provided or is null"));
+        expect(error).toEqual(new Error("Artifact not provided or is null"));
     }));
 
     it("throws exception when loadingOverlayService is null", 

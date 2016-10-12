@@ -148,7 +148,7 @@ describe("ManageTracesController", () => {
             expect(ctrl.selectedTraces[ctrl.data.artifactId][0].suspect).toBe(false);
         }));
 
-    it("should manual traces",
+    it("should get manual traces",
         inject(($rootScope: ng.IRootScopeService, ctrl: ManageTracesDialogController) => {
 
             //Act

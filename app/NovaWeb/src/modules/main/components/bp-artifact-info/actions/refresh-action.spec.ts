@@ -280,8 +280,8 @@ describe("RefreshAction", () => {
             endLoadingSpy = spyOn(loadingOverlayService, "endLoading").and.callThrough();
         }));
 
-        describe("with failure", () => {
-            it("shows loading screen", () => {
+        describe("and refresh fails", () => {
+            beforeEach(() => {
                 // arrange
                 refreshSpy.and.callFake(() => {
                     const deferred = $q.defer();
@@ -292,62 +292,31 @@ describe("RefreshAction", () => {
                 // act
                 refreshAction.execute();
                 $scope.$digest();
+            });
 
+            it("shows loading screen", () => {
                 // assert
                 expect(beginLoadingSpy).toHaveBeenCalled();
             });
 
             it("calls refresh on artifact", () => {
-                // arrange
-                refreshSpy.and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.reject(null);
-                    return deferred.promise;
-                });
-
-                // act
-                refreshAction.execute();
-                $scope.$digest();
-                
                 // assert
                 expect(refreshSpy).toHaveBeenCalled();
             });
 
             it("calls project manager refresh", () => {
-                // arrange
-                refreshSpy.and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.reject(null);
-                    return deferred.promise;
-                });
-
-                // act
-                refreshAction.execute();
-                $scope.$digest();
-                
                 // assert
                 expect(projectRefreshSpy).toHaveBeenCalled();
             });
 
             it("hides loading screen", () => {
-                // arrange
-                refreshSpy.and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.reject(null);
-                    return deferred.promise;
-                });
-
-                // act
-                refreshAction.execute();
-                $scope.$digest();
-                
                 // assert
                 expect(endLoadingSpy).toHaveBeenCalled();
             });
         });
 
-        describe("with success", () => {
-            it("shows loading screen", () => {
+        describe("and refresh succeeds", () => {
+            beforeEach(() => {
                 refreshSpy.and.callFake(() => {
                     const deferred = $q.defer();
                     deferred.resolve();
@@ -357,41 +326,22 @@ describe("RefreshAction", () => {
                 // act
                 refreshAction.execute();
                 $scope.$digest();
+            });
 
+            it("shows loading screen", () => {
                 // assert
                 expect(beginLoadingSpy).toHaveBeenCalled();
             });
 
             it("calls refresh on artifact", () => {
-                refreshSpy.and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve();
-                    return deferred.promise;
-                });
-
-                // act
-                refreshAction.execute();
-                $scope.$digest();
-                
                 // assert
                 expect(refreshSpy).toHaveBeenCalled();
             });
 
             it("hides loading screen", () => {
-                refreshSpy.and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve();
-                    return deferred.promise;
-                });
-
-                // act
-                refreshAction.execute();
-                $scope.$digest();
-                
                 // assert
                 expect(endLoadingSpy).toHaveBeenCalled();
             });
         });
-        
     });
 });

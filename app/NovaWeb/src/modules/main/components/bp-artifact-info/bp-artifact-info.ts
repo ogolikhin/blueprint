@@ -244,7 +244,7 @@ export class BpArtifactInfoController {
 
         this.toolbarActions.push(
             new BPButtonGroupAction(
-                new SaveAction(artifact, this.localization, this.messageService, this.loadingOverlayService, this.artifactManager),
+                new SaveAction(artifact, this.localization, this.messageService, this.loadingOverlayService),
                 new PublishAction(artifact, this.localization),
                 new DiscardAction(artifact, this.localization),
                 new RefreshAction(this.localization, this.projectManager, this.artifactManager, this.loadingOverlayService),

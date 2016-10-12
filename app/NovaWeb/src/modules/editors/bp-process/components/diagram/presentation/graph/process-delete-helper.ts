@@ -322,7 +322,7 @@ export class ProcessDeleteHelper {
     }
 
   private static deleteShapesAndLinksByIds(shapesToBeDeletedIds: number[], processGraph: IProcessGraph) {
-        for (var i in shapesToBeDeletedIds) {
+        for (let i in shapesToBeDeletedIds) {
             processGraph.viewModel.removeShape(shapesToBeDeletedIds[i]);
             processGraph.viewModel.links = processGraph.viewModel.links.filter(link => { return link.sourceId !== shapesToBeDeletedIds[i]; });
         }

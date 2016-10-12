@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import {IIStatefulItem} from "../item";
 import {ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet} from "../changeset";
-import { IRelationship, IArtifactRelationshipsResultSet, LinkType } from "../../../main/models/relationshipmodels";
+import { IRelationship, IArtifactRelationshipsResultSet, LinkType } from "../../../main/models/relationshipModels";
 
 export interface IArtifactRelationships {
     getObservable(): Rx.IObservable<IRelationship[]>;

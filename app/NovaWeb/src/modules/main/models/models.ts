@@ -10,7 +10,7 @@ import {
     LockResultEnum
 } from "./enums";
 import {IArtifactAttachment, IArtifactDocRef} from "../../managers/artifact-manager";
-import {IRelationship} from "./relationshipmodels";
+import {IRelationship} from "./relationshipModels";
 
 export enum ArtifactStateEnum {
     Published = 0,
@@ -188,7 +188,7 @@ export interface IProject extends IArtifact {
 
 }
 
-// export class Project implements IProject { 
+// export class Project implements IProject {
 //     constructor(...data: any[]) { //
 //         angular.extend(this, ...data);
 //         this.itemTypeId = <number>ItemTypePredefined.Project;

@@ -50,10 +50,6 @@ export class RefreshAction extends BPButtonAction {
                     return false;
                 }
 
-                if (artifact.artifactState.readonly) {
-                    return false;
-                }
-
                 if (artifact.artifactState.dirty) {
                     return false;
                 }

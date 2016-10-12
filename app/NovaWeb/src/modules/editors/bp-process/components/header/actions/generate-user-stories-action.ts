@@ -7,12 +7,20 @@ import {ProcessShapeType} from "../../../models/enums";
 
 export class GenerateUserStoriesAction extends BPDropdownAction {
     constructor(
-        processArtifact: StatefulProcessArtifact,
+        process: StatefulProcessArtifact,
         selectionManager: ISelectionManager,
         localization: ILocalizationService
     ) {
+        if (!selectionManager) {
+            throw new Error("Selection manager is not provided or is null");
+        }
+
+        if (!localization) {
+            throw new Error("Localization service is not provided or is null");
+        }
+
         super(
-            () => !processArtifact.artifactState.readonly,
+            () => !process.artifactState.readonly,
             "fonticon fonticon2-news",
             localization.get("ST_Generate_Toolbar_Button"),
             undefined,
@@ -22,7 +30,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                     console.log("'Generate from Task' clicked");
                 },
                 () => {
-                    if (processArtifact.artifactState.readonly) {
+                    if (process.artifactState.readonly) {
                         return false;
                     }
 
@@ -48,7 +56,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                 () => {
                     console.log("'Generate All' clicked");
                 }, 
-                () => !processArtifact.artifactState.readonly
+                () => !process.artifactState.readonly
             )
         );
     }

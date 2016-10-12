@@ -233,6 +233,18 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         });
     }
 
+    public setItemDirection(trace: IRelationship): void { 
+        // this is called after we update direction. all it does is trigger dirty/save state.
+        this.item.relationships.updateManual(this.manualTraces);
+    }
+
+    public toggleItemFlag(trace: IRelationship) {
+        if (trace.hasAccess) {
+            trace.suspect = trace.suspect === true ? false : true;
+            this.item.relationships.updateManual(this.manualTraces);
+        }
+    }
+
     public openManageTraces() {
         const dialogSettings: IDialogSettings = {
             okButton: this.localization.get("App_Button_Ok"),

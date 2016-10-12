@@ -2,39 +2,56 @@ import {ILocalizationService} from "../../../../core";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay";
 import {BPButtonAction} from "../../../../shared";
 import {IProjectManager} from "../../../../managers/project-manager";
-import {IArtifactManager} from "../../../../managers/artifact-manager";
+import {IStatefulArtifact} from "../../../../managers/artifact-manager";
+import {ItemTypePredefined} from "../../../../main/models/enums";
 
 export class RefreshAction extends BPButtonAction {
-    constructor(localization: ILocalizationService,
-                private projectManager: IProjectManager,
-                private artifactManager: IArtifactManager,
-                private loadingOverlayService: ILoadingOverlayService) {
+    constructor(
+        artifact: IStatefulArtifact,
+        localization: ILocalizationService,
+        projectManager: IProjectManager,
+        loadingOverlayService: ILoadingOverlayService
+    ) {
+        if (!artifact) {
+            throw new Error("Artifact not provided or is null");
+        }
+
+        if (!localization) {
+            throw new Error("Localization service not provided or is null");
+        }
+
+        if (!projectManager) {
+            throw new Error("Project manager not provided or is null");
+        }
+
+        if (!loadingOverlayService) {
+            throw new Error("Loading overlay service not provided or is null");
+        }
+
         super(
             (): void => {
                 //loading overlay
-                const overlayId = this.loadingOverlayService.beginLoading();
-                const currentArtifact = this.artifactManager.selection.getArtifact();
+                const overlayId = loadingOverlayService.beginLoading();
 
-                currentArtifact.refresh()
+                artifact.refresh()
                     .catch((error) => {
                         // We're not interested in the error type.
                         // sometimes this error is created by artifact.load(), which returns the statefulArtifact instead of an error object.
-                        this.projectManager.refresh(this.projectManager.getSelectedProject());
+                        const refreshOverlayId = loadingOverlayService.beginLoading();
+                        projectManager.refresh(projectManager.getSelectedProject()).finally(() => {
+                            projectManager.triggerProjectCollectionRefresh();
+                            loadingOverlayService.endLoading(refreshOverlayId);
+                        });
                     }).finally(() => {
-                    this.loadingOverlayService.endLoading(overlayId);
-                });
+                        loadingOverlayService.endLoading(overlayId);
+                    });
             },
             (): boolean => {
-                const currentArtifact = this.artifactManager.selection.getArtifact();
-                if (!currentArtifact) {
+                if (artifact.predefinedType === ItemTypePredefined.Project || artifact.predefinedType === ItemTypePredefined.Collections) {
                     return false;
                 }
 
-                if (currentArtifact.artifactState.readonly) {
-                    return false;
-                }
-
-                if (currentArtifact.artifactState.dirty) {
+                if (artifact.artifactState.dirty) {
                     return false;
                 }
 

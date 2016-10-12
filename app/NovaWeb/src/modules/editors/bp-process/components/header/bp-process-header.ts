@@ -70,8 +70,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
 
         this.breadcrumbLinks = [];
         this.isDeleteButtonEnabled = false;
-        this.toolbarCommunicationManager = communicationManager.toolbarCommunicationManager;
-        this.enableDeleteButtonHandler = this.toolbarCommunicationManager.registerEnableDeleteObserver(this.enableDeleteButton);
+        this.toolbarCommunicationManager = communicationManager.toolbarCommunicationManager;        
     }
 
     public $onInit() {
@@ -92,18 +91,9 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
     }
 
     public $onDestroy() {
-        super.$onDestroy();
-
-        //dispose subscribers
-        this.toolbarCommunicationManager.removeEnableDeleteObserver(this.enableDeleteButtonHandler);
+        super.$onDestroy();        
     }
-
-    public enableDeleteButton = (value: boolean) => {
-        this.$scope.$applyAsync((s) => {
-            this.isDeleteButtonEnabled = value;
-        });
-    }
-
+    
     public navigateTo = (link: IBreadcrumbLink): void => {
         if (!!link && link.isEnabled) {
             const index = this.breadcrumbLinks.indexOf(link);
@@ -112,11 +102,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                 this.navigationService.navigateBack(index);
             }
         }
-    }
-
-    public clickDelete() {
-        this.toolbarCommunicationManager.clickDelete();
-    }
+    }    
 
     protected updateToolbarOptions(artifact: IStatefulArtifact): void {
         super.updateToolbarOptions(artifact);

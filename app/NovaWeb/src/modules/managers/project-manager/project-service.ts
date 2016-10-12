@@ -1,5 +1,5 @@
 ﻿import * as angular from "angular";
-import {Models} from "../../main/models";
+import { Models, SearchServiceModels } from "../../main/models";
 
 export enum ProjectServiceStatusCode {
     ResourceNotFound = 3000
@@ -13,7 +13,11 @@ export interface IProjectService {
     getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta>;
     getSubArtifactTree(artifactId: number): ng.IPromise<Models.ISubArtifactNode[]>;
     getProjectTree(projectId: number, artifactId: number, loadChildren?: boolean): ng.IPromise<Models.IArtifact[]>;
-    searchProjects(query: string, resultCount?: number): ng.IPromise<Models.IProjectNode[]>;
+    searchProjects(
+        searchCriteria: SearchServiceModels.IProjectSearchCriteria,
+        resultCount?: number,
+        separatorString?: string
+    ): ng.IPromise<SearchServiceModels.IProjectSearchResult[]>;
 }
 
 export class ProjectService implements IProjectService {
@@ -21,8 +25,9 @@ export class ProjectService implements IProjectService {
 
     private canceler: ng.IDeferred<any>;
 
-    constructor(private $q: ng.IQService,
-                private $http: ng.IHttpService) {
+    constructor(
+        private $q: ng.IQService,
+        private $http: ng.IHttpService) {
     }
 
     public abort(): void {
@@ -54,7 +59,7 @@ export class ProjectService implements IProjectService {
             }
         );
         return defer.promise;
-    }
+    } 
 
     public getProject(id?: number): ng.IPromise<Models.IProjectNode> {
         const defer = this.$q.defer<any>();
@@ -83,7 +88,7 @@ export class ProjectService implements IProjectService {
             }
         );
         return defer.promise;
-    }
+    } 
 
     public getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
         if (projectId && projectId === artifactId) {
@@ -210,25 +215,23 @@ export class ProjectService implements IProjectService {
         return defer.promise;
     }
 
-    public searchProjects(query: string, resultCount: number = 100): ng.IPromise<Models.IProjectNode[]> {
+    public searchProjects(
+        searchCriteria: SearchServiceModels.IProjectSearchCriteria,
+        resultCount: number = 100,
+        separatorString: string = " > "
+    ): ng.IPromise<SearchServiceModels.IProjectSearchResult[]> {
         this.canceler = this.$q.defer<any>();
 
         const requestObj: ng.IRequestConfig = {
-            url: `/svc/searchservice/projectsearch?resultCount=${resultCount}`,
-            data: {Query: query},
+            url: `/svc/searchservice/projectsearch?separatorString=${separatorString}&resultCount=${resultCount}`,
+            data: searchCriteria,
             method: "POST",
             timeout: this.canceler.promise
         };
 
         return this.$http(requestObj).then(
-            (result: ng.IHttpPromiseCallbackArg<{projectId: number, projectName: string}[]>) => {
-                return result.data.map(r => ({
-                    id: r.projectId,
-                    type: Models.ProjectNodeType.Project,
-                    name: r.projectName,
-                    parentFolderId: undefined,
-                    hasChildren: undefined
-                }));
+            (result: ng.IHttpPromiseCallbackArg<SearchServiceModels.IProjectSearchResult[]>) => {
+                return result.data;
             },
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 return this.$q.reject(errResult ? {

@@ -1,15 +1,12 @@
-<div
-    ng-if="!($ctrl.manualTraces2.length || $ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && !$ctrl.isLoading"
-    class="empty-state">
+<div ng-if="!($ctrl.manualTraces2.length || $ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && !$ctrl.isLoading"
+     class="empty-state">
 
     <p>{{::$ctrl.localization.get('App_UP_Relationships_No_Relationships') }}</p>
 
-    <div class="add-empty"
-         ng-if="$ctrl.item && !($ctrl.manualTraces2.length || $ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && !$ctrl.isLoading">
+    <div class="add-empty" ng-if="$ctrl.item && !($ctrl.manualTraces2.length || $ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && !$ctrl.isLoading">
         <p>{{ $ctrl.localization.get('App_UP_Relationships_Introduction_Message') }}</p>
         <label class="btn btn-secondary btn-small" ng-class="{'disabled': !$ctrl.canManageTraces() }"
-               ng-click="$ctrl.openManageTraces()">{{::$ctrl.localization.get('App_UP_Relationships_Add_Relationship')
-            }}
+               ng-click="$ctrl.openManageTraces()">{{::$ctrl.localization.get('App_UP_Relationships_Add_Relationship') }}
         </label>
     </div>
 </div>
@@ -30,27 +27,27 @@
             </span>
             <ul class="dropdown-menu">
                 <li ng-class=""><a ng-click="$ctrl.setSelectedDirection(0)"><i class="fonticon2-relationship-right"></i>
-                    {{::$ctrl.localization.get('App_UP_Relationships_To') }}</a>
+                                {{::$ctrl.localization.get('App_UP_Relationships_To') }}</a>
                 </li>
 
                 <li ng-class=""><a ng-click="$ctrl.setSelectedDirection(1)"><i class="fonticon2-relationship-left"></i>
-                    {{::$ctrl.localization.get('App_UP_Relationships_From') }}</a>
+                                {{::$ctrl.localization.get('App_UP_Relationships_From') }}</a>
                 </li>
                 <li ng-class=""><a ng-click="$ctrl.setSelectedDirection(2)"><i class="fonticon2-relationship-bi"></i>
-                    {{::$ctrl.localization.get('App_UP_Relationships_Bidirectional') }}</a>
+                                {{::$ctrl.localization.get('App_UP_Relationships_Bidirectional') }}</a>
                 </li>
             </ul>
         </div>
         <i class="icon fonticon-flag-1" ng-click="$ctrl.toggleFlag()"
-           ng-class="{'fonticon-flag-empty': $ctrl.hasUnFlagged }"
+                        ng-class="{'fonticon-flag-empty': $ctrl.hasUnFlagged }"
            bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Flag_Traces') }}"></i>
         <i class="icon fonticon-delete-filled" ng-click="$ctrl.deleteTraces($ctrl.selectedTraces[$ctrl.item.id])"
-           bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Delete_Traces') }}"></i>
+                        bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Delete_Traces') }}"></i>
     </div>
 </div>
 
 <div class="filter-bar" ng-if="!$ctrl.isLoading &&  ($ctrl.manualTraces2.length || $ctrl.otherTraces.length)">
-
+    
     <label class="btn btn-secondary btn-small pull-right" ng-class="{'disabled': !$ctrl.canManageTraces() }"
            ng-click="$ctrl.openManageTraces()">
         {{::$ctrl.localization.get('App_UP_Relationships_Manage_Traces') }}
@@ -60,33 +57,34 @@
             <uib-tab index="0" heading="{{::$ctrl.localization.get('App_UP_Relationships_All') }}"></uib-tab>
             <uib-tab index="1" heading="{{::$ctrl.localization.get('App_UP_Relationships_Traces') }}"></uib-tab>
             <uib-tab index="2" heading="{{::$ctrl.localization.get('App_UP_Relationships_Association') }}"
-            ></uib-tab>
+                     ></uib-tab>
         </uib-tabset>
     </div>
 </div>
 
 <div ng-if="!$ctrl.isLoading && ($ctrl.manualTraces2.length || $ctrl.otherTraces.length)"
      class="scrollable-content" perfect-scrollbar>
-    <h6 ng-if="$ctrl.manualTraces2.length && $ctrl.categoryFilter !== 2" class="util-panel-heading">
-        {{::$ctrl.localization.get('App_UP_Relationships_Traces') }}</h6>
+ <h6 ng-if="$ctrl.manualTraces2.length && $ctrl.categoryFilter !== 2" class="util-panel-heading">{{::$ctrl.localization.get('App_UP_Relationships_Traces') }}</h6>
     <div ng-if="$ctrl.categoryFilter!==2">
         <div ng-repeat="artifact in $ctrl.manualTraces2"
              class="artifact-item-wrapper">
             <div class="separator"></div>
-            <bp-artifact-relationship-item artifact="::artifact" selectable="true"
-                                           is-item-read-only="$ctrl.item.artifactState.readonly"
+            <bp-artifact-relationship-item
+                                           artifact="::artifact"
+                                           selectable="true"
+                                           is-item-read-only="$ctrl.item.isItemReadOnly"
                                            selected-traces="$ctrl.selectedTraces[$ctrl.item.id]"
-                                           delete-item="$ctrl.deleteTrace(artifact)"></bp-artifact-relationship-item>
+                                           set-item-direction="$ctrl.setItemDirection(artifact)"
+                                           toggle-item-flag="$ctrl.toggleItemFlag(artifact)"
+                                           delete-item="$ctrl.deleteTrace(artifact)">
+            </bp-artifact-relationship-item>
         </div>
     </div>
     <div ng-if="!$ctrl.manualTraces2.length && $ctrl.categoryFilter ===1"
-         class="empty-state">{{::$ctrl.localization.get('App_UP_Relationships_No_Traces') }}
-    </div>
-    <h6 ng-if="$ctrl.otherTraces.length && $ctrl.categoryFilter !== 1" class="util-panel-heading util-heading-other">
-        {{::$ctrl.localization.get('App_UP_Relationships_Association') }}</h6>
+         class="empty-state">{{::$ctrl.localization.get('App_UP_Relationships_No_Traces') }}</div>
+    <h6 ng-if="$ctrl.otherTraces.length && $ctrl.categoryFilter !== 1" class="util-panel-heading util-heading-other">{{::$ctrl.localization.get('App_UP_Relationships_Association') }}</h6>
 
-    <h6 ng-if="$ctrl.associations.length && $ctrl.categoryFilter !== 1">
-        {{::$ctrl.localization.get('App_UP_Relationships_Subheading_Association') }}</h6>
+    <h6 ng-if="$ctrl.associations.length && $ctrl.categoryFilter !== 1">{{::$ctrl.localization.get('App_UP_Relationships_Subheading_Association') }}</h6>
     <div ng-if="$ctrl.categoryFilter!==1">
         <div ng-repeat="artifact in $ctrl.associations"
              class="artifact-item-wrapper">
@@ -94,28 +92,24 @@
             <bp-artifact-relationship-item artifact="::artifact"></bp-artifact-relationship-item>
         </div>
     </div>
-    <h6 ng-if="$ctrl.actorInherits.length && $ctrl.categoryFilter !== 1">
-        {{::$ctrl.localization.get('App_UP_Relationships_Subheading_Actor_Inherits') }}</h6>
+    <h6 ng-if="$ctrl.actorInherits.length && $ctrl.categoryFilter !== 1">{{::$ctrl.localization.get('App_UP_Relationships_Subheading_Actor_Inherits') }}</h6>
     <div ng-if="$ctrl.categoryFilter!==1">
         <div ng-repeat="artifact in $ctrl.actorInherits"
              class="artifact-item-wrapper">
             <div class="separator"></div>
-            <bp-artifact-relationship-item artifact="::artifact"></bp-artifact-relationship-item>
+            <bp-artifact-relationship-item artifact="::artifact" ></bp-artifact-relationship-item>
         </div>
     </div>
-    <h6 ng-if="$ctrl.documentReferences.length && $ctrl.categoryFilter !== 1">
-        {{::$ctrl.localization.get('App_UP_Relationships_Subheading_Document_Reference') }}</h6>
+    <h6 ng-if="$ctrl.documentReferences.length && $ctrl.categoryFilter !== 1">{{::$ctrl.localization.get('App_UP_Relationships_Subheading_Document_Reference') }}</h6>
     <div ng-if="$ctrl.categoryFilter!==1">
-        <div ng-repeat="artifact in $ctrl.documentReferences"
+        <div  ng-repeat="artifact in $ctrl.documentReferences"
              class="artifact-item-wrapper">
             <div class="separator"></div>
-            <bp-artifact-relationship-item artifact="::artifact"></bp-artifact-relationship-item>
+            <bp-artifact-relationship-item artifact="::artifact" ></bp-artifact-relationship-item>
         </div>
     </div>
-    <div
-        ng-if="!($ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && $ctrl.categoryFilter ===2"
-        class="empty-state">{{::$ctrl.localization.get('App_UP_Relationships_No_Association') }}
-    </div>
+    <div ng-if="!($ctrl.associations.length || $ctrl.documentReferences.length || $ctrl.actorInherits.length) && $ctrl.categoryFilter ===2"
+         class="empty-state">{{::$ctrl.localization.get('App_UP_Relationships_No_Association') }}</div>
 </div>
 
 <div ng-if="$ctrl.isLoading" class="app-loading">

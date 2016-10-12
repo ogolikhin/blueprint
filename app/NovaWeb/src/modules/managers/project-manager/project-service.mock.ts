@@ -1,4 +1,4 @@
-﻿import {Models} from "../../main/models";
+﻿import { Models, SearchServiceModels } from "../../main/models";
 import {IProjectService} from "./project-service";
 
 export class ProjectServiceMock implements IProjectService {
@@ -99,7 +99,11 @@ export class ProjectServiceMock implements IProjectService {
         return deferred.promise;
     }
 
-    public searchProjects(query: string): ng.IPromise<Models.IProjectNode[]> {
+    public searchProjects(
+        searchCriteria: SearchServiceModels.IProjectSearchCriteria,
+        resultCount?: number,
+        separatorString?: string
+    ): ng.IPromise<SearchServiceModels.IProjectSearchResult[]> {
         var deferred = this.$q.defer<Models.IArtifact[]>();
         let result = [] as Models.IProjectNode[];
         deferred.resolve(result);

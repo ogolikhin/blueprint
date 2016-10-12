@@ -8,8 +8,8 @@ import {IDialogParams} from "../../../../messages/message-dialog";
 import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
-
-
+import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
+import {ProcessEvents} from "../../../process-diagram-communication";
 export class SystemDecision extends UserTaskChildElement<IProcessShape> implements IDecision, IUserTaskChildElement {
 
     private SYSTEM_DECISION_WIDTH = 120;
@@ -21,14 +21,19 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
     private NEW_FILL_COLOR: string = "#FBF8E7";
     private MENU_SIZE: number = 16;
     private BUTTON_SIZE: number = 16;
+    private DELETE_SHAPE_OFFSET = 3;
+
     private detailsButton: Button;
+    private deleteShapeButton: Button;
+
     private rootScope: any;
+    private processDiagramManager: IProcessDiagramCommunication;
 
     constructor(model: IProcessShape, rootScope: any, nodeFactorySettings: NodeFactorySettings = null) {
         super(model, NodeType.SystemDecision);
 
         this.rootScope = rootScope;
-        this.initButtons(model.id.toString(), nodeFactorySettings);
+        this.initButtons(model.id.toString(), nodeFactorySettings);        
     }
 
     private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
@@ -44,6 +49,21 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
         this.detailsButton.setHoverImage("/novaweb/static/bp-process/images/adddetails-hover.svg");
         this.detailsButton.setDisabledImage("/novaweb/static/bp-process/images/adddetails-mute.svg");
         this.detailsButton.setTooltip(this.rootScope.config.labels["ST_Settings_Label"]);
+
+        //Delete process shape button
+        this.deleteShapeButton = new Button(`DS${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, "/novaweb/static/bp-process/images/delete-neutral.svg");
+
+        if (nodeFactorySettings && nodeFactorySettings.isDeleteShapeEnabled) {
+            this.deleteShapeButton.setHoverImage("/novaweb/static/bp-process/images/delete-hover.svg");
+            this.deleteShapeButton.setClickAction(() => {
+                this.processDiagramManager.action(ProcessEvents.DeleteShape);
+            });
+        } else {
+            this.deleteShapeButton.setDisabledImage("/novaweb/static/bp-process/images/delete-inactive.svg");
+            this.deleteShapeButton.setClickAction(() => { });
+        }        
+        
+        this.deleteShapeButton.setTooltip(this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"]);
     }
 
     public setLabelWithRedrawUi(value: string) {
@@ -73,7 +93,9 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
 
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
 
-        const mxGraph = graph.getMxGraph();
+        this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;
+        
+const mxGraph = graph.getMxGraph();
 
         let fillColor = this.DEFAULT_FILL_COLOR;
         if (this.model.id < 0) {
@@ -111,6 +133,14 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
         if (!graph.viewModel.isReadonly) {
             this.showMenu(mxGraph);
         }
+
+        this.deleteShapeButton.render(
+            mxGraph,
+            this,
+            this.SYSTEM_DECISION_WIDTH / 2 - this.BUTTON_SIZE / 2,
+            this.BUTTON_SIZE + this.DELETE_SHAPE_OFFSET,
+            "shape=ellipse;strokeColor=none;fillColor=none;selectable=0"
+        );
 
         this.detailsButton.render(mxGraph, this, this.SYSTEM_DECISION_WIDTH / 2 - this.BUTTON_SIZE / 2, this.SYSTEM_DECISION_HEIGHT - this.BUTTON_SIZE - 10,
             "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");

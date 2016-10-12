@@ -121,16 +121,11 @@ export class ManageTracesDialogController extends BaseDialogController {
         this.data.manualTraces = this.data.manualTraces.concat(selected);
     }
 
-
-    public setTraceDirection(direction: Relationships.TraceDirection): void {
-        this.traceDirection = direction;
-    }
-
     public setDirection(direction: Relationships.TraceDirection): void {
         this.direction = direction;
     }
 
-    public toggleTraces(artifacts: Relationships.IRelationship[]): void {
+    public toggleTraces(): void {
         //2 flags to change state of the flag icon on the frontend;
         this.hasFlagged = false;
         this.hasUnFlagged = false;
@@ -200,7 +195,7 @@ export class ManageTracesDialogController extends BaseDialogController {
         }
     }
 
-    public remove(relationships: Relationships.IRelationship[],
+    private remove(relationships: Relationships.IRelationship[],
                   traces: Relationships.IRelationship[]): Relationships.IRelationship[] {
         if (relationships) {
             relationships.forEach((relationship: Relationships.IRelationship) => {

@@ -7,6 +7,7 @@ import {INavigationService, NavigationService} from "./navigation.svc";
 
 describe("NavigationService", () => {
     let $q: ng.IQService;
+    let $scope: ng.IScope;
     let $state: ng.ui.IStateService;
     let navigationService: INavigationService;
 
@@ -15,8 +16,9 @@ describe("NavigationService", () => {
 
     beforeEach(angular.mock.module("ui.router"));
 
-    beforeEach(inject((_$q_: ng.IQService, _$state_: ng.ui.IStateService) => {
+    beforeEach(inject(($rootScope: ng.IRootScopeService, _$q_: ng.IQService, _$state_: ng.ui.IStateService) => {
         $q = _$q_;
+        $scope = $rootScope.$new();
         $state = _$state_;
         navigationService = new NavigationService($q, $state);
     }));
@@ -155,49 +157,19 @@ describe("NavigationService", () => {
                 $state.current = new MainState();
             });
 
-            it("initiates state transition to artifact state with correct id and no path if navigation tracking is not defined", () => {
+            it("doesn't transition if path is not specified", (done) => {
                 // arrange
                 const stateGoSpy = spyOn($state, "go");
 
-                const expectedState = artifactState;
-                const expectedParams = {id: targetArtifactId};
-                const expectedOptions = {inherit: false};
-
                 // act
-                navigationService.navigateToArtifact(targetArtifactId);
+                navigationService.navigateToArtifact(targetArtifactId)
+                    .catch((error: any) => {
+                        // assert
+                        expect(stateGoSpy).not.toHaveBeenCalledWith();
+                        done();
+                    });
 
-                // assert
-                expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
-            });
-
-            it("initiates state transition to artifact state with correct id and no path if navigation tracking is disabled", () => {
-                // arrange
-                const stateGoSpy = spyOn($state, "go");
-
-                const expectedState = artifactState;
-                const expectedParams = {id: targetArtifactId};
-                const expectedOptions = {inherit: false};
-
-                // act
-                navigationService.navigateToArtifact(targetArtifactId, false);
-
-                // assert
-                expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
-            });
-
-            it("initiates state transition to artifact state with correct id and no path if navigation tracking is enabled", () => {
-                // arrange
-                const stateGoSpy = spyOn($state, "go");
-
-                const expectedState = artifactState;
-                const expectedParams = {id: targetArtifactId, path: sourceArtifactId.toString()};
-                const expectedOptions = {inherit: false};
-
-                // act
-                navigationService.navigateToArtifact(targetArtifactId, true);
-
-                // assert
-                expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
+                $scope.$digest();
             });
         });
 

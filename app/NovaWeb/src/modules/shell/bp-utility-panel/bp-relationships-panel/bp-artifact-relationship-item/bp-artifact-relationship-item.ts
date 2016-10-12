@@ -12,6 +12,8 @@ export class BPArtifactRelationshipItem implements ng.IComponentOptions {
         artifact: "=",
         selectedTraces: "=",
         selectable: "@",
+        setItemDirection: "&",
+        toggleItemFlag: "&",
         deleteItem: "&",
         isItemReadOnly: "<"
     };
@@ -23,6 +25,8 @@ export interface IResult {
 }
 
 interface IBPArtifactRelationshipItemController {
+    setItemDirection: Function;
+    toggleItemFlag: Function;
     deleteItem: Function;
 }
 
@@ -41,8 +45,9 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     public selectedTraces: Relationships.IRelationship[];
     public fromOtherProject: boolean = false;
     public selectable: boolean = false;
+    public setItemDirection: Function;
+    public toggleItemFlag: Function;
     public deleteItem: Function;
-
     constructor(private localization: ILocalizationService,
                 private relationshipDetailsService: IRelationshipDetailsService,
                 private artifactManager: IArtifactManager,
@@ -54,15 +59,10 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
         return this.selectable.toString() === "true" && this.artifact.isSelected;
     }
 
-    public setDirection(direction: Relationships.TraceDirection): void {
+    public setDirection(direction: Relationships.TraceDirection) {
         if (this.artifact.hasAccess) {
             this.artifact.traceDirection = direction;
-        }
-    }
-
-    public toggleFlag() {
-        if (this.artifact.hasAccess) {
-            this.artifact.suspect = this.artifact.suspect === true ? false : true;
+            this.setItemDirection();
         }
     }
 

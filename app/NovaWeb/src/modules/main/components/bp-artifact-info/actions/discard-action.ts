@@ -6,6 +6,10 @@ import {ItemTypePredefined} from "../../../../main/models/enums";
 export class DiscardAction extends BPButtonAction {
     constructor(artifact: IStatefulArtifact,
                 localization: ILocalizationService) {
+        if (!localization) {
+            throw new Error("Localization service not provided or is null");
+        }
+
         super(
             (): void => {
                 artifact.discard();

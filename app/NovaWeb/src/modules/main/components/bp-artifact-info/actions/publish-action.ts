@@ -6,6 +6,10 @@ import {ItemTypePredefined} from "../../../../main/models/enums";
 export class PublishAction extends BPButtonAction {
     constructor(artifact: IStatefulArtifact,
                 localization: ILocalizationService) {
+        if (!localization) {
+            throw new Error("Localization service not provided or is null");
+        }
+        
         super(
             (): void => {
                 artifact.publish();

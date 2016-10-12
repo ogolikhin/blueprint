@@ -12,6 +12,7 @@ import * as TestModels from "../../models/test-model-factory";
 import {ModalServiceMock} from "../../../../shell/login/mocks.spec";
 import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ProcessEvents} from "./process-diagram-communication";
 
 describe("ProcessDiagram Tests", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -271,7 +272,7 @@ describe("ProcessDiagram Tests", () => {
         rootScope.$apply();
 
         // act
-        communicationManager.processDiagramCommunication.navigateToAssociatedArtifact(artifactId);
+        communicationManager.processDiagramCommunication.action(ProcessEvents.NavigateToAssociatedArtifact, {id: artifactId});
 
         // assert
         expect(navigateToArtifactSpy).toHaveBeenCalledWith(artifactId, undefined);

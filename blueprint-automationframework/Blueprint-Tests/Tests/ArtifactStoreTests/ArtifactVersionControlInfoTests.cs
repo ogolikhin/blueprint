@@ -8,6 +8,7 @@ using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
+using Common;
 using TestCommon;
 using Utilities;
 
@@ -58,8 +59,7 @@ namespace ArtifactStoreTests
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             artifactDetails.AssertEquals(basicArtifactInfo);
 
-
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges : false, isDeleted : false, versionCount : artifactDetails.Version);
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges : false, isDeleted : false, versionCount: artifactDetails.Version);
         }
 
         [TestCase(BaseArtifactType.Actor)]
@@ -77,7 +77,6 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
-
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             artifactDetails.AssertEquals(basicArtifactInfo, compareLockInfo: false);
 
@@ -240,7 +239,6 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(182606)]
         [Description("Create & publish an artifact.  Change sub-artifact & save. Verify another user gets basic artifact information with subartifact Id.")]
-
         public void VersionControlInfoWithSubArtifactId_PublishedArtifactSubartifactUpdated_AnotherUserGetsBasicInfo_ReturnsArtifactInfo_200OK()
         {
             // Setup:
@@ -269,6 +267,7 @@ namespace ArtifactStoreTests
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
             artifactDetails.AssertEquals(basicArtifactInfo);
 
+//<<<<<<< HEAD
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId : subArtifacts[0].Id,
     versionCount: artifactDetails.Version);
         }
@@ -296,8 +295,6 @@ namespace ArtifactStoreTests
 
             Helper.Storyteller.UpdateProcess(_user, process);
 
-//            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, processArtifact.Id);
-
             // Get the process artifact
             process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
 
@@ -311,9 +308,12 @@ namespace ArtifactStoreTests
 
             // Verify
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo);
+//            artifactDetails.AssertEquals(basicArtifactInfo);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: userTask.Id,
+//            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: userTask.Id,
+//=======
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: userTask.Id,
+//>>>>>>> 61b402e8b324dae10ffde32a6d5c909edc877be3
                 versionCount: artifactDetails.Version);
         }
 
@@ -426,7 +426,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, artifact.Id),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
-            // Verify:            
+            // Verify:
             artifactDetails.AssertEquals(basicArtifactInfo);
 
             VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: true,
@@ -629,57 +629,59 @@ namespace ArtifactStoreTests
 
         #region Negative tests
 
-        #region Bad request
+        #region 400 Bad Request
 
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(182607)]
-        [Description("Create & publish an artifact.  Send no token in the request.  Verify 400 Bad Request is returned.")]
-        public void VersionControlInfo_PublishArtifact__NoTokenHeader_400Badrequest(BaseArtifactType artifactType)
+        [Description("Create & publish an artifact.  Send no token header in the request.  Verify 400 Bad Request is returned.")]
+        public void VersionControlInfoWithArtifactId_PublishedArtifact_NoTokenHeader_400BadRequest(BaseArtifactType artifactType)
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IUser userWithNoToken = Helper.CreateUserAndAddToDatabase();
 
-            // Execute & Verify:
-            var ex = Assert.Throws <Http400BadRequestException>(() => Helper.ArtifactStore.GetVersionControlInfo(userWithNoToken, artifact.Id),
-                "'GET {0}' should return 400 Bad Request when token is not passed!", SVC_PATH);
+            // Execute:
+            var ex = Assert.Throws <Http400BadRequestException>(() => Helper.ArtifactStore.GetVersionControlInfo(user: null, itemId: artifact.Id),
+                "'GET {0}' should return 400 Bad Request when no token header is passed!", SVC_PATH);
 
-            string expectedExceptionMessage = "Token is missing or malformed.";
+            // Verify:
+            const string expectedExceptionMessage = "Token is missing or malformed.";
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to get basic information and not send token in a header", expectedExceptionMessage);
+                "Expected '{0}' error when user tries to get basic information without a token header in the request.",
+                expectedExceptionMessage);
         }
 
-        #endregion Bad request
+        #endregion 400 Bad Request
 
-        #region Unauthorized
+        #region 401 Unauthorized
 
         [TestRail(182858)]
-        [TestCase(BaseArtifactType.Actor, "Alex")]
+        [TestCase(BaseArtifactType.Actor, "")]
         [TestCase(BaseArtifactType.Actor, "00000000-0000-0000-0000-000000000000")]
         [Description("Create & publish an artifact.  Send invalid token in the request.  Verify 401 Unauthorized is returned.")]
-        public void VersionControlInfo_PublishArtifact__InvalidTokenHeader_401UnAuthorized(BaseArtifactType artifactType, string malformedToken)
+        public void VersionControlInfoWithArtifactId_PublishedArtifact_InvalidTokenHeader_401Unauthorized(BaseArtifactType artifactType, string invalidToken)
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            _user.SetToken(malformedToken);
+            IUser unauthorizedUser = UserFactory.CreateUserAndAddToDatabase();
+            unauthorizedUser.SetToken(invalidToken);
 
             // Execute & Verify:
-            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetVersionControlInfo(_user, artifact.Id),
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetVersionControlInfo(unauthorizedUser, artifact.Id),
                 "'GET {0}' should return 401 Unauthorized when passed invalid token!", SVC_PATH);
 
-            string expectedExceptionMessage = "Token is invalid.";
+            const string expectedExceptionMessage = "Token is invalid.";
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to get basic information and send invalid token in a header", expectedExceptionMessage);
+                "Expected '{0}' error when user tries to get basic information and sends an invalid token.", expectedExceptionMessage);
         }
 
-        #endregion Unauthorized
+        #endregion 401 Unauthorized
 
-        #region Forbidden
+        #region 403 Forbidden
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182859)]
-        [Description("Create & publish an artifact. User without permissions tries to access basic artifact information.  Verify returned code 403 Forbidden.")]
-        public void VersionControlInfo_PublishArtifact_UserWithoutProperPermissions_403Forbidden(BaseArtifactType artifactType)
+        [Description("Create & publish an artifact.  User without permissions to project tries to access basic artifact information.  Verify returned code 403 Forbidden.")]
+        public void VersionControlInfoWithArtifactId_PublishedArtifact_UserWithoutPermissionsToProject_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
@@ -691,35 +693,55 @@ namespace ArtifactStoreTests
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetVersionControlInfo(userWithoutPermissions, artifact.Id),
                 "'GET {0}' should return 403 Forbidden when user without permissions tries to access basic artifact information!", SVC_PATH);
 
-            string expectedExceptionMessage = "User does not have permissions for Artifact (Id:" + artifact.Id + ").";
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifact.Id);
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user without permissions tries to get basic artifact information", expectedExceptionMessage);
+                "Expected '{0}' error when user without permissions tries to get basic artifact information.", expectedExceptionMessage);
         }
-        // TODO: Call GetVersionControlInfo with an artifact the git user doesn't have access to.  Verify 403 Forbiden.
 
-        #endregion Forbidden
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(183363)]
+        [Description("Create & publish an artifact. User without permissions to artifact tries to access basic artifact information.  Verify returned code 403 Forbidden.")]
+        public void VersionControlInfoWithArtifactId_PublishedArtifact_UserWithoutPermissionsToArtifact_403Forbidden(BaseArtifactType artifactType)
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-        #region Not found
+            // Create a user that has access to the project but not the artifact.
+            IUser userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+            Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, artifact);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetVersionControlInfo(userWithoutPermissions, artifact.Id),
+                "'GET {0}' should return 403 Forbidden when user without permissions tries to access basic artifact information!", SVC_PATH);
+
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifact.Id);
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "Expected '{0}' error when user without permissions tries to get basic artifact information.", expectedExceptionMessage);
+        }
+
+        #endregion 403 Forbidden
+
+        #region 404 Not Found
 
         [TestCase(int.MaxValue)]
         [TestRail(182860)]
         [Description("User tries to get basic information of artifact that does not exist.  Verify returned code 404 Not Found.")]
-        public void VersionControlInfoWithArtifactId_CannotFindNonExistingArtifact_404NotFound(int artifactId)
+        public void VersionControlInfoWithArtifactId_NonExistingArtifactId_404NotFound(int artifactId)
         {
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetVersionControlInfo(_user, artifactId),
                  "'GET {0}' should return 404 Not found when user tries to access basic artifact information of artifact that does not exist!", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "Item (Id:" + artifactId + ") is not found.";
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("Item (Id:{0}) is not found.", artifactId);
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to get basic information of artifact that does not exist", expectedExceptionMessage);
+                "Expected '{0}' error when user tries to get basic information of artifact that does not exist.", expectedExceptionMessage);
         }
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182861)]
-        [Description("Another user tries to get basic information of artifact that was saved but not published.  Verify returned code 404 Not Found.")]
-        public void VersionControlInfoWithArtifactId_CannotFindSavedArtifactFrom_AnotherUser_404NotFound(BaseArtifactType artifactType)
+        [Description("User tries to get basic information of artifact that was saved but not published by another user.  Verify returned code 404 Not Found.")]
+        public void VersionControlInfoWithArtifactId_SavedArtifactFromAnotherUser_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
             var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
@@ -728,93 +750,76 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetVersionControlInfo(anotherUser, artifact.Id),
-                 "'GET {0}' should return 404 Not found when another user tries to access basic artifact information of artifact that was saved but not published!", SVC_PATH);
+                 "'GET {0}' should return 404 Not Found when a user tries to access basic artifact information of artifact that was saved by another user but not published!",
+                 SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "Item (Id:" + artifact.Id + ") is not found.";
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("Item (Id:{0}) is not found.", artifact.Id);
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when another user tries to get basic information of artifact that was saved but not published", expectedExceptionMessage);
+                "Expected '{0}' error when another user tries to get basic information of artifact that was saved but not published.",
+                expectedExceptionMessage);
         }
 
         [TestCase]
         [TestRail(182862)]
-        [Description("Another user tries to get basic information of sub-artifact that was saved but not published in published artifact.  Verify returned code 404 Not Found.")]
-        public void VersionControlInfoWithSubArtifactId_CannotFindSavedSubArtifactInPublishedArtifact_AnotherUser_404NotFound()
+        [Description("Another user tries to get basic information of sub-artifact that was saved but not published in published artifact.  " +
+            "Verify returned code 404 Not Found.")]
+        public void VersionControlInfoWithSubArtifactId_PublishedArtifactWithSavedSubArtifact_AnotherUser_404NotFound()
         {
             // Setup:
-            // Create a Process artifact
-            var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(project: _project, user: _user);
-
-            // Get the process artifact
+            // Create a Process artifact.
+            var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(_project, _user);
             var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
 
-            // Add UserTasks - iteration
+            // Add UserTask.
             var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
-
-            // Find outgoing process link for precondition task
             var processLink = process.GetOutgoingLinkForShape(precondition);
-
             var userTask = process.AddUserAndSystemTask(processLink);
 
-            Helper.Storyteller.UpdateProcess(_user, process);
-
-            // Get the process artifact
-            process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
-
+            // Save the process & get new user task.
+            process = Helper.Storyteller.UpdateProcess(_user, process);
             userTask = process.GetProcessShapeByShapeName(userTask.Name);
 
             IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetVersionControlInfo(anotherUser, userTask.Id),
-                 "'GET {0}' should return 404 Not found when another user tries to access basic artifact information of sub-artifact that was saved but not published!", SVC_PATH);
+                 "'GET {0}' should return 404 Not found when another user tries to access basic artifact information of sub-artifact that was saved but not published!",
+                 SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "Item (Id:" + userTask.Id + ") is not found.";
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("Item (Id:{0}) is not found.", userTask.Id);
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when another user tries to get basic information of sub-artifact that was saved but not published", expectedExceptionMessage);
+                "Expected '{0}' error when user tries to get basic information of sub-artifact that was saved but not published by another user",
+                expectedExceptionMessage);
         }
 
         [TestCase]
         [TestRail(182864)]
         [Description("Another user tries to get basic information of sub-artifact that was saved but not published in saved artifact.  Verify returned code 404 Not Found.")]
-        public void VersionControlInfoWithSubArtifactId_CannotFindSavedSubArtifactInSavedArtifact_AnotherUser_404NotFound()
+        public void VersionControlInfoWithSubArtifactId_SavedArtifactWithSavedSubArtifact_AnotherUser_404NotFound()
         {
             // Setup:
             // Create a Process artifact
-            var processArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user);
-
-            // Get the process artifact
-            var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
-
-            // Add UserTasks - iteration
-            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
-
-            // Find outgoing process link for precondition task
-            var processLink = process.GetOutgoingLinkForShape(precondition);
-
-            var userTask = process.AddUserAndSystemTask(processLink);
-
-            Helper.Storyteller.UpdateProcess(_user, process);
-
-            // Get the process artifact
-            process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
-
-            userTask = process.GetProcessShapeByShapeName(userTask.Name);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+            Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact!");
 
             IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetVersionControlInfo(anotherUser, userTask.Id),
-                 "'GET {0}' should return 404 Not found when another user tries to access basic artifact information of sub-artifact that was saved but not published!", SVC_PATH);
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetVersionControlInfo(anotherUser, subArtifacts[0].Id),
+                 "'GET {0}' should return 404 Not found when another user tries to access basic artifact information of sub-artifact that was saved but not published!",
+                 SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "Item (Id:" + userTask.Id + ") is not found.";
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("Item (Id:{0}) is not found.", subArtifacts[0].Id);
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when another user tries to get basic information of sub-artifact that was saved but not published", expectedExceptionMessage);
+                "Expected '{0}' error when another user tries to get basic information of sub-artifact that was saved but not published",
+                expectedExceptionMessage);
         }
 
-        #endregion Not found
+        #endregion 404 Not Found
 
         #endregion Negative tests
 

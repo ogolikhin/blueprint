@@ -59,9 +59,9 @@ export class Button extends DiagramElement implements IOverlayHandler, IMouseEve
         this.activeImageUrl = activeImageUrl;
     }
 
-    public setNeutralImage(neutralImageUrl: string){
+    public setNeutralImage(neutralImageUrl: string) {
         this.neutralImageUrl = neutralImageUrl;
-        if (!this.currentImageUrl){
+        if (!this.currentImageUrl) {
             this.currentImageUrl = this.neutralImageUrl;
         }
     }

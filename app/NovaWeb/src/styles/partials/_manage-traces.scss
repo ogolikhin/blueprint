@@ -1,364 +1,363 @@
 $modal-side-clearance: 8px;
 
-.manage-traces-wrapper{
+.manage-traces-wrapper {
 
-  .disabled {
-    cursor: not-allowed;
-    pointer-events: none;
-    opacity: 0.6;
-  }
-
-  &.modal{
-    .modal-dialog{
-      min-width: #{830px + (2 * $modal-side-clearance)};
-    }
-  }
-
-  .form-control{
-    &.upper-text{
-      width:90%;
-    }
-  }
-
-  .manage-traces{
-    > div{
-      float: left;
-
-      &:first-child{
-        width: 44%;
-      }
-
-      &:last-child{
-        width: 44%;
-      }
-
-      &.trace-direction{
-        width: 12%;
-        padding-top: 130px;
-        font-size: $font-size-normal;
-        text-align: center;
-
-        label{
-          display: block;
-          font-size: $font-size-smaller;
-          font-weight: normal;
-        }
-
-        .dropdown{
-
-          .dropdown-menu{
-            margin-top: 0;
-          }
-
-          i{
-            &:before{
-              font-size: $font-size-normal;
-            }
-          }
-
-          .btn{
-            font-size: $font-size-normal;
-            min-width: 10px;
-            padding: 5px;
-            border-radius: $border-radius-small;
-
-            &.dropdown-toggle{
-              background: $white;
-              border: 1px solid $gray-lighter;
-              border-bottom-left-radius: 0;
-              border-top-left-radius: 0;
-            }
-
-            &:first-child{
-              i{
-                overflow: hidden;
-                height: $font-size-normal;
-                display: inline-block;
-                line-height: $font-size-big;
-                margin-right: 3px;
-              }
-              &:focus{
-                background: $white;
-                border-color: $gray-lighter;
-              }
-
-              &:hover{
-                background: $brand-secondary;
-                color:$white;
-              }
-            }
-          }
-        }
-      }
-
-      .last{
-        margin-bottom: 20px;
-
-        .dropdown-menu{
-          top:auto;
-          bottom: -20px;
-          right:20px;
-        }
-      }
-
-      .dropdown-menu{
-        right:0;
-        left:auto;
-        padding: 0;
-        margin: 4px 0 15px -10px;
-        min-width: 70px;
-
-        li{
-          padding: 0;
-          margin: 0;
-          a{
-            padding: 2px 8px 2px 2px;
-            margin: 0;
-            font-size:$font-size-small;
-            cursor:pointer;
-
-            &:hover{
-              background: $brand-secondary;
-              color:$white;
-            }
-
-            i{
-              padding-left: 5px;
-              overflow: hidden;
-              height: $font-size-normal;
-              display: inline-block;
-
-              &::before{
-                font-size:$font-size-small;
-              }
-            }
-          }
-        }
-      }
+    .disabled {
+        cursor: not-allowed;
+        pointer-events: none;
+        opacity: 0.6;
     }
 
-    &.artifact-picker {
-      .grid-header{
-        .project-name{
-          width: auto;
-        }
-      }
+    &.modal {
+        .modal-dialog {
+            min-width: #{830px + (2 * $modal-side-clearance)};
+    }
     }
 
-    .trace-manager-wrapper{
-      width: 100%;
-      height:240px;
-      padding-bottom: 0;
-      background-color: $white;
-      overflow: auto;
-      border: solid 1px $gray-lightest;
-      border-radius: $border-radius-amount;
-      box-sizing: content-box;
+    .form-control {
+        &.upper-text {
+            width: 90%;
+    }
+    }
 
-      bp-manage-traces-item{
-        display: block;
+    .manage-traces {
+        > div {
+            float: left;
 
-        .trace{
-          border-bottom: 1px solid $gray-lightest;
-        }
-      }
-
-
-      .trace-main{
-        padding: 10px 0 5px;
-
-        > div{
-          float: left;
-
-          &:first-child{
-            text-align: center;
-            width: 10%;
-            padding-top: 12px;
-          }
-
-          &.trace-icon-wrapper{
-            width: 9%;
-          }
-
-          &:last-child{
-            width: 75%;
-            font-size: 1.2rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-        }
-      }
-
-      .trace-icon{
-        width: 2.4rem;
-        height: 2.4rem;
-        border: 2px solid #ccc;
-        border-radius: 50%;
-        float: left;
-        line-height: 2.3rem;
-        text-align: center;
-        background: $white;
-
-        &.trace-icon-suspect{
-          background: $brand-error;
-
-          i{
-            color: $white;
-          }
-        }
-
-        &.trace-icon-regular{
-          color: $brand-secondary;
-        }
-
-        i{
-          &::before{
-            font-size: $font-size-big;
-            font-style: normal;
-          }
-        }
-      }
-
-      .icons {
-        color: $gray-light;
-        display: inline-block;
-        float:right;
-        padding: 0 15px 5px 5px;
-
-        .icon{
-          &:hover{
-            color:$brand-secondary;
-          }
-        }
-
-        .dropdown{
-          display: inline-block;
-        }
-      }
-
-      .selected {
-        background: $brand-secondary;
-        color:$white;
-
-        a, i{
-          color:$white;
-        }
-
-        .trace-icon {
-          i{
-            color: $brand-secondary;
-          }
-
-          &.trace-icon-suspect{
-            background: $brand-error;
-
-            i{
-              color: $white;
+            &:first-child {
+                width: 44%;
             }
-          }
-        }
 
-        .icons{
-
-          i{
-            &:hover{
-              color: lighten($brand-secondary, 50%);
+            &:last-child {
+                width: 44%;
             }
-          }
 
-          .dropdown-menu{
+            &.trace-direction {
+                width: 12%;
+                padding-top: 130px;
+                font-size: $font-size-normal;
+                text-align: center;
 
-            a{
-              color:$gray-darker;
-
-              i{
-                color:$gray-darker;
-              }
-
-              &:hover{
-                color:$white;
-
-                i{
-                  color:$white;
+                label {
+                    display: block;
+                    font-size: $font-size-smaller;
+                    font-weight: normal;
                 }
-              }
+
+                .dropdown {
+
+                    .dropdown-menu {
+                        margin-top: 0;
+                    }
+
+                    i {
+                        &:before {
+                            font-size: $font-size-normal;
+                        }
+                    }
+
+                    .btn {
+                        font-size: $font-size-normal;
+                        min-width: 10px;
+                        padding: 5px;
+                        border-radius: $border-radius-small;
+
+                        &.dropdown-toggle {
+                            background: $white;
+                            border: 1px solid $gray-lighter;
+                            border-bottom-left-radius: 0;
+                            border-top-left-radius: 0;
+                        }
+
+                        &:first-child {
+                            i {
+                                overflow: hidden;
+                                height: $font-size-normal;
+                                display: inline-block;
+                                line-height: $font-size-big;
+                                margin-right: 3px;
+                            }
+                            &:focus {
+                                background: $white;
+                                border-color: $gray-lighter;
+                            }
+
+                            &:hover {
+                                background: $brand-secondary;
+                                color: $white;
+                            }
+            }
+                    }
+                }
             }
 
-          }
-        }
-      }
+            .last {
+                margin-bottom: 20px;
 
-      [class^="fonticon2-"],
-      [class*=" fonticon2-"],
-      [class^="fonticon-"],
-      [class*=" fonticon-"] {
-        &::before {
-          font-size: 1.4rem;
+                .dropdown-menu {
+                    top: auto;
+                    bottom: -20px;
+                    right: 20px;
+                }
+            }
+
+            .dropdown-menu {
+                right: 0;
+                left: auto;
+                padding: 0;
+                margin: 4px 0 15px -10px;
+                min-width: 70px;
+
+                li {
+                    padding: 0;
+                    margin: 0;
+                    a {
+                        padding: 2px 8px 2px 2px;
+                        margin: 0;
+                        font-size: $font-size-small;
+                        cursor: pointer;
+
+                        &:hover {
+                            background: $brand-secondary;
+                            color: $white;
+            }
+
+                        i {
+                            padding-left: 5px;
+                            overflow: hidden;
+                            height: $font-size-normal;
+                            display: inline-block;
+
+                            &::before {
+                                font-size: $font-size-small;
+                            }
+            }
+                    }
         }
-      }
+            }
+        }
+
+        &.artifact-picker {
+            .grid-header {
+                .project-name {
+                    width: auto;
+                }
+            }
+        }
+
+        .trace-manager-wrapper {
+            width: 100%;
+            height: 240px;
+            padding-bottom: 0;
+            background-color: $white;
+            overflow: auto;
+            border: solid 1px $gray-lightest;
+            border-radius: $border-radius-amount;
+            box-sizing: content-box;
+
+            bp-manage-traces-item {
+                display: block;
+
+                .trace {
+                    border-bottom: 1px solid $gray-lightest;
+                }
+            }
+
+            .trace-main {
+                padding: 10px 0 5px;
+
+                > div {
+                    float: left;
+
+                    &:first-child {
+                        text-align: center;
+                        width: 10%;
+                        padding-top: 12px;
+                    }
+
+                    &.trace-icon-wrapper {
+                        width: 9%;
+                    }
+
+                    &:last-child {
+                        width: 75%;
+                        font-size: 1.2rem;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                }
+            }
+
+            .trace-icon {
+                width: 2.4rem;
+                height: 2.4rem;
+                border: 2px solid #ccc;
+                border-radius: 50%;
+                float: left;
+                line-height: 2.3rem;
+                text-align: center;
+                background: $white;
+
+                &.trace-icon-suspect {
+                    background: $brand-error;
+
+                    i {
+                        color: $white;
+                    }
+                }
+
+                &.trace-icon-regular {
+                    color: $brand-secondary;
+                }
+
+                i {
+                    &::before {
+                        font-size: $font-size-big;
+                        font-style: normal;
+                    }
+                }
+            }
+
+            .icons {
+                color: $gray-light;
+                display: inline-block;
+                float: right;
+                padding: 0 15px 5px 5px;
+
+                .icon {
+                    &:hover {
+                        color: $brand-secondary;
+                    }
+                }
+
+                .dropdown {
+                    display: inline-block;
+                }
+            }
+
+            .selected {
+                background: $brand-secondary;
+                color: $white;
+
+                a, i {
+                    color: $white;
+                }
+
+                .trace-icon {
+                    i {
+                        color: $brand-secondary;
+                    }
+
+                    &.trace-icon-suspect {
+                        background: $brand-error;
+
+                        i {
+                            color: $white;
+                        }
+                    }
+                }
+
+                .icons {
+
+                    i {
+                        &:hover {
+                            color: lighten($brand-secondary, 50%);
+                        }
+                    }
+
+                    .dropdown-menu {
+
+                        a {
+                            color: $gray-darker;
+
+                            i {
+                                color: $gray-darker;
+                            }
+
+                            &:hover {
+                                color: $white;
+
+                                i {
+                                    color: $white;
+                }
+                            }
+            }
+
+                    }
+        }
+            }
+
+            [class^="fonticon2-"],
+            [class*=" fonticon2-"],
+            [class^="fonticon-"],
+            [class*=" fonticon-"] {
+                &::before {
+                    font-size: 1.4rem;
+                }
+            }
+        }
+
+        .actions-panel {
+            padding: 5px;
+            background: $gray-lightest;
+            text-align: right;
+            margin-bottom: 14px;
+            font-size: 1.8rem;
+            visibility: hidden;
+
+            &.active-panel {
+                visibility: visible;
+            }
+
+            .dropdown {
+                display: inline-block;
+
+                .icon {
+                    display: inline-block;
+
+                    &:hover {
+                        background: $brand-secondary;
+                        color: $white;
+                    }
+                }
+
+                .dropdown-menu {
+
+                    .icon {
+                        &:hover {
+                            background: $white;
+            }
+
+                        &::before {
+                            color: $gray-light;
+                        }
+                    }
+                }
+            }
+
+            .icon {
+                background: $white;
+                padding: 0 3px;
+                border: 1px solid $gray-lighter;
+                border-radius: $border-radius-small;
+                padding-bottom: 2px;
+
+                &::before {
+                    font-size: $font-size-big;
+                    color: $gray-light;
+                    border: $gray-dark;
+                }
+
+                &:hover {
+                    background: $brand-secondary;
+                    color: $white;
+
+                    &::before {
+                        color: $white;
+                    }
+        }
+            }
     }
-
-    .actions-panel{
-      padding: 5px;
-      background: $gray-lightest;
-      text-align: right;
-      margin-bottom: 14px;
-      font-size: 1.8rem;
-      visibility: hidden;
-
-      &.active-panel{
-        visibility: visible;
-      }
-
-      .dropdown{
-        display: inline-block;
-
-        .icon{
-          display: inline-block;
-
-          &:hover{
-            background: $brand-secondary;
-            color:$white;
-          }
-        }
-
-        .dropdown-menu{
-
-          .icon{
-            &:hover{
-              background: $white;
-            }
-
-            &::before{
-              color:$gray-light;
-            }
-          }
-        }
-      }
-
-      .icon{
-        background: $white;
-        padding: 0 3px;
-        border: 1px solid $gray-lighter;
-        border-radius: $border-radius-small;
-        padding-bottom: 2px;
-
-        &::before{
-          font-size: $font-size-big;
-          color: $gray-light;
-          border: $gray-dark;
-        }
-
-        &:hover{
-          background: $brand-secondary;
-          color: $white;
-
-          &::before{
-            color: $white;
-          }
-        }
-      }
     }
-  }
 }

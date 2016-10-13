@@ -7,6 +7,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Model.SearchServiceModel.Impl;
 using Utilities;
 using Utilities.Factories;
@@ -56,7 +57,7 @@ namespace Helper
                     var propertiesToUpdate = new Dictionary<string, object>
                     {
                         {"Name", randomArtifactName},
-                        {"Description", randomArtifactDescription}
+                        {"Description", WebUtility.HtmlEncode(randomArtifactDescription)}
                     };
 
                     UpdateArtifactProperties(testHelper, user, project, artifact, artifactType, propertiesToUpdate);

@@ -244,6 +244,7 @@ namespace Model.ArtifactModel.Impl
                         if (artifactToDelete.IsPublished)
                         {
                             artifactToDelete.IsMarkedForDeletion = true;
+                            artifaceBaseToDelete.LockOwner = user;
                         }
                         else
                         {

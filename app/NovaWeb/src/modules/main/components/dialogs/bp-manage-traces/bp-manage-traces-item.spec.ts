@@ -54,10 +54,8 @@ describe("Component BPManageTracesItem", () => {
         vm = null;
     });
 
-    it("Check if trace was loaded", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
-        expect(directiveTest.element.find(".trace-main").length).toBeGreaterThan(0);
-    }));
 
+    
     it("check toggleFlag if item.hasAccess", () => {
         //Arrange
         vm.item.hasAccess = true;

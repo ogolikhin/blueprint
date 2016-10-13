@@ -374,8 +374,7 @@ namespace Model.Impl
                 if (expectedServiceErrorMessage != null)
                 {
                     var serviceErrorMessage = JsonConvert.DeserializeObject<ServiceErrorMessage>(restApi.Content);
-                    Assert.That(expectedServiceErrorMessage.Equals(serviceErrorMessage),
-                        "Response message is different from expected!");
+                    serviceErrorMessage.AssertEquals(expectedServiceErrorMessage);
                 }
 
                 throw;

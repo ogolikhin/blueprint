@@ -1,11 +1,13 @@
-﻿<div class="bp-sidebar-wrapper" ng-class="{'left-panel-visible': $ctrl.isLeftToggled, 'right-panel-visible': $ctrl.isRightToggled}">
+﻿<div class="bp-sidebar-wrapper"
+     ng-class="{'left-panel-visible': $ctrl.isLeftToggled, 'right-panel-visible': $ctrl.isRightToggled}">
 
     <div class="sidebar left-panel">
-	    <button class="sidebar-toggle hamburger hamburger--collapse" ng-class="{'is-active': $ctrl.isLeftToggled}" type="button" ng-click="$ctrl.toggleLeft($event)" bp-tooltip="{{$ctrl.leftPanelTitle}}">
+        <button class="sidebar-toggle hamburger hamburger--collapse" ng-class="{'is-active': $ctrl.isLeftToggled}"
+                type="button" ng-click="$ctrl.toggleLeft($event)" bp-tooltip="{{$ctrl.leftPanelTitle}}">
 			<span class="hamburger-box">
 				<span class="hamburger-inner"></span>
 			</span>
-		</button>
+        </button>
         <div class="sidebar-title">{{$ctrl.leftPanelTitle}}</div>
         <div class="sidebar-content" ng-transclude="content-left"></div>
     </div>
@@ -13,11 +15,12 @@
     <div class="content-center" ng-transclude="content-center"></div>
 
     <div class="sidebar right-panel">
-	    <button class="sidebar-toggle hamburger hamburger--collapse" ng-class="{'is-active': $ctrl.isRightToggled}" type="button" ng-click="$ctrl.toggleRight($event)" bp-tooltip="{{$ctrl.rightPanelTitle}}">
+        <button class="sidebar-toggle hamburger hamburger--collapse" ng-class="{'is-active': $ctrl.isRightToggled}"
+                type="button" ng-click="$ctrl.toggleRight($event)" bp-tooltip="{{$ctrl.rightPanelTitle}}">
 			<span class="hamburger-box">
 				<span class="hamburger-inner"></span>
 			</span>
-	    </button>
+        </button>
         <div class="sidebar-title">{{$ctrl.rightPanelTitle}}</div>
         <div class="sidebar-content" ng-transclude="content-right"></div>
     </div>

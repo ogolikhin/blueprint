@@ -12,7 +12,6 @@
 // import { BpArtifactInfoController} from "./bp-artifact-info";
 
 
-
 // describe("Component BpArtifactInfo", () => {
 
 //     let componentTest: ComponentTest<BpArtifactInfoController>;
@@ -31,7 +30,7 @@
 //     beforeEach(() => {
 //         componentTest = new ComponentTest<BpArtifactInfoController>(template, "bp-artifact-info");
 //         vm = componentTest.createComponent({});
-        
+
 //     });
 
 //     afterEach(() => {
@@ -42,7 +41,7 @@
 //     });
 
 //     it("initial state", () => {
-        
+
 //         //Assert
 //         expect(componentTest.element.find(".icon").length).toBe(1);
 //         expect(componentTest.element.find(".type-id").length).toBe(1);
@@ -70,7 +69,7 @@
 //         //Act
 //         stateManager.addItem(artifact);
 //         vm = componentTest.createComponent({});
-        
+
 //         //Assert
 //         expect(vm.artifactType).toBe("TextualRequirement");
 //         expect(vm.artifactClass).toBe("icon-textual-requirement");
@@ -89,7 +88,7 @@
 //         //Act
 //         stateManager.addItem(artifact);
 //         vm = componentTest.createComponent({});
-        
+
 //         //Assert
 //         expect(vm.isLegacy).toBeTruthy();
 //         expect(vm.artifactType).toBe("Storyboard");
@@ -112,7 +111,7 @@
 //         //Act
 //         stateManager.addItem(artifact);
 //         vm = componentTest.createComponent({});
-        
+
 //         //Assert
 //         expect(vm.artifactType).toBe("TextualRequirement");
 //         expect(vm.artifactClass).toBe("icon-textual-requirement");
@@ -137,12 +136,12 @@
 //         //Act
 //         stateManager.addItem(artifact, type);
 //         vm = componentTest.createComponent({});
-        
+
 //         //Assert
 //         expect(vm.artifactType).toBe("Textual Requirement");
 //         expect(vm.artifactClass).toBe("icon-textual-requirement");
 //         expect(vm.artifactTypeDescription).toBe("Textual Requirement - TR_1");
-        
+
 //     }));
 
 //     it("Artifact state: locked by current user ", inject((stateManager: StateManager) => {
@@ -155,11 +154,11 @@
 //             predefinedType: Models.ItemTypePredefined.TextualRequirement,
 //             prefix: "TR_"
 //         } as Models.IArtifact;
-        
+
 //         //Act
 //         stateManager.addItem(artifact);
 //         vm = componentTest.createComponent({});
-        
+
 //         //Assert
 //         expect(vm.isChanged).toBeFalsy();
 //         expect(vm.isReadonly).toBeFalsy();
@@ -177,11 +176,11 @@
 //             predefinedType: Models.ItemTypePredefined.TextualRequirement,
 //             prefix: "TR_"
 //         } as Models.IArtifact;
-        
+
 //         //Act
 //         stateManager.addItem(artifact);
 //         vm = componentTest.createComponent({});
-        
+
 //         //Assert
 //         expect(vm.isChanged).toBeFalsy();
 //         expect(vm.isReadonly).toBeTruthy();
@@ -200,7 +199,7 @@
 //             predefinedType: Models.ItemTypePredefined.TextualRequirement,
 //             prefix: "TR_"
 //         } as Models.IArtifact;
-        
+
 //         //Act
 //         stateManager.addItem(artifact);
 //         stateManager.addChange(artifact, {
@@ -209,7 +208,7 @@
 //             value : "updated"
 //         });
 //         vm = componentTest.createComponent({});
-        
+
 //         //Assert
 //         expect(vm.isChanged).toBeTruthy();
 //         expect(vm.isReadonly).toBeFalsy();
@@ -217,7 +216,6 @@
 
 
 //     }));
-
 
 
 // });

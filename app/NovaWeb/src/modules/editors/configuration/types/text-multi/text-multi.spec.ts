@@ -5,7 +5,7 @@ import "angular-sanitize";
 import "angular-ui-bootstrap";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
-import { createFormlyModule } from "../../formly-config.mock";
+import {createFormlyModule} from "../../formly-config.mock";
 
 describe("Formly Text", () => {
     let fieldsDefinition = [

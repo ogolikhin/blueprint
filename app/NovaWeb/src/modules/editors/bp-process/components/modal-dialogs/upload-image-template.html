@@ -3,7 +3,7 @@
         <div class="file-upload_outer-container">
             <div class="file-upload_container">
                 <div class="file-upload_inner">
-                    <div class="file-upload_preview"  ng-show="imageUploaded">
+                    <div class="file-upload_preview" ng-show="imageUploaded">
                         <zoomable-image class="img-responsive preview-image-placeholder"
                                         enable-zoom="!!systemTaskModel.associatedImageUrl"
                                         image-src="{{imageUrl}}"
@@ -27,17 +27,27 @@
                 <div class="buttons-container-inner">
                     <div class="buttons-container-row">
                         <div class="buttons-container-cell buttons-container-cell-bottom">
-                            <button id="upload-image-btn" class="btn btn-block button-white" ng-disabled="true" ng-click="uploadImage()">{{imageUploaded ? "Change" : "Upload"}}</button>
+                            <button id="upload-image-btn" class="btn btn-block button-white" ng-disabled="true"
+                                    ng-click="uploadImage()">{{imageUploaded ? "Change" : "Upload"}}
+                            </button>
                         </div>
                     </div>
                     <div class="buttons-container-row">
                         <div class="buttons-container-cell buttons-container-cell-middle">
-                            <button id="delete-image-btn" class="btn btn-block " ng-click="clearImage()" ng-disabled="!imageUploaded || isReadonly" ng-class="{'button-inactive': !imageUploaded, 'button-white' : imageUploaded }">Delete</button>
+                            <button id="delete-image-btn" class="btn btn-block " ng-click="clearImage()"
+                                    ng-disabled="!imageUploaded || isReadonly"
+                                    ng-class="{'button-inactive': !imageUploaded, 'button-white' : imageUploaded }">
+                                Delete
+                            </button>
                         </div>
                     </div>
                     <div class="buttons-container-row">
                         <div class="buttons-container-cell buttons-container-cell-top">
-                            <button id="download-image-btn" class="btn btn-block button-white" ng-click="downloadImage()" ng-disabled="!imageUploaded || isReadonly" ng-class="{'button-inactive': !imageUploaded, 'button-white' : imageUploaded }">Download</button>
+                            <button id="download-image-btn" class="btn btn-block button-white"
+                                    ng-click="downloadImage()" ng-disabled="!imageUploaded || isReadonly"
+                                    ng-class="{'button-inactive': !imageUploaded, 'button-white' : imageUploaded }">
+                                Download
+                            </button>
 
                         </div>
                     </div>
@@ -45,6 +55,7 @@
                 </div>
             </div>
         </div>
-        <input id="upload-image" type="file" style="display: none;" onchange="angular.element(this).scope().fileChanged(this)" />
+        <input id="upload-image" type="file" style="display: none;"
+               onchange="angular.element(this).scope().fileChanged(this)"/>
     </div>
 </div>

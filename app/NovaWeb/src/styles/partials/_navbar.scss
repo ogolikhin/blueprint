@@ -1,69 +1,69 @@
 .navbar {
-  border: 0;
-  display: block;
-  left: 0;
-  margin: 0;
-  min-height: $navbar-height;
-  min-width: $app-minimum-width;
-  padding: 0;
-  position: absolute;
-  top: 0;
-
-  .navbar-header {
-    background: $navbar-color url('images/logo-storyteller-white.svg') 15px no-repeat;
-    background-size: 120px 25px;
     border: 0;
-    float: none;
-    height: $navbar-height;
+    display: block;
+    left: 0;
     margin: 0;
+    min-height: $navbar-height;
+    min-width: $app-minimum-width;
     padding: 0;
+    position: absolute;
+    top: 0;
 
-    .navbar-brand {
-      background: $brand-secondary;
-      border: 0;
-      color: $white;
-      display: none; //we don't want to show "blueprint Blueprint". It will be used for other products
-      font-size: $font-size-smaller;
-      font-weight: 600;
-      height: $navbar-height;
-      line-height: $navbar-height;
-      margin: 0 0 0 144px;
-      padding: 0 32px;
+    .navbar-header {
+        background: $navbar-color url('images/logo-storyteller-white.svg') 15px no-repeat;
+        background-size: 120px 25px;
+        border: 0;
+        float: none;
+        height: $navbar-height;
+        margin: 0;
+        padding: 0;
+
+        .navbar-brand {
+            background: $brand-secondary;
+            border: 0;
+            color: $white;
+            display: none; //we don't want to show "blueprint Blueprint". It will be used for other products
+            font-size: $font-size-smaller;
+            font-weight: 600;
+            height: $navbar-height;
+            line-height: $navbar-height;
+            margin: 0 0 0 144px;
+            padding: 0 32px;
+        }
+
+        .navbar-right {
+            color: $white;
+            float: right !important; //override media query
+            font-size: $font-size-normal;
+            line-height: $navbar-height;
+            margin: 0 0 0 15px;
+            white-space: nowrap;
+
+            span {
+                font-style: italic;
+                font-weight: 600;
+            }
+
+            .signed-in-as {
+                font-style: normal;
+                font-weight: 700;
+                margin: 0 4px;
+            }
+
+            .fonticon, .fonticon::before {
+                color: $white;
+                cursor: pointer;
+                display: inline-block;
+                font-size: 20px;
+                margin-top: -3px;
+                text-decoration: none;
+                vertical-align: middle;
+            }
+
+            .fonticon-help {
+                margin-left: 8px;
+                margin-right: 10px;
+            }
+        }
     }
-
-    .navbar-right {
-      color: $white;
-      float: right !important; //override media query
-      font-size: $font-size-normal;
-      line-height: $navbar-height;
-      margin: 0 0 0 15px;
-      white-space: nowrap;
-
-      span {
-        font-style: italic;
-        font-weight: 600;
-      }
-
-      .signed-in-as {
-        font-style: normal;
-        font-weight: 700;
-        margin: 0 4px;
-      }
-
-      .fonticon, .fonticon::before {
-        color: $white;
-        cursor: pointer;
-        display: inline-block;
-        font-size: 20px;
-        margin-top: -3px;
-        text-decoration: none;
-        vertical-align: middle;
-      }
-
-      .fonticon-help {
-        margin-left: 8px;
-        margin-right: 10px;
-      }
-    }
-  }
 }

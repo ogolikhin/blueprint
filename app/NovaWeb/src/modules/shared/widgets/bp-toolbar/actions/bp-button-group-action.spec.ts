@@ -5,8 +5,10 @@ describe("BPButtonGroupAction", () => {
     it("initializes properties and methods successfully", () => {
         // arrange
         const type = "buttongroup";
-        const button1 = new BPButtonAction(() => {}, () => true, "test1", "test1", "test1");
-        const button2 = new BPButtonAction(() => {}, () => false, "test2");
+        const button1 = new BPButtonAction(() => {
+        }, () => true, "test1", "test1", "test1");
+        const button2 = new BPButtonAction(() => {
+        }, () => false, "test2");
 
         // act
         const buttonGroupAction = new BPButtonGroupAction(button1, button2);

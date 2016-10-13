@@ -12,8 +12,8 @@ export class DiagramLibraryManager {
     public getDiagramFactory(diagramType: string): IShapeTemplateFactory {
 
         switch (diagramType) {
-             case Diagrams.BUSINESS_PROCESS:
-                 return new BusinessProcessShapeFactory();
+            case Diagrams.BUSINESS_PROCESS:
+                return new BusinessProcessShapeFactory();
             case Diagrams.GENERIC_DIAGRAM:
                 return new GenericDiagramShapeFactory();
             case Diagrams.DOMAIN_DIAGRAM:
@@ -22,8 +22,8 @@ export class DiagramLibraryManager {
                 return new UiMockupShapeFactory();
             case Diagrams.STORYBOARD:
                 return new StoryboardShapeFactory();
-             case Diagrams.USECASE_DIAGRAM:
-                 return new UseCaseDiagramShapeFactory();
+            case Diagrams.USECASE_DIAGRAM:
+                return new UseCaseDiagramShapeFactory();
             case Diagrams.USECASE:
                 return new UsecaseShapeFactory();
             default:

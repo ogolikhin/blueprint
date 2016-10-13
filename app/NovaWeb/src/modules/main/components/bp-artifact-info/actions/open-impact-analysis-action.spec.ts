@@ -18,7 +18,7 @@ describe("OpenImpactAnalysisAction", () => {
 
     it("throws exception when localization is null", inject((statefulArtifactFactory: IStatefulArtifactFactory) => {
         // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({ id: 1 });
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
         const localization: ILocalizationService = null;
         let error: Error = null;
 
@@ -45,12 +45,11 @@ describe("OpenImpactAnalysisAction", () => {
         expect(openImpactAnalysisAction.disabled).toBe(true);
     }));
 
-    it("is disabled when artifact predefined type is null", inject((
-        statefulArtifactFactory: IStatefulArtifactFactory,
-        localization: ILocalizationService) => {
+    it("is disabled when artifact predefined type is null", inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                                                                    localization: ILocalizationService) => {
         // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({ 
-            id: 1, 
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({
+            id: 1,
             predefinedType: null
         });
 
@@ -61,12 +60,11 @@ describe("OpenImpactAnalysisAction", () => {
         expect(openImpactAnalysisAction.disabled).toBe(true);
     }));
 
-    it("is disabled for Project artifact", inject((
-        statefulArtifactFactory: IStatefulArtifactFactory,
-        localization: ILocalizationService) => {
+    it("is disabled for Project artifact", inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                                                   localization: ILocalizationService) => {
         // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({ 
-            id: 1, 
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({
+            id: 1,
             predefinedType: ItemTypePredefined.Project
         });
 
@@ -77,14 +75,13 @@ describe("OpenImpactAnalysisAction", () => {
         expect(openImpactAnalysisAction.disabled).toBe(true);
     }));
 
-    it("is disabled for new artifact", inject((
-        statefulArtifactFactory: IStatefulArtifactFactory,
-        localization: ILocalizationService) => {
+    it("is disabled for new artifact", inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                                               localization: ILocalizationService) => {
         // arrange
         const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-            { 
-                id: 1, 
-                predefinedType: ItemTypePredefined.Actor, 
+            {
+                id: 1,
+                predefinedType: ItemTypePredefined.Actor,
                 lockedByUser: null,
                 lockedDateTime: null,
                 permissions: RolePermissions.Edit,
@@ -98,14 +95,13 @@ describe("OpenImpactAnalysisAction", () => {
         expect(openImpactAnalysisAction.disabled).toBe(true);
     }));
 
-    it("is enabled for published artifact", inject((
-        statefulArtifactFactory: IStatefulArtifactFactory,
-        localization: ILocalizationService) => {
+    it("is enabled for published artifact", inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                                                    localization: ILocalizationService) => {
         // arrange
         const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-            { 
-                id: 1, 
-                predefinedType: ItemTypePredefined.Actor, 
+            {
+                id: 1,
+                predefinedType: ItemTypePredefined.Actor,
                 lockedByUser: null,
                 lockedDateTime: null,
                 permissions: RolePermissions.Edit,
@@ -121,7 +117,7 @@ describe("OpenImpactAnalysisAction", () => {
 
     it("opens new window when executed", inject((statefulArtifactFactory: IStatefulArtifactFactory, localization: ILocalizationService) => {
         // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({ id: 1 });
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
         const openImpactAnalysisAction = new OpenImpactAnalysisAction(artifact, localization);
         const openSpy = spyOn(window, "open");
 

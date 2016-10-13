@@ -19,24 +19,24 @@ describe("DeleteShapeButton", () => {
         })
     }),
 
-    describe("When NodeFactorySettings are supplied and delete action is enabled ", () => {
+        describe("When NodeFactorySettings are supplied and delete action is enabled ", () => {
 
-        it("DeleteShapeButton is enabled ", () => {
+            it("DeleteShapeButton is enabled ", () => {
 
-            //Arrange
-            const id = "test";
-            const clickAction = () => {
-                console.log("I clicked")                
-            };
-            
-            const nodeFactorySettings: NodeFactorySettings = new NodeFactorySettings();
-            nodeFactorySettings.isDeleteShapeEnabled = true;
-            const deleteShapeButton: DeleteShapeButton = new DeleteShapeButton(id, 10, 10, null, nodeFactorySettings, clickAction);
+                //Arrange
+                const id = "test";
+                const clickAction = () => {
+                    console.log("I clicked")
+                };
 
-            //Assert
-            expect(deleteShapeButton.isEnabled).toEqual(true);
+                const nodeFactorySettings: NodeFactorySettings = new NodeFactorySettings();
+                nodeFactorySettings.isDeleteShapeEnabled = true;
+                const deleteShapeButton: DeleteShapeButton = new DeleteShapeButton(id, 10, 10, null, nodeFactorySettings, clickAction);
+
+                //Assert
+                expect(deleteShapeButton.isEnabled).toEqual(true);
+            })
         })
-    })
 
     describe("When NodeFactorySettings are supplied and delete action is false ", () => {
 
@@ -45,7 +45,7 @@ describe("DeleteShapeButton", () => {
             //Arrange
             const id = "test";
             const clickAction = () => {
-                console.log("I clicked")                
+                console.log("I clicked")
             };
             const nodeFactorySettings: NodeFactorySettings = new NodeFactorySettings();
             nodeFactorySettings.isDeleteShapeEnabled = false;

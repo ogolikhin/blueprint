@@ -16,14 +16,14 @@ export class ComponentTest<TController> {
 
     public createComponent(attributes: any): TController {
         this.scope = this.rootScope.$new();
-        for (var key in attributes) {
+        for (let key in attributes) {
             this.scope[key] = attributes[key];
         }
         this.element = this.compile(this.template)(this.scope);
         this.scope.$digest();
         return this.element.controller(this.registerName);
     }
-    
+
     public createComponentWithMockParent(attributes: any, parentName: string, parentController: any): TController {
         this.scope = this.rootScope.$new();
         // TODO: figure out how to add scope variables to child controller

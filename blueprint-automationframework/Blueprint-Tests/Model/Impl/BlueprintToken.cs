@@ -73,7 +73,7 @@ namespace Model.Impl
         /// <exception cref="ArgumentException">If an invalid token string was passed.</exception>
         public void SetToken(string token)
         {
-            ThrowIf.IsNullOrWhiteSpace(token, nameof(token));
+            ThrowIf.ArgumentNull(token, nameof(token));
 
             if (token.StartsWithOrdinal(OPENAPI_START_OF_TOKEN))
             {

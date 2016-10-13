@@ -1,12 +1,19 @@
-﻿<h6 ng-if="$ctrl.artifactInfo.artifactState === $ctrl.getArtifactState('Published')">{{ $ctrl.localization.get('App_UP_History_Version') + " " + $ctrl.artifactInfo.versionId }}</h6>
-<h6 ng-if="$ctrl.artifactInfo.artifactState === $ctrl.getArtifactState('Draft')">{{ $ctrl.localization.get('App_UP_History_Draft') }}</h6>
-<h6 ng-if="$ctrl.artifactInfo.artifactState === $ctrl.getArtifactState('Deleted')">{{ $ctrl.localization.get('App_UP_History_Deleted') }}</h6>
+﻿<h6 ng-if="$ctrl.artifactInfo.artifactState === $ctrl.getArtifactState('Published')">{{
+    $ctrl.localization.get('App_UP_History_Version') + " " + $ctrl.artifactInfo.versionId }}</h6>
+<h6 ng-if="$ctrl.artifactInfo.artifactState === $ctrl.getArtifactState('Draft')">{{
+    $ctrl.localization.get('App_UP_History_Draft') }}</h6>
+<h6 ng-if="$ctrl.artifactInfo.artifactState === $ctrl.getArtifactState('Deleted')">{{
+    $ctrl.localization.get('App_UP_History_Deleted') }}</h6>
 
-<bp-avatar 
+<bp-avatar
     class="thumb"
-    icon="" 
+    icon=""
     name="{{ $ctrl.artifactInfo.displayName }}"
     color-base="{{ $ctrl.artifactInfo.userId + $ctrl.artifactInfo.displayName }}">
 </bp-avatar>
-<div class="author" bp-tooltip="{{ $ctrl.artifactInfo.displayName }}" bp-tooltip-truncated="true">{{ $ctrl.artifactInfo.displayName }}</div>
-<div ng-if="$ctrl.artifactInfo.artifactState !== $ctrl.getArtifactState('Draft')" class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.artifactInfo.timestamp | date:'medium' }}</div>
+<div class="author" bp-tooltip="{{ $ctrl.artifactInfo.displayName }}" bp-tooltip-truncated="true">{{
+    $ctrl.artifactInfo.displayName }}
+</div>
+<div ng-if="$ctrl.artifactInfo.artifactState !== $ctrl.getArtifactState('Draft')" class="timestamp"><i
+    class="icon fonticon-clock"></i>{{ $ctrl.artifactInfo.timestamp | date:'medium' }}
+</div>

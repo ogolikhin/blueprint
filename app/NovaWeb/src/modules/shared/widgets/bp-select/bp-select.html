@@ -1,5 +1,6 @@
 <div uib-dropdown>
-    <a href="#" uib-dropdown-toggle><span>{{ $ctrl.buttonLabel || $ctrl.selectedOption.label }}</span><b class="caret"></b></a>
+    <a href="#" uib-dropdown-toggle><span>{{ $ctrl.buttonLabel || $ctrl.selectedOption.label }}</span><b
+        class="caret"></b></a>
     <ul uib-dropdown-menu class="dropdown-menu">
         <li ng-repeat="option in $ctrl.options" ng-click="$ctrl.onOptionSelect(option)">
             <a href>{{ option.label }}</a>

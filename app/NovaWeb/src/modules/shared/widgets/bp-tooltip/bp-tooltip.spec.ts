@@ -26,7 +26,7 @@ describe("Directive BP-Tooltip", () => {
                 // Act
                 $rootScope.$apply();
                 let trigger = <HTMLElement>element[0].firstChild;
-                trigger.dispatchEvent(new Event("mouseover", { "bubbles": true }));
+                trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
                 let tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
 
                 // Assert
@@ -49,7 +49,7 @@ describe("Directive BP-Tooltip", () => {
                 // Act
                 $rootScope.$apply();
                 let trigger = <HTMLElement>element[0].firstChild;
-                trigger.dispatchEvent(new Event("mouseover", { "bubbles": true }));
+                trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
                 let tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
 
                 // Assert
@@ -70,7 +70,7 @@ describe("Directive BP-Tooltip", () => {
                 // Act
                 $rootScope.$apply();
                 let trigger = <HTMLElement>element[0].firstChild;
-                trigger.dispatchEvent(new Event("mouseover", { "bubbles": true }));
+                trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
                 let tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
 
                 // Assert
@@ -93,10 +93,10 @@ describe("Directive BP-Tooltip", () => {
                 // Act
                 $rootScope.$apply();
                 let trigger = <HTMLElement>element[0].firstChild;
-                trigger.dispatchEvent(new Event("mouseover", { "bubbles": true }));
+                trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
                 let tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
 
-                trigger.dispatchEvent(new Event("mouseout", { "bubbles": true }));
+                trigger.dispatchEvent(new Event("mouseout", {"bubbles": true}));
                 tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
 
                 // Assert
@@ -117,10 +117,10 @@ describe("Directive BP-Tooltip", () => {
                 // Act
                 $rootScope.$apply();
                 let trigger = <HTMLElement>element[0].firstChild;
-                trigger.dispatchEvent(new Event("mouseover", { "bubbles": true }));
+                trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
                 let tooltip = <HTMLElement>trigger.querySelector("div.bp-tooltip");
 
-                trigger.dispatchEvent(new Event("mousedown", { "bubbles": true }));
+                trigger.dispatchEvent(new Event("mousedown", {"bubbles": true}));
                 tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
 
                 // Assert
@@ -131,7 +131,7 @@ describe("Directive BP-Tooltip", () => {
         )
     );
 
-    it("changes the tooltip text dynamically", function(done) {
+    it("changes the tooltip text dynamically", function (done) {
             inject(
                 ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                     // Arrange
@@ -152,7 +152,7 @@ describe("Directive BP-Tooltip", () => {
                     expect(tooltip).toBeDefined();
                     expect(tooltip.classList).toContain("show");
 
-                    setTimeout(function() {
+                    setTimeout(function () {
                         expect(tooltip.textContent).toContain("Updated tooltip's content");
                         done();
                     }, 100);
@@ -175,7 +175,7 @@ describe("Directive BP-Tooltip", () => {
                 // Act
                 $rootScope.$apply();
                 let trigger = <HTMLElement>element[0].firstChild;
-                trigger.dispatchEvent(new Event("mouseover", { "bubbles": true }));
+                trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
                 let tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
 
                 let ev = document.createEvent("MouseEvent");
@@ -213,7 +213,7 @@ describe("Directive BP-Tooltip", () => {
                 // Act
                 $rootScope.$apply();
                 let trigger = <HTMLElement>element[0].firstChild;
-                trigger.dispatchEvent(new Event("mouseover", { "bubbles": true }));
+                trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
                 let tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
 
                 let ev = document.createEvent("MouseEvent");

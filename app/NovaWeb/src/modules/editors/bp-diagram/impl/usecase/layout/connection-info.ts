@@ -61,7 +61,7 @@ export class ConnectionInfo {
      * Adds point to the points array
      */
     public addPointToXy(x: number, y: number) {
-        this.addPoint({ x: x, y: y });
+        this.addPoint({x: x, y: y});
     }
 
     /**
@@ -69,7 +69,7 @@ export class ConnectionInfo {
      */
     public addPointToX(x: number) {
         const y = this.getLastPoint() ? this.getLastPoint().y : 0;
-        this.addPoint({ x: x, y: y });
+        this.addPoint({x: x, y: y});
     }
 
     /**
@@ -77,7 +77,7 @@ export class ConnectionInfo {
      */
     public addPointToY(y: number) {
         const x = this.getLastPoint() ? this.getLastPoint().x : 0;
-        this.addPoint({ x: x, y: y });
+        this.addPoint({x: x, y: y});
     }
 
     /**

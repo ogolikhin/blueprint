@@ -7,9 +7,9 @@ import "angular-ui-tinymce";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "tinymce";
-import { Helper } from "../../../../shared";
-import { BpFieldTextRTFController } from "./text-rtf";
-import { createFormlyModule } from "../../formly-config.mock";
+import {Helper} from "../../../../shared";
+import {BpFieldTextRTFController} from "./text-rtf";
+import {createFormlyModule} from "../../formly-config.mock";
 
 describe("Formly Text RTF", () => {
     let fieldsDefinition = [
@@ -65,11 +65,14 @@ describe("Formly Text RTF", () => {
     let menuItems: IMenuItem[];
     let editor = {
         editorCommands: {
-            execCommand: (command: string) => { }
+            execCommand: (command: string) => {
+            }
         },
         formatter: {
-            apply: () => { },
-            register: (a, b) => { }
+            apply: () => {
+            },
+            register: (a, b) => {
+            }
         },
         addButton: (a: string, menuToolbar: IMenuToolbar) => {
             if (!menuItems) {
@@ -96,7 +99,7 @@ describe("Formly Text RTF", () => {
                 scope.options = {};
                 scope.to = {};
                 scope.tinymceBody = tinymceBody;
-                controller = $controller(BpFieldTextRTFController, { $scope: scope });
+                controller = $controller(BpFieldTextRTFController, {$scope: scope});
             }
         )
     );

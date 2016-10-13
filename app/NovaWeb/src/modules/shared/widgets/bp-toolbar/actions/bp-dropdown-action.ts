@@ -7,11 +7,9 @@ export interface IBPDropdownItemAction {
 }
 
 export class BPDropdownItemAction implements IBPDropdownItemAction {
-    constructor(
-        private _label: string,
-        private _execute: () => void,
-        private _canExecute: () => boolean
-    ) {
+    constructor(private _label: string,
+                private _execute: () => void,
+                private _canExecute: () => boolean) {
     }
 
     public get label(): string {
@@ -38,13 +36,11 @@ export interface IBPDropdownAction extends IBPAction {
 export class BPDropdownAction implements IBPDropdownAction {
     private _actions: IBPDropdownItemAction[];
 
-    constructor(
-        private _canExecute: () => boolean,
-        private _icon: string,
-        private _tooltip?: string,
-        private _label?: string,
-        ... actions: IBPDropdownItemAction[]
-    ) {
+    constructor(private _canExecute: () => boolean,
+                private _icon: string,
+                private _tooltip?: string,
+                private _label?: string,
+                ...actions: IBPDropdownItemAction[]) {
         this._actions = actions;
     }
 

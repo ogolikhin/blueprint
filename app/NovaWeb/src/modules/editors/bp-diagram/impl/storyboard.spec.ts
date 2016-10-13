@@ -12,7 +12,7 @@ describe("Rendering common shapes", () => {
     let element: ng.IAugmentedJQuery;
     let diagramView: DiagramView;
 
-    beforeEach(angular.mock.module("ngSanitize", ($provide: ng.auto.IProvideService, $compileProvider: ng.ICompileProvider) => {     
+    beforeEach(angular.mock.module("ngSanitize", ($provide: ng.auto.IProvideService, $compileProvider: ng.ICompileProvider) => {
         $provide.service("stencilService", StencilServiceMock);
     }));
 
@@ -26,14 +26,14 @@ describe("Rendering common shapes", () => {
         // Arrange
         const eventShapes = [];
         const props = new Array<Prop>();
-        props[0] = { name: ShapeProps.HAS_MOCKUP, value: false };
-        props[1] = { name: ShapeProps.IS_FIRST, value: true };
+        props[0] = {name: ShapeProps.HAS_MOCKUP, value: false};
+        props[1] = {name: ShapeProps.IS_FIRST, value: true};
         eventShapes.push(DiagramMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250));
-        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);      
+        const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);
 
         // Act
         diagramView.drawDiagram(diagramMock);
-        
+
         // Assert
         const frameBoundary = element.find("rect[x='100'][y='100'][width='100'][height='250'][stroke='none']");
         expect(frameBoundary.length).toEqual(1);
@@ -52,11 +52,11 @@ describe("Rendering common shapes", () => {
         // Arrange
         const eventShapes = [];
         const props = new Array<Prop>();
-        props[0] = { name: ShapeProps.HAS_MOCKUP, value: true };
-        props[1] = { name: ShapeProps.IS_FIRST, value: false };
+        props[0] = {name: ShapeProps.HAS_MOCKUP, value: true};
+        props[1] = {name: ShapeProps.IS_FIRST, value: false};
         eventShapes.push(DiagramMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250));
         const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);
-     
+
         // Act
         diagramView.drawDiagram(diagramMock);
 
@@ -78,13 +78,13 @@ describe("Rendering common shapes", () => {
         // Arrange
         const eventShapes = [];
         const props = new Array<Prop>();
-        props[0] = { name: ShapeProps.HAS_MOCKUP, value: true };
-        props[1] = { name: ShapeProps.IS_FIRST, value: false };
+        props[0] = {name: ShapeProps.HAS_MOCKUP, value: true};
+        props[1] = {name: ShapeProps.IS_FIRST, value: false};
         const shape = DiagramMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250);
-        shape.description = DiagramMock.createRichText("test description text");       
+        shape.description = DiagramMock.createRichText("test description text");
         eventShapes.push(shape);
         const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);
-        
+
         // Act
         diagramView.drawDiagram(diagramMock);
 
@@ -97,13 +97,13 @@ describe("Rendering common shapes", () => {
         // Arrange
         const eventShapes = [];
         const props = new Array<Prop>();
-        props[0] = { name: ShapeProps.HAS_MOCKUP, value: false };
-        props[1] = { name: ShapeProps.IS_FIRST, value: false };
+        props[0] = {name: ShapeProps.HAS_MOCKUP, value: false};
+        props[1] = {name: ShapeProps.IS_FIRST, value: false};
         const shape = DiagramMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250);
         shape.description = DiagramMock.createRichText("test description text");
         eventShapes.push(shape);
         const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);
-       
+
         // Act
         diagramView.drawDiagram(diagramMock);
 
@@ -116,13 +116,13 @@ describe("Rendering common shapes", () => {
         // Arrange
         const eventShapes = [];
         const props = new Array<Prop>();
-        props[0] = { name: ShapeProps.HAS_MOCKUP, value: false };
-        props[1] = { name: ShapeProps.IS_FIRST, value: false };
+        props[0] = {name: ShapeProps.HAS_MOCKUP, value: false};
+        props[1] = {name: ShapeProps.IS_FIRST, value: false};
         const shape = DiagramMock.createShape(Shapes.FRAME, props, 1, 100, 100, 100, 250);
         shape.description = DiagramMock.createRichText("test description text");
         eventShapes.push(shape);
         const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.STORYBOARD);
-        
+
         // Act
         diagramView.drawDiagram(diagramMock);
 
@@ -135,14 +135,17 @@ describe("Rendering common shapes", () => {
         // Arrange
         const eventShapes = [];
         const props = new Array<Prop>();
-        props[0] = { name: ShapeProps.HAS_MOCKUP, value: false };
-        props[1] = { name: ShapeProps.IS_FIRST, value: false };
-       
+        props[0] = {name: ShapeProps.HAS_MOCKUP, value: false};
+        props[1] = {name: ShapeProps.IS_FIRST, value: false};
+
         eventShapes.push(DiagramMock.createShape(Shapes.FRAME, props, 1, 1, 50, 100, 250));
         eventShapes.push(DiagramMock.createShape(Shapes.FRAME, props, 2, 300, 50, 100, 250));
 
         const connections = [];
-        const points = [{ x: 51, y: 252 }, { x: 51, y: 310 }, { x: 150, y: 310 }, { x: 150, y: 25 }, { x: 350, y: 25 }, { x: 350, y: 98 }];
+        const points = [{x: 51, y: 252}, {x: 51, y: 310}, {x: 150, y: 310}, {x: 150, y: 25}, {x: 350, y: 25}, {
+            x: 350,
+            y: 98
+        }];
         const connection = DiagramMock.createConnection(ConnectorTypes.RIGHT_ANGLED, points);
         connection.sourceId = 1;
         connection.targetId = 1;
@@ -150,7 +153,7 @@ describe("Rendering common shapes", () => {
         connections.push(connection);
 
         const diagramMock = DiagramMock.createDiagramMock(eventShapes, connections, Diagrams.STORYBOARD);
-       
+
         // Act
         diagramView.drawDiagram(diagramMock);
 

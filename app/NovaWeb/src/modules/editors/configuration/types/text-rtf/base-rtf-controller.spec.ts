@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import "angular-mocks";
 
-import { BPFieldBaseRTFController } from "./base-rtf-controller";
+import {BPFieldBaseRTFController} from "./base-rtf-controller";
 
 describe("Formly Base RTF Controller", () => {
     let scope, rootScope;
@@ -26,7 +26,7 @@ describe("Formly Base RTF Controller", () => {
             ($rootScope: ng.IRootScopeService, $controller: ng.IControllerService) => {
                 rootScope = $rootScope;
                 scope = rootScope.$new();
-                controller = $controller(BPFieldBaseRTFController, { $scope: scope });
+                controller = $controller(BPFieldBaseRTFController, {$scope: scope});
                 angular.element("body").append(`<div class="container">` +
                     `<a class="added" href="http://www.yahoo.com/">Link #1</a>` +
                     `<a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink,` +
@@ -46,7 +46,8 @@ describe("Formly Base RTF Controller", () => {
             let mouseEvent: MouseEvent = createMouseEvent();
             aTag.addEventListener("click", controller.handleClick);
 
-            spyOn(window, "open").and.callFake(function() { });
+            spyOn(window, "open").and.callFake(function () {
+            });
 
             aTag.dispatchEvent(mouseEvent);
 
@@ -61,7 +62,8 @@ describe("Formly Base RTF Controller", () => {
             let mouseEvent: MouseEvent = createMouseEvent();
             aTag.addEventListener("click", controller.handleClick);
 
-            spyOn(console, "log").and.callFake(function() { });
+            spyOn(console, "log").and.callFake(function () {
+            });
 
             aTag.dispatchEvent(mouseEvent);
 
@@ -75,8 +77,10 @@ describe("Formly Base RTF Controller", () => {
         it("adds event listners and attributes", () => {
             let container = angular.element(".container")[0];
             let aTags = container.querySelectorAll("a");
-            spyOn(aTags[0], "addEventListener").and.callFake(function() { });
-            spyOn(aTags[1], "addEventListener").and.callFake(function() { });
+            spyOn(aTags[0], "addEventListener").and.callFake(function () {
+            });
+            spyOn(aTags[1], "addEventListener").and.callFake(function () {
+            });
 
             controller.handleLinks(aTags);
 
@@ -91,8 +95,10 @@ describe("Formly Base RTF Controller", () => {
         it("removes event listners", () => {
             let container = angular.element(".container")[0];
             let aTags = container.querySelectorAll("a");
-            spyOn(aTags[0], "removeEventListener").and.callFake(function() { });
-            spyOn(aTags[1], "removeEventListener").and.callFake(function() { });
+            spyOn(aTags[0], "removeEventListener").and.callFake(function () {
+            });
+            spyOn(aTags[1], "removeEventListener").and.callFake(function () {
+            });
 
             controller.handleLinks(aTags);
             controller.handleLinks(aTags, true);
@@ -118,7 +124,8 @@ describe("Formly Base RTF Controller", () => {
                 attributeNamespace: null,
                 oldValue: null
             };
-            spyOn(controller, "handleLinks").and.callFake(function() { });
+            spyOn(controller, "handleLinks").and.callFake(function () {
+            });
 
             controller.handleMutation(mutationRecord);
 

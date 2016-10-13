@@ -1,21 +1,24 @@
 <div class="input-group has-messages">
-	<input type="text"
-		id="{{::id}}"
-		name="{{::id}}"
-		ng-model="model[options.key]"
-		ng-model-options="{allowInvalid: true}"
-		class="form-control has-icon"
-		ng-click="bpFieldDatepicker.select($event)"
-		ng-blur="bpFieldDatepicker.blur($event)"
-		ng-keyup="bpFieldDatepicker.keyup($event)"
-		uib-datepicker-popup="{{to.datepickerOptions.format}}"
-		is-open="bpFieldDatepicker.opened"
-		datepicker-append-to-body="to.datepickerAppendToBody"
-		datepicker-options="to.datepickerOptions" />
-	<span class="input-group-btn">
-		<button type="button" class="btn btn-default" ng-click="bpFieldDatepicker.open($event)" ng-disabled="to.disabled"><i class="glyphicon glyphicon-calendar"></i></button>
+    <input type="text"
+           id="{{::id}}"
+           name="{{::id}}"
+           ng-model="model[options.key]"
+           ng-model-options="{allowInvalid: true}"
+           class="form-control has-icon"
+           ng-click="bpFieldDatepicker.select($event)"
+           ng-blur="bpFieldDatepicker.blur($event)"
+           ng-keyup="bpFieldDatepicker.keyup($event)"
+           uib-datepicker-popup="{{to.datepickerOptions.format}}"
+           is-open="bpFieldDatepicker.opened"
+           datepicker-append-to-body="to.datepickerAppendToBody"
+           datepicker-options="to.datepickerOptions"/>
+    <span class="input-group-btn">
+		<button type="button" class="btn btn-default" ng-click="bpFieldDatepicker.open($event)"
+                ng-disabled="to.disabled"><i class="glyphicon glyphicon-calendar"></i></button>
 	</span>
-	<div ng-messages="fc.$error" ng-if="showError" class="error-messages">
-		<div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
-	</div>
+    <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+        <div id="{{::id}}-{{::name}}" ng-message="{{::name}}"
+             ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}
+        </div>
+    </div>
 </div>

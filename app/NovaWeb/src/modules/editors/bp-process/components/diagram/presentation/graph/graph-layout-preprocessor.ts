@@ -9,8 +9,7 @@ export class GraphLayoutPreprocessor implements IGraphLayoutPreprocessor {
     private inBranch: boolean = false;
     private tree: IHashMap<TreeShapeRef>;
 
-    constructor(
-        private model: IProcessGraphModel) {
+    constructor(private model: IProcessGraphModel) {
         this.boundaryCurve = [];
         this.tree = model.getTree();
     }
@@ -32,15 +31,15 @@ export class GraphLayoutPreprocessor implements IGraphLayoutPreprocessor {
     }
 
     private updateBoundary(fromX: number, toX: number, y: number): void {
-        for (var i = fromX; i <= toX; i++) {
+        for (let i = fromX; i <= toX; i++) {
             this.boundaryCurve[i] = y;
         }
     }
 
     private getDepth(fromX: number, toX: number): number {
-        var depth: number = 0;
+        let depth: number = 0;
 
-        for (var i = fromX; i <= toX; i++) {
+        for (let i = fromX; i <= toX; i++) {
             if (depth < this.boundaryCurve[i]) {
                 depth = this.boundaryCurve[i];
             }

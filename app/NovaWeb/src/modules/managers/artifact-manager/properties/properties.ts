@@ -1,10 +1,10 @@
-import { IIStatefulItem } from "../item";
-import { Models } from "../../../main/models";
-import { ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector } from "../changeset";
-import { IDispose } from "../../models";
+import {IIStatefulItem} from "../item";
+import {Models} from "../../../main/models";
+import {ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector} from "../changeset";
+import {IDispose} from "../../models";
 
 export interface IArtifactProperties extends IDispose {
-    initialize(properties: Models.IPropertyValue[]); 
+    initialize(properties: Models.IPropertyValue[]);
     get(id: number): Models.IPropertyValue;
     set(id: number, value: any): Models.IPropertyValue;
     changes(): Models.IPropertyValue[];
@@ -12,8 +12,8 @@ export interface IArtifactProperties extends IDispose {
     isLoaded: boolean;
 }
 
-export class ArtifactProperties implements IArtifactProperties  {
-    
+export class ArtifactProperties implements IArtifactProperties {
+
     protected properties: Models.IPropertyValue[];
     private changeset: IChangeCollector;
 
@@ -29,7 +29,7 @@ export class ArtifactProperties implements IArtifactProperties  {
         // });
     }
 
-    public initialize(properties: Models.IPropertyValue[])  {
+    public initialize(properties: Models.IPropertyValue[]) {
         this.properties = properties || [];
         this._isLoaded = true;
     }
@@ -52,15 +52,15 @@ export class ArtifactProperties implements IArtifactProperties  {
     public set(id: number, value: any): Models.IPropertyValue {
         let property = this.get(id);
         if (property) {
-           property.value = value;
-           let changeset = {
-               type: ChangeTypeEnum.Update,
-               key: id,
-               value: property              
-           } as IChangeSet;
-           this.changeset.add(changeset);
-           
-           this.statefulItem.lock();
+            property.value = value;
+            let changeset = {
+                type: ChangeTypeEnum.Update,
+                key: id,
+                value: property
+            } as IChangeSet;
+            this.changeset.add(changeset);
+
+            this.statefulItem.lock();
         }
         return property;
     }
@@ -80,7 +80,7 @@ export class ArtifactProperties implements IArtifactProperties  {
     }
 }
 
-export class SpecialProperties extends ArtifactProperties  {
+export class SpecialProperties extends ArtifactProperties {
 
     public get(id: number): Models.IPropertyValue {
         return this.properties.filter((it: Models.IPropertyValue) => it.propertyTypePredefined === id)[0];

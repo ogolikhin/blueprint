@@ -9,12 +9,13 @@ import {
 } from "../../../../../models/process-models";
 import {ProcessShapeType} from "../../../../../models/enums";
 import {ItemTypePredefined} from "../../../../../../../main/models/enums";
-import { StatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {StatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 export class ArtifactReferenceLinkMock implements IArtifactReferenceLink {
     public sourceId: number;
     public destinationId: number;
     public orderindex: number;
     public associatedReferenceArtifactId: number;
+
     constructor(associatedReferenceArtifactId: number) {
         this.associatedReferenceArtifactId = associatedReferenceArtifactId;
     }
@@ -86,7 +87,12 @@ export class ShapeModelMock {
         this.sampleUserTask.propertyValues["associatedArtifact"] = {
             propertyName: "associatedArtifact", value: new ArtifactReferenceLinkMock(2), typeId: 5, typePredefined: 0
         };
-        this.sampleUserTask.propertyValues["userStoryId"] = { propertyName: "userStoryId", value: 0, typeId: 6, typePredefined: 0 };
+        this.sampleUserTask.propertyValues["userStoryId"] = {
+            propertyName: "userStoryId",
+            value: 0,
+            typeId: 6,
+            typePredefined: 0
+        };
 
         this.sampleUserTask.associatedArtifact = {
             id: 10,
@@ -147,9 +153,11 @@ export class ShapeModelMock {
         }
         return this.shapeModelMock;
     }
+
     public UserTaskMock(): IUserTaskShape {
         return angular.copy(this.sampleUserTask);
     }
+
     public SystemTaskMock(): ISystemTaskShape {
         return angular.copy(this.sampleSystemTask);
     }

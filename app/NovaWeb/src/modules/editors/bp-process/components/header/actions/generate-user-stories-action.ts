@@ -6,11 +6,9 @@ import {StatefulProcessSubArtifact} from "../../../process-subartifact";
 import {ProcessShapeType} from "../../../models/enums";
 
 export class GenerateUserStoriesAction extends BPDropdownAction {
-    constructor(
-        process: StatefulProcessArtifact,
-        selectionManager: ISelectionManager,
-        localization: ILocalizationService
-    ) {
+    constructor(process: StatefulProcessArtifact,
+                selectionManager: ISelectionManager,
+                localization: ILocalizationService) {
         if (!selectionManager) {
             throw new Error("Selection manager is not provided or is null");
         }
@@ -52,10 +50,10 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                 }
             ),
             new BPDropdownItemAction(
-                localization.get("ST_Generate_All_Contextual_Toolbar_Button"), 
+                localization.get("ST_Generate_All_Contextual_Toolbar_Button"),
                 () => {
                     console.log("'Generate All' clicked");
-                }, 
+                },
                 () => !process.artifactState.readonly
             )
         );

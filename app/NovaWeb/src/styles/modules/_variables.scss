@@ -1,35 +1,35 @@
 //colors
 
-$gray-darker:       #333;
-$gray-dark:         #616161;
-$gray:              #999;
-$gray-light:        #aaa;
-$gray-lighter:      #ccc;
-$gray-lightest:     #e8e8e8;
-$blue-light:        #01a7e1;
-$blue-lightest:     #e7ebf2;
-$yellow-pale:       #fbf8e7;
-$white:             #fff;
-$black:             #000;
+$gray-darker: #333;
+$gray-dark: #616161;
+$gray: #999;
+$gray-light: #aaa;
+$gray-lighter: #ccc;
+$gray-lightest: #e8e8e8;
+$blue-light: #01a7e1;
+$blue-lightest: #e7ebf2;
+$yellow-pale: #fbf8e7;
+$white: #fff;
+$black: #000;
 
-$brand-primary:     #1c285c;
-$brand-secondary:   #009cdc;
-$brand-success:     #36a2b0;
-$brand-error:       #d95f5e;
-$brand-warning:     #e4b169;
+$brand-primary: #1c285c;
+$brand-secondary: #009cdc;
+$brand-success: #36a2b0;
+$brand-error: #d95f5e;
+$brand-warning: #e4b169;
 
-$text-color:        $gray-darker;
+$text-color: $gray-darker;
 
-$messages-bg-error:   $brand-error;
-$messages-bg-info:    $brand-success;
+$messages-bg-error: $brand-error;
+$messages-bg-info: $brand-success;
 $messages-bg-warning: $brand-warning;
 
-$body-bg-color:     $blue-lightest;
-$body-color:        $text-color;
-$modal-bg-color:    #f0f0f0;
+$body-bg-color: $blue-lightest;
+$body-color: $text-color;
+$modal-bg-color: #f0f0f0;
 
-$link-color:        $brand-secondary;
-$link-hover-color:  lighten($brand-secondary, 10%);
+$link-color: $brand-secondary;
+$link-hover-color: lighten($brand-secondary, 10%);
 
 $tree-hover-background: #e5f3fb;
 $tree-focus-background: #e5f3fb;
@@ -38,16 +38,16 @@ $tree-focus-border: #70c0e7;
 //font
 $font-family-base: 'Open Sans', Arial, Helvetica, sans-serif;
 
-$font-size-root:     10px;
+$font-size-root: 10px;
 
-$font-size-normal:   1.2rem;
-$font-size-small:    1.1rem;
-$font-size-smaller:  1.0rem;
+$font-size-normal: 1.2rem;
+$font-size-small: 1.1rem;
+$font-size-smaller: 1.0rem;
 $font-size-smallest: 0.9rem;
-$font-size-tiny:     0.8rem;
-$font-size-big:      1.4rem;
-$font-size-bigger:   1.6rem;
-$font-size-biggest:  1.8rem;
+$font-size-tiny: 0.8rem;
+$font-size-big: 1.4rem;
+$font-size-bigger: 1.6rem;
+$font-size-biggest: 1.8rem;
 
 $font-weight-light: 300;
 $font-weight-normal: 400;

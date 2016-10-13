@@ -27,7 +27,7 @@ export interface ILayoutCalculator {
     /**
      * Arranges the graph by calculating the size and positiion for all nodes and
      * the connections between the nodes.
-     * 
+     *
      * @param "graph". The graph that must be arranged by the layout calculator. Cannot be null.
      */
     arrangeGraph(graph: FlowGraph);
@@ -96,7 +96,7 @@ export class LayoutCalculator implements ILayoutCalculator {
      * Arranges the graph by calculating the size and positiion for all nodes and the connections between the nodes.
      *
      * @param graph. The graph that must be arranged by the layout calculator. Cannot be null.
-     * 
+     *
      * @throws Exception when
      * -graph contains at least one flow that has no node.
      * -graph contains at least one alternate row has no start node.
@@ -151,8 +151,8 @@ export class LayoutCalculator implements ILayoutCalculator {
                 bounds.inflate(this.flowSpacing);
 
                 // Set the position to the position of the bounding box.
-                flow.position = { x: bounds.x, y: bounds.y };
-                flow.size = { width: bounds.width, height: bounds.height };
+                flow.position = {x: bounds.x, y: bounds.y};
+                flow.size = {width: bounds.width, height: bounds.height};
             }
         });
     }
@@ -441,7 +441,7 @@ export class LayoutCalculator implements ILayoutCalculator {
                 const x = this.colOffsets[processData.col] + 0.5 * (this.colSizes[processData.col] - node.size.width);
                 const y = this.rowOffsets[processData.row] + 0.5 * (this.rowSizes[processData.row] - node.size.height);
 
-                node.position = { x: x, y: y };
+                node.position = {x: x, y: y};
             }
         });
     }
@@ -465,7 +465,7 @@ export class LayoutCalculator implements ILayoutCalculator {
                     height = this.nodeDefaultHeight;
                 }
 
-                visibleObject.size = { width: width, height: height };
+                visibleObject.size = {width: width, height: height};
             }
         });
     }
@@ -525,7 +525,7 @@ export class LayoutCalculator implements ILayoutCalculator {
 
     /**
      * Calculate row indicies based on nodes amount (in this flow and in children alternate flows)
-     * 
+     *
      * @param graph
      * @param flow
      * @param rowIndex
@@ -584,7 +584,7 @@ export class LayoutCalculator implements ILayoutCalculator {
     // to the current node and where the start node of the related flow
     // has a less index than the index of the current node.
     private getMaxRowIndex(graph: FlowGraph, currentFlow: Flow, node: Node, previousNode: Node, rowIndex: number): number {
-        let maxRowIndex = -1;       
+        let maxRowIndex = -1;
         graph.getAlternateFlows().forEach(f => {
             let effectiveEndNode = node;
             const branchingEndNode = f.endNode != null && f.endNode.getAlternateFlows().length > 0;

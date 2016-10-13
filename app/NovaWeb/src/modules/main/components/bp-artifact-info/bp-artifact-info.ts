@@ -1,11 +1,11 @@
 ﻿import * as angular from "angular";
-import { Models, Enums } from "../../models";
-import { IWindowManager, IMainWindow, ResizeCause } from "../../services";
-import { IMessageService, Message, MessageType, ILocalizationService } from "../../../core";
-import { ILoadingOverlayService } from "../../../core/loading-overlay";
-import { IArtifactManager, IStatefulArtifact, IMetaDataService } from "../../../managers/artifact-manager";
-import { IProjectManager } from "../../../managers/project-manager";
-import { INavigationService } from "../../../core/navigation/navigation.svc";
+import {Models, Enums} from "../../models";
+import {IWindowManager, IMainWindow, ResizeCause} from "../../services";
+import {IMessageService, Message, MessageType, ILocalizationService} from "../../../core";
+import {ILoadingOverlayService} from "../../../core/loading-overlay";
+import {IArtifactManager, IStatefulArtifact, IMetaDataService} from "../../../managers/artifact-manager";
+import {IProjectManager} from "../../../managers/project-manager";
+import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {
     Helper,
     IDialogSettings,
@@ -33,13 +33,13 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 
 export class BpArtifactInfoController {
     static $inject: [string] = [
-        "$scope", 
+        "$scope",
         "$element",
-        "artifactManager", 
-        "localization", 
-        "messageService", 
-        "dialogService", 
-        "windowManager", 
+        "artifactManager",
+        "localization",
+        "messageService",
+        "dialogService",
+        "windowManager",
         "loadingOverlayService",
         "navigationService",
         "projectManager",
@@ -62,19 +62,17 @@ export class BpArtifactInfoController {
     public artifactTypeDescription: string;
     public toolbarActions: IBPAction[];
 
-    constructor(
-        public $scope: ng.IScope,
-        private $element: ng.IAugmentedJQuery,
-        protected artifactManager: IArtifactManager,
-        protected localization: ILocalizationService,
-        protected messageService: IMessageService,
-        protected dialogService: IDialogService,
-        protected windowManager: IWindowManager,
-        protected loadingOverlayService: ILoadingOverlayService,
-        protected navigationService: INavigationService,
-        protected projectManager: IProjectManager,
-        protected metadataService: IMetaDataService
-    ) {
+    constructor(public $scope: ng.IScope,
+                private $element: ng.IAugmentedJQuery,
+                protected artifactManager: IArtifactManager,
+                protected localization: ILocalizationService,
+                protected messageService: IMessageService,
+                protected dialogService: IDialogService,
+                protected windowManager: IWindowManager,
+                protected loadingOverlayService: ILoadingOverlayService,
+                protected navigationService: INavigationService,
+                protected projectManager: IProjectManager,
+                protected metadataService: IMetaDataService) {
         this.initProperties();
         this.subscribers = [];
     }
@@ -102,7 +100,7 @@ export class BpArtifactInfoController {
             if (artifact) {
                 this.artifact = artifact;
                 const artifactObserver = artifact.getObservable()
-                        .subscribe(this.onArtifactChanged, this.onError);
+                    .subscribe(this.onArtifactChanged, this.onError);
 
                 this.subscribers.push(artifactObserver);
             }
@@ -111,7 +109,9 @@ export class BpArtifactInfoController {
 
     public $onDestroy() {
         this.initProperties();
-        this.subscribers.forEach(subscriber => { subscriber.dispose(); });
+        this.subscribers.forEach(subscriber => {
+            subscriber.dispose();
+        });
         delete this.subscribers;
     }
 
@@ -174,7 +174,7 @@ export class BpArtifactInfoController {
 
             this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
         }
-        
+
         this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[itemType.predefinedType] || "document"));
 
         this.isLegacy = itemType.predefinedType === Enums.ItemTypePredefined.Storyboard ||
@@ -195,10 +195,10 @@ export class BpArtifactInfoController {
                 break;
 
             case Enums.LockedByEnum.OtherUser:
-                 let msg = artifact.artifactState.lockOwner ? "Locked by " + artifact.artifactState.lockOwner : "Locked "; 
-                 if (artifact.artifactState.lockDateTime) {
-                     msg += " on " + this.localization.current.formatShortDateTime(artifact.artifactState.lockDateTime);
-                 }
+                let msg = artifact.artifactState.lockOwner ? "Locked by " + artifact.artifactState.lockOwner : "Locked ";
+                if (artifact.artifactState.lockDateTime) {
+                    msg += " on " + this.localization.current.formatShortDateTime(artifact.artifactState.lockDateTime);
+                }
                 this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
                 break;
 
@@ -207,8 +207,10 @@ export class BpArtifactInfoController {
         }
 
         if (artifact.artifactState.misplaced) {
-            this.dialogService.alert("Artifact_Lock_DoesNotExist").then(() => {}) ;
-        } 
+            this.dialogService.alert("Artifact_Lock_DoesNotExist").then(() => {
+                //fixme: empty function block shoudl be removed
+            });
+        }
     }
 
     public get artifactHeadingMinWidth() {
@@ -223,8 +225,8 @@ export class BpArtifactInfoController {
             let typeWidth: number = heading && heading.querySelector(".type-id") ? heading.querySelector(".type-id").scrollWidth : 0;
             let indicatorsWidth: number = heading && heading.querySelector(".indicators") ? heading.querySelector(".indicators").scrollWidth : 0;
             let headingWidth: number = iconWidth + (
-                typeWidth > nameWidth + indicatorsWidth ? typeWidth : nameWidth + indicatorsWidth
-            ) + 20 + 5; // heading's margins + wiggle room
+                    typeWidth > nameWidth + indicatorsWidth ? typeWidth : nameWidth + indicatorsWidth
+                ) + 20 + 5; // heading's margins + wiggle room
             if (heading && toolbar) {
                 style = {
                     "min-width": (headingWidth > toolbar.clientWidth ? toolbar.clientWidth : headingWidth) + "px"

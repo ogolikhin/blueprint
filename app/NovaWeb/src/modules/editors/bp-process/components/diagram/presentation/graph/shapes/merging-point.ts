@@ -25,6 +25,7 @@ export class MergingPoint extends DiagramNode<IProcessShape> {
     }
 
     public deleteNode(graph: IProcessGraph) {
+//fixme: if this is empty delete it or have it undefined.
     }
 
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {

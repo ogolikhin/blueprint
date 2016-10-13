@@ -13,13 +13,17 @@ describe("ServerLoggerSvc", () => {
             // Arrange
             var success: boolean;
             var level: number = 2;
-            var inError = { message: "test" };
-            var outMessage = { Source: "NovaClient", LogLevel: level, Message: inError.message, StackTrace: "" };
+            var inError = {message: "test"};
+            var outMessage = {Source: "NovaClient", LogLevel: level, Message: inError.message, StackTrace: ""};
             $httpBackend.expectPOST("/svc/adminstore/log", angular.toJson(outMessage))
                 .respond(HttpStatusCode.Success);
 
             // Act
-            serverLogger.log(inError, level).then(() => { success = true; }, () => { success = false; });
+            serverLogger.log(inError, level).then(() => {
+                success = true;
+            }, () => {
+                success = false;
+            });
             $httpBackend.flush();
 
             // Assert
@@ -30,13 +34,17 @@ describe("ServerLoggerSvc", () => {
             // Arrange
             var success: boolean;
             var level: number = 1;
-            var inError = { message: "test" };
-            var outMessage = { Source: "NovaClient", LogLevel: level, Message: inError.message, StackTrace: "" };
+            var inError = {message: "test"};
+            var outMessage = {Source: "NovaClient", LogLevel: level, Message: inError.message, StackTrace: ""};
             $httpBackend.expectPOST("/svc/adminstore/log", angular.toJson(outMessage))
                 .respond(400);
 
             // Act
-            serverLogger.log(inError, level).then(() => { success = true; }, () => { success = false; });
+            serverLogger.log(inError, level).then(() => {
+                success = true;
+            }, () => {
+                success = false;
+            });
             $httpBackend.flush();
 
             // Assert

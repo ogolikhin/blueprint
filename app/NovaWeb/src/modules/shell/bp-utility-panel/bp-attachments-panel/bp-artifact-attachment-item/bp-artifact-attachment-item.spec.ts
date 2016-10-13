@@ -49,10 +49,10 @@
 
 //     it("should try to download an attachment", 
 //         inject(($rootScope: ng.IRootScopeService, $window: ng.IWindowService, selectionManager: SelectionManager) => {
-        
+
 //             //Arrange
 //             const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
-                
+
 //             //Act
 //             selectionManager.selection = { artifact: artifact, source:  SelectionSource.Explorer };
 //             $rootScope.$digest();
@@ -61,7 +61,7 @@
 
 //             // Act
 //             vm.downloadItem();
-            
+
 //             //Assert
 //             expect($window.open).toHaveBeenCalled();
 //             expect($window.open).toHaveBeenCalledWith("/svc/components/RapidReview/artifacts/22/files/1093?includeDraft=true", "_blank");
@@ -69,13 +69,13 @@
 
 //     it("should try to delete an attachment", 
 //         inject(($window: ng.IWindowService) => {
-        
+
 //         // Arrange
 //         spyOn($window, "alert").and.callFake(() => true);
 
 //         // Act
 //         vm.deleteItem();
-        
+
 //         //Assert
 //         expect($window.alert).toHaveBeenCalled();
 //     }));

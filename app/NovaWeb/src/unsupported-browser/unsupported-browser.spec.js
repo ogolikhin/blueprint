@@ -1,5 +1,5 @@
 ﻿// See List of User Agent Strings - http://www.useragentstring.com/pages/useragentstring.php
-describe('executionEnvironmentDetector', function() {
+describe('executionEnvironmentDetector', function () {
 
     it('Browser info is defined', function () {
         // Arrange
@@ -1242,7 +1242,7 @@ describe('executionEnvironmentDetector', function() {
 
 });
 
-describe('appBootstrap', function() {
+describe('appBootstrap', function () {
 
     beforeEach(function () {
         delete app;
@@ -1250,7 +1250,7 @@ describe('appBootstrap', function() {
         document.close();
     });
 
-    it('Launch app and force page to be visible', function() {
+    it('Launch app and force page to be visible', function () {
         // Arrange
         var app = appBootstrap;
 
@@ -1264,7 +1264,7 @@ describe('appBootstrap', function() {
         expect(window.document.body.innerHTML).not.toContain("webfont-tester");
     });
 
-    it('Launch app and force page to be hidden', function() {
+    it('Launch app and force page to be hidden', function () {
         // Arrange
         var app = appBootstrap;
 
@@ -1278,7 +1278,7 @@ describe('appBootstrap', function() {
         expect(window.document.body.innerHTML).not.toContain("webfont-tester");
     });
 
-    it('Launch app with unsupported browser (desktop)', function() {
+    it('Launch app with unsupported browser (desktop)', function () {
         // Arrange
         var app = appBootstrap;
         var detector = new executionEnvironmentDetector();
@@ -1294,7 +1294,7 @@ describe('appBootstrap', function() {
         expect(app.isSupportedVersion()).toBeFalsy();
     });
 
-    it('Launch app with unsupported browser (mobile)', function() {
+    it('Launch app with unsupported browser (mobile)', function () {
         // Arrange
         var app = appBootstrap;
         var detector = new executionEnvironmentDetector();
@@ -1320,7 +1320,7 @@ describe('appBootstrap', function() {
         }
     });
 
-    it('Launch app with supported browser (Win IE11)', function() {
+    it('Launch app with supported browser (Win IE11)', function () {
         // Arrange
         var app = appBootstrap;
         var detector = new executionEnvironmentDetector();

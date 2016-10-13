@@ -1,10 +1,12 @@
-﻿import { IDialogSettings, IDialogService } from "../../../../shared";
-import { DialogTypeEnum } from "../../../../shared/widgets/bp-dialog/bp-dialog";
-import { Models } from "../../../../main";
+﻿import {IDialogSettings, IDialogService} from "../../../../shared";
+import {DialogTypeEnum} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {Models} from "../../../../main";
 
 export class ArtifactPickerDialogServiceMock implements IDialogService {
     public static $inject = ["$q"];
-    constructor(private $q: ng.IQService) { }
+
+    constructor(private $q: ng.IQService) {
+    }
 
     public open(dialogSettings: IDialogSettings): ng.IPromise<any> {
 
@@ -17,25 +19,28 @@ export class ArtifactPickerDialogServiceMock implements IDialogService {
         let artifact: Models.IArtifact = {
             children: [],
             createdBy: undefined,
-            createdOn: undefined,            
-            id: 10,    
-            prefix: "prefix",    
+            createdOn: undefined,
+            id: 10,
+            prefix: "prefix",
             name: "actor name",
             parent: parentArtifact
         };
         deferred.resolve([artifact]);
         return deferred.promise;
     }
+
     public alert(message: string, header?: string): ng.IPromise<any> {
         const deferred = this.$q.defer<any>();
         deferred.resolve(true);
         return deferred.promise;
     }
+
     public confirm(message: string, header?: string): ng.IPromise<any> {
         const deferred = this.$q.defer<any>();
         deferred.resolve(true);
         return deferred.promise;
     }
+
     public dialogSettings: IDialogSettings = {
         type: DialogTypeEnum.Base,
         header: "test",

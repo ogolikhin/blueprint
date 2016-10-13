@@ -1,12 +1,12 @@
-﻿import { ILocalizationService } from "../../../core";
-import { IDialogSettings, IDialogService } from "../../../shared";
-import { Models} from "../../models";
-import { IArtifactManager, IProjectManager } from "../../../managers";
-import { IStatefulArtifact } from "../../../managers/artifact-manager/artifact";
-import { OpenProjectController } from "../dialogs/open-project/open-project";
-import { BPTourController } from "../dialogs/bp-tour/bp-tour";
-import { Helper } from "../../../shared/utils/helper";
-import { ILoadingOverlayService } from "../../../core/loading-overlay";
+﻿import {ILocalizationService} from "../../../core";
+import {IDialogSettings, IDialogService} from "../../../shared";
+import {Models} from "../../models";
+import {IArtifactManager, IProjectManager} from "../../../managers";
+import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
+import {OpenProjectController} from "../dialogs/open-project/open-project";
+import {BPTourController} from "../dialogs/bp-tour/bp-tour";
+import {Helper} from "../../../shared/utils/helper";
+import {ILoadingOverlayService} from "../../../core/loading-overlay";
 
 interface IBPToolbarController {
     execute(evt: ng.IAngularEvent): void;
@@ -26,6 +26,7 @@ class BPToolbarController implements IBPToolbarController {
     public get currentArtifact() {
         return this._currentArtifact;
     }
+
     static $inject = [
         "localization",
         "dialogService",
@@ -36,23 +37,23 @@ class BPToolbarController implements IBPToolbarController {
         "$timeout",
         "$http"];
 
-    constructor(
-        private localization: ILocalizationService,
-        private dialogService: IDialogService,
-        private projectManager: IProjectManager,
-        private artifactManager: IArtifactManager,
-        private $rootScope: ng.IRootScopeService,
-        private loadingOverlayService: ILoadingOverlayService,
-        private $timeout: ng.ITimeoutService, //Used for testing, remove later
-        private $http: ng.IHttpService //Used for testing, remove later
-    ) { }
+    constructor(private localization: ILocalizationService,
+                private dialogService: IDialogService,
+                private projectManager: IProjectManager,
+                private artifactManager: IArtifactManager,
+                private $rootScope: ng.IRootScopeService,
+                private loadingOverlayService: ILoadingOverlayService,
+                private $timeout: ng.ITimeoutService, //Used for testing, remove later
+                private $http: ng.IHttpService //Used for testing, remove later
+    ) {
+    }
 
     execute(evt: any): void {
         if (!evt) {
             return;
         }
         evt.preventDefault();
-        var element = evt.currentTarget;
+        const element = evt.currentTarget;
         switch (element.id.toLowerCase()) {
             case `projectclose`:
                 this.projectManager.remove();
@@ -93,7 +94,9 @@ class BPToolbarController implements IBPToolbarController {
             case `discardall`:
                 //Test Code: Display load screen for 0.4s (invisible), then popup result.
                 let discardLoadingId = this.loadingOverlayService.beginLoading();
-                let discardPromise: ng.IPromise<number> = this.$timeout(() => { return 0; }, 500);
+                let discardPromise: ng.IPromise<number> = this.$timeout(() => {
+                    return 0;
+                }, 500);
                 discardPromise.finally(() => {
                     this.loadingOverlayService.endLoading(discardLoadingId);
                     this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
@@ -102,7 +105,9 @@ class BPToolbarController implements IBPToolbarController {
             case `publishall`:
                 //Test Code: Display load screen for 5s, then popup result.
                 let publishLoadingId = this.loadingOverlayService.beginLoading();
-                let publishPromise: ng.IPromise<number> = this.$timeout(() => { return 0; }, 5000);
+                let publishPromise: ng.IPromise<number> = this.$timeout(() => {
+                    return 0;
+                }, 5000);
                 publishPromise.finally(() => {
                     this.loadingOverlayService.endLoading(publishLoadingId);
                     this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
@@ -113,10 +118,10 @@ class BPToolbarController implements IBPToolbarController {
 
                 try {
                     this.projectManager.refreshAll()
-                    .finally(() => {
-                        this.loadingOverlayService.endLoading(refreshAllLoadingId);
-                    });
-                }catch (err) {
+                        .finally(() => {
+                            this.loadingOverlayService.endLoading(refreshAllLoadingId);
+                        });
+                } catch (err) {
                     this.loadingOverlayService.endLoading(refreshAllLoadingId);
                     throw err;
                 }
@@ -148,11 +153,13 @@ class BPToolbarController implements IBPToolbarController {
             .flatMap(selection => selection.getObservable())
             .subscribe(this.displayArtifact);
 
-        this._subscribers = [ artifactStateSubscriber ];
+        this._subscribers = [artifactStateSubscriber];
     }
 
     public $onDestroy() {
-        this._subscribers.forEach(subscriber => { subscriber.dispose(); });
+        this._subscribers.forEach(subscriber => {
+            subscriber.dispose();
+        });
         delete this._subscribers;
     }
 
@@ -162,7 +169,7 @@ class BPToolbarController implements IBPToolbarController {
             (artifact.version > 0) ? artifact.id : null;
     }
 
-    public get canRefreshAll(): boolean{
+    public get canRefreshAll(): boolean {
         return !!this.projectManager.getSelectedProject();
     }
 }

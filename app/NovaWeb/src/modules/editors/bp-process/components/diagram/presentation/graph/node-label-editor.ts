@@ -7,12 +7,12 @@ export class NodeLabelEditor {
     private executionEnvironmentDetector: any;
 
     constructor(private container: HTMLElement) {
-        // This is temporary code. It will be replaced with 
-        // a class that wraps this global functionality.   
-        let w: any = window; 
+        // This is temporary code. It will be replaced with
+        // a class that wraps this global functionality.
+        let w: any = window;
         this.executionEnvironmentDetector = new w.executionEnvironmentDetector();
 
-        // Make sure the "blur" event will be fired on every outside click 
+        // Make sure the "blur" event will be fired on every outside click
         if (this.isIe11()) {
             container.addEventListener("pointerdown", this.pointerDown, true);
         } else {
@@ -86,7 +86,7 @@ export class NodeLabelEditor {
     }
 
     private getCellIndex(x: number, y: number): string {
-        let value =  Math.floor(x / 200).toString() + ";" + Math.floor(y / 200).toString();
+        let value = Math.floor(x / 200).toString() + ";" + Math.floor(y / 200).toString();
         return value;
     }
 
@@ -117,8 +117,8 @@ export class NodeLabelEditor {
     }
 
     private getLabel(e) {
-        var x = 0;
-        var y = 0;
+        let x = 0;
+        let y = 0;
 
         e = e || window.event;
 
@@ -150,13 +150,13 @@ export class NodeLabelEditor {
     }
 
     public fireEvent(element, eventName: string) {
-        var evt: Event = document.createEvent("UIEvents");
+        const evt: Event = document.createEvent("UIEvents");
         evt.initEvent(eventName, true, true);
         element.dispatchEvent(evt);
     }
 
     public fireCustomEvent(element, eventName: string) {
-        var evt = document.createEvent("CustomEvent");
+        const evt = document.createEvent("CustomEvent");
         evt.initCustomEvent(eventName, true, true, null);
         element.dispatchEvent(evt);
     }
@@ -174,7 +174,7 @@ export class NodeLabelEditor {
     }
 
     private cancelDefaultAction(e) {
-        var evt = e ? e : window.event;
+        const evt = e ? e : window.event;
         if (evt.preventDefault) {
             evt.preventDefault();
         }

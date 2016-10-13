@@ -5,13 +5,14 @@
     IHashMapOfPropertyValues,
     IItemStatus,
     IVersionInfo,
-    ItemTypePredefined}
-from "./models/process-models";
+    ItemTypePredefined
+}
+    from "./models/process-models";
 
-import { StatefulArtifact, IStatefulArtifact } from "../../managers/artifact-manager/artifact";
-import { Models } from "../../main/models";
-import { IStatefulProcessArtifactServices } from "../../managers/artifact-manager/services";
-import { StatefulProcessSubArtifact } from "./process-subartifact";
+import {StatefulArtifact, IStatefulArtifact} from "../../managers/artifact-manager/artifact";
+import {Models} from "../../main/models";
+import {IStatefulProcessArtifactServices} from "../../managers/artifact-manager/services";
+import {StatefulProcessSubArtifact} from "./process-subartifact";
 
 export class StatefulProcessArtifact extends StatefulArtifact implements IStatefulArtifact, IProcess {
 
@@ -28,13 +29,15 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     constructor(artifact: Models.IArtifact, protected services: IStatefulProcessArtifactServices) {
         super(artifact, services);
     }
+
     public get baseItemTypePredefined(): ItemTypePredefined {
         return this.predefinedType;
     }
+
     public get typePrefix(): string {
         return this.prefix;
     }
-    
+
     public getServices(): IStatefulProcessArtifactServices {
         return this.services;
     }
@@ -43,16 +46,16 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         this.loadProcessPromise = this.loadProcess();
         return [this.loadProcessPromise];
     }
-   
+
     protected runPostGetObservable() {
         this.loadProcessPromise = null;
     }
 
-    public getCustomArtifactPromisesForRefresh (): ng.IPromise<any>[] {
+    public getCustomArtifactPromisesForRefresh(): ng.IPromise<any>[] {
         // Returns promises for operations that are needed to refresh
         // this process artifact
 
-        var loadProcessPromise = this.loadProcess();
+        const loadProcessPromise = this.loadProcess();
 
         return [loadProcessPromise];
     }
@@ -68,8 +71,8 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
                 this.onLoad(process);
                 processDeffered.resolve(this);
             }).catch((err: any) => {
-                processDeffered.reject(err);
-            });
+            processDeffered.reject(err);
+        });
         return processDeffered.promise;
     }
 
@@ -84,7 +87,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         currentProcess.requestedVersionInfo = newProcess.requestedVersionInfo;
         currentProcess.status = newProcess.status;
     }
-    
+
     private initializeSubArtifacts(newProcess: IProcess) {
 
         let statefulSubArtifacts: StatefulProcessSubArtifact[] = newProcess.shapes.map((shape: IProcessShape) => {

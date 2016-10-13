@@ -7,17 +7,15 @@ import {createDefaultProcessModel} from "../models/test-model-factory";
 describe("Get process data model from the process model service", () => {
 
     let service: IProcessService, httpBackend;
-   
+
     // Set up the module
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("processService", ProcessService);
         $provide.service("messageService", MessageServiceMock);
     }));
 
-    beforeEach(inject((
-        processService,
-        $httpBackend: ng.IHttpBackendService
-        ) => {
+    beforeEach(inject((processService,
+                       $httpBackend: ng.IHttpBackendService) => {
         service = processService;
         httpBackend = $httpBackend;
     }));
@@ -44,7 +42,7 @@ describe("Get process data model from the process model service", () => {
                 // Assert
                 expect(successSpy).toHaveBeenCalled();
                 expect(failureSpy).not.toHaveBeenCalled();
-                
+
             });
 
             it("should return data successfully through a promise when proper versionid is supplied", () => {
@@ -123,7 +121,7 @@ describe("Get process data model from the process model service", () => {
                 expect(failureSpy).not.toHaveBeenCalled();
             });
         });
-        
+
         describe("When process model is not returned from the server", () => {
             it("should reject data through promise if the server is broken", () => {
                 // Arrange
@@ -158,7 +156,7 @@ describe("Get process data model from the process model service", () => {
             });
         });
     });
-    
+
     describe("getProcesses", () => {
         describe("When processes collection is returned from the server", () => {
             it("should return data successfully through a promise", () => {
@@ -167,7 +165,7 @@ describe("Get process data model from the process model service", () => {
                     failureSpy = jasmine.createSpy("failure");
                 var projectId = 1;
                 var processes = [];
-                processes.push({ projectId: 1, id: 2 });
+                processes.push({projectId: 1, id: 2});
 
                 httpBackend.when("GET", `/svc/components/storyteller/projects/${projectId}/processes`)
                     .respond(processes);

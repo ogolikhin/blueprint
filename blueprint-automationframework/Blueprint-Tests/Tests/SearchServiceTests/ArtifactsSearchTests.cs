@@ -19,7 +19,6 @@ namespace SearchServiceTests
         private IUser _adminUser = null;
         private IUser _authorUser = null;
         private IProject _projectTest = null;
-        private IProject _projectCustomData = null;
         private List<IProject> _projects = null;
 
         [SetUp]
@@ -29,7 +28,6 @@ namespace SearchServiceTests
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _projects = ProjectFactory.GetAllProjects(_adminUser, shouldRetrievePropertyTypes: true);
             _projectTest = _projects[0];
-            _projectCustomData = _projects[1];
             _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _projectTest);
         }
 
@@ -123,11 +121,36 @@ namespace SearchServiceTests
         }
 
         [TestCase]
+        [TestRail(183350)]
+        [Description("Search published artifact by full name, verify search results.")]
+        public void SearchDeletedArtifactByFullName_AllProjects_VerifySearchResult()
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCaseDiagram);
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            artifact.Delete(_adminUser);
+            artifact.Publish(_adminUser);
+            var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
+            ItemSearchResult results = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_adminUser, searchCriteria); },
+                "SearchItems should throw no errors.");
+
+            // Verify:
+            Assert.IsTrue(results.SearchItems.Count == 0, "List of SearchItems should be empty.");
+            Assert.IsTrue(results.PageItemCount == 0, "For empty list PageItemCount should be 0.");
+        }
+
+        #region Custom data tests
+
+        [TestCase]
         [TestRail(183347)]
         [Description("Search published artifact by full name in 2 projects, user has access to both projects, verify that artifact could be found in both projects.")]
         public void SearchArtifactByName_2Projects_VerifyArtifactCanBeFoundInBoth()
         {
             // Setup:
+            IProject _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_projects, _adminUser);
             string existingArtifactName = "InheritedFromParentActor"; //existing artifact name in Custom Data project
             var artifact = Helper.CreateAndSaveArtifact(_projectTest, _adminUser, BaseArtifactType.UIMockup, name: existingArtifactName);
             artifact.Publish(_adminUser);
@@ -152,6 +175,7 @@ namespace SearchServiceTests
         public void SearchArtifactByName_2ProjectsUserHasAccessTo1Project_VerifyResults()
         {
             // Setup:
+            IProject _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_projects, _adminUser);
             string existingArtifactName = "InheritedFromParentActor";//existing artifact name in Custom Data project
             var artifact = Helper.CreateAndSaveArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase, name: existingArtifactName);
             artifact.Publish(_adminUser);
@@ -176,6 +200,7 @@ namespace SearchServiceTests
         public void SearchArtifactByNameAndItemTypeId_AllProjects_VerifyResults()
         {
             // Setup:
+            IProject _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_projects, _adminUser);
             var artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var nameSearchCriteria = new FullTextSearchCriteria(artifact.Name, new List<int>() { _projectTest.Id});
@@ -205,27 +230,7 @@ namespace SearchServiceTests
             Assert.IsFalse(itemTypeIdSearchresults.SearchItems.Exists(si => si.ProjectId == _projectCustomData.Id), "Artifact should be found in Custom Data project.");
         }
 
-        [TestCase]
-        [TestRail(183350)]
-        [Description("Search published artifact by full name, verify search results.")]
-        public void SearchDeletedArtifactByFullName_AllProjects_VerifySearchResult()
-        {
-            // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCaseDiagram);
-            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            artifact.Delete(_adminUser);
-            artifact.Publish(_adminUser);
-            var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
-            ItemSearchResult results = null;
-
-            // Execute:
-            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_adminUser, searchCriteria); },
-                "SearchItems should throw no errors.");
-
-            // Verify:
-            Assert.IsTrue(results.SearchItems.Count == 0, "List of SearchItems should be empty.");
-            Assert.IsTrue(results.PageItemCount == 0, "For empty list PageItemCount should be 0.");
-        }
+        #endregion Custom data tests
 
         /// <summary>
         /// Returns random substring with non-zero length from input string

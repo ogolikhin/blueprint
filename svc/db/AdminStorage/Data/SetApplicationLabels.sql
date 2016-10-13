@@ -22,6 +22,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', '
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_No', 'en-US', N'No')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Ok', 'en-US', N'OK')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Cancel', 'en-US', N'Cancel')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Close', 'en-US', N'Close')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Open', 'en-US', N'Open')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_PublishAndContinue', 'en-US', N'Publish and Continue')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_DialogTitle_Alert', 'en-US', N'Warning')

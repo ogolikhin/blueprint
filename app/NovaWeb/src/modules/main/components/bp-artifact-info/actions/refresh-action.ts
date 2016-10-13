@@ -56,7 +56,11 @@ export class RefreshAction extends BPButtonAction {
                     });
             },
             (): boolean => {
-                if (artifact.predefinedType === ItemTypePredefined.Collections) {
+
+                const invalidTypes = [
+                    ItemTypePredefined.Collections
+                ];
+                if (invalidTypes.indexOf(artifact.predefinedType) >= 0) {
                     return false;
                 }
 

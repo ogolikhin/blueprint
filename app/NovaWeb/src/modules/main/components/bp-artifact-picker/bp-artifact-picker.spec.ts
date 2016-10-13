@@ -12,15 +12,14 @@ describe("BpArtifactPicker", () => {
         .component("bpArtifactPicker", new BpArtifactPicker());
 
     beforeEach(angular.mock.module("bp.components.artifactpicker", ($provide: ng.auto.IProvideService) => {
-        $provide.service("localization", () => {
-        });
-        $provide.service("projectManager", () => {
-            return {getSelectedProject: () => undefined};
-        });
+        $provide.service("localization", () => {});
+        $provide.service("projectManager", () => { 
+            return { 
+                getSelectedProject: () => ({id: 1, name: "default"}) }; 
+            });
         $provide.service("projectService", () => {
             return {
-                abort: () => {
-                }
+                abort: () => {}
             };
         });
     }));
@@ -42,7 +41,7 @@ describe("BpArtifactPicker", () => {
         expect(angular.isFunction(controller.onSelectionChanged)).toEqual(true);
     }));
 
-    fit("Defaults values are applied", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Defaults values are applied", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
         // Arrange
         const element = `<bp-artifact-picker />`;
 

@@ -279,6 +279,11 @@ $has-children-padding-before-arrow: 3px;
         content: $icon-business-process;
     }
 
+    .ag-cell .ag-group-value .ag-group-value-wrapper .fonticon.fonticon2-collection:before {
+        font-family: "bp-font2";
+        content: $fonticon2-collection;
+    }
+
     .ag-cell.is-domain-diagram .ag-group-value .ag-group-value-wrapper i::before {
         content: $icon-domain-diagram;
     }

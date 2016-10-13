@@ -333,7 +333,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(183444)]
         [Description("Create & publish an artifact with subartifacts. Update sub-artifact. Verify user gets basic artifact information with subartifact Id.")]
-        public void VersionControlInfoWithSubArtifactId_PublishedArtifactLockedArtifactWithChanges_ReturnsArtifactInfo_200OK()
+        public void VersionControlInfoWithSubArtifactId_PublishedArtifactWithSavedSubArtifact_ReturnsArtifactInfo_200OK()
         {
             // Setup
             // Create a Process artifact

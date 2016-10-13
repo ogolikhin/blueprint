@@ -45,6 +45,8 @@ module.exports = {
         historyApiFallback: true
     },
     plugins: [
+        new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
+
         new HtmlWebpackPlugin({
             template: './index.html',
             filename: '../index.html',

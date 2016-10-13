@@ -25,6 +25,8 @@ module.exports = {
         filename: '[name].bundle.js'
     },
     plugins: [
+        new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
+
         new HtmlWebpackPlugin({
             template: './index.html',
             filename: '../index.html',
@@ -45,6 +47,7 @@ module.exports = {
             //beautify: false,
             sourceMap: false
         }),
+
         new webpack.optimize.CommonsChunkPlugin("vendor", "vendor.bundle.js"),
         new CopyWebpackPlugin([
             // {output}/file.txt

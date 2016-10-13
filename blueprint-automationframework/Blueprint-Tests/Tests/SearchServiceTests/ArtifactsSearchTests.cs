@@ -107,17 +107,16 @@ namespace SearchServiceTests
         {
             // Setup:
             var artifact = Helper.CreateAndSaveArtifact(_projectTest, _authorUser, BaseArtifactType.Process);
-            var searchCriteria = new FullTextSearchCriteria(artifact.Name, new List < int > { _projectTest.Id});
+            var searchCriteria = new FullTextSearchCriteria(artifact.Name, new List<int> { _projectTest.Id });
             ItemSearchResult results = null;
 
             // Execute:
-
             Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria); },
                 "SearchItems should throw no errors.");
 
             // Verify:
             Assert.IsTrue(results.PageItemCount == 0, "For empty list PageItemCount should be 0.");
-            Assert.IsFalse(results.SearchItems. Exists(si => IsSearchItemCorrespondsToArtifact(artifact, si)), "Search shouldn't return draft never published artifact.");
+            Assert.IsFalse(results.SearchItems.Exists(si => IsSearchItemCorrespondsToArtifact(artifact, si)), "Search shouldn't return draft never published artifact.");
         }
 
         [TestCase]

@@ -1,8 +1,8 @@
 ﻿import * as angular from "angular";
-import { IMessageService, IWindowVisibility, ILocalizationService } from "../../core";
-import { IUser, ISession } from "../../shell";
-import { Models, Enums } from "../models";
-import { IProjectManager, IArtifactManager } from "../../managers";
+import {IMessageService, IWindowVisibility, ILocalizationService} from "../../core";
+import {IUser, ISession} from "../../shell";
+import {Models, Enums} from "../models";
+import {IProjectManager, IArtifactManager} from "../../managers";
 
 export class MainView implements ng.IComponentOptions {
     public template: string = require("./view.html");
@@ -13,25 +13,24 @@ export class MainView implements ng.IComponentOptions {
 
 export class MainViewController {
     private _subscribers: Rx.IDisposable[];
-    
+
     static $inject: [string] = [
-        "$state", 
-        "session", 
-        "projectManager", 
-        "messageService", 
+        "$state",
+        "session",
+        "projectManager",
+        "messageService",
         "localization",
         "artifactManager",
         "windowVisibility"
     ];
 
-    constructor(
-        private $state: ng.ui.IState,
-        private session: ISession,
-        private projectManager: IProjectManager,
-        private messageService: IMessageService,
-        private localization: ILocalizationService,
-        private artifactManager: IArtifactManager,
-        private windowVisibility: IWindowVisibility) {
+    constructor(private $state: ng.ui.IState,
+                private session: ISession,
+                private projectManager: IProjectManager,
+                private messageService: IMessageService,
+                private localization: ILocalizationService,
+                private artifactManager: IArtifactManager,
+                private windowVisibility: IWindowVisibility) {
     }
 
     public $onInit() {
@@ -42,11 +41,14 @@ export class MainViewController {
             this.projectManager.projectCollection.subscribeOnNext(this.onProjectCollectionChanged, this),
             this.windowVisibility.isHidden.subscribeOnNext(this.onVisibilityChanged, this)
         ];
-}
-    
-    public $onDestroy() {   
+    }
+
+    public $onDestroy() {
         //dispose all subscribers
-        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => {
+            it.dispose();
+            return false;
+        });
         this.messageService.dispose();
         this.projectManager.dispose();
         this.artifactManager.dispose();
@@ -74,7 +76,7 @@ export class MainViewController {
     };
 
     public isActive: boolean;
-    
+
     public get currentUser(): IUser {
         return this.session.currentUser;
     }

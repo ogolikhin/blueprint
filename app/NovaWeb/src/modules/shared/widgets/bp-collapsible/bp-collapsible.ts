@@ -1,5 +1,5 @@
 ﻿import * as angular from "angular";
-import { ILocalizationService } from "../../../core";
+import {ILocalizationService} from "../../../core";
 export class BPCollapsible implements ng.IDirective {
     public restrict = "A";
     public scope = {
@@ -7,15 +7,13 @@ export class BPCollapsible implements ng.IDirective {
         scrollableContainerId: "@"
     };
 
-    constructor(
-        private $timeout: ng.ITimeoutService,
-        private localization: ILocalizationService) {
+    constructor(private $timeout: ng.ITimeoutService,
+                private localization: ILocalizationService) {
     }
 
     public static factory() {
-        const directive = (
-            $timeout: ng.ITimeoutService,
-            localization: ILocalizationService) => new BPCollapsible($timeout, localization);
+        const directive = ($timeout: ng.ITimeoutService,
+                           localization: ILocalizationService) => new BPCollapsible($timeout, localization);
 
         directive["$inject"] = [
             "$timeout",

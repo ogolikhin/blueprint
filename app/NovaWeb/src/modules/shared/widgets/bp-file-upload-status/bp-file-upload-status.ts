@@ -1,7 +1,7 @@
 import "angular";
-import { ILocalizationService, IFileUploadService, IFileResult } from "../../../core";
-import { IDialogSettings, BaseDialogController, IDialogService } from "../bp-dialog";
-import { FiletypeParser } from "../../../shared/utils/filetypeParser";
+import {ILocalizationService, IFileUploadService, IFileResult} from "../../../core";
+import {IDialogSettings, BaseDialogController, IDialogService} from "../bp-dialog";
+import {FiletypeParser} from "../../../shared/utils/filetypeParser";
 
 export interface IBpFileUploadStatusController {
     // propertyMap: any;
@@ -49,18 +49,17 @@ export class BpFileUploadStatusController extends BaseDialogController implement
     public files: IFileUploadStatus[];
     public totalFailedFiles: number = 0;
 
-    constructor(
-        private $q: ng.IQService,
-        private localization: ILocalizationService,
-        private fileUploadService: IFileUploadService,
-        private $filter: ng.IFilterService,
-        $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
-        private dialogService: IDialogService,
-        dialogSettings: IDialogSettings,
-        private dialogData: IUploadStatusDialogData) {
+    constructor(private $q: ng.IQService,
+                private localization: ILocalizationService,
+                private fileUploadService: IFileUploadService,
+                private $filter: ng.IFilterService,
+                $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
+                private dialogService: IDialogService,
+                dialogSettings: IDialogSettings,
+                private dialogData: IUploadStatusDialogData) {
 
         super($uibModalInstance, dialogSettings);
-        
+
         this.initFilesList(dialogData.files);
         this.queueFilesToUpload();
         this.updateTotalFailedFiles();
@@ -94,14 +93,14 @@ export class BpFileUploadStatusController extends BaseDialogController implement
                     this.localization.get("App_UP_Attachments_Upload_Max_Attachments_Error",
                         "The artifact has the maximum number of attachments.");
             } else if (this.dialogData.allowedExtentions && this.dialogData.allowedExtentions.length > 0 &&
-                    this.dialogData.allowedExtentions.indexOf(FiletypeParser.getFileExtension(file.file.name)) === -1) {
+                this.dialogData.allowedExtentions.indexOf(FiletypeParser.getFileExtension(file.file.name)) === -1) {
                 file.isFailed = true;
                 file.errorMessage
                     = this.localization.get("App_UP_Attachments_Have_Wrong_Type", "The attachment has wrong file type.");
             } else if (this.isFileValid(file)) {
                 this.uploadFile(file);
             }
-            
+
             return file;
         });
     }
@@ -111,7 +110,7 @@ export class BpFileUploadStatusController extends BaseDialogController implement
 
         if (f.file.size > this.dialogData.maxAttachmentFilesize) {
             f.isFailed = true;
-            f.errorMessage = 
+            f.errorMessage =
                 this.localization.get("App_UP_Attachments_Upload_Max_Filesize_Error", "The file exceeds")
                 + ` ${filesizeFilter(this.dialogData.maxAttachmentFilesize)}.`;
 

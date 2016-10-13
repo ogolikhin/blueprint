@@ -5,9 +5,7 @@ export class NavigationServiceMock implements INavigationService {
         "$q"
     ];
 
-    constructor(
-        private $q: ng.IQService
-    ) {
+    constructor(private $q: ng.IQService) {
     }
 
     public getNavigationState(): INavigationState {

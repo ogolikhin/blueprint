@@ -1,76 +1,76 @@
 .nova-form-group {
-  margin-bottom: 19px;
-  position: relative;
+    margin-bottom: 19px;
+    position: relative;
 
-  &.error::after {
-    color: $brand-error;
-  }
+    &.error::after {
+        color: $brand-error;
+    }
 
-  &.nova-form-buttons {
-    text-align: right;
-  }
+    &.nova-form-buttons {
+        text-align: right;
+    }
 
-  .nova-form-control ~ .nova-label {
-    color: $gray-lighter;
-    font-size: $font-size-smaller;
-    margin-bottom: 0;
-    top: 0;
-  }
+    .nova-form-control ~ .nova-label {
+        color: $gray-lighter;
+        font-size: $font-size-smaller;
+        margin-bottom: 0;
+        top: 0;
+    }
 }
 
 .nova-label {
-  font-weight: 400;
-  text-align: left;
+    font-weight: 400;
+    text-align: left;
 }
 
 .nova-form-control {
-  background: transparent;
-  border-bottom: solid 1px $gray-light; //reduced to 1px as per PSD
-  border-left: 0;
-  border-right: 0;
-  border-top: 0;
-  box-shadow: none;
-  color: $text-color;
-  font-size: $font-size-bigger;
-  height: 37px;
-  padding: 0;
-  width: 100%;
+    background: transparent;
+    border-bottom: solid 1px $gray-light; //reduced to 1px as per PSD
+    border-left: 0;
+    border-right: 0;
+    border-top: 0;
+    box-shadow: none;
+    color: $text-color;
+    font-size: $font-size-bigger;
+    height: 37px;
+    padding: 0;
+    width: 100%;
 
-  &.placeholder {
-    color: $gray-light;
+    &.placeholder {
+        color: $gray-light;
 
-    option {
-      color: $text-color;
+        option {
+            color: $text-color;
+        }
     }
-  }
 }
 
 .error .nova-form-control {
-  border-bottom-color: $brand-error;
+    border-bottom-color: $brand-error;
 }
 
 .nova-form-control.required ~ .nova-label::before,
 .nova-form-control[required] ~ .nova-label::before {
-  bottom: -$font-size-smallest;
-  color: $gray-dark;
-  content: attr(required);
-  text-transform: lowercase;
-  display: block;
-  font-size: $font-size-smallest;
-  position: absolute;
-  right: 0;
+    bottom: -$font-size-smallest;
+    color: $gray-dark;
+    content: attr(required);
+    text-transform: lowercase;
+    display: block;
+    font-size: $font-size-smallest;
+    position: absolute;
+    right: 0;
 }
 
 .error .nova-form-control.required ~ .nova-label::before,
 .error .nova-form-control[required] ~ .nova-label::before {
-  color: $brand-error;
+    color: $brand-error;
 }
 
 .nova-form-control[disabled],
 .nova-form-control[readonly],
 fieldset[disabled] .nova-form-control {
-  background-color: transparent;
-  color: $gray-lighter;
+    background-color: transparent;
+    color: $gray-lighter;
 }
 
 .nova-form-control[disabled] ~ .nova-label::after,
@@ -79,105 +79,105 @@ fieldset[disabled] .nova-form-control ~ .nova-label::after,
 .nova-form-control[disabled] ~ .nova-form-control-line::after,
 .nova-form-control[readonly] ~ .nova-form-control-line::after,
 fieldset[disabled] .nova-form-control ~ .nova-form-control-line::after {
-  display: none;
+    display: none;
 }
 
 textarea.nova-form-control {
-  padding: 4px 0;
+    padding: 4px 0;
 }
 
 textarea.textarea-autosize {
-  min-height: 38px;
+    min-height: 38px;
 }
 
 textarea[rows="2"].nova-form-control {
-  height: 50px;
+    height: 50px;
 }
 
 .form .nova-form-group,
 .form-inline .nova-form-group {
-  padding-top: 16px;
+    padding-top: 16px;
 }
 
 .nova-form-group .nova-form-control:not(.static) ~ .nova-label,
 .nova-form-group .nova-form-control:not(.static) ~ .form-control-line {
-  -o-transition: .2s ease all;
-  -webkit-transition: .2s ease all;
-  transition: .2s ease all;
+    -o-transition: .2s ease all;
+    -webkit-transition: .2s ease all;
+    transition: .2s ease all;
 }
 
 .nova-form-group .nova-form-control ~ .nova-label,
 .nova-form-group .nova-form-control ~ .nova-form-control-line {
-  bottom: 0;
-  left: 0;
-  pointer-events: none;
-  position: absolute;
-  width: 100%;
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+    position: absolute;
+    width: 100%;
 }
 
 .nova-form-group .nova-form-control ~ .nova-label::after,
 .nova-form-group .nova-form-control ~ .nova-form-control-line::after {
-  background-color: $brand-secondary;
-  bottom: 0;
-  content: '';
-  height: 1px; //reduced to 1px as per PSD
-  left: 45%;
-  position: absolute;
-  -o-transition: .2s ease all;
-  -webkit-transition: .2s ease all;
-  transition: .2s ease all;
-  visibility: hidden;
-  width: 10px;
+    background-color: $brand-secondary;
+    bottom: 0;
+    content: '';
+    height: 1px; //reduced to 1px as per PSD
+    left: 45%;
+    position: absolute;
+    -o-transition: .2s ease all;
+    -webkit-transition: .2s ease all;
+    transition: .2s ease all;
+    visibility: hidden;
+    width: 10px;
 }
 
 .nova-form-group textarea.nova-form-control ~ .nova-label::after,
 .nova-form-group textarea.nova-form-control ~ .nova-form-control-line::after {
-  bottom: 3px;
+    bottom: 3px;
 }
 
 .nova-form-group .nova-form-control:focus,
 .nova-form-group .nova-form-control.fake-focus {
-  box-shadow: none !important;
-  outline: none !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
 .nova-form-group .nova-form-control[required]:focus ~ .nova-label,
 .nova-form-group .nova-form-control:focus ~ .nova-label,
 .nova-form-group .nova-form-control.fake-focus ~ .nova-label {
-  color: $brand-secondary !important;
+    color: $brand-secondary !important;
 
-  &::before {
-    color: $brand-secondary;
-  }
+    &::before {
+        color: $brand-secondary;
+    }
 
-  i {
-    color: $brand-secondary;
-  }
+    i {
+        color: $brand-secondary;
+    }
 }
 
 .nova-form-group .nova-form-control:focus ~ .nova-label::after,
 .nova-form-group .nova-form-control.fake-focus ~ .nova-label::after,
 .nova-form-group .nova-form-control:focus ~ .nova-form-control-line::after,
 .nova-form-group .nova-form-control.fake-focus ~ .nova-form-control-line::after {
-  left: 0;
-  visibility: visible;
-  width: 100%;
+    left: 0;
+    visibility: visible;
+    width: 100%;
 }
 
 .nova-floating-label .nova-form-control ~ .nova-label {
-  font-size: $font-size-bigger;
-  top: 6px;
+    font-size: $font-size-bigger;
+    top: 6px;
 
-  i {
-    color: $gray-dark;
-  }
+    i {
+        color: $gray-dark;
+    }
 
-  i::before {
-    font-size: 1.5 * $font-size-bigger;
-    line-height: 1.2em;
-    margin-left: 0;
-    margin-right: 0;
-  }
+    i::before {
+        font-size: 1.5 * $font-size-bigger;
+        line-height: 1.2em;
+        margin-left: 0;
+        margin-right: 0;
+    }
 }
 
 .nova-floating-label .nova-form-control[required]:valid ~ .nova-label,
@@ -185,11 +185,11 @@ textarea[rows="2"].nova-form-control {
 .nova-floating-label .nova-form-control.fake-focus ~ .nova-label,
 .nova-floating-label .nova-form-control.ng-not-empty ~ .nova-label,
 .nova-floating-label .nova-form-control.input-is-dirty ~ .nova-label {
-  color: $gray-dark;
-  font-size: $font-size-normal !important;
-  top: -16px;
+    color: $gray-dark;
+    font-size: $font-size-normal !important;
+    top: -16px;
 
-  i::before {
-    font-size: 1.15 * $font-size-bigger;
-  }
+    i::before {
+        font-size: 1.15 * $font-size-bigger;
+    }
 }

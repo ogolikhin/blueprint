@@ -3,7 +3,9 @@ import {AbstractShapeFactory} from "../abstract-diagram-factory";
 import {ArrowHeads, ConnectorTypes} from "./constants";
 
 export class Styles {
-    public static get STYLE_SELECTABLE(): string { return "selectable"; }
+    public static get STYLE_SELECTABLE(): string {
+        return "selectable";
+    }
 }
 
 export class Style {

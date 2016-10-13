@@ -14,7 +14,7 @@
 
 //     public dismiss(reason?: any): void {}
 
-//     public result: angular.IPromise<any>;   
+//     public result: angular.IPromise<any>;
 
 //     public opened: angular.IPromise<any>;
 
@@ -139,7 +139,6 @@
 
 //     });
 
-    
 
 // });
 

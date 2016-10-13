@@ -1,6 +1,6 @@
-﻿<message ng-repeat="message in $ctrl.messages" 
+﻿<message ng-repeat="message in $ctrl.messages"
          id="{{$ctrl.getType(message.messageType)}}"
          data-message-type="{{$ctrl.getType(message.messageType)}}"
-         data-on-message-closed="$ctrl.closeMessage(message.id)">   
-    <div data-on-message-action="{{message.onMessageAction}}" ng-bind-html="$ctrl.getText(message.messageText)"> </div>   
+         data-on-message-closed="$ctrl.closeMessage(message.id)">
+    <div data-on-message-action="{{message.onMessageAction}}" ng-bind-html="$ctrl.getText(message.messageText)"></div>
 </message>

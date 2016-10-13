@@ -1,23 +1,23 @@
 // styles for mobile devices only (body will have class .is-touch)
 body.is-touch {
-  bp-accordion-panel .bp-accordion-panel {
-    > input[type=radio].bp-accordion-panel-state:checked ~ input[type=checkbox].bp-accordion-panel-pin,
-    > input[type=checkbox].bp-accordion-panel-pin:checked {
-      visibility: hidden;
+    bp-accordion-panel .bp-accordion-panel {
+        > input[type=radio].bp-accordion-panel-state:checked ~ input[type=checkbox].bp-accordion-panel-pin,
+        > input[type=checkbox].bp-accordion-panel-pin:checked {
+            visibility: hidden;
+        }
+
+        &:hover > .bp-accordion-panel-heading {
+            background: $gray-dark;
+        }
     }
 
-    &:hover > .bp-accordion-panel-heading {
-      background: $gray-dark;
-    }
-  }
+    .ps-container {
+        overflow: auto !important;
+        touch-action: auto !important;
 
-  .ps-container {
-    overflow: auto !important;
-    touch-action: auto !important;
-
-    .ps-scrollbar-x-rail,
-    .ps-scrollbar-y-rail {
-      display: none !important;
+        .ps-scrollbar-x-rail,
+        .ps-scrollbar-y-rail {
+            display: none !important;
+        }
     }
-  }
 }

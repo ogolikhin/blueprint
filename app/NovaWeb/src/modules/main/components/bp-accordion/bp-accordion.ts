@@ -1,24 +1,24 @@
-import { ILocalizationService } from "../../../core";
+import {ILocalizationService} from "../../../core";
 
 /*
-    Sample template. The following parameters are optional: 
-        accordion-heading-height
-        accordion-panel-id
-        accordion-panel-class 
-        accordion-panel-heading-height
-        
-    <bp-accordion accordion-heading-height="33">
-        <bp-accordion-panel accordion-panel-heading="Panel heading">
-            Panel content
-        </bp-accordion-panel>
-        <bp-accordion-panel accordion-panel-heading="Panel heading" accordion-panel-id="custom-panel">
-            Panel content
-        </bp-accordion-panel>
-        <bp-accordion-panel accordion-panel-heading="Panel heading" accordion-panel-heading-height="66" accordion-panel-class="custom-class">
-            Panel content
-        </bp-accordion-panel>
-    </bp-accordion>
-*/
+ Sample template. The following parameters are optional: 
+ accordion-heading-height
+ accordion-panel-id
+ accordion-panel-class 
+ accordion-panel-heading-height
+
+ <bp-accordion accordion-heading-height="33">
+ <bp-accordion-panel accordion-panel-heading="Panel heading">
+ Panel content
+ </bp-accordion-panel>
+ <bp-accordion-panel accordion-panel-heading="Panel heading" accordion-panel-id="custom-panel">
+ Panel content
+ </bp-accordion-panel>
+ <bp-accordion-panel accordion-panel-heading="Panel heading" accordion-panel-heading-height="66" accordion-panel-class="custom-class">
+ Panel content
+ </bp-accordion-panel>
+ </bp-accordion>
+ */
 
 export interface IBpAccordionController {
     accordionId?: string;
@@ -115,7 +115,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
             this.recalculateLayout();
         }
     }
-    
+
     public showPanel = (panel: IBpAccordionPanelController) => {
         panel.isVisible = true;
         this.recalculateLayout();
@@ -146,17 +146,17 @@ export class BpAccordionCtrl implements IBpAccordionController {
                 }
                 return p;
             })
-            .filter( (p: IBpAccordionPanelController) => p.isPinned);
+            .filter((p: IBpAccordionPanelController) => p.isPinned);
         this.openPanels.push(panel);
         this.recalculateLayout();
     }
 
     public cleanUpOpenPanels = () => {
-        const numPinnedPanels = this.openPanels.filter( (p: IBpAccordionPanelController) => p.isPinned && p.isVisible).length;
+        const numPinnedPanels = this.openPanels.filter((p: IBpAccordionPanelController) => p.isPinned && p.isVisible).length;
 
         if (this.openPanels.length > 1) {
             this.openPanels = this.openPanels
-                .map( (panel: IBpAccordionPanelController) => {
+                .map((panel: IBpAccordionPanelController) => {
                     if (!panel.isVisible) {
                         return panel;
                     } else if (numPinnedPanels > 0 && !panel.isPinned) {
@@ -166,19 +166,19 @@ export class BpAccordionCtrl implements IBpAccordionController {
                     }
                     return panel;
                 })
-                .filter( (panel: IBpAccordionPanelController) => panel.isOpen);
+                .filter((panel: IBpAccordionPanelController) => panel.isOpen);
             this.recalculateLayout();
         }
     };
 
     public recalculateLayout = () => {
         const numberOfOpenElements: number = this.openPanels.filter((p: IBpAccordionPanelController) => p.isVisible).length;
-        const closedHeadersHeight: number = <number>this.panels.reduce( (prev: number, cur: IBpAccordionPanelController) => {
+        const closedHeadersHeight: number = <number>this.panels.reduce((prev: number, cur: IBpAccordionPanelController) => {
             return prev + (cur.isOpen || !cur.isVisible ? 0 : parseInt(<any>cur.accordionPanelHeadingHeight, 10));
         }, 0);
-        
+
         // set height of content of components
-        this.panels.map( (p: IBpAccordionPanelController) => {
+        this.panels.map((p: IBpAccordionPanelController) => {
             const panelEl: any = p.getElement();
             const panelContentEl = panelEl.querySelector(".bp-accordion-panel-content");
 
@@ -191,7 +191,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
         });
 
         // set height of components
-        this.openPanels.map( (p: IBpAccordionPanelController) => {
+        this.openPanels.map((p: IBpAccordionPanelController) => {
             const panelEl: any = p.getElement();
             panelEl.style.height = "calc(" + (100 / numberOfOpenElements) + "% - " + (closedHeadersHeight / numberOfOpenElements) + "px)";
         });
@@ -203,7 +203,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
             if (this.panels && this.panels.length) {
                 this.panels[0].openPanel();
             }
-            
+
             // we need to redistribute the height after all the panels have been added
             this.recalculateLayout();
         }, 0);
@@ -212,7 +212,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
 
 export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
     static $inject: [string] = ["localization", "$element"];
-    
+
     private _isOpen: boolean;
     private _isVisible: boolean;
     private isActiveSubject: Rx.BehaviorSubject<boolean>;

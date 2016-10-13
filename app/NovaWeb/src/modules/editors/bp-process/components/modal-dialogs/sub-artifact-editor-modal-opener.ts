@@ -4,7 +4,12 @@ import {ModalDialogType} from "./base-modal-dialog-controller";
 import {SubArtifactDialogModel} from "./models/sub-artifact-dialog-model";
 import {UserStoryDialogModel} from "./models/user-story-dialog-model";
 import {SubArtifactDecisionDialogModel} from "./models/sub-artifact-decision-dialog-model";
-import {IProcessGraph, IDiagramNode, ICondition, IDecision} from "../diagram/presentation/graph/models/process-graph-interfaces";
+import {
+    IProcessGraph,
+    IDiagramNode,
+    ICondition,
+    IDecision
+} from "../diagram/presentation/graph/models/process-graph-interfaces";
 import {UserTask} from "../diagram/presentation/graph/shapes/user-task";
 import {SystemTask} from "../diagram/presentation/graph/shapes/system-task";
 import {NodeType} from "../diagram/presentation/graph/models/";
@@ -19,8 +24,8 @@ export class SubArtifactEditorModalOpener {
 
     private animationsEnabled: boolean = true;
 
-    private isReadonly: boolean; 
-    private isHistorical: boolean; 
+    private isReadonly: boolean;
+    private isHistorical: boolean;
     public getGraph: () => any;
     private setGraphHandler: string;
     private openDialogCallerHandler: string;
@@ -28,11 +33,10 @@ export class SubArtifactEditorModalOpener {
     private modalProcessViewModel: ModalProcessViewModel;
 
     constructor(private $scope: ng.IScope,
-        private $uibModal: angular.ui.bootstrap.IModalService,
-        private $rootScope: ng.IRootScopeService,
-        private dialogCommunication: IModalDialogCommunication,
-        private localization: ILocalizationService
-    ) {
+                private $uibModal: angular.ui.bootstrap.IModalService,
+                private $rootScope: ng.IRootScopeService,
+                private dialogCommunication: IModalDialogCommunication,
+                private localization: ILocalizationService) {
         this.setGraphHandler = dialogCommunication.registerSetGraphObserver(this.setGraph);
         this.openDialogCallerHandler = dialogCommunication.registerOpenDialogObserver(this.openDialogCaller);
         this.setModalProcessViewModelHandler = dialogCommunication.registerModalProcessViewModelObserver(this.setModalProcessViewModel);
@@ -40,7 +44,7 @@ export class SubArtifactEditorModalOpener {
 
     private setGraph = (graph) => {
         this.getGraph = graph;
-        this.modalProcessViewModel = new ModalProcessViewModel(this.getGraph().viewModel); 
+        this.modalProcessViewModel = new ModalProcessViewModel(this.getGraph().viewModel);
     }
 
     private setModalProcessViewModel = (setModalProcessViewModel) => {
@@ -56,9 +60,9 @@ export class SubArtifactEditorModalOpener {
         window.console.log(`Open dialog with parameters ${id}, ${dialogType}`);
 
         try {
-            let graph = this.getGraph(); 
+            let graph = this.getGraph();
 
-            // get read-only status from viewmodel's isReadonly property 
+            // get read-only status from viewmodel's isReadonly property
 
             let viewModel = graph.viewModel; //<IProcessViewModel>($scope.$parent["vm"].processDiagram.processViewModel);
             if (viewModel) {
@@ -84,11 +88,11 @@ export class SubArtifactEditorModalOpener {
     };
 
     public getSubArtifactDialogModel(shapeId: number, graph: IProcessGraph): SubArtifactDialogModel {
-        var userTaskDialogModel = new SubArtifactDialogModel();
+        const userTaskDialogModel = new SubArtifactDialogModel();
         userTaskDialogModel.subArtifactId = shapeId;
-        var node = graph.getNodeById(userTaskDialogModel.subArtifactId.toString());
-        var userTaskNode: UserTask;
-        var systemTaskNode: SystemTask;
+        const node = graph.getNodeById(userTaskDialogModel.subArtifactId.toString());
+        let userTaskNode: UserTask;
+        let systemTaskNode: SystemTask;
         if (node.getNodeType() === NodeType.UserTask) {
             userTaskNode = <UserTask>node;
             let nextNodes = userTaskNode.getNextSystemTasks(graph);
@@ -156,7 +160,7 @@ export class SubArtifactEditorModalOpener {
             let condition: ICondition = Condition.create(outgoingLink, mergePoint, validMergeNodes);
             dialogModel.conditions.push(condition);
         }
-        
+
         // clone edges one by one
         dialogModel.clonedDecision.edges = [];
         for (let edge of dialogModel.originalDecision.edges) {
@@ -224,7 +228,7 @@ export class SubArtifactEditorModalOpener {
         let retArr: any[] = [];
         for (let node of arr) {
             retArr.push(this.cloneNode(node));
-        } 
+        }
         return retArr;
     }
 

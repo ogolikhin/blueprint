@@ -4,10 +4,8 @@ import {ILocalizationService} from "../../../../core";
 import {ItemTypePredefined} from "../../../../main/models/enums";
 
 export class DiscardAction extends BPButtonAction {
-    constructor(
-        artifact: IStatefulArtifact,
-        localization: ILocalizationService
-    ) {
+    constructor(artifact: IStatefulArtifact,
+                localization: ILocalizationService) {
         if (!localization) {
             throw new Error("Localization service not provided or is null");
         }
@@ -22,7 +20,7 @@ export class DiscardAction extends BPButtonAction {
                 }
 
                 const invalidTypes = [
-                    ItemTypePredefined.Project, 
+                    ItemTypePredefined.Project,
                     ItemTypePredefined.Collections
                 ];
 

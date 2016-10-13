@@ -1,6 +1,6 @@
 /*
-* Defines the different Link Types for Extended Connectors for Use Case Diagrams
-*/
+ * Defines the different Link Types for Extended Connectors for Use Case Diagrams
+ */
 export enum UCDLinkType {
     Include = 1,
     Extended = 2,

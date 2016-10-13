@@ -6,13 +6,11 @@ import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact
 import {ItemTypePredefined} from "../../../../main/models/enums";
 
 export class RefreshAction extends BPButtonAction {
-    constructor(
-        artifact: IStatefulArtifact,
-        localization: ILocalizationService,
-        projectManager: IProjectManager,
-        loadingOverlayService: ILoadingOverlayService,
-        metaDataService: IMetaDataService
-    ) {
+    constructor(artifact: IStatefulArtifact,
+                localization: ILocalizationService,
+                projectManager: IProjectManager,
+                loadingOverlayService: ILoadingOverlayService,
+                metaDataService: IMetaDataService) {
         if (!artifact) {
             throw new Error("Artifact not provided or is null");
         }
@@ -52,11 +50,15 @@ export class RefreshAction extends BPButtonAction {
                             loadingOverlayService.endLoading(refreshOverlayId);
                         });
                     }).finally(() => {
-                        loadingOverlayService.endLoading(overlayId);
-                    });
+                    loadingOverlayService.endLoading(overlayId);
+                });
             },
             (): boolean => {
-                if (artifact.predefinedType === ItemTypePredefined.Project || artifact.predefinedType === ItemTypePredefined.Collections) {
+
+                const invalidTypes = [
+                    ItemTypePredefined.Collections
+                ];
+                if (invalidTypes.indexOf(artifact.predefinedType) >= 0) {
                     return false;
                 }
 

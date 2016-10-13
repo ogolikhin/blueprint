@@ -8,12 +8,15 @@
             </bp-avatar>
             <div class="author"
                  bp-tooltip-truncated="true"
-                 bp-tooltip="{{ $ctrl.replyInfo.userName }}">{{ $ctrl.replyInfo.userName }}</div>
+                 bp-tooltip="{{ $ctrl.replyInfo.userName }}">{{ $ctrl.replyInfo.userName }}
+            </div>
         </div>
         <div class="info">
-            <div class="comment" bp-collapsible="80" scrollable-container-id="discussion-scrollable-content" ng-bind-html="$ctrl.getTrustedCommentHtml()"></div>
+            <div class="comment" bp-collapsible="80" scrollable-container-id="discussion-scrollable-content"
+                 ng-bind-html="$ctrl.getTrustedCommentHtml()"></div>
             <div class="version">v{{$ctrl.replyInfo.version}}</div>
-            <div class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.replyInfo.lastEditedOn | date:'medium' }}</div>
+            <div class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.replyInfo.lastEditedOn | date:'medium' }}
+            </div>
         </div>
         <div class="button-bar">
             <i bp-tooltip="{{$ctrl.localization.get('App_UP_Discussions_Edit_Reply_Tooltip')}}"

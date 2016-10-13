@@ -4,7 +4,7 @@ import "angular-messages";
 import "angular-sanitize";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
-import { createFormlyModule } from "./formly-config.mock";
+import {createFormlyModule} from "./formly-config.mock";
 
 describe("Formly", () => {
     let moduleName = createFormlyModule("formlyModule", [
@@ -32,7 +32,7 @@ describe("Formly", () => {
         )
     );
 
-    it("template should compile", function() {
+    it("template should compile", function () {
         compileAndSetupStuff();
 
         expect(element).toBeDefined();

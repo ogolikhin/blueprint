@@ -1,9 +1,9 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
-import { ILocalizationService, IUsersAndGroupsService, IUserOrGroupInfo } from "../../../../core";
-import { ITinyMceMentionOptions, MentionService } from "./mention.svc";
-import { UsersAndGroupsServiceMock, UserOrGroupInfo } from "../../../../core/services/users-and-groups.svc.mock";
-import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
+import {ILocalizationService, IUsersAndGroupsService, IUserOrGroupInfo} from "../../../../core";
+import {ITinyMceMentionOptions, MentionService} from "./mention.svc";
+import {UsersAndGroupsServiceMock, UserOrGroupInfo} from "../../../../core/services/users-and-groups.svc.mock";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 
 /* tslint:disable:max-line-length */
 describe("Mention Service Test", () => {
@@ -89,9 +89,11 @@ describe("Mention Service Test", () => {
         var scope = $rootScope.$new();
         var hasRan = false;
         var resultItems: IUserOrGroupInfo[];
+
         function process(items: IUserOrGroupInfo[]) {
             hasRan = true;
         }
+
         //Act
         mentions.source("a", process);
         scope.$digest();
@@ -104,9 +106,11 @@ describe("Mention Service Test", () => {
         var scope = $rootScope.$new();
         var hasRan = false;
         var resultItems: IUserOrGroupInfo[];
+
         function process(items: IUserOrGroupInfo[]) {
             hasRan = true;
         }
+
         //Act
         mentions.source("return@user.com", process);
         scope.$digest();
@@ -119,10 +123,12 @@ describe("Mention Service Test", () => {
         var scope = $rootScope.$new();
         var hasRan = false;
         var resultItems: IUserOrGroupInfo[] = null;
+
         function process(items: IUserOrGroupInfo[]) {
             hasRan = true;
             resultItems = items;
         }
+
         //Act
         mentions.source("dontreturn@user.com", process);
         scope.$digest();
@@ -139,10 +145,12 @@ describe("Mention Service Test", () => {
         var scope = $rootScope.$new();
         var hasRan = false;
         var resultItems: IUserOrGroupInfo[] = null;
+
         function process(items: IUserOrGroupInfo[]) {
             hasRan = true;
             resultItems = items;
         }
+
         //Act
         mentions.source("dontreturn", process);
         scope.$digest();
@@ -155,9 +163,11 @@ describe("Mention Service Test", () => {
         mentions = new MentionService(userService, $rootScope, localization, $compile);
         var scope = $rootScope.$new();
         var hasRan = false;
+
         function process(items: IUserOrGroupInfo[]) {
             hasRan = true;
         }
+
         //Act
         var result = mentions.source("error", process);
         scope.$digest();

@@ -3,23 +3,25 @@ import {NodeLabelEditor} from "./node-label-editor";
 import {Label, LabelStyle, ELLIPSIS_SYMBOL} from "./labels/label";
 
 class ExecutionEnvironmentDetectorMock {
-    constructor() {}
+    constructor() {
+    }
+
     public getBrowserInfo(): any {
-         return {msie: false, firefox: false, version: 0};
+        return {msie: false, firefox: false, version: 0};
     }
 }
 
 describe("Node Label Editor test", () => {
-    
-    let w: any = window; 
+
+    let w: any = window;
     w.executionEnvironmentDetector = ExecutionEnvironmentDetectorMock;
 
     let container: HTMLElement = document.createElement("DIV");
     document.body.appendChild(container);
     let nodeLabelEditor: NodeLabelEditor = new NodeLabelEditor(container);
 
-    let label: Label = null; 
-    
+    let label: Label = null;
+
     afterEach(() => {
         label.onDispose();
         while (container.children[0] != null) {
@@ -37,8 +39,8 @@ describe("Node Label Editor test", () => {
 
     function fireKBEvent(etype, keyCode) {
         var e = $.Event(etype);
-        e.keyCode = keyCode; 
-        e.which = keyCode; 
+        e.keyCode = keyCode;
+        e.which = keyCode;
         let elem = angular.element(document.getElementsByClassName("processEditorCustomLabel")[0]);
         elem.trigger(e);
     }

@@ -1,20 +1,20 @@
 ﻿<bp-toolbar ng-if="$main.currentUser"></bp-toolbar>
 <bp-sidebar-layout left-panel-title="{{$main.localization.get('App_Sidebar_Left')}}"
                    right-panel-title="{{$main.localization.get('App_Sidebar_Right')}}"
-                   ng-if="$main.currentUser" 
-                   toggle-panel="$main.toggle(id)" 
-                   is-left-toggled="$main.isLeftToggled" 
+                   ng-if="$main.currentUser"
+                   toggle-panel="$main.toggle(id)"
+                   is-left-toggled="$main.isLeftToggled"
                    is-right-toggled="$main.isRightToggled">
-    <bp-sidebar-layout-content-left >
+    <bp-sidebar-layout-content-left>
         <bp-project-explorer></bp-project-explorer>
     </bp-sidebar-layout-content-left>
 
     <bp-sidebar-layout-content-center>
         <pagecontent ng-if="$main.isActive"></pagecontent>
     </bp-sidebar-layout-content-center>
-    
+
     <bp-sidebar-layout-content-right>
-        <bp-utility-panel ></bp-utility-panel>
+        <bp-utility-panel></bp-utility-panel>
     </bp-sidebar-layout-content-right>
 
 </bp-sidebar-layout>

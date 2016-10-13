@@ -6,7 +6,8 @@ export var GRAPH_ROW_HEIGHT: number = 220;
 export enum Direction {
     LeftToRight = 0,
     RightToLeft
-};
+}
+;
 
 export enum NodeType {
     Undefined,
@@ -17,7 +18,8 @@ export enum NodeType {
     SystemTask,
     UserDecision,
     UserTask
-};
+}
+;
 
 export enum NodeChange {
     Undefined,

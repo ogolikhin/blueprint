@@ -1,7 +1,7 @@
 ﻿import * as angular from "angular";
 import {PreviewCenterController, PreviewCenterComponent} from "./preview-center";
-import { ShapeModelMock } from "../../diagram/presentation/graph/shapes/shape-model.mock";
-import { SystemTask } from "../../diagram/presentation/graph/shapes/";
+import {ShapeModelMock} from "../../diagram/presentation/graph/shapes/shape-model.mock";
+import {SystemTask} from "../../diagram/presentation/graph/shapes/";
 //import {IArtifactManager} from "../../../../../managers/artifact-manager/artifact-manager";
 
 
@@ -40,12 +40,12 @@ xdescribe("PreviewCenter Directive", () => {
             element = $compile(directiveWrapper)(scope);
             scope.$digest();
             controller = element.find("preview-center").isolateScope()["centerCtrl"];
-    }));
+        }));
 
     it("Controller Constructor",
         inject(($controller: ng.IControllerService,
-            $rootScope: ng.IRootScopeService,
-            $window: ng.IWindowService) => {
+                $rootScope: ng.IRootScopeService,
+                $window: ng.IWindowService) => {
             // Arrange
             let controllerScope = $rootScope.$new();
             controllerScope.$parent["vm"] = {
@@ -61,11 +61,15 @@ xdescribe("PreviewCenter Directive", () => {
             };
 
             // Act
-            let constructorTestController: PreviewCenterController = $controller(PreviewCenterController, { $window, $scope: controllerScope, $rootScope});
+            let constructorTestController: PreviewCenterController = $controller(PreviewCenterController, {
+                $window,
+                $scope: controllerScope,
+                $rootScope
+            });
 
             // Assert
             expect(constructorTestController).not.toBeNull();
-    }));   
+        }));
 
 
     it("can show a directive", (inject(() => {

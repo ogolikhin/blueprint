@@ -25,7 +25,8 @@ describe("BPToggleAction", () => {
     it("initializes properties and methods successfully", () => {
         // arrange
         const type = "toggle";
-        const execute = () => {};
+        const execute = () => {
+        };
         const canExecute = () => true;
         const item1 = new BPToggleItemAction("test1", 1, true, "test1", "test1");
         const item2 = new BPToggleItemAction("test2", 2, false);

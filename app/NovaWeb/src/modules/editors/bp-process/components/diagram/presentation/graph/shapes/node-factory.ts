@@ -1,24 +1,23 @@
-﻿import { ProcessShapeType } from "../../../../../models/enums";
-import { IProcessShape } from "../../../../../models/process-models";
-import { IUserTaskShape, ISystemTaskShape } from "../../../../../models/process-models";
-import { IDiagramNode } from "../models/";
-import { ShapesFactory } from "./shapes-factory";
-import { ProcessStart } from "./process-start";
-import { ProcessEnd } from "./process-end";
-import { UserTask } from "./user-task";
-import { SystemTask } from "./system-task";
-import { UserDecision } from "./user-decision";
-import { SystemDecision } from "./system-decision";
-import { NodeFactorySettings } from "./node-factory-settings";
+﻿import {ProcessShapeType} from "../../../../../models/enums";
+import {IProcessShape} from "../../../../../models/process-models";
+import {IUserTaskShape, ISystemTaskShape} from "../../../../../models/process-models";
+import {IDiagramNode} from "../models/";
+import {ShapesFactory} from "./shapes-factory";
+import {ProcessStart} from "./process-start";
+import {ProcessEnd} from "./process-end";
+import {UserTask} from "./user-task";
+import {SystemTask} from "./system-task";
+import {UserDecision} from "./user-decision";
+import {SystemDecision} from "./system-decision";
+import {NodeFactorySettings} from "./node-factory-settings";
 
 export class NodeFactory {
 
-    public static createNode(
-        model: IProcessShape, rootScope: any,
-        shapesFactoryService: ShapesFactory,
-        nodeFactorySettings: NodeFactorySettings = null): IDiagramNode {
+    public static createNode(model: IProcessShape, rootScope: any,
+                             shapesFactoryService: ShapesFactory,
+                             nodeFactorySettings: NodeFactorySettings = null): IDiagramNode {
 
-        var type = <ProcessShapeType>model.propertyValues["clientType"].value;
+        const type = <ProcessShapeType>model.propertyValues["clientType"].value;
         switch (type) {
             case ProcessShapeType.Start:
                 return new ProcessStart(model, nodeFactorySettings);

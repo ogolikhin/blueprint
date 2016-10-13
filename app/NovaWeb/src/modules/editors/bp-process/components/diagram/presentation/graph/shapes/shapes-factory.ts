@@ -21,6 +21,7 @@ class ShapesFactorySettings {
     public getUserTaskPersona(): string {
         return this._userTaskPersona;
     }
+
     public setUserTaskPersona(value): void {
         this._userTaskPersona = value;
     }
@@ -28,9 +29,11 @@ class ShapesFactorySettings {
     public getSystemTaskPersona(): string {
         return this._systemTaskPersona;
     }
+
     public setSystemTaskPersona(value): void {
         this._systemTaskPersona = value;
     }
+
     public destroy() {
         this._userTaskPersona = null;
         this._systemTaskPersona = null;
@@ -49,20 +52,23 @@ export class ShapesFactory {
     public NEW_SYSTEM_DECISION_LABEL: string;
     public NEW_MERGE_NODE_NAME: string;
 
-    public Persona: IPropertyNameConstantsInformation = { key: "persona", name: "Persona" };
-    public ClientType: IPropertyNameConstantsInformation = { key: "clientType", name: "ClientType" };
-    public X: IPropertyNameConstantsInformation = { key: "x", name: "X" };
-    public Y: IPropertyNameConstantsInformation = { key: "y", name: "Y" };
-    public Height: IPropertyNameConstantsInformation = { key: "height", name: "Height" };
-    public Width: IPropertyNameConstantsInformation = { key: "width", name: "Width" };
+    public Persona: IPropertyNameConstantsInformation = {key: "persona", name: "Persona"};
+    public ClientType: IPropertyNameConstantsInformation = {key: "clientType", name: "ClientType"};
+    public X: IPropertyNameConstantsInformation = {key: "x", name: "X"};
+    public Y: IPropertyNameConstantsInformation = {key: "y", name: "Y"};
+    public Height: IPropertyNameConstantsInformation = {key: "height", name: "Height"};
+    public Width: IPropertyNameConstantsInformation = {key: "width", name: "Width"};
 
-    public Description: IPropertyNameConstantsInformation = { key: "description", name: "Description" };
-    public Label: IPropertyNameConstantsInformation = { key: "label", name: "Label" };
-    public Objective: IPropertyNameConstantsInformation = { key: "itemLabel", name: "ItemLabel" };
-    public AssociatedImageUrl: IPropertyNameConstantsInformation = { key: "associatedImageUrl", name: "AssociatedImageUrl" };
-    public ImageId: IPropertyNameConstantsInformation = { key: "imageId", name: "ImageId" };
-    public Include: IPropertyNameConstantsInformation = { key: "include", name: "Include" };
-    public StoryLinks: IPropertyNameConstantsInformation = { key: "storyLinks", name: "StoryLinks" };
+    public Description: IPropertyNameConstantsInformation = {key: "description", name: "Description"};
+    public Label: IPropertyNameConstantsInformation = {key: "label", name: "Label"};
+    public Objective: IPropertyNameConstantsInformation = {key: "itemLabel", name: "ItemLabel"};
+    public AssociatedImageUrl: IPropertyNameConstantsInformation = {
+        key: "associatedImageUrl",
+        name: "AssociatedImageUrl"
+    };
+    public ImageId: IPropertyNameConstantsInformation = {key: "imageId", name: "ImageId"};
+    public Include: IPropertyNameConstantsInformation = {key: "include", name: "Include"};
+    public StoryLinks: IPropertyNameConstantsInformation = {key: "storyLinks", name: "StoryLinks"};
 
     public static $inject = ["$rootScope", "statefulArtifactFactory"];
 
@@ -78,7 +84,7 @@ export class ShapesFactory {
 
     constructor(private $rootScope: ng.IRootScopeService, private statefulArtifactFactory: IStatefulArtifactFactory) {
 
-        var definedSconfig = false;
+        let definedSconfig = false;
         if ((<any>this.$rootScope) !== undefined
             && (<any>this.$rootScope).config !== undefined
             && (<any>this.$rootScope).config.labels !== undefined) {
@@ -142,29 +148,29 @@ export class ShapesFactory {
         }
     }
 
-    public createStatefulSubArtifact(artifact: IStatefulArtifact, subartifact: IProcessShape): StatefulProcessSubArtifact {       
-        let statefulArtifact =  this.statefulArtifactFactory.createStatefulProcessSubArtifact(artifact, subartifact);                
+    public createStatefulSubArtifact(artifact: IStatefulArtifact, subartifact: IProcessShape): StatefulProcessSubArtifact {
+        const statefulArtifact = this.statefulArtifactFactory.createStatefulProcessSubArtifact(artifact, subartifact);
         return statefulArtifact;
-    } 
+    }
 
     public createModelMergeNodeShape(parentId: number, projectId: number, id: number, x: number, y: number) {
-        var nameCounter = this._idGenerator.getId(ProcessShapeType.None);
+        const nameCounter = this._idGenerator.getId(ProcessShapeType.None);
 
-        var obj = new ProcessShapeModel(id, this.NEW_MERGE_NODE_NAME + nameCounter, projectId, "", parentId, ItemTypePredefined.None);
+        const obj = new ProcessShapeModel(id, this.NEW_MERGE_NODE_NAME + nameCounter, projectId, "", parentId, ItemTypePredefined.None);
         obj.propertyValues = this.createPropertyValuesFormergePointShape(obj.name, "", x, y);
 
         return obj;
     }
 
     public createModelUserTaskShape(parentId: number, projectId: number, id: number, x: number, y: number): IUserTaskShape {
-        var nameCounter = this._idGenerator.getId(ProcessShapeType.UserTask);
+        const nameCounter = this._idGenerator.getId(ProcessShapeType.UserTask);
 
         // hard coded strings, if change, please search above chars and replace the other place on server side
         // replace "Process_DefaultUserTask_Name" in StringTokens.resx
         // see https://trello.com/c/k6UpxuGi
 
-        var tempUserTaskName = this.NEW_USER_TASK_LABEL + nameCounter;
-        var obj = new UserTaskShapeModel(id, tempUserTaskName, projectId, "PROS", parentId,
+        const tempUserTaskName = this.NEW_USER_TASK_LABEL + nameCounter;
+        const obj = new UserTaskShapeModel(id, tempUserTaskName, projectId, "PROS", parentId,
             ItemTypePredefined.PROShape);
 
         let persona = this.NEW_USER_TASK_PERSONA;
@@ -179,13 +185,13 @@ export class ShapesFactory {
     }
 
     public createModelSystemTaskShape(parentId: number, projectId: number, id: number, x: number, y: number): ISystemTaskShape {
-        var nameCounter = this._idGenerator.getId(ProcessShapeType.SystemTask);
+        const nameCounter = this._idGenerator.getId(ProcessShapeType.SystemTask);
 
         // hard coded strings, if change, please search above chars and replace the other place on server side
         // replace "Process_DefaultSystemTask_Name" in StringTokens.resx
         // see https://trello.com/c/k6UpxuGi
-        var tempSystemTaskName = this.NEW_SYSTEM_TASK_LABEL + nameCounter;
-        var obj = new SystemTaskShapeModel(id, tempSystemTaskName, projectId, "PROS", parentId, ItemTypePredefined.PROShape);
+        const tempSystemTaskName = this.NEW_SYSTEM_TASK_LABEL + nameCounter;
+        const obj = new SystemTaskShapeModel(id, tempSystemTaskName, projectId, "PROS", parentId, ItemTypePredefined.PROShape);
 
         let persona = this.NEW_SYSTEM_TASK_PERSONA;
         if (!!this.settings.getSystemTaskPersona()) {
@@ -199,8 +205,8 @@ export class ShapesFactory {
     }
 
     public createModelUserDecisionShape(parentId: number, projectId: number, id: number, x: number, y: number): IProcessShape {
-        var nameCounter = this._idGenerator.getId(ProcessShapeType.UserDecision);
-        var obj = new ProcessShapeModel(id, this.NEW_USER_DECISION_LABEL + nameCounter, projectId, "PROS", parentId,
+        const nameCounter = this._idGenerator.getId(ProcessShapeType.UserDecision);
+        const obj = new ProcessShapeModel(id, this.NEW_USER_DECISION_LABEL + nameCounter, projectId, "PROS", parentId,
             ItemTypePredefined.PROShape);
 
         obj.propertyValues = this.createPropertyValuesForUserDecisionShape(this.NEW_USER_DECISION_LABEL + nameCounter, "", x, y, -1, -1, "");
@@ -220,8 +226,8 @@ export class ShapesFactory {
 
 
     public createSystemDecisionShapeModel(id: number, parentId: number, projectId: number, x: number, y: number): IProcessShape {
-        var nameCounter = this._idGenerator.getId(ProcessShapeType.SystemDecision);
-        var model = new ProcessShapeModel(id, this.NEW_SYSTEM_DECISION_LABEL + nameCounter, projectId, "PROS", parentId, ItemTypePredefined.PROShape);
+        const nameCounter = this._idGenerator.getId(ProcessShapeType.SystemDecision);
+        const model = new ProcessShapeModel(id, this.NEW_SYSTEM_DECISION_LABEL + nameCounter, projectId, "PROS", parentId, ItemTypePredefined.PROShape);
 
         model.propertyValues = this.createPropertyValuesForSystemDecisionShape(this.NEW_SYSTEM_DECISION_LABEL + nameCounter, "", x, y, -1, -1, "");
 
@@ -229,16 +235,16 @@ export class ShapesFactory {
     }
 
     public createPropertyValuesForUserTaskShape(persona: string = this.NEW_USER_TASK_PERSONA,
-        inputParameters: string[] = [],
-        label: string = this.NEW_USER_TASK_LABEL,
-        description: string = "",
-        x: number = 0,
-        y: number = 0,
-        width: number = -1,
-        height: number = -1,
-        objective: string = "",
-        include: IArtifactReference = null): IHashMapOfPropertyValues {
-        var propertyValues: IHashMapOfPropertyValues = {};
+                                                inputParameters: string[] = [],
+                                                label: string = this.NEW_USER_TASK_LABEL,
+                                                description: string = "",
+                                                x: number = 0,
+                                                y: number = 0,
+                                                width: number = -1,
+                                                height: number = -1,
+                                                objective: string = "",
+                                                include: IArtifactReference = null): IHashMapOfPropertyValues {
+        const propertyValues: IHashMapOfPropertyValues = {};
 
         propertyValues[this.Persona.key] = this.createPersonaValue(persona);
         propertyValues[this.Label.key] = this.createLabelValue(label);
@@ -255,18 +261,18 @@ export class ShapesFactory {
     }
 
     public createPropertyValuesForSystemTaskShape(persona: string = this.NEW_SYSTEM_TASK_PERSONA,
-        outputParameters: string[] = [],
-        userTaskId: number = -1,
-        associatedImageUrl: string = "",
-        label: string = this.NEW_SYSTEM_TASK_LABEL,
-        description: string = "",
-        x: number = 0,
-        y: number = 0,
-        width: number = -1,
-        height: number = -1,
-        objective: string = "",
-        include: IArtifactReference = null): IHashMapOfPropertyValues {
-        var propertyValues: IHashMapOfPropertyValues = {};
+                                                  outputParameters: string[] = [],
+                                                  userTaskId: number = -1,
+                                                  associatedImageUrl: string = "",
+                                                  label: string = this.NEW_SYSTEM_TASK_LABEL,
+                                                  description: string = "",
+                                                  x: number = 0,
+                                                  y: number = 0,
+                                                  width: number = -1,
+                                                  height: number = -1,
+                                                  objective: string = "",
+                                                  include: IArtifactReference = null): IHashMapOfPropertyValues {
+        const propertyValues: IHashMapOfPropertyValues = {};
 
         propertyValues[this.Persona.key] = this.createPersonaValue(persona);
         propertyValues[this.AssociatedImageUrl.key] = this.createAssociatedImageUrlValue();
@@ -285,13 +291,13 @@ export class ShapesFactory {
     }
 
     public createPropertyValuesForUserDecisionShape(label: string = this.NEW_USER_DECISION_LABEL,
-        description: string = "",
-        x: number = 0,
-        y: number = 0,
-        width: number = -1,
-        height: number = -1,
-        objective: string = ""): IHashMapOfPropertyValues {
-        var propertyValues: IHashMapOfPropertyValues = {};
+                                                    description: string = "",
+                                                    x: number = 0,
+                                                    y: number = 0,
+                                                    width: number = -1,
+                                                    height: number = -1,
+                                                    objective: string = ""): IHashMapOfPropertyValues {
+        const propertyValues: IHashMapOfPropertyValues = {};
 
         propertyValues[this.Label.key] = this.createLabelValue(label);
         propertyValues[this.Description.key] = this.createDescriptionValue(description);
@@ -306,13 +312,13 @@ export class ShapesFactory {
     }
 
     public createPropertyValuesForSystemDecisionShape(label: string = this.NEW_SYSTEM_DECISION_LABEL,
-        description: string = "",
-        x: number = 0,
-        y: number = 0,
-        width: number = -1,
-        height: number = -1,
-        objective: string = ""): IHashMapOfPropertyValues {
-        var propertyValues: IHashMapOfPropertyValues = {};
+                                                      description: string = "",
+                                                      x: number = 0,
+                                                      y: number = 0,
+                                                      width: number = -1,
+                                                      height: number = -1,
+                                                      objective: string = ""): IHashMapOfPropertyValues {
+        const propertyValues: IHashMapOfPropertyValues = {};
 
         propertyValues[this.Label.key] = this.createLabelValue(label);
         propertyValues[this.Description.key] = this.createDescriptionValue(description);
@@ -327,12 +333,12 @@ export class ShapesFactory {
     }
 
     public createPropertyValuesFormergePointShape(label: string = this.NEW_MERGE_NODE_NAME,
-        description: string = "",
-        x: number = 0,
-        y: number = 0,
-        width: number = -1,
-        height: number = -1): IHashMapOfPropertyValues {
-        var propertyValues: IHashMapOfPropertyValues = {};
+                                                  description: string = "",
+                                                  x: number = 0,
+                                                  y: number = 0,
+                                                  width: number = -1,
+                                                  height: number = -1): IHashMapOfPropertyValues {
+        const propertyValues: IHashMapOfPropertyValues = {};
 
         propertyValues[this.Label.key] = this.createLabelValue(label);
         propertyValues[this.Description.key] = this.createDescriptionValue(description);
@@ -434,6 +440,7 @@ export class ShapesFactory {
             value: url
         };
     }
+
     public createImageIdValue(imageId: string = ""): IPropertyValueInformation {
         return {
             propertyName: this.ImageId.name,

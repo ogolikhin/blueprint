@@ -16,7 +16,7 @@ describe("Rendering common shapes", () => {
         $provide.service("stencilService", StencilServiceMock);
     }));
 
-        beforeEach(inject((stencilService: StencilServiceMock) => {
+    beforeEach(inject((stencilService: StencilServiceMock) => {
         const divElement = document.createElement("div");
         element = angular.element(divElement);
         diagramView = new DiagramView(element[0], stencilService);

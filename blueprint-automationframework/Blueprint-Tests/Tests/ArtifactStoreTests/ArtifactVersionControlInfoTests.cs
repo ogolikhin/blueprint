@@ -266,7 +266,7 @@ namespace ArtifactStoreTests
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId : subArtifacts[0].Id,
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: subArtifacts[0].Id,
                 versionCount: artifactDetails.Version);
         }
 

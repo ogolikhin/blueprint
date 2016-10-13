@@ -10,9 +10,7 @@
                close-on-select="false"
                uis-open-close="bpFieldSelectMulti.onOpenClose(isOpen, $select, to.options)">
         <ui-select-match placeholder="{{to.placeholder}}">
-            <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">
-                {{$item[to.labelProp]}}
-            </div>
+            <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
         </ui-select-match>
         <ui-select-choices class="ps-child"
                            on-highlight="bpFieldSelectMulti.onHighlight(option, $select)"

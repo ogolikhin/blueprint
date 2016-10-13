@@ -1,1 +1,1 @@
-export { ArtifactState, IArtifactState, IState } from "./state";
+export {ArtifactState, IArtifactState, IState} from "./state";

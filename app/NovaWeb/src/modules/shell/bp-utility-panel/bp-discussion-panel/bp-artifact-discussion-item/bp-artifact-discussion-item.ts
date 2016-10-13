@@ -1,5 +1,5 @@
 ﻿import {IDiscussion, IArtifactDiscussions} from "../artifact-discussions.svc";
-import { ILocalizationService, IMessageService } from "../../../../core";
+import {ILocalizationService, IMessageService} from "../../../../core";
 
 export class BPArtifactDiscussionItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-discussion-item.html");
@@ -33,11 +33,10 @@ export class BPArtifactDiscussionItemController {
         "messageService"
     ];
 
-    constructor(
-        private artifactDiscussions: IArtifactDiscussions,
-        private localization: ILocalizationService,
-        private $sce: ng.ISCEService,
-        private messageService: IMessageService) {
+    constructor(private artifactDiscussions: IArtifactDiscussions,
+                private localization: ILocalizationService,
+                private $sce: ng.ISCEService,
+                private messageService: IMessageService) {
     }
 
     public newReplyClick(): void {
@@ -63,8 +62,8 @@ export class BPArtifactDiscussionItemController {
 
     public editCommentClick() {
         if (this.canEdit()) {
-        this.editing = true;
-    }
+            this.editing = true;
+        }
     }
 
     public canEdit(): boolean {
@@ -90,5 +89,6 @@ export class BPArtifactDiscussionItemController {
                 return null;
             });
     }
+
     /* tslint:disable:no-unused-variable */
 }

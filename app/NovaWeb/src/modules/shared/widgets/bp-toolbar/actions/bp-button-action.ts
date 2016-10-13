@@ -9,13 +9,11 @@ export interface IBPButtonAction extends IBPAction {
 }
 
 export class BPButtonAction implements IBPButtonAction {
-    constructor(
-        private _execute: () => void,
-        private _canExecute: () => boolean,
-        private _icon: string,
-        private _tooltip?: string,
-        private _label?: string
-    ) {
+    constructor(private _execute: () => void,
+                private _canExecute: () => boolean,
+                private _icon: string,
+                private _tooltip?: string,
+                private _label?: string) {
     }
 
     public get type(): string {

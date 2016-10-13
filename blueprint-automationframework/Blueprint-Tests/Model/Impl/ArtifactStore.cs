@@ -194,6 +194,66 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes);
         }
 
+        /// <seealso cref="IArtifactStore.GetDiagramArtifact(IUser, int, int?, List{HttpStatusCode})"/>
+        public NovaDiagramArtifact GetDiagramArtifact(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.DIAGRAM_id_, artifactId);
+            RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            Dictionary<string, string> queryParams = null;
+
+            if (versionId != null)
+            {
+                queryParams = new Dictionary<string, string> { { "versionId", versionId.ToString() } };
+            }
+
+            return restApi.SendRequestAndDeserializeObject<NovaDiagramArtifact>(
+              path,
+              RestRequestMethod.GET,
+              queryParameters: queryParams,
+              expectedStatusCodes: expectedStatusCodes);
+        }
+
+        /// <seealso cref="IArtifactStore.GetGlossaryArtifact(IUser, int, int?, List{HttpStatusCode})"/>
+        public NovaGlossaryArtifact GetGlossaryArtifact(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.GLOSSARY_id_, artifactId);
+            RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            Dictionary<string, string> queryParams = null;
+
+            if (versionId != null)
+            {
+                queryParams = new Dictionary<string, string> { { "versionId", versionId.ToString() } };
+            }
+
+            return restApi.SendRequestAndDeserializeObject<NovaGlossaryArtifact>(
+              path,
+              RestRequestMethod.GET,
+              queryParameters: queryParams,
+              expectedStatusCodes: expectedStatusCodes);
+        }
+
+        /// <seealso cref="IArtifactStore.GetUseCaseArtifact(IUser, int, int?, List{HttpStatusCode})"/>
+        public NovaUseCaseArtifact GetUseCaseArtifact(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.USECASE_id_, artifactId);
+            RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            Dictionary<string, string> queryParams = null;
+
+            if (versionId != null)
+            {
+                queryParams = new Dictionary<string, string> { { "versionId", versionId.ToString() } };
+            }
+
+            return restApi.SendRequestAndDeserializeObject<NovaUseCaseArtifact>(
+              path,
+              RestRequestMethod.GET,
+              queryParameters: queryParams,
+              expectedStatusCodes: expectedStatusCodes);
+        }
+
         /// <seealso cref="IArtifactStore.GetArtifactHistory(int, IUser, bool?, int?, int?, List{HttpStatusCode})"/>
         public List<ArtifactHistoryVersion> GetArtifactHistory(int artifactId, IUser user, 
             bool? sortByDateAsc = null, int? limit = null, int? offset = null, 

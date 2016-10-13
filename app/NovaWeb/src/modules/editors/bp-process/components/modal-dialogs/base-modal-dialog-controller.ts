@@ -23,9 +23,9 @@ export class BaseModalDialogController<T extends IModalDialogModel> {
     ];
 
     constructor(protected $rootScope: ng.IRootScopeService,
-        protected $scope: IModalScope,
-        protected $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance,
-        protected dialogModel: T) {
+                protected $scope: IModalScope,
+                protected $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance,
+                protected dialogModel: T) {
         this.$scope.dialogModel = dialogModel;
 
         $rootScope.$on("processUnloadingEvent", (() => {

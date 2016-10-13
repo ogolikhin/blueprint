@@ -6,7 +6,7 @@ import {IProcessGraph, ISelectionListener} from "./presentation/graph/models/";
 import {ProcessGraph} from "./presentation/graph/process-graph";
 import {ICommunicationManager} from "../../../bp-process";
 import {IDialogService} from "../../../../shared";
-import { IStatefulArtifactFactory } from "../../../../managers/artifact-manager";
+import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {ProcessEvents} from "./process-diagram-communication";
 
 export class ProcessDiagram {
@@ -18,27 +18,26 @@ export class ProcessDiagram {
     private modelUpdateHandler: string;
     private navigateToAssociatedArtifactHandler: string;
 
-    private selectionListeners: ISelectionListener[]; 
+    private selectionListeners: ISelectionListener[];
 
-    constructor(
-        private $rootScope: ng.IRootScopeService,
-        private $scope: ng.IScope,
-        private $timeout: ng.ITimeoutService,
-        private $q: ng.IQService,
-        private $log: ng.ILogService,
-        private messageService: IMessageService,
-        private communicationManager: ICommunicationManager,
-        private dialogService: IDialogService,
-        private localization: ILocalizationService,
-        private navigationService: INavigationService,
-        private statefulArtifactFactory: IStatefulArtifactFactory) {
+    constructor(private $rootScope: ng.IRootScopeService,
+                private $scope: ng.IScope,
+                private $timeout: ng.ITimeoutService,
+                private $q: ng.IQService,
+                private $log: ng.ILogService,
+                private messageService: IMessageService,
+                private communicationManager: ICommunicationManager,
+                private dialogService: IDialogService,
+                private localization: ILocalizationService,
+                private navigationService: INavigationService,
+                private statefulArtifactFactory: IStatefulArtifactFactory) {
 
         this.processModel = null;
         this.selectionListeners = [];
     }
- 
+
     public createDiagram(process: any, htmlElement: HTMLElement) {
-     
+
         this.checkParams(process.id, htmlElement);
         this.htmlElement = htmlElement;
 
@@ -52,7 +51,7 @@ export class ProcessDiagram {
         if (!this.validProcessId(processId)) {
             throw new Error("Process id '" + processId + "' is invalid.");
         }
-        
+
         if (htmlElement) {
             // okay 
         } else {
@@ -66,11 +65,11 @@ export class ProcessDiagram {
 
     private onLoad(process: IProcess, useAutolayout: boolean = false, selectedNodeId: number = undefined) {
         this.resetBeforeLoad();
-       
+
         let processViewModel = this.createProcessViewModel(process);
         // set isSpa flag to true. Note: this flag may no longer be needed.
         processViewModel.isSpa = true;
-                
+
         //if (processViewModel.isReadonly) this.disableProcessToolbar();
         this.createProcessGraph(processViewModel, useAutolayout, selectedNodeId);
     }
@@ -87,14 +86,14 @@ export class ProcessDiagram {
             this.processViewModel.communicationManager.processDiagramCommunication
                 .unregister(ProcessEvents.NavigateToAssociatedArtifact, this.navigateToAssociatedArtifactHandler);
         }
-        
+
         this.toggleProcessTypeHandler = this.processViewModel.communicationManager.toolbarCommunicationManager
             .registerToggleProcessTypeObserver(this.processTypeChanged);
         this.modelUpdateHandler = this.processViewModel.communicationManager.processDiagramCommunication
             .registerModelUpdateObserver(this.modelUpdate);
         this.navigateToAssociatedArtifactHandler = this.processViewModel.communicationManager.processDiagramCommunication
             .register(ProcessEvents.NavigateToAssociatedArtifact, this.navigateToAssociatedArtifact);
-        
+
         return this.processViewModel;
     }
 
@@ -114,24 +113,24 @@ export class ProcessDiagram {
     private recreateProcessGraph = (selectedNodeId: number = undefined) => {
         this.graph.destroy();
         this.createProcessGraph(this.processViewModel, true, selectedNodeId);
-        
+
     }
 
-    private createProcessGraph(processViewModel: IProcessViewModel, 
-                               useAutolayout: boolean = false, 
+    private createProcessGraph(processViewModel: IProcessViewModel,
+                               useAutolayout: boolean = false,
                                selectedNodeId: number = undefined) {
 
         try {
             this.graph = new ProcessGraph(
-                            this.$rootScope,
-                            this.$scope,
-                            this.htmlElement,
-                            this.processViewModel,
-                            this.dialogService,
-                            this.localization,
-                            this.messageService,
-                            this.$log,
-                            this.statefulArtifactFactory);
+                this.$rootScope,
+                this.$scope,
+                this.htmlElement,
+                this.processViewModel,
+                this.dialogService,
+                this.localization,
+                this.messageService,
+                this.$log,
+                this.statefulArtifactFactory);
             this.registerSelectionListeners();
         } catch (err) {
             this.handleInitProcessGraphFailed(processViewModel.id, err);
@@ -144,22 +143,26 @@ export class ProcessDiagram {
             this.handleRenderProcessGraphFailed(processViewModel.id, err);
         }
     }
+
     private registerSelectionListeners() {
         for (let listener of this.selectionListeners) {
             this.graph.addSelectionListener(listener);
         }
     }
+
     public addSelectionListener(listener: ISelectionListener) {
         this.selectionListeners.push(listener);
     }
+
     public clearSelection() {
         this.graph.clearSelection();
     }
+
     private resetBeforeLoad() {
         if (this.graph != null) {
             this.graph.destroy();
             this.graph = null;
-        } 
+        }
     }
 
     public destroy() {

@@ -7,8 +7,10 @@
     <div class="heading">Overview</div>
     <div class="content" ng-if="$ctrl.isLoaded">
         <form novalidate name="$ctrl.form">
-            <div class="properties" ng-class="{'collapsed': isSystemPropertiesCollapsed}" >
-                <div class="heading" ng-click="isSystemPropertiesCollapsed = !isSystemPropertiesCollapsed">System Properties</div>
+            <div class="properties" ng-class="{'collapsed': isSystemPropertiesCollapsed}">
+                <div class="heading" ng-click="isSystemPropertiesCollapsed = !isSystemPropertiesCollapsed">System
+                    Properties
+                </div>
                 <div class="content" uib-collapse="isSystemPropertiesCollapsed">
                     <formly-form model="$ctrl.model" fields="$ctrl.systemFields">
                     </formly-form>

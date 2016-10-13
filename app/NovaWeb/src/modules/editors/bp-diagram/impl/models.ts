@@ -9,13 +9,13 @@ export interface IDiagram {
 }
 
 export interface IDiagramElement {
-        id: number;
-        type: string;
-        name: string;
-        props: IProp[];
-        zIndex: number;
-        isShape: boolean;
-    }
+    id: number;
+    type: string;
+    name: string;
+    props: IProp[];
+    zIndex: number;
+    isShape: boolean;
+}
 
 export interface IHierarchyDiagram extends IDiagram {
     children: Array<IHierarchyElement>;

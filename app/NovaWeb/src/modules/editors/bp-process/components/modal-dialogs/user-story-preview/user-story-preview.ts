@@ -15,11 +15,10 @@ export class UserStoryPreviewController extends BaseModalDialogController<UserSt
     ];
 
     constructor($rootScope: ng.IRootScopeService,
-        $scope: IModalScope,
-        $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance,
-        dialogModel: UserStoryDialogModel,
-        private communicationManager: ICommunicationManager
-    ) {
+                $scope: IModalScope,
+                $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance,
+                dialogModel: UserStoryDialogModel,
+                private communicationManager: ICommunicationManager) {
         super($rootScope, $scope, $uibModalInstance, dialogModel);
 
         this.isReadonly = dialogModel.isReadonly;

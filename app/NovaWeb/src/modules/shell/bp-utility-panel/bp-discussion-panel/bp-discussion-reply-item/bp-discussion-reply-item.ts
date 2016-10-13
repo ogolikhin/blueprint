@@ -1,5 +1,5 @@
-﻿import { ILocalizationService, IMessageService } from "../../../../core";
-import { IReply, IArtifactDiscussions } from "../artifact-discussions.svc";
+﻿import {ILocalizationService, IMessageService} from "../../../../core";
+import {IReply, IArtifactDiscussions} from "../artifact-discussions.svc";
 
 export class BPDiscussionReplyItem implements ng.IComponentOptions {
     public template: string = require("./bp-discussion-reply-item.html");
@@ -29,11 +29,10 @@ export class BPDiscussionReplyItemController {
         "messageService"
     ];
 
-    constructor(
-        private localization: ILocalizationService,
-        private $sce: ng.ISCEService,
-        private _artifactDiscussionsRepository: IArtifactDiscussions,
-        private messageService: IMessageService) {
+    constructor(private localization: ILocalizationService,
+                private $sce: ng.ISCEService,
+                private _artifactDiscussionsRepository: IArtifactDiscussions,
+                private messageService: IMessageService) {
     }
 
     public getTrustedCommentHtml() {
@@ -78,5 +77,6 @@ export class BPDiscussionReplyItemController {
                 return null;
             });
     }
+
     /* tslint:disable:no-unused-variable */
 }

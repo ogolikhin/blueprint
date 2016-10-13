@@ -6,7 +6,6 @@ import {ProcessModels, ProcessEnums} from "../../../";
 import {ICommunicationManager} from "../../../";
 import { IStatefulArtifact } from "../../../../../managers/artifact-manager/";
 import { IStatefulProcessSubArtifact, StatefulProcessSubArtifact } from "../../../process-subartifact";
-import { IStatefulProcessItem, IStatefulProcessArtifact } from "../../../process-artifact";
 import { ProcessEvents } from "../process-diagram-communication";
 
 export interface IProcessViewModel extends IProcessGraphModel {
@@ -61,15 +60,15 @@ export class ProcessViewModel implements IProcessViewModel {
         public communicationManager: ICommunicationManager, 
         rootScope?: any, 
         scope?: any,
-         messageService?: IMessageService) {
+        messageService?: IMessageService) {
 
         this.updateProcessGraphModel(process);
         this._rootScope = rootScope;
         if (scope) {
             this._scope = scope;
-            this.getConfigurationSettings(); 
+            this.getConfigurationSettings();
         }
-        
+
         if (messageService) {
             this._messageService = messageService;
         }
@@ -107,7 +106,7 @@ export class ProcessViewModel implements IProcessViewModel {
     public set isReadonly(value) {
         this._isReadonly = value;
     }
-    
+
     public get showLock(): boolean {
         return this._showLock;
     }
@@ -214,12 +213,12 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public set processType(value: ProcessEnums.ProcessType) {
         this.propertyValues["clientType"].value = value;
-        const statefulArtifact : IStatefulArtifact = this.getStatefulArtifact();
-        //checkgin for specialProperties so that unit tests pass. 
-        //It is additional work to make the specialProperties work with our IProcess model in unit tests 
-        if (statefulArtifact && statefulArtifact.specialProperties){
+        const statefulArtifact: IStatefulArtifact = this.getStatefulArtifact();
+        //checkgin for specialProperties so that unit tests pass.
+        //It is additional work to make the specialProperties work with our IProcess model in unit tests
+        if (statefulArtifact && statefulArtifact.specialProperties) {
             statefulArtifact.specialProperties.set(Enums.PropertyTypePredefined.ClientType, value);
-        }        
+        }
     }
 
     public get isUserToSystemProcess(): boolean {
@@ -236,14 +235,14 @@ export class ProcessViewModel implements IProcessViewModel {
         let eightyPercent: number = Math.floor(this.shapeLimit * .80);
         let shapeCount = this.shapes.length + additionalShapes;
         if (shapeCount < eightyPercent) {
-            // okay:  less than eighty percent of the shape limit 
+            // okay:  less than eighty percent of the shape limit
             result = true;
         } else if (shapeCount > this.shapeLimit) {
             let message: string;
             let messageType: MessageType = MessageType.Error;
             if (isLoading) {
                 message = this.getMessageText("ST_Shape_Limit_Exceeded_Initial_Load");
-                // replace {0} placeholder with number of shapes added 
+                // replace {0} placeholder with number of shapes added
                 // and {1} with shape limit value
                 message = message.replace("{0}", shapeCount.toString());
                 message = message.replace("{1}", this.shapeLimit.toString());
@@ -252,7 +251,7 @@ export class ProcessViewModel implements IProcessViewModel {
                 // replace {0} placeholder with shape limit value
                 message = message.replace("{0}", this.shapeLimit.toString());
             }
-            // exceeds limit cannot add more shapes  
+            // exceeds limit cannot add more shapes
 
             this.showMessage(messageType, message);
             return false;
@@ -262,7 +261,7 @@ export class ProcessViewModel implements IProcessViewModel {
             // show warning
             let message = this.getMessageText("ST_Eighty_Percent_of_Shape_Limit_Reached");
             if (message) {
-                // replace {0} placeholder with number of shapes added 
+                // replace {0} placeholder with number of shapes added
                 // and {1} with shape limit value
                 message = message.replace("{0}", this.shapes.length + additionalShapes);
                 message = message.replace("{1}", this.shapeLimit.toString());
@@ -276,7 +275,7 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public showMessage(messageType: MessageType, messageText: string) {
 
-        var message = new Message(messageType, messageText);
+        const message = new Message(messageType, messageText);
 
         if (message && this._messageService) {
             //this._messageService.clearMessages();
@@ -307,14 +306,14 @@ export class ProcessViewModel implements IProcessViewModel {
     public get baseItemTypePredefined(): Enums.ItemTypePredefined {
         return this.processGraphModel.baseItemTypePredefined;
     }
-   
+
     public get shapes(): ProcessModels.IProcessShape[] {
         return this.processGraphModel.shapes;
     }
 
     public set shapes(newValue: ProcessModels.IProcessShape[]) {
         this.processGraphModel.shapes = newValue;
-    }    
+    }
 
     public get links(): ProcessModels.IProcessLinkModel[] {
         return <ProcessModels.IProcessLinkModel[]>this.processGraphModel.links;
@@ -347,14 +346,14 @@ export class ProcessViewModel implements IProcessViewModel {
     protected addStatefulShape(processShape: ProcessModels.IProcessShape) {
 
         let statefulShape = new StatefulProcessSubArtifact(this.process,
-            processShape, this.process.getServices());         
-        
-        const statefulArtifact : IStatefulArtifact = this.getStatefulArtifact();
-        if (statefulArtifact){
+            processShape, this.process.getServices());
+
+        const statefulArtifact: IStatefulArtifact = this.getStatefulArtifact();
+        if (statefulArtifact) {
             statefulArtifact.subArtifactCollection.add(statefulShape);
         }
     }
-     
+
     public addShape(processShape: ProcessModels.IProcessShape) {
 
         this.shapes.push(processShape);
@@ -363,15 +362,20 @@ export class ProcessViewModel implements IProcessViewModel {
     }
 
     public removeShape(shapeId: number) {
-        this.shapes = this.shapes.filter(shape => { return shape.id !== shapeId; });
+        this.shapes = this.shapes.filter(shape => {
+            return shape.id !== shapeId;
+        });
         this.removeStatefulShape(shapeId);
     }
+
     protected removeStatefulShape(shapeId: number) {
-        this.shapes = this.shapes.filter(shape => { return shape.id !== shapeId; });
-        // cast process as an IStatefulArtifact 
-        
-        const statefulArtifact : IStatefulArtifact = this.getStatefulArtifact();
-        if (statefulArtifact){
+        this.shapes = this.shapes.filter(shape => {
+            return shape.id !== shapeId;
+        });
+        // cast process as an IStatefulArtifact
+
+        const statefulArtifact: IStatefulArtifact = this.getStatefulArtifact();
+        if (statefulArtifact) {
             statefulArtifact.subArtifactCollection.remove(shapeId);
         }
     }
@@ -379,6 +383,7 @@ export class ProcessViewModel implements IProcessViewModel {
     public updateTree() {
         this.processGraphModel.updateTree();
     }
+
     public updateTreeAndFlows() {
         this.processGraphModel.updateTreeAndFlows();
     }
@@ -485,9 +490,9 @@ export class ProcessViewModel implements IProcessViewModel {
     public isShapeJustCreated(id: number): boolean {
         return this._justCreatedShapeIds.filter(newId => id === newId).length > 0;
     }
-    
+
     private getConfigurationSettings() {
-        // get configuration settings from rootscope configuration object 
+        // get configuration settings from rootscope configuration object
         // and assign to viewmodel properties
         if (this.isRootScopeConfigValid) {
             let shapeLimitVal = this._rootScope.config.settings.ProcessShapeLimit;
@@ -507,7 +512,7 @@ export class ProcessViewModel implements IProcessViewModel {
     }
 
     public getMessageText(message_id: string) {
-        // get message text from rootscope settings  
+        // get message text from rootscope settings
         let text = null;
         if (this.isRootScopeConfigValid) {
             text = this._rootScope.config.labels[message_id];
@@ -531,8 +536,8 @@ export class ProcessViewModel implements IProcessViewModel {
         }
     }
 
-    private getStatefulArtifact() : IStatefulProcessArtifact{
-        let statefulArtifact: IStatefulProcessArtifact = this.process;
+    private getStatefulArtifact(): IStatefulArtifact {
+        let statefulArtifact: IStatefulArtifact = this.process;
         return statefulArtifact;
     }
 }

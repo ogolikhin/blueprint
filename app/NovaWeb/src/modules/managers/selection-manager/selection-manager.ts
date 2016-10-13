@@ -1,6 +1,6 @@
-import { IItem } from "./../../main/models/models";
-import { IStatefulArtifact, IStatefulSubArtifact } from "./../../managers/artifact-manager";
-import { IDispose } from "./../../managers/models";
+import {IItem} from "./../../main/models/models";
+import {IStatefulArtifact, IStatefulSubArtifact} from "./../../managers/artifact-manager";
+import {IDispose} from "./../../managers/models";
 
 export interface ISelectionManager extends IDispose {
     artifactObservable: Rx.Observable<IStatefulArtifact>;
@@ -83,7 +83,7 @@ export class SelectionManager implements ISelectionManager {
     public setArtifact(artifact: IStatefulArtifact) {
         const selection = <ISelection>{
             artifact: artifact,
-            subArtifact: null,
+            subArtifact: null
         };
         this.editorArtifact = artifact;
         this.setSubject(selection);
@@ -102,7 +102,7 @@ export class SelectionManager implements ISelectionManager {
         const val = this.selectionSubject.getValue();
         const selection = <ISelection>{
             artifact: val.artifact,
-            subArtifact: subArtifact,
+            subArtifact: subArtifact
         };
 
         this.setSubject(selection);
@@ -129,7 +129,7 @@ export class SelectionManager implements ISelectionManager {
         const val = this.selectionSubject.getValue();
         const selection = <ISelection>{
             artifact: val.artifact,
-            subArtifact: null,
+            subArtifact: null
         };
 
         this.setSubject(selection);

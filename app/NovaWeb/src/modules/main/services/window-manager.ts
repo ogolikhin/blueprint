@@ -1,4 +1,4 @@
-﻿import { IWindowResize } from "../../core";
+﻿import {IWindowResize} from "../../core";
 
 export enum ResizeCause {
     unknown,
@@ -66,7 +66,12 @@ export class WindowManager implements IWindowManager {
                 });
             });
             try {
-                this._toggleObserver.observe(sidebarWrapper, { attributes: true, childList: false, characterData: false, subtree: false });
+                this._toggleObserver.observe(sidebarWrapper, {
+                    attributes: true,
+                    childList: false,
+                    characterData: false,
+                    subtree: false
+                });
             } catch (ex) {
                 //this.messageService.addError(ex.message);
             }
@@ -85,7 +90,12 @@ export class WindowManager implements IWindowManager {
                 });
             });
             try {
-                this._messageObserver.observe(messageContainer, { attributes: false, childList: true, characterData: false, subtree: false });
+                this._messageObserver.observe(messageContainer, {
+                    attributes: false,
+                    childList: true,
+                    characterData: false,
+                    subtree: false
+                });
             } catch (ex) {
                 //this.messageService.addError(ex.message);
             }
@@ -151,7 +161,10 @@ export class WindowManager implements IWindowManager {
     }
 
     public dispose() {
-        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => {
+            it.dispose();
+            return false;
+        });
 
         this._mainWindow.dispose();
 

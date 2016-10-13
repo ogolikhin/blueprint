@@ -74,10 +74,10 @@ export class ConnectionExtensions {
     }
 
     private static transformToConnectionPointInternal(position: MxPoint,
-        angle: number,
-        labelSize: MxRectangle,
-        thickness: number,
-        decoratorSize: number): MxPoint {
+                                                      angle: number,
+                                                      labelSize: MxRectangle,
+                                                      thickness: number,
+                                                      decoratorSize: number): MxPoint {
         let index: number = 1;
         let offset: MxPoint = MxFactory.point(0, 0);
 
@@ -133,10 +133,10 @@ export class ConnectionExtensions {
 }
 
 /*
-* Class: HierarchyHelper
-*
-* Holds helper methods that re-orders shapes & connections according to their z-index
-*/
+ * Class: HierarchyHelper
+ *
+ * Holds helper methods that re-orders shapes & connections according to their z-index
+ */
 export class HierarchyHelper {
     public static createHierarchy(diagram: IDiagram, orderByZindex?: boolean): IHierarchyDiagram {
         let lookup = {};
@@ -182,7 +182,7 @@ export class HierarchyHelper {
             return element1.zIndex - element2.zIndex;
         }
         // If the z-indices are the same and the elements are not the same type, increament the connector z-index by 1
-        if ((element1.zIndex === element2.zIndex) && (element1.isShape !== element2.isShape) ) {
+        if ((element1.zIndex === element2.zIndex) && (element1.isShape !== element2.isShape)) {
             if (!element1.isShape) {
                 element1.zIndex += 1;
             }
@@ -221,7 +221,7 @@ export class MathExtensions {
 
     public static lerp(pointA: MxPoint, pointB: MxPoint, alpha: number): MxPoint {
         return MxFactory.point(MathExtensions.linearInterpolation(pointA.x, pointB.x, alpha),
-                                MathExtensions.linearInterpolation(pointA.y, pointB.y, alpha));
+            MathExtensions.linearInterpolation(pointA.y, pointB.y, alpha));
     }
 
     public static linearInterpolation(x: number, y: number, alpha: number): number {
@@ -262,6 +262,7 @@ export class MathExtensions {
 export class Color {
 
     public a: number;
+
     constructor(public r, public g, public b, a?: number) {
         this.a = a ? a : 1;
     }
@@ -274,7 +275,7 @@ export class Color {
         return "rgba(" + this.r + "," + this.g + "," + this.b + "," + this.a + ")";
     }
 
-    /* tslint:disable */ 
+    /* tslint:disable */
     public static parseHex(hex: string): Color {
         if (hex != null) {
             hex = hex.replace("#", "");
@@ -286,6 +287,7 @@ export class Color {
         }
         return new Color(0, 0, 0);
     }
+
     /* tslint:enable */
 
     public static isTransparent(color: string) {
@@ -363,9 +365,11 @@ export class DiagramHelper {
         let formatDate: (date: Date, format: string) => string;
 
         try {
+            //fixme: this is not the right way to use an angular date filter. you shoud use $filter(filtername)(data)
             formatDate = <(date: Date, format: string) => string>angular.injector(["ng"]).get("$filter")("date");
 
         } catch (e) {
+            //fixme: catch must not be empty on try catch as this is a costly operation and must ALWYS return something
         }
 
         let rtn = "";
@@ -402,4 +406,5 @@ export class DiagramHelper {
         }
         return rtn;
     }
-};
+}
+;

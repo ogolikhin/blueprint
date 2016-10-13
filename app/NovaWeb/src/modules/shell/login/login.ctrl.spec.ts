@@ -4,7 +4,7 @@ import {SessionSvc} from "./session.svc";
 import {LoginCtrl, LoginState} from "./login.ctrl";
 import {HttpStatusCode} from "../../core/http";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
-import {SettingsMock, ModalServiceMock, ModalServiceInstanceMock, SessionSvcMock } from "./mocks.spec";
+import {SettingsMock, ModalServiceMock, ModalServiceInstanceMock, SessionSvcMock} from "./mocks.spec";
 
 describe("LoginCtrl", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -33,53 +33,53 @@ describe("LoginCtrl", () => {
 
         it("return incorrect username or password error",
             inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
-            // Arrange
-            spyOn(session, "login").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
-                    statusCode: HttpStatusCode.Unauthorized,
-                    errorCode: 2000,
-                };
-                deferred.reject(error);
-                return deferred.promise;
-            });
+                // Arrange
+                spyOn(session, "login").and.callFake(function () {
+                    var deferred = $q.defer();
+                    var error = {
+                        statusCode: HttpStatusCode.Unauthorized,
+                        errorCode: 2000,
+                    };
+                    deferred.reject(error);
+                    return deferred.promise;
+                });
 
-            // Act
-            loginCtrl.novaUserName = "admin";
-            loginCtrl.novaPassword = "changeme";
-            loginCtrl.login();
-            $rootScope.$digest();
+                // Act
+                loginCtrl.novaUserName = "admin";
+                loginCtrl.novaPassword = "changeme";
+                loginCtrl.login();
+                $rootScope.$digest();
 
-            // Assert
-            expect(loginCtrl.isTextFieldErrorStyleShowing).toBe(true);
-            expect(loginCtrl.isLabelErrorStyleShowing).toBe(true);
-            expect(loginCtrl.errorMessage).toBe("Login_Session_CredentialsInvalid", "error message is incorrect");
-        }));
+                // Assert
+                expect(loginCtrl.isTextFieldErrorStyleShowing).toBe(true);
+                expect(loginCtrl.isLabelErrorStyleShowing).toBe(true);
+                expect(loginCtrl.errorMessage).toBe("Login_Session_CredentialsInvalid", "error message is incorrect");
+            }));
 
         it("return empty username or password error",
             inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
-            // Arrange
-            spyOn(session, "login").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
-                    statusCode: HttpStatusCode.Unauthorized,
-                    errorCode: 2003
-                };
-                deferred.reject(error);
-                return deferred.promise;
-            });
+                // Arrange
+                spyOn(session, "login").and.callFake(function () {
+                    var deferred = $q.defer();
+                    var error = {
+                        statusCode: HttpStatusCode.Unauthorized,
+                        errorCode: 2003
+                    };
+                    deferred.reject(error);
+                    return deferred.promise;
+                });
 
-            // Act
-            loginCtrl.novaUserName = "admin";
-            loginCtrl.novaPassword = "";
-            loginCtrl.login();
-            $rootScope.$digest();
+                // Act
+                loginCtrl.novaUserName = "admin";
+                loginCtrl.novaPassword = "";
+                loginCtrl.login();
+                $rootScope.$digest();
 
-            // Assert
-            expect(loginCtrl.isTextFieldErrorStyleShowing).toBe(true);
-            expect(loginCtrl.isLabelErrorStyleShowing).toBe(true);
-            expect(loginCtrl.errorMessage).toBe("Login_Session_CredentialsCannotBeEmpty", "error message is incorrect");
-        }));
+                // Assert
+                expect(loginCtrl.isTextFieldErrorStyleShowing).toBe(true);
+                expect(loginCtrl.isLabelErrorStyleShowing).toBe(true);
+                expect(loginCtrl.errorMessage).toBe("Login_Session_CredentialsCannotBeEmpty", "error message is incorrect");
+            }));
 
         it("return account disabled error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
@@ -521,29 +521,29 @@ describe("LoginCtrl", () => {
 
         it("respond with incorrect current password error",
             inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
-            // Arrange
+                // Arrange
                 loginCtrl.novaUserName = "admin";
-            loginCtrl.novaCurrentPassword = "changeme";
-            loginCtrl.novaNewPassword = "123EWQ!@#";
-            loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
-            spyOn(session, "resetPassword").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
-                    statusCode: HttpStatusCode.Unauthorized,
-                    errorCode: 2000
-                };
-                deferred.reject(error);
-                return deferred.promise;
-            });
+                loginCtrl.novaCurrentPassword = "changeme";
+                loginCtrl.novaNewPassword = "123EWQ!@#";
+                loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
+                spyOn(session, "resetPassword").and.callFake(function () {
+                    var deferred = $q.defer();
+                    var error = {
+                        statusCode: HttpStatusCode.Unauthorized,
+                        errorCode: 2000
+                    };
+                    deferred.reject(error);
+                    return deferred.promise;
+                });
 
-            // Act
-            loginCtrl.changePassword();
-            $rootScope.$digest();
+                // Act
+                loginCtrl.changePassword();
+                $rootScope.$digest();
 
-            // Assert
-            expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
-            expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_EnterCurrentPassword");
-        }));
+                // Assert
+                expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
+                expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_EnterCurrentPassword");
+            }));
 
         it("respond with login disabled error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
@@ -622,55 +622,55 @@ describe("LoginCtrl", () => {
 
         it("respond with new password same as old error",
             inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
-            // Arrange
-            loginCtrl.novaUserName = "admin";
-            loginCtrl.novaCurrentPassword = "changeme";
-            loginCtrl.novaNewPassword = "123EWQ!@#";
-            loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
-            spyOn(session, "resetPassword").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
-                    statusCode: 400,
-                    errorCode: 4001
-                };
-                deferred.reject(error);
-                return deferred.promise;
-            });
+                // Arrange
+                loginCtrl.novaUserName = "admin";
+                loginCtrl.novaCurrentPassword = "changeme";
+                loginCtrl.novaNewPassword = "123EWQ!@#";
+                loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
+                spyOn(session, "resetPassword").and.callFake(function () {
+                    var deferred = $q.defer();
+                    var error = {
+                        statusCode: 400,
+                        errorCode: 4001
+                    };
+                    deferred.reject(error);
+                    return deferred.promise;
+                });
 
-            // Act
-            loginCtrl.changePassword();
-            $rootScope.$digest();
+                // Act
+                loginCtrl.changePassword();
+                $rootScope.$digest();
 
-            // Assert
-            expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
-            expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordSameAsOld");
-        }));
+                // Assert
+                expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
+                expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordSameAsOld");
+            }));
 
         it("respond with new password invalid error",
             inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
-            // Arrange
-            loginCtrl.novaUserName = "admin";
-            loginCtrl.novaCurrentPassword = "changeme";
-            loginCtrl.novaNewPassword = "123EWQ!@#";
-            loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
-            spyOn(session, "resetPassword").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
-                    statusCode: 400,
-                    errorCode: 4002
-                };
-                deferred.reject(error);
-                return deferred.promise;
-            });
+                // Arrange
+                loginCtrl.novaUserName = "admin";
+                loginCtrl.novaCurrentPassword = "changeme";
+                loginCtrl.novaNewPassword = "123EWQ!@#";
+                loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
+                spyOn(session, "resetPassword").and.callFake(function () {
+                    var deferred = $q.defer();
+                    var error = {
+                        statusCode: 400,
+                        errorCode: 4002
+                    };
+                    deferred.reject(error);
+                    return deferred.promise;
+                });
 
-            // Act
-            loginCtrl.changePassword();
-            $rootScope.$digest();
+                // Act
+                loginCtrl.changePassword();
+                $rootScope.$digest();
 
-            // Assert
-            expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
-            expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordCriteria");
-        }));
+                // Assert
+                expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
+                expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordCriteria");
+            }));
 
         it("respond with unknown error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange

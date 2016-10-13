@@ -2,7 +2,7 @@ import * as angular from "angular";
 /*
  *Code copied from old Rapid Review Shell look at TargetBlankDirective.ts for reference.
  */
-var jsRegEx = /^\s*javascript/i;
+const jsRegEx = /^\s*javascript/i;
 
 export var linkRules = {
     externalLinks: {

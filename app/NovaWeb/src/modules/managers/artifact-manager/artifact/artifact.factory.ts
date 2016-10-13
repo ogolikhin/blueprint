@@ -1,21 +1,21 @@
-import { IMessageService, ILocalizationService } from "../../../core";
-import { IDialogService } from "../../../shared/";
-import { ISession } from "../../../shell/login/session.svc";
-import { IProcessService } from "../../../editors/bp-process/services/process.svc";
-import { IProcessShape } from "../../../editors/bp-process/models/process-models";
-import { Models } from "../../../main/models";
-import { IArtifactAttachmentsService } from "../attachments";
-import { IMetaDataService } from "../metadata";
-import { StatefulSubArtifact, IStatefulSubArtifact } from "../sub-artifact";
-import { IStatefulArtifact, StatefulArtifact, StatefulProcessArtifact, StatefulProcessSubArtifact } from "../artifact";
-import { IArtifactRelationshipsService } from "../relationships";
+import {IMessageService, ILocalizationService} from "../../../core";
+import {IDialogService} from "../../../shared/";
+import {ISession} from "../../../shell/login/session.svc";
+import {IProcessService} from "../../../editors/bp-process/services/process.svc";
+import {IProcessShape} from "../../../editors/bp-process/models/process-models";
+import {Models} from "../../../main/models";
+import {IArtifactAttachmentsService} from "../attachments";
+import {IMetaDataService} from "../metadata";
+import {StatefulSubArtifact, IStatefulSubArtifact} from "../sub-artifact";
+import {IStatefulArtifact, StatefulArtifact, StatefulProcessArtifact, StatefulProcessSubArtifact} from "../artifact";
+import {IArtifactRelationshipsService} from "../relationships";
 import {
     StatefulArtifactServices,
     IStatefulArtifactServices,
     StatefulProcessArtifactServices,
     IStatefulProcessArtifactServices
 } from "../services";
-import { IArtifactService } from "./artifact.svc";
+import {IArtifactService} from "./artifact.svc";
 
 
 export interface IStatefulArtifactFactory {
@@ -41,20 +41,18 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
 
     private services: IStatefulArtifactServices;
 
-    constructor(
-        private $q: ng.IQService,
-        private session: ISession,
-        private messageService: IMessageService,
-        private dialogService: IDialogService,
-        private localizationService: ILocalizationService,
-        private artifactService: IArtifactService,
-        private attachmentService: IArtifactAttachmentsService,
-        private relationshipsService: IArtifactRelationshipsService,
-        private metadataService: IMetaDataService,
-        private processService: IProcessService
-        ) {
+    constructor(private $q: ng.IQService,
+                private session: ISession,
+                private messageService: IMessageService,
+                private dialogService: IDialogService,
+                private localizationService: ILocalizationService,
+                private artifactService: IArtifactService,
+                private attachmentService: IArtifactAttachmentsService,
+                private relationshipsService: IArtifactRelationshipsService,
+                private metadataService: IMetaDataService,
+                private processService: IProcessService) {
 
-        this.services = new StatefulArtifactServices( 
+        this.services = new StatefulArtifactServices(
             this.$q,
             this.session,
             this.messageService,
@@ -86,6 +84,6 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         let processServices: IStatefulProcessArtifactServices =
             new StatefulProcessArtifactServices(this.services, this.$q, this.processService);
 
-        return new StatefulProcessArtifact (artifact, processServices);
+        return new StatefulProcessArtifact(artifact, processServices);
     }
 }

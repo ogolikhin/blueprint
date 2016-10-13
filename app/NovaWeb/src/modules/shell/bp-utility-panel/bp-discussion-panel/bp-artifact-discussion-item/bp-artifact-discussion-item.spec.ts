@@ -2,14 +2,14 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
-import { ComponentTest } from "../../../../util/component.test";
-import { IDiscussion } from "../artifact-discussions.svc";
-import { BPArtifactDiscussionItemController } from "./bp-artifact-discussion-item";
-import { HttpStatusCode } from "../../../../core/http";
-import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
-import { ArtifactDiscussionsMock } from "../artifact-discussions.mock";
-import { MessageServiceMock } from "../../../../core/messages/message.mock";
-import { DialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {ComponentTest} from "../../../../util/component.test";
+import {IDiscussion} from "../artifact-discussions.svc";
+import {BPArtifactDiscussionItemController} from "./bp-artifact-discussion-item";
+import {HttpStatusCode} from "../../../../core/http";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {ArtifactDiscussionsMock} from "../artifact-discussions.mock";
+import {MessageServiceMock} from "../../../../core/messages/message.mock";
+import {DialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 
 describe("Component BPArtifactDiscussionItem", () => {
 
@@ -65,7 +65,8 @@ describe("Component BPArtifactDiscussionItem", () => {
 
             //Arrange
             vm.artifactId = 1;
-            vm.discussionEdited = () => { };
+            vm.discussionEdited = () => {
+            };
 
             //Act
             vm.editDiscussion("");
@@ -79,7 +80,8 @@ describe("Component BPArtifactDiscussionItem", () => {
         inject(($timeout: ng.ITimeoutService, $q: ng.IQService) => {
             //Arrange
             vm.artifactId = 1;
-            vm.discussionEdited = () => { };
+            vm.discussionEdited = () => {
+            };
             let deferred = $q.defer();
             ArtifactDiscussionsMock.prototype.editDiscussion = jasmine.createSpy("editDiscussion() spy").and.callFake(
                 (): ng.IPromise<IDiscussion> => {
@@ -93,7 +95,9 @@ describe("Component BPArtifactDiscussionItem", () => {
 
             //Act
             let updatedDiscussion: IDiscussion;
-            vm.editDiscussion("").then((result: IDiscussion) => { updatedDiscussion = result; });
+            vm.editDiscussion("").then((result: IDiscussion) => {
+                updatedDiscussion = result;
+            });
             $timeout.flush();
 
             //Assert
@@ -104,7 +108,8 @@ describe("Component BPArtifactDiscussionItem", () => {
         () => {
             //Arrange
             vm.canCreate = true;
-            vm.cancelComment = () => { };
+            vm.cancelComment = () => {
+            };
 
             //Act
             vm.newReplyClick();

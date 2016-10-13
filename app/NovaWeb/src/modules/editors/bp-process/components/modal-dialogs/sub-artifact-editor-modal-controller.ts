@@ -35,15 +35,15 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
     ];
 
     constructor($scope: IModalScope,
-        $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance,
-        dialogModel: SubArtifactDialogModel,
-        private communicationManager: ICommunicationManager,
-        // TODO look at this later 
-        //private artifactSearchService: Shell.IArtifactSearchService,
-        $rootScope: ng.IRootScopeService,
-        private $q: ng.IQService,
-        private $timeout: ng.ITimeoutService,
-        private $sce: ng.ISCEService) {
+                $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance,
+                dialogModel: SubArtifactDialogModel,
+                private communicationManager: ICommunicationManager,
+                // TODO look at this later
+                //private artifactSearchService: Shell.IArtifactSearchService,
+                $rootScope: ng.IRootScopeService,
+                private $q: ng.IQService,
+                private $timeout: ng.ITimeoutService,
+                private $sce: ng.ISCEService) {
 
         super($rootScope, $scope, $uibModalInstance, dialogModel);
 
@@ -71,7 +71,7 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         //         return filtered.slice(0, 10).sort(this.sortById);
         //     });
 
-        // TODO look at this later 
+        // TODO look at this later
         // this.getLinkableArtifacts = (viewValue: string) => {
         //     this.clearFileds();
 
@@ -109,7 +109,7 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
 
         this.setNextNode(this.modalProcessViewModel);
     }
-    
+
     public getUserTaskDescription() {
         if (this.dialogModel.clonedUserTask) {
             return this.$sce.trustAsHtml(this.dialogModel.clonedUserTask.description);
@@ -166,7 +166,7 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         return msg;
     }
 
-    public setNextNode(modalProcessViewModel: IModalProcessViewModel)  {
+    public setNextNode(modalProcessViewModel: IModalProcessViewModel) {
         this.dialogModel.nextNode = modalProcessViewModel.getNextNode(this.dialogModel.clonedSystemTask.model);
     }
 
@@ -215,7 +215,7 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
             if (this.dialogModel.clonedSystemTask.action) {
                 this.systemNameOnFocus();
             } else {
-                this.systemNamePlaceHolderText = 
+                this.systemNamePlaceHolderText =
                     (<any>this.$rootScope).config.labels["ST_System_Task_Name_Label"] + " " + this.dialogModel.clonedSystemTask.label;
             }
         }
@@ -272,21 +272,23 @@ export class SubArtifactEditorModalController extends BaseModalDialogController<
         let element: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
 
         // temporary solution from: http://stackoverflow.com/questions/8840580/force-dom-redraw-refresh-on-chrome-mac
-        if (!element) { return; }
+        if (!element) {
+            return;
+        }
 
-        var n = document.createTextNode(" ");
-        element.appendChild(n);
-
+        let node = document.createTextNode(" ");
+        element.appendChild(node);
+//fixme: use the $timeout services not setTimeout
         setTimeout(function () {
-            n.parentNode.removeChild(n);
-        }, 20); 
+            node.parentNode.removeChild(node);
+        }, 20);
     }
 
     public getActiveHeader(): string {
         if (this.dialogModel.isSystemTask) {
             return this.dialogModel.clonedSystemTask.label;
-        } 
-        
+        }
+
         if (this.dialogModel.isUserTask) {
             return this.dialogModel.clonedUserTask.label;
         }

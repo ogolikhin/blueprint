@@ -1,4 +1,4 @@
-import { IFileUploadService, IFileResult } from "./";
+import {IFileUploadService, IFileResult} from "./";
 
 export class FileUploadService implements IFileUploadService {
     public static $inject = [
@@ -6,18 +6,16 @@ export class FileUploadService implements IFileUploadService {
         "$http",
         "$log"
     ];
-    
-    constructor(
-        private $q: ng.IQService,
-        private $http: ng.IHttpService,
-        private $log: ng.ILogService) {
+
+    constructor(private $q: ng.IQService,
+                private $http: ng.IHttpService,
+                private $log: ng.ILogService) {
     }
 
-    public uploadToFileStore(
-        file: File,
-        expirationDate?: Date, 
-        progress?: (ev: ProgressEvent) => any, 
-        cancelPromise?: ng.IPromise<any>): ng.IPromise<IFileResult> {
+    public uploadToFileStore(file: File,
+                             expirationDate?: Date,
+                             progress?: (ev: ProgressEvent) => any,
+                             cancelPromise?: ng.IPromise<any>): ng.IPromise<IFileResult> {
 
         const deferred = this.$q.defer<IFileResult>();
         const result: IFileResult = {

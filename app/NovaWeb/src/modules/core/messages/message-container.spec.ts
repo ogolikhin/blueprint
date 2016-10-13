@@ -1,10 +1,10 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
-import { LocalizationServiceMock } from "../localization/localization.mock";
-import { IMessageService, MessageService } from "./message.svc";
-import { Message, MessageType } from "./message";
-import { SettingsService } from "../configuration";
-import { MessageContainerController, MessageContainerComponent } from "./message-container";
+import {LocalizationServiceMock} from "../localization/localization.mock";
+import {IMessageService, MessageService} from "./message.svc";
+import {Message, MessageType} from "./message";
+import {SettingsService} from "../configuration";
+import {MessageContainerController, MessageContainerComponent} from "./message-container";
 
 
 describe("messages container directive", () => {
@@ -29,16 +29,16 @@ describe("messages container directive", () => {
         // Arrange
         var controller: MessageContainerController;
         var scope = $rootScope.$new();
-       
+
         messageService.addMessage(new Message(MessageType.Error, "Error1"));
         messageService.addMessage(new Message(MessageType.Error, "Error2"));
-        messageService.addMessage(new Message(MessageType.Info, "Info1"));   
+        messageService.addMessage(new Message(MessageType.Info, "Info1"));
         messageService.addMessage(new Message(MessageType.Info, "Info2"));
-        messageService.addMessage(new Message(MessageType.Warning, "Warning1"));   
+        messageService.addMessage(new Message(MessageType.Warning, "Warning1"));
 
         element = $compile("<messages-container/>")(scope);
         scope.$digest();
-        controller = element.isolateScope()["messageContainterCntrl"];      
+        controller = element.isolateScope()["messageContainterCntrl"];
 
         // Assert       
         expect(element.find("message").length).toEqual(5);

@@ -30,7 +30,9 @@ export class WindowVisibility implements IWindowVisibility {
                 = this.windowVisibilityHandler;
         }
 
-        window.addEventListener("beforeunload", () => { this.dispose(); });
+        window.addEventListener("beforeunload", () => {
+            this.dispose();
+        });
     };
 
     public dispose() {

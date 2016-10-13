@@ -22,7 +22,9 @@ describe("Artifact Repository", () => {
             // Act
             var error: any;
             var data: Models.IArtifact;
-            artifactService.getArtifact(100).then((responce) => { data = responce; }, (err) => error = err);
+            artifactService.getArtifact(100).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -38,11 +40,13 @@ describe("Artifact Repository", () => {
             // Arrange
             $httpBackend.expectGET("/svc/bpartifactstore/artifacts/100")
                 .respond(HttpStatusCode.Unauthorized);
-                
+
             // Act
             var error: any;
             var data: Models.IArtifact;
-            artifactService.getArtifact(100).then((responce) => { data = responce; }, (err) => error = err);
+            artifactService.getArtifact(100).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -63,7 +67,9 @@ describe("Artifact Repository", () => {
             // Act
             var error: any;
             var data: Models.IArtifact;
-            artifactService.updateArtifact(ArtifactServiceMock.createArtifact(100)).then((responce) => { data = responce; }, (err) => error = err);
+            artifactService.updateArtifact(ArtifactServiceMock.createArtifact(100)).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -80,11 +86,13 @@ describe("Artifact Repository", () => {
             // Arrange
             $httpBackend.expectPATCH("/svc/bpartifactstore/artifacts/100", angular.toJson(ArtifactServiceMock.createArtifact(100)))
                 .respond(HttpStatusCode.Unauthorized);
-                
+
             // Act
             var error: any;
             var data: Models.IArtifact;
-            artifactService.updateArtifact(ArtifactServiceMock.createArtifact(100)).then((responce) => { data = responce; }, (err) => error = err);
+            artifactService.updateArtifact(ArtifactServiceMock.createArtifact(100)).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert

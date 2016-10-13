@@ -1,43 +1,51 @@
 <div class="input-group has-messages">
-	<ui-select class="has-scrollbar"
-		multiple
-		ng-model="model[options.key]"
-		remove-selected="false"
-		on-remove="bpFieldUserPicker.onRemove($item, $select, fc, options)"
-		on-select="bpFieldUserPicker.onSelect($item, $select)"
-		close-on-select="false"
-		uis-open-close="bpFieldUserPicker.onOpenClose(isOpen, $select)">
-		<ui-select-match placeholder="{{to.placeholder}}">
-			<div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
-		</ui-select-match>
-		<ui-select-choices
-			on-highlight="bpFieldUserPicker.onHighlight(option, $select)"
-			refresh="bpFieldUserPicker.refreshResults($select)"
-			refresh-delay="250"
-			ui-disable-choice="option.selected"
-			data-repeat="option[to.valueProp] as option in to.options | limitTo: bpFieldUserPicker.currentLimit">
-			<div class="ui-select-choice-item">
-				<div class="ui-select-choice-icon" ng-if="option.isGroup"><img src="/novaweb/static/images/icons/user-group.svg" height="25" width="25" /></div>
-				<div class="ui-select-choice-icon" ng-if="!option.isGroup && !option.isLoginEnabled"><img src="/novaweb/static/images/icons/user-unauthorize.svg" height="25" width="25" /></div>
-				<div class="ui-select-choice-icon" ng-if="!option.isGroup && option.isLoginEnabled"><bp-avatar icon="" name="{{option[to.labelProp]}}" color-base="{{option[to.labelProp]}}"></bp-avatar></div>
-				<div class="ui-select-choice-info">
-					<div class="ui-select-choice-item-name"
-						bp-tooltip="{{option[to.labelProp]}}"
-						bp-tooltip-truncated="true"
-						ng-bind-html="option[to.labelProp] | bpEscapeAndHighlight: $select.search"></div>
-					<div class="ui-select-choice-item-email" ng-bind-html="option.email | bpEscapeAndHighlight: $select.search"></div>
-				</div>
-			</div>
-		</ui-select-choices>
-		<ui-select-no-choice>
+    <ui-select class="has-scrollbar"
+               multiple
+               ng-model="model[options.key]"
+               remove-selected="false"
+               on-remove="bpFieldUserPicker.onRemove($item, $select, fc, options)"
+               on-select="bpFieldUserPicker.onSelect($item, $select)"
+               close-on-select="false"
+               uis-open-close="bpFieldUserPicker.onOpenClose(isOpen, $select)">
+        <ui-select-match placeholder="{{to.placeholder}}">
+            <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
+        </ui-select-match>
+        <ui-select-choices
+            on-highlight="bpFieldUserPicker.onHighlight(option, $select)"
+            refresh="bpFieldUserPicker.refreshResults($select)"
+            refresh-delay="250"
+            ui-disable-choice="option.selected"
+            data-repeat="option[to.valueProp] as option in to.options | limitTo: bpFieldUserPicker.currentLimit">
+            <div class="ui-select-choice-item">
+                <div class="ui-select-choice-icon" ng-if="option.isGroup"><img
+                    src="/novaweb/static/images/icons/user-group.svg" height="25" width="25"/></div>
+                <div class="ui-select-choice-icon" ng-if="!option.isGroup && !option.isLoginEnabled"><img
+                    src="/novaweb/static/images/icons/user-unauthorize.svg" height="25" width="25"/></div>
+                <div class="ui-select-choice-icon" ng-if="!option.isGroup && option.isLoginEnabled">
+                    <bp-avatar icon="" name="{{option[to.labelProp]}}"
+                               color-base="{{option[to.labelProp]}}"></bp-avatar>
+                </div>
+                <div class="ui-select-choice-info">
+                    <div class="ui-select-choice-item-name"
+                         bp-tooltip="{{option[to.labelProp]}}"
+                         bp-tooltip-truncated="true"
+                         ng-bind-html="option[to.labelProp] | bpEscapeAndHighlight: $select.search"></div>
+                    <div class="ui-select-choice-item-email"
+                         ng-bind-html="option.email | bpEscapeAndHighlight: $select.search"></div>
+                </div>
+            </div>
+        </ui-select-choices>
+        <ui-select-no-choice>
 			<span ng-switch="bpFieldUserPicker.currentState">
 				<span ng-switch-when="no-match">{{bpFieldUserPicker.labels.noMatch}}</span>
 				<span ng-switch-when="loading">{{bpFieldUserPicker.labels.searching}}</span>
 				<span ng-switch-default>{{bpFieldUserPicker.labels.minimumLength}}</span>
 			</span>
-		</ui-select-no-choice>
-	</ui-select>
-	<div ng-messages="fc.$error" ng-if="showError" class="error-messages">
-		<div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
-	</div>
+        </ui-select-no-choice>
+    </ui-select>
+    <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+        <div id="{{::id}}-{{::name}}" ng-message="{{::name}}"
+             ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}
+        </div>
+    </div>
 </div>

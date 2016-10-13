@@ -8,12 +8,12 @@ import {ProcessViewModel, IProcessViewModel} from "../../../viewmodel/process-vi
 import {SystemTask, DiagramNodeElement} from "./";
 import {NodeChange, NodeType, ElementType} from "../models/";
 import {ISystemTask} from "../models/";
-import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process"; 
+import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process";
 import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
 import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
-import { ModalServiceMock } from "../../../../../../../shell/login/mocks.spec";
-import { IStatefulArtifactFactory } from "../../../../../../../managers/artifact-manager/";
-import { StatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
+import {IStatefulArtifactFactory} from "../../../../../../../managers/artifact-manager/";
+import {StatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("SystemTask", () => {
 
@@ -37,13 +37,12 @@ describe("SystemTask", () => {
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
-    beforeEach(inject((
-        _$window_: ng.IWindowService,
-        $rootScope: ng.IRootScopeService,
-        _communicationManager_: ICommunicationManager,
-        _dialogService_: DialogService,
-        _localization_: LocalizationServiceMock,
-        statefulArtifactFactory: IStatefulArtifactFactory) => {
+    beforeEach(inject((_$window_: ng.IWindowService,
+                       $rootScope: ng.IRootScopeService,
+                       _communicationManager_: ICommunicationManager,
+                       _dialogService_: DialogService,
+                       _localization_: LocalizationServiceMock,
+                       statefulArtifactFactory: IStatefulArtifactFactory) => {
 
         rootScope = $rootScope;
         communicationManager = _communicationManager_;
@@ -57,7 +56,7 @@ describe("SystemTask", () => {
         $rootScope["config"] = {};
         $rootScope["config"].labels = {};
         shapesFactory = new ShapesFactory($rootScope, statefulArtifactFactory);
-        localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
+        localScope = {graphContainer: container, graphWrapper: wrapper, isSpa: false};
     }));
 
 

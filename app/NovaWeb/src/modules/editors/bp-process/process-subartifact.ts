@@ -1,8 +1,8 @@
 import {
-     IProcessShape,
-     ItemTypePredefined, 
-     IHashMapOfPropertyValues, 
-     IArtifactReference
+    IProcessShape,
+    ItemTypePredefined,
+    IHashMapOfPropertyValues,
+    IArtifactReference
 } from "./models/process-models";
 
 import { IStatefulSubArtifact, StatefulSubArtifact } from "../../managers/artifact-manager/sub-artifact";
@@ -24,7 +24,7 @@ export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements 
 
     constructor(artifact: IStatefulArtifact, subartifact: IProcessShape, services: IStatefulArtifactServices) {
         super(artifact, subartifact, services);
-            
+
         this.propertyValues = subartifact.propertyValues;
         this.associatedArtifact = subartifact.associatedArtifact;
         this.baseItemTypePredefined = subartifact.baseItemTypePredefined;
@@ -42,7 +42,7 @@ export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements 
         this.lock(); 
     }
 
-    public get prefix(): string{
+    public get prefix(): string {
         return this.typePrefix;
     }
 

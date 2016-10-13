@@ -1,15 +1,15 @@
 import * as angular from "angular";
 import {IModalDialogCommunication, ModalDialogCommunication} from "./modal-dialog-communication";
 import {ModalDialogType} from "./base-modal-dialog-controller";
-import {CommunicationManager} from "../../../bp-process/services/communication-manager"; 
+import {CommunicationManager} from "../../../bp-process/services/communication-manager";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
-import { ModalServiceMock } from "../../../../shell/login/mocks.spec";
-import { DialogServiceMock } from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {ModalServiceMock} from "../../../../shell/login/mocks.spec";
+import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {ProcessGraph} from "../diagram/presentation/graph/process-graph";
 import {ProcessGraphModel} from "../diagram/viewmodel/process-graph-model";
 import {ProcessViewModel} from "../diagram/viewmodel/process-viewmodel";
-import { SubArtifactEditorModalOpener } from "./sub-artifact-editor-modal-opener";
-import { SubArtifactEditorModalController } from "./sub-artifact-editor-modal-controller";
+import {SubArtifactEditorModalOpener} from "./sub-artifact-editor-modal-opener";
+import {SubArtifactEditorModalController} from "./sub-artifact-editor-modal-controller";
 import * as TestModels from "../../models/test-model-factory";
 import * as ProcessModels from "../../models/process-models";
 
@@ -18,7 +18,7 @@ class ObservableHelper {
     public setGraph = (graph) => {
         this.getGraph = graph;
     }
-    
+
     public openDialog = (id: number, dialogType: ModalDialogType) => {
         this.somePrivateFunc1();
     }
@@ -44,15 +44,13 @@ describe("SubArtifactEditorModalOpener test", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("$uibModal", ModalServiceMock);
         $provide.service("dialogService", DialogServiceMock);
-    })); 
+    }));
 
-    beforeEach(inject((
-        $rootScope: ng.IRootScopeService,
-        _localization_: LocalizationServiceMock,
-        _communicationManager_: CommunicationManager,
-        _$uibModal_: ModalServiceMock,
-        _dialogService_: DialogServiceMock
-    ) => {
+    beforeEach(inject(($rootScope: ng.IRootScopeService,
+                       _localization_: LocalizationServiceMock,
+                       _communicationManager_: CommunicationManager,
+                       _$uibModal_: ModalServiceMock,
+                       _dialogService_: DialogServiceMock) => {
         rootScope = $rootScope;
         localization = _localization_;
         $uibModal = _$uibModal_;
@@ -84,7 +82,7 @@ describe("SubArtifactEditorModalOpener test", () => {
             }
         };
 
-        localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
+        localScope = {graphContainer: container, graphWrapper: wrapper, isSpa: false};
 
         localScope["vm"] = {
             "$rootScope": rootScope
@@ -95,11 +93,11 @@ describe("SubArtifactEditorModalOpener test", () => {
     beforeEach(() => {
         dm = new ModalDialogCommunication();
         subArtifactEditorModalOpener = new SubArtifactEditorModalOpener(
-                                            localScope, 
-                                            $uibModal, 
-                                            rootScope, 
-                                            communicationManager.modalDialogManager, 
-                                            localization);
+            localScope,
+            $uibModal,
+            rootScope,
+            communicationManager.modalDialogManager,
+            localization);
     });
 
     afterEach(() => {
@@ -111,13 +109,13 @@ describe("SubArtifactEditorModalOpener test", () => {
 
     it("graph has to be injected into subArtifactEditorModalOpener", () => {
         let process = TestModels.createSystemDecisionForAddBranchTestModel();
-        
+
         // Act
         graph = createGraph(process);
         graph.render(true, null);
 
         // Assert
-        expect(subArtifactEditorModalOpener.getGraph()).toEqual(graph); 
+        expect(subArtifactEditorModalOpener.getGraph()).toEqual(graph);
         expect(subArtifactEditorModalOpener.getGraph().viewModel).toBeDefined();
     });
 
@@ -131,7 +129,7 @@ describe("SubArtifactEditorModalOpener test", () => {
         communicationManager.modalDialogManager.openDialog(1, 0);
 
         // Assert
-        expect(spy).toHaveBeenCalled(); 
+        expect(spy).toHaveBeenCalled();
     });
 
     it("openUserSystemTaskDetailsModalDialog.open called with parameters", () => {

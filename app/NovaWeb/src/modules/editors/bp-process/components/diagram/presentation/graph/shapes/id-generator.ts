@@ -8,9 +8,9 @@ export class IdGenerator implements IIdGenerator {
     private tempId: number = 0;
 
     constructor(private userTaskNewNodeCounter: number = 0,
-        private systemTaskNewNodeCounter: number = 0,
-        private userDecisionNewNodeCounter: number = 0,
-        private systemDecisionNewNodeCounter: number = 0) {
+                private systemTaskNewNodeCounter: number = 0,
+                private userDecisionNewNodeCounter: number = 0,
+                private systemDecisionNewNodeCounter: number = 0) {
     }
 
     public getId(processShapeType: ProcessShapeType): number {

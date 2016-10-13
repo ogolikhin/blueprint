@@ -1,10 +1,10 @@
 import * as angular from "angular";
 import {
-    BPToolbar, 
-    BPToolbarElement, 
-    BPToolbarButton, 
-    BPToolbarDropdown, 
-    BPToolbarToggle, 
+    BPToolbar,
+    BPToolbarElement,
+    BPToolbarButton,
+    BPToolbarDropdown,
+    BPToolbarToggle,
     BPToolbarButtonGroup
 } from "./components";
 

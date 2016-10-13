@@ -19,6 +19,7 @@
 export class LoadingOverlayService implements ILoadingOverlayService {
 
     public static $inject = [];
+
     constructor() {
         this.initialize();
     }

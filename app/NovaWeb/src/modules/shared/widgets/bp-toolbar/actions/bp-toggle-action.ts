@@ -9,13 +9,11 @@ export interface IBPToggleItemAction {
 }
 
 export class BPToggleItemAction implements IBPToggleItemAction {
-    constructor(
-        private _icon: string,
-        private _value: any,
-        private _disabled?: boolean,
-        private _tooltip?: string,
-        private _label?: string
-    ) {
+    constructor(private _icon: string,
+                private _value: any,
+                private _disabled?: boolean,
+                private _tooltip?: string,
+                private _label?: string) {
     }
 
     public get icon(): string {
@@ -48,13 +46,11 @@ export interface IBPToggleAction extends IBPAction {
 export class BPToggleAction implements IBPToggleAction {
     private _actions: IBPToggleItemAction[];
     private _currentValue: any;
-    
-    constructor(
-        private initialValue: any,
-        private toggle: (value: any) => void,
-        private canToggle?: () => boolean,
-        ... actions: IBPToggleItemAction[]
-    ) {
+
+    constructor(private initialValue: any,
+                private toggle: (value: any) => void,
+                private canToggle?: () => boolean,
+                ...actions: IBPToggleItemAction[]) {
         this._actions = actions;
         this._currentValue = initialValue;
     }

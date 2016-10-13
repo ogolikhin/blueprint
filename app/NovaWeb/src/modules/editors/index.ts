@@ -12,10 +12,10 @@ angular.module("bp.editors", [
     "bp.editors.glossary",
     "bp.editors.details",
     "bp.editors.diagram",
-    "bp.editors.process",
+    "bp.editors.process"
 
 ]);
 
-export { formlyConfig } from "./configuration/formly-config"
+export {formlyConfig} from "./configuration/formly-config"
 
 

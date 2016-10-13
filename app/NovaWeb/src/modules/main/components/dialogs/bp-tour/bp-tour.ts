@@ -5,7 +5,7 @@ export class BPTourController {
 
     constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance) {
         for (let i: number = 0; i <= 20; i++) {
-            this.images.push({ id: i, src: `/novaweb/static/tour/${ i < 10 ? "0" + i : i}.png`});
+            this.images.push({id: i, src: `/novaweb/static/tour/${ i < 10 ? "0" + i : i}.png`});
         }
     };
 

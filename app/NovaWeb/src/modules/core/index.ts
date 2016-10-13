@@ -5,10 +5,10 @@ import "./services";
 import "./messages";
 import "./navigation";
 import "./loading-overlay";
-import { AppConstants, IAppConstants } from "./constants/";
-import { IFileUploadService, FileUploadService, IFileResult } from "./file-upload/";
-import { LocalizationService, localeConfig } from "./localization/";
-import { SettingsService, ISettingsService } from "./configuration";
+import {AppConstants, IAppConstants} from "./constants/";
+import {IFileUploadService, FileUploadService, IFileResult} from "./file-upload/";
+import {LocalizationService, localeConfig} from "./localization/";
+import {SettingsService, ISettingsService} from "./configuration";
 
 angular.module("app.core", [
     "bp.core.services",
@@ -53,7 +53,7 @@ export {
     MessageType
 } from "./messages";
 
-export { 
+export {
     IHttpInterceptorConfig,
     HttpStatusCode
 } from "./http";

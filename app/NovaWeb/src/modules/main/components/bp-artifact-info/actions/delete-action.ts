@@ -4,12 +4,10 @@ import {ILocalizationService} from "../../../../core";
 import {ItemTypePredefined} from "../../../../main/models/enums";
 
 export class DeleteAction extends BPButtonAction {
-    constructor(
-        artifact: IStatefulArtifact,
-        localization: ILocalizationService,
-        dialogService: IDialogService,
-        deleteDialogSettings: IDialogSettings
-    ) {
+    constructor(artifact: IStatefulArtifact,
+                localization: ILocalizationService,
+                dialogService: IDialogService,
+                deleteDialogSettings: IDialogSettings) {
         if (!localization) {
             throw new Error("Localization service not provided or is null");
         }
@@ -21,14 +19,15 @@ export class DeleteAction extends BPButtonAction {
         if (!deleteDialogSettings) {
             throw new Error("Delete dialog settings not provided or is null");
         }
-        
+
         super(
             () => {
                 dialogService.open(deleteDialogSettings).then((confirm: boolean) => {
                     if (confirm) {
                         dialogService.alert("you clicked confirm!");
                         this.deleteArtifact();
-                    };
+                    }
+                    ;
                 });
             },
             () => {
@@ -37,7 +36,7 @@ export class DeleteAction extends BPButtonAction {
                 }
 
                 const invalidTypes = [
-                    ItemTypePredefined.Project, 
+                    ItemTypePredefined.Project,
                     ItemTypePredefined.Collections
                 ];
 
@@ -57,5 +56,6 @@ export class DeleteAction extends BPButtonAction {
     }
 
     private deleteArtifact() {
+        //fixme: empty blocks should be removed
     }
 }

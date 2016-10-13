@@ -1,12 +1,14 @@
-import { Shapes, ShapeProps } from "./utils/constants";
-import { MxFactory, ShapeExtensions } from "./utils/helpers";
-import { IShape } from "./models";
-import { AbstractShapeFactory, IShapeTemplates } from "./abstract-diagram-factory";
-import { Style, Styles } from "./utils/style-builder";
+import {Shapes, ShapeProps} from "./utils/constants";
+import {MxFactory, ShapeExtensions} from "./utils/helpers";
+import {IShape} from "./models";
+import {AbstractShapeFactory, IShapeTemplates} from "./abstract-diagram-factory";
+import {Style, Styles} from "./utils/style-builder";
 
 export class StoryboardShapeFactory extends AbstractShapeFactory {
 
-    public get frameMargin(): number { return 48; }
+    public get frameMargin(): number {
+        return 48;
+    }
 
     public initTemplates(templates: IShapeTemplates) {
         templates[Shapes.FRAME] = this.frame;

@@ -5,11 +5,9 @@ import {IToolbarCommunication} from "../toolbar-communication";
 import {ILocalizationService} from "../../../../../core";
 
 export class ToggleProcessTypeAction extends BPToggleAction {
-    constructor(
-        processArtifact: StatefulProcessArtifact,
-        toolbarCommunication: IToolbarCommunication,
-        localization: ILocalizationService
-    ) {
+    constructor(processArtifact: StatefulProcessArtifact,
+                toolbarCommunication: IToolbarCommunication,
+                localization: ILocalizationService) {
         const processType: ProcessType = processArtifact.propertyValues["clientType"].value;
 
         super(
@@ -28,7 +26,7 @@ export class ToggleProcessTypeAction extends BPToggleAction {
                 "fonticon fonticon2-user-system",
                 ProcessType.UserToSystemProcess,
                 false,
-                localization.get("ST_ProcessType_UserToSystemProcess_Label") 
+                localization.get("ST_ProcessType_UserToSystemProcess_Label")
             )
         );
     }

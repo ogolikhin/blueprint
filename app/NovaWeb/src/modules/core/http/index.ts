@@ -1,2 +1,2 @@
-export { IHttpInterceptorConfig } from "./http-interceptor-config";
-export { HttpStatusCode } from "./http-status-code";
+export {IHttpInterceptorConfig} from "./http-interceptor-config";
+export {HttpStatusCode} from "./http-status-code";

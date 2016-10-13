@@ -1,6 +1,6 @@
 import * as angular from "angular";
-import { BpGlossary } from "./bp-glossary";
-import { GlossaryService } from "./glossary.svc";
+import {BpGlossary} from "./bp-glossary";
+import {GlossaryService} from "./glossary.svc";
 
 angular.module("bp.editors.glossary", [])
     .service("glossaryService", GlossaryService)

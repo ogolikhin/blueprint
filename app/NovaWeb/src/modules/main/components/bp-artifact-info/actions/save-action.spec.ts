@@ -28,193 +28,181 @@ describe("SaveAction", () => {
         $q = _$q_;
     }));
 
-    it("throws exception when localization is null", 
-        inject((
-            statefulArtifactFactory: StatefulArtifactFactoryMock,
-            messageService: IMessageService,
-            loadingOverlayService: ILoadingOverlayService
-            ) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({ id: 1 });
-        const localization: ILocalizationService = null;
-        let error: Error = null;
+    it("throws exception when localization is null",
+        inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
+                messageService: IMessageService,
+                loadingOverlayService: ILoadingOverlayService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
+            const localization: ILocalizationService = null;
+            let error: Error = null;
 
-        // act
-        try {
-            new SaveAction(artifact, localization, messageService, loadingOverlayService);
-        } catch (exception) {
-            error = exception;
-        }
+            // act
+            try {
+                new SaveAction(artifact, localization, messageService, loadingOverlayService);
+            } catch (exception) {
+                error = exception;
+            }
 
-        // assert
-        expect(error).not.toBeNull();
-        expect(error).toEqual(new Error("Localization service not provided or is null"));
-    }));
+            // assert
+            expect(error).not.toBeNull();
+            expect(error).toEqual(new Error("Localization service not provided or is null"));
+        }));
 
-    it("throws exception when message service is null", 
-        inject((
-            statefulArtifactFactory: StatefulArtifactFactoryMock,
-            localization: ILocalizationService,
-            loadingOverlayService: ILoadingOverlayService
-            ) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({ id: 1 });
-        const messageService: IMessageService = null;
-        let error: Error = null;
+    it("throws exception when message service is null",
+        inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
+                localization: ILocalizationService,
+                loadingOverlayService: ILoadingOverlayService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
+            const messageService: IMessageService = null;
+            let error: Error = null;
 
-        // act
-        try {
-            new SaveAction(artifact, localization, messageService, loadingOverlayService);
-        } catch (exception) {
-            error = exception;
-        }
+            // act
+            try {
+                new SaveAction(artifact, localization, messageService, loadingOverlayService);
+            } catch (exception) {
+                error = exception;
+            }
 
-        // assert
-        expect(error).not.toBeNull();
-        expect(error).toEqual(new Error("Message service not provided or is null"));
-    }));
+            // assert
+            expect(error).not.toBeNull();
+            expect(error).toEqual(new Error("Message service not provided or is null"));
+        }));
 
-    it("throws exception when loadingOverlayService is null", 
-        inject((
-            statefulArtifactFactory: StatefulArtifactFactoryMock,
-            localization: ILocalizationService,
-            messageService: IMessageService
-            ) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({ id: 1 });
-        const loadingOverlayService: ILoadingOverlayService = null;
-        let error: Error = null;
+    it("throws exception when loadingOverlayService is null",
+        inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
+                localization: ILocalizationService,
+                messageService: IMessageService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
+            const loadingOverlayService: ILoadingOverlayService = null;
+            let error: Error = null;
 
-        // act
-        try {
-           new SaveAction(artifact, localization, messageService, loadingOverlayService);
-        } catch (exception) {
-            error = exception;
-        }
+            // act
+            try {
+                new SaveAction(artifact, localization, messageService, loadingOverlayService);
+            } catch (exception) {
+                error = exception;
+            }
 
-        // assert
-        expect(error).not.toBeNull();
-        expect(error).toEqual(new Error("Loading overlay service not provided or is null"));
-    }));
+            // assert
+            expect(error).not.toBeNull();
+            expect(error).toEqual(new Error("Loading overlay service not provided or is null"));
+        }));
 
-    it("is disabled when artifact is null", 
-        inject((
-            localization: ILocalizationService,
-            messageService: IMessageService,
-            loadingOverlayService: ILoadingOverlayService) => {
-        // arrange
-        const artifact: IStatefulArtifact = null;
+    it("is disabled when artifact is null",
+        inject((localization: ILocalizationService,
+                messageService: IMessageService,
+                loadingOverlayService: ILoadingOverlayService) => {
+            // arrange
+            const artifact: IStatefulArtifact = null;
 
-        // act
-        const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
+            // act
+            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
 
-        // assert
-        expect(saveAction.disabled).toBe(true);
-    }));
+            // assert
+            expect(saveAction.disabled).toBe(true);
+        }));
 
-    it("is disabled when artifact is read-only", 
-        inject((
-            statefulArtifactFactory: StatefulArtifactFactoryMock,
-            localization: ILocalizationService,
-            messageService: IMessageService,
-            loadingOverlayService: ILoadingOverlayService) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({ id: 1 });
-        artifact.artifactState.readonly = true;
+    it("is disabled when artifact is read-only",
+        inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
+                localization: ILocalizationService,
+                messageService: IMessageService,
+                loadingOverlayService: ILoadingOverlayService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
+            artifact.artifactState.readonly = true;
 
-        // act
-        const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
+            // act
+            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
 
-        // assert
-        expect(saveAction.disabled).toBe(true);
-    }));
+            // assert
+            expect(saveAction.disabled).toBe(true);
+        }));
 
-    it("is disabled when artifact is not dirty", 
-        inject((
-            statefulArtifactFactory: StatefulArtifactFactoryMock,
-            localization: ILocalizationService,
-            messageService: IMessageService,
-            loadingOverlayService: ILoadingOverlayService) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-            { 
-                id: 1, 
-                predefinedType: ItemTypePredefined.TextualRequirement, 
-                lockedByUser: null,
-                lockedDateTime: null,
-                permissions: RolePermissions.Edit
-            });
+    it("is disabled when artifact is not dirty",
+        inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
+                localization: ILocalizationService,
+                messageService: IMessageService,
+                loadingOverlayService: ILoadingOverlayService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.TextualRequirement,
+                    lockedByUser: null,
+                    lockedDateTime: null,
+                    permissions: RolePermissions.Edit
+                });
 
-        // act
-        const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
+            // act
+            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
 
-        // assert
-        expect(saveAction.disabled).toBe(true);
-    }));
+            // assert
+            expect(saveAction.disabled).toBe(true);
+        }));
 
-    it("is disabled when artifact is Project", 
-        inject((
-            statefulArtifactFactory: StatefulArtifactFactoryMock,
-            localization: ILocalizationService,
-            messageService: IMessageService,
-            loadingOverlayService: ILoadingOverlayService) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-            {
-                 id: 1, 
-                 predefinedType: ItemTypePredefined.Project 
-            });
+    it("is disabled when artifact is Project",
+        inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
+                localization: ILocalizationService,
+                messageService: IMessageService,
+                loadingOverlayService: ILoadingOverlayService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.Project
+                });
 
-        // act
-        const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
+            // act
+            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
 
-        // assert
-        expect(saveAction.disabled).toBe(true);
-    }));
+            // assert
+            expect(saveAction.disabled).toBe(true);
+        }));
 
-    it("is disabled when artifact is Collections", 
-        inject((
-            statefulArtifactFactory: StatefulArtifactFactoryMock,
-            localization: ILocalizationService,
-            messageService: IMessageService,
-            loadingOverlayService: ILoadingOverlayService) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-            { 
-                id: 1, 
-                predefinedType: ItemTypePredefined.Collections 
-            });
+    it("is disabled when artifact is Collections",
+        inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
+                localization: ILocalizationService,
+                messageService: IMessageService,
+                loadingOverlayService: ILoadingOverlayService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.Collections
+                });
 
-        // act
-        const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
+            // act
+            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
 
-        // assert
-        expect(saveAction.disabled).toBe(true);
-    }));
+            // assert
+            expect(saveAction.disabled).toBe(true);
+        }));
 
-    it("is enabled when artifact is dirty", 
-        inject((
-            statefulArtifactFactory: StatefulArtifactFactoryMock,
-            localization: ILocalizationService,
-            messageService: IMessageService,
-            loadingOverlayService: ILoadingOverlayService) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-            { 
-                id: 1, 
-                predefinedType: ItemTypePredefined.TextualRequirement, 
-                lockedByUser: null,
-                lockedDateTime: null,
-                permissions: RolePermissions.Edit
-            });
-        artifact.artifactState.dirty = true;
+    it("is enabled when artifact is dirty",
+        inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
+                localization: ILocalizationService,
+                messageService: IMessageService,
+                loadingOverlayService: ILoadingOverlayService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.TextualRequirement,
+                    lockedByUser: null,
+                    lockedDateTime: null,
+                    permissions: RolePermissions.Edit
+                });
+            artifact.artifactState.dirty = true;
 
-        // act
-        const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
+            // act
+            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
 
-        // assert
-        expect(saveAction.disabled).toBe(false);
-    }));
+            // assert
+            expect(saveAction.disabled).toBe(false);
+        }));
 
     describe("when executed", () => {
         let saveAction: SaveAction;
@@ -223,21 +211,19 @@ describe("SaveAction", () => {
         let beginLoadingSpy: jasmine.Spy;
         let endLoadingSpy: jasmine.Spy;
 
-        beforeEach(inject((
-            statefulArtifactFactory: StatefulArtifactFactoryMock,
-            localization: ILocalizationService,
-            messageService: IMessageService,
-            loadingOverlayService: ILoadingOverlayService
-        ) => {
+        beforeEach(inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
+                           localization: ILocalizationService,
+                           messageService: IMessageService,
+                           loadingOverlayService: ILoadingOverlayService) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-            { 
-                id: 1, 
-                predefinedType: ItemTypePredefined.TextualRequirement, 
-                lockedByUser: null,
-                lockedDateTime: null,
-                permissions: RolePermissions.Edit
-            });
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.TextualRequirement,
+                    lockedByUser: null,
+                    lockedDateTime: null,
+                    permissions: RolePermissions.Edit
+                });
             saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
             saveSpy = spyOn(artifact, "save");
             addErrorSpy = spyOn(messageService, "addError").and.callThrough();

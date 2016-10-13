@@ -1,1 +1,10 @@
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><style>.cls-1{fill:#3ebce9;}.cls-2{fill:#fff;}</style></defs><title>code</title><rect class="cls-1" width="512" height="512"/><polygon class="cls-2" points="126 249 219 211 219 230 148 256 219 288 219 305 126 266 126 249"/><polygon class="cls-2" points="270 184 286 184 245 329 230 329 270 184"/><polygon class="cls-2" points="296 211 296 226 368 258 296 287 296 305 388 267 388 250 296 211"/></svg>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <defs>
+        <style>.cls-1{fill:#3ebce9;}.cls-2{fill:#fff;}</style>
+    </defs>
+    <title>code</title>
+    <rect class="cls-1" width="512" height="512"/>
+    <polygon class="cls-2" points="126 249 219 211 219 230 148 256 219 288 219 305 126 266 126 249"/>
+    <polygon class="cls-2" points="270 184 286 184 245 329 230 329 270 184"/>
+    <polygon class="cls-2" points="296 211 296 226 368 258 296 287 296 305 388 267 388 250 296 211"/>
+</svg>

@@ -5,7 +5,6 @@ import "angular-ui-router";
 import "angular-ui-bootstrap";
 import "angular-ui-tinymce";
 import "ui-select";
-require("script!mxClient");
 import * as agGrid from "ag-grid/main";
 import * as agGridEnterprise from "ag-grid-enterprise/main";
 import "ng-draggable";
@@ -19,7 +18,7 @@ import "./components";
 import "./router";
 import "./services";
 import "./view";
-import { formlyConfig } from "../editors/";
+import {formlyConfig} from "../editors/";
 
 config.$inject = ["$rootScope", "$state"];
 
@@ -28,7 +27,7 @@ declare var BUILD_YEAR: string;
 
 
 export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateService) {
-    $rootScope["config"] = window["config"] || { settings: {}, labels: {} };
+    $rootScope["config"] = window["config"] || {settings: {}, labels: {}};
     $rootScope["version"] = VERSION.split(".")[0] + "." + VERSION.split(".")[1] + " (" + VERSION.replace("-", ".") + ")";
     $rootScope["year"] = BUILD_YEAR;
 

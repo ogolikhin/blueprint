@@ -225,9 +225,12 @@
     max-width: 100%;
     display: block;
 }
+
 .file-upload_emptied {
-    line-height: 169px\9; /*IE9 hack*/
+    line-height: 169px \9
+; /*IE9 hack*/
 }
+
 .buttons-container {
     display: table;
     width: 80%;
@@ -268,8 +271,8 @@
     }
 }
 
-#SystemTaskUploadImage{
-    padding-top:10px;
+#SystemTaskUploadImage {
+    padding-top: 10px;
 }
 
 .page-heading {
@@ -332,7 +335,7 @@ bp-process-type-toggle {
     .toggle-container.disabled {
         border-color: $gray;
 
-         input[type=radio] + .icon-container {
+        input[type=radio] + .icon-container {
             background-color: transparent;
             cursor: default;
 
@@ -341,9 +344,9 @@ bp-process-type-toggle {
             }
         }
 
-         input[type=radio]:checked + .icon-container {
+        input[type=radio]:checked + .icon-container {
             background-color: $gray;
-            
+
             i {
                 color: $gray-lighter;
             }
@@ -359,7 +362,7 @@ bp-breadcrumb {
 
     .nova-breadcrumbs-inaccessible {
         color: #565656 !important;
-        cursor: default; 
+        cursor: default;
     }
 }
 
@@ -424,7 +427,7 @@ bp-process-editor {
         max-width: 400px;
     }
 
-    .dropdown-next-node{
+    .dropdown-next-node {
         max-height: 250px;
         overflow-y: auto;
 
@@ -441,7 +444,7 @@ bp-process-editor {
     .dropdown-menu {
         width: 100% !important;
         padding: 10px;
-        background-color:aqua;
+        background-color: aqua;
     }
 }
 
@@ -542,8 +545,8 @@ table.mxPopupMenu tr {
 
 /* Given-When-Then Dialogue*/
 .preview-modal.in .modal-dialog {
-width: 450px;
-margin-top: 72px;
+    width: 450px;
+    margin-top: 72px;
 }
 
 .image-preview-modal {
@@ -627,7 +630,7 @@ margin-top: 72px;
         height: 276px;
         opacity: 0.9;
 
-        &:hover { 
+        &:hover {
             opacity: 1;
         }
     }
@@ -689,7 +692,7 @@ margin-top: 72px;
         width: 100%;
         margin: auto;
         margin-top: -40px;
-        
+
         &.zoomable {
             cursor: pointer;
             margin-top: inherit;
@@ -762,13 +765,16 @@ margin-top: 72px;
 .storyteller-gwt_title-gwt, .storyteller-gwt_title-generated {
     text-align: center;
 }
+
 .storyteller-gwt_title-generated {
     color: $gray-lighter;
     @include text-ellipsis-fixed-width(100%);
 }
+
 .storyteller-gwt_business-process-title-generated {
     padding: 15px 0;
 }
+
 .storyteller-gwt_modal-body {
     padding: 25px 30px;
 }
@@ -813,7 +819,7 @@ margin-top: 72px;
         display: none;
 
         &.available {
-            display:inline-block;
+            display: inline-block;
             color: $brand-secondary;
         }
         &:before {
@@ -840,7 +846,7 @@ margin-top: 72px;
 .storyteller-gwt-tabset * .nav-tabs > li > a {
     font-size: $font-size-root;
 }
-    
+
 .process-graph-wrapper {
     background-color: #f4f6fa;
 }
@@ -848,7 +854,7 @@ margin-top: 72px;
 .process-graph-container {
     background-color: #f4f6fa;
 }
-    
+
 .storyteller-gt_text-container-grayed-text {
     color: $gray-light;
 }
@@ -867,8 +873,8 @@ margin-top: 72px;
 }
 
 .clearable::-ms-value {
-    margin-right:20px;
-    }
+    margin-right: 20px;
+}
 
 .fonticon-st-tabs:before {
     font-size: 1.5rem;

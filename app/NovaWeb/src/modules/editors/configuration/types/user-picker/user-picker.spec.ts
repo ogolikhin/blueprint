@@ -6,8 +6,8 @@ import "angular-ui-bootstrap";
 import "ui-select";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
-import { UsersAndGroupsServiceMock } from "../../../../core/services/users-and-groups.svc.mock";
-import { createFormlyModule } from "../../formly-config.mock";
+import {UsersAndGroupsServiceMock} from "../../../../core/services/users-and-groups.svc.mock";
+import {createFormlyModule} from "../../formly-config.mock";
 
 describe("Formly User Picker", () => {
     let fieldsDefinition = [
@@ -16,24 +16,32 @@ describe("Formly User Picker", () => {
             key: "userPicker",
             templateOptions: {
                 options: [
-                    { value: {
-                        id: 1,
-                        displayName: "User 1"
-                    }, name: "User 1" },
-                    { value: {
-                        id: 2,
-                        displayName: "User 2"
-                    }, name: "User 2" },
-                    { value: {
-                        id: 1,
-                        isGroup: true,
-                        displayName: "Group 1"
-                    }, name: "Group 1" },
-                    { value: {
-                        id: 2,
-                        isGroup: true,
-                        displayName: "Group 2"
-                    }, name: "Group 2" }
+                    {
+                        value: {
+                            id: 1,
+                            displayName: "User 1"
+                        }, name: "User 1"
+                    },
+                    {
+                        value: {
+                            id: 2,
+                            displayName: "User 2"
+                        }, name: "User 2"
+                    },
+                    {
+                        value: {
+                            id: 1,
+                            isGroup: true,
+                            displayName: "Group 1"
+                        }, name: "Group 1"
+                    },
+                    {
+                        value: {
+                            id: 2,
+                            isGroup: true,
+                            displayName: "Group 2"
+                        }, name: "Group 2"
+                    }
                 ],
                 optionsAttr: "bs-options",
                 required: true
@@ -44,24 +52,32 @@ describe("Formly User Picker", () => {
             key: "userPickerNotVal",
             templateOptions: {
                 options: [
-                    { value: {
-                        id: 10,
-                        displayName: "User 10"
-                    }, name: "User 10" },
-                    { value: {
-                        id: 20,
-                        displayName: "User 20"
-                    }, name: "User 20" },
-                    { value: {
-                        id: 10,
-                        isGroup: true,
-                        displayName: "Group 10"
-                    }, name: "Group 10" },
-                    { value: {
-                        id: 20,
-                        isGroup: true,
-                        displayName: "Group 20"
-                    }, name: "Group 20" }
+                    {
+                        value: {
+                            id: 10,
+                            displayName: "User 10"
+                        }, name: "User 10"
+                    },
+                    {
+                        value: {
+                            id: 20,
+                            displayName: "User 20"
+                        }, name: "User 20"
+                    },
+                    {
+                        value: {
+                            id: 10,
+                            isGroup: true,
+                            displayName: "Group 10"
+                        }, name: "Group 10"
+                    },
+                    {
+                        value: {
+                            id: 20,
+                            isGroup: true,
+                            displayName: "Group 20"
+                        }, name: "Group 20"
+                    }
                 ],
                 optionsAttr: "bs-options"
             }
@@ -89,10 +105,8 @@ describe("Formly User Picker", () => {
     let compile, scope, rootScope, element, node, isolateScope, vm;
 
     beforeEach(
-        inject((
-            $compile: ng.ICompileService,
-            $rootScope: ng.IRootScopeService
-            ) => {
+        inject(($compile: ng.ICompileService,
+                $rootScope: ng.IRootScopeService) => {
                 rootScope = $rootScope;
                 compile = $compile;
                 scope = rootScope.$new();
@@ -106,7 +120,7 @@ describe("Formly User Picker", () => {
 
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldUserPicker");
         let fieldScope = angular.element(fieldNode[0]).isolateScope();
-        fieldNode[0].querySelector(".ui-select-container > div").dispatchEvent(new Event("click", { "bubbles": true }));
+        fieldNode[0].querySelector(".ui-select-container > div").dispatchEvent(new Event("click", {"bubbles": true}));
 
         expect(fieldNode.length).toBe(2);
         expect(fieldNode[0]).toBeDefined();
@@ -127,14 +141,18 @@ describe("Formly User Picker", () => {
     });
 
     it("should succeed with values", function () {
-        compileAndSetupStuff({model: {userPicker: [{
-            id: 1,
-            displayName: "User 1"
-        }, {
-            id: 2,
-            isGroup: true,
-            displayName: "Group 2"
-        }]}});
+        compileAndSetupStuff({
+            model: {
+                userPicker: [{
+                    id: 1,
+                    displayName: "User 1"
+                }, {
+                    id: 2,
+                    isGroup: true,
+                    displayName: "Group 2"
+                }]
+            }
+        });
 
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldUserPicker")[0];
         let fieldScope = angular.element(fieldNode).isolateScope();

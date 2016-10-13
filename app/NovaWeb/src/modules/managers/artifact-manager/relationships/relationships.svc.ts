@@ -1,5 +1,5 @@
-﻿import { ILocalizationService } from "../../../core";
-import { Relationships } from "../../../main";
+﻿import {ILocalizationService} from "../../../core";
+import {Relationships} from "../../../main";
 
 export interface IArtifactRelationshipsService {
     getRelationships(artifactId: number, subArtifactId?: number, timeout?: ng.IPromise<void>): ng.IPromise<Relationships.IArtifactRelationshipsResultSet>;
@@ -12,17 +12,15 @@ export class ArtifactRelationshipsService implements IArtifactRelationshipsServi
         "$log",
         "localization"];
 
-    constructor(
-        private $q: ng.IQService,
-        private $http: ng.IHttpService,
-        private $log: ng.ILogService,
-        private localization: ILocalizationService) {
+    constructor(private $q: ng.IQService,
+                private $http: ng.IHttpService,
+                private $log: ng.ILogService,
+                private localization: ILocalizationService) {
     }
 
-    public getRelationships(
-        artifactId: number,
-        subArtifactId?: number,
-        timeout?: ng.IPromise<void>): ng.IPromise<Relationships.IArtifactRelationshipsResultSet> {
+    public getRelationships(artifactId: number,
+                            subArtifactId?: number,
+                            timeout?: ng.IPromise<void>): ng.IPromise<Relationships.IArtifactRelationshipsResultSet> {
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
             url: `/svc/artifactstore/artifacts/${artifactId}/relationships`,
@@ -33,8 +31,8 @@ export class ArtifactRelationshipsService implements IArtifactRelationshipsServi
         };
 
         this.$http(requestObj).then(
-            (result: ng.IHttpPromiseCallbackArg<Relationships.IArtifactRelationshipsResultSet>) => {                   
-                    defer.resolve(result.data);
+            (result: ng.IHttpPromiseCallbackArg<Relationships.IArtifactRelationshipsResultSet>) => {
+                defer.resolve(result.data);
             }, (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 if (!errResult) {
                     defer.reject();

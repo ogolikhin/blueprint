@@ -1,242 +1,242 @@
 $page-body-min-width: 386px;
 
 pagecontent, bp-properties-panel {
-  box-sizing: border-box;
-  display: flex;
-  flex-flow: column nowrap;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  //transition: all .4s ease;
-  width: 100%;
-
-  .page-content-wrapper {
-    height: 100%;
-    overflow: hidden;
-    width: 100%;
-  }
-
-  .page-content {
+    box-sizing: border-box;
     display: flex;
     flex-flow: column nowrap;
     height: 100%;
-  }
-
-  .page-heading {
-    flex: none;
-    font-size: 0; // to remove unwanted space around elements. Specify font-size for inner elements!
-    margin: 15px 20px 0;
-    min-width: $page-body-min-width;
-    white-space: nowrap;
-
-    &::after {
-      clear: both;
-      content: '';
-      display: table;
-    }
-  }
-
-  .page-body-wrapper {
-    height: 100%;
-    margin: 0 20px 10px;
-    min-width: $page-body-min-width;
-    overflow: hidden !important;
-    z-index: 0;
-  }
-
-  bp-artifact-info {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-  }
-
-  .artifact-state {
-    height: 100%;
+    margin: 0;
+    padding: 0;
+    //transition: all .4s ease;
     width: 100%;
-  }
 
-  //$page-top-toolbar-width: 420px; // this value changes whenever the number of buttons (and their labels) in the toolbar changes
-  .page-top-toolbar {
-    flex-grow: 0;
-    flex-shrink: 0;
-    margin-bottom: 15px;
-
-    .btn-bluelight + .btn-bluelight {
-      margin-left: 5px;
+    .page-content-wrapper {
+        height: 100%;
+        overflow: hidden;
+        width: 100%;
     }
 
-    .btn-bluelight + .btn-primary {
-      margin-left: 10px;
-    }
-  }
-
-  .artifact-heading {
-    display: flex;
-    //max-width: calc(100% - #{$page-top-toolbar-width});
-    //min-width: $page-top-toolbar-width;
-    overflow: hidden;
-
-    .icon,
-    .artifact-heading-group1 {
-      display: block;
-      margin: 0 10px 15px 0;
-      min-height: 30px;
-      vertical-align: top;
+    .page-content {
+        display: flex;
+        flex-flow: column nowrap;
+        height: 100%;
     }
 
-    .icon {
-      flex-grow: 0;
-      flex-shrink: 0;
+    .page-heading {
+        flex: none;
+        font-size: 0; // to remove unwanted space around elements. Specify font-size for inner elements!
+        margin: 15px 20px 0;
+        min-width: $page-body-min-width;
+        white-space: nowrap;
 
-      &::before {
-        color: $gray;
-        font-family: 'bp-line-icons';
-        font-size: 24px;
-        line-height: 1.5em;
-        margin: 0;
-      }
-
-      bp-item-type-icon {
-        display: block;
-        margin-top: 5px;
-      }
-    }
-
-    .artifact-heading-group1 {
-      overflow: hidden;
-    }
-
-    .artifact-heading-group2 {
-      align-items: center;
-      display: flex;
-    }
-
-    .name {
-      color: $gray-dark;
-      display: block;
-      font-size: $font-size-biggest;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      //white-space: nowrap;
-    }
-
-    .indicators {
-      display: block;
-      flex-grow: 0;
-      flex-shrink: 0;
-
-      i {
-        color: $gray;
-        display: inline-block;
-        font-style: normal;
-        text-align: center;
-        vertical-align: bottom;
-        height: 12px;
-        padding-left: 5px;
-        &::before {
-          font-size: $font-size-big;
-          line-height: normal;
+        &::after {
+            clear: both;
+            content: '';
+            display: table;
         }
-      }
-
-      .readonly-indicator {
-        width: 24px;
-      }
-
-      .fonticon-lock.self-locked::before {
-        color: $brand-secondary;
-      }
-
-      .legacy-indicator {
-        width: 24px;
-      }
     }
 
-    .type-id {
-      color: $gray;
-      font-size: $font-size-smallest;
-      white-space: nowrap;
-    }
-  }
-
-  .artifact-overview {
-    background: $white;
-    position: relative;
-
-    > .heading {
-      background: $gray-lighter;
-      color: $gray-dark;
-      font-size: $font-size-big;
-      font-weight: 600;
-      line-height: 1em;
-      min-height: 36px;
-      padding: 11px 14px;
-
-      + .content {
-        border-top: 0;
-      }
+    .page-body-wrapper {
+        height: 100%;
+        margin: 0 20px 10px;
+        min-width: $page-body-min-width;
+        overflow: hidden !important;
+        z-index: 0;
     }
 
-    > .content {
-      border: solid 1px $gray-lighter;
-      padding: 18px 15px;
+    bp-artifact-info {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
     }
 
-    .tab-pane {
-      // temporary
-      font-size: $font-size-normal;
+    .artifact-state {
+        height: 100%;
+        width: 100%;
     }
-  }
+
+    //$page-top-toolbar-width: 420px; // this value changes whenever the number of buttons (and their labels) in the toolbar changes
+    .page-top-toolbar {
+        flex-grow: 0;
+        flex-shrink: 0;
+        margin-bottom: 15px;
+
+        .btn-bluelight + .btn-bluelight {
+            margin-left: 5px;
+        }
+
+        .btn-bluelight + .btn-primary {
+            margin-left: 10px;
+        }
+    }
+
+    .artifact-heading {
+        display: flex;
+        //max-width: calc(100% - #{$page-top-toolbar-width});
+        //min-width: $page-top-toolbar-width;
+        overflow: hidden;
+
+        .icon,
+        .artifact-heading-group1 {
+            display: block;
+            margin: 0 10px 15px 0;
+            min-height: 30px;
+            vertical-align: top;
+        }
+
+        .icon {
+            flex-grow: 0;
+            flex-shrink: 0;
+
+            &::before {
+                color: $gray;
+                font-family: 'bp-line-icons';
+                font-size: 24px;
+                line-height: 1.5em;
+                margin: 0;
+            }
+
+            bp-item-type-icon {
+                display: block;
+                margin-top: 5px;
+            }
+        }
+
+        .artifact-heading-group1 {
+            overflow: hidden;
+        }
+
+        .artifact-heading-group2 {
+            align-items: center;
+            display: flex;
+        }
+
+        .name {
+            color: $gray-dark;
+            display: block;
+            font-size: $font-size-biggest;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            //white-space: nowrap;
+        }
+
+        .indicators {
+            display: block;
+            flex-grow: 0;
+            flex-shrink: 0;
+
+            i {
+                color: $gray;
+                display: inline-block;
+                font-style: normal;
+                text-align: center;
+                vertical-align: bottom;
+                height: 12px;
+                padding-left: 5px;
+                &::before {
+                    font-size: $font-size-big;
+                    line-height: normal;
+                }
+            }
+
+            .readonly-indicator {
+                width: 24px;
+            }
+
+            .fonticon-lock.self-locked::before {
+                color: $brand-secondary;
+            }
+
+            .legacy-indicator {
+                width: 24px;
+            }
+        }
+
+        .type-id {
+            color: $gray;
+            font-size: $font-size-smallest;
+            white-space: nowrap;
+        }
+    }
+
+    .artifact-overview {
+        background: $white;
+        position: relative;
+
+        > .heading {
+            background: $gray-lighter;
+            color: $gray-dark;
+            font-size: $font-size-big;
+            font-weight: 600;
+            line-height: 1em;
+            min-height: 36px;
+            padding: 11px 14px;
+
+            + .content {
+                border-top: 0;
+            }
+        }
+
+        > .content {
+            border: solid 1px $gray-lighter;
+            padding: 18px 15px;
+        }
+
+        .tab-pane {
+            // temporary
+            font-size: $font-size-normal;
+        }
+    }
 }
 
 .right-panel .sidebar-content {
-  .utility-panel-title {
-    background: $blue-lightest;
-    border-left: solid 2px $right-sidebar-border;
-    border-right: solid 1px $utility-panel-border-color;
-    height: $utility-panel-title-height;
-    line-height: $utility-panel-title-height;
+    .utility-panel-title {
+        background: $blue-lightest;
+        border-left: solid 2px $right-sidebar-border;
+        border-right: solid 1px $utility-panel-border-color;
+        height: $utility-panel-title-height;
+        line-height: $utility-panel-title-height;
 
-    > span {
-      color: $gray-dark;
-      display: inline-block;
-      font-size: $font-size-small;
-      font-weight: 600;
-      overflow: hidden;
-      padding: 0 10px 0 26px;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      width: 100%;
+        > span {
+            color: $gray-dark;
+            display: inline-block;
+            font-size: $font-size-small;
+            font-weight: 600;
+            overflow: hidden;
+            padding: 0 10px 0 26px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 100%;
+        }
+
+        .icon {
+            display: block;
+            float: left;
+            left: 10px;
+            position: absolute;
+
+            &::before {
+                font-size: $font-size-normal;
+                margin: 0;
+                padding: 0;
+                text-align: left;
+            }
+        }
+
+        bp-item-type-icon {
+            display: block;
+            float: left;
+            left: 10px;
+            position: absolute;
+
+            img {
+                height: 12px;
+                width: 12px;
+            }
+        }
     }
 
-    .icon {
-      display: block;
-      float: left;
-      left: 10px;
-      position: absolute;
-
-      &::before {
-        font-size: $font-size-normal;
-        margin: 0;
-        padding: 0;
-        text-align: left;
-      }
+    .utility-panel-content {
+        height: calc(100% - #{$utility-panel-title-height});
     }
-
-    bp-item-type-icon {
-      display: block;
-      float: left;
-      left: 10px;
-      position: absolute;
-
-      img {
-        height: 12px;
-        width: 12px;
-      }
-    }
-  }
-
-  .utility-panel-content {
-    height: calc(100% - #{$utility-panel-title-height});
-  }
 }

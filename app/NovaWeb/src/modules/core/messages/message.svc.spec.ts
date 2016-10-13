@@ -1,9 +1,9 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
-import { LocalizationServiceMock } from "../localization/localization.mock";
-import { IMessageService, MessageService } from "./message.svc";
-import { Message, MessageType} from "./message";
-import { SettingsService } from "../configuration";
+import {LocalizationServiceMock} from "../localization/localization.mock";
+import {IMessageService, MessageService} from "./message.svc";
+import {Message, MessageType} from "./message";
+import {SettingsService} from "../configuration";
 
 describe("messageService", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -13,11 +13,11 @@ describe("messageService", () => {
     }));
 
     beforeEach(inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $templateCache: ng.ITemplateCacheService) => {
-       $rootScope["config"] = {
+        $rootScope["config"] = {
             "settings": {
                 "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`
             }
-        };       
+        };
     }));
 
     it("addError, returns the message",
@@ -79,8 +79,8 @@ describe("messageService", () => {
             expect(result.length).toEqual(1);
             expect(result[0]).toBe(message);
         }));
-    
-    describe("methods", () => {      
+
+    describe("methods", () => {
         beforeEach(inject((messageService: IMessageService) => {
             messageService.addError("test1");
             messageService.addError("test2");
@@ -90,7 +90,7 @@ describe("messageService", () => {
 
         it("deleteMessages",
             inject((messageService: IMessageService) => {
-               // Act
+                // Act
                 messageService.deleteMessageById(1);
 
                 // Assert
@@ -104,6 +104,6 @@ describe("messageService", () => {
                 // Assert
                 expect(messageService.messages.length).toEqual(0);
             }));
-            
+
     });
 });

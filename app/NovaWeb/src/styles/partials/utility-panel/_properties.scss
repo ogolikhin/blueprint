@@ -16,7 +16,6 @@ bp-properties-panel {
         display: block;
     }
 
-
     .artifact-overview {
 
         > .content {
@@ -33,15 +32,15 @@ bp-properties-panel {
         min-width: $property-width - $property-label-width;
         margin: 0px;
 
-        .formly-field-bpFieldInheritFrom {            
+        .formly-field-bpFieldInheritFrom {
             min-width: $property-input-width;
             .inheritance-group {
                 flex-wrap: wrap;
                 .inheritance-path {
                     min-width: $property-input-width;
                 }
-                .bp-input-group-addon{
-                    margin-top:10px;
+                .bp-input-group-addon {
+                    margin-top: 10px;
                 }
             }
         }
@@ -108,7 +107,6 @@ bp-properties-panel {
             }
 
             .read-only-input {
-
 
                 &.simple,
                 &.multiple {

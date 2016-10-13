@@ -9,11 +9,9 @@ export class Routes {
 
     public static $inject = ["$stateProvider", "$urlRouterProvider", "$urlMatcherFactoryProvider"];
 
-    constructor(
-        $stateProvider: ng.ui.IStateProvider,
-        $urlRouterProvider: ng.ui.IUrlRouterProvider,
-        $urlMatcherFactoryProvider: any
-    ) {
+    constructor($stateProvider: ng.ui.IStateProvider,
+                $urlRouterProvider: ng.ui.IUrlRouterProvider,
+                $urlMatcherFactoryProvider: any) {
 
         $urlMatcherFactoryProvider.caseInsensitive(true);
 
@@ -26,4 +24,5 @@ export class Routes {
             .state("main.artifact.glossary", new GlossaryState())
             .state("main.artifact.diagram", new DiagramState());
     }
-};
+}
+;

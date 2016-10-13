@@ -1,7 +1,7 @@
 ﻿export enum MessageType {
-    Error = 1, 
-    Info = 2, 
-    Warning = 3, 
+    Error = 1,
+    Info = 2,
+    Warning = 3,
     Lock = 4
 }
 
@@ -35,7 +35,7 @@ export class MessageController implements IMessageController {
 }
 
 export interface IMessageScope extends ng.IScope {
-    messageCntrl: MessageController;    
+    messageCntrl: MessageController;
 }
 
 export class MessageComponent implements ng.IComponentOptions {

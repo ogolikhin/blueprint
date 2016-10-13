@@ -202,9 +202,9 @@
 //             expect(changedArtifact[1].id).toEqual(10);
 
 //         }));
-           /* tslint:disable:max-line-length */
+/* tslint:disable:max-line-length */
 //         it("Current artifact hasn't changed", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {/
-           /* tslint:enable:max-line-length */
+/* tslint:enable:max-line-length */
 //             // Arrange
 //             let changedArtifact: Models.IArtifact[] = [];
 
@@ -224,7 +224,7 @@
 
 //             //Asserts
 
-            
+
 //             expect(changedArtifact).toBeDefined();
 //             expect(changedArtifact).toEqual(jasmine.any(Array));
 //             expect(changedArtifact.length).toBe(1);

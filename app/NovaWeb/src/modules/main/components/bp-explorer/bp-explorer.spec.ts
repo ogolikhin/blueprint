@@ -37,7 +37,7 @@
 //         explorer.$onInit();
 //     }));
 
-    
+
 //     it("check property map", inject((explorer: ProjectExplorerController) => {
 //         // Arrange
 //         // Act
@@ -59,7 +59,7 @@
 //         // Act
 //         explorer.$onDestroy();
 //         let _after = explorer["_subscribers"] as Rx.IDisposable[];
-        
+
 //         // Assert
 //         expect(_before.length).toEqual(2);
 //         expect(_after.length).toEqual(0);
@@ -95,7 +95,7 @@
 
 //         projectManager.loadArtifact({ id: 10 } as Models.IArtifact);
 //         $rootScope.$digest();
-        
+
 //         // Assert
 //         expect(isReloadCalled).toEqual(3);
 //     }));
@@ -116,7 +116,7 @@
 //         expect(isReloadCalled).toEqual(1);
 
 //     }));
-        
+
 //     it("doLoad", inject(($rootScope: ng.IRootScopeService, explorer: ProjectExplorerController) => {
 //         // Arrange
 //         isReloadCalled = 0;
@@ -155,7 +155,7 @@
 //         $rootScope.$digest();
 //         explorer.doSelect(({ id: 1, name: "Project 1"} as ITreeNode));
 //         $rootScope.$digest();
-        
+
 //         // Act
 //         const selectedArtifact = selectionManager.selection.artifact;
 

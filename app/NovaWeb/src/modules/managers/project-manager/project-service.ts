@@ -1,5 +1,5 @@
 ﻿import * as angular from "angular";
-import { Models, SearchServiceModels } from "../../main/models";
+import {Models, SearchServiceModels} from "../../main/models";
 
 export enum ProjectServiceStatusCode {
     ResourceNotFound = 3000
@@ -13,11 +13,9 @@ export interface IProjectService {
     getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta>;
     getSubArtifactTree(artifactId: number): ng.IPromise<Models.ISubArtifactNode[]>;
     getProjectTree(projectId: number, artifactId: number, loadChildren?: boolean): ng.IPromise<Models.IArtifact[]>;
-    searchProjects(
-        searchCriteria: SearchServiceModels.IProjectSearchCriteria,
-        resultCount?: number,
-        separatorString?: string
-    ): ng.IPromise<SearchServiceModels.IProjectSearchResult[]>;
+    searchProjects(searchCriteria: SearchServiceModels.IProjectSearchCriteria,
+                   resultCount?: number,
+                   separatorString?: string): ng.IPromise<SearchServiceModels.IProjectSearchResult[]>;
 }
 
 export class ProjectService implements IProjectService {
@@ -25,9 +23,8 @@ export class ProjectService implements IProjectService {
 
     private canceler: ng.IDeferred<any>;
 
-    constructor(
-        private $q: ng.IQService,
-        private $http: ng.IHttpService) {
+    constructor(private $q: ng.IQService,
+                private $http: ng.IHttpService) {
     }
 
     public abort(): void {
@@ -59,7 +56,7 @@ export class ProjectService implements IProjectService {
             }
         );
         return defer.promise;
-    } 
+    }
 
     public getProject(id?: number): ng.IPromise<Models.IProjectNode> {
         const defer = this.$q.defer<any>();
@@ -88,7 +85,7 @@ export class ProjectService implements IProjectService {
             }
         );
         return defer.promise;
-    } 
+    }
 
     public getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
         if (projectId && projectId === artifactId) {
@@ -215,11 +212,9 @@ export class ProjectService implements IProjectService {
         return defer.promise;
     }
 
-    public searchProjects(
-        searchCriteria: SearchServiceModels.IProjectSearchCriteria,
-        resultCount: number = 100,
-        separatorString: string = " > "
-    ): ng.IPromise<SearchServiceModels.IProjectSearchResult[]> {
+    public searchProjects(searchCriteria: SearchServiceModels.IProjectSearchCriteria,
+                          resultCount: number = 100,
+                          separatorString: string = " > "): ng.IPromise<SearchServiceModels.IProjectSearchResult[]> {
         this.canceler = this.$q.defer<any>();
 
         const requestObj: ng.IRequestConfig = {

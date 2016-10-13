@@ -148,8 +148,8 @@ export class DiagramMock {
         // Only create points if they are undefined
         if (typeof points === "undefined") {
             connection.points = [];
-            connection.points.push(<Point>{ x: 0, y: 0 });
-            connection.points.push(<Point>{ x: 100, y: 100 });
+            connection.points.push(<Point>{x: 0, y: 0});
+            connection.points.push(<Point>{x: 100, y: 100});
         }
         // If points are explicity set to null - set points to null
         if (points === null) {
@@ -167,5 +167,6 @@ export class DiagramMock {
     public static createRichText(plainText: string) {
         return "<html><head></head><body style=\"padding: 1px 0px 0px; font-size: 11px\"><div style=\"font-size: 11px\"><p style=\"margin: 0px; font-size: 11px; text-align: center\"><span style=\"font-size: 11px\">" + plainText + "</span></p></div></body></html>";
     }
+
     /* tslint:enable:max-line-length */
 }

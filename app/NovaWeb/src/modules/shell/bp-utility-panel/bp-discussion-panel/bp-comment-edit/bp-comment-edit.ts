@@ -1,5 +1,5 @@
 ﻿import "angular-ui-tinymce";
-import { IMentionService, MentionService } from "./mention.svc";
+import {IMentionService, MentionService} from "./mention.svc";
 
 export class BPCommentEdit implements ng.IComponentOptions {
     public template: string = require("./bp-comment-edit.html");
@@ -50,23 +50,23 @@ export class BPCommentEditController {
             editor.focus();
             editor.formatter.register("font8px", {
                 inline: "span",
-                styles: { "font-size": "8px" }
+                styles: {"font-size": "8px"}
             });
             editor.formatter.register("font10px", {
                 inline: "span",
-                styles: { "font-size": "10px" }
+                styles: {"font-size": "10px"}
             });
             editor.formatter.register("font12px", {
                 inline: "span",
-                styles: { "font-size": "12px" }
+                styles: {"font-size": "12px"}
             });
             editor.formatter.register("font15px", {
                 inline: "span",
-                styles: { "font-size": "15px" }
+                styles: {"font-size": "15px"}
             });
             editor.formatter.register("font18px", {
                 inline: "span",
-                styles: { "font-size": "18px" }
+                styles: {"font-size": "18px"}
             });
         },
         setup: function (editor) {
@@ -76,11 +76,31 @@ export class BPCommentEditController {
                 text: "",
                 icon: "format",
                 menu: [
-                    { icon: "strikethrough", text: " Strikethrough", onclick: function () { editor.editorCommands.execCommand("strikethrough"); } },
-                    { icon: "bullist", text: " Bulleted list", onclick: function () { editor.editorCommands.execCommand("InsertUnorderedList"); } },
-                    { icon: "numlist", text: " Numeric list", onclick: function () { editor.editorCommands.execCommand("InsertOrderedList"); } },
-                    { icon: "outdent", text: " Outdent", onclick: function () { editor.editorCommands.execCommand("Outdent"); } },
-                    { icon: "indent", text: " Indent", onclick: function () { editor.editorCommands.execCommand("Indent"); } }
+                    {
+                        icon: "strikethrough", text: " Strikethrough", onclick: function () {
+                        editor.editorCommands.execCommand("strikethrough");
+                    }
+                    },
+                    {
+                        icon: "bullist", text: " Bulleted list", onclick: function () {
+                        editor.editorCommands.execCommand("InsertUnorderedList");
+                    }
+                    },
+                    {
+                        icon: "numlist", text: " Numeric list", onclick: function () {
+                        editor.editorCommands.execCommand("InsertOrderedList");
+                    }
+                    },
+                    {
+                        icon: "outdent", text: " Outdent", onclick: function () {
+                        editor.editorCommands.execCommand("Outdent");
+                    }
+                    },
+                    {
+                        icon: "indent", text: " Indent", onclick: function () {
+                        editor.editorCommands.execCommand("Indent");
+                    }
+                    }
                 ]
             });
             editor.addButton("fontsize", {
@@ -122,7 +142,7 @@ export class BPCommentEditController {
     public callPostComment() {
         if (!this.isWaiting) {
             this.isWaiting = true;
-            this.postComment({ comment: this.commentEditor ? (<any>this.commentEditor).contentDocument.body.innerHTML : "" }).finally(() => {
+            this.postComment({comment: this.commentEditor ? (<any>this.commentEditor).contentDocument.body.innerHTML : ""}).finally(() => {
                 this.isWaiting = false;
             });
         }

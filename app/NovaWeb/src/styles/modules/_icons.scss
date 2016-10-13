@@ -1,14 +1,15 @@
 @font-face {
-  font-family: 'bp-line-icons';
-  src: url('fonts/bp-line-icons.eot');
-  src: url('fonts/bp-line-icons.eot#iefix') format('embedded-opentype'),
-  url('fonts/bp-line-icons.woff2') format('woff2'),
-  url('fonts/bp-line-icons.woff') format('woff'),
-  url('fonts/bp-line-icons.ttf') format('truetype'),
-  url('fonts/bp-line-icons.svg#bp-line-icons') format('svg');
-  font-weight: normal;
-  font-style: normal;
+    font-family: 'bp-line-icons';
+    src: url('fonts/bp-line-icons.eot');
+    src: url('fonts/bp-line-icons.eot#iefix') format('embedded-opentype'),
+    url('fonts/bp-line-icons.woff2') format('woff2'),
+    url('fonts/bp-line-icons.woff') format('woff'),
+    url('fonts/bp-line-icons.ttf') format('truetype'),
+    url('fonts/bp-line-icons.svg#bp-line-icons') format('svg');
+    font-weight: normal;
+    font-style: normal;
 }
+
 // Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it.
 // Note, that will break hinting! In other OS-es font will be not as sharp as it could be.
 /*
@@ -21,42 +22,42 @@
 */
 
 [class^="icon-"]::before, [class*=" icon-"]::before {
-  display: inline-block;
-  font-family: 'bp-line-icons';
-  font-style: normal;
-  font-weight: normal;
-  speak: none;
+    display: inline-block;
+    font-family: 'bp-line-icons';
+    font-style: normal;
+    font-weight: normal;
+    speak: none;
 
-  text-decoration: inherit;
-  width: 1em;
-  margin-right: .2em;
-  text-align: center;
-  //opacity: .8;
+    text-decoration: inherit;
+    width: 1em;
+    margin-right: .2em;
+    text-align: center;
+    //opacity: .8;
 
-  // For safety - reset parent styles, that can break glyph codes
-  font-variant: normal;
-  text-transform: none;
+    // For safety - reset parent styles, that can break glyph codes
+    font-variant: normal;
+    text-transform: none;
 
-  // Fix buttons height, for twitter bootstrap
-  line-height: 1em;
+    // Fix buttons height, for twitter bootstrap
+    line-height: 1em;
 
-  // Animation center compensation - margins should be symmetric remove if not needed
-  margin-left: .2em;
+    // Animation center compensation - margins should be symmetric remove if not needed
+    margin-left: .2em;
 
-  // Uncomment if more comfortable with increased icons size
-  //font-size: 120%;
+    // Uncomment if more comfortable with increased icons size
+    //font-size: 120%;
 
-  // Font smoothing. That was taken from TWBS
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    // Font smoothing. That was taken from TWBS
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 
-  // Uncomment for 3D effect
-  //text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3);
+    // Uncomment for 3D effect
+    //text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3);
 }
 
 $icon-business-process: '\e802';
 $icon-domain-diagram: '\e805';
-$icon-actor: '\e800' ;
+$icon-actor: '\e800';
 $icon-use-case: '\e811';
 $icon-process: '\e80d';
 $icon-user-story: '\e812';
@@ -71,57 +72,219 @@ $icon-folder: '\e807';
 $icon-folder-open: '\e806';
 $icon-document: '\e804';
 $icon-subartifact: '\e822';
-$icon-baseline: '\e801' ;
+$icon-baseline: '\e801';
 $icon-collection: '\e803';
 
-.icon-business-process::before { content: $icon-business-process; } // ''
-.icon-bp-shape::before { content: $icon-subartifact; } // ''
-.icon-bp-connector::before { content: $icon-subartifact; } // ''
-.icon-domain-diagram::before { content: $icon-domain-diagram; } // ''
-.icon-dd-shape::before { content: $icon-subartifact; } // ''
-.icon-dd-connector::before { content: $icon-subartifact; } // ''
-.icon-actor::before { content: $icon-actor; } // ''
-.icon-use-case::before { content: $icon-use-case; } // ''
-.icon-step::before { content: $icon-subartifact; } // ''
-.icon-process::before { content: $icon-process; } // '' //StoryTeller
-.icon-pro-shape::before { content: $icon-subartifact; } // ''
-.icon-user-story::before { content: $icon-user-story; } // ''
-.icon-use-case-diagram::before { content: $icon-use-case-diagram; } // ''
-.icon-ucd-shape::before { content: $icon-subartifact; } // ''
-.icon-ucd-connector::before { content: $icon-subartifact; } // ''
-.icon-ui-mockup::before { content: $icon-ui-mockup; } // ''
-.icon-ui-shape::before { content: $icon-subartifact; } // ''
-.icon-ui-connector::before { content: $icon-subartifact; } // ''
-.icon-textual-requirement::before { content: $icon-textual-requirement; } // ''
-.icon-storyboard::before { content: $icon-storyboard; } // ''
-.icon-sb-shape::before { content: $icon-subartifact; } // ''
-.icon-sb-connector::before { content: $icon-subartifact; } // ''
-.icon-project::before { content: $icon-project; } // ''
-.icon-glossary::before { content: $icon-glossary; } // ''
-.icon-term::before { content: $icon-subartifact; } // ''
-.icon-generic-diagram::before { content: $icon-generic-diagram; } // ''
-.icon-gd-shape::before { content: $icon-subartifact; } // ''
-.icon-gd-connector::before { content: $icon-subartifact; } // ''
+.icon-business-process::before {
+    content: $icon-business-process;
+}
+
+// ''
+.icon-bp-shape::before {
+    content: $icon-subartifact;
+}
+
+// ''
+.icon-bp-connector::before {
+    content: $icon-subartifact;
+}
+
+// ''
+.icon-domain-diagram::before {
+    content: $icon-domain-diagram;
+}
+
+// ''
+.icon-dd-shape::before {
+    content: $icon-subartifact;
+}
+
+// ''
+.icon-dd-connector::before {
+    content: $icon-subartifact;
+}
+
+// ''
+.icon-actor::before {
+    content: $icon-actor;
+}
+
+// ''
+.icon-use-case::before {
+    content: $icon-use-case;
+}
+
+// ''
+.icon-step::before {
+    content: $icon-subartifact;
+}
+
+// ''
+.icon-process::before {
+    content: $icon-process;
+}
+
+// '' //StoryTeller
+.icon-pro-shape::before {
+    content: $icon-subartifact;
+}
+
+// ''
+.icon-user-story::before {
+    content: $icon-user-story;
+}
+
+// ''
+.icon-use-case-diagram::before {
+    content: $icon-use-case-diagram;
+}
+
+// ''
+.icon-ucd-shape::before {
+    content: $icon-subartifact;
+}
+
+// ''
+.icon-ucd-connector::before {
+    content: $icon-subartifact;
+}
+
+// ''
+.icon-ui-mockup::before {
+    content: $icon-ui-mockup;
+}
+
+// ''
+.icon-ui-shape::before {
+    content: $icon-subartifact;
+}
+
+// ''
+.icon-ui-connector::before {
+    content: $icon-subartifact;
+}
+
+// ''
+.icon-textual-requirement::before {
+    content: $icon-textual-requirement;
+}
+
+// ''
+.icon-storyboard::before {
+    content: $icon-storyboard;
+}
+
+// ''
+.icon-sb-shape::before {
+    content: $icon-subartifact;
+}
+
+// ''
+.icon-sb-connector::before {
+    content: $icon-subartifact;
+}
+
+// ''
+.icon-project::before {
+    content: $icon-project;
+}
+
+// ''
+.icon-glossary::before {
+    content: $icon-glossary;
+}
+
+// ''
+.icon-term::before {
+    content: $icon-subartifact;
+}
+
+// ''
+.icon-generic-diagram::before {
+    content: $icon-generic-diagram;
+}
+
+// ''
+.icon-gd-shape::before {
+    content: $icon-subartifact;
+}
+
+// ''
+.icon-gd-connector::before {
+    content: $icon-subartifact;
+}
+
+// ''
 .icon-primitive-folder::before,
-.icon-folder::before { content: $icon-folder; } // ''
-.icon-document::before { content: $icon-document; } // ''
-.icon-subartifact:before { content: $icon-subartifact; } /* '' */
+.icon-folder::before {
+    content: $icon-folder;
+}
+
+// ''
+.icon-document::before {
+    content: $icon-document;
+}
+
+// ''
+.icon-subartifact:before {
+    content: $icon-subartifact;
+}
+
+/* '' */
 
 .thumb {
-       width: 40px;
-       height: 40px;
-   }
+    width: 40px;
+    height: 40px;
+}
 
-.ext-image { background: url('images/filetypes/image.svg') center center no-repeat; }
-.ext-video { background: url('images/filetypes/video.svg') center center no-repeat; }
-.ext-sound { background: url('images/filetypes/sound.svg') center center no-repeat; }
-.ext-archive { background: url('images/filetypes/zip.svg') center center no-repeat; }
-.ext-ms-word { background: url('images/filetypes/ms-word.svg') center center no-repeat; }
-.ext-document { background: url('images/filetypes/document.svg') center center no-repeat; }
-.ext-code { background: url('images/filetypes/code.svg') center center no-repeat; }
-.ext-ms-excel { background: url('images/filetypes/ms-excel.svg') center center no-repeat; }
-.ext-ms-onenote { background: url('images/filetypes/ms-onenote.svg') center center no-repeat; }
-.ext-ms-powerpoint { background: url('images/filetypes/ms-powerpoint.svg') center center no-repeat; }
-.ext-ms-visio { background: url('images/filetypes/ms-visio.svg') center center no-repeat; }
-.ext-pdf { background: url('images/filetypes/pdf.svg') center center no-repeat; }
-.ext-web { background: url('images/filetypes/web.svg') center center no-repeat; }
+.ext-image {
+    background: url('images/filetypes/image.svg') center center no-repeat;
+}
+
+.ext-video {
+    background: url('images/filetypes/video.svg') center center no-repeat;
+}
+
+.ext-sound {
+    background: url('images/filetypes/sound.svg') center center no-repeat;
+}
+
+.ext-archive {
+    background: url('images/filetypes/zip.svg') center center no-repeat;
+}
+
+.ext-ms-word {
+    background: url('images/filetypes/ms-word.svg') center center no-repeat;
+}
+
+.ext-document {
+    background: url('images/filetypes/document.svg') center center no-repeat;
+}
+
+.ext-code {
+    background: url('images/filetypes/code.svg') center center no-repeat;
+}
+
+.ext-ms-excel {
+    background: url('images/filetypes/ms-excel.svg') center center no-repeat;
+}
+
+.ext-ms-onenote {
+    background: url('images/filetypes/ms-onenote.svg') center center no-repeat;
+}
+
+.ext-ms-powerpoint {
+    background: url('images/filetypes/ms-powerpoint.svg') center center no-repeat;
+}
+
+.ext-ms-visio {
+    background: url('images/filetypes/ms-visio.svg') center center no-repeat;
+}
+
+.ext-pdf {
+    background: url('images/filetypes/pdf.svg') center center no-repeat;
+}
+
+.ext-web {
+    background: url('images/filetypes/web.svg') center center no-repeat;
+}

@@ -51,7 +51,7 @@
 //         inject((
 //             $httpBackend: ng.IHttpBackendService, 
 //             $window: ng.IWindowService) => {
-        
+
 //         // Arrange
 //         spyOn($window, "open").and.callFake(function() {
 //             return true;
@@ -76,7 +76,7 @@
 //         // Act
 //         vm.downloadItem();
 //         $httpBackend.flush();
-        
+
 //         //Assert
 //         expect($window.open).toHaveBeenCalled();
 //         expect($window.open).toHaveBeenCalledWith("/svc/components/RapidReview/artifacts/357/files/1102?includeDraft=true", "_blank");
@@ -87,7 +87,7 @@
 //             $httpBackend: ng.IHttpBackendService, 
 //             $window: ng.IWindowService,
 //             messageService: IMessageService) => {
-        
+
 //         // Arrange
 //         spyOn($window, "open").and.callFake(() => true);
 //         spyOn(messageService, "addError").and.callFake(() => true);
@@ -103,7 +103,7 @@
 //         // Act
 //         vm.downloadItem();
 //         $httpBackend.flush();
-        
+
 //         //Assert
 //         expect($window.open).not.toHaveBeenCalled();
 //         expect(messageService.addError).toHaveBeenCalled();
@@ -111,13 +111,13 @@
 
 //     it("should try to delete an item", 
 //         inject(($rootScope: ng.IRootScopeService, $window: ng.IWindowService) => {
-        
+
 //         // Arrange
 //         spyOn($window, "alert").and.callFake(() => true);
 
 //         // Act
 //         vm.deleteItem();
-        
+
 //         //Assert
 //         expect($window.alert).toHaveBeenCalled();
 //     }));

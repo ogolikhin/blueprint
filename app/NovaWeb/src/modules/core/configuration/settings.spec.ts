@@ -1,7 +1,7 @@
 import "angular";
 import "angular-mocks";
 
-import { SettingsService, ISettingsService } from "./";
+import {SettingsService, ISettingsService} from "./";
 
 describe("Settings", () => {
     let settings: ISettingsService;
@@ -180,7 +180,7 @@ describe("Settings", () => {
             let value = settings.getObject("object");
 
             // Assert
-            expect(value).toEqual({ string: "s", number: 5, array: ["s", 5], boolean: true });
+            expect(value).toEqual({string: "s", number: 5, array: ["s", 5], boolean: true});
         });
         it("returns undefined if setting doesn't exist", () => {
             // Arrange
@@ -193,7 +193,7 @@ describe("Settings", () => {
         });
         it("returns specified default value if setting doesn't exist", () => {
             // Arrange
-            let defaultValue = { value: 123 };
+            let defaultValue = {value: 123};
 
             // Act
             let value = settings.getObject("", defaultValue);
@@ -203,7 +203,7 @@ describe("Settings", () => {
         });
         it("returns specified default value if setting is not a valid object", () => {
             // Arrange
-            let defaultValue = { value: 123 };
+            let defaultValue = {value: 123};
 
             // Act
             let value = settings.getObject("invalidObject", defaultValue);

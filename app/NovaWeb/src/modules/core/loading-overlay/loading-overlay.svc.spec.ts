@@ -1,9 +1,9 @@
 ﻿import "../../main/";
 import * as angular from "angular";
 import "angular-mocks";
-import { ILoadingOverlayService, LoadingOverlayService } from "./loading-overlay.svc";
-import { BpLoadingOverlayController } from "./bp-loading-overlay";
-import { ComponentTest } from "../../util/component.test";
+import {ILoadingOverlayService, LoadingOverlayService} from "./loading-overlay.svc";
+import {BpLoadingOverlayController} from "./bp-loading-overlay";
+import {ComponentTest} from "../../util/component.test";
 
 //The service and component are closely related, so we test both at the same time.
 //See loading-overlay.svc
@@ -107,24 +107,24 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
         expect(componentTest.element.find("div:nth-child(2)").hasClass("overlay-graphic")).toBe(false);
     })));
 
-    it("throws an error if endLoading() is called twice - does not hide the overlay if beginLoading() was called twice", 
+    it("throws an error if endLoading() is called twice - does not hide the overlay if beginLoading() was called twice",
         (inject((loadingOverlayService: ILoadingOverlayService) => {
-        // Act
-        let id1 = loadingOverlayService.beginLoading();
-        loadingOverlayService.beginLoading();
-        loadingOverlayService.endLoading(id1);
-        componentTest.scope.$digest();
-
-        // Act + Assert      
-        expect(() => {
+            // Act
+            let id1 = loadingOverlayService.beginLoading();
+            loadingOverlayService.beginLoading();
             loadingOverlayService.endLoading(id1);
-        }).toThrow(new Error(`Invalid id; endLoading may have been called multiple times on the same id or called before beginLoading`));
-        componentTest.scope.$digest();
+            componentTest.scope.$digest();
 
-        //Assert
-        expect(componentTest.element.find("div:nth-child(1)").hasClass("overlay")).toBe(true);
-        expect(componentTest.element.find("div:nth-child(2)").hasClass("overlay-graphic")).toBe(true);
-    })));
+            // Act + Assert      
+            expect(() => {
+                loadingOverlayService.endLoading(id1);
+            }).toThrow(new Error(`Invalid id; endLoading may have been called multiple times on the same id or called before beginLoading`));
+            componentTest.scope.$digest();
+
+            //Assert
+            expect(componentTest.element.find("div:nth-child(1)").hasClass("overlay")).toBe(true);
+            expect(componentTest.element.find("div:nth-child(2)").hasClass("overlay-graphic")).toBe(true);
+        })));
 
     it("hides the overlay if dispose() is called, even with multiple beginLoading() calls", (inject((loadingOverlayService: ILoadingOverlayService) => {
         // Act

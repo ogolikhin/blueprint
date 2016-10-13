@@ -22,7 +22,7 @@ export class BpSidebarLayout implements ng.IComponentOptions {
             isRightToggled: "<",
             leftPanelTitle: "@",
             rightPanelTitle: "@",
-            togglePanel: "&?",
+            togglePanel: "&?"
         };
         this.transclude = {
             "content-left": "bpSidebarLayoutContentLeft",
@@ -35,8 +35,8 @@ export class BpSidebarLayout implements ng.IComponentOptions {
 export class BpSidebarLayoutCtrl implements ISidebarController {
 
     static $inject: [string] = ["$scope", "$element"];
-    public  isLeftToggled: boolean;
-    public  isRightToggled: boolean;
+    public isLeftToggled: boolean;
+    public isRightToggled: boolean;
 
     public leftPanelTitle: string;
     public rightPanelTitle: string;
@@ -45,22 +45,26 @@ export class BpSidebarLayoutCtrl implements ISidebarController {
         this.isLeftToggled = false;
         this.isRightToggled = false;
     }
+
     public $onInit() {
+//fixme: empty blocks should be removed
     }
 
     public $onChanged(obj: any) {
+//fixme: empty blocks should be removed
+
     }
 
     public togglePanel: Function;
 
     public toggleLeft(evt: ng.IAngularEvent) {
         evt.preventDefault();
-        this.togglePanel({ id: Enums.ILayoutPanel.Left });
+        this.togglePanel({id: Enums.ILayoutPanel.Left});
     }
 
     public toggleRight(evt: ng.IAngularEvent) {
         evt.preventDefault();
-        this.togglePanel({ id: Enums.ILayoutPanel.Right });
+        this.togglePanel({id: Enums.ILayoutPanel.Right});
     }
 
 

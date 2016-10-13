@@ -1,5 +1,5 @@
-import { ILocalizationService } from "../../core";
-import { IArtifact } from "../../main/models/models";
+import {ILocalizationService} from "../../core";
+import {IArtifact} from "../../main/models/models";
 
 export interface IGlossaryService {
     getGlossary(id: number): ng.IPromise<IArtifact>;
@@ -14,11 +14,10 @@ export class GlossaryService implements IGlossaryService {
 
     private _glossary: Rx.BehaviorSubject<IArtifact>;
 
-    constructor(
-        private $q: ng.IQService,
-        private $http: ng.IHttpService,
-        private $log: ng.ILogService,
-        private localization: ILocalizationService) {
+    constructor(private $q: ng.IQService,
+                private $http: ng.IHttpService,
+                private $log: ng.ILogService,
+                private localization: ILocalizationService) {
 
         this._glossary = new Rx.BehaviorSubject<IArtifact>(null);
     }
@@ -46,7 +45,7 @@ export class GlossaryService implements IGlossaryService {
                 };
                 defer.reject(error);
             });
-            
+
         return defer.promise;
     }
 }

@@ -10,14 +10,25 @@
 
     <div class="storyteller-preview-center-pane">
         <div class="contextual-help-container contextual-help-user-story-container">
-            <div ng-show="dialogModel.isUserSystemProcess"><contextual-help image-src={{'/novaweb/static/bp-process/images/contextual-help/gwt.png'}}></contextual-help></div>
-            <div ng-show="!dialogModel.isUserSystemProcess" class="contextual-help_business-modal"><contextual-help image-src={{'/novaweb/static/bp-process/images/contextual-help/gwt.png'}}></contextual-help></div>
+            <div ng-show="dialogModel.isUserSystemProcess">
+                <contextual-help
+                    image-src={{'/novaweb/static/bp-process/images/contextual-help/gwt.png'}}></contextual-help>
+            </div>
+            <div ng-show="!dialogModel.isUserSystemProcess" class="contextual-help_business-modal">
+                <contextual-help
+                    image-src={{'/novaweb/static/bp-process/images/contextual-help/gwt.png'}}></contextual-help>
+            </div>
         </div>
-        <preview-center user-task-model="dialogModel.clonedUserTask" previous-system-task="dialogModel.previousSytemTasks[0]" next-system-task="dialogModel.nextSystemTask" is-user-system-process="dialogModel.isUserSystemProcess"></preview-center>
+        <preview-center user-task-model="dialogModel.clonedUserTask"
+                        previous-system-task="dialogModel.previousSytemTasks[0]"
+                        next-system-task="dialogModel.nextSystemTask"
+                        is-user-system-process="dialogModel.isUserSystemProcess"></preview-center>
         <div class="modal-footer storyteller-modal-footer">
-            <button class="btn btn-default" type="button" ng-click="vm.cancel()">{{::$root.config.labels['App_Button_Cancel']}}</button>
-            <button class="btn button-brand-secondary" type="button" ng-disabled="vm.isReadonly" ng-click="vm.ok()">{{::$root.config.labels['ST_Publish_User_Story']}}</button>
-            <button id="artifact-property-modal-helper" style="display:none" type="button" ng-click="vm.openPropertyFloatWindow($event)"></button>
+            <button class="btn btn-default" type="button" ng-click="vm.cancel()">
+                {{::$root.config.labels['App_Button_Close']}}
+            </button>
+            <button id="artifact-property-modal-helper" style="display:none" type="button"
+                    ng-click="vm.openPropertyFloatWindow($event)"></button>
         </div>
     </div>
 

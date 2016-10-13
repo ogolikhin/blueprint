@@ -2,9 +2,9 @@ import * as angular from "angular";
 import "angular-formly";
 import "angular-ui-tinymce";
 import "tinymce";
-import { BPFieldBaseRTFController } from "./base-rtf-controller";
-import { Helper } from "../../../../shared";
-
+import {BPFieldBaseRTFController} from "./base-rtf-controller";
+import {Helper} from "../../../../shared";
+//fixme: only one class per file
 export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTF";
     public template: string = require("./text-rtf.template.html");
@@ -23,6 +23,7 @@ export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldTextRTFController;
 
     constructor() {
+        //fixme: empty constructors can be removed
     }
 }
 
@@ -36,7 +37,9 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         let initialContent = null;
         let editorBody = null;
         let onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
-        $scope.to.onChange = () => { };
+        $scope.to.onChange = () => {
+            //fixme: if this function is blank why does it exist?
+        };
 
         const allowedFonts = ["Open Sans", "Arial", "Cambria", "Calibri", "Courier New", "Times New Roman", "Trebuchet MS", "Verdana"];
         let fontFormats = "";
@@ -44,6 +47,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
             fontFormats += `${font}=` + (font.indexOf(" ") !== -1 ? `"${font}";` : `${font};`);
         });
         const bogusRegEx = /<br data-mce-bogus="1">/gi;
+        const zeroWidthNoBreakSpaceRegEx = /[\ufeff\u200b]/g;
         const bodyBgColor = "#fbf8e7"; // this is $yellow-pale as defined in styles/modules/_variables.scss
         /* tslint:disable:max-line-length */
         // pencil icon
@@ -114,39 +118,39 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 init_instance_callback: (editor) => {
                     editor.formatter.register("font8", {
                         inline: "span",
-                        styles: { "font-size": "8pt" }
+                        styles: {"font-size": "8pt"}
                     });
                     editor.formatter.register("font9", { // default font, equivalent to 12px
                         inline: "span",
-                        styles: { "font-size": "9pt" }
+                        styles: {"font-size": "9pt"}
                     });
                     editor.formatter.register("font10", {
                         inline: "span",
-                        styles: { "font-size": "10pt" }
+                        styles: {"font-size": "10pt"}
                     });
                     editor.formatter.register("font11", {
                         inline: "span",
-                        styles: { "font-size": "11pt" }
+                        styles: {"font-size": "11pt"}
                     });
                     editor.formatter.register("font12", {
                         inline: "span",
-                        styles: { "font-size": "12pt" }
+                        styles: {"font-size": "12pt"}
                     });
                     editor.formatter.register("font14", {
                         inline: "span",
-                        styles: { "font-size": "14pt" }
+                        styles: {"font-size": "14pt"}
                     });
                     editor.formatter.register("font16", {
                         inline: "span",
-                        styles: { "font-size": "16pt" }
+                        styles: {"font-size": "16pt"}
                     });
                     editor.formatter.register("font18", {
                         inline: "span",
-                        styles: { "font-size": "18pt" }
+                        styles: {"font-size": "18pt"}
                     });
                     editor.formatter.register("font20", {
                         inline: "span",
-                        styles: { "font-size": "20pt" }
+                        styles: {"font-size": "20pt"}
                     });
 
                     editorBody = editor.getBody();
@@ -163,12 +167,17 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                             mutations.forEach(this.handleMutation);
                         });
 
-                        const observerConfig = { attributes: false, childList: true, characterData: false, subtree: true };
+                        const observerConfig = {
+                            attributes: false,
+                            childList: true,
+                            characterData: false,
+                            subtree: true
+                        };
                         this.observer.observe(editorBody, observerConfig);
                     }
 
                     // we store the initial value so IE doesn't mark the field dirty just for clicking it!
-                    initialContent = editorBody.innerHTML.replace(bogusRegEx, "");
+                    initialContent = editorBody.innerHTML.replace(bogusRegEx, "").replace(zeroWidthNoBreakSpaceRegEx, "");
 
                     editor.on("Focus", (e) => {
                         if (editor.editorContainer) {
@@ -192,33 +201,45 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                             {
                                 icon: "strikethrough",
                                 text: " Strikethrough",
-                                onclick: function () { editor.editorCommands.execCommand("Strikethrough"); }
+                                onclick: function () {
+                                    editor.editorCommands.execCommand("Strikethrough");
+                                }
                             },
                             {
                                 icon: "bullist",
                                 text: " Bulleted list",
-                                onclick: function () { editor.editorCommands.execCommand("InsertUnorderedList"); }
+                                onclick: function () {
+                                    editor.editorCommands.execCommand("InsertUnorderedList");
+                                }
                             },
                             {
                                 icon: "numlist",
                                 text: " Numeric list",
-                                onclick: function () { editor.editorCommands.execCommand("InsertOrderedList"); }
+                                onclick: function () {
+                                    editor.editorCommands.execCommand("InsertOrderedList");
+                                }
                             },
                             {
                                 icon: "outdent",
                                 text: " Outdent",
-                                onclick: function () { editor.editorCommands.execCommand("Outdent"); }
+                                onclick: function () {
+                                    editor.editorCommands.execCommand("Outdent");
+                                }
                             },
                             {
                                 icon: "indent",
                                 text: " Indent",
-                                onclick: function () { editor.editorCommands.execCommand("Indent"); }
+                                onclick: function () {
+                                    editor.editorCommands.execCommand("Indent");
+                                }
                             },
-                            { text: "-" },
+                            {text: "-"},
                             {
                                 icon: "removeformat",
                                 text: " Clear formatting",
-                                onclick: function () { editor.editorCommands.execCommand("RemoveFormat"); }
+                                onclick: function () {
+                                    editor.editorCommands.execCommand("RemoveFormat");
+                                }
                             }
                         ]
                     });
@@ -230,39 +251,57 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         menu: [
                             {
                                 text: "8",
-                                onclick: function () { editor.formatter.apply("font8"); }
+                                onclick: function () {
+                                    editor.formatter.apply("font8");
+                                }
                             },
                             {
                                 text: "9",
-                                onclick: function () { editor.formatter.apply("font9"); }
+                                onclick: function () {
+                                    editor.formatter.apply("font9");
+                                }
                             },
                             {
                                 text: "10",
-                                onclick: function () { editor.formatter.apply("font10"); }
+                                onclick: function () {
+                                    editor.formatter.apply("font10");
+                                }
                             },
                             {
                                 text: "11",
-                                onclick: function () { editor.formatter.apply("font11"); }
+                                onclick: function () {
+                                    editor.formatter.apply("font11");
+                                }
                             },
                             {
                                 text: "12",
-                                onclick: function () { editor.formatter.apply("font12"); }
+                                onclick: function () {
+                                    editor.formatter.apply("font12");
+                                }
                             },
                             {
                                 text: "14",
-                                onclick: function () { editor.formatter.apply("font14"); }
+                                onclick: function () {
+                                    editor.formatter.apply("font14");
+                                }
                             },
                             {
                                 text: "16",
-                                onclick: function () { editor.formatter.apply("font16"); }
+                                onclick: function () {
+                                    editor.formatter.apply("font16");
+                                }
                             },
                             {
                                 text: "18",
-                                onclick: function () { editor.formatter.apply("font18"); }
+                                onclick: function () {
+                                    editor.formatter.apply("font18");
+                                }
                             },
                             {
                                 text: "20",
-                                onclick: function () { editor.formatter.apply("font20"); }
+                                onclick: function () {
+                                    editor.formatter.apply("font20");
+                                }
                             }
                         ]
                     });
@@ -276,7 +315,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
             requiredCustom: {
                 expression: function ($viewValue, $modelValue, scope) {
                     if (initialContent !== null) { // run this part after the field had the chance to load the content
-                        let content = editorBody.innerHTML.replace(bogusRegEx, "");
+                        let content = editorBody.innerHTML.replace(bogusRegEx, "").replace(zeroWidthNoBreakSpaceRegEx, "");
                         if (content !== initialContent) {
                             onChange(content.replace(bogusRegEx, ""), scope.options, scope);
                         }

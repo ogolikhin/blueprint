@@ -3,160 +3,160 @@ $perfect-scrollbar-radius: $perfect-scrollbar-thickness / 2;
 $perfect-scrollbar-spacing: $perfect-scrollbar-thickness + 3px;
 
 .ps-container {
-  position: relative;
+    position: relative;
 
-  > .ps-scrollbar-x-rail,
-  > .ps-scrollbar-y-rail {
-    z-index: $scrollbar-z-index;
-  }
-
-  // to make scrollbars always visible
-  &.always-visible {
     > .ps-scrollbar-x-rail,
     > .ps-scrollbar-y-rail {
-      opacity: .6;
-    }
-  }
-
-  > .ps-scrollbar-x-rail .ps-scrollbar-x,
-  > .ps-scrollbar-y-rail .ps-scrollbar-y {
-    background: transparent !important;
-    opacity: 1 !important;
-    transition: all 0s;
-    z-index: 1;
-
-    &::before {
-      background: $white;
-      content: '';
-      display: block;
-      font-size: 0;
-      position: absolute;
+        z-index: $scrollbar-z-index;
     }
 
-    &::after {
-      background: $gray-light;
-      border-radius: $perfect-scrollbar-radius;
-      content: '';
-      display: block;
-      font-size: 0;
-      position: absolute;
-    }
-  }
-
-  > .ps-scrollbar-x-rail .ps-scrollbar-x {
-    &::before {
-      border-radius: $perfect-scrollbar-radius $perfect-scrollbar-radius 0 0;
-      height: $perfect-scrollbar-spacing;
-      width: 100%;
+    // to make scrollbars always visible
+    &.always-visible {
+        > .ps-scrollbar-x-rail,
+        > .ps-scrollbar-y-rail {
+            opacity: .6;
+        }
     }
 
-    &::after {
-      height: $perfect-scrollbar-thickness;
-      width: 100%;
-    }
-  }
+    > .ps-scrollbar-x-rail .ps-scrollbar-x,
+    > .ps-scrollbar-y-rail .ps-scrollbar-y {
+        background: transparent !important;
+        opacity: 1 !important;
+        transition: all 0s;
+        z-index: 1;
 
-  > .ps-scrollbar-y-rail .ps-scrollbar-y {
-    &::before {
-      border-radius: $perfect-scrollbar-radius 0 0 $perfect-scrollbar-radius;
-      height: calc(100% - #{$perfect-scrollbar-spacing});
-      width: $perfect-scrollbar-spacing;
-    }
+        &::before {
+            background: $white;
+            content: '';
+            display: block;
+            font-size: 0;
+            position: absolute;
+        }
 
-    &::after {
-      height: 100%;
-      width: $perfect-scrollbar-thickness;
-    }
-  }
-
-  &:hover > .ps-scrollbar-x-rail:hover,
-  &:hover > .ps-scrollbar-y-rail:hover,
-  &.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail,
-  &.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail {
-    background: transparent !important;
-
-    &::before {
-      background: $white;
-      content: '';
-      display: block;
-      font-size: 0;
-      position: absolute;
+        &::after {
+            background: $gray-light;
+            border-radius: $perfect-scrollbar-radius;
+            content: '';
+            display: block;
+            font-size: 0;
+            position: absolute;
+        }
     }
 
-    &::after {
-      background: $gray-lightest;
-      border-radius: $perfect-scrollbar-radius;
-      content: '';
-      display: block;
-      font-size: 0;
-      position: absolute;
-      z-index: 0;
-    }
-  }
+    > .ps-scrollbar-x-rail .ps-scrollbar-x {
+        &::before {
+            border-radius: $perfect-scrollbar-radius $perfect-scrollbar-radius 0 0;
+            height: $perfect-scrollbar-spacing;
+            width: 100%;
+        }
 
-  &.page-body-wrapper {
-    > .ps-scrollbar-x-rail .ps-scrollbar-x::before,
-    > .ps-scrollbar-y-rail .ps-scrollbar-y::before,
-    &:hover > .ps-scrollbar-x-rail:hover::before,
-    &:hover > .ps-scrollbar-y-rail:hover::before,
-    &.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail::before,
-    &.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail::before {
-      background: transparent;
-    }
-  }
-
-  &.project-description-wrapper  {
-    > .ps-scrollbar-x-rail .ps-scrollbar-x::before,
-    > .ps-scrollbar-y-rail .ps-scrollbar-y::before,
-    &:hover > .ps-scrollbar-x-rail:hover::before,
-    &:hover > .ps-scrollbar-y-rail:hover::before,
-    &.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail::before,
-    &.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail::before {
-      background: $gray-lightest;
-    }
-  }
-
-  &:hover,
-  &.ps-in-scrolling.ps-x,
-  &.ps-in-scrolling.ps-y {
-    > .ps-scrollbar-x-rail,
-    > .ps-scrollbar-y-rail {
-      opacity: 1 !important;
-    }
-  }
-
-  > .ps-scrollbar-x-rail:hover,
-  &.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail {
-    &::before {
-      height: $perfect-scrollbar-spacing;
-      width: 100%;
+        &::after {
+            height: $perfect-scrollbar-thickness;
+            width: 100%;
+        }
     }
 
-    &::after {
-      height: $perfect-scrollbar-thickness;
-      width: 100%;
-    }
-  }
+    > .ps-scrollbar-y-rail .ps-scrollbar-y {
+        &::before {
+            border-radius: $perfect-scrollbar-radius 0 0 $perfect-scrollbar-radius;
+            height: calc(100% - #{$perfect-scrollbar-spacing});
+            width: $perfect-scrollbar-spacing;
+        }
 
-  > .ps-scrollbar-y-rail:hover,
-  &.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail {
-    &::before {
-      height: 100%;
-      width: $perfect-scrollbar-spacing;
+        &::after {
+            height: 100%;
+            width: $perfect-scrollbar-thickness;
+        }
     }
 
-    &::after {
-      height: 100%;
-      width: $perfect-scrollbar-thickness;
-    }
-  }
+    &:hover > .ps-scrollbar-x-rail:hover,
+    &:hover > .ps-scrollbar-y-rail:hover,
+    &.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail,
+    &.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail {
+        background: transparent !important;
 
-  > .ps-scrollbar-x-rail .ps-scrollbar-x:hover::after,
-  > .ps-scrollbar-y-rail .ps-scrollbar-y:hover::after,
-  &.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail .ps-scrollbar-x::after,
-  &.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail .ps-scrollbar-y::after {
-    background: $gray;
-  }
+        &::before {
+            background: $white;
+            content: '';
+            display: block;
+            font-size: 0;
+            position: absolute;
+        }
+
+        &::after {
+            background: $gray-lightest;
+            border-radius: $perfect-scrollbar-radius;
+            content: '';
+            display: block;
+            font-size: 0;
+            position: absolute;
+            z-index: 0;
+        }
+    }
+
+    &.page-body-wrapper {
+        > .ps-scrollbar-x-rail .ps-scrollbar-x::before,
+        > .ps-scrollbar-y-rail .ps-scrollbar-y::before,
+        &:hover > .ps-scrollbar-x-rail:hover::before,
+        &:hover > .ps-scrollbar-y-rail:hover::before,
+        &.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail::before,
+        &.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail::before {
+            background: transparent;
+        }
+    }
+
+    &.project-description-wrapper {
+        > .ps-scrollbar-x-rail .ps-scrollbar-x::before,
+        > .ps-scrollbar-y-rail .ps-scrollbar-y::before,
+        &:hover > .ps-scrollbar-x-rail:hover::before,
+        &:hover > .ps-scrollbar-y-rail:hover::before,
+        &.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail::before,
+        &.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail::before {
+            background: $gray-lightest;
+        }
+    }
+
+    &:hover,
+    &.ps-in-scrolling.ps-x,
+    &.ps-in-scrolling.ps-y {
+        > .ps-scrollbar-x-rail,
+        > .ps-scrollbar-y-rail {
+            opacity: 1 !important;
+        }
+    }
+
+    > .ps-scrollbar-x-rail:hover,
+    &.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail {
+        &::before {
+            height: $perfect-scrollbar-spacing;
+            width: 100%;
+        }
+
+        &::after {
+            height: $perfect-scrollbar-thickness;
+            width: 100%;
+        }
+    }
+
+    > .ps-scrollbar-y-rail:hover,
+    &.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail {
+        &::before {
+            height: 100%;
+            width: $perfect-scrollbar-spacing;
+        }
+
+        &::after {
+            height: 100%;
+            width: $perfect-scrollbar-thickness;
+        }
+    }
+
+    > .ps-scrollbar-x-rail .ps-scrollbar-x:hover::after,
+    > .ps-scrollbar-y-rail .ps-scrollbar-y:hover::after,
+    &.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail .ps-scrollbar-x::after,
+    &.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail .ps-scrollbar-y::after {
+        background: $gray;
+    }
 }
 
 $perfect-scrollbar-thickness: 6px;
@@ -166,74 +166,74 @@ $perfect-scrollbar-spacing: $perfect-scrollbar-thickness + 3px;
 bp-general-editor .ps-container,
 bp-artifact-editor .ps-container,
 .sidebar .ps-container {
-  > .ps-scrollbar-x-rail,
-  > .ps-scrollbar-x-rail > .ps-scrollbar-x {
-    height: $perfect-scrollbar-thickness;
-  }
-
-  > .ps-scrollbar-y-rail,
-  > .ps-scrollbar-y-rail > .ps-scrollbar-y {
-    width: $perfect-scrollbar-thickness;
-  }
-
-  > .ps-scrollbar-x-rail .ps-scrollbar-x,
-  > .ps-scrollbar-y-rail .ps-scrollbar-y {
-    &::after {
-      border-radius: $perfect-scrollbar-radius;
-    }
-  }
-
-  > .ps-scrollbar-x-rail .ps-scrollbar-x {
-    &::before {
-      border-radius: $perfect-scrollbar-radius $perfect-scrollbar-radius 0 0;
-      height: $perfect-scrollbar-spacing;
+    > .ps-scrollbar-x-rail,
+    > .ps-scrollbar-x-rail > .ps-scrollbar-x {
+        height: $perfect-scrollbar-thickness;
     }
 
-    &::after {
-      height: $perfect-scrollbar-thickness;
-    }
-  }
-
-  > .ps-scrollbar-y-rail .ps-scrollbar-y {
-    &::before {
-      border-radius: $perfect-scrollbar-radius 0 0 $perfect-scrollbar-radius;
-      height: calc(100% - #{$perfect-scrollbar-spacing});
-      width: $perfect-scrollbar-spacing;
+    > .ps-scrollbar-y-rail,
+    > .ps-scrollbar-y-rail > .ps-scrollbar-y {
+        width: $perfect-scrollbar-thickness;
     }
 
-    &::after {
-      width: $perfect-scrollbar-thickness;
-    }
-  }
-
-  &:hover > .ps-scrollbar-x-rail:hover,
-  &:hover > .ps-scrollbar-y-rail:hover,
-  &.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail,
-  &.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail {
-    &::after {
-      border-radius: $perfect-scrollbar-radius;
-    }
-  }
-
-  > .ps-scrollbar-x-rail:hover,
-  &.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail {
-    &::before {
-      height: $perfect-scrollbar-spacing;
+    > .ps-scrollbar-x-rail .ps-scrollbar-x,
+    > .ps-scrollbar-y-rail .ps-scrollbar-y {
+        &::after {
+            border-radius: $perfect-scrollbar-radius;
+        }
     }
 
-    &::after {
-      height: $perfect-scrollbar-thickness;
-    }
-  }
+    > .ps-scrollbar-x-rail .ps-scrollbar-x {
+        &::before {
+            border-radius: $perfect-scrollbar-radius $perfect-scrollbar-radius 0 0;
+            height: $perfect-scrollbar-spacing;
+        }
 
-  > .ps-scrollbar-y-rail:hover,
-  &.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail {
-    &::before {
-      width: $perfect-scrollbar-spacing;
+        &::after {
+            height: $perfect-scrollbar-thickness;
+        }
     }
 
-    &::after {
-      width: $perfect-scrollbar-thickness;
+    > .ps-scrollbar-y-rail .ps-scrollbar-y {
+        &::before {
+            border-radius: $perfect-scrollbar-radius 0 0 $perfect-scrollbar-radius;
+            height: calc(100% - #{$perfect-scrollbar-spacing});
+            width: $perfect-scrollbar-spacing;
+        }
+
+        &::after {
+            width: $perfect-scrollbar-thickness;
+        }
     }
-  }
+
+    &:hover > .ps-scrollbar-x-rail:hover,
+    &:hover > .ps-scrollbar-y-rail:hover,
+    &.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail,
+    &.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail {
+        &::after {
+            border-radius: $perfect-scrollbar-radius;
+        }
+    }
+
+    > .ps-scrollbar-x-rail:hover,
+    &.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail {
+        &::before {
+            height: $perfect-scrollbar-spacing;
+        }
+
+        &::after {
+            height: $perfect-scrollbar-thickness;
+        }
+    }
+
+    > .ps-scrollbar-y-rail:hover,
+    &.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail {
+        &::before {
+            width: $perfect-scrollbar-spacing;
+        }
+
+        &::after {
+            width: $perfect-scrollbar-thickness;
+        }
+    }
 }

@@ -1,64 +1,24 @@
 ﻿<div class="modal-header storyteller-modal-header storyteller-gwt_modal-header">
     <h3 class="modal-title storyteller-gwt_modal-title">
-        <div ng-show="centerCtrl.isUserSystemProcess" class="storyteller-gwt_title-gwt">{{::$root.config.labels['ST_When_Label']}}</div>
-        <div class="storyteller-gwt_title-generated" ng-class="{'storyteller-gwt_business-process-title-generated': !centerCtrl.isUserSystemProcess}">{{centerCtrl.when}}</div>
+        <div ng-show="centerCtrl.isUserSystemProcess" class="storyteller-gwt_title-gwt">
+            {{::$root.config.labels['ST_When_Label']}}
+        </div>
+        <div class="storyteller-gwt_title-generated"
+             ng-class="{'storyteller-gwt_business-process-title-generated': !centerCtrl.isUserSystemProcess}">
+            {{centerCtrl.when}}
+        </div>
     </h3>
 </div>
 <div class="modal-body storyteller-gwt_modal-body">
     <div class="storyteller-gwt-section">
-        <label class="storyteller-gwt-label">{{::$root.config.labels['ST_User_Story_Title_Label']}}</label>
-        <p ng-bind-html="centerCtrl.getTitle()" />
+        <label class="storyteller-gwt-label">
+            <a href="" ng-click="centerCtrl.navigateToUserStory()" class="storyteller-gwt-label">{{::$root.config.labels['ST_User_Story_Title_Label']}}</a>
+        </label>
+        <p ng-bind-html="centerCtrl.getTitle()"/>
     </div>
     <div ng-show="centerCtrl.isUserSystemProcess" class="storyteller-gwt-section">
-        <label class="storyteller-gwt-label">{{::$root.config.labels['ST_User_Story_Acceptance_Criteria_Label']}}</label>
-        <div class="modal-content-autoscroll"><p ng-bind-html="centerCtrl.getAcceptanceCriteria()" /></div>
-    </div>
-    <div class="storyteller-gwt-section storyteller-gwt-nfr-br">
-        <label class="storyteller-label_show-hide" ng-click="centerCtrl.showMore('label', $event)" ng-class="{'show' : centerCtrl.isTabsVisible  }">
-            <i class="fonticon-caret-right"></i>{{centerCtrl.isTabsVisible ? 'Show Less' : 'Show More'}}
-            <i ng-click="centerCtrl.showMore('nfr', $event)" class="fonticon-nonfunctional fonticon-st-tabs" ng-class="{'available': centerCtrl.strIsNotEmpty(centerCtrl.nonfunctionalRequirements)}" title="{{::$root.config.labels['ST_User_Story_Nonfunctionals_Tab_Label']}}"></i>
-            <i ng-click="centerCtrl.showMore('br', $event)" class="fonticon-bp-business-rule fonticon-st-tabs" ng-class="{'available': centerCtrl.strIsNotEmpty(centerCtrl.businessRules)}" title="{{::$root.config.labels['ST_User_Story_Businessrules_Tab_Label']}}"></i>
-        </label>
-        <div class="nova-tabset small-padding storyteller-gwt-tabset" ng-show="centerCtrl.isTabsVisible">
-            <uib-tabset active="centerCtrl.showMoreActiveTabIndex" ng-click="centerCtrl.refreshView()">
-                <uib-tab index="0">
-                    <uib-tab-heading>
-                        <i class="fonticon-nonfunctional fonticon-st-tabs"></i>{{::$root.config.labels['ST_User_Story_Nonfunctionals_Tab_Label']}}
-                    </uib-tab-heading>
-                    <div class="nova-form-group nova-floating-label ui-tinymce-inline-traces">
-                        <div ng-bind-html="centerCtrl.getNonFunctionalRequirements()"></div>
-                        <!--<textarea name="user_story_nonfunc_requirements"
-                                  rich-text-box-inline-traces
-                                  project-id="{{ centerCtrl.isProjectOnlySearch ? centerCtrl.processModelService.processModel.projectId : '' }}"
-                                  tinymce-style="font-size: 14px;"
-                                  ng-disabled="centerCtrl.isReadonly"
-                                  ng-class="centerCtrl.nonfunctionalRequirements ? 'tabs-textarea nova-form-control input-is-dirty' : 'tabs-textarea nova-form-control'"
-                                  ng-model="centerCtrl.centerTask.userStoryProperties.nfr.value"></textarea>-->
-                        <label for="user_story_nonfunc_requirements" class="nova-label"></label>
-                    </div>
-                </uib-tab>
-                <uib-tab index="1">
-                    <uib-tab-heading>
-                        <i class="fonticon-bp-business-rule fonticon-st-tabs"></i>{{::$root.config.labels['ST_User_Story_Businessrules_Tab_Label']}}
-                    </uib-tab-heading>
-                    <div class="nova-form-group nova-floating-label ui-tinymce-inline-traces">
-                        <div ng-bind-html="centerCtrl.getBusinessRules()"></div>
-                        <!--<textarea name="user_story_business_rules"
-                                  rich-text-box-inline-traces
-                                  project-id="{{ centerCtrl.isProjectOnlySearch ? centerCtrl.processModelService.processModel.projectId : '' }}"
-                                  tinymce-style="font-size: 14px;"
-                                  ng-disabled="centerCtrl.isReadonly"
-                                  ng-class="centerCtrl.businessRules ? 'tabs-textarea nova-form-control input-is-dirty' : 'tabs-textarea nova-form-control'"
-                                  ng-model="centerCtrl.centerTask.userStoryProperties.businessRules.value"></textarea>-->
-                        <label for="user_story_business_rules" class="nova-label"></label>
-                    </div>
-                </uib-tab>
-                <!--<uib-tab heading="{{::$root.config.labels['ST_User_Story_Testdetails_Tab_Label']}}" active=""> </uib-tab>-->
-            </uib-tabset>
-            <div ng-show="!centerCtrl.isSMB">
-                <input id="mentions-search-scope" type="checkbox" ng-model="centerCtrl.isProjectOnlySearch" ng-disabled="centerCtrl.isReadonly" />
-                <label for="mentions-search-scope" style="font-weight: normal;">{{::$root.config.labels['ST_Search_Project_Scope_Mentions']}}</label>
-            </div>
-        </div>
+        <label
+            class="storyteller-gwt-label">{{::$root.config.labels['ST_User_Story_Acceptance_Criteria_Label']}}</label>
+        <div class="modal-content-autoscroll"><p ng-bind-html="centerCtrl.getAcceptanceCriteria()"/></div>
     </div>
 </div>

@@ -1,110 +1,110 @@
 #unsupported-browser-container {
-  background: #fff;
-  display: block;
-  height: 100%;
-  left: 0;
-  overflow: auto;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 10000;
-
-  table {
-    height: 100%;
-    margin: 0 auto;
-
-    td {
-      padding: 0 20px;
-      vertical-align: middle;
-    }
-  }
-
-  h1 {
-    background: url('/novaweb/static/logo-blueprint-blue.png') left no-repeat;
-    border-bottom: solid 1px #1c285c;
-    border-left: 0;
-    border-right: 0;
-    border-top: 0;
-    height: 68px;
-    margin: 0;
-    padding: 0;
-    text-indent: -1000px;
-  }
-
-  h2 {
-    background: url('/novaweb/static/icon-exclamation.png') 12px no-repeat;
-    font-size: 18px;
-    margin: 16px 0;
-    padding: 16px 12px 16px 74px;
-  }
-
-  button {
+    background: #fff;
     display: block;
-    margin: 0 auto 20px;
-  }
-
-  .supported-platforms {
+    height: 100%;
+    left: 0;
     overflow: auto;
-    padding: 0 12px 12px 74px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 10000;
 
-    h3 {
-      font-size: 18px;
-      margin: 0;
+    table {
+        height: 100%;
+        margin: 0 auto;
 
-      span {
-        color: #aaa;
+        td {
+            padding: 0 20px;
+            vertical-align: middle;
+        }
+    }
+
+    h1 {
+        background: url('/novaweb/static/logo-blueprint-blue.png') left no-repeat;
+        border-bottom: solid 1px #1c285c;
+        border-left: 0;
+        border-right: 0;
+        border-top: 0;
+        height: 68px;
+        margin: 0;
+        padding: 0;
+        text-indent: -1000px;
+    }
+
+    h2 {
+        background: url('/novaweb/static/icon-exclamation.png') 12px no-repeat;
+        font-size: 18px;
+        margin: 16px 0;
+        padding: 16px 12px 16px 74px;
+    }
+
+    button {
         display: block;
-        font-size: 14px;
-      }
+        margin: 0 auto 20px;
     }
 
-    p {
-      font-size: 14px;
-      margin: 0 0 32px;
+    .supported-platforms {
+        overflow: auto;
+        padding: 0 12px 12px 74px;
+
+        h3 {
+            font-size: 18px;
+            margin: 0;
+
+            span {
+                color: #aaa;
+                display: block;
+                font-size: 14px;
+            }
+        }
+
+        p {
+            font-size: 14px;
+            margin: 0 0 32px;
+        }
+
+        ul {
+            font-size: 14px;
+            padding: 0 0 0 32px;
+        }
+
+        .supported-platforms-row {
+            margin: 0;
+
+            &:after {
+                clear: both;
+                content: '';
+                display: table;
+            }
+        }
+
+        .supported-platform {
+            box-sizing: border-box;
+            float: left;
+            margin: 0 0 32px;
+            padding: 0 10px 0 50px;
+            width: 320px;
+
+            &:last-of-type {
+                margin-bottom: 48px;
+            }
+
+            &.windows {
+                background: url('/novaweb/static/icon-windows.png') top left no-repeat;
+            }
+
+            &.apple {
+                background: url('/novaweb/static/icon-apple.png') top left no-repeat;
+            }
+
+            &.android {
+                background: url('/novaweb/static/icon-android.png') top left no-repeat;
+            }
+        }
     }
-
-    ul {
-      font-size: 14px;
-      padding: 0 0 0 32px;
-    }
-
-    .supported-platforms-row {
-      margin: 0;
-
-      &:after {
-        clear: both;
-        content: '';
-        display: table;
-      }
-    }
-
-    .supported-platform {
-      box-sizing: border-box;
-      float: left;
-      margin: 0 0 32px;
-      padding: 0 10px 0 50px;
-      width: 320px;
-
-      &:last-of-type {
-        margin-bottom: 48px;
-      }
-
-      &.windows {
-        background: url('/novaweb/static/icon-windows.png') top left no-repeat;
-      }
-
-      &.apple {
-        background: url('/novaweb/static/icon-apple.png') top left no-repeat;
-      }
-
-      &.android {
-        background: url('/novaweb/static/icon-android.png') top left no-repeat;
-      }
-    }
-  }
 }
 
 #unsupported-nofont-container {
-  position: fixed;
-  z-index: 65536;
+    position: fixed;
+    z-index: 65536;
 }

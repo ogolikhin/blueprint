@@ -18,7 +18,7 @@ export interface IModalDialogCommunication {
 }
 
 export class ModalDialogCommunication implements IModalDialogCommunication {
-    private setGraphSubject: ICommunicationWrapper; 
+    private setGraphSubject: ICommunicationWrapper;
     private openDialogSubject: ICommunicationWrapper;
     private setModalProcessViewModelSubject: ICommunicationWrapper;
 
@@ -62,11 +62,11 @@ export class ModalDialogCommunication implements IModalDialogCommunication {
     public registerModalProcessViewModelObserver(observer: any) {
         return this.setModalProcessViewModelSubject.subscribe(observer);
     }
-    
+
     public removeModalProcessViewModelObserver(handler: string) {
         this.setModalProcessViewModelSubject.disposeObserver(handler);
     }
-    
+
     public setModalProcessViewModel(modalProcessViewModel: any) {
         this.setModalProcessViewModelSubject.notify(modalProcessViewModel);
     }

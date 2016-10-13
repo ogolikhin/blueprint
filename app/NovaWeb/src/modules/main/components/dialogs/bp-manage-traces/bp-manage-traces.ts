@@ -1,13 +1,13 @@
 import * as _ from "lodash";
-import { ILocalizationService } from "../../../../core";
-import { BaseDialogController, IDialogSettings, IDialogService } from "../../../../shared";
-import { Relationships, Models } from "../../../models";
-import { IDialogRelationshipItem } from "../../../models/relationshipModels";
-import { ArtifactPickerNodeVM, ArtifactNodeVM } from "../../bp-artifact-picker/bp-artifact-picker-node-vm";
+import {ILocalizationService} from "../../../../core";
+import {BaseDialogController, IDialogSettings, IDialogService} from "../../../../shared";
+import {Relationships, Models} from "../../../models";
+import {IDialogRelationshipItem} from "../../../models/relationshipModels";
+import {ArtifactPickerNodeVM, ArtifactNodeVM} from "../../bp-artifact-picker/bp-artifact-picker-node-vm";
 import {
     IStatefulItem,
     IArtifactManager,
-    IArtifactRelationships,
+    IArtifactRelationships
 } from "../../../../managers/artifact-manager";
 
 export interface IArtifactSelectedArtifactMap {
@@ -16,18 +16,20 @@ export interface IArtifactSelectedArtifactMap {
 
 export class ManageTracesDialogController extends BaseDialogController {
     public static $inject = ["$uibModalInstance", "dialogSettings", "localization",
-        "artifactManager", "artifactRelationships", "dialogData", "dialogService"];
+        "artifactManager", "artifactRelationships", "dialogData", "dialogService", "$timeout"];
 
-    public  traceDirection: Relationships.TraceDirection = 0;
-    public  direction: Relationships.TraceDirection = 0;
+    public traceDirection: Relationships.TraceDirection = 0;
+    public direction: Relationships.TraceDirection = 0;
     private selectedVMs: ArtifactPickerNodeVM<any>[];
 
     public item: IStatefulItem;
     public relationshipsList: IArtifactRelationships;
     public allTraces: Relationships.IRelationship[];
     public otherTraces: Relationships.IRelationship[];
+    public scroller;
     public isLoading: boolean = false;
     public isItemReadOnly: boolean;
+    public isTraceDisabled: boolean;
     public selectedTraces: IArtifactSelectedArtifactMap = {};
     public hasFlagged: boolean = false;
     public hasUnFlagged: boolean = false;
@@ -35,9 +37,9 @@ export class ManageTracesDialogController extends BaseDialogController {
     public isChanged: boolean = false;
 
     public options = [
-        { value: "1", label: this.localization.get("App_UP_Relationships_To") },
-        { value: "2", label: this.localization.get("App_UP_Relationships_From") },
-        { value: "3", label: this.localization.get("App_UP_Relationships_Bidirectional") },
+        {value: "1", label: this.localization.get("App_UP_Relationships_To")},
+        {value: "2", label: this.localization.get("App_UP_Relationships_From")},
+        {value: "3", label: this.localization.get("App_UP_Relationships_Bidirectional")}
     ];
 
     constructor($uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
@@ -47,7 +49,8 @@ export class ManageTracesDialogController extends BaseDialogController {
                 public artifactRelationships: IArtifactRelationships,
                 public data: IDialogRelationshipItem,
                 private dialogService: IDialogService,
-    ) {
+                private $timeout: ng.ITimeoutService) {
+
         super($uibModalInstance, dialogSettings);
         this.getManualTraces();
         this.clearSelected();
@@ -55,7 +58,7 @@ export class ManageTracesDialogController extends BaseDialogController {
 
     public clearSelected() {
         if (this.selectedTraces[this.data.artifactId]) {
-            this.selectedTraces[this.data.artifactId].forEach( (item) => {
+            this.selectedTraces[this.data.artifactId].forEach((item) => {
                 item.isSelected = false;
             });
         }
@@ -65,15 +68,18 @@ export class ManageTracesDialogController extends BaseDialogController {
 
     public getManualTraces() {
         if (this.data.manualTraces) {
-            this.data.manualTraces = (this.data.manualTraces.map( (item: Relationships.IRelationshipView) => {
+            this.data.manualTraces = (this.data.manualTraces.map((item: Relationships.IRelationshipView) => {
                 let typeName = Models.ItemTypePredefined[item.primitiveItemTypePredefined];
 
                 if (typeName) {
                     item.cssClass = "icon-" + _.kebabCase(typeName);
                 }
 
-                return item;
-            })) as Relationships.IRelationshipView[];
+                if (item.hasAccess) {
+                    return item;
+                }
+
+            }).filter((item) => item)) as Relationships.IRelationshipView[];
 
             this.artifactId = this.data.artifactId;
             this.isItemReadOnly = this.data.isItemReadOnly;
@@ -120,6 +126,13 @@ export class ManageTracesDialogController extends BaseDialogController {
         }
 
         this.data.manualTraces = this.data.manualTraces.concat(selected);
+
+        this.$timeout(() => {
+            this.scroller = document.getElementById("trace-manager-wrapper");
+            this.scroller.scrollTop = this.scroller.scrollHeight;
+        });
+
+        this.disableTrace();
     }
 
     public setDirection(direction: Relationships.TraceDirection): void {
@@ -138,7 +151,7 @@ export class ManageTracesDialogController extends BaseDialogController {
             if (traces[i].hasAccess) {
                 if (traces[i].suspect === true) {
                     this.hasFlagged = true;
-                }else {
+                } else {
                     this.hasUnFlagged = true;
                 }
             }
@@ -161,7 +174,7 @@ export class ManageTracesDialogController extends BaseDialogController {
         let confirmation = this.localization.get("Confirmation_Delete_Traces")
             .replace("{0}", selectedTracesLength.toString());
 
-        this.dialogService.confirm(confirmation).then( (confirmed) => {
+        this.dialogService.confirm(confirmation).then((confirmed) => {
             if (confirmed) {
                 this.remove(this.selectedTraces[this.data.artifactId], this.data.manualTraces);
                 this.clearSelected();
@@ -170,7 +183,7 @@ export class ManageTracesDialogController extends BaseDialogController {
     }
 
     public deleteTrace(artifact: Relationships.IRelationship): void {
-        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace")).then( (confirmed) => {
+        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace")).then((confirmed) => {
             if (confirmed) {
                 this.remove([artifact], this.data.manualTraces);
 
@@ -185,6 +198,22 @@ export class ManageTracesDialogController extends BaseDialogController {
 
     public onSelectionChanged(selectedVMs: ArtifactPickerNodeVM<any>[]): void {
         this.selectedVMs = selectedVMs;
+
+        this.disableTrace();
+    }
+
+    private disableTrace() {
+        let found = false;
+
+        _.each(this.data.manualTraces, (trace) => {
+            if (_.find(this.selectedVMs, (o) => {
+                    return o.model.id === trace.itemId;
+                })) {
+                found = true;
+            }
+        });
+
+        this.isTraceDisabled = found ? true : false;
     }
 
     public setSelectedDirection(direction: Relationships.TraceDirection): void {
@@ -192,12 +221,12 @@ export class ManageTracesDialogController extends BaseDialogController {
             selectedTracesLength = traces.length;
 
         for (let i = 0; i < selectedTracesLength; i++) {
-                traces[i].traceDirection = direction;
+            traces[i].traceDirection = direction;
         }
     }
 
     private remove(relationships: Relationships.IRelationship[],
-                  traces: Relationships.IRelationship[]): Relationships.IRelationship[] {
+                   traces: Relationships.IRelationship[]): Relationships.IRelationship[] {
         if (relationships) {
             relationships.forEach((relationship: Relationships.IRelationship) => {
                 const foundRelationshipIndex = traces.indexOf(relationship);
@@ -207,7 +236,7 @@ export class ManageTracesDialogController extends BaseDialogController {
                 }
             });
         }
-
+        this.disableTrace();
         return traces;
     }
 }

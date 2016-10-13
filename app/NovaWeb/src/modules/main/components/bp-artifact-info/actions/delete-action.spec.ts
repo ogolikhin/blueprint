@@ -12,7 +12,7 @@ import {ItemTypePredefined, RolePermissions} from "../../../../main/models/enums
 
 describe("DeleteAction", () => {
     let $scope: ng.IScope;
-    
+
     beforeEach(angular.mock.module("app.main"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -27,7 +27,7 @@ describe("DeleteAction", () => {
 
     it("throws exception when localization is null", inject((statefulArtifactFactory: IStatefulArtifactFactory, dialogService: IDialogService) => {
         // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({ id: 1 });
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
         const localization: ILocalizationService = null;
         let error: Error = null;
 
@@ -45,7 +45,7 @@ describe("DeleteAction", () => {
 
     it("throws exception when dialogService is null", inject((statefulArtifactFactory: IStatefulArtifactFactory, localization: ILocalizationService) => {
         // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({ id: 1 });
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
         const dialogService: IDialogService = null;
         let error: Error = null;
 
@@ -61,204 +61,195 @@ describe("DeleteAction", () => {
         expect(error).toEqual(new Error("Dialog service not provided or is null"));
     }));
 
-    it("throws exception when dialogServiceSettings is null", 
-        inject((
-            statefulArtifactFactory: IStatefulArtifactFactory, 
-            localization: ILocalizationService, 
-            dialogService: IDialogService) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({ id: 1 });
-        const deleteDialogSettings: IDialogSettings = null;
-        let error: Error = null;
+    it("throws exception when dialogServiceSettings is null",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+                dialogService: IDialogService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
+            const deleteDialogSettings: IDialogSettings = null;
+            let error: Error = null;
 
-        // act
-        try {
-            new DeleteAction(artifact, localization, dialogService, deleteDialogSettings);
-        } catch (exception) {
-            error = exception;
-        }
+            // act
+            try {
+                new DeleteAction(artifact, localization, dialogService, deleteDialogSettings);
+            } catch (exception) {
+                error = exception;
+            }
 
-        // assert
-        expect(error).not.toBeNull();
-        expect(error).toEqual(new Error("Delete dialog settings not provided or is null"));
-    }));
+            // assert
+            expect(error).not.toBeNull();
+            expect(error).toEqual(new Error("Delete dialog settings not provided or is null"));
+        }));
 
-    it("is disabled when artifact is null", 
-        inject((
-            localization: ILocalizationService, 
-            dialogService: IDialogService) => {
-        // arrange
-        const artifact: IStatefulArtifact = null;
+    it("is disabled when artifact is null",
+        inject((localization: ILocalizationService,
+                dialogService: IDialogService) => {
+            // arrange
+            const artifact: IStatefulArtifact = null;
 
-        // act
-        const deleteAction = new DeleteAction(artifact, localization, dialogService, {});
+            // act
+            const deleteAction = new DeleteAction(artifact, localization, dialogService, {});
 
-        // assert
-        expect(deleteAction.disabled).toBe(true);
-    }));
+            // assert
+            expect(deleteAction.disabled).toBe(true);
+        }));
 
-    it("is disabled when artifact is read-only", 
-        inject((
-            statefulArtifactFactory: IStatefulArtifactFactory, 
-            localization: ILocalizationService, 
-            dialogService: IDialogService) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({ id: 1 });
-        artifact.artifactState.readonly = true;
+    it("is disabled when artifact is read-only",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+                dialogService: IDialogService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
+            artifact.artifactState.readonly = true;
 
-        // act
-        const deleteAction = new DeleteAction(artifact, localization, dialogService, {});
+            // act
+            const deleteAction = new DeleteAction(artifact, localization, dialogService, {});
 
-        // assert
-        expect(deleteAction.disabled).toBe(true);
-    }));
+            // assert
+            expect(deleteAction.disabled).toBe(true);
+        }));
 
-    it("is disabled when artifact is Project", 
-        inject((
-            statefulArtifactFactory: IStatefulArtifactFactory, 
-            localization: ILocalizationService, 
-            dialogService: IDialogService) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-            {
-                 id: 1, 
-                 predefinedType: ItemTypePredefined.Project 
+    it("is disabled when artifact is Project",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+                dialogService: IDialogService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.Project
+                });
+
+            // act
+            const deleteAction = new DeleteAction(artifact, localization, dialogService, {});
+
+            // assert
+            expect(deleteAction.disabled).toBe(true);
+        }));
+
+    it("is disabled when artifact is Collections",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+                dialogService: IDialogService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.Collections
+                });
+
+            // act
+            const deleteAction = new DeleteAction(artifact, localization, dialogService, {});
+
+            // assert
+            expect(deleteAction.disabled).toBe(true);
+        }));
+
+    it("is enabled when artifact is valid",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+                dialogService: IDialogService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.TextualRequirement,
+                    lockedByUser: null,
+                    lockedDateTime: null,
+                    permissions: RolePermissions.Edit
+                });
+
+            // act
+            const deleteAction = new DeleteAction(artifact, localization, dialogService, {});
+
+            // assert
+            expect(deleteAction.disabled).toBe(false);
+        }));
+
+    it("opens dialog when executed",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+                dialogService: IDialogService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.TextualRequirement,
+                    lockedByUser: null,
+                    lockedDateTime: null,
+                    permissions: RolePermissions.Edit
+                });
+            const deleteAction = new DeleteAction(artifact, localization, dialogService, {});
+            const dialogOpenSpy = spyOn(dialogService, "open").and.callThrough();
+            const deleteArtifactSpy = spyOn(deleteAction, "deleteArtifact").and.callThrough();
+
+            // act
+            deleteAction.execute();
+            $scope.$digest();
+
+            // assert
+            expect(dialogOpenSpy).toHaveBeenCalled();
+            expect(deleteArtifactSpy).toHaveBeenCalled();
+        }));
+
+    it("calls deleteArtifact when dialog is confirmed",
+        inject(($q: ng.IQService,
+                statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+                dialogService: IDialogService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.TextualRequirement,
+                    lockedByUser: null,
+                    lockedDateTime: null,
+                    permissions: RolePermissions.Edit
+                });
+            const deleteAction = new DeleteAction(artifact, localization, dialogService, {});
+            spyOn(dialogService, "open").and.callFake(() => {
+                const deferred = $q.defer();
+                deferred.resolve(true);
+                return deferred.promise;
             });
+            const deleteArtifactSpy = spyOn(deleteAction, "deleteArtifact").and.callThrough();
 
-        // act
-        const deleteAction = new DeleteAction(artifact, localization, dialogService, {});
+            // act
+            deleteAction.execute();
+            $scope.$digest();
 
-        // assert
-        expect(deleteAction.disabled).toBe(true);
-    }));
+            // assert
+            expect(deleteArtifactSpy).toHaveBeenCalled();
+        }));
 
-    it("is disabled when artifact is Collections", 
-        inject((
-            statefulArtifactFactory: IStatefulArtifactFactory, 
-            localization: ILocalizationService, 
-            dialogService: IDialogService) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-            { 
-                id: 1, 
-                predefinedType: ItemTypePredefined.Collections 
+    it("doesn't call deleteArtifact when dialog is not confirmed",
+        inject(($q: ng.IQService,
+                statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+                dialogService: IDialogService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.TextualRequirement,
+                    lockedByUser: null,
+                    lockedDateTime: null,
+                    permissions: RolePermissions.Edit
+                });
+            const deleteAction = new DeleteAction(artifact, localization, dialogService, {});
+            spyOn(dialogService, "open").and.callFake(() => {
+                const deferred = $q.defer();
+                deferred.resolve(false);
+                return deferred.promise;
             });
+            const deleteArtifactSpy = spyOn(deleteAction, "deleteArtifact").and.callThrough();
 
-        // act
-        const deleteAction = new DeleteAction(artifact, localization, dialogService, {});
+            // act
+            deleteAction.execute();
+            $scope.$digest();
 
-        // assert
-        expect(deleteAction.disabled).toBe(true);
-    }));
-
-    it("is enabled when artifact is valid", 
-        inject((
-            statefulArtifactFactory: IStatefulArtifactFactory, 
-            localization: ILocalizationService, 
-            dialogService: IDialogService) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-            { 
-                id: 1, 
-                predefinedType: ItemTypePredefined.TextualRequirement, 
-                lockedByUser: null,
-                lockedDateTime: null,
-                permissions: RolePermissions.Edit
-            });
-
-        // act
-        const deleteAction = new DeleteAction(artifact, localization, dialogService, {});
-
-        // assert
-        expect(deleteAction.disabled).toBe(false);
-    }));
-
-    it("opens dialog when executed", 
-        inject((
-            statefulArtifactFactory: IStatefulArtifactFactory, 
-            localization: ILocalizationService, 
-            dialogService: IDialogService) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-            { 
-                id: 1, 
-                predefinedType: ItemTypePredefined.TextualRequirement, 
-                lockedByUser: null,
-                lockedDateTime: null,
-                permissions: RolePermissions.Edit
-            });
-        const deleteAction = new DeleteAction(artifact, localization, dialogService, {});
-        const dialogOpenSpy = spyOn(dialogService, "open").and.callThrough();
-        const deleteArtifactSpy = spyOn(deleteAction, "deleteArtifact").and.callThrough();
-
-        // act
-        deleteAction.execute();
-        $scope.$digest();
-
-        // assert
-        expect(dialogOpenSpy).toHaveBeenCalled();
-        expect(deleteArtifactSpy).toHaveBeenCalled();
-    }));
-
-    it("calls deleteArtifact when dialog is confirmed", 
-        inject((
-            $q: ng.IQService,
-            statefulArtifactFactory: IStatefulArtifactFactory, 
-            localization: ILocalizationService, 
-            dialogService: IDialogService) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-            { 
-                id: 1, 
-                predefinedType: ItemTypePredefined.TextualRequirement, 
-                lockedByUser: null,
-                lockedDateTime: null,
-                permissions: RolePermissions.Edit
-            });
-        const deleteAction = new DeleteAction(artifact, localization, dialogService, {});
-        spyOn(dialogService, "open").and.callFake(() => {
-            const deferred = $q.defer();
-            deferred.resolve(true);
-            return deferred.promise;
-        });
-        const deleteArtifactSpy = spyOn(deleteAction, "deleteArtifact").and.callThrough();
-
-        // act
-        deleteAction.execute();
-        $scope.$digest();
-
-        // assert
-        expect(deleteArtifactSpy).toHaveBeenCalled();
-    }));
-
-    it("doesn't call deleteArtifact when dialog is not confirmed", 
-        inject((
-            $q: ng.IQService,
-            statefulArtifactFactory: IStatefulArtifactFactory, 
-            localization: ILocalizationService, 
-            dialogService: IDialogService) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-            { 
-                id: 1, 
-                predefinedType: ItemTypePredefined.TextualRequirement, 
-                lockedByUser: null,
-                lockedDateTime: null,
-                permissions: RolePermissions.Edit
-            });
-        const deleteAction = new DeleteAction(artifact, localization, dialogService, {});
-        spyOn(dialogService, "open").and.callFake(() => {
-            const deferred = $q.defer();
-            deferred.resolve(false);
-            return deferred.promise;
-        });
-        const deleteArtifactSpy = spyOn(deleteAction, "deleteArtifact").and.callThrough();
-
-        // act
-        deleteAction.execute();
-        $scope.$digest();
-
-        // assert
-        expect(deleteArtifactSpy).not.toHaveBeenCalled();
-    }));
+            // assert
+            expect(deleteArtifactSpy).not.toHaveBeenCalled();
+        }));
 });

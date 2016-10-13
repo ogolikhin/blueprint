@@ -1,6 +1,6 @@
-import { IDialogSettings, IDialogService } from "../../../../shared";
-import { DialogTypeEnum } from "../../../../shared/widgets/bp-dialog/bp-dialog";
-import { IUploadStatusDialogData } from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
+import {IDialogSettings, IDialogService} from "../../../../shared";
+import {DialogTypeEnum} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {IUploadStatusDialogData} from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 
 // interface IUploadStatusDialogData {
 //     files: File[];
@@ -11,7 +11,9 @@ import { IUploadStatusDialogData } from "../../../../shared/widgets/bp-file-uplo
 
 export class ActorImagePickerDialogServiceMock implements IDialogService {
     public static $inject = ["$q"];
-    constructor(private $q: ng.IQService) { }
+
+    constructor(private $q: ng.IQService) {
+    }
 
     public open(dialogSettings: IDialogSettings, dialogData: IUploadStatusDialogData): ng.IPromise<any> {
 
@@ -22,6 +24,7 @@ export class ActorImagePickerDialogServiceMock implements IDialogService {
         deferred.resolve(uploadList);
         return deferred.promise;
     }
+
     public alert(message: string, header?: string): ng.IPromise<any> {
         const deferred = this.$q.defer<any>();
         deferred.resolve(true);
@@ -39,6 +42,7 @@ export class ActorImagePickerDialogServiceMock implements IDialogService {
         deferred.resolve(true);
         return deferred.promise;
     }
+
     public dialogSettings: IDialogSettings = {
         type: DialogTypeEnum.Base,
         header: "test",

@@ -1,4 +1,7 @@
-﻿import {UIMockupShapes, UIMockupShapeProps} from "./utils/constants";
+﻿/* tslint:disable:max-file-line-count */
+
+//fixme: this file is far to large. consider splitting it up
+import {UIMockupShapes, UIMockupShapeProps} from "./utils/constants";
 import {Style, Styles, MenuStyleObject} from "./utils/style-builder";
 import {ShapeExtensions, MxFactory, DiagramHelper} from "./utils/helpers";
 import {IconShape, CalloutShape, HighlightEllipse, CheckboxShape, TableCursorShape} from "./shapes-library";
@@ -115,7 +118,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         ddbstyle[mxConstants.STYLE_GRADIENTCOLOR] = "#DBE6F4";
         ddbstyle[mxConstants.STYLE_GRADIENT_DIRECTION] = mxConstants.DIRECTION_NORTH;
         ddbstyle[mxConstants.STYLE_FOLDABLE] = 0;
-        const markSize = { height: 3, width: 6 };
+        const markSize = {height: 3, width: 6};
         const dropdownButton = this.createDefaultVertex(shape, ddbstyle, true);
         //mark
         const markStyle = new Style();
@@ -316,7 +319,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
             scrollBarGeometry.relative = false;
             const scrollBarBox = MxFactory.vertex(null, scrollBarGeometry, scrollBarStyle.convertToString());
 
-            const markSize = { height: 3, width: 6 };
+            const markSize = {height: 3, width: 6};
 
             //mark
             const mark1Style = new Style();
@@ -374,7 +377,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         splitButtonstyle[mxConstants.STYLE_GRADIENTCOLOR] = "#DBE6F4";
         splitButtonstyle[mxConstants.STYLE_GRADIENT_DIRECTION] = mxConstants.DIRECTION_NORTH;
         splitButtonstyle[mxConstants.STYLE_FOLDABLE] = 0;
-        const markSize = { height: 3, width: 6 };
+        const markSize = {height: 3, width: 6};
         const splitButton = this.createDefaultVertex(shape, splitButtonstyle, true);
         //mark
         const markStyle = new Style();
@@ -430,7 +433,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         ddbstyle[mxConstants.STYLE_STROKECOLOR] = "#A8BED5";
         ddbstyle[mxConstants.STYLE_FOLDABLE] = 0;
         //
-        const markSize = { height: 3, width: 6 };
+        const markSize = {height: 3, width: 6};
         const dropdownButton = this.createDefaultVertex(shape, ddbstyle, true);
 
         //box
@@ -587,13 +590,12 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         return checkbox;
     }
 
-    private createCheckboxInnerRectangle(
-        shape: IShape,
-        rectangleStyle: Style,
-        brightGradientColor: string,
-        darkGradientColor: string,
-        innerRectOffset: number,
-        innerRectSize: number): MxCell {
+    private createCheckboxInnerRectangle(shape: IShape,
+                                         rectangleStyle: Style,
+                                         brightGradientColor: string,
+                                         darkGradientColor: string,
+                                         innerRectOffset: number,
+                                         innerRectSize: number): MxCell {
         rectangleStyle[mxConstants.STYLE_FILLCOLOR] = brightGradientColor;
         rectangleStyle[mxConstants.STYLE_GRADIENTCOLOR] = darkGradientColor;
         rectangleStyle[mxConstants.STYLE_GRADIENT_DIRECTION] = mxConstants.DIRECTION_NORTH;
@@ -671,13 +673,12 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         return checkbox;
     }
 
-    private createRadioButtonInnerCircle(
-        shape: IShape,
-        circleStyle: Style,
-        brightGradientColor: string,
-        darkGradientColor: string,
-        innerRectOffset: number,
-        innerRectSize: number): MxCell {
+    private createRadioButtonInnerCircle(shape: IShape,
+                                         circleStyle: Style,
+                                         brightGradientColor: string,
+                                         darkGradientColor: string,
+                                         innerRectOffset: number,
+                                         innerRectSize: number): MxCell {
         circleStyle[mxConstants.STYLE_FILLCOLOR] = brightGradientColor;
         circleStyle[mxConstants.STYLE_GRADIENTCOLOR] = darkGradientColor;
         circleStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_ELLIPSE;
@@ -700,13 +701,12 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
     }
 
 
-    private createRadioButtonMark(
-        shape: IShape,
-        dotBrightMarkColor: string,
-        dotDarkMarkColor: string,
-        borderColor: string,
-        dotSize: number,
-        innerCircleOffset: number): MxCell {
+    private createRadioButtonMark(shape: IShape,
+                                  dotBrightMarkColor: string,
+                                  dotDarkMarkColor: string,
+                                  borderColor: string,
+                                  dotSize: number,
+                                  innerCircleOffset: number): MxCell {
         const checkMarkStyle = new Style();
         checkMarkStyle[mxConstants.STYLE_STROKEWIDTH] = 1;
         checkMarkStyle[mxConstants.STYLE_FOLDABLE] = 0;
@@ -728,7 +728,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         const buttonGradientColor = "#FBFDFE";
         const spinnerButtonWidth = 14;
         const markColor = "Black";
-        const markSize = { height: 2, width: 4 };
+        const markSize = {height: 2, width: 4};
         const spinnerInnerButtonHeight = shape.height / 2;
 
         const style = new Style();
@@ -928,7 +928,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
                 const scrollBarGeometry = MxFactory.geometry(contentBox.geometry.width - 18, 0, 18, contentBox.geometry.height);
                 scrollBarGeometry.relative = false;
                 const scrollBarBox = MxFactory.vertex(null, scrollBarGeometry, scrollBarStyle.convertToString());
-                const scrollbarMarkSize = { height: 3, width: 6 };
+                const scrollbarMarkSize = {height: 3, width: 6};
 
                 //mark
                 const mark1Style = new Style();
@@ -1189,7 +1189,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
             windowShape.insert(scrollBarShape);
 
-            const markSize = { height: 3, width: 6 };
+            const markSize = {height: 3, width: 6};
 
             //upTriangle
             const upTriangleStyle = new Style();
@@ -1575,7 +1575,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
             tab.insert(scrollBarShape);
 
-            const markSize = { height: 3, width: 6 };
+            const markSize = {height: 3, width: 6};
 
             if (scrollBarHeight > 0) {
                 //upTriangle
@@ -1641,7 +1641,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
                 }
 
                 listItemEntry = MxFactory.vertex(
-                    { label: item.item.value.name, isRichText: false },
+                    {label: item.item.value.name, isRichText: false},
                     listItemEntryGeometry,
                     listItemEntryStyle.convertToString());
 
@@ -1662,10 +1662,10 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         for (let k = listItems.length - 1; k >= -1; k--) {
             if (k === -1) {
                 if (selected) {
-                    selectedRow = { listItemsRow: listItemsRow };
+                    selectedRow = {listItemsRow: listItemsRow};
                 } else {
                     if (runningHeight <= shape.height) {
-                        listItemRows.push({ listItemsRow: listItemsRow });
+                        listItemRows.push({listItemsRow: listItemsRow});
                     }
                 }
                 break;
@@ -1688,10 +1688,10 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
             if (currentRow !== row) {
                 if (selected) {
-                    selectedRow = { listItemsRow: listItemsRow };
+                    selectedRow = {listItemsRow: listItemsRow};
                 } else {
                     if (runningHeight <= shape.height) {
-                        listItemRows.push({ listItemsRow: listItemsRow });
+                        listItemRows.push({listItemsRow: listItemsRow});
                     }
                 }
                 selected = false;
@@ -1702,12 +1702,12 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
                 selected = true;
             }
 
-            listItemsRow.push({ width: width, height: height, row: row, index: index, item: listItems[k] });
+            listItemsRow.push({width: width, height: height, row: row, index: index, item: listItems[k]});
             runningWidth = runningWidth + width;
             index = index + 1;
         }
 
-        return { listItemRows: listItemRows, height: height, selectedRow: selectedRow };
+        return {listItemRows: listItemRows, height: height, selectedRow: selectedRow};
     }
 
     private measureWord(orgText, shape): any {
@@ -1726,9 +1726,9 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
                     resText = t;
                 }
             }
-            return { width: shape.width, height: rect.height, text: resText };
+            return {width: shape.width, height: rect.height, text: resText};
         } else {
-            return { width: width, height: rect.height, text: orgText };
+            return {width: width, height: rect.height, text: orgText};
         }
     }
 
@@ -1843,7 +1843,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
     //Creating Label Inside
     private getListLabelInside(shape: IShape, j: number, textHeight: number, innerBoxWidth: number, listItems: any[],
-        listItemEntry: MxCell, originalTextHeight: number): MxCell {
+                               listItemEntry: MxCell, originalTextHeight: number): MxCell {
         const labelStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         labelStyle[mxConstants.STYLE_FOLDABLE] = 0;
         labelStyle[mxConstants.STYLE_STROKEWIDTH] = 0;
@@ -1874,7 +1874,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         scrollBarGeometry.relative = false;
         const scrollBarBox = MxFactory.vertex(null, scrollBarGeometry, scrollBarStyle.convertToString());
 
-        const markSize = { height: 3, width: 6 };
+        const markSize = {height: 3, width: 6};
 
         //mark
         const mark1Style = new Style();
@@ -1919,6 +1919,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         }
         return scrollBarBox;
     };
+
     private createProgressValueRect(shape: IShape): MxCell {
         const rectangleStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         rectangleStyle[mxConstants.STYLE_SHAPE] = HighlightEllipse.getName;
@@ -2147,9 +2148,9 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
             x: (isHorizontal ? 0 : shape.width - scrollBarSize),
             y: (isHorizontal ? shape.height - scrollBarSize : 0),
             props: [
-                { name: "length", value: "2" },
-                { name: "Orientation", value: (isHorizontal ? "Horizontal" : "Vertical") },
-                { name: "ScrollValue", value: "0" }
+                {name: "length", value: "2"},
+                {name: "Orientation", value: (isHorizontal ? "Horizontal" : "Vertical")},
+                {name: "ScrollValue", value: "0"}
             ]
         };
 
@@ -2393,6 +2394,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         this.applyHighlightedDisabledStates(shape, table);
         return table;
     };
+
     private generatePreprocessingMatrix(shape: IShape, headerColumn: any[], tableData: any[], showHeaderRow: boolean): any[] {
         const fontSize = shape.labelStyle.fontSize;
         const fontFamily = shape.labelStyle.fontFamily;
@@ -2426,7 +2428,12 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
                     widthToUse = div.offsetWidth * 1.1;
                     heightToUse = div.offsetHeight * 1.4;
                 }
-                const processedHeaderCell = { displayText: contentText, width: widthToUse, height: heightToUse, isHeader: true };
+                const processedHeaderCell = {
+                    displayText: contentText,
+                    width: widthToUse,
+                    height: heightToUse,
+                    isHeader: true
+                };
                 nextRow.push(processedHeaderCell);
             }
             matrix.push(nextRow);
@@ -2443,7 +2450,13 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
                     widthToUse = div.offsetWidth * 1.1;
                     heightToUse = div.offsetHeight * 1.4;
                 }
-                const processedCell = { displayText: contentText, width: widthToUse, height: heightToUse, isHeader: false, rowNumber: j };
+                const processedCell = {
+                    displayText: contentText,
+                    width: widthToUse,
+                    height: heightToUse,
+                    isHeader: false,
+                    rowNumber: j
+                };
                 nextRow.push(processedCell);
             }
             matrix.push(nextRow);
@@ -2484,14 +2497,26 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
     private addHeaderRowCellsToMatrix(matrix: any[]): any[] {
         for (let i = 0; i < matrix.length; i++) {
-            matrix[i].unshift({ displayText: "", width: 30, height: matrix[i][0].height, isHeader: matrix[i][0].isHeader, rowNumber: i });
+            matrix[i].unshift({
+                displayText: "",
+                width: 30,
+                height: matrix[i][0].height,
+                isHeader: matrix[i][0].isHeader,
+                rowNumber: i
+            });
         }
         return matrix;
     }
 
     private addFillerCellsToMatrix(matrix: any[], cellWidth: number) {
         for (let i = 0; i < matrix.length; i++) {
-            matrix[i].push({ displayText: "", width: cellWidth, height: matrix[i][0].height, isHeader: matrix[i][0].isHeader, rowNumber: i });
+            matrix[i].push({
+                displayText: "",
+                width: cellWidth,
+                height: matrix[i][0].height,
+                isHeader: matrix[i][0].isHeader,
+                rowNumber: i
+            });
         }
         return matrix;
     }
@@ -2504,16 +2529,15 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         return columnAtIndex;
     }
 
-    private makeTableRow(
-        shape: IShape,
-        row: any[],
-        isHeader: boolean,
-        containerWidth: number,
-        rowHeight: number,
-        yPosn: number,
-        tableStyle: string,
-        showBorder: boolean,
-        renderedIndex: number) {
+    private makeTableRow(shape: IShape,
+                         row: any[],
+                         isHeader: boolean,
+                         containerWidth: number,
+                         rowHeight: number,
+                         yPosn: number,
+                         tableStyle: string,
+                         showBorder: boolean,
+                         renderedIndex: number) {
 
         const rowStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         rowStyle[Styles.STYLE_SELECTABLE] = 0;
@@ -2559,7 +2583,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
                     cellStyle[mxConstants.STYLE_STROKECOLOR] = "none";
                 }
                 this.applyDisabledStateForText(shape, cellStyle);
-                const label = { label: text, isRichText: false };
+                const label = {label: text, isRichText: false};
                 const cellShape = MxFactory.vertex(label, cellGeometry, cellStyle.convertToString());
                 if (!isHeader && i === 0 && renderedIndex === 1) {
                     const tableCursorMark = this.createTableCursorMark(shape, "#8CA3C2", cellWidth, rowHeight);
@@ -2589,7 +2613,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
         scrollBarGeometry.relative = false;
         const scrollBarBox = MxFactory.vertex(null, scrollBarGeometry, scrollBarStyle.convertToString());
 
-        const markSize = { height: 6, width: 3 };
+        const markSize = {height: 6, width: 3};
 
         //mark
         const mark1Style = new Style();
@@ -2673,14 +2697,13 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
     }
 
     //Creating Label Inside
-    private getContextMenuLabelInside(
-        shape: IShape,
-        j: number,
-        textHeight: number,
-        innerBoxWidth: number,
-        treeItems: any[],
-        listItemEntry: MxCell,
-        originalTextHeight: number): MxCell {
+    private getContextMenuLabelInside(shape: IShape,
+                                      j: number,
+                                      textHeight: number,
+                                      innerBoxWidth: number,
+                                      treeItems: any[],
+                                      listItemEntry: MxCell,
+                                      originalTextHeight: number): MxCell {
         const labelStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         labelStyle[mxConstants.STYLE_FOLDABLE] = 0;
         labelStyle[mxConstants.STYLE_STROKEWIDTH] = 0;
@@ -2700,15 +2723,14 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
     }
 
     //Creating Check Mark
-    private getContextMenuMarkEntry(
-        shape: IShape,
-        j: number,
-        textHeight: number,
-        innerBoxWidth: number,
-        treeItems: any[],
-        listItemEntry: MxCell,
-        labelEntry: MxCell,
-        leftRectSize: number): MxCell {
+    private getContextMenuMarkEntry(shape: IShape,
+                                    j: number,
+                                    textHeight: number,
+                                    innerBoxWidth: number,
+                                    treeItems: any[],
+                                    listItemEntry: MxCell,
+                                    labelEntry: MxCell,
+                                    leftRectSize: number): MxCell {
         const markStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         markStyle[mxConstants.STYLE_FOLDABLE] = 0;
         markStyle[mxConstants.STYLE_STROKEWIDTH] = 0;
@@ -3021,7 +3043,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
     //Creating Folder Inside
     private getTreeFolderInside(shape: IShape, j: number, textHeight: number, innerBoxWidth: number, treeItems: any[],
-        listItemEntry: MxCell, originalTextHeight: number, showFolder: boolean, folderIconSize: number): MxCell {
+                                listItemEntry: MxCell, originalTextHeight: number, showFolder: boolean, folderIconSize: number): MxCell {
         if (treeItems[j].value.hasChildTreeItems === false || showFolder === false) {
             return null;
         }
@@ -3045,7 +3067,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
     //Creating Label Inside
     private getTreeLabelInside(shape: IShape, j: number, textHeight: number, innerBoxWidth: number, treeItems: any[],
-        listItemEntry: MxCell, originalTextHeight: number, showFolder: boolean, folderIconSize: number): MxCell {
+                               listItemEntry: MxCell, originalTextHeight: number, showFolder: boolean, folderIconSize: number): MxCell {
         const labelStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         labelStyle[mxConstants.STYLE_FOLDABLE] = 0;
         labelStyle[mxConstants.STYLE_STROKEWIDTH] = 0;
@@ -3109,7 +3131,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
 
     //Creating Vertical Line
     private getTreeVerticalLine(shape: IShape, listItemEntry: MxCell, lastItemEntry: MxCell, treeItems: any[],
-        k: number, horzLineWidth: number, textHeight: number, treeIcon: string, innerBoxHeight): MxCell {
+                                k: number, horzLineWidth: number, textHeight: number, treeIcon: string, innerBoxHeight): MxCell {
         const vertLineStyle = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         vertLineStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_LINE;
         vertLineStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
@@ -3140,7 +3162,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
     }
 
     private getTreeLineHeight(listItemEntry: MxCell, lastItemEntry: MxCell, treeItems: any[],
-        k: number, textHeight: number, treeIcon: string): number {
+                              k: number, textHeight: number, treeIcon: string): number {
         if (treeItems[k].value.leftIndent === treeItems[k - 1].value.leftIndent) {
             const itemsHeightDiff = (listItemEntry.getGeometry().y + listItemEntry.getGeometry().height / 2) -
                 (lastItemEntry.getGeometry().y + lastItemEntry.getGeometry().height / 2);
@@ -3169,7 +3191,7 @@ export class UiMockupShapeFactory extends AbstractShapeFactory {
     }
 
     private getTreeLineY(listItemEntry: MxCell, lastItemEntry: MxCell, treeItems: any[],
-        k: number, textHeight: number, treeIcon: string): number {
+                         k: number, textHeight: number, treeIcon: string): number {
         if (treeItems[k].value.leftIndent === treeItems[k - 1].value.leftIndent) {
             return (lastItemEntry.getGeometry().y + lastItemEntry.getGeometry().height / 2) +
                 this.getHasChildDecreaseSize(treeItems[k - 1].value, treeIcon) + 2;

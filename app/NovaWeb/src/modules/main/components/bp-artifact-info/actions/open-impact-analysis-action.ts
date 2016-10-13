@@ -4,10 +4,8 @@ import {ILocalizationService} from "../../../../core";
 import {ItemTypePredefined} from "../../../../main/models/enums";
 
 export class OpenImpactAnalysisAction extends BPButtonAction {
-    constructor(
-        artifact: IStatefulArtifact,
-        localization: ILocalizationService
-    ) {
+    constructor(artifact: IStatefulArtifact,
+                localization: ILocalizationService) {
         if (!localization) {
             throw new Error("Localization service not provided or is null");
         }
@@ -27,9 +25,9 @@ export class OpenImpactAnalysisAction extends BPButtonAction {
                 }
 
                 const invalidTypes = [
-                    ItemTypePredefined.Project, 
-                    ItemTypePredefined.ArtifactCollection, 
-                    ItemTypePredefined.Collections, 
+                    ItemTypePredefined.Project,
+                    ItemTypePredefined.ArtifactCollection,
+                    ItemTypePredefined.Collections,
                     ItemTypePredefined.CollectionFolder
                 ];
 

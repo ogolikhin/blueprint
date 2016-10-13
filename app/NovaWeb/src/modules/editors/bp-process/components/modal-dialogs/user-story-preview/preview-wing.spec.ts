@@ -1,7 +1,7 @@
 ﻿import * as angular from "angular";
 import {UserStoryDialogModel} from "../models/user-story-dialog-model";
 import {PreviewWingController, PreviewWingDirective} from "./preview-wing";
-import { ShapeModelMock } from "../../diagram/presentation/graph/shapes/shape-model.mock";
+import {ShapeModelMock} from "../../diagram/presentation/graph/shapes/shape-model.mock";
 
 describe("PreviewWing Directive", () => {
 
@@ -20,7 +20,10 @@ describe("PreviewWing Directive", () => {
             controllerScope["wingCtrl"] = o;
 
             // Act
-            var controller: PreviewWingController = $controller(PreviewWingController, { $scope: controllerScope, $rootScope });
+            var controller: PreviewWingController = $controller(PreviewWingController, {
+                $scope: controllerScope,
+                $rootScope
+            });
 
             // Assert
             expect(controller.wingTask).not.toBeNull();

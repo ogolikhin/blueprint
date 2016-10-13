@@ -1,11 +1,11 @@
 import {IStatefulArtifactFactory} from "./";
-import { IStatefulArtifact, StatefulArtifact,  StatefulProcessSubArtifact } from "../artifact";
-import { StatefulSubArtifact, IStatefulSubArtifact } from "../sub-artifact";
-import { Models } from "../../../main/models";
-import { IProcessShape } from "../../../editors/bp-process/models/process-models";
+import {IStatefulArtifact, StatefulArtifact, StatefulProcessSubArtifact} from "../artifact";
+import {StatefulSubArtifact, IStatefulSubArtifact} from "../sub-artifact";
+import {Models} from "../../../main/models";
+import {IProcessShape} from "../../../editors/bp-process/models/process-models";
 
 export class StatefulArtifactFactoryMock implements IStatefulArtifactFactory {
-    
+
     public createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact {
         return new StatefulArtifact(artifact, null);
     }

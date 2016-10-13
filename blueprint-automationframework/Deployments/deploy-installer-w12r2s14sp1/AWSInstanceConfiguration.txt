@@ -2,3 +2,4 @@ NAME = deploy_installer_w12r2s14sp1
 AMI_ID = ami-300b7227
 ELASTIC_IP = 52.206.121.218
 DATABASE_BACKUP_FILE_NAME = IntegrationTestDBBackups-SQL2012-NoFilestream.zip
+DATABASE_HOST_NAME = localhost\sqlserver2014

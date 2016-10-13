@@ -1270,21 +1270,23 @@ pagecontent, bp-properties-panel {
                 box-sizing: border-box;
                 padding: 4px;
 
-                .form-control {
-                    background: $white;
-                    margin: 2px;
-                    max-width: 100%;
-                    width: 100%;
-
-                    &:hover,
-                    &:focus {
-                        background: $white;
-                        padding-right: $property-padding-default;
-                    }
-                }
-            }
+        .form-control {
+          background: $white;
+          margin: 2px;
+          max-width: 100%;
+          width: 100%;
+          &[disabled]{
+            border:1px solid $gray-lightest;
+          }
+          &:hover,
+          &:focus {
+            background: $white;
+            padding-right: $property-padding-default;
+          }
+        }
+      }
     }
-    }
+  }
 }
 
 .single-column-property .formly .formly-field label {

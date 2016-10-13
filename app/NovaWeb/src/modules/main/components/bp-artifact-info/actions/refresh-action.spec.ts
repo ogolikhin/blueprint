@@ -178,7 +178,7 @@ describe("RefreshAction", () => {
         expect(refreshAction.disabled).toBe(true);
     }));
 
-    it("is disabled when artifact is Project", 
+    it("is enabled when artifact is Project", 
         inject((
             statefulArtifactFactory: IStatefulArtifactFactory, 
             localization: ILocalizationService,
@@ -196,7 +196,7 @@ describe("RefreshAction", () => {
         const refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService);
 
         // assert
-        expect(refreshAction.disabled).toBe(true);
+        expect(refreshAction.disabled).toBe(false);
     }));
 
     it("is disabled when artifact is Collections", 

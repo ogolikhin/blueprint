@@ -133,6 +133,7 @@
     <Compile Include="Models\VersionControlArtifactInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IRelationshipsRepository.cs" />
+    <Compile Include="Repositories\ISqlItemInfoRepository.cs" />
     <Compile Include="Repositories\SqlArtifactPermissionsRepository.cs" />
     <Compile Include="Repositories\IArtifactPermissionsRepository.cs" />
     <Compile Include="Repositories\ISqlArtifactRepository.cs" />

@@ -34,5 +34,20 @@ namespace Model.SearchServiceModel.Impl
             this.ProjectIds = projectIds;
             this.ItemTypeIds = itemTypeIds;
         }
+
+        public FullTextSearchCriteria(string query, int projectId, IEnumerable<int> itemTypeIds = null) :
+            this(query, new List<int>() { projectId }, itemTypeIds)
+        {
+        }
+
+        public FullTextSearchCriteria(string query, int projectId, int itemTypeId) :
+            this(query, new List<int>() { projectId }, new List<int>() { itemTypeId })
+        {
+        }
+
+        public FullTextSearchCriteria(string query, IEnumerable<int> projectIds, int itemTypeId) :
+            this(query, projectIds, new List<int>() { itemTypeId })
+        {
+        }
     }
 }

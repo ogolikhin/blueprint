@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using CustomAttributes;
 using Helper;
 using Model;
 using NUnit.Framework;
 using System.Linq;
+using System.Net;
+using Common;
 using Model.ArtifactModel;
 using Model.Factories;
 using Model.SearchServiceModel.Impl;
@@ -121,7 +124,7 @@ namespace SearchServiceTests
             var searchTerm = _artifacts.First().Name;
 
             // Seaarch only a single project from the list of projects.
-            var searchCriteria = new FullTextSearchCriteria(searchTerm, new List<int>{_projects.First().Id});
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, new List<int> { _projects.First().Id });
 
             // Execute: Execute FullTextSearch with search term
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResultForSingleProject =
@@ -142,7 +145,7 @@ namespace SearchServiceTests
                 "SearchMetaData() call failed when using following search term: {0}!",
                 searchCriteria.Query);
 
-            Assert.That(!fullTextSearchMetaDataResultForMultipleProjects.TotalCount.Equals(fullTextSearchMetaDataResultForSingleProject.TotalCount), 
+            Assert.That(!fullTextSearchMetaDataResultForMultipleProjects.TotalCount.Equals(fullTextSearchMetaDataResultForSingleProject.TotalCount),
                 "The search hit count for multiple projects was the same as for a single project but should be different.");
         }
 
@@ -174,7 +177,7 @@ namespace SearchServiceTests
             ValidateSearchMetadataTest(fullTextSearchMetaDataResult, searchCriteria, "Name");
         }
 
-        [TestCase(new [] {BaseArtifactType.Actor})]
+        [TestCase(new[] { BaseArtifactType.Actor })]
         [TestCase(new[] { BaseArtifactType.Actor, BaseArtifactType.Document, BaseArtifactType.Process })]
         [TestCase(new[] {
             BaseArtifactType.Actor,
@@ -184,7 +187,7 @@ namespace SearchServiceTests
             BaseArtifactType.BusinessProcess,
             BaseArtifactType.GenericDiagram,
             BaseArtifactType.Glossary,
-            BaseArtifactType.PrimitiveFolder, 
+            BaseArtifactType.PrimitiveFolder,
             BaseArtifactType.Storyboard,
             BaseArtifactType.TextualRequirement,
             BaseArtifactType.UIMockup,
@@ -204,7 +207,7 @@ namespace SearchServiceTests
             Assert.That(openApiProperty != null, "Description property for artifact could not be found!");
 
             // Search for Description property value which is common to all artifacts
-            var searchTerm = openApiProperty.TextOrChoiceValue;
+            var searchTerm = WebUtility.HtmlDecode(openApiProperty.TextOrChoiceValue);
 
             var itemTypeIds = SearchServiceTestHelper.GetItemTypeIdsForBaseArtifactTypes(_projects, baseArtifactTypes.ToList());
 
@@ -399,7 +402,7 @@ namespace SearchServiceTests
             Assert.That(openApiProperty != null, "Description property for artifact could not be found!");
 
             // Search for Description property value which is common to all artifacts
-            var searchTerm = openApiProperty.TextOrChoiceValue;
+            var searchTerm = WebUtility.HtmlDecode(openApiProperty.TextOrChoiceValue);
 
             // Set search criteria over all projects
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
@@ -407,7 +410,7 @@ namespace SearchServiceTests
             // Create user with project role to only 1 project
             var userWithProjectRole = Helper.CreateUserWithProjectRolePermissions(
                 projectRole,
-                new List<IProject> {_projects.First()});
+                new List<IProject> { _projects.First() });
 
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
                 Helper.SearchService.FullTextSearchMetaData(userWithProjectRole, searchCriteria),
@@ -437,7 +440,7 @@ namespace SearchServiceTests
             Assert.That(openApiProperty != null, "Description property for artifact could not be found!");
 
             // Search for Description property value which is common to all artifacts
-            var searchTerm = openApiProperty.TextOrChoiceValue;
+            var searchTerm = WebUtility.HtmlDecode(openApiProperty.TextOrChoiceValue);
 
             // Set search criteria over all projects
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
@@ -590,9 +593,9 @@ namespace SearchServiceTests
         /// <param name="propertyToSearch">The property name to be used for the search</param>
         /// <param name="pageSize"> (optional) pageSize value that indicates number of items that get displayed per page</param>
         private static void ValidateSearchMetadataTest(
-            FullTextSearchMetaDataResult searchResult, 
-            FullTextSearchCriteria searchCriteria, 
-            string propertyToSearch, 
+            FullTextSearchMetaDataResult searchResult,
+            FullTextSearchCriteria searchCriteria,
+            string propertyToSearch,
             int? pageSize = null)
         {
             ThrowIf.ArgumentNull(searchResult, nameof(searchResult));
@@ -604,7 +607,7 @@ namespace SearchServiceTests
             Assert.That(searchResult.TotalCount.Equals(expectedSearchResult.TotalCount), "The expected total hit count is {0} but {1} was found from the returned searchResult.", expectedSearchResult.TotalCount, searchResult.TotalCount);
             Assert.That(searchResult.TotalPages.Equals(expectedSearchResult.TotalPages), "The expected total pages is {0} but {1} was found from the returned searchResult.", expectedSearchResult.TotalPages, searchResult.TotalPages);
 
-            Assert.That(searchResult.FullTextSearchTypeItems.Count().Equals(expectedSearchResult.FullTextSearchTypeItems.Count()),"The expected item type count is {0} but {1} was found from the returned searchResult.", expectedSearchResult.FullTextSearchTypeItems.Count(), searchResult.FullTextSearchTypeItems.Count());
+            Assert.That(searchResult.FullTextSearchTypeItems.Count().Equals(expectedSearchResult.FullTextSearchTypeItems.Count()), "The expected item type count is {0} but {1} was found from the returned searchResult.", expectedSearchResult.FullTextSearchTypeItems.Count(), searchResult.FullTextSearchTypeItems.Count());
 
             foreach (var expectedFullTextSearchTypeItem in expectedSearchResult.FullTextSearchTypeItems)
             {
@@ -627,14 +630,19 @@ namespace SearchServiceTests
         /// <param name="pageSize"> (optional) pageSize value that indicates number of items that get displayed per page</param>
         /// <returns>The expected search metadata result</returns>
         private static FullTextSearchMetaDataResult CreateExpectedSearchMetaDataResult(
-            FullTextSearchCriteria searchCriteria, 
-            string propertyToSearch, 
+            FullTextSearchCriteria searchCriteria,
+            string propertyToSearch,
             int? pageSize = null)
         {
             pageSize = pageSize ?? DEFAULT_PAGE_SIZE_VALUE;
             pageSize = pageSize < 1 ? DEFAULT_PAGE_SIZE_VALUE : pageSize;
 
             var selectedArtifacts = new List<IArtifactBase>();
+
+            if (propertyToSearch.ToUpper(CultureInfo.InvariantCulture).Equals("DESCRIPTION"))
+            {
+                searchCriteria.Query = WebUtility.HtmlEncode(searchCriteria.Query);
+            }
 
             foreach (var artifact in _artifacts)
             {
@@ -676,7 +684,7 @@ namespace SearchServiceTests
             {
                 PageSize = (int)pageSize,
                 TotalCount = selectedArtifacts.Count,
-                TotalPages = (int)Math.Ceiling((decimal)selectedArtifacts.Count / (int) pageSize),
+                TotalPages = (int)Math.Ceiling((decimal)selectedArtifacts.Count / (int)pageSize),
                 FullTextSearchTypeItems = fullTextSearchTypeItems
             };
 
@@ -692,8 +700,8 @@ namespace SearchServiceTests
 
         /// <param name="pageSize"></param>
         private static void ValidateSearchMetaDataPermissionsTest(
-            FullTextSearchMetaDataResult searchResult, 
-            int expectedHitCount, 
+            FullTextSearchMetaDataResult searchResult,
+            int expectedHitCount,
             int expectedTotalPageCount,
             int pageSize = DEFAULT_PAGE_SIZE_VALUE)
         {

@@ -75,8 +75,11 @@ export class ManageTracesDialogController extends BaseDialogController {
                     item.cssClass = "icon-" + _.kebabCase(typeName);
                 }
 
-                return item;
-            })) as Relationships.IRelationshipView[];
+                if (item.hasAccess) {
+                   return item;
+                }
+
+            }).filter( (item) => item)) as Relationships.IRelationshipView[];
 
             this.artifactId = this.data.artifactId;
             this.isItemReadOnly = this.data.isItemReadOnly;

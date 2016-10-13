@@ -1,5 +1,6 @@
 // this file is only being used by karma
 require("phantomjs-polyfill");
+require("ts-helpers");
 
 function requireAll(r: any): any {
     r.keys().forEach(r);

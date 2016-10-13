@@ -13,7 +13,7 @@
 </form>
 <div class="project-wrapper">
     <div class="artifact-picker-container">
-        <div class="search-wrapper" ng-if="$ctrl.isSearching || $ctrl.searchResults">
+        <div class="search-wrapper" ng-show="$ctrl.isSearching || $ctrl.searchResults">
             <div class="search-message" ng-if="$ctrl.isSearching">
                 {{::$root.config.labels['Label_Searching']}}
             </div>
@@ -36,7 +36,7 @@
                 </div>
             </div>
         </div>
-        <div ng-if="!$ctrl.isSearching && !$ctrl.searchResults">
+        <div ng-hide="$ctrl.isSearching || $ctrl.searchResults">
             <div class="grid-header">
                 <div ng-if="$ctrl.project">
                     <i class="fonticon2-arrow-double-left" ng-click="$ctrl.clearProject()"></i><i

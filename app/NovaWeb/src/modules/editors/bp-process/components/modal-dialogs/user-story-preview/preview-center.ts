@@ -115,6 +115,10 @@ export class PreviewCenterController {
     public getAcceptanceCriteria() {
         return this.$sce.trustAsHtml(this.acceptanceCriteria);
     }
+
+    public navigateToUserStory() {
+        // TODO: go to user story artifact
+    }
     public getBusinessRules() {
         return this.$sce.trustAsHtml(this.businessRules);
     }

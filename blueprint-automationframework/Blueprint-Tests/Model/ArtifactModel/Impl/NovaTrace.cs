@@ -42,6 +42,8 @@ namespace Model.ArtifactModel.Impl
 
         public int PrimitiveItemTypePredefined { get; set; }
 
+        public int ChangeType { get; set; }
+
         #endregion Additional Properties
     }
 

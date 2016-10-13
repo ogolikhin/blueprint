@@ -1,4 +1,4 @@
-import { IUser} from "./auth.svc";
+import {IUser} from "./auth.svc";
 
 export interface ISession {
     ensureAuthenticated(): ng.IPromise<any>;

@@ -15,40 +15,51 @@ namespace ArtifactStore.Controllers
     [BaseExceptionFilter]
     public class RelationshipsController : LoggableApiController
     {
-        internal readonly IRelationshipsRepository RelationshipsRepository;
-        internal readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
+        private readonly IRelationshipsRepository _relationshipsRepository;
+        private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
+        private readonly IArtifactVersionsRepository _artifactVersionsRepository;
         public override string LogSource { get; } = "ArtifactStore.Relationships";
 
-        public RelationshipsController() : this(new SqlRelationshipsRepository(), new SqlArtifactPermissionsRepository())
+        public RelationshipsController() : this(new SqlRelationshipsRepository(), new SqlArtifactPermissionsRepository(), new SqlArtifactVersionsRepository())
         {
         }
-        public RelationshipsController(IRelationshipsRepository relationshipsRepository, IArtifactPermissionsRepository artifactPermissionsRepository) : base()
+        public RelationshipsController(IRelationshipsRepository relationshipsRepository,
+            IArtifactPermissionsRepository artifactPermissionsRepository,
+            IArtifactVersionsRepository artifactVersionsRepository) : base()
         {
-            RelationshipsRepository = relationshipsRepository;
-            ArtifactPermissionsRepository = artifactPermissionsRepository;
+            _relationshipsRepository = relationshipsRepository;
+            _artifactPermissionsRepository = artifactPermissionsRepository;
+            _artifactVersionsRepository = artifactVersionsRepository;
         }
 
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/relationships"), SessionRequired]
         [ActionName("GetRelationships")]
-        public async Task<RelationshipResultSet> GetRelationships(int artifactId, int? subArtifactId = null, bool addDrafts = true)
+        public async Task<RelationshipResultSet> GetRelationships(int artifactId, int? subArtifactId = null, bool addDrafts = true, int? versionId = null)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1))
             {
-                throw new HttpResponseException(System.Net.HttpStatusCode.NotFound);
+                throw new HttpResponseException(HttpStatusCode.NotFound);
             }
-            var itemId = subArtifactId.HasValue ? subArtifactId.Value : artifactId;
-            var itemInfo = (await ArtifactPermissionsRepository.GetItemInfo(itemId, session.UserId, addDrafts));
-            if (itemInfo == null || (subArtifactId.HasValue && itemInfo.ArtifactId != artifactId))
-            {
-                throw new HttpResponseException(System.Net.HttpStatusCode.NotFound);
-            }
+            var itemId = subArtifactId ?? artifactId;
 
-            var result = await RelationshipsRepository.GetRelationships(itemId, session.UserId, addDrafts);
+            var isDeleted = await _artifactVersionsRepository.IsItemDeleted(itemId);
+            var itemInfo = isDeleted && versionId != null ?
+                (await _artifactVersionsRepository.GetDeletedItemInfo(itemId)) :
+                (await _artifactPermissionsRepository.GetItemInfo(itemId, session.UserId, addDrafts));
+            if (itemInfo == null)
+                throw new HttpResponseException(HttpStatusCode.NotFound);
+            if (subArtifactId.HasValue && itemInfo.ArtifactId != artifactId)
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+
+            // We do not need drafts for historical artifacts 
+            var effectiveAddDraft = !versionId.HasValue && addDrafts;
+
+            var result = await _relationshipsRepository.GetRelationships(artifactId, session.UserId, subArtifactId, effectiveAddDraft, versionId);
             var itemIds = new List<int> { itemId };
             itemIds = itemIds.Union(result.ManualTraces.Select(a=>a.ArtifactId)).Union(result.OtherTraces.Select(a => a.ArtifactId)).Distinct().ToList();
-            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissionsInChunks(itemIds, session.UserId);
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(itemIds, session.UserId);
             if (!HasPermissions(itemId, permissions, RolePermissions.Read))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
@@ -90,26 +101,32 @@ namespace ArtifactStore.Controllers
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/relationshipdetails"), SessionRequired]
         [ActionName("GetRelationshipDetails")]
-        public async Task<RelationshipExtendedInfo> GetRelationshipDetails(int artifactId, bool addDrafts = true)
+        public async Task<RelationshipExtendedInfo> GetRelationshipDetails(int artifactId, bool addDrafts = true, int? revisionId = null)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             if (artifactId < 1 )
             {
-                throw new HttpResponseException(System.Net.HttpStatusCode.NotFound);
-            }
-            var artifactInfo = (await ArtifactPermissionsRepository.GetItemInfo(artifactId, session.UserId, addDrafts));
-            if (artifactInfo == null)
-            {
-                throw new HttpResponseException(System.Net.HttpStatusCode.NotFound);
+                throw new HttpResponseException(HttpStatusCode.NotFound);
             }
 
+            var isDeleted = await _artifactVersionsRepository.IsItemDeleted(artifactId);
+            var artifactInfo = isDeleted && revisionId != null ?
+                (await _artifactVersionsRepository.GetDeletedItemInfo(artifactId)) :
+                (await _artifactPermissionsRepository.GetItemInfo(artifactId, session.UserId, addDrafts));
+            if (artifactInfo == null)
+                throw new HttpResponseException(HttpStatusCode.NotFound);
+
             var itemIds = new List<int> { artifactId };
-            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(itemIds, session.UserId);
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(itemIds, session.UserId);
             if (!HasPermissions(artifactId, permissions, RolePermissions.Read))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
-            return await RelationshipsRepository.GetRelationshipExtendedInfo(artifactId, session.UserId, addDrafts);
+
+            // We do not need drafts for historical artifacts 
+            var effectiveAddDraft = !revisionId.HasValue && addDrafts;
+
+            return await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, session.UserId, effectiveAddDraft, revisionId ?? int.MaxValue);
         }
 
         private static bool HasPermissions(int itemId, Dictionary<int, RolePermissions> permissions, RolePermissions permissionType)

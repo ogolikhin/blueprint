@@ -12,15 +12,19 @@
                        name="{{ $ctrl.discussionInfo.userName }}"
                        color-base="{{ $ctrl.discussionInfo.userId + $ctrl.discussionInfo.userName }}">
             </bp-avatar>
-            <div class="author" 
+            <div class="author"
                  bp-tooltip-truncated="true"
-                 bp-tooltip="{{ $ctrl.discussionInfo.userName }}">{{ $ctrl.discussionInfo.userName }}</div>
+                 bp-tooltip="{{ $ctrl.discussionInfo.userName }}">{{ $ctrl.discussionInfo.userName }}
+            </div>
         </div>
 
         <div class="info">
-            <div class="comment" bp-collapsible="80" scrollable-container-id="discussion-scrollable-content" ng-bind-html="$ctrl.getTrustedCommentHtml()"></div>
+            <div class="comment" bp-collapsible="80" scrollable-container-id="discussion-scrollable-content"
+                 ng-bind-html="$ctrl.getTrustedCommentHtml()"></div>
             <div class="version">v{{$ctrl.discussionInfo.version}}</div>
-            <div class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.discussionInfo.lastEditedOn | date:'medium' }}</div>
+            <div class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.discussionInfo.lastEditedOn |
+                date:'medium' }}
+            </div>
         </div>
 
         <div class="button-bar">

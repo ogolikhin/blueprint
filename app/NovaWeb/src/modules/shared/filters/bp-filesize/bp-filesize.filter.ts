@@ -1,4 +1,4 @@
-import { ILocalizationService } from  "../../../core/";
+import {ILocalizationService} from  "../../../core/";
 
 export class BpFilesizeFilter {
 

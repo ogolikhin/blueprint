@@ -1,8 +1,8 @@
 import * as angular from "angular";
 import "angular-mocks";
-import { IFileUploadService, FileUploadService, IFileResult } from "./";
-import { Helper } from "../../shared";
-import { HttpStatusCode } from "../../core/http";
+import {IFileUploadService, FileUploadService, IFileResult} from "./";
+import {Helper} from "../../shared";
+import {HttpStatusCode} from "../../core/http";
 
 describe("File Upload", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -12,66 +12,66 @@ describe("File Upload", () => {
     describe("uploadToFileStore", () => {
         it("calls server and returns result when expirationDate is specified",
             inject(($httpBackend: ng.IHttpBackendService, fileUploadService: IFileUploadService) => {
-            // Arrange
-            const file = { name: "empty.txt" };
-            const expirationDate = new Date();
-            const data = { guid: Helper.UID, uriToFile: "http://example.com/" };
-            $httpBackend.when("POST", `/svc/bpfilestore/files/?expired=${expirationDate.toISOString()}`)
-                .respond(data);
+                // Arrange
+                const file = {name: "empty.txt"};
+                const expirationDate = new Date();
+                const data = {guid: Helper.UID, uriToFile: "http://example.com/"};
+                $httpBackend.when("POST", `/svc/bpfilestore/files/?expired=${expirationDate.toISOString()}`)
+                    .respond(data);
 
-            // Act
-            var error: any;
-            var result: IFileResult;
-            fileUploadService.uploadToFileStore(file, expirationDate).then(response => result = response, response => error = response);
-            $httpBackend.flush();
+                // Act
+                var error: any;
+                var result: IFileResult;
+                fileUploadService.uploadToFileStore(file, expirationDate).then(response => result = response, response => error = response);
+                $httpBackend.flush();
 
-            // Assert
-            expect(error).toBeUndefined();
-            expect(result).toEqual(data);
-            $httpBackend.verifyNoOutstandingExpectation();
-            $httpBackend.verifyNoOutstandingRequest();
-        }));
+                // Assert
+                expect(error).toBeUndefined();
+                expect(result).toEqual(data);
+                $httpBackend.verifyNoOutstandingExpectation();
+                $httpBackend.verifyNoOutstandingRequest();
+            }));
         it("calls server and returns result when expirationDate is not specified",
             inject(($httpBackend: ng.IHttpBackendService, fileUploadService: IFileUploadService) => {
-            // Arrange
-            const file = { name: "empty.txt" };
-            const data = { guid: Helper.UID, uriToFile: "http://example.com/" };
-            $httpBackend.when("POST", `/svc/bpfilestore/files/`)
-                .respond(data);
+                // Arrange
+                const file = {name: "empty.txt"};
+                const data = {guid: Helper.UID, uriToFile: "http://example.com/"};
+                $httpBackend.when("POST", `/svc/bpfilestore/files/`)
+                    .respond(data);
 
-            // Act
-            var error: any;
-            var result: IFileResult;
-            fileUploadService.uploadToFileStore(file).then(response => result = response, response => error = response);
-            $httpBackend.flush();
+                // Act
+                var error: any;
+                var result: IFileResult;
+                fileUploadService.uploadToFileStore(file).then(response => result = response, response => error = response);
+                $httpBackend.flush();
 
-            // Assert
-            expect(error).toBeUndefined();
-            expect(result).toEqual(data);
-            $httpBackend.verifyNoOutstandingExpectation();
-            $httpBackend.verifyNoOutstandingRequest();
-        }));
+                // Assert
+                expect(error).toBeUndefined();
+                expect(result).toEqual(data);
+                $httpBackend.verifyNoOutstandingExpectation();
+                $httpBackend.verifyNoOutstandingRequest();
+            }));
         it("calls server and returns error when the server returns an error",
             inject(($httpBackend: ng.IHttpBackendService, fileUploadService: IFileUploadService) => {
-            // Arrange
-            const file = { name: "empty.txt" };
-            const status = HttpStatusCode.ServerError;
-            const data = { message: "Internal Server Error" };
-            const expirationDate = new Date();
-            $httpBackend.when("POST", `/svc/bpfilestore/files/?expired=${expirationDate.toISOString()}`)
-                .respond(status, data);
+                // Arrange
+                const file = {name: "empty.txt"};
+                const status = HttpStatusCode.ServerError;
+                const data = {message: "Internal Server Error"};
+                const expirationDate = new Date();
+                $httpBackend.when("POST", `/svc/bpfilestore/files/?expired=${expirationDate.toISOString()}`)
+                    .respond(status, data);
 
-            // Act
-            var error: any;
-            var result: IFileResult;
-            fileUploadService.uploadToFileStore(file, expirationDate).then(response => result = response, response => error = response);
-            $httpBackend.flush();
+                // Act
+                var error: any;
+                var result: IFileResult;
+                fileUploadService.uploadToFileStore(file, expirationDate).then(response => result = response, response => error = response);
+                $httpBackend.flush();
 
-            // Assert
-            expect(result).toBeUndefined();
-            expect(error).toEqual({ statusCode: status, message: data.message });
-            $httpBackend.verifyNoOutstandingExpectation();
-            $httpBackend.verifyNoOutstandingRequest();
-        }));
+                // Assert
+                expect(result).toBeUndefined();
+                expect(error).toEqual({statusCode: status, message: data.message});
+                $httpBackend.verifyNoOutstandingExpectation();
+                $httpBackend.verifyNoOutstandingRequest();
+            }));
     });
 });

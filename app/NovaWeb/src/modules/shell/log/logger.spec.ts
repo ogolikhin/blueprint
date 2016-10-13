@@ -1,8 +1,8 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
-import { IServerLogger } from "./server-logger.svc";
-import { Logger } from "./logger";
-import { LogMock } from "./server-logger.svc.mock";
+import {IServerLogger} from "./server-logger.svc";
+import {Logger} from "./logger";
+import {LogMock} from "./server-logger.svc.mock";
 
 //global buffer to check logger output
 var msg: string;
@@ -38,7 +38,7 @@ describe("Logger", () => {
             // Arrange
 
             // Act
-            $log.error({ message: "test" });
+            $log.error({message: "test"});
             $rootScope.$digest();
 
             // Assert

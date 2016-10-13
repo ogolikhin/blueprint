@@ -13,8 +13,15 @@ describe("BpArtifactPicker", () => {
 
     beforeEach(angular.mock.module("bp.components.artifactpicker", ($provide: ng.auto.IProvideService) => {
         $provide.service("localization", () => {});
-        $provide.service("projectManager", () => { return { getSelectedProject: () => ({id: 1, name: "default"}) }; });
-        $provide.service("projectService", () => { return { abort: () => {} }; });
+        $provide.service("projectManager", () => { 
+            return { 
+                getSelectedProject: () => ({id: 1, name: "default"}) }; 
+            });
+        $provide.service("projectService", () => {
+            return {
+                abort: () => {}
+            };
+        });
     }));
 
     it("Values are bound", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
@@ -141,7 +148,11 @@ describe("BpArtifactPickerController", () => {
 
         it("innerRenderer returns correct result", () => {
             // Arrange
-            const vm = {name: "name", getIcon() { return "icon"; }} as ArtifactPickerNodeVM<any>;
+            const vm = {
+                name: "name", getIcon() {
+                    return "icon";
+                }
+            } as ArtifactPickerNodeVM<any>;
             const cell = {} as HTMLElement;
 
             // Act

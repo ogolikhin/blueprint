@@ -383,5 +383,141 @@ namespace Helper
 
             return I18NHelper.FormatInvariant("<p>{0}</p>", text);
         }
+
+        /// <summary>
+        /// Asserts that the specified INovaArtifactBase object is equal to the specified IArtifactBase.
+        /// </summary>
+        /// <param name="novaArtifactBase">The INovaArtifactBase to compare against.</param>
+        /// <param name="artifactBase">The IArtifactBase to compare against.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public static void AssertArtifactsEqual(INovaArtifactBase novaArtifactBase, IArtifactBase artifactBase)
+        {
+            ThrowIf.ArgumentNull(novaArtifactBase, nameof(novaArtifactBase));
+            ThrowIf.ArgumentNull(artifactBase, nameof(artifactBase));
+
+            Assert.AreEqual(novaArtifactBase.Id, artifactBase.Id, "The Id parameters don't match!");
+            Assert.AreEqual(novaArtifactBase.Name, artifactBase.Name, "The Name  parameters don't match!");
+            Assert.AreEqual(novaArtifactBase.ParentId, artifactBase.ParentId, "The ParentId  parameters don't match!");
+            Assert.AreEqual(novaArtifactBase.ItemTypeId, artifactBase.ArtifactTypeId, "The ItemTypeId  parameters don't match!");
+            Assert.AreEqual(novaArtifactBase.ProjectId, artifactBase.ProjectId, "The ProjectId  parameters don't match!");
+            Assert.AreEqual(novaArtifactBase.Version, artifactBase.Version, "The Version  parameters don't match!");
+        }
+
+        /// <summary>
+        /// Asserts that both INovaArtifactDetails objects are equal.
+        /// </summary>
+        /// <param name="artifact1">The first INovaArtifactDetails to compare against.</param>
+        /// <param name="artifact2">The second INovaArtifactDetails to compare against.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public static void AssertArtifactsEqual(INovaArtifactDetails artifact1, INovaArtifactDetails artifact2)
+        {
+            ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
+            ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
+
+            Assert.AreEqual(artifact1.Id, artifact2.Id, "The Id parameters don't match!");
+            Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name  parameters don't match!");
+            Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description  parameters don't match!");
+            Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
+            Assert.AreEqual(artifact1.Permissions, artifact2.Permissions, "The Permissions  parameters don't match!");
+            Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex  parameters don't match!");
+            Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId  parameters don't match!");
+            Assert.AreEqual(artifact1.ItemTypeVersionId, artifact2.ItemTypeVersionId, "The ItemTypeVersionId  parameters don't match!");
+            Assert.AreEqual(artifact1.LockedDateTime, artifact2.LockedDateTime, "The LockedDateTime  parameters don't match!");
+            Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId  parameters don't match!");
+            Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version  parameters don't match!");
+            Assert.AreEqual(artifact1.CreatedOn, artifact2.CreatedOn, "The CreatedOn  parameters don't match!");
+            Assert.AreEqual(artifact1.LastEditedOn, artifact2.LastEditedOn, "The LastEditedOn  parameters don't match!");
+
+            Identification.AssertEquals(artifact1.CreatedBy, artifact2.CreatedBy);
+            Identification.AssertEquals(artifact1.LastEditedBy, artifact2.LastEditedBy);
+            Identification.AssertEquals(artifact1.LockedByUser, artifact2.LockedByUser);
+
+            Assert.AreEqual(artifact1.CustomPropertyValues.Count, artifact2.CustomPropertyValues.Count, "The number of Custom Properties is different!");
+            Assert.AreEqual(artifact1.SpecificPropertyValues.Count, artifact2.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");
+
+            // Now compare each property in CustomProperties & SpecificPropertyValues.
+            foreach (CustomProperty property in artifact1.CustomPropertyValues)
+            {
+                Assert.That(artifact2.CustomPropertyValues.Exists(p => p.Name == property.Name),
+                "Couldn't find a CustomProperty named '{0}'!", property.Name);
+            }
+
+            foreach (CustomProperty property in artifact1.SpecificPropertyValues)
+            {
+                Assert.That(artifact2.SpecificPropertyValues.Exists(p => p.Name == property.Name),
+                "Couldn't find a SpecificPropertyValue named '{0}'!", property.Name);
+            }
+        }
+
+        /// <summary>
+        /// Asserts that the specified INovaArtifactDetails object is equal to the specified INovaArtifactResponse.
+        /// </summary>
+        /// <param name="artifact1">The first INovaArtifactDetails to compare against.</param>
+        /// <param name="artifact2">The second INovaArtifactResponse to compare against.</param>
+        /// <param name="skipDatesAndDescription">(optional) Pass true to skip comparing the Created*, LastEdited* and Description properties.
+        ///     This is needed when comparing the response of the GetUnpublishedChanges REST call which always returns null for those fields.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public static void AssertArtifactsEqual(INovaArtifactDetails artifact1, INovaArtifactResponse artifact2, bool skipDatesAndDescription = false)
+        {
+            ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
+            ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
+
+            Assert.AreEqual(artifact1.Id, artifact2.Id, "The Id parameters don't match!");
+            Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name  parameters don't match!");
+            Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
+            Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex  parameters don't match!");
+            Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId  parameters don't match!");
+            Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId  parameters don't match!");
+            Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version  parameters don't match!");
+
+            if (!skipDatesAndDescription)
+            {
+                Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description  parameters don't match!");
+                Assert.AreEqual(artifact1.CreatedOn, artifact2.CreatedOn, "The CreatedOn  parameters don't match!");
+                Assert.AreEqual(artifact1.LastEditedOn, artifact2.LastEditedOn, "The LastEditedOn  parameters don't match!");
+
+                Identification.AssertEquals(artifact1.CreatedBy, artifact2.CreatedBy);
+                Identification.AssertEquals(artifact1.LastEditedBy, artifact2.LastEditedBy);
+            }
+        }
+
+        /// <summary>
+        /// Asserts that the INovaArtifactDetails & INovaVersionControlArtifactInfo objects are equal.
+        /// </summary>
+        /// <param name="artifact1">The first INovaArtifactDetails to compare against.</param>
+        /// <param name="artifact2">The second INovaVersionControlArtifactInfo to compare against.</param>
+        /// <param name="compareVersions">(optional) Pass false to skip version comparison.  Versions will never be compared if the Version of artifact2 is null.</param>
+        /// <param name="compareLockInfo">(optional) Pass false to skip the LockedByUser and LockedDateTime comparisons.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public static void AssertArtifactsEqual(INovaArtifactDetails artifact1,
+            INovaVersionControlArtifactInfo artifact2,
+            bool compareVersions = true,
+            bool compareLockInfo = true)
+        {
+            ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
+            ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
+
+            Assert.AreEqual(artifact1.Id, artifact2.Id, "The Id parameters don't match!");
+            Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId  parameters don't match!");
+            Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name  parameters don't match!");
+            Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex  parameters don't match!");
+            Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
+            Assert.AreEqual(artifact1.Permissions, artifact2.Permissions, "The Permissions  parameters don't match!");
+            Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId  parameters don't match!");
+            Assert.AreEqual(artifact1.PredefinedType, artifact2.PredefinedType, "The PredefinedType  parameters don't match!");
+            Assert.AreEqual(artifact1.Prefix, artifact2.Prefix, "The Prefix  parameters don't match!");
+
+            // The Version property in VersionControlInfo is always null until the artifact is deleted.
+            if (compareVersions && (artifact2.Version != null))
+            {
+                Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version  parameters don't match!");
+            }
+
+            if (compareLockInfo)
+            {
+                Assert.AreEqual(artifact1.LockedDateTime, artifact2.LockedDateTime, "The LockedDateTime  parameters don't match!");
+                Identification.AssertEquals(artifact1.LockedByUser, artifact2.LockedByUser);
+            }
+        }
     }
 }

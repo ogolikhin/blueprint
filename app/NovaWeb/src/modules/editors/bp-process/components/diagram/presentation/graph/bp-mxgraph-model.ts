@@ -1,5 +1,4 @@
-﻿ 
-export class BpMxGraphModel extends mxGraphModel {
+﻿export class BpMxGraphModel extends mxGraphModel {
     private linkCounter: number;
 
     constructor() {

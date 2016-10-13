@@ -9,9 +9,7 @@ export interface IBPButtonGroupAction extends IBPAction {
 export class BPButtonGroupAction implements IBPButtonGroupAction {
     private _actions: IBPButtonAction[];
 
-    constructor(
-        ... actions: IBPButtonAction[]
-    ) {
+    constructor(...actions: IBPButtonAction[]) {
         this._actions = actions;
     }
 

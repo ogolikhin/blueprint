@@ -1,5 +1,4 @@
-﻿
-export interface IDialogParams {
+﻿export interface IDialogParams {
     denyButton?: string;
     confirmButton?: string;
     publishButton?: string;

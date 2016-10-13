@@ -1,13 +1,15 @@
 <div class="filter-bar"
-    ng-if="$ctrl.attachmentsList.length || $ctrl.docRefList.length">
+     ng-if="$ctrl.attachmentsList.length || $ctrl.docRefList.length">
 
     <div class="bp-select" ng-class="{'disabled': $ctrl.itemState.isReadonly}">
         <div uib-dropdown>
-            <a href="#" uib-dropdown-toggle><span>{{::$ctrl.localization.get('App_UP_Attachments_Add_New')}}</span><b class="caret"></b></a>
+            <a href="#" uib-dropdown-toggle><span>{{::$ctrl.localization.get('App_UP_Attachments_Add_New')}}</span><b
+                class="caret"></b></a>
             <ul uib-dropdown-menu class="dropdown-menu">
                 <li ng-class="{'disabled': $ctrl.item.artifactState.readonly}">
                     <label>
-                        <input bp-file-upload="$ctrl.onFileSelect(files, callback)" type="file" multiple="1" class="file-input">
+                        <input bp-file-upload="$ctrl.onFileSelect(files, callback)" type="file" multiple="1"
+                               class="file-input">
                         {{::$ctrl.localization.get('App_UP_Attachments_Attachment') }}
                     </label>
                 </li>
@@ -26,13 +28,14 @@
 </div>
 
 <div ng-if="$ctrl.attachmentsList.length || $ctrl.docRefList.length"
-    class="scrollable-content" 
-    perfect-scrollbar>
+     class="scrollable-content"
+     perfect-scrollbar>
 
-    <h6 ng-if="$ctrl.attachmentsList.length && $ctrl.categoryFilter !== 2">{{::$ctrl.localization.get('App_UP_Attachments_Attachments') }}</h6>
+    <h6 ng-if="$ctrl.attachmentsList.length && $ctrl.categoryFilter !== 2">
+        {{::$ctrl.localization.get('App_UP_Attachments_Attachments') }}</h6>
     <div ng-if="$ctrl.categoryFilter !== 2">
-        <div ng-repeat="attachment in $ctrl.attachmentsList" 
-            class="artifact-item-wrapper">
+        <div ng-repeat="attachment in $ctrl.attachmentsList"
+             class="artifact-item-wrapper">
 
             <div class="separator"></div>
 
@@ -45,46 +48,52 @@
         </div>
     </div>
     <div ng-if="!$ctrl.attachmentsList.length && $ctrl.categoryFilter === 1"
-   	    class="empty-state">{{::$ctrl.localization.get('App_UP_Attachments_No_Attachments_Only') }}</div>
+         class="empty-state">{{::$ctrl.localization.get('App_UP_Attachments_No_Attachments_Only') }}
+    </div>
 
-    <h6 ng-if="$ctrl.docRefList.length && $ctrl.categoryFilter !== 1">{{::$ctrl.localization.get('App_UP_Attachments_Ref_Docs') }}</h6>
+    <h6 ng-if="$ctrl.docRefList.length && $ctrl.categoryFilter !== 1">
+        {{::$ctrl.localization.get('App_UP_Attachments_Ref_Docs') }}</h6>
     <div ng-if="$ctrl.categoryFilter !== 1">
-        <div ng-repeat="document in $ctrl.docRefList" 
-            class="artifact-item-wrapper">
+        <div ng-repeat="document in $ctrl.docRefList"
+             class="artifact-item-wrapper">
 
             <div class="separator"></div>
-            
+
             <bp-artifact-document-item
-                class="utility-panel-artifact-item" 
+                class="utility-panel-artifact-item"
                 doc-ref-info="document"
                 delete-item="$ctrl.deleteDocRef(document)">
             </bp-artifact-document-item>
         </div>
     </div>
     <div ng-if="!$ctrl.docRefList.length && $ctrl.categoryFilter === 2"
-   	    class="empty-state">{{::$ctrl.localization.get('App_UP_Attachments_No_Documents_Only') }}</div>
+         class="empty-state">{{::$ctrl.localization.get('App_UP_Attachments_No_Documents_Only') }}
+    </div>
 </div>
 
 <div ng-if="$ctrl.item.attachments.isLoading || $ctrl.item.docRefs.isLoading" class="app-loading">
     <span class="glyphicon glyphicon-refresh spin"></span>
 </div>
 
-<div ng-if="!$ctrl.attachmentsList.length && !$ctrl.docRefList.length && !$ctrl.item.attachments.isLoading && !$ctrl.item.docRefs.isLoading"
+<div
+    ng-if="!$ctrl.attachmentsList.length && !$ctrl.docRefList.length && !$ctrl.item.attachments.isLoading && !$ctrl.item.docRefs.isLoading"
     class="empty-state">
 
     <p>{{::$ctrl.localization.get('App_UP_Attachments_No_Attachments') }}</p>
-    
+
     <div class="add-empty" ng-if="$ctrl.item">
         <p>{{::$ctrl.localization.get('App_UP_Attachments_Attachment_Desc') }}</p>
-        <label class="btn btn-secondary btn-small" ng-class="{'disabled': $ctrl.item.artifactState.readonly }" ng-disabled="!$ctrl.canAddAttachments">
+        <label class="btn btn-secondary btn-small" ng-class="{'disabled': $ctrl.item.artifactState.readonly }"
+               ng-disabled="!$ctrl.canAddAttachments">
             <input bp-file-upload="$ctrl.onFileSelect(files, callback)" type="file" multiple="1" class="file-input">
             {{::$ctrl.localization.get('App_UP_Attachments_Add_Attachment') }}
         </label>
-        
-        <hr />
+
+        <hr/>
 
         <p>{{::$ctrl.localization.get('App_UP_Attachments_Reference_Desc') }}</p>
-        <label class="btn btn-secondary btn-small" ng-click="$ctrl.addDocRef()" ng-class="{'disabled': $ctrl.item.artifactState.readonly}" ng-disabled="!$ctrl.canAddDocRefs">
+        <label class="btn btn-secondary btn-small" ng-click="$ctrl.addDocRef()"
+               ng-class="{'disabled': $ctrl.item.artifactState.readonly}" ng-disabled="!$ctrl.canAddDocRefs">
             {{ $ctrl.localization.get('App_UP_Attachments_Add_Ref_Doc') }}
         </label>
     </div>

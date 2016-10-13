@@ -6,7 +6,7 @@ export class BaseEditorStateController {
         scrollXMarginOffset: 4,
         scrollYMarginOffset: 4
     };
-    
+
     constructor(private $state: angular.ui.IStateService) {
         this.context = $state.params["context"];
     }

@@ -1,11 +1,12 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
-import { IDialogSettings, IDialogService, DialogService, DialogTypeEnum} from "./bp-dialog";
+import {IDialogSettings, IDialogService, DialogService, DialogTypeEnum} from "./bp-dialog";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 
 class ModalMock implements ng.ui.bootstrap.IModalService {
     public static $inject = ["$q"];
     public instanceMock: ModalServiceInstanceMock;
+
     constructor(private $q: ng.IQService) {
         this.instanceMock = new ModalServiceInstanceMock(this.$q);
     }
@@ -100,7 +101,7 @@ describe("DialogService", () => {
             spyOn(dialogService, "openInternal").and.callThrough();
             var dialogSettings: IDialogSettings = {
                 type: DialogTypeEnum.Alert,
-                cancelButton : "CANCEL",
+                cancelButton: "CANCEL",
                 okButton: "OKAY",
                 template: "template"
             };

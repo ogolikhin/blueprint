@@ -1,7 +1,12 @@
 ﻿<div class="modal-header storyteller-modal-header storyteller-gwt_modal-header">
     <h3 class="modal-title storyteller-gwt_modal-title">
-        <div ng-show="centerCtrl.isUserSystemProcess" class="storyteller-gwt_title-gwt">{{::$root.config.labels['ST_When_Label']}}</div>
-        <div class="storyteller-gwt_title-generated" ng-class="{'storyteller-gwt_business-process-title-generated': !centerCtrl.isUserSystemProcess}">{{centerCtrl.when}}</div>
+        <div ng-show="centerCtrl.isUserSystemProcess" class="storyteller-gwt_title-gwt">
+            {{::$root.config.labels['ST_When_Label']}}
+        </div>
+        <div class="storyteller-gwt_title-generated"
+             ng-class="{'storyteller-gwt_business-process-title-generated': !centerCtrl.isUserSystemProcess}">
+            {{centerCtrl.when}}
+        </div>
     </h3>
 </div>
 <div class="modal-body storyteller-gwt_modal-body">
@@ -9,10 +14,11 @@
         <label class="storyteller-gwt-label">
             <a href="" ng-click="centerCtrl.navigateToUserStory()" class="storyteller-gwt-label">{{::$root.config.labels['ST_User_Story_Title_Label']}}</a>
         </label>
-        <p ng-bind-html="centerCtrl.getTitle()" />
+        <p ng-bind-html="centerCtrl.getTitle()"/>
     </div>
     <div ng-show="centerCtrl.isUserSystemProcess" class="storyteller-gwt-section">
-        <label class="storyteller-gwt-label">{{::$root.config.labels['ST_User_Story_Acceptance_Criteria_Label']}}</label>
-        <div class="modal-content-autoscroll"><p ng-bind-html="centerCtrl.getAcceptanceCriteria()" /></div>
-    </div>   
+        <label
+            class="storyteller-gwt-label">{{::$root.config.labels['ST_User_Story_Acceptance_Criteria_Label']}}</label>
+        <div class="modal-content-autoscroll"><p ng-bind-html="centerCtrl.getAcceptanceCriteria()"/></div>
+    </div>
 </div>

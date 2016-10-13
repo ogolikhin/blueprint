@@ -45,13 +45,13 @@ export class Logger {
                 if (args[0].message || args[0].message === "") {
                     serverLogger.log(args[0], level);
                 } else {
-                    serverLogger.log({ message: args[0] }, level);
+                    serverLogger.log({message: args[0]}, level);
                 }
                 // Call the original with the output prepended with formatted timestamp
                 if (logCall) {
                     logCall.apply(null, args);
                 }
-            //} else {
+                //} else {
                 //nothing to log       
             }
         };

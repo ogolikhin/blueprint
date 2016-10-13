@@ -5,7 +5,10 @@ describe("Tour Dialog", () => {
     let controller: BPTourController;
 
     beforeEach(() => {
-        dialogMock = { close: function() {} };
+        dialogMock = {
+            close: function () {
+            }
+        };
         controller = new BPTourController(dialogMock);
     });
 

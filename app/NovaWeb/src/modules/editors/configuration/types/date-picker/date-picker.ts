@@ -1,8 +1,8 @@
 import * as angular from "angular";
 import "angular-formly";
-import { ILocalizationService } from "../../../../core";
-import { Helper } from "../../../../shared";
-import { BPFieldBaseController } from "../base-controller";
+import {ILocalizationService} from "../../../../core";
+import {Helper} from "../../../../shared";
+import {BPFieldBaseController} from "../base-controller";
 
 export class BPFieldDatePicker implements AngularFormly.ITypeOptions {
     static $inject: [string] = ["$scope"];
@@ -55,11 +55,11 @@ export class BPFieldDatePicker implements AngularFormly.ITypeOptions {
         let datepickerNgModelAttrs = {};
 
         angular.forEach(datepickerAttributes, function (attr) {
-            datepickerNgModelAttrs[Helper.toCamelCase(attr)] = { attribute: attr };
+            datepickerNgModelAttrs[Helper.toCamelCase(attr)] = {attribute: attr};
         });
 
         angular.forEach(datepickerBindings, function (binding) {
-            datepickerNgModelAttrs[Helper.toCamelCase(binding)] = { bound: binding };
+            datepickerNgModelAttrs[Helper.toCamelCase(binding)] = {bound: binding};
         });
 
         this.defaultOptions.ngModelAttrs = datepickerNgModelAttrs;
@@ -99,7 +99,7 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
 
         let validators = {
             minDateSQL: {
-                expression: function($viewValue, $modelValue, scope) {
+                expression: function ($viewValue, $modelValue, scope) {
                     let date = localization.current.toDate($modelValue || $viewValue, true);
                     let minDate = scope.minDateSQL;
 
@@ -110,7 +110,7 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
                 }
             },
             minDate: {
-                expression: function($viewValue, $modelValue, scope) {
+                expression: function ($viewValue, $modelValue, scope) {
                     if (!scope.options.data.isValidated) {
                         return true;
                     }
@@ -125,7 +125,7 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
                 }
             },
             maxDate: {
-                expression: function($viewValue, $modelValue, scope) {
+                expression: function ($viewValue, $modelValue, scope) {
                     if (!scope.options.data.isValidated) {
                         return true;
                     }
@@ -170,7 +170,7 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
             select: function ($event) {
                 let inputField = $event.target;
                 inputField.focus();
-                if (!this.selected  && inputField.selectionStart === inputField.selectionEnd) {
+                if (!this.selected && inputField.selectionStart === inputField.selectionEnd) {
                     inputField.setSelectionRange(0, inputField.value.length);
                 }
                 this.selected = !this.selected;

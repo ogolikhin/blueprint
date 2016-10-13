@@ -9,7 +9,7 @@ angular.module("app.shared", [
     "ui.bootstrap",
     "bp.widgets",
     "bp.filters"]);
-    
+
 export {
     IBPTreeController,
     ITreeNode,

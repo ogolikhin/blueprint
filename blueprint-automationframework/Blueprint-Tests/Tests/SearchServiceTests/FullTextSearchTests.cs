@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using TestCommon;
 using Utilities;
 
@@ -223,8 +224,8 @@ namespace SearchServiceTests
             // Setup: Create search criteria with search term that matches published artifact(s) description
             FullTextSearchResult fullTextSearchResult = null;
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-
-            var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue, selectedProjectIds);
+            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Setup: Set the pageSize that displays all expecting search results for the user with permission on selected project(s)
             var customSearchPageSize = _publishedArtifacts.Count();
@@ -253,7 +254,8 @@ namespace SearchServiceTests
             }
 
             // Setup: Create search criteria with search term that matches with deleted but not published artifact(s) description
-            var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue, selectedProjectIds);
+            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Execute: Execute FullTextSearch with search terms that matches deleted but not published artifact(s) description
             Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria), "Nova FullTextSearch call failed when using following search term: {0} which matches with deleted but not published artifacts!", searchCriteria.Query);
@@ -279,7 +281,8 @@ namespace SearchServiceTests
             }
 
             // Setup: Create search criteria with search term that matches with deleted but not published artifact(s) description
-            var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue, selectedProjectIds);
+            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Execute: Execute FullTextSearch with search terms that matches deleted but not published artifact(s) description
             Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_userSecond, searchCriteria), "Nova FullTextSearch call failed when using following search term: {0} which matches with deleted but not published artifacts!", searchCriteria.Query);
@@ -306,7 +309,8 @@ namespace SearchServiceTests
             }
 
             // Setup: Create search criteria with search term that matches with deleted and published artifact(s) description
-            var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue, selectedProjectIds);
+            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Execute: Execute FullTextSearch with search terms that matches deleted and published artifact(s) description
             Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria), "Nova FullTextSearch call failed when using following search term: {0} which matches with deleted and published artifacts!", searchCriteria.Query);
@@ -333,7 +337,8 @@ namespace SearchServiceTests
             }
 
             // Setup: Create search criteria with search term that matches with deleted and published artifact(s) description
-            var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue, selectedProjectIds);
+            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Execute: Execute FullTextSearch with search terms that matches deleted and published artifact(s) description
             Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_userSecond, searchCriteria), "Nova FullTextSearch call failed when using following search term: {0} which matches with deleted and published artifacts!", searchCriteria.Query);
@@ -387,7 +392,8 @@ namespace SearchServiceTests
                 publishedArtifactsForSelectedProjects.AddRange(_publishedArtifacts.FindAll(a => a.ProjectId.Equals(selectedProjectId)));
             }
 
-            var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue, projectIds: searchProjectIds);
+            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, projectIds: searchProjectIds);
 
             // Setup: Create user with the specific permission on project(s)
             var userWithSelectiveProjectPermission = Helper.CreateUserWithProjectRolePermissions(projectRole, projects: selectedProjects);
@@ -421,7 +427,8 @@ namespace SearchServiceTests
             var publishedArtifacts = SearchServiceTestHelper.SetupFullTextSearchData(_projects, _user, Helper, selectedBaseArtifactTypes: selectedBasedArtifactTypes);
 
             // Setup: Create search criteria with search term that matches with current version of artifact(s) description
-            var searchCriteria = new FullTextSearchCriteria(publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue, selectedProjectIds);
+            var searchTerm = WebUtility.HtmlDecode(publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Setup: Create search criteria with search term that matches with new version of artifact(s) description
             var newSearchTerm = "NewDescription";
@@ -453,7 +460,8 @@ namespace SearchServiceTests
         public void FullTextSearch_SearchWithSearchTermReturnsMultiplePages_VerifyResultItemCountWithExpected(int pageSize)
         {
             // Setup: Create search criteria that will return multiple page for SearchResult
-            var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue, _projects.ConvertAll(o => o.Id));
+            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.ConvertAll(o => o.Id));
 
             // Setup: Setup expecting search result counts
             var expectedSearchResultCount = _publishedArtifacts.Count();
@@ -495,8 +503,8 @@ namespace SearchServiceTests
             // Setup: Create search criteria with search term that matches published artifact(s) description
             FullTextSearchResult fullTextSearchResult = null;
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-
-            var searchCriteria = new FullTextSearchCriteria(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue, selectedProjectIds);
+            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Setup: Set the pageSize that displays all expecting search results for the user with permission on selected project(s)
             var customSearchPageSize = _publishedArtifacts.Count();

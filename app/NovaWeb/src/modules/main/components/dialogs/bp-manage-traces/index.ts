@@ -1,5 +1,5 @@
-import { ManageTracesDialogController } from "./bp-manage-traces";
-export { ManageTracesDialogController }
+import {ManageTracesDialogController} from "./bp-manage-traces";
+export {ManageTracesDialogController}
 
 
 

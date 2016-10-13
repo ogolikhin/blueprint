@@ -8,6 +8,7 @@ export interface IBPFieldBaseController {
 
 export class BPFieldBaseController implements IBPFieldBaseController {
     constructor() {
+        //fixme: empty constructor can be removed
     }
 
     public blurOnKey = (event: KeyboardEvent, keyCode?: number | number[]): void => {

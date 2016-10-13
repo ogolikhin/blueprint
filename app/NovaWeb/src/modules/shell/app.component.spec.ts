@@ -86,7 +86,9 @@ class WindowMock {
     public screenTop = 60;
     public outerWidth = 1500;
     public outerHeight = 1000;
-    public open(url: string, title: string, windowFeatures: string) { }
+
+    public open(url: string, title: string, windowFeatures: string) {
+    }
 }
 
 class SettingsMock {

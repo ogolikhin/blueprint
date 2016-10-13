@@ -4,7 +4,7 @@ module.exports = [
     {
         test: /\.ts(x?)$/,
         exclude: [
-           
+
         ],
         loader: 'awesome-typescript-loader'
     },     {
@@ -46,7 +46,8 @@ module.exports = [
           loaders: [
             'imports?this=>window'
           ]
-    }, {
+    },
+    {
         test: require.resolve(path.join(__dirname, '../libs/mxClient/js/mxClient.js')),
         loaders: [
             'imports?mxBasePath=>"./novaweb/libs/mxClient", mxLoadStylesheets=>false, mxLoadResources=>false'
@@ -58,5 +59,3 @@ module.exports = [
         ]
     }
 ];
-
-

@@ -1,9 +1,9 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
-import { HttpStatusCode } from "../../../../core/http";
-import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
-import { IRelationshipDetailsService, RelationshipDetailsService } from "./relationship-details.svc";
-import { Relationships } from "../../../../main";
+import {HttpStatusCode} from "../../../../core/http";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {IRelationshipDetailsService, RelationshipDetailsService} from "./relationship-details.svc";
+import {Relationships} from "../../../../main";
 
 describe("Artifact Relationships Service", () => {
 
@@ -19,7 +19,7 @@ describe("Artifact Relationships Service", () => {
                 {
                     "artifactId": "1",
                     "description": "desc",
-                    "pathToProject": [{ "itemId": 1, "itemName": "Item1", "parentId": 0 }]
+                    "pathToProject": [{"itemId": 1, "itemName": "Item1", "parentId": 0}]
                 }
             );
 
@@ -39,7 +39,7 @@ describe("Artifact Relationships Service", () => {
         expect(data).not.toBeUndefined();
         expect(data.artifactId).toEqual("1");
         expect(data.description).toEqual("desc");
-        expect(data.pathToProject).toEqual([{ "itemId": 1, "itemName": "Item1", "parentId": 0 }]);
+        expect(data.pathToProject).toEqual([{"itemId": 1, "itemName": "Item1", "parentId": 0}]);
         $httpBackend.verifyNoOutstandingExpectation();
         $httpBackend.verifyNoOutstandingRequest();
     }));

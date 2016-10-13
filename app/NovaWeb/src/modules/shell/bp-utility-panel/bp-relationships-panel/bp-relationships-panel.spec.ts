@@ -4,15 +4,15 @@ import "angular-mocks";
 import "angular-sanitize";
 import "rx/dist/rx.lite";
 import "../../";
-import { IProcessService } from "../../../editors/bp-process/services/process.svc";
-import { ProcessServiceMock } from "../../../editors/bp-process/services/process.svc.mock";
-import { ComponentTest } from "../../../util/component.test";
-import { BPRelationshipsPanelController } from "./bp-relationships-panel";
-import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
-import { ArtifactRelationshipsMock } from "./../../../managers/artifact-manager/relationships/relationships.svc.mock";
-import { MessageServiceMock } from "../../../core/messages/message.mock";
-import { SelectionManager } from "./../../../managers/selection-manager/selection-manager";
-import { DialogServiceMock } from "../../../shared/widgets/bp-dialog/bp-dialog";
+import {IProcessService} from "../../../editors/bp-process/services/process.svc";
+import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
+import {ComponentTest} from "../../../util/component.test";
+import {BPRelationshipsPanelController} from "./bp-relationships-panel";
+import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+import {ArtifactRelationshipsMock} from "./../../../managers/artifact-manager/relationships/relationships.svc.mock";
+import {MessageServiceMock} from "../../../core/messages/message.mock";
+import {SelectionManager} from "./../../../managers/selection-manager/selection-manager";
+import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {
     IArtifactManager,
     ArtifactManager,
@@ -26,12 +26,12 @@ import {
 
 describe("Component BPRelationshipsPanel", () => {
 
-      let directiveTest: ComponentTest<BPRelationshipsPanelController>;
-      let vm: BPRelationshipsPanelController;
-      let bpAccordionPanelController = {
-          isActiveObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
-      };
-      let traces;
+    let directiveTest: ComponentTest<BPRelationshipsPanelController>;
+    let vm: BPRelationshipsPanelController;
+    let bpAccordionPanelController = {
+        isActiveObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
+    };
+    let traces;
 
     beforeEach(angular.mock.module("app.shell"));
 
@@ -71,23 +71,23 @@ describe("Component BPRelationshipsPanel", () => {
             traceDirection: 0,
             traceType: 2
         },
-        {
-            artifactId: 9,
-            artifactName: "New Document 1",
-            artifactTypePrefix: "DOC",
-            hasAccess: true,
-            isSelected: false,
-            itemId: 8,
-            itemLabel: null,
-            itemName: "New Document 1",
-            itemTypePrefix: "DOC",
-            primitiveItemTypePredefined: 4110,
-            projectId: 1,
-            projectName: "1",
-            suspect: false,
-            traceDirection: 0,
-            traceType: 2
-        }];
+            {
+                artifactId: 9,
+                artifactName: "New Document 1",
+                artifactTypePrefix: "DOC",
+                hasAccess: true,
+                isSelected: false,
+                itemId: 8,
+                itemLabel: null,
+                itemName: "New Document 1",
+                itemTypePrefix: "DOC",
+                primitiveItemTypePredefined: 4110,
+                projectId: 1,
+                projectName: "1",
+                suspect: false,
+                traceDirection: 0,
+                traceType: 2
+            }];
     }));
 
     afterEach(() => {
@@ -99,58 +99,58 @@ describe("Component BPRelationshipsPanel", () => {
             expect(directiveTest.element.find(".filter-bar").length).toBe(0);
             expect(directiveTest.element.find(".empty-state").length).toBe(1);
         }));
-    
+
     it("should have empty traces for newly created sub-artifacts",
         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
-        //Arrange
-        const artifact = statefulArtifactFactory.createStatefulArtifact({
-            id: 2, 
-            name: "Artifact 2", 
-            version: 1
-        });
-        let processShape = {
+            //Arrange
+            const artifact = statefulArtifactFactory.createStatefulArtifact({
+                id: 2,
+                name: "Artifact 2",
+                version: 1
+            });
+            let processShape = {
                 projectId: 1,
                 parentId: 2,
-                id: -2, 
-                name: "SubArtifact 2", 
+                id: -2,
+                name: "SubArtifact 2",
                 baseItemTypePredefined: null,
                 typePrefix: "PROS",
                 propertyValues: {},
                 associatedArtifact: null
-                
-        };
-        const subArtifact = statefulArtifactFactory.createStatefulProcessSubArtifact(artifact, processShape);
 
-        //Act
-        artifactManager.selection.setSubArtifact(subArtifact);
-        $rootScope.$digest();
+            };
+            const subArtifact = statefulArtifactFactory.createStatefulProcessSubArtifact(artifact, processShape);
 
-        //Assert
-        expect(vm.allTraces.length).toBe(0);
-        expect(vm.associations.length).toBe(0);
-        expect(vm.manualTraces.length).toBe(0);
-        expect(vm.otherTraces.length).toBe(0);
-        expect(vm.actorInherits.length).toBe(0);
-        expect(vm.documentReferences.length).toBe(0);
-    }));
+            //Act
+            artifactManager.selection.setSubArtifact(subArtifact);
+            $rootScope.$digest();
+
+            //Assert
+            expect(vm.allTraces.length).toBe(0);
+            expect(vm.associations.length).toBe(0);
+            expect(vm.manualTraces.length).toBe(0);
+            expect(vm.otherTraces.length).toBe(0);
+            expect(vm.actorInherits.length).toBe(0);
+            expect(vm.documentReferences.length).toBe(0);
+        }));
 
     it("should load data for a selected artifact",
         inject(($rootScope: ng.IRootScopeService, processService: IProcessService, artifactManager: IArtifactManager,
                 statefulArtifactFactory: IStatefulArtifactFactory) => {
 
-        //Arrange
-        const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "AC"});
+            //Arrange
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "AC"});
 
-        //Act
-        artifactManager.selection.setArtifact(artifact);
-        $rootScope.$digest();
-        const selectedArtifact = artifactManager.selection.getArtifact();
+            //Act
+            artifactManager.selection.setArtifact(artifact);
+            $rootScope.$digest();
+            const selectedArtifact = artifactManager.selection.getArtifact();
 
-        //Assert
-        expect(selectedArtifact).toBeDefined();
-        expect(vm.manualTraces.length).toBe(2);
-        expect(vm.otherTraces.length).toBe(3);
-    }));
+            //Assert
+            expect(selectedArtifact).toBeDefined();
+            expect(vm.manualTraces.length).toBe(2);
+            expect(vm.otherTraces.length).toBe(3);
+        }));
 
     it("should change direction of the selected artifact",
         inject(($rootScope: ng.IRootScopeService, statefulArtifactFactory: IStatefulArtifactFactory, artifactManager: IArtifactManager) => {

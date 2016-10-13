@@ -33,9 +33,9 @@ describe("Rendering common shapes", () => {
 
         // Act
         diagramView.drawDiagram(diagramMock);
-        // Assert        
+        // Assert
         const useCaseElement = element.find("ellipse[fill=white][stroke=black]");
-        expect(useCaseElement.length).toEqual(1);        
+        expect(useCaseElement.length).toEqual(1);
     });
 
     it("Actor Shape Test", () => {
@@ -47,30 +47,30 @@ describe("Rendering common shapes", () => {
 
         // Act
         diagramView.drawDiagram(diagramMock);
-        // Assert        
+        // Assert
         const actorImages = element.find("image");
-        expect(actorImages.length).toEqual(1);        
+        expect(actorImages.length).toEqual(1);
 
         const actorText = element.find("foreignObject");
         expect(actorText.length).toEqual(1);
         expect(actorText.text()).toEqual("Actor: x=100; y=100; width=100; height=100");
-    });    
+    });
 
     it("Actor Image Shape Test", () => {
         // Arrange
         const eventShapes = [];
         const props = new Array<Prop>();
         const imageUrl = "imageUrl";
-        props[0] = { name: ShapeProps.IMAGE, value: imageUrl };        
+        props[0] = {name: ShapeProps.IMAGE, value: imageUrl};
         eventShapes.push(DiagramMock.createShape(Shapes.ACTOR, props));
         const diagramMock = DiagramMock.createDiagramMock(eventShapes, [], Diagrams.USECASE_DIAGRAM);
 
         // Act
         diagramView.drawDiagram(diagramMock);
-        // Assert        
+        // Assert
         const actorImages = element.find("image");
         expect(actorImages.length).toEqual(1);
-        expect(actorImages.attr("xlink:href")).toContain(imageUrl);                
+        expect(actorImages.attr("xlink:href")).toContain(imageUrl);
     });
 
     it("Boundary Shape Test", () => {
@@ -82,32 +82,32 @@ describe("Rendering common shapes", () => {
 
         // Act
         diagramView.drawDiagram(diagramMock);
-        // Assert                
+        // Assert
         const useCaseElement = element.find("rect[x=100][y=100][width=100][height=100][fill=white][stroke=black]");
         expect(useCaseElement.length).toEqual(1);
     });
 
     it("Use Case Include Connector Test", () => {
-        // Arrange       
-        const props = new Array<Prop>();        
-        props[0] = { name: ShapeProps.LINK_TYPE, value: UCDLinkType.Include };     
-        var points = [{ x: 100, y: 150 }, { x: 0, y: 0 }];        
+        // Arrange
+        const props = new Array<Prop>();
+        props[0] = {name: ShapeProps.LINK_TYPE, value: UCDLinkType.Include};
+        var points = [{x: 100, y: 150}, {x: 0, y: 0}];
         const connections = [];
         connections.push(DiagramMock.createConnection(ConnectorTypes.STRAIGHT, points, props));
         const diagramMock = DiagramMock.createDiagramMock([], connections, Diagrams.USECASE_DIAGRAM);
 
         // Act
         diagramView.drawDiagram(diagramMock);
-        // Assert        
+        // Assert
         const include = element.find("ellipse[stroke-width=2]");
         expect(include.length).toEqual(1);
     });
 
     it("Use Case Extend Connector Test", () => {
-        // Arrange       
+        // Arrange
         const props = new Array<Prop>();
-        props[0] = { name: ShapeProps.LINK_TYPE, value: UCDLinkType.Extended };
-        var points = [{ x: 100, y: 150 }, { x: 0, y: 0 }];        
+        props[0] = {name: ShapeProps.LINK_TYPE, value: UCDLinkType.Extended};
+        var points = [{x: 100, y: 150}, {x: 0, y: 0}];
         const connections = [];
         connections.push(DiagramMock.createConnection(ConnectorTypes.STRAIGHT, points, props));
         const diagramMock = DiagramMock.createDiagramMock([], connections, Diagrams.USECASE_DIAGRAM);
@@ -115,7 +115,7 @@ describe("Rendering common shapes", () => {
         // Act
         diagramView.drawDiagram(diagramMock);
 
-        // Assert        
+        // Assert
         const include = element.find("ellipse");
         expect(include.length).toEqual(0);
         const extend = element.find("path[fill=black]");
@@ -124,10 +124,10 @@ describe("Rendering common shapes", () => {
     });
 
     it("Use Case Include and Extend Connector Test", () => {
-        // Arrange       
+        // Arrange
         const props = new Array<Prop>();
-        props[0] = { name: ShapeProps.LINK_TYPE, value: UCDLinkType.IncludeAndExtended };
-        var points = [{ x: 100, y: 150 }, { x: 0, y: 0 }];
+        props[0] = {name: ShapeProps.LINK_TYPE, value: UCDLinkType.IncludeAndExtended};
+        var points = [{x: 100, y: 150}, {x: 0, y: 0}];
         const connections = [];
         connections.push(DiagramMock.createConnection(ConnectorTypes.STRAIGHT, points, props));
         const diagramMock = DiagramMock.createDiagramMock([], connections, Diagrams.USECASE_DIAGRAM);
@@ -135,7 +135,7 @@ describe("Rendering common shapes", () => {
         // Act
         diagramView.drawDiagram(diagramMock);
 
-        // Assert        
+        // Assert
         const include = element.find("ellipse");
         expect(include.length).toEqual(1);
         const extend = element.find("path[fill=black]");
@@ -144,10 +144,10 @@ describe("Rendering common shapes", () => {
     });
 
     it("Use Case Actor Inheritance Connector Test", () => {
-        // Arrange       
+        // Arrange
         const props = new Array<Prop>();
-        props[0] = { name: ShapeProps.LINK_TYPE, value: UCDLinkType.ActorInheritance };
-        var points = [{ x: 100, y: 150 }, { x: 0, y: 0 }];
+        props[0] = {name: ShapeProps.LINK_TYPE, value: UCDLinkType.ActorInheritance};
+        var points = [{x: 100, y: 150}, {x: 0, y: 0}];
         const connections = [];
         connections.push(DiagramMock.createConnection(ConnectorTypes.STRAIGHT, points, props));
         const diagramMock = DiagramMock.createDiagramMock([], connections, Diagrams.USECASE_DIAGRAM);
@@ -155,10 +155,10 @@ describe("Rendering common shapes", () => {
         // Act
         diagramView.drawDiagram(diagramMock);
 
-        // Assert        
+        // Assert
         const include = element.find("ellipse");
         expect(include.length).toEqual(0);
         const extend = element.find("path[stroke=black][fill=none]");
         expect(extend.length).toEqual(2);
-    });    
+    });
 });

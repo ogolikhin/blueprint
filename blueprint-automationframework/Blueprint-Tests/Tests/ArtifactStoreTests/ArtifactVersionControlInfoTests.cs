@@ -1,4 +1,5 @@
-﻿using CustomAttributes;
+﻿using Common;
+using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
@@ -8,7 +9,10 @@ using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
+<<<<<<< HEAD
 using Common;
+=======
+>>>>>>> 7867bf180ab9b5fec53368ca30fac02b8b7a7f55
 using TestCommon;
 using Utilities;
 
@@ -57,7 +61,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges : false, isDeleted : false, versionCount: artifactDetails.Version);
         }
@@ -78,7 +82,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo, compareLockInfo: false);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo, compareLockInfo: false);
 
             VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: false, versionCount: 0);
         }
@@ -101,7 +105,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, basicArtifactInfo.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: false,
                 versionCount: artifactDetails.Version);
@@ -124,7 +128,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, basicArtifactInfo.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false,
                 versionCount: artifactDetails.Version);
@@ -150,7 +154,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(anotherUser, artifact.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, versionCount: artifactDetails.Version);
         }
@@ -172,7 +176,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: false,
                 versionCount: artifactDetails.Version);
@@ -202,7 +206,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo, compareLockInfo: false);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo, compareLockInfo: false);
 
             VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: subArtifacts[0].Id,
                 versionCount: 0);
@@ -230,7 +234,7 @@ namespace ArtifactStoreTests
 
             // Verify
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, basicArtifactInfo.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: subArtifacts[0].Id,
                 versionCount: artifactDetails.Version);
@@ -265,7 +269,7 @@ namespace ArtifactStoreTests
 
             // Verify
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
 //<<<<<<< HEAD
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId : subArtifacts[0].Id,
@@ -340,7 +344,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: subArtifacts[0].Id,
                 versionCount: artifactDetails.Version);
@@ -371,7 +375,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: subArtifacts[0].Id,
                 versionCount: artifactDetails.Version);
@@ -401,7 +405,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: true,
                 version: artifactDetails.Version, versionCount: artifactDetails.Version);
@@ -427,7 +431,8 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: true,
                 version: artifactDetails.Version, versionCount: artifactDetails.Version);
@@ -453,7 +458,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false,
                 versionCount: artifactDetails.Version);
@@ -483,7 +488,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid sub-artifact ID!", SVC_PATH);
 
             // Verify:
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: true, subArtifactId: subArtifacts[0].Id,
                 version: artifactDetails.Version, versionCount: artifactDetails.Version);
@@ -513,7 +518,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: subArtifacts[0].Id,
                 versionCount: artifactDetails.Version);
@@ -547,7 +552,7 @@ namespace ArtifactStoreTests
 
             // Verify
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo, compareVersions: false);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo, compareVersions: false);
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: userTask.Id,
                 version: 1, versionCount: artifactDetails.Version);
@@ -581,7 +586,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo, compareVersions: false);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo, compareVersions: false);
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: userTask.Id,
                 version: artifactDetails.Version, versionCount: artifactDetails.Version);
@@ -617,7 +622,7 @@ namespace ArtifactStoreTests
 
             // Verify
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, basicArtifactInfo.Id);
-            artifactDetails.AssertEquals(basicArtifactInfo);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: userTask.Id,
                 versionCount: artifactDetails.Version);

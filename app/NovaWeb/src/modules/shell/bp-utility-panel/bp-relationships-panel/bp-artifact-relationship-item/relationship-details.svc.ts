@@ -1,5 +1,5 @@
-﻿import { ILocalizationService } from "../../../../core";
-import { Relationships } from "../../../../main";
+﻿import {ILocalizationService} from "../../../../core";
+import {Relationships} from "../../../../main";
 
 export interface IRelationshipDetailsService {
     getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo>;
@@ -12,15 +12,13 @@ export class RelationshipDetailsService implements IRelationshipDetailsService {
         "$log",
         "localization"];
 
-    constructor(
-        private $q: ng.IQService,
-        private $http: ng.IHttpService,
-        private $log: ng.ILogService,
-        private localization: ILocalizationService) {
+    constructor(private $q: ng.IQService,
+                private $http: ng.IHttpService,
+                private $log: ng.ILogService,
+                private localization: ILocalizationService) {
     }
 
-    public getRelationshipDetails(
-        artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {
+    public getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
             url: `/svc/artifactstore/artifacts/${artifactId}/relationshipdetails`,
@@ -29,7 +27,7 @@ export class RelationshipDetailsService implements IRelationshipDetailsService {
 
         this.$http(requestObj).then(
             (result: ng.IHttpPromiseCallbackArg<Relationships.IRelationshipExtendedInfo>) => {
-                    defer.resolve(result.data);
+                defer.resolve(result.data);
             }, (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 if (!errResult) {
                     defer.reject();

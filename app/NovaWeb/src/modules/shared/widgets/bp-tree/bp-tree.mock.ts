@@ -10,14 +10,16 @@ export class BPTreeControllerMock implements IBPTreeController {
         } as ITreeNode;
 
     }
+
     public _datasource: ITreeNode[] = [];
 
     public get isEmpty(): boolean {
         return !Boolean(this._datasource && this._datasource.length);
     }
 
-    public selectNode(id: number) { }
-    
+    public selectNode(id: number) {
+    }
+
     public nodeExists(id: number): boolean {
         return true;
     }
@@ -31,7 +33,7 @@ export class BPTreeControllerMock implements IBPTreeController {
             this._datasource = data;
             return;
         }
-            
+
         for (let i = 0; i < 10; i++) {
             this._datasource.push(this.add(i));
         }
@@ -45,9 +47,12 @@ export class BPTreeControllerMock implements IBPTreeController {
         }
     }
 
-    public showLoading() { }
+    public showLoading() {
+    }
 
-    public showNoRows() { }
+    public showNoRows() {
+    }
 
-    public hideOverlays() { }
+    public hideOverlays() {
+    }
 }

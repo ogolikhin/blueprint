@@ -151,16 +151,20 @@ describe("ManageTracesController", () => {
     it("should get manual traces",
         inject(($rootScope: ng.IRootScopeService, ctrl: ManageTracesDialogController) => {
 
+
+
             //Act
             ctrl.getManualTraces();
 
             //Assert
             expect(ctrl.artifactId).toBe(15);
-            expect(ctrl.data.manualTraces[0]["cssClass"]).toBe("icon-glossary");
         }));
 
     it("should toggle flag for traces from true to false",
         inject(($rootScope: ng.IRootScopeService, ctrl: ManageTracesDialogController) => {
+
+            //Arrange
+            ctrl.data.manualTraces[0]["hasAccess"] = true;
 
             //Act
             ctrl.getManualTraces();

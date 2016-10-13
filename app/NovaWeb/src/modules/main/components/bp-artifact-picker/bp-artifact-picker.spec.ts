@@ -42,7 +42,7 @@ describe("BpArtifactPicker", () => {
         expect(angular.isFunction(controller.onSelectionChanged)).toEqual(true);
     }));
 
-    it("Defaults values are applied", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    fit("Defaults values are applied", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
         // Arrange
         const element = `<bp-artifact-picker />`;
 

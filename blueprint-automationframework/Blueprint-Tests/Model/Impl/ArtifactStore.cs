@@ -438,7 +438,8 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
 
             return traceDetails;
         }

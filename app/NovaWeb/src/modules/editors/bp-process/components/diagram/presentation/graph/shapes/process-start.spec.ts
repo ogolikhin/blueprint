@@ -59,8 +59,7 @@ describe("ProcessStart test", () => {
         testModel.propertyValues["x"].value = 0;
 
         let processModel = new ProcessModel();
-        let viewModel = new ProcessViewModel(processModel);
-        viewModel.communicationManager = communicationManager;
+        let viewModel = new ProcessViewModel(processModel, communicationManager);
         viewModel.isReadonly = false;
 
         // Act

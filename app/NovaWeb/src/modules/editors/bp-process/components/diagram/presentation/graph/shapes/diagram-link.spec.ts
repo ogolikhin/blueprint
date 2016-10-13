@@ -64,8 +64,7 @@ describe("DiagramLink unit tests", () => {
             let userDecisionWidth = 120;
             let ud = 40;
             let testModel = createUserDecisionWithoutUserTaskInFirstConditionModel("Condition1", "Condition2");
-            let processModel = new ProcessViewModel(testModel);
-            processModel.communicationManager = communicationManager;
+            let processModel = new ProcessViewModel(testModel, communicationManager);
 
             let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
@@ -92,8 +91,7 @@ describe("DiagramLink unit tests", () => {
             // arrange
             let ud = 40;
             let testModel = createUserDecisionWithoutUserTaskInFirstConditionModel();
-            let processModel = new ProcessViewModel(testModel);
-            processModel.communicationManager = communicationManager;
+            let processModel = new ProcessViewModel(testModel, communicationManager);
             let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             // act

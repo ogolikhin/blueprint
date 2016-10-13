@@ -49,7 +49,7 @@ describe("Popup Menu test", () => {
         document.body.appendChild(wrapper);
   
         processModel = new ProcessModel();
-        viewModel = new ProcessViewModel(processModel);
+        viewModel = new ProcessViewModel(processModel, null);
         viewModel.isReadonly = false;
         viewModel.isSpa = true;
 

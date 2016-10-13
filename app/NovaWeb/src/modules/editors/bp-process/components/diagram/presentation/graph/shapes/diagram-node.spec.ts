@@ -81,8 +81,7 @@ describe("DiagramNode", () => {
                 testModel.shapes.push(systemTaskModel);
                 testModel.links = [];
                 testModel.links.push(link);
-                processModel = new ProcessViewModel(testModel);
-                processModel.communicationManager = communicationManager;
+                processModel = new ProcessViewModel(testModel, communicationManager);
 
                 var wrapper = document.createElement("DIV");
                 var container = document.createElement("DIV");
@@ -230,7 +229,7 @@ describe("DiagramNode", () => {
                 propertyValues[label] = propertyValue;
                 model.propertyValues = propertyValues;
                 var diagramNode = new DiagramNode(model);
-
+                var notifySpy = spyOn(diagramNode, "notify");
                 // Act
                 diagramNode.action = newValue;
 
@@ -252,22 +251,6 @@ describe("DiagramNode", () => {
 
                 // Assert
                 expect(notifySpy).toHaveBeenCalled();
-            });
-
-            it("does refresh node when name is changed", () => {
-                // Arrange
-                var oldValue = "Default";
-                var newValue = "New Name";
-                var model = new ProcessShapeModel();
-                model.name = oldValue;
-                var diagramNode = new DiagramNode(model);
-                var raiseChangedEventSpy = spyOn(diagramNode, "raiseChangedEvent");
-
-                // Act
-                diagramNode.label = newValue;
-
-                // Assert
-                expect(raiseChangedEventSpy).toHaveBeenCalled();
             });
 
             it("modifies model's 'x' when column is updated", () => {
@@ -324,8 +307,7 @@ describe("DiagramNode", () => {
                 testModel.propertyValues["clientType"] = shapesFactory.createClientTypeValueForProcess(ProcessType.UserToSystemProcess);
                 testModel.shapes = [systemTaskModel, userDecisionModel, userTaskModel1, userTaskModel2, userTaskModel3];
                 testModel.links = [link3, link2, link1, link0];
-                processModel = new ProcessViewModel(testModel);
-                processModel.communicationManager = communicationManager;
+                processModel = new ProcessViewModel(testModel, communicationManager);
 
                 var wrapper = document.createElement("DIV");
                 var container = document.createElement("DIV");
@@ -391,109 +373,5 @@ describe("DiagramNode", () => {
                 expect(actual[2].model.id).toEqual(40);
             });
         });
-    });
-
-
-
-    describe("when notify of change is called without redraw", () => {
-        // Arrange
-        var model = new ProcessShapeModel();
-        var diagramNode = new DiagramNode(model);
-        var raiseChangedEventSpy;
-
-        // Act
-        beforeEach((done) => {
-            raiseChangedEventSpy = spyOn(diagramNode, "raiseChangedEvent");
-            diagramNode.notify(NodeChange.Update, undefined, done);
-        });
-
-        // Assert
-        it("raises changed event", () => {
-            expect(raiseChangedEventSpy).toHaveBeenCalled();
-        });
-
-        // Assert
-        it("raises changed event without redraw", () => {
-            expect(raiseChangedEventSpy).toHaveBeenCalledWith(NodeChange.Update, false);
-        });
-    });
-
-    describe("when notify of change is called with redraw", () => {
-        // Arrange
-        var model = new ProcessShapeModel();
-        var diagramNode = new DiagramNode(model);
-        var raiseChangedEventSpy;
-
-        // Act
-        beforeEach((done) => {
-            raiseChangedEventSpy = spyOn(diagramNode, "raiseChangedEvent");
-            diagramNode.notify(NodeChange.Update, true, done);
-        });
-
-        // Assert
-        it("raises changed event with redraw", () => {
-            expect(raiseChangedEventSpy).toHaveBeenCalledWith(NodeChange.Update, true);
-        });
-    });
-
-    //this test is not currently relevant due to removal settimeout performance fix in DiagramElement notify
-    //describe("when notify of change is called multiple times", () => {
-    //    // Arrange
-    //    var model = new ProcessShapeModel();
-    //    var diagramNode = new DiagramNode(model);
-    //    var raiseChangedEventSpy: jasmine.Spy;
-    //    var callCount: number = 0;
-
-    //    // Act
-    //    beforeEach((done) => {
-    //        function notifyCallback() {
-    //            callCount++;
-
-    //            if (callCount === 3) {
-    //                done();
-    //            }
-    //        }
-
-    //        raiseChangedEventSpy = spyOn(diagramNode, "raiseChangedEvent");
-
-    //        diagramNode.notify(NodeChange.Update, undefined, notifyCallback);
-    //        diagramNode.notify(NodeChange.Update, undefined, notifyCallback);
-    //        diagramNode.notify(NodeChange.Update, undefined, notifyCallback);
-    //    });
-
-    //    // Assert
-    //    //it("raises changed event only once", () => {
-    //    //    expect(raiseChangedEventSpy.calls.count()).toEqual(1);
-    //    //});
-    //});
-
-    describe("when notify of change is called multiple times with at least one redraw", () => {
-        // Arrange
-        var model = new ProcessShapeModel();
-        var diagramNode = new DiagramNode(model);
-        var raiseChangedEventSpy: jasmine.Spy;
-        var callCount: number = 0;
-
-        // Act
-        beforeEach((done) => {
-            function notifyCallback() {
-                callCount++;
-
-                if (callCount === 3) {
-                    done();
-                }
-            }
-
-            raiseChangedEventSpy = spyOn(diagramNode, "raiseChangedEvent");
-
-            diagramNode.notify(NodeChange.Update, undefined, notifyCallback);
-            diagramNode.notify(NodeChange.Update, undefined, notifyCallback);
-            diagramNode.notify(NodeChange.Update, true, notifyCallback);
-        });
-
-        // Assert
-        it("raises changed event with redraw", () => {
-            expect(raiseChangedEventSpy).toHaveBeenCalledWith(NodeChange.Update, true);
-        });
-    });
+    });    
 });

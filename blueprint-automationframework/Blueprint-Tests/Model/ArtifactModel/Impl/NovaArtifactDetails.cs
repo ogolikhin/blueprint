@@ -483,9 +483,6 @@ namespace Model.ArtifactModel.Impl
             [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
             public string Name { get; set; }
 
-            [JsonProperty("value", NullValueHandling=NullValueHandling.Ignore)]
-            public object CustomPropertyValue { get; set; }
-
             public int PropertyTypeId { get; set; }
 
             public int PropertyTypeVersionId { get; set; }
@@ -498,6 +495,9 @@ namespace Model.ArtifactModel.Impl
 
             [JsonProperty("PropertyTypePredefined")]
             public PropertyTypePredefined PropertyType { get; set; }
+
+            [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
+            public object CustomPropertyValue { get; set; }
 
             [JsonProperty("isReuseReadOnly", NullValueHandling = NullValueHandling.Ignore)]
             public bool? IsReuseReadOnly { get; set; }

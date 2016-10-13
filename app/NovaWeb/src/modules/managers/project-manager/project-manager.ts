@@ -331,12 +331,15 @@ export class ProjectManager  implements IProjectManager {
         });
     }
 
-    public add(data: Models.IProject) {
+    public add(data: Models.IProject): ng.IPromise<any> {
+        const defer = this.$q.defer<any>();
+
+        if (!data) {
+            throw new Error("Project_NotFound");
+        }
+
         let project: Project;
-        try {    
-            if (!data) {
-                throw new Error("Project_NotFound");
-            }
+        try {
             project = this.getProject(data.id);
             if (!project) {
                 this.metadataService.load(data.id).then(() => {
@@ -353,15 +356,24 @@ export class ProjectManager  implements IProjectManager {
                     this.artifactManager.add(statefulArtifact);
                     project = new Project(statefulArtifact);
                     this.projectCollection.getValue().unshift(project);
-                    this.loadArtifact(project.id);
-
+                    this.loadArtifact(project.id).then(() => {
+                        defer.resolve();
                 });                
+                }).catch((err: any) => {
+                    if (err) {
+                        this.messageService.addError(err);
             }
-
+                    defer.reject(err);
+                });
+            } else { // the project has been loaded already
+                defer.resolve();
+            }
         } catch (ex) {
             this.messageService.addError(ex);
             throw ex;
         }
+
+        return defer.promise;
     }
 
     public removeArtifact(artifact: IStatefulArtifact) {
@@ -399,19 +411,19 @@ export class ProjectManager  implements IProjectManager {
  
     }
 
-    public loadArtifact(id: number) {
-        let node: IArtifactNode;
+    public loadArtifact(id: number): ng.IPromise<any> {
+        const defer = this.$q.defer<any>();
 
+        if (!id) {
+            throw new Error("Artifact_NotFound");
+        }
+
+        let node: IArtifactNode;
         try {
             node = this.getArtifactNode(id);
-            if (!node) {
-                throw new Error("Artifact_NotFound");
-            }
-
-            this.navigationService.navigateToMain()
-            .then(() => {
-                this.projectService.getArtifacts(node.projectId, node.artifact.id)
-                .then((data: Models.IArtifact[]) => {
+            if (node) {
+                this.navigationService.navigateToMain().then(() => {
+                    this.projectService.getArtifacts(node.projectId, node.artifact.id).then((data: Models.IArtifact[]) => {
                     node.children = data.map((it: Models.IArtifact) => {
                         const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
                         this.artifactManager.add(statefulArtifact);
@@ -421,25 +433,37 @@ export class ProjectManager  implements IProjectManager {
                     node.open = true;
 
                     this.projectCollection.onNext(this.projectCollection.getValue());
-
+                        defer.resolve();
                 }).catch((error: any) => {
                     //ignore authentication errors here
                     if (error) {
                         this.messageService.addError(error["message"] || "Artifact_NotFound");
+                            defer.reject(error);
                     } else {
                         node.children = [];
                         node.loaded = false;
                         node.open = false;
                         //node.hasChildren = false;
                         this.projectCollection.onNext(this.projectCollection.getValue());
+                            defer.resolve();
                     }
                 });
+                }).catch((error: any) => {
+                    if (error) {
+                        this.messageService.addError(error);
+                    }
+                    defer.reject(error);
             });
-
+            } else {
+                throw new Error("Artifact_NotFound");
+            }
         } catch (ex) {
             this.messageService.addError(ex["message"] || "Artifact_NotFound");
             this.projectCollection.onNext(this.projectCollection.getValue());
+            throw ex;
         }
+
+        return defer.promise;
     }
 
     public loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]> {

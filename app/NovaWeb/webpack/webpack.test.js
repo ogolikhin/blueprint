@@ -44,8 +44,7 @@ module.exports = {
     }
   },
     tslint: {
-        emitErrors: true,
-        failOnHint: true
+
     },
   resolveLoader: {
     modulesDirectories: ["node_modules"]

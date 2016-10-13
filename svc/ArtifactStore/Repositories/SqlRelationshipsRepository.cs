@@ -1,5 +1,4 @@
-﻿using ArtifactStore.Helpers;
-using ArtifactStore.Models;
+﻿using ArtifactStore.Models;
 using Dapper;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
@@ -7,30 +6,39 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using ServiceLibrary.Exceptions;
 
 namespace ArtifactStore.Repositories
 {
     public class SqlRelationshipsRepository: IRelationshipsRepository
     {
-        internal readonly ISqlConnectionWrapper ConnectionWrapper;
-        private readonly SqlItemInfoRepository _itemInfoRepository;
+        private readonly ISqlConnectionWrapper _connectionWrapper;
+        private readonly ISqlItemInfoRepository _itemInfoRepository;
+
         public SqlRelationshipsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
         internal SqlRelationshipsRepository(ISqlConnectionWrapper connectionWrapper)
         {
-            ConnectionWrapper = connectionWrapper;
+            _connectionWrapper = connectionWrapper;
             _itemInfoRepository = new SqlItemInfoRepository(connectionWrapper);
         }
 
-        private async Task<IEnumerable<LinkInfo>> GetLinkInfo(int itemId, int userId, bool addDrafts)
+        internal SqlRelationshipsRepository(ISqlConnectionWrapper connectionWrapper, ISqlItemInfoRepository itemInfoRepository)
+        {
+            _connectionWrapper = connectionWrapper;
+            _itemInfoRepository = itemInfoRepository;
+        }
+
+        private async Task<IEnumerable<LinkInfo>> GetLinkInfo(int itemId, int userId, bool addDrafts, int revisionId = int.MaxValue)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@itemId", itemId);
             parameters.Add("@userId", userId);
             parameters.Add("@addDrafts", addDrafts);
-            return await ConnectionWrapper.QueryAsync<LinkInfo>("GetRelationshipLinkInfo", parameters, commandType: CommandType.StoredProcedure);
+            parameters.Add("@revisionId", revisionId);
+            return await _connectionWrapper.QueryAsync<LinkInfo>("GetRelationshipLinkInfo", parameters, commandType: CommandType.StoredProcedure);
         }
 
         private async Task<IEnumerable<ItemIdItemNameParentId>> GetPathInfoToRoute(int artifactId, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
@@ -40,7 +48,7 @@ namespace ArtifactStore.Repositories
             parameters.Add("@userId", userId);
             parameters.Add("@addDrafts", addDrafts);
             parameters.Add("@revisionId", revisionId);
-            return await ConnectionWrapper.QueryAsync<ItemIdItemNameParentId>("GetPathIdsNamesToProject", parameters, commandType: CommandType.StoredProcedure);
+            return await _connectionWrapper.QueryAsync<ItemIdItemNameParentId>("GetPathIdsNamesToProject", parameters, commandType: CommandType.StoredProcedure);
         }
 
 
@@ -52,7 +60,7 @@ namespace ArtifactStore.Repositories
             parameters.Add("@userId", userId);
             parameters.Add("@addDrafts", addDrafts);
             parameters.Add("@revisionId", revisionId);
-            return (await ConnectionWrapper.QueryAsync<string>("GetItemDescription", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            return (await _connectionWrapper.QueryAsync<string>("GetItemDescription", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
         private void PopulateRelationshipInfos(List<Relationship> relationships, IDictionary<int, ItemDetails> itemDetailsDictionary, IDictionary<int, ItemLabel> itemLabelsDictionary)
@@ -134,9 +142,22 @@ namespace ArtifactStore.Repositories
             return result;
         }
 
-        public async Task<RelationshipResultSet> GetRelationships(int itemId, int userId, bool addDrafts = true)
+        public async Task<RelationshipResultSet> GetRelationships(int artifactId, int userId, int? subArtifactId = null, bool addDrafts = true, int? versionId = null)
         {
-            var results = (await GetLinkInfo(itemId, userId, addDrafts)).ToList();
+            var revisionId = int.MaxValue;
+            if (versionId.HasValue)
+            {
+                revisionId = await _itemInfoRepository.GetRevisionIdByVersionIndex(artifactId, versionId.Value);
+            }
+
+            if (revisionId <= 0)
+            {
+                throw new ResourceNotFoundException(string.Format("Version index (Id:{0}) is not found.", versionId), ErrorCodes.ResourceNotFound);
+            }
+
+            var itemId = subArtifactId.HasValue ? subArtifactId.Value : artifactId;
+
+            var results = (await GetLinkInfo(itemId, userId, addDrafts, revisionId)).ToList();
             var manualLinks = results.Where(a => a.LinkType == LinkType.Manual).ToList();
             var otherLinks = results.Where(a => a.LinkType != LinkType.Manual).ToList();
             var manualTraceRelationships = GetManualTraceRelationships(manualLinks, itemId);
@@ -159,19 +180,26 @@ namespace ArtifactStore.Repositories
                 distinctItemIds.Add(result.DestinationProjectId);
             }
 
-            var itemDetailsDictionary = (await _itemInfoRepository.GetItemsDetails(userId, distinctItemIds, true, int.MaxValue)).ToDictionary(a => a.HolderId);
-            var itemLabelsDictionary = (await _itemInfoRepository.GetItemsLabels(userId, distinctItemIds, true, int.MaxValue)).ToDictionary(a => a.ItemId);
+            var itemDetailsDictionary = (await _itemInfoRepository.GetItemsDetails(userId, distinctItemIds, true, revisionId)).ToDictionary(a => a.HolderId);
+            var itemLabelsDictionary = (await _itemInfoRepository.GetItemsLabels(userId, distinctItemIds, true, revisionId)).ToDictionary(a => a.ItemId);
             PopulateRelationshipInfos(manualTraceRelationships, itemDetailsDictionary, itemLabelsDictionary);
             PopulateRelationshipInfos(otherTraceRelationships, itemDetailsDictionary, itemLabelsDictionary);
-            return new RelationshipResultSet { ManualTraces = manualTraceRelationships, OtherTraces = otherTraceRelationships };
+
+            return new RelationshipResultSet
+            {
+                RevisionId = revisionId,
+                ManualTraces = manualTraceRelationships,
+                OtherTraces = otherTraceRelationships
+            };
         }
 
-        private IEnumerable<ItemIdItemNameParentId> GetPathToProject(int artifactId, IDictionary<int, ItemIdItemNameParentId> pathInfoDictionary)
+        private static IEnumerable<ItemIdItemNameParentId> GetPathToProject(int artifactId, IDictionary<int, ItemIdItemNameParentId> pathInfoDictionary)
         {
             var pathToProject = new List<ItemIdItemNameParentId>();
-            var itemId = artifactId;
+            int? itemId = artifactId;
             ItemIdItemNameParentId item;
-            while (pathInfoDictionary.TryGetValue(itemId, out item) && (item != null && item.ParentId != 0))
+            // We return the project, as well, removed check for the ParentId.
+            while (itemId.HasValue && pathInfoDictionary.TryGetValue(itemId.Value, out item))
             {
                 pathToProject.Add(item);
                 itemId = item.ParentId;

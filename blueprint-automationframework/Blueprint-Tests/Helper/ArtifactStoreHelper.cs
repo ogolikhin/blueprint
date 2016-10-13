@@ -176,28 +176,6 @@ namespace Helper
         }
 
         /// <summary>
-        /// Gets the custom data project.
-        /// </summary>
-        /// <param name="allProjects">List of all available projects.</param>
-        /// <param name="user">The user updating the artifact.</param>
-        /// <returns>The custom data project.</returns>
-        public static IProject GetCustomDataProject(List<IProject> allProjects, IUser user)
-        {
-            ThrowIf.ArgumentNull(allProjects, nameof(allProjects));
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            const string customDataProjectName = "Custom Data";
-
-            Assert.That(allProjects.Exists(p => (p.Name == customDataProjectName)),
-                "No project was found named '{0}'!", customDataProjectName);
-
-            var projectCustomData = allProjects.First(p => (p.Name == customDataProjectName));
-            projectCustomData.GetAllArtifactTypes(ProjectFactory.Address, user);
-
-            return projectCustomData;
-        }
-
-        /// <summary>
         /// Try to update an invalid Artifact with Property Changes.  Use this for testing cases where the save is expected to fail.
         /// </summary>
         /// <param name="address">The base address used for the REST call.</param>

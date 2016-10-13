@@ -86,11 +86,12 @@ export class Layout implements ILayout {
 
         const nodeFactorySettings = new NodeFactorySettings();
         nodeFactorySettings.isCommentsButtonEnabled = !this.viewModel.isHistorical && !this.viewModel.isSMB;
-        nodeFactorySettings.isRelationshipButtonEnabled = !this.viewModel.isHistorical && !this.viewModel.isSMB;
+        nodeFactorySettings.isRelationshipButtonEnabled = !this.viewModel.isHistorical && !this.viewModel.isSMB;        
         nodeFactorySettings.isDetailsButtonEnabled = this.viewModel.isSpa;
         nodeFactorySettings.isLinkButtonEnabled = this.viewModel.isSpa && !this.viewModel.isHistorical;
         nodeFactorySettings.isMockupButtonEnabled = this.viewModel.isSpa;
         nodeFactorySettings.isPreviewButtonEnabled = this.viewModel.isSpa && !this.viewModel.isHistorical;
+        nodeFactorySettings.isDeleteShapeEnabled = !this.viewModel.isHistorical && !this.viewModel.isReadonly;
 
         graphModel.beginUpdate();
 

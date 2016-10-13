@@ -11,10 +11,12 @@ import {DiagramNodeElement} from "./diagram-element";
 import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
+import {DeleteShapeButton} from "../buttons/delete-shape-button";
 import {Label, LabelStyle} from "../labels/label";
 import {SystemDecision} from "./";
 import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
 import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
+import {ProcessEvents} from "../../../process-diagram-communication";
 
 export class UserStoryProperties implements IUserStoryProperties {
     public nfr: IArtifactProperty;
@@ -34,7 +36,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private personaLabel: ILabel;
     private footerCell: MxCell;
     private commentsButton: Button;
-    private relationshipButton: Button;
+    private deleteShapeButton: Button;
     private detailsButton: Button;
     private previewButton: Button;
     private linkButton: Button;
@@ -71,6 +73,17 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
+        
+        //Delete Shape        
+        const clickAction = () => 
+            {
+                this.processDiagramManager.action(ProcessEvents.DeleteShape);
+            }; 
+
+        this.deleteShapeButton = new DeleteShapeButton(nodeId, this.BUTTON_SIZE, this.BUTTON_SIZE, 
+            this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"], nodeFactorySettings, clickAction);
+        
+
         //Shape Comments
         this.commentsButton = new Button(`CB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("comments-neutral.svg"));
         this.commentsButton.isEnabled = !this.isNew;
@@ -79,7 +92,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             // #TODO integrate with utility panel in Nova
             // this.commentsButton.setClickAction(() => this.openPropertiesDialog(this.rootScope, Shell.UtilityTab.discussions));
         } else {
-            this.commentsButton.setClickAction(() => { });
+            this.commentsButton.setClickAction(() => { });            
         }
 
         this.commentsButton.setTooltip(this.rootScope.config.labels["ST_Comments_Label"]);
@@ -90,28 +103,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             if (this.model.flags && this.model.flags.hasComments) {
                 this.commentsButton.activate();
             }
-        }
-
-        //Shape Traces
-        this.relationshipButton = new Button(`RB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("relationship-neutral.svg"));
-        this.relationshipButton.isEnabled = !this.isNew;
-
-        if (nodeFactorySettings && nodeFactorySettings.isRelationshipButtonEnabled) {
-             // #TODO integrate with utility panel in Nova
-            //this.relationshipButton.setClickAction(() => this.openPropertiesDialog(this.rootScope, Shell.UtilityTab.relationships));
-        } else {
-            this.relationshipButton.setClickAction(() => { });
-        }
-
-        this.relationshipButton.setTooltip(this.rootScope.config.labels["ST_Relationships_Label"]);
-        this.relationshipButton.setActiveImage(this.getImageSource("relationship-active.svg"));
-        this.relationshipButton.setHoverImage(this.getImageSource("relationship-active.svg"));
-
-        if (this.relationshipButton.isEnabled) {
-            if (this.model.flags && this.model.flags.hasTraces) {
-                this.relationshipButton.activate();
-            }
-        }
+        }        
 
         //Included Artifacts Button
         this.linkButton = new Button(`LB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("include-neutral.svg"));
@@ -374,10 +366,10 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             "shape=rectangle;strokeColor=#D4D5DA;fillColor=#FFFFFF;gradientColor=#DDDDDD;foldable=0;editable=0;selectable=0");
 
         this.addOverlays(mxGraph);
-
-        this.commentsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 118, 10,
+        
+        this.deleteShapeButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 118, 10,
             "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
-        this.relationshipButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 94, 10,
+        this.commentsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 94, 10,
             "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
         this.linkButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 70, 10,
             "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
@@ -426,8 +418,10 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         if (this.associatedArtifact == null) {
             return;
         }
-
-        this.processDiagramManager.navigateToAssociatedArtifact(this.associatedArtifact.id, true);
+        
+        this.processDiagramManager.action(ProcessEvents.NavigateToAssociatedArtifact, {
+            id: this.associatedArtifact.id,
+            enableTracking: true});
     }
 
     private openDialog(dialogType: ModalDialogType) {
@@ -507,8 +501,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         if (this.userStoryId !== value) {
             this.setPropertyValue("storyLinks", { associatedReferenceArtifactId: value });
             if (this.previewButton && value > 0) {
-                this.previewButton.activate();
-                this.relationshipButton.activate();
+                this.previewButton.activate();                
             }
         }
     }

@@ -3,7 +3,7 @@ import { BpArtifactInfoController } from "../../../../main/components/bp-artifac
 import { IMessageService, ILocalizationService} from "../../../../core";
 import { IDialogService } from "../../../../shared";
 import { IArtifactManager, IProjectManager } from "../../../../managers";
-import { IStatefulArtifact } from "../../../../managers/artifact-manager";
+import { IStatefulArtifact, IMetaDataService } from "../../../../managers/artifact-manager";
 import { IToolbarCommunication } from "./toolbar-communication";
 import { ICommunicationManager } from "../../";
 import { ILoadingOverlayService } from "../../../../core/loading-overlay";
@@ -24,7 +24,6 @@ export class BpProcessHeader implements ng.IComponentOptions {
 
 export class BpProcessHeaderController extends BpArtifactInfoController {
     private toolbarCommunicationManager: IToolbarCommunication;
-    private enableDeleteButtonHandler: string;
     public breadcrumbLinks: IBreadcrumbLink[];
     public isDeleteButtonEnabled: boolean;
     
@@ -40,7 +39,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "loadingOverlayService",
         "navigationService",
         "breadcrumbService",
-        "projectManager"
+        "projectManager",
+        "metadataService"
     ];
     
     constructor(
@@ -55,7 +55,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         loadingOverlayService: ILoadingOverlayService,
         navigationService: INavigationService,
         private breadcrumbService: IBreadcrumbService,
-        protected projectManager: IProjectManager
+        protected projectManager: IProjectManager,
+        protected metadataService: IMetaDataService
     ) {
         super(
             $scope,
@@ -67,13 +68,13 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             windowManager,
             loadingOverlayService,
             navigationService,
-            projectManager
+            projectManager,
+            metadataService
         );
 
         this.breadcrumbLinks = [];
         this.isDeleteButtonEnabled = false;
-        this.toolbarCommunicationManager = communicationManager.toolbarCommunicationManager;
-        this.enableDeleteButtonHandler = this.toolbarCommunicationManager.registerEnableDeleteObserver(this.enableDeleteButton);
+        this.toolbarCommunicationManager = communicationManager.toolbarCommunicationManager;        
     }
 
     public $onInit() {
@@ -94,18 +95,9 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
     }
 
     public $onDestroy() {
-        super.$onDestroy();
-
-        //dispose subscribers
-        this.toolbarCommunicationManager.removeEnableDeleteObserver(this.enableDeleteButtonHandler);
+        super.$onDestroy();        
     }
-
-    public enableDeleteButton = (value: boolean) => {
-        this.$scope.$applyAsync((s) => {
-            this.isDeleteButtonEnabled = value;
-        });
-    }
-
+    
     public navigateTo = (link: IBreadcrumbLink): void => {
         if (!!link && link.isEnabled) {
             const index = this.breadcrumbLinks.indexOf(link);
@@ -114,11 +106,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                 this.navigationService.navigateBack(index);
             }
         }
-    }
-
-    public clickDelete() {
-        this.toolbarCommunicationManager.clickDelete();
-    }
+    }    
 
     protected updateToolbarOptions(artifact: IStatefulArtifact): void {
         super.updateToolbarOptions(artifact);

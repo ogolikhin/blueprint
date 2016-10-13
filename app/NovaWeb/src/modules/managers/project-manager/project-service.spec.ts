@@ -1,6 +1,6 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
-import { Models } from "../../main/";
+import { Models, SearchServiceModels } from "../../main/models";
 import { HttpStatusCode } from "../../core/http";
 import { IProjectService, ProjectService } from "./project-service";
 import { ProjectServiceMock } from "./project-service.mock";
@@ -230,36 +230,37 @@ describe("Project Repository", () => {
     describe("searchProjects", () => {
         it("post - successful", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
             // Arrange
-            const query = "new";
-            $httpBackend.expectPOST("/svc/searchservice/projectsearch?resultCount=100", {Query: query})
-                .respond(HttpStatusCode.Success, [{projectId: 1, projectName: "New project 1"}, {projectId: 2, projectName: "New project 2"}]);
+            const searchCriteria: SearchServiceModels.IProjectSearchCriteria = {query: "new"};
+            const searchResult: SearchServiceModels.IProjectSearchResult[] = [
+                {id: 1, name: "New project 1", path: "Blueprint"},
+                {id: 2, name: "New project 2", path: "Blueprint"}
+            ];
+            $httpBackend.expectPOST("/svc/searchservice/projectsearch?separatorString= > &resultCount=100", searchCriteria)
+                .respond(HttpStatusCode.Success, searchResult);
 
             // Act
-            let data: Models.IProjectNode[];
+            let data: SearchServiceModels.IProjectSearchResult[];
             let error: any;
-            projectService.searchProjects(query).then(response => data = response, err => error = err);
+            projectService.searchProjects(searchCriteria).then(response => data = response, err => error = err);
 
             // Assert
             $httpBackend.flush();
             expect(error).toBeUndefined();
-            expect(data).toEqual([
-                {id: 1, name: "New project 1", type: Models.ProjectNodeType.Project, parentFolderId: undefined, hasChildren: undefined},
-                {id: 2, name: "New project 2", type: Models.ProjectNodeType.Project, parentFolderId: undefined, hasChildren: undefined}
-            ]);
+            expect(data).toEqual(searchResult);
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));
 
         it("post - unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
             // Arrange
-            const query = "new";
-            $httpBackend.expectPOST("/svc/searchservice/projectsearch?resultCount=100", {Query: query})
+            const searchCriteria: SearchServiceModels.IProjectSearchCriteria = {query: "new"};
+            $httpBackend.expectPOST("/svc/searchservice/projectsearch?separatorString= > &resultCount=100", searchCriteria)
                 .respond(HttpStatusCode.Unauthorized);
 
             // Act
-            let data: Models.IProjectNode[];
+            let data: SearchServiceModels.IProjectSearchResult[];
             let error: any;
-            projectService.searchProjects(query).then(response => data = response, err => error = err);
+            projectService.searchProjects(searchCriteria).then(response => data = response, err => error = err);
 
             // Assert
             $httpBackend.flush();

@@ -7,7 +7,10 @@ import {IDialogParams} from "../../../../messages/message-dialog";
 import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
+import {DeleteShapeButton} from "../buttons/delete-shape-button";
 import {Label, LabelStyle} from "../labels/label";
+import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
+import {ProcessEvents} from "../../../process-diagram-communication";
 
 export class UserDecision extends DiagramNode<IProcessShape> implements IDecision {
     private LABEL_EDIT_MAXLENGTH = 32;
@@ -16,8 +19,13 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
     private USER_DECISION_HEIGHT = 120;
     private USER_DECISION_SHIFT = 33;
     private BUTTON_SIZE = 16;
+    private DELETE_SHAPE_OFFSET = 3;
+    
     private detailsButton: Button;
+    private deleteShapeButton:Button;    
+
     private rootScope: any;
+    private processDiagramManager: IProcessDiagramCommunication;
 
     constructor(model: IProcessShape, rootScope: any, nodeFactorySettings: NodeFactorySettings = null) {
         super(model, NodeType.UserDecision);
@@ -27,7 +35,8 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
     }
 
     private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
-        this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, "/novaweb/static/bp-process/images/adddetails-neutral.svg");
+        //Details button
+        this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("adddetails-neutral.svg"));
 
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
             this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemDecisionDetailsDialogType));
@@ -35,9 +44,19 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
             this.detailsButton.setClickAction(() => { });
         }
 
-        this.detailsButton.setHoverImage("/novaweb/static/bp-process/images/adddetails-hover.svg");
-        this.detailsButton.setDisabledImage("/novaweb/static/bp-process/images/adddetails-mute.svg");
+        this.detailsButton.setHoverImage(this.getImageSource("adddetails-hover.svg"));
+        this.detailsButton.setDisabledImage(this.getImageSource("adddetails-mute.svg"));
         this.detailsButton.setTooltip(this.rootScope.config.labels["ST_Settings_Label"]);
+
+        //Delete process shape button        
+         const clickAction = () => 
+            {
+                this.processDiagramManager.action(ProcessEvents.DeleteShape);
+            };
+
+
+        this.deleteShapeButton = new DeleteShapeButton(nodeId, this.BUTTON_SIZE, this.BUTTON_SIZE, 
+            this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"], nodeFactorySettings, clickAction);
     }
 
     public setLabelWithRedrawUi(value: string) {
@@ -94,6 +113,8 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
 
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
 
+        this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;
+
         var mxGraph = graph.getMxGraph();
         var fillColor = "#FFFFFF";
 
@@ -137,6 +158,14 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
         if (!graph.viewModel.isReadonly) {
             this.showMenu(mxGraph);
         }
+
+        this.deleteShapeButton.render(
+            mxGraph,
+            this,
+            this.USER_DECISION_WIDTH / 2 - this.BUTTON_SIZE / 2,
+            this.BUTTON_SIZE + this.DELETE_SHAPE_OFFSET,
+            "shape=ellipse;strokeColor=none;fillColor=none;selectable=0"
+        );
 
         this.detailsButton.render(
             mxGraph,

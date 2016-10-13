@@ -292,15 +292,15 @@ export class BPTreeViewController implements IBPTreeViewController {
             }
             vm.isExpanded = node.expanded;
         }
-    }
+    };
 
     public onModelUpdated = (event?: any) => {
         this.updateScrollbars();
-    }
+    };
 
     public onViewportChanged = (event?: any) => {
         this.updateScrollbars();
-    }
+    };
 
     public onCellClicked = (event: {event: MouseEvent, node: agGrid.RowNode}) => {
         // Only deal with clicks in the .ag-group-value span
@@ -335,7 +335,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                 rangeSelect: shiftKeyPressed
             });
         }
-    }
+    };
 
     public onRowSelected = (event: {node: agGrid.RowNode}) => {
         const node = event.node;
@@ -350,7 +350,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                 selectedVMs: this.options.api.getSelectedRows() as ITreeViewNodeVM[]
             });
         }
-    }
+    };
 
     private isVisible(node: agGrid.RowNode): boolean {
         while ((node = node.parent)) {
@@ -365,7 +365,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         if (this.onDoubleClick) {
             this.onDoubleClick({vm: event.data});
         }
-    }
+    };
 
     public onGridReady = (event?: any) => {
         this.resetGridAsync(false);

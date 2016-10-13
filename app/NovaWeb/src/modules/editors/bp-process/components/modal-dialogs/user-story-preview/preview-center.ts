@@ -190,7 +190,6 @@ export class PreviewCenterController {
                 this.subscribers = [observer];
             });
         }
-        ;
     }
 
     private loadMetaData(statefulArtifact: IStatefulArtifact) {

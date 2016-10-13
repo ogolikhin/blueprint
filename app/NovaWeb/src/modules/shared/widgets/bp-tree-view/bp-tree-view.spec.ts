@@ -176,7 +176,7 @@ describe("BPTreeViewController", () => {
             // Assert
             expect(controller.options.rowSelection).toEqual("single");
             expect(controller.options.rowDeselection).toEqual(false);
-            expect(controller.options.columnDefs[0].cellRendererParams["checkbox"]).toEqual(false);
+            expect(controller.options.columnDefs[0].cellRendererParams["checkbox"]).toBeUndefined();
         });
 
         it ("When selection mode is multiple, sets rowSelection, rowDeselection and checkbox correctly", () => {
@@ -191,7 +191,7 @@ describe("BPTreeViewController", () => {
             // Assert
             expect(controller.options.rowSelection).toEqual("multiple");
             expect(controller.options.rowDeselection).toEqual(true);
-            expect(controller.options.columnDefs[0].cellRendererParams["checkbox"]).toEqual(false);
+            expect(controller.options.columnDefs[0].cellRendererParams["checkbox"]).toBeUndefined();
         });
 
         it ("When selection mode is checkbox, sets rowSelection, rowDeselection and checkbox correctly", () => {
@@ -206,7 +206,7 @@ describe("BPTreeViewController", () => {
             // Assert
             expect(controller.options.rowSelection).toEqual("multiple");
             expect(controller.options.rowDeselection).toEqual(true);
-            expect(controller.options.columnDefs[0].cellRendererParams["checkbox"]).toEqual(true);
+            expect(angular.isFunction(controller.options.columnDefs[0].cellRendererParams["checkbox"])).toEqual(true);
         });
 
         it ("When columns change, sets column defs correctly", () => {

@@ -4,6 +4,7 @@ App_Button_Yes,"Yes"
 App_Button_No,"No"
 App_Button_Ok,"OK"
 App_Button_Cancel,"Cancel"
+App_Button_Close,"Close"
 App_Button_Open,"Open"
 App_Button_PublishAndContinue,"Publish and Continue"
 

@@ -63,7 +63,8 @@
             <!-- Item details -->
                 <bp-manage-traces-item item="item" delete-trace="$ctrl.deleteTrace(item)"
                       selected-traces="$ctrl.selectedTraces[$ctrl.data.artifactId]" is-item-read-only="$ctrl.isItemReadOnly"
-                      ng-repeat="item in $ctrl.data.manualTraces track by $index" class="clearfix"></bp-manage-traces-item>
+                      ng-repeat="item in $ctrl.data.manualTraces track by $index" class="clearfix"
+                                       ng-class="{true: 'last'}[$last && $index > 2]"></bp-manage-traces-item>
             <!-- /Item details -->
         </div>
     </div>

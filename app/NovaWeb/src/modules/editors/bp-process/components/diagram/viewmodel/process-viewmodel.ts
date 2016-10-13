@@ -74,11 +74,12 @@ export class ProcessViewModel implements IProcessViewModel {
             this._messageService = messageService;
         }
         if (communicationManager) {
-            this.artifactUpdateHandler = communicationManager.processDiagramCommunication.registerArtifactUpdateObserver(this.artifactsOnUpdate);
+            this.artifactUpdateHandler = communicationManager.processDiagramCommunication
+                .register(ProcessEvents.ArtifactUpdate, this.artifactsOnUpdate);
         }
     }
     
-    public artifactsOnUpdate = (updateModel: ProcessModels.IArtifactUpdateModel) => {
+    private artifactsOnUpdate = (updateModel: ProcessModels.IArtifactUpdateModel) => {
         if (updateModel.updateType === ProcessEnums.ArtifactUpdateType.LinkLabel) {
             this.getStatefulArtifact().addChangeset("label", updateModel.propertyValue.value);
         }

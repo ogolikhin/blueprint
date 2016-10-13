@@ -22,7 +22,6 @@ import {DiagramLink} from "./shapes/diagram-link";
 import {Connector} from "./shapes/connector";
 import {ProcessAddHelper} from "./process-add-helper";
 import {ProcessDeleteHelper} from "./process-delete-helper";
-import {IStatefulSubArtifact} from "../../../../../../managers/artifact-manager";
 
 export var tempShapeId: number = 0;
 

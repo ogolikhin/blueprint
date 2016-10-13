@@ -11,11 +11,7 @@ export interface IProcessDiagramCommunication {
     registerModelUpdateObserver(observer: any);
     removeModelUpdateObserver(observer: any);
     modelUpdate(selectedNodeId: number);   
-
-    registerArtifactUpdateObserver(observer: any);
-    removeArtifactUpdateObserver(observer: any);
-    artifactUpdate(artifactUpdateModel: IArtifactUpdateModel); 
-    
+   
     register(event: ProcessEvents, observer: any) : string;
     unregister(event: ProcessEvents, observerHandler: string);
     action(event: ProcessEvents, eventPayload?: any);
@@ -50,17 +46,6 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
         this.setModelUpdateSubject.notify(selectedNodeId);
     }   
 
-    // SubArtifacts update
-    public registerArtifactUpdateObserver(observer: any): string {
-        return this.setModelUpdateSubject.subscribe(observer);
-    }
-    public removeArtifactUpdateObserver(handler: string) {
-        this.setModelUpdateSubject.disposeObserver(handler);
-    }
-
-    public artifactUpdate(subArtifactUpdateModel: IArtifactUpdateModel) {
-        this.setModelUpdateSubject.notify(subArtifactUpdateModel);
-    }   
     //Generic handlers
     public register(event: ProcessEvents, observer: any): string{
         switch(event){
@@ -102,7 +87,7 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
     }
 
     public action(event: ProcessEvents, eventPayload?: any){
-        switch(event){
+        switch(event) {
             case ProcessEvents.DeleteShape:{
                     this.setClickDeleteSubject.notify(true);
                     break;
@@ -114,11 +99,10 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
             case ProcessEvents.NavigateToAssociatedArtifact:{
                     this.setNavigateToAssociatedArtifactSubject.notify({ id: eventPayload.id, 
                         enableTracking: eventPayload.enableTracking });
-                        break;                    
-                }
-                
+                    break;                    
+                }                
             case ProcessEvents.ArtifactUpdate: {
-                   this.artifactUpdate(eventPayload);
+                   this.setArtifactUpdateSubject.notify(eventPayload);
                    break;
                 }
         }

@@ -1,7 +1,7 @@
 ﻿import {IDiagramElement, IDiagramNode} from "./../models/";
 import {IDiagramNodeElement, ILabel} from "./../models/";
 import {ElementType, NodeChange} from "./../models/";
-import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
+import {IProcessDiagramCommunication, ProcessEvents} from "../../../process-diagram-communication";
 
 export class DiagramElement extends mxCell implements IDiagramElement {
     private elementType: ElementType;
@@ -74,7 +74,7 @@ export class DiagramElement extends mxCell implements IDiagramElement {
     private _isNotificationPending: boolean = false;
 
     public notify(updateModel) {        
-        this.processDiagramManager.artifactUpdate(updateModel);
+        this.processDiagramManager.action(ProcessEvents.ArtifactUpdate, updateModel);
     }
     
 }

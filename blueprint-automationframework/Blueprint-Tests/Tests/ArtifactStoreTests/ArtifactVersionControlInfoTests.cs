@@ -365,7 +365,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.UseCase)]
         [TestCase(BaseArtifactType.Process)]
         [TestRail(183445)]
-        [Description("Create, publish & lock an artifact with subartifact. Lock artifact. Verify another user gets basic artifact information with subartifact Id.")]
+        [Description("Create, publish & lock an artifact with subartifact. Lock artifact. Verify user gets basic artifact information with subartifact Id.")]
         public void VersionControlInfoWithSubArtifactId_PublishedArtifactLockedArtifactWithChanges_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
         {
             // Setup:

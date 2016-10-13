@@ -108,9 +108,7 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion);
 
-            Assert.IsEmpty(artifactDetails.SpecificPropertyValues,
-                "SpecificPropertyValues isn't implemented yet so it should be empty!");
-
+            Assert.IsNotEmpty(artifactDetails.SpecificPropertyValues, "SpecificPropertyValues should not be empty!");
             Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
         }
 
@@ -142,9 +140,7 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion1);
 
-            Assert.IsEmpty(artifactDetails.SpecificPropertyValues,
-                "SpecificPropertyValues isn't implemented yet so it should be empty!");
-
+            Assert.IsNotEmpty(artifactDetails.SpecificPropertyValues, "SpecificPropertyValues should not be empty!");
             Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
         }
 
@@ -180,9 +176,7 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion1);
 
-            Assert.IsEmpty(artifactDetails.SpecificPropertyValues,
-                "SpecificPropertyValues isn't implemented yet so it should be empty!");
-
+            Assert.IsNotEmpty(artifactDetails.SpecificPropertyValues, "SpecificPropertyValues should not be empty!");
             Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
         }
 

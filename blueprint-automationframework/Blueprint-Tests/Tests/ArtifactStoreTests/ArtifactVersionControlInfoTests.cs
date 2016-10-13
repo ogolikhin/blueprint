@@ -333,38 +333,6 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(183444)]
         [Description("Create & publish an artifact with subartifacts. Update sub-artifact. Verify user gets basic artifact information with subartifact Id.")]
-        public void VersionControlInfoWithSubArtifactId_PublishedArtifactWithSavedSubArtifact_ReturnsArtifactInfo_200OK()
-        {
-            // Setup:
-            // Create a Process artifact.
-            var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(_project, _user);
-            var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
-
-            // Add UserTask.
-            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
-            var processLink = process.GetOutgoingLinkForShape(precondition);
-            process.AddUserAndSystemTask(processLink);
-
-            // Save the process & get new user task.
-            process = Helper.Storyteller.UpdateProcess(_user, process);
-
-            INovaVersionControlArtifactInfo basicArtifactInfo = null;
-
-            // Execute
-            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, processArtifact.Id),
-                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
-
-            // Verify
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
-
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: processArtifact.Id,
-                versionCount: artifactDetails.Version);
-        }
-
-        [TestCase]
-        [TestRail(183445)]
-        [Description("Create, publish & lock an artifact with subartifact. Lock artifact. Verify user gets basic artifact information with subartifact Id.")]
         public void VersionControlInfoWithSubArtifactId_PublishedArtifactLockedArtifactWithChanges_ReturnsArtifactInfo_200OK()
         {
             // Setup
@@ -386,13 +354,44 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, subArtifacts[0].Id),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
-            // Verify:
+            // Verify
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: subArtifacts[0].Id,
                 versionCount: artifactDetails.Version);
+
         }
+
+        [TestCase(BaseArtifactType.UseCase)]
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(183445)]
+        [Description("Create, publish & lock an artifact with subartifact. Lock artifact. Verify another user gets basic artifact information with subartifact Id.")]
+        public void VersionControlInfoWithSubArtifactId_PublishedArtifactLockedArtifactWithChanges_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+
+            Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
+
+            artifact.Lock();
+
+            INovaVersionControlArtifactInfo basicArtifactInfo = null;
+
+            // Execute
+            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, subArtifacts[0].Id),
+                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+
+            // Verify:
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
+
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: subArtifacts[0].Id,
+                versionCount: artifactDetails.Version);
+        }
+
 
         #endregion Sub-Artifact
 

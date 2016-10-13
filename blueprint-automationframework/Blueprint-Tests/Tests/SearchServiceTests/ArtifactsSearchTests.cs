@@ -65,6 +65,8 @@ namespace SearchServiceTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.Document);
+            var artifact2 = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.Storyboard);
+            Assert.AreNotEqual(artifact.Name, artifact2.Name, "Random artifacts should have different names.");
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
             ItemSearchResult results = null;
@@ -77,6 +79,7 @@ namespace SearchServiceTests
             Assert.IsTrue(results.SearchItems.Count > 0, "List of SearchItems shouldn't be empty.");
             Assert.IsTrue(results.PageItemCount > 0, "For non-empty list PageItemCount shouldn't be 0.");
             Assert.That(results.SearchItems.Exists(si => IsSearchItemCorrespondsToArtifact(artifact, si)), "Published artifact must be in search results.");
+            Assert.IsFalse(results.SearchItems.Exists(si => IsSearchItemCorrespondsToArtifact(artifact2, si)), "Search shouldn't return artifact with different name.");
         }
 
         [TestCase]
@@ -107,7 +110,7 @@ namespace SearchServiceTests
         {
             // Setup:
             var artifact = Helper.CreateAndSaveArtifact(_projectTest, _authorUser, BaseArtifactType.Process);
-            var searchCriteria = new FullTextSearchCriteria(artifact.Name, new List < int > { _projectTest.Id});
+            var searchCriteria = new FullTextSearchCriteria(artifact.Name, _projectTest.Id);
             ItemSearchResult results = null;
 
             // Execute:
@@ -117,7 +120,7 @@ namespace SearchServiceTests
 
             // Verify:
             Assert.IsTrue(results.PageItemCount == 0, "For empty list PageItemCount should be 0.");
-            Assert.IsFalse(results.SearchItems. Exists(si => IsSearchItemCorrespondsToArtifact(artifact, si)), "Search shouldn't return draft never published artifact.");
+            Assert.IsFalse(results.SearchItems.Exists(si => IsSearchItemCorrespondsToArtifact(artifact, si)), "Search shouldn't return draft never published artifact.");
         }
 
         [TestCase]
@@ -203,17 +206,16 @@ namespace SearchServiceTests
             IProject _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_projects, _adminUser);
             var artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var nameSearchCriteria = new FullTextSearchCriteria(artifact.Name, new List<int>() { _projectTest.Id});
+            var nameSearchCriteria = new FullTextSearchCriteria(artifact.Name, _projectTest.Id);
 
             ItemSearchResult results = Helper.SearchService.SearchItems(_adminUser, nameSearchCriteria);
 
             Assert.IsTrue(results.SearchItems.Exists(si => IsSearchItemCorrespondsToArtifact(artifact, si)),
                 "Search should return published artifact..");
-            int itemTypeIdToSearch = results.SearchItems[0].ItemTypeId;
 
             var searchString = "Textual"; //There are several artifacts with name '*Textual Requirement*' in both projects
             var itemTypeIdSearchCriteria = new FullTextSearchCriteria(searchString, selectedProjectIds,
-                new List<int>() { itemTypeIdToSearch});
+                results.SearchItems[0].ItemTypeId);
 
             ItemSearchResult itemTypeIdSearchresults = null;
 

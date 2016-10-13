@@ -280,10 +280,11 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         /// <param name="artifact">The INovaVersionControlArtifactInfo to compare against.</param>
         /// <param name="compareVersions">(optional) Pass false to skip version comparison.  Versions will never be compared if the Version of artifact2 is null.</param>
+        /// <param name="compareLockInfo">(optional) Pass false to skip the LockedByUser and LockedDateTime comparisons.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public void AssertEquals(INovaVersionControlArtifactInfo artifact, bool compareVersions = true)
+        public void AssertEquals(INovaVersionControlArtifactInfo artifact, bool compareVersions = true, bool compareLockInfo = true)
         {
-            AssertEquals(this, artifact, compareVersions);
+            AssertEquals(this, artifact, compareVersions, compareLockInfo);
         }
 
         /// <summary>
@@ -292,15 +293,18 @@ namespace Model.ArtifactModel.Impl
         /// <param name="artifact1">The first INovaArtifactDetails to compare against.</param>
         /// <param name="artifact2">The second INovaVersionControlArtifactInfo to compare against.</param>
         /// <param name="compareVersions">(optional) Pass false to skip version comparison.  Versions will never be compared if the Version of artifact2 is null.</param>
+        /// <param name="compareLockInfo">(optional) Pass false to skip the LockedByUser and LockedDateTime comparisons.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertEquals(INovaArtifactDetails artifact1, INovaVersionControlArtifactInfo artifact2, bool compareVersions = true)
+        public static void AssertEquals(INovaArtifactDetails artifact1,
+            INovaVersionControlArtifactInfo artifact2,
+            bool compareVersions = true,
+            bool compareLockInfo = true)
         {
             ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
             ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
 
             Assert.AreEqual(artifact1.Id, artifact2.Id, "The Id parameters don't match!");
             Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId  parameters don't match!");
-            Assert.AreEqual(artifact1.LockedDateTime, artifact2.LockedDateTime, "The LockedDateTime  parameters don't match!");
             Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name  parameters don't match!");
             Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex  parameters don't match!");
             Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
@@ -315,7 +319,11 @@ namespace Model.ArtifactModel.Impl
                 Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version  parameters don't match!");
             }
 
-            Identification.AssertEquals(artifact1.LockedByUser, artifact2.LockedByUser);
+            if (compareLockInfo)
+            {
+                Assert.AreEqual(artifact1.LockedDateTime, artifact2.LockedDateTime, "The LockedDateTime  parameters don't match!");
+                Identification.AssertEquals(artifact1.LockedByUser, artifact2.LockedByUser);
+            }
         }
 
         #endregion Assert functions

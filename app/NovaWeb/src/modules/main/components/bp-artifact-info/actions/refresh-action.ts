@@ -2,14 +2,17 @@ import {ILocalizationService} from "../../../../core";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay";
 import {BPButtonAction} from "../../../../shared";
 import {IProjectManager} from "../../../../managers/project-manager";
-import {IStatefulArtifact} from "../../../../managers/artifact-manager";
+import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact-manager";
 import {ItemTypePredefined} from "../../../../main/models/enums";
 
 export class RefreshAction extends BPButtonAction {
-    constructor(artifact: IStatefulArtifact,
-                localization: ILocalizationService,
-                projectManager: IProjectManager,
-                loadingOverlayService: ILoadingOverlayService) {
+    constructor(
+        artifact: IStatefulArtifact,
+        localization: ILocalizationService,
+        projectManager: IProjectManager,
+        loadingOverlayService: ILoadingOverlayService,
+        metaDataService: IMetaDataService
+    ) {
         if (!artifact) {
             throw new Error("Artifact not provided or is null");
         }
@@ -26,12 +29,20 @@ export class RefreshAction extends BPButtonAction {
             throw new Error("Loading overlay service not provided or is null");
         }
 
+        if (!metaDataService) {
+            throw new Error("MetaData service not provided or is null");
+        }
+
         super(
             (): void => {
                 //loading overlay
                 const overlayId = loadingOverlayService.beginLoading();
 
                 artifact.refresh()
+                    .then((artif) => {
+                        metaDataService.remove(artif.projectId);
+                        metaDataService.load(artif.projectId);
+                    })
                     .catch((error) => {
                         // We're not interested in the error type.
                         // sometimes this error is created by artifact.load(), which returns the statefulArtifact instead of an error object.
@@ -41,8 +52,8 @@ export class RefreshAction extends BPButtonAction {
                             loadingOverlayService.endLoading(refreshOverlayId);
                         });
                     }).finally(() => {
-                    loadingOverlayService.endLoading(overlayId);
-                });
+                        loadingOverlayService.endLoading(overlayId);
+                    });
             },
             (): boolean => {
                 if (artifact.predefinedType === ItemTypePredefined.Project || artifact.predefinedType === ItemTypePredefined.Collections) {

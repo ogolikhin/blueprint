@@ -119,6 +119,10 @@ export class DiagramElement extends mxCell implements IDiagramElement {
         evt.initCustomEvent("graphUpdated", true, true, eventArguments);
         window.dispatchEvent(evt);
     }
+
+    public getImageSource(image: string) {
+        return "/novaweb/static/bp-process/images/" + image;
+    }
 }
 
 export class DiagramNodeElement extends DiagramElement implements IDiagramNodeElement {

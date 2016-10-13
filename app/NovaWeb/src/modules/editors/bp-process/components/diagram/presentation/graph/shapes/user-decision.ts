@@ -7,6 +7,7 @@ import {IDialogParams} from "../../../../messages/message-dialog";
 import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
+import {DeleteShapeButton} from "../buttons/delete-shape-button";
 import {Label, LabelStyle} from "../labels/label";
 import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 import {ProcessEvents} from "../../../process-diagram-communication";
@@ -19,9 +20,9 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
     private USER_DECISION_SHIFT = 33;
     private BUTTON_SIZE = 16;
     private DELETE_SHAPE_OFFSET = 3;
-
+    
     private detailsButton: Button;
-    private deleteShapeButton: Button;
+    private deleteShapeButton:Button;    
 
     private rootScope: any;
     private processDiagramManager: IProcessDiagramCommunication;
@@ -35,36 +36,27 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
 
     private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
         //Details button
-        this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, "/novaweb/static/bp-process/images/adddetails-neutral.svg");
+        this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("adddetails-neutral.svg"));
 
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
             this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemDecisionDetailsDialogType));
         } else {
-            this.detailsButton.setClickAction(() => {
-                //fixme: why is this block empty. make it undefined or remove it as its clearly conditional
-            });
+            this.detailsButton.setClickAction(() => { });
         }
 
-        this.detailsButton.setHoverImage("/novaweb/static/bp-process/images/adddetails-hover.svg");
-        this.detailsButton.setDisabledImage("/novaweb/static/bp-process/images/adddetails-mute.svg");
+        this.detailsButton.setHoverImage(this.getImageSource("adddetails-hover.svg"));
+        this.detailsButton.setDisabledImage(this.getImageSource("adddetails-mute.svg"));
         this.detailsButton.setTooltip(this.rootScope.config.labels["ST_Settings_Label"]);
 
-        //Delete process shape button
-        this.deleteShapeButton = new Button(`DS${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, "/novaweb/static/bp-process/images/delete-neutral.svg");
-
-        if (nodeFactorySettings && nodeFactorySettings.isDeleteShapeEnabled) {
-            this.deleteShapeButton.setHoverImage("/novaweb/static/bp-process/images/delete-hover.svg");
-            this.deleteShapeButton.setClickAction(() => {
+        //Delete process shape button        
+         const clickAction = () => 
+            {
                 this.processDiagramManager.action(ProcessEvents.DeleteShape);
-            });
-        } else {
-            this.deleteShapeButton.setDisabledImage("/novaweb/static/bp-process/images/delete-inactive.svg");
-            this.deleteShapeButton.setClickAction(() => {
-                //fixme: empty blocks should be removed
-            });
-        }
+            };
 
-        this.deleteShapeButton.setTooltip(this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"]);
+
+        this.deleteShapeButton = new DeleteShapeButton(nodeId, this.BUTTON_SIZE, this.BUTTON_SIZE, 
+            this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"], nodeFactorySettings, clickAction);
     }
 
     public setLabelWithRedrawUi(value: string) {
@@ -93,7 +85,6 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
     }
 
     public deleteNode(graph: IProcessGraph) {
-        //fixme: why is this block empty? remove the function or make it null as this is not used
     }
 
     public hideMenu(mxGraph: MxGraph) {
@@ -101,7 +92,7 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
     }
 
     public showMenu(mxGraph: MxGraph) {
-        // #TODO change URL for svg
+        // #TODO change URL for svg 
         this.addOverlay(mxGraph,
             this,
             "/novaweb/static/bp-process/images/add-neutral.svg",
@@ -122,15 +113,15 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
 
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
 
-        const mxGraph = graph.getMxGraph();
-        let fillColor = "#FFFFFF";
         this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;
 
+        var mxGraph = graph.getMxGraph();
+        var fillColor = "#FFFFFF";
 
         if (this.model.id < 0) {
             fillColor = justCreated ? this.newShapeColor : "#FBF8E7";
         }
-
+                
         this.insertVertex(
             mxGraph,
             this.model.id.toString(),
@@ -142,7 +133,7 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
             "shape=rhombus;strokeColor=#D4D5DA;fillColor=" + fillColor +
             ";fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=12;foldable=0;"
         );
-        const textLabelStyle: LabelStyle = new LabelStyle(
+        var textLabelStyle: LabelStyle = new LabelStyle(
             "Open Sans",
             12,
             "transparent",
@@ -154,9 +145,7 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
             this.USER_DECISION_WIDTH - 20,
             "#4C4C4C"
         );
-        this.textLabel = new Label((value: string) => {
-                this.label = value;
-            },
+        this.textLabel = new Label((value: string) => { this.label = value; },
             graph.getHtmlElement(),
             this.model.id.toString(),
             "Label-B" + this.model.id.toString(),
@@ -205,8 +194,8 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
 
     public getElementTextLength(cell: MxCell): number {
         /*
-         * get the maximum length of text that can be entered
-         */
+        * get the maximum length of text that can be entered
+        */
         return this.LABEL_EDIT_MAXLENGTH;
     }
 
@@ -214,11 +203,11 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
 
         /***
          * This function returns formatted text to the getLabel()
-         * function to display the label
+         * function to display the label  
          */
 
         if (cell && text) {
-            const maxLen: number = this.LABEL_VIEW_MAXLENGTH;
+            var maxLen: number = this.LABEL_VIEW_MAXLENGTH;
 
             if (text.length > maxLen) {
                 text = text.substr(0, maxLen) + " ...";
@@ -230,9 +219,9 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
 
     public setElementText(cell: MxCell, text: string) {
         /*
-         * save text for the node or for an element within
-         * the node
-         */
+        * save text for the node or for an element within
+        * the node
+        */
         this.label = text;
     }
 
@@ -254,7 +243,7 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
     }
 
     public getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape {
-        const id = graph.getDecisionBranchDestLinkForIndex(this.model.id, orderIndex).destinationId;
+        var id = graph.getDecisionBranchDestLinkForIndex(this.model.id, orderIndex).destinationId;
         return graph.getShapeById(id);
     }
 }

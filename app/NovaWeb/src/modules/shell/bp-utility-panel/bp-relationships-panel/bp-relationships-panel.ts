@@ -1,5 +1,4 @@
 ﻿import * as angular from "angular";
-import * as _ from "lodash";
 import { ILocalizationService } from "../../../core";
 import { Relationships } from "../../../main";
 import { IDialogSettings, IDialogService } from "../../../shared";

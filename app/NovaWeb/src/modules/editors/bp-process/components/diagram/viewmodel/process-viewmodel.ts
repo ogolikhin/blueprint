@@ -199,11 +199,13 @@ export class ProcessViewModel implements IProcessViewModel {
     public updateProcessGraphModel(process: ProcessModels.IProcess) {
         this.processGraphModel = new ProcessGraphModel(process);
 
-        this.showLock = this.status.isLocked && !this.status.isLockedByMe;
-        this.showLockOpen = this.status.isLocked && this.status.isLockedByMe;
+        if (this.status) {
+            this.showLock = this.status.isLocked && !this.status.isLockedByMe;
+            this.showLockOpen = this.status.isLocked && this.status.isLockedByMe;
+            this.isReadonly = process.status.isReadOnly;
+        }
 
         this.isChanged = false;
-        this.isReadonly = process.status.isReadOnly;
     }
 
     public get processType(): ProcessEnums.ProcessType {

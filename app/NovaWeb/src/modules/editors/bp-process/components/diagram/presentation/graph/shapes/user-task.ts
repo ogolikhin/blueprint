@@ -11,6 +11,7 @@ import {DiagramNodeElement} from "./diagram-element";
 import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
+import {DeleteShapeButton} from "../buttons/delete-shape-button";
 import {Label, LabelStyle} from "../labels/label";
 import {SystemDecision} from "./";
 import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
@@ -71,25 +72,17 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
-        //Delete Shape
-        this.deleteShapeButton = new Button(`DS${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("delete-neutral.svg"));
-        this.deleteShapeButton.isEnabled = true;
-
-        if (nodeFactorySettings && nodeFactorySettings.isDeleteShapeEnabled) {
-            this.deleteShapeButton.setActiveImage(this.getImageSource("delete-active.svg"));
-            this.deleteShapeButton.setHoverImage(this.getImageSource("delete-hover.svg"));            
-            this.deleteShapeButton.setClickAction(() => 
+        
+        //Delete Shape        
+        const clickAction = () => 
             {
                 this.processDiagramManager.action(ProcessEvents.DeleteShape);
-            });
-        } else {
-            this.deleteShapeButton.setDisabledImage("/novaweb/static/bp-process/images/delete-inactive.svg");
-            this.deleteShapeButton.setClickAction(() => { });
-        }
+            }; 
 
-        this.deleteShapeButton.setTooltip(this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"]);
+        this.deleteShapeButton = new DeleteShapeButton(nodeId, this.BUTTON_SIZE, this.BUTTON_SIZE, 
+            this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"], nodeFactorySettings, clickAction);
         
-        
+
         //Shape Comments
         this.commentsButton = new Button(`CB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("comments-neutral.svg"));
         this.commentsButton.isEnabled = !this.isNew;
@@ -98,7 +91,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             // #TODO integrate with utility panel in Nova
             // this.commentsButton.setClickAction(() => this.openPropertiesDialog(this.rootScope, Shell.UtilityTab.discussions));
         } else {
-            this.commentsButton.setClickAction(() => { });
+            this.commentsButton.setClickAction(() => { });            
         }
 
         this.commentsButton.setTooltip(this.rootScope.config.labels["ST_Comments_Label"]);
@@ -109,9 +102,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             if (this.model.flags && this.model.flags.hasComments) {
                 this.commentsButton.activate();
             }
-        }
-
-        
+        }        
 
         //Included Artifacts Button
         this.linkButton = new Button(`LB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("include-neutral.svg"));

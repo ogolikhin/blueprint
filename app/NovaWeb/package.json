@@ -21,8 +21,8 @@
     "lint:nospec": "tslint -e \"**/*.spec.ts\" -e \"**/*.mock.ts\" \"src/modules/**/*.ts\""
   },
   "dependencies": {
-    "ag-grid": "5.3.1",
-    "ag-grid-enterprise": "5.3.1",
+    "ag-grid": "6.2.0",
+    "ag-grid-enterprise": "6.2.0",
     "angular": "~1.5.7",
     "angular-formly": "^8.2.1",
     "angular-formly-templates-bootstrap": "^6.4.0",

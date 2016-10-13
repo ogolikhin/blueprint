@@ -96,6 +96,7 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>7.1.0.0.sql</LastGenOutput>
     </Content>
+    <Content Include="Migration\7.1.0.0\CreateApplicationLabels.sql" />
     <Content Include="Migration\7.2.0.0\7.2.0.0.sql">
       <DependentUpon>7.2.0.0.tt</DependentUpon>
       <AutoGen>True</AutoGen>

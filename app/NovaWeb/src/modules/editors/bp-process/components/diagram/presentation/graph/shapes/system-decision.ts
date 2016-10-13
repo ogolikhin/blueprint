@@ -7,6 +7,7 @@ import {UserTaskChildElement} from "./user-task-child-element";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
+import {DeleteShapeButton} from "../buttons/delete-shape-button";
 import {Label, LabelStyle} from "../labels/label";
 import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 import {ProcessEvents} from "../../../process-diagram-communication";
@@ -38,30 +39,24 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
 
     private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
         //Modal Dialog
-        this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, "/novaweb/static/bp-process/images/adddetails-neutral.svg");
+        this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("adddetails-neutral.svg"));
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
             this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemDecisionDetailsDialogType));
         } else {
             this.detailsButton.setClickAction(() => { });
         }
-        this.detailsButton.setHoverImage("/novaweb/static/bp-process/images/adddetails-hover.svg");
-        this.detailsButton.setDisabledImage("/novaweb/static/bp-process/images/adddetails-mute.svg");
+        this.detailsButton.setHoverImage(this.getImageSource("adddetails-hover.svg"));
+        this.detailsButton.setDisabledImage(this.getImageSource("adddetails-mute.svg"));
         this.detailsButton.setTooltip(this.rootScope.config.labels["ST_Settings_Label"]);
 
-        //Delete process shape button
-        this.deleteShapeButton = new Button(`DS${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, "/novaweb/static/bp-process/images/delete-neutral.svg");
-
-        if (nodeFactorySettings && nodeFactorySettings.isDeleteShapeEnabled) {
-            this.deleteShapeButton.setHoverImage("/novaweb/static/bp-process/images/delete-hover.svg");
-            this.deleteShapeButton.setClickAction(() => {
+        //Delete process shape button        
+         const clickAction = () => 
+            {
                 this.processDiagramManager.action(ProcessEvents.DeleteShape);
-            });
-        } else {
-            this.deleteShapeButton.setDisabledImage("/novaweb/static/bp-process/images/delete-inactive.svg");
-            this.deleteShapeButton.setClickAction(() => { });
-        }        
-        
-        this.deleteShapeButton.setTooltip(this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"]);
+            };
+
+        this.deleteShapeButton = new DeleteShapeButton(nodeId, this.BUTTON_SIZE, this.BUTTON_SIZE, 
+            this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"], nodeFactorySettings, clickAction);        
     }
 
     public setLabelWithRedrawUi(value: string) {

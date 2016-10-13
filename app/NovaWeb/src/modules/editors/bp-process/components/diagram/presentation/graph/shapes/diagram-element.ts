@@ -76,7 +76,9 @@ export class DiagramElement extends mxCell implements IDiagramElement {
     public notify(updateModel) {        
         this.processDiagramManager.action(ProcessEvents.ArtifactUpdate, updateModel);
     }
-    
+    public getImageSource(image: string) {
+        return "/novaweb/static/bp-process/images/" + image;
+    }
 }
 
 export class DiagramNodeElement extends DiagramElement implements IDiagramNodeElement {

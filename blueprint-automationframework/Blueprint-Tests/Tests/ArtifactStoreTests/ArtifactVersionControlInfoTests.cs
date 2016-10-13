@@ -360,7 +360,6 @@ namespace ArtifactStoreTests
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: subArtifacts[0].Id,
                 versionCount: artifactDetails.Version);
-
         }
 
         [TestCase(BaseArtifactType.UseCase)]
@@ -391,7 +390,6 @@ namespace ArtifactStoreTests
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: subArtifacts[0].Id,
                 versionCount: artifactDetails.Version);
         }
-
 
         #endregion Sub-Artifact
 

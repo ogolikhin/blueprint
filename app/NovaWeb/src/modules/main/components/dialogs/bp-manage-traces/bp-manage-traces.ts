@@ -75,6 +75,8 @@ export class ManageTracesDialogController extends BaseDialogController {
                     item.cssClass = "icon-" + _.kebabCase(typeName);
                 }
 
+                item.isSelected = false;
+
                 if (item.hasAccess) {
                     return item;
                 }

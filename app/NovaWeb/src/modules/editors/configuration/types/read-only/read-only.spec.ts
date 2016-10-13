@@ -182,7 +182,7 @@ describe("Formly ReadOnly", () => {
         expect(fieldInput.classList.contains("richtext")).toBeFalsy();
     });
 
-    it("should display read only multiline text", function () {
+    xit("should display read only multiline text", function () {
         compileAndSetupStuff({model: {readonlyTextMulti: "Lorem ipsum"}});
 
         let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[5];
@@ -193,7 +193,7 @@ describe("Formly ReadOnly", () => {
         expect(fieldInput.classList.contains("richtext")).toBeFalsy();
     });
 
-    it("should display read only rich text", function () {
+    xit("should display read only rich text", function () {
         compileAndSetupStuff({model: {readonlyRichText: "Lorem ipsum"}});
 
         let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[6];

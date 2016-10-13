@@ -63,7 +63,7 @@ namespace ArtifactStoreTests
         public void GetUseCaseArtifact_PublishAndGetUseCaseArtifactWithoutSpecificVersion_ReturnsLatestVersionOfUseCaseArtifact(int numberOfVersions)
         {
             // Setup: Create and publish a use case artifact multiple times to have multiple versions of it
-            var publishedUseCaseArtifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.UseCase, numberOfVersions: numberOfVersions);
+            var publishedUseCaseArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase, numberOfVersions: numberOfVersions);
             // getting the latest version of the artifact using open API GetArtifact
             var retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_user, publishedUseCaseArtifact.Id);
             NovaUseCaseArtifact usecaseArtifact = null;

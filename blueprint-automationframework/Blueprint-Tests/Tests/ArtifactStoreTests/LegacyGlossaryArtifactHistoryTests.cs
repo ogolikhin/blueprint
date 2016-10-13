@@ -63,7 +63,7 @@ namespace ArtifactStoreTests
         public void GetGlossaryArtifact_PublishAndGetGlossaryArtifactWithoutSpecificVersion_ReturnsLatestVersionOfGlossaryArtifact(int numberOfVersions)
         {
             // Setup: Create and publish a glossary artifact multiple times to have multiple versions of it
-            var publishedGlossaryArtifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Glossary, numberOfVersions: numberOfVersions);
+            var publishedGlossaryArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Glossary, numberOfVersions: numberOfVersions);
             // getting the latest version of the artifact using open API GetArtifact
             var retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_user, publishedGlossaryArtifact.Id);
             NovaGlossaryArtifact glossaryArtifact = null;

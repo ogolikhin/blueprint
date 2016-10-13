@@ -67,7 +67,7 @@ namespace ArtifactStoreTests
         public void GetDiagramArtifact_PublishAndGetDiagramArtifactWithoutSpecificVersion_ReturnsLatestVersionOfDiagramArtifact(int numberOfVersions, BaseArtifactType artifactType)
         {
             // Setup: Create and publish a diagram artifact multiple times to have multiple versions of it
-            var publishedDiagramArtifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, artifactType: artifactType, numberOfVersions: numberOfVersions);
+            var publishedDiagramArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType: artifactType, numberOfVersions: numberOfVersions);
             // getting the latest version of the artifact using open API GetArtifact
             var retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_user, publishedDiagramArtifact.Id);
             NovaDiagramArtifact diagramArtifact = null;

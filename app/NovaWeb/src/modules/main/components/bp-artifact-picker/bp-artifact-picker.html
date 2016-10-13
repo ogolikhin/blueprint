@@ -3,7 +3,8 @@
         <i class="fonticon2-search"></i>
     </button>
     <div class="search-input">
-        <input type="text" class="form-control" placeholder="{{::$root.config.labels['Label_Search']}}" ng-model="$ctrl.searchText" />
+        <input type="text" class="form-control" ng-if="!$ctrl.project" placeholder="{{::$root.config.labels['Label_Search_Projects']}}" ng-model="$ctrl.searchText" />
+        <input type="text" class="form-control" ng-if="$ctrl.project" placeholder="{{::$root.config.labels['Label_Search_Artifacts']}}" ng-model="$ctrl.searchText" />
         <i class="fonticon-error" ng-show="$ctrl.searchText || $ctrl.searchResults" ng-click="$ctrl.clearSearch()"></i>
     </div>
 </form>

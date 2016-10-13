@@ -6,6 +6,7 @@ import {ProcessModels, ProcessEnums} from "../../../";
 import {ICommunicationManager} from "../../../";
 import { IStatefulArtifact } from "../../../../../managers/artifact-manager/";
 import { IStatefulProcessSubArtifact, StatefulProcessSubArtifact } from "../../../process-subartifact";
+import { IStatefulProcessArtifact } from "../../../process-artifact";
 import { ProcessEvents } from "../process-diagram-communication";
 
 export interface IProcessViewModel extends IProcessGraphModel {
@@ -536,8 +537,8 @@ export class ProcessViewModel implements IProcessViewModel {
         }
     }
 
-    private getStatefulArtifact(): IStatefulArtifact {
-        let statefulArtifact: IStatefulArtifact = this.process;
+    private getStatefulArtifact(): IStatefulProcessArtifact {
+        let statefulArtifact: IStatefulProcessArtifact = this.process;
         return statefulArtifact;
     }
 }

@@ -45,7 +45,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
                     typePredefined: PropertyTypePredefined.None,
                     value: value,
                     typeId: 0
-                }
+                };
             }
             updateModel.propertyValue = propertyValue;
         }       

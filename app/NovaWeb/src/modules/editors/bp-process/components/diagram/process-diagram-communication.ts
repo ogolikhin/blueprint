@@ -62,8 +62,8 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
             }
                 break;
             case ProcessEvents.ArtifactUpdate: {
-                    return this.setArtifactUpdateSubject.subscribe(observer);
-                }
+                result = this.setArtifactUpdateSubject.subscribe(observer);
+            }
                 break;
             default:
                 result = undefined;

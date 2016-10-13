@@ -21,7 +21,7 @@ module.exports = function (config) {
         browserNoActivityTimeout: 30000,
         files: [
             './node_modules/phantomjs-polyfill/bind-polyfill.js',
-            './libs/mxClient/js/mxClient.min.js',
+            // './libs/mxClient/js/mxClient.min.js',
             './src/test.ts',
             // This is an edge case for javascript tests when we load script here.
             // An alternative is to use requireJS for loading in test files.

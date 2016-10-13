@@ -11,8 +11,7 @@
         "sourceMap": true,
         "module": "commonjs",
         "experimentalDecorators": true,
-        "outDir": "out",
-        "noEmitHelpers": true
+        "outDir": "out"
     },
     "exclude": [
         "out",

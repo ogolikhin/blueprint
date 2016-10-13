@@ -69,7 +69,17 @@ class BPToolbarController implements IBPToolbarController {
                     css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
                 }).then((project: Models.IProject) => {
                     if (project) {
-                        this.projectManager.add(project);
+                        const openProjectLoadingId = this.loadingOverlayService.beginLoading();
+
+                        try {
+                            this.projectManager.add(project)
+                                .finally(() => {
+                                    this.loadingOverlayService.endLoading(openProjectLoadingId);
+                                });
+                        } catch (err) {
+                            this.loadingOverlayService.endLoading(openProjectLoadingId);
+                            throw err;
+                        }
                     }
                 });
                 break;

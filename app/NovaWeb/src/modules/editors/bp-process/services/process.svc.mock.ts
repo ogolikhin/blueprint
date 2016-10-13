@@ -2,8 +2,15 @@
 
 export class ProcessServiceMock implements IProcessService {
     private processModel;
+
     constructor(private $q: ng.IQService) {
-        this.processModel = <any>{ projectId: 1, id: 1111, status: { isLocked: true, isLockedByMe: true }, shapes:[], links: []};
+        this.processModel = <any>{
+            projectId: 1,
+            id: 1111,
+            status: {isLocked: true, isLockedByMe: true},
+            shapes: [],
+            links: []
+        };
     }
 
     public load(processId: string, versionId?: number, revisionId?: number, baselineId?: number, readOnly?: boolean): ng.IPromise<ProcessModels.IProcess> {
@@ -12,18 +19,18 @@ export class ProcessServiceMock implements IProcessService {
 
     public getProcesses(projectId: number): ng.IPromise<ProcessModels.IArtifactReference[]> {
         return this.$q.when([
-            ProcessServiceMock.createArtifactReference({ id: 1111, name: "Initial Process"}),
-            ProcessServiceMock.createArtifactReference({ id: 2222, name: "First Process"}),
-            ProcessServiceMock.createArtifactReference({ id: 3333, name: "Second Process"}),
-            ProcessServiceMock.createArtifactReference({ id: 4444, name: "Third Process"}),
-            ProcessServiceMock.createArtifactReference({ id: 5555, name: "Fourth Process"}),
-            ProcessServiceMock.createArtifactReference({ id: 6666, name: "Fifth Process"}),
-            ProcessServiceMock.createArtifactReference({ id: 7777, name: "Yet another Process"}),
-            ProcessServiceMock.createArtifactReference({ id: 8888, name: "Yet another Process"}),
-            ProcessServiceMock.createArtifactReference({ id: 9999, name: "Yet another Process"}),
-            ProcessServiceMock.createArtifactReference({ id: 9998, name: "Yet another Process"}),
-            ProcessServiceMock.createArtifactReference({ id: 9997, name: "Yet another Process"}),
-            ProcessServiceMock.createArtifactReference({ id: 9996, name: "Yet another Process"})
+            ProcessServiceMock.createArtifactReference({id: 1111, name: "Initial Process"}),
+            ProcessServiceMock.createArtifactReference({id: 2222, name: "First Process"}),
+            ProcessServiceMock.createArtifactReference({id: 3333, name: "Second Process"}),
+            ProcessServiceMock.createArtifactReference({id: 4444, name: "Third Process"}),
+            ProcessServiceMock.createArtifactReference({id: 5555, name: "Fourth Process"}),
+            ProcessServiceMock.createArtifactReference({id: 6666, name: "Fifth Process"}),
+            ProcessServiceMock.createArtifactReference({id: 7777, name: "Yet another Process"}),
+            ProcessServiceMock.createArtifactReference({id: 8888, name: "Yet another Process"}),
+            ProcessServiceMock.createArtifactReference({id: 9999, name: "Yet another Process"}),
+            ProcessServiceMock.createArtifactReference({id: 9998, name: "Yet another Process"}),
+            ProcessServiceMock.createArtifactReference({id: 9997, name: "Yet another Process"}),
+            ProcessServiceMock.createArtifactReference({id: 9996, name: "Yet another Process"})
         ]);
     }
 

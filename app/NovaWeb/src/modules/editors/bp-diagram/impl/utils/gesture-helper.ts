@@ -8,6 +8,6 @@ export class SafaryGestureHelper {
     private iosPinchZoomHandler(e: JQueryEventObject) {
         if (e.originalEvent["scale"] !== 1.0) {
             e.stopImmediatePropagation();
-        }         
+        }
     }
 }

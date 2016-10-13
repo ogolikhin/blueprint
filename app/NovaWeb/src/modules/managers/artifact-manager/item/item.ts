@@ -1,15 +1,15 @@
-import { IArtifactState, IState} from "../state";
-import { Models, Enums, Relationships } from "../../../main/models";
-import { ArtifactAttachments, IArtifactAttachments, IArtifactAttachmentsResultSet } from "../attachments";
-import { ArtifactProperties, SpecialProperties } from "../properties";
-import { ChangeSetCollector,  ChangeTypeEnum, IChangeCollector, IChangeSet } from "../changeset";
-import { StatefulSubArtifactCollection, ISubArtifactCollection } from "../sub-artifact";
-import { IMetaData } from "../metadata";
-import { IDocumentRefs, DocumentRefs } from "../docrefs";
-import { IStatefulArtifactServices } from "../services";
-import { IArtifactProperties } from "../properties";
-import { IArtifactRelationships, ArtifactRelationships } from "../relationships";
-import { HttpStatusCode } from "../../../core";
+import {IArtifactState, IState} from "../state";
+import {Models, Enums, Relationships} from "../../../main/models";
+import {ArtifactAttachments, IArtifactAttachments, IArtifactAttachmentsResultSet} from "../attachments";
+import {ArtifactProperties, SpecialProperties} from "../properties";
+import {ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet} from "../changeset";
+import {StatefulSubArtifactCollection, ISubArtifactCollection} from "../sub-artifact";
+import {IMetaData} from "../metadata";
+import {IDocumentRefs, DocumentRefs} from "../docrefs";
+import {IStatefulArtifactServices} from "../services";
+import {IArtifactProperties} from "../properties";
+import {IArtifactRelationships, ArtifactRelationships} from "../relationships";
+import {HttpStatusCode} from "../../../core";
 
 export interface IStatefulItem extends Models.IArtifact {
     artifactState: IArtifactState;
@@ -24,10 +24,10 @@ export interface IStatefulItem extends Models.IArtifact {
     docRefs: IDocumentRefs;
     lock();
     discard();
-    changes(): Models.ISubArtifact;    
+    changes(): Models.ISubArtifact;
 }
 
-export interface IIStatefulItem extends IStatefulItem  {
+export interface IIStatefulItem extends IStatefulItem {
     getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet>;
     getRelationships(): ng.IPromise<Relationships.IArtifactRelationshipsResultSet>;
     getServices(): IStatefulArtifactServices;
@@ -51,7 +51,7 @@ export abstract class StatefulItem implements IIStatefulItem {
 
     constructor(private artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
 //        this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
-        
+
         this.deleted = false;
     }
 
@@ -98,6 +98,7 @@ export abstract class StatefulItem implements IIStatefulItem {
     public get itemTypeVersionId(): number {
         return this.artifact.itemTypeVersionId;
     }
+
     public get predefinedType(): Models.ItemTypePredefined {
         return this.artifact.predefinedType;
     }
@@ -117,6 +118,7 @@ export abstract class StatefulItem implements IIStatefulItem {
     public get parentId(): number {
         return this.artifact.parentId;
     }
+
     public get orderIndex(): number {
         return this.artifact.orderIndex;
     }
@@ -140,7 +142,7 @@ export abstract class StatefulItem implements IIStatefulItem {
     public get hasChildren(): boolean {
         return this.artifact.hasChildren;
     }
-    
+
     public get readOnlyReuseSettings(): Enums.ReuseSettings {
         return this.artifact.readOnlyReuseSettings;
     }
@@ -151,14 +153,14 @@ export abstract class StatefulItem implements IIStatefulItem {
 
     public set(name: string, value: any) {
         if (name in this) {
-           const changeset = {
-               type: ChangeTypeEnum.Update,
-               key: name,
-               value: this.artifact[name] = value              
-           } as IChangeSet;
-           this.changesets.add(changeset);
-           
-           this.lock(); 
+            const changeset = {
+                type: ChangeTypeEnum.Update,
+                key: name,
+                value: this.artifact[name] = value
+            } as IChangeSet;
+            this.changesets.add(changeset);
+
+            this.lock();
         }
     }
 
@@ -212,33 +214,34 @@ export abstract class StatefulItem implements IIStatefulItem {
     }
 
     public lock() {
+        //fixme: if empty function should be removed or return undefined
     }
-    
+
     protected isFullArtifactLoadedOrLoading() {
         return (this._customProperties && this._customProperties.isLoaded &&
-         this._specialProperties && this._specialProperties.isLoaded) || 
-         this.loadPromise;
+            this._specialProperties && this._specialProperties.isLoaded) ||
+            this.loadPromise;
     }
 
     public unload() {
-        if ( this._customProperties) {
+        if (this._customProperties) {
             this._customProperties.dispose();
             delete this._customProperties;
         }
-        if ( this._specialProperties) {
+        if (this._specialProperties) {
             this._specialProperties.dispose();
             delete this._specialProperties;
         }
-        if ( this._attachments) {
+        if (this._attachments) {
             this._attachments.dispose();
             delete this._attachments;
         }
-        if ( this._docRefs) {
+        if (this._docRefs) {
             this._docRefs.dispose();
             delete this._docRefs;
         }
         //TODO: REMOVE WHEN AUTO-SAVE GETS COMPLETED. AUTO-SAVE SHOULD ALREADY HAVE THIS FLAG SET TO FALSE.
-        if(this.artifactState) {
+        if (this.artifactState) {
             this.artifactState.dirty = false;
         }
         //TODO: implement the same for all objects
@@ -265,9 +268,9 @@ export abstract class StatefulItem implements IIStatefulItem {
             this._subArtifactCollection.discard();
         }
     }
-    
+
     public initialize(artifact: Models.IArtifact): IState {
-        
+
         this.artifact = artifact;
         this.customProperties.initialize(artifact.customPropertyValues);
         this.specialProperties.initialize(artifact.specificPropertyValues);
@@ -279,7 +282,7 @@ export abstract class StatefulItem implements IIStatefulItem {
     public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {
         const deferred = this.services.getDeferred();
         this.services.attachmentService.getArtifactAttachments(this.id, null, true)
-            .then( (result: IArtifactAttachmentsResultSet) => {
+            .then((result: IArtifactAttachmentsResultSet) => {
                 // load attachments
                 this.attachments.initialize(result.attachments);
 
@@ -295,11 +298,11 @@ export abstract class StatefulItem implements IIStatefulItem {
             });
         return deferred.promise;
     }
-    
+
     public getRelationships(): ng.IPromise<Relationships.IArtifactRelationshipsResultSet> {
         const deferred = this.services.getDeferred();
         this.services.relationshipsService.getRelationships(this.id)
-            .then( (result: Relationships.IArtifactRelationshipsResultSet) => {
+            .then((result: Relationships.IArtifactRelationshipsResultSet) => {
                 deferred.resolve(result);
             }, (error) => {
                 if (error && error.statusCode === HttpStatusCode.NotFound) {
@@ -319,7 +322,7 @@ export abstract class StatefulItem implements IIStatefulItem {
         this.changesets.get().forEach((it: IChangeSet) => {
             delta[it.key as string] = it.value;
         });
-      
+
         delta.customPropertyValues = this.customProperties.changes();
         delta.specificPropertyValues = this.specialProperties.changes();
         delta.attachmentValues = this.attachments.changes();
@@ -328,8 +331,8 @@ export abstract class StatefulItem implements IIStatefulItem {
         return delta;
     }
 
-    //TODO: moved from bp-artifactinfo 
-    
-    abstract artifactState: IArtifactState;  
+    //TODO: moved from bp-artifactinfo
+
+    abstract artifactState: IArtifactState;
 
 }

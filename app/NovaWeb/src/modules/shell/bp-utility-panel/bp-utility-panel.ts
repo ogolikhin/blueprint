@@ -1,16 +1,16 @@
 ﻿import * as angular from "angular";
 import * as _ from "lodash";
-import { ILocalizationService } from "../../core";
-import { Models } from "../../main";
-import { IArtifactManager, ISelection, IStatefulItem } from "../../managers/artifact-manager";
-import { ItemTypePredefined } from "../../main/models/enums";
-import { IBpAccordionController } from "../../main/components/bp-accordion/bp-accordion";
+import {ILocalizationService} from "../../core";
+import {Models} from "../../main";
+import {IArtifactManager, ISelection, IStatefulItem} from "../../managers/artifact-manager";
+import {ItemTypePredefined} from "../../main/models/enums";
+import {IBpAccordionController} from "../../main/components/bp-accordion/bp-accordion";
 
 export enum PanelType {
     Properties,
-    Relationships,    
+    Relationships,
     Discussions,
-    Files,    
+    Files,
     History
 }
 
@@ -32,7 +32,7 @@ export class BPUtilityPanelController {
     private _currentItemType: number;
     private _currentItemIcon: number;
 
-    public get currentItem() { 
+    public get currentItem() {
         return this._currentItem;
     }
 
@@ -48,10 +48,9 @@ export class BPUtilityPanelController {
         return this._currentItemIcon;
     }
 
-    constructor(
-        private localization: ILocalizationService,
-        private artifactManager: IArtifactManager,
-        private $element: ng.IAugmentedJQuery) {
+    constructor(private localization: ILocalizationService,
+                private artifactManager: IArtifactManager,
+                private $element: ng.IAugmentedJQuery) {
         this._currentItem = null;
         this._currentItemClass = null;
         this._currentItemType = null;
@@ -77,7 +76,10 @@ export class BPUtilityPanelController {
 
     public $onDestroy() {
         //dispose all subscribers
-        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => {
+            it.dispose();
+            return false;
+        });
     }
 
     private hidePanel(panelType: PanelType) {
@@ -135,11 +137,11 @@ export class BPUtilityPanelController {
             this.showPanel(PanelType.History);
         }
     }
-    
+
     private togglePropertiesPanel(selection: ISelection) {
         const artifact = selection.artifact;
         const explorerArtifact = this.artifactManager.selection.getExplorerArtifact();
-        if (artifact && (selection.subArtifact 
+        if (artifact && (selection.subArtifact
             || artifact.predefinedType === ItemTypePredefined.Glossary
             || artifact.predefinedType === ItemTypePredefined.GenericDiagram
             || artifact.predefinedType === ItemTypePredefined.BusinessProcess
@@ -150,8 +152,8 @@ export class BPUtilityPanelController {
             || artifact.predefinedType === ItemTypePredefined.UIMockup
             || artifact.predefinedType === ItemTypePredefined.Process
             || (artifact.predefinedType === ItemTypePredefined.Actor &&
-                explorerArtifact &&
-                explorerArtifact.predefinedType === ItemTypePredefined.UseCaseDiagram))) {
+            explorerArtifact &&
+            explorerArtifact.predefinedType === ItemTypePredefined.UseCaseDiagram))) {
 
             this.showPanel(PanelType.Properties);
         } else {
@@ -175,9 +177,9 @@ export class BPUtilityPanelController {
         const artifact = selection.artifact;
 
         if (artifact && (artifact.predefinedType === ItemTypePredefined.CollectionFolder ||
-                         artifact.predefinedType === ItemTypePredefined.Collections ||
-                         artifact.predefinedType === ItemTypePredefined.ArtifactCollection ||
-                         artifact.predefinedType === ItemTypePredefined.Project)) {
+            artifact.predefinedType === ItemTypePredefined.Collections ||
+            artifact.predefinedType === ItemTypePredefined.ArtifactCollection ||
+            artifact.predefinedType === ItemTypePredefined.Project)) {
             this.hidePanel(PanelType.Relationships);
         } else {
             this.showPanel(PanelType.Relationships);

@@ -1,137 +1,137 @@
 .is-chrome {
-  .content-center {
-    transition: width .4s ease;
-  }
-
-  .left-panel-visible,
-  .right-panel-visible {
     .content-center {
-      width: calc(100% - #{$sidebar-size});
+        transition: width .4s ease;
     }
-  }
 
-  .left-panel-visible.right-panel-visible {
-    .content-center {
-      width: calc(100% - #{2 * $sidebar-size});
+    .left-panel-visible,
+    .right-panel-visible {
+        .content-center {
+            width: calc(100% - #{$sidebar-size});
+        }
     }
-  }
+
+    .left-panel-visible.right-panel-visible {
+        .content-center {
+            width: calc(100% - #{2 * $sidebar-size});
+        }
+    }
 }
 
 // the following is to avoid having body scrollbars that overlaps content in IE
 // https://github.com/twbs/bootstrap/issues/18543
 @-ms-viewport {
-  width: auto !important;
+    width: auto !important;
 }
 
 .nova-form-control[disabled]::-moz-placeholder,
 .nova-form-control[readonly]::-moz-placeholder,
 fieldset[disabled] .nova-form-control::-moz-placeholder {
-  color: $gray-lighter;
-  opacity: 1;
+    color: $gray-lighter;
+    opacity: 1;
 }
 
 .nova-form-control[disabled]:-ms-input-placeholder,
 .nova-form-control[readonly]:-ms-input-placeholder,
 fieldset[disabled] .nova-form-control:-ms-input-placeholder {
-  color: $gray-lighter;
+    color: $gray-lighter;
 }
 
 .nova-form-control[disabled]::-webkit-input-placeholder,
 .nova-form-control[readonly]::-webkit-input-placeholder,
 fieldset[disabled] .nova-form-control::-webkit-input-placeholder {
-  color: $gray-lighter;
+    color: $gray-lighter;
 }
 
 // There may be some issue with the SCSS compiler as the following 3 rules don't work if combined together
 input::-moz-placeholder {
-  color: $gray-lighter !important;
+    color: $gray-lighter !important;
 }
 
 input:-ms-input-placeholder {
-  color: $gray-lighter !important;
+    color: $gray-lighter !important;
 }
 
 input::-webkit-input-placeholder {
-  color: $gray-lighter !important;
+    color: $gray-lighter !important;
 }
 
 // clear placeholder on focus in Chrome
 input:focus::-webkit-input-placeholder {
-  color: transparent !important;
+    color: transparent !important;
 }
 
 // IE 8+ Specific styles to remove clear and reveal (eye) icons from input fields
 input::-ms-clear {
-  display: none;
+    display: none;
 }
 
 input[type=password]::-ms-reveal,
 input[type=password]::-ms-clear {
-  display: none;
+    display: none;
 }
 
 //https://developer.mozilla.org/en-US/docs/Web/CSS/:-webkit-autofill
 .nova-floating-label .nova-form-control:-webkit-autofill ~ .nova-label {
-  color: $gray-dark;
-  font-size: $font-size-normal !important;
-  top: -16px;
+    color: $gray-dark;
+    font-size: $font-size-normal !important;
+    top: -16px;
 
-  i::before {
-    font-size: 1.15 * $font-size-bigger;
-  }
+    i::before {
+        font-size: 1.15 * $font-size-bigger;
+    }
 }
 
 // WebKit based browser system scrollbar skin
 .is-macosx {
-  &.is-chrome {
-    .formly .formly-field textarea {
-      padding-right: 17px;
+    &.is-chrome {
+        .formly .formly-field textarea {
+            padding-right: 17px;
 
-      &:hover,
-      &:focus {
-        padding-right: 17px;
-      }
+            &:hover,
+            &:focus {
+                padding-right: 17px;
+            }
 
-      &:not([disabled]):hover,
-      &:not([disabled]):focus {
-        background-position: #{$property-input-width - 24px} 6px;
-      }
+            &:not([disabled]):hover,
+            &:not([disabled]):focus {
+                background-position: #{$property-input-width - 24px} 6px;
+            }
+        }
     }
-  }
 
-  ::-webkit-scrollbar {
-    height: 8px;
-    width: 8px;
-  }
-
-  ::-webkit-scrollbar-button {
-    height: 0;
-    width: 0;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: $gray-light;
-    border: 0;
-    border-radius: 4px;
-
-    &:hover,
-    &:active {
-      background: $gray;
+    ::-webkit-scrollbar {
+        height: 8px;
+        width: 8px;
     }
-  }
 
-  ::-webkit-scrollbar-track {
-    background: transparent;
-    border: 0;
-    border-radius: 4px;
-
-    &:hover,
-    &:active {
-      background: $gray-lightest;
+    ::-webkit-scrollbar-button {
+        height: 0;
+        width: 0;
     }
-  }
 
-  ::-webkit-scrollbar-corner {
-    background: transparent;
-  }
+    ::-webkit-scrollbar-thumb {
+        background: $gray-light;
+        border: 0;
+        border-radius: 4px;
+
+        &:hover,
+        &:active {
+            background: $gray;
+        }
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+        border: 0;
+        border-radius: 4px;
+
+        &:hover,
+        &:active {
+            background: $gray-lightest;
+        }
+    }
+
+    ::-webkit-scrollbar-corner {
+        background: transparent;
+    }
 }

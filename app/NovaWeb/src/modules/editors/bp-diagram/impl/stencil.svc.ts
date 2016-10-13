@@ -35,7 +35,7 @@ export class StencilService implements IStencilService {
             const req = <XMLHttpRequest>this.mxUtils.load(pathToStencil).request;
             stencil = req.responseXML.documentElement;
         } catch (e) {
-
+//fixme: why is this empty? try catch is a very expensive operation and as should should not be empty
         }
         return stencil;
     }

@@ -1,5 +1,5 @@
 ﻿import * as angular from "angular";
-import { ILocalizationService, HttpStatusCode } from "../../../core";
+import {ILocalizationService, HttpStatusCode} from "../../../core";
 
 export interface IArtifactDiscussions {
     artifactDiscussions: ng.IPromise<IDiscussion[]>;
@@ -54,16 +54,14 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
 
     public artifactDiscussions: ng.IPromise<IDiscussion[]>;
 
-    constructor(
-        private $q: ng.IQService,
-        private $http: ng.IHttpService,
-        private localization: ILocalizationService) {
+    constructor(private $q: ng.IQService,
+                private $http: ng.IHttpService,
+                private localization: ILocalizationService) {
     }
 
-    public getArtifactDiscussions(
-        artifactId: number,
-        subArtifactId?: number,
-        timeout?: ng.IPromise<void>): ng.IPromise<IDiscussionResultSet> {
+    public getArtifactDiscussions(artifactId: number,
+                                  subArtifactId?: number,
+                                  timeout?: ng.IPromise<void>): ng.IPromise<IDiscussionResultSet> {
 
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
@@ -93,10 +91,9 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
         return defer.promise;
     }
 
-    public getReplies(
-        artifactId: number,
-        discussionId: number,
-        subArtifactId?: number): ng.IPromise<IReply[]> {
+    public getReplies(artifactId: number,
+                      discussionId: number,
+                      subArtifactId?: number): ng.IPromise<IReply[]> {
 
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {

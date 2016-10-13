@@ -4,7 +4,7 @@ import {
     ISettingsService,
     HttpStatusCode
 } from "../../core";
-import { ISession } from "./session-interface";
+import {ISession} from "./session-interface";
 
 export class ILoginInfo {
     public userName: string;
@@ -35,22 +35,27 @@ export class LoginCtrl {
 
     public currentFormState: LoginState;
     public lastFormState: LoginState;
+
     public get isInLoginForm(): boolean {
         return this.currentFormState === LoginState.LoginForm || this.lastFormState === LoginState.LoginForm;
     }
+
     public get isInForgetPasswordScreen(): boolean {
         return this.currentFormState === LoginState.ForgetPasswordForm || this.lastFormState === LoginState.ForgetPasswordForm;
     }
+
     public get isInChangePasswordScreen(): boolean {
         return this.currentFormState === LoginState.ChangePasswordForm || this.lastFormState === LoginState.ChangePasswordForm;
     }
+
     public get isInSAMLScreen(): boolean {
         return this.currentFormState === LoginState.SamlLoginForm || this.lastFormState === LoginState.SamlLoginForm;
     }
+
     public get isUsernameDisabled(): boolean {
         return !!this.session.forceUsername();
     }
-    
+
     public isForgetPasswordScreenEnabled: boolean;
     public hasForgetPasswordScreenError: boolean;
     public forgetPasswordScreenMessage: string;
@@ -60,7 +65,7 @@ export class LoginCtrl {
     public hasChangePasswordScreenError: boolean;
     public changePasswordScreenMessage: string;
 
-    public isCurrentPasswordFieldErrorStyleShowing: boolean; 
+    public isCurrentPasswordFieldErrorStyleShowing: boolean;
     public isNewPasswordFieldErrorStyleShowing: boolean;
     public isConfirmPasswordFieldErrorStyleShowing: boolean;
 

@@ -1,5 +1,4 @@
-﻿
-export const enum ProcessType {
+﻿export const enum ProcessType {
     None = 0,
     BusinessProcess = 1,
     UserToSystemProcess = 2,

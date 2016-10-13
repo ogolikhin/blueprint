@@ -1,11 +1,13 @@
 <div class="input-group has-messages">
-	<input type="text"
-		id="{{::id}}"
-		name="{{::id}}"
-		ng-model="model[options.key]"
-		ng-keyup="bpFieldNumber.keyup($event)"
-		class="form-control" />
-	<div ng-messages="fc.$error" ng-if="showError" class="error-messages">
-		<div id="{{::id}}-{{::name}}" ng-message="{{::name}}" ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}</div>
-	</div>
+    <input type="text"
+           id="{{::id}}"
+           name="{{::id}}"
+           ng-model="model[options.key]"
+           ng-keyup="bpFieldNumber.keyup($event)"
+           class="form-control"/>
+    <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
+        <div id="{{::id}}-{{::name}}" ng-message="{{::name}}"
+             ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}
+        </div>
+    </div>
 </div>

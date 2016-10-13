@@ -1,4 +1,9 @@
-import {IProcessGraph, IDiagramNode, ICondition, IDecision} from "../../diagram/presentation/graph/models/process-graph-interfaces";
+import {
+    IProcessGraph,
+    IDiagramNode,
+    ICondition,
+    IDecision
+} from "../../diagram/presentation/graph/models/process-graph-interfaces";
 import {UserTask, SystemTask} from "../../diagram/presentation/graph/shapes/";
 import {IProcessShape, NodeType} from "../../diagram/presentation/graph/models/";
 import {IModalDialogModel} from "./modal-dialog-model-interface";

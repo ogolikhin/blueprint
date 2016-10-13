@@ -22,11 +22,9 @@ export class BreadcrumbService implements IBreadcrumbService {
         "navigationService"
     ];
 
-    constructor(
-        private $q: ng.IQService,
-        private $http: ng.IHttpService,
-        private navigationService: INavigationService
-    ) {
+    constructor(private $q: ng.IQService,
+                private $http: ng.IHttpService,
+                private navigationService: INavigationService) {
     }
 
     public getReferences(): ng.IPromise<IArtifactReference[]> {

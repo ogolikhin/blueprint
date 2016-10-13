@@ -36,7 +36,7 @@
 //         componentTest = new ComponentTest<BPAttachmentsPanelController>(template, "bp-attachments-panel");
 //         vm = componentTest.createComponentWithMockParent({}, "bpAccordionPanel", bpAccordionPanelController);
 //     }));
-    
+
 //     afterEach( () => {
 //         vm = null;
 //     });
@@ -46,12 +46,12 @@
 //         expect(componentTest.element.find(".empty-state").length).toBe(1);
 //     });
 
-//     it("should load data and display it for a selected artifact", 
+//     it("should load data and display it for a selected artifact",
 //         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
-            
+
 //             //Arrange
 //             const artifact = { id: 22, name: "Artifact", prefix: "PRO" } as Models.IArtifact;
-            
+
 //             //Act
 //             selectionManager.selection = { artifact: artifact, source:  SelectionSource.Explorer };
 //             $rootScope.$digest();

@@ -1,10 +1,10 @@
 import * as angular from "angular";
 import * as agGrid from "ag-grid/main";
-import { ILocalizationService } from "../../../core";
+import {ILocalizationService} from "../../../core";
 
 /**
  * Usage:
- * 
+ *
  * <bp-tree-view grid-class="project-tree"
  *               row-buffer="200"
  *               selection-mode="'single'"
@@ -164,7 +164,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                         padding: 20
                     } : undefined,
                     suppressMenu: true,
-                    suppressSorting: true,
+                    suppressSorting: true
                 } as agGrid.ColDef;
             }));
 
@@ -232,7 +232,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                 if (viewport.getAttribute("data-ps-id")) {
                     // perfect-scrollbar has been initialized on the element (data-ps-id is not falsy)
                     const allColumnIds = [];
-                    this.options.columnDefs.forEach(function(columnDef) {
+                    this.options.columnDefs.forEach(function (columnDef) {
                         allColumnIds.push(columnDef.field);
                     });
                     this.options.columnApi.autoSizeColumns(allColumnIds);
@@ -292,15 +292,15 @@ export class BPTreeViewController implements IBPTreeViewController {
             }
             vm.isExpanded = node.expanded;
         }
-    }
+    };
 
     public onModelUpdated = (event?: any) => {
         this.updateScrollbars();
-    }
+    };
 
     public onViewportChanged = (event?: any) => {
         this.updateScrollbars();
-    }
+    };
 
     public onCellClicked = (event: {event: MouseEvent, node: agGrid.RowNode}) => {
         // Only deal with clicks in the .ag-group-value span
@@ -329,9 +329,13 @@ export class BPTreeViewController implements IBPTreeViewController {
                 node.setSelectedParams({newValue: true, clearSelection: true});
             }
         } else if (vm.isSelectable()) {
-            node.setSelectedParams({newValue: true, clearSelection: !multiSelectKeyPressed, rangeSelect: shiftKeyPressed});
+            node.setSelectedParams({
+                newValue: true,
+                clearSelection: !multiSelectKeyPressed,
+                rangeSelect: shiftKeyPressed
+            });
         }
-    }
+    };
 
     public onRowSelected = (event: {node: agGrid.RowNode}) => {
         const node = event.node;
@@ -340,9 +344,13 @@ export class BPTreeViewController implements IBPTreeViewController {
         if (isSelected && (!vm.isSelectable() || !this.isVisible(node))) {
             node.setSelected(false);
         } else if (this.onSelect) {
-            this.onSelect({vm: vm, isSelected: isSelected, selectedVMs: this.options.api.getSelectedRows() as ITreeViewNodeVM[]});
+            this.onSelect({
+                vm: vm,
+                isSelected: isSelected,
+                selectedVMs: this.options.api.getSelectedRows() as ITreeViewNodeVM[]
+            });
         }
-    }
+    };
 
     private isVisible(node: agGrid.RowNode): boolean {
         while ((node = node.parent)) {
@@ -357,7 +365,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         if (this.onDoubleClick) {
             this.onDoubleClick({vm: event.data});
         }
-    }
+    };
 
     public onGridReady = (event?: any) => {
         this.resetGridAsync(false);

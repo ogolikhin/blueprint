@@ -12,7 +12,7 @@ import {Logger} from "./log/logger";
 import {SessionTokenInterceptor} from "./login/session-token-interceptor";
 import {ArtifactHistory} from "./bp-utility-panel/bp-history-panel/artifact-history.svc";
 import {
-    RelationshipDetailsService, 
+    RelationshipDetailsService,
     IRelationshipDetailsService
 } from "./bp-utility-panel/bp-relationships-panel/bp-artifact-relationship-item/relationship-details.svc";
 import {BPUtilityPanel} from "./bp-utility-panel/bp-utility-panel";
@@ -35,9 +35,9 @@ import {UsersAndGroupsService} from "../core/services/users-and-groups.svc";
 import {MentionService} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/mention.svc";
 import "../shared/filters";
 
-export { IUser, ISession, RelationshipDetailsService, IRelationshipDetailsService }
-export { IServerLogger } from "./log/server-logger.svc";
-export { IMessageService, IMessage, MessageType, MessageService, Message, } from "../core";
+export {IUser, ISession, RelationshipDetailsService, IRelationshipDetailsService}
+export {IServerLogger} from "./log/server-logger.svc";
+export {IMessageService, IMessage, MessageType, MessageService, Message} from "../core";
 
 angular.module("app.shell",
     [
@@ -60,7 +60,7 @@ angular.module("app.shell",
     .service("usersAndGroupsService", UsersAndGroupsService)
     .component("bpUtilityPanel", new BPUtilityPanel())
     .component("bpHistoryPanel", new BPHistoryPanel())
-    .component("bpPropertiesPanel", new BPPropertiesPanel()) 
+    .component("bpPropertiesPanel", new BPPropertiesPanel())
     .component("bpRelationshipsPanel", new BPRelationshipsPanel())
     .component("bpArtifactHistoryItem", new BPArtifactHistoryItem())
     .component("bpArtifactRelationshipItem", new BPArtifactRelationshipItem())

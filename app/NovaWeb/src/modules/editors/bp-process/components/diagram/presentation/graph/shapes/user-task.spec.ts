@@ -12,12 +12,12 @@ import {NodeType, ElementType} from "../models/";
 import {ISystemTask, IUserTask, IDiagramNode} from "../models/";
 import {MessageServiceMock} from "../../../../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../../../../core/messages/message.svc";
-import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process"; 
+import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process";
 import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
 import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
-import { ModalServiceMock } from "../../../../../../../shell/login/mocks.spec";
-import { IStatefulArtifactFactory } from "../../../../../../../managers/artifact-manager/";
-import { StatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
+import {IStatefulArtifactFactory} from "../../../../../../../managers/artifact-manager/";
+import {StatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("UserTask test", () => {
 
@@ -42,15 +42,13 @@ describe("UserTask test", () => {
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
-    beforeEach(inject((
-        _$window_: ng.IWindowService,
-        $rootScope: ng.IRootScopeService,
-        messageService: IMessageService, 
-        _communicationManager_: ICommunicationManager,
-        _dialogService_: DialogService,
-        _localization_: LocalizationServiceMock,
-        statefulArtifactFactory: IStatefulArtifactFactory
-    ) => {
+    beforeEach(inject((_$window_: ng.IWindowService,
+                       $rootScope: ng.IRootScopeService,
+                       messageService: IMessageService,
+                       _communicationManager_: ICommunicationManager,
+                       _dialogService_: DialogService,
+                       _localization_: LocalizationServiceMock,
+                       statefulArtifactFactory: IStatefulArtifactFactory) => {
         rootScope = $rootScope;
         communicationManager = _communicationManager_;
         dialogService = _dialogService_;
@@ -68,7 +66,7 @@ describe("UserTask test", () => {
             "ST_Comments_Label": "Comments"
         };
         shapesFactory = new ShapesFactory($rootScope, statefulArtifactFactory);
-        localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
+        localScope = {graphContainer: container, graphWrapper: wrapper, isSpa: false};
 
 
         let processModel = new ProcessModel();
@@ -412,11 +410,11 @@ describe("UserTask test", () => {
                 "ST_Confirm_Delete_User_Task_System_Decision": userTaskAndSystemDecisionMessage
             };
             /*
-               start -> PRE -> UT1 -> SD ->  ST2 -> UT4 -> ST4 -> END
-                                         ->  ST3 -> END
-               Ut1Id = 20
-               Ut4Id = 40
-           */
+             start -> PRE -> UT1 -> SD ->  ST2 -> UT4 -> ST4 -> END
+             ->  ST3 -> END
+             Ut1Id = 20
+             Ut4Id = 40
+             */
 
             let testModel = createSystemDecisionForAddBranchTestModel();
             let processModel = new ProcessViewModel(testModel);

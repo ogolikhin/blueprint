@@ -4,7 +4,8 @@ describe("BPButtonAction", () => {
     it("initializes properties and methods successfully", () => {
         // arrange
         const type = "button";
-        const execute = () => {};
+        const execute = () => {
+        };
         const canExecute = () => false;
         const icon = "test1";
         const tooltip = "test1";

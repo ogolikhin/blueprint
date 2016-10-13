@@ -28,7 +28,7 @@ export class BPItemTypeIconComponent implements ng.IComponentOptions {
     public template: string = require("./bp-item-icon.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPItemTypeIconController;
     public transclude: boolean = true;
-    public bindings: any = {     
+    public bindings: any = {
         itemTypeId: "@",
         itemTypeIcon: "@"
     };

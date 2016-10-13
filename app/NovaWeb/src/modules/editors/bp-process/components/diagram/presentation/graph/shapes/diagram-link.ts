@@ -44,7 +44,7 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
 
             let XandY = this.getXandYForLabel(sourceNode, targetNode);
             let width = this.target.getCenter().x - this.target.getWidth() / 2 - (this.source.getCenter().x + this.source.getWidth() / 2);
-            var textLabelStyle: LabelStyle = new LabelStyle(
+            const textLabelStyle: LabelStyle = new LabelStyle(
                 Connector.LABEL_FONT,
                 Connector.LABEL_SIZE,
                 "transparent",
@@ -56,7 +56,9 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
                 width,
                 "#999999"
             );
-            this.textLabel = new Label((value: string) => { this.label = value; },
+            this.textLabel = new Label((value: string) => {
+                    this.label = value;
+                },
                 graph.getHtmlElement(),
                 this.model.sourceId + "-" + this.model.destinationId,
                 "Label-B" + this.model.sourceId + "-" + this.model.destinationId,
@@ -71,7 +73,7 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
     }
 
     private getXandYForLabel(source: IDiagramNode, target: IDiagramNode): { x: number, y: number } {
-        let points = { x: 0, y: 0 };
+        let points = {x: 0, y: 0};
 
         if (source.getNodeType() === NodeType.SystemDecision || source.getNodeType() === NodeType.UserDecision) {
             // height of the connector (ex. the height of 'L' connector)
@@ -82,7 +84,7 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
             let labelY: number = target.getY();
 
             if (target.getY() < source.getY() || target.getX() < source.getX()) {
-                // conditions are usually at higher Y level than decision point. 
+                // conditions are usually at higher Y level than decision point.
                 // This scenario happens when there's a do nothing condition within a condition, where the Y should stay at decision level.
                 labelY = source.getY();
             }
@@ -132,7 +134,7 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
 
     public showMenu(graph: MxGraph) {
         this.geometry.offset = new mxPoint(0, 30);
-        var overlay = new ConnectorOverlay(new mxImage("/novaweb/static/bp-process/images/add-neutral.svg", 16, 16), "Add Task/Decision");
+        const overlay = new ConnectorOverlay(new mxImage("/novaweb/static/bp-process/images/add-neutral.svg", 16, 16), "Add Task/Decision");
         graph.addCellOverlay(this, overlay);
     }
 

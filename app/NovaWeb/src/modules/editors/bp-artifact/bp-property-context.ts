@@ -1,6 +1,6 @@
 ﻿import * as angular from "angular";
-import { Helper } from "../../shared";
-import { Enums, Models} from "../../main";
+import {Helper} from "../../shared";
+import {Enums, Models} from "../../main";
 
 
 export class PropertyContext implements Models.IPropertyType {
@@ -52,12 +52,12 @@ export class PropertyContext implements Models.IPropertyType {
 
     private isSystem(type: Models.PropertyTypePredefined): boolean {
         return [Models.PropertyTypePredefined.Name,
-            Models.PropertyTypePredefined.ItemTypeId,
-            Models.PropertyTypePredefined.CreatedBy,
-            Models.PropertyTypePredefined.CreatedOn,
-            Models.PropertyTypePredefined.LastEditedBy,
-            Models.PropertyTypePredefined.LastEditedOn,
-            Models.PropertyTypePredefined.Description].indexOf(type) >= 0;
+                Models.PropertyTypePredefined.ItemTypeId,
+                Models.PropertyTypePredefined.CreatedBy,
+                Models.PropertyTypePredefined.CreatedOn,
+                Models.PropertyTypePredefined.LastEditedBy,
+                Models.PropertyTypePredefined.LastEditedOn,
+                Models.PropertyTypePredefined.Description].indexOf(type) >= 0;
     }
 
 }

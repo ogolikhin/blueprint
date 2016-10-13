@@ -30,30 +30,31 @@ export class DiagramElement extends mxCell implements IDiagramElement {
     }
 
     public getHeight(): number {
-        var geometry = <MxGeometry>this.getGeometry();
+        const geometry = <MxGeometry>this.getGeometry();
         return geometry.height;
     }
 
     public getWidth(): number {
-        var geometry = <MxGeometry>this.getGeometry();
+        const geometry = <MxGeometry>this.getGeometry();
         return geometry.width;
     }
 
     public getCenter(): MxPoint {
-        var geometry = this.getGeometry();
+        const geometry = this.getGeometry();
         if (geometry) {
-            var point = new mxPoint(geometry.getCenterX(), geometry.getCenterY());
+            const point = new mxPoint(geometry.getCenterX(), geometry.getCenterY());
             return point;
         }
 
         return new mxPoint(0, 0);
     }
+
     public setElementText(cell: MxCell, text: string) {
         // override in descendant classes
     }
 
     public getElementTextLength(cell: MxCell): number {
-        // override in descendant classes 
+        // override in descendant classes
         return null;
     }
 
@@ -104,7 +105,7 @@ export class DiagramElement extends mxCell implements IDiagramElement {
     }
 
     private raiseChangedEvent(change: NodeChange, redraw: boolean) {
-        var eventArguments = {
+        const eventArguments = {
             processId: this.getParentId(),
             nodeChanges: [
                 {
@@ -114,7 +115,7 @@ export class DiagramElement extends mxCell implements IDiagramElement {
                 }
             ]
         };
-        var evt = document.createEvent("CustomEvent");
+        const evt = document.createEvent("CustomEvent");
         evt.initCustomEvent("graphUpdated", true, true, eventArguments);
         window.dispatchEvent(evt);
     }
@@ -126,7 +127,7 @@ export class DiagramElement extends mxCell implements IDiagramElement {
 
 export class DiagramNodeElement extends DiagramElement implements IDiagramNodeElement {
     public getNode(): IDiagramNode {
-        var parent = this.parent;
+        let parent = this.parent;
 
         while (parent) {
             if (parent["getNodeType"]) {
@@ -138,13 +139,13 @@ export class DiagramNodeElement extends DiagramElement implements IDiagramNodeEl
     }
 
     public getCenter(): MxPoint {
-        var geometry = <MxGeometry>this.geometry;
+        const geometry = <MxGeometry>this.geometry;
         if (geometry) {
             if (this.parent) {
-                var parentCenterX = (<IDiagramNodeElement>this.parent).getCenter().x;
-                var parentCenterY = (<IDiagramNodeElement>this.parent).getCenter().y;
-                var parentX = parentCenterX - (this.parent.getWidth() / 2);
-                var parentY = parentCenterY - (this.parent.getHeight() / 2);
+                const parentCenterX = (<IDiagramNodeElement>this.parent).getCenter().x;
+                const parentCenterY = (<IDiagramNodeElement>this.parent).getCenter().y;
+                const parentX = parentCenterX - (this.parent.getWidth() / 2);
+                const parentY = parentCenterY - (this.parent.getHeight() / 2);
 
                 if (geometry.relative) {
                     return new mxPoint(geometry.x * this.parent.getWidth() + geometry.width / 2, geometry.y * this.parent.getHeight() + geometry.height / 2);

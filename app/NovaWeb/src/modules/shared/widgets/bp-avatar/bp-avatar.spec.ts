@@ -2,8 +2,8 @@ import * as angular from "angular";
 import "angular-mocks";
 //import "angular-sanitize";
 import "../../"; // app.shared
-import { ComponentTest } from "../../../util/component.test";
-import { BPAvatarController } from "./bp-avatar";
+import {ComponentTest} from "../../../util/component.test";
+import {BPAvatarController} from "./bp-avatar";
 
 describe("Component BPAvatar", () => {
     beforeEach(angular.mock.module("app.shared"));

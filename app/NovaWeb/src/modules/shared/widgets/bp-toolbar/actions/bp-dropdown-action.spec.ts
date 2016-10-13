@@ -3,7 +3,8 @@ import {BPDropdownAction, BPDropdownItemAction} from "./bp-dropdown-action";
 describe("BPDropdownItemAction", () => {
     it("initializes properties and methods successfully", () => {
         // arrange
-        const execute = () => {};
+        const execute = () => {
+        };
         const canExecute = () => false;
         const label = "label1";
 
@@ -25,8 +26,10 @@ describe("BPDropdownAction", () => {
         const icon = "test0";
         const tooltip = "test0";
         const label = "test0";
-        const item1 = new BPDropdownItemAction("test1", () => {}, () => true);
-        const item2 = new BPDropdownItemAction("test2", () => {}, () => false, );
+        const item1 = new BPDropdownItemAction("test1", () => {
+        }, () => true);
+        const item2 = new BPDropdownItemAction("test2", () => {
+        }, () => false,);
 
         // act
         const dropdownAction = new BPDropdownAction(canExecute, icon, tooltip, label, item1, item2);

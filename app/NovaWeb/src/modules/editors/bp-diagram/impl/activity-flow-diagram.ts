@@ -1,29 +1,45 @@
 import * as angular from "angular";
-import { IStep, StepOfType } from "./usecase/models";
-import { IUseCaseShape } from "./usecase/usecase-to-diagram";
-import { AbstractShapeFactory, IShapeTemplates } from "./abstract-diagram-factory";
-import { IConnection } from "./models";
-import { Shapes } from "./utils/constants";
-import { MxFactory } from "./utils/helpers";
-import { Style, Styles } from "./utils/style-builder";
+import {IStep, StepOfType} from "./usecase/models";
+import {IUseCaseShape} from "./usecase/usecase-to-diagram";
+import {AbstractShapeFactory, IShapeTemplates} from "./abstract-diagram-factory";
+import {IConnection} from "./models";
+import {Shapes} from "./utils/constants";
+import {MxFactory} from "./utils/helpers";
+import {Style, Styles} from "./utils/style-builder";
 
 export class UsecaseShapeFactory extends AbstractShapeFactory {
 
-    public static get DEFAULT_CONNECTOR_STROKE_COLOR(): string { return "black"; }
+    public static get DEFAULT_CONNECTOR_STROKE_COLOR(): string {
+        return "black";
+    }
 
-    public static get DEFAULT_CONNECTOR_STROKE_WIDTH(): number { return 1; }
+    public static get DEFAULT_CONNECTOR_STROKE_WIDTH(): number {
+        return 1;
+    }
 
-    public static get DEFAULT_SHAPE_STROKE_WIDTH(): number { return 1; }
+    public static get DEFAULT_SHAPE_STROKE_WIDTH(): number {
+        return 1;
+    }
 
-    public static get DEFAULT_SHAPE_STROKE_COLOR(): string { return "#002060"; }
+    public static get DEFAULT_SHAPE_STROKE_COLOR(): string {
+        return "#002060";
+    }
 
-    public static get DEFAULT_SHAPE_FILL_COLOR(): string { return "#E1EBF3"; }
+    public static get DEFAULT_SHAPE_FILL_COLOR(): string {
+        return "#E1EBF3";
+    }
 
-    public static get DEFAULT_SHAPE_GRADIENT_COLOR(): string { return "#CBDDEB"; }
+    public static get DEFAULT_SHAPE_GRADIENT_COLOR(): string {
+        return "#CBDDEB";
+    }
 
-    public static get CONDITION_FILL_COLOR(): string { return "#F8F8F8"; }
+    public static get CONDITION_FILL_COLOR(): string {
+        return "#F8F8F8";
+    }
 
-    public static get CONDITION_GRADIENT_COLOR(): string { return "#CCCCCC"; }
+    public static get CONDITION_GRADIENT_COLOR(): string {
+        return "#CCCCCC";
+    }
 
     public initTemplates(templates: IShapeTemplates) {
         templates[Shapes.PRE_POST_CONDITION] = this.prePostCondition;
@@ -35,7 +51,7 @@ export class UsecaseShapeFactory extends AbstractShapeFactory {
     }
 
     private prePostCondition = (shape: IUseCaseShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_ELLIPSE);
+        const style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_ELLIPSE);
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_STROKECOLOR] = UsecaseShapeFactory.DEFAULT_SHAPE_STROKE_COLOR;
         style[mxConstants.STYLE_STROKEWIDTH] = UsecaseShapeFactory.DEFAULT_SHAPE_STROKE_WIDTH;
@@ -46,13 +62,13 @@ export class UsecaseShapeFactory extends AbstractShapeFactory {
     };
 
     private step = (shape: IUseCaseShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        let style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         style[mxConstants.STYLE_FOLDABLE] = 0;
         style[mxConstants.STYLE_STROKECOLOR] = UsecaseShapeFactory.DEFAULT_SHAPE_STROKE_COLOR;
         style[mxConstants.STYLE_STROKEWIDTH] = UsecaseShapeFactory.DEFAULT_SHAPE_STROKE_WIDTH;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
         style[mxConstants.STYLE_OVERFLOW] = "hidden";
-        var external = this.isExternalFlowShape(<IStep>shape.element);
+        const external = this.isExternalFlowShape(<IStep>shape.element);
         if (this.isCondition(<IStep>shape.element)) {
             style[mxConstants.STYLE_FILLCOLOR] = UsecaseShapeFactory.CONDITION_FILL_COLOR;
             style[mxConstants.STYLE_GRADIENTCOLOR] = UsecaseShapeFactory.CONDITION_GRADIENT_COLOR;
@@ -61,23 +77,23 @@ export class UsecaseShapeFactory extends AbstractShapeFactory {
             style[mxConstants.STYLE_FILLCOLOR] = UsecaseShapeFactory.DEFAULT_SHAPE_FILL_COLOR;
             style[mxConstants.STYLE_GRADIENTCOLOR] = UsecaseShapeFactory.DEFAULT_SHAPE_GRADIENT_COLOR;
         }
-        var cell = this.createCellWithTooltip(shape, style);
+        let cell = this.createCellWithTooltip(shape, style);
         if (external) {
-            var geometry = MxFactory.geometry(1, 1, 12, 25);
+            const geometry = MxFactory.geometry(1, 1, 12, 25);
             geometry.relative = true;
             geometry.offset = MxFactory.point(-15, -28);
             style = new Style();
             style[Styles.STYLE_SELECTABLE] = 0;
             style[mxConstants.STYLE_STROKECOLOR] = "black";
             style[mxConstants.STYLE_SHAPE] = Shapes.EXTERNAL_FLOW_INDICATOR;
-            var indicator = MxFactory.vertex(null, geometry, style.convertToString());
+            const indicator = MxFactory.vertex(null, geometry, style.convertToString());
             cell.insert(indicator);
         }
         return cell;
     };
 
     private branching = (shape: IUseCaseShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RHOMBUS);
+        const style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RHOMBUS);
         style[Styles.STYLE_SELECTABLE] = 0;
         style[mxConstants.STYLE_STROKECOLOR] = UsecaseShapeFactory.DEFAULT_SHAPE_STROKE_COLOR;
         style[mxConstants.STYLE_STROKEWIDTH] = UsecaseShapeFactory.DEFAULT_SHAPE_STROKE_WIDTH;
@@ -87,7 +103,7 @@ export class UsecaseShapeFactory extends AbstractShapeFactory {
     };
 
     private exit = (shape: IUseCaseShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_ELLIPSE);
+        const style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_ELLIPSE);
         style[Styles.STYLE_SELECTABLE] = 0;
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_STROKECOLOR] = UsecaseShapeFactory.DEFAULT_SHAPE_STROKE_COLOR;
@@ -111,12 +127,12 @@ export class UsecaseShapeFactory extends AbstractShapeFactory {
 
     //Overrides createConnector of AbstractShapeFactory
     protected createConnector = (connection: IConnection): MxCell => {
-        var style = this.styleBuilder.createDefaultConnectionStyle(connection);
+        const style = this.styleBuilder.createDefaultConnectionStyle(connection);
         style[mxConstants.STYLE_STROKECOLOR] = UsecaseShapeFactory.DEFAULT_CONNECTOR_STROKE_COLOR;
         style[mxConstants.STYLE_STROKEWIDTH] = UsecaseShapeFactory.DEFAULT_CONNECTOR_STROKE_WIDTH;
         style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_CLASSIC;
 
-        var edge = MxFactory.edge(connection, MxFactory.geometry(), style.convertToString());
+        const edge = MxFactory.edge(connection, MxFactory.geometry(), style.convertToString());
         edge.geometry.relative = true;
         return edge;
     };
@@ -126,7 +142,7 @@ export class UsecaseShapeFactory extends AbstractShapeFactory {
     }
 
     private createCellWithTooltip(shape: IUseCaseShape, style?: Style) {
-        var cell = super.createDefaultVertex(shape, style);
+        const cell = super.createDefaultVertex(shape, style);
         cell.getTooltip = () => {
             if (shape.element != null && (<IStep>shape.element).description != null) {
                 return this.getTooltip((<IStep>shape.element).description, shape.width, shape.height);
@@ -138,7 +154,7 @@ export class UsecaseShapeFactory extends AbstractShapeFactory {
 
     private getTooltip(html: string, width: number, height: number) {
         if (html) {
-            var bbox = this.getLabelSize(html, width);
+            const bbox = this.getLabelSize(html, width);
             if (bbox.height > height) {
                 return html;
             }
@@ -147,10 +163,10 @@ export class UsecaseShapeFactory extends AbstractShapeFactory {
     }
 
     private getLabelSize(label: string, width: number) {
-        var size = new mxRectangle(0, 0, 0, 0);
-        var element = angular.element(label);
+        const size = new mxRectangle(0, 0, 0, 0);
+        const element = angular.element(label);
         if (element.length > 0) {
-            var div = document.createElement("div");
+            const div = document.createElement("div");
             div.style.position = "absolute";
             div.style.visibility = "hidden";
             div.style.zoom = "1";
@@ -158,7 +174,7 @@ export class UsecaseShapeFactory extends AbstractShapeFactory {
             div.style.wordWrap = "break-word";
             div.appendChild(element[0]);
             document.body.appendChild(div);
-            var clientRect = div.getBoundingClientRect();
+            const clientRect = div.getBoundingClientRect();
             size.width = clientRect.width;
             size.height = clientRect.height;
             document.body.removeChild(div);

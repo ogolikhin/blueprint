@@ -1,8 +1,9 @@
 ﻿<div class="avatar-placeholder">
     <div ng-if="$ctrl.icon" class="avatar">
-        <img ng-src="{{ $ctrl.icon }}" alt="avatar" />
+        <img ng-src="{{ $ctrl.icon }}" alt="avatar"/>
     </div>
-    <div class="initials" ng-if="!$ctrl.icon" ng-style="{ 'background-color': $ctrl.background, 'color': $ctrl.initialsColor }">
+    <div class="initials" ng-if="!$ctrl.icon"
+         ng-style="{ 'background-color': $ctrl.background, 'color': $ctrl.initialsColor }">
         {{ $ctrl.initials }}
     </div>
 </div>

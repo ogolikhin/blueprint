@@ -114,7 +114,6 @@ namespace SearchServiceTests
             ItemSearchResult results = null;
 
             // Execute:
-
             Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria); },
                 "SearchItems should throw no errors.");
 

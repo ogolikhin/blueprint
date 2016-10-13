@@ -23,6 +23,7 @@
     ],
     "files": [
         "./typings.json",
+        "./src/declarations.d.ts",
         "./typings/addons.d.ts",
         "./node_modules/@types/angular",
         "./node_modules/@types/angular-formly",

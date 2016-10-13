@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using CustomAttributes;
 using Helper;
 using Model;
 using NUnit.Framework;
 using System.Linq;
 using System.Net;
+using Common;
 using Model.ArtifactModel;
 using Model.Factories;
 using Model.SearchServiceModel.Impl;
@@ -637,9 +639,14 @@ namespace SearchServiceTests
 
             var selectedArtifacts = new List<IArtifactBase>();
 
+            if (propertyToSearch.ToUpper(CultureInfo.InvariantCulture).Equals("DESCRIPTION"))
+            {
+                searchCriteria.Query = WebUtility.HtmlEncode(searchCriteria.Query);
+            }
+
             foreach (var artifact in _artifacts)
             {
-                if (artifact.Properties.Find(p => p.Name == propertyToSearch).TextOrChoiceValue == WebUtility.HtmlEncode(searchCriteria.Query))
+                if (artifact.Properties.Find(p => p.Name == propertyToSearch).TextOrChoiceValue == searchCriteria.Query)
                 {
                     selectedArtifacts.Add(artifact);
                 }

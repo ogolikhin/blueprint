@@ -103,8 +103,19 @@ export class BpArtifactInfoController {
                 this.artifact = artifact;
                 const artifactObserver = artifact.getObservable()
                         .subscribe(this.onArtifactChanged, this.onError);
-
+                
                 this.subscribers.push(artifactObserver);
+                // watch for state changes (dirty, locked etc) and update header
+                const stateObserver = artifact.artifactState.onStateChange.debounce(100).subscribe(
+                    (state) => {
+                        this.updateProperties(this.artifact);
+                    },
+                    (err) => {
+                        throw new Error(err);
+                    });
+
+                this.subscribers.push(stateObserver);
+                        
             }
         });
     }
@@ -116,6 +127,10 @@ export class BpArtifactInfoController {
     }
 
     private onArtifactChanged = () => {
+        this.updateProperties(this.artifact);
+    }
+
+    private onStateChanged = () => {
         this.updateProperties(this.artifact);
     }
 

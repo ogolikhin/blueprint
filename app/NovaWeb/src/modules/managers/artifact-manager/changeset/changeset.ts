@@ -39,7 +39,7 @@ export class ChangeSetCollector implements IChangeCollector {
         } else {
             this.collection.push(changeset);
         }
-        this.item.artifactState.set({dirty: true});
+        this.item.artifactState.dirty = true;
     }
 
 

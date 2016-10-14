@@ -238,7 +238,7 @@ export abstract class StatefulItem implements IIStatefulItem {
             delete this._docRefs;
         }
         //TODO: REMOVE WHEN AUTO-SAVE GETS COMPLETED. AUTO-SAVE SHOULD ALREADY HAVE THIS FLAG SET TO FALSE.
-        if(this.artifactState) {
+        if (this.artifactState) {
             this.artifactState.dirty = false;
         }
         //TODO: implement the same for all objects

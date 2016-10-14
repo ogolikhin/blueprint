@@ -17,6 +17,25 @@
     }
 }
 
+.is-macosx,
+.is-msie {
+    .formly-field-bpFieldTextRTF,
+    .formly-field-bpFieldTextRTFInline {
+        .mce-menubtn:first-child button span::before {
+            line-height: 100%; // TODO: remove once the font is fixed
+        }
+    }
+}
+
+.is-windows.is-chrome {
+    .formly-field-bpFieldTextRTF,
+    .formly-field-bpFieldTextRTFInline {
+        .mce-menubtn:first-child button span::before {
+            line-height: 200%; // TODO: remove once the font is fixed
+        }
+    }
+}
+
 // the following is to avoid having body scrollbars that overlaps content in IE
 // https://github.com/twbs/bootstrap/issues/18543
 @-ms-viewport {

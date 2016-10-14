@@ -4,7 +4,6 @@
                ng-style="{'background-image': 'url(' + model[options.key].imageSource + ')'}">
             <input bp-file-upload="onFileSelect(files, callback)" type="file" accept="image/jpeg, image/jpg, image/png"
                    ng-disabled="to.disabled|| to.isReadOnly">
-                                   accept="image/jpeg, image/jpg, image/png"
         </label>
         <span ng-if="!model[options.key].imageSource"></span>
     </span>

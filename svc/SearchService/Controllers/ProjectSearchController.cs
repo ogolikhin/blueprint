@@ -1,6 +1,7 @@
 ﻿using SearchService.Models;
 using SearchService.Repositories;
 using ServiceLibrary.Attributes;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using System.Collections.Generic;
@@ -60,9 +61,14 @@ namespace SearchService.Controllers
             if (resultCount > MaxResultCount)
                 resultCount = MaxResultCount;
 
-            if (string.IsNullOrEmpty(searchCriteria?.Query.Trim()) || resultCount <= 0)
+            if (string.IsNullOrWhiteSpace(searchCriteria?.Query))
             {
-                throw new HttpResponseException(HttpStatusCode.BadRequest);
+                throw new BadRequestException("Please provide correct search criteria", ErrorCodes.IncorrectSearchCriteria);
+            }
+
+            if (resultCount <= 0)
+            {
+                throw new BadRequestException("Please provide correct result count", ErrorCodes.OutOfRangeParameter);
             }
 
             Session session = null;

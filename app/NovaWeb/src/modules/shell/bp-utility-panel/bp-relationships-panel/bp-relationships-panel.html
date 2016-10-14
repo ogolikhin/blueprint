@@ -76,7 +76,7 @@
             <bp-artifact-relationship-item
                 artifact="::artifact"
                 selectable="true"
-                is-item-read-only="$ctrl.item.isItemReadOnly"
+                is-item-read-only="$ctrl.item.isItemReadOnly || !$ctrl.canManageTraces()"
                 selected-traces="$ctrl.selectedTraces[$ctrl.item.id]"
                 set-item-direction="$ctrl.setItemDirection(artifact)"
                 toggle-item-flag="$ctrl.toggleItemFlag(artifact)"

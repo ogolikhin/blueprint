@@ -366,16 +366,12 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process)]
         [TestRail(183445)]
         [Description("Create, publish & lock an artifact with subartifact. Lock artifact. Verify user gets basic artifact information with subartifact Id.")]
-        public void VersionControlInfoWithSubArtifactId_PublishedArtifactLockedArtifactWithChanges_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
+        public void VersionControlInfoWithSubArtifactId_PublishedSubArtifactLockedArtifactWithChanges_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
         {
-            // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-
+            artifact.Save();
             List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
-
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
-
-            artifact.Lock();
 
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 

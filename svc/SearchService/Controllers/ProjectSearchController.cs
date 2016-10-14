@@ -60,7 +60,7 @@ namespace SearchService.Controllers
             if (resultCount > MaxResultCount)
                 resultCount = MaxResultCount;
 
-            if (string.IsNullOrEmpty(searchCriteria?.Query) || resultCount <= 0)
+            if (string.IsNullOrEmpty(searchCriteria?.Query.Trim()) || resultCount <= 0)
             {
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
             }

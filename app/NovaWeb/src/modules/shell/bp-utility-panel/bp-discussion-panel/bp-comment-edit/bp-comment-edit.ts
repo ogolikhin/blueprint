@@ -33,7 +33,7 @@ export class BPCommentEditController {
     public tinymceOptions = {
         plugins: "textcolor table noneditable autolink link autoresize mention paste",
         autoresize_bottom_margin: 0,
-        toolbar: "fontsize | bold italic underline | forecolor format | link",
+        toolbar: "bold italic underline strikethrough | fontselect fontsize forecolor format | link",
         convert_urls: false,
         relative_urls: false,
         remove_script_host: false,
@@ -44,6 +44,9 @@ export class BPCommentEditController {
         invalid_styles: {
             "*": "background-image"
         },
+        // https://www.tinymce.com/docs/configure/content-formatting/#font_formats
+        font_formats: "Open Sans='Open Sans';Arial=Arial;Cambria=Cambria;Calibri=Calibri;Courier New='Courier New';" +
+        "Times New Roman='Times New Roman';Trebuchet MS='Trebuchet MS';Verdana=Verdana;",
         mentions: this.mentionService.create(this.emailDiscussionsEnabled),
         init_instance_callback: (editor) => { // https://www.tinymce.com/docs/configure/integration-and-setup/#init_instance_callback
             this.commentEditor = editor;
@@ -77,29 +80,40 @@ export class BPCommentEditController {
                 icon: "format",
                 menu: [
                     {
-                        icon: "strikethrough", text: " Strikethrough", onclick: function () {
-                        editor.editorCommands.execCommand("strikethrough");
-                    }
+                        icon: "bullist",
+                        text: " Bulleted list",
+                        onclick: function () {
+                            editor.editorCommands.execCommand("InsertUnorderedList");
+                        }
                     },
                     {
-                        icon: "bullist", text: " Bulleted list", onclick: function () {
-                        editor.editorCommands.execCommand("InsertUnorderedList");
-                    }
+                        icon: "numlist",
+                        text: " Numeric list",
+                        onclick: function () {
+                            editor.editorCommands.execCommand("InsertOrderedList");
+                        }
                     },
                     {
-                        icon: "numlist", text: " Numeric list", onclick: function () {
-                        editor.editorCommands.execCommand("InsertOrderedList");
-                    }
+                        icon: "outdent",
+                        text: " Outdent",
+                        onclick: function () {
+                            editor.editorCommands.execCommand("Outdent");
+                        }
                     },
                     {
-                        icon: "outdent", text: " Outdent", onclick: function () {
-                        editor.editorCommands.execCommand("Outdent");
-                    }
+                        icon: "indent",
+                        text: " Indent",
+                        onclick: function () {
+                            editor.editorCommands.execCommand("Indent");
+                        }
                     },
+                    {text: "-"},
                     {
-                        icon: "indent", text: " Indent", onclick: function () {
-                        editor.editorCommands.execCommand("Indent");
-                    }
+                        icon: "removeformat",
+                        text: " Clear formatting",
+                        onclick: function () {
+                            editor.editorCommands.execCommand("RemoveFormat");
+                        }
                     }
                 ]
             });

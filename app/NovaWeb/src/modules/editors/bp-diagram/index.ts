@@ -1,4 +1,5 @@
 import * as angular from "angular";
+require("script!mxClient");
 import {BPDiagram} from "./bp-diagram.component";
 import {DiagramService} from "./diagram.svc";
 import {StencilService} from "./impl/stencil.svc";

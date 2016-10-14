@@ -243,6 +243,39 @@ namespace Model
         NovaArtifactDetails GetArtifactDetails(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Gets diagram artifact by specifying its ID.
+        /// (Runs: GET svc/bpartifactstore/diagram/{diagramArtifactId})
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">Id of artifact.</param>
+        /// <param name="versionId">(optional) The version of the artifact whose details you want to get.  null = latest version.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Artifact details.</returns>
+        NovaDiagramArtifact GetDiagramArtifact(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets glossary artifact by specifying its ID.
+        /// (Runs: GET svc/bpartifactstore/glossary/{glossaryArtifactId})
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">Id of artifact.</param>
+        /// <param name="versionId">(optional) The version of the artifact whose details you want to get.  null = latest version.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Artifact details.</returns>
+        NovaGlossaryArtifact GetGlossaryArtifact(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets use case artifact by specifying its ID.
+        /// (Runs: GET svc/bpartifactstore/usecase/{usecaseArtifactId})
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">Id of artifact.</param>
+        /// <param name="versionId">(optional) The version of the artifact whose details you want to get.  null = latest version.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Artifact details.</returns>
+        NovaUseCaseArtifact GetUseCaseArtifact(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Gets relationshipsdetails for the specified artifact/subartifact
         /// (Runs: GET svc/artifactstore/artifacts/{itemId}/relationshipdetails)
         /// </summary>

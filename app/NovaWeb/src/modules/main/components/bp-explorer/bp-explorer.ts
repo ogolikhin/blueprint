@@ -1,5 +1,6 @@
 ﻿import * as angular from "angular";
 import {Models} from "../../models";
+import {ItemTypePredefined} from "../../models/enums";
 import {Helper, IBPTreeController} from "../../../shared";
 import {IProjectManager, IArtifactManager} from "../../../managers";
 import {Project} from "../../../managers/project-manager";
@@ -107,6 +108,10 @@ export class ProjectExplorerController {
                                 item-type-id="${artifactType.id}"
                                 item-type-icon="${artifactType.iconImageId}"
                                 ng-drag-handle></bp-item-type-icon>`;
+                } else if (artifactType && 
+                (artifactType.predefinedType === ItemTypePredefined.CollectionFolder 
+                || artifactType.predefinedType === ItemTypePredefined.ArtifactCollection) ) {
+                    icon = "<i ng-drag-handle class='fonticon fonticon2-collection'></i>";
                 }
                 return `${icon}<span>${name}</span>`;
             },

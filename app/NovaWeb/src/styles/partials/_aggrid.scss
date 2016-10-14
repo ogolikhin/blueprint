@@ -279,6 +279,14 @@ $has-children-padding-before-arrow: 3px;
         content: $icon-business-process;
     }
 
+    .ag-cell .ag-group-value .ag-group-value-wrapper i.fonticon.fonticon2-collection::before {
+        font-family: "bp-font2";
+        content: $fonticon2-collection;
+        //TODO delete this after fixing bp-font2 font
+        vertical-align: baseline;
+        height: 11px;
+    }
+
     .ag-cell.is-domain-diagram .ag-group-value .ag-group-value-wrapper i::before {
         content: $icon-domain-diagram;
     }

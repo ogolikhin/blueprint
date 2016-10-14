@@ -1,23 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace ArtifactStore.Repositories
+﻿namespace ArtifactStore.Models
 {
-    internal class ItemDetails
+    public class ItemDetails
     {
-        internal int HolderId;
-        internal string Name;
-        internal int PrimitiveItemTypePredefined;
-        internal string Prefix;
-        internal int ItemTypeId;
+        public int HolderId;
+        public string Name;
+        public int PrimitiveItemTypePredefined;
+        public string Prefix;
+        public int ItemTypeId;
     }
 
-    internal class ItemLabel
+    public class ItemLabel
     {
-        internal int ItemId { get; set; }
-        internal string Label { get; set; }
+        public int ItemId { get; set; }
+        public string Label { get; set; }
     }
 
 }

@@ -187,7 +187,7 @@ describe("Formly ReadOnly", () => {
 
         let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[5];
 
-        expect(fieldInput.firstChild.innerHTML).toBe("Lorem ipsum");
+        expect(fieldInput.firstElementChild.innerHTML).toBe("Lorem ipsum");
         expect(fieldInput.classList.contains("simple")).toBeFalsy();
         expect(fieldInput.classList.contains("multiple")).toBeTruthy();
         expect(fieldInput.classList.contains("richtext")).toBeFalsy();
@@ -198,7 +198,7 @@ describe("Formly ReadOnly", () => {
 
         let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[6];
 
-        expect(fieldInput.firstChild.innerHTML).toBe("Lorem ipsum");
+        expect(fieldInput.firstElementChild.innerHTML).toBe("Lorem ipsum");
         expect(fieldInput.classList.contains("simple")).toBeFalsy();
         expect(fieldInput.classList.contains("multiple")).toBeFalsy();
         expect(fieldInput.classList.contains("richtext")).toBeTruthy();

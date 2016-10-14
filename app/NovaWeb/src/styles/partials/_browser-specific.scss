@@ -15,6 +15,16 @@
             width: calc(100% - #{2 * $sidebar-size});
         }
     }
+
+    .formly-field-bpFieldTextRTFInline .mce-menubtn:first-child button span::before {
+        line-height: 200%; // TODO: remove once the font is fixed
+    }
+}
+
+.is-msie {
+    .formly-field-bpFieldTextRTFInline .mce-menubtn:first-child button span::before {
+        line-height: 100%; // TODO: remove once the font is fixed
+    }
 }
 
 // the following is to avoid having body scrollbars that overlaps content in IE

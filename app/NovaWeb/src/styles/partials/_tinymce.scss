@@ -4,6 +4,10 @@ body {
         z-index: 65536;
     }
 
+    .mce-btn-group {
+        padding-right: 3px;
+    }
+
     i.mce-ico.mce-i-font-size::before {
         content: '\e241';
         font-family: 'Glyphicons Halflings' !important;
@@ -17,7 +21,7 @@ body {
     bp-discussion-panel {
         .mce-btn button {
             font-size: 12px;
-            padding: 2px 3px;
+            padding: 2px;
         }
 
         .mce-ico {

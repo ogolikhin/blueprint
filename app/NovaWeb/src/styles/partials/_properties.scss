@@ -1233,7 +1233,7 @@ pagecontent, bp-properties-panel {
                             background-color: transparent;
                             border-color: $brand-secondary;
                             color: $brand-secondary;
-            }
+                        }
                     }
                 }
 
@@ -1260,7 +1260,7 @@ pagecontent, bp-properties-panel {
                 height: 30px;
                 &.fonticon2-attachment {
                     padding-top: 10px;
-        }
+                }
             }
             .form-control-wrapper {
                 display: table-cell;
@@ -1274,16 +1274,18 @@ pagecontent, bp-properties-panel {
                     margin: 2px;
                     max-width: 100%;
                     width: 100%;
-
+                    &[disabled]{
+                        border:1px solid $gray-lightest;
+                    }
                     &:hover,
                     &:focus {
                         background: $white;
                         padding-right: $property-padding-default;
                     }
                 }
-            }
+      }
     }
-    }
+  }
 }
 
 .single-column-property .formly .formly-field label {

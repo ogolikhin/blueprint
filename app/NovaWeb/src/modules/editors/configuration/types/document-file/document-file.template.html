@@ -4,7 +4,7 @@
             <div class="thumb {{extension}}"></div>
         </span>
         <span class="form-control-wrapper">
-            <input type="text" value="{{fileName}}" class="form-control" readonly bp-tooltip="{{fileName}}"
+            <input type="text" value="{{fileName}}" class="form-control" readonly disabled bp-tooltip="{{fileName}}"
                    bp-tooltip-truncated="true"/>
         </span>
         <span class="input-group-addon">
@@ -31,7 +31,7 @@
             <div class="thumb fonticon2-attachment"></div>
         </span>
         <span class="form-control-wrapper">
-            <input type="text" class="form-control" readonly/>
+            <input type="text" class="form-control" readonly disabled/>
         </span>
         <span class="input-group-addon">
             <label class="btn btn-primary btn-small" ng-disabled="to.disabled||to.isReadOnly"

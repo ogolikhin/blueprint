@@ -108,7 +108,8 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion);
 
-            Assert.IsNotEmpty(artifactDetails.SpecificPropertyValues, "SpecificPropertyValues should not be empty!");
+            // TODO: add check that Process has SpecificPropery - ClientType (?)
+
             Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
         }
 
@@ -140,7 +141,8 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion1);
 
-            Assert.IsNotEmpty(artifactDetails.SpecificPropertyValues, "SpecificPropertyValues should not be empty!");
+            // TODO: add check that Process has SpecificPropery - ClientType (?)
+
             Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
         }
 
@@ -176,7 +178,8 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion1);
 
-            Assert.IsNotEmpty(artifactDetails.SpecificPropertyValues, "SpecificPropertyValues should not be empty!");
+            // TODO: add check that Process has SpecificPropery - ClientType (?)
+
             Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
         }
 

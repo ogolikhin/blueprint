@@ -118,6 +118,7 @@ export class PreviewCenterController {
     }
 
     public navigateToUserStory() {
+        this.$scope.$parent["vm"].cancel();
         // TODO: go to user story artifact
     }
     public getBusinessRules() {

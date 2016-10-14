@@ -866,7 +866,6 @@ pagecontent, bp-properties-panel {
 
             .tinymce-group {
                 display: block;
-                margin-top: -28px;
                 width: calc(100% - #{$richtext-y-scrollbar-width});
             }
 
@@ -879,6 +878,8 @@ pagecontent, bp-properties-panel {
                 border-color: $gray-lighter;
                 border-width: 1px 1px 0 !important;
                 padding: 0;
+                position: absolute;
+                top: -28px;
 
                 .mce-flow-layout-item {
                     margin: 0;
@@ -886,7 +887,7 @@ pagecontent, bp-properties-panel {
 
                 .mce-btn button {
                     line-height: 19px;
-                    padding: 3px 7px;
+                    padding: 3px;
         }
             }
 
@@ -895,12 +896,8 @@ pagecontent, bp-properties-panel {
                 border-width: 1px !important;
             }
 
-            .tinymce-toolbar-hidden {
-                margin-top: 0;
-
-                .mce-toolbar-grp {
-                    display: none;
-                }
+            .tinymce-toolbar-hidden  .mce-toolbar-grp {
+                display: none;
             }
 
             .has-error {
@@ -933,31 +930,7 @@ pagecontent, bp-properties-panel {
 
                 .mce-btn button {
                     line-height: 19px;
-                    padding: 3px 3px;
-                }
-
-                .mce-menubtn:first-child button span { // font-family button
-                    text-overflow: initial;
-                    width: 33px;
-
-                    &::before {
-                        color: #333;
-                        content: '\e01a';
-                        display: inline-block;
-                        font-family: 'tinymce';
-                        font-size: 22px;
-                        -moz-osx-font-smoothing: grayscale;
-                        -webkit-font-smoothing: antialiased;
-                        font-style: normal;
-                        font-variant: normal;
-                        font-weight: normal;
-                        height: 16px;
-                        line-height: 16px;
-                        margin-right: 40px;
-                        overflow: hidden;
-                        vertical-align: text-top;
-                        width: 20px;
-                    }
+                    padding: 3px;
                 }
             }
 
@@ -1233,7 +1206,7 @@ pagecontent, bp-properties-panel {
                             background-color: transparent;
                             border-color: $brand-secondary;
                             color: $brand-secondary;
-            }
+                        }
                     }
                 }
 
@@ -1260,7 +1233,7 @@ pagecontent, bp-properties-panel {
                 height: 30px;
                 &.fonticon2-attachment {
                     padding-top: 10px;
-        }
+                }
             }
             .form-control-wrapper {
                 display: table-cell;
@@ -1274,16 +1247,18 @@ pagecontent, bp-properties-panel {
                     margin: 2px;
                     max-width: 100%;
                     width: 100%;
-
+                    &[disabled]{
+                        border:1px solid $gray-lightest;
+                    }
                     &:hover,
                     &:focus {
                         background: $white;
                         padding-right: $property-padding-default;
                     }
                 }
-            }
+      }
     }
-    }
+  }
 }
 
 .single-column-property .formly .formly-field label {

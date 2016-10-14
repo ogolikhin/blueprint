@@ -141,9 +141,9 @@ export class BPUtilityPanelController {
 
     private toggleHistoryPanel(selection: ISelection) {
         const artifact = selection.artifact;
-        const subArtifact = selection.artifact;
+        const subArtifact = selection.subArtifact;
         if (subArtifact
-            || (artifact && 
+            || (artifact &&
             (artifact.predefinedType === ItemTypePredefined.CollectionFolder
             || artifact.predefinedType === ItemTypePredefined.ArtifactCollection))) {
             this.hidePanel(PanelType.History);

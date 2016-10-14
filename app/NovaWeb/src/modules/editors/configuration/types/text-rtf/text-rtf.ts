@@ -57,7 +57,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         let to: AngularFormly.ITemplateOptions = {
             tinymceOptions: { // this will go to ui-tinymce directive
                 menubar: false,
-                toolbar: "fontselect fontsize | bold italic underline | forecolor format | link table",
+                toolbar: "bold italic underline strikethrough | fontselect fontsize forecolor format | link table",
                 statusbar: false,
                 content_style: `html { overflow: auto !important; }
                 body.mce-content-body { font-family: 'Open Sans', sans-serif; font-size: 9pt; min-height: 100px; 
@@ -198,13 +198,6 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         text: "",
                         icon: "format",
                         menu: [
-                            {
-                                icon: "strikethrough",
-                                text: " Strikethrough",
-                                onclick: function () {
-                                    editor.editorCommands.execCommand("Strikethrough");
-                                }
-                            },
                             {
                                 icon: "bullist",
                                 text: " Bulleted list",

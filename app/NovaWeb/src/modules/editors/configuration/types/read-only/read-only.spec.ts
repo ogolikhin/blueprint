@@ -182,23 +182,23 @@ describe("Formly ReadOnly", () => {
         expect(fieldInput.classList.contains("richtext")).toBeFalsy();
     });
 
-    xit("should display read only multiline text", function () {
+    it("should display read only multiline text", function () {
         compileAndSetupStuff({model: {readonlyTextMulti: "Lorem ipsum"}});
 
         let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[5];
 
-        expect(fieldInput.firstChild.innerHTML).toBe("Lorem ipsum");
+        expect(fieldInput.firstElementChild.innerHTML).toBe("Lorem ipsum");
         expect(fieldInput.classList.contains("simple")).toBeFalsy();
         expect(fieldInput.classList.contains("multiple")).toBeTruthy();
         expect(fieldInput.classList.contains("richtext")).toBeFalsy();
     });
 
-    xit("should display read only rich text", function () {
+    it("should display read only rich text", function () {
         compileAndSetupStuff({model: {readonlyRichText: "Lorem ipsum"}});
 
         let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[6];
 
-        expect(fieldInput.firstChild.innerHTML).toBe("Lorem ipsum");
+        expect(fieldInput.firstElementChild.innerHTML).toBe("Lorem ipsum");
         expect(fieldInput.classList.contains("simple")).toBeFalsy();
         expect(fieldInput.classList.contains("multiple")).toBeFalsy();
         expect(fieldInput.classList.contains("richtext")).toBeTruthy();

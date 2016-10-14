@@ -69,10 +69,10 @@ namespace ArtifactStore.Controllers
                 throw new HttpResponseException(HttpStatusCode.NotFound);
             }
 
-            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { itemId }, session.UserId, false, revisionId);
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { artifactId }, session.UserId, false, revisionId);
 
             RolePermissions permission = RolePermissions.None;
-            if (!permissions.TryGetValue(itemId, out permission) || !permission.HasFlag(RolePermissions.Read))
+            if (!permissions.TryGetValue(artifactId, out permission) || !permission.HasFlag(RolePermissions.Read))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
@@ -131,10 +131,10 @@ namespace ArtifactStore.Controllers
                 throw new HttpResponseException(HttpStatusCode.NotFound);
             }
 
-            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { itemId }, session.UserId, false, revisionId);
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { artifactId }, session.UserId, false, revisionId);
 
             RolePermissions permission = RolePermissions.None;
-            if (!permissions.TryGetValue(itemId, out permission) || !permission.HasFlag(RolePermissions.Read))
+            if (!permissions.TryGetValue(artifactId, out permission) || !permission.HasFlag(RolePermissions.Read))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }

@@ -42,7 +42,14 @@ namespace Model.ArtifactModel.Enums
         /// <returns>The BaseArtifactType version of this ItemTypePredefined.</returns>
         public static BaseArtifactType ToBaseArtifactType(this ItemTypePredefined itemType)
         {
-            return ItemTypePredefinedToBaseArtifactTypeMap[itemType];
+            BaseArtifactType baseType = BaseArtifactType.Undefined;
+
+            if (ItemTypePredefinedToBaseArtifactTypeMap.ContainsKey(itemType))
+            {
+                baseType = ItemTypePredefinedToBaseArtifactTypeMap[itemType];
+            }
+
+            return baseType;
         }
 
         /// <summary>

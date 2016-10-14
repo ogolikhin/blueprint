@@ -61,7 +61,7 @@ namespace SearchService.Controllers
             if (resultCount > MaxResultCount)
                 resultCount = MaxResultCount;
 
-            if (string.IsNullOrEmpty(searchCriteria?.Query.Trim()))
+            if (string.IsNullOrWhiteSpace(searchCriteria?.Query))
             {
                 throw new BadRequestException("Please provide correct search criteria", ErrorCodes.IncorrectSearchCriteria);
             }

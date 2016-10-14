@@ -19,17 +19,5 @@
         "dist",
         "dev",
         "reports"
-    ],
-    "files": [
-        "./typings.json",
-        "./typings/addons.d.ts",
-        "./node_modules/@types/angular",
-        "./node_modules/@types/angular-formly",
-        "./node_modules/@types/angular-mocks",
-        "./node_modules/@types/angular-ui-bootstrap",
-        "./node_modules/@types/angular-ui-router",
-        "./node_modules/@types/jasmine",
-        "./node_modules/@types/jquery",
-        "./node_modules/@types/lodash"
     ]
 }

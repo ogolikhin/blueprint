@@ -771,7 +771,7 @@ namespace Model.StorytellerModel.Impl
                 new PropertyValueInformation
                 {
                     PropertyName = Persona,
-                    TypePredefined = PropertyTypePredefined.None,
+                    TypePredefined = PropertyTypePredefined.Persona,
                     TypeId = GetPropertyNameTypeId(Persona),
                     Value = persona
                 }
@@ -791,7 +791,7 @@ namespace Model.StorytellerModel.Impl
                 new PropertyValueInformation
                 {
                     PropertyName = StoryLinks,
-                    TypePredefined = PropertyTypePredefined.None,
+                    TypePredefined = PropertyTypePredefined.StoryLink,
                     TypeId = GetPropertyNameTypeId(StoryLinks),
                     Value = storyLink
                 }
@@ -846,7 +846,7 @@ namespace Model.StorytellerModel.Impl
                 new PropertyValueInformation
                 {
                     PropertyName = Persona,
-                    TypePredefined = PropertyTypePredefined.None,
+                    TypePredefined = PropertyTypePredefined.Persona,
                     TypeId = GetPropertyNameTypeId(Persona),
                     Value = persona
                 }
@@ -866,7 +866,7 @@ namespace Model.StorytellerModel.Impl
                 new PropertyValueInformation
                 {
                     PropertyName = StoryLinks,
-                    TypePredefined = PropertyTypePredefined.None,
+                    TypePredefined = PropertyTypePredefined.StoryLink,
                     TypeId = GetPropertyNameTypeId(StoryLinks),
                     Value = storyLink
                 }

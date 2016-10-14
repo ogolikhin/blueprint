@@ -44,8 +44,10 @@ export class BPFieldImageController extends BPFieldBaseController {
         //let currentModelVal = <Models.IActorImagePropertyValue>$scope.model[$scope.options.key];
         if (!currentModelVal) {
             currentModelVal = <Models.IActorImagePropertyValue>{};
-        } else {
-            currentModelVal.imageSource = currentModelVal.url;
+        } else {            
+            if (currentModelVal.url) {
+                currentModelVal.imageSource = currentModelVal.url;
+            }            
         }
 
         function chooseActorImage(files: File[], callback?: Function) {
@@ -77,11 +79,9 @@ export class BPFieldImageController extends BPFieldBaseController {
                     reader.onload = function (e) {
                         let imageContent = e.target["result"];
                         currentModelVal.imageSource = imageContent;
-                        $scope.model[$scope.options["key"]] = currentModelVal;
-                        let savingValue = <Models.IActorImagePropertyValue>{
-                            guid: image.guid
-                        };
-                        onChange(savingValue, getImageField(), $scope);
+                        currentModelVal.guid = image.guid;
+                        $scope.model[$scope.options["key"]] = currentModelVal;                       
+                        onChange(currentModelVal, getImageField(), $scope);
                     };
                 }
             }).finally(() => {

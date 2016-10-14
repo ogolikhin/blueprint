@@ -85,7 +85,7 @@ describe("Formly Select", () => {
         expect(fieldScope).toBeDefined();
     });
 
-    xit("should fail if empty", function () {
+    it("should fail if empty", function () {
         compileAndSetupStuff({model: {select: null}});
 
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldSelect")[0];

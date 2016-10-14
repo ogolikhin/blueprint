@@ -7,8 +7,7 @@
             uis-open-close="bpFieldSelect.onOpenClose(isOpen)">
             <ui-select-match placeholder="{{to.placeholder}}">
                 <div class="ui-select-match-item-chosen" bp-tooltip="{{$select.selected[to.labelProp]}}"
-                     bp-tooltip-truncated="true">{{$select.selected[to.labelProp]}}
-                </div>
+                     bp-tooltip-truncated="true">{{$select.selected[to.labelProp]}}</div>
             </ui-select-match>
             <ui-select-choices class="ps-child"
                                data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}"

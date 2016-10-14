@@ -16,14 +16,20 @@
         }
     }
 
-    .formly-field-bpFieldTextRTFInline .mce-menubtn:first-child button span::before {
-        line-height: 200%; // TODO: remove once the font is fixed
+    .formly-field-bpFieldTextRTF,
+    .formly-field-bpFieldTextRTFInline {
+        .mce-menubtn:first-child button span::before {
+            line-height: 200%; // TODO: remove once the font is fixed
+        }
     }
 }
 
 .is-msie {
-    .formly-field-bpFieldTextRTFInline .mce-menubtn:first-child button span::before {
-        line-height: 100%; // TODO: remove once the font is fixed
+    .formly-field-bpFieldTextRTF,
+    .formly-field-bpFieldTextRTFInline {
+        .mce-menubtn:first-child button span::before {
+            line-height: 100%; // TODO: remove once the font is fixed
+        }
     }
 }
 

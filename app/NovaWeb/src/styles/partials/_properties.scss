@@ -934,29 +934,6 @@ pagecontent, bp-properties-panel {
                 }
             }
 
-            .mce-menubtn:first-child button span { // font-family button
-                text-overflow: initial;
-                width: 40px;
-
-                &::before {
-                    color: #333;
-                    content: $fonticon2-font-family;
-                    display: inline-block;
-                    font-family: 'bp-font2';
-                    font-size: 22px;
-                    -moz-osx-font-smoothing: grayscale;
-                    -webkit-font-smoothing: antialiased;
-                    font-style: normal;
-                    font-variant: normal;
-                    font-weight: normal;
-                    height: 16px;
-                    margin-right: 40px;
-                    overflow: hidden;
-                    vertical-align: top;
-                    width: 25px;
-                }
-            }
-
             .tinymce-toolbar {
                 height: #{$tinymce-toolbar-height + 2px};
                 margin: -#{$tinymce-toolbar-height + 2px} 0 0;

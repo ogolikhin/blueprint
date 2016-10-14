@@ -156,14 +156,14 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                     initialContent = editorBody.innerHTML.replace(bogusRegEx, "").replace(zeroWidthNoBreakSpaceRegEx, "");
 
                     editor.on("Focus", (e) => {
-                        if (editorBody.parentElement) {
-                            editorBody.parentElement.classList.remove("tinymce-toolbar-hidden");
+                        if (editorBody.parentElement && editorBody.parentElement.parentElement) {
+                            editorBody.parentElement.parentElement.classList.remove("tinymce-toolbar-hidden");
                         }
                     });
 
                     editor.on("Blur", (e) => {
-                        if (editorBody.parentElement) {
-                            editorBody.parentElement.classList.add("tinymce-toolbar-hidden");
+                        if (editorBody.parentElement && editorBody.parentElement.parentElement) {
+                            editorBody.parentElement.parentElement.classList.add("tinymce-toolbar-hidden");
                         }
                     });
                 },

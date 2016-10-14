@@ -10,6 +10,7 @@
     "dev": "node_modules/.bin/webpack-dev-server --config webpack/webpack.dev.js --content-base src --inline --hot --NODE_ENV=dev",
     "dev:nolint": "npm run dev",
     "dev:build": "node_modules/.bin/webpack-dev-server --config webpack/webpack.dev.js --content-base src --inline --hot --debug --NODE_ENV=dev ",
+    "dev:public": "node_modules/.bin/webpack-dev-server --config webpack/webpack.dev.js --content-base src --inline --hot --public --NODE_ENV=dev",
     "test": "karma start --NODE_ENV=test",
     "test:nolint": "karma start --debug --NODE_ENV=test",
     "test:debug": "karma start karma.conf.js --browsers=Chrome --no-single-run --debug --NODE_ENV=test",

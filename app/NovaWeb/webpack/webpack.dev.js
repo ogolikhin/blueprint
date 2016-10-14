@@ -9,6 +9,9 @@ var loaders = require("./loaders");
 var vendor_libs = require('./vendors');
 var proxy_config = require('./proxy.dev');
 
+var default_host = 'localhost';
+var default_port = '8000';
+
 var _APP = path.join(__dirname, './../src');
 
 
@@ -24,6 +27,13 @@ if (process.argv.some(isDebug)) {
     console.log("Is Debug");
 }
 
+function isPublic(argument) {
+    return argument === '--public';
+}
+if (process.argv.some(isPublic)) {
+    console.log("Listening on all hosts");
+}
+
 module.exports = {
     context: _APP,
     entry: {
@@ -36,8 +46,8 @@ module.exports = {
         filename: '[name].bundle.js'
     },
     devServer: {
-        host: '0.0.0.0', // change to 'localhost' or IP address if you don't need to allow access from everywhere
-        port: 8000,
+        host: process.argv.some(isPublic) ? '0.0.0.0' : default_host, // '0.0.0.0' binds to all hosts
+        port: default_port,
         proxy: proxy_config,
         watchOptions: {
             aggregateTimeout: 300,
@@ -47,7 +57,7 @@ module.exports = {
     },
     plugins: [
         new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
-        new OpenBrowserPlugin({ url: 'http://localhost:8000' }),
+        new OpenBrowserPlugin({ url: 'http://' + default_host + ':' + default_port }),
         new HtmlWebpackPlugin({
             template: './index.html',
             filename: '../index.html',

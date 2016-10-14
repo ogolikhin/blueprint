@@ -3,6 +3,7 @@ var path = require('path');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var HtmlWebpackPlugin = require('html-webpack-plugin');
+var OpenBrowserPlugin = require('open-browser-webpack-plugin');
 
 var loaders = require("./loaders");
 var vendor_libs = require('./vendors');
@@ -35,7 +36,7 @@ module.exports = {
         filename: '[name].bundle.js'
     },
     devServer: {
-        host: '0.0.0.0',
+        host: '0.0.0.0', // change to 'localhost' or IP address if you don't need to allow access from everywhere
         port: 8000,
         proxy: proxy_config,
         watchOptions: {
@@ -46,7 +47,7 @@ module.exports = {
     },
     plugins: [
         new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
-
+        new OpenBrowserPlugin({ url: 'http://localhost:8000' }),
         new HtmlWebpackPlugin({
             template: './index.html',
             filename: '../index.html',

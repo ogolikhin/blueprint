@@ -108,10 +108,12 @@ export class ProjectExplorerController {
                                 item-type-id="${artifactType.id}"
                                 item-type-icon="${artifactType.iconImageId}"
                                 ng-drag-handle></bp-item-type-icon>`;
-                } else if (artifactType && 
-                (artifactType.predefinedType === ItemTypePredefined.CollectionFolder 
-                || artifactType.predefinedType === ItemTypePredefined.ArtifactCollection) ) {
-                    icon = "<i ng-drag-handle class='fonticon fonticon2-collection'></i>";
+                } else if (artifactType) {
+                    if (artifactType.predefinedType === ItemTypePredefined.CollectionFolder) {
+                        icon = "<i ng-drag-handle class='fonticon fonticon2-collection-folder'></i>";
+                    } else if (artifactType.predefinedType === ItemTypePredefined.ArtifactCollection) {
+                        icon = "<i ng-drag-handle class='fonticon fonticon2-collection'></i>";
+                    }
                 }
                 return `${icon}<span>${name}</span>`;
             },

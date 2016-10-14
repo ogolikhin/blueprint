@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using SearchService.Models;
 using SearchService.Repositories;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 
@@ -109,10 +110,10 @@ namespace SearchService.Controllers
             {
                 await controller.GetProjectsByName(new ProjectSearchCriteria { Query = "" });
             }
-            catch (HttpResponseException e)
+            catch (BadRequestException e)
             {
                 //Assert
-                Assert.AreEqual(HttpStatusCode.BadRequest, e.Response.StatusCode);
+                Assert.AreEqual(ErrorCodes.IncorrectSearchCriteria, e.ErrorCode);
             }
         }
 
@@ -126,10 +127,10 @@ namespace SearchService.Controllers
             {
                 await controller.GetProjectsByName(new ProjectSearchCriteria { Query = "test" }, -1);
             }
-            catch (HttpResponseException e)
+            catch (BadRequestException e)
             {
                 //Assert
-                Assert.AreEqual(HttpStatusCode.BadRequest, e.Response.StatusCode);
+                Assert.AreEqual(ErrorCodes.OutOfRangeParameter, e.ErrorCode);
             }
         }
 
@@ -143,10 +144,10 @@ namespace SearchService.Controllers
             {
                 await controller.GetProjectsByName(null);
             }
-            catch (HttpResponseException e)
+            catch (BadRequestException e)
             {
                 //Assert
-                Assert.AreEqual(HttpStatusCode.BadRequest, e.Response.StatusCode);
+                Assert.AreEqual(ErrorCodes.IncorrectSearchCriteria, e.ErrorCode);
             }
         }
 

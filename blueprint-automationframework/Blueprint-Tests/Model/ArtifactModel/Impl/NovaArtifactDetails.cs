@@ -100,13 +100,13 @@ namespace Model.ArtifactModel.Impl
         public override int? Version { get; set; }
         public List<AttachmentValue> AttachmentValues { get; } = new List<AttachmentValue>();
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedOn, even if it's null.
         public DateTime? CreatedOn { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedOn, even if it's null.
         public DateTime? LastEditedOn { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedBy, even if it's null.
         public Identification CreatedBy { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedBy, even if it's null.
         public Identification LastEditedBy { get; set; }
 
         public DateTime? LastSavedOn { get; set; }
@@ -236,7 +236,6 @@ namespace Model.ArtifactModel.Impl
             string msg = I18NHelper.FormatInvariant("JSON for {0} has been changed!", nameof(TClass));
             Assert.IsFalse(isJsonChanged, msg);
         }
-
     }
 
     /// <summary>
@@ -366,13 +365,13 @@ namespace Model.ArtifactModel.Impl
         public override int? ProjectId { get; set; }
         public override int? Version { get; set; }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedOn, even if it's null.
         public DateTime? CreatedOn { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedOn, even if it's null.
         public DateTime? LastEditedOn { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedBy, even if it's null.
         public Identification CreatedBy { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedBy, even if it's null.
         public Identification LastEditedBy { get; set; }
 
         public DateTime? LastSavedOn { get; set; }
@@ -408,13 +407,13 @@ namespace Model.ArtifactModel.Impl
         public override int? ProjectId { get; set; }
         public override int? Version { get; set; }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedOn, even if it's null.
         public DateTime? CreatedOn { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedOn, even if it's null.
         public DateTime? LastEditedOn { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedBy, even if it's null.
         public Identification CreatedBy { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedBy, even if it's null.
         public Identification LastEditedBy { get; set; }
 
         public DateTime? LastSavedOn { get; set; }

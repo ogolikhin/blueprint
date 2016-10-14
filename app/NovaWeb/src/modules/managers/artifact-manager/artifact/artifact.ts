@@ -155,6 +155,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             this.artifactState.lock(lock);
             if (lock.info.versionId !== this.version) {
                 this.refresh();
+                this.services.messageService.addInfo("Artifact_Lock_Refresh");
             } else {
                 if (lock.info.parentId !== this.parentId || lock.info.orderIndex !== this.orderIndex) {
                     this.artifactState.misplaced = true;

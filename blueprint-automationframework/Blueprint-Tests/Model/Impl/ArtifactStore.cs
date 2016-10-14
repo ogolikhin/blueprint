@@ -40,12 +40,12 @@ namespace Model.Impl
             return CreateArtifact(Address, user, (ItemTypePredefined)baseArtifactType, name, project, parentArtifact, orderIndex, expectedStatusCodes);
         }
 
-        /// <seealso cref="IArtifactStore.CreateArtifact(IUser, ItemTypePredefined, string, IProject, INovaArtifactDetails, double?, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.CreateArtifact(IUser, ItemTypePredefined, string, IProject, INovaArtifactBase, double?, List{HttpStatusCode})"/>
         public INovaArtifactDetails CreateArtifact(IUser user,
             ItemTypePredefined baseArtifactType,
             string name,
             IProject project,
-            INovaArtifactDetails parentArtifact = null,
+            INovaArtifactBase parentArtifact = null,
             double? orderIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -136,13 +136,7 @@ namespace Model.Impl
         /// <seealso cref="IArtifactStore.GetProjectChildrenByProjectId(int, IUser, List{HttpStatusCode})"/>
         public List<NovaArtifact> GetProjectChildrenByProjectId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.CHILDREN, id);
-            RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
-
-            return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
-                path,
-                RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes);
+            return GetProjectChildrenByProjectId(Address, id, user, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetExpandedArtifactTree(IUser, IProject, int, bool?, List{HttpStatusCode})"/>
@@ -732,6 +726,29 @@ namespace Model.Impl
             }
 
             return deletedArtifactsToReturn;
+        }
+
+        /// <summary>
+        /// Gets all children artifacts for specified by id project.
+        /// (Runs: GET /projects/{projectId}/children)
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="id">The id of specified project.</param>
+        /// <param name="user">(optional) The user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>A list of all artifacts in the specified project.</returns>
+        public static List<NovaArtifact> GetProjectChildrenByProjectId(string address,
+            int id,
+            IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.CHILDREN, id);
+            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+
+            return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <summary>

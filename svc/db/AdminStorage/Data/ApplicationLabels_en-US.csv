@@ -236,6 +236,7 @@ Artifact_Lock_AlreadyLocked, "Artifact locked by another user"
 Artifact_Lock_DoesNotExist, "The artifact has been deleted or moved.<br />The Explorer will now be refreshed."
 Artifact_Lock_AccessDenied, "Cannot establish the artifact lock. Access denied."
 Artifact_Lock_Failure, "Cannot establish the artifact lock due to general failure"
+Artifact_Lock_Refresh,"This artifact has been changed on the server and will now be refreshed to the most recent version."
 
 Label_Name,"Name"
 Label_Type,"Type"

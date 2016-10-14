@@ -1,8 +1,8 @@
 import * as angular from "angular";
 import "angular-formly";
-import { ILocalizationService, IUsersAndGroupsService, IUserOrGroupInfo } from "../../../../core";
-import { Models } from "../../../../main/models";
-import { BPFieldBaseController } from "../base-controller";
+import {ILocalizationService, IUsersAndGroupsService, IUserOrGroupInfo} from "../../../../core";
+import {Models} from "../../../../main/models";
+import {BPFieldBaseController} from "../base-controller";
 
 interface IUserGroup extends Models.IUserGroup {
     isImported?: boolean;
@@ -59,18 +59,17 @@ export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldUserPickerController;
 
     constructor() {
+        //fixme: empty constructors can be removed
     }
 }
 
 export class BpFieldUserPickerController extends BPFieldBaseController {
     static $inject: [string] = ["$scope", "localization", "usersAndGroupsService", "$compile"];
 
-    constructor(
-        private $scope: AngularFormly.ITemplateScope,
-        private localization: ILocalizationService,
-        private usersAndGroupsService: IUsersAndGroupsService,
-        private $compile: ng.ICompileService
-    ) {
+    constructor(private $scope: AngularFormly.ITemplateScope,
+                private localization: ILocalizationService,
+                private usersAndGroupsService: IUsersAndGroupsService,
+                private $compile: ng.ICompileService) {
         super();
 
         let to: AngularFormly.ITemplateOptions = {
@@ -141,12 +140,10 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
         $scope["bpFieldUserPicker"] = this.createUserPicker($scope, localization, usersAndGroupsService, $compile);
     }
 
-    private createUserPicker(
-        $scope: AngularFormly.ITemplateScope,
-        localization: ILocalizationService,
-        usersAndGroupsService: IUsersAndGroupsService,
-        $compile: ng.ICompileService
-    ) {
+    private createUserPicker($scope: AngularFormly.ITemplateScope,
+                             localization: ILocalizationService,
+                             usersAndGroupsService: IUsersAndGroupsService,
+                             $compile: ng.ICompileService) {
         return {
             $select: null,
             currentSelectedItem: -1,
@@ -240,7 +237,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                     this.listItemElement.parentElement.style.height = "";
                 }
             },
-            setupResultsElement: function(uiSelectContainer: HTMLElement) {
+            setupResultsElement: function (uiSelectContainer: HTMLElement) {
                 let uiSelectChoices = uiSelectContainer.querySelector("ul.ui-select-choices") as HTMLElement;
                 let uiSelectLoadMore = `
                     <li ng-if="bpFieldUserPicker.showResultsCount" class="ui-select-results-count">
@@ -256,7 +253,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 this.searchInputElement = uiSelectContainer.querySelector("input.ui-select-search") as HTMLElement;
                 this.listItemElement = uiSelectChoices.querySelector("li.ui-select-choices-group") as HTMLElement;
             },
-            removeImportedUsers: function($select) {
+            removeImportedUsers: function ($select) {
                 if ($select.selected && $select.selected.length > 0) {
                     $select.selected = $select.selected.filter((elem) => {
                         return !elem.value.isImported;
@@ -314,8 +311,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                             this.currentState = $scope.to.options.length ? null : "no-match";
 
                             this.showResultsCount = (
-                                    $scope.to.options.length > this.minLimit &&
-                                    !loadMore
+                                    $scope.to.options.length > this.minLimit && !loadMore
                                 ) || (
                                     $scope.to.options.length === this.maxLimit &&
                                     this.currentLimit === this.maxLimit
@@ -431,7 +427,9 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                     $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.add("disable-highlight");
                 }
 
-                let currentItem = $select.items.map(function (e) { return e[$scope.to.valueProp]; }).indexOf($item[$scope.to.valueProp]);
+                let currentItem = $select.items.map(function (e) {
+                    return e[$scope.to.valueProp];
+                }).indexOf($item[$scope.to.valueProp]);
 
                 $scope["$applyAsync"](() => {
                     if ($scope["uiSelectContainer"]) {

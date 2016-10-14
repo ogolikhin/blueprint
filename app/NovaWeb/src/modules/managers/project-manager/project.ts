@@ -1,7 +1,7 @@
 import * as angular from "angular";
-import { Models, Enums } from "../../main/models";
-import { IStatefulArtifact } from "../artifact-manager";
-import { IArtifactNode } from "../project-manager";
+import {Models, Enums} from "../../main/models";
+import {IStatefulArtifact} from "../artifact-manager";
+import {IArtifactNode} from "../project-manager";
 
 export class ArtifactNode implements IArtifactNode {
     private _artifact: IStatefulArtifact;
@@ -16,10 +16,10 @@ export class ArtifactNode implements IArtifactNode {
         this.hasChildren = artifact.hasChildren;
         this.parentNode = parentNode;
     };
-    
+
     public dispose() {
         if (angular.isArray(this.children)) {
-            this.children.forEach((it: IArtifactNode) => it.dispose );
+            this.children.forEach((it: IArtifactNode) => it.dispose);
         }
         delete this.children;
         delete this.parentNode;
@@ -57,13 +57,14 @@ export class ArtifactNode implements IArtifactNode {
     public hasChildren: boolean;
     public loaded: boolean;
     public open: boolean;
-    
-} 
+
+}
 
 
-export class Project extends ArtifactNode { 
+export class Project extends ArtifactNode {
 
     public meta: Models.IProjectMeta;
+
     public constructor(artifact: IStatefulArtifact) {
         super(artifact, null);
         this.open = true;
@@ -89,10 +90,11 @@ export class Project extends ArtifactNode {
         if (item.id === id) {
             found = item;
         } else if (item.children) {
-            for (let i = 0, it: IArtifactNode; !found && (it = item.children[i++]); ) {
+            /* tslint:disable:whitespace */
+            for (let i = 0, it: IArtifactNode; !found && (it = item.children[i++]);) {
                 found = this.getNode(id, it);
             }
-        } 
+        }
         return found;
     };
 
@@ -131,13 +133,13 @@ export class Project extends ArtifactNode {
             throw new Error("Project_MetaDataNotFound");
         }
         let node = this.getNode(id);
-        
+
         let artifactType: Models.IItemType = this.meta.artifactTypes.filter((it: Models.IItemType) => {
             return it.id === node.artifact.itemTypeId;
         })[0];
 
         return artifactType;
 
-    }    
-    
+    }
+
 }

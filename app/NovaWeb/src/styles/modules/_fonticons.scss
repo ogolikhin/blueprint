@@ -12,8 +12,8 @@
 .fonticon-bp-functional-req,
 .fonticon-bp-baseline,
 .fonticon-bp-glossary {
-  left: -.6em;
-  position: relative;
+    left: -.6em;
+    position: relative;
 }
 
 .fonticon-bp-business-process-sub,
@@ -24,24 +24,25 @@
 .fonticon-bp-storyboard-sub,
 .fonticon-bp-glossary-sub,
 .fonticon-bp-use-case-sub {
-  left: -.2em;
-  position: relative;
+    left: -.2em;
+    position: relative;
 }
 
 /* Font uses the Unicode Private Use Area (PUA) to ensure screen
    readers do not read off random characters that represent icons */
 
 @font-face {
-  font-family: 'bp-font';
-  src: url('fonts/bp-font.eot');
-  src: url('fonts/bp-font.eot?#iefix') format('embedded-opentype'),
-  url('fonts/bp-font.woff2') format('woff2'),
-  url('fonts/bp-font.woff') format('woff'),
-  url('fonts/bp-font.ttf') format('truetype'),
-  url('fonts/bp-font.svg#bp-font') format('svg');
-  font-weight: normal;
-  font-style: normal;
+    font-family: 'bp-font';
+    src: url('fonts/bp-font.eot');
+    src: url('fonts/bp-font.eot?#iefix') format('embedded-opentype'),
+    url('fonts/bp-font.woff2') format('woff2'),
+    url('fonts/bp-font.woff') format('woff'),
+    url('fonts/bp-font.ttf') format('truetype'),
+    url('fonts/bp-font.svg#bp-font') format('svg');
+    font-weight: normal;
+    font-style: normal;
 }
+
 /* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
 /* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
 /*
@@ -57,44 +58,44 @@
 [class*=" fonticon-"]::before,
 [class*="fonticon-"]::after,
 [class*=" fonticon-"]::after {
-  font-family: "bp-font";
-  font-style: normal;
-  font-weight: normal;
-  font-size: 3.2rem;
-  speak: none;
+    font-family: "bp-font";
+    font-style: normal;
+    font-weight: normal;
+    font-size: 3.2rem;
+    speak: none;
 
-  /* TODO: tried to fix suspect icon issue */
-  display: inline-block;
-  text-decoration: inherit;
-  width: 1em;
-  margin-right: .2em;
-  text-align: center;
-  /* opacity: .8; */
+    /* TODO: tried to fix suspect icon issue */
+    display: inline-block;
+    text-decoration: inherit;
+    width: 1em;
+    margin-right: .2em;
+    text-align: center;
+    /* opacity: .8; */
 
-  /* For safety - reset parent styles, that can break glyph codes*/
-  font-variant: normal;
-  text-transform: none;
+    /* For safety - reset parent styles, that can break glyph codes*/
+    font-variant: normal;
+    text-transform: none;
 
-  /* fix buttons height, for twitter bootstrap */
-  line-height: 0.8em;
+    /* fix buttons height, for twitter bootstrap */
+    line-height: 0.8em;
 
-  /* Animation center compensation - margins should be symmetric */
-  /* remove if not needed */
-  margin-left: .2em;
+    /* Animation center compensation - margins should be symmetric */
+    /* remove if not needed */
+    margin-left: .2em;
 
-  /* you can be more comfortable with increased icons size */
-  /* font-size: 120%; */
+    /* you can be more comfortable with increased icons size */
+    /* font-size: 120%; */
 
-  /* Font smoothing. That was taken from TWBS */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    /* Font smoothing. That was taken from TWBS */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 
-  /* Uncomment for 3D effect */
-  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+    /* Uncomment for 3D effect */
+    /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
 
 .fonticon-caret-down {
-  font-size: 1rem;
+    font-size: 1rem;
 }
 
 $fonticon-bp-ui-mockup-form: '\e800'; /* '' */
@@ -247,235 +248,831 @@ $fonticon-suspect-left-stack: '\e862';
 $fonticon-suspect-right-stack: '\e863';
 $fonticon-suspect-centre-stack: '\e862';
 
-.fonticon-bp-ui-mockup-form::before { content: $fonticon-bp-ui-mockup-form; } /* '' */
-.fonticon-bp-screen::before { content: $fonticon-bp-screen; } /* '' */
-.fonticon-folder::before { content: $fonticon-folder; } /* '' */
-.fonticon-relationship-left::before { content: $fonticon-relationship-left; } /* '' */
-.fonticon-relationship-right::before { content: $fonticon-relationship-right; } /* '' */
-.fonticon-relationship-bi::before { content: $fonticon-relationship-bi; } /* '' */
-.fonticon-comments-indicator::before { content: $fonticon-comments-indicator; } /* '' */
-.fonticon-export::before { content: $fonticon-export; } /* '' */
-.fonticon-email::before { content: $fonticon-email; } /* '' */
-.fonticon-printer::before { content: $fonticon-printer; } /* '' */
-.fonticon-list::before { content: $fonticon-list; } /* '' */
-.fonticon-numbered-list::before { content: $fonticon-numbered-list; } /* '' */
-.fonticon-filter-up::before { content: $fonticon-filter-up; } /* '' */
-.fonticon-filter-down::before { content: $fonticon-filter-down; } /* '' */
-.fonticon-hierarchy::before { content: $fonticon-hierarchy; } /* '' */
-.fonticon-flag::before { content: $fonticon-flag; } /* '' */
-.fonticon-explorer::before { content: $fonticon-explorer; } /* '' */
-.fonticon-favourite::before { content: $fonticon-favourite; } /* '' */
-.fonticon-share::before { content: $fonticon-share; } /* '' */
-.fonticon-follow::before { content: $fonticon-follow; } /* '' */
-.fonticon-edit::before { content: $fonticon-edit; } /* '' */
-.fonticon-review-cklist::before { content: $fonticon-review-cklist; } /* '' */
-.fonticon-files::before { content: $fonticon-files; } /* '' */
-.fonticon-sign-in::before { content: $fonticon-sign-in; } /* '' */
-.fonticon-sign-out::before { content: $fonticon-sign-out; } /* '' */
-.fonticon-double-down::before { content: $fonticon-double-down; } /* '' */
-.fonticon-double-left::before { content: $fonticon-double-left; } /* '' */
-.fonticon-double-right::before { content: $fonticon-double-right; } /* '' */
-.fonticon-double-up::before { content: $fonticon-double-up; } /* '' */
-.fonticon-caret-down::before { content: $fonticon-caret-down; } /* '' */
-.fonticon-caret-left::before { content: $fonticon-caret-left; } /* '' */
-.fonticon-caret-right::before { content: $fonticon-caret-right; } /* '' */
-.fonticon-caret-up::before { content: $fonticon-caret-up; } /* '' */
-.fonticon-reply::before { content: $fonticon-reply; } /* '' */
-.fonticon-success::before { content: $fonticon-success; } /* '' */
-.fonticon-error::before { content: $fonticon-error; } /* '' */
-.fonticon-warning::before { content: $fonticon-warning; } /* '' */
-.fonticon-close::before { content: $fonticon-close; } /* '' */
-.fonticon-properties::before { content: $fonticon-properties; } /* '' */
-.fonticon-navigation::before { content: $fonticon-navigation; } /* '' */
-.fonticon-more-menu::before { content: $fonticon-more-menu; } /* '' */
-.fonticon-sort::before { content: $fonticon-sort; } /* '' */
-.fonticon-sort-down::before { content: $fonticon-sort-down; } /* '' */
-.fonticon-sort-up::before { content: $fonticon-sort-up; } /* '' */
-.fonticon-start::before { content: $fonticon-start; } /* '' */
-.fonticon-bp-impact-analysis::before { content: $fonticon-bp-impact-analysis; } /* '' */
-.fonticon-group::before { content: $fonticon-group; } /* '' */
-.fonticon-reuse::before { content: $fonticon-reuse; } /* '' */
-.fonticon-refresh::before { content: $fonticon-refresh; } /* '' */
-.fonticon-history::before { content: $fonticon-history; } /* '' */
-.fonticon-unauthorize::before { content: $fonticon-unauthorize; } /* '' */
-.fonticon-zoom::before { content: $fonticon-zoom; } /* '' */
-.fonticon-source-id::before { content: $fonticon-source-id; } /* '' */
-.fonticon-comment::before { content: $fonticon-comment; } /* '' */
-.fonticon-plus::before { content: $fonticon-plus; } /* '' */
-.fonticon-bp-ui-mockup-form-setting::before { content: $fonticon-bp-ui-mockup-form-setting; } /* '' */
-.fonticon-arrow-down::before { content: $fonticon-arrow-down; } /* '' */
-.fonticon-arrow-left::before { content: $fonticon-arrow-left; } /* '' */
-.fonticon-arrow-right::before { content: $fonticon-arrow-right; } /* '' */
-.fonticon-arrow-up::before { content: $fonticon-arrow-up; } /* '' */
-.fonticon-radial-view::before { content: $fonticon-radial-view; } /* '' */
-.fonticon-tree-view::before { content: $fonticon-tree-view; } /* '' */
-.fonticon-folder-open::before { content: $fonticon-folder-open; } /* '' */
-.fonticon-suspect-left::before { content: $fonticon-suspect-left; } /* '' */
-.fonticon-suspect-right::before { content: $fonticon-suspect-right; } /* '' */
-.fonticon-suspect-centre::before { content: $fonticon-suspect-centre; } /* '' */
-.fonticon-sub-right::before { content: $fonticon-sub-right; } /* '' */
-.fonticon-sub-right-1::before { content: $fonticon-sub-right-1; } /* '' */
-.fonticon-filter::before { content: $fonticon-filter; } /* '' */
-.fonticon-circle-down::before { content: $fonticon-circle-down; } /* '' */
-.fonticon-circle-left::before { content: $fonticon-circle-left; } /* '' */
-.fonticon-circle-up::before { content: $fonticon-circle-up; } /* '' */
-.fonticon-circle-right::before { content: $fonticon-circle-right; } /* '' */
-.fonticon-relationship::before { content: $fonticon-relationship; } /* '' */
-.fonticon-reset::before { content: $fonticon-reset; } /* '' */
-.fonticon-sub::before { content: $fonticon-sub; } /* '' */
-.fonticon-bp-actor::before { content: $fonticon-bp-actor; } /* '' */
-.fonticon-bp-business-process-sub::before { content: $fonticon-bp-business-process-sub; } /* '' */
-.fonticon-bp-collection::before { content: $fonticon-bp-collection; } /* '' */
-.fonticon-bp-document-req::before { content: $fonticon-bp-document-req; } /* '' */
-.fonticon-bp-domain-diagram::before { content: $fonticon-bp-domain-diagram; } /* '' */
-.fonticon-bp-glossary::before { content: $fonticon-bp-glossary; } /* '' */
-.fonticon-bp-review::before { content: $fonticon-bp-review; } /* '' */
-.fonticon-bp-storyboard-sub::before { content: $fonticon-bp-storyboard-sub; } /* '' */
-.fonticon-bp-storyboard::before { content: $fonticon-bp-storyboard; } /* '' */
-.fonticon-bp-textual-req::before { content: $fonticon-bp-textual-req; } /* '' */
-.fonticon-bp-ui-mockup-sub::before { content: $fonticon-bp-ui-mockup-sub; } /* '' */
-.fonticon-bp-ui-mockup::before { content: $fonticon-bp-ui-mockup; } /* '' */
-.fonticon-bp-use-case-diagram-sub::before { content: $fonticon-bp-use-case-diagram-sub; } /* '' */
-.fonticon-bp-use-case-diagram::before { content: $fonticon-bp-use-case-diagram; } /* '' */
-.fonticon-bp-use-case-sub::before { content: $fonticon-bp-use-case-sub; } /* '' */
-.fonticon-bp-use-case::before { content: $fonticon-bp-use-case; } /* '' */
-.fonticon-business-process::before { content: $fonticon-business-process; } /* '' */
-.fonticon-bp-business-quality-req-1::before { content: $fonticon-bp-business-quality-req-1; } /* '' */
-.fonticon-bp-business-rule::before { content: $fonticon-bp-business-rule; } /* '' */
-.fonticon-bp-req::before { content: $fonticon-bp-req; } /* '' */
-.fonticon-bp-glossary-sub::before { content: $fonticon-bp-glossary-sub; } /* '' */
-.fonticon-bp-domain-diagram-sub::before { content: $fonticon-bp-domain-diagram-sub; } /* '' */
-.fonticon-bp-baseline::before { content: $fonticon-bp-baseline; } /* '' */
-.fonticon-bp-business-req::before { content: $fonticon-bp-business-req; } /* '' */
-.fonticon-functional-requirement::before { content: $fonticon-functional-requirement; } /* '' */
-.fonticon-generic-diagram-sub::before { content: $fonticon-generic-diagram-sub; } /* '' */
-.fonticon-generic-diagram::before { content: $fonticon-generic-diagram; } /* '' */
-.fonticon-save-1::before { content: $fonticon-save-1; } /* '' */
-.fonticon-discard::before { content: $fonticon-discard; } /* '' */
-.fonticon-news::before { content: $fonticon-news; } /* '' */
-.fonticon-storyteller-description::before { content: $fonticon-storyteller-description; } /* '' */
-.fonticon-storyteller-objective-1::before { content: $fonticon-storyteller-objective-1; } /* '' */
-.fonticon-storyteller-title::before { content: $fonticon-storyteller-title; } /* '' */
-.fonticon-include-active::before { content: $fonticon-include-active; } /* '' */
-.fonticon-storyteller-sub::before { content: $fonticon-storyteller-sub; } /* '' */
-.fonticon-restore::before { content: $fonticon-restore; } /* '' */
-.fonticon-picture::before { content: $fonticon-picture; } /* '' */
-.fonticon-help::before { content: $fonticon-help; } /* '' */
-.fonticon-attachment::before { content: $fonticon-attachment; } /* '' */
-.fonticon-file-pdf::before { content: $fonticon-file-pdf; } /* '' */
-.fonticon-file-word::before { content: $fonticon-file-word; } /* '' */
-.fonticon-file-excel::before { content: $fonticon-file-excel; } /* '' */
-.fonticon-file-powerpoint::before { content: $fonticon-file-powerpoint; } /* '' */
-.fonticon-file-image::before { content: $fonticon-file-image; } /* '' */
-.fonticon-list-alt::before { content: $fonticon-list-alt; } /* '' */
-.fonticon-project::before { content: $fonticon-project; } /* '' */
-.fonticon-upload-cloud::before { content: $fonticon-upload-cloud; } /* '' */
-.fonticon-save::before { content: $fonticon-save; } /* '' */
-.fonticon-lock::before { content: $fonticon-lock; } /* '' */
-.fonticon-asterisk::before { content: $fonticon-asterisk; } /* '' */
-.fonticon-delete::before { content: $fonticon-delete; } /* '' */
-.fonticon-information::before { content: $fonticon-information; } /* '' */
-.fonticon-monitor::before { content: $fonticon-monitor; } /* '' */
-.fonticon-decision-diamond::before { content: $fonticon-decision-diamond; } /* '' */
-.fonticon-ia-project-link::before { content: $fonticon-ia-project-link; } /* '' */
-.fonticon-storyteller-end::before { content: $fonticon-storyteller-end; } /* '' */
-.fonticon-pencil::before { content: $fonticon-pencil; } /* '' */
-.fonticon-nonfunctional::before { content: $fonticon-nonfunctional; } /* '' */
-.fonticon-information-more::before { content: $fonticon-information-more; } /* '' */
-.fonticon-tour::before { content: $fonticon-tour; } /* '' */
-.fonticon-flag-1::before { content: $fonticon-flag-1; } /* '' */
-.fonticon-flag-empty::before { content: $fonticon-flag-empty; } /* '' */
-.fonticon-exchange::before { content: $fonticon-exchange; } /* '' */
-.fonticon-edit-alt::before { content: $fonticon-edit-alt; } /* '' */
-.fonticon-clock::before { content: $fonticon-clock; } /* '' */
-.fonticon-download::before { content: $fonticon-download; } /* '' */
-.fonticon-delete-filled::before { content: $fonticon-delete-filled; } /* '' */
-.fonticon-guest::before { content: $fonticon-guest; } /* '' */
-.k-i-close::before { content: $k-i-close; } /* '' */
+.fonticon-bp-ui-mockup-form::before {
+    content: $fonticon-bp-ui-mockup-form;
+}
+
+/* '' */
+.fonticon-bp-screen::before {
+    content: $fonticon-bp-screen;
+}
+
+/* '' */
+.fonticon-folder::before {
+    content: $fonticon-folder;
+}
+
+/* '' */
+.fonticon-relationship-left::before {
+    content: $fonticon-relationship-left;
+}
+
+/* '' */
+.fonticon-relationship-right::before {
+    content: $fonticon-relationship-right;
+}
+
+/* '' */
+.fonticon-relationship-bi::before {
+    content: $fonticon-relationship-bi;
+}
+
+/* '' */
+.fonticon-comments-indicator::before {
+    content: $fonticon-comments-indicator;
+}
+
+/* '' */
+.fonticon-export::before {
+    content: $fonticon-export;
+}
+
+/* '' */
+.fonticon-email::before {
+    content: $fonticon-email;
+}
+
+/* '' */
+.fonticon-printer::before {
+    content: $fonticon-printer;
+}
+
+/* '' */
+.fonticon-list::before {
+    content: $fonticon-list;
+}
+
+/* '' */
+.fonticon-numbered-list::before {
+    content: $fonticon-numbered-list;
+}
+
+/* '' */
+.fonticon-filter-up::before {
+    content: $fonticon-filter-up;
+}
+
+/* '' */
+.fonticon-filter-down::before {
+    content: $fonticon-filter-down;
+}
+
+/* '' */
+.fonticon-hierarchy::before {
+    content: $fonticon-hierarchy;
+}
+
+/* '' */
+.fonticon-flag::before {
+    content: $fonticon-flag;
+}
+
+/* '' */
+.fonticon-explorer::before {
+    content: $fonticon-explorer;
+}
+
+/* '' */
+.fonticon-favourite::before {
+    content: $fonticon-favourite;
+}
+
+/* '' */
+.fonticon-share::before {
+    content: $fonticon-share;
+}
+
+/* '' */
+.fonticon-follow::before {
+    content: $fonticon-follow;
+}
+
+/* '' */
+.fonticon-edit::before {
+    content: $fonticon-edit;
+}
+
+/* '' */
+.fonticon-review-cklist::before {
+    content: $fonticon-review-cklist;
+}
+
+/* '' */
+.fonticon-files::before {
+    content: $fonticon-files;
+}
+
+/* '' */
+.fonticon-sign-in::before {
+    content: $fonticon-sign-in;
+}
+
+/* '' */
+.fonticon-sign-out::before {
+    content: $fonticon-sign-out;
+}
+
+/* '' */
+.fonticon-double-down::before {
+    content: $fonticon-double-down;
+}
+
+/* '' */
+.fonticon-double-left::before {
+    content: $fonticon-double-left;
+}
+
+/* '' */
+.fonticon-double-right::before {
+    content: $fonticon-double-right;
+}
+
+/* '' */
+.fonticon-double-up::before {
+    content: $fonticon-double-up;
+}
+
+/* '' */
+.fonticon-caret-down::before {
+    content: $fonticon-caret-down;
+}
+
+/* '' */
+.fonticon-caret-left::before {
+    content: $fonticon-caret-left;
+}
+
+/* '' */
+.fonticon-caret-right::before {
+    content: $fonticon-caret-right;
+}
+
+/* '' */
+.fonticon-caret-up::before {
+    content: $fonticon-caret-up;
+}
+
+/* '' */
+.fonticon-reply::before {
+    content: $fonticon-reply;
+}
+
+/* '' */
+.fonticon-success::before {
+    content: $fonticon-success;
+}
+
+/* '' */
+.fonticon-error::before {
+    content: $fonticon-error;
+}
+
+/* '' */
+.fonticon-warning::before {
+    content: $fonticon-warning;
+}
+
+/* '' */
+.fonticon-close::before {
+    content: $fonticon-close;
+}
+
+/* '' */
+.fonticon-properties::before {
+    content: $fonticon-properties;
+}
+
+/* '' */
+.fonticon-navigation::before {
+    content: $fonticon-navigation;
+}
+
+/* '' */
+.fonticon-more-menu::before {
+    content: $fonticon-more-menu;
+}
+
+/* '' */
+.fonticon-sort::before {
+    content: $fonticon-sort;
+}
+
+/* '' */
+.fonticon-sort-down::before {
+    content: $fonticon-sort-down;
+}
+
+/* '' */
+.fonticon-sort-up::before {
+    content: $fonticon-sort-up;
+}
+
+/* '' */
+.fonticon-start::before {
+    content: $fonticon-start;
+}
+
+/* '' */
+.fonticon-bp-impact-analysis::before {
+    content: $fonticon-bp-impact-analysis;
+}
+
+/* '' */
+.fonticon-group::before {
+    content: $fonticon-group;
+}
+
+/* '' */
+.fonticon-reuse::before {
+    content: $fonticon-reuse;
+}
+
+/* '' */
+.fonticon-refresh::before {
+    content: $fonticon-refresh;
+}
+
+/* '' */
+.fonticon-history::before {
+    content: $fonticon-history;
+}
+
+/* '' */
+.fonticon-unauthorize::before {
+    content: $fonticon-unauthorize;
+}
+
+/* '' */
+.fonticon-zoom::before {
+    content: $fonticon-zoom;
+}
+
+/* '' */
+.fonticon-source-id::before {
+    content: $fonticon-source-id;
+}
+
+/* '' */
+.fonticon-comment::before {
+    content: $fonticon-comment;
+}
+
+/* '' */
+.fonticon-plus::before {
+    content: $fonticon-plus;
+}
+
+/* '' */
+.fonticon-bp-ui-mockup-form-setting::before {
+    content: $fonticon-bp-ui-mockup-form-setting;
+}
+
+/* '' */
+.fonticon-arrow-down::before {
+    content: $fonticon-arrow-down;
+}
+
+/* '' */
+.fonticon-arrow-left::before {
+    content: $fonticon-arrow-left;
+}
+
+/* '' */
+.fonticon-arrow-right::before {
+    content: $fonticon-arrow-right;
+}
+
+/* '' */
+.fonticon-arrow-up::before {
+    content: $fonticon-arrow-up;
+}
+
+/* '' */
+.fonticon-radial-view::before {
+    content: $fonticon-radial-view;
+}
+
+/* '' */
+.fonticon-tree-view::before {
+    content: $fonticon-tree-view;
+}
+
+/* '' */
+.fonticon-folder-open::before {
+    content: $fonticon-folder-open;
+}
+
+/* '' */
+.fonticon-suspect-left::before {
+    content: $fonticon-suspect-left;
+}
+
+/* '' */
+.fonticon-suspect-right::before {
+    content: $fonticon-suspect-right;
+}
+
+/* '' */
+.fonticon-suspect-centre::before {
+    content: $fonticon-suspect-centre;
+}
+
+/* '' */
+.fonticon-sub-right::before {
+    content: $fonticon-sub-right;
+}
+
+/* '' */
+.fonticon-sub-right-1::before {
+    content: $fonticon-sub-right-1;
+}
+
+/* '' */
+.fonticon-filter::before {
+    content: $fonticon-filter;
+}
+
+/* '' */
+.fonticon-circle-down::before {
+    content: $fonticon-circle-down;
+}
+
+/* '' */
+.fonticon-circle-left::before {
+    content: $fonticon-circle-left;
+}
+
+/* '' */
+.fonticon-circle-up::before {
+    content: $fonticon-circle-up;
+}
+
+/* '' */
+.fonticon-circle-right::before {
+    content: $fonticon-circle-right;
+}
+
+/* '' */
+.fonticon-relationship::before {
+    content: $fonticon-relationship;
+}
+
+/* '' */
+.fonticon-reset::before {
+    content: $fonticon-reset;
+}
+
+/* '' */
+.fonticon-sub::before {
+    content: $fonticon-sub;
+}
+
+/* '' */
+.fonticon-bp-actor::before {
+    content: $fonticon-bp-actor;
+}
+
+/* '' */
+.fonticon-bp-business-process-sub::before {
+    content: $fonticon-bp-business-process-sub;
+}
+
+/* '' */
+.fonticon-bp-collection::before {
+    content: $fonticon-bp-collection;
+}
+
+/* '' */
+.fonticon-bp-document-req::before {
+    content: $fonticon-bp-document-req;
+}
+
+/* '' */
+.fonticon-bp-domain-diagram::before {
+    content: $fonticon-bp-domain-diagram;
+}
+
+/* '' */
+.fonticon-bp-glossary::before {
+    content: $fonticon-bp-glossary;
+}
+
+/* '' */
+.fonticon-bp-review::before {
+    content: $fonticon-bp-review;
+}
+
+/* '' */
+.fonticon-bp-storyboard-sub::before {
+    content: $fonticon-bp-storyboard-sub;
+}
+
+/* '' */
+.fonticon-bp-storyboard::before {
+    content: $fonticon-bp-storyboard;
+}
+
+/* '' */
+.fonticon-bp-textual-req::before {
+    content: $fonticon-bp-textual-req;
+}
+
+/* '' */
+.fonticon-bp-ui-mockup-sub::before {
+    content: $fonticon-bp-ui-mockup-sub;
+}
+
+/* '' */
+.fonticon-bp-ui-mockup::before {
+    content: $fonticon-bp-ui-mockup;
+}
+
+/* '' */
+.fonticon-bp-use-case-diagram-sub::before {
+    content: $fonticon-bp-use-case-diagram-sub;
+}
+
+/* '' */
+.fonticon-bp-use-case-diagram::before {
+    content: $fonticon-bp-use-case-diagram;
+}
+
+/* '' */
+.fonticon-bp-use-case-sub::before {
+    content: $fonticon-bp-use-case-sub;
+}
+
+/* '' */
+.fonticon-bp-use-case::before {
+    content: $fonticon-bp-use-case;
+}
+
+/* '' */
+.fonticon-business-process::before {
+    content: $fonticon-business-process;
+}
+
+/* '' */
+.fonticon-bp-business-quality-req-1::before {
+    content: $fonticon-bp-business-quality-req-1;
+}
+
+/* '' */
+.fonticon-bp-business-rule::before {
+    content: $fonticon-bp-business-rule;
+}
+
+/* '' */
+.fonticon-bp-req::before {
+    content: $fonticon-bp-req;
+}
+
+/* '' */
+.fonticon-bp-glossary-sub::before {
+    content: $fonticon-bp-glossary-sub;
+}
+
+/* '' */
+.fonticon-bp-domain-diagram-sub::before {
+    content: $fonticon-bp-domain-diagram-sub;
+}
+
+/* '' */
+.fonticon-bp-baseline::before {
+    content: $fonticon-bp-baseline;
+}
+
+/* '' */
+.fonticon-bp-business-req::before {
+    content: $fonticon-bp-business-req;
+}
+
+/* '' */
+.fonticon-functional-requirement::before {
+    content: $fonticon-functional-requirement;
+}
+
+/* '' */
+.fonticon-generic-diagram-sub::before {
+    content: $fonticon-generic-diagram-sub;
+}
+
+/* '' */
+.fonticon-generic-diagram::before {
+    content: $fonticon-generic-diagram;
+}
+
+/* '' */
+.fonticon-save-1::before {
+    content: $fonticon-save-1;
+}
+
+/* '' */
+.fonticon-discard::before {
+    content: $fonticon-discard;
+}
+
+/* '' */
+.fonticon-news::before {
+    content: $fonticon-news;
+}
+
+/* '' */
+.fonticon-storyteller-description::before {
+    content: $fonticon-storyteller-description;
+}
+
+/* '' */
+.fonticon-storyteller-objective-1::before {
+    content: $fonticon-storyteller-objective-1;
+}
+
+/* '' */
+.fonticon-storyteller-title::before {
+    content: $fonticon-storyteller-title;
+}
+
+/* '' */
+.fonticon-include-active::before {
+    content: $fonticon-include-active;
+}
+
+/* '' */
+.fonticon-storyteller-sub::before {
+    content: $fonticon-storyteller-sub;
+}
+
+/* '' */
+.fonticon-restore::before {
+    content: $fonticon-restore;
+}
+
+/* '' */
+.fonticon-picture::before {
+    content: $fonticon-picture;
+}
+
+/* '' */
+.fonticon-help::before {
+    content: $fonticon-help;
+}
+
+/* '' */
+.fonticon-attachment::before {
+    content: $fonticon-attachment;
+}
+
+/* '' */
+.fonticon-file-pdf::before {
+    content: $fonticon-file-pdf;
+}
+
+/* '' */
+.fonticon-file-word::before {
+    content: $fonticon-file-word;
+}
+
+/* '' */
+.fonticon-file-excel::before {
+    content: $fonticon-file-excel;
+}
+
+/* '' */
+.fonticon-file-powerpoint::before {
+    content: $fonticon-file-powerpoint;
+}
+
+/* '' */
+.fonticon-file-image::before {
+    content: $fonticon-file-image;
+}
+
+/* '' */
+.fonticon-list-alt::before {
+    content: $fonticon-list-alt;
+}
+
+/* '' */
+.fonticon-project::before {
+    content: $fonticon-project;
+}
+
+/* '' */
+.fonticon-upload-cloud::before {
+    content: $fonticon-upload-cloud;
+}
+
+/* '' */
+.fonticon-save::before {
+    content: $fonticon-save;
+}
+
+/* '' */
+.fonticon-lock::before {
+    content: $fonticon-lock;
+}
+
+/* '' */
+.fonticon-asterisk::before {
+    content: $fonticon-asterisk;
+}
+
+/* '' */
+.fonticon-delete::before {
+    content: $fonticon-delete;
+}
+
+/* '' */
+.fonticon-information::before {
+    content: $fonticon-information;
+}
+
+/* '' */
+.fonticon-monitor::before {
+    content: $fonticon-monitor;
+}
+
+/* '' */
+.fonticon-decision-diamond::before {
+    content: $fonticon-decision-diamond;
+}
+
+/* '' */
+.fonticon-ia-project-link::before {
+    content: $fonticon-ia-project-link;
+}
+
+/* '' */
+.fonticon-storyteller-end::before {
+    content: $fonticon-storyteller-end;
+}
+
+/* '' */
+.fonticon-pencil::before {
+    content: $fonticon-pencil;
+}
+
+/* '' */
+.fonticon-nonfunctional::before {
+    content: $fonticon-nonfunctional;
+}
+
+/* '' */
+.fonticon-information-more::before {
+    content: $fonticon-information-more;
+}
+
+/* '' */
+.fonticon-tour::before {
+    content: $fonticon-tour;
+}
+
+/* '' */
+.fonticon-flag-1::before {
+    content: $fonticon-flag-1;
+}
+
+/* '' */
+.fonticon-flag-empty::before {
+    content: $fonticon-flag-empty;
+}
+
+/* '' */
+.fonticon-exchange::before {
+    content: $fonticon-exchange;
+}
+
+/* '' */
+.fonticon-edit-alt::before {
+    content: $fonticon-edit-alt;
+}
+
+/* '' */
+.fonticon-clock::before {
+    content: $fonticon-clock;
+}
+
+/* '' */
+.fonticon-download::before {
+    content: $fonticon-download;
+}
+
+/* '' */
+.fonticon-delete-filled::before {
+    content: $fonticon-delete-filled;
+}
+
+/* '' */
+.fonticon-guest::before {
+    content: $fonticon-guest;
+}
+
+/* '' */
+.k-i-close::before {
+    content: $k-i-close;
+}
+
+/* '' */
 
 .fonticon-bp-document-req.fonticon-colour {
-  color: #13abc0;
+    color: #13abc0;
 }
+
 .fonticon-bp-textual-req.fonticon-colour,
 .fonticon-bp-textual-req-colour {
-  color: #1c86c5;
+    color: #1c86c5;
 }
+
 .fonticon-bp-business-process.fonticon-colour,
 .fonticon-bp-business-process-sub.fonticon-colour {
-  color: #86dade;
+    color: #86dade;
 }
+
 .fonticon-bp-domain-diagram.fonticon-colour,
 .fonticon-bp-domain-diagram-sub.fonticon-colour {
-  color: #d32f2f;
+    color: #d32f2f;
 }
+
 .fonticon-bp-generic-diagram.fonticon-colour,
 .fonticon-bp-generic-diagram-sub.fonticon-colour {
-  color: #94d564;
+    color: #94d564;
 }
+
 .fonticon-bp-storyboard.fonticon-colour,
 .fonticon-bp-storyboard-sub.fonticon-colour {
-  color: #7b1fa2;
+    color: #7b1fa2;
 }
+
 .fonticon-bp-glossary.fonticon-colour,
 .fonticon-bp-glossary-sub.fonticon-colour {
-  color: #8c1357;
+    color: #8c1357;
 }
+
 .fonticon-bp-actor.fonticon-colour {
-  color: #ec407a;
+    color: #ec407a;
 }
+
 .fonticon-bp-ui-mockup.fonticon-colour,
 .fonticon-bp-ui-mockup-sub.fonticon-colour {
-  color: #ec7616;
+    color: #ec7616;
 }
+
 .fonticon-bp-review.fonticon-colour {
-  color: #5c6bc0;
+    color: #5c6bc0;
 }
+
 .fonticon-bp-use-case.fonticon-colour,
 .fonticon-bp-use-case-sub.fonticon-colour {
-  color: #fbc02d;
+    color: #fbc02d;
 }
+
 .fonticon-bp-use-case-diagram.fonticon-colour,
 .fonticon-bp-use-case-diagram-sub {
-  color: #388e3c;
+    color: #388e3c;
 }
+
 .fonticon-bp-baseline.fonticon-colour {
-  color: #c0ca33;
+    color: #c0ca33;
 }
+
 .fonticon-bp-collection.fonticon-colour {
-  color: #714e10;
+    color: #714e10;
 }
+
 .fonticon-folder-open.fonticon-colour,
 .fonticon-folder.fonticon-colour {
-  color: #ccb287;
+    color: #ccb287;
 }
+
 .fonticon-suspect-left.fonticon-colour,
 .fonticon-suspect-right.fonticon-colour,
 .fonticon-suspect-centre.fonticon-colour {
-  color: red;
+    color: red;
 }
+
 .fonticon-project.fonticon-colour {
-  color: #5474c2;
+    color: #5474c2;
 }
 
 /* !!! Do not remove next classes, they are required for Suspect traces to Work !!! */
 .fonticon-suspect-left-stack::after {
-  color: red;
-  content: $fonticon-suspect-left-stack;
-  margin-left: -1.2em;
-  z-index: 200;
+    color: red;
+    content: $fonticon-suspect-left-stack;
+    margin-left: -1.2em;
+    z-index: 200;
 }
 
 .fonticon-suspect-right-stack::after {
-  color: red;
-  content: $fonticon-suspect-right-stack;
-  margin-left: -1.2em;
-  z-index: 200;
+    color: red;
+    content: $fonticon-suspect-right-stack;
+    margin-left: -1.2em;
+    z-index: 200;
 }
 
 .fonticon-suspect-centre-stack::after {
-  color: red;
-  content: $fonticon-suspect-centre-stack;
-  margin-left: -1em;
-  margin-right: 0;
-  z-index: 200;
+    color: red;
+    content: $fonticon-suspect-centre-stack;
+    margin-left: -1em;
+    margin-right: 0;
+    z-index: 200;
 }

@@ -33,7 +33,7 @@
 //         directiveTest = new ComponentTest<BPHistoryPanelController>(template, "bp-history-panel");
 //         vm = directiveTest.createComponentWithMockParent({}, "bpAccordionPanel", bpAccordionPanelController);
 //     }));
-    
+
 //     afterEach( () => {
 //         vm = null;
 //     });
@@ -44,12 +44,12 @@
 //         expect(directiveTest.element.find(".empty-state").length).toBe(1);
 //     });
 
-//     it("should load data for a selected artifact", 
+//     it("should load data for a selected artifact",
 //         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
 
 //             //Arrange
 //             const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
-            
+
 //             //Act
 //             selectionManager.selection = { artifact: artifact, source:  SelectionSource.Explorer };
 //             $rootScope.$digest();

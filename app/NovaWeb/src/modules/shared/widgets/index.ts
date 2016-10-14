@@ -15,6 +15,7 @@ import "./bp-collapsible";
 import "./bp-file-upload";
 import "./bp-toggle";
 import "./bp-breadcrumb";
+import "./bp-toolbar";
 
 angular.module("bp.widgets", [
     "bp.widgets.dialog",
@@ -23,7 +24,7 @@ angular.module("bp.widgets", [
     "bp.widgets.treedraganddrop",
     "bp.widgets.treeView",
     "bp.widgets.inlineedit",
-    "bp.widgets.tooltip",    
+    "bp.widgets.tooltip",
     "bp.widgets.infinitescroll",
     "bp.widgets.select",
     "bp.widgets.itemicon",
@@ -32,9 +33,32 @@ angular.module("bp.widgets", [
     "bp.widgets.collapsible",
     "bp.widgets.fileupload",
     "bp.widgets.toggle",
-    "bp.widgets.breadcrumb"
+    "bp.widgets.breadcrumb",
+    "bp.widgets.toolbar"
 ]);
-    
-export { IUploadStatusDialogData } from "./bp-file-upload-status/bp-file-upload-status";
-export { IBPTreeController, ITreeNode } from "./bp-tree"
-export { IDialogSettings, IDialogData, IDialogService, BaseDialogController} from "./bp-dialog";
+
+export {
+    IUploadStatusDialogData
+} from "./bp-file-upload-status/bp-file-upload-status";
+
+export {
+    IBPTreeController,
+    ITreeNode
+} from "./bp-tree"
+
+export {
+    IDialogSettings,
+    IDialogData,
+    IDialogService,
+    BaseDialogController
+} from "./bp-dialog";
+
+export {
+    IBPAction,
+    BPButtonAction,
+    BPDropdownItemAction,
+    BPDropdownAction,
+    BPToggleItemAction,
+    BPToggleAction,
+    BPButtonGroupAction
+} from "./bp-toolbar";

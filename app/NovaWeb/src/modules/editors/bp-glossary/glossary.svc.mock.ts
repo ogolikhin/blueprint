@@ -1,10 +1,11 @@
-import { IGlossaryService } from "./glossary.svc";
-import { IArtifact } from "../../main/models/models";
+import {IGlossaryService} from "./glossary.svc";
+import {IArtifact} from "../../main/models/models";
 
 export class GlossaryServiceMock implements IGlossaryService {
     public static $inject = ["$q"];
 
-    constructor(private $q: ng.IQService) { }
+    constructor(private $q: ng.IQService) {
+    }
 
     public getGlossary(id: number): ng.IPromise<IArtifact> {
         const defer = this.$q.defer<IArtifact>();

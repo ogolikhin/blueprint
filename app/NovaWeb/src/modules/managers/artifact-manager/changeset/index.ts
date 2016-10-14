@@ -1,1 +1,1 @@
- export { ChangeTypeEnum, IChangeSet , IChangeCollector, ChangeSetCollector} from "./changeset";
+export {ChangeTypeEnum, IChangeSet, IChangeCollector, ChangeSetCollector} from "./changeset";

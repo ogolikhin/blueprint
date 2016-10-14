@@ -72,15 +72,17 @@ namespace Model.Factories
         }
 
         /// <summary>
-        /// Create an artifact object and populate required attribute values with ArtifactTypeId, ArtifactTypeName, and ProjectId based the target project
+        /// Create an artifact object and populate required attribute values with ArtifactTypeId, ArtifactTypeName, and ProjectId based the target project.
         /// </summary>
-        /// <param name="address">address for Blueprint application server</param>
-        /// <param name="user">user for authentication</param>
-        /// <param name="project">The target project</param>
-        /// <param name="artifactType">artifactType</param>
-        /// <param name="parent">(optional)The parent artifact. By default artifact will be created in root of the project.</param>
-        /// <returns>new artifact object for the target project with selected artifactType</returns>
-        public static IArtifact CreateArtifact(string address, IUser user, IProject project, BaseArtifactType artifactType, IArtifactBase parent = null)
+        /// <param name="address">Address for Blueprint application server.</param>
+        /// <param name="user">User for authentication.</param>
+        /// <param name="project">The target project.</param>
+        /// <param name="artifactType">ArtifactType.</param>
+        /// <param name="parent">(optional) The parent artifact. By default artifact will be created in root of the project.</param>
+        /// <param name="name">(optional) Artifact's name.</param>
+        /// <returns>New artifact object for the target project with selected artifactType.</returns>
+        public static IArtifact CreateArtifact(string address, IUser user, IProject project, BaseArtifactType artifactType,
+            IArtifactBase parent = null, string name = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -97,7 +99,16 @@ namespace Model.Factories
                 project.Name, artifactType);
             artifact.ArtifactTypeId = projectArtifactType.Id;
             artifact.ArtifactTypeName = projectArtifactType.Name;
-            artifact.Name = "Artifact_" + artifact.ArtifactTypeName + "_" + RandomGenerator.RandomAlphaNumeric(5);
+            
+            if (name == null)
+            {
+                artifact.Name = "Artifact_" + artifact.ArtifactTypeName + "_" + RandomGenerator.RandomAlphaNumeric(5);
+            }
+            else
+            {
+                artifact.Name = name;
+            }
+            
 
             //TODO: Move this to Save method and get CreatedBy from the result of the OpenAPI call
             artifact.CreatedBy = user;
@@ -106,19 +117,21 @@ namespace Model.Factories
         }
 
         /// <summary>
-        /// Create an artifact object using the Blueprint application server address from the TestConfiguration file
+        /// Create an artifact object using the Blueprint application server address from the TestConfiguration file.
         /// </summary>
-        /// <param name="project">The target project</param>
-        /// <param name="user">user for authentication</param>
-        /// <param name="artifactType">artifactType</param>
+        /// <param name="project">The target project.</param>
+        /// <param name="user">User for authentication.</param>
+        /// <param name="artifactType">ArtifactType.</param>
         /// <param name="artifactId">(optional) You can specify a custom artifact ID here (for testing non-existent artifacts for example).</param>
-        /// <param name="parent">(optional)The parent artifact. By default artifact will be created in the root of the project.</param>
-        /// <returns>new artifact object</returns>
+        /// <param name="parent">(optional) The parent artifact. By default artifact will be created in the root of the project.</param>
+        /// <param name="name">(optional) Artifact's name.</param>
+        /// <returns>New artifact object.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
-        public static IArtifact CreateArtifact(IProject project, IUser user, BaseArtifactType artifactType, int? artifactId = null, IArtifactBase parent = null)
+        public static IArtifact CreateArtifact(IProject project, IUser user, BaseArtifactType artifactType,
+            int? artifactId = null, IArtifactBase parent = null, string name = null)
         {
             TestConfiguration testConfig = TestConfiguration.GetInstance();
-            IArtifact artifact = CreateArtifact(testConfig.BlueprintServerAddress, user, project, artifactType, parent);
+            IArtifact artifact = CreateArtifact(testConfig.BlueprintServerAddress, user, project, artifactType, parent, name: name);
 
             if (artifactId != null)
             {

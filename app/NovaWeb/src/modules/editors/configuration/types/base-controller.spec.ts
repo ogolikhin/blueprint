@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import "angular-mocks";
 
-import { BPFieldBaseController } from "./base-controller";
+import {BPFieldBaseController} from "./base-controller";
 
 describe("Formly Base Controller", () => {
     let controller: BPFieldBaseController,
@@ -32,9 +32,7 @@ describe("Formly Base Controller", () => {
     }
 
     beforeEach(
-        inject((
-            _$controller_
-            ) => {
+        inject((_$controller_) => {
                 $controller = _$controller_;
             }
         )
@@ -42,7 +40,7 @@ describe("Formly Base Controller", () => {
 
     beforeEach(() => {
         scope = {};
-        controller = $controller(BPFieldBaseController, { $scope: scope });
+        controller = $controller(BPFieldBaseController, {$scope: scope});
         angular.element("body").append(`
             <div class="container" style="height:100px;width:100px;overflow:auto;">
                 <div class="spacer" style="height:200px;width:100px;"></div>

@@ -1,4 +1,6 @@
 import * as angular from "angular";
+import "angular-mocks";
+import ".";
 import {BPBreadcrumbController} from "./bp-breadcrumb";
 import {IBreadcrumbLink} from "./breadcrumb-link";
 
@@ -32,13 +34,15 @@ describe("BPBreadcrumbComponent", () => {
 
     it("correctly binds properties and events", () => {
         // arrange
-        const template = `<bp-breadcrumb links="[{id: 0, name: 'test0', isEnabled: true}]" on-navigate="navigateTo(link)"></bp-breadcrumb>`;
+        const template = `<bp-breadcrumb links="links" on-navigate="navigateTo(link)"></bp-breadcrumb>`;
+        const links = [{id: 0, name: "test0", isEnabled: true}];
+        $scope["links"] = links;
 
         // act
         const controller = <BPBreadcrumbController>$compile(template)($scope).controller("bpBreadcrumb");
 
         // assert
-        expect(controller.links).toEqual([{id: 0, name: "test0", isEnabled: true}]);
+        expect(controller.links).toEqual(links);
         expect(angular.isFunction(controller.onNavigate)).toEqual(true);
     });
 
@@ -47,7 +51,8 @@ describe("BPBreadcrumbComponent", () => {
         const template = `<bp-breadcrumb></bp-breadcrumb>`;
         const controller = <BPBreadcrumbController>$compile(template)($scope).controller("bpBreadcrumb");
         controller.links = [];
-        controller.onNavigate = (parameter) => {};
+        controller.onNavigate = (parameter) => {
+        };
 
         // act
         controller.dispose();
@@ -59,13 +64,14 @@ describe("BPBreadcrumbComponent", () => {
 
     it("ignores navigation to disabled links", () => {
         // arrange
-        const disabledLink = { id: 0, name: "disabled link", isEnabled: false };
+        const disabledLink = {id: 0, name: "disabled link", isEnabled: false};
         const template = `<bp-breadcrumb links="links" on-navigate="navigateTo(link)"></bp-breadcrumb>`;
         const component = $compile(template)($scope);
         const controller = <BPBreadcrumbController>component.controller("bpBreadcrumb");
 
         $scope["links"] = [disabledLink];
-        $scope["navigateTo"] = (link: IBreadcrumbLink) => {};
+        $scope["navigateTo"] = (link: IBreadcrumbLink) => {
+        };
         $scope.$digest();
 
         const onNavigateSpy = spyOn(controller, "onNavigate").and.callThrough();
@@ -73,7 +79,7 @@ describe("BPBreadcrumbComponent", () => {
 
         // act
         component.find("a").click();
-        
+
         // assert
         expect(onNavigateSpy).not.toHaveBeenCalled();
         expect(navigateToSpy).not.toHaveBeenCalled();
@@ -81,13 +87,14 @@ describe("BPBreadcrumbComponent", () => {
 
     it("navigates to enabled links", () => {
         // arrange
-        const enabledLink = { id: 0, name: "enabled link", isEnabled: true };
+        const enabledLink = {id: 0, name: "enabled link", isEnabled: true};
         const template = `<bp-breadcrumb links="links" on-navigate="navigateTo(link)"></bp-breadcrumb>`;
         const component = $compile(template)($scope);
         const controller = <BPBreadcrumbController>component.controller("bpBreadcrumb");
 
         $scope["links"] = [enabledLink];
-        $scope["navigateTo"] = (link: IBreadcrumbLink) => {};
+        $scope["navigateTo"] = (link: IBreadcrumbLink) => {
+        };
         $scope.$digest();
 
         const onNavigateSpy = spyOn(controller, "onNavigate").and.callThrough();
@@ -95,9 +102,9 @@ describe("BPBreadcrumbComponent", () => {
 
         // act
         component.find("a").click();
-        
+
         // assert
-        expect(onNavigateSpy).toHaveBeenCalledWith({ link: enabledLink });
+        expect(onNavigateSpy).toHaveBeenCalledWith({link: enabledLink});
         expect(navigateToSpy).toHaveBeenCalledWith(enabledLink);
     });
 });

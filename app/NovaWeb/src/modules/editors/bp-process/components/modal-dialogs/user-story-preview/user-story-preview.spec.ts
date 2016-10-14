@@ -1,8 +1,8 @@
 ﻿import * as angular from "angular";
 import {UserStoryPreviewController} from "./user-story-preview";
 import {UserStoryDialogModel} from "../models/user-story-dialog-model";
-import { ModalServiceInstanceMock } from "../../../../../shell/login/mocks.spec";
-import { ShapeModelMock } from "../../diagram/presentation/graph/shapes/shape-model.mock";
+import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
+import {ShapeModelMock} from "../../diagram/presentation/graph/shapes/shape-model.mock";
 import {UserTask} from "../../diagram/presentation/graph/shapes/";
 import {CommunicationManager, ICommunicationManager} from "../../../services/communication-manager";
 
@@ -16,14 +16,18 @@ describe("UserStoryPreviewController", () => {
     }));
 
     beforeEach(
-        inject((
-            $controller: ng.IControllerService,
-            $rootScope: ng.IRootScopeService,
-            $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance,
-            communicationManager: ICommunicationManager) => {
+        inject(($controller: ng.IControllerService,
+                $rootScope: ng.IRootScopeService,
+                $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance,
+                communicationManager: ICommunicationManager) => {
                 dialogModel = new UserStoryDialogModel();
                 var controllerScope = $rootScope.$new();
-                controller = $controller(UserStoryPreviewController, { $scope: controllerScope, $uibModalInstance, dialogModel, communicationManager });
+                controller = $controller(UserStoryPreviewController, {
+                    $scope: controllerScope,
+                    $uibModalInstance,
+                    dialogModel,
+                    communicationManager
+                });
             }
         ));
 

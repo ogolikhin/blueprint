@@ -1,45 +1,66 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-    <meta content="en" http-equiv="content-language" />
-    <meta name="viewport" content="initial-scale=1, maximum-scale=2" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="mobile-web-app-capable" content="yes" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <meta content="en" http-equiv="content-language"/>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=2"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="mobile-web-app-capable" content="yes"/>
     <script src="/svc/adminstore/config/config.js"></script>
 
     <title>Blueprint</title>
+    <link rel="stylesheet" href="/novaweb/vendor.css">
+    <link rel="stylesheet" href="/novaweb/app.css">
+
 </head>
 <body>
 <div id="webfont-tester">Webfont tester<!-- This element will be removed at runtime --></div>
 <app id="js-enabled">
-	<div class="app-loading"><span class="glyphicon glyphicon-refresh spin"></span> Loading ...</div>
+    <div class="app-loading"><span class="glyphicon glyphicon-refresh spin"></span> Loading ...</div>
 </app>
 <noscript>
-	<!--[if !IE]> -->
-	<nav class="navbar navbar-default navbar-fixed-top">
-		<div class="navbar-header">
-			<div class="navbar-brand">Blueprint</div>
-			<div class="navbar-right">
-				<!-- <a href="#" class="fonticon fonticon-help"></a> -->
-			</div>
-		</div>
-	</nav>
-	<!-- <![endif]-->
-	<div class="error-page">
-		<div class="message">
-			<div class="icon-error-nofont">
-				<svg width="36" height="36" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1277 1122q0-26-19-45l-181-181 181-181q19-19 19-45 0-27-19-46l-90-90q-19-19-46-19-26 0-45 19l-181 181-181-181q-19-19-45-19-27 0-46 19l-90 90q-19 19-19 46 0 26 19 45l181 181-181 181q-19 19-19 45 0 27 19 46l90 90q19 19 46 19 26 0 45-19l181-181 181 181q19 19 45 19 27 0 46-19l90-90q19-19 19-46zm387-226q0 209-103 385.5t-279.5 279.5-385.5 103-385.5-103-279.5-279.5-103-385.5 103-385.5 279.5-279.5 385.5-103 385.5 103 279.5 279.5 103 385.5z" fill="#d95f5e"/></svg><br/>
-				Error
-			</div>
-			<div>
-				​To continue, JavaScript must be enabled in your browser.<br/>Please contact your administrator for assistance.
-			</div>
-		</div>
-	</div>
+    <!--[if !IE]> -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="navbar-header">
+            <div class="navbar-brand">Blueprint</div>
+            <div class="navbar-right">
+                <!-- <a href="#" class="fonticon fonticon-help"></a> -->
+            </div>
+        </div>
+    </nav>
+    <!-- <![endif]-->
+    <div class="error-page">
+        <div class="message">
+            <div class="icon-error-nofont">
+                <svg width="36" height="36" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M1277 1122q0-26-19-45l-181-181 181-181q19-19 19-45 0-27-19-46l-90-90q-19-19-46-19-26 0-45 19l-181 181-181-181q-19-19-45-19-27 0-46 19l-90 90q-19 19-19 46 0 26 19 45l181 181-181 181q-19 19-19 45 0 27 19 46l90 90q19 19 46 19 26 0 45-19l181-181 181 181q19 19 45 19 27 0 46-19l90-90q19-19 19-46zm387-226q0 209-103 385.5t-279.5 279.5-385.5 103-385.5-103-279.5-279.5-103-385.5 103-385.5 279.5-279.5 385.5-103 385.5 103 279.5 279.5 103 385.5z"
+                        fill="#d95f5e"/>
+                </svg>
+                <br/>
+                Error
+            </div>
+            <div>
+                ​To continue, JavaScript must be enabled in your browser.<br/>
+                Please contact your administrator for assistance.
+            </div>
+        </div>
+    </div>
 </noscript>
+
+<script type="text/javascript">
+    mxBasePath = "./novaweb/libs/mxClient";
+</script>
+
+<!--<script src="/novaweb/libs/mxClient/js/mxClient.min.js"></script>-->
+
+<script src="/novaweb/vendor.bundle.js"></script>
+
 <script src="/novaweb/static/bowser.js"></script>
 <script src="/novaweb/static/unsupported-browser.js"></script>
+
+<script src="/novaweb/app.bundle.js"></script>
+
 </body>
 </html>

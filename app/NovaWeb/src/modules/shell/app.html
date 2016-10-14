@@ -4,10 +4,12 @@
         <div class="navbar-brand">{{::$root.config.labels["App_Header_Name"]}}</div>
         <div class="navbar-right">
             <span>{{::$root.config.labels["App_Header_Welcome"]}}</span> <span class="signed-in-as">{{app.currentUser.displayName}}</span>
-            <a ng-click="app.logout($event)" class="fonticon fonticon-sign-out" bp-tooltip="{{::$root.config.labels['Tooltip_App_Header_Logout']}}"></a>
-            <a ng-click="app.navigateToHelpUrl($event)" class="fonticon fonticon-help" bp-tooltip="{{::$root.config.labels['Tooltip_App_Header_Help']}}"></a>
+            <a ng-click="app.logout($event)" class="fonticon fonticon-sign-out"
+               bp-tooltip="{{::$root.config.labels['Tooltip_App_Header_Logout']}}"></a>
+            <a ng-click="app.navigateToHelpUrl($event)" class="fonticon fonticon-help"
+               bp-tooltip="{{::$root.config.labels['Tooltip_App_Header_Help']}}"></a>
         </div>
     </div>
 </nav>
-    
+
 <ui-view id="wrapper"></ui-view>

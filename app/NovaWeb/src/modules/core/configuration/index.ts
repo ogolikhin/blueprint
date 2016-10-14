@@ -43,6 +43,7 @@ export interface ISettingsService {
 
 export class SettingsService implements ISettingsService {
     static $inject: [string] = ["$rootScope"];
+
     constructor(private scope: ng.IRootScopeService) {
     }
 

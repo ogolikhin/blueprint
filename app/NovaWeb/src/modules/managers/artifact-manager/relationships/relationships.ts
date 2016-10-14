@@ -1,25 +1,31 @@
 import * as angular from "angular";
-import { IIStatefulItem } from "../item";
-import { ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet } from "../changeset";
-import { IRelationship, IArtifactRelationshipsResultSet } from "../../../main/models/relationshipmodels";
+import {IIStatefulItem} from "../item";
+import {ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet} from "../changeset";
+import {IRelationship, IArtifactRelationshipsResultSet, LinkType} from "../../../main/models/relationshipModels";
 
 export interface IArtifactRelationships {
     getObservable(): Rx.IObservable<IRelationship[]>;
     get(refresh?: boolean): ng.IPromise<IRelationship[]>;
     add(relationships: IRelationship[]);
     remove(relationships: IRelationship[]);
-    update(relationships: IRelationship[]);
+    update(relationships: IRelationship[]): IRelationship[];
     changes(): IRelationship[];
     refresh(): ng.IPromise<IRelationship[]>;
     discard();
+    updateManual(relationships: IRelationship[]);
     canEdit: boolean;
+}
+
+export interface IResult {
+    found: boolean;
+    index: number;
 }
 
 export class ArtifactRelationships implements IArtifactRelationships {
     private relationships: IRelationship[];
     private originalRelationships: IRelationship[];
     private subject: Rx.BehaviorSubject<IRelationship[]>;
-    
+
     private changeset: IChangeCollector;
     private isLoaded: boolean;
     private loadPromise: ng.IPromise<any>;
@@ -70,19 +76,19 @@ export class ArtifactRelationships implements IArtifactRelationships {
         if (relationships) {
             relationships.map((relationship: IRelationship) => {
                 this.relationships.push(relationship);
-                
+
                 const changeset = {
                     type: ChangeTypeEnum.Add,
                     key: this.getKey(relationship),
                     value: relationship
                 } as IChangeSet;
                 this.changeset.add(changeset);
-                
+
                 this.statefulItem.lock();
             });
             this.subject.onNext(this.relationships);
         }
-        
+
         return this.relationships;
     }
 
@@ -94,21 +100,44 @@ export class ArtifactRelationships implements IArtifactRelationships {
         throw Error("operation not supported");
     }
 
+    public updateManual(relationships: IRelationship[]): IRelationship[] {
+        this.relationships = this.relationships.filter((relationship: IRelationship) =>
+        relationship.traceType !== LinkType.Manual);
+
+        this.relationships = this.relationships.concat(relationships);
+
+        this.relationships.map((relationship: IRelationship) => {
+            const changeset = {
+                type: ChangeTypeEnum.Add,
+                key: this.getKey(relationship),
+                value: relationship
+            } as IChangeSet;
+            this.changeset.add(changeset);
+        });
+
+
+        this.statefulItem.lock();
+
+        this.subject.onNext(this.relationships);
+
+        return this.relationships;
+    }
+
     public remove(relationships: IRelationship[]): IRelationship[] {
         if (relationships) {
             relationships.map((relationship: IRelationship) => {
-                const foundRelationshipIndex = this.relationships.indexOf(relationship);
+                const foundRelationshipIndex = this.inArray(this.relationships, relationship).index;
 
                 if (foundRelationshipIndex > -1) {
                     this.relationships.splice(foundRelationshipIndex, 1);
-                    
+
                     const changeset = {
                         type: ChangeTypeEnum.Delete,
                         key: relationship.artifactId,
                         value: relationship
                     } as IChangeSet;
                     this.changeset.add(changeset);
-                    
+
                     this.statefulItem.lock();
                 }
             });
@@ -161,5 +190,21 @@ export class ArtifactRelationships implements IArtifactRelationships {
     public refresh(): ng.IPromise<IRelationship[]> {
         this.isLoaded = false;
         return this.get(true);
+    }
+
+    public inArray(array, item) {
+        let found = false,
+            index = -1;
+        if (array) {
+            for (let i = 0; i < array.length; i++) {
+                if (array[i].itemId === item.itemId) {
+                    found = true;
+                    index = i;
+                    break;
+                }
+            }
+        }
+
+        return <IResult>{"found": found, "index": index};
     }
 }

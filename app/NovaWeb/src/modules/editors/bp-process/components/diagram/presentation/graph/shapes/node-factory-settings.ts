@@ -5,4 +5,5 @@ export class NodeFactorySettings {
     public isPreviewButtonEnabled: boolean;
     public isMockupButtonEnabled: boolean;
     public isDetailsButtonEnabled: boolean;
+    public isDeleteShapeEnabled: boolean;
 }

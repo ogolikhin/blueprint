@@ -19,18 +19,18 @@ $hamburger-types: (collapse, collapse-r);
 
 html,
 body {
-  height: 100%;
+    height: 100%;
 }
 
 body {
-  background-color: $body-bg-color;
-  background-image: url('images/logo-storyteller-gray.svg'), radial-gradient(ellipse 70% 50% at top, rgba(253, 253, 253, 0) 15%, #c4c4c4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  background-repeat: no-repeat, no-repeat;
-  background-position: center 48%, top;
-  background-size: 60%, 120%;
-  color: $body-color;
-  overflow: auto;
-  overflow-y: hidden;
+    background-color: $body-bg-color;
+    background-image: url('images/logo-storyteller-gray.svg'), radial-gradient(ellipse 70% 50% at top, rgba(253, 253, 253, 0) 15%, #c4c4c4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    background-repeat: no-repeat, no-repeat;
+    background-position: center 48%, top;
+    background-size: 60%, 120%;
+    color: $body-color;
+    overflow: auto;
+    overflow-y: hidden;
 }
 
 @import 'partials/navbar';
@@ -40,24 +40,24 @@ body {
 @import 'partials/button';
 
 .app-loading {
-  color: $gray-light;
-  font-size: $font-size-biggest;
-  padding: 32px;
-  text-align: center;
-  width: 100%;
+    color: $gray-light;
+    font-size: $font-size-biggest;
+    padding: 32px;
+    text-align: center;
+    width: 100%;
 }
 
 @import 'partials/unsupported';
 
 #wrapper {
-  display: block;
-  height: calc(100% - #{$wrapper-height});
-  left: 0;
-  margin-top: $wrapper-height;
-  min-width: $app-minimum-width;
-  overflow: hidden;
-  position: absolute;
-  width: 100%;
+    display: block;
+    height: calc(100% - #{$wrapper-height});
+    left: 0;
+    margin-top: $wrapper-height;
+    min-width: $app-minimum-width;
+    overflow: hidden;
+    position: absolute;
+    width: 100%;
 }
 
 @import 'partials/perfect-scrollbar';
@@ -84,4 +84,6 @@ body {
 @import 'partials/autocomplete';
 @import 'partials/file-upload-status';
 @import 'partials/loading-overlay';
+@import 'partials/manage-traces';
+@import 'partials/toolbar2';
 @import 'storyteller/story-teller';

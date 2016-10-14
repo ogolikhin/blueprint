@@ -1,11 +1,12 @@
 ﻿import * as angular from "angular";
-import { Models} from "../../models";
-import { Helper, IBPTreeController } from "../../../shared";
-import { IProjectManager, IArtifactManager} from "../../../managers";
-import { Project } from "../../../managers/project-manager";
-import { IStatefulArtifact } from "../../../managers/artifact-manager";
-import { IArtifactNode } from "../../../managers/project-manager";
-import { INavigationService } from "../../../core/navigation/navigation.svc";
+import {Models} from "../../models";
+import {ItemTypePredefined} from "../../models/enums";
+import {Helper, IBPTreeController} from "../../../shared";
+import {IProjectManager, IArtifactManager} from "../../../managers";
+import {Project} from "../../../managers/project-manager";
+import {IStatefulArtifact} from "../../../managers/artifact-manager";
+import {IArtifactNode} from "../../../managers/project-manager";
+import {INavigationService} from "../../../core/navigation/navigation.svc";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
@@ -15,17 +16,16 @@ export class ProjectExplorer implements ng.IComponentOptions {
 
 export class ProjectExplorerController {
     public tree: IBPTreeController;
-    private selected: IArtifactNode;
     private subscribers: Rx.IDisposable[];
+    private selectedArtifactSubscriber: Rx.IDisposable;
     private numberOfProjectsOnLastLoad: number;
+    private selectedArtifactNameBeforeChange: string;
 
     public static $inject: [string] = ["projectManager", "artifactManager", "navigationService"];
-    
-    constructor(
-        private projectManager: IProjectManager,
-        private artifactManager: IArtifactManager,
-        private navigationService: INavigationService
-    ) { 
+
+    constructor(private projectManager: IProjectManager,
+                private artifactManager: IArtifactManager,
+                private navigationService: INavigationService) {
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -33,13 +33,34 @@ export class ProjectExplorerController {
         //use context reference as the last parameter on subscribe...
         this.subscribers = [
             //subscribe for project collection update
-            this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
+            this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this)
         ];
     }
-    
+
     public $onDestroy() {
         //dispose all subscribers
-        this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => {
+            it.dispose();
+            return false;
+        });
+        if (this.selectedArtifactSubscriber) {
+            this.selectedArtifactSubscriber.dispose();
+        }
+    }
+
+    private _selected: IArtifactNode;
+    private get selected() {
+        return this._selected;
+    }
+
+    private set selected(value: IArtifactNode) {
+        this._selected = value;
+        this.selectedArtifactNameBeforeChange = value.name;
+        //Dispose of old subscriber and subscribe to new artifact.
+        if (this.selectedArtifactSubscriber) {
+            this.selectedArtifactSubscriber.dispose();
+        }
+        this.selectedArtifactSubscriber = value.artifact.getObservable().subscribeOnNext(this.onSelectedArtifactChange);
     }
 
     // the object defines how data will map to ITreeNode
@@ -53,7 +74,7 @@ export class ProjectExplorerController {
         children: "children",
         loaded: "loaded",
         open: "open"
-    }; 
+    };
 
     public columns = [{
         headerName: "",
@@ -75,7 +96,7 @@ export class ProjectExplorerController {
 
             return css;
         },
-        
+
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
@@ -87,6 +108,10 @@ export class ProjectExplorerController {
                                 item-type-id="${artifactType.id}"
                                 item-type-icon="${artifactType.iconImageId}"
                                 ng-drag-handle></bp-item-type-icon>`;
+                } else if (artifactType && 
+                (artifactType.predefinedType === ItemTypePredefined.CollectionFolder 
+                || artifactType.predefinedType === ItemTypePredefined.ArtifactCollection) ) {
+                    icon = "<i ng-drag-handle class='fonticon fonticon2-collection'></i>";
                 }
                 return `${icon}<span>${name}</span>`;
             },
@@ -99,10 +124,10 @@ export class ProjectExplorerController {
 
     private onLoadProject = (projects: Project[]) => {
         //NOTE: this method is called during "$onInit" and as a part of "Rx.BehaviorSubject" initialization.
-        // At this point the tree component (bp-tree) is not created yet due to component hierachy (dependant) 
+        // At this point the tree component (bp-tree) is not created yet due to component hierachy (dependant)
         // so, just need to do an extra check if the component has created
         if (this.tree) {
-            
+
             this.tree.reload(projects);
 
             if (projects && projects.length > 0) {
@@ -152,23 +177,28 @@ export class ProjectExplorerController {
         }
     }
 
+    public onSelectedArtifactChange = (artifact: IStatefulArtifact) => {
+        //If the artifact's name changes (on refresh), we reload the project so the change is reflected in the explorer.
+        if (artifact.name !== this.selectedArtifactNameBeforeChange) {
+            this.onLoadProject(this.projectManager.projectCollection.getValue());
+        }
+    }
+
     public doLoad = (prms: Models.IProject): any[] => {
         //the explorer must be empty on a first load
         if (prms) {
             //notify the repository to load the node children
             this.projectManager.loadArtifact(prms.id);
         }
-        
+
         return null;
     };
 
     public doSelect = (node: IArtifactNode) => {
-        if (!this.selected || this.selected.id !== node.id || this.selected.id !== this.artifactManager.selection.getArtifact().id) {
-            this.doSync(node);
-            this.selected = node;
-            this.tree.selectNode(node.id);
-            this.navigationService.navigateToArtifact(node.id);
-        }
+        this.doSync(node);
+        this.selected = node;
+        this.tree.selectNode(node.id);
+        this.navigationService.navigateToArtifact(node.id);
     };
 
     public doSync = (node: IArtifactNode): IStatefulArtifact => {
@@ -180,8 +210,9 @@ export class ProjectExplorerController {
                 loaded: node.loaded,
                 open: node.open
             });
-        };
-        
+        }
+        ;
+
         return artifactNode.artifact;
     };
 }

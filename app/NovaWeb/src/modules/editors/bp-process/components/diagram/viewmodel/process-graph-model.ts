@@ -1,8 +1,6 @@
 ﻿import {ItemTypePredefined} from "../../../../../main/models/enums";
 import {Models} from "../../../../../main";
 import {ProcessModels, ProcessEnums} from "../../../";
-import { IStatefulArtifact } from "../../../../../managers/artifact-manager/";
-import { StatefulProcessArtifact } from "../../../process-artifact";
 
 export interface IProcessGraphModel {
 
@@ -40,12 +38,8 @@ export interface IProcessGraphModel {
     getBranchDestinationId(decisionId: number, firstShapeInConditionId: number): number;
     isInSameFlow(id: number, otherId: number): boolean;
     isInChildFlow(id: number, otherId: number): boolean;
-
     updateDecisionDestinationId(decisionId: number, orderIndex: number, newDestinationId: number);
-
     isDecision(id: number): boolean;
-    statefulArtifact: IStatefulArtifact;
-
     destroy();
 }
 
@@ -122,7 +116,7 @@ export class ProcessGraphModel implements IProcessGraphModel {
         return this.process.status;
     }
 
-    // tree 
+    // tree
     private createTree() {
         this.tree = {};
         this.startShapeId = null;
@@ -131,7 +125,7 @@ export class ProcessGraphModel implements IProcessGraphModel {
         this.linkIndex = [];
 
         for (let i in this.process.shapes) {
-            var shape = this.process.shapes[i];
+            const shape = this.process.shapes[i];
 
             if (this.startShapeId == null && this.getShapeType(shape) === ProcessEnums.ProcessShapeType.Start) {
                 this.startShapeId = shape.id;
@@ -146,13 +140,13 @@ export class ProcessGraphModel implements IProcessGraphModel {
             }
 
             // add shape reference to the tree
-            var shapeRef = new ProcessModels.TreeShapeRef();
+            const shapeRef = new ProcessModels.TreeShapeRef();
             shapeRef.index = Number(i);
             this.tree[shape.id.toString()] = shapeRef;
         }
 
         for (let i in this.process.links) {
-            var link = this.process.links[i];
+            const link = this.process.links[i];
             this.linkIndex[link.sourceId.toString() + ";" + link.destinationId.toString()] = i;
             this.tree[link.sourceId.toString()].nextShapeIds.push(link.destinationId);
             this.tree[link.destinationId.toString()].prevShapeIds.push(link.sourceId);
@@ -173,12 +167,10 @@ export class ProcessGraphModel implements IProcessGraphModel {
         this.createFlow();
     }
 
-    private createFlow(
-        id: number = this.startShapeId,
-        previousId: number = null,
-        flow: ProcessModels.IProcessFlow = null,
-        conditionEndIds: number[] = []
-    ) {
+    private createFlow(id: number = this.startShapeId,
+                       previousId: number = null,
+                       flow: ProcessModels.IProcessFlow = null,
+                       conditionEndIds: number[] = []) {
         if (id == null) {
             return;
         }
@@ -232,10 +224,12 @@ export class ProcessGraphModel implements IProcessGraphModel {
     public updateTree() {
         this.createTree();
     }
+
     public updateTreeAndFlows() {
         this.updateTree();
         this.createFlows();
     }
+
     public getTree(): Models.IHashMap<ProcessModels.TreeShapeRef> {
         return this.tree;
     }
@@ -247,9 +241,9 @@ export class ProcessGraphModel implements IProcessGraphModel {
 
     public getNextOrderIndex(id: number): number {
         this.updateTree();
-        var shapeRef: ProcessModels.TreeShapeRef = this.tree[id.toString()];
-        var nextId: number = shapeRef.nextShapeIds[shapeRef.nextShapeIds.length - 1];
-        var link = this.process.links[this.getLinkIndex(id, nextId)];
+        const shapeRef: ProcessModels.TreeShapeRef = this.tree[id.toString()];
+        const nextId: number = shapeRef.nextShapeIds[shapeRef.nextShapeIds.length - 1];
+        const link = this.process.links[this.getLinkIndex(id, nextId)];
         return link.orderindex + 1;
     }
 
@@ -293,7 +287,7 @@ export class ProcessGraphModel implements IProcessGraphModel {
 
     public hasMultiplePrevShapesById(id: number): boolean {
         this.updateTree();
-        var shape: ProcessModels.TreeShapeRef = this.tree[id.toString()];
+        const shape: ProcessModels.TreeShapeRef = this.tree[id.toString()];
         return (shape.prevShapeIds.length > 1);
     }
 
@@ -327,7 +321,7 @@ export class ProcessGraphModel implements IProcessGraphModel {
     }
 
     public getConnectedDecisionIds(destinationId: number): number[] {
-        var branchDestinationLinks: ProcessModels.IProcessLink[] = this.getDecisionBranchDestinationLinks(
+        const branchDestinationLinks: ProcessModels.IProcessLink[] = this.getDecisionBranchDestinationLinks(
             (link: ProcessModels.IProcessLink) => link.destinationId === destinationId
         );
 
@@ -339,7 +333,7 @@ export class ProcessGraphModel implements IProcessGraphModel {
     }
 
     public getBranchDestinationIds(decisionId: number): number[] {
-        var branchDestinationLinks: ProcessModels.IProcessLink[] = this.getDecisionBranchDestinationLinks(
+        const branchDestinationLinks: ProcessModels.IProcessLink[] = this.getDecisionBranchDestinationLinks(
             (link: ProcessModels.IProcessLink) => link.sourceId === decisionId
         );
 
@@ -417,19 +411,12 @@ export class ProcessGraphModel implements IProcessGraphModel {
         }
     }
 
-    public get statefulArtifact(): IStatefulArtifact{
-        if (this.process instanceof StatefulProcessArtifact) {
-            return <StatefulProcessArtifact> this.process;
-        }
-        return null;        
-    }
-
     public destroy() {
         this.tree = null;
         this.linkIndex = [];
         this.startShapeId = null;
         this.endShapeId = null;
-        // remove the reference to the process artifact 
+        // remove the reference to the process artifact
         this.process = null;
     }
 

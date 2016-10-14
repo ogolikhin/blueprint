@@ -108,7 +108,7 @@ export interface IProcessGraph {
     getBranchScope(initialBranchLink: IProcessLink, nextIdsProvider: INextIdsProvider): IScopeContext;
     getLink(sourceId: number, destinationId: number): IProcessLink;
     globalScope: IScopeContext;
-    defaultNextIdsProvider: INextIdsProvider;    
+    defaultNextIdsProvider: INextIdsProvider;
     getScope(id: number): IScopeContext;
     notifyUpdateInModel: INotifyModelChanged;
     getShapeById(id: number): IProcessShape;

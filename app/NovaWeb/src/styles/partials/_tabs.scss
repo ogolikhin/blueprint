@@ -1,71 +1,70 @@
 .nav-tabs {
-  border: 0;
-  margin-bottom: 10px;
-
-  > li {
-    font-size: $font-size-big;
-
-    &:first-child > a {
-      margin-left: 0;
-    }
-  }
-
-  > li.active {
-    font-size: $font-size-big;
-
-    > a,
-    > a:hover,
-    > a:focus {
-      border: 0;
-      border-bottom: 4px solid $brand-secondary;
-      padding-bottom: 3px;
-    }
-  }
-
-  > li > a {
     border: 0;
-    color: $gray-dark;
-    font-weight: 600;
-    margin: 0 15px;
-    padding: 3px 1px 7px;
+    margin-bottom: 10px;
 
-    &:hover {
-      background: transparent;
-      border-bottom: 4px solid $brand-secondary;
-      padding-bottom: 3px;
-    }
-  }
+    > li {
+        font-size: $font-size-big;
 
-  > li.invalid {
-    > a,
-    > a:hover,
-    > a:focus {
-      border: 0;
-      border-bottom: 4px solid $brand-error;
-      padding-bottom: 3px;
+        &:first-child > a {
+            margin-left: 0;
+        }
     }
-  }
+
+    > li.active {
+        font-size: $font-size-big;
+
+        > a,
+        > a:hover,
+        > a:focus {
+            border: 0;
+            border-bottom: 4px solid $brand-secondary;
+            padding-bottom: 3px;
+        }
+    }
+
+    > li > a {
+        border: 0;
+        color: $gray-dark;
+        font-weight: 600;
+        margin: 0 15px;
+        padding: 3px 1px 7px;
+
+        &:hover {
+            background: transparent;
+            border-bottom: 4px solid $brand-secondary;
+            padding-bottom: 3px;
+        }
+    }
+
+    > li.invalid {
+        > a,
+        > a:hover,
+        > a:focus {
+            color: $brand-error;
+        }
+    }
 }
 
 // proof of concept
 .page-body .artifact-overview .content .nav-tabs {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    margin-top: 20px;
 
-  > li {
-    overflow: hidden;
-    transition: flex .25s;
-    white-space: nowrap;
+    > li {
+        overflow: hidden;
+        transition: flex .25s;
+        white-space: nowrap;
 
-    &.active,
-    &:hover {
-      flex: none;
+        &.active,
+        &:hover {
+            flex: none;
+        }
+
+        > a {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     }
-
-    > a {
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
 }

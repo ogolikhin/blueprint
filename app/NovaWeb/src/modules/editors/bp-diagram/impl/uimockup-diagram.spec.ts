@@ -175,7 +175,6 @@ describe("UIMockup", () => {
     });
 
 
-
     it("Checkbox checked Test", () => {
         // Arrange
         const eventShapes = [];
@@ -332,20 +331,20 @@ describe("UIMockup", () => {
         const shape = {
             labelStyle: labelStyle,
             props: [
-                { name: "length", value: "3" },
+                {name: "length", value: "3"},
                 {
                     name: "TreeItem",
-                    value: { isEnabled: true, isSeparator: false, text: "File", isSelected: false }
+                    value: {isEnabled: true, isSeparator: false, text: "File", isSelected: false}
                 },
                 {
                     name: "TreeItem",
-                    value: { isEnabled: false, isSeparator: false, text: "View", isSelected: true }
+                    value: {isEnabled: false, isSeparator: false, text: "View", isSelected: true}
                 },
                 {
                     name: "TreeItem",
-                    value: { isEnabled: true, isSeparator: true, text: "View", isSelected: false }
+                    value: {isEnabled: true, isSeparator: true, text: "View", isSelected: false}
                 },
-                { name: "Orientation", value: "Vertical" }
+                {name: "Orientation", value: "Vertical"}
             ]
         };
 
@@ -388,20 +387,20 @@ describe("UIMockup", () => {
         const shape = {
             labelStyle: labelStyle,
             props: [
-                { name: "length", value: "3" },
+                {name: "length", value: "3"},
                 {
                     name: "TreeItem",
-                    value: { isEnabled: true, isSeparator: false, text: "File", isSelected: false }
+                    value: {isEnabled: true, isSeparator: false, text: "File", isSelected: false}
                 },
                 {
                     name: "TreeItem",
-                    value: { isEnabled: false, isSeparator: false, text: "View", isSelected: true }
+                    value: {isEnabled: false, isSeparator: false, text: "View", isSelected: true}
                 },
                 {
                     name: "TreeItem",
-                    value: { isEnabled: true, isSeparator: true, text: "View", isSelected: false }
+                    value: {isEnabled: true, isSeparator: true, text: "View", isSelected: false}
                 },
-                { name: "Orientation", value: "Vertical" }
+                {name: "Orientation", value: "Vertical"}
             ]
         };
 
@@ -435,20 +434,20 @@ describe("UIMockup", () => {
         const shape = {
             labelStyle: labelStyle,
             props: [
-                { name: "length", value: "3" },
+                {name: "length", value: "3"},
                 {
                     name: "TreeItem",
-                    value: { isEnabled: true, isSeparator: false, text: "File", isSelected: false }
+                    value: {isEnabled: true, isSeparator: false, text: "File", isSelected: false}
                 },
                 {
                     name: "TreeItem",
-                    value: { isEnabled: false, isSeparator: false, text: "View", isSelected: true }
+                    value: {isEnabled: false, isSeparator: false, text: "View", isSelected: true}
                 },
                 {
                     name: "TreeItem",
-                    value: { isEnabled: true, isSeparator: true, text: "View", isSelected: false }
+                    value: {isEnabled: true, isSeparator: true, text: "View", isSelected: false}
                 },
-                { name: "Orientation", value: "Vertical" }
+                {name: "Orientation", value: "Vertical"}
             ]
         };
 
@@ -482,20 +481,20 @@ describe("UIMockup", () => {
         const shape = {
             labelStyle: labelStyle,
             props: [
-                { name: "length", value: "3" },
+                {name: "length", value: "3"},
                 {
                     name: "TreeItem",
-                    value: { isEnabled: true, isSeparator: false, text: "File", isSelected: false }
+                    value: {isEnabled: true, isSeparator: false, text: "File", isSelected: false}
                 },
                 {
                     name: "TreeItem",
-                    value: { isEnabled: false, isSeparator: false, text: "View", isSelected: true }
+                    value: {isEnabled: false, isSeparator: false, text: "View", isSelected: true}
                 },
                 {
                     name: "TreeItem",
-                    value: { isEnabled: true, isSeparator: true, text: "View", isSelected: false }
+                    value: {isEnabled: true, isSeparator: true, text: "View", isSelected: false}
                 },
-                { name: "Orientation", value: "Vertical" }
+                {name: "Orientation", value: "Vertical"}
             ]
         };
 
@@ -529,20 +528,20 @@ describe("UIMockup", () => {
         const shape = {
             labelStyle: labelStyle,
             props: [
-                { name: "length", value: "3" },
+                {name: "length", value: "3"},
                 {
                     name: "TreeItem",
-                    value: { isEnabled: true, isSeparator: false, text: "File", isSelected: false }
+                    value: {isEnabled: true, isSeparator: false, text: "File", isSelected: false}
                 },
                 {
                     name: "TreeItem",
-                    value: { isEnabled: false, isSeparator: false, text: "View", isSelected: true }
+                    value: {isEnabled: false, isSeparator: false, text: "View", isSelected: true}
                 },
                 {
                     name: "TreeItem",
-                    value: { isEnabled: true, isSeparator: true, text: "View", isSelected: false }
+                    value: {isEnabled: true, isSeparator: true, text: "View", isSelected: false}
                 },
-                { name: "Orientation", value: "Vertical" }
+                {name: "Orientation", value: "Vertical"}
             ]
         };
 
@@ -576,20 +575,20 @@ describe("UIMockup", () => {
         const shape = {
             labelStyle: labelStyle,
             props: [
-                { name: "length", value: "3" },
+                {name: "length", value: "3"},
                 {
                     name: "TreeItem",
-                    value: { isEnabled: true, isSeparator: false, text: "File", isSelected: false }
+                    value: {isEnabled: true, isSeparator: false, text: "File", isSelected: false}
                 },
                 {
                     name: "TreeItem",
-                    value: { isEnabled: false, isSeparator: false, text: "View", isSelected: true }
+                    value: {isEnabled: false, isSeparator: false, text: "View", isSelected: true}
                 },
                 {
                     name: "TreeItem",
-                    value: { isEnabled: true, isSeparator: true, text: "View", isSelected: false }
+                    value: {isEnabled: true, isSeparator: true, text: "View", isSelected: false}
                 },
-                { name: "Orientation", value: "Horizontal" }
+                {name: "Orientation", value: "Horizontal"}
             ]
         };
 
@@ -631,7 +630,7 @@ describe("UIMockup", () => {
         //mock a shape here.
         const shape = {
             props: [
-                { name: "length", value: "2" }
+                {name: "length", value: "2"}
             ]
         };
 
@@ -663,8 +662,8 @@ describe("UIMockup", () => {
         //mock a shape here.
         const shape = {
             props: [
-                { name: "length", value: "2" },
-                { name: "ScrollBar", value: "true" }
+                {name: "length", value: "2"},
+                {name: "ScrollBar", value: "true"}
             ]
         };
 
@@ -917,9 +916,9 @@ describe("UIMockup", () => {
         const shape = {
             //labelStyle: labelStyle,
             props: [
-                { name: "length", value: "2" },
-                { name: "Orientation", value: "Vertical" },
-                { name: "SliderValue", value: "50" }
+                {name: "length", value: "2"},
+                {name: "Orientation", value: "Vertical"},
+                {name: "SliderValue", value: "50"}
             ]
         };
 
@@ -945,9 +944,9 @@ describe("UIMockup", () => {
         const shape = {
             //labelStyle: labelStyle,
             props: [
-                { name: "length", value: "2" },
-                { name: "Orientation", value: "Vertical" },
-                { name: "ScrollValue", value: "50" }
+                {name: "length", value: "2"},
+                {name: "Orientation", value: "Vertical"},
+                {name: "ScrollValue", value: "50"}
             ]
         };
 
@@ -973,9 +972,9 @@ describe("UIMockup", () => {
         const shape = {
             //labelStyle: labelStyle,
             props: [
-                { name: "length", value: "2" },
-                { name: "Orientation", value: "Horizontal" },
-                { name: "ScrollValue", value: "50" }
+                {name: "length", value: "2"},
+                {name: "Orientation", value: "Horizontal"},
+                {name: "ScrollValue", value: "50"}
             ]
         };
 
@@ -1001,9 +1000,9 @@ describe("UIMockup", () => {
         const shape = {
             //labelStyle: labelStyle,
             props: [
-                { name: "length", value: "2" },
-                { name: "ProgressBarStyle", value: "Standard" },
-                { name: "ProgressValue", value: "75" }
+                {name: "length", value: "2"},
+                {name: "ProgressBarStyle", value: "Standard"},
+                {name: "ProgressValue", value: "75"}
             ]
         };
 
@@ -1034,7 +1033,7 @@ describe("UIMockup", () => {
                 },
                 {
                     "name": "ListItem",
-                    "value": { name: "checked", value: true }
+                    "value": {name: "checked", value: true}
                 }
             ]
         };
@@ -1059,18 +1058,18 @@ describe("UIMockup", () => {
             width: 300,
             height: 450,
             props: [
-                { name: "length", value: "3" },
+                {name: "length", value: "3"},
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer1" }
+                    value: {checked: false, name: "Drawer1"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: true, name: "Drawer2 which is going to make accordion item so big" }
+                    value: {checked: true, name: "Drawer2 which is going to make accordion item so big"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer3" }
+                    value: {checked: false, name: "Drawer3"}
                 }
             ]
         };
@@ -1107,30 +1106,30 @@ describe("UIMockup", () => {
             width: 200,
             height: 150,
             props: [
-                { name: "length", value: "3" },
+                {name: "length", value: "3"},
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer1" }
+                    value: {checked: false, name: "Drawer1"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: true, name: "Drawer2 which is going to make accordion item so big" }
+                    value: {checked: true, name: "Drawer2 which is going to make accordion item so big"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer3" }
+                    value: {checked: false, name: "Drawer3"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer4" }
+                    value: {checked: false, name: "Drawer4"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer5" }
+                    value: {checked: false, name: "Drawer5"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer6" }
+                    value: {checked: false, name: "Drawer6"}
                 }
             ]
         };
@@ -1168,7 +1167,7 @@ describe("UIMockup", () => {
             props: [
                 {
                     "name": "TabBar",
-                    "value": { name: "checked", value: true }
+                    "value": {name: "checked", value: true}
                 },
                 {
                     name: "Scrollbar",
@@ -1176,27 +1175,27 @@ describe("UIMockup", () => {
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer1" }
+                    value: {checked: false, name: "Drawer1"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: true, name: "Drawer2 which is going to make accordion item so big" }
+                    value: {checked: true, name: "Drawer2 which is going to make accordion item so big"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer3" }
+                    value: {checked: false, name: "Drawer3"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer4" }
+                    value: {checked: false, name: "Drawer4"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer5" }
+                    value: {checked: false, name: "Drawer5"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer6" }
+                    value: {checked: false, name: "Drawer6"}
                 }
             ]
         };
@@ -1232,7 +1231,7 @@ describe("UIMockup", () => {
             props: [
                 {
                     "name": "TabBar",
-                    "value": { name: "checked", value: false }
+                    "value": {name: "checked", value: false}
                 },
                 {
                     name: "Scrollbar",
@@ -1244,27 +1243,27 @@ describe("UIMockup", () => {
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer1" }
+                    value: {checked: false, name: "Drawer1"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: true, name: "Drawer2 which is going to make accordion item so big" }
+                    value: {checked: true, name: "Drawer2 which is going to make accordion item so big"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer3" }
+                    value: {checked: false, name: "Drawer3"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer4" }
+                    value: {checked: false, name: "Drawer4"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer5" }
+                    value: {checked: false, name: "Drawer5"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer6" }
+                    value: {checked: false, name: "Drawer6"}
                 }
             ]
         };
@@ -1300,7 +1299,7 @@ describe("UIMockup", () => {
             props: [
                 {
                     "name": "TabBar",
-                    "value": { name: "checked", value: false }
+                    "value": {name: "checked", value: false}
                 },
                 {
                     name: "Scrollbar",
@@ -1312,27 +1311,27 @@ describe("UIMockup", () => {
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer1Drawer3Drawer3Drawer3" }
+                    value: {checked: false, name: "Drawer1Drawer3Drawer3Drawer3"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: true, name: "Drawer2 which is going to make accordion item so big" }
+                    value: {checked: true, name: "Drawer2 which is going to make accordion item so big"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer3Drawer3Drawer3" }
+                    value: {checked: false, name: "Drawer3Drawer3Drawer3"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer4" }
+                    value: {checked: false, name: "Drawer4"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer5Drawer3" }
+                    value: {checked: false, name: "Drawer5Drawer3"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer6" }
+                    value: {checked: false, name: "Drawer6"}
                 }
             ]
         };
@@ -1365,7 +1364,7 @@ describe("UIMockup", () => {
             props: [
                 {
                     "name": "TabBar",
-                    "value": { name: "checked", value: false }
+                    "value": {name: "checked", value: false}
                 },
                 {
                     name: "Scrollbar",
@@ -1377,27 +1376,27 @@ describe("UIMockup", () => {
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer1" }
+                    value: {checked: false, name: "Drawer1"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: true, name: "Drawer2 which is going to make accordion item so big" }
+                    value: {checked: true, name: "Drawer2 which is going to make accordion item so big"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer3" }
+                    value: {checked: false, name: "Drawer3"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer4" }
+                    value: {checked: false, name: "Drawer4"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer5" }
+                    value: {checked: false, name: "Drawer5"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer6" }
+                    value: {checked: false, name: "Drawer6"}
                 }
             ]
         };
@@ -1431,7 +1430,7 @@ describe("UIMockup", () => {
             props: [
                 {
                     "name": "TabBar",
-                    "value": { name: "checked", value: false }
+                    "value": {name: "checked", value: false}
                 },
                 {
                     name: "Scrollbar",
@@ -1443,27 +1442,27 @@ describe("UIMockup", () => {
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer1" }
+                    value: {checked: false, name: "Drawer1"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: true, name: "Drawer2 which is going to make accordion item so big" }
+                    value: {checked: true, name: "Drawer2 which is going to make accordion item so big"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer3" }
+                    value: {checked: false, name: "Drawer3"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer4" }
+                    value: {checked: false, name: "Drawer4"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer5" }
+                    value: {checked: false, name: "Drawer5"}
                 },
                 {
                     name: "ListItem",
-                    value: { checked: false, name: "Drawer6" }
+                    value: {checked: false, name: "Drawer6"}
                 }
             ]
         };
@@ -1494,20 +1493,38 @@ describe("UIMockup", () => {
             height: 450,
             labelStyle: labelStyle,
             props: [
-                { name: "length", value: "3" },
+                {name: "length", value: "3"},
                 {
                     name: "TreeItem",
-                    value: { isEnabled: true, isSeparator: false, text: "File", isSelected: false, hasChildTreeItems: true }
+                    value: {
+                        isEnabled: true,
+                        isSeparator: false,
+                        text: "File",
+                        isSelected: false,
+                        hasChildTreeItems: true
+                    }
                 },
                 {
                     name: "TreeItem",
-                    value: { isEnabled: false, isSeparator: false, text: "View", isSelected: true, hasChildTreeItems: false }
+                    value: {
+                        isEnabled: false,
+                        isSeparator: false,
+                        text: "View",
+                        isSelected: true,
+                        hasChildTreeItems: false
+                    }
                 },
                 {
                     name: "TreeItem",
-                    value: { isEnabled: false, isSeparator: true, text: "View", isSelected: false, hasChildTreeItems: true }
+                    value: {
+                        isEnabled: false,
+                        isSeparator: true,
+                        text: "View",
+                        isSelected: false,
+                        hasChildTreeItems: true
+                    }
                 },
-                { name: "Orientation", value: "Vertical" }
+                {name: "Orientation", value: "Vertical"}
             ]
         };
 
@@ -1548,20 +1565,38 @@ describe("UIMockup", () => {
             height: 90,
             labelStyle: labelStyle,
             props: [
-                { name: "length", value: "3" },
+                {name: "length", value: "3"},
                 {
                     name: "TreeItem",
-                    value: { isEnabled: true, isSeparator: false, text: "File", isSelected: false, hasChildTreeItems: true }
+                    value: {
+                        isEnabled: true,
+                        isSeparator: false,
+                        text: "File",
+                        isSelected: false,
+                        hasChildTreeItems: true
+                    }
                 },
                 {
                     name: "TreeItem",
-                    value: { isEnabled: false, isSeparator: false, text: "View", isSelected: true, hasChildTreeItems: false }
+                    value: {
+                        isEnabled: false,
+                        isSeparator: false,
+                        text: "View",
+                        isSelected: true,
+                        hasChildTreeItems: false
+                    }
                 },
                 {
                     name: "TreeItem",
-                    value: { isEnabled: false, isSeparator: true, text: "View", isSelected: false, hasChildTreeItems: true }
+                    value: {
+                        isEnabled: false,
+                        isSeparator: true,
+                        text: "View",
+                        isSelected: false,
+                        hasChildTreeItems: true
+                    }
                 },
-                { name: "Orientation", value: "Vertical" }
+                {name: "Orientation", value: "Vertical"}
             ]
         };
 
@@ -1626,33 +1661,75 @@ describe("UIMockup", () => {
             height: 450,
             labelStyle: labelStyle,
             props: [
-                { name: "length", value: "3" },
-                { name: "TreeIcon", value: "Triangle" },
-                { name: "Folder", value: "Show" },
-                { name: "ConnectingLines", value: "Show" },
+                {name: "length", value: "3"},
+                {name: "TreeIcon", value: "Triangle"},
+                {name: "Folder", value: "Show"},
+                {name: "ConnectingLines", value: "Show"},
                 {
                     name: "TreeItem",
-                    value: { isEnabled: true, isSeparator: false, text: "File", isSelected: false, hasChildTreeItems: true, level: "0" }
+                    value: {
+                        isEnabled: true,
+                        isSeparator: false,
+                        text: "File",
+                        isSelected: false,
+                        hasChildTreeItems: true,
+                        level: "0"
+                    }
                 },
                 {
                     name: "TreeItem",
-                    value: { isEnabled: false, isSeparator: false, text: "View", isSelected: true, hasChildTreeItems: false, level: "1" }
+                    value: {
+                        isEnabled: false,
+                        isSeparator: false,
+                        text: "View",
+                        isSelected: true,
+                        hasChildTreeItems: false,
+                        level: "1"
+                    }
                 },
                 {
                     name: "TreeItem",
-                    value: { isEnabled: false, isSeparator: false, text: "View", isSelected: false, hasChildTreeItems: true, level: "2" }
+                    value: {
+                        isEnabled: false,
+                        isSeparator: false,
+                        text: "View",
+                        isSelected: false,
+                        hasChildTreeItems: true,
+                        level: "2"
+                    }
                 },
                 {
                     name: "ChildTreeItem",
-                    value: { isEnabled: true, isSeparator: false, text: "View", isSelected: false, hasChildTreeItems: true, level: "0.0" }
+                    value: {
+                        isEnabled: true,
+                        isSeparator: false,
+                        text: "View",
+                        isSelected: false,
+                        hasChildTreeItems: true,
+                        level: "0.0"
+                    }
                 },
                 {
                     name: "ChildTreeItem",
-                    value: { isEnabled: true, isSeparator: false, text: "View", isSelected: false, hasChildTreeItems: false, level: "0.1" }
+                    value: {
+                        isEnabled: true,
+                        isSeparator: false,
+                        text: "View",
+                        isSelected: false,
+                        hasChildTreeItems: false,
+                        level: "0.1"
+                    }
                 },
                 {
                     name: "ChildTreeItem",
-                    value: { isEnabled: true, isSeparator: false, text: "View", isSelected: false, hasChildTreeItems: false, level: "0.0.0" }
+                    value: {
+                        isEnabled: true,
+                        isSeparator: false,
+                        text: "View",
+                        isSelected: false,
+                        hasChildTreeItems: false,
+                        level: "0.0.0"
+                    }
                 }
             ]
         };
@@ -1694,52 +1771,119 @@ describe("UIMockup", () => {
             height: 200,
             labelStyle: labelStyle,
             props: [
-                { name: "length", value: "3" },
-                { name: "TreeIcon", value: "PlusMinus" },
-                { name: "Folder", value: "Show" },
-                { name: "ConnectingLines", value: "Show" },
+                {name: "length", value: "3"},
+                {name: "TreeIcon", value: "PlusMinus"},
+                {name: "Folder", value: "Show"},
+                {name: "ConnectingLines", value: "Show"},
                 {
                     name: "TreeItem",
-                    value: { isEnabled: true, isSeparator: false, text: "File", isSelected: false, hasChildTreeItems: true, level: "0" }
-                },
-                {
-                    name: "TreeItem",
-                    value: { isEnabled: false, isSeparator: false, text: "View", isSelected: true, hasChildTreeItems: false, level: "1" }
-                },
-                {
-                    name: "TreeItem",
-                    value: { isEnabled: false, isSeparator: false, text: "View", isSelected: false, hasChildTreeItems: true, level: "2" }
-                },
-                {
-                    name: "ChildTreeItem",
-                    value: { isEnabled: true, isSeparator: false, text: "View", isSelected: false, hasChildTreeItems: true, level: "0.0" }
-                },
-                {
-                    name: "ChildTreeItem",
                     value: {
-                        isEnabled: true, isSeparator: false, text: "View which is going to be greater that the prepaid width",
-                        isSelected: false, hasChildTreeItems: false, level: "0.1"
+                        isEnabled: true,
+                        isSeparator: false,
+                        text: "File",
+                        isSelected: false,
+                        hasChildTreeItems: true,
+                        level: "0"
+                    }
+                },
+                {
+                    name: "TreeItem",
+                    value: {
+                        isEnabled: false,
+                        isSeparator: false,
+                        text: "View",
+                        isSelected: true,
+                        hasChildTreeItems: false,
+                        level: "1"
+                    }
+                },
+                {
+                    name: "TreeItem",
+                    value: {
+                        isEnabled: false,
+                        isSeparator: false,
+                        text: "View",
+                        isSelected: false,
+                        hasChildTreeItems: true,
+                        level: "2"
                     }
                 },
                 {
                     name: "ChildTreeItem",
-                    value: { isEnabled: true, isSeparator: false, text: "View", isSelected: false, hasChildTreeItems: false, level: "0.0.0" }
+                    value: {
+                        isEnabled: true,
+                        isSeparator: false,
+                        text: "View",
+                        isSelected: false,
+                        hasChildTreeItems: true,
+                        level: "0.0"
+                    }
                 },
                 {
                     name: "ChildTreeItem",
-                    value: { isEnabled: true, isSeparator: false, text: "View", isSelected: false, hasChildTreeItems: false, level: "0.0.1" }
+                    value: {
+                        isEnabled: true,
+                        isSeparator: false,
+                        text: "View which is going to be greater that the prepaid width",
+                        isSelected: false,
+                        hasChildTreeItems: false,
+                        level: "0.1"
+                    }
                 },
                 {
                     name: "ChildTreeItem",
-                    value: { isEnabled: true, isSeparator: false, text: "View", isSelected: false, hasChildTreeItems: false, level: "0.0.2" }
+                    value: {
+                        isEnabled: true,
+                        isSeparator: false,
+                        text: "View",
+                        isSelected: false,
+                        hasChildTreeItems: false,
+                        level: "0.0.0"
+                    }
                 },
                 {
                     name: "ChildTreeItem",
-                    value: { isEnabled: true, isSeparator: false, text: "View", isSelected: false, hasChildTreeItems: false, level: "0.0.3" }
+                    value: {
+                        isEnabled: true,
+                        isSeparator: false,
+                        text: "View",
+                        isSelected: false,
+                        hasChildTreeItems: false,
+                        level: "0.0.1"
+                    }
                 },
                 {
                     name: "ChildTreeItem",
-                    value: { isEnabled: true, isSeparator: false, text: "View", isSelected: false, hasChildTreeItems: false, level: "0.2" }
+                    value: {
+                        isEnabled: true,
+                        isSeparator: false,
+                        text: "View",
+                        isSelected: false,
+                        hasChildTreeItems: false,
+                        level: "0.0.2"
+                    }
+                },
+                {
+                    name: "ChildTreeItem",
+                    value: {
+                        isEnabled: true,
+                        isSeparator: false,
+                        text: "View",
+                        isSelected: false,
+                        hasChildTreeItems: false,
+                        level: "0.0.3"
+                    }
+                },
+                {
+                    name: "ChildTreeItem",
+                    value: {
+                        isEnabled: true,
+                        isSeparator: false,
+                        text: "View",
+                        isSelected: false,
+                        hasChildTreeItems: false,
+                        level: "0.2"
+                    }
                 }
             ]
         };

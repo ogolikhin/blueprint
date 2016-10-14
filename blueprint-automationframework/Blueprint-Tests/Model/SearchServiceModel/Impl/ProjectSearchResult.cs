@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
 
 namespace Model.SearchServiceModel.Impl
 {
     public class ProjectSearchResult
     {
+        [JsonProperty("id")]
         public int ProjectId { get; set; }
 
+        [JsonProperty("name")]
         public string ProjectName { get; set; }
+
+        public string Path { get; set; }
     }
 }

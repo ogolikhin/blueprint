@@ -1,9 +1,9 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
-import { HttpErrorInterceptor } from "./http-error-interceptor";
-import { IHttpInterceptorConfig, HttpStatusCode } from "../../core/http";
-import { SessionSvcMock } from "../login/mocks.spec";
-import { MessageServiceMock } from "../../core/messages/message.mock";
+import {HttpErrorInterceptor} from "./http-error-interceptor";
+import {IHttpInterceptorConfig, HttpStatusCode} from "../../core/http";
+import {SessionSvcMock} from "../login/mocks.spec";
+import {MessageServiceMock} from "../../core/messages/message.mock";
 
 describe("HttpErrorInterceptor", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService, $httpProvider: ng.IHttpProvider) => {
@@ -15,15 +15,15 @@ describe("HttpErrorInterceptor", () => {
     describe("responseError", () => {
 
         it("process Unauthorized error and do successfull retry", inject(($httpBackend: ng.IHttpBackendService, $rootScope: ng.IRootScopeService,
-            $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor) => {
+                                                                          $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor) => {
             // Arrange
             var processedResponse: ng.IHttpPromiseCallbackArg<any>;
             var response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
-            var config = <IHttpInterceptorConfig>{ url: "/test-end-point", method: "GET" };
+            var config = <IHttpInterceptorConfig>{url: "/test-end-point", method: "GET"};
             response.config = config;
             response.status = HttpStatusCode.Unauthorized;
             $httpBackend.expectGET("/test-end-point").respond(HttpStatusCode.Success, "OK");
-            
+
             // Act
             httpErrorInterceptor.responseError(response).then(
                 (okResponse) => {
@@ -42,15 +42,15 @@ describe("HttpErrorInterceptor", () => {
         }));
 
         it("process Unauthorized error and do failed retry", inject(($httpBackend: ng.IHttpBackendService, $rootScope: ng.IRootScopeService,
-            $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor) => {
+                                                                     $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor) => {
             // Arrange
             var processedResponse: ng.IHttpPromiseCallbackArg<any>;
             var response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
-            var config = <IHttpInterceptorConfig>{ url: "/test-end-point", method: "GET" };
+            var config = <IHttpInterceptorConfig>{url: "/test-end-point", method: "GET"};
             response.config = config;
             response.status = HttpStatusCode.Unauthorized;
             $httpBackend.expectGET("/test-end-point").respond(HttpStatusCode.ServerError, "Any Error");
-            
+
             // Act
             httpErrorInterceptor.responseError(response).then(
                 (okResponse) => {
@@ -68,11 +68,11 @@ describe("HttpErrorInterceptor", () => {
         }));
 
         it("process Unauthorized error from http request that should be ignored", inject(($rootScope: ng.IRootScopeService,
-            $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor) => {
+                                                                                          $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor) => {
             // Arrange
             var processedResponse: ng.IHttpPromiseCallbackArg<any>;
             var response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
-            var config = <IHttpInterceptorConfig>{ ignoreInterceptor: true };
+            var config = <IHttpInterceptorConfig>{ignoreInterceptor: true};
             response.config = config;
             response.status = HttpStatusCode.Unauthorized;
 
@@ -93,11 +93,11 @@ describe("HttpErrorInterceptor", () => {
         }));
 
         it("process Unauthorized error from http request that should not by retried", inject(($rootScope: ng.IRootScopeService,
-            $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor) => {
+                                                                                              $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor) => {
             // Arrange
             var processedResponse: ng.IHttpPromiseCallbackArg<any>;
             var response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
-            var config = <IHttpInterceptorConfig>{ dontRetry: true };
+            var config = <IHttpInterceptorConfig>{dontRetry: true};
             response.config = config;
             response.status = HttpStatusCode.Unauthorized;
 
@@ -118,12 +118,12 @@ describe("HttpErrorInterceptor", () => {
         }));
 
         it("process ServerError from http request", inject(($rootScope: ng.IRootScopeService,
-            $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor, messageService: MessageServiceMock) => {
+                                                            $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor, messageService: MessageServiceMock) => {
             // Arrange
             var processedResponse: ng.IHttpPromiseCallbackArg<any>;
             var response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
             response.status = HttpStatusCode.ServerError;
-            
+
             // Act
             httpErrorInterceptor.responseError(response).then(
                 () => {
@@ -142,12 +142,12 @@ describe("HttpErrorInterceptor", () => {
         }));
 
         it("process -1: Unavailbale, timeout error ", inject(($rootScope: ng.IRootScopeService,
-            $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor, messageService: MessageServiceMock) => {
+                                                              $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor, messageService: MessageServiceMock) => {
             // Arrange
             var processedResponse: ng.IHttpPromiseCallbackArg<any>;
             var response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
             response.status = -1;
-            
+
             // Act
             httpErrorInterceptor.responseError(response).then(
                 () => {
@@ -166,7 +166,7 @@ describe("HttpErrorInterceptor", () => {
         }));
 
         it("process -1: canceled by user ", inject(($rootScope: ng.IRootScopeService,
-            $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor, messageService: MessageServiceMock) => {
+                                                    $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor, messageService: MessageServiceMock) => {
             // Arrange
             var processedResponse: ng.IHttpPromiseCallbackArg<any>;
             var response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
@@ -174,7 +174,7 @@ describe("HttpErrorInterceptor", () => {
             timeout.resolve();
             response.config = {
                 method: "GET",
-                url: "",    
+                url: "",
                 timeout: timeout.promise
             } as ng.IRequestConfig;
             response.status = -1;

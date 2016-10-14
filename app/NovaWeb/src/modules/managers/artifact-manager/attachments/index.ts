@@ -1,4 +1,4 @@
-export { ArtifactAttachments, IArtifactAttachments } from "./attachments";
+export {ArtifactAttachments, IArtifactAttachments} from "./attachments";
 export {
     ArtifactAttachmentsService,
     IArtifactAttachment,

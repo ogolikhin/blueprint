@@ -1,7 +1,8 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
-import { IServerLogger } from "./server-logger.svc";
-import { Logger } from "./logger";
+import {IServerLogger} from "./server-logger.svc";
+import {Logger} from "./logger";
+import {LogMock} from "./server-logger.svc.mock";
 
 //global buffer to check logger output
 var msg: string;
@@ -23,14 +24,6 @@ export class ServerLoggerMock implements IServerLogger {
     }
 }
 
-export class LogMock {
-    public apply() { }
-    public error() { }
-    public debug() { }
-    public info() { }
-    public warn() { }
-}
-
 describe("Logger", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("$log", LogMock);
@@ -45,7 +38,7 @@ describe("Logger", () => {
             // Arrange
 
             // Act
-            $log.error({ message: "test" });
+            $log.error({message: "test"});
             $rootScope.$digest();
 
             // Assert

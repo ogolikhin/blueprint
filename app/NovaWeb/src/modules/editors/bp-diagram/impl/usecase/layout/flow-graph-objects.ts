@@ -17,7 +17,7 @@ export class FlowGraphObject {
      *
      * @return {ISize} The size of the FlowGraphObject.
      */
-    public size: ISize = { height: 0, width: 0 };
+    public size: ISize = {height: 0, width: 0};
 
     /**
      * Gets or sets the position of the FlowGraphObject.

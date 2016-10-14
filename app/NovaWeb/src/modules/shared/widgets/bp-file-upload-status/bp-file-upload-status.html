@@ -4,12 +4,13 @@
 <div class="modal-body file-upload-status">
     <div class="file-wrapper" perfect-scrollbar>
 
-        <div class="file" 
-            ng-class="{'error': item.errorMessage}"
-            ng-repeat="item in $ctrl.files">
+        <div class="file"
+             ng-class="{'error': item.errorMessage}"
+             ng-repeat="item in $ctrl.files">
 
             <div class="upload-status">
-                <div class="name" bp-tooltip="{{ item.file.name }}" bp-tooltip-truncated="true">{{ item.file.name }}</div>
+                <div class="name" bp-tooltip="{{ item.file.name }}" bp-tooltip-truncated="true">{{ item.file.name }}
+                </div>
                 <uib-progressbar value="item.progress"></uib-progressbar>
                 <div class="indicator">
                     <i class="fonticon fonticon-success" ng-if="item.isComplete"></i>
@@ -26,7 +27,9 @@
         </div>
 
     </div>
-    <div class="total-failed" ng-if="$ctrl.totalFailedFiles > 0">{{::$ctrl.localization.get('App_UP_Attachments_Upload_Total_Failed') }} {{ $ctrl.totalFailedFiles }}</div>
+    <div class="total-failed" ng-if="$ctrl.totalFailedFiles > 0">
+        {{::$ctrl.localization.get('App_UP_Attachments_Upload_Total_Failed') }} {{ $ctrl.totalFailedFiles }}
+    </div>
 </div>
 <div class="modal-footer">
     <div class="nova-form-group nova-form-buttons">

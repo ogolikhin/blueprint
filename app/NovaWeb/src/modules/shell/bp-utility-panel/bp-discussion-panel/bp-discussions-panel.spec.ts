@@ -60,53 +60,53 @@
 //         vm = null;
 //     });
 
-    // it("should be visible by default", () => {
-    //     //Assert
-    //     expect(directiveTest.element.find(".filter-bar").length).toBe(0);
-    //     expect(directiveTest.element.find(".empty-state").length).toBe(1);
-    //     expect(directiveTest.element.find(".scrollable-content").length).toBe(0);
-    // });
-    
-    // it("should be read-only for newly created sub-artifacts",
-    //     inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
-    //     //Arrange
-    //     const artifact = statefulArtifactFactory.createStatefulArtifact({
-    //         id: 2, 
-    //         name: "Artifact 2", 
-    //         predefinedType: ItemTypePredefined.Process, 
-    //         version: 1
-    //     });
-    //     let processShape = {
-    //             projectId: 1,
-    //             parentId: 2,
-    //             id: -2, 
-    //             name: "SubArtifact 2", 
-    //             baseItemTypePredefined: ItemTypePredefined.PROShape,
-    //             typePrefix: "PROS",
-    //             propertyValues: {},
-    //             associatedArtifact: null
-                
-    //     };
-    //     const subArtifact = statefulArtifactFactory.createStatefulProcessSubArtifact(artifact, processShape);
+// it("should be visible by default", () => {
+//     //Assert
+//     expect(directiveTest.element.find(".filter-bar").length).toBe(0);
+//     expect(directiveTest.element.find(".empty-state").length).toBe(1);
+//     expect(directiveTest.element.find(".scrollable-content").length).toBe(0);
+// });
 
-    //     //Act
-    //     artifactManager.selection.setSubArtifact(subArtifact);
-    //     $rootScope.$digest();
+// it("should be read-only for newly created sub-artifacts",
+//     inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
+//     //Arrange
+//     const artifact = statefulArtifactFactory.createStatefulArtifact({
+//         id: 2,
+//         name: "Artifact 2",
+//         predefinedType: ItemTypePredefined.Process,
+//         version: 1
+//     });
+//     let processShape = {
+//             projectId: 1,
+//             parentId: 2,
+//             id: -2,
+//             name: "SubArtifact 2",
+//             baseItemTypePredefined: ItemTypePredefined.PROShape,
+//             typePrefix: "PROS",
+//             propertyValues: {},
+//             associatedArtifact: null
 
-    //     //Assert
-    //     expect(vm.canCreate).toBeFalsy();
-    //     expect(vm.canDelete).toBeFalsy();
-    // }));
+//     };
+//     const subArtifact = statefulArtifactFactory.createStatefulProcessSubArtifact(artifact, processShape);
 
-    // it("should load data for a selected artifact",
-    //     inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
-    //         //Arrange
-    //         const artifact = statefulArtifactFactory.createStatefulArtifact({
-    //             id: 2, 
-    //             name: "Artifact 2", 
-    //             predefinedType: ItemTypePredefined.Process, 
-    //             version: 1
-    //         });
+//     //Act
+//     artifactManager.selection.setSubArtifact(subArtifact);
+//     $rootScope.$digest();
+
+//     //Assert
+//     expect(vm.canCreate).toBeFalsy();
+//     expect(vm.canDelete).toBeFalsy();
+// }));
+
+// it("should load data for a selected artifact",
+//     inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
+//         //Arrange
+//         const artifact = statefulArtifactFactory.createStatefulArtifact({
+//             id: 2,
+//             name: "Artifact 2",
+//             predefinedType: ItemTypePredefined.Process,
+//             version: 1
+//         });
 
 //             //Act
 //             artifactManager.selection.setArtifact(artifact);
@@ -121,9 +121,9 @@
 //         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
 //             //Arrange
 //             const artifact = statefulArtifactFactory.createStatefulArtifact({
-//                 id: 2, 
-//                 name: "Collection", 
-//                 predefinedType: ItemTypePredefined.Collections, 
+//                 id: 2,
+//                 name: "Collection",
+//                 predefinedType: ItemTypePredefined.Collections,
 //                 version: 1
 //             });
 
@@ -142,9 +142,9 @@
 //                 artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
 //             //Arrange
 //             const artifact = statefulArtifactFactory.createStatefulArtifact({
-//                 id: 22, 
+//                 id: 22,
 //                 name: "Process 22",
-//                 predefinedType: ItemTypePredefined.Process, 
+//                 predefinedType: ItemTypePredefined.Process,
 //                 version: 1
 //             });
 
@@ -165,12 +165,12 @@
 //                 artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
 //             //Arrange
 //             const artifact = statefulArtifactFactory.createStatefulArtifact({
-//                 id: 22, 
+//                 id: 22,
 //                 name: "Process 22",
-//                 predefinedType: ItemTypePredefined.Process, 
+//                 predefinedType: ItemTypePredefined.Process,
 //                 version: 1
 //             });
-            
+
 //             $rootScope.$digest();
 //             let deferred = $q.defer();
 //             ArtifactDiscussionsMock.prototype.getReplies = jasmine.createSpy("getReplies() spy").and.callFake(
@@ -201,9 +201,9 @@
 //                 artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
 //             //Arrange
 //             const artifact = statefulArtifactFactory.createStatefulArtifact({
-//                 id: 22, 
+//                 id: 22,
 //                 name: "Process 22",
-//                 predefinedType: ItemTypePredefined.Process, 
+//                 predefinedType: ItemTypePredefined.Process,
 //                 version: 1
 //             });
 
@@ -223,9 +223,9 @@
 //                 artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
 //             //Arrange
 //             const artifact = statefulArtifactFactory.createStatefulArtifact({
-//                 id: 22, 
+//                 id: 22,
 //                 name: "Process 22",
-//                 predefinedType: ItemTypePredefined.Process, 
+//                 predefinedType: ItemTypePredefined.Process,
 //                 version: 1
 //             });
 
@@ -245,9 +245,9 @@
 //                 artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
 //             //Arrange
 //             const artifact = statefulArtifactFactory.createStatefulArtifact({
-//                 id: 22, 
+//                 id: 22,
 //                 name: "Process 22",
-//                 predefinedType: ItemTypePredefined.Process, 
+//                 predefinedType: ItemTypePredefined.Process,
 //                 version: 1
 //             });
 
@@ -278,9 +278,9 @@
 //                 statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
 //             //Arrange
 //             const artifact = statefulArtifactFactory.createStatefulArtifact({
-//                 id: 22, 
+//                 id: 22,
 //                 name: "Process 22",
-//                 predefinedType: ItemTypePredefined.Process, 
+//                 predefinedType: ItemTypePredefined.Process,
 //                 version: 1
 //             });
 
@@ -301,9 +301,9 @@
 //                 statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
 //             //Arrange
 //             const artifact = statefulArtifactFactory.createStatefulArtifact({
-//                 id: 22, 
+//                 id: 22,
 //                 name: "Process 22",
-//                 predefinedType: ItemTypePredefined.Process, 
+//                 predefinedType: ItemTypePredefined.Process,
 //                 version: 1
 //             });
 
@@ -334,9 +334,9 @@
 //                 statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
 //             //Arrange
 //             const artifact = statefulArtifactFactory.createStatefulArtifact({
-//                 id: 22, 
+//                 id: 22,
 //                 name: "Process 22",
-//                 predefinedType: ItemTypePredefined.Process, 
+//                 predefinedType: ItemTypePredefined.Process,
 //                 version: 1
 //             });
 
@@ -355,9 +355,9 @@
 //                 statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
 //             //Arrange
 //             const artifact = statefulArtifactFactory.createStatefulArtifact({
-//                 id: 22, 
+//                 id: 22,
 //                 name: "Process 22",
-//                 predefinedType: ItemTypePredefined.Process, 
+//                 predefinedType: ItemTypePredefined.Process,
 //                 version: 1
 //             });
 
@@ -377,12 +377,12 @@
 //                 statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
 //             //Arrange
 //             const artifact = statefulArtifactFactory.createStatefulArtifact({
-//                 id: 22, 
+//                 id: 22,
 //                 name: "Process 22",
-//                 predefinedType: ItemTypePredefined.Process, 
+//                 predefinedType: ItemTypePredefined.Process,
 //                 version: 1
 //             });
-            
+
 //             vm.showAddComment = true;
 
 //             //Act
@@ -509,4 +509,3 @@
 //             expect(vm.artifactDiscussionList[0].lastEditedOn).toBe("2016-05-31T17:19:53.07");
 //         }));
 // });
-

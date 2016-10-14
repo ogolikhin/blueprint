@@ -1,8 +1,9 @@
 ﻿import * as angular from "angular";
-import { BPLocale, ILocalizationService} from "../../core";
-import { Enums, Models} from "../../main";
-import { PropertyContext} from "./bp-property-context";
-import { IStatefulItem} from "../../managers/artifact-manager";
+import {BPLocale, ILocalizationService} from "../../core";
+import {Enums, Models} from "../../main";
+import {PropertyContext} from "./bp-property-context";
+import {IStatefulItem} from "../../managers/artifact-manager";
+import {Helper} from "../../shared/utils/helper";
 
 export class PropertyEditor {
 
@@ -11,6 +12,7 @@ export class PropertyEditor {
     public propertyContexts: PropertyContext[];
     private locale: BPLocale;
     private _artifactId: number;
+
     constructor(private localization: ILocalizationService) {
         this.locale = localization.current;
     }
@@ -34,10 +36,12 @@ export class PropertyEditor {
             case Models.PrimitiveType.Choice:
                 if (angular.isArray($value)) {
                     return {
-                        validValueIds: $value.map((it) => { return this.locale.toNumber(it); })
+                        validValueIds: $value.map((it) => {
+                            return this.locale.toNumber(it);
+                        })
                     };
                 } else if (angular.isObject(($value))) {
-                    return { customValue: $value.customValue };
+                    return {customValue: $value.customValue};
                 } else if (context.propertyTypePredefined < 0) {
                     return this.locale.toNumber($value);
                 }
@@ -58,6 +62,9 @@ export class PropertyEditor {
                 return null; // we probably should not return in this case
 
             default:
+                if (context.isRichText) {
+                    return Helper.tagsContainText($value) ? $value : ""; // tinyMCE returns empty tags (e.g. <p></p> when there is no content)
+                }
                 return $value;
         }
     }
@@ -136,7 +143,7 @@ export class PropertyEditor {
                             (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Description) === Enums.ReuseSettings.Description) {
                             propertyContext.disabled = true;
                         }
-                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Custom ) {
+                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Custom) {
                         //Custom property
                         let custompropertyvalue = statefulItem.customProperties.get(propertyContext.modelPropertyName as number);
                         if (custompropertyvalue) {
@@ -144,7 +151,7 @@ export class PropertyEditor {
                             isModelSet = true;
                             propertyContext.disabled = custompropertyvalue.isReuseReadOnly ? true : propertyContext.disabled;
                         }
-                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Special)  {
+                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Special) {
                         //Specific property
                         let specificPropertyValue = statefulItem.specialProperties.get(propertyContext.modelPropertyName as number);
                         isModelSet = true;
@@ -154,7 +161,7 @@ export class PropertyEditor {
                                 modelValue = this.getActorStepOfValue(specificPropertyValue.value);
                             } else {
                                 modelValue = specificPropertyValue.value;
-                            }                            
+                            }
                             propertyContext.disabled = specificPropertyValue.isReuseReadOnly ? true : propertyContext.disabled;
                         }
                     }
@@ -197,7 +204,7 @@ export class PropertyEditor {
             templateOptions: {
                 label: context.name,
                 required: context.isRequired,
-                disabled: context.disabled,
+                disabled: context.disabled
             },
             expressionProperties: {}
         };
@@ -248,7 +255,7 @@ export class PropertyEditor {
                     field.templateOptions.options = [];
                     if (context.validValues && context.validValues.length) {
                         field.templateOptions.options = context.validValues.map(function (it) {
-                            return { value: it.id, name: it.value } as any;
+                            return {value: it.id, name: it.value} as any;
                         });
                         if (angular.isNumber(context.defaultValidValueId)) {
                             field.defaultValue = context.defaultValidValueId.toString();
@@ -280,7 +287,7 @@ export class PropertyEditor {
                     field.templateOptions.options = [];
                     if (context.validValues) {
                         field.templateOptions.options = context.validValues.map(function (it) {
-                            return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.value };
+                            return <AngularFormly.ISelectOption>{value: it.id.toString(), name: it.value};
                         });
                     }
                     break;

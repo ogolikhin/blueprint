@@ -1,8 +1,8 @@
 import * as angular from "angular";
 import "angular-formly";
-import { ILocalizationService } from "../../../../core";
-import { Enums } from "../../../../main/models";
-import { BPFieldBaseController } from "../base-controller";
+import {ILocalizationService} from "../../../../core";
+import {Enums} from "../../../../main/models";
+import {BPFieldBaseController} from "../base-controller";
 
 export class BPFieldSelect implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldSelect";
@@ -24,6 +24,7 @@ export class BPFieldSelect implements AngularFormly.ITypeOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldSelectController;
 
     constructor() {
+        //fixme: empty constructors can be removed
     }
 }
 
@@ -93,7 +94,7 @@ export class BpFieldSelectController extends BPFieldBaseController {
                             //manually add user input and set selection
                             customValueId = newCustomValueId();
                             let userInputItem = {
-                                value: { customValue: search },
+                                value: {customValue: search},
                                 name: search,
                                 isCustom: true
                             };

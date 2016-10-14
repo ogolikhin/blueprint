@@ -1,7 +1,7 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
-import { BPCollapsible } from "./bp-collapsible";
-import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
+import {BPCollapsible} from "./bp-collapsible";
+import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 
 describe("BPCollapsible Directive", () => {
     var longElement: JQuery;
@@ -20,7 +20,8 @@ describe("BPCollapsible Directive", () => {
         angular.element("body").append(element);
         scope.$digest();
         let perfectScrollbar = {};
-        perfectScrollbar["update"] = () => { };
+        perfectScrollbar["update"] = () => {
+        };
         (<any>window).PerfectScrollbar = perfectScrollbar;
     }));
 
@@ -51,11 +52,11 @@ describe("BPCollapsible Directive", () => {
         inject(($timeout: ng.ITimeoutService) => {
             // Act, Arrange
             $timeout.flush();
-            longElement[0].getElementsByClassName("show-more")[0].dispatchEvent(new Event("click", { "bubbles": true }));
+            longElement[0].getElementsByClassName("show-more")[0].dispatchEvent(new Event("click", {"bubbles": true}));
 
             // Assert
             expect(longElement[0].classList.contains("collapsed")).toBe(false);
-            longElement[0].getElementsByClassName("show-less")[0].dispatchEvent(new Event("click", { "bubbles": true }));
+            longElement[0].getElementsByClassName("show-less")[0].dispatchEvent(new Event("click", {"bubbles": true}));
             expect(longElement[0].children[0].classList.contains("collapsed")).toBe(true);
         }));
 

@@ -6,7 +6,7 @@ export interface ILocalizationService {
     current: BPLocale;
 }
 
-export class BPLocale  {
+export class BPLocale {
     private _locale: string;
     private _shortDateFormat: string;
     private _longDateFormat: string;
@@ -15,6 +15,7 @@ export class BPLocale  {
     private _decimalSeparator: string;
     private _thousandSeparator: string;
     private _firstDayOfWeek: number;
+
     constructor(locale: string) {
         let format: string;
         this._locale = moment.locale(locale);
@@ -40,29 +41,35 @@ export class BPLocale  {
     public get locale(): string {
         return this._locale;
     }
+
     public get shortDateFormat(): string {
         return this._shortDateFormat;
     }
+
     public get longDateFormat(): string {
         return this._longDateFormat;
     }
+
     public get datePickerDayTitle(): string {
         return this._datePickerDayTitle;
     }
+
     public get datePickerFormat(): string {
         return this._datePickerFormat;
     }
+
     public get decimalSeparator(): string {
         return this._decimalSeparator;
     }
+
     public get thousandSeparator(): string {
         return this._thousandSeparator;
     }
+
     public get firstDayOfWeek(): number {
         return this._firstDayOfWeek;
     }
 
-    
 
     public toNumber(value: string | number, fraction?: number): number {
 
@@ -82,7 +89,7 @@ export class BPLocale  {
             expression += "(" + ds + "\\d+)?";
         }
         expression += "$";
-        
+
         let stringValue = String(value);
         let rx = new RegExp(expression, "g");
         if (rx.test(stringValue)) {
@@ -137,6 +144,7 @@ export class BPLocale  {
         }
         return result;
     }
+
     public formatShortDateTime(value: Date) {
         let d = moment(value);
         let result: string = null;
@@ -182,14 +190,15 @@ export function localeConfig($provide: ng.auto.IProvideService): void {
 
     $provide.decorator("$locale", ["$delegate", delegated]);
 }
-  
+
 
 export class LocalizationService implements ILocalizationService {
-    public static $inject: [string] = [ "$rootScope"];
+    public static $inject: [string] = ["$rootScope"];
 
     constructor(private scope: ng.IRootScopeService, locale?: string) {
         this.current = new BPLocale(locale || LocalizationService.getBrowserLanguage());
     }
+
     get(name: string, defaultValue?: string): string {
         return this.scope["config"].labels[name] || defaultValue || name || "";
     }

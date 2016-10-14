@@ -9,14 +9,21 @@ angular.module("app.shared", [
     "ui.bootstrap",
     "bp.widgets",
     "bp.filters"]);
-    
+
 export {
     IBPTreeController,
     ITreeNode,
     IDialogSettings,
     IDialogService,
     IDialogData,
-    BaseDialogController
+    BaseDialogController,
+    IBPAction,
+    BPButtonAction,
+    BPDropdownItemAction,
+    BPDropdownAction,
+    BPToggleItemAction,
+    BPToggleAction,
+    BPButtonGroupAction
 } from "./widgets"
 
 export {

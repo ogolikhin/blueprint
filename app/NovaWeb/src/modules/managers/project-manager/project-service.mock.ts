@@ -1,17 +1,19 @@
-﻿import { Models } from "../../main/models";
+﻿import {Models, SearchServiceModels} from "../../main/models";
 import {IProjectService} from "./project-service";
 
 export class ProjectServiceMock implements IProjectService {
 
     public static $inject = ["$q"];
-    constructor(private $q: ng.IQService) { }
+
+    constructor(private $q: ng.IQService) {
+    }
 
     public abort(): void {
     }
 
     public getFolders(id?: number): ng.IPromise<any[]> {
         var deferred = this.$q.defer<any[]>();
-        
+
         var folders = [
             {
                 "id": 3,
@@ -38,7 +40,7 @@ export class ProjectServiceMock implements IProjectService {
                 "description": "Process description",
                 "type": "Project"
             }
-        ]; 
+        ];
         if (id || id < 0) {
             folders = null;
         }
@@ -70,7 +72,7 @@ export class ProjectServiceMock implements IProjectService {
     public getProject(id?: number): ng.IPromise<Models.IProjectNode> {
 
         var deferred = this.$q.defer<Models.IProjectNode>();
-        let item: Models.IProjectNode = { id: 1, name: "test", type: 1, parentFolderId: 0, hasChildren: false };
+        let item: Models.IProjectNode = {id: 1, name: "test", type: 1, parentFolderId: 0, hasChildren: false};
         deferred.resolve(item);
         return deferred.promise;
     }
@@ -97,7 +99,9 @@ export class ProjectServiceMock implements IProjectService {
         return deferred.promise;
     }
 
-    public searchProjects(query: string): ng.IPromise<Models.IProjectNode[]> {
+    public searchProjects(searchCriteria: SearchServiceModels.IProjectSearchCriteria,
+                          resultCount?: number,
+                          separatorString?: string): ng.IPromise<SearchServiceModels.IProjectSearchResult[]> {
         var deferred = this.$q.defer<Models.IArtifact[]>();
         let result = [] as Models.IProjectNode[];
         deferred.resolve(result);
@@ -142,6 +146,7 @@ export class ProjectServiceMock implements IProjectService {
 
         return meta;
     }
+
     public static populatePropertyTypes(id: number, count?: number) {
         var result: Models.IPropertyType[] = [];
         for (var i = 0; i < (count || 0); i++) {
@@ -171,6 +176,7 @@ export class ProjectServiceMock implements IProjectService {
         return result;
 
     }
+
     public static populateItemTypes(id: number, count?: number) {
         var result: Models.IItemType[] = [];
         for (var i = 0; i < (count || 0); i++) {
@@ -185,7 +191,8 @@ export class ProjectServiceMock implements IProjectService {
                 usedInThisProject: true,
                 customPropertyTypeIds: [1, 2, 3]
             });
-        };
+        }
+        ;
         return result;
     }
 }

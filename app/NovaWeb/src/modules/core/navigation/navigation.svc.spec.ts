@@ -7,6 +7,7 @@ import {INavigationService, NavigationService} from "./navigation.svc";
 
 describe("NavigationService", () => {
     let $q: ng.IQService;
+    let $scope: ng.IScope;
     let $state: ng.ui.IStateService;
     let navigationService: INavigationService;
 
@@ -15,8 +16,9 @@ describe("NavigationService", () => {
 
     beforeEach(angular.mock.module("ui.router"));
 
-    beforeEach(inject((_$q_: ng.IQService, _$state_: ng.ui.IStateService) => {
+    beforeEach(inject(($rootScope: ng.IRootScopeService, _$q_: ng.IQService, _$state_: ng.ui.IStateService) => {
         $q = _$q_;
+        $scope = $rootScope.$new();
         $state = _$state_;
         navigationService = new NavigationService($q, $state);
     }));
@@ -99,8 +101,8 @@ describe("NavigationService", () => {
                 const stateGoSpy = spyOn($state, "go");
 
                 const expectedState = artifactState;
-                const expectedParams = { id: targetArtifactId };
-                const expectedOptions = { inherit: false };
+                const expectedParams = {id: targetArtifactId};
+                const expectedOptions = {inherit: false};
 
                 // act
                 navigationService.navigateToArtifact(targetArtifactId);
@@ -114,8 +116,8 @@ describe("NavigationService", () => {
                 const stateGoSpy = spyOn($state, "go");
 
                 const expectedState = artifactState;
-                const expectedParams = { id: targetArtifactId };
-                const expectedOptions = { inherit: false };
+                const expectedParams = {id: targetArtifactId};
+                const expectedOptions = {inherit: false};
 
                 // act
                 navigationService.navigateToArtifact(targetArtifactId, false);
@@ -129,8 +131,8 @@ describe("NavigationService", () => {
                 const stateGoSpy = spyOn($state, "go");
 
                 const expectedState = artifactState;
-                const expectedParams = { id: targetArtifactId };
-                const expectedOptions = { inherit: false };
+                const expectedParams = {id: targetArtifactId};
+                const expectedOptions = {inherit: false};
 
                 // act
                 navigationService.navigateToArtifact(targetArtifactId, true);
@@ -155,49 +157,19 @@ describe("NavigationService", () => {
                 $state.current = new MainState();
             });
 
-            it("initiates state transition to artifact state with correct id and no path if navigation tracking is not defined", () => {
+            it("doesn't transition if path is not specified", (done) => {
                 // arrange
                 const stateGoSpy = spyOn($state, "go");
 
-                const expectedState = artifactState;
-                const expectedParams = { id: targetArtifactId };
-                const expectedOptions = { inherit: false };
-
                 // act
-                navigationService.navigateToArtifact(targetArtifactId);
+                navigationService.navigateToArtifact(targetArtifactId)
+                    .catch((error: any) => {
+                        // assert
+                        expect(stateGoSpy).not.toHaveBeenCalledWith();
+                        done();
+                    });
 
-                // assert
-                expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
-            });
-
-            it("initiates state transition to artifact state with correct id and no path if navigation tracking is disabled", () => {
-                // arrange
-                const stateGoSpy = spyOn($state, "go");
-
-                const expectedState = artifactState;
-                const expectedParams = { id: targetArtifactId };
-                const expectedOptions = { inherit: false };
-
-                // act
-                navigationService.navigateToArtifact(targetArtifactId, false);
-
-                // assert
-                expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
-            });
-
-            it("initiates state transition to artifact state with correct id and no path if navigation tracking is enabled", () => {
-                // arrange
-                const stateGoSpy = spyOn($state, "go");
-
-                const expectedState = artifactState;
-                const expectedParams = { id: targetArtifactId, path: sourceArtifactId.toString() };
-                const expectedOptions = { inherit: false };
-
-                // act
-                navigationService.navigateToArtifact(targetArtifactId, true);
-
-                // assert
-                expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
+                $scope.$digest();
             });
         });
 
@@ -221,8 +193,8 @@ describe("NavigationService", () => {
                 const stateGoSpy = spyOn($state, "go");
 
                 const expectedState = artifactState;
-                const expectedParams = { id: targetArtifactId };
-                const expectedOptions = { inherit: false };
+                const expectedParams = {id: targetArtifactId};
+                const expectedOptions = {inherit: false};
 
                 // act
                 navigationService.navigateToArtifact(targetArtifactId);
@@ -236,8 +208,8 @@ describe("NavigationService", () => {
                 const stateGoSpy = spyOn($state, "go");
 
                 const expectedState = artifactState;
-                const expectedParams = { id: targetArtifactId };
-                const expectedOptions = { inherit: false };
+                const expectedParams = {id: targetArtifactId};
+                const expectedOptions = {inherit: false};
 
                 // act
                 navigationService.navigateToArtifact(targetArtifactId, false);
@@ -251,8 +223,8 @@ describe("NavigationService", () => {
                 const stateGoSpy = spyOn($state, "go");
 
                 const expectedState = artifactState;
-                const expectedParams = { id: targetArtifactId, path: sourceArtifactId.toString() };
-                const expectedOptions = { inherit: false };
+                const expectedParams = {id: targetArtifactId, path: sourceArtifactId.toString()};
+                const expectedOptions = {inherit: false};
 
                 // act
                 navigationService.navigateToArtifact(targetArtifactId, true);
@@ -287,8 +259,8 @@ describe("NavigationService", () => {
                 const stateGoSpy = spyOn($state, "go");
 
                 const expectedState = artifactState;
-                const expectedParams = { id: targetArtifactId };
-                const expectedOptions = { inherit: false };
+                const expectedParams = {id: targetArtifactId};
+                const expectedOptions = {inherit: false};
 
                 // act
                 navigationService.navigateToArtifact(targetArtifactId);
@@ -302,8 +274,8 @@ describe("NavigationService", () => {
                 const stateGoSpy = spyOn($state, "go");
 
                 const expectedState = artifactState;
-                const expectedParams = { id: targetArtifactId };
-                const expectedOptions = { inherit: false };
+                const expectedParams = {id: targetArtifactId};
+                const expectedOptions = {inherit: false};
 
                 // act
                 navigationService.navigateToArtifact(targetArtifactId, false);
@@ -317,8 +289,8 @@ describe("NavigationService", () => {
                 const stateGoSpy = spyOn($state, "go");
 
                 const expectedState = artifactState;
-                const expectedParams = { id: targetArtifactId, path: `${predecessorArtifactId},${sourceArtifactId}` };
-                const expectedOptions = { inherit: false };
+                const expectedParams = {id: targetArtifactId, path: `${predecessorArtifactId},${sourceArtifactId}`};
+                const expectedOptions = {inherit: false};
 
                 // act
                 navigationService.navigateToArtifact(targetArtifactId, true);
@@ -355,8 +327,8 @@ describe("NavigationService", () => {
         it("transitions to last artifact if path index is not provided", () => {
             // arrange
             const stateGoSpy = spyOn($state, "go");
-            const expectedParams = { id: predecessorArtifactId2, path: `${predecessorArtifactId1}`};
-            const expectedOptions = { inherit: false };
+            const expectedParams = {id: predecessorArtifactId2, path: `${predecessorArtifactId1}`};
+            const expectedOptions = {inherit: false};
 
             // act
             navigationService.navigateBack();
@@ -407,8 +379,8 @@ describe("NavigationService", () => {
             // arrange
             const pathIndex = 0;
             const stateGoSpy = spyOn($state, "go");
-            const expectedParams = { id: predecessorArtifactId1 };
-            const expectedOptions = { inherit: false };
+            const expectedParams = {id: predecessorArtifactId1};
+            const expectedOptions = {inherit: false};
 
             // act
             navigationService.navigateBack(pathIndex);

@@ -1,9 +1,9 @@
-﻿import { ILocalizationService } from "../../../../core";
-import { Helper, IDialogService } from "../../../../shared";
-import { Relationships } from "../../../../main";
-import { IArtifactManager } from "../../../../managers";
-import { IStatefulArtifact } from "../../../../managers/artifact-manager";
-import { IRelationshipDetailsService } from "../../../";
+﻿import {ILocalizationService} from "../../../../core";
+import {Helper, IDialogService} from "../../../../shared";
+import {Relationships} from "../../../../main";
+import {IArtifactManager} from "../../../../managers";
+import {IStatefulArtifact} from "../../../../managers/artifact-manager";
+import {IRelationshipDetailsService} from "../../../";
 
 export class BPArtifactRelationshipItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-relationship-item.html");
@@ -12,6 +12,8 @@ export class BPArtifactRelationshipItem implements ng.IComponentOptions {
         artifact: "=",
         selectedTraces: "=",
         selectable: "@",
+        setItemDirection: "&",
+        toggleItemFlag: "&",
         deleteItem: "&",
         isItemReadOnly: "<"
     };
@@ -23,6 +25,8 @@ export interface IResult {
 }
 
 interface IBPArtifactRelationshipItemController {
+    setItemDirection: Function;
+    toggleItemFlag: Function;
     deleteItem: Function;
 }
 
@@ -39,16 +43,15 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     public artifact: Relationships.IRelationship;
     public isItemReadOnly: boolean;
     public selectedTraces: Relationships.IRelationship[];
-    public fromOtherProject: boolean = false;  
+    public fromOtherProject: boolean = false;
     public selectable: boolean = false;
+    public setItemDirection: Function;
+    public toggleItemFlag: Function;
     public deleteItem: Function;
-
-    constructor(
-        private localization: ILocalizationService,
-        private relationshipDetailsService: IRelationshipDetailsService,
-        private artifactManager: IArtifactManager,
-        private dialogService: IDialogService
-    ) {
+    constructor(private localization: ILocalizationService,
+                private relationshipDetailsService: IRelationshipDetailsService,
+                private artifactManager: IArtifactManager,
+                private dialogService: IDialogService) {
 
     }
 
@@ -56,15 +59,10 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
         return this.selectable.toString() === "true" && this.artifact.isSelected;
     }
 
-    public setDirection(direction: Relationships.TraceDirection): void {
+    public setDirection(direction: Relationships.TraceDirection) {
         if (this.artifact.hasAccess) {
             this.artifact.traceDirection = direction;
-        }
-    }
-
-    public toggleFlag() {
-        if (this.artifact.hasAccess) {
-            this.artifact.suspect = this.artifact.suspect === true ? false : true;
+            this.setItemDirection();
         }
     }
 
@@ -80,28 +78,28 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     }
 
     public selectTrace() {
-            if (!this.artifact.isSelected) {
-                if (this.selectedTraces) {
-                    let res = this.inArray(this.selectedTraces);
-                    if (!res.found) {
-                        this.selectedTraces.push(this.artifact);
-                    }
-                }
-            } else {
-                if (this.selectedTraces) {                
-                    let res = this.inArray(this.selectedTraces);
-                    if (res.found) {
-                        this.selectedTraces.splice(res.index, 1);
-                    }                     
+        if (!this.artifact.isSelected) {
+            if (this.selectedTraces) {
+                let res = this.inArray(this.selectedTraces);
+                if (!res.found) {
+                    this.selectedTraces.push(this.artifact);
                 }
             }
-            this.artifact.isSelected = !this.artifact.isSelected;
+        } else {
+            if (this.selectedTraces) {
+                let res = this.inArray(this.selectedTraces);
+                if (res.found) {
+                    this.selectedTraces.splice(res.index, 1);
+                }
+            }
+        }
+        this.artifact.isSelected = !this.artifact.isSelected;
     }
 
     public remove($event) {
         if ($event.stopPropagation) {
             $event.stopPropagation();
-        } 
+        }
         if ($event.preventDefault) {
             $event.preventDefault();
         }
@@ -122,7 +120,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
             }
         }
 
-        return <IResult>{ "found": found, "index": index };
+        return <IResult>{"found": found, "index": index};
     }
 
     public limitChars(str) {

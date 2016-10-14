@@ -7,6 +7,7 @@ using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using TestCommon;
@@ -70,7 +71,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
-            artifactDetails.AssertEquals(newArtifact);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetails);
         }
 
         [TestCase(ArtifactTypePredefined.Actor)]
@@ -104,7 +105,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
-            artifactDetails.AssertEquals(newArtifact);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, newArtifact);
         }
 
         [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/fLwHeWHR  Properties missing from Create JSON.
@@ -167,7 +168,52 @@ namespace ArtifactStoreTests
 
         #region Negative tests
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/oUNtprrI  Returns 403 instead of 400.
+        [TestCase(0)]
+        [TestRail(183013)]
+        [Description("Create an artifact with an invalid Project ID.  Verify 400 Bad Request is returned.")]
+        public void CreateArtifact_InvalidProjectId_400BadRequest(int projectId)
+        {
+            // Setup:
+            // Create a Project with a fake ID that shouldn't exist.
+            IProject fakeProject = ProjectFactory.CreateProject(id: projectId);
+            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+
+            // Execute & Verify:
+            Assert.Throws<Http400BadRequestException>(() => CreateArtifact(_user, fakeProject, (int)ItemTypePredefined.Process, artifactName),
+                "'POST {0}' should return 400 Bad Request if an invalid Project ID was passed!", SVC_PATH);
+        }
+
+        [TestCase(true, true, true, false)]
+        [TestCase(true, true, false, true)]
+        [TestCase(true, false, true, true)]
+        [TestCase(false, true, true, true)]
+        [TestRail(183012)]
+        [Description("Create an artifact with a missing required property.  Verify 400 Bad Request is returned.")]
+        public void CreateArtifact_MissingRequiredProperty_400BadRequest(bool sendItemTypeId, bool sendName, bool sendProjectId, bool sendParentId)
+        {
+            // Setup:
+            // Create a request with a missing required property.
+            NovaArtifactDetails artifact = new NovaArtifactDetails
+            {
+                ItemTypeId = sendItemTypeId ? (int?)ItemTypePredefined.Process : null,
+                Name = sendName ? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) : null,
+                ProjectId = sendProjectId ? (int?)_project.Id : null,
+                ParentId = sendParentId ? (int?)_project.Id : null,
+            };
+
+            string jsonBody = JsonConvert.SerializeObject(artifact);
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() => CreateArtifactFromJson(_user, jsonBody),
+                "'POST {0}' should return 400 Bad Request if a required property is missing!", SVC_PATH);
+
+            // Verify:
+            var expectedError = ServiceErrorMessageFactory.CreateServiceErrorMessage(103, "Invalid request.");
+            var returnedError = JsonConvert.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            returnedError.AssertEquals(expectedError);
+        }
+
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/oUNtprrI  Now returns 404 "Artifact type not found"
         [TestCase(ArtifactTypePredefined.Baseline)]
         [TestCase(ArtifactTypePredefined.DataElement)]
         [TestCase(ArtifactTypePredefined.Project)]
@@ -178,8 +224,19 @@ namespace ArtifactStoreTests
         [Description("Create an artifact of an unsupported type.  Verify 400 Bad Request is returned.")]
         public void CreateArtifact_UnsupportedArtifactType_400BadRequest(ItemTypePredefined artifactType)
         {
+            // Setup:
+            NovaArtifactDetails artifact = new NovaArtifactDetails
+            {
+                ItemTypeId = (int?)artifactType,
+                Name = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10),
+                ProjectId = (int?)_project.Id,
+                ParentId = (int?)_project.Id,
+            };
+
+            string jsonBody = JsonConvert.SerializeObject(artifact);
+            
             // Execute & Verify:
-            var ex = Assert.Throws<Http400BadRequestException>(() => CreateArtifactWithRandomName(artifactType, _user, _project),
+            var ex = Assert.Throws<Http400BadRequestException>(() => CreateArtifactFromJson(_user, jsonBody),
                 "'POST {0}' should return 400 Bad Request when trying to create an unsupported artifact type of: '{1}'!",
                 SVC_PATH, artifactType);
 
@@ -220,16 +277,18 @@ namespace ArtifactStoreTests
         public void CreateArtifact_UserWithoutPermissions_403Forbidden()
         {
             // Setup:
-            IUser userWithoutPermission = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
+            IUser userWithoutPermission = Helper.CreateUserAndAuthenticate(
+                TestHelper.AuthenticationTokenTypes.AccessControlToken,
                 InstanceAdminRole.BlueprintAnalytics);
+
+            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
             // Execute & Verify:
             Assert.Throws<Http403ForbiddenException>(() => CreateArtifact(userWithoutPermission,
-                _project, (int)ItemTypePredefined.Process),
+                _project, (int)ItemTypePredefined.Process, artifactName),
                 "'POST {0}' should return 403 Forbidden if the user doesn't have permission to add artifacts!", SVC_PATH);
         }
 
-        [TestCase(0, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)] // Trello bug: https://trello.com/c/oCTfF5Iq  Fails with 500 error: "DItemType with Id: 4114 was deleted by some other user. Please refresh."
         [TestCase(int.MaxValue)]
         [TestRail(154749)]
         [Description("Create an artifact with a non-existent Project ID.  Verify 404 Not Found is returned.")]
@@ -238,13 +297,13 @@ namespace ArtifactStoreTests
             // Setup:
             // Create a Project with a fake ID that shouldn't exist.
             IProject fakeProject = ProjectFactory.CreateProject(id: projectId);
+            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
             // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => CreateArtifact(_user, fakeProject, (int)ItemTypePredefined.Process),
+            Assert.Throws<Http404NotFoundException>(() => CreateArtifact(_user, fakeProject, (int)ItemTypePredefined.Process, artifactName),
                 "'POST {0}' should return 404 Not Found if the Project ID doesn't exist!", SVC_PATH);
         }
 
-        // TODO: Create artifact with missing required fields (name, project id, item type id, parent id).  Verify 400 Bad Request.
         // TODO: Send a corrupt JSON body.  Verify 400 Bad Request.
         // TODO: Create artifact with parent that user has no access to.  Verify 403.
         // TODO: Pass non-existent ItemTypeId.  Verify 404 Not Found.
@@ -363,7 +422,7 @@ namespace ArtifactStoreTests
 
             return createdArtifact;
         }
-        
+
         /// <summary>
         /// Tries to create an artifact based on the supplied JSON body.
         /// </summary>

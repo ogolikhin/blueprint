@@ -1,18 +1,18 @@
 import * as angular from "angular";
-import { Models } from "../../models";
-import { Helper } from "../../../shared/";
-import { ITreeViewNodeVM } from "../../../shared/widgets/bp-tree-view/";
-import { IProjectManager } from "../../../managers";
-import { IProjectService } from "../../../managers/project-manager/project-service";
-import { IArtifactPickerOptions } from "./bp-artifact-picker";
+import {Models} from "../../models";
+import {Helper} from "../../../shared/";
+import {ITreeViewNodeVM} from "../../../shared/widgets/bp-tree-view/";
+import {IProjectManager} from "../../../managers";
+import {IProjectService} from "../../../managers/project-manager/project-service";
+import {IArtifactPickerOptions} from "./bp-artifact-picker";
 
 export abstract class ArtifactPickerNodeVM<T> implements ITreeViewNodeVM {
     constructor(public model: T,
-        public name: string,
-        public key: string,
-        public isExpandable: boolean,
-        public children: ArtifactPickerNodeVM<any>[],
-        public isExpanded: boolean) {
+                public name: string,
+                public key: string,
+                public isExpandable: boolean,
+                public children: ArtifactPickerNodeVM<any>[],
+                public isExpanded: boolean) {
     }
 
     public getCellClass(): string[] {
@@ -45,15 +45,15 @@ export abstract class ArtifactPickerNodeVM<T> implements ITreeViewNodeVM {
 
 export class InstanceItemNodeVM extends ArtifactPickerNodeVM<Models.IProjectNode> {
     constructor(private projectManager: IProjectManager,
-        private projectService: IProjectService,
-        private options: IArtifactPickerOptions,
-        model: Models.IProjectNode,
-        isExpanded: boolean = false) {
+                private projectService: IProjectService,
+                private options: IArtifactPickerOptions,
+                model: Models.IProjectNode,
+                isExpanded: boolean = false) {
         super(model, model.name, String(model.id), model.hasChildren, [], isExpanded);
     }
 
     public getCellClass(): string[] {
-        var result = super.getCellClass();
+        const result = super.getCellClass();
         switch (this.model.type) {
             case Models.ProjectNodeType.Folder:
                 result.push("is-folder");
@@ -87,15 +87,15 @@ export class InstanceItemNodeVM extends ArtifactPickerNodeVM<Models.IProjectNode
 
 export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
     constructor(private projectManager: IProjectManager,
-        private projectService: IProjectService,
-        private options: IArtifactPickerOptions,
-        model: Models.IArtifact) {
+                private projectService: IProjectService,
+                private options: IArtifactPickerOptions,
+                model: Models.IArtifact) {
         super(model, `${model.prefix}${model.id} ${model.name}`, String(model.id),
             model.hasChildren || (Boolean(options.showSubArtifacts) && Models.ItemTypePredefined.canContainSubartifacts(model.predefinedType)), [], false);
     }
 
     public getCellClass(): string[] {
-        var result = super.getCellClass();
+        const result = super.getCellClass();
         switch (this.model.predefinedType) {
             case Models.ItemTypePredefined.PrimitiveFolder:
                 result.push("is-folder");
@@ -104,7 +104,7 @@ export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
                 result.push("is-project");
                 break;
             default:
-                var typeName = Models.ItemTypePredefined[this.model.predefinedType];
+                const typeName = Models.ItemTypePredefined[this.model.predefinedType];
                 if (typeName) {
                     result.push("is-" + Helper.toDashCase(typeName));
                 }
@@ -127,10 +127,10 @@ export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
 
     public isSelectable(): boolean {
         return !(this.options &&
-            this.options.selectableItemTypes &&
-            this.options.selectableItemTypes.indexOf(this.model.predefinedType) === -1);
+        this.options.selectableItemTypes &&
+        this.options.selectableItemTypes.indexOf(this.model.predefinedType) === -1);
     }
- 
+
     public loadChildrenAsync(): ng.IPromise<void> {
         this.loadChildrenAsync = undefined;
         return this.projectService.getArtifacts(this.model.projectId, this.model.id).then((children: Models.IArtifact[]) => {
@@ -150,7 +150,7 @@ export class SubArtifactContainerNodeVM extends ArtifactPickerNodeVM<Models.IArt
     }
 
     public getCellClass(): string[] {
-        var result = super.getCellClass();
+        const result = super.getCellClass();
         result.push("is-subartifact");
         return result;
     }
@@ -174,14 +174,14 @@ export class SubArtifactNodeVM extends ArtifactPickerNodeVM<Models.ISubArtifactN
     }
 
     public getCellClass(): string[] {
-        var result = super.getCellClass();
+        const result = super.getCellClass();
         result.push("is-subartifact");
         return result;
     }
 
     public isSelectable(): boolean {
         return !(this.options &&
-            this.options.selectableItemTypes &&
-            this.options.selectableItemTypes.indexOf(this.model.predefinedType) === -1);
+        this.options.selectableItemTypes &&
+        this.options.selectableItemTypes.indexOf(this.model.predefinedType) === -1);
     }
 }

@@ -1,5 +1,5 @@
-﻿import { Message, IMessage, MessageType } from "./message";
-import { IMessageService} from "./message.svc";
+﻿import {Message, IMessage, MessageType} from "./message";
+import {IMessageService} from "./message.svc";
 
 export class MessageServiceMock implements IMessageService {
 
@@ -18,6 +18,7 @@ export class MessageServiceMock implements IMessageService {
             this.addMessage(new Message(MessageType.Error, text as string));
         }
     }
+
     public addWarning(msg: string): void {
         if (!msg) {
             return;

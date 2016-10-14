@@ -1,18 +1,19 @@
 import "angular";
-import { IArtifactAttachmentsService, IArtifactAttachmentsResultSet } from "../../../../managers/artifact-manager";
-import { Helper } from "../../../../shared/utils/helper";
-import { ILocalizationService, IMessageService, ISettingsService } from "../../../../core";
-import { FiletypeParser } from "../../../../shared/utils/filetypeParser";
-import { IDialogSettings, IDialogService } from "../../../../shared";
-import { IUploadStatusDialogData } from "../../../../shared/widgets";
-import { BpFileUploadStatusController } from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
-import { BPFieldBaseController } from "../base-controller";
+import {IArtifactAttachmentsService, IArtifactAttachmentsResultSet} from "../../../../managers/artifact-manager";
+import {Helper} from "../../../../shared/utils/helper";
+import {ILocalizationService, IMessageService, ISettingsService} from "../../../../core";
+import {FiletypeParser} from "../../../../shared/utils/filetypeParser";
+import {IDialogSettings, IDialogService} from "../../../../shared";
+import {IUploadStatusDialogData} from "../../../../shared/widgets";
+import {BpFileUploadStatusController} from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
+import {BPFieldBaseController} from "../base-controller";
 
 export class BPFieldDocumentFile implements AngularFormly.ITypeOptions {
     public name: string = "bpDocumentFile";
     public template: string = require("./document-file.template.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPFieldDocumentFileController;
     public defaultOptions: AngularFormly.IFieldConfigurationObject;
+
     constructor() {
         this.defaultOptions = {};
     }
@@ -21,15 +22,13 @@ export class BPFieldDocumentFile implements AngularFormly.ITypeOptions {
 export class BPFieldDocumentFileController extends BPFieldBaseController {
     static $inject: [string] = ["$scope", "localization", "artifactAttachments", "$window", "messageService", "dialogService", "settings"];
 
-    constructor(
-        private $scope: AngularFormly.ITemplateScope,
-        private localization: ILocalizationService,
-        private artifactAttachments: IArtifactAttachmentsService,
-        private $window: ng.IWindowService,
-        private messageService: IMessageService,
-        private dialogService: IDialogService,
-        private settings: ISettingsService
-    ) {
+    constructor(private $scope: AngularFormly.ITemplateScope,
+                private localization: ILocalizationService,
+                private artifactAttachments: IArtifactAttachmentsService,
+                private $window: ng.IWindowService,
+                private messageService: IMessageService,
+                private dialogService: IDialogService,
+                private settings: ISettingsService) {
         super();
         const maxAttachmentFilesizeDefault: number = 10485760; // 10 MB
         const maxNumberAttachments: number = 1;

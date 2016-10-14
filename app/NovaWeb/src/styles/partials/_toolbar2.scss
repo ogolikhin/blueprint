@@ -1,0 +1,33 @@
+bp-toolbar-2 {
+    display: flex;
+    flex-direction: row;
+
+    bp-toolbar-button-group .btn-group {
+        display: flex;
+        flex-direction: row;
+    }
+
+    button, label.btn {
+        height: 28px;
+    }
+
+    .dropdown {
+        a {
+            cursor: pointer;
+        }
+
+        a.disabled,
+        a.disabled:visited,
+        a.disabled:active,
+        a.disabled:hover {
+            cursor: default;
+            background-color: #d9d9d9 !important;
+            color: #aaa !important;
+        }
+    }
+}
+
+bp-toolbar-2 > * {
+    margin-left: 5px;
+    margin-right: 5px;
+}

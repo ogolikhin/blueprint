@@ -1,15 +1,16 @@
 <div class="bp-accordion-panel {{$ctrl.accordionPanelClass}}" id="{{$ctrl.accordionPanelId}}">
-	<input type="checkbox" class="bp-accordion-panel-pin" 
-		id="{{$ctrl.accordionPanelId}}-pin"
-		ng-model="$ctrl.isPinned" ng-change="$ctrl.pinPanel()">
-	<label for="{{$ctrl.accordionPanelId}}-pin" 
-		class="bp-accordion-panel-pin" 
-		bp-tooltip="Pin this panel"></label>
-	<i></i>
-	<div role="tab" 
-		ng-class="{'bp-accordion-panel-icon' : $ctrl.accordionPanelClass}"
-		class="bp-accordion-panel-heading"
-		ng-click="$ctrl.openPanel()">{{$ctrl.accordionPanelHeading}}</div>
-	
-	<div role="tabpanel" class="bp-accordion-panel-content" ng-transclude></div>
+    <input type="checkbox" class="bp-accordion-panel-pin"
+           id="{{$ctrl.accordionPanelId}}-pin"
+           ng-model="$ctrl.isPinned" ng-change="$ctrl.pinPanel()">
+    <label for="{{$ctrl.accordionPanelId}}-pin"
+           class="bp-accordion-panel-pin"
+           bp-tooltip="Pin this panel"></label>
+    <i></i>
+    <div role="tab"
+         ng-class="{'bp-accordion-panel-icon' : $ctrl.accordionPanelClass}"
+         class="bp-accordion-panel-heading"
+         ng-click="$ctrl.openPanel()">{{$ctrl.accordionPanelHeading}}
+    </div>
+
+    <div role="tabpanel" class="bp-accordion-panel-content" ng-transclude></div>
 </div>

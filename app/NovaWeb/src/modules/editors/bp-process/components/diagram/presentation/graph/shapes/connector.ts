@@ -16,15 +16,15 @@ export class ConnectorOverlay extends mxCellOverlay {
 
     public getBounds(state): MxRectangle {
 
-        var bounds: MxRectangle = super.getBounds(state);
+        const bounds: MxRectangle = super.getBounds(state);
 
         if (state.view.graph.getModel().isEdge(state.cell)) {
-            var edge = state.cell;
-            var source = edge.source;
-            var target = edge.target;
-            var sourceX: number = source.geometry.getCenterX();
-            var sourceY: number = source.geometry.getCenterY();
-            var targetY: number = target.geometry.getCenterY();
+            const edge = state.cell;
+            const source = edge.source;
+            const target = edge.target;
+            let sourceX: number = source.geometry.getCenterX();
+            let sourceY: number = source.geometry.getCenterY();
+            let targetY: number = target.geometry.getCenterY();
 
             if (source.parent.getNodeType && source.parent.getNodeType() === NodeType.SystemTask) {
                 sourceX = source.getParent().geometry.getCenterX();
@@ -66,27 +66,33 @@ export class ConnectorOverlay extends mxCellOverlay {
 }
 export class Connector {
 
-    public static get LABEL_SIZE(): number { return 10; }
-    public static get LABEL_FONT(): string { return "Open Sans"; }
+    public static get LABEL_SIZE(): number {
+        return 10;
+    }
+
+    public static get LABEL_FONT(): string {
+        return "Open Sans";
+    }
 
     constructor() {
+        //fixme: if empty the constructor does not need to exist
     }
 
     static render(graph: IProcessGraph,
-        processLink: IProcessLinkModel,
-        source: IDiagramNode,
-        target: IDiagramNode,
-        hasOverlay: boolean,
-        label?: string,
-        style?: string): MxCell {
+                  processLink: IProcessLinkModel,
+                  source: IDiagramNode,
+                  target: IDiagramNode,
+                  hasOverlay: boolean,
+                  label?: string,
+                  style?: string): MxCell {
 
         if (!processLink || !source || !target) {
             return;
         }
-        var mxGraph = graph.getMxGraph();
+        const mxGraph = graph.getMxGraph();
         // #UNUSED
         // var model = graph.getMxGraphModel();
-        var parent = graph.getDefaultParent();
+        const parent = graph.getDefaultParent();
 
         if (style !== undefined) {
             style = "fontColor=#999999;strokeColor=#d4d5da;strokeWidth=3";
@@ -120,10 +126,10 @@ export class Connector {
             style += ";edgeStyle=" + CS_LEFT;
         }
 
-        var connectorCell = new DiagramLink(processLink, parent, null, new mxGeometry(), style);
-        var sourceElement = source.getConnectableElement();
-        var targetElement = target.getConnectableElement();
-        var edge: MxCell;
+        const connectorCell = new DiagramLink(processLink, parent, null, new mxGeometry(), style);
+        const sourceElement = source.getConnectableElement();
+        const targetElement = target.getConnectableElement();
+        let edge: MxCell;
 
         edge = graph.addLink(connectorCell, parent, 0, sourceElement, targetElement);
 
@@ -137,7 +143,7 @@ export class Connector {
     }
 
     static remove(graph: IProcessGraph, edge: MxCell) {
-        var model = graph.getMxGraphModel();
+        const model = graph.getMxGraphModel();
 
         edge.source.removeEdge(edge, true);
         edge.target.removeEdge(edge, false);

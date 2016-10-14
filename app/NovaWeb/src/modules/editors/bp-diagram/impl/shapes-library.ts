@@ -1,12 +1,14 @@
+//fixme: this file is js not TS. needs to be re-written properly
+/* tslint:disable */
 import {Shapes, ShapeProps, ArrowHeads, UIMockupShapes} from "./utils/constants";
 import {MxFactory, MathExtensions, DiagramHelper} from "./utils/helpers";
 import {HttpStatusCode} from "../../../core/http";
 
 /*
-* Class: CalloutHelper
-*
-* Holds helpers methods to draw callout
-*/
+ * Class: CalloutHelper
+ *
+ * Holds helpers methods to draw callout
+ */
 class CalloutHelper {
     private static connectionPoints: MxPoint[] = [
         MxFactory.point(0.25, 0.0),
@@ -46,14 +48,16 @@ class CalloutHelper {
 }
 
 /*
-* Class: CalloutShape
-*
-* Implements rounded callout.
-* This shape is registered under CalloutShape.NAME in mxCellRenderer.
-*/
+ * Class: CalloutShape
+ *
+ * Implements rounded callout.
+ * This shape is registered under CalloutShape.NAME in mxCellRenderer.
+ */
 export class CalloutShape extends mxActor {
 
-    public static get getName(): string { return Shapes.CALLOUT; }
+    public static get getName(): string {
+        return Shapes.CALLOUT;
+    }
 
     public redrawPath(path, x: number, y: number, w: number, h: number) {
 
@@ -91,11 +95,11 @@ export class CalloutShape extends mxActor {
 }
 
 /*
-* Class: ImageShape
-*
-* Overrides mxImageShape to implement an image shape with custom fallback background.
-* This shape is registered under mxConstants.SHAPE_IMAGE in mxCellRenderer.
-*/
+ * Class: ImageShape
+ *
+ * Overrides mxImageShape to implement an image shape with custom fallback background.
+ * This shape is registered under mxConstants.SHAPE_IMAGE in mxCellRenderer.
+ */
 export class ImageShape extends mxImageShape {
 
     public paintVertexShape(c: any, x: number, y: number, w: number, h: number) {
@@ -141,19 +145,21 @@ export class ImageShape extends mxImageShape {
 }
 
 /*
-* Class: ImageHelper
-*
-* Holds helpers methods to draw image shape
-*/
+ * Class: ImageHelper
+ *
+ * Holds helpers methods to draw image shape
+ */
 class ImageHelper {
     public static initFallback() {
         let createElement = mxSvgCanvas2D.prototype.createElement;
+        //noinspection TsLint
         mxSvgCanvas2D.prototype.createElement = function (tagName: string, namespace: string) {
             let mxSvgCanvas = this;
             let element = createElement.call(mxSvgCanvas, tagName, namespace);
             if (tagName === "image") {
                 //workaround for IE
                 element.setAttribute("onerror", "this.onerror();");
+                //noinspection TsLint
                 element.onerror = function () {
                     let x = parseFloat(this.getAttribute("x"));
                     let y = parseFloat(this.getAttribute("y"));
@@ -185,14 +191,16 @@ class ImageHelper {
 }
 
 /*
-* Class: ExternalFlowIndicatorShape
-*
-* Overrides mxActor to implement an indicator of external flow.
-* This shape is registered under Shapes.EXTERNAL_FLOW_INDICATOR in mxCellRenderer.
-*/
+ * Class: ExternalFlowIndicatorShape
+ *
+ * Overrides mxActor to implement an indicator of external flow.
+ * This shape is registered under Shapes.EXTERNAL_FLOW_INDICATOR in mxCellRenderer.
+ */
 export class ExternalFlowIndicatorShape extends mxActor {
 
-    public static get getName(): string { return Shapes.EXTERNAL_FLOW_INDICATOR; }
+    public static get getName(): string {
+        return Shapes.EXTERNAL_FLOW_INDICATOR;
+    }
 
     public paintVertexShape(c: any, x: number, y: number, w: number, h: number) {
         c.begin();
@@ -207,13 +215,15 @@ export class ExternalFlowIndicatorShape extends mxActor {
 }
 
 /*
-* Class: SvgImageShape
-*
-* Extends mxActor to draw a vector image.
-*/
+ * Class: SvgImageShape
+ *
+ * Extends mxActor to draw a vector image.
+ */
 export class SvgImageShape extends mxActor {
 
-    public static get getName(): string { return "svgimage"; }
+    public static get getName(): string {
+        return "svgimage";
+    }
 
     public paintVertexShape(canvas: any, x: number, y: number, w: number, h: number) {
         let svgPath = mxUtils.getValue(this.style, ShapeProps.PATH, null);
@@ -287,13 +297,13 @@ export class IconShape extends mxActor {
         //so that the shape aspect is respected
         if (scaleX < scaleY) {
             scaleY = scaleX;
-            translateX = xContainer * this.scale - originalBoundingBox.x * scaleX ;
+            translateX = xContainer * this.scale - originalBoundingBox.x * scaleX;
             //adjust the offset by (hContainer - originalBoundingBox.height * scaleY) / 2
             //this is because the we use the smaller scaleX, so the translateY need to be move down a little more
             translateY = yContainer * this.scale - originalBoundingBox.y * scaleY + (hContainer * this.scale - originalBoundingBox.height * scaleY) / 2;
         } else {
             scaleX = scaleY;
-            translateY = yContainer * this.scale - originalBoundingBox.y * scaleY ;
+            translateY = yContainer * this.scale - originalBoundingBox.y * scaleY;
             translateX = xContainer * this.scale - originalBoundingBox.x * scaleX + (wContainer * this.scale - originalBoundingBox.width * scaleX) / 2;
         }
 
@@ -306,7 +316,7 @@ export class IconShape extends mxActor {
         let strokeDashArray = canvas.node.getAttribute("stroke-dasharray");
         if (strokeDashArray) {
             let newStrockDashArray = [];
-            strokeDashArray.split(" ").forEach(function (value) {
+            strokeDashArray.split(" ").forEach((value) => {
                 newStrockDashArray.push(value / adjustedStokeRatio);
             });
             canvas.node.setAttribute("stroke-dasharray", newStrockDashArray.join(" "));
@@ -338,10 +348,10 @@ export class IconShape extends mxActor {
 
     public paintVertexShape(canvas: any, x: number, y: number, w: number, h: number) {
         if (!IconShape.iconData) {
-            var xmlhttp = new XMLHttpRequest();
-            var url = mxBasePath + "/icons/main.json";
+            const xmlhttp = new XMLHttpRequest();
+            const url = mxBasePath + "/icons/main.json";
 
-            xmlhttp.onreadystatechange = function () {
+            xmlhttp.onreadystatechange = () => {
                 if (xmlhttp.readyState === 4 && xmlhttp.status === HttpStatusCode.Success) {
                     IconShape.iconData = JSON.parse(xmlhttp.responseText);
                 }
@@ -355,7 +365,9 @@ export class IconShape extends mxActor {
 
 export class CheckboxShape extends mxActor {
 
-    public static get getName(): string { return UIMockupShapes.CHECKBOX; }
+    public static get getName(): string {
+        return UIMockupShapes.CHECKBOX;
+    }
 
     public redrawPath(path, x: number, y: number, w: number, h: number) {
         path.begin();
@@ -368,7 +380,9 @@ export class CheckboxShape extends mxActor {
 
 export class TableCursorShape extends mxActor {
 
-    public static get getName(): string { return UIMockupShapes.TABLE; }
+    public static get getName(): string {
+        return UIMockupShapes.TABLE;
+    }
 
     public redrawPath(path, x: number, y: number, w: number, h: number) {
         path.begin();
@@ -381,7 +395,9 @@ export class TableCursorShape extends mxActor {
 
 export class HighlightEllipse extends mxActor {
 
-    public static get getName(): string { return "highlightEllipse"; }
+    public static get getName(): string {
+        return "highlightEllipse";
+    }
 
     public redrawPath(path, x: number, y: number, w: number, h: number) {
         let radius = Math.min(w, h) < 100 ? Math.min(w, h) / 10.0 : 5;
@@ -401,11 +417,11 @@ export class HighlightEllipse extends mxActor {
 }
 
 /*
-* Class: Connector
-*
-* Overrides mxConnector to implement custom behaviour for curved connectors.
-* This shape is registered under mxConstants.SHAPE_CONNECTOR in mxCellRenderer.
-*/
+ * Class: Connector
+ *
+ * Overrides mxConnector to implement custom behaviour for curved connectors.
+ * This shape is registered under mxConstants.SHAPE_CONNECTOR in mxCellRenderer.
+ */
 export class Connector extends mxConnector {
 
     public paintCurvedLine(c, pts: Array<MxPoint>) {
@@ -427,10 +443,10 @@ export class Connector extends mxConnector {
 }
 
 /*
-* Class: MarkerHelper
-*
-* Implements custom markers for the connections and regester them
-*/
+ * Class: MarkerHelper
+ *
+ * Implements custom markers for the connections and regester them
+ */
 class MarkerHelper {
 
     public static drawSlash(canvas, shape, type, pe: MxPoint, unitX: number, unitY: number, size: number, source, sw, filled: boolean) {

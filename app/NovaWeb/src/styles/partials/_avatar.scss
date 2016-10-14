@@ -1,35 +1,35 @@
 bp-avatar {
-  display: block;
+    display: block;
 
-  .avatar-placeholder {
-    border: 2px solid $gray-lighter;
-    border-radius: 50%;
-    font-size: $font-size-bigger;
-    height: 100%;
-    position: relative;
-    text-align: center;
-    text-transform: uppercase;
-    width: 100%;
+    .avatar-placeholder {
+        border: 2px solid $gray-lighter;
+        border-radius: 50%;
+        font-size: $font-size-bigger;
+        height: 100%;
+        position: relative;
+        text-align: center;
+        text-transform: uppercase;
+        width: 100%;
 
-    img, .initials {
-      border: 0;
-      border-radius: 50%;
-      display: block;
-      height: calc(100% - 4px);
-      left: 2px;
-      line-height: 200%;
-      position: absolute;
-      top: 2px;
-      width: calc(100% - 4px);
+        img, .initials {
+            border: 0;
+            border-radius: 50%;
+            display: block;
+            height: calc(100% - 4px);
+            left: 2px;
+            line-height: 200%;
+            position: absolute;
+            top: 2px;
+            width: calc(100% - 4px);
+        }
     }
-  }
 
-  &.guest {
-    .initials {
-      background-image: url('images/guest.png') !important;
-      background-color: transparent !important;
-      background-size: cover;
-      text-indent: -99999px;
+    &.guest {
+        .initials {
+            background-image: url('images/guest.png') !important;
+            background-color: transparent !important;
+            background-size: cover;
+            text-indent: -99999px;
+        }
     }
-  }
 }

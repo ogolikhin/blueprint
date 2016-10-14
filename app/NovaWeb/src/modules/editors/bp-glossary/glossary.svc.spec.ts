@@ -1,25 +1,25 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "rx/dist/rx.lite";
-import { LocalizationServiceMock } from "../../core//localization/localization.mock";
-import { IGlossaryService, GlossaryService } from "./glossary.svc";
-import { IArtifact } from "../../main/models/models";
-import { HttpStatusCode } from "../../core/http";
+import {LocalizationServiceMock} from "../../core//localization/localization.mock";
+import {IGlossaryService, GlossaryService} from "./glossary.svc";
+import {IArtifact} from "../../main/models/models";
+import {HttpStatusCode} from "../../core/http";
 
 describe("Glossary Service", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("glossaryService", GlossaryService);
         $provide.service("localization", LocalizationServiceMock);
-    })); 
+    }));
 
-    it("get glossary details", 
+    it("get glossary details",
         inject(($httpBackend: ng.IHttpBackendService, glossaryService: IGlossaryService) => {
 
-        // Arrange
-        /* tslint:disable:max-line-length */
-        $httpBackend.expectGET("/svc/bpartifactstore/glossary/263")
-            .respond(HttpStatusCode.Success, {
+            // Arrange
+            /* tslint:disable:max-line-length */
+            $httpBackend.expectGET("/svc/bpartifactstore/glossary/263")
+                .respond(HttpStatusCode.Success, {
                     "id": 263,
                     "subArtifacts": [
                         {
@@ -38,51 +38,51 @@ describe("Glossary Service", () => {
                         }
                     ]
                 });
-        /* tslint:enable:max-line-length */
+            /* tslint:enable:max-line-length */
 
-        // Act
-        let error: any;
-        let data: IArtifact;
-        glossaryService.getGlossary(263).then((response) => {
-            data = response;
-        }, (err) => {
-            error = err; 
-        });
-        $httpBackend.flush();
+            // Act
+            let error: any;
+            let data: IArtifact;
+            glossaryService.getGlossary(263).then((response) => {
+                data = response;
+            }, (err) => {
+                error = err;
+            });
+            $httpBackend.flush();
 
-        // Assert
-        expect(error).toBeUndefined();
-        expect(data.id).toBe(263);
-        expect(data.subArtifacts.length).toBe(2);
-        $httpBackend.verifyNoOutstandingExpectation();
-        $httpBackend.verifyNoOutstandingRequest();
-    }));
+            // Assert
+            expect(error).toBeUndefined();
+            expect(data.id).toBe(263);
+            expect(data.subArtifacts.length).toBe(2);
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
 
-    it("gets an error if artifact id is invalid", 
+    it("gets an error if artifact id is invalid",
         inject(($httpBackend: ng.IHttpBackendService, glossaryService: IGlossaryService) => {
 
-        // Arrange
-        $httpBackend.expectGET("/svc/bpartifactstore/glossary/0")
-            .respond(HttpStatusCode.NotFound, {
-                statusCode: HttpStatusCode.NotFound,
-                message: "Couldn't find the artifact"
+            // Arrange
+            $httpBackend.expectGET("/svc/bpartifactstore/glossary/0")
+                .respond(HttpStatusCode.NotFound, {
+                    statusCode: HttpStatusCode.NotFound,
+                    message: "Couldn't find the artifact"
+                });
+
+            // Act
+            let error: any;
+            let data: IArtifact;
+            glossaryService.getGlossary(0).then((response) => {
+                data = response;
+            }, (err) => {
+                error = err;
             });
 
-        // Act
-        let error: any;
-        let data: IArtifact;
-        glossaryService.getGlossary(0).then( (response) => {
-            data = response;
-        }, (err) => {
-            error = err;
-        });
+            $httpBackend.flush();
 
-        $httpBackend.flush();
-
-        // Assert
-        expect(data).toBeUndefined();
-        expect(error.statusCode).toEqual(HttpStatusCode.NotFound);
-        $httpBackend.verifyNoOutstandingExpectation();
-        $httpBackend.verifyNoOutstandingRequest();
-    }));
+            // Assert
+            expect(data).toBeUndefined();
+            expect(error.statusCode).toEqual(HttpStatusCode.NotFound);
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
 });

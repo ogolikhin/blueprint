@@ -365,7 +365,7 @@ namespace Utilities.Facades
                     JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings
                     {
                         NullValueHandling = NullValueHandling.Ignore
-                    };
+                    };//TODO : move this to each specific class!
                     
                     string serializeObject = JsonConvert.SerializeObject(result, jsonSerializerSettings);
                     bool isJSONChanged = !(string.Equals(response.Content, serializeObject, StringComparison.OrdinalIgnoreCase));

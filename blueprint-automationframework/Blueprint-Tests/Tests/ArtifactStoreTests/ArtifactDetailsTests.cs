@@ -63,8 +63,8 @@ namespace ArtifactStoreTests
             {
                 artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
-             
-            artifactDetails.AssertEquals(retrievedArtifact);
+
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifact);
 
             Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
         }
@@ -106,10 +106,9 @@ namespace ArtifactStoreTests
                 artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
-            artifactDetails.AssertEquals(retrievedArtifactVersion);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion);
 
-            Assert.IsEmpty(artifactDetails.SpecificPropertyValues,
-                "SpecificPropertyValues isn't implemented yet so it should be empty!");
+            // TODO: add check that Process has SpecificPropery - ClientType (?)
 
             Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
         }
@@ -140,10 +139,9 @@ namespace ArtifactStoreTests
                 artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id, versionId: 1);
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
-            artifactDetails.AssertEquals(retrievedArtifactVersion1);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion1);
 
-            Assert.IsEmpty(artifactDetails.SpecificPropertyValues,
-                "SpecificPropertyValues isn't implemented yet so it should be empty!");
+            // TODO: add check that Process has SpecificPropery - ClientType (?)
 
             Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
         }
@@ -178,10 +176,9 @@ namespace ArtifactStoreTests
                 artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id, versionId: 1);
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
-            artifactDetails.AssertEquals(retrievedArtifactVersion1);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion1);
 
-            Assert.IsEmpty(artifactDetails.SpecificPropertyValues,
-                "SpecificPropertyValues isn't implemented yet so it should be empty!");
+            // TODO: add check that Process has SpecificPropery - ClientType (?)
 
             Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
         }
@@ -324,7 +321,7 @@ namespace ArtifactStoreTests
             mainArtifact.Publish();
 
             // Create user with a permission only on main project
-            var userWithPermissionOnMainProject = TestHelper.CreateUserWithProjectRolePermissions(Helper, role: TestHelper.ProjectRole.Author, projects: new List<IProject> { mainProject });
+            var userWithPermissionOnMainProject = Helper.CreateUserWithProjectRolePermissions(role: TestHelper.ProjectRole.Author, projects: new List<IProject> { mainProject });
 
             // Execute: Get ArtifactDetails for the main artifact using the user without permission to inline trace artifact
             var mainArtifactDetailsWithUserWithPermissionOnMainProject = Helper.ArtifactStore.GetArtifactDetails(userWithPermissionOnMainProject, mainArtifact.Id);
@@ -464,7 +461,7 @@ namespace ArtifactStoreTests
 
         #endregion 404 Not Found Tests
 
-        #region Private functions.
+        #region Private Functions
 
         /// <summary>
         /// Asserts that the returned JSON content has the specified error message.
@@ -488,6 +485,6 @@ namespace ArtifactStoreTests
             Assert.AreEqual(expectedMessage, messageResult.Message, assertMessage, assertMessageParams);
         }
 
-        #endregion Private functions.
+        #endregion Private Functions
     }
 }

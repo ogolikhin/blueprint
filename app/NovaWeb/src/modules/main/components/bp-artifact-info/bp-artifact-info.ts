@@ -1,13 +1,26 @@
 ﻿import * as angular from "angular";
-import { Models, Enums } from "../../models";
-import { IWindowManager, IMainWindow, ResizeCause } from "../../services";
-import { IMessageService, Message, MessageType, ILocalizationService } from "../../../core";
-import { Helper, IDialogSettings, IDialogService } from "../../../shared";
-import { ArtifactPickerDialogController, IArtifactPickerOptions } from "../bp-artifact-picker";
-import { ILoadingOverlayService } from "../../../core/loading-overlay";
-import { IArtifactManager, IStatefulArtifact } from "../../../managers/artifact-manager";
-import { IProjectManager } from "../../../managers/project-manager";
-import { INavigationService } from "../../../core/navigation/navigation.svc";
+import {Models, Enums} from "../../models";
+import {IWindowManager, IMainWindow, ResizeCause} from "../../services";
+import {IMessageService, Message, MessageType, ILocalizationService} from "../../../core";
+import {ILoadingOverlayService} from "../../../core/loading-overlay";
+import {IArtifactManager, IStatefulArtifact, IMetaDataService} from "../../../managers/artifact-manager";
+import {IProjectManager} from "../../../managers/project-manager";
+import {INavigationService} from "../../../core/navigation/navigation.svc";
+import {
+    Helper,
+    IDialogSettings,
+    IDialogService,
+    IBPAction,
+    BPButtonGroupAction
+} from "../../../shared";
+import {
+    SaveAction,
+    PublishAction,
+    DiscardAction,
+    RefreshAction,
+    DeleteAction,
+    OpenImpactAnalysisAction
+} from "./actions";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -20,16 +33,17 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 
 export class BpArtifactInfoController {
     static $inject: [string] = [
-        "$scope", 
+        "$scope",
         "$element",
-        "artifactManager", 
-        "localization", 
-        "messageService", 
-        "dialogService", 
-        "windowManager", 
+        "artifactManager",
+        "localization",
+        "messageService",
+        "dialogService",
+        "windowManager",
         "loadingOverlayService",
         "navigationService",
-        "projectManager"
+        "projectManager",
+        "metadataService"
     ];
 
     private subscribers: Rx.IDisposable[];
@@ -46,19 +60,19 @@ export class BpArtifactInfoController {
     public artifactTypeId: number;
     public artifactTypeIcon: number;
     public artifactTypeDescription: string;
+    public toolbarActions: IBPAction[];
 
-    constructor(
-        public $scope: ng.IScope,
-        private $element: ng.IAugmentedJQuery,
-        private artifactManager: IArtifactManager,
-        private localization: ILocalizationService,
-        private messageService: IMessageService,
-        private dialogService: IDialogService,
-        private windowManager: IWindowManager,
-        private loadingOverlayService: ILoadingOverlayService,
-        protected navigationService: INavigationService,
-        protected projectManager: IProjectManager
-    ) {
+    constructor(public $scope: ng.IScope,
+                private $element: ng.IAugmentedJQuery,
+                protected artifactManager: IArtifactManager,
+                protected localization: ILocalizationService,
+                protected messageService: IMessageService,
+                protected dialogService: IDialogService,
+                protected windowManager: IWindowManager,
+                protected loadingOverlayService: ILoadingOverlayService,
+                protected navigationService: INavigationService,
+                protected projectManager: IProjectManager,
+                protected metadataService: IMetaDataService) {
         this.initProperties();
         this.subscribers = [];
     }
@@ -86,7 +100,7 @@ export class BpArtifactInfoController {
             if (artifact) {
                 this.artifact = artifact;
                 const artifactObserver = artifact.getObservable()
-                        .subscribe(this.onArtifactChanged, this.onError);
+                    .subscribe(this.onArtifactChanged, this.onError);
 
                 this.subscribers.push(artifactObserver);
             }
@@ -95,7 +109,9 @@ export class BpArtifactInfoController {
 
     public $onDestroy() {
         this.initProperties();
-        this.subscribers.forEach(subscriber => { subscriber.dispose(); });
+        this.subscribers.forEach(subscriber => {
+            subscriber.dispose();
+        });
         delete this.subscribers;
     }
 
@@ -111,12 +127,13 @@ export class BpArtifactInfoController {
         } else {
             this.messageService.addError(error);
         }
+
         this.onArtifactChanged();
     }
 
     private initProperties() {
         this.artifactName = null;
-        this.artifactType = null;   
+        this.artifactType = null;
         this.artifactTypeId = null;
         this.artifactTypeIcon = null;
         this.artifactTypeDescription = null;
@@ -127,6 +144,8 @@ export class BpArtifactInfoController {
         this.selfLocked = false;
         this.isLegacy = false;
         this.artifactClass = null;
+        this.toolbarActions = [];
+
         if (this.lockMessage) {
             this.messageService.deleteMessageById(this.lockMessage.id);
             this.lockMessage = null;
@@ -135,20 +154,27 @@ export class BpArtifactInfoController {
 
     private updateProperties(artifact: IStatefulArtifact) {
         this.initProperties();
+
         if (!artifact) {
             return;
         }
+
+        this.updateToolbarOptions(artifact);
+
         this.artifactName = artifact.name || "";
-        let itemType = artifact.metadata.getItemType(); 
+
+        let itemType = artifact.metadata.getItemType();
         if (itemType) {
             this.artifactTypeId = itemType.id;
             this.artifactType = itemType.name || Models.ItemTypePredefined[itemType.predefinedType] || "";
+
             if (itemType.iconImageId && angular.isNumber(itemType.iconImageId)) {
                 this.artifactTypeIcon = itemType.iconImageId;
             }
+
             this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
         }
-        
+
         this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[itemType.predefinedType] || "document"));
 
         this.isLegacy = itemType.predefinedType === Enums.ItemTypePredefined.Storyboard ||
@@ -162,24 +188,29 @@ export class BpArtifactInfoController {
 
         this.isReadonly = artifact.artifactState.readonly;
         this.isChanged = artifact.artifactState.dirty;
+
         switch (artifact.artifactState.lockedBy) {
             case Enums.LockedByEnum.CurrentUser:
                 this.selfLocked = true;
                 break;
+
             case Enums.LockedByEnum.OtherUser:
-                 let msg = artifact.artifactState.lockOwner ? "Locked by " + artifact.artifactState.lockOwner : "Locked "; 
-                 if (artifact.artifactState.lockDateTime) {
-                     msg += " on " + this.localization.current.formatShortDateTime(artifact.artifactState.lockDateTime);
-                 }
+                let msg = artifact.artifactState.lockOwner ? "Locked by " + artifact.artifactState.lockOwner : "Locked ";
+                if (artifact.artifactState.lockDateTime) {
+                    msg += " on " + this.localization.current.formatShortDateTime(artifact.artifactState.lockDateTime);
+                }
                 this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
                 break;
+
             default:
                 break;
         }
+
         if (artifact.artifactState.misplaced) {
             this.dialogService.alert("Artifact_Lock_DoesNotExist").then(() => {
-            }) ;
-        } 
+                //fixme: empty function block shoudl be removed
+            });
+        }
     }
 
     public get artifactHeadingMinWidth() {
@@ -194,8 +225,8 @@ export class BpArtifactInfoController {
             let typeWidth: number = heading && heading.querySelector(".type-id") ? heading.querySelector(".type-id").scrollWidth : 0;
             let indicatorsWidth: number = heading && heading.querySelector(".indicators") ? heading.querySelector(".indicators").scrollWidth : 0;
             let headingWidth: number = iconWidth + (
-                typeWidth > nameWidth + indicatorsWidth ? typeWidth : nameWidth + indicatorsWidth
-            ) + 20 + 5; // heading's margins + wiggle room
+                    typeWidth > nameWidth + indicatorsWidth ? typeWidth : nameWidth + indicatorsWidth
+                ) + 20 + 5; // heading's margins + wiggle room
             if (heading && toolbar) {
                 style = {
                     "min-width": (headingWidth > toolbar.clientWidth ? toolbar.clientWidth : headingWidth) + "px"
@@ -206,12 +237,33 @@ export class BpArtifactInfoController {
         return style;
     }
 
+    protected updateToolbarOptions(artifact: IStatefulArtifact): void {
+        const deleteDialogSettings = <IDialogSettings>{
+            okButton: this.localization.get("App_Button_Ok"),
+            template: require("../../../shared/widgets/bp-dialog/bp-dialog.html"),
+            header: this.localization.get("App_DialogTitle_Alert"),
+            message: "Are you sure you would like to delete the artifact?"
+        };
+
+        this.toolbarActions.push(
+            new BPButtonGroupAction(
+                new SaveAction(artifact, this.localization, this.messageService, this.loadingOverlayService),
+                new PublishAction(artifact, this.localization),
+                new DiscardAction(artifact, this.localization),
+                new RefreshAction(artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService),
+                new DeleteAction(artifact, this.localization, this.dialogService, deleteDialogSettings)
+            ),
+            new OpenImpactAnalysisAction(artifact, this.localization)
+        );
+    }
+
     private onWidthResized(mainWindow: IMainWindow) {
         if (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
             let sidebarWrapper: Element;
             const sidebarSize: number = 270; // MUST match $sidebar-size in styles/modules/_variables.scss
             let sidebarsWidth: number = 20 * 2; // main content area padding
             sidebarWrapper = document.querySelector(".bp-sidebar-wrapper");
+
             if (sidebarWrapper) {
                 for (let c = 0; c < sidebarWrapper.classList.length; c++) {
                     if (sidebarWrapper.classList[c].indexOf("-panel-visible") !== -1) {
@@ -219,6 +271,7 @@ export class BpArtifactInfoController {
                     }
                 }
             }
+
             if (this.$element.length) {
                 let container: HTMLElement = this.$element[0];
                 let toolbar: Element = container.querySelector(".page-top-toolbar");
@@ -230,56 +283,4 @@ export class BpArtifactInfoController {
             }
         }
     }
-
-    public saveChanges() {
-        let overlayId: number = this.loadingOverlayService.beginLoading();
-        try {
-            this.artifactManager.selection.getArtifact().save().finally(() => {
-                this.loadingOverlayService.endLoading(overlayId);
-            });
-        } catch (err) {
-            this.messageService.addError(err);
-            this.loadingOverlayService.endLoading(overlayId);
-            throw err;
-        }
-    }
-
-    public openPicker($event: MouseEvent) {
-        const dialogSettings: IDialogSettings = {
-            okButton: this.localization.get("App_Button_Ok"),
-            template: require("../bp-artifact-picker/bp-artifact-picker-dialog.html"),
-            controller: ArtifactPickerDialogController,
-            css: "nova-open-project",
-            header: "Some header"
-        };
-
-        const dialogData: IArtifactPickerOptions = {
-            selectableItemTypes: $event.altKey ? [Models.ItemTypePredefined.Document] : undefined,
-            selectionMode: $event.shiftKey ? "multiple" : ($event.ctrlKey || $event.metaKey) ? "checkbox" : "single",
-            showSubArtifacts: true
-        };
-
-        this.dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {
-            console.log(items);
-        });
-    }
-
-    public refresh() {
-        //loading overlay
-        const overlayId = this.loadingOverlayService.beginLoading();
-        const currentArtifact = this.artifactManager.selection.getArtifact();
-        
-        currentArtifact.refresh()
-            .catch((error) => {
-                //this.dialogService.alert(error.message);
-                //this.navigationService.navigateToArtifact(currentArtifact.parentId);
-                //this.artifactManager.remove(currentArtifact.id);
-
-                // We're not interested in the error type.
-                // sometimes this error is created by artifact.load(), which returns the statefulArtifact instead of an error object.
-                this.projectManager.refresh(this.projectManager.getSelectedProject());
-            }).finally(() => {
-                this.loadingOverlayService.endLoading(overlayId);
-            });
-      }
 }

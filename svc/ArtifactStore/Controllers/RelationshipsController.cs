@@ -57,10 +57,10 @@ namespace ArtifactStore.Controllers
             var effectiveAddDraft = !versionId.HasValue && addDrafts;
 
             var result = await _relationshipsRepository.GetRelationships(artifactId, session.UserId, subArtifactId, effectiveAddDraft, versionId);
-            var itemIds = new List<int> { itemId };
-            itemIds = itemIds.Union(result.ManualTraces.Select(a=>a.ArtifactId)).Union(result.OtherTraces.Select(a => a.ArtifactId)).Distinct().ToList();
-            var permissions = await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(itemIds, session.UserId);
-            if (!HasPermissions(itemId, permissions, RolePermissions.Read))
+            var artifactIds = new List<int> { artifactId };
+            artifactIds = artifactIds.Union(result.ManualTraces.Select(a=>a.ArtifactId)).Union(result.OtherTraces.Select(a => a.ArtifactId)).Distinct().ToList();
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(artifactIds, session.UserId);
+            if (!HasPermissions(artifactId, permissions, RolePermissions.Read))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
@@ -68,7 +68,7 @@ namespace ArtifactStore.Controllers
             ApplyRelationshipPermissions(permissions, result.ManualTraces);
             ApplyRelationshipPermissions(permissions, result.OtherTraces);
 
-            result.CanEdit = HasPermissions(itemId, permissions, RolePermissions.Trace) && HasPermissions(itemId, permissions, RolePermissions.Edit);
+            result.CanEdit = HasPermissions(artifactId, permissions, RolePermissions.Trace) && HasPermissions(artifactId, permissions, RolePermissions.Edit);
 
             return result;
         }

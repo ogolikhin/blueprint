@@ -80,11 +80,12 @@ export class ProcessViewModel implements IProcessViewModel {
     }
     
     private artifactsOnUpdate = (updateModel: ProcessModels.IArtifactUpdateModel) => {
+        const statefulArtifact = this.getStatefulArtifact();
         if (updateModel.updateType === ProcessEnums.ArtifactUpdateType.LinkLabel) {
-            this.getStatefulArtifact().addChangeset("label", updateModel.propertyValue.value);
+            statefulArtifact.processOnUpdate();
         }
         else {
-            const subArtifact: any = this.getStatefulArtifact().subArtifactCollection.get(updateModel.subArtifactId);
+            const subArtifact: any = statefulArtifact.subArtifactCollection.get(updateModel.subArtifactId);
             const processSubArtifact: IStatefulProcessSubArtifact = <IStatefulProcessSubArtifact> subArtifact;
             if (processSubArtifact) {
                 if (updateModel.propertyValue.typePredefined === Enums.PropertyTypePredefined.Name) {
@@ -93,10 +94,8 @@ export class ProcessViewModel implements IProcessViewModel {
                     processSubArtifact.description = updateModel.propertyValue.value;
                 } else if (updateModel.propertyValue.typePredefined > 0) {
                     processSubArtifact.specialProperties.set(updateModel.propertyValue.typePredefined, updateModel.propertyValue.value);
-                } else {
-                    processSubArtifact.addChangeset(updateModel.propertyValue.propertyName, updateModel.propertyValue.value);
                 }
-            }
+            } 
         }
     }
 

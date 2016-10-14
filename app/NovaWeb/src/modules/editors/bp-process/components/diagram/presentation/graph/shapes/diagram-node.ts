@@ -27,7 +27,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
     protected sendUpdatedSubArtifactModel(name: string, updateType: ArtifactUpdateType = ArtifactUpdateType.SubArtifact, value?) {
         const updateModel: IArtifactUpdateModel = {
             updateType: updateType,
-            propertyValue: this.getPropertyValue(name), 
+            propertyValue: this.getProperty(name), 
             subArtifactId: this.model.id
         }; 
         if (updateModel.propertyValue === null) {  
@@ -275,7 +275,13 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
         }
         return undefined;
     }
+    protected getProperty(propertyName: string): IPropertyValueInformation {
+        if (this.model == null || this.model.propertyValues == null || this.model.propertyValues[propertyName] == null) {
+            return null;
+        }
 
+        return this.model.propertyValues[propertyName];
+    }
     protected getPropertyValue(propertyName: string) {
         if (this.model == null || this.model.propertyValues == null || this.model.propertyValues[propertyName] == null) {
             return null;
@@ -283,7 +289,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
 
         return this.model.propertyValues[propertyName].value;
     }
-
+    
     protected setPropertyValue(propertyName: string, newValue: any): boolean {
         if (this.model == null || this.model.propertyValues == null || this.model.propertyValues[propertyName] == null) {
             return false;

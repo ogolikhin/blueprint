@@ -10,16 +10,13 @@
     from "./models/process-models";
 
 import { StatefulArtifact, IStatefulArtifact } from "../../managers/artifact-manager/artifact";
-import { IStatefulItem } from "../../managers/artifact-manager/item";
-import { ChangeTypeEnum, IChangeSet } from "../../managers/artifact-manager/changeset";
+//import { ChangeTypeEnum, IChangeSet } from "../../managers/artifact-manager/changeset";
 import { Models } from "../../main/models";
 import { IStatefulProcessArtifactServices } from "../../managers/artifact-manager/services";
 import { StatefulProcessSubArtifact } from "./process-subartifact";
 
-export interface IStatefulProcessItem extends IStatefulItem {
-    addChangeset(name: string, value: any);
-}
-export interface IStatefulProcessArtifact extends IStatefulProcessItem, IStatefulArtifact {
+export interface IStatefulProcessArtifact extends  IStatefulArtifact {
+    processOnUpdate();
 }
 
 export class StatefulProcessArtifact extends StatefulArtifact implements IStatefulProcessArtifact, IProcess {
@@ -39,14 +36,8 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     }
     
 
-    public addChangeset(name: string, value: any) {
-        const changeset = {
-            type: ChangeTypeEnum.Update,
-            key: name,
-            value: value              
-        } as IChangeSet;
-        this.changesets.add(changeset);
-        
+    public processOnUpdate() {
+        this.artifactState.dirty = true;        
         this.lock(); 
     }
 

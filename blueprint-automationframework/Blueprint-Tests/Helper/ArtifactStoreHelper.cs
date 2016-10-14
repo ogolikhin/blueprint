@@ -404,6 +404,25 @@ namespace Helper
         }
 
         /// <summary>
+        /// Asserts that the specified INovaArtifactBase object is equal to the specified IArtifactBase.
+        /// </summary>
+        /// <param name="novaArtifactBase1">The INovaArtifactBase to compare against.</param>
+        /// <param name="novaArtifactBase2">The IArtifactBase to compare against.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public static void AssertArtifactsEqual(INovaArtifactBase novaArtifactBase1, INovaArtifactBase novaArtifactBase2)
+        {
+            ThrowIf.ArgumentNull(novaArtifactBase1, nameof(novaArtifactBase1));
+            ThrowIf.ArgumentNull(novaArtifactBase2, nameof(novaArtifactBase2));
+
+            Assert.AreEqual(novaArtifactBase1.Id, novaArtifactBase2.Id, "The Id parameters don't match!");
+            Assert.AreEqual(novaArtifactBase1.Name, novaArtifactBase2.Name, "The Name  parameters don't match!");
+            Assert.AreEqual(novaArtifactBase1.ParentId, novaArtifactBase2.ParentId, "The ParentId  parameters don't match!");
+            Assert.AreEqual(novaArtifactBase1.ItemTypeId, novaArtifactBase2.ItemTypeId, "The ItemTypeId  parameters don't match!");
+            Assert.AreEqual(novaArtifactBase1.ProjectId, novaArtifactBase2.ProjectId, "The ProjectId  parameters don't match!");
+            Assert.AreEqual(novaArtifactBase1.Version, novaArtifactBase2.Version, "The Version  parameters don't match!");
+        }
+
+        /// <summary>
         /// Asserts that both INovaArtifactDetails objects are equal.
         /// </summary>
         /// <param name="artifact1">The first INovaArtifactDetails to compare against.</param>

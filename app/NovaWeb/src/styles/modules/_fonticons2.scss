@@ -118,6 +118,10 @@ $fonticon2-subartifact: '\e842'; /* '' */
 $fonticon2-tour-1: '\e844'; /* '' */
 $fonticon2-user-system: '\e845'; /* '' */
 $fonticon2-user-user: '\e846'; /* '' */
+$fonticon2-add-artifact: '\e9a0'; /* '' */
+$fonticon2-collection: '\e9a1'; /* '' */
+$fonticon2-rapid-review: '\e9a2'; /* '' */
+$fonticon2-font-family: '\e9a3'; /* '' */
 
 .fonticon2-arrow-down::before {
     content: $fonticon2-arrow-down;
@@ -469,3 +473,16 @@ $fonticon2-user-user: '\e846'; /* '' */
 }
 
 /* '' */
+
+.fonticon2-add-artifact:before {
+    content: $fonticon2-add-artifact;
+} /* '' */
+.fonticon2-collection:before {
+    content: $fonticon2-collection;
+} /* '' */
+.fonticon2-rapid-review:before {
+    content: $fonticon2-rapid-review;
+} /* '' */
+.fonticon2-font-family:before {
+    content: $fonticon2-font-family;
+} /* '' */

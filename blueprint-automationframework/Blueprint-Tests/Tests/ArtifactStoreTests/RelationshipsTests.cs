@@ -586,7 +586,7 @@ namespace ArtifactStoreTests
             }, "GetRelationshipsDetails shouldn't throw any error when given a valid artifact.");
 
             // Verify:
-            Assert.AreEqual(1, traceDetails.PathToProject.Count, "PathToProject must have 1 item.");
+            Assert.AreEqual(2, traceDetails.PathToProject.Count, "PathToProject must have 2 items.");
             Assert.AreEqual(artifact.Id, traceDetails.ArtifactId, "Id must be correct.");
         }
 
@@ -612,7 +612,7 @@ namespace ArtifactStoreTests
             }, "GetRelationshipsDetails shouldn't throw any error when given a valid artifact.");
 
             // Verify:
-            Assert.AreEqual(4, traceDetails.PathToProject.Count, "PathToProject must have 4 items.");
+            Assert.AreEqual(5, traceDetails.PathToProject.Count, "PathToProject must have 5 items.");
             Assert.AreEqual(artifact.Id, traceDetails.ArtifactId, "Id must be correct.");
         }
 

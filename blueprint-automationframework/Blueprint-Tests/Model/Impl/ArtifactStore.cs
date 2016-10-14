@@ -386,6 +386,7 @@ namespace Model.Impl
             IArtifactBase artifact,
             int? subArtifactId = null,
             bool? addDrafts = null,
+            int? versionId = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -402,6 +403,11 @@ namespace Model.Impl
             if (addDrafts != null)
             {
                 queryParameters.Add("addDrafts", addDrafts.ToString());
+            }
+
+            if (versionId !=  null)
+            {
+                queryParameters.Add("versionId", versionId.ToString());
             }
 
             var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);

@@ -1,12 +1,13 @@
-﻿using Helper;
+﻿using CustomAttributes;
+using Helper;
 using Model;
-using NUnit.Framework;
-using CustomAttributes;
-using TestCommon;
 using Model.ArtifactModel;
-using Model.Factories;
 using Model.ArtifactModel.Impl;
+using Model.Factories;
 using Model.StorytellerModel;
+using NUnit.Framework;
+using System.Collections.Generic;
+using TestCommon;
 using Utilities;
 
 namespace ArtifactStoreTests
@@ -21,6 +22,8 @@ namespace ArtifactStoreTests
         private IGroup _authorsGroup = null;
 
         private IProjectRole _viewerRole = null;
+
+        #region Setup and Cleanup
 
         [SetUp]
         public void SetUp()
@@ -44,6 +47,10 @@ namespace ArtifactStoreTests
             Helper?.Dispose();
         }
 
+        #endregion Setup and Cleanup
+
+        #region Private Functions
+
         /// <summary>
         /// Compares two Trace objects and asserts that each of their properties are equal.
         /// </summary>
@@ -62,6 +69,79 @@ namespace ArtifactStoreTests
                 Assert.AreEqual(trace1.Direction, trace2.Direction, "The Trace Directions don't match!");
             }
         }
+
+        /// <summary>
+        /// Compares traces with traces from relationship so that each of their properties are equal.
+        /// </summary>
+        /// <param name="traces">traces to compare.</param>
+        /// <param name="relationship">relationship to compare.</param>
+        /// <param name="targetArtifacts">target artifacts to compare</param>
+        private static void TraceValidation(List<OpenApiTrace> traces, Relationships relationship, List<IArtifact> targetArtifacts)
+        {
+            var totalTraceCountFromTraces = traces.Count;
+            var totalTraceCountFromRelationship = relationship.ManualTraces.Count + relationship.OtherTraces.Count;
+
+            Assert.AreEqual(0, relationship.OtherTraces.Count, "Relationships shouldn't have other traces.");
+            Assert.That(targetArtifacts.Count.Equals(totalTraceCountFromRelationship), "Total number of target artifacts should equal to total number of relationships");
+            Assert.That(totalTraceCountFromTraces.Equals(totalTraceCountFromRelationship), "Total number of traces to compare is {0} but relationship conains {1} traces", totalTraceCountFromTraces, totalTraceCountFromRelationship);
+
+            for (int i = 0; i < totalTraceCountFromTraces; i++)
+            {
+                var manualTraceId = relationship.ManualTraces[i].ArtifactId;
+                var targetArtifactName = targetArtifacts.Find(a => a.Id.Equals(manualTraceId)).Name;
+                AssertTracesAreEqual(traces[i], relationship.ManualTraces[i]);
+                Assert.That(relationship.ManualTraces[i].ArtifactName.Equals(targetArtifactName), "Name \'{0}\' from target artifact does not match with Name \'{1}\' from manual trace of relationships. ", targetArtifactName, relationship.ManualTraces[i].ArtifactName);
+            }
+        }
+
+        #endregion Private Functions
+
+        #region 200 OK Tests
+
+        [TestCase(TraceDirection.To)]
+        [TestCase(TraceDirection.From)]
+        [TestCase(TraceDirection.TwoWay)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [TestRail(0)]
+        [Description("Create and publish artifact with a trace to target. Update and publish the artifact with the updated trace pointing to another target. Verify that GetRelationship call returns correct trace for each version of artifact")]
+        public void GetRelationships_ChangeTraceWhenPublishingArtifacts_ReturnsCorrectRelationshipPerVersion(TraceDirection direction)
+        {
+            // Setup: Create and Publish Two target artifacts: target artifact 1 and target artifact 2
+            // Create and publish artifact with outgoing trace to target artifact 1
+            // Update and publish the same artifact with outgoing tract to target artifact 2
+            var bpServerAddress = Helper.BlueprintServer.Address;
+            var targetArtifact1 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var targetArtifact2 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UIMockup);
+
+            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Document);
+            var tracesV1 = OpenApiArtifact.AddTrace(bpServerAddress, sourceArtifact, targetArtifact1, direction, _user);
+            sourceArtifact.Publish(); //creation of first version
+
+            OpenApiArtifact.DeleteTrace(bpServerAddress, sourceArtifact, targetArtifact1, direction, _user);
+            var tracesV2 = OpenApiArtifact.AddTrace(bpServerAddress, sourceArtifact, targetArtifact2, direction, _user);
+            sourceArtifact.Publish(); //creation of second version
+
+            // Execute: Execute GetRelationship for the available versions of the source artifact
+            Relationships relationshipsV1 = null;
+            Assert.DoesNotThrow(() =>
+            {
+                relationshipsV1 = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: 1);
+            }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
+
+            Relationships relationshipsV2 = null;
+            Assert.DoesNotThrow(() =>
+            {
+                relationshipsV2 = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: 2);
+            }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
+
+            // Validation: Compare properties between returned GetRelationship and traces for each version
+            TraceValidation(tracesV1, relationshipsV1, new List<IArtifact> { targetArtifact1 });
+            TraceValidation(tracesV2, relationshipsV2, new List<IArtifact> { targetArtifact2 });
+        }
+
+        #endregion 200 OK Tests
+
+        // TODO: Sort existing test cases inside of this file based on test type e.g. 200 OK test etc..
 
         [TestCase(TraceDirection.To)]
         [TestCase(TraceDirection.From)]

@@ -35,7 +35,7 @@ module.exports = {
         filename: '[name].bundle.js'
     },
     devServer: {
-        host: 'localhost',
+        host: '0.0.0.0',
         port: 8000,
         proxy: proxy_config,
         watchOptions: {

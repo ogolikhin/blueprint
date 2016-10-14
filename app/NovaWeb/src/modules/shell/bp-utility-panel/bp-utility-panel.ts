@@ -122,16 +122,30 @@ export class BPUtilityPanelController {
     }
 
     private onSelectionChanged = (selection: ISelection) => {
-        if (selection) {
+        if (selection && (selection.artifact || selection.subArtifact)) {
             this.toggleHistoryPanel(selection);
             this.togglePropertiesPanel(selection);
             this.toggleFilesPanel(selection);
             this.toggleRelationshipsPanel(selection);
+            this.toggleDiscussionsPanel(selection);
         }
     }
 
+    private toggleDiscussionsPanel(selection: ISelection) {
+        const artifact = selection.artifact;
+        if (artifact && (artifact.predefinedType === ItemTypePredefined.CollectionFolder
+            || artifact.predefinedType === ItemTypePredefined.ArtifactCollection)) {
+                this.hidePanel(PanelType.Discussions);
+            }
+    }
+
     private toggleHistoryPanel(selection: ISelection) {
-        if (selection.subArtifact) {
+        const artifact = selection.artifact;
+        const subArtifact = selection.subArtifact;
+        if (subArtifact
+            || (artifact &&
+            (artifact.predefinedType === ItemTypePredefined.CollectionFolder
+            || artifact.predefinedType === ItemTypePredefined.ArtifactCollection))) {
             this.hidePanel(PanelType.History);
         } else {
             this.showPanel(PanelType.History);
@@ -151,6 +165,8 @@ export class BPUtilityPanelController {
             || artifact.predefinedType === ItemTypePredefined.UseCase
             || artifact.predefinedType === ItemTypePredefined.UIMockup
             || artifact.predefinedType === ItemTypePredefined.Process
+            || artifact.predefinedType === ItemTypePredefined.CollectionFolder
+            || artifact.predefinedType === ItemTypePredefined.ArtifactCollection
             || (artifact.predefinedType === ItemTypePredefined.Actor &&
             explorerArtifact &&
             explorerArtifact.predefinedType === ItemTypePredefined.UseCaseDiagram))) {
@@ -166,6 +182,7 @@ export class BPUtilityPanelController {
 
         if (artifact && (artifact.predefinedType === ItemTypePredefined.Document
             || artifact.predefinedType === ItemTypePredefined.CollectionFolder
+            || artifact.predefinedType === ItemTypePredefined.ArtifactCollection
             || artifact.predefinedType === ItemTypePredefined.Project)) {
             this.hidePanel(PanelType.Files);
         } else {

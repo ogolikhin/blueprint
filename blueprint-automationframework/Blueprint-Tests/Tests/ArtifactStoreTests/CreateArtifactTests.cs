@@ -50,6 +50,7 @@ namespace ArtifactStoreTests
         [TestCase(ArtifactTypePredefined.GenericDiagram)]
         [TestCase(ArtifactTypePredefined.Glossary)]
         [TestCase(ArtifactTypePredefined.PrimitiveFolder)]
+        [TestCase(ArtifactTypePredefined.Process)]
         [TestCase(ArtifactTypePredefined.Storyboard)]
         [TestCase(ArtifactTypePredefined.TextualRequirement)]
         [TestCase(ArtifactTypePredefined.UIMockup)]
@@ -81,6 +82,7 @@ namespace ArtifactStoreTests
         [TestCase(ArtifactTypePredefined.GenericDiagram)]
         [TestCase(ArtifactTypePredefined.Glossary)]
         [TestCase(ArtifactTypePredefined.PrimitiveFolder)]
+        [TestCase(ArtifactTypePredefined.Process)]
         [TestCase(ArtifactTypePredefined.Storyboard)]
         [TestCase(ArtifactTypePredefined.TextualRequirement)]
         [TestCase(ArtifactTypePredefined.UIMockup)]
@@ -122,7 +124,7 @@ namespace ArtifactStoreTests
             INovaArtifactDetails newArtifact = null;
 
             Assert.DoesNotThrow(() =>
-                newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, collectionFolder, BaseArtifactType.PrimitiveFolder),
+                newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, collectionFolder, baseType: BaseArtifactType.PrimitiveFolder),
                 "'POST {0}' should return 200 OK when trying to create an artifact of type: '{1}'!",
                 SVC_PATH, artifactType);
 
@@ -142,13 +144,13 @@ namespace ArtifactStoreTests
             // Setup:
             BaseArtifactType dummyType = BaseArtifactType.PrimitiveFolder;  // Need to pass something that OpenApi recognizes for the WrapNovaArtifact() call.
             var collectionFolder = GetDefaultCollectionFolder(_project, _user);
-            var parentCollectionsFolder = CreateArtifactWithRandomName(ItemTypePredefined.CollectionFolder, _user, _project, collectionFolder, dummyType);
+            var parentCollectionsFolder = CreateArtifactWithRandomName(ItemTypePredefined.CollectionFolder, _user, _project, collectionFolder, baseType: dummyType);
 
             // Execute:
             INovaArtifactDetails newArtifact = null;
 
             Assert.DoesNotThrow(() =>
-                newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, parentCollectionsFolder, dummyType),
+                newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, parentCollectionsFolder, baseType: dummyType),
                 "'POST {0}' should return 200 OK when trying to create an artifact of type: '{1}'!",
                 SVC_PATH, artifactType);
 
@@ -158,8 +160,39 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, newArtifact);
         }
 
-        // TODO: Create artifact with order index before, same as, or after other artifacts.  Verify success.
-        // TODO: (CustomData) Create artifact that has required fields.  Verify success.  Try to publish.  Verify error.
+        [TestCase(ArtifactTypePredefined.Actor, -1)]
+        [TestCase(ArtifactTypePredefined.Glossary, 0)]
+        [TestCase(ArtifactTypePredefined.Process, 1)]
+        [TestCase(ArtifactTypePredefined.UseCase, 1.5)]
+        [TestRail(183502)]
+        [Description("Create an artifact of a supported type in the project root.  Then create another artifact with OrderIndex before, equal or after the first artifact.  " +
+            "Get the artifact.  Verify the artifact returned has the same properties as the artifact we created.")]
+        public void CreateArtifact_ValidArtifactTypeUnderProjectWithOrderIndex_VerifyOrderIndexIsCorrect(ItemTypePredefined artifactType, double orderIndexOffset)
+        {
+            // Setup:
+            var firstArtifact = CreateArtifactWithRandomName(artifactType, _user, _project);
+
+            Assert.NotNull(firstArtifact.OrderIndex, "OrderIndex of newly created artifact must not be null!");
+            Assert.Greater(firstArtifact.OrderIndex, 0, "OrderIndex of newly created artifact must be > 0!");
+
+            double orderIndexToSet = firstArtifact.OrderIndex.Value + orderIndexOffset;
+
+            // Execute:
+            INovaArtifactDetails newArtifact = null;
+
+            Assert.DoesNotThrow(() =>
+                newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, orderIndex: orderIndexToSet),
+                "'POST {0}' should return 200 OK when trying to create an artifact of type: '{1}'!",
+                SVC_PATH, artifactType);
+
+            // Verify:
+            Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetails);
+
+            Assert.NotNull(newArtifact.OrderIndex, "OrderIndex of newly created artifact must not be null!");
+            Assert.AreEqual(orderIndexToSet, newArtifact.OrderIndex.Value, "The OrderIndex of the new artifact is not correct!");
+        }
 
         #endregion 200 OK tests
 
@@ -302,12 +335,39 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found if the Project ID doesn't exist!", SVC_PATH);
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/zqgZbPQW
+        [Category(Categories.CustomData)]       // NOTE: This won't work on Silver02 until we make a required property without a default value.
+        [TestCase(ArtifactTypePredefined.Actor)]
+        [TestRail(183536)]
+        [Description("Create an artifact in the 'Custom Data' project for a type that has a required Custom Property with no default value.  " +
+            "Verify the create fails with a 409 Conflict error.")]
+        public void CreateArtifact_ArtifactWithMissingRequiredCustomProperty_409Conflict(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            IProject customDataProject = ProjectFactory.GetProject(_user, "Custom Data", shouldRetrievePropertyTypes: true);
+            customDataProject.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(artifactType, _user, customDataProject),
+                "'POST {0}' should return 409 Conflict when trying to create an artifact that has a required property without a default value!");
+
+            // Verify:
+            IServiceErrorMessage serviceError = JsonConvert.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            IServiceErrorMessage expectedError = ServiceErrorMessageFactory.CreateServiceErrorMessage(0,
+                "TODO: Fill in when https://trello.com/c/zqgZbPQW is fixed.");
+
+            serviceError.AssertEquals(expectedError);
+        }
+
+        // TODO: Create Collections in project.  Verify 400 error.
         // TODO: Send a corrupt JSON body.  Verify 400 Bad Request.
         // TODO: Create artifact with parent that user has no access to.  Verify 403.
         // TODO: Pass non-existent ItemTypeId.  Verify 404 Not Found.
         // TODO: Create artifact with non-existent parent.  Verify 404.
         // TODO: Create folder under non-folder artifact.  Verify 409.
-        // TODO: Create an artifact with ProjectID x with a Parent that exists in project y.  Verify ?? Error.
+        // TODO: Create an artifact with ProjectID x with a Parent that exists in project y.  Verify 409 Error.
+        // TODO: Create non-Collections under default Collection folder.  Verify 409 error.
+        // TODO: Create Collection under a Collection.  Verify 409 error.
 
         #endregion Negative tests
 
@@ -332,6 +392,7 @@ namespace ArtifactStoreTests
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="project">The project where the artifact will be created.</param>
         /// <param name="parent">(optional) The parent of the artifact to be created.</param>
+        /// <param name="orderIndex">(optional) The Order Index to assign to the new artifact.</param>
         /// <param name="baseType">(optional) You can select a different BaseArtifactType here other than what's in the novaArtifact.
         ///     Use this for artifact types that don't exist in the BaseArtifactType enum.</param>
         /// <returns>The artifact that was created.</returns>
@@ -339,10 +400,11 @@ namespace ArtifactStoreTests
             IUser user,
             IProject project,
             INovaArtifactBase parent = null,
+            double? orderIndex = null,
             BaseArtifactType? baseType = null)
         {
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
-            var artifact = Helper.ArtifactStore.CreateArtifact(user, artifactType, artifactName, project, parent);
+            var artifact = Helper.ArtifactStore.CreateArtifact(user, artifactType, artifactName, project, parent, orderIndex);
 
             WrapNovaArtifact(artifact, project, user, baseType);
 

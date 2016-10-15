@@ -8,6 +8,7 @@ export class ArtifactServiceMock implements IArtifactService {
     }
 
     public updateArtifact(artifact: Models.IArtifact) {
+        //Do nothing
     }
 
     public static createArtifact(id: number, properties?: number): any {
@@ -34,7 +35,7 @@ export class ArtifactServiceMock implements IArtifactService {
     }
 
     public static createSystemProperty(artifact: Models.IArtifact) {
-        var result: Models.IPropertyValue[] = [];
+        const result: Models.IPropertyValue[] = [];
         let id: number = Math.floor(Math.random() * 100);
         result.push({
             propertyTypeId: id,
@@ -75,8 +76,8 @@ export class ArtifactServiceMock implements IArtifactService {
 
     public static createPropertyValues(id: number, count?: number): any[] {
 
-        var result: Models.IPropertyValue[] = [];
-        for (var i = 0; i < (count || 0); i++) {
+        const result: Models.IPropertyValue[] = [];
+        for (let i = 0; i < (count || 0); i++) {
             result.push({
                 propertyTypeId: id + i,
                 propertyTypeVersionId: id * 10,
@@ -89,7 +90,7 @@ export class ArtifactServiceMock implements IArtifactService {
 
     public static createSpecificPropertyValue(versionId: number, value: any, typePredefined: Models.PropertyTypePredefined): Models.IPropertyValue {
 
-        var result: Models.IPropertyValue = {
+        const result: Models.IPropertyValue = {
             propertyTypeId: typePredefined,
             propertyTypeVersionId: versionId,
             propertyTypePredefined: typePredefined,
@@ -99,8 +100,8 @@ export class ArtifactServiceMock implements IArtifactService {
     }
 
     public static createSubArtifacts(id: number, count?: number): any[] {
-        var result: Models.ISubArtifact[] = [];
-        for (var i = 0; i < (count || 0); i++) {
+        const result: Models.ISubArtifact[] = [];
+        for (let i = 0; i < (count || 0); i++) {
             result.push({
                 id: id + 1000,
                 name: "SubArtifact",
@@ -115,20 +116,20 @@ export class ArtifactServiceMock implements IArtifactService {
     }
 
     public getArtifact(artifactId: number): ng.IPromise<Models.IArtifact> {
-        var deferred = this.$q.defer<any>();
+        const deferred = this.$q.defer<any>();
         deferred.resolve(ArtifactServiceMock.createArtifact(artifactId));
         return deferred.promise;
     }
 
 
     public getSubArtifact(artifactId: number, subArtifactId: number): ng.IPromise<Models.ISubArtifact> {
-        var deferred = this.$q.defer<any>();
+        const deferred = this.$q.defer<any>();
         deferred.resolve(ArtifactServiceMock.createSubArtifacts(artifactId));
         return deferred.promise;
     }
 
     public lock(artifactId: number): ng.IPromise<Models.ILockResult[]> {
-        var deferred = this.$q.defer<any>();
+        const deferred = this.$q.defer<any>();
         deferred.resolve(ArtifactServiceMock.createLockResult(artifactId));
         return deferred.promise;
     }

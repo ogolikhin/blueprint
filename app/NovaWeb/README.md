@@ -52,7 +52,10 @@ We have number of npm scripts for main developer activities (look at `scripts` s
 
 * Use `gulp help` to see list of available tasks or look at `scripts` section of package.json for npm scripts.
 * Use `gulp build` or `npm run build` to build production version in the dist folder.
-* Use `gulp dev` or `npm run dev` to build the project and start a browser-sync dev server with live-reload on default port (8000). Currently there are no server components but we are using proxy to redirect all /svc calls to http://localhost:9801/svc.
+* Use `gulp dev` or `npm run dev` to build the project. By default it won't start the browser. Currently there are no server components but we are using proxy to redirect all /svc calls to http://localhost:9801/svc.
+* Use `npm run dev:open-browser` to build the project and launch the browser on the default host and port (http://localhost:8000). After using this script, `npm run dev` will launch the browser as well.
+* Use `npm run dev:no-browser` to build the project and stop launching the browser. After using this script, `npm run dev` won't launch the browser anymore.
+* Use `npm run dev:public` to build the project and binds the server to all hosts. This is useful if you need to give remote access to your local server (e.g. by using your machine's IP address: http://XXX.XXX.XXX.XXX:8000). Please note that the you will need to manually launch the browser.
 
 You can override default backend URL from command line:
 ```

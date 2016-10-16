@@ -88,7 +88,6 @@
     "karma-spec-reporter": "~0.0.23",
     "karma-webpack": "^1.7.0",
     "node-sass": "^3.4.2",
-    "open-browser-webpack-suppresserror-plugin": "0.0.2",
     "phantomjs-polyfill": "~0.0.1",
     "phantomjs-prebuilt": "^2.1.3",
     "proxy-middleware": "^0.15.0",

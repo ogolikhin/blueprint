@@ -12,6 +12,9 @@ export enum ModalDialogType {
 }
 
 export class BaseModalDialogController<T extends IModalDialogModel> {
+    protected resolve: { [key: string]: string | Function | Array<string | Function> | Object };
+    protected modalInstance: ng.ui.bootstrap.IModalServiceInstance;
+    protected dialogModel: T;
 
     public static dialogOpenEventName: string = "openDetailsModal";
 
@@ -22,11 +25,16 @@ export class BaseModalDialogController<T extends IModalDialogModel> {
         "dialogModel"
     ];
 
-    constructor(protected $rootScope: ng.IRootScopeService,
-                protected $scope: IModalScope,
-                protected $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance,
-                protected dialogModel: T) {
-        this.$scope.dialogModel = dialogModel;
+    constructor(
+        protected $rootScope: ng.IRootScopeService,
+        protected $scope: IModalScope,
+        $uibModalInstance?: angular.ui.bootstrap.IModalServiceInstance,
+        dialogModel?: T
+    ) {
+        this.initializeModalInstance($uibModalInstance);
+        this.initializeDialogModel(dialogModel);
+
+        this.$scope.dialogModel = this.dialogModel;
 
         $rootScope.$on("processUnloadingEvent", (() => {
             this.cancel();
@@ -36,32 +44,45 @@ export class BaseModalDialogController<T extends IModalDialogModel> {
     public ok = () => {
         this.saveData();
         this.$scope.dialogModel = null;
-        this.$uibModalInstance.close();
+        this.modalInstance.close();
+    };
+
+    public cancel = () => {
+        this.$scope.dialogModel = null;
+        this.modalInstance.dismiss("cancel");
     };
 
     protected saveData() {
         // do nothing here
     }
 
-    protected updateModelWithNewValues(destination: any, source: any) {
+    protected updateModelWithNewValues(destination: any, source: any): void {
         angular.merge(destination, source);
     }
 
-    public cancel = () => {
-        this.$scope.dialogModel = null;
-        this.$uibModalInstance.dismiss("cancel");
+    // Initializes modal instance depending on the method of creation: Controller/Template vs Component
+    // Component uses bound modalInstance property
+    // Controller/Template uses the $uibModalInstance injected value
+    private initializeModalInstance = ($uibModalInstance?: angular.ui.bootstrap.IModalServiceInstance) => {
+        if ($uibModalInstance) {
+            this.modalInstance = $uibModalInstance;
+        }
+
+        if (!this.modalInstance) {
+            throw new Error("Could not initialize modal instance");
+        }
+    }
+
+    // Initializes dialog model depending on the method of creation: Controller/Template vs Component
+    // Component uses bound resolve property to contain dialog model
+    // Controller/Template uses the dialogModel injected value
+    private initializeDialogModel = (dialogModel?: T) => {
+        if (dialogModel) {
+            this.dialogModel = dialogModel;
+        } else if (this.resolve && <T>this.resolve["dialogModel"]) {
+            this.dialogModel = <T>this.resolve["dialogModel"];
+        } else {
+            throw new Error("Could not initialize dialog model");
+        }
     };
-
-    // public openPropertyFloatWindow = (artifactId: any) => {
-    //     //pass the whole $event as referencing DOM nodes in Angular expressions is disallowed!   
-    //     artifactId = parseInt(artifactId.target.innerHTML, 10);
-    //     let dialogModel = <IDialogModel>(this.$scope.dialogModel);
-
-    //     //only show utility panel when the historical version is set to false and when it is not SMB
-    //     let isSMBVal = this.$rootScope["config"].settings.StorytellerIsSMB;
-
-    //     if (dialogModel && !dialogModel.isHistoricalVersion && isSMBVal ==="false") {
-    //         this.$scope.dialogModel.propertiesMw.openModalDialog(artifactId);
-    //     }
-    // }; 
 }

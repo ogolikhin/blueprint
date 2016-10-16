@@ -29,7 +29,11 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
     private processDiagramManager: IProcessDiagramCommunication;
     private dialogManager: IModalDialogCommunication;
 
-    constructor(model: IProcessShape, rootScope: any, nodeFactorySettings: NodeFactorySettings = null) {
+    constructor(
+        model: IProcessShape, 
+        rootScope: any, 
+        private nodeFactorySettings: NodeFactorySettings = null
+    ) {
         super(model, NodeType.UserDecision);
 
         this.rootScope = rootScope;
@@ -239,5 +243,11 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
     public getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape {
         const id = graph.getDecisionBranchDestLinkForIndex(this.model.id, orderIndex).destinationId;
         return graph.getShapeById(id);
+    }
+
+    public cloneDecision(): IDecision {
+        const decision = new UserDecision(this.model, this.rootScope, this.nodeFactorySettings);
+        decision.label = this.label;
+        return decision;
     }
 }

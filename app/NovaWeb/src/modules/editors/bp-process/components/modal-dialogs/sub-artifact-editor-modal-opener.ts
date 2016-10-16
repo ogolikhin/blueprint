@@ -124,48 +124,38 @@ export class SubArtifactEditorModalOpener {
     }
 
     public getUserSystemDecisionDialogModel(shapeId: number, graph: IProcessGraph): SubArtifactDecisionDialogModel {
-        let node = graph.getNodeById(shapeId.toString());
+        const decision = <IDecision>graph.getNodeById(shapeId.toString());
 
-        if (node == null || (node.getNodeType() !== NodeType.UserDecision && node.getNodeType() !== NodeType.SystemDecision)) {
+        if (!decision) {
             return null;
         }
 
-        let dialogModel: SubArtifactDecisionDialogModel = new SubArtifactDecisionDialogModel();
-        let systemTasks: SystemTask[] = [];
+        const dialogModel: SubArtifactDecisionDialogModel = new SubArtifactDecisionDialogModel();
 
         dialogModel.graph = graph;
-        dialogModel.originalExistingNodes = systemTasks;
-        dialogModel.clonedExistingNodes = <IDiagramNode[]>this.cloneArray(dialogModel.originalExistingNodes);
-
         dialogModel.conditions = [];
 
         // cloning decision
-        dialogModel.originalDecision = <IDecision>node;
-        dialogModel.clonedDecision = this.cloneNode(dialogModel.originalDecision);
-
+        dialogModel.originalDecision = decision;
+        dialogModel.clonedDecision = decision.cloneDecision();
+        
         // populate existing conditions
-        let decisionId: number = node.model.id;
-        let outgoingLinks: IProcessLink[] = dialogModel.graph.getNextLinks(decisionId);
+        const decisionId: number = decision.model.id;
+        const outgoingLinks: IProcessLink[] = dialogModel.graph.getNextLinks(decisionId);
 
         for (let index = 0; index < outgoingLinks.length; index++) {
-            let outgoingLink: IProcessLink = outgoingLinks[index];
+            const outgoingLink: IProcessLink = outgoingLinks[index];
             let mergePoint: IDiagramNode = null;
 
             // We do not display change merge node option for first branch
             if (index !== 0) {
-                let mergeNodeId: string = dialogModel.originalDecision.getMergeNode(graph, outgoingLink.orderindex).id.toString();
+                const mergeNodeId: string = dialogModel.originalDecision.getMergeNode(graph, outgoingLink.orderindex).id.toString();
                 mergePoint = graph.getNodeById(mergeNodeId);
             }
 
-            let validMergeNodes: IDiagramNode[] = dialogModel.graph.getValidMergeNodes(outgoingLink);
-            let condition: ICondition = Condition.create(outgoingLink, mergePoint, validMergeNodes);
+            const validMergeNodes: IDiagramNode[] = dialogModel.graph.getValidMergeNodes(outgoingLink);
+            const condition: ICondition = Condition.create(outgoingLink, mergePoint, validMergeNodes);
             dialogModel.conditions.push(condition);
-        }
-
-        // clone edges one by one
-        dialogModel.clonedDecision.edges = [];
-        for (let edge of dialogModel.originalDecision.edges) {
-            dialogModel.clonedDecision.edges.push(this.cloneNode(edge));
         }
 
         // set dialog model isReadonly property to enable/disable input controls
@@ -183,17 +173,19 @@ export class SubArtifactEditorModalOpener {
             "storyteller-modal");
     }
 
-    private openDecisionEditorDialog($scope: ng.IScope, shapeId: number, graph: IProcessGraph): void {
+    private openDecisionEditorDialog = ($scope: ng.IScope, shapeId: number, graph: IProcessGraph): void => {
         const settings = <ModalSettings>{
             animation: this.animationsEnabled,
             component: "decisionEditor",
             resolve: {
+                dialogModel: () => this.getUserSystemDecisionDialogModel(shapeId, graph),
+                modalProcessViewModel: () => this.modalProcessViewModel
             },
             windowClass: "storyteller-modal"
         };
 
         this.$uibModal.open(settings);
-    }
+    };
 
     public getUserStoryDialogModel(shapeId: number, graph: IProcessGraph): UserStoryDialogModel {
         let userStoryDialogModel = new UserStoryDialogModel();
@@ -214,7 +206,6 @@ export class SubArtifactEditorModalOpener {
     }
 
     private openPreviewModalDialog($scope: ng.IScope, shapeId: number, graph: IProcessGraph) {
-
         this.open("",
             require("./user-story-preview/user-story-preview.html"),
             UserStoryPreviewController,

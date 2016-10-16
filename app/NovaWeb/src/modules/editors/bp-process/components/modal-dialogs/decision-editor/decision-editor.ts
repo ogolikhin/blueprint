@@ -5,6 +5,7 @@ export class DecisionEditor implements ng.IComponentOptions {
     public template: string = require("./decision-editor.html");
     public bindings: {[boundProperty: string]: string} = {
         resolve: "<",
+        modalInstance: "<",
         close: "&?",
         dismiss: "&?"
     };

@@ -32,7 +32,11 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
     private processDiagramManager: IProcessDiagramCommunication;
     private dialogManager: IModalDialogCommunication;
 
-    constructor(model: IProcessShape, rootScope: any, nodeFactorySettings: NodeFactorySettings = null) {
+    constructor(
+        model: IProcessShape, 
+        rootScope: any, 
+        private nodeFactorySettings: NodeFactorySettings = null
+    ) {
         super(model, NodeType.SystemDecision);
 
         this.rootScope = rootScope;
@@ -215,5 +219,11 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
     public getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape {
         const id = graph.getDecisionBranchDestLinkForIndex(this.model.id, orderIndex).destinationId;
         return graph.getShapeById(id);
+    }
+
+    public cloneDecision(): IDecision {
+        const decision = new SystemDecision(this.model, this.rootScope, this.nodeFactorySettings);
+        decision.label = this.label;
+        return decision;
     }
 }

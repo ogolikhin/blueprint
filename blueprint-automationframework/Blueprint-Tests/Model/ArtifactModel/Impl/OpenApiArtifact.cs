@@ -971,9 +971,9 @@ namespace Model.ArtifactModel.Impl
                 Assert.AreEqual(1, openApiTraces.Count);
                 Assert.AreEqual((int)HttpStatusCode.OK, openApiTraces[0].ResultCode);
 
-                string traceCreatedMessage = I18NHelper.FormatInvariant("Trace has been successfully deleted.");
+                string traceDeletedMessage = I18NHelper.FormatInvariant("Trace has been successfully deleted.");
 
-                Assert.AreEqual(traceCreatedMessage, openApiTraces[0].Message);
+                Assert.AreEqual(traceDeletedMessage, openApiTraces[0].Message);
             }
 
             return openApiTraces;

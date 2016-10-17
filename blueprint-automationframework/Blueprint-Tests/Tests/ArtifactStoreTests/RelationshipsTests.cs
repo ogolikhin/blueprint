@@ -83,14 +83,16 @@ namespace ArtifactStoreTests
 
             Assert.AreEqual(0, relationship.OtherTraces.Count, "Relationships shouldn't have other traces.");
             Assert.That(targetArtifacts.Count.Equals(totalTraceCountFromRelationship), "Total number of target artifacts should equal to total number of relationships");
-            Assert.That(totalTraceCountFromTraces.Equals(totalTraceCountFromRelationship), "Total number of traces to compare is {0} but relationship conains {1} traces", totalTraceCountFromTraces, totalTraceCountFromRelationship);
+            Assert.That(totalTraceCountFromTraces.Equals(totalTraceCountFromRelationship), "Total number of traces to compare is {0} but relationship contains {1} traces", totalTraceCountFromTraces, totalTraceCountFromRelationship);
 
             for (int i = 0; i < totalTraceCountFromTraces; i++)
             {
                 var manualTraceId = relationship.ManualTraces[i].ArtifactId;
-                var targetArtifactName = targetArtifacts.Find(a => a.Id.Equals(manualTraceId)).Name;
+                IArtifact foundArtifact = null;
+                Assert.NotNull(foundArtifact = targetArtifacts.Find(a => a.Id.Equals(manualTraceId)),"Could not find matching arifact from artifacts {0}", targetArtifacts);
+                var foundArtifactName = foundArtifact.Name;
                 AssertTracesAreEqual(traces[i], relationship.ManualTraces[i]);
-                Assert.That(relationship.ManualTraces[i].ArtifactName.Equals(targetArtifactName), "Name \'{0}\' from target artifact does not match with Name \'{1}\' from manual trace of relationships. ", targetArtifactName, relationship.ManualTraces[i].ArtifactName);
+                Assert.That(relationship.ManualTraces[i].ArtifactName.Equals(foundArtifactName), "Name '{0}' from target artifact does not match with Name '{1}' from manual trace of relationships.", foundArtifactName, relationship.ManualTraces[i].ArtifactName);
             }
         }
 
@@ -101,8 +103,7 @@ namespace ArtifactStoreTests
         [TestCase(TraceDirection.To)]
         [TestCase(TraceDirection.From)]
         [TestCase(TraceDirection.TwoWay)]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
-        [TestRail(0)]
+        [TestRail(183545)]
         [Description("Create and publish artifact with a trace to target. Update and publish the artifact with the updated trace pointing to another target. Verify that GetRelationship call returns correct trace for each version of artifact")]
         public void GetRelationships_ChangeTraceWhenPublishingArtifacts_ReturnsCorrectRelationshipPerVersion(TraceDirection direction)
         {

@@ -1,13 +1,15 @@
 import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-controller";
 import {SubArtifactDecisionDialogModel} from "../models/sub-artifact-decision-dialog-model";
 import {IModalProcessViewModel} from "../models/modal-process-view-model";
-import {IArtifactReference, IProcessLink} from "../../../models/process-models";
+import {ArtifactUpdateType} from "../../../models/enums";
+import {IArtifactReference, IProcessLink, IArtifactUpdateModel} from "../../../models/process-models";
 import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
 import {ProcessDeleteHelper} from "../../diagram/presentation/graph/process-delete-helper";
 import {Condition} from "../../diagram/presentation/graph/shapes";
 import {NodeType, NodeChange, IDiagramNode, IDiagramLink, ICondition, ISystemTaskShape} from "../../diagram/presentation/graph/models";
 import {IProcessService} from "../../../services/process.svc";
 import {ILocalizationService} from "../../../../../core";
+import {ProcessEvents} from "../../diagram/process-diagram-communication";
 
 export class DecisionEditorController extends BaseModalDialogController<SubArtifactDecisionDialogModel> implements ng.IComponentController {
     private CONDITION_MAX_LENGTH = 40;
@@ -96,7 +98,7 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
             sourceId: this.dialogModel.clonedDecision.model.id,
             destinationId: null,
             orderindex: null,
-            label: `${this.localization.get("ST_Decision_Modal_New_System_Task_Edge_Label")}${conditionNumber}`
+            label: `${this.localization.get("ST_Decision_Modal_New_System_Task_Edge_Label")} ${conditionNumber}`
         };
 
         const validMergeNodes = this.dialogModel.graph.getValidMergeNodes(processLink);
@@ -177,7 +179,11 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
         }
 
         if (isMergeNodeUpdate) {
-            this.dialogModel.graph.notifyUpdateInModel(NodeChange.Update, this.dialogModel.clonedDecision.model.id);
+            this.dialogModel.graph.viewModel.communicationManager.processDiagramCommunication.modelUpdate(this.dialogModel.originalDecision.model.id);
+            const updateModel: IArtifactUpdateModel = {
+                updateType: ArtifactUpdateType.Link
+            };
+            this.dialogModel.graph.viewModel.communicationManager.processDiagramCommunication.action(ProcessEvents.ArtifactUpdate, updateModel);
         }
     }
 

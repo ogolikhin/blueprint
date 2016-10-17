@@ -14,7 +14,7 @@ export class BPBaseUtilityPanelController {
     public $onInit() {
         const selectionObservable = this.selectionManager.selectionObservable;
         const panelActiveObservable = this.bpAccordionPanel.isActiveObservable;
-        const artifactOrVisibilityChange: Rx.IDisposable =
+        const artifactChangeWhileVisible: Rx.IDisposable =
             Rx.Observable
                 .combineLatest(selectionObservable, panelActiveObservable,
                     (selection, isActive) => {
@@ -27,7 +27,10 @@ export class BPBaseUtilityPanelController {
                 .distinctUntilChanged()
                 .subscribe(s => this.selectionChanged(s.artifact, s.subArtifact));
 
-        this._subscribers = [artifactOrVisibilityChange];
+        const visibilityChange: Rx.IDisposable =
+            panelActiveObservable.distinctUntilChanged().subscribe(isVisible => this.visibilityChanged(isVisible));
+
+        this._subscribers = [artifactChangeWhileVisible, visibilityChange];
     }
 
     public $onDestroy() {
@@ -52,7 +55,25 @@ export class BPBaseUtilityPanelController {
         }
     }
 
+    private visibilityChanged(isVisible: boolean) {
+        if (this.timeout) {
+            this.timeout.resolve();
+        }
+
+        this.timeout = this.$q.defer<any>();
+        const visibilityChangedResult = this.onVisibilityChanged(isVisible, this.timeout.promise);
+        if (visibilityChangedResult) {
+            visibilityChangedResult.then(() =>
+                this.timeout = undefined
+            );
+        }
+    }
+
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
+        return this.$q.resolve();
+    }
+
+    protected onVisibilityChanged(isVisible: boolean, timeout: ng.IPromise<void>): ng.IPromise<any> {
         return this.$q.resolve();
     }
 }

@@ -77,11 +77,8 @@ export class ManageTracesDialogController extends BaseDialogController {
 
                 item.isSelected = false;
 
-                if (item.hasAccess) {
-                    return item;
-                }
-
-            }).filter((item) => item)) as Relationships.IRelationshipView[];
+                return item;
+            }));
 
             this.artifactId = this.data.artifactId;
             this.isItemReadOnly = this.data.isItemReadOnly;

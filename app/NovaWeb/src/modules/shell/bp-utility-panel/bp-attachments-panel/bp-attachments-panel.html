@@ -44,7 +44,7 @@
                 ng-class="{'new-attachment': attachment.guid}"
                 attachment-info="attachment"
                 delete-item="$ctrl.deleteAttachment(attachment)"
-                can-add-attachments="$ctrl.canChangeAttachements()">
+                can-change-attachments="$ctrl.canChangeAttachements()">
             </bp-artifact-attachment-item>
         </div>
     </div>
@@ -64,7 +64,7 @@
                 class="utility-panel-artifact-item"
                 doc-ref-info="document"
                 delete-item="$ctrl.deleteDocRef(document)"
-                can-add-attachments="$ctrl.canChangeAttachements()">
+                can-change-attachments="$ctrl.canChangeAttachements()">
             </bp-artifact-document-item>
         </div>
     </div>

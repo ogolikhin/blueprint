@@ -15,11 +15,13 @@ import {PreviewCenterComponent} from "./components/modal-dialogs/user-story-prev
 import {PreviewWingDirective} from "./components/modal-dialogs/user-story-preview/preview-wing";
 import {ZoomableImageDirective} from "./components/modal-dialogs/user-story-preview/zoomable-image";
 
+import {DecisionEditor} from "./components/modal-dialogs/decision-editor";
 
 angular.module("bp.editors.process", ["ui.bootstrap"])
     .component("bpProcessHeader", new BpProcessHeader())
     .component("bpProcessEditor", new BpProcessEditor())
     .component("previewCenter", new PreviewCenterComponent())
+    .component("decisionEditor", new DecisionEditor())
     .directive("previewWing", PreviewWingDirective.directive)
     .directive("zoomableImage", ZoomableImageDirective.directive)
     .service("processService", ProcessService)

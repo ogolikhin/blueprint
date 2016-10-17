@@ -44,6 +44,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     public artifactEverPublished: boolean = false;
     public showAddComment: boolean = false;
     public emailDiscussionsEnabled: boolean = false;
+    private isVisible: boolean;
     private subscribers: Rx.IDisposable[];
 
     constructor(private localization: ILocalizationService,
@@ -99,15 +100,21 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
+    protected onVisibilityChanged(isVisible: boolean): void {
+        this.isVisible = isVisible;
+    }
+
     private onSelectedItemModified = (artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>) => {
-        this.artifactDiscussionList = [];
-        this.showAddComment = false;
-        if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
-            this.artifactId = artifact.id;
-            this.subArtifact = subArtifact;
-            return this.setEverPublishedAndDiscussions(artifact.version, timeout);
-        } else {
-            this.resetReadOnly();
+        if (this.isVisible) {
+            this.artifactDiscussionList = [];
+            this.showAddComment = false;
+            if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
+                this.artifactId = artifact.id;
+                this.subArtifact = subArtifact;
+                return this.setEverPublishedAndDiscussions(artifact.version, timeout);
+            } else {
+                this.resetReadOnly();
+            }
         }
     }
 

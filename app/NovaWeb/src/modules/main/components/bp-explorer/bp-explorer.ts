@@ -90,10 +90,15 @@ export class ProjectExplorerController {
                 css.push("is-folder");
             } else if (params.data.predefinedType === Models.ItemTypePredefined.Project) {
                 css.push("is-project");
-            } else {
+            } else if (params.data.predefinedType === Models.ItemTypePredefined.CollectionFolder) {
+                css.push("is-collection-folder");
+            }
+            else if (params.data.predefinedType === Models.ItemTypePredefined.ArtifactCollection) {
+                css.push("is-collection");
+            }
+            else {
                 css.push("is-" + Helper.toDashCase(Models.ItemTypePredefined[params.data.predefinedType]));
             }
-
             return css;
         },
 
@@ -108,12 +113,6 @@ export class ProjectExplorerController {
                                 item-type-id="${artifactType.id}"
                                 item-type-icon="${artifactType.iconImageId}"
                                 ng-drag-handle></bp-item-type-icon>`;
-                } else if (artifactType) {
-                    if (artifactType.predefinedType === ItemTypePredefined.CollectionFolder) {
-                        icon = "<i ng-drag-handle class='fonticon fonticon2-collection-folder'></i>";
-                    } else if (artifactType.predefinedType === ItemTypePredefined.ArtifactCollection) {
-                        icon = "<i ng-drag-handle class='fonticon fonticon2-collection'></i>";
-                    }
                 }
                 return `${icon}<span>${name}</span>`;
             },

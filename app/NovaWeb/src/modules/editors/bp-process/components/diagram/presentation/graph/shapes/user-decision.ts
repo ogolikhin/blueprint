@@ -9,7 +9,6 @@ import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {DeleteShapeButton} from "../buttons/delete-shape-button";
 import {Label, LabelStyle} from "../labels/label";
-import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 import {ProcessEvents} from "../../../process-diagram-communication";
 
 export class UserDecision extends DiagramNode<IProcessShape> implements IDecision {
@@ -24,9 +23,13 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
     private detailsButton: Button;
     private deleteShapeButton: Button;
 
-    private rootScope: any;
+    private rootScope: ng.IRootScopeService;
 
-    constructor(model: IProcessShape, rootScope: any, nodeFactorySettings: NodeFactorySettings = null) {
+    constructor(
+        model: IProcessShape, 
+        rootScope: ng.IRootScopeService, 
+        private nodeFactorySettings: NodeFactorySettings = null
+    ) {
         super(model, NodeType.UserDecision);
 
         this.rootScope = rootScope;
@@ -47,16 +50,15 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
 
         this.detailsButton.setHoverImage(this.getImageSource("adddetails-hover.svg"));
         this.detailsButton.setDisabledImage(this.getImageSource("adddetails-mute.svg"));
-        this.detailsButton.setTooltip(this.rootScope.config.labels["ST_Settings_Label"]);
+        this.detailsButton.setTooltip(this.rootScope["config"].labels["ST_Settings_Label"]);
 
         //Delete process shape button
         const clickAction = () => {
                 this.processDiagramManager.action(ProcessEvents.DeleteShape);
         };
 
-
         this.deleteShapeButton = new DeleteShapeButton(nodeId, this.BUTTON_SIZE, this.BUTTON_SIZE,
-            this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"], nodeFactorySettings, clickAction);
+            this.rootScope["config"].labels["ST_Shapes_Delete_Tooltip"], nodeFactorySettings, clickAction);
     }
 
     public setLabelWithRedrawUi(value: string) {
@@ -113,7 +115,7 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
     }
 
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
-
+        this.dialogManager = graph.viewModel.communicationManager.modalDialogManager;
         this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;
 
         const mxGraph = graph.getMxGraph();
@@ -134,6 +136,7 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
             "shape=rhombus;strokeColor=#D4D5DA;fillColor=" + fillColor +
             ";fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=12;foldable=0;"
         );
+
         const textLabelStyle: LabelStyle = new LabelStyle(
             "Open Sans",
             12,
@@ -146,6 +149,7 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
             this.USER_DECISION_WIDTH - 20,
             "#4C4C4C"
         );
+
         this.textLabel = new Label((value: string) => {
                 this.label = value;
             },
@@ -195,20 +199,13 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
         return this;
     }
 
+    // Get the maximum length of text that can be entered
     public getElementTextLength(cell: MxCell): number {
-        /*
-         * get the maximum length of text that can be entered
-         */
         return this.LABEL_EDIT_MAXLENGTH;
     }
 
+    // This function returns formatted text to the getLabel() function to display the label
     public formatElementText(cell: MxCell, text: string): string {
-
-        /***
-         * This function returns formatted text to the getLabel()
-         * function to display the label
-         */
-
         if (cell && text) {
             const maxLen: number = this.LABEL_VIEW_MAXLENGTH;
 
@@ -220,24 +217,18 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
         return text;
     }
 
+    // Save text for the node or for an element within the node
     public setElementText(cell: MxCell, text: string) {
-        /*
-         * save text for the node or for an element within
-         * the node
-         */
         this.label = text;
     }
 
     private openDialog(dialogType: ModalDialogType) {
-        //#TODO: implement new mechanism to communicate with modal dialogs
-        //this.rootScope.$broadcast(BaseModalDialogController.dialogOpenEventName,
-        //    this.model.id,
-        //    dialogType);
+        this.dialogManager.openDialog(this.model.id, dialogType);
     }
 
     public getDeleteDialogParameters(): IDialogParams {
         let dialogParams: IDialogParams = {};
-        dialogParams.message = this.rootScope.config.labels["ST_Confirm_Delete_User_Decision"];
+        dialogParams.message = this.rootScope["config"].labels["ST_Confirm_Delete_User_Decision"];
         return dialogParams;
     }
 
@@ -248,5 +239,11 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
     public getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape {
         const id = graph.getDecisionBranchDestLinkForIndex(this.model.id, orderIndex).destinationId;
         return graph.getShapeById(id);
+    }
+
+    public cloneDecision(): IDecision {
+        const decision = new UserDecision(this.model, this.rootScope, this.nodeFactorySettings);
+        decision.label = this.label;
+        return decision;
     }
 }

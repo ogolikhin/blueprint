@@ -50,6 +50,7 @@ namespace ArtifactStoreTests
         [TestCase(ArtifactTypePredefined.GenericDiagram)]
         [TestCase(ArtifactTypePredefined.Glossary)]
         [TestCase(ArtifactTypePredefined.PrimitiveFolder)]
+        [TestCase(ArtifactTypePredefined.Process)]
         [TestCase(ArtifactTypePredefined.Storyboard)]
         [TestCase(ArtifactTypePredefined.TextualRequirement)]
         [TestCase(ArtifactTypePredefined.UIMockup)]
@@ -81,6 +82,7 @@ namespace ArtifactStoreTests
         [TestCase(ArtifactTypePredefined.GenericDiagram)]
         [TestCase(ArtifactTypePredefined.Glossary)]
         [TestCase(ArtifactTypePredefined.PrimitiveFolder)]
+        [TestCase(ArtifactTypePredefined.Process)]
         [TestCase(ArtifactTypePredefined.Storyboard)]
         [TestCase(ArtifactTypePredefined.TextualRequirement)]
         [TestCase(ArtifactTypePredefined.UIMockup)]
@@ -98,7 +100,7 @@ namespace ArtifactStoreTests
             INovaArtifactDetails newArtifact = null;
 
             Assert.DoesNotThrow(() =>
-                newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, parentFolder),
+                newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, parentFolder.Id),
                 "'POST {0}' should return 200 OK when trying to create an artifact of type: '{1}'!",
                 SVC_PATH, artifactType);
 
@@ -122,7 +124,7 @@ namespace ArtifactStoreTests
             INovaArtifactDetails newArtifact = null;
 
             Assert.DoesNotThrow(() =>
-                newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, collectionFolder, BaseArtifactType.PrimitiveFolder),
+                newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, collectionFolder.Id, baseType: BaseArtifactType.PrimitiveFolder),
                 "'POST {0}' should return 200 OK when trying to create an artifact of type: '{1}'!",
                 SVC_PATH, artifactType);
 
@@ -142,13 +144,14 @@ namespace ArtifactStoreTests
             // Setup:
             BaseArtifactType dummyType = BaseArtifactType.PrimitiveFolder;  // Need to pass something that OpenApi recognizes for the WrapNovaArtifact() call.
             var collectionFolder = GetDefaultCollectionFolder(_project, _user);
-            var parentCollectionsFolder = CreateArtifactWithRandomName(ItemTypePredefined.CollectionFolder, _user, _project, collectionFolder, dummyType);
+            var parentCollectionsFolder = CreateArtifactWithRandomName(
+                ItemTypePredefined.CollectionFolder, _user, _project, collectionFolder.Id, baseType: dummyType);
 
             // Execute:
             INovaArtifactDetails newArtifact = null;
 
             Assert.DoesNotThrow(() =>
-                newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, parentCollectionsFolder, dummyType),
+                newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, parentCollectionsFolder.Id, baseType: dummyType),
                 "'POST {0}' should return 200 OK when trying to create an artifact of type: '{1}'!",
                 SVC_PATH, artifactType);
 
@@ -158,8 +161,39 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, newArtifact);
         }
 
-        // TODO: Create artifact with order index before, same as, or after other artifacts.  Verify success.
-        // TODO: (CustomData) Create artifact that has required fields.  Verify success.  Try to publish.  Verify error.
+        [TestCase(ArtifactTypePredefined.Actor, -1)]
+        [TestCase(ArtifactTypePredefined.Glossary, 0)]
+        [TestCase(ArtifactTypePredefined.Process, 1)]
+        [TestCase(ArtifactTypePredefined.UseCase, 1.5)]
+        [TestRail(183502)]
+        [Description("Create an artifact of a supported type in the project root.  Then create another artifact with OrderIndex before, equal or after the first artifact.  " +
+            "Get the artifact.  Verify the artifact returned has the same properties as the artifact we created.")]
+        public void CreateArtifact_ValidArtifactTypeUnderProjectWithOrderIndex_VerifyOrderIndexIsCorrect(ItemTypePredefined artifactType, double orderIndexOffset)
+        {
+            // Setup:
+            var firstArtifact = CreateArtifactWithRandomName(artifactType, _user, _project);
+
+            Assert.NotNull(firstArtifact.OrderIndex, "OrderIndex of newly created artifact must not be null!");
+            Assert.Greater(firstArtifact.OrderIndex, 0, "OrderIndex of newly created artifact must be > 0!");
+
+            double orderIndexToSet = firstArtifact.OrderIndex.Value + orderIndexOffset;
+
+            // Execute:
+            INovaArtifactDetails newArtifact = null;
+
+            Assert.DoesNotThrow(() =>
+                newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, orderIndex: orderIndexToSet),
+                "'POST {0}' should return 200 OK when trying to create an artifact of type: '{1}'!",
+                SVC_PATH, artifactType);
+
+            // Verify:
+            Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetails);
+
+            Assert.NotNull(newArtifact.OrderIndex, "OrderIndex of newly created artifact must not be null!");
+            Assert.AreEqual(orderIndexToSet, newArtifact.OrderIndex.Value, "The OrderIndex of the new artifact is not correct!");
+        }
 
         #endregion 200 OK tests
 
@@ -177,8 +211,11 @@ namespace ArtifactStoreTests
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
             // Execute & Verify:
-            Assert.Throws<Http400BadRequestException>(() => CreateArtifact(_user, fakeProject, (int)ItemTypePredefined.Process, artifactName),
+            var ex = Assert.Throws<Http400BadRequestException>(() => CreateArtifact(_user, fakeProject, (int)ItemTypePredefined.Process, artifactName),
                 "'POST {0}' should return 400 Bad Request if an invalid Project ID was passed!", SVC_PATH);
+
+            // Verify:
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "Project not found.");
         }
 
         [TestCase(true, true, true, false)]
@@ -191,13 +228,11 @@ namespace ArtifactStoreTests
         {
             // Setup:
             // Create a request with a missing required property.
-            NovaArtifactDetails artifact = new NovaArtifactDetails
-            {
-                ItemTypeId = sendItemTypeId ? (int?)ItemTypePredefined.Process : null,
-                Name = sendName ? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) : null,
-                ProjectId = sendProjectId ? (int?)_project.Id : null,
-                ParentId = sendParentId ? (int?)_project.Id : null,
-            };
+            var artifact = CreateNovaArtifactDetails(
+                itemTypeId: sendItemTypeId ? (int?)ItemTypePredefined.Process : null,
+                artifactName: sendName ? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) : null,
+                projectId: sendProjectId ? (int?)_project.Id : null,
+                parentId: sendParentId ? (int?)_project.Id : null);
 
             string jsonBody = JsonConvert.SerializeObject(artifact);
 
@@ -206,9 +241,25 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 400 Bad Request if a required property is missing!", SVC_PATH);
 
             // Verify:
-            var expectedError = ServiceErrorMessageFactory.CreateServiceErrorMessage(103, "Invalid request.");
-            var returnedError = JsonConvert.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
-            returnedError.AssertEquals(expectedError);
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "Invalid request.");
+        }
+
+        [TestCase(ArtifactTypePredefined.Actor)]
+        [TestRail(183537)]
+        [Description("Send a corrupt JSON body to the Create Artifact call.  Verify the create fails with a 400 Bad Request error.")]
+        public void CreateArtifact_SendCorruptJson_400BadRequest(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            var artifact = CreateNovaArtifactDetails(RandomGenerator.RandomAlphaNumeric(10), _project.Id, (int)artifactType, _project.Id);
+            string jsonBody = JsonConvert.SerializeObject(artifact);
+            string corruptJsonBody = jsonBody.Remove(0, 2);
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() => CreateArtifactFromJson(_user, corruptJsonBody),
+                "'POST {0}' should return 400 Bad Request when a corrupt JSON body is sent!");
+
+            // Verify:
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "An artifact is not defined.");
         }
 
         [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/oUNtprrI  Now returns 404 "Artifact type not found"
@@ -218,6 +269,8 @@ namespace ArtifactStoreTests
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactBaseline)]
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactReviewPackage)]
         [TestCase(BaselineAndCollectionTypePredefined.BaselineFolder)]
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
+        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(182485)]
         [Description("Create an artifact of an unsupported type.  Verify 400 Bad Request is returned.")]
         public void CreateArtifact_UnsupportedArtifactType_400BadRequest(ItemTypePredefined artifactType)
@@ -233,13 +286,13 @@ namespace ArtifactStoreTests
 
             string jsonBody = JsonConvert.SerializeObject(artifact);
             
-            // Execute & Verify:
+            // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() => CreateArtifactFromJson(_user, jsonBody),
                 "'POST {0}' should return 400 Bad Request when trying to create an unsupported artifact type of: '{1}'!",
                 SVC_PATH, artifactType);
 
-            const string expectedError = "TODO: fill this in when bug is fixed.";
-            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedError);
+            // Verify:
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotAcceptable, "TODO: Fill in when https://trello.com/c/oUNtprrI is fixed.");
         }
 
         [TestCase]
@@ -250,9 +303,12 @@ namespace ArtifactStoreTests
             // Setup:
             IUser userWithNoToken = Helper.CreateUserAndAddToDatabase();
 
-            // Execute & Verify:
-            Assert.Throws<Http401UnauthorizedException>(() => CreateArtifactWithRandomName(ItemTypePredefined.Process, userWithNoToken, _project),
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => CreateArtifactWithRandomName(ItemTypePredefined.Process, userWithNoToken, _project),
                 "'POST {0}' should return 401 Unauthorized if no Session-Token header is passed!", SVC_PATH);
+
+            // Verify:
+            Assert.AreEqual("\"Unauthorized call\"", ex.RestResponse.Content);
         }
 
         [TestCase]
@@ -263,16 +319,20 @@ namespace ArtifactStoreTests
             // Setup:
             IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
-            // Execute & Verify:
-            Assert.Throws<Http401UnauthorizedException>(() => CreateArtifactWithRandomName(ItemTypePredefined.Process, userWithBadToken, _project),
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => CreateArtifactWithRandomName(ItemTypePredefined.Process, userWithBadToken, _project),
                 "'POST {0}' should return 401 Unauthorized if an invalid token is passed!", SVC_PATH);
+
+            // Verify:
+            Assert.AreEqual("\"Unauthorized call\"", ex.RestResponse.Content);
         }
 
         [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/xuw4vq9s  Now fails with 404: "Project not found."
         [TestCase]
         [TestRail(154748)]
-        [Description("Create an artifact as a user that doesn't have permission to add artifacts to the project.  Verify 403 Forbidden is returned.")]
-        public void CreateArtifact_UserWithoutPermissions_403Forbidden()
+        [Description("Create an artifact as a user that doesn't have permission to add artifacts to the project.  " +
+            "Verify 403 Forbidden is returned.")]
+        public void CreateArtifact_UserWithoutPermissionToProject_403Forbidden()
         {
             // Setup:
             IUser userWithoutPermission = Helper.CreateUserAndAuthenticate(
@@ -282,9 +342,73 @@ namespace ArtifactStoreTests
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
             // Execute & Verify:
-            Assert.Throws<Http403ForbiddenException>(() => CreateArtifact(userWithoutPermission,
+            var ex = Assert.Throws<Http403ForbiddenException>(() => CreateArtifact(userWithoutPermission,
                 _project, (int)ItemTypePredefined.Process, artifactName),
                 "'POST {0}' should return 403 Forbidden if the user doesn't have permission to add artifacts!", SVC_PATH);
+
+            // Verify:
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "TODO: Fill in when https://trello.com/c/xuw4vq9s is fixed.");
+        }
+
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/xuw4vq9s  Fails with 404: "Project not found."
+        [TestCase]
+        [TestRail(183538)]
+        [Description("Create an artifact as a user that full access to the project, but no access to the parent.  " +
+            "Verify 403 Forbidden is returned.")]
+        public void CreateArtifact_UserHasNoPermissionToParentArtifact_403Forbidden()
+        {
+            // Setup:
+            var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+
+            // Create a user that has full access to project, but no access to parentArtifact.
+            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            Helper.AssignProjectRolePermissionsToUser(userWithoutPermission, TestHelper.ProjectRole.None, _project, parentArtifact);
+
+            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+
+            // Execute:
+            var ex= Assert.Throws<Http403ForbiddenException>(() => CreateArtifact(userWithoutPermission,
+                _project, (int)ItemTypePredefined.Process, artifactName),
+                "'POST {0}' should return 403 Forbidden if the user doesn't have permission to parent artifact!", SVC_PATH);
+
+            // Verify:
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "TODO: Fill in when https://trello.com/c/xuw4vq9s is fixed.");
+        }
+
+        [TestCase(int.MaxValue)]
+        [TestRail(183539)]
+        [Description("Create an artifact with a non-existent ItemType ID.  Verify 404 Not Found is returned.")]
+        public void CreateArtifact_NonExistentItemTypeId_404NotFound(int itemTypeId)
+        {
+            // Setup:
+            // Create a Project with a fake ID that shouldn't exist.
+            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => CreateArtifact(_user, _project, itemTypeId, artifactName),
+                "'POST {0}' should return 404 Not Found if the ItemType ID doesn't exist!", SVC_PATH);
+
+            // Verify:
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound, "Artifact type not found.");
+        }
+
+        [TestCase(int.MaxValue)]
+        [TestRail(183540)]
+        [Description("Create an artifact with a non-existent Parent ID.  Verify 404 Not Found is returned.")]
+        public void CreateArtifact_NonExistentParentId_404NotFound(int parentId)
+        {
+            // Setup:
+            // Create a Project with a fake ID that shouldn't exist.
+            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+            int itemTypeId = (int)ItemTypePredefined.Process;
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => CreateArtifact(_user, _project, itemTypeId, artifactName, parentId),
+                "'POST {0}' should return 404 Not Found if the Parent ID doesn't exist!", SVC_PATH);
+
+            // Verify:
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+                "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
         [TestCase(int.MaxValue)]
@@ -296,34 +420,118 @@ namespace ArtifactStoreTests
             // Create a Project with a fake ID that shouldn't exist.
             IProject fakeProject = ProjectFactory.CreateProject(id: projectId);
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+            int itemTypeId = (int)ItemTypePredefined.Process;
 
-            // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => CreateArtifact(_user, fakeProject, (int)ItemTypePredefined.Process, artifactName),
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => CreateArtifact(_user, fakeProject, itemTypeId, artifactName),
                 "'POST {0}' should return 404 Not Found if the Project ID doesn't exist!", SVC_PATH);
+
+            // Verify:
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound, "Project not found.");
         }
 
-        // TODO: Send a corrupt JSON body.  Verify 400 Bad Request.
-        // TODO: Create artifact with parent that user has no access to.  Verify 403.
-        // TODO: Pass non-existent ItemTypeId.  Verify 404 Not Found.
-        // TODO: Create artifact with non-existent parent.  Verify 404.
-        // TODO: Create folder under non-folder artifact.  Verify 409.
-        // TODO: Create an artifact with ProjectID x with a Parent that exists in project y.  Verify ?? Error.
+        [Explicit(IgnoreReasons.ProductBug)]    // Gets a 404 instead of 409.  Check if this is what should happen.
+        [TestCase(ItemTypePredefined.Actor)]
+        [TestRail(183543)]
+        [Description("Create a regular artifact under the default Collections folder.  Verify the create fails with a 409 Conflict error.")]
+        public void CreateArtifact_AddArtifactUnderCollectionsFolder_409Conflict(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            var collectionFolder = GetDefaultCollectionFolder(_project, _user);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(
+                artifactType, _user, _project, collectionFolder.Id),
+                "'POST {0}' should return 409 Conflict when creating a regular artifact under the Collections folder!");
+
+            // Verify:
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
+                "Invalid request.");
+        }
+
+        [TestCase]
+        [TestRail(183544)]
+        [Description("Create a Collection under another Collection.  Verify the create fails with a 409 Conflict error.")]
+        public void CreateArtifact_AddCollectionUnderAnotherCollection_409Conflict()
+        {
+            // Setup:
+            var collectionFolder = GetDefaultCollectionFolder(_project, _user);
+            ItemTypePredefined artifactType = ItemTypePredefined.ArtifactCollection;
+            BaseArtifactType dummyType = BaseArtifactType.PrimitiveFolder;  // Need to pass something that OpenApi recognizes for the WrapNovaArtifact() call.
+            var parentCollection = CreateArtifactWithRandomName(artifactType, _user, _project, collectionFolder.Id, baseType: dummyType);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(
+                artifactType, _user, _project, parentCollection.Id),
+                "'POST {0}' should return 409 Conflict when creating a Collection under another Collectino!");
+
+            // Verify:
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
+                "Cannot create an artifact at this location.");
+        }
+
+        [TestCase(BaseArtifactType.Actor)]
+        [TestRail(183541)]
+        [Description("Create a folder under an artifact.  Verify the create fails with a 409 Conflict error.")]
+        public void CreateArtifact_AddFolderUnderNonFolder_409Conflict(BaseArtifactType artifactType)
+        {
+            // Setup:
+            var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(
+                ItemTypePredefined.PrimitiveFolder, _user, _project, parentArtifact.Id),
+                "'POST {0}' should return 409 Conflict when trying to create a folder under a regular artifact!");
+
+            // Verify:
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
+                "Cannot create an artifact at this location.");
+        }
+
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/zqgZbPQW
+        [Category(Categories.CustomData)]       // NOTE: This won't work on Silver02 until we make a required property without a default value.
+        [TestCase(ArtifactTypePredefined.Actor)]
+        [TestRail(183536)]
+        [Description("Create an artifact in the 'Custom Data' project for a type that has a required Custom Property with no default value.  " +
+            "Verify the create fails with a 409 Conflict error.")]
+        public void CreateArtifact_ArtifactWithMissingRequiredCustomProperty_409Conflict(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            IProject customDataProject = ProjectFactory.GetProject(_user, "Custom Data", shouldRetrievePropertyTypes: true);
+            customDataProject.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(artifactType, _user, customDataProject),
+                "'POST {0}' should return 409 Conflict when trying to create an artifact that has a required property without a default value!");
+
+            // Verify:
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ValidationFailed, "TODO: Fill in when https://trello.com/c/zqgZbPQW is fixed.");
+        }
+
+        [TestCase(ItemTypePredefined.Actor)]
+        [TestRail(183542)]
+        [Description("Create an artifact and specify a ProjectId that is different than the project of the parent.  " +
+            "Verify the create fails with a 409 Conflict error.")]
+        public void CreateArtifact_ParentExistsInADifferentProject_409Conflict(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            var projects = ProjectFactory.GetProjects(_user, numberOfProjects: 2);
+            var parentArtifact = Helper.CreateAndPublishArtifact(projects[0], _user, BaseArtifactType.PrimitiveFolder);
+            projects[1].GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(
+                artifactType, _user, projects[1], parentArtifact.Id),
+                "'POST {0}' should return 409 Conflict when the Project ID is different than the project of the parent!");
+
+            // Verify:
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
+                "Invalid request.");
+        }
 
         #endregion Negative tests
 
         #region Private functions
-
-        /// <summary>
-        /// Asserts that the specified RestResponse contains the expected error message.
-        /// </summary>
-        /// <param name="restReponse">The RestResponse that contains the message.</param>
-        /// <param name="expectedMessage">The expected error message.</param>
-        private static void AssertRestResponseMessageIsCorrect(RestResponse restReponse, string expectedMessage)
-        {
-            SaveArtifactResult result = JsonConvert.DeserializeObject<SaveArtifactResult>(restReponse.Content);
-
-            Assert.AreEqual(expectedMessage, result.Message, "The wrong message was returned by 'POST {0}'.", SVC_PATH);
-        }
 
         /// <summary>
         /// Creates a new artifact with a random name.
@@ -331,18 +539,21 @@ namespace ArtifactStoreTests
         /// <param name="artifactType">The type of artifact to create.</param>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="project">The project where the artifact will be created.</param>
-        /// <param name="parent">(optional) The parent of the artifact to be created.</param>
+        /// <param name="parentId">(optional) The ID of the parent of the artifact to be created.</param>
+        /// <param name="orderIndex">(optional) The Order Index to assign to the new artifact.</param>
         /// <param name="baseType">(optional) You can select a different BaseArtifactType here other than what's in the novaArtifact.
         ///     Use this for artifact types that don't exist in the BaseArtifactType enum.</param>
         /// <returns>The artifact that was created.</returns>
         private INovaArtifactDetails CreateArtifactWithRandomName(ItemTypePredefined artifactType,
             IUser user,
             IProject project,
-            INovaArtifactBase parent = null,
+            int? parentId = null,
+            double? orderIndex = null,
             BaseArtifactType? baseType = null)
         {
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
-            var artifact = Helper.ArtifactStore.CreateArtifact(user, artifactType, artifactName, project, parent);
+            var artifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address,
+                user, artifactType, artifactName, project, parentId, orderIndex);
 
             WrapNovaArtifact(artifact, project, user, baseType);
 
@@ -370,16 +581,7 @@ namespace ArtifactStoreTests
             BaseArtifactType? baseType = null)
         {
             artifactName = artifactName ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
-
-            NovaArtifactDetails artifactDetails = new NovaArtifactDetails
-            {
-                Name = artifactName,
-                ProjectId = project.Id,
-                ItemTypeId = itemTypeId,
-                ParentId = parentId ?? project.Id,
-                OrderIndex = orderIndex
-            };
-            
+            var artifactDetails = CreateNovaArtifactDetails(artifactName, project.Id, itemTypeId, parentId ?? project.Id, orderIndex);
             string jsonBody = JsonConvert.SerializeObject(artifactDetails);
 
             RestResponse response = CreateArtifactFromJson(user, jsonBody);
@@ -415,6 +617,33 @@ namespace ArtifactStoreTests
         }
 
         /// <summary>
+        /// Create a NovaArtifactDetails object with the minimum required properties set.
+        /// </summary>
+        /// <param name="artifactName">(optional) The artifact name.</param>
+        /// <param name="projectId">(optional) The Project ID.</param>
+        /// <param name="itemTypeId">(optional) The ItemType ID.</param>
+        /// <param name="parentId">(optional) The Parent ID.</param>
+        /// <param name="orderIndex">(optional) The Order Index.</param>
+        /// <returns>A NovaArtifactDetails with the specified properties set.</returns>
+        private static INovaArtifactDetails CreateNovaArtifactDetails(string artifactName = null,
+            int? projectId = null,
+            int? itemTypeId = null,
+            int? parentId = null,
+            double? orderIndex = null)
+        {
+            INovaArtifactDetails artifactDetails = new NovaArtifactDetails
+            {
+                Name = artifactName,
+                ProjectId = projectId,
+                ItemTypeId = itemTypeId,
+                ParentId = parentId,
+                OrderIndex = orderIndex
+            };
+
+            return artifactDetails;
+        }
+
+        /// <summary>
         /// Gets the default Collections folder for the project and returns only the Id, PredefinedType, ProjectId and ItemTypeId.
         /// </summary>
         /// <param name="project">The project whose collections folder you want to get.</param>
@@ -431,6 +660,28 @@ namespace ArtifactStoreTests
                 ProjectId = project.Id,
                 ItemTypeId = collectionFolder.ItemTypeId
             };
+        }
+
+        /// <summary>
+        /// Verifies that the content returned in the rest response contains the specified ErrorCode and Message.
+        /// </summary>
+        /// <param name="restResponse">The RestResponse that was returned.</param>
+        /// <param name="expectedErrorCode">The expected error code.</param>
+        /// <param name="expectedErrorMessage">The expected error message.</param>
+        private static void ValidateServiceError(RestResponse restResponse, int expectedErrorCode, string expectedErrorMessage)
+        {
+            IServiceErrorMessage serviceError = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                serviceError = JsonConvert.DeserializeObject<ServiceErrorMessage>(restResponse.Content);
+            }, "Failed to deserialize the content of the REST response into a ServiceErrorMessage object!");
+
+            IServiceErrorMessage expectedError = ServiceErrorMessageFactory.CreateServiceErrorMessage(
+                expectedErrorCode,
+                expectedErrorMessage);
+
+            serviceError.AssertEquals(expectedError);
         }
 
         /// <summary>

@@ -84,6 +84,9 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 "border-collapse border-color border-style border-width " +
                 "text-align text-decoration vertical-align " +
                 "height width",
+                paste_word_valid_elements: "-strong/b,-em/i,-u,-span,-p,-ol,-ul,-li,-h1,-h2,-h3,-h4,-h5,-h6," +
+                "-p/div[align],-a[href|name],sub,sup,strike,br,del,table[align|width],tr," +
+                "td[colspan|rowspan|width|align|valign],th[colspan|rowspan|width],thead,tfoot,tbody",
                 paste_filter_drop: false,
                 table_toolbar: "", // https://www.tinymce.com/docs/plugins/table/#table_toolbar
                 table_default_styles: { // https://www.tinymce.com/docs/plugins/table/#table_default_styles

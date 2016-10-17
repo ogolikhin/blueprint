@@ -62,7 +62,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                 "class|linkfontsize|linkfontfamily|linkfontstyle|linkfontweight|linktextdecoration|linkforeground|style|target|artifactid]",
                 //invalid_elements: "p,br,hr,img,frame,iframe,script,table,thead,tbody,tr,td,ul,ol,li,dd,dt,dl,div,input,select,textarea",
                 invalid_styles: {
-                    "*": "background-image display margin padding float"
+                    "*": "background-image display margin padding float white-space"
                 },
                 object_resizing: false, // https://www.tinymce.com/docs/configure/advanced-editing-behavior/#object_resizing
                 // https://www.tinymce.com/docs/configure/content-formatting/#font_formats

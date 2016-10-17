@@ -22,7 +22,7 @@
     bp-comment-edit,
     .formly-field-bpFieldTextRTF,
     .formly-field-bpFieldTextRTFInline {
-        .mce-menubtn:first-child button span::before {
+        .mce-menubtn.mce-fixed-width.mce-listbox.mce-btn-has-text button span::before {
             line-height: 100%; // TODO: remove once the font is fixed
         }
     }
@@ -32,7 +32,7 @@
     bp-comment-edit,
     .formly-field-bpFieldTextRTF,
     .formly-field-bpFieldTextRTFInline {
-        .mce-menubtn:first-child button span::before {
+        .mce-menubtn.mce-fixed-width.mce-listbox.mce-btn-has-text button span::before {
             line-height: 200%; // TODO: remove once the font is fixed
         }
     }

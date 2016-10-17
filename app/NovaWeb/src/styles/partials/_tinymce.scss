@@ -8,7 +8,7 @@ body {
         padding-right: 3px;
     }
 
-    .mce-menubtn:first-child button span { // font-family button
+    .mce-menubtn.mce-fixed-width.mce-listbox.mce-btn-has-text button span { // font-family button
         overflow: hidden;
         text-overflow: initial;
         width: 40px;
@@ -52,7 +52,7 @@ body {
             }
         }
 
-        .mce-menubtn:first-child button span { // font-family button
+        .mce-menubtn.mce-fixed-width.mce-listbox.mce-btn-has-text button span { // font-family button
             width: 36px;
 
             &::before {

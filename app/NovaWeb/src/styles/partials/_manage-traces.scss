@@ -91,13 +91,15 @@ $modal-side-clearance: 8px;
                 }
             }
 
-            .last {
-                margin-bottom: 20px;
+            .big-index {
+                &:last-child {
+                    margin-bottom: 20px;
 
-                .dropdown-menu {
-                    top: auto;
-                    bottom: -20px;
-                    right: 20px;
+                    .dropdown-menu {
+                        top: auto;
+                        bottom: -20px;
+                        right: 20px;
+                    }
                 }
             }
 

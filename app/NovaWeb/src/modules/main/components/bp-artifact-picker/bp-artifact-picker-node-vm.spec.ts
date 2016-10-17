@@ -222,7 +222,7 @@ describe("ArtifactPickerNodeVM", () => {
             const result = vm.getCellClass();
 
             // Assert
-            expect(result).toEqual(["has-children", "is-folder"]);
+            expect(result).toEqual(["has-children", "is-primitive-folder"]);
         });
 
         it("getCellClass, when a project, returns correct result", () => {

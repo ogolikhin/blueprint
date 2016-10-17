@@ -3,6 +3,17 @@ bp-relationships-panel {
         padding-bottom: 0;
     }
 
+    .last {
+        .icons{
+            .dropdown-menu {
+                top: auto;
+                bottom: -10px;
+                left:auto;
+                right: 20px;
+            }
+        }
+    }
+
     .icons {
         color: $gray-light;
         display: inline-block;
@@ -56,6 +67,7 @@ bp-relationships-panel {
                 }
             }
         }
+
         &.header-icons {
             @include transition(max-height 0.5s, opacity 0.5s, overflow 0.5s);
             padding: 0 5px;

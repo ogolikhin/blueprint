@@ -28,6 +28,18 @@ namespace Model.Impl
 
         #region Members inherited from IArtifactStore
 
+        /// <seealso cref="IArtifactStore.CreateArtifact(IUser, ArtifactTypePredefined, string, IProject, IArtifactBase, double?, List{HttpStatusCode})"/>
+        public INovaArtifactDetails CreateArtifact(IUser user,
+            ArtifactTypePredefined baseArtifactType,
+            string name,
+            IProject project,
+            IArtifactBase parentArtifact = null,
+            double? orderIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return CreateArtifact(Address, user, (ItemTypePredefined)baseArtifactType, name, project, parentArtifact?.Id, orderIndex, expectedStatusCodes);
+        }
+
         /// <seealso cref="IArtifactStore.CreateArtifact(IUser, ArtifactTypePredefined, string, IProject, INovaArtifactDetails, double?, List{HttpStatusCode})"/>
         public INovaArtifactDetails CreateArtifact(IUser user,
             ArtifactTypePredefined baseArtifactType,
@@ -37,7 +49,7 @@ namespace Model.Impl
             double? orderIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return CreateArtifact(Address, user, (ItemTypePredefined)baseArtifactType, name, project, parentArtifact, orderIndex, expectedStatusCodes);
+            return CreateArtifact(Address, user, (ItemTypePredefined)baseArtifactType, name, project, parentArtifact?.Id, orderIndex, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.CreateArtifact(IUser, ItemTypePredefined, string, IProject, INovaArtifactBase, double?, List{HttpStatusCode})"/>
@@ -49,7 +61,7 @@ namespace Model.Impl
             double? orderIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return CreateArtifact(Address, user, baseArtifactType, name, project, parentArtifact, orderIndex, expectedStatusCodes);
+            return CreateArtifact(Address, user, baseArtifactType, name, project, parentArtifact?.Id, orderIndex, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.DeleteArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
@@ -628,12 +640,24 @@ namespace Model.Impl
 
         #region Static members
 
+        /// <summary>
+        /// Creates a new Nova artifact.
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="baseArtifactType">The base artifact type (i.e. ItemType) to create.</param>
+        /// <param name="name">The name of the new artifact.</param>
+        /// <param name="project">The project where the artifact will be created in.</param>
+        /// <param name="parentArtifactId">(optional) The ID of the parent of the new artifact.</param>
+        /// <param name="orderIndex">(optional) The order index of the new artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
+        /// <returns>The new Nova artifact that was created.</returns>
         public static INovaArtifactDetails CreateArtifact(string address,
             IUser user,
             ItemTypePredefined baseArtifactType,
             string name,
             IProject project,
-            INovaArtifactBase parentArtifact = null,
+            int? parentArtifactId = null,
             double? orderIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -656,7 +680,7 @@ namespace Model.Impl
                 Name = name,
                 ProjectId = project.Id,
                 ItemTypeId = itemType.Id,
-                ParentId = parentArtifact?.Id ?? project.Id,
+                ParentId = parentArtifactId ?? project.Id,
                 OrderIndex = orderIndex
             };
 

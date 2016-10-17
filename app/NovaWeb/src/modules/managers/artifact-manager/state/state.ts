@@ -39,8 +39,6 @@ export class ArtifactState implements IArtifactState {
     }
     public get(): IState {
         return this._state;
-        //fixme: empty functions should be removed as empty does nothing thus not needed
-
     }
 
     private set(value?: IState) {

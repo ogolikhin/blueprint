@@ -887,7 +887,7 @@ namespace Model.ArtifactModel.Impl
 
             var restApi = new RestApiFacade(address, tokenValue);
 
-            var openApitraces = restApi.SendRequestAndDeserializeObject<List<OpenApiTrace>, List<OpenApiTrace>>(
+            var openApiTraces = restApi.SendRequestAndDeserializeObject<List<OpenApiTrace>, List<OpenApiTrace>>(
                 path,
                 RestRequestMethod.POST,
                 new List<OpenApiTrace> { traceToCreate },
@@ -896,16 +896,87 @@ namespace Model.ArtifactModel.Impl
 
             if (expectedStatusCodes.Contains(HttpStatusCode.Created))
             {
-                Assert.AreEqual(1, openApitraces.Count);
-                Assert.AreEqual((int)HttpStatusCode.Created, openApitraces[0].ResultCode);
+                Assert.AreEqual(1, openApiTraces.Count);
+                Assert.AreEqual((int)HttpStatusCode.Created, openApiTraces[0].ResultCode);
 
                 string traceCreatedMessage = I18NHelper.FormatInvariant("Trace between {0} and {1} added successfully.",
                     sourceArtifact.Id, subArtifactId ?? targetArtifact.Id);
 
-                Assert.AreEqual(traceCreatedMessage, openApitraces[0].Message);
+                Assert.AreEqual(traceCreatedMessage, openApiTraces[0].Message);
             }
 
-            return openApitraces;
+            return openApiTraces;
+        }
+
+        /// <summary>
+        /// Delete trace between two artifacts (or artifact and sub-artifact) with specified properties.
+        /// </summary>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="sourceArtifact">The first artifact to which the call deletes a trace.</param>
+        /// <param name="targetArtifact">The second artifact to which the call deletes a trace.</param>
+        /// <param name="traceDirection">The direction of the trace 'To', 'From', 'Both'.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="traceType">(optional) The type of the trace - default is: 'Manual'.</param>
+        /// <param name="isSuspect">(optional) Should trace be marked as suspected.</param>
+        /// <param name="subArtifactId">(optional) The ID of a sub-artifact of the target artifact to which the trace should be deleted.</param>
+        /// <param name="reconcileWithTwoWay">(optional) Indicates how to handle the existence of an inverse trace.  If set to true, and an inverse trace already exists,
+        ///   the request does not return an error; instead, the trace Type is set to TwoWay.  The default is null and acts the same as false.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <returns>List of OpenApiTrace objects for all traces that were deleted.</returns>
+        public static List<OpenApiTrace> DeleteTrace(string address,
+            IArtifactBase sourceArtifact,
+            IArtifactBase targetArtifact,   // TODO: Create an DeleteTrace() that takes a list of target artifacts.
+            TraceDirection traceDirection,
+            IUser user,
+            TraceTypes traceType = TraceTypes.Manual,
+            bool isSuspect = false,
+            int? subArtifactId = null,
+            bool? reconcileWithTwoWay = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
+            ThrowIf.ArgumentNull(targetArtifact, nameof(targetArtifact));
+
+            string tokenValue = user.Token?.OpenApiToken;
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.Artifacts_id_.TRACES,
+                sourceArtifact.ProjectId, sourceArtifact.Id);
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
+            }
+
+            Dictionary<string, string> queryParameters = null;
+
+            if (reconcileWithTwoWay != null)
+            {
+                queryParameters = new Dictionary<string, string> { { "reconcilewithtwoway", reconcileWithTwoWay.ToString() } };
+            }
+
+            OpenApiTrace traceToDelete = new OpenApiTrace(targetArtifact.ProjectId, targetArtifact,
+                traceDirection, traceType, isSuspect, subArtifactId);
+
+            var restApi = new RestApiFacade(address, tokenValue);
+
+            var openApiTraces = restApi.SendRequestAndDeserializeObject<List<OpenApiTrace>, List<OpenApiTrace>>(
+                path,
+                RestRequestMethod.DELETE,
+                new List<OpenApiTrace> { traceToDelete },
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes);
+
+            if (expectedStatusCodes.Contains(HttpStatusCode.OK))
+            {
+                Assert.AreEqual(1, openApiTraces.Count);
+                Assert.AreEqual((int)HttpStatusCode.OK, openApiTraces[0].ResultCode);
+
+                string traceDeletedMessage = I18NHelper.FormatInvariant("Trace has been successfully deleted.");
+
+                Assert.AreEqual(traceDeletedMessage, openApiTraces[0].Message);
+            }
+
+            return openApiTraces;
         }
 
         #endregion Static Methods

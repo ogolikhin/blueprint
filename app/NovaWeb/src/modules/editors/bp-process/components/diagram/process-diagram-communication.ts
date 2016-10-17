@@ -3,9 +3,9 @@ import {ICommunicationWrapper, CommunicationWrapper} from "../../services/commun
 export enum ProcessEvents {
     DeleteShape,
     ModelUpdate,
-    NavigateToAssociatedArtifact
+    NavigateToAssociatedArtifact,
+    ArtifactUpdate
 }
-
 export interface IProcessDiagramCommunication {
     registerModelUpdateObserver(observer: any);
     removeModelUpdateObserver(observer: any);
@@ -21,14 +21,15 @@ export interface IProcessDiagramCommunication {
 export class ProcessDiagramCommunication implements IProcessDiagramCommunication {
     private setModelUpdateSubject: ICommunicationWrapper;
     private setNavigateToAssociatedArtifactSubject: ICommunicationWrapper;
-
-    private setClickDeleteSubject: ICommunicationWrapper;
+    private setClickDeleteSubject: ICommunicationWrapper;    
+    private setArtifactUpdateSubject: ICommunicationWrapper;    
 
     constructor() {
         // Create subjects
         this.setModelUpdateSubject = new CommunicationWrapper();
         this.setNavigateToAssociatedArtifactSubject = new CommunicationWrapper();
         this.setClickDeleteSubject = new CommunicationWrapper();
+        this.setArtifactUpdateSubject = new CommunicationWrapper();
     };
 
     // Model update
@@ -60,6 +61,10 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
                 result = this.setNavigateToAssociatedArtifactSubject.subscribe(observer);
             }
                 break;
+            case ProcessEvents.ArtifactUpdate: {
+                result = this.setArtifactUpdateSubject.subscribe(observer);
+            }
+                break;
             default:
                 result = undefined;
                 break;
@@ -81,6 +86,11 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
 
             case ProcessEvents.NavigateToAssociatedArtifact: {
                 this.setNavigateToAssociatedArtifactSubject.disposeObserver(observerHandler);
+            }
+                break;
+
+            case ProcessEvents.ArtifactUpdate: {
+                   this.setArtifactUpdateSubject.disposeObserver(observerHandler);
             }
                 break;
         }
@@ -105,6 +115,10 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
                     enableTracking: eventPayload.enableTracking
                 });
             }
+                break;          
+            case ProcessEvents.ArtifactUpdate: {
+                   this.setArtifactUpdateSubject.notify(eventPayload);
+            }
                 break;
 
         }
@@ -116,5 +130,6 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
         this.setModelUpdateSubject.dispose();
         this.setNavigateToAssociatedArtifactSubject.dispose();
         this.setClickDeleteSubject.dispose();
+        this.setArtifactUpdateSubject.dispose();
     }
 }

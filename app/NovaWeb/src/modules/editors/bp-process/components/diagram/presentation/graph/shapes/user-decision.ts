@@ -9,8 +9,6 @@ import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {DeleteShapeButton} from "../buttons/delete-shape-button";
 import {Label, LabelStyle} from "../labels/label";
-import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
-import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
 import {ProcessEvents} from "../../../process-diagram-communication";
 
 export class UserDecision extends DiagramNode<IProcessShape> implements IDecision {
@@ -25,13 +23,11 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
     private detailsButton: Button;
     private deleteShapeButton: Button;
 
-    private rootScope: any;
-    private processDiagramManager: IProcessDiagramCommunication;
-    private dialogManager: IModalDialogCommunication;
+    private rootScope: ng.IRootScopeService;
 
     constructor(
         model: IProcessShape, 
-        rootScope: any, 
+        rootScope: ng.IRootScopeService, 
         private nodeFactorySettings: NodeFactorySettings = null
     ) {
         super(model, NodeType.UserDecision);
@@ -54,7 +50,7 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
 
         this.detailsButton.setHoverImage(this.getImageSource("adddetails-hover.svg"));
         this.detailsButton.setDisabledImage(this.getImageSource("adddetails-mute.svg"));
-        this.detailsButton.setTooltip(this.rootScope.config.labels["ST_Settings_Label"]);
+        this.detailsButton.setTooltip(this.rootScope["config"].labels["ST_Settings_Label"]);
 
         //Delete process shape button
         const clickAction = () => {
@@ -62,7 +58,7 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
         };
 
         this.deleteShapeButton = new DeleteShapeButton(nodeId, this.BUTTON_SIZE, this.BUTTON_SIZE,
-            this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"], nodeFactorySettings, clickAction);
+            this.rootScope["config"].labels["ST_Shapes_Delete_Tooltip"], nodeFactorySettings, clickAction);
     }
 
     public setLabelWithRedrawUi(value: string) {
@@ -71,7 +67,7 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
 
     protected updateCellLabel(value: string) {
         this.textLabel.text = value;
-        this.notify(NodeChange.Update, true);
+        this.sendUpdatedSubArtifactModel("name");
     }
 
     public getX(): number {
@@ -232,7 +228,7 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
 
     public getDeleteDialogParameters(): IDialogParams {
         let dialogParams: IDialogParams = {};
-        dialogParams.message = this.rootScope.config.labels["ST_Confirm_Delete_User_Decision"];
+        dialogParams.message = this.rootScope["config"].labels["ST_Confirm_Delete_User_Decision"];
         return dialogParams;
     }
 

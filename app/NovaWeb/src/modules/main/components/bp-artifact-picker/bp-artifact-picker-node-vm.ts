@@ -117,7 +117,7 @@ export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
         //TODO: for now it display custom icons just for already loaded projects
         let statefulArtifact = this.projectManager.getArtifact(this.model.id);
         if (statefulArtifact) {
-            let artifactType = statefulArtifact.metadata.getItemType();
+            let artifactType = statefulArtifact.metadata.getItemTypeTemp();
             if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
                 return `<bp-item-type-icon item-type-id="${artifactType.id}" item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
             }

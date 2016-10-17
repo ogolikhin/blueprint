@@ -19,7 +19,8 @@
             <i class="icon-project"></i> {{$ctrl.item.projectName}}
         </div>
     </div>
-    <div class="clearfix">
+    <div class="row">
+        <div class="col-md-12">
             <div class="icons">
                 <div uib-dropdown>
                     <span uib-dropdown-toggle>
@@ -48,5 +49,6 @@
                    ng-class="{disabled: $ctrl.isItemReadOnly || $ctrl.item.readOnly}"
                    bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Delete')}}"></i>
             </div>
+        </div>
     </div>
 </div>

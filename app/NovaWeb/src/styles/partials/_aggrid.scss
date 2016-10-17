@@ -279,7 +279,7 @@ $has-children-padding-before-arrow: 3px;
         content: $icon-business-process;
     }
 
-    .ag-cell.is-collection .ag-group-value .ag-group-value-wrapper i::before {
+    .ag-cell.is-artifact-collection .ag-group-value .ag-group-value-wrapper i::before {
         font-family: "bp-font2";
         content: $fonticon2-collection;
     }
@@ -337,6 +337,10 @@ $has-children-padding-before-arrow: 3px;
     }
 
     .ag-cell.is-folder .ag-group-value .ag-group-value-wrapper i::before {
+        content: $icon-folder;
+    }
+
+    .ag-cell.is-primitive-folder .ag-group-value .ag-group-value-wrapper i::before {
         content: $icon-folder;
     }
 

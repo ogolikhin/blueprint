@@ -33,7 +33,7 @@ export class BPCommentEditController {
     public tinymceOptions = {
         plugins: "textcolor table noneditable autolink link autoresize mention paste",
         autoresize_bottom_margin: 0,
-        toolbar: "bold italic underline strikethrough | fontselect fontsize forecolor format | link",
+        toolbar: "bold italic underline strikethrough | fontsize fontselect forecolor format | link",
         convert_urls: false,
         relative_urls: false,
         remove_script_host: false,

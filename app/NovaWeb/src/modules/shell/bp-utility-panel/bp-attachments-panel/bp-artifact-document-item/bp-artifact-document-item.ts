@@ -10,7 +10,8 @@ export class BPArtifactDocumentItem implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BPArtifactDocumentItemController;
     public bindings: any = {
         docRefInfo: "=",
-        deleteItem: "&"
+        deleteItem: "&",
+        canChangeAttachments: "="
     };
 }
 
@@ -31,6 +32,7 @@ export class BPArtifactDocumentItemController implements IBPArtifactAttachmentIt
     public fileIconClass: string;
     public docRefInfo: IArtifactDocRef;
     public deleteItem: Function;
+    public canChangeAttachments: boolean;
 
     constructor(private $log: ng.ILogService,
                 private localization: ILocalizationService,

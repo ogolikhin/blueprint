@@ -11,6 +11,8 @@ bp-relationships-panel {
         background-color: $gray-lightest;
 
         i {
+            display: inline-block;
+            
             &::before {
                 font-size: $font-size-normal;
             }

@@ -4,8 +4,10 @@ import {IMessageService, Message, MessageType} from "../../../../../core/";
 import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
 import {ProcessModels, ProcessEnums} from "../../../";
 import {ICommunicationManager} from "../../../";
-import {IStatefulArtifact} from "../../../../../managers/artifact-manager/";
-import {StatefulProcessSubArtifact} from "../../../process-subartifact";
+import { IStatefulArtifact } from "../../../../../managers/artifact-manager/";
+import { IStatefulProcessSubArtifact, StatefulProcessSubArtifact } from "../../../process-subartifact";
+import { IStatefulProcessArtifact } from "../../../process-artifact";
+import { ProcessEvents } from "../process-diagram-communication";
 
 export interface IProcessViewModel extends IProcessGraphModel {
     description: string;
@@ -51,10 +53,15 @@ export class ProcessViewModel implements IProcessViewModel {
     private _isSpa: boolean;
     private _isSMB: boolean;
     private _shapeLimit: number = this.DEFAULT_SHAPE_LIMIT;
-    private _communicationManager: ICommunicationManager;
     private _justCreatedShapeIds: number[] = [];
-
-    constructor(private process, rootScope?: any, scope?: any, messageService?: IMessageService) {
+    private artifactUpdateHandler: string;
+  
+    constructor(
+        private process, 
+        public communicationManager: ICommunicationManager, 
+        rootScope?: any, 
+        scope?: any,
+        messageService?: IMessageService) {
 
         this.updateProcessGraphModel(process);
         this._rootScope = rootScope;
@@ -65,6 +72,30 @@ export class ProcessViewModel implements IProcessViewModel {
 
         if (messageService) {
             this._messageService = messageService;
+        }
+        if (communicationManager) {
+            this.artifactUpdateHandler = communicationManager.processDiagramCommunication
+                .register(ProcessEvents.ArtifactUpdate, this.artifactsOnUpdate);
+        }
+    }
+    
+    private artifactsOnUpdate = (updateModel: ProcessModels.IArtifactUpdateModel) => {
+        const statefulArtifact = this.getStatefulArtifact();
+        if (updateModel.updateType === ProcessEnums.ArtifactUpdateType.LinkLabel) {
+            statefulArtifact.processOnUpdate();
+        }
+        else {
+            const subArtifact: any = statefulArtifact.subArtifactCollection.get(updateModel.subArtifactId);
+            const processSubArtifact: IStatefulProcessSubArtifact = <IStatefulProcessSubArtifact> subArtifact;
+            if (processSubArtifact) {
+                if (updateModel.propertyValue.typePredefined === Enums.PropertyTypePredefined.Name) {
+                    processSubArtifact.name = updateModel.propertyValue.value;
+                } else if (updateModel.propertyValue.typePredefined === Enums.PropertyTypePredefined.Description) {
+                    processSubArtifact.description = updateModel.propertyValue.value;
+                } else if (updateModel.propertyValue.typePredefined > 0) {
+                    processSubArtifact.specialProperties.set(updateModel.propertyValue.typePredefined, updateModel.propertyValue.value);
+                }
+            } 
         }
     }
 
@@ -130,14 +161,7 @@ export class ProcessViewModel implements IProcessViewModel {
     public set shapeLimit(value: number) {
         this._shapeLimit = value;
     }
-
-    public get communicationManager(): ICommunicationManager {
-        return this._communicationManager;
-    }
-
-    public set communicationManager(value: ICommunicationManager) {
-        this._communicationManager = value;
-    }
+    
 
     public get licenseType(): Enums.LicenseTypeEnum {
         return this._licenseType;
@@ -506,11 +530,14 @@ export class ProcessViewModel implements IProcessViewModel {
             this.processGraphModel.destroy();
             this.processGraphModel = null;
         }
-
+        if (this.communicationManager) {
+            this.communicationManager.processDiagramCommunication
+                .unregister(ProcessEvents.ArtifactUpdate, this.artifactUpdateHandler);
+        }
     }
 
-    private getStatefulArtifact(): IStatefulArtifact {
-        let statefulArtifact: IStatefulArtifact = this.process;
+    private getStatefulArtifact(): IStatefulProcessArtifact {
+        let statefulArtifact: IStatefulProcessArtifact = this.process;
         return statefulArtifact;
     }
 }

@@ -3,7 +3,6 @@ var path = require('path');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var HtmlWebpackPlugin = require('html-webpack-plugin');
-var OpenBrowserPlugin = require('open-browser-webpack-plugin');
 
 var loaders = require("./loaders");
 var vendor_libs = require('./vendors');
@@ -18,6 +17,14 @@ var _APP = path.join(__dirname, './../src');
 var del = require('del');
 del(['dist/*']);
 
+var open_browser = process.env.npm_config_nova_open_browser === '1';
+var is_public = false;
+if (process.argv.some(function (argument) {
+        return argument === '--public';
+    })) {
+    console.log("Listening on all hosts. You will have to manually open http://" + default_host + ":" + default_port);
+    is_public = true;
+}
 
 function isDebug(argument) {
     return argument === '--debug';
@@ -25,13 +32,6 @@ function isDebug(argument) {
 
 if (process.argv.some(isDebug)) {
     console.log("Is Debug");
-}
-
-function isPublic(argument) {
-    return argument === '--public';
-}
-if (process.argv.some(isPublic)) {
-    console.log("Listening on all hosts");
 }
 
 module.exports = {
@@ -46,18 +46,18 @@ module.exports = {
         filename: '[name].bundle.js'
     },
     devServer: {
-        host: process.argv.some(isPublic) ? '0.0.0.0' : default_host, // '0.0.0.0' binds to all hosts
+        host: is_public ? '0.0.0.0' : default_host, // '0.0.0.0' binds to all hosts
         port: default_port,
         proxy: proxy_config,
         watchOptions: {
             aggregateTimeout: 300,
             poll: 1000
         },
+        open: open_browser && !is_public,
         historyApiFallback: true
     },
     plugins: [
         new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
-        new OpenBrowserPlugin({ url: 'http://' + default_host + ':' + default_port }),
         new HtmlWebpackPlugin({
             template: './index.html',
             filename: '../index.html',

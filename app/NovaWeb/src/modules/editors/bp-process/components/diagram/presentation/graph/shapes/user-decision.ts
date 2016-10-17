@@ -25,7 +25,6 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
     private deleteShapeButton: Button;
 
     private rootScope: any;
-    private processDiagramManager: IProcessDiagramCommunication;
 
     constructor(model: IProcessShape, rootScope: any, nodeFactorySettings: NodeFactorySettings = null) {
         super(model, NodeType.UserDecision);
@@ -66,7 +65,7 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
 
     protected updateCellLabel(value: string) {
         this.textLabel.text = value;
-        this.notify(NodeChange.Update, true);
+        this.sendUpdatedSubArtifactModel("name");
     }
 
     public getX(): number {

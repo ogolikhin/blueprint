@@ -27,6 +27,7 @@ import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-mana
 import {ISelectionListener} from "./models/";
 import {ProcessEvents} from "../../process-diagram-communication";
 import {IDragDropHandler, DragDropHandler} from "./drag-drop-handler";
+
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
     public startNode: IDiagramNode;

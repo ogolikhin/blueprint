@@ -58,10 +58,10 @@ export class SubArtifactEditorModalOpener {
         window.console.log(`Open dialog with parameters ${id}, ${dialogType}`);
 
         try {
-            let graph = this.getGraph();
+            const graph = this.getGraph();
 
             // get read-only status from viewmodel's isReadonly property
-            let viewModel = graph.viewModel;
+            const viewModel = graph.viewModel;
             if (viewModel) {
                 this.isReadonly = viewModel.isReadonly;
                 this.isHistorical = viewModel.isHistorical;
@@ -123,7 +123,7 @@ export class SubArtifactEditorModalOpener {
         return userTaskDialogModel;
     }
 
-    public getUserSystemDecisionDialogModel(shapeId: number, graph: IProcessGraph): SubArtifactDecisionDialogModel {
+    public getDecisionEditorModel(shapeId: number, graph: IProcessGraph): SubArtifactDecisionDialogModel {
         const decision = <IDecision>graph.getNodeById(shapeId.toString());
 
         if (!decision) {
@@ -140,8 +140,7 @@ export class SubArtifactEditorModalOpener {
         dialogModel.clonedDecision = decision.cloneDecision();
         
         // populate existing conditions
-        const decisionId: number = decision.model.id;
-        const outgoingLinks: IProcessLink[] = dialogModel.graph.getNextLinks(decisionId);
+        const outgoingLinks: IProcessLink[] = dialogModel.graph.getNextLinks(decision.model.id);
 
         for (let index = 0; index < outgoingLinks.length; index++) {
             const outgoingLink: IProcessLink = outgoingLinks[index];
@@ -178,7 +177,7 @@ export class SubArtifactEditorModalOpener {
             animation: this.animationsEnabled,
             component: "decisionEditor",
             resolve: {
-                dialogModel: () => this.getUserSystemDecisionDialogModel(shapeId, graph),
+                dialogModel: () => this.getDecisionEditorModel(shapeId, graph),
                 modalProcessViewModel: () => this.modalProcessViewModel
             },
             windowClass: "storyteller-modal"
@@ -188,10 +187,10 @@ export class SubArtifactEditorModalOpener {
     };
 
     public getUserStoryDialogModel(shapeId: number, graph: IProcessGraph): UserStoryDialogModel {
-        let userStoryDialogModel = new UserStoryDialogModel();
+        const userStoryDialogModel = new UserStoryDialogModel();
         userStoryDialogModel.subArtifactId = shapeId;
-        let node = graph.getNodeById(userStoryDialogModel.subArtifactId.toString());
-        let userTaskNode = <UserTask>node;
+        const node = graph.getNodeById(userStoryDialogModel.subArtifactId.toString());
+        const userTaskNode = <UserTask>node;
         userStoryDialogModel.previousSytemTasks = userTaskNode.getPreviousSystemTasks(graph) as SystemTask[];
         userStoryDialogModel.nextSystemTasks = userTaskNode.getNextSystemTasks(graph) as SystemTask[];
         userStoryDialogModel.originalUserTask = userTaskNode;
@@ -220,10 +219,11 @@ export class SubArtifactEditorModalOpener {
     }
 
     public cloneArray = (arr: any[]): any[] => {
-        let retArr: any[] = [];
+        const retArr: any[] = [];
         for (let node of arr) {
             retArr.push(this.cloneNode(node));
         }
+
         return retArr;
     }
 
@@ -247,5 +247,4 @@ export class SubArtifactEditorModalOpener {
         this.dialogCommunication.removeOpenDialogObserver(this.openDialogCallerHandler);
         this.dialogCommunication.removeModalProcessViewModelObserver(this.setModalProcessViewModelHandler);
     }
-
 }

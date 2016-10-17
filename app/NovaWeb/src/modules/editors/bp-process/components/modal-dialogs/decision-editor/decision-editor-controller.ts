@@ -42,7 +42,6 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
         super($rootScope, $scope);
 
         this.modalProcessViewModel = <IModalProcessViewModel>this.resolve["modalProcessViewModel"];
-
         this.isReadonly = false;
         this.setNextNode();
     }
@@ -184,8 +183,8 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
 
     private removeDeletedBranchesFromGraph() {
         if (this.deletedConditions != null && this.deletedConditions.length > 0) {
-            let targetIds: number[] = this.deletedConditions.map((condition: ICondition) => condition.destinationId);
-            let decisionId = this.dialogModel.originalDecision.model.id;
+            const targetIds: number[] = this.deletedConditions.map((condition: ICondition) => condition.destinationId);
+            const decisionId = this.dialogModel.originalDecision.model.id;
             
             ProcessDeleteHelper.deleteDecisionBranches(decisionId, targetIds, this.dialogModel.graph);
         }
@@ -195,8 +194,7 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
         const newConditions = this.dialogModel.conditions.filter((condition: ICondition) => condition.destinationId == null);
 
         if (newConditions.length > 0) {
-            let decisionId = this.dialogModel.originalDecision.model.id;
-            (<ProcessGraph>this.dialogModel.graph).addDecisionBranches(decisionId, newConditions);
+            (<ProcessGraph>this.dialogModel.graph).addDecisionBranches(this.dialogModel.originalDecision.model.id, newConditions);
         }
     }
 

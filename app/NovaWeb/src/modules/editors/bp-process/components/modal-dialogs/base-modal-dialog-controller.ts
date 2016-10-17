@@ -1,4 +1,5 @@
 import * as angular from "angular";
+import * as _ from "lodash";
 import {IModalDialogModel} from "./models/modal-dialog-model-interface";
 
 export interface IModalScope extends ng.IScope {
@@ -57,7 +58,7 @@ export class BaseModalDialogController<T extends IModalDialogModel> {
     }
 
     protected updateModelWithNewValues(destination: any, source: any): void {
-        angular.merge(destination, source);
+        _.merge(destination, source);
     }
 
     // Initializes modal instance depending on the method of creation: Controller/Template vs Component

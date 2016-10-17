@@ -5,12 +5,16 @@ import {
     IArtifactReference
 } from "./models/process-models";
 
-import {StatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact";
-import {IStatefulArtifact} from "../../managers/artifact-manager/artifact";
-import {IStatefulArtifactServices} from "../../managers/artifact-manager/services";
+import { IStatefulSubArtifact, StatefulSubArtifact } from "../../managers/artifact-manager/sub-artifact";
+import { IStatefulArtifact } from "../../managers/artifact-manager/artifact";
+import { IStatefulArtifactServices } from "../../managers/artifact-manager/services";
 
-export class StatefulProcessSubArtifact extends StatefulSubArtifact implements IProcessShape {
 
+export interface IStatefulProcessSubArtifact extends IStatefulSubArtifact {
+
+}
+export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements IStatefulProcessSubArtifact, IProcessShape {
+    
     public propertyValues: IHashMapOfPropertyValues;
     public associatedArtifact: IArtifactReference;
     public baseItemTypePredefined: ItemTypePredefined;
@@ -23,7 +27,7 @@ export class StatefulProcessSubArtifact extends StatefulSubArtifact implements I
         this.associatedArtifact = subartifact.associatedArtifact;
         this.baseItemTypePredefined = subartifact.baseItemTypePredefined;
         this.typePrefix = subartifact.typePrefix;
-    }
+    }    
 
     public get prefix(): string {
         return this.typePrefix;

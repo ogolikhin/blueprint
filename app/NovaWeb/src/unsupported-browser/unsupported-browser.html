@@ -47,7 +47,9 @@
         var divUnsupportedBrowser = document.getElementById("unsupported-browser-container");
         divUnsupportedBrowser.parentNode.removeChild(divUnsupportedBrowser);
 
-        window.appBootstrap.initApp();
+        if (window.appBootstrap) {
+            window.appBootstrap.initApp();
+        }
 
         return false;
     }

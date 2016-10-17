@@ -98,7 +98,7 @@ export class BpProcessEditorController extends BpBaseEditor {
         // the graph
 
         if (this.processDiagram) {
-            this.destroy();
+            this.processDiagram.destroy();
         }
 
         this.processDiagram = new ProcessDiagram(

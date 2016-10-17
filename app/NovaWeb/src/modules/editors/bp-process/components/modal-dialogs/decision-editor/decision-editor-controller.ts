@@ -7,11 +7,11 @@ import {ProcessDeleteHelper} from "../../diagram/presentation/graph/process-dele
 import {Condition} from "../../diagram/presentation/graph/shapes";
 import {NodeType, NodeChange, IDiagramNode, IDiagramLink, ICondition, ISystemTaskShape} from "../../diagram/presentation/graph/models";
 import {IProcessService} from "../../../services/process.svc";
+import {ILocalizationService} from "../../../../../core";
 
 export class DecisionEditorController extends BaseModalDialogController<SubArtifactDecisionDialogModel> implements ng.IComponentController {
     private CONDITION_MAX_LENGTH = 40;
-    private TASK_LABEL_MAX_LENGTH = 32;
-
+    
     private userTaskIcon: string = "fonticon fonticon-bp-actor";
     private decisionIcon: string = "fonticon fonticon-decision-diamond";
     private endIcon: string = "fonticon fonticon-storyteller-end";
@@ -27,7 +27,8 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
         "$scope",
         "$timeout",
         "$anchorScroll",
-        "$location"
+        "$location",
+        "localization"
     ];
 
     constructor(
@@ -35,7 +36,8 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
         $scope: IModalScope,
         private $timeout: ng.ITimeoutService,
         private $anchorScroll: ng.IAnchorScrollService,
-        private $location: ng.ILocationService
+        private $location: ng.ILocationService,
+        private localization: ILocalizationService
     ) {
         super($rootScope, $scope);
 
@@ -46,7 +48,7 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
     }
 
     public get defaultNextLabel(): string {
-        return (<any>this.$rootScope).config.labels["ST_Decision_Modal_Next_Task_Label"];
+        return this.localization.get("ST_Decision_Modal_Next_Task_Label");
     }
 
     public get hasMaxConditions(): boolean {
@@ -95,7 +97,7 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
             sourceId: this.dialogModel.clonedDecision.model.id,
             destinationId: null,
             orderindex: null,
-            label: (<any>this.$rootScope).config.labels["ST_Decision_Modal_New_System_Task_Edge_Label"] + conditionNumber
+            label: `${this.localization.get("ST_Decision_Modal_New_System_Task_Edge_Label")}${conditionNumber}`
         };
 
         const validMergeNodes = this.dialogModel.graph.getValidMergeNodes(processLink);

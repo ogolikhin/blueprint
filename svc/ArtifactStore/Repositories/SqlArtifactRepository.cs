@@ -10,14 +10,14 @@ using ServiceLibrary.Helpers;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
-using ArtifactStore.Helpers;
 
 namespace ArtifactStore.Repositories
 {
     public class SqlArtifactRepository : ISqlArtifactRepository
     {
-        internal readonly ISqlConnectionWrapper ConnectionWrapper;
-        private readonly SqlItemInfoRepository _itemInfoRepository;
+        private readonly ISqlConnectionWrapper _connectionWrapper;
+        private readonly ISqlItemInfoRepository _itemInfoRepository;
+        private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
 
         public SqlArtifactRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
@@ -25,9 +25,18 @@ namespace ArtifactStore.Repositories
         }
 
         public SqlArtifactRepository(ISqlConnectionWrapper connectionWrapper)
+            : this(connectionWrapper, new SqlItemInfoRepository(connectionWrapper),
+                  new SqlArtifactPermissionsRepository(connectionWrapper))
         {
-            ConnectionWrapper = connectionWrapper;
-            _itemInfoRepository = new SqlItemInfoRepository(connectionWrapper);
+        }
+
+        internal SqlArtifactRepository(ISqlConnectionWrapper connectionWrapper,
+            SqlItemInfoRepository itemInfoRepository,
+            IArtifactPermissionsRepository artifactPermissionsRepository)
+        {
+            _connectionWrapper = connectionWrapper;
+            _itemInfoRepository = itemInfoRepository;
+            _artifactPermissionsRepository = artifactPermissionsRepository;
         }
 
         #region GetProjectOrArtifactChildrenAsync
@@ -50,7 +59,7 @@ namespace ArtifactStore.Repositories
             prm.Add("@artifactId", artifactId ?? projectId);
             prm.Add("@userId", userId);
 
-            var artifactVersions = (await ConnectionWrapper.QueryAsync<ArtifactVersion>("GetArtifactChildren", prm,
+            var artifactVersions = (await _connectionWrapper.QueryAsync<ArtifactVersion>("GetArtifactChildren", prm,
                     commandType: CommandType.StoredProcedure)).ToList();
 
             // The artifact or the project is not found
@@ -66,7 +75,7 @@ namespace ArtifactStore.Repositories
                 prm.Add("@projectId", projectId);
                 prm.Add("@userId", userId);
 
-                var orphanVersions = (await ConnectionWrapper.QueryAsync<ArtifactVersion>("GetProjectOrphans", prm,
+                var orphanVersions = (await _connectionWrapper.QueryAsync<ArtifactVersion>("GetProjectOrphans", prm,
                     commandType: CommandType.StoredProcedure)).ToList();
 
                 if (orphanVersions.Any())
@@ -284,7 +293,7 @@ namespace ArtifactStore.Repositories
             getSubArtifactsDraftPrm.Add("@userId", userId);
             getSubArtifactsDraftPrm.Add("@revisionId", revisionId);
             getSubArtifactsDraftPrm.Add("@includeDrafts", includeDrafts);
-            return (await ConnectionWrapper.QueryAsync<SubArtifact>("GetSubArtifacts", getSubArtifactsDraftPrm, commandType: CommandType.StoredProcedure));
+            return (await _connectionWrapper.QueryAsync<SubArtifact>("GetSubArtifacts", getSubArtifactsDraftPrm, commandType: CommandType.StoredProcedure));
         }
 
         public async Task<IEnumerable<SubArtifact>> GetSubArtifactTreeAsync(int artifactId, int userId, int revisionId = int.MaxValue, bool includeDrafts = true)
@@ -367,7 +376,7 @@ namespace ArtifactStore.Repositories
 
             // One of the return items is supposed to be the project
             var ancestorsAndSelfIds = (await
-                ConnectionWrapper.QueryAsync<ArtifactVersion>("GetArtifactAncestorsAndSelf", prm,
+                _connectionWrapper.QueryAsync<ArtifactVersion>("GetArtifactAncestorsAndSelf", prm,
                     commandType: CommandType.StoredProcedure)).Select(av => av.ItemId).ToList();
 
             var setAncestorsAndSelfIds = new HashSet<int>(ancestorsAndSelfIds);
@@ -405,6 +414,66 @@ namespace ArtifactStore.Repositories
                 ancestor.Children = children;
                 siblings = children;
             }
+        }
+
+        #endregion
+
+        #region GetArtifactNavigatioPathAsync
+
+        public async Task<List<Artifact>> GetArtifactNavigatioPathAsync(int artifactId, int userId)
+        {
+            if (artifactId < 1)
+                throw new ArgumentOutOfRangeException(nameof(artifactId));
+            if (userId < 1)
+                throw new ArgumentOutOfRangeException(nameof(userId));
+
+            var prm = new DynamicParameters();
+            prm.Add("@userId", userId);
+            prm.Add("@itemId", artifactId);
+            var artifactBasicDetails = (await _connectionWrapper.QueryAsync<ArtifactBasicDetails>(
+                "GetArtifactBasicDetails", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            if (artifactBasicDetails == null)
+            {
+                var errorMessage = I18NHelper.FormatInvariant("Item (Id:{0}) is not found.", artifactId);
+                throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
+            }
+            var itemIdsPermissions = (await _artifactPermissionsRepository.GetArtifactPermissions(new [] { artifactId }, userId));
+            if (!itemIdsPermissions.ContainsKey(artifactId) || !itemIdsPermissions[artifactId].HasFlag(RolePermissions.Read))
+            {
+                var errorMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifactId);
+                throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
+            }
+
+            prm = new DynamicParameters();
+            prm.Add("@artifactId", artifactId);
+            prm.Add("@userId", userId);
+
+            var ancestorsAndSelf =  await _connectionWrapper.QueryAsync<ArtifactVersion>("GetArtifactNavigationPath", prm, commandType: CommandType.StoredProcedure);
+            return OrderAncestors(ancestorsAndSelf, artifactId).Select(a => new Artifact
+            {
+                Id = a.ItemId,
+                Name = a.Name,
+                ProjectId = a.VersionProjectId,
+                ItemTypeId = a.ItemTypeId
+            }).ToList();
+        }
+
+        // This method does not return the self.
+        private static IEnumerable<ArtifactVersion> OrderAncestors(IEnumerable<ArtifactVersion> ancestorsAndSelf, int artifactId)
+        {
+            var dicAncestorsAndSelf = ancestorsAndSelf.ToDictionary(a => a.ItemId);
+            var result = new List<ArtifactVersion>();
+            int? childId = artifactId;
+            ArtifactVersion child;
+
+            while (childId.HasValue && dicAncestorsAndSelf.TryGetValue(childId.Value, out child))
+            {
+                result.Add(child);
+                childId = child.ParentId;
+            }
+            result.RemoveAt(0);
+            result.Reverse();
+            return result;
         }
 
         #endregion

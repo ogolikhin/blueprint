@@ -5,17 +5,17 @@ import {IArtifactReference, IProcessLink} from "../../../models/process-models";
 import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
 import {ProcessDeleteHelper} from "../../diagram/presentation/graph/process-delete-helper";
 import {Condition} from "../../diagram/presentation/graph/shapes";
-import {NodeType, IDiagramNode, IDiagramLink, ICondition, ISystemTaskShape} from "../../diagram/presentation/graph/models";
+import {NodeType, NodeChange, IDiagramNode, IDiagramLink, ICondition, ISystemTaskShape} from "../../diagram/presentation/graph/models";
 import {IProcessService} from "../../../services/process.svc";
 
 export class DecisionEditorController extends BaseModalDialogController<SubArtifactDecisionDialogModel> implements ng.IComponentController {
     private CONDITION_MAX_LENGTH = 40;
     private TASK_LABEL_MAX_LENGTH = 32;
 
-    private userTaskIcon: string = "fonticon-bp-actor";
-    private decisionIcon: string = "fonticon-decision-diamond";
-    private endIcon: string = "fonticon-storyteller-end";
-    private errorIcon: string = "fonticon-error";
+    private userTaskIcon: string = "fonticon fonticon-bp-actor";
+    private decisionIcon: string = "fonticon fonticon-decision-diamond";
+    private endIcon: string = "fonticon fonticon-storyteller-end";
+    private errorIcon: string = "fonticon fonticon-error";
 
     private modalProcessViewModel: IModalProcessViewModel;
 
@@ -175,9 +175,9 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
             }
         }
 
-        // if (isMergeNodeUpdate) {
-        //     this.dialogModel.graph.notifyUpdateInModel(NodeChange.Update, this.dialogModel.clonedDecision.model.id);
-        // }
+        if (isMergeNodeUpdate) {
+            this.dialogModel.graph.notifyUpdateInModel(NodeChange.Update, this.dialogModel.clonedDecision.model.id);
+        }
     }
 
     private removeDeletedBranchesFromGraph() {

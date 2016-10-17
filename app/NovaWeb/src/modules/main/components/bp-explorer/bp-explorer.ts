@@ -102,7 +102,7 @@ export class ProjectExplorerController {
             innerRenderer: (params) => {
                 let icon = "<i ng-drag-handle></i>";
                 let name = Helper.escapeHTMLText(params.data.name);
-                let artifactType = (params.data as IArtifactNode).artifact.metadata.getItemType();
+                let artifactType = (params.data as IArtifactNode).artifact.metadata.getItemTypeTemp();
                 if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
                     icon = `<bp-item-type-icon
                                 item-type-id="${artifactType.id}"

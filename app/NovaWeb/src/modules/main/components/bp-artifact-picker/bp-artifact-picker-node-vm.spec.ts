@@ -293,7 +293,7 @@ describe("ArtifactPickerNodeVM", () => {
             const itemType = {id: 123, iconImageId: 456};
             (projectManager.getArtifact as jasmine.Spy).and.returnValue({
                 metadata: {
-                    getItemType() {
+                    getItemTypeTemp() {
                         return itemType;
                     }
                 }

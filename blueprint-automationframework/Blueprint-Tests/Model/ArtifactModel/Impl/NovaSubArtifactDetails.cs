@@ -47,6 +47,7 @@ namespace Model.ArtifactModel.Impl
 
             public object Value { get; set; }
 
+            public bool? IsReuseReadOnly { get; set; }
         }
     }
 }

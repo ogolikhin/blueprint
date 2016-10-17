@@ -22,10 +22,6 @@ export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
         });
     };
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldTextRTFInlineController;
-
-    constructor() {
-        //fixme: empty constructors can be removed
-    }
 }
 
 export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
@@ -38,9 +34,8 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
         let initialContent = null;
         let editorBody = null;
         let onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
-        $scope.to.onChange = () => {
-            //fixme: if the function is blank it should not exist
-        };
+        //we override the default onChange as we need to deal with changes differently when using tinymce
+        $scope.to.onChange = undefined;
 
         const allowedFonts = ["Open Sans", "Arial", "Cambria", "Calibri", "Courier New", "Times New Roman", "Trebuchet MS", "Verdana"];
         let fontFormats = "";

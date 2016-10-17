@@ -12,7 +12,7 @@ pagecontent, bp-properties-panel {
 
     .page-content-wrapper {
         height: 100%;
-        overflow: hidden;
+        overflow: auto;
         width: 100%;
     }
 
@@ -40,7 +40,6 @@ pagecontent, bp-properties-panel {
         height: 100%;
         margin: 0 20px 10px;
         min-width: $page-body-min-width;
-        overflow: hidden !important;
         z-index: 0;
     }
 

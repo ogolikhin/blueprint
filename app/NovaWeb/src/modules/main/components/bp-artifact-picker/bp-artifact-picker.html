@@ -20,9 +20,7 @@
             <div class="search-message" ng-if="!$ctrl.isSearching && $ctrl.searchResults.length === 0">
                 {{::$root.config.labels['Label_No_Results_Found']}}
             </div>
-            <div class="search-results" perfect-scrollbar
-                 opts="{ minScrollbarLength: 20, scrollXMarginOffset: 4, scrollYMarginOffset: 4}"
-                 ng-if="!$ctrl.isSearching && $ctrl.searchResults.length !== 0">
+            <div class="search-results" ng-if="!$ctrl.isSearching && $ctrl.searchResults.length !== 0">
                 <div class="search-result" ng-repeat="searchResult in $ctrl.searchResults"
                      ng-click="$ctrl.setProject(searchResult.id, searchResult.name, true)">
                     <i class="icon-project"></i>

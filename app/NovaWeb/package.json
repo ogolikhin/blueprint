@@ -6,7 +6,7 @@
   "license": "UNLICENSED",
   "main": "/",
   "scripts": {
-    "postinstall": "typings prune",
+    "postinstall": "typings prune; npm prune;",
     "dev": "node_modules/.bin/webpack-dev-server --config webpack/webpack.dev.js --content-base src --inline --hot --NODE_ENV=dev",
     "dev:open-browser": "npm config set nova_open_browser 1 && npm run dev",
     "dev:no-browser": "npm config set nova_open_browser 0 && npm run dev",
@@ -29,7 +29,6 @@
     "angular-formly": "^8.2.1",
     "angular-formly-templates-bootstrap": "^6.4.0",
     "angular-messages": "~1.5.7",
-    "angular-perfect-scrollbar-2": "1.2.4",
     "angular-sanitize": "~1.5.2",
     "angular-ui-bootstrap": "^2.1.4",
     "angular-ui-router": "~0.2.17",

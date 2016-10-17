@@ -11,8 +11,6 @@ import {DiagramNodeElement} from "./diagram-element";
 import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
-import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
-import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 import {ProcessEvents} from "../../../process-diagram-communication";
 
 export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implements ISystemTask, IUserTaskChildElement {
@@ -39,7 +37,6 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     private linkButton: Button;
     private mockupButton: Button;
     private rootScope: ng.IRootScopeService;
-    private dialogManager: IModalDialogCommunication;
 
     public callout: DiagramNodeElement;
 

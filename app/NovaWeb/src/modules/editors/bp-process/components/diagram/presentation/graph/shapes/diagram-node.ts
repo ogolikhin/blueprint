@@ -5,13 +5,14 @@ import {IProcessGraph, IDiagramNode, IDiagramLink, IDiagramNodeElement} from "./
 import {DiagramNodeElement} from "./diagram-element";
 import {ElementType, Direction, NodeType, NodeChange} from "./../models/";
 import {IDialogParams} from "../../../../messages/message-dialog";
-
+import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
 
 export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement implements IDiagramNode {
 
     direction: Direction;
     model: T;
     private nodeType: NodeType;
+    protected dialogManager: IModalDialogCommunication;
 
     public get newShapeColor(): string {
         return "#F7F1CF";

@@ -248,6 +248,7 @@ export interface IUserTask extends ITask {
 export interface IDecision extends IDiagramNode, IMenuContainer {
     getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape;
     setLabelWithRedrawUi(value: string);
+    cloneDecision(): IDecision;
 }
 
 export interface IUserTaskChildElement extends IDiagramNode {

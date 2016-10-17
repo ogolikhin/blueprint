@@ -79,7 +79,8 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
 
             const dialogData: IArtifactPickerOptions = {
                 selectableItemTypes: [Models.ItemTypePredefined.Actor],
-                showSubArtifacts: false
+                showSubArtifacts: false,
+                isOneProjectLevel: true
             };
 
             dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {

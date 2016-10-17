@@ -6,14 +6,14 @@
             <a href="#" uib-dropdown-toggle><span>{{::$ctrl.localization.get('App_UP_Attachments_Add_New')}}</span><b
                 class="caret"></b></a>
             <ul uib-dropdown-menu class="dropdown-menu">
-                <li ng-class="{'disabled': $ctrl.item.artifactState.readonly}">
+                <li ng-class="{'disabled': !$ctrl.canChangeAttachements()}">
                     <label>
                         <input bp-file-upload="$ctrl.onFileSelect(files, callback)" type="file" multiple="1"
                                class="file-input">
                         {{::$ctrl.localization.get('App_UP_Attachments_Attachment') }}
                     </label>
                 </li>
-                <li ng-click="$ctrl.addDocRef()" ng-class="{'disabled': $ctrl.item.artifactState.readonly}">
+                <li ng-click="$ctrl.addDocRef()" ng-class="{'disabled': !$ctrl.canChangeAttachements()}">
                     <a href>{{::$ctrl.localization.get('App_UP_Attachments_Ref_Doc') }}</a>
                 </li>
             </ul>
@@ -43,7 +43,8 @@
                 class="utility-panel-artifact-item"
                 ng-class="{'new-attachment': attachment.guid}"
                 attachment-info="attachment"
-                delete-item="$ctrl.deleteAttachment(attachment)">
+                delete-item="$ctrl.deleteAttachment(attachment)"
+                can-change-attachments="$ctrl.canChangeAttachements()">
             </bp-artifact-attachment-item>
         </div>
     </div>
@@ -62,7 +63,8 @@
             <bp-artifact-document-item
                 class="utility-panel-artifact-item"
                 doc-ref-info="document"
-                delete-item="$ctrl.deleteDocRef(document)">
+                delete-item="$ctrl.deleteDocRef(document)"
+                can-change-attachments="$ctrl.canChangeAttachements()">
             </bp-artifact-document-item>
         </div>
     </div>
@@ -83,8 +85,7 @@
 
     <div class="add-empty" ng-if="$ctrl.item">
         <p>{{::$ctrl.localization.get('App_UP_Attachments_Attachment_Desc') }}</p>
-        <label class="btn btn-secondary btn-small" ng-class="{'disabled': $ctrl.item.artifactState.readonly }"
-               ng-disabled="!$ctrl.canAddAttachments">
+        <label class="btn btn-secondary btn-small" ng-class="{'disabled': !$ctrl.canChangeAttachements()}">
             <input bp-file-upload="$ctrl.onFileSelect(files, callback)" type="file" multiple="1" class="file-input">
             {{::$ctrl.localization.get('App_UP_Attachments_Add_Attachment') }}
         </label>
@@ -92,8 +93,7 @@
         <hr/>
 
         <p>{{::$ctrl.localization.get('App_UP_Attachments_Reference_Desc') }}</p>
-        <label class="btn btn-secondary btn-small" ng-click="$ctrl.addDocRef()"
-               ng-class="{'disabled': $ctrl.item.artifactState.readonly}" ng-disabled="!$ctrl.canAddDocRefs">
+        <label class="btn btn-secondary btn-small" ng-click="$ctrl.addDocRef()" ng-class="{'disabled': !$ctrl.canChangeAttachements()}">
             {{ $ctrl.localization.get('App_UP_Attachments_Add_Ref_Doc') }}
         </label>
     </div>

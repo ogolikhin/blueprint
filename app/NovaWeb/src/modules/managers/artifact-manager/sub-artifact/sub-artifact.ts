@@ -77,6 +77,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
          });*/
         //delta.customPropertyValues = this.customProperties.changes();
         //delta.specificPropertyValues = this.specialProperties.changes();
+        delta.traces = this.relationships.changes();
         delta.attachmentValues = this.attachments.changes();
         delta.docRefValues = this.docRefs.changes();
         return delta;

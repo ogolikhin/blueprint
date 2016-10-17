@@ -43,8 +43,7 @@ describe("Layout test", () => {
     }));
 
     let setProcessViewModel = function (model) {
-        var processModel = new ProcessViewModel(model);
-        processModel.communicationManager = communicationManager;
+        var processModel = new ProcessViewModel(model, communicationManager);
         return processModel;
     };
 
@@ -1100,8 +1099,7 @@ describe("Layout test", () => {
         it("Should not insert additional shapes when limit is reached", () => {
             // Arrange
             let testModel = TestModels.createDefaultProcessModel();
-            let processModel = new ProcessViewModel(testModel, rootScope, localScope, msgService);
-            processModel.communicationManager = communicationManager;
+            let processModel = new ProcessViewModel(testModel, communicationManager, rootScope, localScope, msgService);
             var graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             //bypass testing adding stateful shapes logic here
@@ -1130,8 +1128,7 @@ describe("Layout test", () => {
         it("Should show a warning when eighty percent of the limit is reached", () => {
             // Arrange
             let testModel = TestModels.createDefaultProcessModel();
-            let processModel = new ProcessViewModel(testModel, rootScope, localScope, msgService);
-            processModel.communicationManager = communicationManager;
+            let processModel = new ProcessViewModel(testModel, communicationManager, rootScope, localScope, msgService);
             var graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             //bypass testing adding stateful shapes logic here

@@ -1,4 +1,4 @@
-﻿import {IArtifactProperty, IUserTaskShape} from "../../../../../models/process-models";
+﻿import {IArtifactProperty, IUserTaskShape, IArtifactUpdateModel} from "../../../../../models/process-models";
 import {ItemIndicatorFlags} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {IProcessGraph, IDiagramNode} from "../models/";
@@ -14,8 +14,6 @@ import {Button} from "../buttons/button";
 import {DeleteShapeButton} from "../buttons/delete-shape-button";
 import {Label, LabelStyle} from "../labels/label";
 import {SystemDecision} from "./";
-import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
-import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 import {ProcessEvents} from "../../../process-diagram-communication";
 
 export class UserStoryProperties implements IUserStoryProperties {
@@ -41,9 +39,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private previewButton: Button;
     private linkButton: Button;
     private rootScope: any;
-    private dialogManager: IModalDialogCommunication;
-    private processDiagramManager: IProcessDiagramCommunication;
-
+    
     // #UNUSED
     // private _userStoryId: number;
 
@@ -187,9 +183,8 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             if (this.personaLabel) {
                 this.personaLabel.text = value;
                 this.shapesFactoryService.setUserTaskPersona(value);
-            }
-
-            this.notify(NodeChange.Update, false);
+            } 
+            this.sendUpdatedSubArtifactModel("persona");
         }
     }
 
@@ -200,7 +195,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     public set description(value: string) {
         const valueChanged = this.setPropertyValue("description", value);
         if (valueChanged) {
-            this.notify(NodeChange.Update, false);
+            this.sendUpdatedSubArtifactModel("description");
         }
     }
 
@@ -211,7 +206,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     public set objective(value: string) {
         const valueChanged = this.setPropertyValue("itemLabel", value);
         if (valueChanged) {
-            this.notify(NodeChange.Update);
+            this.sendUpdatedSubArtifactModel("itemLabel");
         }
     }
 
@@ -221,8 +216,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
     public set associatedArtifact(value: any) {
         if (this.model != null && this.model.associatedArtifact !== value) {
-            this.model.associatedArtifact = value;
-            this.notify(NodeChange.Update);
+            this.model.associatedArtifact = value;           
+            this.sendUpdatedSubArtifactModel("associatedArtifact", value);
+
             if (!value || value === null) {
                 this.linkButton.disable();
             } else {

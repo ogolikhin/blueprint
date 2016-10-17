@@ -161,7 +161,8 @@
         Document = ItemTypePredefined.Document,
         Storyboard = ItemTypePredefined.Storyboard,
         DomainDiagram = ItemTypePredefined.DomainDiagram,
-        UseCaseDiagram = ItemTypePredefined.UseCaseDiagram
+        UseCaseDiagram = ItemTypePredefined.UseCaseDiagram,
+        Process = ItemTypePredefined.Process
     }
 
     /// <summary>

@@ -8,7 +8,8 @@ body {
         padding-right: 3px;
     }
 
-    .mce-menubtn:first-child button span { // font-family button
+    .mce-menubtn.mce-fixed-width.mce-listbox.mce-btn-has-text button span { // font-family button
+        overflow: hidden;
         text-overflow: initial;
         width: 40px;
 
@@ -41,15 +42,34 @@ body {
         font-family: 'bp-font2' !important;
     }
 
-    bp-discussion-panel {
+    bp-comment-edit {
+        .mce-btn-group {
+            padding-right: 2px;
+
+            &:not(:first-child) {
+                margin-left: 0;
+                padding-left: 2px;
+            }
+        }
+
+        .mce-menubtn.mce-fixed-width.mce-listbox.mce-btn-has-text button span { // font-family button
+            width: 36px;
+
+            &::before {
+                font-size: 18px;
+                margin-top: 2px;
+                width: 20px;
+            }
+        }
+
         .mce-btn button {
             font-size: 12px;
-            padding: 2px;
+            padding: 1px;
         }
 
         .mce-ico {
-            font-size: 13px;
-            width: 14px;
+            font-size: 12px;
+            width: 12px;
         }
     }
 }

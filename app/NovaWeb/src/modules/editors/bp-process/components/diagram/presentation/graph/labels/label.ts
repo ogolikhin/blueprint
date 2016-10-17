@@ -146,6 +146,11 @@ export class Label implements ILabel {
         e.stopPropagation();
         this.cancelDefaultAction(e);
     }
+    private undo() {
+        this.callback(this._text);
+        this.setViewMode();
+    }
+
 
     private onKeyDown = (e) => {
         if (e.keyCode === action.ENTER) {
@@ -168,8 +173,24 @@ export class Label implements ILabel {
             this.cancelDefaultAction(e);
             return false;
         }
+        this.callbackIfTextChanged();
     }
-
+    private callbackIfTextChanged() {
+        const innerText = this.div.innerText.replace(/\n/g, "");
+        if (this.isTextChanged(innerText)) {
+            this.callback(innerText);
+        }
+    }
+    private isTextChanged(newText: string): boolean {
+        return this._text !== newText;
+        
+    }
+    private onDelete = (e) => {
+        this.callbackIfTextChanged();
+    }
+    private onCut = (e) => {
+        this.callbackIfTextChanged();
+    }
     private onPaste = (e) => {
         let win: any = window;
         let text: string;
@@ -184,10 +205,11 @@ export class Label implements ILabel {
         tmpStr = tmpStr.replace(/\r\n/g, " ").replace(/\r/g, " ").replace(/\n/g, " ");
 
         if (tmpStr.length <= this.maxTextLength) {
-            this.div.innerText = tmpStr;
+            this.div.innerText = tmpStr;            
         } else {
             this.div.innerText = tmpStr.substring(0, this.maxTextLength - 1);
         }
+        this.callbackIfTextChanged();
         this.cancelDefaultAction(e);
     }
 
@@ -211,12 +233,6 @@ export class Label implements ILabel {
             value = this._text.substring(0, this.maxVisibleTextLength - 1) + ELLIPSIS_SYMBOL;
         }
         return value;
-    }
-
-    private undo() {
-        //window.console.log("undo() ");
-
-        this.setViewMode();
     }
 
     private setEditMode() {
@@ -336,10 +352,11 @@ export class Label implements ILabel {
 
             angular.element(this.div).on("keydown", (e) => this.onKeyDown(e));
             angular.element(this.div).on("paste", (e) => this.onPaste(e));
+            angular.element(this.div).on("delete", (e) => this.onDelete(e));
+            angular.element(this.div).on("cut", (e) => this.onCut(e));
             angular.element(this.div).on("dispose", () => this.onDispose());
         }
     }
-
     public onDispose = () => {
         if (this.div) {
             if (!this.isReadOnly) {

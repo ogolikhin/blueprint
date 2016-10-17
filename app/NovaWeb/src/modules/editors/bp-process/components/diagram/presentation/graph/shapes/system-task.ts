@@ -1,4 +1,4 @@
-﻿import {ISystemTaskShape} from "../../../../../models/process-models";
+﻿import {ISystemTaskShape, IArtifactUpdateModel} from "../../../../../models/process-models";
 import {ItemIndicatorFlags, ProcessShapeType} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {IProcessGraph, IDiagramNode, IUserTaskChildElement} from "../models/";
@@ -11,8 +11,6 @@ import {DiagramNodeElement} from "./diagram-element";
 import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
-import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
-import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 import {ProcessEvents} from "../../../process-diagram-communication";
 
 export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implements ISystemTask, IUserTaskChildElement {
@@ -39,8 +37,6 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     private linkButton: Button;
     private mockupButton: Button;
     private rootScope: ng.IRootScopeService;
-    private dialogManager: IModalDialogCommunication;
-    private processDiagramManager: IProcessDiagramCommunication;
 
     public callout: DiagramNodeElement;
 
@@ -217,7 +213,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
                 this.personaLabel.text = value;
                 this.shapesFactory.setSystemTaskPersona(value);
             }
-            this.notify(NodeChange.Update);
+            this.sendUpdatedSubArtifactModel("persona");
         }
     }
 
@@ -228,7 +224,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     public set description(value: string) {
         const valueChanged = this.setPropertyValue("description", value);
         if (valueChanged) {
-            this.notify(NodeChange.Update);
+            this.sendUpdatedSubArtifactModel("description");
         }
     }
 
@@ -239,7 +235,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     public set associatedImageUrl(value: string) {
         const valueChanged = this.setPropertyValue("associatedImageUrl", value);
         if (valueChanged) {
-            this.notify(NodeChange.Update);
+            this.sendUpdatedSubArtifactModel("associatedImageUrl");
         }
     }
 
@@ -250,7 +246,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     public set imageId(value: string) {
         const valueChanged = this.setPropertyValue("imageId", value);
         if (valueChanged) {
-            this.notify(NodeChange.Update);
+            this.sendUpdatedSubArtifactModel("imageId");
             if (!Boolean(value)) {
                 this.mockupButton.deactivate();
             } else {
@@ -266,7 +262,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     public set associatedArtifact(value: any) {
         if (this.model != null && this.model.associatedArtifact !== value) {
             this.model.associatedArtifact = value;
-            this.notify(NodeChange.Update);
+            this.sendUpdatedSubArtifactModel("associatedArtifact", value);
             if (!Boolean(value)) {
                 this.linkButton.disable();
             } else {
@@ -312,7 +308,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         this.textLabel.render();
         this.personaLabel.render();
     }
-
+    
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
         this.dialogManager = graph.viewModel.communicationManager.modalDialogManager;
         this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;

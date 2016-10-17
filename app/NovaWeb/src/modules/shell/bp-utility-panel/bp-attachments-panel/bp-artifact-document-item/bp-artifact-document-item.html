@@ -11,6 +11,6 @@
 <div class="button-bar">
     <i class="icon fonticon-download" ng-click="$ctrl.downloadItem()"
        bp-tooltip="{{::$ctrl.localization.get('App_UP_Attachments_Download') }}"></i>
-    <i class="icon fonticon-delete-filled" ng-click="$ctrl.deleteItem()"
-       bp-tooltip="{{::$ctrl.localization.get('App_UP_Attachments_Delete') }}"></i>
+    <i class="icon fonticon-delete-filled" ng-click="$ctrl.deleteItem()" bp-tooltip="{{::$ctrl.localization.get('App_UP_Attachments_Delete') }}"
+    ng-class="{ 'disabled' : !$ctrl.canChangeAttachments }"></i>
 </div>

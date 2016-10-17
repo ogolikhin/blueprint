@@ -1,10 +1,10 @@
 ﻿<div class="storyteller-gwt">
     <div ng-show="dialogModel.isUserSystemProcess" class="storyteller-gwt_left-wing">
-        <uib-carousel no-wrap="false" active="active_previous">
-            <uib-slide ng-repeat="systemTask in dialogModel.previousSytemTasks" index="$index">
+        <div uib-carousel no-wrap="false" active="active_previous">            
+            <div uib-slide ng-repeat="systemTask in dialogModel.previousSytemTasks" index="$index">
                 <preview-wing is-left-wing="true" system-task-model="systemTask"></preview-wing>
-            </uib-slide>
-        </uib-carousel>
+            </div>
+        </div>
         <div class="modal-footer"></div>
     </div>
 
@@ -33,11 +33,11 @@
     </div>
 
     <div ng-show="dialogModel.isUserSystemProcess" class="storyteller-gwt_right-wing">
-        <uib-carousel no-wrap="false" active="active_next">
-            <uib-slide ng-repeat="systemTask in dialogModel.nextSystemTasks" index="$index">
+        <div uib-carousel no-wrap="false" active="active_next">
+            <div uib-slide ng-repeat="systemTask in dialogModel.nextSystemTasks" index="$index">
                 <preview-wing is-left-wing="false" system-task-model="systemTask"></preview-wing>
-            </uib-slide>
-        </uib-carousel>
+            </div>
+        </div>
         <div class="modal-footer"></div>
     </div>
 </div>

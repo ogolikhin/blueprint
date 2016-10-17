@@ -41,15 +41,15 @@
             }
         }
 
-        &:last-child,
-        &:hover {
-            @include text-ellipsis-flex-width(999px);
-            flex: none;
-        }
+        // &:last-child,
+        // &:hover {
+        //     @include text-ellipsis-flex-width(999px);
+        //     flex: none;
+        // }
 
-        &:hover ~ li:last-child {
-            flex: auto;
-        }
+        // &:hover ~ li:last-child {
+        //     flex: auto;
+        // }
 
         a {
             color: $brand-secondary;

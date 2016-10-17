@@ -44,7 +44,7 @@ export class RefreshAction extends BPButtonAction {
                     artifact.refresh()
                         .then((artif) => {
                             metaDataService.remove(artif.projectId);
-                            metaDataService.load(artif.projectId);
+                            metaDataService.refresh(artif.projectId);
                         })
                         .catch(() => {
                             // We're not interested in the error type.

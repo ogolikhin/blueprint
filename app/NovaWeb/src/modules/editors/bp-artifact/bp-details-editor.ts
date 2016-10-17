@@ -64,8 +64,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         this.richTextFields = [];
     }
 
-    public onArtifactReady() {
-        super.onArtifactReady();
+    protected onFieldUpdateFinished() {
         if (this.artifact) {
             this.isSystemPropertyAvailable = this.systemFields && this.systemFields.length > 0;
             this.isCustomPropertyAvailable = this.customFields && this.customFields.length > 0;

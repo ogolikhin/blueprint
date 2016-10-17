@@ -1,6 +1,6 @@
 <form class="search-form">
     <button type="submit" class="btn btn-small btn-promoted-action" ng-click="$ctrl.search()"
-            ng-disabled="$ctrl.isSearching || !$ctrl.searchText">
+            ng-disabled="$ctrl.isSearching || !$ctrl.searchText || $ctrl.searchText.trim().length === 0">
         <i class="fonticon2-search"></i>
     </button>
     <div class="search-input">

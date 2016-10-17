@@ -55,7 +55,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                 inline: true,
                 fixed_toolbar_container: ".tinymce-toolbar-" + $scope.options["key"],
                 menubar: false,
-                toolbar: "fontselect fontsize bold italic underline forecolor format link",
+                toolbar: "bold italic underline strikethrough | fontselect forecolor | link | removeformat",
                 statusbar: false,
                 valid_elements: "span[*],a[*],strong/b,em/i,u,sup,sub",
                 extended_valid_elements: "a[href|type|title|linkassemblyqualifiedname|text|canclick|isvalid|mentionid|isgroup|email|" +
@@ -168,29 +168,6 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                     });
                 },
                 setup: function (editor) {
-                    editor.addButton("format", {
-                        title: "Format",
-                        type: "menubutton",
-                        text: "",
-                        icon: "format",
-                        menu: [
-                            {
-                                icon: "strikethrough",
-                                text: " Strikethrough",
-                                onclick: function () {
-                                    editor.editorCommands.execCommand("Strikethrough");
-                                }
-                            },
-                            {text: "-"},
-                            {
-                                icon: "removeformat",
-                                text: " Clear formatting",
-                                onclick: function () {
-                                    editor.editorCommands.execCommand("RemoveFormat");
-                                }
-                            }
-                        ]
-                    });
                     editor.addButton("fontsize", {
                         title: "Font Size",
                         type: "menubutton", // https://www.tinymce.com/docs/demo/custom-toolbar-menu-button/

@@ -11,7 +11,6 @@ export class PropertyEditor {
     private _fields: AngularFormly.IFieldConfigurationObject[];
     public propertyContexts: PropertyContext[];
     private locale: BPLocale;
-    private _artifactId: number;
 
     constructor(private localization: ILocalizationService) {
         this.locale = localization.current;
@@ -111,7 +110,6 @@ export class PropertyEditor {
 
         this._model = {};
         this._fields = [];
-        this._artifactId = statefulItem.id;
         if (statefulItem && angular.isArray(properties)) {
             this.propertyContexts = properties.map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
@@ -166,7 +164,7 @@ export class PropertyEditor {
                         }
                     }
                     if (isModelSet) {
-                        let field = this.createPropertyField(propertyContext);
+                        let field = this.createPropertyField(propertyContext, statefulItem.id);
                         this._model[propertyContext.fieldPropertyName] = this.convertToFieldValue(field, modelValue);
                         this._fields.push(field);
                     }
@@ -196,7 +194,7 @@ export class PropertyEditor {
         return this._model || {};
     }
 
-    private createPropertyField(context: PropertyContext, reuseSettings?: Enums.ReuseSettings): AngularFormly.IFieldConfigurationObject {
+    private createPropertyField(context: PropertyContext, itemId: number, reuseSettings?: Enums.ReuseSettings): AngularFormly.IFieldConfigurationObject {
 
         let field: AngularFormly.IFieldConfigurationObject = {
             key: context.fieldPropertyName,
@@ -278,7 +276,7 @@ export class PropertyEditor {
                     break;
                 case Models.PrimitiveType.DocumentFile:
                     field.type = "bpDocumentFile";
-                    field.templateOptions["artifactId"] = this._artifactId;
+                    field.templateOptions["artifactId"] = itemId;
                     break;
                 default:
                     //case Models.PrimitiveType.Image:

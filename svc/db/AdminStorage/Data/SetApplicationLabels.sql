@@ -233,6 +233,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_Alre
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_DoesNotExist', 'en-US', N'The artifact has been deleted or moved.<br />The Explorer will now be refreshed.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_AccessDenied', 'en-US', N'Cannot establish the artifact lock. Access denied.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_Failure', 'en-US', N'Cannot establish the artifact lock due to general failure')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_Refresh', 'en-US', N'This artifact has been changed on the server and will now be refreshed to the most recent version.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Name', 'en-US', N'Name')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Type', 'en-US', N'Type')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_CreatedBy', 'en-US', N'Created by')

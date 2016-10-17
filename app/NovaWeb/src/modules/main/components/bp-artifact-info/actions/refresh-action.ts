@@ -33,25 +33,31 @@ export class RefreshAction extends BPButtonAction {
 
         super(
             (): void => {
-                //loading overlay
                 const overlayId = loadingOverlayService.beginLoading();
 
-                artifact.refresh()
-                    .then((artif) => {
-                        metaDataService.remove(artif.projectId);
-                        metaDataService.load(artif.projectId);
-                    })
-                    .catch((error) => {
-                        // We're not interested in the error type.
-                        // sometimes this error is created by artifact.load(), which returns the statefulArtifact instead of an error object.
-                        const refreshOverlayId = loadingOverlayService.beginLoading();
-                        projectManager.refresh(projectManager.getSelectedProject()).finally(() => {
-                            projectManager.triggerProjectCollectionRefresh();
-                            loadingOverlayService.endLoading(refreshOverlayId);
-                        });
-                    }).finally(() => {
-                    loadingOverlayService.endLoading(overlayId);
-                });
+                if (artifact.predefinedType === ItemTypePredefined.Project) {
+                    projectManager.refresh(projectManager.getSelectedProject()).finally(() => {
+                        projectManager.triggerProjectCollectionRefresh();
+                        loadingOverlayService.endLoading(overlayId);
+                    });
+                } else {
+                    artifact.refresh()
+                        .then((artif) => {
+                            metaDataService.remove(artif.projectId);
+                            metaDataService.refresh(artif.projectId);
+                        })
+                        .catch(() => {
+                            // We're not interested in the error type.
+                            // sometimes this error is created by artifact.load(), which returns the statefulArtifact instead of an error object.
+                            const refreshOverlayId = loadingOverlayService.beginLoading();
+                            projectManager.refresh(projectManager.getSelectedProject()).finally(() => {
+                                projectManager.triggerProjectCollectionRefresh();
+                                loadingOverlayService.endLoading(refreshOverlayId);
+                            });
+                        }).finally(() => {
+                        loadingOverlayService.endLoading(overlayId);
+                    });
+                }
             },
             (): boolean => {
 

@@ -118,6 +118,7 @@ export class PreviewCenterController {
     }
 
     public navigateToUserStory() {
+        this.$scope.$parent["vm"].cancel();
         // TODO: go to user story artifact
     }
     public getBusinessRules() {
@@ -193,17 +194,19 @@ export class PreviewCenterController {
     }
 
     private loadMetaData(statefulArtifact: IStatefulArtifact) {
-        statefulArtifact.metadata.getArtifactPropertyTypes().forEach((propertyType) => {
-            let propertyValue = statefulArtifact.customProperties.get(propertyType.id);
-            if (this.doesPropertyNameContain(propertyType.name, this.userStoryTitle)) {
-                this.title = propertyValue.value;
-            } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryAcceptanceCriteria)) {
-                this.acceptanceCriteria = propertyValue.value;
-            } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryBusinessRules)) {
-                this.businessRules = propertyValue.value;
-            } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryNFR)) {
-                this.nonfunctionalRequirements = propertyValue.value;
-            }
+        statefulArtifact.metadata.getArtifactPropertyTypes().then(propertyTypes => {
+            propertyTypes.forEach((propertyType) => {
+                const propertyValue = statefulArtifact.customProperties.get(propertyType.id);
+                if (this.doesPropertyNameContain(propertyType.name, this.userStoryTitle)) {
+                    this.title = propertyValue.value;
+                } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryAcceptanceCriteria)) {
+                    this.acceptanceCriteria = propertyValue.value;
+                } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryBusinessRules)) {
+                    this.businessRules = propertyValue.value;
+                } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryNFR)) {
+                    this.nonfunctionalRequirements = propertyValue.value;
+                }
+            });
         });
     }
 

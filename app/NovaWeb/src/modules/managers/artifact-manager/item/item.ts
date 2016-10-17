@@ -325,6 +325,7 @@ export abstract class StatefulItem implements IIStatefulItem {
 
         delta.customPropertyValues = this.customProperties.changes();
         delta.specificPropertyValues = this.specialProperties.changes();
+        delta.traces = this.relationships.changes();
         delta.attachmentValues = this.attachments.changes();
         delta.docRefValues = this.docRefs.changes();
 

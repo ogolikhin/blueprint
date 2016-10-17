@@ -472,7 +472,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(183541)]
-        [Description("Create an artifact under a folder.  Verify the create fails with a 409 Conflict error.")]
+        [Description("Create a folder under an artifact.  Verify the create fails with a 409 Conflict error.")]
         public void CreateArtifact_AddFolderUnderNonFolder_409Conflict(BaseArtifactType artifactType)
         {
             // Setup:
@@ -510,7 +510,7 @@ namespace ArtifactStoreTests
 
         [TestCase(ItemTypePredefined.Actor)]
         [TestRail(183542)]
-        [Description("Create an artifact and specify a ProjectId that is different that the project of the parent.  " +
+        [Description("Create an artifact and specify a ProjectId that is different than the project of the parent.  " +
             "Verify the create fails with a 409 Conflict error.")]
         public void CreateArtifact_ParentExistsInADifferentProject_409Conflict(ItemTypePredefined artifactType)
         {

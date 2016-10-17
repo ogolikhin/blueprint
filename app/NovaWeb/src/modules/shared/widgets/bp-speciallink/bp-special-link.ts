@@ -41,7 +41,7 @@ export class BpSpecialLinkContainer implements ng.IDirective {
 
     public restrict = "E";
 
-    constructor(private navigationService: INavigationService, private bpLinksHelper: IBpLinksHelper, ) {
+    constructor(private navigationService: INavigationService, private bpLinksHelper: IBpLinksHelper) {
     }
 
     public link: ng.IDirectiveLinkFn = ($scope: ng.IScope, $element: ng.IAugmentedJQuery) => {

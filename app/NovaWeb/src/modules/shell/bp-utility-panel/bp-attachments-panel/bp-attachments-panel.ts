@@ -1,5 +1,5 @@
 ﻿import {ILocalizationService, ISettingsService, IMessageService} from "../../../core";
-import {Models} from "../../../main";
+import {Models, Enums} from "../../../main";
 import {ISession} from "../../../shell";
 import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
@@ -43,8 +43,6 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public item: IStatefulItem;
     public categoryFilter: number;
     public filesToUpload: any;
-    public canAddAttachments: boolean;
-    public canAddDocRefs: boolean;
 
     private maxAttachmentFilesizeDefault: number = 10485760; // 10 MB
     private maxNumberAttachmentsDefault: number = 50;
@@ -182,8 +180,6 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
         this.attachmentsList = [];
         this.docRefList = [];
-        this.canAddAttachments = true;
-        this.canAddDocRefs = true;
 
         this.subscribers = this.subscribers.filter(sub => {
             sub.dispose();
@@ -193,7 +189,6 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         if (this.item) {
             // If artifact does not exist of the server, just initialize with empty lists
             if (!Helper.hasArtifactEverBeenSavedOrPublished(this.item)) {
-                this.setReadOnly();
                 if (this.item.attachments.isLoading || this.item.docRefs.isLoading) {
 
                     this.item.attachments.initialize(this.attachmentsList);
@@ -218,8 +213,8 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         this.docRefList = docRefs;
     }
 
-    private setReadOnly() {
-        this.canAddAttachments = false;
-        this.canAddDocRefs = false;
+    private canChangeAttachements() {
+        return !(this.item.artifactState.readonly ||
+            this.item.artifactState.lockedBy === Enums.LockedByEnum.OtherUser);
     }
 }

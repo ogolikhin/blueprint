@@ -213,7 +213,7 @@ namespace ArtifactStoreTests
             fakeProject.NovaArtifactTypes.AddRange(_project.NovaArtifactTypes);
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
-            // Execute & Verify:
+            // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() => CreateArtifact(_user, fakeProject, ItemTypePredefined.Process, artifactName),
                 "'POST {0}' should return 400 Bad Request if an invalid Project ID was passed!", SVC_PATH);
 

@@ -29,7 +29,6 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
     private deleteShapeButton: Button;
 
     private rootScope: any;
-    private processDiagramManager: IProcessDiagramCommunication;
 
     constructor(model: IProcessShape, rootScope: any, nodeFactorySettings: NodeFactorySettings = null) {
         super(model, NodeType.SystemDecision);
@@ -67,7 +66,7 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
 
     protected updateCellLabel(value: string) {
         this.textLabel.text = value;
-        this.notify(NodeChange.Update, true);
+        this.sendUpdatedSubArtifactModel("name");
     }
 
     public showMenu(mxGraph: MxGraph) {

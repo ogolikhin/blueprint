@@ -1,0 +1,33 @@
+<div class="modal-header">
+    <h3 class="modal-title">{{::$root.config.labels["App_Project_Open"]}}</h3>
+</div>
+<div class="modal-body">
+    <div ng-if="$ctrl.hasError">
+        {{$ctrl.errorMessage}}
+    </div>
+    <div ng-if="!$ctrl.hasError" class="project-wrapper">
+        <div class="nova-message"><span ng-bind-html="$ctrl.dialogSettings.message"></span></div>
+        <div>
+            <ul>
+                <li ng-repeat="project in $ctrl.projectList">{{project.name}}
+
+                    <ul>
+                        <li ng-repeat="artifact in $ctrl.artifactList | filter:{ projectId: project.id }:true">{{artifact.name}}</li>
+                    </ul>
+                </li>
+            </ul>
+            
+        </div>
+     
+    </div>
+</div>
+<div class="modal-footer">
+    <div class="nova-form-group nova-form-buttons">
+        <button class="btn btn-primary" ng-click="$ctrl.cancel()">
+            <span ng-bind="$ctrl.dialogSettings.cancelButton"></span>
+        </button>
+        <button class="btn btn-promoted-action" ng-disabled="!$ctrl.isProjectSelected" ng-click="$ctrl.ok()">
+            <span ng-bind="$ctrl.dialogSettings.okButton"></span>
+        </button>
+    </div>
+</div>

@@ -1,9 +1,12 @@
-﻿import { ILocalizationService } from "../../../core";
+﻿import * as angular from "angular";
+import { ILocalizationService } from "../../../core";
 import { IDialogSettings, IDialogService } from "../../../shared";
 import { Models} from "../../models";
+import { IPublishService } from "../../../managers/artifact-manager/publish";
 import { IArtifactManager, IProjectManager } from "../../../managers";
 import { IStatefulArtifact } from "../../../managers/artifact-manager/artifact";
 import { OpenProjectController } from "../dialogs/open-project/open-project";
+import { ConfirmPublishController, IConfirmPublishDialogData } from "../dialogs/bp-confirm-publish/bp-confirm-publish";
 import { BPTourController } from "../dialogs/bp-tour/bp-tour";
 import { Helper } from "../../../shared/utils/helper";
 import { ILoadingOverlayService } from "../../../core/loading-overlay";
@@ -31,6 +34,7 @@ class BPToolbarController implements IBPToolbarController {
         "dialogService",
         "projectManager",
         "artifactManager",
+        "publishService",
         "$rootScope",
         "loadingOverlayService",
         "$timeout",
@@ -41,6 +45,7 @@ class BPToolbarController implements IBPToolbarController {
         private dialogService: IDialogService,
         private projectManager: IProjectManager,
         private artifactManager: IArtifactManager,
+        private publishService: IPublishService,
         private $rootScope: ng.IRootScopeService,
         private loadingOverlayService: ILoadingOverlayService,
         private $timeout: ng.ITimeoutService, //Used for testing, remove later
@@ -90,13 +95,48 @@ class BPToolbarController implements IBPToolbarController {
                 });
                 break;
             case `publishall`:
-                //Test Code: Display load screen for 5s, then popup result.
-                let publishLoadingId = this.loadingOverlayService.beginLoading();
-                let publishPromise: ng.IPromise<number> = this.$timeout(() => { return 0; }, 5000);
-                publishPromise.finally(() => {
-                    this.loadingOverlayService.endLoading(publishLoadingId);
-                    this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
-                });
+                let getUnpublishedLoadingId = this.loadingOverlayService.beginLoading();
+                try {
+                    //get a list of unpublished artifacts
+                    this.publishService.getUnpublishedArtifacts()
+                    .then((data) => {
+                        this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
+
+                        //confirm that the user wants to continue
+                        this.dialogService.open(<IDialogSettings>{
+                            //okButton: this.localization.get("App_Button_Open"),
+                            message: "",
+                            template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
+                            controller: ConfirmPublishController,
+                            css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
+                        },
+                        <IConfirmPublishDialogData>{
+                            artifactList: data.artifacts,
+                            projectList: data.projects
+                        })
+                        .then(() => {
+                            let publishAllLoadingId = this.loadingOverlayService.beginLoading();
+                            try {
+                                //perform publish all
+                                this.publishService.publishAll()
+                                .finally(() => {
+                                    this.loadingOverlayService.endLoading(publishAllLoadingId);
+                                });
+                            } catch (err) {
+                                this.loadingOverlayService.endLoading(publishAllLoadingId);
+                                throw err;
+                            }
+                        });
+                    })
+                    .finally(() => {
+                        this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
+                    });
+                } catch (err) {
+                    this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
+                    throw err;
+                }
+
+                
                 break;
             case `refreshall`:
                 let refreshAllLoadingId = this.loadingOverlayService.beginLoading();

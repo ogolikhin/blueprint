@@ -71,6 +71,11 @@ export interface ISubArtifact extends IItem {
     isDeleted?: boolean;
 }
 
+export interface IPublishResultSet {
+    artifacts?: IArtifact[];
+    projects?: IItem[];
+}
+
 export interface IArtifact extends IItem {
     projectId?: number;
     orderIndex?: number;

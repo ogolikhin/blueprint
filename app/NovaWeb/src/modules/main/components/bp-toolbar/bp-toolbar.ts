@@ -1,5 +1,5 @@
 ﻿import * as angular from "angular";
-import { ILocalizationService } from "../../../core";
+import { ILocalizationService, IMessageService } from "../../../core";
 import { IDialogSettings, IDialogService } from "../../../shared";
 import { Models} from "../../models";
 import { IPublishService } from "../../../managers/artifact-manager/publish";
@@ -30,22 +30,26 @@ class BPToolbarController implements IBPToolbarController {
         return this._currentArtifact;
     }
     static $inject = [
+        "$q",
         "localization",
         "dialogService",
         "projectManager",
         "artifactManager",
         "publishService",
+        "messageService",
         "$rootScope",
         "loadingOverlayService",
         "$timeout",
         "$http"];
 
     constructor(
+        private $q: ng.IQService,
         private localization: ILocalizationService,
         private dialogService: IDialogService,
         private projectManager: IProjectManager,
         private artifactManager: IArtifactManager,
         private publishService: IPublishService,
+        private messageService: IMessageService,
         private $rootScope: ng.IRootScopeService,
         private loadingOverlayService: ILoadingOverlayService,
         private $timeout: ng.ITimeoutService, //Used for testing, remove later
@@ -102,31 +106,52 @@ class BPToolbarController implements IBPToolbarController {
                     .then((data) => {
                         this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
 
-                        //confirm that the user wants to continue
-                        this.dialogService.open(<IDialogSettings>{
-                            //okButton: this.localization.get("App_Button_Open"),
-                            message: "",
-                            template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
-                            controller: ConfirmPublishController,
-                            css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
-                        },
-                        <IConfirmPublishDialogData>{
-                            artifactList: data.artifacts,
-                            projectList: data.projects
-                        })
-                        .then(() => {
-                            let publishAllLoadingId = this.loadingOverlayService.beginLoading();
-                            try {
-                                //perform publish all
-                                this.publishService.publishAll()
-                                .finally(() => {
+                        if (data.artifacts.length === 0) {
+                            this.messageService.addInfo("nothing to publish");
+                        } else {
+
+                            //confirm that the user wants to continue
+                            this.dialogService.open(<IDialogSettings>{
+                                //okButton: this.localization.get("App_Button_Open"),
+                                message: "",
+                                template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
+                                controller: ConfirmPublishController,
+                                css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
+                            },
+                            <IConfirmPublishDialogData>{
+                                artifactList: data.artifacts,
+                                projectList: data.projects
+                            })
+                            .then(() => {
+                                let publishAllLoadingId = this.loadingOverlayService.beginLoading();
+                                try {
+                                    let artifactsToSave = [];
+                                    data.artifacts.forEach((artifact) => {
+                                        let foundArtifact = this.projectManager.getArtifact(artifact.id);
+                                        if (foundArtifact && foundArtifact.isCanBeSaved()) {
+                                            artifactsToSave.push(foundArtifact.save());
+                                        }
+                                    });
+
+                                    this.$q.all(artifactsToSave).then(() => {
+                                        //perform publish all
+                                        this.publishService.publishAll()
+                                        .then(() => {
+                                            this.messageService.addInfo("published " + data.artifacts.length + " artifacts");
+                                        })
+                                        .finally(() => {
+                                            this.loadingOverlayService.endLoading(publishAllLoadingId);
+                                        });
+                                    }).catch((err) => {
+                                        this.messageService.addError(err);
+                                        this.loadingOverlayService.endLoading(publishAllLoadingId);
+                                    });
+                                } catch (err) {
                                     this.loadingOverlayService.endLoading(publishAllLoadingId);
-                                });
-                            } catch (err) {
-                                this.loadingOverlayService.endLoading(publishAllLoadingId);
-                                throw err;
-                            }
-                        });
+                                    throw err;
+                                }
+                            });
+                        }
                     })
                     .finally(() => {
                         this.loadingOverlayService.endLoading(getUnpublishedLoadingId);

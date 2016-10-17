@@ -19,6 +19,7 @@
 
 .is-macosx,
 .is-msie {
+    bp-comment-edit,
     .formly-field-bpFieldTextRTF,
     .formly-field-bpFieldTextRTFInline {
         .mce-menubtn:first-child button span::before {
@@ -28,6 +29,7 @@
 }
 
 .is-windows.is-chrome {
+    bp-comment-edit,
     .formly-field-bpFieldTextRTF,
     .formly-field-bpFieldTextRTFInline {
         .mce-menubtn:first-child button span::before {

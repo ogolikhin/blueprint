@@ -70,8 +70,7 @@ describe("UserTask test", () => {
 
 
         let processModel = new ProcessModel();
-        viewModel = new ProcessViewModel(processModel);
-        viewModel.communicationManager = communicationManager;
+        viewModel = new ProcessViewModel(processModel, communicationManager);
         viewModel.isReadonly = false;
     }));
 
@@ -103,6 +102,7 @@ describe("UserTask test", () => {
         let graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
 
         let node = new UserTask(testUserTask, rootScope, null, shapesFactory);
+        spyOn(node, "notify")();
         node.render(graph, 80, 80, false);
         node.renderLabels();
 
@@ -299,6 +299,7 @@ describe("UserTask test", () => {
             let testUserTask = ShapeModelMock.instance().UserTaskMock();
 
             let node = new UserTask(testUserTask, rootScope, null, shapesFactory);
+            spyOn(node, "notify")();
 
             let testLabelText = "test label";
 
@@ -315,6 +316,7 @@ describe("UserTask test", () => {
             let testUserTask = ShapeModelMock.instance().UserTaskMock();
 
             let node = new UserTask(testUserTask, rootScope, null, shapesFactory);
+            spyOn(node, "notify")();
 
             let editNode = new DiagramNodeElement("H1", ElementType.UserTaskHeader, "", new mxGeometry(), "");
 
@@ -332,6 +334,7 @@ describe("UserTask test", () => {
             let testUserTask = ShapeModelMock.instance().UserTaskMock();
 
             let node = new UserTask(testUserTask, rootScope, null, shapesFactory);
+            spyOn(node, "notify")();
             node.persona = "12345";
 
             // Act
@@ -378,8 +381,7 @@ describe("UserTask test", () => {
             testModel.links.push(new ProcessLinkModel(null, 22, 33));
             testModel.links.push(new ProcessLinkModel(null, 33, 44));
             testModel.links.push(new ProcessLinkModel(null, 44, 55));
-            processModel = new ProcessViewModel(testModel);
-            processModel.communicationManager = communicationManager;
+            processModel = new ProcessViewModel(testModel, communicationManager);
 
             graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
@@ -417,8 +419,7 @@ describe("UserTask test", () => {
              */
 
             let testModel = createSystemDecisionForAddBranchTestModel();
-            let processModel = new ProcessViewModel(testModel);
-            processModel.communicationManager = communicationManager;
+            let processModel = new ProcessViewModel(testModel, communicationManager);
             processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, msgService);
 
         });

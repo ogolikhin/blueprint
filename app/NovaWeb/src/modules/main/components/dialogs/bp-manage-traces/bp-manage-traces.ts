@@ -212,6 +212,13 @@ export class ManageTracesDialogController extends BaseDialogController {
             }
         });
 
+        if (_.find(this.selectedVMs, (o) => {
+            return o.model.id === this.data.artifactId;
+
+        })) {
+            found = true;
+        }
+
         this.isTraceDisabled = found ? true : false;
     }
 

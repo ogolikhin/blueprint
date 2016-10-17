@@ -28,7 +28,7 @@ export class BPBaseUtilityPanelController {
                 .subscribe(s => this.selectionChanged(s.artifact, s.subArtifact));
 
         const visibilityChange: Rx.IDisposable =
-            panelActiveObservable.distinctUntilChanged().subscribe(isVisible => this.visibilityChanged(isVisible));
+            panelActiveObservable.distinctUntilChanged().subscribe(isVisible => this.onVisibilityChanged(isVisible));
 
         this._subscribers = [artifactChangeWhileVisible, visibilityChange];
     }
@@ -55,25 +55,11 @@ export class BPBaseUtilityPanelController {
         }
     }
 
-    private visibilityChanged(isVisible: boolean) {
-        if (this.timeout) {
-            this.timeout.resolve();
-        }
-
-        this.timeout = this.$q.defer<any>();
-        const visibilityChangedResult = this.onVisibilityChanged(isVisible, this.timeout.promise);
-        if (visibilityChangedResult) {
-            visibilityChangedResult.then(() =>
-                this.timeout = undefined
-            );
-        }
-    }
-
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
         return this.$q.resolve();
     }
 
-    protected onVisibilityChanged(isVisible: boolean, timeout: ng.IPromise<void>): ng.IPromise<any> {
-        return this.$q.resolve();
+    protected onVisibilityChanged(isVisible: boolean): void {
+        //To be implemented by child.
     }
 }

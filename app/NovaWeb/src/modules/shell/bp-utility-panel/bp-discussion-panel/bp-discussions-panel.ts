@@ -100,9 +100,8 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
-    protected onVisibilityChanged(isVisible: boolean, timeout: ng.IPromise<void>): ng.IPromise<any> {
+    protected onVisibilityChanged(isVisible: boolean): void {
         this.isVisible = isVisible;
-        return super.onVisibilityChanged(isVisible, timeout);
     }
 
     private onSelectedItemModified = (artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>) => {

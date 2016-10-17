@@ -2,16 +2,16 @@ import "../../../";
 import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
-import { Relationships } from "../../../../main";
-import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
+import {Relationships} from "../../../../main";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {BPManageTracesItem, BPManageTracesItemController} from "./bp-manage-traces-item";
-import { ComponentTest } from "../../../../util/component.test";
+import {ComponentTest} from "../../../../util/component.test";
 //import { BpArtifactInfo } from "./../../bp-artifact-info";
-import { DialogServiceMock } from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 
 describe("Component BPManageTracesItem", () => {
     //angular.module("bp.components.artifactinfo", [])
-        //.component("bpManageTracesItem", new BPManageTracesItem());
+    //.component("bpManageTracesItem", new BPManageTracesItem());
 
     beforeEach(angular.mock.module("app.main"));
 
@@ -40,7 +40,7 @@ describe("Component BPManageTracesItem", () => {
             "artifactName": "test",
             "itemTypePrefix": "DOC",
             "itemName": "test",
-            "itemLabel":"test",
+            "itemLabel": "test",
             "projectId": 1,
             "projectName": "1",
             "primitiveItemTypePredefined": 4099,
@@ -55,7 +55,6 @@ describe("Component BPManageTracesItem", () => {
     });
 
 
-    
     it("check toggleFlag if item.hasAccess", () => {
         //Arrange
         vm.item.hasAccess = true;

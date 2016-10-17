@@ -6,13 +6,11 @@ import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact
 import {ItemTypePredefined} from "../../../../main/models/enums";
 
 export class RefreshAction extends BPButtonAction {
-    constructor(
-        artifact: IStatefulArtifact,
-        localization: ILocalizationService,
-        projectManager: IProjectManager,
-        loadingOverlayService: ILoadingOverlayService,
-        metaDataService: IMetaDataService
-    ) {
+    constructor(artifact: IStatefulArtifact,
+                localization: ILocalizationService,
+                projectManager: IProjectManager,
+                loadingOverlayService: ILoadingOverlayService,
+                metaDataService: IMetaDataService) {
         if (!artifact) {
             throw new Error("Artifact not provided or is null");
         }
@@ -35,25 +33,31 @@ export class RefreshAction extends BPButtonAction {
 
         super(
             (): void => {
-                //loading overlay
                 const overlayId = loadingOverlayService.beginLoading();
 
-                artifact.refresh()
-                    .then((artif) => {
-                        metaDataService.remove(artif.projectId);
-                        metaDataService.load(artif.projectId);
-                    })
-                    .catch((error) => {
-                        // We're not interested in the error type.
-                        // sometimes this error is created by artifact.load(), which returns the statefulArtifact instead of an error object.
-                        const refreshOverlayId = loadingOverlayService.beginLoading();
-                        projectManager.refresh(projectManager.getSelectedProject()).finally(() => {
-                            projectManager.triggerProjectCollectionRefresh();
-                            loadingOverlayService.endLoading(refreshOverlayId);
-                        });
-                    }).finally(() => {
+                if (artifact.predefinedType === ItemTypePredefined.Project) {
+                    projectManager.refresh(projectManager.getSelectedProject()).finally(() => {
+                        projectManager.triggerProjectCollectionRefresh();
                         loadingOverlayService.endLoading(overlayId);
                     });
+                } else {
+                    artifact.refresh()
+                        .then((artif) => {
+                            metaDataService.remove(artif.projectId);
+                            metaDataService.refresh(artif.projectId);
+                        })
+                        .catch(() => {
+                            // We're not interested in the error type.
+                            // sometimes this error is created by artifact.load(), which returns the statefulArtifact instead of an error object.
+                            const refreshOverlayId = loadingOverlayService.beginLoading();
+                            projectManager.refresh(projectManager.getSelectedProject()).finally(() => {
+                                projectManager.triggerProjectCollectionRefresh();
+                                loadingOverlayService.endLoading(refreshOverlayId);
+                            });
+                        }).finally(() => {
+                        loadingOverlayService.endLoading(overlayId);
+                    });
+                }
             },
             (): boolean => {
 

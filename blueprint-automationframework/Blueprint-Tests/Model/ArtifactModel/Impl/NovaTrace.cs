@@ -53,14 +53,16 @@ namespace Model.ArtifactModel.Impl
 
     public class TracePathItem
     {
-        public int ItemId { get; set; }
-        public int ParentId { get; set; }
+        public int? ItemId { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends ParentId, even if it's null.
+        public int? ParentId { get; set; }
         public string ItemName { get; set; }
     }
 
     public class TraceDetails
     {
         public int ArtifactId { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
         public string Description { get; set; }
         public List<TracePathItem> PathToProject { get; } = new List<TracePathItem>();
     }

@@ -1,37 +1,48 @@
 <form class="search-form">
-    <button type="submit" class="btn btn-small btn-promoted-action" ng-click="$ctrl.search()" ng-disabled="$ctrl.isSearching || !$ctrl.searchText">
+    <button type="submit" class="btn btn-small btn-promoted-action" ng-click="$ctrl.search()"
+            ng-disabled="$ctrl.isSearching || !$ctrl.searchText || $ctrl.searchText.trim().length === 0">
         <i class="fonticon2-search"></i>
     </button>
     <div class="search-input">
-        <input type="text" class="form-control" ng-if="!$ctrl.project" placeholder="{{::$root.config.labels['Label_Search_Projects']}}" ng-model="$ctrl.searchText" />
-        <input type="text" class="form-control" ng-if="$ctrl.project" placeholder="{{::$root.config.labels['Label_Search_Artifacts']}}" ng-model="$ctrl.searchText" />
+        <input type="text" class="form-control" ng-if="!$ctrl.project"
+               placeholder="{{::$root.config.labels['Label_Search_Projects']}}" ng-model="$ctrl.searchText"/>
+        <input type="text" class="form-control" ng-if="$ctrl.project"
+               placeholder="{{::$root.config.labels['Label_Search_Artifacts']}}" ng-model="$ctrl.searchText"/>
         <i class="fonticon-error" ng-show="$ctrl.searchText || $ctrl.searchResults" ng-click="$ctrl.clearSearch()"></i>
     </div>
 </form>
 <div class="project-wrapper">
     <div class="artifact-picker-container">
-        <div class="search-wrapper" ng-if="$ctrl.isSearching || $ctrl.searchResults">
+        <div class="search-wrapper" ng-show="$ctrl.isSearching || $ctrl.searchResults">
             <div class="search-message" ng-if="$ctrl.isSearching">
                 {{::$root.config.labels['Label_Searching']}}
             </div>
             <div class="search-message" ng-if="!$ctrl.isSearching && $ctrl.searchResults.length === 0">
                 {{::$root.config.labels['Label_No_Results_Found']}}
             </div>
-            <div class="search-results" perfect-scrollbar opts="{ minScrollbarLength: 20, scrollXMarginOffset: 4, scrollYMarginOffset: 4}" ng-if="!$ctrl.isSearching && $ctrl.searchResults.length !== 0">
-                <div class="search-result" ng-repeat="searchResult in $ctrl.searchResults" ng-click="$ctrl.setProject(searchResult.id, searchResult.name, true)">
+            <div class="search-results" perfect-scrollbar
+                 opts="{ minScrollbarLength: 20, scrollXMarginOffset: 4, scrollYMarginOffset: 4}"
+                 ng-if="!$ctrl.isSearching && $ctrl.searchResults.length !== 0">
+                <div class="search-result" ng-repeat="searchResult in $ctrl.searchResults"
+                     ng-click="$ctrl.setProject(searchResult.id, searchResult.name, true)">
                     <i class="icon-project"></i>
                     <div class="search-details">
-                        <div bp-tooltip="{{searchResult.name}}" bp-tooltip-truncated="true"><span ng-bind-html="::searchResult.name | bpEscapeAndHighlight:$ctrl.searchText"></div>
-                        <div bp-tooltip="{{searchResult.path}}" bp-tooltip-truncated="true">Path: {{searchResult.path}}</div>
+                        <div bp-tooltip="{{searchResult.name}}" bp-tooltip-truncated="true"><span
+                            ng-bind-html="::searchResult.name | bpEscapeAndHighlight:$ctrl.searchText"></div>
+                        <div bp-tooltip="{{searchResult.path}}" bp-tooltip-truncated="true">Path:
+                            {{searchResult.path}}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div ng-if="!$ctrl.isSearching && !$ctrl.searchResults">
+        <div ng-hide="$ctrl.isSearching || $ctrl.searchResults">
             <div class="grid-header">
                 <div ng-if="$ctrl.project">
-                    <i class="fonticon2-arrow-double-left" ng-click="$ctrl.clearProject()"></i><i class="icon-project"></i>
-                    &nbsp;&nbsp;&nbsp;<span class="project-name" bp-tooltip="{{$ctrl.project}}" bp-tooltip-truncated="true">{{$ctrl.project}}</span>
+                    <i class="fonticon2-arrow-double-left" ng-click="$ctrl.clearProject()"></i><i
+                    class="icon-project"></i>
+                    &nbsp;&nbsp;&nbsp;<span class="project-name" bp-tooltip="{{$ctrl.project}}"
+                                            bp-tooltip-truncated="true">{{$ctrl.project}}</span>
                 </div>
                 <div ng-if="!$ctrl.project">
                     {{::$root.config.labels['App_Header_Name']}}

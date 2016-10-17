@@ -16,26 +16,46 @@ export interface IUseCaseShape extends IShape {
  * Default implementation of the "ILayoutCalculator" interface.
  */
 export class UsecaseToDiagram {
-    
-    public static get FULL_WIDTH(): number { return 300; }
 
-    public static get WIDTH(): number { return 150; }
+    public static get FULL_WIDTH(): number {
+        return 300;
+    }
 
-    public static get HEIGHT(): number { return 60; }
-    
-    public static get TRUNCATED_WIDTH(): number { return 150; }
+    public static get WIDTH(): number {
+        return 150;
+    }
 
-    public static get TRUNCATED_HEIGHT(): number { return 55; }
+    public static get HEIGHT(): number {
+        return 60;
+    }
 
-    public static get PACKAGE_HEIGHT(): number { return 14; }
+    public static get TRUNCATED_WIDTH(): number {
+        return 150;
+    }
 
-    public static get CELL_SPACING(): number { return 15; }
+    public static get TRUNCATED_HEIGHT(): number {
+        return 55;
+    }
 
-    public static get FLOW_SPACING(): number { return 5; }
+    public static get PACKAGE_HEIGHT(): number {
+        return 14;
+    }
 
-    public static get BRANCHING_NODE_SIZE(): number { return 30; }
+    public static get CELL_SPACING(): number {
+        return 15;
+    }
 
-    public static get EXIT_LABEL(): string { return "Exit"; }
+    public static get FLOW_SPACING(): number {
+        return 5;
+    }
+
+    public static get BRANCHING_NODE_SIZE(): number {
+        return 30;
+    }
+
+    public static get EXIT_LABEL(): string {
+        return "Exit";
+    }
 
     /**
      * Converts use case artifact to IDiagram object
@@ -51,7 +71,7 @@ export class UsecaseToDiagram {
         const flowGraph = new UsecaseFlowGraphBuilder().buildGraph(usecase);
         const result = calculator.arrangeGraph(flowGraph);
         const diagram = new FlowGraphDiagramBuilder().buildDiagram(result, usecase);
-        
+
         return diagram;
     }
 }
@@ -214,21 +234,24 @@ export class UsecaseFlowGraphBuilder {
 
     private addStepNode(step: IUseCaseElement, flow: Flow, size?: ISize): Node {
         const node = this.graph.createNode();
-        node.size = size || { width: UsecaseToDiagram.WIDTH, height: UsecaseToDiagram.HEIGHT };
+        node.size = size || {width: UsecaseToDiagram.WIDTH, height: UsecaseToDiagram.HEIGHT};
         node.tag = step;
         flow.addNode(node);
         return node;
     }
 
     private addBranchingNode(tag: IUseCaseElement, flow: Flow): Node {
-        return this.addStepNode(tag, flow, { width: UsecaseToDiagram.BRANCHING_NODE_SIZE, height: UsecaseToDiagram.BRANCHING_NODE_SIZE });
+        return this.addStepNode(tag, flow, {
+            width: UsecaseToDiagram.BRANCHING_NODE_SIZE,
+            height: UsecaseToDiagram.BRANCHING_NODE_SIZE
+        });
     }
 
     private resolveReturnSteps() {
         let returnStep;
         this.graph.getAlternateFlows().forEach((f: AlternateFlow) => {
             if (f.tag != null) {
-                const flow: IFlow = f.tag; 
+                const flow: IFlow = f.tag;
                 returnStep = flow.returnToStepName;
                 if (returnStep != null) {
                     const node = this.stepNameToNodeMap[this.getEffectiveStepName(returnStep, flow)];
@@ -255,6 +278,7 @@ export class BranchingStep implements IUseCaseElement {
     public id: number;
     public name: string;
     public orderIndex: number;
+
     constructor(id: number) {
         this.id = id;
     }
@@ -268,6 +292,7 @@ export class ExitStep implements IUseCaseElement {
     public name: string;
     public orderIndex: number;
     public description: string = UsecaseToDiagram.EXIT_LABEL;
+
     constructor(id: number) {
         this.id = id;
     }

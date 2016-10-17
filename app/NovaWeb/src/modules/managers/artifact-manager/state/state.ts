@@ -1,7 +1,7 @@
 import * as angular from "angular";
-import { Models, Enums } from "../../../main/models";
-import { IDispose } from "../../models";
-import { IIStatefulArtifact } from "../artifact";
+import {Models, Enums} from "../../../main/models";
+import {IDispose} from "../../models";
+import {IIStatefulArtifact} from "../artifact";
 
 export interface IState {
     lockedBy?: Enums.LockedByEnum;
@@ -39,6 +39,8 @@ export class ArtifactState implements IArtifactState {
     }
     public get(): IState {
         return this._state;
+        //fixme: empty functions should be removed as empty does nothing thus not needed
+
     }
 
     private set(value?: IState) {

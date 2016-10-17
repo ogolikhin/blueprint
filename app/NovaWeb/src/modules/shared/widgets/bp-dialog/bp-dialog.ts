@@ -1,5 +1,5 @@
 ﻿import * as angular from "angular";
-import { ILocalizationService } from "../../../core";
+import {ILocalizationService} from "../../../core";
 
 export enum DialogTypeEnum {
     Base,
@@ -33,7 +33,8 @@ export class DialogService implements IDialogService {
 
     public static $inject = ["localization", "$uibModal"];
 
-    constructor(private localization: ILocalizationService, private $uibModal: ng.ui.bootstrap.IModalService) { }
+    constructor(private localization: ILocalizationService, private $uibModal: ng.ui.bootstrap.IModalService) {
+    }
 
     public dialogSettings: IDialogSettings = {};
     public dialogData: any;
@@ -114,9 +115,9 @@ export class BaseDialogController implements IDialogController {
     }
 
     static $inject = ["$uibModalInstance", "dialogSettings"];
-    constructor(
-        public $instance: ng.ui.bootstrap.IModalServiceInstance, 
-        public dialogSettings: IDialogSettings) {
+
+    constructor(public $instance: ng.ui.bootstrap.IModalServiceInstance,
+                public dialogSettings: IDialogSettings) {
     }
 
     public ok() {
@@ -130,23 +131,28 @@ export class BaseDialogController implements IDialogController {
 
 export class DialogServiceMock implements IDialogService {
     public static $inject = ["$q"];
-    constructor(private $q: ng.IQService) { }
+
+    constructor(private $q: ng.IQService) {
+    }
 
     public open(dialogSettings: IDialogSettings): ng.IPromise<any> {
         const deferred = this.$q.defer<any>();
         deferred.resolve(true);
         return deferred.promise;
     }
+
     public alert(message: string, header?: string): ng.IPromise<any> {
         const deferred = this.$q.defer<any>();
         deferred.resolve(true);
         return deferred.promise;
     }
+
     public confirm(message: string, header?: string): ng.IPromise<any> {
         const deferred = this.$q.defer<any>();
         deferred.resolve(true);
         return deferred.promise;
     }
+
     public dialogSettings: IDialogSettings = {
         type: DialogTypeEnum.Base,
         header: "test",

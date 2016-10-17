@@ -194,8 +194,8 @@ export class DiagramView implements IDiagramView {
                 }
             }
             this.selectionListeners.forEach((listener: ISelectionListener) => {
-                    listener(selectedElements);
-                });
+                listener(selectedElements);
+            });
             evt.consume();
         });
     }

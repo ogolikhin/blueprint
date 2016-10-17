@@ -1,10 +1,12 @@
 ﻿import {IDiagramElement, IDiagramNode} from "./../models/";
 import {IDiagramNodeElement, ILabel} from "./../models/";
 import {ElementType, NodeChange} from "./../models/";
+import {IProcessDiagramCommunication, ProcessEvents} from "../../../process-diagram-communication";
 
 export class DiagramElement extends mxCell implements IDiagramElement {
     private elementType: ElementType;
     textLabel: ILabel;
+    protected processDiagramManager: IProcessDiagramCommunication;
 
     constructor(id: any, type: ElementType = ElementType.Undefined, value?: string, geometry?: MxGeometry, style?: string) {
         super(value, geometry, style);
@@ -30,30 +32,31 @@ export class DiagramElement extends mxCell implements IDiagramElement {
     }
 
     public getHeight(): number {
-        var geometry = <MxGeometry>this.getGeometry();
+        const geometry = <MxGeometry>this.getGeometry();
         return geometry.height;
     }
 
     public getWidth(): number {
-        var geometry = <MxGeometry>this.getGeometry();
+        const geometry = <MxGeometry>this.getGeometry();
         return geometry.width;
     }
 
     public getCenter(): MxPoint {
-        var geometry = this.getGeometry();
+        const geometry = this.getGeometry();
         if (geometry) {
-            var point = new mxPoint(geometry.getCenterX(), geometry.getCenterY());
+            const point = new mxPoint(geometry.getCenterX(), geometry.getCenterY());
             return point;
         }
 
         return new mxPoint(0, 0);
     }
+
     public setElementText(cell: MxCell, text: string) {
         // override in descendant classes
     }
 
     public getElementTextLength(cell: MxCell): number {
-        // override in descendant classes 
+        // override in descendant classes
         return null;
     }
 
@@ -68,57 +71,12 @@ export class DiagramElement extends mxCell implements IDiagramElement {
     }
 
 
-    protected _isChanged: boolean;
-
-    public get isChanged(): boolean {
-        return this._isChanged;
-    }
-
     private _redraw: boolean;
     private _isNotificationPending: boolean = false;
 
-    public notify(change: NodeChange, redraw: boolean = false, callback?: any) {
-        this._isChanged = true;
-
-        if (this._redraw || redraw) {
-            this._redraw = true;
-        } else {
-            this._redraw = false;
-        }
-
-        if (!this._isNotificationPending) {
-            this._isNotificationPending = true;
-
-            this.raiseChangedEvent(change, this._redraw);
-            this._isNotificationPending = false;
-            this._redraw = false;
-
-            if (callback != null) {
-                callback();
-            }
-        } else {
-            if (callback != null) {
-                callback();
-            }
-        }
+    public notify(updateModel) {        
+        this.processDiagramManager.action(ProcessEvents.ArtifactUpdate, updateModel);
     }
-
-    private raiseChangedEvent(change: NodeChange, redraw: boolean) {
-        var eventArguments = {
-            processId: this.getParentId(),
-            nodeChanges: [
-                {
-                    nodeId: this.getId(),
-                    change: change,
-                    redraw: redraw
-                }
-            ]
-        };
-        var evt = document.createEvent("CustomEvent");
-        evt.initCustomEvent("graphUpdated", true, true, eventArguments);
-        window.dispatchEvent(evt);
-    }
-
     public getImageSource(image: string) {
         return "/novaweb/static/bp-process/images/" + image;
     }
@@ -126,7 +84,7 @@ export class DiagramElement extends mxCell implements IDiagramElement {
 
 export class DiagramNodeElement extends DiagramElement implements IDiagramNodeElement {
     public getNode(): IDiagramNode {
-        var parent = this.parent;
+        let parent = this.parent;
 
         while (parent) {
             if (parent["getNodeType"]) {
@@ -138,13 +96,13 @@ export class DiagramNodeElement extends DiagramElement implements IDiagramNodeEl
     }
 
     public getCenter(): MxPoint {
-        var geometry = <MxGeometry>this.geometry;
+        const geometry = <MxGeometry>this.geometry;
         if (geometry) {
             if (this.parent) {
-                var parentCenterX = (<IDiagramNodeElement>this.parent).getCenter().x;
-                var parentCenterY = (<IDiagramNodeElement>this.parent).getCenter().y;
-                var parentX = parentCenterX - (this.parent.getWidth() / 2);
-                var parentY = parentCenterY - (this.parent.getHeight() / 2);
+                const parentCenterX = (<IDiagramNodeElement>this.parent).getCenter().x;
+                const parentCenterY = (<IDiagramNodeElement>this.parent).getCenter().y;
+                const parentX = parentCenterX - (this.parent.getWidth() / 2);
+                const parentY = parentCenterY - (this.parent.getHeight() / 2);
 
                 if (geometry.relative) {
                     return new mxPoint(geometry.x * this.parent.getWidth() + geometry.width / 2, geometry.y * this.parent.getHeight() + geometry.height / 2);

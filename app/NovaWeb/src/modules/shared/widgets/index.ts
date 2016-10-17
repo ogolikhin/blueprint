@@ -24,7 +24,7 @@ angular.module("bp.widgets", [
     "bp.widgets.treedraganddrop",
     "bp.widgets.treeView",
     "bp.widgets.inlineedit",
-    "bp.widgets.tooltip",    
+    "bp.widgets.tooltip",
     "bp.widgets.infinitescroll",
     "bp.widgets.select",
     "bp.widgets.itemicon",
@@ -36,21 +36,21 @@ angular.module("bp.widgets", [
     "bp.widgets.breadcrumb",
     "bp.widgets.toolbar"
 ]);
-    
-export { 
-    IUploadStatusDialogData 
+
+export {
+    IUploadStatusDialogData
 } from "./bp-file-upload-status/bp-file-upload-status";
 
-export { 
-    IBPTreeController, 
-    ITreeNode 
+export {
+    IBPTreeController,
+    ITreeNode
 } from "./bp-tree"
 
-export { 
-    IDialogSettings, 
-    IDialogData, 
-    IDialogService, 
-    BaseDialogController 
+export {
+    IDialogSettings,
+    IDialogData,
+    IDialogService,
+    BaseDialogController
 } from "./bp-dialog";
 
 export {

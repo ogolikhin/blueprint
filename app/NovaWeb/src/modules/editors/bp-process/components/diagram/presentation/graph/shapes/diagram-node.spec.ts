@@ -2,28 +2,33 @@ import * as angular from "angular";
 import {ProcessGraph} from "../process-graph";
 import {IProcessViewModel, ProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {ShapesFactory} from "./shapes-factory";
-import {ProcessModel, ProcessShapeModel, IPropertyValueInformation, IHashMapOfPropertyValues} from "../../../../../models/process-models";
+import {
+    ProcessModel,
+    ProcessShapeModel,
+    IPropertyValueInformation,
+    IHashMapOfPropertyValues
+} from "../../../../../models/process-models";
 import {ProcessType} from "../../../../../models/enums";
 import {DiagramNode} from "./";
 import {PropertyTypePredefined} from "../../../../../../../main/models/enums";
 import {NodeChange} from "../models/";
-import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process"; 
+import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process";
 import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
 import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
-import { ModalServiceMock } from "../../../../../../../shell/login/mocks.spec";
-import { IStatefulArtifactFactory } from "../../../../../../../managers/artifact-manager/";
-import { StatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
+import {IStatefulArtifactFactory} from "../../../../../../../managers/artifact-manager/";
+import {StatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("DiagramNode", () => {
 
     describe("when getting nodes for graph", () => {
         let graph: ProcessGraph;
         let shapesFactory;
-        let rootScope: ng.IRootScopeService; 
+        let rootScope: ng.IRootScopeService;
         let communicationManager: ICommunicationManager,
             dialogService: DialogService,
             localization: LocalizationServiceMock;
-        
+
         beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
             $provide.service("communicationManager", CommunicationManager);
             $provide.service("$uibModal", ModalServiceMock);
@@ -32,12 +37,11 @@ describe("DiagramNode", () => {
             $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
         }));
 
-        beforeEach(inject((
-            $rootScope: ng.IRootScopeService, 
-            _communicationManager_: ICommunicationManager,
-            _dialogService_: DialogService,
-            _localization_: LocalizationServiceMock,
-            statefulArtifactFactory: IStatefulArtifactFactory) => {
+        beforeEach(inject(($rootScope: ng.IRootScopeService,
+                           _communicationManager_: ICommunicationManager,
+                           _dialogService_: DialogService,
+                           _localization_: LocalizationServiceMock,
+                           statefulArtifactFactory: IStatefulArtifactFactory) => {
 
             communicationManager = _communicationManager_;
             dialogService = _dialogService_;
@@ -46,15 +50,15 @@ describe("DiagramNode", () => {
 
             rootScope["config"] = {
                 labels: {
-                        "ST_Persona_Label": "Persona",
-                        "ST_Colors_Label": "Color",
-                        "ST_Comments_Label": "Comments",
-                        "ST_New_User_Task_Label": "New User Task",
-                        "ST_New_User_Task_Persona": "User",
-                        "ST_New_User_Decision_Label": "New Decision",
-                        "ST_New_System_Task_Label": "New System Task",
-                        "ST_New_System_Task_Persona": "System"
-                }                
+                    "ST_Persona_Label": "Persona",
+                    "ST_Colors_Label": "Color",
+                    "ST_Comments_Label": "Comments",
+                    "ST_New_User_Task_Label": "New User Task",
+                    "ST_New_User_Task_Persona": "User",
+                    "ST_New_User_Decision_Label": "New Decision",
+                    "ST_New_System_Task_Label": "New System Task",
+                    "ST_New_System_Task_Persona": "System"
+                }
             };
             shapesFactory = new ShapesFactory(rootScope, statefulArtifactFactory);
         }));
@@ -71,7 +75,7 @@ describe("DiagramNode", () => {
             beforeEach(() => {
                 var userTaskModel = shapesFactory.createModelUserTaskShape(1, 1, 77, 0, 0);
                 var systemTaskModel = shapesFactory.createModelSystemTaskShape(1, 1, 88, 1, 0);
-                var link = { sourceId: 77, destinationId: 88, orderindex: 1, label: "" };
+                var link = {sourceId: 77, destinationId: 88, orderindex: 1, label: ""};
 
                 testModel = new ProcessModel();
                 testModel.propertyValues = {};
@@ -81,16 +85,15 @@ describe("DiagramNode", () => {
                 testModel.shapes.push(systemTaskModel);
                 testModel.links = [];
                 testModel.links.push(link);
-                processModel = new ProcessViewModel(testModel);
-                processModel.communicationManager = communicationManager;
+                processModel = new ProcessViewModel(testModel, communicationManager);
 
                 var wrapper = document.createElement("DIV");
                 var container = document.createElement("DIV");
                 wrapper.appendChild(container);
                 document.body.appendChild(wrapper);
 
-                graph = new ProcessGraph(rootScope, { graphContainer: container, graphWrapper: wrapper }, 
-                                         container, processModel, dialogService, localization);
+                graph = new ProcessGraph(rootScope, {graphContainer: container, graphWrapper: wrapper},
+                    container, processModel, dialogService, localization);
                 graph.render(false, null);
             });
 
@@ -230,7 +233,7 @@ describe("DiagramNode", () => {
                 propertyValues[label] = propertyValue;
                 model.propertyValues = propertyValues;
                 var diagramNode = new DiagramNode(model);
-
+                var notifySpy = spyOn(diagramNode, "notify");
                 // Act
                 diagramNode.action = newValue;
 
@@ -252,22 +255,6 @@ describe("DiagramNode", () => {
 
                 // Assert
                 expect(notifySpy).toHaveBeenCalled();
-            });
-
-            it("does refresh node when name is changed", () => {
-                // Arrange
-                var oldValue = "Default";
-                var newValue = "New Name";
-                var model = new ProcessShapeModel();
-                model.name = oldValue;
-                var diagramNode = new DiagramNode(model);
-                var raiseChangedEventSpy = spyOn(diagramNode, "raiseChangedEvent");
-
-                // Act
-                diagramNode.label = newValue;
-
-                // Assert
-                expect(raiseChangedEventSpy).toHaveBeenCalled();
             });
 
             it("modifies model's 'x' when column is updated", () => {
@@ -314,26 +301,25 @@ describe("DiagramNode", () => {
                 var userTaskModel1 = shapesFactory.createModelUserTaskShape(1, 1, 20, 2, 0);
                 var userTaskModel2 = shapesFactory.createModelUserTaskShape(1, 1, 30, 2, 1);
                 var userTaskModel3 = shapesFactory.createModelUserTaskShape(1, 1, 40, 2, 2);
-                var link0 = { sourceId: 5, destinationId: 10, orderindex: 0, label: "" };
-                var link1 = { sourceId: 10, destinationId: 20, orderindex: 0, label: "" };
-                var link2 = { sourceId: 10, destinationId: 30, orderindex: 10, label: "" };
-                var link3 = { sourceId: 10, destinationId: 40, orderindex: 20, label: "" };
+                var link0 = {sourceId: 5, destinationId: 10, orderindex: 0, label: ""};
+                var link1 = {sourceId: 10, destinationId: 20, orderindex: 0, label: ""};
+                var link2 = {sourceId: 10, destinationId: 30, orderindex: 10, label: ""};
+                var link3 = {sourceId: 10, destinationId: 40, orderindex: 20, label: ""};
 
                 testModel = new ProcessModel();
                 testModel.propertyValues = {};
                 testModel.propertyValues["clientType"] = shapesFactory.createClientTypeValueForProcess(ProcessType.UserToSystemProcess);
                 testModel.shapes = [systemTaskModel, userDecisionModel, userTaskModel1, userTaskModel2, userTaskModel3];
                 testModel.links = [link3, link2, link1, link0];
-                processModel = new ProcessViewModel(testModel);
-                processModel.communicationManager = communicationManager;
+                processModel = new ProcessViewModel(testModel, communicationManager);
 
                 var wrapper = document.createElement("DIV");
                 var container = document.createElement("DIV");
                 wrapper.appendChild(container);
                 document.body.appendChild(wrapper);
 
-                graph = new ProcessGraph(rootScope, { graphContainer: container, graphWrapper: wrapper }, 
-                                         container, processModel, dialogService, localization);
+                graph = new ProcessGraph(rootScope, {graphContainer: container, graphWrapper: wrapper},
+                    container, processModel, dialogService, localization);
                 graph.render(false, null);
             });
 
@@ -391,109 +377,5 @@ describe("DiagramNode", () => {
                 expect(actual[2].model.id).toEqual(40);
             });
         });
-    });
-
-
-
-    describe("when notify of change is called without redraw", () => {
-        // Arrange
-        var model = new ProcessShapeModel();
-        var diagramNode = new DiagramNode(model);
-        var raiseChangedEventSpy;
-
-        // Act
-        beforeEach((done) => {
-            raiseChangedEventSpy = spyOn(diagramNode, "raiseChangedEvent");
-            diagramNode.notify(NodeChange.Update, undefined, done);
-        });
-
-        // Assert
-        it("raises changed event", () => {
-            expect(raiseChangedEventSpy).toHaveBeenCalled();
-        });
-
-        // Assert
-        it("raises changed event without redraw", () => {
-            expect(raiseChangedEventSpy).toHaveBeenCalledWith(NodeChange.Update, false);
-        });
-    });
-
-    describe("when notify of change is called with redraw", () => {
-        // Arrange
-        var model = new ProcessShapeModel();
-        var diagramNode = new DiagramNode(model);
-        var raiseChangedEventSpy;
-
-        // Act
-        beforeEach((done) => {
-            raiseChangedEventSpy = spyOn(diagramNode, "raiseChangedEvent");
-            diagramNode.notify(NodeChange.Update, true, done);
-        });
-
-        // Assert
-        it("raises changed event with redraw", () => {
-            expect(raiseChangedEventSpy).toHaveBeenCalledWith(NodeChange.Update, true);
-        });
-    });
-
-    //this test is not currently relevant due to removal settimeout performance fix in DiagramElement notify
-    //describe("when notify of change is called multiple times", () => {
-    //    // Arrange
-    //    var model = new ProcessShapeModel();
-    //    var diagramNode = new DiagramNode(model);
-    //    var raiseChangedEventSpy: jasmine.Spy;
-    //    var callCount: number = 0;
-
-    //    // Act
-    //    beforeEach((done) => {
-    //        function notifyCallback() {
-    //            callCount++;
-
-    //            if (callCount === 3) {
-    //                done();
-    //            }
-    //        }
-
-    //        raiseChangedEventSpy = spyOn(diagramNode, "raiseChangedEvent");
-
-    //        diagramNode.notify(NodeChange.Update, undefined, notifyCallback);
-    //        diagramNode.notify(NodeChange.Update, undefined, notifyCallback);
-    //        diagramNode.notify(NodeChange.Update, undefined, notifyCallback);
-    //    });
-
-    //    // Assert
-    //    //it("raises changed event only once", () => {
-    //    //    expect(raiseChangedEventSpy.calls.count()).toEqual(1);
-    //    //});
-    //});
-
-    describe("when notify of change is called multiple times with at least one redraw", () => {
-        // Arrange
-        var model = new ProcessShapeModel();
-        var diagramNode = new DiagramNode(model);
-        var raiseChangedEventSpy: jasmine.Spy;
-        var callCount: number = 0;
-
-        // Act
-        beforeEach((done) => {
-            function notifyCallback() {
-                callCount++;
-
-                if (callCount === 3) {
-                    done();
-                }
-            }
-
-            raiseChangedEventSpy = spyOn(diagramNode, "raiseChangedEvent");
-
-            diagramNode.notify(NodeChange.Update, undefined, notifyCallback);
-            diagramNode.notify(NodeChange.Update, undefined, notifyCallback);
-            diagramNode.notify(NodeChange.Update, true, notifyCallback);
-        });
-
-        // Assert
-        it("raises changed event with redraw", () => {
-            expect(raiseChangedEventSpy).toHaveBeenCalledWith(NodeChange.Update, true);
-        });
-    });
+    });    
 });

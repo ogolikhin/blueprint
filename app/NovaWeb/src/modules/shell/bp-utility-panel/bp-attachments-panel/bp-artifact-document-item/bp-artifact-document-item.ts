@@ -1,7 +1,7 @@
-﻿import { ILocalizationService, IMessageService } from "../../../../core";
+﻿import {ILocalizationService, IMessageService} from "../../../../core";
 import {
-    IArtifactDocRef, 
-    IArtifactAttachmentsService, 
+    IArtifactDocRef,
+    IArtifactAttachmentsService,
     IArtifactAttachmentsResultSet
 } from "../../../../managers/artifact-manager";
 
@@ -10,7 +10,8 @@ export class BPArtifactDocumentItem implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BPArtifactDocumentItemController;
     public bindings: any = {
         docRefInfo: "=",
-        deleteItem: "&"
+        deleteItem: "&",
+        canChangeAttachments: "="
     };
 }
 
@@ -31,22 +32,22 @@ export class BPArtifactDocumentItemController implements IBPArtifactAttachmentIt
     public fileIconClass: string;
     public docRefInfo: IArtifactDocRef;
     public deleteItem: Function;
-    
-    constructor(
-        private $log: ng.ILogService,
-        private localization: ILocalizationService,
-        private artifactAttachments: IArtifactAttachmentsService,
-        private messageService: IMessageService,
-        private $window: ng.IWindowService) {
+    public canChangeAttachments: boolean;
+
+    constructor(private $log: ng.ILogService,
+                private localization: ILocalizationService,
+                private artifactAttachments: IArtifactAttachmentsService,
+                private messageService: IMessageService,
+                private $window: ng.IWindowService) {
     }
 
     public $onInit() {
         this.fileIconClass = "ext-document"; //FiletypeParser.getFiletypeClass(null);
     }
-    
+
     public downloadItem(): ng.IPromise<any> {
         return this.artifactAttachments.getArtifactAttachments(this.docRefInfo.artifactId)
-            .then( (attachmentResultSet: IArtifactAttachmentsResultSet) => {
+            .then((attachmentResultSet: IArtifactAttachmentsResultSet) => {
 
                 if (attachmentResultSet.attachments.length) {
                     this.$window.open(

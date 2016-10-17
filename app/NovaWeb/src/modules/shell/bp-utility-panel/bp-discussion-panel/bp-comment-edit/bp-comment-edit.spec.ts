@@ -2,9 +2,9 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
-import { ComponentTest } from "../../../../util/component.test";
-import { BPCommentEditController } from "./bp-comment-edit";
-import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
+import {ComponentTest} from "../../../../util/component.test";
+import {BPCommentEditController} from "./bp-comment-edit";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import "angular-ui-tinymce";
 import "tinymce";
 
@@ -45,7 +45,8 @@ describe("Component BPCommentEdit", () => {
     it("callPostComment should finally make isWaiting false",
         inject(($timeout: ng.ITimeoutService, $q: ng.IQService) => {
             //Arrange
-            vm.postComment = () => { };
+            vm.postComment = () => {
+            };
             vm.isWaiting = false;
             let formatter = {};
             let body = {};
@@ -56,8 +57,10 @@ describe("Component BPCommentEdit", () => {
                 formatter: formatter,
                 contentDocument: contentDocument
             };
-            formatter["register"] = (a, b) => { };
-            editor["focus"] = () => { };
+            formatter["register"] = (a, b) => {
+            };
+            editor["focus"] = () => {
+            };
             body["innerHTML"] = "<p></p>";
             vm.tinymceOptions.init_instance_callback(editor);
             vm.postComment = (): ng.IPromise<any> => {
@@ -82,8 +85,10 @@ describe("Component BPCommentEdit", () => {
             let editor = {
                 formatter: formatter
             };
-            formatter["register"] = (a, b) => { };
-            editor["focus"] = () => { };
+            formatter["register"] = (a, b) => {
+            };
+            editor["focus"] = () => {
+            };
             spyOn(formatter, "register").and.callThrough();
 
             //Act
@@ -96,7 +101,8 @@ describe("Component BPCommentEdit", () => {
     it("tinymce setup should call addButton",
         () => {
             //Arrange
-            let addButton = (a, b) => { };
+            let addButton = (a, b) => {
+            };
             let editor = {
                 addButton: addButton
             };
@@ -111,18 +117,18 @@ describe("Component BPCommentEdit", () => {
 
     it("tinymce setup should call apply after onclick call",
         () => {
-            //Arrange 
+            //Arrange
             interface IMenuItem {
                 icon: string;
                 text: string;
                 onclick();
-            };
+            }
             interface IMenuToolbar {
                 type: string;
                 text: string;
                 icon: string;
                 menu: IMenuItem[];
-            };
+            }
             let menuItems: IMenuItem[];
             let addButton = (a: string, menuToolbar: IMenuToolbar) => {
                 if (!menuItems) {
@@ -144,18 +150,22 @@ describe("Component BPCommentEdit", () => {
                 formatter: formatter,
                 editorCommands: editorCommands
             };
-            editor.formatter.apply = () => { };
-            editor.editorCommands.execCommand = (command: string) => { };
+            editor.formatter.apply = () => {
+            };
+            editor.editorCommands.execCommand = (command: string) => {
+            };
             spyOn(editor.formatter, "apply").and.callThrough();
 
             //Act
             vm.tinymceOptions.setup(editor);
             for (let i = 0; i < menuItems.length; i++) {
-                menuItems[i].onclick();
+                if (menuItems[i].text && menuItems[i].text !== "-") { // skip the menu separator
+                    menuItems[i].onclick();
+                }
             }
 
             //Assert
             expect(editor.formatter.apply).toHaveBeenCalled();
         });
-            
+
 });

@@ -1,5 +1,6 @@
 <div class="artifact-heading">
-    <div class="icon" ng-class="!$ctrl.artifactTypeIcon ? $ctrl.artifactClass : ''" bp-tooltip="{{ $ctrl.artifactTypeDescription }}">
+    <div class="icon" ng-class="!$ctrl.artifactTypeIcon ? $ctrl.artifactClass : ''"
+         bp-tooltip="{{ $ctrl.artifactTypeDescription }}">
         <bp-item-type-icon ng-if="!!$ctrl.artifactTypeIcon"
                            item-type-id="{{$ctrl.artifactTypeId}}"
                            item-type-icon="{{$ctrl.artifactTypeIcon}}"></bp-item-type-icon>
@@ -18,7 +19,7 @@
             </div>
         </div>
         <bp-breadcrumb links="$ctrl.breadcrumbLinks" on-navigate="$ctrl.navigateTo(link)"></bp-breadcrumb>
-        <div class="type-id"> {{$ctrl.artifactTypeDescription}} </div>
+        <div class="type-id"> {{$ctrl.artifactTypeDescription}}</div>
     </div>
 </div>
 <bp-toolbar-2 actions="$ctrl.toolbarActions"></bp-toolbar-2>

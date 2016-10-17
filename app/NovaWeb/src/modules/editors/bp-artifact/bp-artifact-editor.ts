@@ -1,28 +1,28 @@
 import * as angular from "angular";
-import { ILocalizationService, Message } from "../../core";
-import { IWindowManager, IMainWindow } from "../../main";
+import {ILocalizationService, Message} from "../../core";
+import {IWindowManager, IMainWindow} from "../../main";
 //import { Models, Enums } from "../../main";
-import { 
-    Models, Enums, 
-    IArtifactManager, 
-    IStatefulArtifact, 
+import {
+    Models, Enums,
+    IArtifactManager,
+    IStatefulArtifact,
     IMessageService,
-    BpBaseEditor 
+    BpBaseEditor
 } from "../bp-base-editor";
 
-import { PropertyEditor} from "./bp-property-editor";
-import { PropertyContext} from "./bp-property-context";
+import {PropertyEditor} from "./bp-property-editor";
+import {PropertyContext} from "./bp-property-context";
 
-export { 
-    ILocalizationService, 
-    IArtifactManager, 
+export {
+    ILocalizationService,
+    IArtifactManager,
     IStatefulArtifact,
-    IMessageService,  
-    IWindowManager, 
-    PropertyContext, 
-    Models, 
-    Enums, 
-    Message 
+    IMessageService,
+    IWindowManager,
+    PropertyContext,
+    Models,
+    Enums,
+    Message
 }
 
 export class BpArtifactEditor extends BpBaseEditor {
@@ -33,12 +33,10 @@ export class BpArtifactEditor extends BpBaseEditor {
 
     public editor: PropertyEditor;
 
-    constructor(
-        public messageService: IMessageService,
-        public artifactManager: IArtifactManager,
-        public windowManager: IWindowManager,
-        public localization: ILocalizationService
-    ) {
+    constructor(public messageService: IMessageService,
+                public artifactManager: IArtifactManager,
+                public windowManager: IWindowManager,
+                public localization: ILocalizationService) {
         super(messageService, artifactManager);
     }
 
@@ -47,7 +45,6 @@ export class BpArtifactEditor extends BpBaseEditor {
         this.editor = new PropertyEditor(this.localization);
         this.subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.setArtifactEditorLabelsWidth, this));
     }
-
 
     public $onDestroy() {
         super.$onDestroy();
@@ -60,47 +57,54 @@ export class BpArtifactEditor extends BpBaseEditor {
         delete this.model;
     }
 
-
-    public clearFields() { 
+    public clearFields() {
         this.model = {};
-        this.fields = []; 
+        this.fields = [];
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
-        if (!angular.isArray(this.fields)) { }
+        if (!angular.isArray(this.fields)) {
+            //fixme: why is this empty? if it does nothing remove it!
+        }
         this.fields.push(field);
     }
 
-
     public onArtifactReady() {
-        if ( this.editor  && this.artifact) {
+        if (this.editor && this.artifact) {
             this.clearFields();
+            this.artifact.metadata.getArtifactPropertyTypes().then((propertyTypes) => {
+                this.model = this.editor.load(this.artifact, propertyTypes);
 
-            this.model = this.editor.load(this.artifact, this.artifact.metadata.getArtifactPropertyTypes());
+                this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
+                    //add property change handler to each field
+                    angular.extend(field.templateOptions, {
+                        onChange: this.onValueChange.bind(this)
+                    });
 
-            this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
-                //add property change handler to each field
-                angular.extend(field.templateOptions, {
-                    onChange: this.onValueChange.bind(this)
-                });
-
-                let isReadOnly = this.artifact.artifactState.readonly || this.artifact.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
-                field.templateOptions["isReadOnly"] = isReadOnly;
-                if (isReadOnly) {
-                    if (field.type !== "bpDocumentFile" &&
-                        field.type !== "bpFieldImage" &&
-                        field.type !== "bpFieldInheritFrom") {
-                        field.type = "bpFieldReadOnly";
+                    let isReadOnly = this.artifact.artifactState.readonly || this.artifact.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
+                    field.templateOptions["isReadOnly"] = isReadOnly;
+                    if (isReadOnly) {
+                        if (field.type !== "bpDocumentFile" &&
+                            field.type !== "bpFieldImage" &&
+                            field.type !== "bpFieldInheritFrom") {
+                            field.type = "bpFieldReadOnly";
+                        }
                     }
-                }           
-                this.onFieldUpdate(field);
+                    this.onFieldUpdate(field);
 
+                });
+                this.setArtifactEditorLabelsWidth();
+                super.onArtifactReady();
+                this.onFieldUpdateFinished();
             });
-
-            this.isLoading = false;
+        } else {
+            this.setArtifactEditorLabelsWidth();
+            super.onArtifactReady();
         }
-        this.setArtifactEditorLabelsWidth();
-        super.onArtifactReady();
+    }
+
+    protected onFieldUpdateFinished() {
+        //
     }
 
     public setArtifactEditorLabelsWidth(mainWindow?: IMainWindow) {

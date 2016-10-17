@@ -5,12 +5,12 @@ import {ProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import * as ProcessModels from "../../../../../models/process-models";
 import {UserDecision} from "./";
 import {NodeChange} from "../models/";
-import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process"; 
+import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process";
 import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
 import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
-import { ModalServiceMock } from "../../../../../../../shell/login/mocks.spec";
-import { IStatefulArtifactFactory } from "../../../../../../../managers/artifact-manager/";
-import { StatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
+import {IStatefulArtifactFactory} from "../../../../../../../managers/artifact-manager/";
+import {StatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("UserDecision", () => {
 
@@ -19,7 +19,7 @@ describe("UserDecision", () => {
     let communicationManager: ICommunicationManager,
         dialogService: DialogService,
         localization: LocalizationServiceMock;
-    
+
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("communicationManager", CommunicationManager);
         $provide.service("$uibModal", ModalServiceMock);
@@ -28,13 +28,12 @@ describe("UserDecision", () => {
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
-    beforeEach(inject((
-        _$window_: ng.IWindowService,
-        $rootScope: ng.IRootScopeService,
-        _communicationManager_: ICommunicationManager,
-        _dialogService_: DialogService,
-        _localization_: LocalizationServiceMock,
-        statefulArtifactFactory: IStatefulArtifactFactory) => {
+    beforeEach(inject((_$window_: ng.IWindowService,
+                       $rootScope: ng.IRootScopeService,
+                       _communicationManager_: ICommunicationManager,
+                       _dialogService_: DialogService,
+                       _localization_: LocalizationServiceMock,
+                       statefulArtifactFactory: IStatefulArtifactFactory) => {
 
         rootScope = $rootScope;
         communicationManager = _communicationManager_;
@@ -48,7 +47,7 @@ describe("UserDecision", () => {
         $rootScope["config"] = {};
         $rootScope["config"].labels = {};
         shapesFactory = new ShapesFactory($rootScope, statefulArtifactFactory);
-        localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
+        localScope = {graphContainer: container, graphWrapper: wrapper, isSpa: false};
     }));
 
     it("initializes details button", () => {
@@ -59,8 +58,7 @@ describe("UserDecision", () => {
         let testModel = new ProcessModels.ProcessModel();
         let model = shapesFactory.createModelUserDecisionShape(2, 1, id, 0, 0);
         testModel.shapes.push(model);
-        let processViewModel = new ProcessViewModel(testModel);
-        processViewModel.communicationManager = communicationManager;
+        let processViewModel = new ProcessViewModel(testModel, communicationManager);
         
         let graph = new ProcessGraph(rootScope, localScope, container, processViewModel, dialogService, localization);
 
@@ -97,26 +95,6 @@ describe("UserDecision", () => {
         userDecision.label = "Test";
 
         // Assert
-        expect(notifySpy).toHaveBeenCalledWith(NodeChange.Update);
-    });
-
-    it("notifies of changes when label changes and UI redraw", () => {
-        // Arrange
-        let model = shapesFactory.createModelUserDecisionShape(2, 1, 3, 0, 0);
-        let userDecision = new UserDecision(model, rootScope);
-        userDecision.textLabel = {
-            render: () => { },
-            text: "",
-            setVisible: (value: boolean) => { },
-            onDispose: () => { }
-        };
-
-        let notifySpy = spyOn(userDecision, "notify");
-
-        // Act
-        userDecision.setLabelWithRedrawUi("Test");
-
-        // Assert
-        expect(notifySpy).toHaveBeenCalledWith(NodeChange.Update, true);
+        expect(notifySpy).toHaveBeenCalled();
     });
 });

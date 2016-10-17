@@ -1,8 +1,8 @@
-import { IGlossaryService } from "./glossary.svc";
-import { ILocalizationService, IMessageService } from "../../core";
-import { IArtifactManager, IStatefulSubArtifact, IStatefulArtifactFactory } from "../../managers/artifact-manager";
-import { Models } from "../../main/models";
-import { BpBaseEditor } from "../bp-base-editor";
+import {IGlossaryService} from "./glossary.svc";
+import {ILocalizationService, IMessageService} from "../../core";
+import {IArtifactManager, IStatefulSubArtifact, IStatefulArtifactFactory} from "../../managers/artifact-manager";
+import {Models} from "../../main/models";
+import {BpBaseEditor} from "../bp-base-editor";
 
 
 export class BpGlossary implements ng.IComponentOptions {
@@ -29,17 +29,16 @@ export class BpGlossaryController extends BpBaseEditor {
     public terms: IStatefulSubArtifact[];
     public selectedTerm: IStatefulSubArtifact;
 
-    constructor(
-        private $element: ng.IAugmentedJQuery,
-        private $log: ng.ILogService,
-        private localization: ILocalizationService, 
-        private glossaryService: IGlossaryService,
-        private $sce: ng.ISCEService,
-        public messageService: IMessageService,
-        public artifactManager: IArtifactManager,
-        private statefulArtifactFactory: IStatefulArtifactFactory) {
+    constructor(private $element: ng.IAugmentedJQuery,
+                private $log: ng.ILogService,
+                private localization: ILocalizationService,
+                private glossaryService: IGlossaryService,
+                private $sce: ng.ISCEService,
+                public messageService: IMessageService,
+                public artifactManager: IArtifactManager,
+                private statefulArtifactFactory: IStatefulArtifactFactory) {
 
-            super(messageService, artifactManager);
+        super(messageService, artifactManager);
     }
 
     public $onInit() {
@@ -56,7 +55,7 @@ export class BpGlossaryController extends BpBaseEditor {
 
     public onArtifactReady() {
         super.onArtifactReady();
-        
+
         // TODO: move this to sub-artifact
         let statefulSubartifacts = [];
         this.glossaryService.getGlossary(this.artifact.id).then((result: Models.IArtifact) => {

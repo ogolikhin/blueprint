@@ -72,6 +72,8 @@ namespace Model.StorytellerModel
         CreatedOn = 4125,
         LastEditedBy = 4126,
         LastEditedOn = 4127,
+        Persona = 4130,
+        StoryLink = 4131,
 
         X = 8193,
         Y = 8194,

@@ -1,9 +1,9 @@
-﻿import { ILocalizationService } from "../../../core";
-import { Models} from "../../../main";
-import { IArtifactManager, IStatefulArtifact, IStatefulSubArtifact } from "../../../managers/artifact-manager";
-import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
-import { IArtifactHistory, IArtifactHistoryVersion } from "./artifact-history.svc";
-import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
+﻿import {ILocalizationService} from "../../../core";
+import {Models} from "../../../main";
+import {IArtifactManager, IStatefulArtifact, IStatefulSubArtifact} from "../../../managers/artifact-manager";
+import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
+import {IArtifactHistory, IArtifactHistoryVersion} from "./artifact-history.svc";
+import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
 
 interface ISortOptions {
     value: boolean;
@@ -35,19 +35,18 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
     public selectedArtifactVersion: IArtifactHistoryVersion;
     public isLoading: boolean = false;
     private subscribers: Rx.IDisposable[];
-    
-    constructor(
-        $q: ng.IQService,
-        private localization: ILocalizationService,
-        private artifactHistory: IArtifactHistory,
-        protected artifactManager: IArtifactManager,
-        public bpAccordionPanel: IBpAccordionPanelController) {
+
+    constructor($q: ng.IQService,
+                private localization: ILocalizationService,
+                private artifactHistory: IArtifactHistory,
+                protected artifactManager: IArtifactManager,
+                public bpAccordionPanel: IBpAccordionPanelController) {
 
         super($q, artifactManager.selection, bpAccordionPanel);
 
         this.sortOptions = [
-            { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },
-            { value: true, label: this.localization.get("App_UP_Filter_SortByEarliest") },
+            {value: false, label: this.localization.get("App_UP_Filter_SortByLatest")},
+            {value: true, label: this.localization.get("App_UP_Filter_SortByEarliest")}
         ];
 
         this.subscribers = [];
@@ -67,7 +66,7 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
     public changeSortOrder() {
         this.artifactHistoryList = [];
         this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending)
-            .then( (list: IArtifactHistoryVersion[]) => {
+            .then((list: IArtifactHistoryVersion[]) => {
                 this.artifactHistoryList = list;
             });
     }
@@ -75,15 +74,22 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
 
         //Subscriber to support refresh case.
-        this.subscribers = this.subscribers.filter(subscriber => { subscriber.dispose(); return false; });
+        this.subscribers = this.subscribers.filter(subscriber => {
+            subscriber.dispose();
+            return false;
+        });
         if (subArtifact) {
             this.subscribers.push(
                 subArtifact.getObservable().distinctUntilChanged(subArtif => subArtif.version)
-                    .subscribe((subArtif) => { this.onSelectionChangedHelper(null, subArtif, timeout); }));
+                    .subscribe((subArtif) => {
+                        this.onSelectionChangedHelper(null, subArtif, timeout);
+                    }));
         } else if (artifact) {
             this.subscribers.push(
                 artifact.getObservable().distinctUntilChanged(artif => artif.version)
-                    .subscribe((artif) => { this.onSelectionChangedHelper(artif, null, timeout); }));
+                    .subscribe((artif) => {
+                        this.onSelectionChangedHelper(artif, null, timeout);
+                    }));
         }
 
         return this.onSelectionChangedHelper(artifact, subArtifact, timeout);
@@ -94,11 +100,11 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
             this.artifactHistoryList = [];
             return super.onSelectionChanged(artifact, subArtifact, timeout);
         }
-        
+
         this.artifactHistoryList = [];
         this.artifactId = artifact.id;
         return this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending, timeout)
-            .then( (list: IArtifactHistoryVersion[]) => {
+            .then((list: IArtifactHistoryVersion[]) => {
                 this.artifactHistoryList = list;
             });
     }
@@ -114,7 +120,7 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         // if reached the end (version 1 or draft), don't try to load more
         if (lastItem && lastItem.versionId !== 1 && !this.isDeletedOrDraft(lastItem)) {
             return this.getHistoricalVersions(this.loadLimit, offset, null, this.sortAscending)
-                .then( (list: IArtifactHistoryVersion[]) => {
+                .then((list: IArtifactHistoryVersion[]) => {
                     this.artifactHistoryList = this.artifactHistoryList.concat(list);
                     return list;
                 });
@@ -124,26 +130,24 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
     }
 
     private isDeletedOrDraft(item: IArtifactHistoryVersion): boolean {
-        return item.artifactState === Models.ArtifactStateEnum.Draft 
-                || item.artifactState === Models.ArtifactStateEnum.Deleted;
+        return item.artifactState === Models.ArtifactStateEnum.Draft
+            || item.artifactState === Models.ArtifactStateEnum.Deleted;
     }
 
     public selectArtifactVersion(artifactHistoryItem: IArtifactHistoryVersion): void {
         this.selectedArtifactVersion = artifactHistoryItem;
     }
 
-    private getHistoricalVersions(
-        limit: number,
-        offset: number, userId:
-        string, asc: boolean,
-        timeout?: ng.IPromise<void>): ng.IPromise<IArtifactHistoryVersion[]> {
+    private getHistoricalVersions(limit: number,
+                                  offset: number, userId: string, asc: boolean,
+                                  timeout?: ng.IPromise<void>): ng.IPromise<IArtifactHistoryVersion[]> {
 
         this.isLoading = true;
         return this.artifactHistory.getArtifactHistory(this.artifactId, limit, offset, userId, asc, timeout)
-            .then( (list: IArtifactHistoryVersion[]) => {
+            .then((list: IArtifactHistoryVersion[]) => {
                 return list;
             })
-            .finally( () => {
+            .finally(() => {
                 this.isLoading = false;
             });
     }

@@ -1,18 +1,18 @@
 ﻿import "angular";
 import "angular-mocks";
 
-import {LocalizationService, BPLocale } from "./";
+import {LocalizationService, BPLocale} from "./";
 
 // Some of the following tests can be only run in interactive mode (i.e. with Chrome) as PhantomJS
 // doesn't properly support locale-aware functions. These tests are marked as /*NOT PHANTOMJS*/
 // See https://github.com/ariya/phantomjs/issues/12581#issuecomment-166645579
 
 describe("Localization", () => {
-    
+
     describe("Language", () => {
         it("is set", function () {
             // Arrange
-                        // Act
+            // Act
             let language = LocalizationService.getBrowserLanguage();
 
             // Assert
@@ -37,7 +37,7 @@ describe("Localization", () => {
         it("EN locale", inject(($rootScope: ng.IRootScopeService) => {
             // Arrange
             let locale = new BPLocale("en-US");
-            
+
             // Act
 
             // Assert
@@ -52,7 +52,7 @@ describe("Localization", () => {
         it("RU locale", inject(($rootScope: ng.IRootScopeService) => {
             // Arrange
             let locale = new BPLocale("ru-RU");
-            
+
             // Act
 
             // Assert
@@ -84,11 +84,11 @@ describe("Localization", () => {
             expect(locale.datePickerDayTitle).toBe("MMMM yyyy");
             expect(locale.datePickerFormat).toBe("dd/MM/yyyy");
         }));
-        
+
         it("zh-TW locale", inject(($rootScope: ng.IRootScopeService) => {
             // Arrange
             let locale = new BPLocale("zh-TW");
-            
+
             // Act
 
             // Assert
@@ -105,7 +105,7 @@ describe("Localization", () => {
         it("to number - valid - US", inject(($rootScope: ng.IRootScopeService) => {
             // Arrange
             let locale = new BPLocale("en-US");
-            
+
             // Act
 
             // Assert
@@ -122,7 +122,7 @@ describe("Localization", () => {
         it("to number - invalid - US", inject(($rootScope: ng.IRootScopeService) => {
             // Arrange
             let locale = new BPLocale("en-US");
-            
+
             // Act
 
             // Assert

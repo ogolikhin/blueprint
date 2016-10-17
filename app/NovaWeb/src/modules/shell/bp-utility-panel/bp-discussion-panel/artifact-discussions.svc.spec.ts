@@ -2,7 +2,13 @@
 import "angular-mocks";
 import {HttpStatusCode} from "../../../core/http";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {IArtifactDiscussions, ArtifactDiscussions, IDiscussionResultSet, IReply, IDiscussion} from "./artifact-discussions.svc";
+import {
+    IArtifactDiscussions,
+    ArtifactDiscussions,
+    IDiscussionResultSet,
+    IReply,
+    IDiscussion
+} from "./artifact-discussions.svc";
 
 describe("Artifact Discussion Service", () => {
 
@@ -97,19 +103,19 @@ describe("Artifact Discussion Service", () => {
         // Arrange
         $httpBackend.expectGET(`/svc/artifactstore/artifacts/5/discussions/2/replies`)
             .respond(HttpStatusCode.Success,
-            [
-                {
-                    "replyId": 1,
-                    "itemId": 1,
-                    "discussionId": 1,
-                    "version": 3,
-                    "userId": 1,
-                    "lastEditedOn": "",
-                    "userName": "Mehdi",
-                    "isGuest": false,
-                    "comment": "This is a test."
-                }
-            ]);
+                [
+                    {
+                        "replyId": 1,
+                        "itemId": 1,
+                        "discussionId": 1,
+                        "version": 3,
+                        "userId": 1,
+                        "lastEditedOn": "",
+                        "userName": "Mehdi",
+                        "isGuest": false,
+                        "comment": "This is a test."
+                    }
+                ]);
 
 
         // Act
@@ -162,19 +168,19 @@ describe("Artifact Discussion Service", () => {
         // Arrange
         $httpBackend.expectPOST(`/svc/components/RapidReview/artifacts/5/discussions`)
             .respond(HttpStatusCode.Success,
-            {
-                "isClosed": false,
-                "status": "",
-                "itemId": 1,
-                "repliesCount": 1,
-                "discussionId": 1,
-                "version": 3,
-                "userId": 1,
-                "lastEditedOn": "2016-05-31T17:19:53.07",
-                "userName": "Mehdi",
-                "isGuest": false,
-                "comment": "This is a test."
-            });
+                {
+                    "isClosed": false,
+                    "status": "",
+                    "itemId": 1,
+                    "repliesCount": 1,
+                    "discussionId": 1,
+                    "version": 3,
+                    "userId": 1,
+                    "lastEditedOn": "2016-05-31T17:19:53.07",
+                    "userName": "Mehdi",
+                    "isGuest": false,
+                    "comment": "This is a test."
+                });
 
 
         // Act
@@ -226,17 +232,17 @@ describe("Artifact Discussion Service", () => {
         // Arrange
         $httpBackend.expectPOST(`/svc/components/RapidReview/artifacts/5/discussions/1/reply`)
             .respond(HttpStatusCode.Success,
-            {
-                "replyId": 1,
-                "itemId": 1,
-                "discussionId": 1,
-                "version": 3,
-                "userId": 1,
-                "lastEditedOn": "",
-                "userName": "Mehdi",
-                "isGuest": false,
-                "comment": "This is a test."
-            });
+                {
+                    "replyId": 1,
+                    "itemId": 1,
+                    "discussionId": 1,
+                    "version": 3,
+                    "userId": 1,
+                    "lastEditedOn": "",
+                    "userName": "Mehdi",
+                    "isGuest": false,
+                    "comment": "This is a test."
+                });
 
 
         // Act
@@ -289,17 +295,17 @@ describe("Artifact Discussion Service", () => {
         // Arrange
         $httpBackend.expectPATCH(`/svc/components/RapidReview/artifacts/5/discussions/1`)
             .respond(HttpStatusCode.Success,
-            {
-                "replyId": 1,
-                "itemId": 1,
-                "discussionId": 1,
-                "version": 3,
-                "userId": 1,
-                "lastEditedOn": "",
-                "userName": "Mehdi",
-                "isGuest": false,
-                "comment": "This is a test."
-            });
+                {
+                    "replyId": 1,
+                    "itemId": 1,
+                    "discussionId": 1,
+                    "version": 3,
+                    "userId": 1,
+                    "lastEditedOn": "",
+                    "userName": "Mehdi",
+                    "isGuest": false,
+                    "comment": "This is a test."
+                });
 
 
         // Act
@@ -351,17 +357,17 @@ describe("Artifact Discussion Service", () => {
         // Arrange
         $httpBackend.expectPATCH(`/svc/components/RapidReview/artifacts/5/discussions/1/reply/1`)
             .respond(HttpStatusCode.Success,
-            {
-                "replyId": 1,
-                "itemId": 1,
-                "discussionId": 1,
-                "version": 3,
-                "userId": 1,
-                "lastEditedOn": "",
-                "userName": "Mehdi",
-                "isGuest": false,
-                "comment": "This is a test."
-            });
+                {
+                    "replyId": 1,
+                    "itemId": 1,
+                    "discussionId": 1,
+                    "version": 3,
+                    "userId": 1,
+                    "lastEditedOn": "",
+                    "userName": "Mehdi",
+                    "isGuest": false,
+                    "comment": "This is a test."
+                });
 
 
         // Act
@@ -442,7 +448,7 @@ describe("Artifact Discussion Service", () => {
             });
         let success: boolean;
         let errorStatusCode: number;
-        
+
         // Act
         artifactDiscussions.deleteReply(5, 1).then((response) => {
             success = true;

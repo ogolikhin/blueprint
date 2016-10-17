@@ -14,8 +14,6 @@
 // import { SessionSvcMock } from "../../shell/login/mocks.spec";
 
 
-
-
 // describe("Component BpGeneralEditorInfo", () => {
 
 //     beforeEach(angular.mock.module("bp.editors.details"));
@@ -27,7 +25,7 @@
 
 
 //     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        
+
 //         $provide.service("messageService", MessageServiceMock);
 //         $provide.service("localization", LocalizationServiceMock);
 //         $provide.service("session", SessionSvcMock);

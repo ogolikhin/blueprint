@@ -8,12 +8,12 @@ import {ProcessViewModel, IProcessViewModel} from "../../../viewmodel/process-vi
 import {SystemTask, DiagramNodeElement} from "./";
 import {NodeChange, NodeType, ElementType} from "../models/";
 import {ISystemTask} from "../models/";
-import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process"; 
+import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process";
 import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
 import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
-import { ModalServiceMock } from "../../../../../../../shell/login/mocks.spec";
-import { IStatefulArtifactFactory } from "../../../../../../../managers/artifact-manager/";
-import { StatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
+import {IStatefulArtifactFactory} from "../../../../../../../managers/artifact-manager/";
+import {StatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("SystemTask", () => {
 
@@ -37,13 +37,12 @@ describe("SystemTask", () => {
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
-    beforeEach(inject((
-        _$window_: ng.IWindowService,
-        $rootScope: ng.IRootScopeService,
-        _communicationManager_: ICommunicationManager,
-        _dialogService_: DialogService,
-        _localization_: LocalizationServiceMock,
-        statefulArtifactFactory: IStatefulArtifactFactory) => {
+    beforeEach(inject((_$window_: ng.IWindowService,
+                       $rootScope: ng.IRootScopeService,
+                       _communicationManager_: ICommunicationManager,
+                       _dialogService_: DialogService,
+                       _localization_: LocalizationServiceMock,
+                       statefulArtifactFactory: IStatefulArtifactFactory) => {
 
         rootScope = $rootScope;
         communicationManager = _communicationManager_;
@@ -57,15 +56,14 @@ describe("SystemTask", () => {
         $rootScope["config"] = {};
         $rootScope["config"].labels = {};
         shapesFactory = new ShapesFactory($rootScope, statefulArtifactFactory);
-        localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
+        localScope = {graphContainer: container, graphWrapper: wrapper, isSpa: false};
     }));
 
 
     it("Test SystemTask class", () => {
         // Arrange
         let processModel = new ProcessModel();
-        let viewModel = new ProcessViewModel(processModel);
-        viewModel.communicationManager = communicationManager;
+        let viewModel = new ProcessViewModel(processModel, communicationManager);
         viewModel.isReadonly = false;
 
         // Act
@@ -75,7 +73,7 @@ describe("SystemTask", () => {
         node.render(graph, 80, 120, false);
         node.renderLabels();
 
-        spyOn(SystemTask.prototype, "notify").and.callThrough();
+        spyOn(SystemTask.prototype, "notify")();
 
         node.label = "test label";
         node.persona = "test persona";
@@ -92,7 +90,7 @@ describe("SystemTask", () => {
         expect(node.associatedImageUrl).toEqual("test.jpg");
         expect(node.imageId).toEqual("2");
         expect(node.associatedArtifact).toEqual(testArtifactReferenceLink2);
-        expect(SystemTask.prototype.notify).toHaveBeenCalledWith(NodeChange.Update);
+        expect(SystemTask.prototype.notify).toHaveBeenCalled();
     });
 
     describe("Test text elements", () => {
@@ -160,6 +158,7 @@ describe("SystemTask", () => {
             let testSystemTask = ShapeModelMock.instance().SystemTaskMock();
 
             let node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
+            spyOn(node, "notify")();
 
             let testLabelText = "test label";
 
@@ -177,6 +176,7 @@ describe("SystemTask", () => {
 
             let node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
             let editNode = new DiagramNodeElement("H1", ElementType.SystemTaskHeader, "", new mxGeometry(), "");
+            spyOn(node, "notify")();
 
             let testLabelText = "test label";
 
@@ -192,6 +192,7 @@ describe("SystemTask", () => {
             let testSystemTask = ShapeModelMock.instance().SystemTaskMock();
 
             let node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
+            spyOn(node, "notify")();
             node.persona = "12345";
 
 
@@ -242,8 +243,7 @@ describe("SystemTask", () => {
             testModel.links.push(new ProcessLinkModel(null, 22, 33));
             testModel.links.push(new ProcessLinkModel(null, 33, 44));
             testModel.links.push(new ProcessLinkModel(null, 44, 55));
-            processModel = new ProcessViewModel(testModel);
-            processModel.communicationManager = communicationManager;
+            processModel = new ProcessViewModel(testModel, communicationManager);
 
             graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 

@@ -1,13 +1,13 @@
-import { IWindowManager } from "../../services";
-import { IArtifactManager } from "../../../managers";
-import { IMessageService, INavigationService } from "../../../core";
-import { IDiagramService } from "../../../editors/bp-diagram/diagram.svc";
+import {IWindowManager} from "../../services";
+import {IArtifactManager} from "../../../managers";
+import {IMessageService, INavigationService} from "../../../core";
+import {IDiagramService} from "../../../editors/bp-diagram/diagram.svc";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./bp-page-content.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = PageContentCtrl;
     public controllerAs = "$content";
-} 
+}
 
 class PageContentCtrl {
     private subscribers: Rx.IDisposable[];
@@ -20,13 +20,11 @@ class PageContentCtrl {
         "navigationService"
     ];
 
-    constructor(
-        private messageService: IMessageService,
-        private artifactManager: IArtifactManager,
-        private diagramService: IDiagramService,
-        private windowManager: IWindowManager,
-        private navigationService: INavigationService
-    ) {
+    constructor(private messageService: IMessageService,
+                private artifactManager: IArtifactManager,
+                private diagramService: IDiagramService,
+                private windowManager: IWindowManager,
+                private navigationService: INavigationService) {
     }
 
     public $onInit() {
@@ -39,7 +37,10 @@ class PageContentCtrl {
 
     public $onDestroy() {
         //dispose all subscribers
-        this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => {
+            it.dispose();
+            return false;
+        });
     }
 
     public onContentSelected($event: MouseEvent) {

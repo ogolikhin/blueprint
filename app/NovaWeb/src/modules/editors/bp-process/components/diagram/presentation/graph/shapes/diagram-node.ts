@@ -1,6 +1,7 @@
-﻿import {IProcessShape} from "../../../../../models/process-models";
-import {IProcessGraph, IDiagramNode} from "./../models/";
-import {IDiagramLink, IDiagramNodeElement} from "./../models/";
+﻿import {IProcessShape, IArtifactUpdateModel, PropertyTypePredefined, IPropertyValueInformation} from "../../../../../models/process-models";
+import {ArtifactUpdateType} from  "../../../../../models/enums";
+import * as Enums from "../../../../../../../main/models/enums";
+import {IProcessGraph, IDiagramNode, IDiagramLink, IDiagramNodeElement} from "./../models/";
 import {DiagramNodeElement} from "./diagram-element";
 import {ElementType, Direction, NodeType, NodeChange} from "./../models/";
 import {IDialogParams} from "../../../../messages/message-dialog";
@@ -23,6 +24,34 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
         this.nodeType = nodeType;
     }
 
+    protected sendUpdatedSubArtifactModel(name: string, updateType: ArtifactUpdateType = ArtifactUpdateType.SubArtifact, value?) {
+        const updateModel: IArtifactUpdateModel = {
+            updateType: updateType,
+            propertyValue: this.getProperty(name), 
+            subArtifactId: this.model.id
+        }; 
+        if (updateModel.propertyValue === null) {  
+            let propertyValue: IPropertyValueInformation;          
+            if (name === "name") {
+                propertyValue = {
+                    propertyName: "name",
+                    typePredefined: PropertyTypePredefined.Name,
+                    value: this.model.name,
+                    typeId: 0
+                };
+            } else {
+                propertyValue = {
+                    propertyName: name,
+                    typePredefined: PropertyTypePredefined.None,
+                    value: value,
+                    typeId: 0
+                };
+            }
+            updateModel.propertyValue = propertyValue;
+        }       
+        this.notify(updateModel);
+    }
+
     public getNode(): IDiagramNode {
         return this;
     }
@@ -40,7 +69,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
     }
 
     protected setLabelPropertyValue(value: string) {
-        var valueChanged = this.setPropertyValue("label", value);
+        const valueChanged = this.setPropertyValue("label", value);
         if (valueChanged) {
             this.notify(NodeChange.Update);
         }
@@ -56,7 +85,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
             if (redrawCellLabel) {
                 this.updateCellLabel(value);
             } else {
-                this.notify(NodeChange.Update);
+                this.sendUpdatedSubArtifactModel("name");
             }
         }
     }
@@ -106,9 +135,9 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
     }
 
     public getCenter(): MxPoint {
-        var geometry = this.getGeometry();
+        const geometry = this.getGeometry();
         if (geometry) {
-            var point = new mxPoint(geometry.getCenterX(), geometry.getCenterY());
+            const point = new mxPoint(geometry.getCenterX(), geometry.getCenterY());
             return point;
         }
 
@@ -135,8 +164,8 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
 
     // returns array of connected sourceses
     public getSources(graphModel: MxGraphModel): IDiagramNode[] {
-        var sources: IDiagramNode[] = [];
-        var incomingLinks = this.getIncomingLinks(graphModel);
+        const sources: IDiagramNode[] = [];
+        const incomingLinks = this.getIncomingLinks(graphModel);
 
         incomingLinks.forEach((link: IDiagramLink) => {
             if (link.sourceNode != null) {
@@ -149,8 +178,8 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
 
     // return array of connected targets
     public getTargets(graphModel: MxGraphModel): IDiagramNode[] {
-        var targets: IDiagramNode[] = [];
-        var outgoingLinks = this.getOutgoingLinks(graphModel);
+        const targets: IDiagramNode[] = [];
+        const outgoingLinks = this.getOutgoingLinks(graphModel);
 
         outgoingLinks.forEach((link: IDiagramLink) => {
             if (link.targetNode != null) {
@@ -178,9 +207,9 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
     }
 
     public addOverlay(mxgraph: MxGraph, parentCell: MxCell, imageURL: string, imageWidth: number, imageHeight: number,
-        toolTip: string, align: string, verticalAlign: string,
-        offsetX: number, offsetY: number, cursor: string = "default"): mxCellOverlay {
-        var overlay = new mxCellOverlay(new mxImage(imageURL, imageWidth, imageHeight), toolTip);
+                      toolTip: string, align: string, verticalAlign: string,
+                      offsetX: number, offsetY: number, cursor: string = "default"): mxCellOverlay {
+        let overlay = new mxCellOverlay(new mxImage(imageURL, imageWidth, imageHeight), toolTip);
         overlay.align = align;
         overlay.verticalAlign = verticalAlign;
         overlay.offset = new mxPoint(offsetX, offsetY);
@@ -190,7 +219,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
     }
 
     public insertVertex(mxgraph: MxGraph, id, value, x: number, y: number, width: number, height: number, style: string) {
-        var parent = mxgraph.getDefaultParent();
+        const parent = mxgraph.getDefaultParent();
         this.geometry = new mxGeometry(x - width / 2, y - height / 2, width, height);
         this.geometry.relative = false;
         this.style = style;
@@ -210,7 +239,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
     }
 
     public getElementTextLength(cell: MxCell): number {
-        // override in descendant classes 
+        // override in descendant classes
         return null;
     }
 
@@ -220,12 +249,12 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
     }
 
     public getNextNodes(): IDiagramNode[] {
-        var edges = this.getConnectableElement().edges;
+        const edges = this.getConnectableElement().edges;
         if (edges) {
-            var nextNodes = edges.filter(edge => {
-                var sourceNode = (<IDiagramNodeElement>edge.source).getNode();
+            const nextNodes = edges.filter(edge => {
+                const sourceNode = (<IDiagramNodeElement>edge.source).getNode();
                 return sourceNode.model.id === this.model.id;
-            }).map(function (edge) {
+            }).map((edge) => {
                 return (<IDiagramNodeElement>edge.target).getNode();
             });
             return <IDiagramNode[]>nextNodes;
@@ -234,19 +263,25 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
     }
 
     public getPreviousNodes(): IDiagramNode[] {
-        var edges = this.getConnectableElement().edges;
+        const edges = this.getConnectableElement().edges;
         if (edges) {
-            var previousNodes = edges.filter(edge => {
-                var targetNode = (<IDiagramNodeElement>edge.target).getNode();
+            const previousNodes = edges.filter(edge => {
+                const targetNode = (<IDiagramNodeElement>edge.target).getNode();
                 return targetNode.model.id === this.model.id;
-            }).map(function (edge) {
+            }).map((edge) => {
                 return (<IDiagramNodeElement>edge.source).getNode();
             });
             return <IDiagramNode[]>previousNodes;
         }
         return undefined;
     }
+    protected getProperty(propertyName: string): IPropertyValueInformation {
+        if (this.model == null || this.model.propertyValues == null || this.model.propertyValues[propertyName] == null) {
+            return null;
+        }
 
+        return this.model.propertyValues[propertyName];
+    }
     protected getPropertyValue(propertyName: string) {
         if (this.model == null || this.model.propertyValues == null || this.model.propertyValues[propertyName] == null) {
             return null;
@@ -254,15 +289,15 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
 
         return this.model.propertyValues[propertyName].value;
     }
-
+    
     protected setPropertyValue(propertyName: string, newValue: any): boolean {
         if (this.model == null || this.model.propertyValues == null || this.model.propertyValues[propertyName] == null) {
             return false;
         }
 
-        var previousValue = this.model.propertyValues[propertyName].value;
+        const previousValue = this.model.propertyValues[propertyName].value;
         if (previousValue !== newValue) {
-            this.model.propertyValues[propertyName].value = newValue;
+            this.model.propertyValues[propertyName].value = newValue;            
             return true;
         }
 

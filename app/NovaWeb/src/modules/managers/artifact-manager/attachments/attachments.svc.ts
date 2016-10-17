@@ -1,11 +1,10 @@
-﻿import { ILocalizationService } from "../../../core";
+﻿import {ILocalizationService} from "../../../core";
 
 export interface IArtifactAttachmentsService {
-    getArtifactAttachments(
-        artifactId: number,
-        subArtifactId?: number,
-        addDrafts?: boolean,
-        timeout?: ng.IPromise<void>): ng.IPromise<IArtifactAttachmentsResultSet>;
+    getArtifactAttachments(artifactId: number,
+                           subArtifactId?: number,
+                           addDrafts?: boolean,
+                           timeout?: ng.IPromise<void>): ng.IPromise<IArtifactAttachmentsResultSet>;
 }
 
 export interface IArtifactAttachment {
@@ -46,22 +45,20 @@ export class ArtifactAttachmentsService implements IArtifactAttachmentsService {
     public artifactAttachments: ng.IPromise<IArtifactAttachmentsResultSet>;
     // public artifactDocRefs: ng.IPromise<IArtifactDocRef[]>;
 
-    constructor(
-        private $q: ng.IQService,
-        private $http: ng.IHttpService,
-        private $log: ng.ILogService,
-        private localization: ILocalizationService) {
+    constructor(private $q: ng.IQService,
+                private $http: ng.IHttpService,
+                private $log: ng.ILogService,
+                private localization: ILocalizationService) {
     }
 
-    public getArtifactAttachments(
-        artifactId: number, 
-        subArtifactId: number = null, 
-        addDrafts: boolean = true,
-        timeout?: ng.IPromise<void>): ng.IPromise<IArtifactAttachmentsResultSet> {
+    public getArtifactAttachments(artifactId: number,
+                                  subArtifactId: number = null,
+                                  addDrafts: boolean = true,
+                                  timeout?: ng.IPromise<void>): ng.IPromise<IArtifactAttachmentsResultSet> {
 
         const defer = this.$q.defer<IArtifactAttachmentsResultSet>();
         const requestObj: ng.IRequestConfig = {
-            url: `/svc/artifactstore/artifacts/${artifactId}/attachment`, 
+            url: `/svc/artifactstore/artifacts/${artifactId}/attachment`,
             method: "GET",
             params: {
                 subartifactId: subArtifactId,
@@ -87,7 +84,7 @@ export class ArtifactAttachmentsService implements IArtifactAttachmentsService {
                 };
                 defer.reject(error);
             });
-            
+
         return defer.promise;
     }
 }

@@ -1,4 +1,4 @@
-import { IArtifactDiscussions, IDiscussion, IReply, IDiscussionResultSet } from "./artifact-discussions.svc";
+import {IArtifactDiscussions, IDiscussion, IReply, IDiscussionResultSet} from "./artifact-discussions.svc";
 
 export class ArtifactDiscussionsMock implements IArtifactDiscussions {
 
@@ -6,11 +6,11 @@ export class ArtifactDiscussionsMock implements IArtifactDiscussions {
 
     public artifactDiscussions;
 
-    constructor(private $q: ng.IQService) { }
+    constructor(private $q: ng.IQService) {
+    }
 
-    public getArtifactDiscussions(
-        artifactId: number,
-        subArtifactId?: number): ng.IPromise<IDiscussionResultSet> {
+    public getArtifactDiscussions(artifactId: number,
+                                  subArtifactId?: number): ng.IPromise<IDiscussionResultSet> {
         const deferred = this.$q.defer<any>();
 
         let artifactDiscussions = {
@@ -60,10 +60,9 @@ export class ArtifactDiscussionsMock implements IArtifactDiscussions {
         return deferred.promise;
     }
 
-    public getReplies(
-        artifactId: number,
-        discussionId: number,
-        subArtifactId?: number): ng.IPromise<IReply[]> {
+    public getReplies(artifactId: number,
+                      discussionId: number,
+                      subArtifactId?: number): ng.IPromise<IReply[]> {
         const deferred = this.$q.defer<any[]>();
 
         let artifactReplies = [

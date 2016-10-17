@@ -5,8 +5,8 @@ import "angular-sanitize";
 import "angular-ui-bootstrap";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
-import { createFormlyModule } from "../../formly-config.mock";
-import { PrimitiveType } from "../../../../main/models/enums";
+import {createFormlyModule} from "../../formly-config.mock";
+import {PrimitiveType} from "../../../../main/models/enums";
 
 describe("Formly ReadOnly", () => {
     let fieldsDefinition = [
@@ -29,11 +29,11 @@ describe("Formly ReadOnly", () => {
             key: "readonlySelectMulti",
             templateOptions: {
                 options: [
-                    { value: 1, name: "Option 1" },
-                    { value: 2, name: "Option 2" },
-                    { value: 3, name: "Option 3" },
-                    { value: 4, name: "Option 4" },
-                    { value: 5, name: "Option 5" }
+                    {value: 1, name: "Option 1"},
+                    {value: 2, name: "Option 2"},
+                    {value: 3, name: "Option 3"},
+                    {value: 4, name: "Option 4"},
+                    {value: 5, name: "Option 5"}
                 ],
                 optionsAttr: "bs-options"
             },
@@ -48,11 +48,11 @@ describe("Formly ReadOnly", () => {
             data: {
                 primitiveType: PrimitiveType.Choice,
                 validValues: [
-                    { id: 1, value: "Option 1" },
-                    { id: 2, value: "Option 2" },
-                    { id: 3, value: "Option 3" },
-                    { id: 4, value: "Option 4" },
-                    { id: 5, value: "Option 5" }
+                    {id: 1, value: "Option 1"},
+                    {id: 2, value: "Option 2"},
+                    {id: 3, value: "Option 3"},
+                    {id: 4, value: "Option 4"},
+                    {id: 5, value: "Option 5"}
                 ]
             }
         },
@@ -187,7 +187,7 @@ describe("Formly ReadOnly", () => {
 
         let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[5];
 
-        expect(fieldInput.firstChild.innerHTML).toBe("Lorem ipsum");
+        expect(fieldInput.firstElementChild.innerHTML).toBe("Lorem ipsum");
         expect(fieldInput.classList.contains("simple")).toBeFalsy();
         expect(fieldInput.classList.contains("multiple")).toBeTruthy();
         expect(fieldInput.classList.contains("richtext")).toBeFalsy();
@@ -198,24 +198,28 @@ describe("Formly ReadOnly", () => {
 
         let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[6];
 
-        expect(fieldInput.firstChild.innerHTML).toBe("Lorem ipsum");
+        expect(fieldInput.firstElementChild.innerHTML).toBe("Lorem ipsum");
         expect(fieldInput.classList.contains("simple")).toBeFalsy();
         expect(fieldInput.classList.contains("multiple")).toBeFalsy();
         expect(fieldInput.classList.contains("richtext")).toBeTruthy();
     });
 
     it("should display read only users", function () {
-        compileAndSetupStuff({model: {readonlyUser: [
-            {
-                id: 1,
-                displayName: "User"
-            },
-            {
-                id: 1,
-                displayName: "Group",
-                isGroup: true
+        compileAndSetupStuff({
+            model: {
+                readonlyUser: [
+                    {
+                        id: 1,
+                        displayName: "User"
+                    },
+                    {
+                        id: 1,
+                        displayName: "Group",
+                        isGroup: true
+                    }
+                ]
             }
-        ]}});
+        });
 
         let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[7];
         let content = fieldInput.innerHTML.split(", ");

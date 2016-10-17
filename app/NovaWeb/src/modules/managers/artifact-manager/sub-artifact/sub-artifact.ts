@@ -1,11 +1,11 @@
-import { Models, Relationships } from "../../../main/models";
+import {Models, Relationships} from "../../../main/models";
 // import { ArtifactState} from "../state";
-import { IStatefulArtifactServices } from "../services";
-import { IStatefulArtifact } from "../artifact";
-import { StatefulItem, IStatefulItem, IIStatefulItem } from "../item";
-import { IArtifactAttachmentsResultSet } from "../attachments";
-import { MetaData } from "../metadata";
-import { HttpStatusCode } from "../../../core/http";
+import {IStatefulArtifactServices} from "../services";
+import {IStatefulArtifact} from "../artifact";
+import {StatefulItem, IStatefulItem, IIStatefulItem} from "../item";
+import {IArtifactAttachmentsResultSet} from "../attachments";
+import {MetaData} from "../metadata";
+import {HttpStatusCode} from "../../../core/http";
 
 export interface IIStatefulSubArtifact extends IIStatefulItem {
 }
@@ -35,14 +35,14 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
         return this.parentArtifact.projectId;
     }
 
-    protected load():  ng.IPromise<IStatefulSubArtifact> {
+    protected load(): ng.IPromise<IStatefulSubArtifact> {
         const deferred = this.services.getDeferred<IStatefulSubArtifact>();
-            this.services.artifactService.getSubArtifact(this.parentArtifact.id, this.id).then((artifact: Models.ISubArtifact) => {
-                this.initialize(artifact);
-                deferred.resolve(this);
-            }).catch((err) => {
-                deferred.reject(err);
-            });
+        this.services.artifactService.getSubArtifact(this.parentArtifact.id, this.id).then((artifact: Models.ISubArtifact) => {
+            this.initialize(artifact);
+            deferred.resolve(this);
+        }).catch((err) => {
+            deferred.reject(err);
+        });
         return deferred.promise;
     }
 
@@ -62,7 +62,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
 //            this.subject.onNext(this);
         }
         return this.subject.filter(it => !!it).asObservable();
-        
+
     }
 
     public changes(): Models.ISubArtifact {
@@ -72,15 +72,17 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
         let delta: Models.ISubArtifact = {} as Models.ISubArtifact;
         delta.id = this.id;
         /*delta.customPropertyValues = [];
-        this.changesets.get().forEach((it: IChangeSet) => {
-            delta[it.key as string] = it.value;
-        });*/
+         this.changesets.get().forEach((it: IChangeSet) => {
+         delta[it.key as string] = it.value;
+         });*/
         //delta.customPropertyValues = this.customProperties.changes();
         //delta.specificPropertyValues = this.specialProperties.changes();
+        delta.traces = this.relationships.changes();
         delta.attachmentValues = this.attachments.changes();
         delta.docRefValues = this.docRefs.changes();
         return delta;
     }
+
     public discard() {
         super.discard();
         this.artifactState.dirty = false;
@@ -103,10 +105,10 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
     public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {
         const deferred = this.services.getDeferred();
         this.services.attachmentService.getArtifactAttachments(this.parentArtifact.id, this.id, true)
-            .then( (result: IArtifactAttachmentsResultSet) => {
+            .then((result: IArtifactAttachmentsResultSet) => {
                 this.attachments.initialize(result.attachments);
                 this.docRefs.initialize(result.documentReferences);
-                
+
                 deferred.resolve(result);
             }, (error) => {
                 if (error && error.statusCode === HttpStatusCode.NotFound) {
@@ -120,7 +122,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
     public getRelationships(): ng.IPromise<Relationships.IArtifactRelationshipsResultSet> {
         const deferred = this.services.getDeferred();
         this.services.relationshipsService.getRelationships(this.parentArtifact.id, this.id)
-            .then( (result: Relationships.IArtifactRelationshipsResultSet) => {
+            .then((result: Relationships.IArtifactRelationshipsResultSet) => {
                 deferred.resolve(result);
             }, (error) => {
                 if (error && error.statusCode === HttpStatusCode.NotFound) {

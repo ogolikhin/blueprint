@@ -1,6 +1,6 @@
 ﻿import * as angular from "angular";
 import {ZoomableImageDirective, ZoomableImageModalController} from "./zoomable-image";
-import { ModalServiceInstanceMock, ModalServiceMock } from "../../../../../shell/login/mocks.spec";
+import {ModalServiceInstanceMock, ModalServiceMock} from "../../../../../shell/login/mocks.spec";
 
 describe("Zoomable Image Directive", () => {
 
@@ -10,14 +10,14 @@ describe("Zoomable Image Directive", () => {
     let element: ng.IAugmentedJQuery;
     let scope;
 
-/*
-    let $uibModal: angular.ui.bootstrap.IModalService;
-    let $uibModalInstance = {
-        close() { },
-        dismiss() { },
-        cancel() { }
-    };
-*/  
+    /*
+     let $uibModal: angular.ui.bootstrap.IModalService;
+     let $uibModalInstance = {
+     close() { },
+     dismiss() { },
+     cancel() { }
+     };
+     */
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService, $compileProvider: ng.ICompileProvider) => {
         $provide.service("$uibModalInstance", ModalServiceInstanceMock);
@@ -26,7 +26,7 @@ describe("Zoomable Image Directive", () => {
     }));
 
     beforeEach(inject(($compile: ng.ICompileService,
-        $rootScope: ng.IRootScopeService) => {
+                       $rootScope: ng.IRootScopeService) => {
 
         scope = $rootScope.$new();
 
@@ -61,8 +61,8 @@ describe("Zoomable Image Directive", () => {
     });
 
     it("should open a new modal", inject(($controller: ng.IControllerService,
-        $uibModal: angular.ui.bootstrap.IModalService,
-        $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance) => {
+                                          $uibModal: angular.ui.bootstrap.IModalService,
+                                          $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance) => {
 
         // Arrange
         const directiveScope: any = element.isolateScope();
@@ -83,8 +83,8 @@ describe("Zoomable Image Directive", () => {
     }));
 
     it("should close a new modal", inject(($controller: ng.IControllerService,
-        $uibModal: angular.ui.bootstrap.IModalService,
-        $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance) => {
+                                           $uibModal: angular.ui.bootstrap.IModalService,
+                                           $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance) => {
 
         // Arrange
         const directiveScope: any = element.isolateScope();

@@ -1,15 +1,15 @@
-﻿import { Models, Enums } from "../../main";
+﻿import {Models, Enums} from "../../main";
 
 import {
     BpArtifactEditor,
-    ILocalizationService, 
-    IArtifactManager, 
-    IMessageService,  
-    IWindowManager, 
-    PropertyContext, 
+    ILocalizationService,
+    IArtifactManager,
+    IMessageService,
+    IWindowManager,
+    PropertyContext
 } from "./bp-artifact-editor";
 
-import { IDialogService } from "../../shared";
+import {IDialogService} from "../../shared";
 
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {
@@ -17,27 +17,25 @@ export class BpArtifactDetailsEditor implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactDetailsEditorController;
     public controllerAs = "$ctrl";
     public bindings: any = {
-        context: "<",
+        context: "<"
     };
 }
 
 export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public static $inject: [string] = [
-        "messageService", 
-        "artifactManager", 
-        "windowManager", 
-        "localization", 
+        "messageService",
+        "artifactManager",
+        "windowManager",
+        "localization",
         "dialogService"
     ];
 
-    constructor(
-        messageService: IMessageService,
-        artifactManager: IArtifactManager,
-        windowManager: IWindowManager,
-        localization: ILocalizationService,
-        private dialogService: IDialogService
-    ) {
-        super( messageService, artifactManager, windowManager, localization);
+    constructor(messageService: IMessageService,
+                artifactManager: IArtifactManager,
+                windowManager: IWindowManager,
+                localization: ILocalizationService,
+                private dialogService: IDialogService) {
+        super(messageService, artifactManager, windowManager, localization);
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];
@@ -65,15 +63,14 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         this.specificFields = [];
         this.richTextFields = [];
     }
-    
-    public onArtifactReady() {
-        super.onArtifactReady();
+
+    protected onFieldUpdateFinished() {
         if (this.artifact) {
             this.isSystemPropertyAvailable = this.systemFields && this.systemFields.length > 0;
             this.isCustomPropertyAvailable = this.customFields && this.customFields.length > 0;
-            this.isRichTextPropertyAvailable =  this.richTextFields && this.richTextFields.length > 0;
+            this.isRichTextPropertyAvailable = this.richTextFields && this.richTextFields.length > 0;
             this.isSpecificPropertyAvailable = this.artifact.predefinedType === Models.ItemTypePredefined.Document ||
-                                               this.artifact.predefinedType === Models.ItemTypePredefined.Actor;
+                this.artifact.predefinedType === Models.ItemTypePredefined.Actor;
             if (this.artifact.predefinedType === Models.ItemTypePredefined.Document) {
                 this.specificPropertiesHeading = this.localization.get("Nova_Document_File", "File");
             } else if (this.artifact.predefinedType === Models.ItemTypePredefined.Actor) {
@@ -90,7 +87,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         if (!propertyContext) {
             return;
         }
-        
+
         //re-group fields
         if (true === propertyContext.isRichText &&
             (true === propertyContext.isMultipleAllowed || Models.PropertyTypePredefined.Description === propertyContext.propertyTypePredefined)

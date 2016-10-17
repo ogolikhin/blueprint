@@ -1,25 +1,25 @@
 ﻿<div class="filter-bar" ng-if="$ctrl.artifactHistoryList.length">
     <bp-select
-        ng-model="$ctrl.sortAscending" 
+        ng-model="$ctrl.sortAscending"
         ng-change="$ctrl.changeSortOrder()"
         options="$ctrl.sortOptions">
     </bp-select>
 </div>
 
 <div ng-if="$ctrl.artifactHistoryList.length"
-    class="scrollable-content" 
-    bp-infinite-scroll="$ctrl.loadMoreHistoricalVersions()" 
-    perfect-scrollbar>
-    
-    <div ng-repeat="artifactHistoryItem in $ctrl.artifactHistoryList" 
-            class="artifact-item-wrapper">
+     class="scrollable-content"
+     bp-infinite-scroll="$ctrl.loadMoreHistoricalVersions()"
+     perfect-scrollbar>
+
+    <div ng-repeat="artifactHistoryItem in $ctrl.artifactHistoryList"
+         class="artifact-item-wrapper">
 
         <div class="separator"></div>
 
         <bp-artifact-history-item
             class="utility-panel-artifact-item"
             artifact-info="artifactHistoryItem"
-            ng-click="$ctrl.selectArtifactVersion(artifactHistoryItem)" 
+            ng-click="$ctrl.selectArtifactVersion(artifactHistoryItem)"
             ng-class="{ 'selected': $ctrl.selectedArtifactVersion === artifactHistoryItem }">
         </bp-artifact-history-item>
     </div>
@@ -29,4 +29,6 @@
     <span class="glyphicon glyphicon-refresh spin"></span>
 </div>
 
-<div ng-if="!$ctrl.artifactHistoryList.length && !$ctrl.isLoading" class="empty-state">{{ $ctrl.localization.get('App_UP_History_No_Artifact') }}</div>
+<div ng-if="!$ctrl.artifactHistoryList.length && !$ctrl.isLoading" class="empty-state">{{
+    $ctrl.localization.get('App_UP_History_No_Artifact') }}
+</div>

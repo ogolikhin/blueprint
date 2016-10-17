@@ -5,9 +5,7 @@ export class BreadcrumbServiceMock implements IBreadcrumbService {
         "$q"
     ];
 
-    constructor(
-        private $q: ng.IQService
-    ) {
+    constructor(private $q: ng.IQService) {
     }
 
     public getReferences(): ng.IPromise<IArtifactReference[]> {

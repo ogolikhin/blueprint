@@ -1,4 +1,4 @@
-import { IIStatefulItem } from "../item";
+import {IIStatefulItem} from "../item";
 
 export enum ChangeTypeEnum {
     Add = 0,
@@ -29,7 +29,7 @@ export class ChangeSetCollector implements IChangeCollector {
 
     }
 
-    public add(changeset: IChangeSet) {                 
+    public add(changeset: IChangeSet) {
         let found = this.collection.filter((it: IChangeSet) => {
             return it.key === changeset.key && changeset.type === ChangeTypeEnum.Update && it.type === ChangeTypeEnum.Update;
         })[0];

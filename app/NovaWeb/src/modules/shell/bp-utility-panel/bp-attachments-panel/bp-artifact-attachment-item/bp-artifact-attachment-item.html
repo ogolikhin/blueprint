@@ -1,10 +1,17 @@
-﻿<h6 bp-tooltip="{{ $ctrl.attachmentInfo.fileName }}" bp-tooltip-truncated="true">{{ $ctrl.attachmentInfo.fileName }}</h6>
+﻿<h6 bp-tooltip="{{ $ctrl.attachmentInfo.fileName }}" bp-tooltip-truncated="true">{{ $ctrl.attachmentInfo.fileName
+    }}</h6>
 <div class="thumb {{ $ctrl.fileIconClass }}"></div>
-<div class="author" 
-    bp-tooltip="{{::$ctrl.localization.get('App_UP_Attachments_Uploaded_By') }} {{ $ctrl.attachmentInfo.userName }}"
-    bp-tooltip-truncated="true">{{::$ctrl.localization.get('App_UP_Attachments_Uploaded_By') }} {{ $ctrl.attachmentInfo.userName }}</div>
-<div class="timestamp" ng-if="!$ctrl.attachmentInfo.guid"><i class="icon fonticon-clock"></i>{{ $ctrl.attachmentInfo.uploadedDate | date:'medium' }}</div>
+<div class="author"
+     bp-tooltip="{{::$ctrl.localization.get('App_UP_Attachments_Uploaded_By') }} {{ $ctrl.attachmentInfo.userName }}"
+     bp-tooltip-truncated="true">{{::$ctrl.localization.get('App_UP_Attachments_Uploaded_By') }} {{
+    $ctrl.attachmentInfo.userName }}
+</div>
+<div class="timestamp" ng-if="!$ctrl.attachmentInfo.guid"><i class="icon fonticon-clock"></i>{{
+    $ctrl.attachmentInfo.uploadedDate | date:'medium' }}
+</div>
 <div class="button-bar">
-    <i class="icon fonticon-download" ng-click="$ctrl.downloadItem()" bp-tooltip="{{::$ctrl.localization.get('App_UP_Attachments_Download') }}"></i>
-    <i class="icon fonticon-delete-filled" ng-click="$ctrl.deleteItem()" bp-tooltip="{{::$ctrl.localization.get('App_UP_Attachments_Delete') }}"></i>
+    <i class="icon fonticon-download" ng-click="$ctrl.downloadItem()"
+       bp-tooltip="{{::$ctrl.localization.get('App_UP_Attachments_Download') }}"></i>
+    <i class="icon fonticon-delete-filled" ng-click="$ctrl.deleteItem()" bp-tooltip="{{::$ctrl.localization.get('App_UP_Attachments_Delete') }}"
+    ng-class="{ 'disabled' : !$ctrl.canChangeAttachments }"></i>
 </div>

@@ -2,15 +2,15 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
-import { ComponentTest } from "../../../../util/component.test";
-import { BPArtifactRelationshipItemController } from "./bp-artifact-relationship-item";
-import { ProcessServiceMock } from "../../../../editors/bp-process/services/process.svc.mock";
-import { HttpStatusCode } from "../../../../core/http";
-import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
-import { SelectionManager } from "../../../../managers/selection-manager/selection-manager";
-import { DialogServiceMock } from "../../../../shared/widgets/bp-dialog/bp-dialog";
-import { ArtifactRelationshipsMock } from "../../../../managers/artifact-manager/relationships/relationships.svc.mock";
-import { Relationships } from "../../../../main";
+import {ComponentTest} from "../../../../util/component.test";
+import {BPArtifactRelationshipItemController} from "./bp-artifact-relationship-item";
+import {ProcessServiceMock} from "../../../../editors/bp-process/services/process.svc.mock";
+import {HttpStatusCode} from "../../../../core/http";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {SelectionManager} from "../../../../managers/selection-manager/selection-manager";
+import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {ArtifactRelationshipsMock} from "../../../../managers/artifact-manager/relationships/relationships.svc.mock";
+import {Relationships} from "../../../../main";
 import {
     ArtifactManager,
     StatefulArtifactFactory,
@@ -19,7 +19,7 @@ import {
     ArtifactAttachmentsService,
 } from "../../../../managers/artifact-manager";
 
- describe("Component BPDiscussionReplyItem", () => {
+describe("Component BPDiscussionReplyItem", () => {
 
     beforeEach(angular.mock.module("app.shell"));
 
@@ -63,7 +63,7 @@ import {
                 .respond(HttpStatusCode.Success, {
                     "artifactId": "1",
                     "description": "desc",
-                    "pathToProject": [{ "itemId": 1, "itemName": "Item1", "parentId": 0 }]
+                    "pathToProject": [{"itemId": 1, "itemName": "Item1", "parentId": 0}]
                 });
 
             vm.artifact = <Relationships.IRelationship>{
@@ -83,7 +83,7 @@ import {
     it("limitChars, short text", () => {
         //Assert
         let result = vm.limitChars("<html><body>&#x200b;<div><span>ABC</span></div></body></html>");
-       expect(result.length).toBe(4); //zero width space included
+        expect(result.length).toBe(4); //zero width space included
     });
 
     it("limitChars, no text", () => {
@@ -111,7 +111,7 @@ import {
         };
         let array = [];
         array.push({"itemId": 1});
-        array.push({ "itemId": 2 });
+        array.push({"itemId": 2});
 
         //Act
         let result = vm.inArray(array);
@@ -127,8 +127,8 @@ import {
             "itemId": 3
         };
         let array = [];
-        array.push({ "itemId": 1 });
-        array.push({ "itemId": 2 });
+        array.push({"itemId": 1});
+        array.push({"itemId": 2});
 
         //Act
         let result = vm.inArray(array);
@@ -241,4 +241,4 @@ import {
 
         });
     });
- });
+});

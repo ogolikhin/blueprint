@@ -1,9 +1,9 @@
 ﻿import * as angular from "angular";
-import { BPFileUpload } from "./bp-file-upload";
+import {BPFileUpload} from "./bp-file-upload";
 // import { BpFileUploadStatusController } from "./bp-file-upload-status/bp-file-upload-status";
 
 angular.module("bp.widgets.fileupload", [])
-    // .controller("artifactStateController", BpFileUploadStatusController)
+// .controller("artifactStateController", BpFileUploadStatusController)
     .directive("bpFileUpload", BPFileUpload.factory());
 
 export {

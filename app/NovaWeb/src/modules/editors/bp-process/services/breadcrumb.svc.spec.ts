@@ -16,13 +16,11 @@ describe("BreadcrumbService", () => {
         $provide.service("navigationService", NavigationServiceMock);
     }));
 
-    beforeEach(inject((
-        _$rootScope_: ng.IRootScopeService, 
-        _$q_: ng.IQService, 
-        _$http_: ng.IHttpService, 
-        _$httpBackend_: ng.IHttpBackendService, 
-        _navigationService_: INavigationService
-    ) => {
+    beforeEach(inject((_$rootScope_: ng.IRootScopeService,
+                       _$q_: ng.IQService,
+                       _$http_: ng.IHttpService,
+                       _$httpBackend_: ng.IHttpBackendService,
+                       _navigationService_: INavigationService) => {
         $rootScope = _$rootScope_;
         $q = _$q_;
         $http = _$http_;
@@ -32,9 +30,9 @@ describe("BreadcrumbService", () => {
 
     it("getReferences doesn't make an http call if no navigation history exists", (done: DoneFn) => {
         // arrange
-        const navigationState = { id: 1 };
+        const navigationState = {id: 1};
         const service = new BreadcrumbService($q, $http, navigationService);
-        
+
         const deferred = $q.defer();
         deferred.resolve([]);
         const getSpy = spyOn($http, "get").and.returnValue(deferred.promise);
@@ -58,9 +56,9 @@ describe("BreadcrumbService", () => {
 
     it("getReferences doesn't make an http call if navigation history is empty", (done: DoneFn) => {
         // arrange
-        const navigationState = { id: 1, path: [] };
+        const navigationState = {id: 1, path: []};
         const service = new BreadcrumbService($q, $http, navigationService);
-        
+
         const deferred = $q.defer();
         deferred.resolve([]);
         const getSpy = spyOn($http, "get").and.returnValue(deferred.promise);
@@ -84,7 +82,7 @@ describe("BreadcrumbService", () => {
 
     it("getReferences makes an http call if navigation history exists", (done: DoneFn) => {
         // arrange
-        const navigationState = { id: 1, path: [2, 3] };
+        const navigationState = {id: 1, path: [2, 3]};
         const service = new BreadcrumbService($q, $http, navigationService);
 
         const deferred = $q.defer();
@@ -104,13 +102,13 @@ describe("BreadcrumbService", () => {
                     done.fail("Expected getReferences to succeed");
                 }
             );
-        
+
         $rootScope.$digest();
     });
 
     it("getReferences fails if http call fails", (done: DoneFn) => {
         // arrange
-        const navigationState = { id: 1, path: [2, 3] };
+        const navigationState = {id: 1, path: [2, 3]};
         const service = new BreadcrumbService($q, $http, navigationService);
 
         const deferred = $q.defer();
@@ -124,20 +122,20 @@ describe("BreadcrumbService", () => {
                 (promiseValue: IArtifactReference[]) => {
                     // assert
                     done.fail("Expected getReferences to fail");
-                    
+
                 },
                 (reason: any) => {
                     expect(reason).toEqual("Error");
                     done();
                 }
             );
-        
+
         $rootScope.$digest();
     });
 
     it("getReferences succeeds if http call succeeds", (done: DoneFn) => {
         // arrange
-        const navigationState = { id: 1, path: [2, 3] };
+        const navigationState = {id: 1, path: [2, 3]};
         const service = new BreadcrumbService($q, $http, navigationService);
         const references = [{
             id: 1,
@@ -150,7 +148,7 @@ describe("BreadcrumbService", () => {
         }];
 
         const deferred = $q.defer();
-        deferred.resolve({ data: references });
+        deferred.resolve({data: references});
         spyOn($http, "get").and.returnValue(deferred.promise);
         spyOn(navigationService, "getNavigationState").and.returnValues(navigationState);
 
@@ -166,7 +164,7 @@ describe("BreadcrumbService", () => {
                     done.fail("Expected getReferences to succeed");
                 }
             );
-        
+
         $rootScope.$digest();
     });
 });

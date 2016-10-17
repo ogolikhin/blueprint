@@ -1,7 +1,7 @@
 import * as _ from "lodash";
-import { ILocalizationService } from "../../../../core";
-import { IDialogService } from "../../../../shared";
-import { Relationships } from "../../../models";
+import {ILocalizationService} from "../../../../core";
+import {IDialogService} from "../../../../shared";
+import {Relationships} from "../../../models";
 
 
 export class BPManageTracesItem implements ng.IComponentOptions {
@@ -19,7 +19,7 @@ interface IBPManageTracesItemController {
     deleteTrace: Function;
 }
 
-export class BPManageTracesItemController implements IBPManageTracesItemController, ng.IComponentController  {
+export class BPManageTracesItemController implements IBPManageTracesItemController, ng.IComponentController {
     public static $inject: [string] = [
         "localization",
         "dialogService"
@@ -30,10 +30,8 @@ export class BPManageTracesItemController implements IBPManageTracesItemControll
     public item: Relationships.IRelationship;
     public isItemReadOnly: boolean;
 
-    constructor(
-        private localization: ILocalizationService,
-        private dialogService: IDialogService
-    ) {
+    constructor(private localization: ILocalizationService,
+                private dialogService: IDialogService) {
     }
 
     public selectTrace() {

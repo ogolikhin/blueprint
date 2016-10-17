@@ -1,11 +1,11 @@
-node_modules
-dist
-reports
-.idea
+node_modules/
+dist/
+reports/
+.idea/
 .vscode
 .alm
 out
-typings
+typings/
 *.iml
 /*.sln
 npm-debug.*

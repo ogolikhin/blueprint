@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Xml.Serialization;
 
 namespace ArtifactStore.Models
 {
@@ -44,7 +43,9 @@ namespace ArtifactStore.Models
         [JsonProperty]
         public List<Relationship> OtherTraces;
         [JsonProperty]
-        public bool CanEdit { get; set; }        
+        public bool CanEdit { get; set; }
+        [JsonProperty]
+        public int RevisionId { get; set; }
     }
     [JsonObject]
     public class Relationship
@@ -87,7 +88,7 @@ namespace ArtifactStore.Models
         [JsonProperty]
         public int ItemId { get; set; }
         [JsonProperty]
-        public int ParentId { get; set; }
+        public int? ParentId { get; set; }
         [JsonProperty]
         public string ItemName { get; set; }
     }

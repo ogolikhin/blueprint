@@ -12,9 +12,10 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     public observer: MutationObserver;
 
     constructor() {
+//fixme: empty constructors can be omitted
     }
 
-    public handleClick = function(event) {
+    public handleClick = function (event) {
         event.stopPropagation();
         event.preventDefault();
 

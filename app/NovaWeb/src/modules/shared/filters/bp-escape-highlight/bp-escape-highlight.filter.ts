@@ -1,7 +1,6 @@
 export class BpEscapeAndHighlightFilter {
 
-    public static $inject = [
-    ];
+    public static $inject = [];
 
     public static factory() {
         let entityMap = {
@@ -13,7 +12,7 @@ export class BpEscapeAndHighlightFilter {
             "/": "&#x2F;"
         };
 
-        let escapeHtmlEntities = function(toSanitize) {
+        let escapeHtmlEntities = function (toSanitize) {
             return (toSanitize || "").replace(/[&<>"'\/]/g, s => entityMap[s]); // Escape HTML entities
         };
 

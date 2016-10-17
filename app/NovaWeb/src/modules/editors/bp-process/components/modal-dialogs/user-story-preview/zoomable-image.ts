@@ -1,14 +1,12 @@
-﻿
-export class ZoomableImageModalController {
+﻿export class ZoomableImageModalController {
 
     public static $inject = [
         "$uibModalInstance",
         "imageAttributes"
     ];
 
-    constructor(
-        private $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance,
-        private imageAttributes: any) {
+    constructor(private $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance,
+                private imageAttributes: any) {
     }
 
     public cancel() {
@@ -29,8 +27,9 @@ export class ZoomableImageDirective implements ng.IDirective {
                             <img ng-click="!enableZoom || zoomImage()" ng-class="{'zoomable' : enableZoom }" ng-src="{{ imageSrc }}" alt="{{ imageAlt }}" />
                         </div>`;
 
-    constructor(private $uibModal: angular.ui.bootstrap.IModalService) { }
-    
+    constructor(private $uibModal: angular.ui.bootstrap.IModalService) {
+    }
+
     public static directive: any[] = [
         "$uibModal",
         ($uibModal: angular.ui.bootstrap.IModalService) => {
@@ -55,7 +54,7 @@ export class ZoomableImageDirective implements ng.IDirective {
                 template: `<div class="image-preview">
                                 <i class="fonticon-close" ng-click="vm.cancel()"></i>
                                 <img ng-src="{{ vm.imageAttributes.image }}" alt="{{ vm.imageAttributes.alt }}" />
-                            </div>`,
+                            </div>`
             });
         };
     };

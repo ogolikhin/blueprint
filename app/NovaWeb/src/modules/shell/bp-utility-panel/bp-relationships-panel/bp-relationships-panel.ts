@@ -121,12 +121,13 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     }
 
 
-    private getRelationships(refresh?: boolean) {
+    private getRelationships() {
         this.manualTraces = null;
         this.otherTraces = null;
 
         if (this.item && Helper.hasArtifactEverBeenSavedOrPublished(this.item)) {
             this.isLoading = true;
+            const refresh = this.item.relationships.changes().length === 0; //Todo implemt efficient method to check if has changes 
             this.item.relationships.get(refresh).then((relationships: Relationships.IRelationship[]) => {
                 this.setRelationships(relationships);
 
@@ -141,6 +142,11 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         } else {
             this.reset();
         }
+    }
+
+    private updateRelationships() {
+        // Todo implement update logic inside relationship object
+        this.item.relationships.get(false);
     }
 
     public setRelationships(relationships: Relationships.IRelationship[]) {
@@ -227,7 +233,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace")).then((confirmed) => {
             if (confirmed) {
                 this.item.relationships.remove([artifact]);
-                this.getRelationships(false);
+                this.updateRelationships();
             }
         });
     }
@@ -268,7 +274,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
 
             this.manualTraces = data.manualTraces;
             this.item.relationships.updateManual(data.manualTraces);
-            this.getRelationships(false);
+            this.updateRelationships();
         });
     }
 

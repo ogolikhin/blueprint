@@ -5,12 +5,6 @@ export interface IModalScope extends ng.IScope {
     dialogModel: IModalDialogModel;
 }
 
-export enum ModalDialogType {
-    UserSystemTaskDetailsDialogType,
-    PreviewDialogType,
-    UserSystemDecisionDetailsDialogType
-}
-
 export class BaseModalDialogController<T extends IModalDialogModel> {
 
     public static dialogOpenEventName: string = "openDetailsModal";

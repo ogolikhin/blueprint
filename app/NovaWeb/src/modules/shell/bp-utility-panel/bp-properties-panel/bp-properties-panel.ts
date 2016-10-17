@@ -160,7 +160,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             this.model = this.editor.getModel();
             this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
                 let propertyContext = field.data as PropertyContext;
-                if (propertyContext && propertyFilters[propertyContext.name]) {
+                if (propertyContext && propertyFilters[propertyContext.propertyTypePredefined]) {
                     return;
                 }
 

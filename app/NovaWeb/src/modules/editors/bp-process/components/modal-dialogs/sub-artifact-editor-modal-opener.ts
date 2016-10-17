@@ -1,6 +1,6 @@
 import {IModalDialogCommunication} from "../modal-dialogs/modal-dialog-communication";
 import {Condition} from "../diagram/presentation/graph/shapes/condition";
-import {ModalDialogType} from "./base-modal-dialog-controller";
+import {ModalDialogType} from "./modal-dialog-constants";
 import {SubArtifactDialogModel} from "./models/sub-artifact-dialog-model";
 import {UserStoryDialogModel} from "./models/user-story-dialog-model";
 import {SubArtifactDecisionDialogModel} from "./models/sub-artifact-decision-dialog-model";
@@ -14,7 +14,8 @@ import {UserTask} from "../diagram/presentation/graph/shapes/user-task";
 import {SystemTask} from "../diagram/presentation/graph/shapes/system-task";
 import {NodeType} from "../diagram/presentation/graph/models/";
 import {IProcessLink} from "../diagram/presentation/graph/models/";
-import {SubArtifactEditorModalController} from "./sub-artifact-editor-modal-controller";
+import {SubArtifactEditorUserTaskModalController} from "./sub-artifact-editor-user-task-modal-controller";
+import {SubArtifactEditorSystemTaskModalController} from "./sub-artifact-editor-system-task-modal-controller";
 import {UserStoryPreviewController} from "./user-story-preview/user-story-preview";
 import {ModalProcessViewModel} from "./models/modal-process-view-model";
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
@@ -72,10 +73,15 @@ export class SubArtifactEditorModalOpener {
                 throw new Error("ProcessViewModel is null in SubArtifactEditorModalOpener");
             }
 
-            if (dialogType === ModalDialogType.UserSystemTaskDetailsDialogType) {
-                this.openUserSystemTaskDetailsModalDialog(this.$scope, id, graph);
+            if (dialogType === ModalDialogType.UserTaskDetailsDialogType) {
+                this.openUserTaskDetailsModalDialog(this.$scope, id, graph);
 
-            } else if (dialogType === ModalDialogType.UserSystemDecisionDetailsDialogType) {
+            }
+            if (dialogType === ModalDialogType.SystemTaskDetailsDialogType) {
+                this.openSystemTaskDetailsModalDialog(this.$scope, id, graph);
+
+            }
+             else if (dialogType === ModalDialogType.UserSystemDecisionDetailsDialogType) {
                 this.openUserSystemDecisionDetailsModalDialog(this.$scope, id, graph);
 
             } else if (dialogType === ModalDialogType.PreviewDialogType) {
@@ -174,10 +180,18 @@ export class SubArtifactEditorModalOpener {
         return dialogModel;
     }
 
-    private openUserSystemTaskDetailsModalDialog($scope: ng.IScope, shapeId: number, graph: IProcessGraph) {
+    private openUserTaskDetailsModalDialog($scope: ng.IScope, shapeId: number, graph: IProcessGraph) {
         this.open("",
-            require("./sub-artifact-editor-modal-template.html"),
-            SubArtifactEditorModalController,
+            require("./sub-artifact-user-task-editor-modal-template.html"),
+            SubArtifactEditorUserTaskModalController,
+            this.getSubArtifactDialogModel(shapeId, graph),
+            "storyteller-modal");
+    }
+
+    private openSystemTaskDetailsModalDialog($scope: ng.IScope, shapeId: number, graph: IProcessGraph) {
+        this.open("",
+            require("./sub-artifact-system-task-editor-modal-template.html"),
+            SubArtifactEditorSystemTaskModalController,
             this.getSubArtifactDialogModel(shapeId, graph),
             "storyteller-modal");
     }

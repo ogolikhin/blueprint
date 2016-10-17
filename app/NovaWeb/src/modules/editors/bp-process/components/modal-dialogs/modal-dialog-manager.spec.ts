@@ -1,5 +1,5 @@
 import {IModalDialogCommunication, ModalDialogCommunication} from "./modal-dialog-communication";
-import {ModalDialogType} from "./base-modal-dialog-controller";
+import {ModalDialogType} from "./modal-dialog-constants";
 
 class Observer1 {
     public getGraph: () => any;

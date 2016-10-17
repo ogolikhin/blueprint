@@ -1,6 +1,6 @@
 import * as angular from "angular";
 import {IModalDialogCommunication, ModalDialogCommunication} from "./modal-dialog-communication";
-import {ModalDialogType} from "./base-modal-dialog-controller";
+import {ModalDialogType} from "./modal-dialog-constants";
 import {CommunicationManager} from "../../../bp-process/services/communication-manager";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {ModalServiceMock} from "../../../../shell/login/mocks.spec";
@@ -9,7 +9,8 @@ import {ProcessGraph} from "../diagram/presentation/graph/process-graph";
 import {ProcessGraphModel} from "../diagram/viewmodel/process-graph-model";
 import {ProcessViewModel} from "../diagram/viewmodel/process-viewmodel";
 import {SubArtifactEditorModalOpener} from "./sub-artifact-editor-modal-opener";
-import {SubArtifactEditorModalController} from "./sub-artifact-editor-modal-controller";
+import {SubArtifactEditorUserTaskModalController} from "./sub-artifact-editor-user-task-modal-controller";
+import {SubArtifactEditorSystemTaskModalController} from "./sub-artifact-editor-system-task-modal-controller";
 import * as TestModels from "../../models/test-model-factory";
 import * as ProcessModels from "../../models/process-models";
 
@@ -126,7 +127,7 @@ describe("SubArtifactEditorModalOpener test", () => {
         // Act
         graph = createGraph(process);
         graph.render(true, null);
-        communicationManager.modalDialogManager.openDialog(1, 0);
+        communicationManager.modalDialogManager.openDialog(1, ModalDialogType.UserTaskDetailsDialogType);
 
         // Assert
         expect(spy).toHaveBeenCalled();
@@ -139,13 +140,13 @@ describe("SubArtifactEditorModalOpener test", () => {
         // Act
         graph = createGraph(process);
         graph.render(true, null);
-        communicationManager.modalDialogManager.openDialog(80, 0);
+        communicationManager.modalDialogManager.openDialog(80, ModalDialogType.UserTaskDetailsDialogType);
 
         // Assert
         expect(subArtifactEditorModalOpener.open).toHaveBeenCalledWith(
             "",
-            require("./sub-artifact-editor-modal-template.html"),
-            SubArtifactEditorModalController,
+            require("./sub-artifact-user-task-editor-modal-template.html"),
+            SubArtifactEditorUserTaskModalController,
             subArtifactEditorModalOpener.getSubArtifactDialogModel(80, graph),
             "storyteller-modal");
     });

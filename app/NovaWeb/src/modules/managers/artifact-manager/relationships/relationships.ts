@@ -160,23 +160,32 @@ export class ArtifactRelationships implements IArtifactRelationships {
         }
     };
 
+    private composeDeltaChangeObject (relationship: IRelationship, changeType: ChangeTypeEnum) {
+        let result = {
+            artifactId: relationship.artifactId,
+            itemId: relationship.itemId,
+            traceDirection: relationship.traceDirection,
+            traceType: relationship.traceType,
+            suspect: relationship.suspect
+        } as IRelationship;
+        result.changeType = changeType;
+        return result;
+    }
+
     public changes() {
         let deltaRelationshipChanges = new Array<IRelationship>();
-        this.relationships.forEach(updatedRelationship => {
+        this.relationships.forEach((updatedRelationship: IRelationship) => {
             let oldRelationship = this.getMatchingRelationshipEntry(updatedRelationship, this.originalRelationships);
             if (oldRelationship && this.isChanged(updatedRelationship, oldRelationship)) {
-                updatedRelationship.changeType = ChangeTypeEnum.Update;
-                deltaRelationshipChanges.push(updatedRelationship);
+                deltaRelationshipChanges.push(this.composeDeltaChangeObject(updatedRelationship, ChangeTypeEnum.Update));
             } else if (!oldRelationship) {
-                updatedRelationship.changeType = ChangeTypeEnum.Add;
-                deltaRelationshipChanges.push(updatedRelationship);
+                deltaRelationshipChanges.push(this.composeDeltaChangeObject(updatedRelationship, ChangeTypeEnum.Add));
             }
         });
-        this.originalRelationships.forEach(originalRelationship => {
+        this.originalRelationships.forEach((originalRelationship: IRelationship) => {
             let updatedRelationship = this.getMatchingRelationshipEntry(originalRelationship, this.relationships);
             if (!updatedRelationship) {
-                originalRelationship.changeType = ChangeTypeEnum.Delete;
-                deltaRelationshipChanges.push(originalRelationship);
+                deltaRelationshipChanges.push(this.composeDeltaChangeObject(originalRelationship, ChangeTypeEnum.Delete));
             }
         });
         return deltaRelationshipChanges;

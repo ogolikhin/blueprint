@@ -6,7 +6,7 @@ import {IProcessDiagramCommunication, ProcessEvents} from "../../../process-diag
 export class DiagramElement extends mxCell implements IDiagramElement {
     private elementType: ElementType;
     textLabel: ILabel;
-    processDiagramManager: IProcessDiagramCommunication;
+    protected processDiagramManager: IProcessDiagramCommunication;
 
     constructor(id: any, type: ElementType = ElementType.Undefined, value?: string, geometry?: MxGeometry, style?: string) {
         super(value, geometry, style);

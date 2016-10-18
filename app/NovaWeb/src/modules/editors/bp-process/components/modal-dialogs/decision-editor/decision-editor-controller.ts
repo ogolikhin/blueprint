@@ -1,5 +1,5 @@
 import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-controller";
-import {SubArtifactDecisionDialogModel} from "../models/sub-artifact-decision-dialog-model";
+import {DecisionEditorModel} from "./decision-editor-model";
 import {IModalProcessViewModel} from "../models/modal-process-view-model";
 import {ArtifactUpdateType} from "../../../models/enums";
 import {IArtifactReference, IProcessLink, IArtifactUpdateModel} from "../../../models/process-models";
@@ -11,7 +11,7 @@ import {IProcessService} from "../../../services/process.svc";
 import {ILocalizationService} from "../../../../../core";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
 
-export class DecisionEditorController extends BaseModalDialogController<SubArtifactDecisionDialogModel> implements ng.IComponentController {
+export class DecisionEditorController extends BaseModalDialogController<DecisionEditorModel> implements ng.IComponentController {
     private CONDITION_MAX_LENGTH = 40;
     
     private userTaskIcon: string = "fonticon fonticon-bp-actor";
@@ -61,7 +61,7 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
     }
 
     public setNextNode() {
-        this.dialogModel.nextNode = this.modalProcessViewModel.getNextNode(<ISystemTaskShape>this.dialogModel.clonedDecision.model);
+        this.dialogModel.nextNode = this.modalProcessViewModel.getNextNode(<ISystemTaskShape>this.dialogModel.originalDecision.model);
     }
 
     private sortById(p1: IArtifactReference, p2: IArtifactReference) {
@@ -95,7 +95,7 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
     public addCondition() {
         const conditionNumber = this.dialogModel.conditions.length + 1;
         const processLink: IProcessLink = <IProcessLink>{
-            sourceId: this.dialogModel.clonedDecision.model.id,
+            sourceId: this.dialogModel.originalDecision.model.id,
             destinationId: null,
             orderindex: null,
             label: `${this.localization.get("ST_Decision_Modal_New_System_Task_Edge_Label")} ${conditionNumber}`
@@ -166,7 +166,7 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
     }
 
     private populateDecisionChanges() {
-        this.dialogModel.originalDecision.setLabelWithRedrawUi(this.dialogModel.clonedDecision.label);
+        this.dialogModel.originalDecision.setLabelWithRedrawUi(this.dialogModel.label);
 
         let isMergeNodeUpdate: boolean = false;
         // update edges
@@ -205,7 +205,7 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
     }
 
     public isLabelAvailable(): boolean {
-        return this.dialogModel.clonedDecision.label != null && this.dialogModel.clonedDecision.label !== "";
+        return this.dialogModel.label != null && this.dialogModel.label !== "";
     }
     
     public areMergeNodesEmpty(): boolean {

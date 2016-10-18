@@ -935,15 +935,3 @@ p {
     padding: 0;
     font-size: inherit;
 }
-
-.btn-block .dropdown-toggle {
-    width: 100%;
-}
-
-.btn-block .dropdown-toggle .dropdown-toggle-label {
-    float: left;
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 90%;
-}

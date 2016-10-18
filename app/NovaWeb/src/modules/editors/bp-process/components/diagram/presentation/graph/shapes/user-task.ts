@@ -1,4 +1,4 @@
-﻿import {IArtifactProperty, IUserTaskShape, IArtifactUpdateModel} from "../../../../../models/process-models";
+﻿import {IArtifactProperty, IUserTaskShape} from "../../../../../models/process-models";
 import {ItemIndicatorFlags} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {IProcessGraph, IDiagramNode} from "../models/";
@@ -184,7 +184,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
                 this.personaLabel.text = value;
                 this.shapesFactoryService.setUserTaskPersona(value);
             } 
-            this.sendUpdatedSubArtifactModel("persona");
         }
     }
 
@@ -193,10 +192,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public set description(value: string) {
-        const valueChanged = this.setPropertyValue("description", value);
-        if (valueChanged) {
-            this.sendUpdatedSubArtifactModel("description");
-        }
+       this.setPropertyValue("description", value);
     }
 
     public get objective(): string {
@@ -204,10 +200,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public set objective(value: string) {
-        const valueChanged = this.setPropertyValue("itemLabel", value);
-        if (valueChanged) {
-            this.sendUpdatedSubArtifactModel("itemLabel");
-        }
+       this.setPropertyValue("itemLabel", value);
     }
 
     public get associatedArtifact(): any {
@@ -217,8 +210,8 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     public set associatedArtifact(value: any) {
         if (this.model != null && this.model.associatedArtifact !== value) {
             this.model.associatedArtifact = value;           
-            this.sendUpdatedSubArtifactModel("associatedArtifact", value);
-
+            // TODO: create associatedArtifact predefined type and update it in the special properties of the stateful artifact.
+            //this.updateStatefulPropertyValue(<property type predefined>, value);
             if (!value || value === null) {
                 this.linkButton.disable();
             } else {

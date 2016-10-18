@@ -69,7 +69,6 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
 
     protected updateCellLabel(value: string) {
         this.textLabel.text = value;
-        this.sendUpdatedSubArtifactModel("name");
     }
 
     public showMenu(mxGraph: MxGraph) {

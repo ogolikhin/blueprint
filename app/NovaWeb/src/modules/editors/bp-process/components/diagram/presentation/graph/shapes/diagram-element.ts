@@ -1,7 +1,7 @@
 ﻿import {IDiagramElement, IDiagramNode} from "./../models/";
 import {IDiagramNodeElement, ILabel} from "./../models/";
 import {ElementType, NodeChange} from "./../models/";
-import {IProcessDiagramCommunication, ProcessEvents} from "../../../process-diagram-communication";
+import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 
 export class DiagramElement extends mxCell implements IDiagramElement {
     private elementType: ElementType;
@@ -73,10 +73,7 @@ export class DiagramElement extends mxCell implements IDiagramElement {
 
     private _redraw: boolean;
     private _isNotificationPending: boolean = false;
-
-    public notify(updateModel) {        
-        this.processDiagramManager.action(ProcessEvents.ArtifactUpdate, updateModel);
-    }
+    
     public getImageSource(image: string) {
         return "/novaweb/static/bp-process/images/" + image;
     }

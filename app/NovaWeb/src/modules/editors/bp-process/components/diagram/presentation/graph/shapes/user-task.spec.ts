@@ -102,7 +102,6 @@ describe("UserTask test", () => {
         let graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
 
         let node = new UserTask(testUserTask, rootScope, null, shapesFactory);
-        spyOn(node, "notify")();
         node.render(graph, 80, 80, false);
         node.renderLabels();
 
@@ -299,7 +298,6 @@ describe("UserTask test", () => {
             let testUserTask = ShapeModelMock.instance().UserTaskMock();
 
             let node = new UserTask(testUserTask, rootScope, null, shapesFactory);
-            spyOn(node, "notify")();
 
             let testLabelText = "test label";
 
@@ -316,8 +314,7 @@ describe("UserTask test", () => {
             let testUserTask = ShapeModelMock.instance().UserTaskMock();
 
             let node = new UserTask(testUserTask, rootScope, null, shapesFactory);
-            spyOn(node, "notify")();
-
+            
             let editNode = new DiagramNodeElement("H1", ElementType.UserTaskHeader, "", new mxGeometry(), "");
 
             let testLabelText = "test label";
@@ -334,7 +331,6 @@ describe("UserTask test", () => {
             let testUserTask = ShapeModelMock.instance().UserTaskMock();
 
             let node = new UserTask(testUserTask, rootScope, null, shapesFactory);
-            spyOn(node, "notify")();
             node.persona = "12345";
 
             // Act

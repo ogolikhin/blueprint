@@ -1,4 +1,4 @@
-﻿import {IProcessShape, IArtifactUpdateModel, PropertyTypePredefined, IPropertyValueInformation} from "../../../../../models/process-models";
+﻿import {IProcessShape, PropertyTypePredefined, IPropertyValueInformation} from "../../../../../models/process-models";
 import {ArtifactUpdateType} from  "../../../../../models/enums";
 import * as Enums from "../../../../../../../main/models/enums";
 import {IProcessGraph, IDiagramNode, IDiagramLink, IDiagramNodeElement} from "./../models/";
@@ -6,6 +6,7 @@ import {DiagramNodeElement} from "./diagram-element";
 import {ElementType, Direction, NodeType, NodeChange} from "./../models/";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
+import {IStatefulProcessSubArtifact} from "../../../../../process-subartifact";
 
 export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement implements IDiagramNode {
 
@@ -24,34 +25,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
         this.model = model;
         this.nodeType = nodeType;
     }
-
-    protected sendUpdatedSubArtifactModel(name: string, updateType: ArtifactUpdateType = ArtifactUpdateType.SubArtifact, value?) {
-        const updateModel: IArtifactUpdateModel = {
-            updateType: updateType,
-            propertyValue: this.getProperty(name), 
-            subArtifactId: this.model.id
-        }; 
-        if (updateModel.propertyValue === null) {  
-            let propertyValue: IPropertyValueInformation;          
-            if (name === "name") {
-                propertyValue = {
-                    propertyName: "name",
-                    typePredefined: PropertyTypePredefined.Name,
-                    value: this.model.name,
-                    typeId: 0
-                };
-            } else {
-                propertyValue = {
-                    propertyName: name,
-                    typePredefined: PropertyTypePredefined.None,
-                    value: value,
-                    typeId: 0
-                };
-            }
-            updateModel.propertyValue = propertyValue;
-        }       
-        this.notify(updateModel);
-    }
+    
 
     public getNode(): IDiagramNode {
         return this;
@@ -70,10 +44,8 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
     }
 
     protected setLabelPropertyValue(value: string) {
-        const valueChanged = this.setPropertyValue("label", value);
-        if (valueChanged) {
-            this.notify(NodeChange.Update);
-        }
+       this.setPropertyValue("label", value);
+      
     }
 
     protected updateCellLabel(value: string) {
@@ -85,8 +57,6 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
             this.model.name = value;
             if (redrawCellLabel) {
                 this.updateCellLabel(value);
-            } else {
-                this.sendUpdatedSubArtifactModel("name");
             }
         }
     }
@@ -298,13 +268,27 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
 
         const previousValue = this.model.propertyValues[propertyName].value;
         if (previousValue !== newValue) {
-            this.model.propertyValues[propertyName].value = newValue;            
+            const propertyValue = this.model.propertyValues[propertyName];
+            propertyValue.value = newValue;
+            this.updateStatefulPropertyValue(propertyValue.typePredefined, newValue);
             return true;
         }
 
         return false;
     }
-
+    protected updateStatefulPropertyValue(propertyTypePredefined: PropertyTypePredefined, newValue: any) {
+        const subArtifact: any = this.model;
+        const processSubArtifact: IStatefulProcessSubArtifact = subArtifact;
+        if (processSubArtifact) {
+            if (propertyTypePredefined === PropertyTypePredefined.Description) {
+                processSubArtifact.description = newValue;
+            } else if (propertyTypePredefined > 0) {
+                if (processSubArtifact.specialProperties) {
+                    processSubArtifact.specialProperties.set(propertyTypePredefined, newValue);
+                }
+            }
+        }            
+    }
     protected getParentId(): number {
         return this.model.parentId;
     }

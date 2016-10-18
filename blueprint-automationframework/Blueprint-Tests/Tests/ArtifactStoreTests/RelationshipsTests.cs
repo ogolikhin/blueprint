@@ -101,7 +101,6 @@ namespace ArtifactStoreTests
             }
         }
 
-
         /// TODO: Refine this validation method to cover more trace details test cases
         /// <summary>
         /// Validate traceDetails with properties from artifact 
@@ -113,6 +112,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(traceDetails.PathToProject.Count,2, "PathToProject must have 2 items.");
             Assert.AreEqual(traceDetails.ArtifactId,artifact.Id, "Artifact ID {0} from trace details must be equal to {1}.", traceDetails.ArtifactId, artifact.Id);
         }
+
         #endregion Private Functions
 
         #region 200 OK Tests
@@ -198,7 +198,7 @@ namespace ArtifactStoreTests
         #region 400 Bad Request Tests
 
         [TestCase]
-        [Ignore(IgnoreReasons.UnderDevelopment)]
+        [TestRail(183571)]
         [Description("Create and publish artifact with a trace to target. Verify that GetRelationships with invalid versionId returns 400 Bad Request.")]
         public void GetRelationships_GetRelationshipsWithInvalidVersionId_400BadRequest()
         {
@@ -212,7 +212,7 @@ namespace ArtifactStoreTests
         [TestCase(TraceDirection.To)]
         [TestCase(TraceDirection.From)]
         [TestCase(TraceDirection.TwoWay)]
-        [Ignore(IgnoreReasons.UnderDevelopment)]
+        [TestRail(183572)]
         [Description("Create and publish artifact with a trace to target. Verify that GetRelationshipsDetails with invalid revisionId returns 400 Bad Request.")]
         public void GetRelationshipsDetails_GetRelationshipsWithInvalidRevisionId_400BadRequest(TraceDirection direction)
         {

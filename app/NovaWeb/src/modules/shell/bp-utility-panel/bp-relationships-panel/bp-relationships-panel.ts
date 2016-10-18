@@ -144,11 +144,6 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         }
     }
 
-    private updateRelationships() {
-        // Todo implement update logic inside relationship object
-        this.item.relationships.get(false);
-    }
-
     public setRelationships(relationships: Relationships.IRelationship[]) {
         this.allTraces = relationships;
         this.manualTraces = relationships
@@ -233,7 +228,6 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace")).then((confirmed) => {
             if (confirmed) {
                 this.item.relationships.remove([artifact]);
-                this.updateRelationships();
             }
         });
     }
@@ -274,7 +268,6 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
 
             this.manualTraces = data.manualTraces;
             this.item.relationships.updateManual(data.manualTraces);
-            this.updateRelationships();
         });
     }
 

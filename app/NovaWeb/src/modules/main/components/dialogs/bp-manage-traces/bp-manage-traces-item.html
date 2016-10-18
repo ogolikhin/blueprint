@@ -12,7 +12,8 @@
                 <i data-ng-class="{'0': 'fonticon2-relationship-right', '1' : 'fonticon2-relationship-left', '2' : 'fonticon2-relationship-bi'}[$ctrl.item.traceDirection]"></i>
             </div>
         </div>
-        <div>
+        <div bp-tooltip="{{$ctrl.item.itemTypePrefix}}{{$ctrl.item.itemId}} - {{ $ctrl.item.itemName ? $ctrl.item.itemName : $ctrl.item.itemLabel }}"
+             bp-tooltip-truncated="true">
             <i class="icon-textual"></i> <i class="{{$ctrl.item.cssClass}}"></i>{{$ctrl.item.itemTypePrefix}}{{$ctrl.item.itemId}}
             -
             {{$ctrl.item.itemName ? $ctrl.item.itemName : $ctrl.item.itemLabel}}<br/>

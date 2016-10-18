@@ -2,6 +2,9 @@
     <span class="glyphicon glyphicon-refresh spin"></span>
 </div>
 
+<div ng-if="!$ctrl.selectedArtifact &&           
+            !$ctrl.isLoading" class="empty-state">{{$ctrl.localization.get('App_UP_Properties_No_Properties')}}</div>
+
 
 <div class="artifact-overview" ng-if="!$ctrl.isLoading">
     <div class="content">

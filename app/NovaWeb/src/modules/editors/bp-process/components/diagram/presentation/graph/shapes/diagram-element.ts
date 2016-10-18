@@ -71,9 +71,7 @@ export class DiagramElement extends mxCell implements IDiagramElement {
     }
 
     public notify(updateModel) {
-        if (this.processDiagramManager) {
-            this.processDiagramManager.action(ProcessEvents.ArtifactUpdate, updateModel);
-        }
+        this.processDiagramManager.action(ProcessEvents.ArtifactUpdate, updateModel);
     }
 
     public getImageSource(image: string) {

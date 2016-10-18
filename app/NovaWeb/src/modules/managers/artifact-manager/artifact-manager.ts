@@ -1,4 +1,5 @@
-import {IMessageService} from "../../core";
+import * as _ from "lodash";
+import {IMessageService} from "../../core/messages";
 import {ISelectionManager} from "../selection-manager/selection-manager";
 import {IMetaDataService} from "./metadata";
 import {IStatefulArtifactFactory, IStatefulArtifact} from "./artifact";
@@ -9,17 +10,17 @@ export interface IArtifactManager extends IDispose {
     selection: ISelectionManager;
     list(): IStatefulArtifact[];
     add(artifact: IStatefulArtifact);
+    addAsOrphan(artifact: IStatefulArtifact);
     get(id: number): ng.IPromise<IStatefulArtifact>;
     remove(id: number): IStatefulArtifact;
     removeAll(projectId?: number);
-    saveAll(): void;
-    publishAll(): void;
-    refreshAll(): void;
 }
 
 export class ArtifactManager implements IArtifactManager {
     private artifactDictionary: { [id: number]: IStatefulArtifact };
+    private orphanArtifacts: IStatefulArtifact[];
     private collectionChangeSubject: Rx.BehaviorSubject<IStatefulArtifact>;
+
     public static $inject = [
         "$log",
         "$q",
@@ -36,8 +37,8 @@ export class ArtifactManager implements IArtifactManager {
                 private metadataService: IMetaDataService,
                 private artifactFactory: IStatefulArtifactFactory) {
         this.artifactDictionary = {};
+        this.orphanArtifacts = [];
         this.collectionChangeSubject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
-//        this.selectionService.selectionObservable.subscribeOnNext(this.onArtifactSelect, this);
     }
 
     public dispose() {
@@ -50,17 +51,7 @@ export class ArtifactManager implements IArtifactManager {
     }
 
     public list(): IStatefulArtifact[] {
-        let artifactList: IStatefulArtifact[] = [];
-
-        for (let artifactKey in this.artifactDictionary) {
-            let artifact = this.artifactDictionary[artifactKey];
-
-            if (this.artifactDictionary.hasOwnProperty(artifactKey)) {
-                artifactList.push(artifact);
-            }
-        }
-
-        return artifactList;
+        return _.values(this.artifactDictionary) as IStatefulArtifact[];
     }
 
     public get collectionChangeObservable(): Rx.Observable<IStatefulArtifact> {
@@ -76,6 +67,19 @@ export class ArtifactManager implements IArtifactManager {
             deferred.reject();
         }
         return deferred.promise;
+    }
+
+    private clearOrphans() {
+        _.each(this.orphanArtifacts, artifact => {
+            this.remove(artifact.id);
+        });
+        this.orphanArtifacts = [];
+    }
+
+    public addAsOrphan(artifact: IStatefulArtifact) {
+        this.clearOrphans();
+        this.orphanArtifacts.push(artifact);
+        this.add(artifact);
     }
 
     public add(artifact: IStatefulArtifact) {
@@ -112,30 +116,4 @@ export class ArtifactManager implements IArtifactManager {
             this.metadataService.remove(projectId);
         }
     }
-
-    // TODO: 
-    public saveAll() {
-        throw new Error("Not implemented yet");
-    }
-
-    // TODO: 
-    public publishAll() {
-        throw new Error("Not implemented yet");
-    }
-
-    // TODO: 
-    public refreshAll() {
-        throw new Error("Not implemented yet");
-    }
-
-    // private changeSubscriber: Rx.IDisposable[];
-
-    // private setSubject(selection: ISelection) {
-    //     let old = this.selectionSubject.getValue();
-    //     if (old.artifact.id !== selection.artifact.id) {
-    //         this.changeSubscriber = selection.artifact.artifactState.observable.subscribeOnNext()
-    //     }
-    //     this.selectionSubject.onNext(selection);
-    // }
-
 }

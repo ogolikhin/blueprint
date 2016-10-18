@@ -6,7 +6,7 @@
     "license": "UNLICENSED",
     "main": "/",
     "scripts": {
-        "preinstall": "typings prune; npm prune;",
+        "preinstall": "npm prune && typings prune",
         "postinstall": "typings install",
         "dev": "node_modules/.bin/webpack-dev-server --config webpack/webpack.dev.js --content-base src --inline --hot --NODE_ENV=dev",
         "dev:open-browser": "npm config set nova_open_browser 1 && npm run dev",

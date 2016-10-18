@@ -45,9 +45,7 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
             this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemDecisionDetailsDialogType));
         } else {
-            this.detailsButton.setClickAction(() => {
-                //fixme: empty blocks should be removed or undefined
-            });
+            this.detailsButton.setClickAction(undefined);
         }
 
         this.detailsButton.setHoverImage(this.getImageSource("adddetails-hover.svg"));

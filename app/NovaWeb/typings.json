@@ -1,3 +1,16 @@
 {
-  "globalDependencies": {}
+    "globalDependencies": {
+        "angular": "registry:dt/angular#1.5.0+20161016133926",
+        "angular-formly": "registry:dt/angular-formly#7.2.3+20160316171810",
+        "angular-ui-bootstrap": "registry:dt/angular-ui-bootstrap#0.13.3+20160919090501",
+        "angular-ui-router": "registry:dt/angular-ui-router#1.1.5+20160810191828",
+        "jasmine": "registry:dt/jasmine#2.5.0+20161003201800",
+        "jquery": "registry:dt/jquery#1.10.0+20160929162922",
+        "lodash": "registry:dt/lodash#4.14.0+20161004174455",
+        "node": "registry:dt/node#6.0.0+20161014191813",
+        "rx": "npm:rx/ts/rx.all.d.ts"
+    },
+    "globalDevDependencies": {
+        "angular-mocks": "registry:dt/angular-mocks#1.5.0+20160608104721"
+    }
 }

@@ -1,4 +1,9 @@
 {
+    "files":[
+        "./typings/index.d.ts",
+        "./typings/addons.d.ts",
+        "./src/index.ts"
+    ],
     "compilerOptions": {
         "target": "es5",
         "noFallthroughCasesInSwitch": true,

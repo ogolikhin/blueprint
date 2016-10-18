@@ -44,9 +44,7 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
         this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("adddetails-neutral.svg"));
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
             this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemDecisionDetailsDialogType));
-        } else {
-            this.detailsButton.setClickAction(undefined);
-        }
+        } 
 
         this.detailsButton.setHoverImage(this.getImageSource("adddetails-hover.svg"));
         this.detailsButton.setDisabledImage(this.getImageSource("adddetails-mute.svg"));

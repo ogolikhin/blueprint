@@ -50,7 +50,6 @@ describe("UploadImage Directive", () => {
             sampleSystemTask.propertyValues["associatedImageUrl"] = shapesFactory.createAssociatedImageUrlValue(fakeUrl);
 
             scope["systemTaskModel"] = new SystemTask(sampleSystemTask, fakeRootScope, shapesFactory.NEW_SYSTEM_TASK_LABEL, null, shapesFactory);
-            spyOn(scope["systemTaskModel"], "notify")();
 
             /* tslint:disable:max-line-length */
             element = $compile("<upload-image data-image-container-class=\"file-upload_preview\" data-system-task-model=\"systemTaskModel\"  data-image-uploaded=\"imageUploaded\"></upload-image>")(scope);

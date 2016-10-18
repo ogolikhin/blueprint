@@ -3,7 +3,7 @@ import {Condition} from "../diagram/presentation/graph/shapes/condition";
 import {ModalDialogType} from "./base-modal-dialog-controller";
 import {SubArtifactDialogModel} from "./models/sub-artifact-dialog-model";
 import {UserStoryDialogModel} from "./models/user-story-dialog-model";
-import {SubArtifactDecisionDialogModel} from "./models/sub-artifact-decision-dialog-model";
+import {DecisionEditorModel} from "./decision-editor/decision-editor-model";
 import {
     IProcessGraph,
     IDiagramNode,
@@ -123,24 +123,24 @@ export class SubArtifactEditorModalOpener {
         return userTaskDialogModel;
     }
 
-    public getDecisionEditorModel(shapeId: number, graph: IProcessGraph): SubArtifactDecisionDialogModel {
+    public getDecisionEditorModel(shapeId: number, graph: IProcessGraph): DecisionEditorModel {
         const decision = <IDecision>graph.getNodeById(shapeId.toString());
 
         if (!decision) {
             return null;
         }
 
-        const dialogModel: SubArtifactDecisionDialogModel = new SubArtifactDecisionDialogModel();
+        const model: DecisionEditorModel = new DecisionEditorModel();
 
-        dialogModel.graph = graph;
-        dialogModel.conditions = [];
+        model.graph = graph;
+        model.conditions = [];
 
         // cloning decision
-        dialogModel.originalDecision = decision;
-        dialogModel.clonedDecision = decision.cloneDecision();
+        model.originalDecision = decision;
+        model.label = decision.label;
         
         // populate existing conditions
-        const outgoingLinks: IProcessLink[] = dialogModel.graph.getNextLinks(decision.model.id);
+        const outgoingLinks: IProcessLink[] = model.graph.getNextLinks(decision.model.id);
 
         for (let index = 0; index < outgoingLinks.length; index++) {
             const outgoingLink: IProcessLink = outgoingLinks[index];
@@ -148,20 +148,20 @@ export class SubArtifactEditorModalOpener {
 
             // We do not display change merge node option for first branch
             if (index !== 0) {
-                const mergeNodeId: string = dialogModel.originalDecision.getMergeNode(graph, outgoingLink.orderindex).id.toString();
+                const mergeNodeId: string = model.originalDecision.getMergeNode(graph, outgoingLink.orderindex).id.toString();
                 mergePoint = graph.getNodeById(mergeNodeId);
             }
 
-            const validMergeNodes: IDiagramNode[] = dialogModel.graph.getValidMergeNodes(outgoingLink);
+            const validMergeNodes: IDiagramNode[] = model.graph.getValidMergeNodes(outgoingLink);
             const condition: ICondition = Condition.create(outgoingLink, mergePoint, validMergeNodes);
-            dialogModel.conditions.push(condition);
+            model.conditions.push(condition);
         }
 
         // set dialog model isReadonly property to enable/disable input controls
-        dialogModel.isReadonly = this.isReadonly;
-        dialogModel.isHistoricalVersion = this.isHistorical;
+        model.isReadonly = this.isReadonly;
+        model.isHistoricalVersion = this.isHistorical;
 
-        return dialogModel;
+        return model;
     }
 
     private openUserSystemTaskDetailsModalDialog($scope: ng.IScope, shapeId: number, graph: IProcessGraph) {

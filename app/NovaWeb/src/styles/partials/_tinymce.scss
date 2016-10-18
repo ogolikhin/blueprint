@@ -44,11 +44,11 @@ body {
 
     bp-comment-edit {
         .mce-btn-group {
-            padding-right: 2px;
+            padding-right: 1px;
 
             &:not(:first-child) {
                 margin-left: 0;
-                padding-left: 2px;
+                padding-left: 1px;
             }
         }
 

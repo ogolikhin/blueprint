@@ -85,19 +85,9 @@ export class ProjectExplorerController {
             if (params.data.hasChildren) {
                 css.push("has-children");
             }
-
-            if (params.data.predefinedType === Models.ItemTypePredefined.PrimitiveFolder) {
-                css.push("is-folder");
-            } else if (params.data.predefinedType === Models.ItemTypePredefined.Project) {
-                css.push("is-project");
-            } else if (params.data.predefinedType === Models.ItemTypePredefined.CollectionFolder) {
-                css.push("is-collection-folder");
-            }
-            else if (params.data.predefinedType === Models.ItemTypePredefined.ArtifactCollection) {
-                css.push("is-collection");
-            }
-            else {
-                css.push("is-" + Helper.toDashCase(Models.ItemTypePredefined[params.data.predefinedType]));
+            const typeName = Models.ItemTypePredefined[params.data.predefinedType];
+            if (typeName) {
+                css.push("is-" + Helper.toDashCase(typeName));
             }
             return css;
         },

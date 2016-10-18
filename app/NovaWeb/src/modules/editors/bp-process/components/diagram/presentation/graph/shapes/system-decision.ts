@@ -69,7 +69,6 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
 
     protected updateCellLabel(value: string) {
         this.textLabel.text = value;
-        this.sendUpdatedSubArtifactModel("name");
     }
 
     public showMenu(mxGraph: MxGraph) {
@@ -215,11 +214,5 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
     public getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape {
         const id = graph.getDecisionBranchDestLinkForIndex(this.model.id, orderIndex).destinationId;
         return graph.getShapeById(id);
-    }
-
-    public cloneDecision(): IDecision {
-        const decision = new SystemDecision(this.model, this.rootScope, this.nodeFactorySettings);
-        decision.label = this.label;
-        return decision;
     }
 }

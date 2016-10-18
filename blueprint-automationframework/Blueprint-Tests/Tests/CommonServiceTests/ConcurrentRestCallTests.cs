@@ -41,7 +41,7 @@ namespace CommonServiceTests
         [TestCase(5, 5)]
         [TestCase(10, 10)]
         [TestCase(50, 50)]
-        [Explicit(IgnoreReasons.ProductBug)]    // Often fails with a deadlock error.  Run manually only.
+        [Explicit(IgnoreReasons.ManualOnly)]    // Often fails with a deadlock error.  Run manually only.
         [TestRail(154502)]
         [Description("Tries to lock, discard, save, publish, get artifact info, get properties for Rapid Review, get version, post discussion and delete an artifact.  Verifies all REST calls succeeded.")]
         public void MultipleRestCallsForArtifact_ValidParams_Success(int numThreads, int iterations)

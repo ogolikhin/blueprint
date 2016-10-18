@@ -1,4 +1,4 @@
-﻿import {ISystemTaskShape, IArtifactUpdateModel} from "../../../../../models/process-models";
+﻿import {ISystemTaskShape} from "../../../../../models/process-models";
 import {ItemIndicatorFlags, ProcessShapeType} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {IProcessGraph, IDiagramNode, IUserTaskChildElement} from "../models/";
@@ -213,7 +213,6 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
                 this.personaLabel.text = value;
                 this.shapesFactory.setSystemTaskPersona(value);
             }
-            this.sendUpdatedSubArtifactModel("persona");
         }
     }
 
@@ -222,10 +221,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     }
 
     public set description(value: string) {
-        const valueChanged = this.setPropertyValue("description", value);
-        if (valueChanged) {
-            this.sendUpdatedSubArtifactModel("description");
-        }
+        this.setPropertyValue("description", value);
     }
 
     public get associatedImageUrl(): string {
@@ -233,10 +229,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     }
 
     public set associatedImageUrl(value: string) {
-        const valueChanged = this.setPropertyValue("associatedImageUrl", value);
-        if (valueChanged) {
-            this.sendUpdatedSubArtifactModel("associatedImageUrl");
-        }
+       this.setPropertyValue("associatedImageUrl", value);
     }
 
     public get imageId(): string {
@@ -246,8 +239,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     public set imageId(value: string) {
         const valueChanged = this.setPropertyValue("imageId", value);
         if (valueChanged) {
-            this.sendUpdatedSubArtifactModel("imageId");
-            if (!Boolean(value)) {
+            if (!value) {
                 this.mockupButton.deactivate();
             } else {
                 this.mockupButton.activate();
@@ -262,8 +254,9 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     public set associatedArtifact(value: any) {
         if (this.model != null && this.model.associatedArtifact !== value) {
             this.model.associatedArtifact = value;
-            this.sendUpdatedSubArtifactModel("associatedArtifact", value);
-            if (!Boolean(value)) {
+            // TODO: create associatedArtifact predefined type and update it in the special properties of the stateful artifact.
+            //this.updateStatefulPropertyValue(<property type predefined>, value);
+            if (!value) {
                 this.linkButton.disable();
             } else {
                 this.linkButton.activate();

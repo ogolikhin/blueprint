@@ -40,5 +40,5 @@ export const enum ItemIndicatorFlags {
 
 export const enum ArtifactUpdateType {
     SubArtifact = 0,
-    LinkLabel = 1
+    Link = 1
 }

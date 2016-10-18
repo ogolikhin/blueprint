@@ -1,7 +1,10 @@
 import {IWindowManager} from "../../services";
 import {IArtifactManager} from "../../../managers";
-import {IMessageService, INavigationService} from "../../../core";
+import {IMessageService, INavigationService, ILocalizationService} from "../../../core";
 import {IDiagramService} from "../../../editors/bp-diagram/diagram.svc";
+import {IDialogSettings, IDialogService} from "../../../shared";
+import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
+import {Models} from "../../../main/models";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./bp-page-content.html");
@@ -17,14 +20,16 @@ class PageContentCtrl {
         "artifactManager",
         "diagramService",
         "windowManager",
-        "navigationService"
+        "navigationService",
+        "dialogService"
     ];
 
     constructor(private messageService: IMessageService,
                 private artifactManager: IArtifactManager,
                 private diagramService: IDiagramService,
                 private windowManager: IWindowManager,
-                private navigationService: INavigationService) {
+                private navigationService: INavigationService,
+                private dialogService: IDialogService    ) {
     }
 
     public $onInit() {
@@ -50,6 +55,23 @@ class PageContentCtrl {
         //         this.selectionManager.clearSelection();
         //     }
         // }
+    }
+
+    public openArtifactPicker() {
+        const dialogSettings = <IDialogSettings>{
+            okButton: "Open",
+            template: require("../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
+            controller: ArtifactPickerDialogController,
+            css: "nova-open-project",
+            header: "Single project Artifact picker"
+        };
+
+        const dialogData: IArtifactPickerOptions = {            
+            showSubArtifacts: false,
+            isOneProjectLevel: true
+        };
+
+        this.dialogService.open(dialogSettings, dialogData);
     }
 
 }

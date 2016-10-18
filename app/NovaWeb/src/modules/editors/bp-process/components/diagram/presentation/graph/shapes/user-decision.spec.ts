@@ -69,32 +69,5 @@ describe("UserDecision", () => {
         expect(graph.getMxGraphModel().getCell(`DB${id}`)).not.toBeNull();
     });
 
-    it("doesn't call notify when label doesn't change", () => {
-        // Arrange
-        let model = shapesFactory.createModelUserDecisionShape(2, 1, 3, 0, 0);
-        model.propertyValues["label"].value = "Test";
-        let userDecision = new UserDecision(model, rootScope);
-
-        let notifySpy = spyOn(userDecision, "notify");
-
-        // Act
-        userDecision.action = "Test";
-
-        // Assert
-        expect(notifySpy).not.toHaveBeenCalled();
-    });
-
-    it("notifies of changes when label changes", () => {
-        // Arrange
-        let model = shapesFactory.createModelUserDecisionShape(2, 1, 3, 0, 0);
-        let userDecision = new UserDecision(model, rootScope);
-
-        let notifySpy = spyOn(userDecision, "notify");
-
-        // Act
-        userDecision.label = "Test";
-
-        // Assert
-        expect(notifySpy).toHaveBeenCalled();
-    });
+    
 });

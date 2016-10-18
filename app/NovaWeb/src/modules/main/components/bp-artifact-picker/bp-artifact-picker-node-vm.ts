@@ -96,19 +96,9 @@ export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
 
     public getCellClass(): string[] {
         const result = super.getCellClass();
-        switch (this.model.predefinedType) {
-            case Models.ItemTypePredefined.PrimitiveFolder:
-                result.push("is-folder");
-                break;
-            case Models.ItemTypePredefined.Project:
-                result.push("is-project");
-                break;
-            default:
-                const typeName = Models.ItemTypePredefined[this.model.predefinedType];
-                if (typeName) {
-                    result.push("is-" + Helper.toDashCase(typeName));
-                }
-                break;
+        const typeName = Models.ItemTypePredefined[this.model.predefinedType];
+        if (typeName) {
+            result.push("is-" + Helper.toDashCase(typeName));
         }
         return result;
     }

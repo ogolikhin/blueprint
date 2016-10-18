@@ -135,7 +135,7 @@ describe("Layout test", () => {
         let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         graph.render(false, null);
@@ -166,7 +166,7 @@ describe("Layout test", () => {
         var graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         graph.render(false, null);
@@ -198,7 +198,7 @@ describe("Layout test", () => {
         graph.layout.setTempShapeId(0);
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         graph.render(false, null);
@@ -255,7 +255,7 @@ describe("Layout test", () => {
         let diagramLink = new DiagramLink(link, null);
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         graph.render(false, null);
@@ -304,7 +304,7 @@ describe("Layout test", () => {
         graph.layout.setTempShapeId(0);
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         graph.render(true, null);
@@ -343,7 +343,7 @@ describe("Layout test", () => {
         graph.layout.setTempShapeId(0);
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         graph.render(true, null);
@@ -380,7 +380,7 @@ describe("Layout test", () => {
         graph.layout.setTempShapeId(0);
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         graph.render(true, null);
@@ -412,7 +412,7 @@ describe("Layout test", () => {
         });
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         graph.render(true, null);
@@ -437,7 +437,7 @@ describe("Layout test", () => {
         });
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         graph.render(true, null);
@@ -457,7 +457,7 @@ describe("Layout test", () => {
         graph.render(false, null);
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         //Assert
@@ -475,7 +475,7 @@ describe("Layout test", () => {
         graph.render(false, null);
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         //Assert
@@ -989,7 +989,7 @@ describe("Layout test", () => {
 
                 //bypass testing adding stateful shapes logic here,cannot extract this spyOn logic out since
                 //test models used in each test are different and only generated in each test
-                spyOn(processModel, "addStatefulShape").and.returnValue(null);
+                spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
                 let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 processGraph.render(true, false);
@@ -1015,7 +1015,7 @@ describe("Layout test", () => {
                 let expectedConditions = 3;
 
                 //bypass testing adding stateful shapes logic here
-                spyOn(processModel, "addStatefulShape").and.returnValue(null);
+                spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
                 // Act
                 ProcessAddHelper.insertUserDecisionCondition(decisionId, graph.layout, shapesFactoryService);
@@ -1034,7 +1034,7 @@ describe("Layout test", () => {
                 let endId = 50;
 
                 //bypass testing adding stateful shapes logic here
-                spyOn(processModel, "addStatefulShape").and.returnValue(null);
+                spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
                 let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 processGraph.render(true, false);
@@ -1057,7 +1057,7 @@ describe("Layout test", () => {
                 let ut4Id = 50;
 
                 //bypass testing adding stateful shapes logic here
-                spyOn(processModel, "addStatefulShape").and.returnValue(null);
+                spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
                 let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 processGraph.render(true, false);
@@ -1078,7 +1078,7 @@ describe("Layout test", () => {
                 let endId = 60;
 
                 //bypass testing adding stateful shapes logic here
-                spyOn(processModel, "addStatefulShape").and.returnValue(null);
+                spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
                 let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 processGraph.render(true, false);
@@ -1103,7 +1103,7 @@ describe("Layout test", () => {
             var graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             //bypass testing adding stateful shapes logic here
-            spyOn(processModel, "addStatefulShape").and.returnValue(null);
+            spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
             // Act
             graph.render(false, null);
@@ -1132,7 +1132,7 @@ describe("Layout test", () => {
             var graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             //bypass testing adding stateful shapes logic here
-            spyOn(processModel, "addStatefulShape").and.returnValue(null);
+            spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
             // Act
             graph.render(false, null);

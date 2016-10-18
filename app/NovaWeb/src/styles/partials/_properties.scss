@@ -16,7 +16,6 @@ $richtext-fontcolor: #000;
 $richtext-linkcolor: #00f;
 $richtext-fontsize: 9pt;
 $richtext-fontfamily: $font-family-base;
-$richtext-y-scrollbar-width: 12px;
 
 pagecontent, bp-properties-panel {
     .properties {
@@ -598,6 +597,7 @@ pagecontent, bp-properties-panel {
                     margin-top: 5px;
                     max-height: #{2.5 * $property-min-height};
                     min-height: #{$property-min-height - 5px};
+                    overflow: auto;
                     padding-bottom: 4px;
 
                     .choice {
@@ -614,6 +614,7 @@ pagecontent, bp-properties-panel {
                     max-height: 350px;
                     min-height: 150px;
                     //min-width: $property-input-width;
+                    overflow: auto;
                     padding: 0;
 
                     a {
@@ -866,7 +867,7 @@ pagecontent, bp-properties-panel {
 
             .tinymce-group {
                 display: block;
-                width: calc(100% - #{$richtext-y-scrollbar-width});
+                width: 100%;
             }
 
             .mce-tinymce {
@@ -1270,7 +1271,7 @@ pagecontent, bp-properties-panel {
 .tab-pane {
     border: solid 1px $gray-lighter;
     border-radius: $border-radius-amount;
-    padding: 18px #{20px - $richtext-y-scrollbar-width} 18px 20px;
+    padding: 18px 20px;
 
     .formly {
         margin: 0;
@@ -1301,21 +1302,9 @@ pagecontent, bp-properties-panel {
 
                 .richtext-body {
                     display: inline-block;
-                    margin-right: $richtext-y-scrollbar-width;
                 }
-
-                &::after {
-                    background: $white;
-                    content: '';
-                    display: block;
-                    height: 100%;
-                    position: absolute;
-                    right: 0;
-                    top: 0;
-                    width: $richtext-y-scrollbar-width;
-        }
             }
-    }
+        }
     }
 }
 
@@ -1325,7 +1314,7 @@ bp-properties-panel {
     }
 
     .tab-pane {
-        padding: 8px #{20px - $richtext-y-scrollbar-width} 8px 15px;
+        padding: 8px 15px;
     }
 }
 

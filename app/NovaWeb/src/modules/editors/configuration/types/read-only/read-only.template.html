@@ -1,9 +1,14 @@
 <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Text">
-    <div id="{{::id}}" ng-if="options.data.isRichText" class="read-only-input richtext always-visible">
+    <div id="{{::id}}" ng-if="options.data.isMultipleAllowed && options.data.isRichText"
+         class="read-only-input richtext">
+        <div class="richtext-body" ng-bind-html="model[options.key]"></div>
+    </div>
+    <div id="{{::id}}" ng-if="!options.data.isMultipleAllowed && options.data.isRichText"
+         class="read-only-input richtext inline">
         <div class="richtext-body" ng-bind-html="model[options.key]"></div>
     </div>
     <div id="{{::id}}" ng-if="options.data.isMultipleAllowed && !options.data.isRichText"
-         class="read-only-input multiple always-visible">
+         class="read-only-input multiple">
         <div ng-bind-html="model[options.key]"></div>
     </div>
     <div id="{{::id}}" ng-if="!options.data.isMultipleAllowed && !options.data.isRichText"
@@ -21,7 +26,7 @@
 </div>
 <div class="input-group has-messages"
      ng-if="options.data.primitiveType == primitiveType.Choice && options.data.isMultipleAllowed">
-    <div id="{{::id}}" class="read-only-input multiple always-visible" >
+    <div id="{{::id}}" class="read-only-input multiple">
         <div class="choice" ng-repeat="option in to.options | filter: filterMultiChoice" bp-tooltip="{{option.name}}"
              bp-tooltip-truncated="true">{{option.name}}</div>
     </div>

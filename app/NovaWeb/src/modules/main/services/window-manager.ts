@@ -34,7 +34,8 @@ export class WindowManager implements IWindowManager {
     private _isRightSidebarOpen: boolean;
     private _causeOfChange: ResizeCause;
 
-    private sidebarSize: number = 270;
+    //fixme: this should not be hard coded and actually should get the value by checking the element
+    private sidebarSize: number = 280;
 
     private _toggleObserver: MutationObserver;
     private _messageObserver: MutationObserver;

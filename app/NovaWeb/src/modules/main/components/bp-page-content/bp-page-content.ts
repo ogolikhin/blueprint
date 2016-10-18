@@ -31,7 +31,6 @@ class PageContentCtrl {
         //use context reference as the last parameter on subscribe...
         this.subscribers = [
             //subscribe for current artifact change (need to distinct artifact)
-            this.windowManager.mainWindow.subscribeOnNext(this.onAvailableAreaResized, this)
         ];
     }
 
@@ -53,12 +52,4 @@ class PageContentCtrl {
         // }
     }
 
-    private onAvailableAreaResized() {
-        let scrollableElem = document.querySelector(".page-body-wrapper.ps-container") as HTMLElement;
-        if (scrollableElem) {
-            setTimeout(() => {
-                (<any>window).PerfectScrollbar.update(scrollableElem);
-            }, 500);
-        }
-    }
 }

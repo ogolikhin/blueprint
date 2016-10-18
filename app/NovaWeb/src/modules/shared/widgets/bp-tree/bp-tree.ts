@@ -288,10 +288,8 @@ export class BPTreeController implements IBPTreeController {
         }
 
         let viewport = this.$element[0].querySelector(".ag-body-viewport");
-        if (viewport && !angular.isUndefined((<any>window).PerfectScrollbar)) {
-            if (remove) {
-                (<any>window).PerfectScrollbar.destroy(viewport);
-            } else {
+        if (viewport) {
+
                 if (viewport.getAttribute("data-ps-id")) {
                     // perfect-scrollbar has been initialized on the element (data-ps-id is not null/undefined/"" )
                     let allColumnIds = [];
@@ -299,19 +297,9 @@ export class BPTreeController implements IBPTreeController {
                         allColumnIds.push(columnDef.field);
                     });
                     this.options.columnApi.autoSizeColumns(allColumnIds);
-                    (<any>window).PerfectScrollbar.update(viewport);
-                } else {
-                    (<any>window).PerfectScrollbar.initialize(viewport, {
-                        minScrollbarLength: 20,
-                        scrollXMarginOffset: 4,
-                        scrollYMarginOffset: 4
-                    });
-                }
             }
         }
     };
-    /* tslint:disable */
-
     private innerRenderer = (params: any) => {
         let inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? `bp-tree-inline-editing="` + params.colDef.field + `"` : "";
 

@@ -29,7 +29,7 @@ export interface IIStatefulArtifact extends IIStatefulItem {
 }
 
 export class StatefulArtifact extends StatefulItem implements IStatefulArtifact, IIStatefulArtifact {
-    private _artifactState: IArtifactState;
+    private state: IArtifactState;
     public deleted: boolean;
 
     protected subject: Rx.BehaviorSubject<IStatefulArtifact>;
@@ -39,15 +39,15 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         this.metadata = new MetaData(this);
         this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
 
-        this._artifactState = new ArtifactState(this);
+        this.state = new ArtifactState(this);
     }
 
     public dispose() {
         super.dispose();
         this.subject.dispose();
         delete this.subject;
-        if (this._artifactState) {
-            this._artifactState.dispose();
+        if (this.state) {
+            this.state.dispose();
         }
     }
 
@@ -63,7 +63,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     public get artifactState(): IArtifactState {
-        return this._artifactState; 
+        return this.state; 
     }
  
     public getObservable(): Rx.Observable<IStatefulArtifact> {

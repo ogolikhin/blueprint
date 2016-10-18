@@ -47,7 +47,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     public specificFields: AngularFormly.IFieldConfigurationObject[];
     public richTextFields: AngularFormly.IFieldConfigurationObject[];
 
-    private selectedArtifact: IStatefulArtifact;
+    public selectedArtifact: IStatefulArtifact;
     private selectedSubArtifact: IStatefulSubArtifact;
     protected artifactSubscriber: Rx.IDisposable;
     protected subArtifactSubscriber: Rx.IDisposable;
@@ -114,7 +114,12 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             this.selectedArtifact = artifact;
             this.artifactSubscriber = this.selectedArtifact.getObservable().subscribe(this.onArtifactChanged);
 
+        } else {
+            this.selectedArtifact = null;
+            this.selectedSubArtifact = null;
+            this.reset();
         }
+
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
@@ -160,7 +165,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             this.model = this.editor.getModel();
             this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
                 let propertyContext = field.data as PropertyContext;
-                if (propertyContext && propertyFilters[propertyContext.name]) {
+                if (propertyContext && propertyFilters[propertyContext.propertyTypePredefined]) {
                     return;
                 }
 

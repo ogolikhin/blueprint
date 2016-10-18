@@ -10,13 +10,12 @@ export class PropertyEditorFilters {
     public getPropertyEditorFilters(itemTypePredefined: Models.ItemTypePredefined): {[id: string]: boolean} {
         let propertyFilters: {[id: string]: boolean} = {};
         if (itemTypePredefined === Models.ItemTypePredefined.PROShape) {
-            propertyFilters[this.localization.get("Label_X")] = true;
-            propertyFilters[this.localization.get("Label_Y")] = true;
-            propertyFilters[this.localization.get("Label_Width")] = true;
-            propertyFilters[this.localization.get("Label_Height")] = true;
-            propertyFilters[this.localization.get("Label_Label")] = true;
-            propertyFilters[this.localization.get("Label_Name")] = true;
-            propertyFilters[this.localization.get("Label_Description")] = true;
+            propertyFilters[Models.PropertyTypePredefined.X] = true;
+            propertyFilters[Models.PropertyTypePredefined.Y] = true;
+            propertyFilters[Models.PropertyTypePredefined.Width] = true;
+            propertyFilters[Models.PropertyTypePredefined.Height] = true;
+            propertyFilters[Models.PropertyTypePredefined.Label] = true;
+            propertyFilters[Models.PropertyTypePredefined.Name] = true;
         }
 
         return propertyFilters;

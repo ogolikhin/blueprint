@@ -112,7 +112,7 @@ export class ManageTracesDialogController extends BaseDialogController {
             if (!res) {
                 currentItemModel.traceType = Relationships.LinkType.Manual;
                 currentItemModel.artifactName = currentItemModel.name || currentItemModel.displayName;
-                currentItemModel.itemName = currentItemModel.name || currentItemModel.displayName;
+                currentItemModel.itemName = currentItemModel.name || currentItemModel.displayName || currentItemModel.itemLabel;
                 currentItemModel.itemTypePrefix = currentItemModel.prefix;
                 currentItemModel.traceDirection = this.direction;
                 currentItemModel.projectName = currentItem["options"] && currentItem["options"].project;

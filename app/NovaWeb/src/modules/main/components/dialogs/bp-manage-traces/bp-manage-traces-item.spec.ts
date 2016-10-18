@@ -6,7 +6,6 @@ import {Relationships} from "../../../../main";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {BPManageTracesItem, BPManageTracesItemController} from "./bp-manage-traces-item";
 import {ComponentTest} from "../../../../util/component.test";
-//import { BpArtifactInfo } from "./../../bp-artifact-info";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 
 describe("Component BPManageTracesItem", () => {
@@ -25,8 +24,7 @@ describe("Component BPManageTracesItem", () => {
 
     beforeEach(inject(() => {
         let template = `<bp-manage-traces-item item="item" delete-trace="$ctrl.deleteTrace(item)"
-                      selected-traces="$ctrl.selectedTraces[$ctrl.data.artifactId]"
-                      class="clearfix"></bp-manage-traces-item>`;
+                      selected-traces="$ctrl.selectedTraces[$ctrl.data.artifactId]"></bp-manage-traces-item>`;
         directiveTest = new ComponentTest<BPManageTracesItemController>(template, "bp-manage-traces-item");
         vm = directiveTest.createComponent({});
 

@@ -19,6 +19,7 @@ using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // Ignore for now.
     [TestFixture]
     [Category(Categories.ArtifactStore)]
     public class CreateArtifactTests : TestBase
@@ -45,19 +46,7 @@ namespace ArtifactStoreTests
 
         #region 201 Created tests
 
-        [TestCase(ArtifactTypePredefined.Actor)]
-        [TestCase(ArtifactTypePredefined.BusinessProcess)]
-        [TestCase(ArtifactTypePredefined.Document)]
-        [TestCase(ArtifactTypePredefined.DomainDiagram)]
-        [TestCase(ArtifactTypePredefined.GenericDiagram)]
-        [TestCase(ArtifactTypePredefined.Glossary)]
-        [TestCase(ArtifactTypePredefined.PrimitiveFolder)]
-        [TestCase(ArtifactTypePredefined.Process)]
-        [TestCase(ArtifactTypePredefined.Storyboard)]
-        [TestCase(ArtifactTypePredefined.TextualRequirement)]
-        [TestCase(ArtifactTypePredefined.UIMockup)]
-        [TestCase(ArtifactTypePredefined.UseCase)]
-        [TestCase(ArtifactTypePredefined.UseCaseDiagram)]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForNovaRestMethods))]
         [TestRail(154745)]
         [Description("Create an artifact of a supported type in the project root.  Get the artifact.  " +
             "Verify the artifact returned has the same properties as the artifact we created.")]
@@ -77,19 +66,7 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetails);
         }
 
-        [TestCase(ArtifactTypePredefined.Actor)]
-        [TestCase(ArtifactTypePredefined.BusinessProcess)]
-        [TestCase(ArtifactTypePredefined.Document)]
-        [TestCase(ArtifactTypePredefined.DomainDiagram)]
-        [TestCase(ArtifactTypePredefined.GenericDiagram)]
-        [TestCase(ArtifactTypePredefined.Glossary)]
-        [TestCase(ArtifactTypePredefined.PrimitiveFolder)]
-        [TestCase(ArtifactTypePredefined.Process)]
-        [TestCase(ArtifactTypePredefined.Storyboard)]
-        [TestCase(ArtifactTypePredefined.TextualRequirement)]
-        [TestCase(ArtifactTypePredefined.UIMockup)]
-        [TestCase(ArtifactTypePredefined.UseCase)]
-        [TestCase(ArtifactTypePredefined.UseCaseDiagram)]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForNovaRestMethods))]
         [TestRail(182496)]
         [Description("Create an artifact of a supported type under a folder.  Get the artifact.  " +
             "Verify the artifact returned has the same properties as the artifact we created.")]
@@ -330,7 +307,7 @@ namespace ArtifactStoreTests
         public void CreateArtifact_UserWithoutPermissionToProject_403Forbidden()
         {
             // Setup:
-            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
+            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
@@ -424,7 +401,6 @@ namespace ArtifactStoreTests
             ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound, "Project not found.");
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/rSl4L0zv  Gets a 404 instead of 409.
         [TestCase(ItemTypePredefined.Actor)]
         [TestRail(183543)]
         [Description("Create a regular artifact under the default Collections folder.  Verify the create fails with a 409 Conflict error.")]
@@ -440,7 +416,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
-                "Invalid request.");
+                "Cannot create an artifact at this location.");
         }
 
         [TestCase]
@@ -482,24 +458,34 @@ namespace ArtifactStoreTests
                 "Cannot create an artifact at this location.");
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/zqgZbPQW
-        [Category(Categories.CustomData)]       // NOTE: This won't work on Silver02 until we make a required property without a default value.
+        [Explicit(IgnoreReasons.DeploymentNotReady)]    // NOTE: This won't work on Silver02 until we make a required property without a default value.
+        [Category(Categories.CustomData)]
         [TestCase(ArtifactTypePredefined.Actor)]
         [TestRail(183536)]
         [Description("Create an artifact in the 'Custom Data' project for a type that has a required Custom Property with no default value.  " +
-            "Verify the create fails with a 409 Conflict error.")]
-        public void CreateArtifact_ArtifactWithMissingRequiredCustomProperty_409Conflict(ItemTypePredefined artifactType)
+            "Verify the create succeeds.  Try to publish.  Verify the publish fails with a 409 Conflict error.")]
+        public void CreateArtifact_ArtifactWithMissingRequiredCustomProperty_ArtifactIsCreated_VerifyPublishReturns409Conflict(ItemTypePredefined artifactType)
         {
             // Setup:
             IProject customDataProject = ProjectFactory.GetProject(_user, "Custom Data", shouldRetrievePropertyTypes: true);
             customDataProject.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(artifactType, _user, customDataProject),
-                "'POST {0}' should return 409 Conflict when trying to create an artifact that has a required property without a default value!");
+            INovaArtifactDetails artifactDetails = null;
+
+            Assert.DoesNotThrow(() => artifactDetails = CreateArtifactWithRandomName(artifactType, _user, customDataProject),
+                "'POST {0}' should return 201 Created when trying to create an artifact that has a required property without a default value!");
 
             // Verify:
-            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ValidationFailed, "TODO: Fill in when https://trello.com/c/zqgZbPQW is fixed.");
+            Assert.NotNull(artifactDetails, "A valid object should be returned after creating an artifact!");
+            var artifactBase = Helper.Artifacts.Find(a => a.Id == artifactDetails.Id);
+
+            // Now try to publish and verify that it fails because of validation errors.
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifactBase, _user),
+                "You shouldn't be able to publish an artifact with missing required properties!");
+
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors,
+                I18NHelper.FormatInvariant("Artifact with Id {0} has validation errors.", artifactDetails.Id));
         }
 
         [TestCase(ItemTypePredefined.Actor)]

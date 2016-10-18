@@ -210,7 +210,9 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
 
         if (valueChanged) {
             if (this.personaLabel) {
-                this.personaLabel.text = value;
+                if (this.personaLabel.text !== value) {
+                    this.personaLabel.text = value;
+                }
                 this.shapesFactory.setSystemTaskPersona(value);
             }
         }

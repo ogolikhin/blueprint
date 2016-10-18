@@ -197,7 +197,6 @@ export interface IDiagramNode extends IDiagramNodeElement, MxCell, IDeletable, I
     getNextNodes(): IDiagramNode[];
     // gets immediate precursor nodes
     getPreviousNodes(): IDiagramNode[];
-    notify(change: NodeChange);
 
     getDeleteDialogParameters(): IDialogParams;
 

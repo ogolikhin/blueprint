@@ -1,7 +1,7 @@
 ﻿import {IDiagramElement, IDiagramNode} from "./../models/";
 import {IDiagramNodeElement, ILabel} from "./../models/";
 import {ElementType, NodeChange} from "./../models/";
-import {IProcessDiagramCommunication, ProcessEvents} from "../../../process-diagram-communication";
+import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 
 export class DiagramElement extends mxCell implements IDiagramElement {
     private elementType: ElementType;
@@ -68,10 +68,6 @@ export class DiagramElement extends mxCell implements IDiagramElement {
     protected getParentId(): number {
         // override in descendant classes
         return null;
-    }
-
-    public notify(updateModel) {
-        this.processDiagramManager.action(ProcessEvents.ArtifactUpdate, updateModel);
     }
 
     public getImageSource(image: string) {

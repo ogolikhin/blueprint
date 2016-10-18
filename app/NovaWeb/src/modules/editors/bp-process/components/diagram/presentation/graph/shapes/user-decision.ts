@@ -67,7 +67,6 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
 
     protected updateCellLabel(value: string) {
         this.textLabel.text = value;
-        this.sendUpdatedSubArtifactModel("name");
     }
 
     public getX(): number {

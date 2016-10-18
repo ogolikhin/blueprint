@@ -2,7 +2,7 @@ import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-contr
 import {DecisionEditorModel} from "./decision-editor-model";
 import {IModalProcessViewModel} from "../models/modal-process-view-model";
 import {ArtifactUpdateType} from "../../../models/enums";
-import {IArtifactReference, IProcessLink, IArtifactUpdateModel} from "../../../models/process-models";
+import {IArtifactReference, IProcessLink} from "../../../models/process-models";
 import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
 import {ProcessDeleteHelper} from "../../diagram/presentation/graph/process-delete-helper";
 import {Condition} from "../../diagram/presentation/graph/shapes";
@@ -180,10 +180,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
 
         if (isMergeNodeUpdate) {
             this.dialogModel.graph.viewModel.communicationManager.processDiagramCommunication.modelUpdate(this.dialogModel.originalDecision.model.id);
-            const updateModel: IArtifactUpdateModel = {
-                updateType: ArtifactUpdateType.Link
-            };
-            this.dialogModel.graph.viewModel.communicationManager.processDiagramCommunication.action(ProcessEvents.ArtifactUpdate, updateModel);
+            this.dialogModel.graph.viewModel.communicationManager.processDiagramCommunication.action(ProcessEvents.ArtifactUpdate);
         }
     }
 

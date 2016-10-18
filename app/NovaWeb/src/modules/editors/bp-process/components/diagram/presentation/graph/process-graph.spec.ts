@@ -1637,7 +1637,7 @@ describe("ProcessGraph", () => {
 
         //bypass testing stateful shapes logic here
         spyOn(viewModel, "removeStatefulShape").and.returnValue(null);
-        spyOn(viewModel, "addStatefulShape").and.returnValue(null);
+        spyOn(viewModel, "addToSubArtifactCollection").and.returnValue(null);
         return new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, messageService, null, statefulArtifactFactory);
     }
 });

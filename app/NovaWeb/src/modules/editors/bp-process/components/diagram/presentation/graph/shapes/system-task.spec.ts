@@ -73,8 +73,6 @@ describe("SystemTask", () => {
         node.render(graph, 80, 120, false);
         node.renderLabels();
 
-        spyOn(SystemTask.prototype, "notify")();
-
         node.label = "test label";
         node.persona = "test persona";
         node.description = "test description";
@@ -90,7 +88,6 @@ describe("SystemTask", () => {
         expect(node.associatedImageUrl).toEqual("test.jpg");
         expect(node.imageId).toEqual("2");
         expect(node.associatedArtifact).toEqual(testArtifactReferenceLink2);
-        expect(SystemTask.prototype.notify).toHaveBeenCalled();
     });
 
     describe("Test text elements", () => {
@@ -158,7 +155,6 @@ describe("SystemTask", () => {
             let testSystemTask = ShapeModelMock.instance().SystemTaskMock();
 
             let node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
-            spyOn(node, "notify")();
 
             let testLabelText = "test label";
 
@@ -176,7 +172,6 @@ describe("SystemTask", () => {
 
             let node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
             let editNode = new DiagramNodeElement("H1", ElementType.SystemTaskHeader, "", new mxGeometry(), "");
-            spyOn(node, "notify")();
 
             let testLabelText = "test label";
 
@@ -192,7 +187,6 @@ describe("SystemTask", () => {
             let testSystemTask = ShapeModelMock.instance().SystemTaskMock();
 
             let node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
-            spyOn(node, "notify")();
             node.persona = "12345";
 
 

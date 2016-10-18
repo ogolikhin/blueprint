@@ -57,7 +57,7 @@ export class ItemStateController {
             if (this.itemInfoService.isSubArtifact(result)) {
                 // subartifact
                 console.log("about to display subartifact, navigate to artifact: " + result.id);
-                this.navigationService.navigateToArtifact(result.id);
+                this.navigationService.navigateTo(result.id, true);
 
             } else if (this.itemInfoService.isProject(result)) {
                 // project

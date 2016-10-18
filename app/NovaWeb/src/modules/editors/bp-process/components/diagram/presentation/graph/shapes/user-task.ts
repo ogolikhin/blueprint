@@ -181,9 +181,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         const valueChanged = this.setPropertyValue("persona", value);
         if (valueChanged) {
             if (this.personaLabel) {
-                if (this.personaLabel.text !== value) {
-                    this.personaLabel.text = value;
-                }
+                this.personaLabel.text = value;
                 this.shapesFactoryService.setUserTaskPersona(value);
             } 
         }

@@ -17,6 +17,9 @@ namespace CustomAttributes
         /// <summary>This test usually fails because it creates more load than Blueprint can handle.</summary>
         public const string OverloadsTheSystem = "OverloadsTheSystem";
 
+        /// <summary>This test should only be run manually.</summary>
+        public const string ManualOnly = "ManualOnly";
+
         /// <summary>This test fails because of a product defect.</summary>
         public const string ProductBug = "ProductBug";
 

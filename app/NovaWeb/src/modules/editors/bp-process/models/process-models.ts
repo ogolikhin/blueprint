@@ -3,12 +3,7 @@ import {IHashMap} from "../../../main/models/models";
 import {PropertyType, PropertyValueFormat, ArtifactUpdateType} from "./enums";
 
 export {ItemTypePredefined, PropertyTypePredefined};
-
-export interface IArtifactUpdateModel {
-    updateType: ArtifactUpdateType;
-    propertyValue: IPropertyValueInformation;
-    subArtifactId?: number;
-}
+    
 
 export interface IArtifactInfo {
     id: number;

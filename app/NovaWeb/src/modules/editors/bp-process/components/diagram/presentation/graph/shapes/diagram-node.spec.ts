@@ -233,28 +233,11 @@ describe("DiagramNode", () => {
                 propertyValues[label] = propertyValue;
                 model.propertyValues = propertyValues;
                 var diagramNode = new DiagramNode(model);
-                var notifySpy = spyOn(diagramNode, "notify");
                 // Act
                 diagramNode.action = newValue;
 
                 // Assert
                 expect(model.propertyValues[label].value).toEqual(newValue);
-            });
-
-            it("notifies of change when name is changed", () => {
-                // Arrange
-                var oldValue = "Default";
-                var newValue = "New Name";
-                var model = new ProcessShapeModel();
-                model.name = oldValue;
-                var diagramNode = new DiagramNode(model);
-                var notifySpy = spyOn(diagramNode, "notify");
-
-                // Act
-                diagramNode.label = newValue;
-
-                // Assert
-                expect(notifySpy).toHaveBeenCalled();
             });
 
             it("modifies model's 'x' when column is updated", () => {

@@ -1,11 +1,12 @@
 ﻿import {IProcessGraph, IDiagramNode} from "../models/";
 import {IDiagramElement, IMenuContainer} from "../models/";
-import {IProcessLinkModel, IArtifactUpdateModel, PropertyTypePredefined, IPropertyValueInformation} from "../../../../../models/process-models";
+import {IProcessLinkModel, PropertyTypePredefined, IPropertyValueInformation} from "../../../../../models/process-models";
 import {ArtifactUpdateType} from "../../../../../models/enums";
 import {NodeType, NodeChange, ElementType} from "../models/";
 import {Label, LabelStyle} from "../labels/label";
 import {DiagramElement} from "./diagram-element";
 import {Connector, ConnectorOverlay} from "./connector";
+import {ProcessEvents} from "../../../process-diagram-communication";
 
 
 export interface IDiagramLink extends IDiagramElement, IMenuContainer {
@@ -109,20 +110,10 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
             if (this.textLabel) {
                 this.textLabel.text = value;
             }
-            const propertyValue: IPropertyValueInformation = {
-                    propertyName: "label",
-                    typePredefined: PropertyTypePredefined.None,
-                    value: value,
-                    typeId: 0
-                };
-            const updateModel: IArtifactUpdateModel = {
-                updateType: ArtifactUpdateType.LinkLabel,
-                propertyValue: propertyValue
-                };
-            this.notify(updateModel);
+            this.processDiagramManager.action(ProcessEvents.ArtifactUpdate);
         }
     }
-
+    
     public get sourceNode(): IDiagramNode {
         if (this.source != null && this.source.getNode) {
             return this.source.getNode();

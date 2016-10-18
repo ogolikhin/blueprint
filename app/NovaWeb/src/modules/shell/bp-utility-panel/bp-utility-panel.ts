@@ -31,6 +31,7 @@ export class BPUtilityPanelController {
     private _currentItemClass: string;
     private _currentItemType: number;
     private _currentItemIcon: number;
+    private _isAnyPanelVisible: boolean;
 
     public get currentItem() {
         return this._currentItem;
@@ -46,6 +47,10 @@ export class BPUtilityPanelController {
 
     public get currentItemIcon() {
         return this._currentItemIcon;
+    }
+
+    public get IsAnyPanelVisible() {
+        return this._isAnyPanelVisible;
     }
 
     constructor(private localization: ILocalizationService,
@@ -124,6 +129,7 @@ export class BPUtilityPanelController {
             this.toggleRelationshipsPanel(selection);
             this.toggleDiscussionsPanel(selection);
         }
+        this.setAnyPanelIsVisible();
     }
 
     private toggleDiscussionsPanel(selection: ISelection) {
@@ -131,6 +137,8 @@ export class BPUtilityPanelController {
         if (artifact && (artifact.predefinedType === ItemTypePredefined.CollectionFolder
             || artifact.predefinedType === ItemTypePredefined.ArtifactCollection)) {
                 this.hidePanel(PanelType.Discussions);
+            } else {
+                this.showPanel(PanelType.Discussions);
             }
     }
 
@@ -160,8 +168,6 @@ export class BPUtilityPanelController {
             || artifact.predefinedType === ItemTypePredefined.UseCase
             || artifact.predefinedType === ItemTypePredefined.UIMockup
             || artifact.predefinedType === ItemTypePredefined.Process
-            || artifact.predefinedType === ItemTypePredefined.CollectionFolder
-            || artifact.predefinedType === ItemTypePredefined.ArtifactCollection
             || (artifact.predefinedType === ItemTypePredefined.Actor &&
             explorerArtifact &&
             explorerArtifact.predefinedType === ItemTypePredefined.UseCaseDiagram))) {
@@ -195,6 +201,13 @@ export class BPUtilityPanelController {
             this.hidePanel(PanelType.Relationships);
         } else {
             this.showPanel(PanelType.Relationships);
+        }
+    }
+
+    private setAnyPanelIsVisible() {
+        const accordionCtrl: IBpAccordionController = this.getAccordionController();
+        if (accordionCtrl) {
+            this._isAnyPanelVisible = accordionCtrl.panels.filter((p) => { return p.isVisible === true; }).length > 0;
         }
     }
 }

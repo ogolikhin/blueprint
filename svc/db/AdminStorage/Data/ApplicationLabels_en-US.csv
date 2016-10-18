@@ -55,6 +55,7 @@ App_UtilityPanel_Attachments,"Files"
 App_UtilityPanel_Relationships,"Relationships"
 App_UtilityPanel_History,"History"
 App_UtilityPanel_Reviews,"Reviews"
+App_UtilityPanel_NoPanel,"No additional details to display"
 
 App_UP_Filter_SortByLatest,"Sort by latest"
 App_UP_Filter_SortByEarliest,"Sort by earliest"

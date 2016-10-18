@@ -238,5 +238,10 @@ pagecontent, bp-properties-panel {
 
     .utility-panel-content {
         height: calc(100% - #{$utility-panel-title-height});
+
+        &.empty-panel{
+            border-left: solid 2px $right-sidebar-border;
+            border-top: solid 1px $right-sidebar-border;
+        }
     }
 }

@@ -27,14 +27,10 @@ export class ItemStateController {
 
         let id = parseInt($state.params["id"], 10);
 
-        // either gets a loaded artifact or loads if the artifact hasn't been loaded already
-        // TODO: decide whether to use ArtifactManager cache or not
         artifactManager.get(id).then((artifact: IStatefulArtifact) => {
-            if (!artifact) {
-                throw new Error("Go to functionality is not implemented yet!!!");
-            }
             artifact.unload();
-            this.navigateToSubRoute(artifact.id, artifact.predefinedType);
+            this.navigateToSubRoute(artifact);
+
         }).catch(error => {
             console.log("Artifact is not loaded");
             this.getItemInfo(id);
@@ -43,20 +39,36 @@ export class ItemStateController {
 
     public getItemInfo(id: number) {
         this.itemInfoService.get(id).then((result: IItemInfoResult) => {
+            const artifact: Models.IArtifact = {
+                id: result.id,
+                projectId: result.projectId,
+                name: result.name,
+                parentId: result.parentId,
+                predefinedType: result.predefinedType,
+                prefix: result.prefix,
+                version: result.version,
+                orderIndex: result.orderIndex,
+                lockedByUser: result.lockedByUser,
+                lockedDateTime: result.lockedDateTime,
+                permissions: result.permissions
+            };
+            const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(artifact);
+
             if (this.itemInfoService.isSubArtifact(result)) {
                 // subartifact
-                console.log("about to display subartifact, navigate to artifact: " + result.parentId);
-                // this.navigationService.navigateTo(result.parentId);
+                console.log("about to display subartifact, navigate to artifact: " + result.id);
+                this.navigationService.navigateToArtifact(result.id);
 
             } else if (this.itemInfoService.isProject(result)) {
                 // project
                 console.log("about to display project");
+                this.navigateToSubRoute(statefulArtifact);
 
             } else if (this.itemInfoService.isArtifact(result)) {
                 // artifact
                 console.log("about to display artifact");
-                // this.statefulArtifactFactory.createStatefulArtifact
-                this.navigateToSubRoute(result.id, result.predefinedType);
+                this.artifactManager.add(statefulArtifact);
+                this.navigateToSubRoute(statefulArtifact);
 
             } else {
                 throw new Error("Invalid Id");
@@ -64,36 +76,10 @@ export class ItemStateController {
         });
     }
 
-    public navigateToSubRoute(artifactId: number, artifactType: Models.ItemTypePredefined) {
-        const params = { context: artifactId };
-        switch (artifactType) {
-            case Models.ItemTypePredefined.GenericDiagram:
-            case Models.ItemTypePredefined.BusinessProcess:
-            case Models.ItemTypePredefined.DomainDiagram:
-            case Models.ItemTypePredefined.Storyboard:
-            case Models.ItemTypePredefined.UseCaseDiagram:
-            case Models.ItemTypePredefined.UseCase:
-            case Models.ItemTypePredefined.UIMockup:
-                this.$state.go("main.artifact.diagram", params);
-                break;
-            case Models.ItemTypePredefined.Glossary:
-                this.$state.go("main.artifact.glossary", params);
-                break;
-            case Models.ItemTypePredefined.Project:
-            case Models.ItemTypePredefined.CollectionFolder:
-                this.$state.go("main.artifact.general", params);
-                break;
-            case Models.ItemTypePredefined.Process:
-                this.$state.go("main.artifact.process", params);
-                break;
-            default:
-                this.$state.go("main.artifact.details", params);
-        }
-    }
+    public navigateToSubRoute(artifact: IStatefulArtifact) {
+        const params = { context: artifact.id };
 
-    public navigateToSubRouteOld(artifactType: Models.ItemTypePredefined, artifact: IStatefulArtifact) {
-        const params = {context: artifact.id};
-        switch (artifactType) {
+        switch (artifact.predefinedType) {
             case Models.ItemTypePredefined.GenericDiagram:
             case Models.ItemTypePredefined.BusinessProcess:
             case Models.ItemTypePredefined.DomainDiagram:

@@ -183,7 +183,7 @@ $modal-open-project-height: 450px;
         }
 
         .search-details {
-            min-width: 0;
+            overflow: hidden;
             padding-left: 3px;
             & > div {
                 @include text-ellipsis-flex-width(unset);

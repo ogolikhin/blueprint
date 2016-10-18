@@ -9,7 +9,6 @@ import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-
 import {IStatefulProcessSubArtifact} from "../../../../../process-subartifact";
 
 export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement implements IDiagramNode {
-
     direction: Direction;
     model: T;
     private nodeType: NodeType;
@@ -55,6 +54,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
     protected setModelName(value: string, redrawCellLabel: boolean) {
         if (this.model != null && this.model.name !== value) {
             this.model.name = value;
+
             if (redrawCellLabel) {
                 this.updateCellLabel(value);
             }
@@ -228,8 +228,10 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
             }).map((edge) => {
                 return (<IDiagramNodeElement>edge.target).getNode();
             });
+
             return <IDiagramNode[]>nextNodes;
         }
+
         return undefined;
     }
 
@@ -242,10 +244,13 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
             }).map((edge) => {
                 return (<IDiagramNodeElement>edge.source).getNode();
             });
+
             return <IDiagramNode[]>previousNodes;
         }
+
         return undefined;
     }
+
     protected getProperty(propertyName: string): IPropertyValueInformation {
         if (this.model == null || this.model.propertyValues == null || this.model.propertyValues[propertyName] == null) {
             return null;
@@ -253,6 +258,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
 
         return this.model.propertyValues[propertyName];
     }
+
     protected getPropertyValue(propertyName: string) {
         if (this.model == null || this.model.propertyValues == null || this.model.propertyValues[propertyName] == null) {
             return null;
@@ -267,6 +273,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
         }
 
         const previousValue = this.model.propertyValues[propertyName].value;
+
         if (previousValue !== newValue) {
             const propertyValue = this.model.propertyValues[propertyName];
             propertyValue.value = newValue;
@@ -307,11 +314,10 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
 
     public canGenerateUserStory(): boolean {
         return false;
-    }    
+    }
 
     // TODO: communication with utility panel is different in Nova
     public openPropertiesDialog(scope: ng.IRootScopeService, tab: string) {
-
         //if (!scope)
         //    return;
         //var utilityPanel: Shell.IPropertiesMw = scope["propertiesSvc"]();
@@ -329,6 +335,5 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
         //        tab /*preselected tab*/,
         //        true /*includeDraft*/);
         //}
-
     }
 }

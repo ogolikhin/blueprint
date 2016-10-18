@@ -239,10 +239,4 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
         const id = graph.getDecisionBranchDestLinkForIndex(this.model.id, orderIndex).destinationId;
         return graph.getShapeById(id);
     }
-
-    public cloneDecision(): IDecision {
-        const decision = new UserDecision(this.model, this.rootScope, this.nodeFactorySettings);
-        decision.label = this.label;
-        return decision;
-    }
 }

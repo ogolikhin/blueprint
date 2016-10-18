@@ -215,10 +215,4 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
         const id = graph.getDecisionBranchDestLinkForIndex(this.model.id, orderIndex).destinationId;
         return graph.getShapeById(id);
     }
-
-    public cloneDecision(): IDecision {
-        const decision = new SystemDecision(this.model, this.rootScope, this.nodeFactorySettings);
-        decision.label = this.label;
-        return decision;
-    }
 }

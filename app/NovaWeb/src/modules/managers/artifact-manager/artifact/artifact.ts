@@ -82,8 +82,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 this.loadPromise = null;
                 this.runPostGetObservable();
             });
-        } else {
-            //  this.subject.onNext(this);
         }
 
         return this.subject.filter(it => !!it).asObservable();

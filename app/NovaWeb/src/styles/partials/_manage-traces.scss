@@ -168,6 +168,14 @@ $modal-side-clearance: 8px;
             .trace-main {
                 padding: 10px 0 5px;
 
+                i {
+                    color: $brand-secondary;
+
+                    &.icon-project{
+                        color: $gray-light;
+                    }
+                }
+
                 > div {
                     float: left;
 

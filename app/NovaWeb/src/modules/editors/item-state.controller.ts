@@ -63,9 +63,7 @@ export class ItemStateController {
                     permissions: result.permissions
                 };
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(artifact);
-                
-                // TODO: fix for orphans
-                this.artifactManager.add(statefulArtifact);
+                this.artifactManager.addAsOrphan(statefulArtifact);
                 this.navigateToSubRoute(statefulArtifact);
 
             } else {

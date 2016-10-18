@@ -261,7 +261,10 @@ export class BpArtifactInfoController {
     private onWidthResized(mainWindow: IMainWindow) {
         if (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
             let sidebarWrapper: Element;
-            const sidebarSize: number = 270; // MUST match $sidebar-size in styles/modules/_variables.scss
+            //const sidebarSize: number = 270; // MUST match $sidebar-size in styles/modules/_variables.scss
+
+            const sidebarSize = (<HTMLElement>document.querySelector(".sidebar.left-panel")).offsetWidth;
+
             let sidebarsWidth: number = 20 * 2; // main content area padding
             sidebarWrapper = document.querySelector(".bp-sidebar-wrapper");
 

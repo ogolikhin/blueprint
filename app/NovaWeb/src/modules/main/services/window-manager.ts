@@ -34,7 +34,7 @@ export class WindowManager implements IWindowManager {
     private _isRightSidebarOpen: boolean;
     private _causeOfChange: ResizeCause;
 
-    private sidebarSize: number = 270;
+    //fixme: this should not be hard coded and actually should get the value by checking the element
 
     private _toggleObserver: MutationObserver;
     private _messageObserver: MutationObserver;
@@ -124,7 +124,8 @@ export class WindowManager implements IWindowManager {
     };
 
     private getContentWidth(): number {
-        return this._width - (this._isLeftSidebarOpen ? this.sidebarSize : 0) - (this._isRightSidebarOpen ? this.sidebarSize : 0);
+        const sidebarWidth = (<HTMLElement>document.querySelector(".sidebar.left-panel")).offsetWidth;
+        return this._width - (this._isLeftSidebarOpen ? sidebarWidth : 0) - (this._isRightSidebarOpen ? sidebarWidth : 0);
     }
 
     private getContentHeight(): number {

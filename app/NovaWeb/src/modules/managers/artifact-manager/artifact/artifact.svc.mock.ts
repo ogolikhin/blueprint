@@ -1,4 +1,4 @@
-﻿import { Models, Enums, IArtifactService} from "./artifact.svc";
+﻿import {Models, Enums, IArtifactService} from "./artifact.svc";
 
 export class ArtifactServiceMock implements IArtifactService {
 
@@ -7,7 +7,9 @@ export class ArtifactServiceMock implements IArtifactService {
     constructor(private $http: ng.IHttpService, private $q: ng.IQService) {
     }
 
-    public updateArtifact(artifact: Models.IArtifact) {}
+    public updateArtifact(artifact: Models.IArtifact) {
+        //Do nothing
+    }
 
     public static createArtifact(id: number, properties?: number): any {
         return new Models.Artifact({
@@ -33,26 +35,26 @@ export class ArtifactServiceMock implements IArtifactService {
     }
 
     public static createSystemProperty(artifact: Models.IArtifact) {
-        var result: Models.IPropertyValue[] = [];
+        const result: Models.IPropertyValue[] = [];
         let id: number = Math.floor(Math.random() * 100);
         result.push({
             propertyTypeId: id,
             propertyTypeVersionId: 1,
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedBy,
             value: "Creator"
-        });       
+        });
         result.push({
             propertyTypeId: id + 1,
             propertyTypeVersionId: 1,
             propertyTypePredefined: Models.PropertyTypePredefined.CreatedOn,
             value: new Date()
-        });       
+        });
         result.push({
             propertyTypeId: id + 2,
             propertyTypeVersionId: 1,
             propertyTypePredefined: Models.PropertyTypePredefined.LastEditedBy,
             value: "Editor"
-        });       
+        });
         result.push({
             propertyTypeId: id + 3,
             propertyTypeVersionId: 1,
@@ -60,12 +62,12 @@ export class ArtifactServiceMock implements IArtifactService {
             value: new Date()
         });
         artifact.customPropertyValues = (artifact.customPropertyValues || []).concat(result);
-    
+
     }
 
     public static createLockResult(id: number): Models.ILockResult[] {
         let data = {
-            result : Enums.LockResultEnum.Success
+            result: Enums.LockResultEnum.Success
 
         } as Models.ILockResult;
         return [data];
@@ -74,8 +76,8 @@ export class ArtifactServiceMock implements IArtifactService {
 
     public static createPropertyValues(id: number, count?: number): any[] {
 
-        var result: Models.IPropertyValue[] = [];
-        for (var i = 0; i < (count || 0); i++) {
+        const result: Models.IPropertyValue[] = [];
+        for (let i = 0; i < (count || 0); i++) {
             result.push({
                 propertyTypeId: id + i,
                 propertyTypeVersionId: id * 10,
@@ -88,25 +90,25 @@ export class ArtifactServiceMock implements IArtifactService {
 
     public static createSpecificPropertyValue(versionId: number, value: any, typePredefined: Models.PropertyTypePredefined): Models.IPropertyValue {
 
-        var result: Models.IPropertyValue = {
-                propertyTypeId: typePredefined,
-                propertyTypeVersionId: versionId,
-                propertyTypePredefined: typePredefined,
-                value: value
-            };
+        const result: Models.IPropertyValue = {
+            propertyTypeId: typePredefined,
+            propertyTypeVersionId: versionId,
+            propertyTypePredefined: typePredefined,
+            value: value
+        };
         return result;
     }
 
     public static createSubArtifacts(id: number, count?: number): any[] {
-        var result: Models.ISubArtifact[] = [];
-        for (var i = 0; i < (count || 0); i++) {
+        const result: Models.ISubArtifact[] = [];
+        for (let i = 0; i < (count || 0); i++) {
             result.push({
                 id: id + 1000,
                 name: "SubArtifact",
                 parentId: id,
                 itemTypeId: id + 10000,
                 itemTypeVersionId: id + 1000,
-                customPropertyValues : this.createPropertyValues(id, count),
+                customPropertyValues: this.createPropertyValues(id, count),
                 traces: []
             });
         }
@@ -114,22 +116,23 @@ export class ArtifactServiceMock implements IArtifactService {
     }
 
     public getArtifact(artifactId: number): ng.IPromise<Models.IArtifact> {
-        var deferred = this.$q.defer<any>();
+        const deferred = this.$q.defer<any>();
         deferred.resolve(ArtifactServiceMock.createArtifact(artifactId));
         return deferred.promise;
     }
 
 
     public getSubArtifact(artifactId: number, subArtifactId: number): ng.IPromise<Models.ISubArtifact> {
-        var deferred = this.$q.defer<any>();
+        const deferred = this.$q.defer<any>();
         deferred.resolve(ArtifactServiceMock.createSubArtifacts(artifactId));
         return deferred.promise;
-    }  
+    }
+
     public lock(artifactId: number): ng.IPromise<Models.ILockResult[]> {
-        var deferred = this.$q.defer<any>();
+        const deferred = this.$q.defer<any>();
         deferred.resolve(ArtifactServiceMock.createLockResult(artifactId));
         return deferred.promise;
     }
 
 
-    }
+}

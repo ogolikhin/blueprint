@@ -7,12 +7,11 @@ import {UserTaskChildElement} from "./user-task-child-element";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
+import {DeleteShapeButton} from "../buttons/delete-shape-button";
 import {Label, LabelStyle} from "../labels/label";
-import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 import {ProcessEvents} from "../../../process-diagram-communication";
 
 export class SystemDecision extends UserTaskChildElement<IProcessShape> implements IDecision, IUserTaskChildElement {
-
     private SYSTEM_DECISION_WIDTH = 120;
     private SYSTEM_DECISION_HEIGHT = 120;
     private LABEL_EDIT_MAXLENGTH = 32;
@@ -27,42 +26,41 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
     private detailsButton: Button;
     private deleteShapeButton: Button;
 
-    private rootScope: any;
-    private processDiagramManager: IProcessDiagramCommunication;
+    private rootScope: ng.IRootScopeService;
 
-    constructor(model: IProcessShape, rootScope: any, nodeFactorySettings: NodeFactorySettings = null) {
+    constructor(
+        model: IProcessShape, 
+        rootScope: ng.IRootScopeService, 
+        private nodeFactorySettings: NodeFactorySettings = null
+    ) {
         super(model, NodeType.SystemDecision);
 
         this.rootScope = rootScope;
-        this.initButtons(model.id.toString(), nodeFactorySettings);        
+        this.initButtons(model.id.toString(), nodeFactorySettings);
     }
 
     private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
         //Modal Dialog
-        this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, "/novaweb/static/bp-process/images/adddetails-neutral.svg");
+        this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("adddetails-neutral.svg"));
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
             this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemDecisionDetailsDialogType));
         } else {
-            this.detailsButton.setClickAction(() => { });
+            this.detailsButton.setClickAction(() => {
+                //fixme: empty blocks should be removed or undefined
+            });
         }
-        this.detailsButton.setHoverImage("/novaweb/static/bp-process/images/adddetails-hover.svg");
-        this.detailsButton.setDisabledImage("/novaweb/static/bp-process/images/adddetails-mute.svg");
-        this.detailsButton.setTooltip(this.rootScope.config.labels["ST_Settings_Label"]);
+
+        this.detailsButton.setHoverImage(this.getImageSource("adddetails-hover.svg"));
+        this.detailsButton.setDisabledImage(this.getImageSource("adddetails-mute.svg"));
+        this.detailsButton.setTooltip(this.rootScope["config"].labels["ST_Settings_Label"]);
 
         //Delete process shape button
-        this.deleteShapeButton = new Button(`DS${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, "/novaweb/static/bp-process/images/delete-neutral.svg");
-
-        if (nodeFactorySettings && nodeFactorySettings.isDeleteShapeEnabled) {
-            this.deleteShapeButton.setHoverImage("/novaweb/static/bp-process/images/delete-hover.svg");
-            this.deleteShapeButton.setClickAction(() => {
+        const clickAction = () => {
                 this.processDiagramManager.action(ProcessEvents.DeleteShape);
-            });
-        } else {
-            this.deleteShapeButton.setDisabledImage("/novaweb/static/bp-process/images/delete-inactive.svg");
-            this.deleteShapeButton.setClickAction(() => { });
-        }        
-        
-        this.deleteShapeButton.setTooltip(this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"]);
+        };
+
+        this.deleteShapeButton = new DeleteShapeButton(nodeId, this.BUTTON_SIZE, this.BUTTON_SIZE,
+            this.rootScope["config"].labels["ST_Shapes_Delete_Tooltip"], nodeFactorySettings, clickAction);
     }
 
     public setLabelWithRedrawUi(value: string) {
@@ -71,7 +69,6 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
 
     protected updateCellLabel(value: string) {
         this.textLabel.text = value;
-        this.notify(NodeChange.Update, true);
     }
 
     public showMenu(mxGraph: MxGraph) {
@@ -91,21 +88,22 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
     }
 
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
-
+        this.dialogManager = graph.viewModel.communicationManager.modalDialogManager;
         this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;
-        
-        var mxGraph = graph.getMxGraph();
 
-        var fillColor = this.DEFAULT_FILL_COLOR;
+        const mxGraph = graph.getMxGraph();
+
+        let fillColor = this.DEFAULT_FILL_COLOR;
+
         if (this.model.id < 0) {
             fillColor = justCreated ? this.newShapeColor : this.NEW_FILL_COLOR;
         }
 
-        this.insertVertex(mxGraph, this.model.id.toString(), null, x, y, this.SYSTEM_DECISION_WIDTH, this.SYSTEM_DECISION_HEIGHT, 
+        this.insertVertex(mxGraph, this.model.id.toString(), null, x, y, this.SYSTEM_DECISION_WIDTH, this.SYSTEM_DECISION_HEIGHT,
             "shape=rhombus;strokeColor=" + this.DEFAULT_BORDER_COLOR + ";fillColor=" + fillColor +
             ";fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=12;foldable=0;");
 
-        var textLabelStyle: LabelStyle = new LabelStyle(
+        const textLabelStyle: LabelStyle = new LabelStyle(
             "Open Sans",
             12,
             "transparent",
@@ -117,7 +115,10 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
             this.SYSTEM_DECISION_WIDTH - 30,
             "#4C4C4C"
         );
-        this.textLabel = new Label((value: string) => { this.label = value; },
+
+        this.textLabel = new Label((value: string) => {
+                this.label = value;
+            },
             graph.getHtmlElement(),
             this.model.id.toString(),
             "Label-B" + this.model.id.toString(),
@@ -149,22 +150,15 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
         return this;
     }
 
+    // get the maximum length of text that can be entered
     public getElementTextLength(cell: MxCell): number {
-        /*
-        * get the maximum length of text that can be entered
-        */
         return this.LABEL_EDIT_MAXLENGTH;
     }
 
+    // This function returns formatted text to the getLabel() function to display the label
     public formatElementText(cell: MxCell, text: string): string {
-
-        /***
-         * This function returns formatted text to the getLabel()
-         * function to display the label  
-         */
-
         if (cell && text) {
-            var maxLen: number = this.LABEL_VIEW_MAXLENGTH;
+            const maxLen: number = this.LABEL_VIEW_MAXLENGTH;
 
             if (text.length > maxLen) {
                 text = text.substr(0, maxLen) + " ...";
@@ -174,45 +168,42 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
         return text;
     }
 
+    // Save text for the node or for an element within the node
     public setElementText(cell: MxCell, text: string) {
-        /*
-        * save text for the node or for an element within
-        * the node
-        */
         this.label = text;
     }
+
     public getFirstSystemTask(graph: IProcessGraph): ISystemTask {
-        var targets = this.getTargets(graph.getMxGraphModel());
+        const targets = this.getTargets(graph.getMxGraphModel());
+
         if (targets) {
-            var firstTarget = targets[0];
+            const firstTarget = targets[0];
+
             if (firstTarget != null && firstTarget.getNodeType() === NodeType.SystemTask) {
                 return <ISystemTask>firstTarget;
             }
+
             if (firstTarget.getNodeType() === NodeType.SystemDecision) {
                 return (<SystemDecision>firstTarget).getFirstSystemTask(graph);
             }
         }
+
         return null;
     }
 
-    /**
-     * Returns an array of targets, which an be either SystemTasks or SystemDecisions
-     * @param graph
-     */
+    // Returns an array of targets, which an be either SystemTasks or SystemDecisions
+    // @param graph
     public getSystemNodes(mxGraph: MxGraph): IDiagramNode[] {
         return this.getTargets(mxGraph.getModel());
     }
 
     private openDialog(dialogType: ModalDialogType) {
-        //alert("<Logic for opening System Decision dialog goes here>");
-        // #TODO: implement new mechanism for opening dialogs
-        //this.rootScope.$broadcast(BaseModalDialogController.dialogOpenEventName,
-        //    this.model.id,
-        //    dialogType);
+        this.dialogManager.openDialog(this.model.id, dialogType);
     }
+
     public getDeleteDialogParameters(): IDialogParams {
         let dialogParams: IDialogParams = {};
-        dialogParams.message = this.rootScope.config.labels["ST_Confirm_Delete_System_Decision"];
+        dialogParams.message = this.rootScope["config"].labels["ST_Confirm_Delete_System_Decision"];
         return dialogParams;
     }
 
@@ -221,7 +212,7 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
     }
 
     public getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape {
-        var id = graph.getDecisionBranchDestLinkForIndex(this.model.id, orderIndex).destinationId;
+        const id = graph.getDecisionBranchDestLinkForIndex(this.model.id, orderIndex).destinationId;
         return graph.getShapeById(id);
     }
 }

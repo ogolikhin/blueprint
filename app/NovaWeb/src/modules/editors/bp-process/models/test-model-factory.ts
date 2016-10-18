@@ -1,7 +1,7 @@
 ﻿import {ProcessShapeType, ProcessType} from "./enums";
 import {IProcess, IProcessShape, ProcessModel, ProcessShapeModel} from "./process-models";
 import {ShapesFactory} from "../components/diagram/presentation/graph/shapes/shapes-factory";
-import { StatefulArtifactFactoryMock } from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 export function createProcessModel(id: number = 1, type: ProcessType = ProcessType.BusinessProcess): ProcessModel {
     let process = new ProcessModel(id);
@@ -75,10 +75,10 @@ export function createDefaultProcessModelWithoutXAndY(): IProcess {
     process.shapes.push(st2);
     process.shapes.push(end);
 
-    process.links.push({ sourceId: 10, destinationId: 15, orderindex: 0, label: null });
-    process.links.push({ sourceId: 15, destinationId: 20, orderindex: 0, label: null });
-    process.links.push({ sourceId: 20, destinationId: 25, orderindex: 0, label: null });
-    process.links.push({ sourceId: 25, destinationId: 30, orderindex: 0, label: null });
+    process.links.push({sourceId: 10, destinationId: 15, orderindex: 0, label: null});
+    process.links.push({sourceId: 15, destinationId: 20, orderindex: 0, label: null});
+    process.links.push({sourceId: 20, destinationId: 25, orderindex: 0, label: null});
+    process.links.push({sourceId: 25, destinationId: 30, orderindex: 0, label: null});
 
     populatePropertyValues(process.shapes[0], "Start", 0, 0, ProcessShapeType.Start);
     populatePropertyValues(process.shapes[1], "Precondition", 0, 0, ProcessShapeType.PreconditionSystemTask);
@@ -117,40 +117,40 @@ export function createTwoNestedUserTasksWithSystemTaskModelWithoutXAndY(): IProc
     //                                                   UT3 -> ST4 -> UT5
     //                        UT4 -> ST5 -> UT5 -> ST6 -> End
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null },
-        { sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: sd1.id, orderindex: 0, label: null },
-        { sourceId: sd1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: sd1.id, destinationId: st2.id, orderindex: 1, label: null },
-        { sourceId: st2.id, destinationId: ud2.id, orderindex: 0, label: null },
-        { sourceId: ud2.id, destinationId: ut2.id, orderindex: 0, label: null },
-        { sourceId: ut2.id, destinationId: st3.id, orderindex: 0, label: null },
-        { sourceId: st3.id, destinationId: ut5.id, orderindex: 0, label: null },
-        { sourceId: ud2.id, destinationId: ut3.id, orderindex: 1, label: null },
-        { sourceId: ut3.id, destinationId: st4.id, orderindex: 0, label: null },
-        { sourceId: st4.id, destinationId: ut5.id, orderindex: 0, label: null },
-        { sourceId: ud1.id, destinationId: ut4.id, orderindex: 1, label: null },
-        { sourceId: ut4.id, destinationId: st5.id, orderindex: 0, label: null },
-        { sourceId: st5.id, destinationId: ut5.id, orderindex: 0, label: null },
-        { sourceId: ut5.id, destinationId: st6.id, orderindex: 1, label: null },
-        { sourceId: st6.id, destinationId: end.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null},
+        {sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: sd1.id, orderindex: 0, label: null},
+        {sourceId: sd1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: sd1.id, destinationId: st2.id, orderindex: 1, label: null},
+        {sourceId: st2.id, destinationId: ud2.id, orderindex: 0, label: null},
+        {sourceId: ud2.id, destinationId: ut2.id, orderindex: 0, label: null},
+        {sourceId: ut2.id, destinationId: st3.id, orderindex: 0, label: null},
+        {sourceId: st3.id, destinationId: ut5.id, orderindex: 0, label: null},
+        {sourceId: ud2.id, destinationId: ut3.id, orderindex: 1, label: null},
+        {sourceId: ut3.id, destinationId: st4.id, orderindex: 0, label: null},
+        {sourceId: st4.id, destinationId: ut5.id, orderindex: 0, label: null},
+        {sourceId: ud1.id, destinationId: ut4.id, orderindex: 1, label: null},
+        {sourceId: ut4.id, destinationId: st5.id, orderindex: 0, label: null},
+        {sourceId: st5.id, destinationId: ut5.id, orderindex: 0, label: null},
+        {sourceId: ut5.id, destinationId: st6.id, orderindex: 1, label: null},
+        {sourceId: st6.id, destinationId: end.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: ud1.id, destinationId: end.id, orderindex: 1, label: null },
-        { sourceId: sd1.id, destinationId: ut5.id, orderindex: 1, label: null },
-        { sourceId: ud2.id, destinationId: ut5.id, orderindex: 1, label: null }
+        {sourceId: ud1.id, destinationId: end.id, orderindex: 1, label: null},
+        {sourceId: sd1.id, destinationId: ut5.id, orderindex: 1, label: null},
+        {sourceId: ud2.id, destinationId: ut5.id, orderindex: 1, label: null}
     );
 
     return process;
 }
 export function createTwoNestedUserTasksWithSystemTaskModel(): IProcess {
-        // Start -> Pre -> UD1 -> UT1 -> SD -> ST1 -> End
-        //                                     ST2 -> UD2 -> UT2 -> ST3 -> UT5
-        //                                                   UT3 -> ST4 -> UT5
-        //                        UT4 -> ST5 -> UT5 -> ST6 -> End
+    // Start -> Pre -> UD1 -> UT1 -> SD -> ST1 -> End
+    //                                     ST2 -> UD2 -> UT2 -> ST3 -> UT5
+    //                                                   UT3 -> ST4 -> UT5
+    //                        UT4 -> ST5 -> UT5 -> ST6 -> End
     let process: IProcess = createTwoNestedUserTasksWithSystemTaskModelWithoutXAndY();
 
     process.shapes[1].propertyValues["x"].value = 1;  // Pre
@@ -186,7 +186,7 @@ export function createTwoNestedUserTasksWithSystemTaskModel(): IProcess {
 
 export function createTwoUserTaskModel(): IProcess {
     let process: IProcess = createDefaultProcessModel();
-    
+
     let end = process.shapes[4];
     let ut2 = createShapeModel(ProcessShapeType.UserTask, 35, 0, 0);
     let st2 = createShapeModel(ProcessShapeType.SystemTask, 40, 0, 0);
@@ -194,8 +194,8 @@ export function createTwoUserTaskModel(): IProcess {
     process.shapes.splice(4, 0, ut2, st2);
     process.links[process.links.length - 1].destinationId = ut2.id;
     process.links.push(
-        { sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null },
-        { sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null }
+        {sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null},
+        {sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null}
     );
 
     return process;
@@ -216,17 +216,17 @@ export function createUserDecisionWithTwoBranchesModel(): IProcess {
 
     model.shapes.push(start, pre, ud, ut1, st1, ut2, st2, end);
 
-    model.links.push({ sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: pre.id, destinationId: ud.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: ud.id, destinationId: ut1.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: ud.id, destinationId: ut2.id, orderindex: 1, label: null });
-    model.links.push({ sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null });
+    model.links.push({sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null});
+    model.links.push({sourceId: pre.id, destinationId: ud.id, orderindex: 0, label: null});
+    model.links.push({sourceId: ud.id, destinationId: ut1.id, orderindex: 0, label: null});
+    model.links.push({sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null});
+    model.links.push({sourceId: ud.id, destinationId: ut2.id, orderindex: 1, label: null});
+    model.links.push({sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null});
 
     model.decisionBranchDestinationLinks.push(
-        { sourceId: ud.id, destinationId: end.id, orderindex: 1, label: null }
+        {sourceId: ud.id, destinationId: end.id, orderindex: 1, label: null}
     );
 
     return model;
@@ -252,22 +252,22 @@ export function createUserDecisionWithThreeConditionsModel() {
     //                       UT2 -> ST2 -> End
     //                       UT3 -> ST3 -> End
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ud.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut2.id, orderindex: 1, label: null },
-        { sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null },
-        { sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut3.id, orderindex: 2, label: null },
-        { sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null },
-        { sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ud.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut2.id, orderindex: 1, label: null},
+        {sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null},
+        {sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut3.id, orderindex: 2, label: null},
+        {sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null},
+        {sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: ud.id, destinationId: end.id, orderindex: 1, label: null },
-        { sourceId: ud.id, destinationId: end.id, orderindex: 2, label: null }
+        {sourceId: ud.id, destinationId: end.id, orderindex: 1, label: null},
+        {sourceId: ud.id, destinationId: end.id, orderindex: 2, label: null}
     );
 
     return process;
@@ -299,28 +299,28 @@ export function createUserDecisionWithThreeConditionsAndTwoUserTasksModel(): IPr
     //                       UT3 -> ST3 -> UT4 -> ST4 -> End
     //                       UT5 -> ST5 -> UT6 -> ST6 -> End
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ud.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: ut2.id, orderindex: 0, label: null },
-        { sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null },
-        { sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut3.id, orderindex: 1, label: null },
-        { sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null },
-        { sourceId: st3.id, destinationId: ut4.id, orderindex: 0, label: null },
-        { sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null },
-        { sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut5.id, orderindex: 2, label: null },
-        { sourceId: ut5.id, destinationId: st5.id, orderindex: 0, label: null },
-        { sourceId: st5.id, destinationId: ut6.id, orderindex: 0, label: null },
-        { sourceId: ut6.id, destinationId: st6.id, orderindex: 0, label: null },
-        { sourceId: st6.id, destinationId: end.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ud.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: ut2.id, orderindex: 0, label: null},
+        {sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null},
+        {sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut3.id, orderindex: 1, label: null},
+        {sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null},
+        {sourceId: st3.id, destinationId: ut4.id, orderindex: 0, label: null},
+        {sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null},
+        {sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut5.id, orderindex: 2, label: null},
+        {sourceId: ut5.id, destinationId: st5.id, orderindex: 0, label: null},
+        {sourceId: st5.id, destinationId: ut6.id, orderindex: 0, label: null},
+        {sourceId: ut6.id, destinationId: st6.id, orderindex: 0, label: null},
+        {sourceId: st6.id, destinationId: end.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: ud.id, destinationId: end.id, orderindex: 1, label: null },
-        { sourceId: ud.id, destinationId: end.id, orderindex: 2, label: null }
+        {sourceId: ud.id, destinationId: end.id, orderindex: 1, label: null},
+        {sourceId: ud.id, destinationId: end.id, orderindex: 2, label: null}
     );
 
     return process;
@@ -356,32 +356,32 @@ export function createUserDecisionInSecondConditionModel(): IProcess {
     //                                          -> UT4 -> ST4 -> UD3
 
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null },
-        { sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: ud3.id, orderindex: 0, label: null },
-        { sourceId: ud3.id, destinationId: ut5.id, orderindex: 0, label: null },
-        { sourceId: ut5.id, destinationId: st5.id, orderindex: 0, label: null },
-        { sourceId: st5.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud3.id, destinationId: ut6.id, orderindex: 1, label: null },
-        { sourceId: ut6.id, destinationId: st6.id, orderindex: 0, label: null },
-        { sourceId: st6.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud1.id, destinationId: ut2.id, orderindex: 1, label: null },
-        { sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null },
-        { sourceId: st2.id, destinationId: ud2.id, orderindex: 0, label: null },
-        { sourceId: ud2.id, destinationId: ut3.id, orderindex: 0, label: null },
-        { sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null },
-        { sourceId: st3.id, destinationId: ud3.id, orderindex: 0, label: null },
-        { sourceId: ud2.id, destinationId: ut4.id, orderindex: 1, label: null },
-        { sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null },
-        { sourceId: st4.id, destinationId: ud3.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null},
+        {sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: ud3.id, orderindex: 0, label: null},
+        {sourceId: ud3.id, destinationId: ut5.id, orderindex: 0, label: null},
+        {sourceId: ut5.id, destinationId: st5.id, orderindex: 0, label: null},
+        {sourceId: st5.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud3.id, destinationId: ut6.id, orderindex: 1, label: null},
+        {sourceId: ut6.id, destinationId: st6.id, orderindex: 0, label: null},
+        {sourceId: st6.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud1.id, destinationId: ut2.id, orderindex: 1, label: null},
+        {sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null},
+        {sourceId: st2.id, destinationId: ud2.id, orderindex: 0, label: null},
+        {sourceId: ud2.id, destinationId: ut3.id, orderindex: 0, label: null},
+        {sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null},
+        {sourceId: st3.id, destinationId: ud3.id, orderindex: 0, label: null},
+        {sourceId: ud2.id, destinationId: ut4.id, orderindex: 1, label: null},
+        {sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null},
+        {sourceId: st4.id, destinationId: ud3.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: ud1.id, destinationId: ud3.id, orderindex: 1, label: null },
-        { sourceId: ud2.id, destinationId: ud3.id, orderindex: 1, label: null },
-        { sourceId: ud3.id, destinationId: end.id, orderindex: 1, label: null }
+        {sourceId: ud1.id, destinationId: ud3.id, orderindex: 1, label: null},
+        {sourceId: ud2.id, destinationId: ud3.id, orderindex: 1, label: null},
+        {sourceId: ud3.id, destinationId: end.id, orderindex: 1, label: null}
     );
 
     return process;
@@ -409,25 +409,25 @@ export function createMergingSystemDecisionsModel(): IProcess {
     //                            -> ST5 -> UT3        -> ST3 -> UT3 -> ST4 -> End
 
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: sd1.id, orderindex: 0, label: null },
-        { sourceId: sd1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: ut2.id, orderindex: 0, label: null },
-        { sourceId: ut2.id, destinationId: sd2.id, orderindex: 0, label: null },
-        { sourceId: sd2.id, destinationId: st2.id, orderindex: 0, label: null },
-        { sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: sd2.id, destinationId: st3.id, orderindex: 1, label: null },
-        { sourceId: st3.id, destinationId: ut3.id, orderindex: 0, label: null },
-        { sourceId: ut3.id, destinationId: st4.id, orderindex: 0, label: null },
-        { sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: sd1.id, destinationId: st5.id, orderindex: 1, label: null },
-        { sourceId: st5.id, destinationId: ut3.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: sd1.id, orderindex: 0, label: null},
+        {sourceId: sd1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: ut2.id, orderindex: 0, label: null},
+        {sourceId: ut2.id, destinationId: sd2.id, orderindex: 0, label: null},
+        {sourceId: sd2.id, destinationId: st2.id, orderindex: 0, label: null},
+        {sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: sd2.id, destinationId: st3.id, orderindex: 1, label: null},
+        {sourceId: st3.id, destinationId: ut3.id, orderindex: 0, label: null},
+        {sourceId: ut3.id, destinationId: st4.id, orderindex: 0, label: null},
+        {sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: sd1.id, destinationId: st5.id, orderindex: 1, label: null},
+        {sourceId: st5.id, destinationId: ut3.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: sd1.id, destinationId: ut3.id, orderindex: 1, label: null },
-        { sourceId: sd2.id, destinationId: end.id, orderindex: 1, label: null }
+        {sourceId: sd1.id, destinationId: ut3.id, orderindex: 1, label: null},
+        {sourceId: sd2.id, destinationId: end.id, orderindex: 1, label: null}
     );
 
     return process;
@@ -455,25 +455,25 @@ export function createMergingSystemDecisionsWithInfiniteLoopModel(): IProcess {
     //                            -> ST5 -> UT3        -> ST3 -> UT3 -> ST4 -> UT1
 
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: sd1.id, orderindex: 0, label: null },
-        { sourceId: sd1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: ut2.id, orderindex: 0, label: null },
-        { sourceId: ut2.id, destinationId: sd2.id, orderindex: 0, label: null },
-        { sourceId: sd2.id, destinationId: st2.id, orderindex: 0, label: null },
-        { sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: sd2.id, destinationId: st3.id, orderindex: 1, label: null },
-        { sourceId: st3.id, destinationId: ut3.id, orderindex: 0, label: null },
-        { sourceId: ut3.id, destinationId: st4.id, orderindex: 0, label: null },
-        { sourceId: st4.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: sd1.id, destinationId: st5.id, orderindex: 1, label: null },
-        { sourceId: st5.id, destinationId: ut3.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: sd1.id, orderindex: 0, label: null},
+        {sourceId: sd1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: ut2.id, orderindex: 0, label: null},
+        {sourceId: ut2.id, destinationId: sd2.id, orderindex: 0, label: null},
+        {sourceId: sd2.id, destinationId: st2.id, orderindex: 0, label: null},
+        {sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: sd2.id, destinationId: st3.id, orderindex: 1, label: null},
+        {sourceId: st3.id, destinationId: ut3.id, orderindex: 0, label: null},
+        {sourceId: ut3.id, destinationId: st4.id, orderindex: 0, label: null},
+        {sourceId: st4.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: sd1.id, destinationId: st5.id, orderindex: 1, label: null},
+        {sourceId: st5.id, destinationId: ut3.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: sd1.id, destinationId: ut3.id, orderindex: 1, label: null },
-        { sourceId: sd2.id, destinationId: ut1.id, orderindex: 1, label: null }
+        {sourceId: sd1.id, destinationId: ut3.id, orderindex: 1, label: null},
+        {sourceId: sd2.id, destinationId: ut1.id, orderindex: 1, label: null}
     );
 
     return process;
@@ -498,18 +498,18 @@ export function createSimpleProcessModelWithSystemDecision() {
     process.shapes.push(start, pre, ut1, sd1, st1, st2, ut2, st3, end);
 
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: sd1.id, orderindex: 0, label: null },
-        { sourceId: sd1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: sd1.id, destinationId: st2.id, orderindex: 1, label: null },
-        { sourceId: st2.id, destinationId: ut2.id, orderindex: 0, label: null },
-        { sourceId: ut2.id, destinationId: st3.id, orderindex: 0, label: null },
-        { sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: sd1.id, orderindex: 0, label: null},
+        {sourceId: sd1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: sd1.id, destinationId: st2.id, orderindex: 1, label: null},
+        {sourceId: st2.id, destinationId: ut2.id, orderindex: 0, label: null},
+        {sourceId: ut2.id, destinationId: st3.id, orderindex: 0, label: null},
+        {sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null}
     );
     process.decisionBranchDestinationLinks.push(
-        { sourceId: sd1.id, destinationId: st2.id, orderindex: 1, label: null }
+        {sourceId: sd1.id, destinationId: st2.id, orderindex: 1, label: null}
     );
 
     return process;
@@ -529,12 +529,12 @@ export function createDeleteUserTaskSimpleModel(ut1: IProcessShape): IProcess {
     process.shapes.push(start, pre, ut1, st1, ut2, st2, end);
 
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: ut2.id, orderindex: 0, label: null },
-        { sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null },
-        { sourceId: st2.id, destinationId: end.id, orderindex: 1, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: ut2.id, orderindex: 0, label: null},
+        {sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null},
+        {sourceId: st2.id, destinationId: end.id, orderindex: 1, label: null}
     );
 
     return process;
@@ -557,19 +557,19 @@ export function createUserTaskFollowedBySystemDecision(ut2: IProcessShape): IPro
     process.shapes.push(start, pre, ut1, st1, ut2, sd, st2, st3, end);
 
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: ut2.id, orderindex: 0, label: null },
-        { sourceId: ut2.id, destinationId: sd.id, orderindex: 0, label: null },
-        { sourceId: sd.id, destinationId: st2.id, orderindex: 0, label: null },
-        { sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: sd.id, destinationId: st3.id, orderindex: 1, label: null },
-        { sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: ut2.id, orderindex: 0, label: null},
+        {sourceId: ut2.id, destinationId: sd.id, orderindex: 0, label: null},
+        {sourceId: sd.id, destinationId: st2.id, orderindex: 0, label: null},
+        {sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: sd.id, destinationId: st3.id, orderindex: 1, label: null},
+        {sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: sd.id, destinationId: end.id, orderindex: 1, label: null }
+        {sourceId: sd.id, destinationId: end.id, orderindex: 1, label: null}
     );
 
     return process;
@@ -599,26 +599,26 @@ export function createUserDecisionInfiniteLoopModelWithoutXAndY(): IProcess {
     process.shapes.push(start, pre, ud, ut1, st1, ut2, st2, ut3, st3, ut4, st4, ut5, st5, end);
 
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ud.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut2.id, orderindex: 1, label: null },
-        { sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null },
-        { sourceId: st2.id, destinationId: ut3.id, orderindex: 0, label: null },
-        { sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null },
-        { sourceId: st3.id, destinationId: ut5.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut4.id, orderindex: 2, label: null },
-        { sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null },
-        { sourceId: st4.id, destinationId: ut5.id, orderindex: 0, label: null },
-        { sourceId: ut5.id, destinationId: st5.id, orderindex: 0, label: null },
-        { sourceId: st5.id, destinationId: ut3.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ud.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut2.id, orderindex: 1, label: null},
+        {sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null},
+        {sourceId: st2.id, destinationId: ut3.id, orderindex: 0, label: null},
+        {sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null},
+        {sourceId: st3.id, destinationId: ut5.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut4.id, orderindex: 2, label: null},
+        {sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null},
+        {sourceId: st4.id, destinationId: ut5.id, orderindex: 0, label: null},
+        {sourceId: ut5.id, destinationId: st5.id, orderindex: 0, label: null},
+        {sourceId: st5.id, destinationId: ut3.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: ud.id, destinationId: ut5.id, orderindex: 1, label: null },
-        { sourceId: ud.id, destinationId: ut3.id, orderindex: 2, label: null }
+        {sourceId: ud.id, destinationId: ut5.id, orderindex: 1, label: null},
+        {sourceId: ud.id, destinationId: ut3.id, orderindex: 2, label: null}
     );
 
     return process;
@@ -659,11 +659,11 @@ export function createUserDecisionInfiniteLoopModel(): IProcess {
 export function createInfiniteLoopFromDifferentDecisions(): IProcess {
 
     /*
-    start->pre->ud1->ut1->st1->                                 ud2->ut5->st5->end
-                    ->ut2->sd2->st2a ->ud2                         ->ut6->sd6->st6a->end
-                              ->st2b -> ut3 -> st3 -> ut7                    ->st6b->ut7->st7->ut3
-                    -> ut4 -> st4 -> ut3
-    */
+     start->pre->ud1->ut1->st1->                                 ud2->ut5->st5->end
+     ->ut2->sd2->st2a ->ud2                         ->ut6->sd6->st6a->end
+     ->st2b -> ut3 -> st3 -> ut7                    ->st6b->ut7->st7->ut3
+     -> ut4 -> st4 -> ut3
+     */
     let process: IProcess = createProcessModel(0);
     let start = createShapeModel(ProcessShapeType.Start, 10);
     let pre = createShapeModel(ProcessShapeType.PreconditionSystemTask, 20);
@@ -696,46 +696,46 @@ export function createInfiniteLoopFromDifferentDecisions(): IProcess {
         ut6, sd6, st6a, st6b, ut7, st7, end);
 
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null },
-        { sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: ud1.id, destinationId: ut2.id, orderindex: 1, label: null },
-        { sourceId: ut2.id, destinationId: sd2.id, orderindex: 0, label: null },
-        { sourceId: sd2.id, destinationId: st2a.id, orderindex: 0, label: null },
-        { sourceId: sd2.id, destinationId: st2b.id, orderindex: 1, label: null },
-        { sourceId: st2b.id, destinationId: ut3.id, orderindex: 0, label: null },
-        { sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null },
-        { sourceId: st3.id, destinationId: ut7.id, orderindex: 0, label: null },
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null},
+        {sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: ud1.id, destinationId: ut2.id, orderindex: 1, label: null},
+        {sourceId: ut2.id, destinationId: sd2.id, orderindex: 0, label: null},
+        {sourceId: sd2.id, destinationId: st2a.id, orderindex: 0, label: null},
+        {sourceId: sd2.id, destinationId: st2b.id, orderindex: 1, label: null},
+        {sourceId: st2b.id, destinationId: ut3.id, orderindex: 0, label: null},
+        {sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null},
+        {sourceId: st3.id, destinationId: ut7.id, orderindex: 0, label: null},
 
-        { sourceId: ud1.id, destinationId: ut4.id, orderindex: 2, label: null },
-        { sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null },
-        { sourceId: st4.id, destinationId: ut3.id, orderindex: 0, label: null },
+        {sourceId: ud1.id, destinationId: ut4.id, orderindex: 2, label: null},
+        {sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null},
+        {sourceId: st4.id, destinationId: ut3.id, orderindex: 0, label: null},
 
-        { sourceId: st1.id, destinationId: ud2.id, orderindex: 0, label: null },
-        { sourceId: st2a.id, destinationId: ud2.id, orderindex: 0, label: null },
+        {sourceId: st1.id, destinationId: ud2.id, orderindex: 0, label: null},
+        {sourceId: st2a.id, destinationId: ud2.id, orderindex: 0, label: null},
 
-        { sourceId: ud2.id, destinationId: ut5.id, orderindex: 0, label: null },
-        { sourceId: ut5.id, destinationId: st5.id, orderindex: 0, label: null },
-        { sourceId: ud2.id, destinationId: ut6.id, orderindex: 1, label: null },
-        { sourceId: ut6.id, destinationId: sd6.id, orderindex: 0, label: null },
-        { sourceId: sd6.id, destinationId: st6a.id, orderindex: 0, label: null },
-        { sourceId: sd6.id, destinationId: st6b.id, orderindex: 1, label: null },
-        { sourceId: st6b.id, destinationId: ut7.id, orderindex: 0, label: null },
-        { sourceId: ut7.id, destinationId: st7.id, orderindex: 0, label: null },
-        { sourceId: st7.id, destinationId: ut3.id, orderindex: 0, label: null },
+        {sourceId: ud2.id, destinationId: ut5.id, orderindex: 0, label: null},
+        {sourceId: ut5.id, destinationId: st5.id, orderindex: 0, label: null},
+        {sourceId: ud2.id, destinationId: ut6.id, orderindex: 1, label: null},
+        {sourceId: ut6.id, destinationId: sd6.id, orderindex: 0, label: null},
+        {sourceId: sd6.id, destinationId: st6a.id, orderindex: 0, label: null},
+        {sourceId: sd6.id, destinationId: st6b.id, orderindex: 1, label: null},
+        {sourceId: st6b.id, destinationId: ut7.id, orderindex: 0, label: null},
+        {sourceId: ut7.id, destinationId: st7.id, orderindex: 0, label: null},
+        {sourceId: st7.id, destinationId: ut3.id, orderindex: 0, label: null},
 
-        { sourceId: st5.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: st6a.id, destinationId: end.id, orderindex: 0, label: null }
+        {sourceId: st5.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: st6a.id, destinationId: end.id, orderindex: 0, label: null}
     );
 
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: ud1.id, destinationId: ud2.id, orderindex: 1, label: null },
-        { sourceId: ud1.id, destinationId: ut3.id, orderindex: 2, label: null },
-        { sourceId: sd2.id, destinationId: ut7.id, orderindex: 1, label: null },
-        { sourceId: ud2.id, destinationId: end.id, orderindex: 1, label: null },
-        { sourceId: sd6.id, destinationId: ut3.id, orderindex: 1, label: null }
+        {sourceId: ud1.id, destinationId: ud2.id, orderindex: 1, label: null},
+        {sourceId: ud1.id, destinationId: ut3.id, orderindex: 2, label: null},
+        {sourceId: sd2.id, destinationId: ut7.id, orderindex: 1, label: null},
+        {sourceId: ud2.id, destinationId: end.id, orderindex: 1, label: null},
+        {sourceId: sd6.id, destinationId: ut3.id, orderindex: 1, label: null}
     );
 
     return process;
@@ -758,23 +758,23 @@ export function createUserDecisionTestModel(decisionShape: IProcessShape): IProc
 
     model.shapes.push(start, pre, ut1, st2, decisionShape, ut2, st3, ut3, st4, end);
     /*
-        start-> pre -> UT1 -> ST2 -> UD -> UT2 -> ST3 -> END
-                                        -> UT3 -> ST4 -> END
-    */
+     start-> pre -> UT1 -> ST2 -> UD -> UT2 -> ST3 -> END
+     -> UT3 -> ST4 -> END
+     */
 
-    model.links.push({ sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: ut1.id, destinationId: st2.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st2.id, destinationId: decisionShape.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: decisionShape.id, destinationId: ut2.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: decisionShape.id, destinationId: ut3.id, orderindex: 1, label: null });
-    model.links.push({ sourceId: ut2.id, destinationId: st3.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: ut3.id, destinationId: st4.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null });
+    model.links.push({sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null});
+    model.links.push({sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null});
+    model.links.push({sourceId: ut1.id, destinationId: st2.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st2.id, destinationId: decisionShape.id, orderindex: 0, label: null});
+    model.links.push({sourceId: decisionShape.id, destinationId: ut2.id, orderindex: 0, label: null});
+    model.links.push({sourceId: decisionShape.id, destinationId: ut3.id, orderindex: 1, label: null});
+    model.links.push({sourceId: ut2.id, destinationId: st3.id, orderindex: 0, label: null});
+    model.links.push({sourceId: ut3.id, destinationId: st4.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null});
 
     model.decisionBranchDestinationLinks.push(
-        { sourceId: decisionShape.id, destinationId: end.id, orderindex: 1, label: null }
+        {sourceId: decisionShape.id, destinationId: end.id, orderindex: 1, label: null}
     );
 
     return model;
@@ -795,20 +795,20 @@ export function createSystemDecisionTestModel(decisionShape: IProcessShape): IPr
 
     model.shapes.push(start, pre, ut1, decisionShape, st2, st3, end);
     /*
-        start -> PRE -> UT1 -> SD ->  ST2 -> END
-                                  ->  ST3 -> END
-    */
+     start -> PRE -> UT1 -> SD ->  ST2 -> END
+     ->  ST3 -> END
+     */
 
-    model.links.push({ sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: ut1.id, destinationId: decisionShape.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: decisionShape.id, destinationId: st2.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: decisionShape.id, destinationId: st3.id, orderindex: 1, label: null });
-    model.links.push({ sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null });
+    model.links.push({sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null});
+    model.links.push({sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null});
+    model.links.push({sourceId: ut1.id, destinationId: decisionShape.id, orderindex: 0, label: null});
+    model.links.push({sourceId: decisionShape.id, destinationId: st2.id, orderindex: 0, label: null});
+    model.links.push({sourceId: decisionShape.id, destinationId: st3.id, orderindex: 1, label: null});
+    model.links.push({sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null});
 
     model.decisionBranchDestinationLinks.push(
-        { sourceId: decisionShape.id, destinationId: end.id, orderindex: 1, label: null }
+        {sourceId: decisionShape.id, destinationId: end.id, orderindex: 1, label: null}
     );
 
     return model;
@@ -829,16 +829,16 @@ export function createUserDecisionWithoutUserTaskInFirstConditionModel(firstCond
     //              -> UT1 -> ST1 -> End
 
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ud.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: end.id, orderindex: 0, label: firstConditionLabel },
-        { sourceId: ud.id, destinationId: ut1.id, orderindex: 1, label: secondConditionLabel },
-        { sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ud.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: end.id, orderindex: 0, label: firstConditionLabel},
+        {sourceId: ud.id, destinationId: ut1.id, orderindex: 1, label: secondConditionLabel},
+        {sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: ud.id, destinationId: end.id, orderindex: 1, label: null }
+        {sourceId: ud.id, destinationId: end.id, orderindex: 1, label: null}
     );
 
     return process;
@@ -875,50 +875,50 @@ export function createUserDecisionWithMaximumConditionsModel(): IProcess {
     process.shapes.push(start, pre, ud, ut1, st1, ut2, st2, ut3, st3, ut4, st4, ut5, st5, ut6, st6, ut7, st7, ut8, st8, ut9, st9, ut10, st10, end);
 
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ud.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut2.id, orderindex: 1, label: null },
-        { sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null },
-        { sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut3.id, orderindex: 2, label: null },
-        { sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null },
-        { sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut4.id, orderindex: 3, label: null },
-        { sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null },
-        { sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut5.id, orderindex: 4, label: null },
-        { sourceId: ut5.id, destinationId: st5.id, orderindex: 0, label: null },
-        { sourceId: st5.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut6.id, orderindex: 5, label: null },
-        { sourceId: ut6.id, destinationId: st6.id, orderindex: 0, label: null },
-        { sourceId: st6.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut7.id, orderindex: 6, label: null },
-        { sourceId: ut7.id, destinationId: st7.id, orderindex: 0, label: null },
-        { sourceId: st7.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut8.id, orderindex: 7, label: null },
-        { sourceId: ut8.id, destinationId: st8.id, orderindex: 0, label: null },
-        { sourceId: st8.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut9.id, orderindex: 8, label: null },
-        { sourceId: ut9.id, destinationId: st9.id, orderindex: 0, label: null },
-        { sourceId: st9.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut10.id, orderindex: 9, label: null },
-        { sourceId: ut10.id, destinationId: st10.id, orderindex: 0, label: null },
-        { sourceId: st10.id, destinationId: end.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ud.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut2.id, orderindex: 1, label: null},
+        {sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null},
+        {sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut3.id, orderindex: 2, label: null},
+        {sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null},
+        {sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut4.id, orderindex: 3, label: null},
+        {sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null},
+        {sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut5.id, orderindex: 4, label: null},
+        {sourceId: ut5.id, destinationId: st5.id, orderindex: 0, label: null},
+        {sourceId: st5.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut6.id, orderindex: 5, label: null},
+        {sourceId: ut6.id, destinationId: st6.id, orderindex: 0, label: null},
+        {sourceId: st6.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut7.id, orderindex: 6, label: null},
+        {sourceId: ut7.id, destinationId: st7.id, orderindex: 0, label: null},
+        {sourceId: st7.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut8.id, orderindex: 7, label: null},
+        {sourceId: ut8.id, destinationId: st8.id, orderindex: 0, label: null},
+        {sourceId: st8.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut9.id, orderindex: 8, label: null},
+        {sourceId: ut9.id, destinationId: st9.id, orderindex: 0, label: null},
+        {sourceId: st9.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut10.id, orderindex: 9, label: null},
+        {sourceId: ut10.id, destinationId: st10.id, orderindex: 0, label: null},
+        {sourceId: st10.id, destinationId: end.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: ud.id, destinationId: end.id, orderindex: 1, label: null },
-        { sourceId: ud.id, destinationId: end.id, orderindex: 2, label: null },
-        { sourceId: ud.id, destinationId: end.id, orderindex: 3, label: null },
-        { sourceId: ud.id, destinationId: end.id, orderindex: 4, label: null },
-        { sourceId: ud.id, destinationId: end.id, orderindex: 5, label: null },
-        { sourceId: ud.id, destinationId: end.id, orderindex: 6, label: null },
-        { sourceId: ud.id, destinationId: end.id, orderindex: 7, label: null },
-        { sourceId: ud.id, destinationId: end.id, orderindex: 8, label: null },
-        { sourceId: ud.id, destinationId: end.id, orderindex: 9, label: null }
+        {sourceId: ud.id, destinationId: end.id, orderindex: 1, label: null},
+        {sourceId: ud.id, destinationId: end.id, orderindex: 2, label: null},
+        {sourceId: ud.id, destinationId: end.id, orderindex: 3, label: null},
+        {sourceId: ud.id, destinationId: end.id, orderindex: 4, label: null},
+        {sourceId: ud.id, destinationId: end.id, orderindex: 5, label: null},
+        {sourceId: ud.id, destinationId: end.id, orderindex: 6, label: null},
+        {sourceId: ud.id, destinationId: end.id, orderindex: 7, label: null},
+        {sourceId: ud.id, destinationId: end.id, orderindex: 8, label: null},
+        {sourceId: ud.id, destinationId: end.id, orderindex: 9, label: null}
     );
 
     return process;
@@ -938,15 +938,15 @@ export function createSystemDecisionWithTwoBranchesModel(): IProcess {
 
     model.shapes.push(start, pre, ut1, sd, st1, st2, end);
 
-    model.links.push({ sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: ut1.id, destinationId: sd.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: sd.id, destinationId: st1.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: sd.id, destinationId: st2.id, orderindex: 1, label: null });
-    model.links.push({ sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null });
+    model.links.push({sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null});
+    model.links.push({sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null});
+    model.links.push({sourceId: ut1.id, destinationId: sd.id, orderindex: 0, label: null});
+    model.links.push({sourceId: sd.id, destinationId: st1.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null});
+    model.links.push({sourceId: sd.id, destinationId: st2.id, orderindex: 1, label: null});
+    model.links.push({sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null});
 
-    model.decisionBranchDestinationLinks.push({ sourceId: sd.id, destinationId: end.id, orderindex: 1, label: null });
+    model.decisionBranchDestinationLinks.push({sourceId: sd.id, destinationId: end.id, orderindex: 1, label: null});
 
     return model;
 }
@@ -973,41 +973,41 @@ export function createSystemDecisionWithMaximumConditionsModel(): IProcess {
     process.shapes.push(start, pre, ut1, sd, st1, st2, st3, st4, st5, st6, st7, st8, st9, st10, end);
 
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: sd.id, orderindex: 0, label: null },
-        { sourceId: sd.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: sd.id, destinationId: st2.id, orderindex: 1, label: null },
-        { sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: sd.id, destinationId: st3.id, orderindex: 2, label: null },
-        { sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: sd.id, destinationId: st4.id, orderindex: 3, label: null },
-        { sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: sd.id, destinationId: st5.id, orderindex: 4, label: null },
-        { sourceId: st5.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: sd.id, destinationId: st6.id, orderindex: 5, label: null },
-        { sourceId: st6.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: sd.id, destinationId: st7.id, orderindex: 6, label: null },
-        { sourceId: st7.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: sd.id, destinationId: st8.id, orderindex: 7, label: null },
-        { sourceId: st8.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: sd.id, destinationId: st9.id, orderindex: 8, label: null },
-        { sourceId: st9.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: sd.id, destinationId: st10.id, orderindex: 9, label: null },
-        { sourceId: st10.id, destinationId: end.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: sd.id, orderindex: 0, label: null},
+        {sourceId: sd.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: sd.id, destinationId: st2.id, orderindex: 1, label: null},
+        {sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: sd.id, destinationId: st3.id, orderindex: 2, label: null},
+        {sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: sd.id, destinationId: st4.id, orderindex: 3, label: null},
+        {sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: sd.id, destinationId: st5.id, orderindex: 4, label: null},
+        {sourceId: st5.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: sd.id, destinationId: st6.id, orderindex: 5, label: null},
+        {sourceId: st6.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: sd.id, destinationId: st7.id, orderindex: 6, label: null},
+        {sourceId: st7.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: sd.id, destinationId: st8.id, orderindex: 7, label: null},
+        {sourceId: st8.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: sd.id, destinationId: st9.id, orderindex: 8, label: null},
+        {sourceId: st9.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: sd.id, destinationId: st10.id, orderindex: 9, label: null},
+        {sourceId: st10.id, destinationId: end.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: sd.id, destinationId: end.id, orderindex: 1, label: null },
-        { sourceId: sd.id, destinationId: end.id, orderindex: 2, label: null },
-        { sourceId: sd.id, destinationId: end.id, orderindex: 3, label: null },
-        { sourceId: sd.id, destinationId: end.id, orderindex: 4, label: null },
-        { sourceId: sd.id, destinationId: end.id, orderindex: 5, label: null },
-        { sourceId: sd.id, destinationId: end.id, orderindex: 6, label: null },
-        { sourceId: sd.id, destinationId: end.id, orderindex: 7, label: null },
-        { sourceId: sd.id, destinationId: end.id, orderindex: 8, label: null },
-        { sourceId: sd.id, destinationId: end.id, orderindex: 9, label: null }
+        {sourceId: sd.id, destinationId: end.id, orderindex: 1, label: null},
+        {sourceId: sd.id, destinationId: end.id, orderindex: 2, label: null},
+        {sourceId: sd.id, destinationId: end.id, orderindex: 3, label: null},
+        {sourceId: sd.id, destinationId: end.id, orderindex: 4, label: null},
+        {sourceId: sd.id, destinationId: end.id, orderindex: 5, label: null},
+        {sourceId: sd.id, destinationId: end.id, orderindex: 6, label: null},
+        {sourceId: sd.id, destinationId: end.id, orderindex: 7, label: null},
+        {sourceId: sd.id, destinationId: end.id, orderindex: 8, label: null},
+        {sourceId: sd.id, destinationId: end.id, orderindex: 9, label: null}
     );
 
     return process;
@@ -1018,12 +1018,12 @@ export function createUserDecisionWithMultipleBranchesModel(): IProcess {
     let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
 
     /*
-        start -> pre -> ud -> ut1 -> st1 -> end
-                            ->ut2 -> st2 -> end
-                            ->ut3 -> st3 -> end
-                            ->ut4 -> st4 -> end
+     start -> pre -> ud -> ut1 -> st1 -> end
+     ->ut2 -> st2 -> end
+     ->ut3 -> st3 -> end
+     ->ut4 -> st4 -> end
 
-    */
+     */
     let start = createShapeModel(ProcessShapeType.Start, 2, 0, 0);
     let pre = shapesFactory.createModelSystemTaskShape(1, 0, 3, 1, 0);
     let ud = shapesFactory.createModelUserDecisionShape(1, 0, 4, 2, 0);
@@ -1039,25 +1039,25 @@ export function createUserDecisionWithMultipleBranchesModel(): IProcess {
 
     model.shapes.push(start, pre, ud, ut1, st1, ut2, st2, ut3, st3, ut4, st4, end);
 
-    model.links.push({ sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: pre.id, destinationId: ud.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: ud.id, destinationId: ut1.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: ud.id, destinationId: ut2.id, orderindex: 1, label: null });
-    model.links.push({ sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: ud.id, destinationId: ut3.id, orderindex: 2, label: null });
-    model.links.push({ sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: ud.id, destinationId: ut4.id, orderindex: 3, label: null });
-    model.links.push({ sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null });
+    model.links.push({sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null});
+    model.links.push({sourceId: pre.id, destinationId: ud.id, orderindex: 0, label: null});
+    model.links.push({sourceId: ud.id, destinationId: ut1.id, orderindex: 0, label: null});
+    model.links.push({sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null});
+    model.links.push({sourceId: ud.id, destinationId: ut2.id, orderindex: 1, label: null});
+    model.links.push({sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null});
+    model.links.push({sourceId: ud.id, destinationId: ut3.id, orderindex: 2, label: null});
+    model.links.push({sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null});
+    model.links.push({sourceId: ud.id, destinationId: ut4.id, orderindex: 3, label: null});
+    model.links.push({sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null});
 
     model.decisionBranchDestinationLinks.push(
-        { sourceId: ud.id, destinationId: end.id, orderindex: 1, label: null },
-        { sourceId: ud.id, destinationId: end.id, orderindex: 2, label: null },
-        { sourceId: ud.id, destinationId: end.id, orderindex: 3, label: null }
+        {sourceId: ud.id, destinationId: end.id, orderindex: 1, label: null},
+        {sourceId: ud.id, destinationId: end.id, orderindex: 2, label: null},
+        {sourceId: ud.id, destinationId: end.id, orderindex: 3, label: null}
     );
 
     return model;
@@ -1066,33 +1066,49 @@ export function createUserDecisionWithMultipleBranchesModel(): IProcess {
 export function createUserDecisionWithMultipleBranchesModel_V2(): IProcess {
 
     /*
-    start -> pre - ud -> ut1 -> st1 ->                  ut5 -> st5 ->  end
-                      -> ut2 -> st2 -> ut6 -> st6 -> 
-                      -> ut3 -> st3 ->
-                      -> ut4 -> st4 ->
-    */
+     start -> pre - ud -> ut1 -> st1 ->                  ut5 -> st5 ->  end
+     -> ut2 -> st2 -> ut6 -> st6 ->
+     -> ut3 -> st3 ->
+     -> ut4 -> st4 ->
+     */
 
     var shapesFactory = createShapesFactoryService();
     let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
 
-    let start = createShapeModel(ProcessShapeType.Start, 2, 0, 0); start.name = "start";
-    let pre = shapesFactory.createModelSystemTaskShape(1, 0, 3, 1, 0); pre.name = "pre";
-    let ud = shapesFactory.createModelUserDecisionShape(1, 0, 4, 2, 0); ud.name = "ud";
-    let ut1 = shapesFactory.createModelUserTaskShape(1, 0, 5, 3, 0); ut1.name = "ut1";
-    let st1 = shapesFactory.createModelSystemTaskShape(1, 0, 6, 4, 0); st1.name = "st1";
-    let ut2 = shapesFactory.createModelUserTaskShape(1, 0, 7, 3, 1); ut2.name = "ut2";
-    let st2 = shapesFactory.createModelSystemTaskShape(1, 0, 8, 4, 1); st2.name = "st2";
-    let ut3 = shapesFactory.createModelUserTaskShape(1, 0, 9, 3, 2); ut3.name = "ut3";
-    let st3 = shapesFactory.createModelSystemTaskShape(1, 0, 10, 4, 2); st3.name = "st3";
-    let ut4 = shapesFactory.createModelUserTaskShape(1, 0, 11, 3, 3); ut4.name = "ut4";
-    let st4 = shapesFactory.createModelSystemTaskShape(1, 0, 12, 4, 3); st4.name = "st4";
+    let start = createShapeModel(ProcessShapeType.Start, 2, 0, 0);
+    start.name = "start";
+    let pre = shapesFactory.createModelSystemTaskShape(1, 0, 3, 1, 0);
+    pre.name = "pre";
+    let ud = shapesFactory.createModelUserDecisionShape(1, 0, 4, 2, 0);
+    ud.name = "ud";
+    let ut1 = shapesFactory.createModelUserTaskShape(1, 0, 5, 3, 0);
+    ut1.name = "ut1";
+    let st1 = shapesFactory.createModelSystemTaskShape(1, 0, 6, 4, 0);
+    st1.name = "st1";
+    let ut2 = shapesFactory.createModelUserTaskShape(1, 0, 7, 3, 1);
+    ut2.name = "ut2";
+    let st2 = shapesFactory.createModelSystemTaskShape(1, 0, 8, 4, 1);
+    st2.name = "st2";
+    let ut3 = shapesFactory.createModelUserTaskShape(1, 0, 9, 3, 2);
+    ut3.name = "ut3";
+    let st3 = shapesFactory.createModelSystemTaskShape(1, 0, 10, 4, 2);
+    st3.name = "st3";
+    let ut4 = shapesFactory.createModelUserTaskShape(1, 0, 11, 3, 3);
+    ut4.name = "ut4";
+    let st4 = shapesFactory.createModelSystemTaskShape(1, 0, 12, 4, 3);
+    st4.name = "st4";
 
-    let ut5 = shapesFactory.createModelUserTaskShape(1, 0, 13, 7, 0); ut5.name = "ut5";
-    let st5 = shapesFactory.createModelSystemTaskShape(1, 0, 14, 8, 0); st5.name = "st5";
-    let ut6 = shapesFactory.createModelUserTaskShape(1, 0, 15, 5, 1); ut6.name = "ut6";
-    let st6 = shapesFactory.createModelSystemTaskShape(1, 0, 16, 6, 1); st6.name = "st6";
+    let ut5 = shapesFactory.createModelUserTaskShape(1, 0, 13, 7, 0);
+    ut5.name = "ut5";
+    let st5 = shapesFactory.createModelSystemTaskShape(1, 0, 14, 8, 0);
+    st5.name = "st5";
+    let ut6 = shapesFactory.createModelUserTaskShape(1, 0, 15, 5, 1);
+    ut6.name = "ut6";
+    let st6 = shapesFactory.createModelSystemTaskShape(1, 0, 16, 6, 1);
+    st6.name = "st6";
 
-    let end = createShapeModel(ProcessShapeType.End, 17, 9, 0); end.name = "end";
+    let end = createShapeModel(ProcessShapeType.End, 17, 9, 0);
+    end.name = "end";
 
     model.shapes.push(start);
     model.shapes.push(pre);
@@ -1112,39 +1128,39 @@ export function createUserDecisionWithMultipleBranchesModel_V2(): IProcess {
     model.shapes.push(end);
 
     /*
-    start -> pre - ud -> ut1 -> st1 ->                  ut5 -> st5 ->  end
-                      -> ut2 -> st2 -> ut6 -> st6 -> 
-                      -> ut3 -> st3 ->
-                      -> ut4 -> st4 ->
-    */
+     start -> pre - ud -> ut1 -> st1 ->                  ut5 -> st5 ->  end
+     -> ut2 -> st2 -> ut6 -> st6 ->
+     -> ut3 -> st3 ->
+     -> ut4 -> st4 ->
+     */
 
-    model.links.push({ sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: pre.id, destinationId: ud.id, orderindex: 0, label: null });
+    model.links.push({sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null});
+    model.links.push({sourceId: pre.id, destinationId: ud.id, orderindex: 0, label: null});
 
-    model.links.push({ sourceId: ud.id, destinationId: ut1.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st1.id, destinationId: ut5.id, orderindex: 0, label: null });
+    model.links.push({sourceId: ud.id, destinationId: ut1.id, orderindex: 0, label: null});
+    model.links.push({sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st1.id, destinationId: ut5.id, orderindex: 0, label: null});
 
-    model.links.push({ sourceId: ud.id, destinationId: ut2.id, orderindex: 1, label: null });
-    model.links.push({ sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st2.id, destinationId: ut6.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: ut6.id, destinationId: st6.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st6.id, destinationId: ut5.id, orderindex: 0, label: null });
+    model.links.push({sourceId: ud.id, destinationId: ut2.id, orderindex: 1, label: null});
+    model.links.push({sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st2.id, destinationId: ut6.id, orderindex: 0, label: null});
+    model.links.push({sourceId: ut6.id, destinationId: st6.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st6.id, destinationId: ut5.id, orderindex: 0, label: null});
 
-    model.links.push({ sourceId: ud.id, destinationId: ut3.id, orderindex: 2, label: null });
-    model.links.push({ sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st3.id, destinationId: ut5.id, orderindex: 0, label: null });
+    model.links.push({sourceId: ud.id, destinationId: ut3.id, orderindex: 2, label: null});
+    model.links.push({sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st3.id, destinationId: ut5.id, orderindex: 0, label: null});
 
-    model.links.push({ sourceId: ud.id, destinationId: ut4.id, orderindex: 3, label: null });
-    model.links.push({ sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st4.id, destinationId: ut5.id, orderindex: 0, label: null });
+    model.links.push({sourceId: ud.id, destinationId: ut4.id, orderindex: 3, label: null});
+    model.links.push({sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st4.id, destinationId: ut5.id, orderindex: 0, label: null});
 
-    model.links.push({ sourceId: ut5.id, destinationId: st5.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st5.id, destinationId: end.id, orderindex: 0, label: null });
+    model.links.push({sourceId: ut5.id, destinationId: st5.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st5.id, destinationId: end.id, orderindex: 0, label: null});
 
-    model.decisionBranchDestinationLinks.push({ sourceId: ud.id, destinationId: ut5.id, orderindex: 1, label: null });
-    model.decisionBranchDestinationLinks.push({ sourceId: ud.id, destinationId: ut5.id, orderindex: 2, label: null });
-    model.decisionBranchDestinationLinks.push({ sourceId: ud.id, destinationId: ut5.id, orderindex: 3, label: null });
+    model.decisionBranchDestinationLinks.push({sourceId: ud.id, destinationId: ut5.id, orderindex: 1, label: null});
+    model.decisionBranchDestinationLinks.push({sourceId: ud.id, destinationId: ut5.id, orderindex: 2, label: null});
+    model.decisionBranchDestinationLinks.push({sourceId: ud.id, destinationId: ut5.id, orderindex: 3, label: null});
 
     return model;
 }
@@ -1176,28 +1192,28 @@ export function createMultipleUserDecisionsWithMultipleBranchesModel(): IProcess
 
     model.shapes.push(start, pre, ud1, ut1, st1, ut2, st2, ud2, ut3, st3, ut4, st4, end);
 
-    model.links.push({ sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null });
+    model.links.push({sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null});
+    model.links.push({sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null});
 
-    model.links.push({ sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st1.id, destinationId: ud2.id, orderindex: 0, label: null });
+    model.links.push({sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null});
+    model.links.push({sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st1.id, destinationId: ud2.id, orderindex: 0, label: null});
 
-    model.links.push({ sourceId: ud1.id, destinationId: ut2.id, orderindex: 1, label: null });
-    model.links.push({ sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st2.id, destinationId: ud2.id, orderindex: 0, label: null });
+    model.links.push({sourceId: ud1.id, destinationId: ut2.id, orderindex: 1, label: null});
+    model.links.push({sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st2.id, destinationId: ud2.id, orderindex: 0, label: null});
 
-    model.links.push({ sourceId: ud2.id, destinationId: ut3.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null });
+    model.links.push({sourceId: ud2.id, destinationId: ut3.id, orderindex: 0, label: null});
+    model.links.push({sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null});
 
-    model.links.push({ sourceId: ud2.id, destinationId: ut4.id, orderindex: 1, label: null });
-    model.links.push({ sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null });
+    model.links.push({sourceId: ud2.id, destinationId: ut4.id, orderindex: 1, label: null});
+    model.links.push({sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null});
 
     model.decisionBranchDestinationLinks.push(
-        { sourceId: ud1.id, destinationId: ud2.id, orderindex: 1, label: null },
-        { sourceId: ud2.id, destinationId: end.id, orderindex: 1, label: null }
+        {sourceId: ud1.id, destinationId: ud2.id, orderindex: 1, label: null},
+        {sourceId: ud2.id, destinationId: end.id, orderindex: 1, label: null}
     );
 
     return model;
@@ -1218,19 +1234,19 @@ export function createSystemDecisionWithMultipleBranchesModel(): IProcess {
 
     model.shapes.push(start, pre, ut1, sd, st1, st2, st3, end);
 
-    model.links.push({ sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: ut1.id, destinationId: sd.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: sd.id, destinationId: st1.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: sd.id, destinationId: st2.id, orderindex: 1, label: null });
-    model.links.push({ sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: sd.id, destinationId: st3.id, orderindex: 2, label: null });
-    model.links.push({ sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null });
+    model.links.push({sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null});
+    model.links.push({sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null});
+    model.links.push({sourceId: ut1.id, destinationId: sd.id, orderindex: 0, label: null});
+    model.links.push({sourceId: sd.id, destinationId: st1.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null});
+    model.links.push({sourceId: sd.id, destinationId: st2.id, orderindex: 1, label: null});
+    model.links.push({sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null});
+    model.links.push({sourceId: sd.id, destinationId: st3.id, orderindex: 2, label: null});
+    model.links.push({sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null});
 
     model.decisionBranchDestinationLinks.push(
-        { sourceId: sd.id, destinationId: end.id, orderindex: 1, label: null },
-        { sourceId: sd.id, destinationId: end.id, orderindex: 2, label: null }
+        {sourceId: sd.id, destinationId: end.id, orderindex: 1, label: null},
+        {sourceId: sd.id, destinationId: end.id, orderindex: 2, label: null}
     );
 
     return model;
@@ -1254,22 +1270,22 @@ export function createSystemDecisionForAddBranchTestModel(): IProcess {
 
     model.shapes.push(start, pre, ut1, sd, st2, st3, ut4, st4, end);
     /*
-        start -> PRE -> UT1 -> SD ->  ST2 -> UT4 -> ST4 -> END
-                                  ->  ST3 -> END
-    */
+     start -> PRE -> UT1 -> SD ->  ST2 -> UT4 -> ST4 -> END
+     ->  ST3 -> END
+     */
 
-    model.links.push({ sourceId: start.id, destinationId: pre.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: ut1.id, destinationId: sd.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: sd.id, destinationId: st2.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: sd.id, destinationId: st3.id, orderindex: 1, label: "" });
-    model.links.push({ sourceId: st2.id, destinationId: ut4.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: st3.id, destinationId: end.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: st4.id, destinationId: end.id, orderindex: 0, label: "" });
+    model.links.push({sourceId: start.id, destinationId: pre.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: ut1.id, destinationId: sd.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: sd.id, destinationId: st2.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: sd.id, destinationId: st3.id, orderindex: 1, label: ""});
+    model.links.push({sourceId: st2.id, destinationId: ut4.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: st3.id, destinationId: end.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: st4.id, destinationId: end.id, orderindex: 0, label: ""});
 
     model.decisionBranchDestinationLinks.push(
-        { sourceId: sd.id, destinationId: end.id, orderindex: 1, label: "" }
+        {sourceId: sd.id, destinationId: end.id, orderindex: 1, label: ""}
     );
 
     return model;
@@ -1278,7 +1294,7 @@ export function createSystemDecisionForAddBranchTestModel(): IProcess {
 
 export function createSimpleCaseModelWithoutXandY() {
     var testModel = {
-        status: { isLocked: true, isLockedByMe: true },
+        status: {isLocked: true, isLockedByMe: true},
         description: "test",
         type: 1,
         shapes: [
@@ -1324,83 +1340,83 @@ export function createSimpleCaseModelWithoutXandY() {
             }
         ],
         links: [
-            { sourceId: 10, destinationId: 15, orderindex: 0 },
-            { sourceId: 15, destinationId: 20, orderindex: 0 },
-            { sourceId: 20, destinationId: 25, orderindex: 0 },
-            { sourceId: 25, destinationId: 35, orderindex: 0 },
-            { sourceId: 35, destinationId: 26, orderindex: 0 },
-            { sourceId: 26, destinationId: 27, orderindex: 0 },
-            { sourceId: 35, destinationId: 36, orderindex: 1 },
-            { sourceId: 36, destinationId: 37, orderindex: 0 },
-            { sourceId: 27, destinationId: 30, orderindex: 0 },
-            { sourceId: 37, destinationId: 30, orderindex: 0 }
+            {sourceId: 10, destinationId: 15, orderindex: 0},
+            {sourceId: 15, destinationId: 20, orderindex: 0},
+            {sourceId: 20, destinationId: 25, orderindex: 0},
+            {sourceId: 25, destinationId: 35, orderindex: 0},
+            {sourceId: 35, destinationId: 26, orderindex: 0},
+            {sourceId: 26, destinationId: 27, orderindex: 0},
+            {sourceId: 35, destinationId: 36, orderindex: 1},
+            {sourceId: 36, destinationId: 37, orderindex: 0},
+            {sourceId: 27, destinationId: 30, orderindex: 0},
+            {sourceId: 37, destinationId: 30, orderindex: 0}
         ],
         decisionBranchDestinationLinks: [
-            { sourceId: 35, destinationId: 30, orderindex: 1 }
+            {sourceId: 35, destinationId: 30, orderindex: 1}
         ],
         rawData: "",
         propertyValues: []
     };
 
-    testModel.propertyValues["clientType"] = { key: "clientType", value: ProcessType.UserToSystemProcess };
+    testModel.propertyValues["clientType"] = {key: "clientType", value: ProcessType.UserToSystemProcess};
 
-    testModel.shapes[0].propertyValues["label"] = { key: "label", value: "Start" };
-    testModel.shapes[0].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[0].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[0].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.Start };
+    testModel.shapes[0].propertyValues["label"] = {key: "label", value: "Start"};
+    testModel.shapes[0].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[0].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[0].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.Start};
 
 
-    testModel.shapes[1].propertyValues["label"] = { key: "label", value: "System Task 1" };
-    testModel.shapes[1].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[1].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[1].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[1].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[1].propertyValues["label"] = {key: "label", value: "System Task 1"};
+    testModel.shapes[1].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[1].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[1].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[1].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[2].propertyValues["label"] = { key: "label", value: "User Task 1" };
-    testModel.shapes[2].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[2].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[2].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[2].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserTask };
+    testModel.shapes[2].propertyValues["label"] = {key: "label", value: "User Task 1"};
+    testModel.shapes[2].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[2].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[2].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[2].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
-    testModel.shapes[3].propertyValues["label"] = { key: "label", value: "System Task 2" };
-    testModel.shapes[3].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[3].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[3].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[3].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[3].propertyValues["label"] = {key: "label", value: "System Task 2"};
+    testModel.shapes[3].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[3].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[3].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[3].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[4].propertyValues["label"] = { key: "label", value: "User Decision" };
-    testModel.shapes[4].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[4].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[4].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserDecision };
+    testModel.shapes[4].propertyValues["label"] = {key: "label", value: "User Decision"};
+    testModel.shapes[4].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[4].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[4].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserDecision};
 
-    testModel.shapes[5].propertyValues["label"] = { key: "label", value: "User Task 1" };
-    testModel.shapes[5].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[5].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[5].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[5].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserTask };
+    testModel.shapes[5].propertyValues["label"] = {key: "label", value: "User Task 1"};
+    testModel.shapes[5].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[5].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[5].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[5].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
-    testModel.shapes[6].propertyValues["label"] = { key: "label", value: "System Task 2" };
-    testModel.shapes[6].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[6].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[6].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[6].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[6].propertyValues["label"] = {key: "label", value: "System Task 2"};
+    testModel.shapes[6].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[6].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[6].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[6].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[7].propertyValues["label"] = { key: "label", value: "User Task 11" };
-    testModel.shapes[7].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[7].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[7].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[7].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserTask };
+    testModel.shapes[7].propertyValues["label"] = {key: "label", value: "User Task 11"};
+    testModel.shapes[7].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[7].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[7].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[7].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
-    testModel.shapes[8].propertyValues["label"] = { key: "label", value: "System Task 12" };
-    testModel.shapes[8].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[8].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[8].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[8].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[8].propertyValues["label"] = {key: "label", value: "System Task 12"};
+    testModel.shapes[8].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[8].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[8].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[8].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[9].propertyValues["label"] = { key: "label", value: "End" };
-    testModel.shapes[9].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[9].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[9].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.End };
+    testModel.shapes[9].propertyValues["label"] = {key: "label", value: "End"};
+    testModel.shapes[9].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[9].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[9].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.End};
 
     return testModel;
 }
@@ -1408,7 +1424,7 @@ export function createSimpleCaseModelWithoutXandY() {
 
 export function createSimpleCaseModelAfterAutoLayout() {
     var testModel = {
-        status: { isLocked: true, isLockedByMe: true },
+        status: {isLocked: true, isLockedByMe: true},
         description: "test",
         type: 1,
         shapes: [
@@ -1454,88 +1470,87 @@ export function createSimpleCaseModelAfterAutoLayout() {
             }
         ],
         links: [
-            { sourceId: 10, destinationId: 15, orderindex: 0 },
-            { sourceId: 15, destinationId: 20, orderindex: 0 },
-            { sourceId: 20, destinationId: 25, orderindex: 0 },
-            { sourceId: 25, destinationId: 35, orderindex: 0 },
-            { sourceId: 35, destinationId: 26, orderindex: 0 },
-            { sourceId: 26, destinationId: 27, orderindex: 0 },
-            { sourceId: 35, destinationId: 36, orderindex: 0 },
-            { sourceId: 36, destinationId: 37, orderindex: 0 },
-            { sourceId: 27, destinationId: 30, orderindex: 0 },
-            { sourceId: 37, destinationId: 30, orderindex: 0 }
+            {sourceId: 10, destinationId: 15, orderindex: 0},
+            {sourceId: 15, destinationId: 20, orderindex: 0},
+            {sourceId: 20, destinationId: 25, orderindex: 0},
+            {sourceId: 25, destinationId: 35, orderindex: 0},
+            {sourceId: 35, destinationId: 26, orderindex: 0},
+            {sourceId: 26, destinationId: 27, orderindex: 0},
+            {sourceId: 35, destinationId: 36, orderindex: 0},
+            {sourceId: 36, destinationId: 37, orderindex: 0},
+            {sourceId: 27, destinationId: 30, orderindex: 0},
+            {sourceId: 37, destinationId: 30, orderindex: 0}
         ],
         rawData: "",
         propertyValues: []
     };
 
-    testModel.propertyValues["clientType"] = { key: "clientType", value: ProcessType.UserToSystemProcess };
+    testModel.propertyValues["clientType"] = {key: "clientType", value: ProcessType.UserToSystemProcess};
 
-    testModel.shapes[0].propertyValues["label"] = { key: "label", value: "Start" };
-    testModel.shapes[0].propertyValues["x"] = { key: "x", value: 0 };
-    testModel.shapes[0].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[0].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.Start };
+    testModel.shapes[0].propertyValues["label"] = {key: "label", value: "Start"};
+    testModel.shapes[0].propertyValues["x"] = {key: "x", value: 0};
+    testModel.shapes[0].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[0].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.Start};
 
-    testModel.shapes[1].propertyValues["label"] = { key: "label", value: "System Task 1" };
-    testModel.shapes[1].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[1].propertyValues["x"] = { key: "x", value: 1 };
-    testModel.shapes[1].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[1].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[1].propertyValues["label"] = {key: "label", value: "System Task 1"};
+    testModel.shapes[1].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[1].propertyValues["x"] = {key: "x", value: 1};
+    testModel.shapes[1].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[1].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[2].propertyValues["label"] = { key: "label", value: "User Task 1" };
-    testModel.shapes[2].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[2].propertyValues["x"] = { key: "x", value: 2 };
-    testModel.shapes[2].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[2].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserTask };
+    testModel.shapes[2].propertyValues["label"] = {key: "label", value: "User Task 1"};
+    testModel.shapes[2].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[2].propertyValues["x"] = {key: "x", value: 2};
+    testModel.shapes[2].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[2].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
-    testModel.shapes[3].propertyValues["label"] = { key: "label", value: "System Task 2" };
-    testModel.shapes[3].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[3].propertyValues["x"] = { key: "x", value: 3 };
-    testModel.shapes[3].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[3].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[3].propertyValues["label"] = {key: "label", value: "System Task 2"};
+    testModel.shapes[3].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[3].propertyValues["x"] = {key: "x", value: 3};
+    testModel.shapes[3].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[3].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[4].propertyValues["label"] = { key: "label", value: "User Decision" };
-    testModel.shapes[4].propertyValues["x"] = { key: "x", value: 4 };
-    testModel.shapes[4].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[4].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserDecision };
+    testModel.shapes[4].propertyValues["label"] = {key: "label", value: "User Decision"};
+    testModel.shapes[4].propertyValues["x"] = {key: "x", value: 4};
+    testModel.shapes[4].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[4].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserDecision};
 
-    testModel.shapes[5].propertyValues["label"] = { key: "label", value: "User Task 1" };
-    testModel.shapes[5].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[5].propertyValues["x"] = { key: "x", value: 5 };
-    testModel.shapes[5].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[5].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserTask };
+    testModel.shapes[5].propertyValues["label"] = {key: "label", value: "User Task 1"};
+    testModel.shapes[5].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[5].propertyValues["x"] = {key: "x", value: 5};
+    testModel.shapes[5].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[5].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
-    testModel.shapes[6].propertyValues["label"] = { key: "label", value: "System Task 2" };
-    testModel.shapes[6].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[6].propertyValues["x"] = { key: "x", value: 6 };
-    testModel.shapes[6].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[6].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[6].propertyValues["label"] = {key: "label", value: "System Task 2"};
+    testModel.shapes[6].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[6].propertyValues["x"] = {key: "x", value: 6};
+    testModel.shapes[6].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[6].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[7].propertyValues["label"] = { key: "label", value: "User Task 11" };
-    testModel.shapes[7].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[7].propertyValues["x"] = { key: "x", value: 5 };
-    testModel.shapes[7].propertyValues["y"] = { key: "y", value: 1 };
-    testModel.shapes[7].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserTask };
+    testModel.shapes[7].propertyValues["label"] = {key: "label", value: "User Task 11"};
+    testModel.shapes[7].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[7].propertyValues["x"] = {key: "x", value: 5};
+    testModel.shapes[7].propertyValues["y"] = {key: "y", value: 1};
+    testModel.shapes[7].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
-    testModel.shapes[8].propertyValues["label"] = { key: "label", value: "System Task 12" };
-    testModel.shapes[8].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[8].propertyValues["x"] = { key: "x", value: 6 };
-    testModel.shapes[8].propertyValues["y"] = { key: "y", value: 1 };
-    testModel.shapes[8].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[8].propertyValues["label"] = {key: "label", value: "System Task 12"};
+    testModel.shapes[8].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[8].propertyValues["x"] = {key: "x", value: 6};
+    testModel.shapes[8].propertyValues["y"] = {key: "y", value: 1};
+    testModel.shapes[8].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[9].propertyValues["label"] = { key: "label", value: "End" };
-    testModel.shapes[9].propertyValues["x"] = { key: "x", value: 8 };
-    testModel.shapes[9].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[9].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.End };
+    testModel.shapes[9].propertyValues["label"] = {key: "label", value: "End"};
+    testModel.shapes[9].propertyValues["x"] = {key: "x", value: 8};
+    testModel.shapes[9].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[9].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.End};
 
     return testModel;
 }
 
 
-
 export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY() {
     var testModel = {
-        status: { isLocked: true, isLockedByMe: true },
+        status: {isLocked: true, isLockedByMe: true},
         description: "test",
         type: 1,
         shapes: [
@@ -1634,112 +1649,115 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
             }
         ],
         links: [
-            { sourceId: 10, destinationId: 15, orderindex: 0 },
-            { sourceId: 15, destinationId: 20, orderindex: 0 },
-            { sourceId: 20, destinationId: 25, orderindex: 0 },
-            { sourceId: 25, destinationId: 30, orderindex: 0 },
-            { sourceId: 30, destinationId: 80, orderindex: 0 },
-            { sourceId: 25, destinationId: 40, orderindex: 1 },
-            { sourceId: 40, destinationId: 45, orderindex: 0 },
-            { sourceId: 45, destinationId: 55, orderindex: 0 },
-            { sourceId: 40, destinationId: 50, orderindex: 1 },
-            { sourceId: 50, destinationId: 55, orderindex: 0 },
-            { sourceId: 55, destinationId: 60, orderindex: 0 },
-            { sourceId: 60, destinationId: 65, orderindex: 0 },
-            { sourceId: 65, destinationId: 80, orderindex: 0 },
-            { sourceId: 55, destinationId: 70, orderindex: 1 },
-            { sourceId: 70, destinationId: 75, orderindex: 0 },
-            { sourceId: 75, destinationId: 80, orderindex: 0 }
+            {sourceId: 10, destinationId: 15, orderindex: 0},
+            {sourceId: 15, destinationId: 20, orderindex: 0},
+            {sourceId: 20, destinationId: 25, orderindex: 0},
+            {sourceId: 25, destinationId: 30, orderindex: 0},
+            {sourceId: 30, destinationId: 80, orderindex: 0},
+            {sourceId: 25, destinationId: 40, orderindex: 1},
+            {sourceId: 40, destinationId: 45, orderindex: 0},
+            {sourceId: 45, destinationId: 55, orderindex: 0},
+            {sourceId: 40, destinationId: 50, orderindex: 1},
+            {sourceId: 50, destinationId: 55, orderindex: 0},
+            {sourceId: 55, destinationId: 60, orderindex: 0},
+            {sourceId: 60, destinationId: 65, orderindex: 0},
+            {sourceId: 65, destinationId: 80, orderindex: 0},
+            {sourceId: 55, destinationId: 70, orderindex: 1},
+            {sourceId: 70, destinationId: 75, orderindex: 0},
+            {sourceId: 75, destinationId: 80, orderindex: 0}
         ],
         decisionBranchDestinationLinks: [
-            { sourceId: 25, destinationId: 80, orderindex: 1 },
-            { sourceId: 40, destinationId: 55, orderindex: 1 },
-            { sourceId: 55, destinationId: 80, orderindex: 1 },
+            {sourceId: 25, destinationId: 80, orderindex: 1},
+            {sourceId: 40, destinationId: 55, orderindex: 1},
+            {sourceId: 55, destinationId: 80, orderindex: 1},
         ],
         rawData: "",
         propertyValues: []
     };
 
-    testModel.propertyValues["clientType"] = { key: "clientType", value: ProcessType.UserToSystemProcess };
+    testModel.propertyValues["clientType"] = {key: "clientType", value: ProcessType.UserToSystemProcess};
 
-    testModel.shapes[0].propertyValues["label"] = { key: "label", value: "Start" };
-    testModel.shapes[0].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[0].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[0].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.Start };
+    testModel.shapes[0].propertyValues["label"] = {key: "label", value: "Start"};
+    testModel.shapes[0].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[0].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[0].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.Start};
 
-    testModel.shapes[1].propertyValues["label"] = { key: "label", value: "Precondition" };
-    testModel.shapes[1].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[1].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[1].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[1].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.PreconditionSystemTask };
+    testModel.shapes[1].propertyValues["label"] = {key: "label", value: "Precondition"};
+    testModel.shapes[1].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[1].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[1].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[1].propertyValues["clientType"] = {
+        key: "clientType",
+        value: ProcessShapeType.PreconditionSystemTask
+    };
 
-    testModel.shapes[2].propertyValues["label"] = { key: "label", value: "User Task 1" };
-    testModel.shapes[2].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[2].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[2].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[2].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserTask };
+    testModel.shapes[2].propertyValues["label"] = {key: "label", value: "User Task 1"};
+    testModel.shapes[2].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[2].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[2].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[2].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
-    testModel.shapes[3].propertyValues["label"] = { key: "label", value: "System Decision 1" };
-    testModel.shapes[3].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[3].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[3].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemDecision };
+    testModel.shapes[3].propertyValues["label"] = {key: "label", value: "System Decision 1"};
+    testModel.shapes[3].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[3].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[3].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemDecision};
 
-    testModel.shapes[4].propertyValues["label"] = { key: "label", value: "System Task 1" };
-    testModel.shapes[4].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[4].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[4].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[4].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[4].propertyValues["label"] = {key: "label", value: "System Task 1"};
+    testModel.shapes[4].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[4].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[4].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[4].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[5].propertyValues["label"] = { key: "label", value: "System Decision 2" };
-    testModel.shapes[5].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[5].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[5].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemDecision };
+    testModel.shapes[5].propertyValues["label"] = {key: "label", value: "System Decision 2"};
+    testModel.shapes[5].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[5].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[5].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemDecision};
 
-    testModel.shapes[6].propertyValues["label"] = { key: "label", value: "System Task 1" };
-    testModel.shapes[6].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[6].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[6].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[6].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[6].propertyValues["label"] = {key: "label", value: "System Task 1"};
+    testModel.shapes[6].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[6].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[6].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[6].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[7].propertyValues["label"] = { key: "label", value: "System Task 2" };
-    testModel.shapes[7].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[7].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[7].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[7].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[7].propertyValues["label"] = {key: "label", value: "System Task 2"};
+    testModel.shapes[7].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[7].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[7].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[7].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[8].propertyValues["label"] = { key: "label", value: "User Decision" };
-    testModel.shapes[8].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[8].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[8].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserDecision };
+    testModel.shapes[8].propertyValues["label"] = {key: "label", value: "User Decision"};
+    testModel.shapes[8].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[8].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[8].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserDecision};
 
-    testModel.shapes[9].propertyValues["label"] = { key: "label", value: "User Task 2" };
-    testModel.shapes[9].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[9].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[9].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[9].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserTask };
+    testModel.shapes[9].propertyValues["label"] = {key: "label", value: "User Task 2"};
+    testModel.shapes[9].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[9].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[9].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[9].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
-    testModel.shapes[10].propertyValues["label"] = { key: "label", value: "System Task 3" };
-    testModel.shapes[10].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[10].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[10].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[10].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[10].propertyValues["label"] = {key: "label", value: "System Task 3"};
+    testModel.shapes[10].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[10].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[10].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[10].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[11].propertyValues["label"] = { key: "label", value: "User Task 3" };
-    testModel.shapes[11].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[11].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[11].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[11].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserTask };
+    testModel.shapes[11].propertyValues["label"] = {key: "label", value: "User Task 3"};
+    testModel.shapes[11].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[11].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[11].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[11].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
-    testModel.shapes[12].propertyValues["label"] = { key: "label", value: "System Task 4" };
-    testModel.shapes[12].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[12].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[12].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[12].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[12].propertyValues["label"] = {key: "label", value: "System Task 4"};
+    testModel.shapes[12].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[12].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[12].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[12].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[13].propertyValues["label"] = { key: "label", value: "End" };
-    testModel.shapes[13].propertyValues["x"] = { key: "x", value: -1 };
-    testModel.shapes[13].propertyValues["y"] = { key: "y", value: -1 };
-    testModel.shapes[13].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.End };
+    testModel.shapes[13].propertyValues["label"] = {key: "label", value: "End"};
+    testModel.shapes[13].propertyValues["x"] = {key: "x", value: -1};
+    testModel.shapes[13].propertyValues["y"] = {key: "y", value: -1};
+    testModel.shapes[13].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.End};
 
     return testModel;
 }
@@ -1747,7 +1765,7 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
 
 export function createSystemDecisionBeforeUserDecisionInBranchModel() {
     var testModel = {
-        status: { isLocked: true, isLockedByMe: true },
+        status: {isLocked: true, isLockedByMe: true},
         description: "test",
         type: 1,
         shapes: [
@@ -1846,112 +1864,112 @@ export function createSystemDecisionBeforeUserDecisionInBranchModel() {
             }
         ],
         links: [
-            { sourceId: 10, destinationId: 15, orderindex: 0 },
-            { sourceId: 15, destinationId: 20, orderindex: 0 },
-            { sourceId: 20, destinationId: 25, orderindex: 0 },
-            { sourceId: 25, destinationId: 30, orderindex: 0 },
-            { sourceId: 30, destinationId: 80, orderindex: 0 },
-            { sourceId: 25, destinationId: 40, orderindex: 1 },
-            { sourceId: 40, destinationId: 45, orderindex: 0 },
-            { sourceId: 45, destinationId: 55, orderindex: 0 },
-            { sourceId: 40, destinationId: 50, orderindex: 1 },
-            { sourceId: 50, destinationId: 55, orderindex: 0 },
-            { sourceId: 55, destinationId: 60, orderindex: 0 },
-            { sourceId: 60, destinationId: 65, orderindex: 0 },
-            { sourceId: 65, destinationId: 80, orderindex: 0 },
-            { sourceId: 55, destinationId: 70, orderindex: 1 },
-            { sourceId: 70, destinationId: 75, orderindex: 0 },
-            { sourceId: 75, destinationId: 80, orderindex: 0 }
+            {sourceId: 10, destinationId: 15, orderindex: 0},
+            {sourceId: 15, destinationId: 20, orderindex: 0},
+            {sourceId: 20, destinationId: 25, orderindex: 0},
+            {sourceId: 25, destinationId: 30, orderindex: 0},
+            {sourceId: 30, destinationId: 80, orderindex: 0},
+            {sourceId: 25, destinationId: 40, orderindex: 1},
+            {sourceId: 40, destinationId: 45, orderindex: 0},
+            {sourceId: 45, destinationId: 55, orderindex: 0},
+            {sourceId: 40, destinationId: 50, orderindex: 1},
+            {sourceId: 50, destinationId: 55, orderindex: 0},
+            {sourceId: 55, destinationId: 60, orderindex: 0},
+            {sourceId: 60, destinationId: 65, orderindex: 0},
+            {sourceId: 65, destinationId: 80, orderindex: 0},
+            {sourceId: 55, destinationId: 70, orderindex: 1},
+            {sourceId: 70, destinationId: 75, orderindex: 0},
+            {sourceId: 75, destinationId: 80, orderindex: 0}
         ],
         decisionBranchDestinationLinks: [
-            { sourceId: 25, destinationId: 80, orderindex: 1 },
-            { sourceId: 40, destinationId: 55, orderindex: 1 },
-            { sourceId: 55, destinationId: 80, orderindex: 1 },
+            {sourceId: 25, destinationId: 80, orderindex: 1},
+            {sourceId: 40, destinationId: 55, orderindex: 1},
+            {sourceId: 55, destinationId: 80, orderindex: 1},
         ],
         rawData: "",
         propertyValues: []
     };
 
-    testModel.propertyValues["clientType"] = { key: "clientType", value: ProcessType.UserToSystemProcess };
+    testModel.propertyValues["clientType"] = {key: "clientType", value: ProcessType.UserToSystemProcess};
 
-    testModel.shapes[0].propertyValues["label"] = { key: "label", value: "Start" };
-    testModel.shapes[0].propertyValues["x"] = { key: "x", value: 0 };
-    testModel.shapes[0].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[0].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.Start };
+    testModel.shapes[0].propertyValues["label"] = {key: "label", value: "Start"};
+    testModel.shapes[0].propertyValues["x"] = {key: "x", value: 0};
+    testModel.shapes[0].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[0].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.Start};
 
-    testModel.shapes[1].propertyValues["label"] = { key: "label", value: "Precondition" };
-    testModel.shapes[1].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[1].propertyValues["x"] = { key: "x", value: 1 };
-    testModel.shapes[1].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[1].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[1].propertyValues["label"] = {key: "label", value: "Precondition"};
+    testModel.shapes[1].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[1].propertyValues["x"] = {key: "x", value: 1};
+    testModel.shapes[1].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[1].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[2].propertyValues["label"] = { key: "label", value: "User Task 1" };
-    testModel.shapes[2].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[2].propertyValues["x"] = { key: "x", value: 2 };
-    testModel.shapes[2].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[2].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserTask };
+    testModel.shapes[2].propertyValues["label"] = {key: "label", value: "User Task 1"};
+    testModel.shapes[2].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[2].propertyValues["x"] = {key: "x", value: 2};
+    testModel.shapes[2].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[2].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
-    testModel.shapes[3].propertyValues["label"] = { key: "label", value: "System Decision 1" };
-    testModel.shapes[3].propertyValues["x"] = { key: "x", value: 3 };
-    testModel.shapes[3].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[3].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemDecision };
+    testModel.shapes[3].propertyValues["label"] = {key: "label", value: "System Decision 1"};
+    testModel.shapes[3].propertyValues["x"] = {key: "x", value: 3};
+    testModel.shapes[3].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[3].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemDecision};
 
-    testModel.shapes[4].propertyValues["label"] = { key: "label", value: "System Task 1" };
-    testModel.shapes[4].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[4].propertyValues["x"] = { key: "x", value: 4 };
-    testModel.shapes[4].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[4].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[4].propertyValues["label"] = {key: "label", value: "System Task 1"};
+    testModel.shapes[4].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[4].propertyValues["x"] = {key: "x", value: 4};
+    testModel.shapes[4].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[4].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[5].propertyValues["label"] = { key: "label", value: "System Decision 2" };
-    testModel.shapes[5].propertyValues["x"] = { key: "x", value: 4 };
-    testModel.shapes[5].propertyValues["y"] = { key: "y", value: 1 };
-    testModel.shapes[5].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemDecision };
+    testModel.shapes[5].propertyValues["label"] = {key: "label", value: "System Decision 2"};
+    testModel.shapes[5].propertyValues["x"] = {key: "x", value: 4};
+    testModel.shapes[5].propertyValues["y"] = {key: "y", value: 1};
+    testModel.shapes[5].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemDecision};
 
-    testModel.shapes[6].propertyValues["label"] = { key: "label", value: "System Task 1" };
-    testModel.shapes[6].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[6].propertyValues["x"] = { key: "x", value: 5 };
-    testModel.shapes[6].propertyValues["y"] = { key: "y", value: 1 };
-    testModel.shapes[6].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[6].propertyValues["label"] = {key: "label", value: "System Task 1"};
+    testModel.shapes[6].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[6].propertyValues["x"] = {key: "x", value: 5};
+    testModel.shapes[6].propertyValues["y"] = {key: "y", value: 1};
+    testModel.shapes[6].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[7].propertyValues["label"] = { key: "label", value: "System Task 2" };
-    testModel.shapes[7].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[7].propertyValues["x"] = { key: "x", value: 5 };
-    testModel.shapes[7].propertyValues["y"] = { key: "y", value: 2 };
-    testModel.shapes[7].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[7].propertyValues["label"] = {key: "label", value: "System Task 2"};
+    testModel.shapes[7].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[7].propertyValues["x"] = {key: "x", value: 5};
+    testModel.shapes[7].propertyValues["y"] = {key: "y", value: 2};
+    testModel.shapes[7].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[8].propertyValues["label"] = { key: "label", value: "User Decision" };
-    testModel.shapes[8].propertyValues["x"] = { key: "x", value: 7 };
-    testModel.shapes[8].propertyValues["y"] = { key: "y", value: 1 };
-    testModel.shapes[8].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserDecision };
+    testModel.shapes[8].propertyValues["label"] = {key: "label", value: "User Decision"};
+    testModel.shapes[8].propertyValues["x"] = {key: "x", value: 7};
+    testModel.shapes[8].propertyValues["y"] = {key: "y", value: 1};
+    testModel.shapes[8].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserDecision};
 
-    testModel.shapes[9].propertyValues["label"] = { key: "label", value: "User Task 2" };
-    testModel.shapes[9].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[9].propertyValues["x"] = { key: "x", value: 8 };
-    testModel.shapes[9].propertyValues["y"] = { key: "y", value: 1 };
-    testModel.shapes[9].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserTask };
+    testModel.shapes[9].propertyValues["label"] = {key: "label", value: "User Task 2"};
+    testModel.shapes[9].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[9].propertyValues["x"] = {key: "x", value: 8};
+    testModel.shapes[9].propertyValues["y"] = {key: "y", value: 1};
+    testModel.shapes[9].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
-    testModel.shapes[10].propertyValues["label"] = { key: "label", value: "System Task 3" };
-    testModel.shapes[10].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[10].propertyValues["x"] = { key: "x", value: 9 };
-    testModel.shapes[10].propertyValues["y"] = { key: "y", value: 1 };
-    testModel.shapes[10].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[10].propertyValues["label"] = {key: "label", value: "System Task 3"};
+    testModel.shapes[10].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[10].propertyValues["x"] = {key: "x", value: 9};
+    testModel.shapes[10].propertyValues["y"] = {key: "y", value: 1};
+    testModel.shapes[10].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[11].propertyValues["label"] = { key: "label", value: "User Task 3" };
-    testModel.shapes[11].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[11].propertyValues["x"] = { key: "x", value: 8 };
-    testModel.shapes[11].propertyValues["y"] = { key: "y", value: 2 };
-    testModel.shapes[11].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserTask };
+    testModel.shapes[11].propertyValues["label"] = {key: "label", value: "User Task 3"};
+    testModel.shapes[11].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[11].propertyValues["x"] = {key: "x", value: 8};
+    testModel.shapes[11].propertyValues["y"] = {key: "y", value: 2};
+    testModel.shapes[11].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
-    testModel.shapes[12].propertyValues["label"] = { key: "label", value: "System Task 4" };
-    testModel.shapes[12].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[12].propertyValues["x"] = { key: "x", value: 9 };
-    testModel.shapes[12].propertyValues["y"] = { key: "y", value: 2 };
-    testModel.shapes[12].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[12].propertyValues["label"] = {key: "label", value: "System Task 4"};
+    testModel.shapes[12].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[12].propertyValues["x"] = {key: "x", value: 9};
+    testModel.shapes[12].propertyValues["y"] = {key: "y", value: 2};
+    testModel.shapes[12].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[13].propertyValues["label"] = { key: "label", value: "End" };
-    testModel.shapes[13].propertyValues["x"] = { key: "x", value: 11 };
-    testModel.shapes[13].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[13].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.End };
+    testModel.shapes[13].propertyValues["label"] = {key: "label", value: "End"};
+    testModel.shapes[13].propertyValues["x"] = {key: "x", value: 11};
+    testModel.shapes[13].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[13].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.End};
 
     return testModel;
 }
@@ -1975,19 +1993,19 @@ export function createUserDecisionLoopModelWithoutXAndY(): IProcess {
     process.shapes.push(start, pre, ut1, st1, ud, ut2, st2, ut3, st3, end);
 
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: ud.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut2.id, orderindex: 0, label: null },
-        { sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null },
-        { sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut3.id, orderindex: 1, label: null },
-        { sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null },
-        { sourceId: st3.id, destinationId: ut1.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: ud.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut2.id, orderindex: 0, label: null},
+        {sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null},
+        {sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut3.id, orderindex: 1, label: null},
+        {sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null},
+        {sourceId: st3.id, destinationId: ut1.id, orderindex: 0, label: null}
     );
 
-    process.decisionBranchDestinationLinks.push({ sourceId: ud.id, destinationId: ut1.id, orderindex: 1, label: null });
+    process.decisionBranchDestinationLinks.push({sourceId: ud.id, destinationId: ut1.id, orderindex: 1, label: null});
 
     return process;
 }
@@ -2029,16 +2047,16 @@ export function createSystemDecisionLoopModelWithoutXAndY(): IProcess {
     process.shapes.push(start, pre, ut1, sd, st1, st2, end);
 
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: sd.id, orderindex: 0, label: null },
-        { sourceId: sd.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: sd.id, destinationId: st2.id, orderindex: 1, label: null },
-        { sourceId: st2.id, destinationId: ut1.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: sd.id, orderindex: 0, label: null},
+        {sourceId: sd.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: sd.id, destinationId: st2.id, orderindex: 1, label: null},
+        {sourceId: st2.id, destinationId: ut1.id, orderindex: 0, label: null}
     );
 
-    process.decisionBranchDestinationLinks.push({ sourceId: sd.id, destinationId: ut1.id, orderindex: 1, label: null });
+    process.decisionBranchDestinationLinks.push({sourceId: sd.id, destinationId: ut1.id, orderindex: 1, label: null});
 
     return process;
 }
@@ -2082,24 +2100,24 @@ export function createSystemDecisionInfiniteLoopModelWithoutXAndY(): IProcess {
     process.shapes.push(start, pre, ut1, sd, st1, st2, ut2, st3, st4, ut3, st5, end);
 
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: sd.id, orderindex: 0, label: null },
-        { sourceId: sd.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: sd.id, destinationId: st2.id, orderindex: 1, label: null },
-        { sourceId: st2.id, destinationId: ut2.id, orderindex: 0, label: null },
-        { sourceId: ut2.id, destinationId: st3.id, orderindex: 0, label: null },
-        { sourceId: st3.id, destinationId: ut3.id, orderindex: 0, label: null },
-        { sourceId: sd.id, destinationId: st4.id, orderindex: 2, label: null },
-        { sourceId: st4.id, destinationId: ut3.id, orderindex: 0, label: null },
-        { sourceId: ut3.id, destinationId: st5.id, orderindex: 0, label: null },
-        { sourceId: st5.id, destinationId: ut2.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: sd.id, orderindex: 0, label: null},
+        {sourceId: sd.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: sd.id, destinationId: st2.id, orderindex: 1, label: null},
+        {sourceId: st2.id, destinationId: ut2.id, orderindex: 0, label: null},
+        {sourceId: ut2.id, destinationId: st3.id, orderindex: 0, label: null},
+        {sourceId: st3.id, destinationId: ut3.id, orderindex: 0, label: null},
+        {sourceId: sd.id, destinationId: st4.id, orderindex: 2, label: null},
+        {sourceId: st4.id, destinationId: ut3.id, orderindex: 0, label: null},
+        {sourceId: ut3.id, destinationId: st5.id, orderindex: 0, label: null},
+        {sourceId: st5.id, destinationId: ut2.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: sd.id, destinationId: ut3.id, orderindex: 1, label: null },
-        { sourceId: sd.id, destinationId: ut2.id, orderindex: 2, label: null }
+        {sourceId: sd.id, destinationId: ut3.id, orderindex: 1, label: null},
+        {sourceId: sd.id, destinationId: ut2.id, orderindex: 2, label: null}
     );
 
     return process;
@@ -2155,25 +2173,25 @@ export function createTwoUserDecisionsBackToBackModelWithoutXAndY(): IProcess {
     process.shapes.push(start, pre, ud1, ut1, st1, ut2, st2, ud2, ut3, st3, ut4, st4, end);
 
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null },
-        { sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: ud2.id, orderindex: 0, label: null },
-        { sourceId: ud1.id, destinationId: ut2.id, orderindex: 1, label: null },
-        { sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null },
-        { sourceId: st2.id, destinationId: ud2.id, orderindex: 0, label: null },
-        { sourceId: ud2.id, destinationId: ut3.id, orderindex: 0, label: null },
-        { sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null },
-        { sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud2.id, destinationId: ut4.id, orderindex: 1, label: null },
-        { sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null },
-        { sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null},
+        {sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: ud2.id, orderindex: 0, label: null},
+        {sourceId: ud1.id, destinationId: ut2.id, orderindex: 1, label: null},
+        {sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null},
+        {sourceId: st2.id, destinationId: ud2.id, orderindex: 0, label: null},
+        {sourceId: ud2.id, destinationId: ut3.id, orderindex: 0, label: null},
+        {sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null},
+        {sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud2.id, destinationId: ut4.id, orderindex: 1, label: null},
+        {sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null},
+        {sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: ud1.id, destinationId: ud2.id, orderindex: 1, label: null },
-        { sourceId: ud2.id, destinationId: end.id, orderindex: 1, label: null }
+        {sourceId: ud1.id, destinationId: ud2.id, orderindex: 1, label: null},
+        {sourceId: ud2.id, destinationId: end.id, orderindex: 1, label: null}
     );
 
     return process;
@@ -2227,25 +2245,25 @@ export function createMergingUserDecisionModelWithoutXAndY(): IProcess {
     process.shapes.push(start, pre, ud1, ut1, st1, ut2, st2, ud2, ut3, st3, ut4, st4, end);
 
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null },
-        { sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: ud2.id, orderindex: 0, label: null },
-        { sourceId: ud1.id, destinationId: ut2.id, orderindex: 1, label: null },
-        { sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null },
-        { sourceId: st2.id, destinationId: ut4.id, orderindex: 0, label: null },
-        { sourceId: ud2.id, destinationId: ut3.id, orderindex: 0, label: null },
-        { sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null },
-        { sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud2.id, destinationId: ut4.id, orderindex: 1, label: null },
-        { sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null },
-        { sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null},
+        {sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: ud2.id, orderindex: 0, label: null},
+        {sourceId: ud1.id, destinationId: ut2.id, orderindex: 1, label: null},
+        {sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null},
+        {sourceId: st2.id, destinationId: ut4.id, orderindex: 0, label: null},
+        {sourceId: ud2.id, destinationId: ut3.id, orderindex: 0, label: null},
+        {sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null},
+        {sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud2.id, destinationId: ut4.id, orderindex: 1, label: null},
+        {sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null},
+        {sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: ud1.id, destinationId: ut4.id, orderindex: 1, label: null },
-        { sourceId: ud2.id, destinationId: end.id, orderindex: 1, label: null }
+        {sourceId: ud1.id, destinationId: ut4.id, orderindex: 1, label: null},
+        {sourceId: ud2.id, destinationId: end.id, orderindex: 1, label: null}
     );
 
     return process;
@@ -2298,25 +2316,25 @@ export function createContainedUserDecisionModelWithoutXAndY(): IProcess {
     process.shapes.push(start, pre, ud1, ut1, st1, ut2, st2, ud2, ut3, st3, ut4, st4, end);
 
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null },
-        { sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: ud2.id, orderindex: 0, label: null },
-        { sourceId: ud1.id, destinationId: ut2.id, orderindex: 1, label: null },
-        { sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null },
-        { sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud2.id, destinationId: ut3.id, orderindex: 0, label: null },
-        { sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null },
-        { sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud2.id, destinationId: ut4.id, orderindex: 1, label: null },
-        { sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null },
-        { sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null},
+        {sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: ud2.id, orderindex: 0, label: null},
+        {sourceId: ud1.id, destinationId: ut2.id, orderindex: 1, label: null},
+        {sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null},
+        {sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud2.id, destinationId: ut3.id, orderindex: 0, label: null},
+        {sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null},
+        {sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud2.id, destinationId: ut4.id, orderindex: 1, label: null},
+        {sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null},
+        {sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: ud1.id, destinationId: end.id, orderindex: 1, label: null },
-        { sourceId: ud2.id, destinationId: end.id, orderindex: 1, label: null }
+        {sourceId: ud1.id, destinationId: end.id, orderindex: 1, label: null},
+        {sourceId: ud2.id, destinationId: end.id, orderindex: 1, label: null}
     );
 
     return process;
@@ -2370,25 +2388,25 @@ export function createTwoUserDecisionsWithNonOverlappingLoopModelWithoutXAndY():
     process.shapes.push(start, pre, ud1, ut1, st1, ut2, st2, ud2, ut3, st3, ut4, st4, end);
 
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null },
-        { sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: ud2.id, orderindex: 0, label: null },
-        { sourceId: ud1.id, destinationId: ut2.id, orderindex: 1, label: null },
-        { sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null },
-        { sourceId: st2.id, destinationId: ud1.id, orderindex: 0, label: null },
-        { sourceId: ud2.id, destinationId: ut3.id, orderindex: 0, label: null },
-        { sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null },
-        { sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud2.id, destinationId: ut4.id, orderindex: 1, label: null },
-        { sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null },
-        { sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null},
+        {sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: ud2.id, orderindex: 0, label: null},
+        {sourceId: ud1.id, destinationId: ut2.id, orderindex: 1, label: null},
+        {sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null},
+        {sourceId: st2.id, destinationId: ud1.id, orderindex: 0, label: null},
+        {sourceId: ud2.id, destinationId: ut3.id, orderindex: 0, label: null},
+        {sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null},
+        {sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud2.id, destinationId: ut4.id, orderindex: 1, label: null},
+        {sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null},
+        {sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: ud1.id, destinationId: ud1.id, orderindex: 1, label: null },
-        { sourceId: ud2.id, destinationId: end.id, orderindex: 1, label: null }
+        {sourceId: ud1.id, destinationId: ud1.id, orderindex: 1, label: null},
+        {sourceId: ud2.id, destinationId: end.id, orderindex: 1, label: null}
     );
 
     return process;
@@ -2444,27 +2462,27 @@ export function createTwoUserDecisionsWithOverlappingLoopModelWithoutXAndY(): IP
     process.shapes.push(start, pre, ud1, ut1, st1, ut2, st2, ut3, st3, ud2, ut4, st4, ut5, st5, end);
 
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null },
-        { sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: ud2.id, orderindex: 0, label: null },
-        { sourceId: ud1.id, destinationId: ut2.id, orderindex: 1, label: null },
-        { sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null },
-        { sourceId: st2.id, destinationId: ut3.id, orderindex: 0, label: null },
-        { sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null },
-        { sourceId: st3.id, destinationId: ud1.id, orderindex: 0, label: null },
-        { sourceId: ud2.id, destinationId: ut4.id, orderindex: 0, label: null },
-        { sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null },
-        { sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud2.id, destinationId: ut5.id, orderindex: 1, label: null },
-        { sourceId: ut5.id, destinationId: st5.id, orderindex: 0, label: null },
-        { sourceId: st5.id, destinationId: end.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null},
+        {sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: ud2.id, orderindex: 0, label: null},
+        {sourceId: ud1.id, destinationId: ut2.id, orderindex: 1, label: null},
+        {sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null},
+        {sourceId: st2.id, destinationId: ut3.id, orderindex: 0, label: null},
+        {sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null},
+        {sourceId: st3.id, destinationId: ud1.id, orderindex: 0, label: null},
+        {sourceId: ud2.id, destinationId: ut4.id, orderindex: 0, label: null},
+        {sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null},
+        {sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud2.id, destinationId: ut5.id, orderindex: 1, label: null},
+        {sourceId: ut5.id, destinationId: st5.id, orderindex: 0, label: null},
+        {sourceId: st5.id, destinationId: end.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: ud1.id, destinationId: ud1.id, orderindex: 1, label: null },
-        { sourceId: ud2.id, destinationId: end.id, orderindex: 1, label: null }
+        {sourceId: ud1.id, destinationId: ud1.id, orderindex: 1, label: null},
+        {sourceId: ud2.id, destinationId: end.id, orderindex: 1, label: null}
     );
 
     return process;
@@ -2525,28 +2543,28 @@ export function createNestedSystemDecisionsWithLoopModelWithoutXAndY(): IProcess
     //                                             ST4 -> UT3
     //                               ST5 -> UT3 -> ST6 -> UT2
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: sd1.id, orderindex: 0, label: null },
-        { sourceId: sd1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: sd1.id, destinationId: st2.id, orderindex: 1, label: null },
-        { sourceId: st2.id, destinationId: ut2.id, orderindex: 0, label: null },
-        { sourceId: ut2.id, destinationId: sd2.id, orderindex: 0, label: null },
-        { sourceId: sd2.id, destinationId: st3.id, orderindex: 0, label: null },
-        { sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: sd2.id, destinationId: st4.id, orderindex: 1, label: null },
-        { sourceId: st4.id, destinationId: ut3.id, orderindex: 0, label: null },
-        { sourceId: sd1.id, destinationId: st5.id, orderindex: 2, label: null },
-        { sourceId: st5.id, destinationId: ut3.id, orderindex: 0, label: null },
-        { sourceId: ut3.id, destinationId: st6.id, orderindex: 0, label: null },
-        { sourceId: st6.id, destinationId: ut2.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: sd1.id, orderindex: 0, label: null},
+        {sourceId: sd1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: sd1.id, destinationId: st2.id, orderindex: 1, label: null},
+        {sourceId: st2.id, destinationId: ut2.id, orderindex: 0, label: null},
+        {sourceId: ut2.id, destinationId: sd2.id, orderindex: 0, label: null},
+        {sourceId: sd2.id, destinationId: st3.id, orderindex: 0, label: null},
+        {sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: sd2.id, destinationId: st4.id, orderindex: 1, label: null},
+        {sourceId: st4.id, destinationId: ut3.id, orderindex: 0, label: null},
+        {sourceId: sd1.id, destinationId: st5.id, orderindex: 2, label: null},
+        {sourceId: st5.id, destinationId: ut3.id, orderindex: 0, label: null},
+        {sourceId: ut3.id, destinationId: st6.id, orderindex: 0, label: null},
+        {sourceId: st6.id, destinationId: ut2.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: sd1.id, destinationId: end.id, orderindex: 1, label: null },
-        { sourceId: sd1.id, destinationId: ut2.id, orderindex: 2, label: null },
-        { sourceId: sd2.id, destinationId: ut3.id, orderindex: 1, label: null }
+        {sourceId: sd1.id, destinationId: end.id, orderindex: 1, label: null},
+        {sourceId: sd1.id, destinationId: ut2.id, orderindex: 2, label: null},
+        {sourceId: sd2.id, destinationId: ut3.id, orderindex: 1, label: null}
     );
 
     return process;
@@ -2640,26 +2658,26 @@ export function createNestedUDWithMissingFirstUTModelWithoutXAndY(): IProcess {
     //                       UT2 -> ST2 -> UD2 -> UT3
     //                                        -> UT4 -> ST4 -> End
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null },
-        { sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: ut3.id, orderindex: 0, label: null },
-        { sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null },
-        { sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null },
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null},
+        {sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: ut3.id, orderindex: 0, label: null},
+        {sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null},
+        {sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null},
 
-        { sourceId: ud1.id, destinationId: ut2.id, orderindex: 1, label: null },
-        { sourceId: ut2.id, destinationId: ud2.id, orderindex: 0, label: null },
+        {sourceId: ud1.id, destinationId: ut2.id, orderindex: 1, label: null},
+        {sourceId: ut2.id, destinationId: ud2.id, orderindex: 0, label: null},
 
-        { sourceId: ud2.id, destinationId: ut3.id, orderindex: 0, label: "Condition 1" },
-        { sourceId: ud2.id, destinationId: ut4.id, orderindex: 1, label: null },
-        { sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null },
-        { sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null }
+        {sourceId: ud2.id, destinationId: ut3.id, orderindex: 0, label: "Condition 1"},
+        {sourceId: ud2.id, destinationId: ut4.id, orderindex: 1, label: null},
+        {sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null},
+        {sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: ud1.id, destinationId: ut3.id, orderindex: 1, label: null },
-        { sourceId: ud2.id, destinationId: end.id, orderindex: 1, label: null }
+        {sourceId: ud1.id, destinationId: ut3.id, orderindex: 1, label: null},
+        {sourceId: ud2.id, destinationId: end.id, orderindex: 1, label: null}
     );
 
     return process;
@@ -2684,22 +2702,22 @@ export function createNestedLoopsModelWithoutXAndY(): IProcess {
     //                       UT2 -> SD2 -> ST2 -> UD
     //                                     ST3 -> UT2
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ud.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud.id, destinationId: ut2.id, orderindex: 1, label: null },
-        { sourceId: ut2.id, destinationId: sd.id, orderindex: 0, label: null },
-        { sourceId: sd.id, destinationId: st2.id, orderindex: 0, label: null },
-        { sourceId: st2.id, destinationId: ud.id, orderindex: 0, label: null },
-        { sourceId: sd.id, destinationId: st3.id, orderindex: 1, label: null },
-        { sourceId: st3.id, destinationId: ut2.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ud.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut2.id, orderindex: 1, label: null},
+        {sourceId: ut2.id, destinationId: sd.id, orderindex: 0, label: null},
+        {sourceId: sd.id, destinationId: st2.id, orderindex: 0, label: null},
+        {sourceId: st2.id, destinationId: ud.id, orderindex: 0, label: null},
+        {sourceId: sd.id, destinationId: st3.id, orderindex: 1, label: null},
+        {sourceId: st3.id, destinationId: ut2.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: ud.id, destinationId: ud.id, orderindex: 1, label: null },
-        { sourceId: sd.id, destinationId: ut2.id, orderindex: 1, label: null }
+        {sourceId: ud.id, destinationId: ud.id, orderindex: 1, label: null},
+        {sourceId: sd.id, destinationId: ut2.id, orderindex: 1, label: null}
     );
 
     return process;
@@ -2760,34 +2778,34 @@ export function createThreeNestedUserTasksModelWithoutXAndY(): IProcess {
     //                                                                  UT5 -> ST5 -> UT7
     //                        UT6 -> ST6 -> UT7 -> ST7 -> End
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null },
-        { sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: ud2.id, orderindex: 0, label: null },
-        { sourceId: ud2.id, destinationId: ut2.id, orderindex: 0, label: null },
-        { sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null },
-        { sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud2.id, destinationId: ut3.id, orderindex: 1, label: null },
-        { sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null },
-        { sourceId: st3.id, destinationId: ud3.id, orderindex: 0, label: null },
-        { sourceId: ud3.id, destinationId: ut4.id, orderindex: 0, label: null },
-        { sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null },
-        { sourceId: st4.id, destinationId: ut7.id, orderindex: 0, label: null },
-        { sourceId: ud3.id, destinationId: ut5.id, orderindex: 1, label: null },
-        { sourceId: ut5.id, destinationId: st5.id, orderindex: 0, label: null },
-        { sourceId: st5.id, destinationId: ut7.id, orderindex: 0, label: null },
-        { sourceId: ud1.id, destinationId: ut6.id, orderindex: 1, label: null },
-        { sourceId: ut6.id, destinationId: st6.id, orderindex: 0, label: null },
-        { sourceId: st6.id, destinationId: ut7.id, orderindex: 0, label: null },
-        { sourceId: ut7.id, destinationId: st7.id, orderindex: 0, label: null },
-        { sourceId: st7.id, destinationId: end.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null},
+        {sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: ud2.id, orderindex: 0, label: null},
+        {sourceId: ud2.id, destinationId: ut2.id, orderindex: 0, label: null},
+        {sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null},
+        {sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud2.id, destinationId: ut3.id, orderindex: 1, label: null},
+        {sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null},
+        {sourceId: st3.id, destinationId: ud3.id, orderindex: 0, label: null},
+        {sourceId: ud3.id, destinationId: ut4.id, orderindex: 0, label: null},
+        {sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null},
+        {sourceId: st4.id, destinationId: ut7.id, orderindex: 0, label: null},
+        {sourceId: ud3.id, destinationId: ut5.id, orderindex: 1, label: null},
+        {sourceId: ut5.id, destinationId: st5.id, orderindex: 0, label: null},
+        {sourceId: st5.id, destinationId: ut7.id, orderindex: 0, label: null},
+        {sourceId: ud1.id, destinationId: ut6.id, orderindex: 1, label: null},
+        {sourceId: ut6.id, destinationId: st6.id, orderindex: 0, label: null},
+        {sourceId: st6.id, destinationId: ut7.id, orderindex: 0, label: null},
+        {sourceId: ut7.id, destinationId: st7.id, orderindex: 0, label: null},
+        {sourceId: st7.id, destinationId: end.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: ud1.id, destinationId: end.id, orderindex: 1, label: null },
-        { sourceId: ud2.id, destinationId: ut7.id, orderindex: 1, label: null },
-        { sourceId: ud3.id, destinationId: ut7.id, orderindex: 1, label: null }
+        {sourceId: ud1.id, destinationId: end.id, orderindex: 1, label: null},
+        {sourceId: ud2.id, destinationId: ut7.id, orderindex: 1, label: null},
+        {sourceId: ud3.id, destinationId: ut7.id, orderindex: 1, label: null}
     );
 
     return process;
@@ -2847,8 +2865,8 @@ export function createModelWithoutSystemTask(): IProcess {
     model.shapes.push(ut1);
     model.shapes.push(end);
 
-    model.links.push({ sourceId: 10, destinationId: 20, orderindex: 0, label: null });
-    model.links.push({ sourceId: 20, destinationId: 30, orderindex: 0, label: null });
+    model.links.push({sourceId: 10, destinationId: 20, orderindex: 0, label: null});
+    model.links.push({sourceId: 20, destinationId: 30, orderindex: 0, label: null});
 
     populatePropertyValues(model.shapes[0], "Start", 0, 0, ProcessShapeType.Start);
     populatePropertyValues(model.shapes[1], "User Task 1", 0, 0, ProcessShapeType.UserTask);
@@ -2861,7 +2879,7 @@ export function createModelWithoutSystemTask(): IProcess {
 
 export function createLargeTestModel() {
     var testModel = {
-        status: { isLocked: true, isLockedByMe: true },
+        status: {isLocked: true, isLockedByMe: true},
         description: "test",
         type: 1,
         shapes: [
@@ -2907,83 +2925,83 @@ export function createLargeTestModel() {
             }
         ],
         links: [
-            { sourceId: 10, destinationId: 15, orderindex: 0 },
-            { sourceId: 15, destinationId: 20, orderindex: 0 },
-            { sourceId: 20, destinationId: 25, orderindex: 0 },
-            { sourceId: 25, destinationId: 35, orderindex: 0 },
-            { sourceId: 35, destinationId: 26, orderindex: 0 },
-            { sourceId: 26, destinationId: 27, orderindex: 0 },
-            { sourceId: 35, destinationId: 36, orderindex: 1 },
-            { sourceId: 36, destinationId: 37, orderindex: 0 },
-            { sourceId: 27, destinationId: 30, orderindex: 0 },
-            { sourceId: 37, destinationId: 30, orderindex: 0 }
+            {sourceId: 10, destinationId: 15, orderindex: 0},
+            {sourceId: 15, destinationId: 20, orderindex: 0},
+            {sourceId: 20, destinationId: 25, orderindex: 0},
+            {sourceId: 25, destinationId: 35, orderindex: 0},
+            {sourceId: 35, destinationId: 26, orderindex: 0},
+            {sourceId: 26, destinationId: 27, orderindex: 0},
+            {sourceId: 35, destinationId: 36, orderindex: 1},
+            {sourceId: 36, destinationId: 37, orderindex: 0},
+            {sourceId: 27, destinationId: 30, orderindex: 0},
+            {sourceId: 37, destinationId: 30, orderindex: 0}
         ],
         decisionBranchDestinationLinks: [
-            { sourceId: 35, destinationId: 30, orderindex: 1 }
+            {sourceId: 35, destinationId: 30, orderindex: 1}
         ],
         rawData: "",
         propertyValues: []
     };
 
-    testModel.propertyValues["clientType"] = { key: "clientType", value: ProcessType.UserToSystemProcess };
+    testModel.propertyValues["clientType"] = {key: "clientType", value: ProcessType.UserToSystemProcess};
 
-    testModel.shapes[0].propertyValues["label"] = { key: "label", value: "10" };
-    testModel.shapes[0].propertyValues["x"] = { key: "x", value: 0 };
-    testModel.shapes[0].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[0].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.Start };
+    testModel.shapes[0].propertyValues["label"] = {key: "label", value: "10"};
+    testModel.shapes[0].propertyValues["x"] = {key: "x", value: 0};
+    testModel.shapes[0].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[0].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.Start};
 
 
-    testModel.shapes[1].propertyValues["label"] = { key: "label", value: "15" };
-    testModel.shapes[1].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[1].propertyValues["x"] = { key: "x", value: 1 };
-    testModel.shapes[1].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[1].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[1].propertyValues["label"] = {key: "label", value: "15"};
+    testModel.shapes[1].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[1].propertyValues["x"] = {key: "x", value: 1};
+    testModel.shapes[1].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[1].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[2].propertyValues["label"] = { key: "label", value: "20" };
-    testModel.shapes[2].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[2].propertyValues["x"] = { key: "x", value: 2 };
-    testModel.shapes[2].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[2].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserTask };
+    testModel.shapes[2].propertyValues["label"] = {key: "label", value: "20"};
+    testModel.shapes[2].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[2].propertyValues["x"] = {key: "x", value: 2};
+    testModel.shapes[2].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[2].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
-    testModel.shapes[3].propertyValues["label"] = { key: "label", value: "25" };
-    testModel.shapes[3].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[3].propertyValues["x"] = { key: "x", value: 3 };
-    testModel.shapes[3].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[3].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[3].propertyValues["label"] = {key: "label", value: "25"};
+    testModel.shapes[3].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[3].propertyValues["x"] = {key: "x", value: 3};
+    testModel.shapes[3].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[3].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[4].propertyValues["label"] = { key: "label", value: "35" };
-    testModel.shapes[4].propertyValues["x"] = { key: "x", value: 4 };
-    testModel.shapes[4].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[4].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserDecision };
+    testModel.shapes[4].propertyValues["label"] = {key: "label", value: "35"};
+    testModel.shapes[4].propertyValues["x"] = {key: "x", value: 4};
+    testModel.shapes[4].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[4].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserDecision};
 
-    testModel.shapes[5].propertyValues["label"] = { key: "label", value: "26" };
-    testModel.shapes[5].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[5].propertyValues["x"] = { key: "x", value: 5 };
-    testModel.shapes[5].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[5].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserTask };
+    testModel.shapes[5].propertyValues["label"] = {key: "label", value: "26"};
+    testModel.shapes[5].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[5].propertyValues["x"] = {key: "x", value: 5};
+    testModel.shapes[5].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[5].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
-    testModel.shapes[6].propertyValues["label"] = { key: "label", value: "27" };
-    testModel.shapes[6].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[6].propertyValues["x"] = { key: "x", value: 6 };
-    testModel.shapes[6].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[6].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[6].propertyValues["label"] = {key: "label", value: "27"};
+    testModel.shapes[6].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[6].propertyValues["x"] = {key: "x", value: 6};
+    testModel.shapes[6].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[6].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[7].propertyValues["label"] = { key: "label", value: "36" };
-    testModel.shapes[7].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[7].propertyValues["x"] = { key: "x", value: 5 };
-    testModel.shapes[7].propertyValues["y"] = { key: "y", value: 1 };
-    testModel.shapes[7].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.UserTask };
+    testModel.shapes[7].propertyValues["label"] = {key: "label", value: "36"};
+    testModel.shapes[7].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[7].propertyValues["x"] = {key: "x", value: 5};
+    testModel.shapes[7].propertyValues["y"] = {key: "y", value: 1};
+    testModel.shapes[7].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
-    testModel.shapes[8].propertyValues["label"] = { key: "label", value: "37" };
-    testModel.shapes[8].propertyValues["persona"] = { key: "persona", value: "test" };
-    testModel.shapes[8].propertyValues["x"] = { key: "x", value: 6 };
-    testModel.shapes[8].propertyValues["y"] = { key: "y", value: 1 };
-    testModel.shapes[8].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[8].propertyValues["label"] = {key: "label", value: "37"};
+    testModel.shapes[8].propertyValues["persona"] = {key: "persona", value: "test"};
+    testModel.shapes[8].propertyValues["x"] = {key: "x", value: 6};
+    testModel.shapes[8].propertyValues["y"] = {key: "y", value: 1};
+    testModel.shapes[8].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
-    testModel.shapes[9].propertyValues["label"] = { key: "label", value: "30" };
-    testModel.shapes[9].propertyValues["x"] = { key: "x", value: 8 };
-    testModel.shapes[9].propertyValues["y"] = { key: "y", value: 0 };
-    testModel.shapes[9].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.End };
+    testModel.shapes[9].propertyValues["label"] = {key: "label", value: "30"};
+    testModel.shapes[9].propertyValues["x"] = {key: "x", value: 8};
+    testModel.shapes[9].propertyValues["y"] = {key: "y", value: 0};
+    testModel.shapes[9].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.End};
 
     return testModel;
 }
@@ -3006,22 +3024,22 @@ export function createSystemDecisionForDnDTestModel(): IProcess {
 
     model.shapes.push(start, pre, ut1, sd, st2, st3, ut4, st4, end);
     /*
-        start -> PRE -> UT1 -> SD ->  ST2 -> UT4 -> ST4 -> END
-                                  ->  ST3 -> UT4
-    */
+     start -> PRE -> UT1 -> SD ->  ST2 -> UT4 -> ST4 -> END
+     ->  ST3 -> UT4
+     */
 
-    model.links.push({ sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: ut1.id, destinationId: sd.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: sd.id, destinationId: st2.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: sd.id, destinationId: st3.id, orderindex: 1, label: null });
-    model.links.push({ sourceId: st2.id, destinationId: ut4.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st3.id, destinationId: ut4.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null });
-    model.links.push({ sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null });
+    model.links.push({sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null});
+    model.links.push({sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: null});
+    model.links.push({sourceId: ut1.id, destinationId: sd.id, orderindex: 0, label: null});
+    model.links.push({sourceId: sd.id, destinationId: st2.id, orderindex: 0, label: null});
+    model.links.push({sourceId: sd.id, destinationId: st3.id, orderindex: 1, label: null});
+    model.links.push({sourceId: st2.id, destinationId: ut4.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st3.id, destinationId: ut4.id, orderindex: 0, label: null});
+    model.links.push({sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: null});
+    model.links.push({sourceId: st4.id, destinationId: end.id, orderindex: 0, label: null});
 
     model.decisionBranchDestinationLinks.push(
-        { sourceId: sd.id, destinationId: ut4.id, orderindex: 1, label: null }
+        {sourceId: sd.id, destinationId: ut4.id, orderindex: 1, label: null}
     );
 
     return model;
@@ -3051,34 +3069,34 @@ export function createDnDComplicatedModel() {
 
     model.shapes.push(start, pre, ut1, st1, ut2, sd2, st2A, st2B, ud3, ut4, st4, ut5, st5, ut6, st6, end);
     /*
-        start -> pre -> ut1 -> st1 -> ut2 -> sd2 -> st2A ---------> ud3 -> ut4 -> st4 -> ut6 -> st6 -> end
-                                                 -> st2B -> ut1         -> ut5 -> st5 -> ut1
-    */
+     start -> pre -> ut1 -> st1 -> ut2 -> sd2 -> st2A ---------> ud3 -> ut4 -> st4 -> ut6 -> st6 -> end
+     -> st2B -> ut1         -> ut5 -> st5 -> ut1
+     */
 
-    model.links.push({ sourceId: start.id, destinationId: pre.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: st1.id, destinationId: ut2.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: ut2.id, destinationId: sd2.id, orderindex: 0, label: "" });
+    model.links.push({sourceId: start.id, destinationId: pre.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: st1.id, destinationId: ut2.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: ut2.id, destinationId: sd2.id, orderindex: 0, label: ""});
 
-    model.links.push({ sourceId: sd2.id, destinationId: st2A.id, orderindex: 0, label: "" });
+    model.links.push({sourceId: sd2.id, destinationId: st2A.id, orderindex: 0, label: ""});
 
-    model.links.push({ sourceId: sd2.id, destinationId: st2B.id, orderindex: 1, label: "" });
-    model.links.push({ sourceId: st2B.id, destinationId: ut1.id, orderindex: 0, label: "" });
+    model.links.push({sourceId: sd2.id, destinationId: st2B.id, orderindex: 1, label: ""});
+    model.links.push({sourceId: st2B.id, destinationId: ut1.id, orderindex: 0, label: ""});
 
-    model.links.push({ sourceId: st2A.id, destinationId: ud3.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: ud3.id, destinationId: ut4.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: ud3.id, destinationId: ut5.id, orderindex: 1, label: "" });
-    model.links.push({ sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: ut5.id, destinationId: st5.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: st4.id, destinationId: ut6.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: st5.id, destinationId: ut1.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: ut6.id, destinationId: st6.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: st6.id, destinationId: end.id, orderindex: 0, label: "" });
+    model.links.push({sourceId: st2A.id, destinationId: ud3.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: ud3.id, destinationId: ut4.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: ud3.id, destinationId: ut5.id, orderindex: 1, label: ""});
+    model.links.push({sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: ut5.id, destinationId: st5.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: st4.id, destinationId: ut6.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: st5.id, destinationId: ut1.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: ut6.id, destinationId: st6.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: st6.id, destinationId: end.id, orderindex: 0, label: ""});
 
     model.decisionBranchDestinationLinks.push(
-        { sourceId: sd2.id, destinationId: ut1.id, orderindex: 1, label: "" },
-        { sourceId: ud3.id, destinationId: ut1.id, orderindex: 1, label: "" }
+        {sourceId: sd2.id, destinationId: ut1.id, orderindex: 1, label: ""},
+        {sourceId: ud3.id, destinationId: ut1.id, orderindex: 1, label: ""}
     );
 
     return model;
@@ -3087,10 +3105,10 @@ export function createDnDComplicatedModel() {
 export function createUserDecisionWithUserTaskWithSimpleSystemDecisioFamily(): IProcess {
 
     /*
-    start->pre->ud1->ut1->st1-> ut2->sd2->st2a -> end
-                                        ->st2b -> end
-                    -> ut3 -> st3 -> end
-    */
+     start->pre->ud1->ut1->st1-> ut2->sd2->st2a -> end
+     ->st2b -> end
+     -> ut3 -> st3 -> end
+     */
     let process: IProcess = createProcessModel(0);
     let start = createShapeModel(ProcessShapeType.Start, 10);
     let pre = createShapeModel(ProcessShapeType.PreconditionSystemTask, 20);
@@ -3110,24 +3128,24 @@ export function createUserDecisionWithUserTaskWithSimpleSystemDecisioFamily(): I
         st2b, ut3, st3, end);
 
     process.links.push(
-        { sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null },
-        { sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null },
-        { sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null },
-        { sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null },
-        { sourceId: st1.id, destinationId: ut2.id, orderindex: 0, label: null },
-        { sourceId: ut2.id, destinationId: sd2.id, orderindex: 0, label: null },
-        { sourceId: sd2.id, destinationId: st2a.id, orderindex: 0, label: null },
-        { sourceId: sd2.id, destinationId: st2b.id, orderindex: 1, label: null },
-        { sourceId: st2a.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: st2b.id, destinationId: end.id, orderindex: 0, label: null },
-        { sourceId: ud1.id, destinationId: ut3.id, orderindex: 1, label: null },
-        { sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null },
-        { sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null }
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: null},
+        {sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: ut2.id, orderindex: 0, label: null},
+        {sourceId: ut2.id, destinationId: sd2.id, orderindex: 0, label: null},
+        {sourceId: sd2.id, destinationId: st2a.id, orderindex: 0, label: null},
+        {sourceId: sd2.id, destinationId: st2b.id, orderindex: 1, label: null},
+        {sourceId: st2a.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: st2b.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud1.id, destinationId: ut3.id, orderindex: 1, label: null},
+        {sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: null},
+        {sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null}
     );
 
     process.decisionBranchDestinationLinks.push(
-        { sourceId: ud1.id, destinationId: end.id, orderindex: 1, label: null },
-        { sourceId: sd2.id, destinationId: end.id, orderindex: 1, label: null }
+        {sourceId: ud1.id, destinationId: end.id, orderindex: 1, label: null},
+        {sourceId: sd2.id, destinationId: end.id, orderindex: 1, label: null}
     );
 
     return process;
@@ -3152,24 +3170,24 @@ export function createUserDecisionForAddBranchTestModel(): IProcess {
 
     model.shapes.push(start, pre, ut1, ud, ut2, st2, ut3, st3, ut4, st4, end);
     /*
-        start -> PRE -> UT1 -> UD -> UT2 -> ST2 -> UT4 -> ST4 -> END
-                                  -> UT3 -> ST3 -> END
-    */
+     start -> PRE -> UT1 -> UD -> UT2 -> ST2 -> UT4 -> ST4 -> END
+     -> UT3 -> ST3 -> END
+     */
 
-    model.links.push({ sourceId: start.id, destinationId: pre.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: ut1.id, destinationId: ud.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: ud.id, destinationId: ut2.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: ud.id, destinationId: ut3.id, orderindex: 1, label: "" });
-    model.links.push({ sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: st2.id, destinationId: ut4.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: st3.id, destinationId: end.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: st4.id, destinationId: end.id, orderindex: 0, label: "" });
+    model.links.push({sourceId: start.id, destinationId: pre.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: ut1.id, destinationId: ud.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: ud.id, destinationId: ut2.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: ud.id, destinationId: ut3.id, orderindex: 1, label: ""});
+    model.links.push({sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: st2.id, destinationId: ut4.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: st3.id, destinationId: end.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: st4.id, destinationId: end.id, orderindex: 0, label: ""});
 
     model.decisionBranchDestinationLinks.push(
-        { sourceId: ud.id, destinationId: end.id, orderindex: 1, label: "" }
+        {sourceId: ud.id, destinationId: end.id, orderindex: 1, label: ""}
     );
 
     return model;
@@ -3194,27 +3212,27 @@ export function createBackToBackSystemDecisionWithLoopTestModel(): IProcess {
 
     model.shapes.push(start, pre, ut1, sd1, st1, sd2, st2, st3, ut4, st4, end);
     /*
-        start -> PRE -> UT1 -> SD1 -> SD2 ->  ST2 -> UT4 -> ST4 -> END
-                                      SD2 ->  ST3 -> END
-                               SD1 -> ST1 -> UT1
-    */
+     start -> PRE -> UT1 -> SD1 -> SD2 ->  ST2 -> UT4 -> ST4 -> END
+     SD2 ->  ST3 -> END
+     SD1 -> ST1 -> UT1
+     */
 
-    model.links.push({ sourceId: start.id, destinationId: pre.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: ut1.id, destinationId: sd1.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: sd1.id, destinationId: sd2.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: sd1.id, destinationId: st1.id, orderindex: 1, label: "" });
-    model.links.push({ sourceId: st1.id, destinationId: ut1.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: sd2.id, destinationId: st2.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: sd2.id, destinationId: st3.id, orderindex: 1, label: "" });
-    model.links.push({ sourceId: st2.id, destinationId: ut4.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: st3.id, destinationId: end.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: "" });
-    model.links.push({ sourceId: st4.id, destinationId: end.id, orderindex: 0, label: "" });
+    model.links.push({sourceId: start.id, destinationId: pre.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: pre.id, destinationId: ut1.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: ut1.id, destinationId: sd1.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: sd1.id, destinationId: sd2.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: sd1.id, destinationId: st1.id, orderindex: 1, label: ""});
+    model.links.push({sourceId: st1.id, destinationId: ut1.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: sd2.id, destinationId: st2.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: sd2.id, destinationId: st3.id, orderindex: 1, label: ""});
+    model.links.push({sourceId: st2.id, destinationId: ut4.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: st3.id, destinationId: end.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: st4.id, destinationId: end.id, orderindex: 0, label: ""});
 
     model.decisionBranchDestinationLinks.push(
-        { sourceId: sd1.id, destinationId: ut1.id, orderindex: 1, label: "" },
-        { sourceId: sd2.id, destinationId: end.id, orderindex: 1, label: "" }
+        {sourceId: sd1.id, destinationId: ut1.id, orderindex: 1, label: ""},
+        {sourceId: sd2.id, destinationId: end.id, orderindex: 1, label: ""}
     );
 
     return model;

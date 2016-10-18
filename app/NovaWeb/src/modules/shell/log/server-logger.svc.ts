@@ -19,17 +19,18 @@ interface IServerLogModel {
 
 export class ServerLoggerSvc implements IServerLogger {
     static $inject: [string] = ["$injector"];
+
     constructor(private $injector: ng.auto.IInjectorService) {
     }
 
     public log(message: any, level: number): ng.IPromise<any> {
 
-        var $q: ng.IQService = <ng.IQService>this.$injector.get("$q");
-        var $http: ng.IHttpService = <ng.IHttpService>this.$injector.get("$http");
+        const $q: ng.IQService = <ng.IQService>this.$injector.get("$q");
+        const $http: ng.IHttpService = <ng.IHttpService>this.$injector.get("$http");
 
-        var deferred: ng.IDeferred<any> = $q.defer();
+        const deferred: ng.IDeferred<any> = $q.defer();
 
-        var logMessage: IServerLogModel = <IServerLogModel>{
+        const logMessage: IServerLogModel = <IServerLogModel>{
             Source: "NovaClient",
             LogLevel: level,
             Message: message.message,
@@ -39,10 +40,10 @@ export class ServerLoggerSvc implements IServerLogger {
         $http.post("/svc/adminstore/log", angular.toJson(logMessage))
             .then(() => {
                 deferred.resolve();
-                }, () => {
+            }, () => {
                 deferred.reject();
             });
 
         return deferred.promise;
     };
-};
+}

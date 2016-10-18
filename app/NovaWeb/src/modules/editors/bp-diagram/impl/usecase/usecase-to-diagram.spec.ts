@@ -1,10 +1,10 @@
-﻿import { UsecaseToDiagram, UsecaseFlowGraphBuilder, FlowGraphDiagramBuilder } from "./usecase-to-diagram";
-import { BranchingStep, ExitStep, UseCaseShape, PrePostConditionShape } from "./usecase-to-diagram";
-import { IStep, IFlow, IUseCase, StepOfType, IUseCaseElement } from "./models";
-import { FlowGraph } from "./layout/flow-graph";
-import { ConnectionInfo } from "./layout/connection-info";
-import { LayoutResult } from "./layout/layout-result";
-import { ConnectorTypes, Shapes } from "../utils/constants";
+﻿import {UsecaseToDiagram, UsecaseFlowGraphBuilder, FlowGraphDiagramBuilder} from "./usecase-to-diagram";
+import {BranchingStep, ExitStep, UseCaseShape, PrePostConditionShape} from "./usecase-to-diagram";
+import {IStep, IFlow, IUseCase, StepOfType, IUseCaseElement} from "./models";
+import {FlowGraph} from "./layout/flow-graph";
+import {ConnectionInfo} from "./layout/connection-info";
+import {LayoutResult} from "./layout/layout-result";
+import {ConnectorTypes, Shapes} from "../utils/constants";
 
 var nextIndexGenerator = () => {
     var orderIndex = 0;
@@ -85,8 +85,8 @@ describe("FlowGraphDiagramBuilder ", () => {
     var preCondition: IStep;
     var postCondition: IStep;
 
-    var defaultPosition = { x: 0, y: 0 };
-    var defaultSize = { width: 100, height: 100 };
+    var defaultPosition = {x: 0, y: 0};
+    var defaultSize = {width: 100, height: 100};
 
     beforeEach(() => {
         preCondition = createStep(1, "Pre condition", "Pre condition");
@@ -178,7 +178,7 @@ describe("FlowGraphDiagramBuilder ", () => {
 
         var flow = graph.createAlternateFlow();
         var conditionNode = graph.createNode();
-        conditionNode.position = { x: 100, y: 100 };
+        conditionNode.position = {x: 100, y: 100};
         conditionNode.size = defaultSize;
         conditionNode.tag = usecase.steps[0].flows[0].steps[0];
         flow.addNode(conditionNode);
@@ -224,20 +224,20 @@ describe("FlowGraphDiagramBuilder ", () => {
         var graph = new FlowGraph();
 
         var node = graph.createNode();
-        node.position = { x: 0, y: 0 };
-        node.size = { width: 100, height: 100 };
+        node.position = {x: 0, y: 0};
+        node.size = {width: 100, height: 100};
         node.tag = usecase.preCondition;
         graph.getMainFlow().addNode(node);
 
         node = graph.createNode();
-        node.position = { x: 100, y: 100 };
-        node.size = { width: 100, height: 100 };
+        node.position = {x: 100, y: 100};
+        node.size = {width: 100, height: 100};
         node.tag = usecase.steps[0];
         graph.getMainFlow().addNode(node);
 
         node = graph.createNode();
-        node.position = { x: 200, y: 200 };
-        node.size = { width: 100, height: 100 };
+        node.position = {x: 200, y: 200};
+        node.size = {width: 100, height: 100};
         node.tag = usecase.postCondition;
         graph.getMainFlow().addNode(node);
 
@@ -300,7 +300,7 @@ describe("FlowGraphDiagramBuilder ", () => {
 
         var flow = graph.createAlternateFlow();
         var conditionNode = graph.createNode();
-        conditionNode.position = { x: 100, y: 100 };
+        conditionNode.position = {x: 100, y: 100};
         conditionNode.size = defaultSize;
         conditionNode.tag = usecase.steps[0].flows[0].steps[0];
         flow.addNode(conditionNode);
@@ -361,7 +361,7 @@ describe("FlowGraphDiagramBuilder ", () => {
 
         var flow = graph.createAlternateFlow();
         var conditionNode = graph.createNode();
-        conditionNode.position = { x: 100, y: 100 };
+        conditionNode.position = {x: 100, y: 100};
         conditionNode.size = defaultSize;
         conditionNode.tag = usecase.steps[0].flows[0].steps[0];
         flow.addNode(conditionNode);

@@ -11,14 +11,14 @@ import {CS_LEFT, CS_RIGHT, CS_VERTICAL} from "./shapes/connector-styles";
 import {ProcessLinkModel} from "../../../../models/process-models";
 import {DiagramLink} from "./shapes/";
 import {ProcessValidator} from "./process-graph-validator";
-import {ICommunicationManager, CommunicationManager} from "../../../../../bp-process"; 
-import { LocalizationServiceMock} from "../../../../../../core/localization/localization.mock";
-import { DialogService} from "../../../../../../shared/widgets/bp-dialog";
-import { ModalServiceMock } from "../../../../../../shell/login/mocks.spec";
+import {ICommunicationManager, CommunicationManager} from "../../../../../bp-process";
+import {LocalizationServiceMock} from "../../../../../../core/localization/localization.mock";
+import {DialogService} from "../../../../../../shared/widgets/bp-dialog";
+import {ModalServiceMock} from "../../../../../../shell/login/mocks.spec";
 import {ProcessAddHelper} from "./process-add-helper";
 import {ShapesFactory} from "./shapes/shapes-factory";
-import { IStatefulArtifactFactory } from "../../../../../../managers/artifact-manager/"; 
-import { StatefulArtifactFactoryMock } from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-manager/";
+import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("Layout test", () => {
 
@@ -43,20 +43,17 @@ describe("Layout test", () => {
     }));
 
     let setProcessViewModel = function (model) {
-        var processModel = new ProcessViewModel(model);
-        processModel.communicationManager = communicationManager;
+        var processModel = new ProcessViewModel(model, communicationManager);
         return processModel;
     };
 
-    beforeEach(inject((
-        _$window_: ng.IWindowService,
-        $rootScope: ng.IRootScopeService,
-     
-        messageService: IMessageService, 
-        _communicationManager_: ICommunicationManager,
-        _dialogService_: DialogService,
-        _localization_: LocalizationServiceMock,
-        _statefulArtifactFactory_: IStatefulArtifactFactory) => {
+    beforeEach(inject((_$window_: ng.IWindowService,
+                       $rootScope: ng.IRootScopeService,
+                       messageService: IMessageService,
+                       _communicationManager_: ICommunicationManager,
+                       _dialogService_: DialogService,
+                       _localization_: LocalizationServiceMock,
+                       _statefulArtifactFactory_: IStatefulArtifactFactory) => {
 
         rootScope = $rootScope;
         msgService = messageService;
@@ -89,7 +86,7 @@ describe("Layout test", () => {
             }
         };
 
-        localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
+        localScope = {graphContainer: container, graphWrapper: wrapper, isSpa: false};
 
         localScope["vm"] = {
             "$rootScope": rootScope
@@ -138,7 +135,7 @@ describe("Layout test", () => {
         let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         graph.render(false, null);
@@ -169,7 +166,7 @@ describe("Layout test", () => {
         var graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         graph.render(false, null);
@@ -178,7 +175,7 @@ describe("Layout test", () => {
 
         graph.destroy();
         graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
-        graph.render(true, null);        
+        graph.render(true, null);
 
         //Assert
         expect(graph.getNodeById("10").getNodeType()).toEqual(NodeType.ProcessStart);
@@ -196,16 +193,16 @@ describe("Layout test", () => {
     it("Test insert user decision at the end of the diagram", () => {
         // Arrange
         let processModel = setProcessViewModel(TestModels.createDefaultProcessModel());
-        var graph = new ProcessGraph(rootScope, { graphContainer: container, graphWrapper: wrapper }, 
+        var graph = new ProcessGraph(rootScope, {graphContainer: container, graphWrapper: wrapper},
             container, processModel, dialogService, localization);
         graph.layout.setTempShapeId(0);
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         graph.render(false, null);
-        
+
         ProcessAddHelper.insertUserDecision(graph.getNodeById("25").getConnectableElement().edges[1], graph.layout, shapesFactoryService);
 
         graph.destroy();
@@ -258,7 +255,7 @@ describe("Layout test", () => {
         let diagramLink = new DiagramLink(link, null);
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         graph.render(false, null);
@@ -307,7 +304,7 @@ describe("Layout test", () => {
         graph.layout.setTempShapeId(0);
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         graph.render(true, null);
@@ -346,7 +343,7 @@ describe("Layout test", () => {
         graph.layout.setTempShapeId(0);
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         graph.render(true, null);
@@ -383,7 +380,7 @@ describe("Layout test", () => {
         graph.layout.setTempShapeId(0);
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         graph.render(true, null);
@@ -415,7 +412,7 @@ describe("Layout test", () => {
         });
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         graph.render(true, null);
@@ -440,7 +437,7 @@ describe("Layout test", () => {
         });
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         graph.render(true, null);
@@ -460,13 +457,14 @@ describe("Layout test", () => {
         graph.render(false, null);
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         //Assert
         expect(() => {
             ProcessAddHelper.insertUserDecision(graph.getNodeById("30"),
-                graph.layout, shapesFactoryService); }).toThrowError();
+                graph.layout, shapesFactoryService);
+        }).toThrowError();
     });
 
     it("Insert task negative test.", () => {
@@ -477,13 +475,14 @@ describe("Layout test", () => {
         graph.render(false, null);
 
         //bypass testing adding stateful shapes logic here
-        spyOn(processModel, "addStatefulShape").and.returnValue(null);
+        spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
         // Act
         //Assert
         expect(() => {
             ProcessAddHelper.insertTaskWithUpdate(graph.getNodeById("30"),
-                graph.layout, shapesFactoryService); }).toThrowError();
+                graph.layout, shapesFactoryService);
+        }).toThrowError();
     });
 
     it("Test setSystemTasksVisible method.", () => {
@@ -653,9 +652,9 @@ describe("Layout test", () => {
 
         it("drag and drop causing loop, success", () => {
             /*
-               start -> PRE -> UT1 -> SD ->  ST2 -> UT4 -> ST4 -> END
-                                         ->  ST3 -> UT4
-           */
+             start -> PRE -> UT1 -> SD ->  ST2 -> UT4 -> ST4 -> END
+             ->  ST3 -> UT4
+             */
             // Arrange
             let testModel = TestModels.createSystemDecisionForDnDTestModel();
             let processModel = setProcessViewModel(testModel);
@@ -697,9 +696,9 @@ describe("Layout test", () => {
                 processModel = setProcessViewModel(testModel);
                 graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 /*
-                    start -> pre -> ut1 -> st1 -> ut2 -> sd2 -> st2A ---------> ud3 -> ut4 -> st4 -> ut6 -> st6 -> end
-                                                             -> st2B -> ut1         -> ut5 -> st5 -> ut1                        
-                */
+                 start -> pre -> ut1 -> st1 -> ut2 -> sd2 -> st2A ---------> ud3 -> ut4 -> st4 -> ut6 -> st6 -> end
+                 -> st2B -> ut1         -> ut5 -> st5 -> ut1                        
+                 */
             });
             afterEach(() => {
                 processModel = null;
@@ -990,7 +989,7 @@ describe("Layout test", () => {
 
                 //bypass testing adding stateful shapes logic here,cannot extract this spyOn logic out since
                 //test models used in each test are different and only generated in each test
-                spyOn(processModel, "addStatefulShape").and.returnValue(null);
+                spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
                 let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 processGraph.render(true, false);
@@ -1016,7 +1015,7 @@ describe("Layout test", () => {
                 let expectedConditions = 3;
 
                 //bypass testing adding stateful shapes logic here
-                spyOn(processModel, "addStatefulShape").and.returnValue(null);
+                spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
                 // Act
                 ProcessAddHelper.insertUserDecisionCondition(decisionId, graph.layout, shapesFactoryService);
@@ -1035,7 +1034,7 @@ describe("Layout test", () => {
                 let endId = 50;
 
                 //bypass testing adding stateful shapes logic here
-                spyOn(processModel, "addStatefulShape").and.returnValue(null);
+                spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
                 let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 processGraph.render(true, false);
@@ -1058,7 +1057,7 @@ describe("Layout test", () => {
                 let ut4Id = 50;
 
                 //bypass testing adding stateful shapes logic here
-                spyOn(processModel, "addStatefulShape").and.returnValue(null);
+                spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
                 let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 processGraph.render(true, false);
@@ -1079,7 +1078,7 @@ describe("Layout test", () => {
                 let endId = 60;
 
                 //bypass testing adding stateful shapes logic here
-                spyOn(processModel, "addStatefulShape").and.returnValue(null);
+                spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
                 let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 processGraph.render(true, false);
@@ -1100,12 +1099,11 @@ describe("Layout test", () => {
         it("Should not insert additional shapes when limit is reached", () => {
             // Arrange
             let testModel = TestModels.createDefaultProcessModel();
-            let processModel = new ProcessViewModel(testModel, rootScope, localScope, msgService);
-            processModel.communicationManager = communicationManager;
+            let processModel = new ProcessViewModel(testModel, communicationManager, rootScope, localScope, msgService);
             var graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             //bypass testing adding stateful shapes logic here
-            spyOn(processModel, "addStatefulShape").and.returnValue(null);
+            spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
             // Act
             graph.render(false, null);
@@ -1130,12 +1128,11 @@ describe("Layout test", () => {
         it("Should show a warning when eighty percent of the limit is reached", () => {
             // Arrange
             let testModel = TestModels.createDefaultProcessModel();
-            let processModel = new ProcessViewModel(testModel, rootScope, localScope, msgService);
-            processModel.communicationManager = communicationManager;
+            let processModel = new ProcessViewModel(testModel, communicationManager, rootScope, localScope, msgService);
             var graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             //bypass testing adding stateful shapes logic here
-            spyOn(processModel, "addStatefulShape").and.returnValue(null);
+            spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
             // Act
             graph.render(false, null);

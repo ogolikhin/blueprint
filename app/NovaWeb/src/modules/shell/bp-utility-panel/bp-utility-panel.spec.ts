@@ -1,12 +1,12 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
-import { ComponentTest } from "../../util/component.test";
-import { BPUtilityPanelController, PanelType } from "./bp-utility-panel";
-import { LocalizationServiceMock } from "../../core/localization/localization.mock";
-import { ArtifactHistoryMock } from "./bp-history-panel/artifact-history.mock";
-import { SelectionManager } from "./../../managers/selection-manager/selection-manager";
-import { IBpAccordionPanelController } from "../../main/components/bp-accordion/bp-accordion";
+import {ComponentTest} from "../../util/component.test";
+import {BPUtilityPanelController, PanelType} from "./bp-utility-panel";
+import {LocalizationServiceMock} from "../../core/localization/localization.mock";
+import {ArtifactHistoryMock} from "./bp-history-panel/artifact-history.mock";
+import {SelectionManager} from "./../../managers/selection-manager/selection-manager";
+import {IBpAccordionPanelController} from "../../main/components/bp-accordion/bp-accordion";
 import {
     IArtifactManager,
     ArtifactManager,
@@ -15,7 +15,8 @@ import {
     MetaDataService,
     ArtifactService,
     ArtifactAttachmentsService,
-    ArtifactRelationshipsService }
+    ArtifactRelationshipsService
+}
     from "../../managers/artifact-manager";
 
 describe("Component BPUtilityPanel", () => {
@@ -45,8 +46,8 @@ describe("Component BPUtilityPanel", () => {
         directiveTest = new ComponentTest<BPUtilityPanelController>(template, "bp-utility-panel");
         vm = directiveTest.createComponent({});
     }));
-    
-    afterEach( () => {
+
+    afterEach(() => {
         vm = null;
     });
 
@@ -58,11 +59,11 @@ describe("Component BPUtilityPanel", () => {
         expect(directiveTest.element.find("bp-attachments-panel").length).toBe(1);
     });
 
-    it("should load data for a selected artifact", 
+    it("should load data for a selected artifact",
         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
             //Arrange
             const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "My"});
-            
+
             //Act
             artifactManager.selection.setArtifact(artifact);
             $rootScope.$digest();
@@ -74,10 +75,15 @@ describe("Component BPUtilityPanel", () => {
             expect(vm.currentItem).toBe("My22: Artifact");
         }));
 
-    it("should hide files tab for collections",
+    it("should hide all tabs for collections",
         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
             //Arrange
-            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "My", predefinedType: 4609 });
+            const artifact = statefulArtifactFactory.createStatefulArtifact({
+                id: 22,
+                name: "Artifact",
+                prefix: "My",
+                predefinedType: 4609
+            });
 
             //Act
             artifactManager.selection.setArtifact(artifact);
@@ -85,6 +91,6 @@ describe("Component BPUtilityPanel", () => {
             const accordionCtrl = vm.getAccordionController();
 
             // Assert
-            expect((<IBpAccordionPanelController>accordionCtrl.getPanels()[PanelType.Files]).isVisible).toBe(false);
+            expect(vm.IsAnyPanelVisible).toBe(false);
         }));
 });

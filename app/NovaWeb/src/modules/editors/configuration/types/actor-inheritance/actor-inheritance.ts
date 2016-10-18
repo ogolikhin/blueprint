@@ -1,10 +1,10 @@
-﻿﻿import "angular";
-import { ILocalizationService, IMessageService } from "../../../../core";
-import { IDialogSettings, IDialogService } from "../../../../shared";
-import { BPFieldBaseController } from "../base-controller";
-import { Models } from "../../../../main/models";
-import { ISelectionManager } from "../../../../managers";
-import { ArtifactPickerDialogController, IArtifactPickerOptions } from "../../../../main/components/bp-artifact-picker";
+﻿import "angular";
+import {ILocalizationService, IMessageService} from "../../../../core";
+import {IDialogSettings, IDialogService} from "../../../../shared";
+import {BPFieldBaseController} from "../base-controller";
+import {Models} from "../../../../main/models";
+import {ISelectionManager} from "../../../../managers";
+import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../main/components/bp-artifact-picker";
 
 export class BPFieldInheritFrom implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldInheritFrom";
@@ -12,6 +12,7 @@ export class BPFieldInheritFrom implements AngularFormly.ITypeOptions {
     public template: string = require("./actor-inheritance.template.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPFieldInheritFromController;
     public defaultOptions: AngularFormly.IFieldConfigurationObject;
+
     constructor() {
         this.defaultOptions = {};
     }
@@ -20,14 +21,12 @@ export class BPFieldInheritFrom implements AngularFormly.ITypeOptions {
 export class BPFieldInheritFromController extends BPFieldBaseController {
     static $inject: [string] = ["$scope", "localization", "$window", "messageService", "dialogService", "selectionManager"];
 
-    constructor(
-        private $scope: AngularFormly.ITemplateScope,
-        private localization: ILocalizationService,
-        private $window: ng.IWindowService,
-        private messageService: IMessageService,
-        private dialogService: IDialogService,
-        private selectionManager: ISelectionManager
-    ) {
+    constructor(private $scope: AngularFormly.ITemplateScope,
+                private localization: ILocalizationService,
+                private $window: ng.IWindowService,
+                private messageService: IMessageService,
+                private dialogService: IDialogService,
+                private selectionManager: ISelectionManager) {
         super();
 
         const templateOptions: AngularFormly.ITemplateOptions = $scope["to"];
@@ -80,7 +79,7 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
 
             const dialogData: IArtifactPickerOptions = {
                 selectableItemTypes: [Models.ItemTypePredefined.Actor],
-                showSubArtifacts: false
+                showSubArtifacts: false                
             };
 
             dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {
@@ -97,7 +96,7 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
                         deleteBaseActor();
 
                     }
-                    var artifactPath = getArtifactPath(artifact);
+                    const artifactPath = getArtifactPath(artifact);
                     $scope.model[$scope.options["key"]] = {
                         actorName: artifact.name,
                         actorId: artifact.id,
@@ -107,8 +106,8 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
                         isProjectPathVisible: isArtifactactPathFitToControl(artifact.prefix, artifact.name, artifact.id, artifactPath)
                     };
                     currentModelVal = $scope.model[$scope.options["key"]];
-                    var changedResult = {
-                        actorId: artifact.id,
+                    const changedResult = {
+                        actorId: artifact.id
                     };
                     onChange(changedResult, getInheritanceField(), $scope);
                 }

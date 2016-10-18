@@ -27,52 +27,60 @@ enum action {
 }
 
 class SelectionOffsets {
-caretOffset: number;
-selectionStart: number;
-selectionEnd: number;
+    caretOffset: number;
+    selectionStart: number;
+    selectionEnd: number;
 }
 
 export class LabelStyle {
-    constructor(
-        private _fontFamily: string,
-        private _fontSize: number,
-        private _backColor: string,
-        private _textColor: string,
-        private _fontWeight: string,
-        private _top: number,
-        private _left: number,
-        private _height: number,
-        private _width: number,
-        private _highlitedTextColor) {
+    constructor(private _fontFamily: string,
+                private _fontSize: number,
+                private _backColor: string,
+                private _textColor: string,
+                private _fontWeight: string,
+                private _top: number,
+                private _left: number,
+                private _height: number,
+                private _width: number,
+                private _highlitedTextColor) {
     }
 
     public get fontFamily(): string {
         return this._fontFamily;
     }
+
     public get fontSize(): number {
         return this._fontSize;
     }
+
     public get backColor(): string {
         return this._backColor;
     }
+
     public get textColor(): string {
         return this._textColor;
     }
+
     public get fontWeight(): string {
         return this._fontWeight;
     }
+
     public get top(): number {
         return this._top;
     }
+
     public get left(): number {
         return this._left;
     }
+
     public get height(): number {
         return this._height;
     }
+
     public get width(): number {
         return this._width;
     }
+
     public get highlitedTextColor(): string {
         return this._highlitedTextColor;
     }
@@ -86,10 +94,12 @@ export class Label implements ILabel {
     //private shortContent: string;
     private visibility: string;
     private executionEnvironmentDetector: any;
+    private beforeEditText: string;
 
     public get text() {
         return this._text;
     }
+
     public set text(value) {
         this._text = value;
         this.setShortText();
@@ -110,22 +120,22 @@ export class Label implements ILabel {
     }
 
     constructor(private callback: any,
-        private container: HTMLElement,
-        private parentId: string,
-        private id: string,
-        private _text: string,
-        private style: LabelStyle,
-        private maxTextLength: number,
-        private maxVisibleTextLength: number,
-        private isReadOnly: boolean,
-        private textAlign: string = "center") {
+                private container: HTMLElement,
+                private parentId: string,
+                private id: string,
+                private _text: string,
+                private style: LabelStyle,
+                private maxTextLength: number,
+                private maxVisibleTextLength: number,
+                private isReadOnly: boolean,
+                private textAlign: string = "center") {
         if (!_text) {
             this._text = "";
         }
-
-        // This is temporary code. It will be replaced with 
-        // a class that wraps this global functionality.   
-        let w: any = window; 
+        this.beforeEditText = "";
+        // This is temporary code. It will be replaced with
+        // a class that wraps this global functionality.
+        let w: any = window;
         this.executionEnvironmentDetector = new w.executionEnvironmentDetector();
         this.mode = divMode.VIEW;
     }
@@ -137,6 +147,12 @@ export class Label implements ILabel {
         e.stopPropagation();
         this.cancelDefaultAction(e);
     }
+    private undo() {
+        this._text = this.beforeEditText;
+        this.callback(this.beforeEditText);
+        this.setViewMode();
+    }
+
 
     private onKeyDown = (e) => {
         if (e.keyCode === action.ENTER) {
@@ -159,8 +175,25 @@ export class Label implements ILabel {
             this.cancelDefaultAction(e);
             return false;
         }
+        this.callbackIfTextChanged();
     }
-
+    private callbackIfTextChanged() {
+        const innerText = this.div.innerText.replace(/\n/g, "");
+        if (this.isTextChanged(innerText)) {
+            this._text = innerText;
+            this.callback(innerText);
+        }
+    }
+    private isTextChanged(newText: string): boolean {
+        return this._text !== newText;
+        
+    }
+    private onDelete = (e) => {
+        this.callbackIfTextChanged();
+    }
+    private onCut = (e) => {
+        this.callbackIfTextChanged();
+    }
     private onPaste = (e) => {
         let win: any = window;
         let text: string;
@@ -175,16 +208,17 @@ export class Label implements ILabel {
         tmpStr = tmpStr.replace(/\r\n/g, " ").replace(/\r/g, " ").replace(/\n/g, " ");
 
         if (tmpStr.length <= this.maxTextLength) {
-            this.div.innerText = tmpStr;
+            this.div.innerText = tmpStr;            
         } else {
             this.div.innerText = tmpStr.substring(0, this.maxTextLength - 1);
         }
+        this.callbackIfTextChanged();
         this.cancelDefaultAction(e);
     }
 
     private update() {
         if (this.mode === divMode.EDIT) {
-            var innerText = this.div.innerText.replace(/\n/g, "");
+            const innerText = this.div.innerText.replace(/\n/g, "");
             this._text = innerText;
             this.callback(innerText);
             //window.console.log("update() ");
@@ -204,12 +238,6 @@ export class Label implements ILabel {
         return value;
     }
 
-    private undo() {
-        //window.console.log("undo() ");
-
-        this.setViewMode();
-    }
-
     private setEditMode() {
         this.div.removeEventListener("blur", this.onBlur, true);
 
@@ -222,6 +250,7 @@ export class Label implements ILabel {
         this.wrapperDiv.style.pointerEvents = "auto";
         //window.console.log("setEditMode this.mode = " + this.mode);
         this.selectText();
+        this.beforeEditText = this._text;
 
         setTimeout(this.addDeferedListener, 300, this.div);
     }
@@ -247,7 +276,7 @@ export class Label implements ILabel {
     private onMouseout = (e) => {
         this.setMouseoutStyle();
     }
-   
+
     private setMouseoverStyle() {
         if (this.mode === divMode.VIEW) {
             this.div.style.background = "url('/novaweb/static/bp-process/images/pencil.png') no-repeat top right";
@@ -327,10 +356,11 @@ export class Label implements ILabel {
 
             angular.element(this.div).on("keydown", (e) => this.onKeyDown(e));
             angular.element(this.div).on("paste", (e) => this.onPaste(e));
+            angular.element(this.div).on("delete", (e) => this.onDelete(e));
+            angular.element(this.div).on("cut", (e) => this.onCut(e));
             angular.element(this.div).on("dispose", () => this.onDispose());
         }
     }
-
     public onDispose = () => {
         if (this.div) {
             if (!this.isReadOnly) {
@@ -350,6 +380,7 @@ export class Label implements ILabel {
     private numberToPx(val: number): string {
         return `${val}px`;
     }
+
     //#UNUSED
     //private numberToPt(val: number): string {
     //    return `${val}pt`;
@@ -389,15 +420,15 @@ export class Label implements ILabel {
         let offsets = new SelectionOffsets();
         //#UNUSED
         //let caretOffset = 0;
-        let element: any = this.div;
-        let doc = element.ownerDocument || element.document;
-        let win = doc.defaultView || doc.parentWindow;
-        var sel;
+        const element: any = this.div;
+        const doc = element.ownerDocument || element.document;
+        const win = doc.defaultView || doc.parentWindow;
+        let sel;
         if (typeof win.getSelection !== "undefined") {
             sel = win.getSelection();
             if (sel.rangeCount > 0) {
-                var range = win.getSelection().getRangeAt(0);
-                var preCaretRange = range.cloneRange();
+                const range = win.getSelection().getRangeAt(0);
+                const preCaretRange = range.cloneRange();
                 preCaretRange.selectNodeContents(element);
                 preCaretRange.setEnd(range.endContainer, range.endOffset);
                 offsets.selectionStart = range.startOffset;
@@ -405,8 +436,8 @@ export class Label implements ILabel {
                 offsets.caretOffset = preCaretRange.toString().length;
             }
         } else if ((sel = doc.selection) && sel.type !== "Control") {
-            var textRange = sel.createRange();
-            var preCaretTextRange = doc.body.createTextRange();
+            const textRange = sel.createRange();
+            const preCaretTextRange = doc.body.createTextRange();
             preCaretTextRange.moveToElementText(element);
             preCaretTextRange.setEndPoint("EndToEnd", textRange);
             offsets.caretOffset = preCaretTextRange.text.length;

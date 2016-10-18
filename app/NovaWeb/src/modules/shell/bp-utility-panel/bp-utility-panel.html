@@ -3,10 +3,12 @@
         <bp-item-type-icon ng-if="!!$ctrl.currentItemIcon"
                            item-type-id="{{$ctrl.currentItemType}}"
                            item-type-icon="{{$ctrl.currentItemIcon}}"></bp-item-type-icon>
-        <i class="icon" ng-if="!!$ctrl.currentItemClass && !$ctrl.currentItemIcon" ng-class="$ctrl.currentItemClass"></i>{{ $ctrl.currentItem }}
+        <i class="icon" ng-if="!!$ctrl.currentItemClass && !$ctrl.currentItemIcon"
+           ng-class="$ctrl.currentItemClass"></i>{{ $ctrl.currentItem }}
     </span>
 </div>
-<div class="utility-panel-content">
+<div class="utility-panel-content" ng-class="{ 'empty-panel' : !$ctrl.IsAnyPanelVisible}">
+    <p ng-if="!$ctrl.IsAnyPanelVisible" class="empty-state">{{::$root.config.labels['App_UtilityPanel_NoPanel']}}</p>
     <bp-accordion accordion-heading-height="31">
         <bp-accordion-panel accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Properties']}}"
                             accordion-panel-class="utility-panel-properties">
@@ -27,12 +29,12 @@
                             accordion-panel-class="utility-panel-attachments">
 
             <bp-attachments-panel></bp-attachments-panel>
-        </bp-accordion-panel>   
+        </bp-accordion-panel>
         <bp-accordion-panel
             accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_History']}}"
             accordion-panel-class="utility-panel-history">
 
             <bp-history-panel></bp-history-panel>
-        </bp-accordion-panel>                     
+        </bp-accordion-panel>
     </bp-accordion>
 </div>

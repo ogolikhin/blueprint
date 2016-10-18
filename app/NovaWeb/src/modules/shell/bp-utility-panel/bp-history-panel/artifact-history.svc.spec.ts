@@ -24,7 +24,7 @@ describe("Artifact History Service", () => {
                         "displayName": "admin",
                         "hasUserIcon": false,
                         "timestamp": "2016-06-06T13:58:24.557",
-                        "artifactState" : Models.ArtifactStateEnum.Published
+                        "artifactState": Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 51,
@@ -32,7 +32,7 @@ describe("Artifact History Service", () => {
                         "displayName": "admin",
                         "hasUserIcon": false,
                         "timestamp": "2016-06-06T13:58:24.557",
-                        "artifactState" : Models.ArtifactStateEnum.Published
+                        "artifactState": Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 50,
@@ -40,7 +40,7 @@ describe("Artifact History Service", () => {
                         "displayName": "admin",
                         "hasUserIcon": false,
                         "timestamp": "2016-06-06T13:58:24.557",
-                        "artifactState" : Models.ArtifactStateEnum.Published
+                        "artifactState": Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 49,
@@ -48,7 +48,7 @@ describe("Artifact History Service", () => {
                         "displayName": "admin",
                         "hasUserIcon": false,
                         "timestamp": "2016-06-06T13:58:24.557",
-                        "artifactState" : Models.ArtifactStateEnum.Published
+                        "artifactState": Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 48,
@@ -56,7 +56,7 @@ describe("Artifact History Service", () => {
                         "displayName": "admin",
                         "hasUserIcon": false,
                         "timestamp": "2016-06-06T13:58:24.557",
-                        "artifactState" : Models.ArtifactStateEnum.Published
+                        "artifactState": Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 47,
@@ -64,7 +64,7 @@ describe("Artifact History Service", () => {
                         "displayName": "admin",
                         "hasUserIcon": false,
                         "timestamp": "2016-06-06T13:58:24.557",
-                        "artifactState" : Models.ArtifactStateEnum.Published
+                        "artifactState": Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 46,
@@ -72,7 +72,7 @@ describe("Artifact History Service", () => {
                         "displayName": "admin",
                         "hasUserIcon": false,
                         "timestamp": "2016-06-06T13:58:24.557",
-                        "artifactState" : Models.ArtifactStateEnum.Published
+                        "artifactState": Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 45,
@@ -80,7 +80,7 @@ describe("Artifact History Service", () => {
                         "displayName": "admin",
                         "hasUserIcon": false,
                         "timestamp": "2016-06-06T13:58:24.557",
-                        "artifactState" : Models.ArtifactStateEnum.Published
+                        "artifactState": Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 44,
@@ -88,7 +88,7 @@ describe("Artifact History Service", () => {
                         "displayName": "admin",
                         "hasUserIcon": false,
                         "timestamp": "2016-06-06T13:58:24.557",
-                        "artifactState" : Models.ArtifactStateEnum.Published
+                        "artifactState": Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 43,
@@ -96,7 +96,7 @@ describe("Artifact History Service", () => {
                         "displayName": "admin",
                         "hasUserIcon": false,
                         "timestamp": "2016-06-06T13:58:24.557",
-                        "artifactState" : Models.ArtifactStateEnum.Published
+                        "artifactState": Models.ArtifactStateEnum.Published
                     },
                 ]
             });
@@ -104,10 +104,10 @@ describe("Artifact History Service", () => {
         // Act
         let error: any;
         let data: IArtifactHistoryVersion[];
-        artifactHistory.getArtifactHistory(306).then( (response) => {
+        artifactHistory.getArtifactHistory(306).then((response) => {
             data = response;
         }, (err) => {
-            error = err; 
+            error = err;
         });
 
         $httpBackend.flush();
@@ -128,12 +128,12 @@ describe("Artifact History Service", () => {
                 "artifactId": 306,
                 "artifactHistoryVersions": [
                     {
-                    "versionId": 52,
-                    "userId": 1,
-                    "displayName": "admin",
-                    "hasUserIcon": false,
-                    "timestamp": "2016-06-06T13:58:24.557",
-                        "artifactState" : Models.ArtifactStateEnum.Published
+                        "versionId": 52,
+                        "userId": 1,
+                        "displayName": "admin",
+                        "hasUserIcon": false,
+                        "timestamp": "2016-06-06T13:58:24.557",
+                        "artifactState": Models.ArtifactStateEnum.Published
                     }
                 ]
             });
@@ -141,10 +141,10 @@ describe("Artifact History Service", () => {
         // Act
         let error: any;
         let data: IArtifactHistoryVersion[];
-        artifactHistory.getArtifactHistory(306, 1, 0, null, false).then( (response) => {
+        artifactHistory.getArtifactHistory(306, 1, 0, null, false).then((response) => {
             data = response;
         }, (err) => {
-            error = err; 
+            error = err;
         });
 
         $httpBackend.flush();
@@ -169,7 +169,7 @@ describe("Artifact History Service", () => {
         // Act
         let error: any;
         let data: IArtifactHistoryVersion[];
-        artifactHistory.getArtifactHistory(0, 1, 0, null, false).then( (response) => {
+        artifactHistory.getArtifactHistory(0, 1, 0, null, false).then((response) => {
             data = response;
         }, (err) => {
             error = err;
@@ -196,7 +196,7 @@ describe("Artifact History Service", () => {
                         "displayName": "admin",
                         "hasUserIcon": false,
                         "timestamp": "2016-06-06T13:58:24.557",
-                        "artifactState" : Models.ArtifactStateEnum.Published
+                        "artifactState": Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 51,
@@ -204,7 +204,7 @@ describe("Artifact History Service", () => {
                         "displayName": "admin",
                         "hasUserIcon": false,
                         "timestamp": "2016-06-06T13:58:24.557",
-                        "artifactState" : Models.ArtifactStateEnum.Published
+                        "artifactState": Models.ArtifactStateEnum.Published
                     }
                 ]
             });
@@ -212,10 +212,10 @@ describe("Artifact History Service", () => {
         // Act
         let error: any;
         let data: IArtifactHistoryVersion[];
-        artifactHistory.getArtifactHistory(306, 2, 0, null, false).then( (response) => {
+        artifactHistory.getArtifactHistory(306, 2, 0, null, false).then((response) => {
             data = response;
         }, (err) => {
-            error = err; 
+            error = err;
         });
 
         $httpBackend.flush();
@@ -242,7 +242,7 @@ describe("Artifact History Service", () => {
                         "displayName": "admin",
                         "hasUserIcon": false,
                         "timestamp": "2016-06-06T13:58:24.557",
-                        "artifactState" : Models.ArtifactStateEnum.Published
+                        "artifactState": Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 52,
@@ -250,7 +250,7 @@ describe("Artifact History Service", () => {
                         "displayName": "admin",
                         "hasUserIcon": false,
                         "timestamp": "2016-06-06T13:58:24.557",
-                        "artifactState" : Models.ArtifactStateEnum.Published
+                        "artifactState": Models.ArtifactStateEnum.Published
                     }
                 ]
             });
@@ -258,10 +258,10 @@ describe("Artifact History Service", () => {
         // Act
         let error: any;
         let data: IArtifactHistoryVersion[];
-        artifactHistory.getArtifactHistory(306, 2, 0, null, true).then( (response) => {
+        artifactHistory.getArtifactHistory(306, 2, 0, null, true).then((response) => {
             data = response;
         }, (err) => {
-            error = err; 
+            error = err;
         });
 
         $httpBackend.flush();

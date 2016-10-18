@@ -21,11 +21,11 @@
 //             };
 
 //             const subscriber = selectionManager.selectedArtifactObservable.subscribeOnNext(onArtifactChanged);
-            
+
 //             //Act
 //             const artifact2 = { id: 22 };
 //             selectionManager.selection = { source: SelectionSource.Explorer, artifact: artifact2 };
-            
+
 //             //Assert
 //             setTimeout(function() {
 //                 expect(selectedArtifact).toEqual(artifact2);
@@ -46,11 +46,11 @@
 //             };
 
 //             const subscriber = selectionManager.selectedSubArtifactObservable.subscribeOnNext(onSubArtifactChanged);
-            
+
 //             //Act
 //             const subArtifact2 = { id: 22 };
 //             selectionManager.selection = { source: SelectionSource.Explorer, artifact: artifact, subArtifact: subArtifact2 };
-            
+
 //             //Assert
 //             setTimeout(function() {
 //                 expect(selectedSubArtifact).toEqual(subArtifact2);
@@ -71,11 +71,11 @@
 //             };
 
 //             const subscriber = selectionManager.selectedItemObservable.subscribeOnNext(onSubArtifactChanged);
-            
+
 //             //Act
 //             const subArtifact2 = { id: 22 };
 //             selectionManager.selection = { source: SelectionSource.Explorer, artifact: artifact, subArtifact: subArtifact2 };
-            
+
 //             //Assert
 //             setTimeout(function() {
 //                 expect(selectedSubArtifact).toEqual(subArtifact2);
@@ -83,12 +83,12 @@
 //             });          
 //         }));
 //     });
-    
+
 //     describe("clearSelection", () => {
 //         it("artifact = null, subArtifact = null, source = None", inject((selectionManager: SelectionManager) => {
 //             //Act
 //             selectionManager.clearSelection();
-            
+
 //             //Assert
 //             expect(selectionManager.selection).toBeDefined();
 //             expect(selectionManager.selection.artifact).toBeNull();

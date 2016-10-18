@@ -1,17 +1,20 @@
 <div class="inheritance-group inheritance-group-wrapper">
-                    <span class="actor-image-wrapper">
-                        <label ng-if="model[options.key].imageSource" ng-style="{'background-image': 'url(' + model[options.key].imageSource + ')'}" >
-                            <input bp-file-upload="onFileSelect(files, callback)" type="file" accept="image/jpeg, image/jpg, image/png"
-                                   ng-disabled="to.disabled">
-                        </label>
-                        <span ng-if="!model[options.key].imageSource"></span>
-                    </span>
+    <span class="actor-image-wrapper">
+        <label ng-if="model[options.key].imageSource"
+               ng-style="{'background-image': 'url(' + model[options.key].imageSource + ')'}">
+            <input bp-file-upload="onFileSelect(files, callback)" type="file" accept="image/jpeg, image/jpg, image/png"
+                   ng-disabled="to.disabled|| to.isReadOnly">
+        </label>
+        <span ng-if="!model[options.key].imageSource"></span>
+    </span>
     <i ng-show="model[options.key].imageSource.length > 0" class="icon fonticon2-delete" bp-tooltip="Delete"
-       ng-click="onActorImageDelete(to.disabled)" ng-class="{disabled: to.disabled}"></i>
+       ng-click="onActorImageDelete(to.disabled || to.isReadOnly)"
+       ng-class="{disabled: to.disabled|| to.isReadOnly}"></i>
     <label>
         <input bp-file-upload="onFileSelect(files, callback)" type="file" accept="image/jpeg, image/jpg, image/png"
-               ng-disabled="to.disabled">
-        <i ng-hide="model[options.key].imageSource.length > 0" bp-tooltip="Add" ng-class="{disabled: to.disabled}"
+               ng-disabled="to.disabled || to.isReadOnly">
+        <i ng-hide="model[options.key].imageSource.length > 0" bp-tooltip="Add"
+           ng-class="{disabled: to.disabled|| to.isReadOnly}"
            class="glyphicon glyphicon-plus image-actor-group"></i>
     </label>
 </div>

@@ -1,5 +1,4 @@
-﻿
-export const enum ProcessType {
+﻿export const enum ProcessType {
     None = 0,
     BusinessProcess = 1,
     UserToSystemProcess = 2,
@@ -37,4 +36,9 @@ export const enum ItemIndicatorFlags {
     HasAttachmentsOrDocumentRefs = 2,
     HasManualReuseOrOtherTraces = 4,
     HasLast24HoursChanges = 8
+}
+
+export const enum ArtifactUpdateType {
+    SubArtifact = 0,
+    Link = 1
 }

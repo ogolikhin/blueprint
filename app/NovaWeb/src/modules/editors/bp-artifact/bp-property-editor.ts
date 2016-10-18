@@ -1,9 +1,9 @@
 ﻿import * as angular from "angular";
-import { BPLocale, ILocalizationService} from "../../core";
-import { Enums, Models} from "../../main";
-import { PropertyContext} from "./bp-property-context";
-import { IStatefulItem} from "../../managers/artifact-manager";
-import { Helper } from "../../shared/utils/helper";
+import {BPLocale, ILocalizationService} from "../../core";
+import {Enums, Models} from "../../main";
+import {PropertyContext} from "./bp-property-context";
+import {IStatefulItem} from "../../managers/artifact-manager";
+import {Helper} from "../../shared/utils/helper";
 
 export class PropertyEditor {
 
@@ -11,7 +11,7 @@ export class PropertyEditor {
     private _fields: AngularFormly.IFieldConfigurationObject[];
     public propertyContexts: PropertyContext[];
     private locale: BPLocale;
-    private _artifactId: number;
+
     constructor(private localization: ILocalizationService) {
         this.locale = localization.current;
     }
@@ -35,10 +35,12 @@ export class PropertyEditor {
             case Models.PrimitiveType.Choice:
                 if (angular.isArray($value)) {
                     return {
-                        validValueIds: $value.map((it) => { return this.locale.toNumber(it); })
+                        validValueIds: $value.map((it) => {
+                            return this.locale.toNumber(it);
+                        })
                     };
                 } else if (angular.isObject(($value))) {
-                    return { customValue: $value.customValue };
+                    return {customValue: $value.customValue};
                 } else if (context.propertyTypePredefined < 0) {
                     return this.locale.toNumber($value);
                 }
@@ -108,7 +110,6 @@ export class PropertyEditor {
 
         this._model = {};
         this._fields = [];
-        this._artifactId = statefulItem.id;
         if (statefulItem && angular.isArray(properties)) {
             this.propertyContexts = properties.map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
@@ -140,7 +141,7 @@ export class PropertyEditor {
                             (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Description) === Enums.ReuseSettings.Description) {
                             propertyContext.disabled = true;
                         }
-                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Custom ) {
+                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Custom) {
                         //Custom property
                         let custompropertyvalue = statefulItem.customProperties.get(propertyContext.modelPropertyName as number);
                         if (custompropertyvalue) {
@@ -148,7 +149,7 @@ export class PropertyEditor {
                             isModelSet = true;
                             propertyContext.disabled = custompropertyvalue.isReuseReadOnly ? true : propertyContext.disabled;
                         }
-                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Special)  {
+                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Special) {
                         //Specific property
                         let specificPropertyValue = statefulItem.specialProperties.get(propertyContext.modelPropertyName as number);
                         isModelSet = true;
@@ -158,12 +159,12 @@ export class PropertyEditor {
                                 modelValue = this.getActorStepOfValue(specificPropertyValue.value);
                             } else {
                                 modelValue = specificPropertyValue.value;
-                            }                            
+                            }
                             propertyContext.disabled = specificPropertyValue.isReuseReadOnly ? true : propertyContext.disabled;
                         }
                     }
                     if (isModelSet) {
-                        let field = this.createPropertyField(propertyContext);
+                        let field = this.createPropertyField(propertyContext, statefulItem.id);
                         this._model[propertyContext.fieldPropertyName] = this.convertToFieldValue(field, modelValue);
                         this._fields.push(field);
                     }
@@ -193,7 +194,7 @@ export class PropertyEditor {
         return this._model || {};
     }
 
-    private createPropertyField(context: PropertyContext, reuseSettings?: Enums.ReuseSettings): AngularFormly.IFieldConfigurationObject {
+    private createPropertyField(context: PropertyContext, itemId: number, reuseSettings?: Enums.ReuseSettings): AngularFormly.IFieldConfigurationObject {
 
         let field: AngularFormly.IFieldConfigurationObject = {
             key: context.fieldPropertyName,
@@ -201,7 +202,7 @@ export class PropertyEditor {
             templateOptions: {
                 label: context.name,
                 required: context.isRequired,
-                disabled: context.disabled,
+                disabled: context.disabled
             },
             expressionProperties: {}
         };
@@ -252,7 +253,7 @@ export class PropertyEditor {
                     field.templateOptions.options = [];
                     if (context.validValues && context.validValues.length) {
                         field.templateOptions.options = context.validValues.map(function (it) {
-                            return { value: it.id, name: it.value } as any;
+                            return {value: it.id, name: it.value} as any;
                         });
                         if (angular.isNumber(context.defaultValidValueId)) {
                             field.defaultValue = context.defaultValidValueId.toString();
@@ -275,7 +276,7 @@ export class PropertyEditor {
                     break;
                 case Models.PrimitiveType.DocumentFile:
                     field.type = "bpDocumentFile";
-                    field.templateOptions["artifactId"] = this._artifactId;
+                    field.templateOptions["artifactId"] = itemId;
                     break;
                 default:
                     //case Models.PrimitiveType.Image:
@@ -284,7 +285,7 @@ export class PropertyEditor {
                     field.templateOptions.options = [];
                     if (context.validValues) {
                         field.templateOptions.options = context.validValues.map(function (it) {
-                            return <AngularFormly.ISelectOption>{ value: it.id.toString(), name: it.value };
+                            return <AngularFormly.ISelectOption>{value: it.id.toString(), name: it.value};
                         });
                     }
                     break;

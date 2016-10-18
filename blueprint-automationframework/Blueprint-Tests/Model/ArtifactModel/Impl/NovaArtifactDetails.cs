@@ -100,13 +100,13 @@ namespace Model.ArtifactModel.Impl
         public override int? Version { get; set; }
         public List<AttachmentValue> AttachmentValues { get; } = new List<AttachmentValue>();
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedOn, even if it's null.
         public DateTime? CreatedOn { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedOn, even if it's null.
         public DateTime? LastEditedOn { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedBy, even if it's null.
         public Identification CreatedBy { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedBy, even if it's null.
         public Identification LastEditedBy { get; set; }
 
         public DateTime? LastSavedOn { get; set; }
@@ -143,182 +143,6 @@ namespace Model.ArtifactModel.Impl
         }
 
         #endregion Constructors
-
-        #region Assert functions
-
-        /// <summary>
-        /// Asserts that this INovaArtifactDetails object is equal to the specified IArtifactBase.
-        /// </summary>
-        /// <param name="artifact">The IArtifactBase to compare against.</param>
-        /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public void AssertEquals(IArtifactBase artifact)
-        {
-            AssertEquals(this, artifact);
-        }
-
-        /// <summary>
-        /// Asserts that the specified INovaArtifactBase object is equal to the specified IArtifactBase.
-        /// </summary>
-        /// <param name="novaArtifactBase">The INovaArtifactBase to compare against.</param>
-        /// <param name="artifactBase">The IArtifactBase to compare against.</param>
-        /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertEquals(INovaArtifactBase novaArtifactBase, IArtifactBase artifactBase)
-        {
-            ThrowIf.ArgumentNull(novaArtifactBase, nameof(novaArtifactBase));
-            ThrowIf.ArgumentNull(artifactBase, nameof(artifactBase));
-
-            Assert.AreEqual(novaArtifactBase.Id, artifactBase.Id, "The Id parameters don't match!");
-            Assert.AreEqual(novaArtifactBase.Name, artifactBase.Name, "The Name  parameters don't match!");
-            Assert.AreEqual(novaArtifactBase.ParentId, artifactBase.ParentId, "The ParentId  parameters don't match!");
-            Assert.AreEqual(novaArtifactBase.ItemTypeId, artifactBase.ArtifactTypeId, "The ItemTypeId  parameters don't match!");
-            Assert.AreEqual(novaArtifactBase.ProjectId, artifactBase.ProjectId, "The ProjectId  parameters don't match!");
-            Assert.AreEqual(novaArtifactBase.Version, artifactBase.Version, "The Version  parameters don't match!");
-        }
-
-        /// <summary>
-        /// Asserts that this INovaArtifactDetails object is equal to the specified INovaArtifactDetails.
-        /// </summary>
-        /// <param name="artifact">The INovaArtifactDetails to compare against.</param>
-        /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public void AssertEquals(INovaArtifactDetails artifact)
-        {
-            AssertEquals(this, artifact);
-        }
-
-        /// <summary>
-        /// Asserts that both INovaArtifactDetails objects are equal.
-        /// </summary>
-        /// <param name="artifact1">The first INovaArtifactDetails to compare against.</param>
-        /// <param name="artifact2">The second INovaArtifactDetails to compare against.</param>
-        /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertEquals(INovaArtifactDetails artifact1, INovaArtifactDetails artifact2)
-        {
-            ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
-            ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
-
-            Assert.AreEqual(artifact1.Id, artifact2.Id, "The Id parameters don't match!");
-            Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name  parameters don't match!");
-            Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description  parameters don't match!");
-            Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
-            Assert.AreEqual(artifact1.Permissions, artifact2.Permissions, "The Permissions  parameters don't match!");
-            Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex  parameters don't match!");
-            Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId  parameters don't match!");
-            Assert.AreEqual(artifact1.ItemTypeVersionId, artifact2.ItemTypeVersionId, "The ItemTypeVersionId  parameters don't match!");
-            Assert.AreEqual(artifact1.LockedDateTime, artifact2.LockedDateTime, "The LockedDateTime  parameters don't match!");
-            Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId  parameters don't match!");
-            Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version  parameters don't match!");
-            Assert.AreEqual(artifact1.CreatedOn, artifact2.CreatedOn, "The CreatedOn  parameters don't match!");
-            Assert.AreEqual(artifact1.LastEditedOn, artifact2.LastEditedOn, "The LastEditedOn  parameters don't match!");
-
-            Identification.AssertEquals(artifact1.CreatedBy, artifact2.CreatedBy);
-            Identification.AssertEquals(artifact1.LastEditedBy, artifact2.LastEditedBy);
-            Identification.AssertEquals(artifact1.LockedByUser, artifact2.LockedByUser);
-
-            Assert.AreEqual(artifact1.CustomPropertyValues.Count, artifact2.CustomPropertyValues.Count, "The number of Custom Properties is different!");
-            Assert.AreEqual(artifact1.SpecificPropertyValues.Count, artifact2.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");
-
-            // Now compare each property in CustomProperties & SpecificPropertyValues.
-            foreach (CustomProperty property in artifact1.CustomPropertyValues)
-            {
-                Assert.That(artifact2.CustomPropertyValues.Exists(p => p.Name == property.Name),
-                "Couldn't find a CustomProperty named '{0}'!", property.Name);
-            }
-
-            foreach (CustomProperty property in artifact1.SpecificPropertyValues)
-            {
-                Assert.That(artifact2.SpecificPropertyValues.Exists(p => p.Name == property.Name),
-                "Couldn't find a SpecificPropertyValue named '{0}'!", property.Name);
-            }
-        }
-
-        /// <summary>
-        /// Asserts that this INovaArtifactDetails object is equal to the specified INovaArtifactResponse.
-        /// </summary>
-        /// <param name="artifact">The INovaArtifactResponse to compare against.</param>
-        /// <param name="skipDatesAndDescription">(optional) Pass true to skip comparing the Created*, LastEdited* and Description properties.
-        ///     This is needed when comparing the response of the GetUnpublishedChanges REST call which always returns null for those fields.</param>
-        /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public void AssertEquals(INovaArtifactResponse artifact, bool skipDatesAndDescription = false)
-        {
-            AssertEquals(this, artifact, skipDatesAndDescription);
-        }
-
-        /// <summary>
-        /// Asserts that the specified INovaArtifactDetails object is equal to the specified INovaArtifactResponse.
-        /// </summary>
-        /// <param name="artifact1">The first INovaArtifactDetails to compare against.</param>
-        /// <param name="artifact2">The second INovaArtifactResponse to compare against.</param>
-        /// <param name="skipDatesAndDescription">(optional) Pass true to skip comparing the Created*, LastEdited* and Description properties.
-        ///     This is needed when comparing the response of the GetUnpublishedChanges REST call which always returns null for those fields.</param>
-        /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertEquals(INovaArtifactDetails artifact1, INovaArtifactResponse artifact2, bool skipDatesAndDescription = false)
-        {
-            ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
-            ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
-
-            Assert.AreEqual(artifact1.Id, artifact2.Id, "The Id parameters don't match!");
-            Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name  parameters don't match!");
-            Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
-            Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex  parameters don't match!");
-            Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId  parameters don't match!");
-            Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId  parameters don't match!");
-            Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version  parameters don't match!");
-
-            if (!skipDatesAndDescription)
-            {
-                Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description  parameters don't match!");
-                Assert.AreEqual(artifact1.CreatedOn, artifact2.CreatedOn, "The CreatedOn  parameters don't match!");
-                Assert.AreEqual(artifact1.LastEditedOn, artifact2.LastEditedOn, "The LastEditedOn  parameters don't match!");
-
-                Identification.AssertEquals(artifact1.CreatedBy, artifact2.CreatedBy);
-                Identification.AssertEquals(artifact1.LastEditedBy, artifact2.LastEditedBy);
-            }
-        }
-
-        /// <summary>
-        /// Asserts that this INovaArtifactDetails object is equal to the specified INovaVersionControlArtifactInfo.
-        /// </summary>
-        /// <param name="artifact">The INovaVersionControlArtifactInfo to compare against.</param>
-        /// <param name="compareVersions">(optional) Pass false to skip version comparison.  Versions will never be compared if the Version of artifact2 is null.</param>
-        /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public void AssertEquals(INovaVersionControlArtifactInfo artifact, bool compareVersions = true)
-        {
-            AssertEquals(this, artifact, compareVersions);
-        }
-
-        /// <summary>
-        /// Asserts that the INovaArtifactDetails & INovaVersionControlArtifactInfo objects are equal.
-        /// </summary>
-        /// <param name="artifact1">The first INovaArtifactDetails to compare against.</param>
-        /// <param name="artifact2">The second INovaVersionControlArtifactInfo to compare against.</param>
-        /// <param name="compareVersions">(optional) Pass false to skip version comparison.  Versions will never be compared if the Version of artifact2 is null.</param>
-        /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertEquals(INovaArtifactDetails artifact1, INovaVersionControlArtifactInfo artifact2, bool compareVersions = true)
-        {
-            ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
-            ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
-
-            Assert.AreEqual(artifact1.Id, artifact2.Id, "The Id parameters don't match!");
-            Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId  parameters don't match!");
-            Assert.AreEqual(artifact1.LockedDateTime, artifact2.LockedDateTime, "The LockedDateTime  parameters don't match!");
-            Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name  parameters don't match!");
-            Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex  parameters don't match!");
-            Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
-            Assert.AreEqual(artifact1.Permissions, artifact2.Permissions, "The Permissions  parameters don't match!");
-            Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId  parameters don't match!");
-            Assert.AreEqual(artifact1.PredefinedType, artifact2.PredefinedType, "The PredefinedType  parameters don't match!");
-            Assert.AreEqual(artifact1.Prefix, artifact2.Prefix, "The Prefix  parameters don't match!");
-
-            // The Version property in VersionControlInfo is always null until the artifact is deleted.
-            if (compareVersions && (artifact2.Version != null))
-            {
-                Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version  parameters don't match!");
-            }
-
-            Identification.AssertEquals(artifact1.LockedByUser, artifact2.LockedByUser);
-        }
-
-        #endregion Assert functions
 
         #region Other properties
 
@@ -412,97 +236,6 @@ namespace Model.ArtifactModel.Impl
             string msg = I18NHelper.FormatInvariant("JSON for {0} has been changed!", nameof(TClass));
             Assert.IsFalse(isJsonChanged, msg);
         }
-
-        public class Identification
-        {
-            [JsonProperty("id")]
-            public int Id { get; set; }
-
-            [JsonProperty("displayName")]
-            public string DisplayName { get; set; }
-
-            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-            public bool? IsGroup { get; set; }
-
-            /// <summary>
-            /// Asserts that this object equals a specified UsersOrGroups object.
-            /// </summary>
-            /// <param name="userOrGroup">The User or Group to compare.</param>
-            public void AssertEquals(UsersAndGroups userOrGroup)
-            {
-                ThrowIf.ArgumentNull(userOrGroup, nameof(userOrGroup));
-
-                Assert.AreEqual(Id, userOrGroup?.Id, "The Id properties of the user or group don't match!");
-                Assert.AreEqual(DisplayName, userOrGroup?.DisplayName, "The DisplayName properties of the user or group don't match!");
-
-                if (IsGroup != null)
-                {
-                    Assert.AreEqual(IsGroup.Value, (userOrGroup.Type == UsersAndGroupsType.Group),
-                        "IsGroup is {0}, but the UsersAndGroups type is {1}!", IsGroup.Value, userOrGroup.Type);
-                }
-            }
-
-            /// <summary>
-            /// Asserts that both Identification objects are equal.
-            /// </summary>
-            /// <param name="identification1">The first Identification to compare.</param>
-            /// <param name="identification2">The second Identification to compare.</param>
-            public static void AssertEquals(Identification identification1, Identification identification2)
-            {
-                if ((identification1 == null) || (identification2 == null))
-                {
-                    Assert.AreEqual(identification1, identification2, "One Identification is null but the other isn't!");
-                }
-                else
-                {
-                    Assert.AreEqual(identification1.Id, identification2.Id, "The Id properties don't match!");
-                    Assert.AreEqual(identification1.DisplayName, identification2.DisplayName, "The DisplayName don't match!");
-
-                    Assert.AreEqual(identification1.IsGroup.HasValue, identification2.IsGroup.HasValue,
-                        "One of the IsGroup properties is null but the other isn't!");
-
-                    if ((identification1.IsGroup != null) && (identification2.IsGroup != null))
-                    {
-                        Assert.AreEqual(identification1.IsGroup.Value, identification2.IsGroup.Value,
-                            "The IsGroup properties don't match!");
-                    }
-                }
-            }
-        }
-
-        public class CustomProperty
-        {
-            [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-            public string Name { get; set; }
-
-            [JsonProperty("value", NullValueHandling=NullValueHandling.Ignore)]
-            public object CustomPropertyValue { get; set; }
-
-            public int PropertyTypeId { get; set; }
-
-            public int PropertyTypeVersionId { get; set; }
-            
-            //this function is used by Newtonsoft.Json to determine when to serialize property. See help for Newtonsoft.Json.Serialization
-            public bool ShouldSerializePropertyTypeVersionId()
-            {
-                return PropertyTypeVersionId != 0;
-            }
-
-            [JsonProperty("PropertyTypePredefined")]
-            public PropertyTypePredefined PropertyType { get; set; }
-
-            [JsonProperty("isReuseReadOnly", NullValueHandling = NullValueHandling.Ignore)]
-            public bool? IsReuseReadOnly { get; set; }
-        }
-
-
-
-        [SuppressMessage("Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue")]
-        public enum PropertyTypePredefined
-        {
-            ActorInheritance = 4128,
-            DocumentFile = 4129
-        }
     }
 
     /// <summary>
@@ -521,9 +254,9 @@ namespace Model.ArtifactModel.Impl
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedOn, even if it's null.
         public DateTime? LastEditedOn { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedBy, even if it's null.
-        public NovaArtifactDetails.Identification CreatedBy { get; set; }
+        public Identification CreatedBy { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedBy, even if it's null.
-        public NovaArtifactDetails.Identification LastEditedBy { get; set; }
+        public Identification LastEditedBy { get; set; }
         public override int Id { get; set; }
         public override string Name { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
@@ -573,5 +306,228 @@ namespace Model.ArtifactModel.Impl
         public List<INovaProject> Projects { get; set; } = new List<INovaProject>();
 
         #endregion Serialized JSON Properties
+    }
+
+    public class NovaDiagramArtifact : NovaArtifactBase
+    {
+        #region Serialized JSON Properties
+
+        // NOTE: Keep the properties in this order so the shouldControlJsonChanges option in RestApiFacade works properly.  This is the order of the incoming JSON.
+
+        public override int? ProjectId { get; set; }
+        public override int? Version { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedOn, even if it's null.
+        public DateTime? CreatedOn { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedOn, even if it's null.
+        public DateTime? LastEditedOn { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedBy, even if it's null.
+        public Identification CreatedBy { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedBy, even if it's null.
+        public Identification LastEditedBy { get; set; }
+
+        public DateTime? LastSavedOn { get; set; }
+        public int Permissions { get; set; }
+        public Identification LockedByUser { get; set; }
+        public DateTime? LockedDateTime { get; set; }
+        public override int Id { get; set; }
+        public override string Name { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
+        public string Description { get; set; }
+        public override int? ParentId { get; set; }
+        public double? OrderIndex { get; set; }
+        public override int? ItemTypeId { get; set; }
+        public int ItemTypeVersionId { get; set; }
+        public string Prefix { get; set; }
+        public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();
+        public List<CustomProperty> SpecificPropertyValues { get; } = new List<CustomProperty>();
+        public int? PredefinedType { get; set; }
+
+        public string DiagramType { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public List<object> Shapes { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public List<object> Connections { get; set; }
+        public int LibraryVersion { get; set; }
+
+        #endregion Serialized JSON Properties
+    }
+
+    public class NovaGlossaryArtifact : NovaArtifactBase
+    {
+        #region Serialized JSON Properties
+
+        // NOTE: Keep the properties in this order so the shouldControlJsonChanges option in RestApiFacade works properly.  This is the order of the incoming JSON.
+
+        public override int? ProjectId { get; set; }
+        public override int? Version { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedOn, even if it's null.
+        public DateTime? CreatedOn { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedOn, even if it's null.
+        public DateTime? LastEditedOn { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedBy, even if it's null.
+        public Identification CreatedBy { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedBy, even if it's null.
+        public Identification LastEditedBy { get; set; }
+
+        public DateTime? LastSavedOn { get; set; }
+        public int Permissions { get; set; }
+        public Identification LockedByUser { get; set; }
+        public DateTime? LockedDateTime { get; set; }
+        public override int Id { get; set; }
+        public override string Name { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
+        public string Description { get; set; }
+        public override int? ParentId { get; set; }
+        public double? OrderIndex { get; set; }
+        public override int? ItemTypeId { get; set; }
+        public int ItemTypeVersionId { get; set; }
+        public string Prefix { get; set; }
+        public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();
+        public List<CustomProperty> SpecificPropertyValues { get; } = new List<CustomProperty>();
+        public int? PredefinedType { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public List<object> SubArtifacts { get; set; }
+
+        #endregion Serialized JSON Properties
+    }
+
+    public class NovaUseCaseArtifact : NovaArtifactBase
+    {
+        #region Serialized JSON Properties
+
+        // NOTE: Keep the properties in this order so the shouldControlJsonChanges option in RestApiFacade works properly.  This is the order of the incoming JSON.
+
+        public override int? ProjectId { get; set; }
+        public override int? Version { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedOn, even if it's null.
+        public DateTime? CreatedOn { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedOn, even if it's null.
+        public DateTime? LastEditedOn { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedBy, even if it's null.
+        public Identification CreatedBy { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedBy, even if it's null.
+        public Identification LastEditedBy { get; set; }
+
+        public DateTime? LastSavedOn { get; set; }
+        public int Permissions { get; set; }
+        public Identification LockedByUser { get; set; }
+        public DateTime? LockedDateTime { get; set; }
+        public override int Id { get; set; }
+        public override string Name { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
+        public string Description { get; set; }
+        public override int? ParentId { get; set; }
+        public double? OrderIndex { get; set; }
+        public override int? ItemTypeId { get; set; }
+        public int ItemTypeVersionId { get; set; }
+        public string Prefix { get; set; }
+        public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();
+        public List<CustomProperty> SpecificPropertyValues { get; } = new List<CustomProperty>();
+        public int? PredefinedType { get; set; }
+
+        public RapidReviewUseCasePreCondition PreCondition { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public List<RapidReviewUseCaseStep> Steps { get; set; }
+        public RapidReviewUseCasePostCondition PostCondition { get; set; }
+
+        #endregion Serialized JSON Properties
+    }
+
+    [SuppressMessage("Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue")]
+    public enum PropertyTypePredefined
+    {
+        ActorInheritance = 4128,
+        DocumentFile = 4129
+    }
+
+    public class CustomProperty
+    {
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        public string Name { get; set; }
+
+        public int PropertyTypeId { get; set; }
+
+        public int PropertyTypeVersionId { get; set; }
+
+        //this function is used by Newtonsoft.Json to determine when to serialize property. See help for Newtonsoft.Json.Serialization
+        public bool ShouldSerializePropertyTypeVersionId()
+        {
+            return PropertyTypeVersionId != 0;
+        }
+
+        [JsonProperty("PropertyTypePredefined")]
+        public PropertyTypePredefined PropertyType { get; set; }
+
+        [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
+        public object CustomPropertyValue { get; set; }
+
+        [JsonProperty("isReuseReadOnly", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsReuseReadOnly { get; set; }
+    }
+
+    public class Identification
+    {
+        [JsonProperty("id")]
+        public int Id { get; set; }
+
+        [JsonProperty("displayName")]
+        public string DisplayName { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsGroup { get; set; }
+
+        /// <summary>
+        /// Asserts that this object equals a specified UsersOrGroups object.
+        /// </summary>
+        /// <param name="userOrGroup">The User or Group to compare.</param>
+        public void AssertEquals(UsersAndGroups userOrGroup)
+        {
+            ThrowIf.ArgumentNull(userOrGroup, nameof(userOrGroup));
+
+            Assert.AreEqual(Id, userOrGroup?.Id, "The Id properties of the user or group don't match!");
+            Assert.AreEqual(DisplayName, userOrGroup?.DisplayName, "The DisplayName properties of the user or group don't match!");
+
+            if (IsGroup != null)
+            {
+                Assert.AreEqual(IsGroup.Value, (userOrGroup.Type == UsersAndGroupsType.Group),
+                    "IsGroup is {0}, but the UsersAndGroups type is {1}!", IsGroup.Value, userOrGroup.Type);
+            }
+        }
+
+        /// <summary>
+        /// Asserts that both Identification objects are equal.
+        /// </summary>
+        /// <param name="identification1">The first Identification to compare.</param>
+        /// <param name="identification2">The second Identification to compare.</param>
+        public static void AssertEquals(Identification identification1, Identification identification2)
+        {
+            if ((identification1 == null) || (identification2 == null))
+            {
+                Assert.AreEqual(identification1, identification2, "One Identification is null but the other isn't!");
+            }
+            else
+            {
+                Assert.AreEqual(identification1.Id, identification2.Id, "The Id properties don't match!");
+                Assert.AreEqual(identification1.DisplayName, identification2.DisplayName, "The DisplayName don't match!");
+
+                Assert.AreEqual(identification1.IsGroup.HasValue, identification2.IsGroup.HasValue,
+                    "One of the IsGroup properties is null but the other isn't!");
+
+                if ((identification1.IsGroup != null) && (identification2.IsGroup != null))
+                {
+                    Assert.AreEqual(identification1.IsGroup.Value, identification2.IsGroup.Value,
+                        "The IsGroup properties don't match!");
+                }
+            }
+        }
     }
 }

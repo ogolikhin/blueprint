@@ -4,7 +4,12 @@ import {Models} from "../../models";
 import {IProjectManager} from "../../../managers/";
 import {IProjectService} from "../../../managers/project-manager/";
 import {IArtifactPickerOptions} from "./bp-artifact-picker";
-import {InstanceItemNodeVM, ArtifactNodeVM, SubArtifactContainerNodeVM, SubArtifactNodeVM} from "./bp-artifact-picker-node-vm";
+import {
+    InstanceItemNodeVM,
+    ArtifactNodeVM,
+    SubArtifactContainerNodeVM,
+    SubArtifactNodeVM
+} from "./bp-artifact-picker-node-vm";
 
 describe("ArtifactPickerNodeVM", () => {
     let projectManager: IProjectManager;
@@ -110,49 +115,52 @@ describe("ArtifactPickerNodeVM", () => {
 
         it("loadChildrenAsync, when a folder, loads children", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
-                // Arrange
-                const children = [{id: 1234}, {id: 5678}] as Models.IProjectNode[];
-                (projectService.getFolders as jasmine.Spy).and.returnValue($q.resolve(children));
-                const model = {
-                    type: Models.ProjectNodeType.Folder
-                } as Models.IProjectNode;
-                const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
+                    // Arrange
+                    const children = [{id: 1234}, {id: 5678}] as Models.IProjectNode[];
+                    (projectService.getFolders as jasmine.Spy).and.returnValue($q.resolve(children));
+                    const model = {
+                        type: Models.ProjectNodeType.Folder
+                    } as Models.IProjectNode;
+                    const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 
-                // Act
-                vm.loadChildrenAsync().then(() => {
+                    // Act
+                    vm.loadChildrenAsync().then(() => {
 
-                    // Assert
-                    expect(vm.loadChildrenAsync).toBeUndefined();
-                    expect(vm.children).toEqual(children.map(child => new InstanceItemNodeVM(projectManager, projectService, options, child)));
-                    done();
-                }).catch(done.fail);
-                $rootScope.$digest(); // Resolves promises
-            }
-        ));
+                        // Assert
+                        expect(vm.loadChildrenAsync).toBeUndefined();
+                        expect(vm.children).toEqual(children.map(child => new InstanceItemNodeVM(projectManager, projectService, options, child)));
+                        done();
+                    }).catch(done.fail);
+                    $rootScope.$digest(); // Resolves promises
+                }
+            ));
 
         it("loadChildrenAsync, when a project, loads artifacts except collection folder", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
-                // Arrange
-                const children = [{id: 1234}, {id: 5678, predefinedType: Models.ItemTypePredefined.CollectionFolder}] as Models.IArtifact[];
-                (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
-                const model = {
-                    type: Models.ProjectNodeType.Project
-                } as Models.IProjectNode;
-                const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
+                    // Arrange
+                    const children = [{id: 1234}, {
+                        id: 5678,
+                        predefinedType: Models.ItemTypePredefined.CollectionFolder
+                    }] as Models.IArtifact[];
+                    (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
+                    const model = {
+                        type: Models.ProjectNodeType.Project
+                    } as Models.IProjectNode;
+                    const vm = new InstanceItemNodeVM(projectManager, projectService, options, model);
 
-                // Act
-                vm.loadChildrenAsync().then(() => {
+                    // Act
+                    vm.loadChildrenAsync().then(() => {
 
-                    // Assert
-                    expect(vm.loadChildrenAsync).toBeUndefined();
-                    expect(vm.children).toEqual(children.filter(child => child.predefinedType !== Models.ItemTypePredefined.CollectionFolder)
-                                                        .map(child => new ArtifactNodeVM(projectManager, projectService, options, child)));
-                    expect(vm.children.reduce((result, child) => result && child.model.parent === model, true)).toEqual(true);
-                    done();
-                }).catch(done.fail);
-                $rootScope.$digest(); // Resolves promises
-            }
-        ));
+                        // Assert
+                        expect(vm.loadChildrenAsync).toBeUndefined();
+                        expect(vm.children).toEqual(children.filter(child => child.predefinedType !== Models.ItemTypePredefined.CollectionFolder)
+                            .map(child => new ArtifactNodeVM(projectManager, projectService, options, child)));
+                        expect(vm.children.reduce((result, child) => result && child.model.parent === model, true)).toEqual(true);
+                        done();
+                    }).catch(done.fail);
+                    $rootScope.$digest(); // Resolves promises
+                }
+            ));
     });
 
     describe("ArtifactNodeVM", () => {
@@ -214,7 +222,7 @@ describe("ArtifactPickerNodeVM", () => {
             const result = vm.getCellClass();
 
             // Assert
-            expect(result).toEqual(["has-children", "is-folder"]);
+            expect(result).toEqual(["has-children", "is-primitive-folder"]);
         });
 
         it("getCellClass, when a project, returns correct result", () => {
@@ -283,7 +291,13 @@ describe("ArtifactPickerNodeVM", () => {
         it("getIcon, when custom icon, returns correct result", () => {
             // Arrange
             const itemType = {id: 123, iconImageId: 456};
-            (projectManager.getArtifact as jasmine.Spy).and.returnValue({metadata: {getItemType() { return itemType; }}});
+            (projectManager.getArtifact as jasmine.Spy).and.returnValue({
+                metadata: {
+                    getItemTypeTemp() {
+                        return itemType;
+                    }
+                }
+            });
             const model = {} as Models.IArtifact;
             const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
 
@@ -353,52 +367,52 @@ describe("ArtifactPickerNodeVM", () => {
 
         it("loadChildrenAsync, when not showing sub-artifacts, loads children", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
-                // Arrange
-                const children = [{id: 1234}, {id: 5678}] as Models.IArtifact[];
-                (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
-                const model = {
-                    id: 123,
-                    predefinedType: Models.ItemTypePredefined.GenericDiagram,
-                } as Models.IArtifact;
-                const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
+                    // Arrange
+                    const children = [{id: 1234}, {id: 5678}] as Models.IArtifact[];
+                    (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
+                    const model = {
+                        id: 123,
+                        predefinedType: Models.ItemTypePredefined.GenericDiagram,
+                    } as Models.IArtifact;
+                    const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
 
-                // Act
-                vm.loadChildrenAsync().then(() => {
+                    // Act
+                    vm.loadChildrenAsync().then(() => {
 
-                    // Assert
-                    expect(vm.loadChildrenAsync).toBeUndefined();
-                    expect(vm.children).toEqual(children.map(child => new ArtifactNodeVM(projectManager, projectService, options, child)));
-                    expect(vm.children.reduce((result, child) => result && child.model.parent === model, true)).toEqual(true);
-                    done();
-                }).catch(done.fail);
-                $rootScope.$digest(); // Resolves promises
-            }
-        ));
+                        // Assert
+                        expect(vm.loadChildrenAsync).toBeUndefined();
+                        expect(vm.children).toEqual(children.map(child => new ArtifactNodeVM(projectManager, projectService, options, child)));
+                        expect(vm.children.reduce((result, child) => result && child.model.parent === model, true)).toEqual(true);
+                        done();
+                    }).catch(done.fail);
+                    $rootScope.$digest(); // Resolves promises
+                }
+            ));
 
         it("loadChildrenAsync, when showing sub-artifacts, loads children", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
-                // Arrange
-                const children = [{id: 1234}, {id: 5678}] as Models.IArtifact[];
-                (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
-                options.showSubArtifacts = true;
-                const model = {
-                    id: 123,
-                    predefinedType: Models.ItemTypePredefined.BusinessProcess,
-                } as Models.IArtifact;
-                const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
+                    // Arrange
+                    const children = [{id: 1234}, {id: 5678}] as Models.IArtifact[];
+                    (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
+                    options.showSubArtifacts = true;
+                    const model = {
+                        id: 123,
+                        predefinedType: Models.ItemTypePredefined.BusinessProcess,
+                    } as Models.IArtifact;
+                    const vm = new ArtifactNodeVM(projectManager, projectService, options, model);
 
-                // Act
-                vm.loadChildrenAsync().then(() => {
+                    // Act
+                    vm.loadChildrenAsync().then(() => {
 
-                    // Assert
-                    expect(vm.loadChildrenAsync).toBeUndefined();
-                    expect(vm.children[0]).toEqual(new SubArtifactContainerNodeVM(projectService, options, model, "Shapes"));
-                    expect(vm.children.slice(1)).toEqual(children.map(child => new ArtifactNodeVM(projectManager, projectService, options, child)));
-                    done();
-                }).catch(done.fail);
-                $rootScope.$digest(); // Resolves promises
-            }
-        ));
+                        // Assert
+                        expect(vm.loadChildrenAsync).toBeUndefined();
+                        expect(vm.children[0]).toEqual(new SubArtifactContainerNodeVM(projectService, options, model, "Shapes"));
+                        expect(vm.children.slice(1)).toEqual(children.map(child => new ArtifactNodeVM(projectManager, projectService, options, child)));
+                        done();
+                    }).catch(done.fail);
+                    $rootScope.$digest(); // Resolves promises
+                }
+            ));
     });
 
     describe("SubArtifactContainerNodeVM", () => {
@@ -459,23 +473,23 @@ describe("ArtifactPickerNodeVM", () => {
 
         it("loadChildrenAsync", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
-                // Arrange
-                const children = [{id: 1111}, {id: 2222}] as Models.ISubArtifactNode[];
-                (projectService.getSubArtifactTree as jasmine.Spy).and.returnValue($q.resolve(children));
-                const model = {} as Models.IArtifact;
-                const vm = new SubArtifactContainerNodeVM(projectService, options, model, "");
+                    // Arrange
+                    const children = [{id: 1111}, {id: 2222}] as Models.ISubArtifactNode[];
+                    (projectService.getSubArtifactTree as jasmine.Spy).and.returnValue($q.resolve(children));
+                    const model = {} as Models.IArtifact;
+                    const vm = new SubArtifactContainerNodeVM(projectService, options, model, "");
 
-                // Act
-                vm.loadChildrenAsync().then(() => {
+                    // Act
+                    vm.loadChildrenAsync().then(() => {
 
-                    // Assert
-                    expect(vm.loadChildrenAsync).toBeUndefined();
-                    expect(vm.children).toEqual(children.map(child => new SubArtifactNodeVM(options, child)));
-                    done();
-                }).catch(done.fail);
-                $rootScope.$digest(); // Resolves promises
-            }
-        ));
+                        // Assert
+                        expect(vm.loadChildrenAsync).toBeUndefined();
+                        expect(vm.children).toEqual(children.map(child => new SubArtifactNodeVM(options, child)));
+                        done();
+                    }).catch(done.fail);
+                    $rootScope.$digest(); // Resolves promises
+                }
+            ));
     });
 
     describe("SubArtifactNodeVM", () => {

@@ -1,23 +1,23 @@
 {
-  "compilerOptions": {
-    "target": "es5",
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": false,
-    "noImplicitReturns": false,
-    "noImplicitThis": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "removeComments": true,
-    "sourceMap": true,
-    "module": "commonjs",
-    "experimentalDecorators": true,
-    "outDir": "out"
-  },
-  "exclude": [
-    "out",
-    "node_modules",
-    "dist",
-    "dev",
-    "reports"
-  ]
+    "compilerOptions": {
+        "target": "es5",
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitAny": false,
+        "noImplicitReturns": false,
+        "noImplicitThis": false,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "removeComments": true,
+        "sourceMap": true,
+        "module": "commonjs",
+        "experimentalDecorators": true,
+        "outDir": "out"
+    },
+    "exclude": [
+        "out",
+        "node_modules",
+        "dist",
+        "dev",
+        "reports"
+    ]
 }

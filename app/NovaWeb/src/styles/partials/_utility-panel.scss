@@ -14,7 +14,7 @@ bp-utility-panel {
         pointer-events: none;
         opacity: 0.6;
     }
-    
+
     /*.btn {
         background-color: #fff;
         color: $blue-light;
@@ -31,7 +31,7 @@ bp-utility-panel {
             height: 100%;
         }
     }
-    
+
     .filter-bar {
         flex: none;
         padding: $padding-root;
@@ -48,7 +48,7 @@ bp-utility-panel {
             }
         }
     }
-    
+
     .scrollable-content {
         clear: both;
         padding: 0 10px;
@@ -83,10 +83,10 @@ bp-utility-panel {
     .tab-content {
         display: none;
     }
-    
+
     .artifact-item-wrapper {
         position: relative;
-        
+
         .separator {
             width: 2px;
             height: $item-gap;
@@ -121,7 +121,7 @@ bp-utility-panel {
         float: left;
         margin: 0 $padding-root 0 0;
     }
-    
+
     .author {
         padding-top: 2px;
         padding-bottom: 2px;
@@ -157,7 +157,7 @@ bp-utility-panel {
         padding: $padding-smaller $padding-smaller 0 $padding-smaller;
 
         .icon {
-            padding: 0 5px;
+            margin: 0 5px;
             &:before {
                 font-size: $font-size-normal;
             }
@@ -168,7 +168,7 @@ bp-utility-panel {
         overflow: hidden;
         height: 100%;
     }
-    
+
     .utility-panel-artifact-item {
         line-height: 100%;
         margin: 0 0 $item-gap 0;

@@ -2,13 +2,13 @@ import "./";
 import * as angular from "angular";
 import "angular-mocks";
 import "rx/dist/rx.lite";
-import { ComponentTest } from "../../util/component.test";
-import { LocalizationServiceMock } from "../../core/localization/localization.mock";
-import { BpGlossaryController } from "./bp-glossary";
-import { GlossaryServiceMock } from "./glossary.svc.mock";
-import { SelectionManager } from "./../../managers/selection-manager/selection-manager";
-import { MessageServiceMock } from "../../core/messages/message.mock";
-import { SessionSvcMock } from "../../shell/login/mocks.spec";
+import {ComponentTest} from "../../util/component.test";
+import {LocalizationServiceMock} from "../../core/localization/localization.mock";
+import {BpGlossaryController} from "./bp-glossary";
+import {GlossaryServiceMock} from "./glossary.svc.mock";
+import {SelectionManager} from "./../../managers/selection-manager/selection-manager";
+import {MessageServiceMock} from "../../core/messages/message.mock";
+import {SessionSvcMock} from "../../shell/login/mocks.spec";
 import {
     IArtifactManager,
     ArtifactManager,
@@ -16,7 +16,8 @@ import {
     MetaDataService,
     ArtifactService,
     ArtifactAttachmentsService,
-    ArtifactRelationshipsService }
+    ArtifactRelationshipsService
+}
     from "../../managers/artifact-manager";
 
 xdescribe("Component BP Glossary", () => {
@@ -49,8 +50,8 @@ xdescribe("Component BP Glossary", () => {
         componentTest = new ComponentTest<BpGlossaryController>(template, "bp-glossary");
         vm = componentTest.createComponent(bindings);
     }));
-    
-    afterEach( () => {
+
+    afterEach(() => {
         vm = null;
     });
 
@@ -60,23 +61,23 @@ xdescribe("Component BP Glossary", () => {
     });
 
     it("should display data for a provided artifact id", inject(() => {
-       //Assert
-       expect(vm.artifact.id).toBe(263);
-       expect(vm.terms).toBeDefined();
-       expect(vm.terms.length).toBe(4);
+        //Assert
+        expect(vm.artifact.id).toBe(263);
+        expect(vm.terms).toBeDefined();
+        expect(vm.terms.length).toBe(4);
     }));
 
     it("should select a specified term", inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager) => {
-       // pre-req
-       expect(componentTest.element.find(".selected-term").length).toBe(0);
-       
+        // pre-req
+        expect(componentTest.element.find(".selected-term").length).toBe(0);
 
-       // Act
-       artifactManager.selection.clearAll();
-       vm.selectTerm(vm.artifact.subArtifactCollection.get(386));
-       $rootScope.$digest();
 
-       //Assert
-       expect(componentTest.element.find(".selected-term").length).toBe(1);
+        // Act
+        artifactManager.selection.clearAll();
+        vm.selectTerm(vm.artifact.subArtifactCollection.get(386));
+        $rootScope.$digest();
+
+        //Assert
+        expect(componentTest.element.find(".selected-term").length).toBe(1);
     }));
 });

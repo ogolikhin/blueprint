@@ -20,9 +20,9 @@ namespace Model.ArtifactModel.Impl
         public bool? HasChanges { get; set; }
         public double? OrderIndex { get; set; }
         public int? Permissions { get; set; }
-        public NovaArtifactDetails.Identification LockedByUser { get; set; }
+        public Identification LockedByUser { get; set; }
         public DateTime? LockedDateTime { get; set; }
-        public NovaArtifactDetails.Identification DeletedByUser { get; set; }
+        public Identification DeletedByUser { get; set; }
         public DateTime? DeletedDateTime { get; set; }
 
         #endregion Serialized JSON Properties

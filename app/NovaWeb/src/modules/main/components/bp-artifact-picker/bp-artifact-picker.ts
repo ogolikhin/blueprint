@@ -1,12 +1,12 @@
 ﻿import * as angular from "angular";
-import { IColumn } from "../../../shared/widgets/bp-tree-view/";
-import { Helper } from "../../../shared/";
-import { ILocalizationService } from "../../../core";
-import { ArtifactPickerNodeVM, InstanceItemNodeVM } from "./bp-artifact-picker-node-vm";
-import { IDialogSettings, BaseDialogController } from "../../../shared/";
-import { Models, SearchServiceModels } from "../../models";
-import { IProjectManager } from "../../../managers";
-import { IProjectService } from "../../../managers/project-manager/project-service";
+import {IColumn} from "../../../shared/widgets/bp-tree-view/";
+import {Helper} from "../../../shared/";
+import {ILocalizationService} from "../../../core";
+import {ArtifactPickerNodeVM, InstanceItemNodeVM} from "./bp-artifact-picker-node-vm";
+import {IDialogSettings, BaseDialogController} from "../../../shared/";
+import {Models, SearchServiceModels} from "../../models";
+import {IProjectManager} from "../../../managers";
+import {IProjectService} from "../../../managers/project-manager/project-service";
 
 export class ArtifactPickerDialogController extends BaseDialogController {
     public hasCloseButton: boolean = true;
@@ -18,11 +18,9 @@ export class ArtifactPickerDialogController extends BaseDialogController {
         "dialogData"
     ];
 
-    constructor(
-        $instance: ng.ui.bootstrap.IModalServiceInstance,
-        dialogSettings: IDialogSettings,
-        public dialogData: IArtifactPickerOptions
-    ) {
+    constructor($instance: ng.ui.bootstrap.IModalServiceInstance,
+                dialogSettings: IDialogSettings,
+                public dialogData: IArtifactPickerOptions) {
         super($instance, dialogSettings);
     };
 
@@ -43,6 +41,7 @@ export class BpArtifactPicker implements ng.IComponentOptions {
         selectableItemTypes: "<",
         selectionMode: "<",
         showSubArtifacts: "<",
+        isOneProjectLevel: "<",
         onSelectionChanged: "&?"
     };
 }
@@ -51,6 +50,7 @@ export interface IArtifactPickerOptions {
     selectableItemTypes?: Models.ItemTypePredefined[];
     selectionMode?: "single" | "multiple" | "checkbox";
     showSubArtifacts?: boolean;
+    isOneProjectLevel?: boolean;
 }
 
 export interface IArtifactPickerController extends IArtifactPickerOptions {
@@ -71,6 +71,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public selectableItemTypes: Models.ItemTypePredefined[];
     public selectionMode: "single" | "multiple" | "checkbox";
     public showSubArtifacts: boolean;
+    public isOneProjectLevel: boolean;
     public onSelectionChanged: (params: {selectedVMs: ArtifactPickerNodeVM<any>[]}) => void;
     public searchText: string = "";
     public isSearching: boolean = false;
@@ -83,14 +84,13 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         "projectService"
     ];
 
-    constructor(
-        private $scope: ng.IScope,
-        private localization: ILocalizationService,
-        private projectManager: IProjectManager,
-        private projectService: IProjectService
-    ) {
+    constructor(private $scope: ng.IScope,
+                private localization: ILocalizationService,
+                private projectManager: IProjectManager,
+                private projectService: IProjectService) {
         this.selectionMode = angular.isDefined(this.selectionMode) ? this.selectionMode : "single";
         this.showSubArtifacts = angular.isDefined(this.showSubArtifacts) ? this.showSubArtifacts : false;
+        this.isOneProjectLevel = angular.isDefined(this.isOneProjectLevel) ? this.isOneProjectLevel : false;
     };
 
     public $onInit(): void {
@@ -111,7 +111,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     private setSelectedVMs(items: ArtifactPickerNodeVM<any>[]) {
         this.$scope.$applyAsync((s) => {
             if (this.onSelectionChanged) {
-                this.onSelectionChanged({ selectedVMs: items });
+                this.onSelectionChanged({selectedVMs: items});
             }
         });
     }
@@ -124,7 +124,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public search(): void {
         if (this.searchText) {
             this.isSearching = true;
-            this.projectService.searchProjects({ query: this.searchText }).then(result => {
+            this.projectService.searchProjects({query: this.searchText}).then(result => {
                 this.searchResults = result;
                 this.isSearching = false;
             });
@@ -166,7 +166,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             id: id,
             type: Models.ProjectNodeType.Project,
             name: name,
-            hasChildren: hasChildren,
+            hasChildren: hasChildren
         } as Models.IProjectNode, true);
     }
 

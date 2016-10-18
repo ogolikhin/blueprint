@@ -1,11 +1,11 @@
-﻿import { Message, MessageType, IMessage} from "./message";
-import { ISettingsService } from "../configuration";
-import { ILocalizationService } from "../../core";
+﻿import {Message, MessageType, IMessage} from "./message";
+import {ISettingsService} from "../configuration";
+import {ILocalizationService} from "../../core";
 
 export interface IMessageService {
     addMessage(msg: Message): void;
-    addError(text: string | Error | any): void;    
-    addWarning(text: string): void;    
+    addError(text: string | Error | any): void;
+    addWarning(text: string): void;
     addInfo(text: string): void;
     addInfoWithPar(text: string, par: any[]): void;    
     deleteMessageById(id: number): void;
@@ -18,12 +18,13 @@ export class MessageService implements IMessageService {
     private id: number = 0;
 
     public static $inject = ["$timeout", "settings", "localization"];
+
     constructor(private $timeout: ng.ITimeoutService, private settings: ISettingsService, private localization: ILocalizationService) {
         this.initialize();
     }
 
-    public initialize = () => {      
-        this._messages = new Array<IMessage>();              
+    public initialize = () => {
+        this._messages = new Array<IMessage>();
     }
 
     public dispose(): void {
@@ -55,7 +56,7 @@ export class MessageService implements IMessageService {
          * {"Warning": 0,"Info": 3000,"Error": 0}
          */
         let result = 0;
-        let timeout = this.settings.getObject("StorytellerMessageTimeout", { "Warning": 0, "Info": 3000, "Error": 0 });  //TODO to change name?
+        let timeout = this.settings.getObject("StorytellerMessageTimeout", {"Warning": 0, "Info": 3000, "Error": 0});  //TODO to change name?
 
         switch (messageType) {
             case MessageType.Error:
@@ -77,7 +78,7 @@ export class MessageService implements IMessageService {
 
     private clearMessages(): void {
         if (this._messages) {
-            for (var msg in this._messages) {
+            for (let msg in this._messages) {
                 this.cancelTimer(msg["id"]);
             }
             this._messages.length = 0;
@@ -85,7 +86,7 @@ export class MessageService implements IMessageService {
     }
 
     private findDuplicateMessages(message: IMessage): IMessage[] {
-        return this.messages.filter( (msg: IMessage) => {
+        return this.messages.filter((msg: IMessage) => {
             return message.messageType === msg.messageType && message.messageText === msg.messageText;
         });
     }
@@ -101,6 +102,7 @@ export class MessageService implements IMessageService {
             this.addMessage(new Message(MessageType.Error, String(error)));
         }
     }
+
     public addWarning(msg: string): void {
         if (!msg) {
             return;
@@ -108,6 +110,7 @@ export class MessageService implements IMessageService {
 
         this.addMessage(new Message(MessageType.Warning, msg));
     }
+
     public addInfo(msg: string): void {
         if (!msg) {
             return;
@@ -133,19 +136,19 @@ export class MessageService implements IMessageService {
         msg.id = this.id;
         this.id++;
         this._messages.push(msg);
-      
+
         let messageTimeout = this.getMessageTimeout(msg.messageType);
         if (messageTimeout > 0) {
             this.timers[msg.id] = this.$timeout(this.clearMessageAfterInterval.bind(null, msg.id), messageTimeout);
         }
     }
 
-    public deleteMessageById(id: number): void {      
+    public deleteMessageById(id: number): void {
         let i = this._messages.length;
         while (i--) {
             if (this._messages[i].id === id) {
                 this._messages.splice(i, 1);
-              
+
                 break;
             }
         }

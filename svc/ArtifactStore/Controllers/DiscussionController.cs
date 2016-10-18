@@ -69,10 +69,10 @@ namespace ArtifactStore.Controllers
                 throw new HttpResponseException(HttpStatusCode.NotFound);
             }
 
-            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { itemId }, session.UserId, false, revisionId);
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { artifactId }, session.UserId, false, revisionId);
 
             RolePermissions permission = RolePermissions.None;
-            if (!permissions.TryGetValue(itemId, out permission) || !permission.HasFlag(RolePermissions.Read))
+            if (!permissions.TryGetValue(artifactId, out permission) || !permission.HasFlag(RolePermissions.Read))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
@@ -81,9 +81,9 @@ namespace ArtifactStore.Controllers
 
             foreach (var discussion in discussions)
             {
-                discussion.CanDelete = permissions.TryGetValue(discussion.ItemId, out permission) &&
+                discussion.CanDelete = permissions.TryGetValue(artifactId, out permission) &&
                     (permission.HasFlag(RolePermissions.DeleteAnyComment) || (permission.HasFlag(RolePermissions.Comment) && discussion.UserId == session.UserId));
-                discussion.CanEdit = permissions.TryGetValue(discussion.ItemId, out permission) && (permission.HasFlag(RolePermissions.Comment) && discussion.UserId == session.UserId);
+                discussion.CanEdit = permissions.TryGetValue(artifactId, out permission) && (permission.HasFlag(RolePermissions.Comment) && discussion.UserId == session.UserId);
             }
             
             var result = new DiscussionResultSet
@@ -131,19 +131,19 @@ namespace ArtifactStore.Controllers
                 throw new HttpResponseException(HttpStatusCode.NotFound);
             }
 
-            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { itemId }, session.UserId, false, revisionId);
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { artifactId }, session.UserId, false, revisionId);
 
             RolePermissions permission = RolePermissions.None;
-            if (!permissions.TryGetValue(itemId, out permission) || !permission.HasFlag(RolePermissions.Read))
+            if (!permissions.TryGetValue(artifactId, out permission) || !permission.HasFlag(RolePermissions.Read))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
             var result = await _discussionsRepository.GetReplies(discussionId, itemInfo.ProjectId);
             foreach (var reply in result)
             {
-                reply.CanDelete = permissions.TryGetValue(reply.ItemId, out permission) &&
+                reply.CanDelete = permissions.TryGetValue(artifactId, out permission) &&
                     (permission.HasFlag(RolePermissions.DeleteAnyComment) || (permission.HasFlag(RolePermissions.Comment) && reply.UserId == session.UserId));
-                reply.CanEdit = permissions.TryGetValue(reply.ItemId, out permission) && (permission.HasFlag(RolePermissions.Comment) && reply.UserId == session.UserId);
+                reply.CanEdit = permissions.TryGetValue(artifactId, out permission) && (permission.HasFlag(RolePermissions.Comment) && reply.UserId == session.UserId);
             }
 
             return result;

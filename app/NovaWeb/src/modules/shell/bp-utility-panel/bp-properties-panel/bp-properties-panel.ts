@@ -1,24 +1,29 @@
 ﻿import * as angular from "angular";
-import {ILocalizationService } from "../../../core";
-import { Models, IWindowManager } from "../../../main";
-import { ISelectionManager, IStatefulArtifact, IStatefulSubArtifact, IStatefulItem } from "../../../managers/artifact-manager";
-import {IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
-import {BPBaseUtilityPanelController } from "../bp-base-utility-panel";
+import {ILocalizationService} from "../../../core";
+import {Models, IWindowManager} from "../../../main";
+import {
+    ISelectionManager,
+    IStatefulArtifact,
+    IStatefulSubArtifact,
+    IStatefulItem
+} from "../../../managers/artifact-manager";
+import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
+import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
 import {IMessageService} from "../../../core";
 import {PropertyEditor} from "../../../editors/bp-artifact/bp-property-editor";
 import {PropertyContext} from "../../../editors/bp-artifact/bp-property-context";
 import {PropertyLookupEnum, LockedByEnum} from "../../../main/models/enums";
-import { Helper } from "../../../shared/utils/helper";
+import {Helper} from "../../../shared/utils/helper";
 import {PropertyEditorFilters} from "./bp-properties-panel-filters";
 
 export class BPPropertiesPanel implements ng.IComponentOptions {
     public template: string = require("./bp-properties-panel.html");
-    public controller: ng.Injectable<ng.IControllerConstructor> = BPPropertiesController;   
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPPropertiesController;
     public controllerAs = "$ctrl";
     public require: any = {
         bpAccordionPanel: "^bpAccordionPanel"
     };
-} 
+}
 
 export class BPPropertiesController extends BPBaseUtilityPanelController {
 
@@ -26,14 +31,14 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         "$q",
         "selectionManager",
         "messageService",
-        "localization",
+        "localization"
     ];
 
     public form: angular.IFormController;
     public model = {};
     public fields: AngularFormly.IFieldConfigurationObject[];
 
-    public editor: PropertyEditor;   
+    public editor: PropertyEditor;
 
     public isLoading: boolean = false;
 
@@ -46,25 +51,24 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     private selectedSubArtifact: IStatefulSubArtifact;
     protected artifactSubscriber: Rx.IDisposable;
     protected subArtifactSubscriber: Rx.IDisposable;
-    
-    constructor(
-        $q: ng.IQService,
-        protected selectionManager: ISelectionManager,        
-        public messageService: IMessageService,
-        public localization: ILocalizationService,
-        public bpAccordionPanel: IBpAccordionPanelController) {
+
+    constructor($q: ng.IQService,
+                protected selectionManager: ISelectionManager,
+                public messageService: IMessageService,
+                public localization: ILocalizationService,
+                public bpAccordionPanel: IBpAccordionPanelController) {
 
 
         super($q, selectionManager, bpAccordionPanel);
         this.editor = new PropertyEditor(this.localization);
-    }    
+    }
 
     public $onDestroy() {
         delete this.systemFields;
         delete this.specificFields;
         delete this.customFields;
         delete this.richTextFields;
-        super.$onDestroy();        
+        super.$onDestroy();
     }
 
     public destroySubscribers() {
@@ -74,7 +78,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         if (this.subArtifactSubscriber) {
             this.subArtifactSubscriber.dispose();
         }
-               
+
     }
 
     public get isSystemPropertyAvailable(): boolean {
@@ -93,31 +97,23 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         return this.richTextFields && this.richTextFields.length > 0;
     }
 
-
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
-        try {
-            if (subArtifact) {
-                this.selectedArtifact = artifact;
-                this.selectedSubArtifact = subArtifact;
-                if (Helper.hasArtifactEverBeenSavedOrPublished(subArtifact)) {
-                    //TODO: implement .getObservable
-                    this.onUpdate();
-                    this.subArtifactSubscriber = this.selectedSubArtifact.getObservable().subscribe(this.onSubArtifactChanged);
-                } else {
-                    this.reset(); 
-                }
-                
-                // for new selection
-
-            } else if (artifact) {
-                this.selectedSubArtifact = null;
-                this.selectedArtifact = artifact;
-                this.artifactSubscriber = this.selectedArtifact.getObservable().subscribe(this.onArtifactChanged);
-                
+        if (subArtifact) {
+            this.selectedArtifact = artifact;
+            this.selectedSubArtifact = subArtifact;
+            if (Helper.hasArtifactEverBeenSavedOrPublished(subArtifact)) {
+                //TODO: implement .getObservable
+                this.onUpdate();
+                this.subArtifactSubscriber = this.selectedSubArtifact.getObservable().subscribe(this.onSubArtifactChanged);
+            } else {
+                this.reset();
             }
-        } catch (ex) {
-            this.messageService.addError(ex);
-            throw ex;
+            // for new selection
+        } else if (artifact) {
+            this.selectedSubArtifact = null;
+            this.selectedArtifact = artifact;
+            this.artifactSubscriber = this.selectedArtifact.getObservable().subscribe(this.onArtifactChanged);
+
         }
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
@@ -127,7 +123,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         if (this.artifactSubscriber) {
             this.artifactSubscriber.dispose();
         }
-            
+
     };
 
     protected onSubArtifactChanged = (it) => {
@@ -135,53 +131,32 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         if (this.subArtifactSubscriber) {
             this.subArtifactSubscriber.dispose();
         }
-            
+
     };
 
-    // private onLoad(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<void> {
-    //     let deferred = this.$q.defer<any>();
-    //     this.isLoading = true;
-    //     if (subArtifact) {
-    //         subArtifact.load(true, timeout).then(() => {
-    //             this.onUpdate(artifact, subArtifact);
-    //         })
-    //         .finally(() => {
-    //             deferred.resolve();
-    //             this.isLoading = false;
-    //         });
-                    
-    //     } else {
-    //         artifact.load(false).then(() => {
-    //             this.onUpdate(artifact, subArtifact);
-    //         })
-    //         .finally(() => {
-    //             deferred.resolve();
-    //             this.isLoading = false;
-    //         });
-    //     }
-    //     return deferred.promise;
-    // }
-   
     public onUpdate() {
-        try {
-            this.reset();       
+        this.reset();
+
+        if (!this.editor || !this.selectedArtifact) {
+            return;
+        }
+        
+        let propertyTypesPromise: ng.IPromise<Models.IPropertyType[]>;
+        let selectedItem: IStatefulItem;
+
+        if (this.selectedSubArtifact) {
+            propertyTypesPromise = this.selectedSubArtifact.metadata.getSubArtifactPropertyTypes();
+            selectedItem = this.selectedSubArtifact;
             
-            if (!this.editor || !this.selectedArtifact) {
-                return; 
-            }
+        } else {
+            propertyTypesPromise = this.selectedArtifact.metadata.getArtifactPropertyTypes();
+            selectedItem = this.selectedArtifact;
+        }
 
-            let propertyEditorFilter = new PropertyEditorFilters(this.localization);
-            let propertyFilters: {[id: string]: boolean};
-
-            if (this.selectedSubArtifact) {
-                this.editor.load(this.selectedSubArtifact, this.selectedSubArtifact.metadata.getSubArtifactPropertyTypes());
-                propertyFilters = propertyEditorFilter.getPropertyEditorFilters(this.selectedSubArtifact.predefinedType);
-            } else {
-                this.editor.load(this.selectedArtifact, this.selectedArtifact.metadata.getArtifactPropertyTypes());
-                propertyFilters = propertyEditorFilter.getPropertyEditorFilters(this.selectedArtifact.predefinedType);
-            }
-
-            
+        propertyTypesPromise.then((propertyTypes) => {
+            const propertyEditorFilter = new PropertyEditorFilters(this.localization);
+            const propertyFilters = propertyEditorFilter.getPropertyEditorFilters(selectedItem.predefinedType);
+            this.editor.load(selectedItem, propertyTypes);
             this.model = this.editor.getModel();
             this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
                 let propertyContext = field.data as PropertyContext;
@@ -197,24 +172,20 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                 let isReadOnly = this.selectedArtifact.artifactState.readonly || this.selectedArtifact.artifactState.lockedBy === LockedByEnum.OtherUser;
                 if (isReadOnly) {
                     field.templateOptions.disabled = true;
-                }                
+                }
                 //if (isReadOnly) {
-                    if (field.key !== "documentFile" &&
-                        field.type !== "bpFieldImage" &&
-                        field.type !== "bpFieldInheritFrom") {
-                        field.type = "bpFieldReadOnly";
-                    }
-                //}                   
+                if (field.key !== "documentFile" &&
+                    field.type !== "bpFieldImage" &&
+                    field.type !== "bpFieldInheritFrom") {
+                    field.type = "bpFieldReadOnly";
+                }
+                //}
 
-                this.onFieldUpdate(field);                                
+                this.onFieldUpdate(field);
 
             });
-        } catch (ex) {
-            this.messageService.addError(ex);
-            throw ex;
-        } finally {
             this.isLoading = false;
-        }       
+        });
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
@@ -252,7 +223,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         //     id: context.modelPropertyName,
         //     value: value
         // };
-        
+
         // if (this.selectedSubArtifact) {
         //     this.addSubArtifactChangeset(this.selectedArtifact, this.selectedSubArtifact, changeSet);
         // } else {
@@ -272,13 +243,13 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         }
     }
 
-    private reset() {        
+    private reset() {
         this.fields = [];
         this.model = {};
         this.systemFields = [];
         this.customFields = [];
         this.specificFields = [];
-        this.richTextFields = [];      
+        this.richTextFields = [];
     }
 }
 

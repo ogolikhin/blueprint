@@ -1,4 +1,4 @@
-﻿import {AbstractShapeFactory, IShapeTemplates } from "./abstract-diagram-factory";
+﻿import {AbstractShapeFactory, IShapeTemplates} from "./abstract-diagram-factory";
 import {IShape, IConnection} from "./models";
 import {Shapes, ShapeProps} from "./utils/constants";
 import {Style, Styles} from "./utils/style-builder";
@@ -14,12 +14,12 @@ export class UseCaseDiagramShapeFactory extends AbstractShapeFactory {
     }
 
     private actor = (shape: IShape): MxCell => {
-        var style = new Style();
+        const style = new Style();
 
         style[mxConstants.STYLE_VERTICAL_LABEL_POSITION] = mxConstants.ALIGN_BOTTOM;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
 
-        var imageUrl = ShapeExtensions.getPropertyByName(shape, ShapeProps.IMAGE);
+        const imageUrl = ShapeExtensions.getPropertyByName(shape, ShapeProps.IMAGE);
         if (imageUrl != null) {
             style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
             style[mxConstants.STYLE_IMAGE] = imageUrl;
@@ -30,13 +30,13 @@ export class UseCaseDiagramShapeFactory extends AbstractShapeFactory {
     };
 
     private usecase = (shape: IShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_ELLIPSE);
+        const style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_ELLIPSE);
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         return this.createDefaultVertex(shape, style);
     };
 
     private boundary = (shape: IShape): MxCell => {
-        var style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
+        const style = this.styleBuilder.createDefaultShapeStyle(shape, mxConstants.SHAPE_RECTANGLE);
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
 
         return this.createDefaultVertex(shape, style);
@@ -44,9 +44,9 @@ export class UseCaseDiagramShapeFactory extends AbstractShapeFactory {
 
     //Overrides createConnector of AbstractShapeFactory
     protected createConnector = (connection: IConnection): MxCell => {
-        var style = this.styleBuilder.createDefaultConnectionStyle(connection);
-        var edge = MxFactory.edge(connection, MxFactory.geometry());
-        var linkType = ShapeExtensions.getPropertyByName(connection, ShapeProps.LINK_TYPE);
+        const style = this.styleBuilder.createDefaultConnectionStyle(connection);
+        const edge = MxFactory.edge(connection, MxFactory.geometry());
+        const linkType = ShapeExtensions.getPropertyByName(connection, ShapeProps.LINK_TYPE);
         if (linkType != null) {
             style[Styles.STYLE_SELECTABLE] = 0;
             if (linkType === UCDLinkType.Include) {
@@ -73,14 +73,14 @@ export class UseCaseDiagramShapeFactory extends AbstractShapeFactory {
     };
 
     private includeMarker = (): MxCell => {
-        var style = new Style();
+        const style = new Style();
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_ELLIPSE;
         style[mxConstants.STYLE_STROKEWIDTH] = 2;
         return this.marker(14, 14, style);
     };
 
     private extendMarker = (): MxCell => {
-        var style = new Style();
+        const style = new Style();
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RHOMBUS;
         style[mxConstants.STYLE_FILLCOLOR] = "black";
         return this.marker(18, 18, style);
@@ -88,11 +88,11 @@ export class UseCaseDiagramShapeFactory extends AbstractShapeFactory {
 
     private marker = (width: number, height: number, style: Style): MxCell => {
         style[Styles.STYLE_SELECTABLE] = 0;
-        var markerGeometry = MxFactory.geometry(0, 0, width, height);
+        const markerGeometry = MxFactory.geometry(0, 0, width, height);
         markerGeometry.offset = MxFactory.point(-width / 2, -height / 2);
         markerGeometry.relative = true;
-        var marker = MxFactory.vertex(null, markerGeometry, style.convertToString());
+        const marker = MxFactory.vertex(null, markerGeometry, style.convertToString());
         marker.connectable = false;
         return marker;
     };
-    }
+}

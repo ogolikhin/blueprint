@@ -2,20 +2,20 @@ import "../../"; // app.core
 import * as angular from "angular";
 import "angular-mocks";
 // import "angular-sanitize";
-import { ComponentTest } from "../../../util/component.test";
-import { BPSelectController } from "./bp-select";
+import {ComponentTest} from "../../../util/component.test";
+import {BPSelectController} from "./bp-select";
 
 describe("Component BPSelect", () => {
     beforeEach(angular.mock.module("app.shared"));
 
     let directiveTest: ComponentTest<BPSelectController>;
     let bindings = {
-            sortAscending: false,
-            sortOptions: [
-                { value: false, label: "sort by latest" },
-                { value: true, label: "sort by earliest" }
-            ]
-        };
+        sortAscending: false,
+        sortOptions: [
+            {value: false, label: "sort by latest"},
+            {value: true, label: "sort by earliest"}
+        ]
+    };
     let template = `
         <bp-select
             ng-model="sortAscending"
@@ -40,7 +40,7 @@ describe("Component BPSelect", () => {
 
     it("should update model when option is selected", () => {
         // Arrange
-        let selectedOption = { value: true, label: "sort by earliest" };
+        let selectedOption = {value: true, label: "sort by earliest"};
         let ctrl: BPSelectController = directiveTest.createComponent(bindings);
 
         // Act

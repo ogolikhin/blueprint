@@ -16,13 +16,13 @@ export class ClearTextDirective implements ng.IDirective {
             $element[toggleClass(newValue)]("btnX");
         });
 
-        $element.on("mousemove",  (e) => {
+        $element.on("mousemove", (e) => {
             if ($element.hasClass("btnX")) {
                 $element[toggleClass($element[0].offsetWidth - 18 < e.clientX - $element[0].getBoundingClientRect().left)]("clickX");
             }
         });
-                    
-        $element.on("input blur",  () => {
+
+        $element.on("input blur", () => {
             $element[toggleClass($element[0]["value"])]("btnX");
         });
 
@@ -31,7 +31,7 @@ export class ClearTextDirective implements ng.IDirective {
                 e.preventDefault();
                 $element.removeClass("btnX clickX").val("");
                 ngModelCtrl.$setViewValue("");
-                $scope.$digest();                   
+                $scope.$digest();
             }
         });
 

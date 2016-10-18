@@ -1,5 +1,6 @@
 <div class="artifact-heading" ng-style="$ctrl.artifactHeadingMinWidth">
-    <div class="icon" ng-class="!$ctrl.artifactTypeIcon ? $ctrl.artifactClass : ''" bp-tooltip="{{ $ctrl.artifactTypeDescription }}">
+    <div class="icon" ng-class="!$ctrl.artifactTypeIcon ? $ctrl.artifactClass : ''"
+         bp-tooltip="{{ $ctrl.artifactTypeDescription }}">
         <bp-item-type-icon ng-if="!!$ctrl.artifactTypeIcon"
                            item-type-id="{{$ctrl.artifactTypeId}}"
                            item-type-icon="{{$ctrl.artifactTypeIcon}}"></bp-item-type-icon>
@@ -21,6 +22,5 @@
     </div>
 </div>
 <div class="page-top-toolbar">
-    <button class="btn btn-bluelight" bp-tooltip="Shift+click for multi-select, Ctrl+click or Command+click for checkboxes, Alt+click for Documents only" ng-click="$ctrl.openPicker($event)">Picker</button>
 </div>
 <bp-toolbar-2 actions="$ctrl.toolbarActions"></bp-toolbar-2>

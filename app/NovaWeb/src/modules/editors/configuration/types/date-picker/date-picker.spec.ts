@@ -6,7 +6,7 @@ import "angular-ui-bootstrap";
 import "ui-select";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
-import { createFormlyModule } from "../../formly-config.mock";
+import {createFormlyModule} from "../../formly-config.mock";
 
 describe("Formly Date Picker", () => {
     let fieldsDefinition = [

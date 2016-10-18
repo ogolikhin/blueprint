@@ -7,9 +7,9 @@ import "angular-ui-tinymce";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "tinymce";
-import { Helper } from "../../../../shared";
-import { BpFieldTextRTFInlineController } from "./text-rtf-inline";
-import { createFormlyModule } from "../../formly-config.mock";
+import {Helper} from "../../../../shared";
+import {BpFieldTextRTFInlineController} from "./text-rtf-inline";
+import {createFormlyModule} from "../../formly-config.mock";
 
 describe("Formly Text RTF Inline", () => {
     let fieldsDefinition = [
@@ -65,11 +65,17 @@ describe("Formly Text RTF Inline", () => {
     let menuItems: IMenuItem[];
     let editor = {
         editorCommands: {
-            execCommand: (command: string) => { }
+            execCommand: (command: string) => {
+                return;
+            }
         },
         formatter: {
-            apply: () => { },
-            register: (a, b) => { }
+            apply: () => {
+                return;
+            },
+            register: (a, b) => {
+                return;
+            }
         },
         addButton: (a: string, menuToolbar: IMenuToolbar) => {
             if (!menuItems) {
@@ -96,7 +102,7 @@ describe("Formly Text RTF Inline", () => {
                 scope.options = {};
                 scope.to = {};
                 scope.tinymceBody = tinymceBody;
-                controller = $controller(BpFieldTextRTFInlineController, { $scope: scope });
+                controller = $controller(BpFieldTextRTFInlineController, {$scope: scope});
             }
         )
     );

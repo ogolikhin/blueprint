@@ -1,13 +1,16 @@
-import { IWindowManager } from "../../services";
-import { IArtifactManager } from "../../../managers";
-import { IMessageService, INavigationService } from "../../../core";
-import { IDiagramService } from "../../../editors/bp-diagram/diagram.svc";
+import {IWindowManager} from "../../services";
+import {IArtifactManager} from "../../../managers";
+import {IMessageService, INavigationService, ILocalizationService} from "../../../core";
+import {IDiagramService} from "../../../editors/bp-diagram/diagram.svc";
+import {IDialogSettings, IDialogService} from "../../../shared";
+import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
+import {Models} from "../../../main/models";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./bp-page-content.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = PageContentCtrl;
     public controllerAs = "$content";
-} 
+}
 
 class PageContentCtrl {
     private subscribers: Rx.IDisposable[];
@@ -17,16 +20,16 @@ class PageContentCtrl {
         "artifactManager",
         "diagramService",
         "windowManager",
-        "navigationService"
+        "navigationService",
+        "dialogService"
     ];
 
-    constructor(
-        private messageService: IMessageService,
-        private artifactManager: IArtifactManager,
-        private diagramService: IDiagramService,
-        private windowManager: IWindowManager,
-        private navigationService: INavigationService
-    ) {
+    constructor(private messageService: IMessageService,
+                private artifactManager: IArtifactManager,
+                private diagramService: IDiagramService,
+                private windowManager: IWindowManager,
+                private navigationService: INavigationService,
+                private dialogService: IDialogService    ) {
     }
 
     public $onInit() {
@@ -39,7 +42,10 @@ class PageContentCtrl {
 
     public $onDestroy() {
         //dispose all subscribers
-        this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+        this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => {
+            it.dispose();
+            return false;
+        });
     }
 
     public onContentSelected($event: MouseEvent) {
@@ -50,6 +56,23 @@ class PageContentCtrl {
         //         this.selectionManager.clearSelection();
         //     }
         // }
+    }
+
+    public openArtifactPicker() {
+        const dialogSettings = <IDialogSettings>{
+            okButton: "Open",
+            template: require("../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
+            controller: ArtifactPickerDialogController,
+            css: "nova-open-project",
+            header: "Single project Artifact picker"
+        };
+
+        const dialogData: IArtifactPickerOptions = {            
+            showSubArtifacts: false,
+            isOneProjectLevel: true
+        };
+
+        this.dialogService.open(dialogSettings, dialogData);
     }
 
     private onAvailableAreaResized() {

@@ -18,7 +18,7 @@ describe("PublishAction", () => {
 
     it("throws exception when localization is null", inject((statefulArtifactFactory: IStatefulArtifactFactory) => {
         // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({ id: 1 });
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
         const localization: ILocalizationService = null;
         let error: Error = null;
 
@@ -45,98 +45,93 @@ describe("PublishAction", () => {
         expect(publishAction.disabled).toBe(true);
     }));
 
-    it("is disabled when artifact is read-only", 
-        inject((
-            statefulArtifactFactory: IStatefulArtifactFactory, 
-            localization: ILocalizationService) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({ id: 1 });
-        artifact.artifactState.readonly = true;
+    it("is disabled when artifact is read-only",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
+            artifact.artifactState.readonly = true;
 
-        // act
-        const publishAction = new PublishAction(artifact, localization);
+            // act
+            const publishAction = new PublishAction(artifact, localization);
 
-        // assert
-        expect(publishAction.disabled).toBe(true);
-    }));
+            // assert
+            expect(publishAction.disabled).toBe(true);
+        }));
 
-    it("is disabled when artifact is Project", 
-        inject((
-            statefulArtifactFactory: IStatefulArtifactFactory, 
-            localization: ILocalizationService) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-            {
-                 id: 1, 
-                 predefinedType: ItemTypePredefined.Project 
-            });
+    it("is disabled when artifact is Project",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.Project
+                });
 
-        // act
-        const publishAction = new PublishAction(artifact, localization);
+            // act
+            const publishAction = new PublishAction(artifact, localization);
 
-        // assert
-        expect(publishAction.disabled).toBe(true);
-    }));
+            // assert
+            expect(publishAction.disabled).toBe(true);
+        }));
 
-    it("is disabled when artifact is Collections", 
-        inject((
-            statefulArtifactFactory: IStatefulArtifactFactory, 
-            localization: ILocalizationService) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-            { 
-                id: 1, 
-                predefinedType: ItemTypePredefined.Collections 
-            });
+    it("is disabled when artifact is Collections",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.Collections
+                });
 
-        // act
-        const publishAction = new PublishAction(artifact, localization);
+            // act
+            const publishAction = new PublishAction(artifact, localization);
 
-        // assert
-        expect(publishAction.disabled).toBe(true);
-    }));
+            // assert
+            expect(publishAction.disabled).toBe(true);
+        }));
 
-    it("is enabled when artifact is valid", 
-        inject((
-            statefulArtifactFactory: IStatefulArtifactFactory, 
-            localization: ILocalizationService) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-            { 
-                id: 1, 
-                predefinedType: ItemTypePredefined.TextualRequirement, 
-                lockedByUser: null,
-                lockedDateTime: null,
-                permissions: RolePermissions.Edit
-            });
+    it("is enabled when artifact is valid",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.TextualRequirement,
+                    lockedByUser: null,
+                    lockedDateTime: null,
+                    permissions: RolePermissions.Edit
+                });
 
-        // act
-        const publishAction = new PublishAction(artifact, localization);
+            // act
+            const publishAction = new PublishAction(artifact, localization);
 
-        // assert
-        expect(publishAction.disabled).toBe(false);
-    }));
+            // assert
+            expect(publishAction.disabled).toBe(false);
+        }));
 
-    it("calls artifact.discard when executed", 
-        inject((
-            statefulArtifactFactory: IStatefulArtifactFactory, 
-            localization: ILocalizationService) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-            { 
-                id: 1, 
-                predefinedType: ItemTypePredefined.TextualRequirement, 
-                lockedByUser: null,
-                lockedDateTime: null,
-                permissions: RolePermissions.Edit
-            });
-        const publishSpy = spyOn(artifact, "publish");
-        const publishAction = new PublishAction(artifact, localization);
+    it("calls artifact.discard when executed",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.TextualRequirement,
+                    lockedByUser: null,
+                    lockedDateTime: null,
+                    permissions: RolePermissions.Edit
+                });
+            const publishSpy = spyOn(artifact, "publish");
+            const publishAction = new PublishAction(artifact, localization);
 
-        // act
-        publishAction.execute();
+            // act
+            publishAction.execute();
 
-        // assert
-        expect(publishSpy).toHaveBeenCalled();
-    }));
+            // assert
+            expect(publishSpy).toHaveBeenCalled();
+        }));
 });

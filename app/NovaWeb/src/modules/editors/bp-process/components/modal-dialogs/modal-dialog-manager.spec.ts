@@ -6,13 +6,13 @@ class Observer1 {
     public setGraph = (graph) => {
         this.getGraph = graph;
     }
-    
+
     public openDialog = (id: number, dialogType: ModalDialogType) => {
         this.somePrivateFunc1();
     }
 
     private somePrivateFunc1() {
-
+        // do nothing
     }
 }
 
@@ -21,13 +21,13 @@ class Observer2 {
     public setGraph = (graph) => {
         this.getGraph = graph;
     }
-    
+
     public openDialog = (id: number, dialogType: ModalDialogType) => {
         this.somePrivateFunc2();
     }
 
     private somePrivateFunc2() {
-
+        // do nothing
     }
 }
 

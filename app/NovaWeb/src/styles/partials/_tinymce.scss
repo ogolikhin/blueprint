@@ -1,28 +1,88 @@
 body {
-  .mce-mention {
-    margin: 0;
-    z-index: 65536;
-  }
-
-  i.mce-ico.mce-i-font-size::before {
-    content: '\e241';
-    font-family: 'Glyphicons Halflings' !important;
-  }
-
-  i.mce-ico.mce-i-format::before {
-    content: $fonticon2-format;
-    font-family: 'bp-font2' !important;
-  }
-
-  bp-discussion-panel {
-    .mce-btn button {
-      font-size: 12px;
-      padding: 2px 3px;
+    .mce-mention {
+        margin: 0;
+        z-index: 65536;
     }
 
-    .mce-ico {
-      font-size: 13px;
-      width: 14px;
+    .mce-btn-group {
+        padding-right: 3px;
     }
-  }
+
+    .mce-floatpanel.mce-popover.mce-bottom {
+        border: 1px solid rgba(0,0,0,0.2);
+        margin-top: -1px;
+
+        &.mce-start {
+            margin-left: -20px;
+        }
+
+        > .mce-arrow {
+            display: none;
+        }
+    }
+
+    .mce-menubtn.mce-fixed-width.mce-listbox.mce-btn-has-text button span { // font-family button
+        overflow: hidden;
+        text-overflow: initial;
+        width: 40px;
+
+        &::before {
+            color: #333;
+            content: $fonticon2-font-family;
+            display: inline-block;
+            font-family: 'bp-font2';
+            font-size: 22px;
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-font-smoothing: antialiased;
+            font-style: normal;
+            font-variant: normal;
+            font-weight: normal;
+            height: 16px;
+            margin-right: 40px;
+            overflow: hidden;
+            vertical-align: top;
+            width: 25px;
+        }
+    }
+
+    i.mce-ico.mce-i-font-size::before {
+        content: '\e241';
+        font-family: 'Glyphicons Halflings' !important;
+    }
+
+    i.mce-ico.mce-i-format::before {
+        content: $fonticon2-format;
+        font-family: 'bp-font2' !important;
+    }
+
+    bp-comment-edit {
+        .mce-btn-group {
+            padding-right: 1px;
+
+            &:not(:first-child) {
+                margin-left: 0;
+                padding-left: 1px;
+            }
+        }
+
+        .mce-menubtn.mce-fixed-width.mce-listbox.mce-btn-has-text button span { // font-family button
+            width: 36px;
+
+            &::before {
+                font-size: 18px;
+                margin-top: 2px;
+                width: 20px;
+            }
+        }
+
+        .mce-btn button {
+            font-size: 12px;
+            padding: 1px;
+        }
+
+        .mce-ico {
+            font-size: 12px;
+            width: 12px;
+        }
+    }
 }

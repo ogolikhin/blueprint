@@ -1,12 +1,17 @@
-﻿import { ILocalizationService, IMessageService } from "../../../core";
+﻿import {ILocalizationService, IMessageService} from "../../../core";
 // import { IArtifactService} from "../../../main";
-import { IArtifactManager, IStatefulArtifact, IStatefulSubArtifact, IStatefulItem } from "../../../managers/artifact-manager";
-import { IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply } from "./artifact-discussions.svc";
-import { IDialogService } from "../../../shared";
-import { IBpAccordionPanelController } from "../../../main/components/bp-accordion/bp-accordion";
-import { BPBaseUtilityPanelController } from "../bp-base-utility-panel";
-import { Message, MessageType} from "../../../core/messages/message";
-import { Helper } from "../../../shared/utils/helper";
+import {
+    IArtifactManager,
+    IStatefulArtifact,
+    IStatefulSubArtifact,
+    IStatefulItem
+} from "../../../managers/artifact-manager";
+import {IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply} from "./artifact-discussions.svc";
+import {IDialogService} from "../../../shared";
+import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
+import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
+import {Message, MessageType} from "../../../core/messages/message";
+import {Helper} from "../../../shared/utils/helper";
 
 export class BPDiscussionPanel implements ng.IComponentOptions {
     public template: string = require("./bp-discussions-panel.html");
@@ -39,16 +44,16 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     public artifactEverPublished: boolean = false;
     public showAddComment: boolean = false;
     public emailDiscussionsEnabled: boolean = false;
+    private isVisible: boolean;
     private subscribers: Rx.IDisposable[];
 
-    constructor(
-        private localization: ILocalizationService,
-        private artifactDiscussions: IArtifactDiscussions,
-        protected artifactManager: IArtifactManager,
-        private messageService: IMessageService,
-        private dialogService: IDialogService,
-        $q: ng.IQService,
-        public bpAccordionPanel: IBpAccordionPanelController) {
+    constructor(private localization: ILocalizationService,
+                private artifactDiscussions: IArtifactDiscussions,
+                protected artifactManager: IArtifactManager,
+                private messageService: IMessageService,
+                private dialogService: IDialogService,
+                $q: ng.IQService,
+                public bpAccordionPanel: IBpAccordionPanelController) {
 
         super($q, artifactManager.selection, bpAccordionPanel);
 
@@ -73,45 +78,58 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
 
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
         //Subscriber to support refresh case.
-        this.subscribers = this.subscribers.filter(subscriber => { subscriber.dispose(); return false; });
+        this.subscribers = this.subscribers.filter(subscriber => {
+            subscriber.dispose();
+            return false;
+        });
         if (subArtifact) {
-            if (!Helper.hasArtifactEverBeenSavedOrPublished(subArtifact)) {  
+            if (!Helper.hasArtifactEverBeenSavedOrPublished(subArtifact)) {
                 this.resetReadOnly();
             } else {
                 this.subscribers.push(
-                    subArtifact.getObservable().subscribe((subArtif) => { this.onSelectedItemModified(artifact, subArtif, timeout); }));
+                    subArtifact.getObservable().subscribe((subArtif) => {
+                        this.onSelectedItemModified(artifact, subArtif, timeout);
+                    }));
             }
         } else if (artifact) {
             this.subscribers.push(
-                artifact.getObservable().subscribe((artif) => { this.onSelectedItemModified(artif, null, timeout); }));
+                artifact.getObservable().subscribe((artif) => {
+                    this.onSelectedItemModified(artif, null, timeout);
+                }));
         }
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
+    protected onVisibilityChanged(isVisible: boolean): void {
+        this.isVisible = isVisible;
+    }
+
     private onSelectedItemModified = (artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>) => {
-        this.artifactDiscussionList = [];
-        this.showAddComment = false;
-        if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
-            this.artifactId = artifact.id;
-            this.subArtifact = subArtifact;           
-            return this.setEverPublishedAndDiscussions(artifact.version, timeout);
-        } else {
-            this.resetReadOnly();
+        if (this.isVisible) {
+            this.artifactDiscussionList = [];
+            this.showAddComment = false;
+            if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
+                this.artifactId = artifact.id;
+                this.subArtifact = subArtifact;
+                return this.setEverPublishedAndDiscussions(artifact.version, timeout);
+            } else {
+                this.resetReadOnly();
+            }
         }
     }
 
-    private resetReadOnly() {    
+    private resetReadOnly() {
         this.reset();
         this.setReadOnly();
     }
 
-    private reset() {        
+    private reset() {
         this.artifactId = null;
         this.subArtifact = null;
         this.artifactDiscussionList = [];
     }
 
-    private setReadOnly() {        
+    private setReadOnly() {
         this.canCreate = false;
         this.canDelete = false;
         this.artifactEverPublished = false;
@@ -138,17 +156,17 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     }
 
     private setReplies(discussion: IDiscussion) {
-            this.getDiscussionReplies(discussion.discussionId)
-                .then((replies: IReply[]) => {
-                    discussion.replies = replies;
-                    discussion.repliesCount = replies.length;
+        this.getDiscussionReplies(discussion.discussionId)
+            .then((replies: IReply[]) => {
+                discussion.replies = replies;
+                discussion.repliesCount = replies.length;
             });
     }
 
     public expandCollapseDiscussion(discussion: IDiscussion): void {
         if (!discussion.expanded) {
             this.setReplies(discussion);
-                    discussion.expanded = true;
+            discussion.expanded = true;
         } else {
             discussion.expanded = false;
         }
@@ -244,7 +262,9 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                             discussion.repliesCount = updatedReplies.length;
                             discussion.expanded = true;
                         });
-                }).catch((error) => { this.messageService.addMessage(new Message(MessageType.Error, error.message)); });
+                }).catch((error) => {
+                    this.messageService.addMessage(new Message(MessageType.Error, error.message));
+                });
             }
         });
     }
@@ -256,7 +276,9 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
                     this.getArtifactDiscussions(discussion.itemId).then((discussionsResultSet: IDiscussionResultSet) => {
                         this.setControllerFieldsAndFlags(discussionsResultSet);
                     });
-                }).catch((error) => { this.messageService.addMessage(new Message(MessageType.Error, error.message)); });
+                }).catch((error) => {
+                    this.messageService.addMessage(new Message(MessageType.Error, error.message));
+                });
             }
         });
     }

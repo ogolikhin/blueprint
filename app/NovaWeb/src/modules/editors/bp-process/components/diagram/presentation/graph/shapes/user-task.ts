@@ -11,10 +11,9 @@ import {DiagramNodeElement} from "./diagram-element";
 import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
+import {DeleteShapeButton} from "../buttons/delete-shape-button";
 import {Label, LabelStyle} from "../labels/label";
 import {SystemDecision} from "./";
-import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
-import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 import {ProcessEvents} from "../../../process-diagram-communication";
 
 export class UserStoryProperties implements IUserStoryProperties {
@@ -40,8 +39,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private previewButton: Button;
     private linkButton: Button;
     private rootScope: any;
-    private dialogManager: IModalDialogCommunication;
-    private processDiagramManager: IProcessDiagramCommunication;
     
     // #UNUSED
     // private _userStoryId: number;
@@ -72,25 +69,16 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
+
         //Delete Shape
-        this.deleteShapeButton = new Button(`DS${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("delete-neutral.svg"));
-        this.deleteShapeButton.isEnabled = true;
-
-        if (nodeFactorySettings && nodeFactorySettings.isDeleteShapeEnabled) {
-            this.deleteShapeButton.setActiveImage(this.getImageSource("delete-active.svg"));
-            this.deleteShapeButton.setHoverImage(this.getImageSource("delete-hover.svg"));            
-            this.deleteShapeButton.setClickAction(() => 
-            {
+        const clickAction = () => {
                 this.processDiagramManager.action(ProcessEvents.DeleteShape);
-            });
-        } else {
-            this.deleteShapeButton.setDisabledImage("/novaweb/static/bp-process/images/delete-inactive.svg");
-            this.deleteShapeButton.setClickAction(() => { });
-        }
+        };
 
-        this.deleteShapeButton.setTooltip(this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"]);
-        
-        
+        this.deleteShapeButton = new DeleteShapeButton(nodeId, this.BUTTON_SIZE, this.BUTTON_SIZE,
+            this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"], nodeFactorySettings, clickAction);
+
+
         //Shape Comments
         this.commentsButton = new Button(`CB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("comments-neutral.svg"));
         this.commentsButton.isEnabled = !this.isNew;
@@ -99,7 +87,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             // #TODO integrate with utility panel in Nova
             // this.commentsButton.setClickAction(() => this.openPropertiesDialog(this.rootScope, Shell.UtilityTab.discussions));
         } else {
-            this.commentsButton.setClickAction(() => { });
+            this.commentsButton.setClickAction(() => {
+                //fixme: empty blocks should be removed
+            });
         }
 
         this.commentsButton.setTooltip(this.rootScope.config.labels["ST_Comments_Label"]);
@@ -112,8 +102,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             }
         }
 
-        
-
         //Included Artifacts Button
         this.linkButton = new Button(`LB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("include-neutral.svg"));
         this.linkButton.isEnabled = !this.isNew;
@@ -121,7 +109,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         if (nodeFactorySettings && nodeFactorySettings.isLinkButtonEnabled) {
             this.linkButton.setClickAction(() => this.navigateToProcess());
         } else {
-            this.linkButton.setClickAction(() => { });
+            this.linkButton.setClickAction(() => {
+                //fixme: empty blocks should be removed
+            });
         }
 
         this.linkButton.setTooltip(this.rootScope.config.labels["ST_Userstory_Label"]);
@@ -142,7 +132,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         if (nodeFactorySettings && nodeFactorySettings.isPreviewButtonEnabled) {
             this.previewButton.setClickAction(() => this.openDialog(ModalDialogType.PreviewDialogType));
         } else {
-            this.previewButton.setClickAction(() => { });
+            this.previewButton.setClickAction(() => {
+                //fixme: empty blocks should be removed
+            });
         }
 
         this.previewButton.setTooltip(this.rootScope.config.labels["ST_Userstory_Label"]);
@@ -161,7 +153,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
             this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemTaskDetailsDialogType));
         } else {
-            this.detailsButton.setClickAction(() => { });
+            this.detailsButton.setClickAction(() => {
+                //fixme: empty blocks should be removed
+            });
         }
 
         this.detailsButton.setTooltip(this.rootScope.config.labels["ST_Settings_Label"]);
@@ -172,7 +166,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
     private initChildElements() {
         //initialize header
-        var headerGeometry = new mxGeometry(0.5, 1, this.USER_TASK_WIDTH - 1, 38);
+        const headerGeometry = new mxGeometry(0.5, 1, this.USER_TASK_WIDTH - 1, 38);
         headerGeometry.relative = false;
         this.header = new DiagramNodeElement("H" + this.model.id.toString(), ElementType.UserTaskHeader, "", headerGeometry,
             "shape=label;strokeColor=none;fillColor=#b1b1b1;fontColor=#FFFFFF;fontFamily=Open Sans, sans-serif;fontSize=11;selectable=0;editable=0");
@@ -184,14 +178,14 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public set persona(value: string) {
-        var valueChanged = this.setPropertyValue("persona", value);
+        const valueChanged = this.setPropertyValue("persona", value);
         if (valueChanged) {
             if (this.personaLabel) {
-                this.personaLabel.text = value;
+                if (this.personaLabel.text !== value) {
+                    this.personaLabel.text = value;
+                }
                 this.shapesFactoryService.setUserTaskPersona(value);
-            }
-
-            this.notify(NodeChange.Update, false);
+            } 
         }
     }
 
@@ -200,10 +194,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public set description(value: string) {
-        var valueChanged = this.setPropertyValue("description", value);
-        if (valueChanged) {
-            this.notify(NodeChange.Update, false);
-        }
+       this.setPropertyValue("description", value);
     }
 
     public get objective(): string {
@@ -211,10 +202,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public set objective(value: string) {
-        var valueChanged = this.setPropertyValue("itemLabel", value);
-        if (valueChanged) {
-            this.notify(NodeChange.Update);
-        }
+       this.setPropertyValue("itemLabel", value);
     }
 
     public get associatedArtifact(): any {
@@ -223,8 +211,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
     public set associatedArtifact(value: any) {
         if (this.model != null && this.model.associatedArtifact !== value) {
-            this.model.associatedArtifact = value;
-            this.notify(NodeChange.Update);
+            this.model.associatedArtifact = value;           
+            // TODO: create associatedArtifact predefined type and update it in the special properties of the stateful artifact.
+            //this.updateStatefulPropertyValue(<property type predefined>, value);
             if (!value || value === null) {
                 this.linkButton.disable();
             } else {
@@ -242,16 +231,16 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public getPreviousSystemTasks(graph: IProcessGraph): ISystemTask[] {
-        var result: ISystemTask[] = [];
+        const result: ISystemTask[] = [];
         this.getSourceSystemTasks(graph, this, result);
         return result;
     }
 
     private getSourceSystemTasks(graph: IProcessGraph, node: IDiagramNode, resultSystemTasks: ISystemTask[]) {
-        var sources = node.getSources(graph.getMxGraphModel());
+        const sources = node.getSources(graph.getMxGraphModel());
         if (sources) {
-            for (var i = 0; i < sources.length; i++) {
-                var source = sources[i];
+            for (let i = 0; i < sources.length; i++) {
+                const source = sources[i];
                 if (source.getNodeType() === NodeType.SystemTask) {
                     resultSystemTasks.push(<ISystemTask>source);
                 } else {
@@ -282,10 +271,10 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     private getSystemDecisionFirstTasks(graph: IProcessGraph, node: IDiagramNode, resultSystemTasks: ISystemTask[]) {
-        //#TODO fix reference to SystemDecision 
+        //#TODO fix reference to SystemDecision
         let decisionTargets = (<SystemDecision>node).getTargets(graph.getMxGraphModel());
         if (decisionTargets) {
-            for (var i = 0; i < decisionTargets.length; i++) {
+            for (let i = 0; i < decisionTargets.length; i++) {
                 let decisionTarget = decisionTargets[i];
                 if (decisionTarget.getNodeType() === NodeType.SystemTask) {
                     resultSystemTasks.push(<ISystemTask>decisionTarget);
@@ -301,6 +290,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public deleteNode(graph: IProcessGraph) {
+        //fixme: empty blocks should be removed
     }
 
     public renderLabels() {
@@ -312,8 +302,8 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         this.dialogManager = graph.viewModel.communicationManager.modalDialogManager;
         this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;
 
-        var mxGraph = graph.getMxGraph();
-        var fillColor = "#FFFFFF";
+        const mxGraph = graph.getMxGraph();
+        let fillColor = "#FFFFFF";
         if (this.model.id < 0) {
             fillColor = justCreated ? this.newShapeColor : "#FBF8E7";
         }
@@ -321,7 +311,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         this.insertVertex(mxGraph, this.model.id.toString(), null, x, y, this.USER_TASK_WIDTH, this.USER_TASK_HEIGHT,
             " editable=0;shape=label;strokeColor=#D4D5DA;fillColor=" + fillColor + ";foldable=0;fontColor=#4C4C4C;" +
             "fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=12");
-        var textLabelStyle: LabelStyle = new LabelStyle(
+        const textLabelStyle: LabelStyle = new LabelStyle(
             "Open Sans",
             12,
             "transparent",
@@ -333,7 +323,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             this.USER_TASK_WIDTH - 8,
             "#4C4C4C"
         );
-        this.textLabel = new Label((value: string) => { this.label = value; },
+        this.textLabel = new Label((value: string) => {
+                this.label = value;
+            },
             graph.getHtmlElement(),
             this.model.id.toString(),
             "Label-B" + this.model.id.toString(),
@@ -345,7 +337,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         //header
         mxGraph.addCell(this.header, this);
-        var personaLabelStyle: LabelStyle = new LabelStyle(
+        const personaLabelStyle: LabelStyle = new LabelStyle(
             "Open Sans",
             11,
             "#b1b1b1",
@@ -357,7 +349,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             this.USER_TASK_WIDTH - 40,
             "#4C4C4C"
         );
-        this.personaLabel = new Label((value: string) => { this.persona = value; },
+        this.personaLabel = new Label((value: string) => {
+                this.persona = value;
+            },
             graph.getHtmlElement(),
             this.model.id.toString(),
             "Label-H" + this.model.id.toString(),
@@ -375,7 +369,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             "shape=rectangle;strokeColor=#D4D5DA;fillColor=#FFFFFF;gradientColor=#DDDDDD;foldable=0;editable=0;selectable=0");
 
         this.addOverlays(mxGraph);
-        
+
         this.deleteShapeButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 118, 10,
             "shape=ellipse;strokeColor=none;fillColor=none;selectable=0");
         this.commentsButton.render(mxGraph, this.footerCell, this.footerCell.geometry.width - 94, 10,
@@ -394,8 +388,8 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     private addOverlays(mxGraph: MxGraph) {
-        
-        var overlays = mxGraph.getCellOverlays(this);
+
+        let overlays = mxGraph.getCellOverlays(this);
 
         if (overlays != null) {
             mxGraph.removeCellOverlays(this);
@@ -408,10 +402,10 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         }
 
         // header overlays
-       
-        var personaIcon = "/novaweb/static/bp-process/images/defaultuser.svg";
-        this.addOverlay(mxGraph, this, personaIcon, 24, 24, this.rootScope.config.labels["ST_Persona_Label"], 
-        mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, 16, 18);
+
+        const personaIcon = "/novaweb/static/bp-process/images/defaultuser.svg";
+        this.addOverlay(mxGraph, this, personaIcon, 24, 24, this.rootScope.config.labels["ST_Persona_Label"],
+            mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, 16, 18);
 
         // DO NOT DELETE!!! this is needed for the labels functionality
         this.addOverlay(mxGraph, this, null, this.USER_TASK_WIDTH, this.USER_TASK_HEIGHT, null, mxConstants.ALIGN_LEFT,
@@ -419,7 +413,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         // TODO: re-add for later sprints, when there's functionality attached to it (color coding nodes)
         //var colorsIcon = "/novaweb/static/bp-process/images/colors-on.png";
-        //var overlayColors = this.addOverlay(graph, this, colorsIcon, 20, 20, this.rootScope.config.labels["ST_Colors_Label"], 
+        //var overlayColors = this.addOverlay(graph, this, colorsIcon, 20, 20, this.rootScope.config.labels["ST_Colors_Label"],
         // mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_TOP, -12, 14);
     }
 
@@ -427,17 +421,18 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         if (this.associatedArtifact == null) {
             return;
         }
-        
+
         this.processDiagramManager.action(ProcessEvents.NavigateToAssociatedArtifact, {
             id: this.associatedArtifact.id,
-            enableTracking: true});
+            enableTracking: true
+        });
     }
 
     private openDialog(dialogType: ModalDialogType) {
         window.console.log(`UserTask.openDialog, ${dialogType}`);
-        
+
         this.dialogManager.openDialog(this.model.id, dialogType);
-        
+
         // #TODO use new dialog communication mechanism to open modal dialog
         //this.rootScope.$broadcast(BaseModalDialogController.dialogOpenEventName,
         //    this.model.id,
@@ -446,12 +441,12 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
     public getElementTextLength(cell: MxCell): number {
         /*
-        * get the maximum length of text that can be entered in 
-        * the cell 
-        */
-        var maxLen: number = this.LABEL_EDIT_MAXLENGTH;
+         * get the maximum length of text that can be entered in
+         * the cell
+         */
+        let maxLen: number = this.LABEL_EDIT_MAXLENGTH;
 
-        var element = <IDiagramNodeElement>cell;
+        const element = <IDiagramNodeElement>cell;
         if (element.getElementType() === ElementType.UserTaskHeader) {
             maxLen = this.PERSONA_EDIT_MAXLENGTH;
         } else {
@@ -461,15 +456,15 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public formatElementText(cell: MxCell, text: string): string {
-       
+
         // This function returns formatted text to the getLabel()
-        // function to display the node's label and persona.  
-        
+        // function to display the node's label and persona.
+
 
         if (cell && text) {
-            var maxLen: number = this.LABEL_VIEW_MAXLENGTH;
+            let maxLen: number = this.LABEL_VIEW_MAXLENGTH;
 
-            var element = <IDiagramNodeElement>cell;
+            const element = <IDiagramNodeElement>cell;
             if (element.getElementType() === ElementType.UserTaskHeader) {
                 maxLen = this.PERSONA_VIEW_MAXLENGTH;
             } else {
@@ -485,11 +480,11 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public setElementText(cell: MxCell, text: string) {
-       
+
         // save text for the node or for an element within
         // the node
-       
-        var element = <IDiagramNodeElement>cell;
+
+        const element = <IDiagramNodeElement>cell;
 
         if (element.getElementType() === ElementType.UserTaskHeader) {
             this.persona = text;
@@ -499,7 +494,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public get userStoryId(): number {
-        var storyLinksValue = this.getPropertyValue("storyLinks");
+        const storyLinksValue = this.getPropertyValue("storyLinks");
         if (storyLinksValue != null) {
             return storyLinksValue["associatedReferenceArtifactId"] || null;
         }
@@ -508,9 +503,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
     public set userStoryId(value: number) {
         if (this.userStoryId !== value) {
-            this.setPropertyValue("storyLinks", { associatedReferenceArtifactId: value });
+            this.setPropertyValue("storyLinks", {associatedReferenceArtifactId: value});
             if (this.previewButton && value > 0) {
-                this.previewButton.activate();                
+                this.previewButton.activate();
             }
         }
     }

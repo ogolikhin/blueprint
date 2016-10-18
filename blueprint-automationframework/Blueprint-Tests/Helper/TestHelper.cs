@@ -226,11 +226,13 @@ namespace Helper
         /// <param name="project">The target project.</param>
         /// <param name="user">User for authentication.</param>
         /// <param name="artifactType">ArtifactType.</param>
-        /// <param name="parent">(optional)The parent artifact. By default artifact will be created in the root of the project.</param>
+        /// <param name="parent">(optional) The parent artifact. By default artifact will be created in the root of the project.</param>
+        /// <param name="name">(optional) Artifact's name.</param>
         /// <returns>The new artifact object.</returns>
-        public IArtifact CreateArtifact(IProject project, IUser user, BaseArtifactType artifactType, IArtifactBase parent = null)
+        public IArtifact CreateArtifact(IProject project, IUser user, BaseArtifactType artifactType,
+            IArtifactBase parent = null, string name = null)
         {
-            IArtifact artifact = ArtifactFactory.CreateArtifact(project, user, artifactType, parent: parent);
+            IArtifact artifact = ArtifactFactory.CreateArtifact(project, user, artifactType, parent: parent, name: name);
             Artifacts.Add(artifact);
             artifact.RegisterObserver(this);
             return artifact;
@@ -243,10 +245,12 @@ namespace Helper
         /// <param name="user">User for authentication.</param>
         /// <param name="artifactType">ArtifactType.</param>
         /// <param name="parent">(optional) The parent artifact. By default artifact will be created in the root of the project.</param>
+        /// <param name="name">(optional) Artifact's name.</param>
         /// <returns>The new artifact object.</returns>
-        public IArtifact CreateAndSaveArtifact(IProject project, IUser user, BaseArtifactType artifactType, IArtifactBase parent = null)
+        public IArtifact CreateAndSaveArtifact(IProject project, IUser user, BaseArtifactType artifactType,
+            IArtifactBase parent = null, string name = null)
         {
-            IArtifact artifact = CreateArtifact(project, user, artifactType, parent);
+            IArtifact artifact = CreateArtifact(project, user, artifactType, parent, name: name);
             artifact.Save();
             return artifact;
         }
@@ -517,6 +521,7 @@ namespace Helper
             }
 
             AdminStore.AddSession(newUser);//assign premission and after it authenticate, reverse doesn't work - need to investigate!
+            BlueprintServer.LoginUsingBasicAuthorization(newUser);
 
             Logger.WriteInfo("User {0} created.", newUser.Username);
 

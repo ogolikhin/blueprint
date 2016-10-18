@@ -15,10 +15,8 @@ export class NavigationService implements INavigationService {
         "$state"
     ];
 
-    constructor(
-        private $q: ng.IQService,
-        private $state: ng.ui.IStateService
-    ) {
+    constructor(private $q: ng.IQService,
+                private $state: ng.ui.IStateService) {
     }
 
     public getNavigationState(): INavigationState {
@@ -50,7 +48,7 @@ export class NavigationService implements INavigationService {
         }
 
         const getParameters = () => {
-            const parameters = { id: id };
+            const parameters = {id: id};
 
             if (enableTracking && currentState.id) {
                 if (!currentState.path || currentState.path.length === 0) {
@@ -102,7 +100,7 @@ export class NavigationService implements INavigationService {
         const state = "main.artifact";
         const parameters = getParameters();
         // Disables the inheritance of optional url parameters (such as "path")
-        const stateOptions: ng.ui.IStateOptions = <ng.ui.IStateOptions>{ inherit: false };
+        const stateOptions: ng.ui.IStateOptions = <ng.ui.IStateOptions>{inherit: false};
 
         return this.$state.go(state, parameters, stateOptions);
     }

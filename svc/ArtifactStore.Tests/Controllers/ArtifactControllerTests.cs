@@ -177,5 +177,30 @@ namespace ArtifactStore.Controllers
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result[0].Id);
         }
+
+        [TestMethod]
+        public async Task GetArtifactNavigationPathAsync_Success()
+        {
+            // Arrange
+            const int userId = 1;
+            var session = new Session { UserId = userId };
+            const int artifactId = 10;
+            var navPath = new List<Artifact>();
+            var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
+            mockArtifactRepository.Setup(r => r.GetArtifactNavigatioPathAsync(artifactId, userId)).ReturnsAsync(navPath);
+            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
+            var mockServiceLogRepository = new Mock<IServiceLogRepository>();
+            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+            artifactController.Request.Properties[ServiceConstants.SessionProperty] = session;
+
+            // Act
+            var result = await artifactController.GetArtifactNavigationPathAsync(artifactId);
+
+            //Assert
+            Assert.AreSame(navPath, result);
+        }
     }
 }

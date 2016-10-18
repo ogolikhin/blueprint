@@ -8,14 +8,14 @@ import "ui-select";
 import "angular-formly";
 import "tinymce";
 
-import { ILocalizationService } from "../../../../core/localization";
-import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
-import { MessageServiceMock } from "../../../../core/messages/message.mock";
-import { IMessageService } from "../../../../core/messages";
-import { IDialogService } from "../../../../shared/widgets/bp-dialog/bp-dialog";
-import { SettingsService, ISettingsService } from "../../../../core";
-import { BPFieldImageController } from "./field-image";
-import { ActorImagePickerDialogServiceMock } from "./actor-image-choose-window.mock";
+import {ILocalizationService} from "../../../../core/localization";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {MessageServiceMock} from "../../../../core/messages/message.mock";
+import {IMessageService} from "../../../../core/messages";
+import {IDialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {SettingsService, ISettingsService} from "../../../../core";
+import {BPFieldImageController} from "./field-image";
+import {ActorImagePickerDialogServiceMock} from "./actor-image-choose-window.mock";
 
 describe("Actor image controller tests", () => {
 
@@ -24,7 +24,7 @@ describe("Actor image controller tests", () => {
         rootScope,
         compile,
         $controller: ng.IControllerService,
-        imageModel;     
+        imageModel;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
@@ -40,16 +40,17 @@ describe("Actor image controller tests", () => {
                 compile = $compile;
                 scope = rootScope.$new();
 
-                imageModel  = {
+                imageModel = {
                     imageSource: ""
                 };
 
                 scope.model = {
-                    image: imageModel,              
+                    image: imageModel,
                 };
 
                 scope["to"] = {
-                    onChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {}
+                    onChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {
+                    }
                 };
 
                 scope.options = {
@@ -61,7 +62,7 @@ describe("Actor image controller tests", () => {
         )
     );
 
-    beforeEach(angular.mock.inject(function(_$controller_){
+    beforeEach(angular.mock.inject(function (_$controller_) {
         $controller = _$controller_;
     }));
 
@@ -78,12 +79,13 @@ describe("Actor image controller tests", () => {
                 file: new Blob([base64], {type: "image/png"}),
                 guid: "2788d782-4d7f-e611-82cc-a0999b0c8c40",
                 name: imageModel,
-                url: "svc/bpfilestore/file/2788d782-4d7f-e611"                
+                url: "svc/bpfilestore/file/2788d782-4d7f-e611"
             }];
 
             var readerSpy = spyOn(FileReader.prototype, "readAsDataURL");
 
-            scope.onFileSelect(files, function(){});
+            scope.onFileSelect(files, function () {
+            });
             $timeout.flush();
             expect(readerSpy).toHaveBeenCalled();
         }));
@@ -92,17 +94,17 @@ describe("Actor image controller tests", () => {
     describe("delete image for actor", () => {
 
         it("delete image for actor without readonly mode", inject(($timeout: ng.ITimeoutService, localization: ILocalizationService, $window: ng.IWindowService,
-            messageService: IMessageService, dialogService: IDialogService, settingsService: ISettingsService) => {
+                                                                   messageService: IMessageService, dialogService: IDialogService, settingsService: ISettingsService) => {
 
             scope.onActorImageDelete();
             expect(scope.model.image === null).toBeTruthy();
         }));
 
         it("delete image for actor with read only mode", inject(($timeout: ng.ITimeoutService, localization: ILocalizationService, $window: ng.IWindowService,
-            messageService: IMessageService, dialogService: IDialogService, settingsService: ISettingsService) => {
+                                                                 messageService: IMessageService, dialogService: IDialogService, settingsService: ISettingsService) => {
 
-           scope.onActorImageDelete(true);
-           expect(scope.model.image === imageModel).toBeTruthy();
+            scope.onActorImageDelete(true);
+            expect(scope.model.image === imageModel).toBeTruthy();
 
         }));
     });

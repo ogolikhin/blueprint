@@ -6,15 +6,17 @@
         {{$ctrl.errorMessage}}
     </div>
     <div ng-if="!$ctrl.hasError" class="project-wrapper">
-        <div class="project-tree-container"><bp-tree bp-ref="$ctrl.tree"
-                 grid-class="project-tree"
-                 header-height="20"
-                 row-height="20"
-                 grid-columns="$ctrl.columns"
-                 property-map="$ctrl.propertyMap"
-                 on-load="$ctrl.doLoad(prms)"
-                 on-select="$ctrl.doSelect(item)">
-        </bp-tree></div>
+        <div class="project-tree-container">
+            <bp-tree bp-ref="$ctrl.tree"
+                     grid-class="project-tree"
+                     header-height="20"
+                     row-height="20"
+                     grid-columns="$ctrl.columns"
+                     property-map="$ctrl.propertyMap"
+                     on-load="$ctrl.doLoad(prms)"
+                     on-select="$ctrl.doSelect(item)">
+            </bp-tree>
+        </div>
         <div class="project-data">
             <div>{{::$root.config.labels["App_Project_Name"]}}</div>
             <div class="project-name">{{$ctrl.selectedItem.name}}</div>

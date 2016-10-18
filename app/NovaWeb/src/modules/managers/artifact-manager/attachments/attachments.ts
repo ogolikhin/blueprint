@@ -1,7 +1,7 @@
-import { IIStatefulItem } from "../item";
-import { IDispose } from "../../models";
-import { ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector  } from "../changeset";
-import { IArtifactAttachmentsResultSet, IArtifactAttachment } from "./attachments.svc";
+import {IIStatefulItem} from "../item";
+import {IDispose} from "../../models";
+import {ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector} from "../changeset";
+import {IArtifactAttachmentsResultSet, IArtifactAttachment} from "./attachments.svc";
 
 
 export interface IArtifactAttachments extends IDispose {
@@ -65,7 +65,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
                     this.loadPromise = null;
                 });
         }
-        
+
         return this.subject.filter(it => !!it).asObservable();
     }
 
@@ -76,7 +76,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
     public add(attachments: IArtifactAttachment[]): IArtifactAttachment[] {
         if (attachments) {
             attachments.map((attachment: IArtifactAttachment) => {
-                this.attachments.push(attachment); 
+                this.attachments.push(attachment);
                 const changeset = {
                     type: ChangeTypeEnum.Add,
                     key: attachment.guid,
@@ -87,7 +87,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
             });
             this.subject.onNext(this.attachments);
         }
-        
+
         return this.attachments;
     }
 
@@ -99,7 +99,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
 
                 if (foundAttachmentIndex > -1) {
                     deletedAttachment = this.attachments.splice(foundAttachmentIndex, 1)[0];
-                    
+
                     const changeset = {
                         type: ChangeTypeEnum.Delete,
                         key: attachment.guid || attachment.attachmentId,

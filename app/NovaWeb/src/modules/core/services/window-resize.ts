@@ -17,7 +17,9 @@ export class WindowResize implements IWindowResize {
         this._height = new Rx.BehaviorSubject<number>(window.innerHeight);
 
         window.addEventListener("resize", this.windowResizeHandler);
-        window.addEventListener("beforeunload", () => { this.dispose(); });
+        window.addEventListener("beforeunload", () => {
+            this.dispose();
+        });
     };
 
     public dispose() {

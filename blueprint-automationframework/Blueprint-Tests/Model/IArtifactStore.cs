@@ -40,6 +40,25 @@ namespace Model
             ArtifactTypePredefined baseArtifactType,
             string name,
             IProject project,
+            IArtifactBase parentArtifact = null,
+            double? orderIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Creates a new Nova artifact.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="baseArtifactType">The base artifact type (i.e. ItemType) to create.</param>
+        /// <param name="name">The name of the new artifact.</param>
+        /// <param name="project">The project where the artifact will be created in.</param>
+        /// <param name="parentArtifact">(optional) The parent of the new artifact.</param>
+        /// <param name="orderIndex">(optional) The order index of the new artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
+        /// <returns>The new Nova artifact that was created.</returns>
+        INovaArtifactDetails CreateArtifact(IUser user,
+            ArtifactTypePredefined baseArtifactType,
+            string name,
+            IProject project,
             INovaArtifactDetails parentArtifact = null,
             double? orderIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null);
@@ -59,7 +78,7 @@ namespace Model
             ItemTypePredefined baseArtifactType,
             string name,
             IProject project,
-            INovaArtifactDetails parentArtifact = null,
+            INovaArtifactBase parentArtifact = null,
             double? orderIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null);
 
@@ -212,6 +231,7 @@ namespace Model
         /// <param name="artifact">The artifact that has the attachment to get.</param>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true.</param>
+        /// <param name="versionId">(optional) The version of the attachment to retrieve.</param>
         /// <param name="subArtifactId">(optional) The ID of a sub-artifact of this artifact that has the attachment to get.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <param name="expectedServiceErrorMessage">(optional) Expected error message for the request.</param>
@@ -227,9 +247,10 @@ namespace Model
         /// <param name="artifact">The artifact containing the relationship to get.</param>
         /// <param name="subArtifactId">(optional) ID of the sub-artifact.</param>
         /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true</param>
+        /// <param name="versionId">(optional) The version of the artifact whose relationships you want to get. null = latest version.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Relationships object for the specified artifact/subartifact.</returns>
-        Relationships GetRelationships(IUser user, IArtifactBase artifact, int? subArtifactId = null, bool? addDrafts = null, List<HttpStatusCode> expectedStatusCodes = null);
+        Relationships GetRelationships(IUser user, IArtifactBase artifact, int? subArtifactId = null, bool? addDrafts = null, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets artifact details by specifying its ID.
@@ -241,6 +262,39 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Artifact details.</returns>
         NovaArtifactDetails GetArtifactDetails(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets diagram artifact by specifying its ID.
+        /// (Runs: GET svc/bpartifactstore/diagram/{diagramArtifactId})
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">Id of artifact.</param>
+        /// <param name="versionId">(optional) The version of the artifact whose details you want to get.  null = latest version.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Artifact details.</returns>
+        NovaDiagramArtifact GetDiagramArtifact(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets glossary artifact by specifying its ID.
+        /// (Runs: GET svc/bpartifactstore/glossary/{glossaryArtifactId})
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">Id of artifact.</param>
+        /// <param name="versionId">(optional) The version of the artifact whose details you want to get.  null = latest version.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Artifact details.</returns>
+        NovaGlossaryArtifact GetGlossaryArtifact(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets use case artifact by specifying its ID.
+        /// (Runs: GET svc/bpartifactstore/usecase/{usecaseArtifactId})
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">Id of artifact.</param>
+        /// <param name="versionId">(optional) The version of the artifact whose details you want to get.  null = latest version.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Artifact details.</returns>
+        NovaUseCaseArtifact GetUseCaseArtifact(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets relationshipsdetails for the specified artifact/subartifact

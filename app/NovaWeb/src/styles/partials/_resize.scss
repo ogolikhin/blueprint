@@ -1,49 +1,49 @@
 body:not(.is-msie) {
-  .modal-resize-both .modal-content,
-  .modal-resize-horizontal .modal-content,
-  .modal-resize-vertical .modal-content,
-  .resize-both,
-  .resize-horizontal,
-  .resize-vertical {
-    overflow: hidden;
-    position: relative;
+    .modal-resize-both .modal-content,
+    .modal-resize-horizontal .modal-content,
+    .modal-resize-vertical .modal-content,
+    .resize-both,
+    .resize-horizontal,
+    .resize-vertical {
+        overflow: hidden;
+        position: relative;
 
-    &::before {
-      background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAALUlEQVR42mNgwAH279//H4QZyFYAAv///5fBqQurCQQVEHQMVjaMAQQc2BQAABXMU79BvB5bAAAAAElFTkSuQmCC') no-repeat center center;
-      border: 2px solid transparent;
-      bottom: 2px;
-      content: '';
-      height: 8px;
-      position: absolute;
-      right: 2px;
-      width: 8px;
+        &::before {
+            background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAALUlEQVR42mNgwAH279//H4QZyFYAAv///5fBqQurCQQVEHQMVjaMAQQc2BQAABXMU79BvB5bAAAAAElFTkSuQmCC') no-repeat center center;
+            border: 2px solid transparent;
+            bottom: 2px;
+            content: '';
+            height: 8px;
+            position: absolute;
+            right: 2px;
+            width: 8px;
+        }
     }
-  }
 
-  .modal-resize-both .modal-content,
-  .resize-both {
-    resize: both;
+    .modal-resize-both .modal-content,
+    .resize-both {
+        resize: both;
 
-    &::before {
-      cursor: se-resize;
+        &::before {
+            cursor: se-resize;
+        }
     }
-  }
 
-  .modal-resize-horizontal .modal-content,
-  .resize-horizontal {
-    resize: horizontal;
+    .modal-resize-horizontal .modal-content,
+    .resize-horizontal {
+        resize: horizontal;
 
-    &::before {
-      cursor: ew-resize;
+        &::before {
+            cursor: ew-resize;
+        }
     }
-  }
 
-  .modal-resize-vertical .modal-content,
-  .resize-vertical {
-    resize: vertical;
+    .modal-resize-vertical .modal-content,
+    .resize-vertical {
+        resize: vertical;
 
-    &::before {
-      cursor: ns-resize;
+        &::before {
+            cursor: ns-resize;
+        }
     }
-  }
 }

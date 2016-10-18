@@ -1,14 +1,20 @@
 import * as angular from "angular";
-import { IArtifactManager, ArtifactManager } from "./artifact-manager";
-import { PublishService, IPublishService } from "./publish";
-import { ISelectionManager,  ISelection,  SelectionSource } from "../selection-manager";
-import { StatefulArtifactFactory } from "./artifact/artifact.factory";
-import { IStatefulItem } from "./item";
-import { ArtifactService, IArtifactService, IStatefulArtifactFactory, StatefulArtifact, StatefulProcessArtifact  } from "./artifact";
-import { IStatefulArtifact } from "./artifact";
-import { StatefulSubArtifact, ISubArtifactCollection, IStatefulSubArtifact } from "./sub-artifact";
-import { IDocumentRefs, DocumentRefs } from "./docrefs";
-import { IChangeSet, IChangeCollector, ChangeTypeEnum, ChangeSetCollector } from "./changeset";
+import {IArtifactManager, ArtifactManager} from "./artifact-manager";
+import {PublishService, IPublishService} from "./publish";
+import {ISelectionManager,  ISelection,  SelectionSource} from "../selection-manager";
+import {StatefulArtifactFactory} from "./artifact/artifact.factory";
+import {IStatefulItem} from "./item";
+import {
+	ArtifactService, 
+	IArtifactService, 
+	IStatefulArtifactFactory, 
+	StatefulArtifact, 
+	StatefulProcessArtifact
+} from "./artifact";
+import {IStatefulArtifact} from "./artifact";
+import {StatefulSubArtifact, ISubArtifactCollection, IStatefulSubArtifact} from "./sub-artifact";
+import {IDocumentRefs, DocumentRefs} from "./docrefs";
+import {IChangeSet, IChangeCollector, ChangeTypeEnum, ChangeSetCollector} from "./changeset";
 import { 
     ArtifactRelationships, 
     IArtifactRelationships, 
@@ -22,12 +28,12 @@ import {
     IArtifactAttachments,
     IArtifactDocRef,
     IArtifactAttachmentsResultSet,
-    IArtifactAttachmentsService,
+    IArtifactAttachmentsService
 } from "./attachments";
 
-import { IMetaData, MetaDataService, IMetaDataService } from "./metadata";
+import {IMetaData, MetaDataService, IMetaDataService} from "./metadata";
 
-export { IArtifactState, IState } from "./state/state";
+export {IArtifactState, IState} from "./state/state";
 
 
 angular.module("bp.managers.artifact", [])
@@ -46,9 +52,9 @@ export {
     IStatefulSubArtifact,
     IArtifactManager,
     ArtifactManager,
-    ISelectionManager,  
-    ISelection,  
-    SelectionSource,    
+    ISelectionManager,
+    ISelection,
+    SelectionSource,
     StatefulArtifactFactory,
     ArtifactAttachmentsService,
     IArtifactAttachment,
@@ -62,15 +68,15 @@ export {
     MetaDataService,
     IMetaDataService,
     ArtifactService,
-    IArtifactService, 
+    IArtifactService,
     IStatefulArtifactFactory,
     StatefulSubArtifact,
     StatefulArtifact,
     ISubArtifactCollection,
     IChangeSet, IChangeCollector, ChangeTypeEnum, ChangeSetCollector,
-    ArtifactRelationships, 
-    IArtifactRelationships, 
-    ArtifactRelationshipsService, 
+    ArtifactRelationships,
+    IArtifactRelationships,
+    ArtifactRelationshipsService,
     IArtifactRelationshipsService,
     StatefulProcessArtifact,
     PublishService,

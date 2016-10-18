@@ -6,7 +6,7 @@ import "angular-ui-bootstrap";
 import "ui-select";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
-import { createFormlyModule } from "../../formly-config.mock";
+import {createFormlyModule} from "../../formly-config.mock";
 
 describe("Formly Select Multi", () => {
     let fieldsDefinition = [
@@ -15,10 +15,10 @@ describe("Formly Select Multi", () => {
             key: "selectMulti",
             templateOptions: {
                 options: [
-                    { value: 1, name: "Option 1" },
-                    { value: 2, name: "Option 2" },
-                    { value: 3, name: "Option 3" },
-                    { value: 4, name: "Option 4" }
+                    {value: 1, name: "Option 1"},
+                    {value: 2, name: "Option 2"},
+                    {value: 3, name: "Option 3"},
+                    {value: 4, name: "Option 4"}
                 ],
                 optionsAttr: "bs-options",
                 required: true
@@ -29,10 +29,10 @@ describe("Formly Select Multi", () => {
             key: "selectMultiNotVal",
             templateOptions: {
                 options: [
-                    { value: 10, name: "Option 10" },
-                    { value: 20, name: "Option 20" },
-                    { value: 30, name: "Option 30" },
-                    { value: 40, name: "Option 40" }
+                    {value: 10, name: "Option 10"},
+                    {value: 20, name: "Option 20"},
+                    {value: 30, name: "Option 30"},
+                    {value: 40, name: "Option 40"}
                 ],
                 optionsAttr: "bs-options"
             }
@@ -71,7 +71,7 @@ describe("Formly Select Multi", () => {
 
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldSelectMulti");
         let fieldScope = angular.element(fieldNode[0]).isolateScope();
-        fieldNode[0].querySelector(".ui-select-container > div").dispatchEvent(new Event("click", { "bubbles": true }));
+        fieldNode[0].querySelector(".ui-select-container > div").dispatchEvent(new Event("click", {"bubbles": true}));
 
         expect(fieldNode.length).toBe(2);
         expect(fieldNode[0]).toBeDefined();

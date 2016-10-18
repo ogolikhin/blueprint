@@ -2,12 +2,12 @@ import "../../../";
 import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
-import { Relationships } from "../../../../main";
-import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
+import {Relationships} from "../../../../main";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {ManageTracesDialogController} from "./bp-manage-traces";
-import { DialogServiceMock, IDialogSettings } from "../../../../shared/widgets/bp-dialog/bp-dialog";
-import { DataMock, DialogSettingsMock } from "./bp-manage-traces.mock";
-import { ModalServiceInstanceMock, ModalServiceMock } from "../../../../shell/login/mocks.spec";
+import {DialogServiceMock, IDialogSettings} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {DataMock, DialogSettingsMock} from "./bp-manage-traces.mock";
+import {ModalServiceInstanceMock, ModalServiceMock} from "../../../../shell/login/mocks.spec";
 
 
 describe("ManageTracesController", () => {
@@ -15,15 +15,15 @@ describe("ManageTracesController", () => {
     beforeEach(angular.mock.module("app.main"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-            let dialogSettings: IDialogSettings = {};
+        let dialogSettings: IDialogSettings = {};
 
-            $provide.service("ctrl", ManageTracesDialogController);
-            $provide.service("$uibModalInstance", ModalServiceInstanceMock);
-            $provide.service("localization", LocalizationServiceMock);
-            $provide.service("dialogService", DialogServiceMock);
-            $provide.service("dialogData", DataMock);
-            $provide.service("dialogSettings", DialogSettingsMock);
-        }));
+        $provide.service("ctrl", ManageTracesDialogController);
+        $provide.service("$uibModalInstance", ModalServiceInstanceMock);
+        $provide.service("localization", LocalizationServiceMock);
+        $provide.service("dialogService", DialogServiceMock);
+        $provide.service("dialogData", DataMock);
+        $provide.service("dialogSettings", DialogSettingsMock);
+    }));
 
     beforeEach(inject(($rootScope: ng.IRootScopeService, ctrl: ManageTracesDialogController) => {
 
@@ -39,7 +39,7 @@ describe("ManageTracesController", () => {
             "artifactName": "test",
             "itemTypePrefix": "DOC",
             "itemName": "test",
-            "itemLabel":"test",
+            "itemLabel": "test",
             "projectId": 1,
             "projectName": "1",
             "primitiveItemTypePredefined": 4099,
@@ -151,16 +151,20 @@ describe("ManageTracesController", () => {
     it("should get manual traces",
         inject(($rootScope: ng.IRootScopeService, ctrl: ManageTracesDialogController) => {
 
+
+
             //Act
             ctrl.getManualTraces();
 
             //Assert
             expect(ctrl.artifactId).toBe(15);
-            expect(ctrl.data.manualTraces[0]["cssClass"]).toBe("icon-glossary");
         }));
 
     it("should toggle flag for traces from true to false",
         inject(($rootScope: ng.IRootScopeService, ctrl: ManageTracesDialogController) => {
+
+            //Arrange
+            ctrl.data.manualTraces[0]["hasAccess"] = true;
 
             //Act
             ctrl.getManualTraces();
@@ -180,7 +184,7 @@ describe("ManageTracesController", () => {
                 isExpandable: true,
                 isExpanded: false,
                 children: [],
-                isSelectable:() =>{
+                isSelectable: () => {
                     return true;
                 },
                 getCellClass: () => {
@@ -189,24 +193,25 @@ describe("ManageTracesController", () => {
                 getIcon: () => {
                     return "<i></i>";
                 },
-                model:{
-                    "id":19,
-                    "name":"published",
-                    "projectId":1,
-                    "parentId":1,
-                    "itemTypeId":67,
-                    "prefix":"AC",
-                    "predefinedType":4104,
-                    "version":15,
-                    "orderIndex":75,
-                    "hasChildren":false,
-                    "permissions":4623,
-                    "lockedByUser":{"id":1005},
-                    "lockedDateTime":"2016-10-11T13:48:55.09",
-                    "parent":{"id":1,
-                        "type":1,
-                        "name":"1",
-                        "hasChildren":true
+                model: {
+                    "id": 19,
+                    "name": "published",
+                    "projectId": 1,
+                    "parentId": 1,
+                    "itemTypeId": 67,
+                    "prefix": "AC",
+                    "predefinedType": 4104,
+                    "version": 15,
+                    "orderIndex": 75,
+                    "hasChildren": false,
+                    "permissions": 4623,
+                    "lockedByUser": {"id": 1005},
+                    "lockedDateTime": "2016-10-11T13:48:55.09",
+                    "parent": {
+                        "id": 1,
+                        "type": 1,
+                        "name": "1",
+                        "hasChildren": true
                     }
                 }
             };

@@ -1,5 +1,5 @@
 ﻿import "angular-ui-tinymce";
-import { IMentionService, MentionService } from "./mention.svc";
+import {IMentionService, MentionService} from "./mention.svc";
 
 export class BPCommentEdit implements ng.IComponentOptions {
     public template: string = require("./bp-comment-edit.html");
@@ -33,7 +33,7 @@ export class BPCommentEditController {
     public tinymceOptions = {
         plugins: "textcolor table noneditable autolink link autoresize mention paste",
         autoresize_bottom_margin: 0,
-        toolbar: "fontsize | bold italic underline | forecolor format | link",
+        toolbar: "bold italic underline strikethrough | fontsize fontselect forecolor format | link",
         convert_urls: false,
         relative_urls: false,
         remove_script_host: false,
@@ -44,29 +44,32 @@ export class BPCommentEditController {
         invalid_styles: {
             "*": "background-image"
         },
+        // https://www.tinymce.com/docs/configure/content-formatting/#font_formats
+        font_formats: "Open Sans='Open Sans';Arial=Arial;Cambria=Cambria;Calibri=Calibri;Courier New='Courier New';" +
+        "Times New Roman='Times New Roman';Trebuchet MS='Trebuchet MS';Verdana=Verdana;",
         mentions: this.mentionService.create(this.emailDiscussionsEnabled),
         init_instance_callback: (editor) => { // https://www.tinymce.com/docs/configure/integration-and-setup/#init_instance_callback
             this.commentEditor = editor;
             editor.focus();
             editor.formatter.register("font8px", {
                 inline: "span",
-                styles: { "font-size": "8px" }
+                styles: {"font-size": "8px"}
             });
             editor.formatter.register("font10px", {
                 inline: "span",
-                styles: { "font-size": "10px" }
+                styles: {"font-size": "10px"}
             });
             editor.formatter.register("font12px", {
                 inline: "span",
-                styles: { "font-size": "12px" }
+                styles: {"font-size": "12px"}
             });
             editor.formatter.register("font15px", {
                 inline: "span",
-                styles: { "font-size": "15px" }
+                styles: {"font-size": "15px"}
             });
             editor.formatter.register("font18px", {
                 inline: "span",
-                styles: { "font-size": "18px" }
+                styles: {"font-size": "18px"}
             });
         },
         setup: function (editor) {
@@ -76,11 +79,42 @@ export class BPCommentEditController {
                 text: "",
                 icon: "format",
                 menu: [
-                    { icon: "strikethrough", text: " Strikethrough", onclick: function () { editor.editorCommands.execCommand("strikethrough"); } },
-                    { icon: "bullist", text: " Bulleted list", onclick: function () { editor.editorCommands.execCommand("InsertUnorderedList"); } },
-                    { icon: "numlist", text: " Numeric list", onclick: function () { editor.editorCommands.execCommand("InsertOrderedList"); } },
-                    { icon: "outdent", text: " Outdent", onclick: function () { editor.editorCommands.execCommand("Outdent"); } },
-                    { icon: "indent", text: " Indent", onclick: function () { editor.editorCommands.execCommand("Indent"); } }
+                    {
+                        icon: "bullist",
+                        text: " Bulleted list",
+                        onclick: function () {
+                            editor.editorCommands.execCommand("InsertUnorderedList");
+                        }
+                    },
+                    {
+                        icon: "numlist",
+                        text: " Numeric list",
+                        onclick: function () {
+                            editor.editorCommands.execCommand("InsertOrderedList");
+                        }
+                    },
+                    {
+                        icon: "outdent",
+                        text: " Outdent",
+                        onclick: function () {
+                            editor.editorCommands.execCommand("Outdent");
+                        }
+                    },
+                    {
+                        icon: "indent",
+                        text: " Indent",
+                        onclick: function () {
+                            editor.editorCommands.execCommand("Indent");
+                        }
+                    },
+                    {text: "-"},
+                    {
+                        icon: "removeformat",
+                        text: " Clear formatting",
+                        onclick: function () {
+                            editor.editorCommands.execCommand("RemoveFormat");
+                        }
+                    }
                 ]
             });
             editor.addButton("fontsize", {
@@ -122,7 +156,7 @@ export class BPCommentEditController {
     public callPostComment() {
         if (!this.isWaiting) {
             this.isWaiting = true;
-            this.postComment({ comment: this.commentEditor ? (<any>this.commentEditor).contentDocument.body.innerHTML : "" }).finally(() => {
+            this.postComment({comment: this.commentEditor ? (<any>this.commentEditor).contentDocument.body.innerHTML : ""}).finally(() => {
                 this.isWaiting = false;
             });
         }

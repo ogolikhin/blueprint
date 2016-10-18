@@ -453,7 +453,7 @@ export class ShapesFactory {
     public createPersonaValue(persona: string): IPropertyValueInformation {
         return {
             propertyName: this.Persona.name,
-            typePredefined: PropertyTypePredefined.None,
+            typePredefined: PropertyTypePredefined.Persona,
             typeId: -1,
             value: persona
 
@@ -472,7 +472,7 @@ export class ShapesFactory {
     public createStoryLinksValue(storyLinks: IArtifactReferenceLink): IPropertyValueInformation {
         return {
             propertyName: this.StoryLinks.name,
-            typePredefined: PropertyTypePredefined.None,
+            typePredefined: PropertyTypePredefined.StoryLink,
             typeId: -1,
             value: storyLinks
         };

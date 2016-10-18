@@ -43,7 +43,7 @@ export class BPGotoController implements ng.IComponentController, IBPGotoControl
         if ($event.which === 13) {
             const parsedValue = _.parseInt(this.gotoValue);
             if (!_.isNaN(parsedValue)) {
-                // this.navigationService.navigateTo(parsedValue);
+                this.navigationService.navigateTo(parsedValue);
             }
         }
     }

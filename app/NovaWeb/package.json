@@ -100,6 +100,7 @@
     "typings": "^1.4.0",
     "url-loader": "~0.5.7",
     "webpack": "^1.12.14",
+    "webpack-dev-server": "^1.16.2",
     "webpack-fail-plugin": "^1.0.5"
   },
   "config": {

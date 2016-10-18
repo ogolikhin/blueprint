@@ -2,9 +2,9 @@ import {IWindowManager} from "../../services";
 import {IArtifactManager} from "../../../managers";
 import {IMessageService, INavigationService, ILocalizationService} from "../../../core";
 import {IDiagramService} from "../../../editors/bp-diagram/diagram.svc";
-import {IDialogSettings, IDialogService} from "../../../shared";
+//import {IDialogSettings, IDialogService} from "../../../shared";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
-import {Models} from "../../../main/models";
+import {IDialogService, IDialogSettings} from "../../../shared/widgets/bp-dialog/bp-dialog";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./bp-page-content.html");
@@ -66,7 +66,7 @@ class PageContentCtrl {
             header: "Single project Artifact picker"
         };
 
-        const dialogData: IArtifactPickerOptions = {            
+        const dialogData: IArtifactPickerOptions = {
             showSubArtifacts: false,
             isOneProjectLevel: true
         };

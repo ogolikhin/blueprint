@@ -42,11 +42,7 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
 
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
             this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemDecisionDetailsDialogType));
-        } else {
-            this.detailsButton.setClickAction(() => {
-                //fixme: no empty function blocks
-            });
-        }
+        } 
 
         this.detailsButton.setHoverImage(this.getImageSource("adddetails-hover.svg"));
         this.detailsButton.setDisabledImage(this.getImageSource("adddetails-mute.svg"));

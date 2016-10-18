@@ -297,7 +297,7 @@ namespace Model
         NovaUseCaseArtifact GetUseCaseArtifact(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Gets relationshipsdetails for the specified artifact/subartifact
+        /// Gets tracedetails for the specified artifact/subartifact
         /// (Runs: GET svc/artifactstore/artifacts/{itemId}/relationshipdetails)
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>

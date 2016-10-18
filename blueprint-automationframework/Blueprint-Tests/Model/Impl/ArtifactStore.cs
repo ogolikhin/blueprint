@@ -963,7 +963,7 @@ namespace Model.Impl
         }
 
         /// <summary>
-        /// Gets relationshipsdetails for the specified artifact/subartifact
+        /// Gets traceDetails for the specified artifact/subartifact
         /// (Runs: GET svc/artifactstore/artifacts/{artifactId}/relationshipdetails)
         /// </summary>
         /// <param name="address">The base address of the ArtifactStore.</param>
@@ -982,7 +982,6 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(address, nameof(address));
             ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(artifactId, nameof(artifactId));
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS, artifactId);
             var queryParameters = new Dictionary<string, string>();

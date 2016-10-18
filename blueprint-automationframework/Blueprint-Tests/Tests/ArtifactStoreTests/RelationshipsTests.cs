@@ -23,8 +23,10 @@ namespace ArtifactStoreTests
         private IGroup _authorsGroup = null;
         private IProjectRole _viewerRole = null;
 
-        private const int INVALID_VERSIONID = 999999999;
-        private const int INVALID_REVISIONID = 999999999;
+        private const int INVALID_VERSIONID = -1;
+        private const int NONEXSITING_VERSIONID = int.MaxValue;
+        private const int INVALID_REVISIONID = -1;
+        private const int NONEXSITING_REVISIONID = int.MaxValue;
 
         #region Setup and Cleanup
 
@@ -100,16 +102,16 @@ namespace ArtifactStoreTests
         }
 
 
-        /// TODO: Refind this validation method to cover more trace details test cases
+        /// TODO: Refine this validation method to cover more trace details test cases
         /// <summary>
-        /// Validate traceDetails with poperties from artifact 
+        /// Validate traceDetails with properties from artifact 
         /// </summary>
         /// <param name="traceDetails">trace details to validate</param>
         /// <param name="artifact">artifact to compare with</param>
         private static void TraceDetailsValidation(TraceDetails traceDetails, IArtifact artifact)
         {
-            Assert.That(traceDetails.PathToProject.Count.Equals(2), "PathToProject must have 2 items.");
-            Assert.That(traceDetails.ArtifactId.Equals(artifact.Id), "Artifact ID {0} from trace details must be equal to {1}.", traceDetails.ArtifactId, artifact.Id);
+            Assert.AreEqual(traceDetails.PathToProject.Count,2, "PathToProject must have 2 items.");
+            Assert.AreEqual(traceDetails.ArtifactId,artifact.Id, "Artifact ID {0} from trace details must be equal to {1}.", traceDetails.ArtifactId, artifact.Id);
         }
         #endregion Private Functions
 
@@ -170,14 +172,14 @@ namespace ArtifactStoreTests
             var traces = OpenApiArtifact.AddTrace(bpServerAddress, sourceArtifact, targetArtifact, direction, _user);
             sourceArtifact.Publish(); //creation of first version
 
-            // Execute: Execute GetRelationship for the available versions of the source artifact
+            // GetRelationship for the available versions of the source artifact
             Relationships relationships = null;
             Assert.DoesNotThrow(() =>
             {
                 relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: 1);
             }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
 
-            // Validation: Validates trace properties from relationships for the version
+            // Validates trace properties from relationships for the version
             TraceValidation(relationships, traces, new List<IArtifact> { targetArtifact });
 
             // Execute: Execute GetRelationshipDetails with the revision returned from GetRelationship call
@@ -193,19 +195,63 @@ namespace ArtifactStoreTests
 
         #endregion 200 OK Tests
 
+        #region 400 Bad Request Tests
+
+        [TestCase]
+        [Ignore(IgnoreReasons.UnderDevelopment)]
+        [Description("Create and publish artifact with a trace to target. Verify that GetRelationships with invalid versionId returns 400 Bad Request.")]
+        public void GetRelationships_GetRelationshipsWithInvalidVersionId_400BadRequest()
+        {
+            // Setup: Create and Publish a srouce artifact
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+
+            // Execute: Execute GetRelationships with invalid version ID of the source artifact (less than 1)
+            Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: INVALID_VERSIONID), "Calling GET {0} with invalid version ID should return 400 Bad Request!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS);
+        }
+
+        [TestCase(TraceDirection.To)]
+        [TestCase(TraceDirection.From)]
+        [TestCase(TraceDirection.TwoWay)]
+        [Ignore(IgnoreReasons.UnderDevelopment)]
+        [Description("Create and publish artifact with a trace to target. Verify that GetRelationshipsDetails with invalid revisionId returns 400 Bad Request.")]
+        public void GetRelationshipsDetails_GetRelationshipsWithInvalidRevisionId_400BadRequest(TraceDirection direction)
+        {
+            // Setup: Create and Publish Two target artifacts: target artifact
+            // Create and publish artifact with outgoing trace to target artifact 
+            var bpServerAddress = Helper.BlueprintServer.Address;
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Document);
+            var traces = OpenApiArtifact.AddTrace(bpServerAddress, sourceArtifact, targetArtifact, direction, _user);
+            sourceArtifact.Publish(); //creation of first version
+
+            // GetRelationship for the available versions of the source artifact
+            Relationships relationships = null;
+            Assert.DoesNotThrow(() =>
+            {
+                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: 1);
+            }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
+
+            // Validates trace properties from relationships for the version
+            TraceValidation(relationships, traces, new List<IArtifact> { targetArtifact });
+
+            // Execute: Execute GetRelationshipDetails with the invalid revision ID (less than 1)
+            Assert.Throws<Http400BadRequestException>(() => ArtifactStore.GetRelationshipsDetails(bpServerAddress, _user, targetArtifact.Id, revisionId: INVALID_REVISIONID), "Calling GET {0} with invalid revision ID should return 400 Bad Request!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS);
+        }
+
+        #endregion 400 Bad Request Tests
+
         #region 404 Not Found Tests
 
         [TestCase]
         [TestRail(183563)]
         [Description("Create and publish artifact with a trace to target. Verify that GetRelationships with non-existing versionId returns 404 Not Found.")]
-        public void GetRelationships_GetRelationshipsWithInvalidVersionId_404NotFound()
+        public void GetRelationships_GetRelationshipsWithNonExistingVersionId_404NotFound()
         {
             // Setup: Create and Publish a srouce artifact
             var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
 
             // Execute: Execute GetRelationships with invalid version ID of the source artifact
-            Relationships relationships = null;
-            var ex = Assert.Throws<Http404NotFoundException>(() => relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: INVALID_VERSIONID), "Calling GET {0} with invalid version ID should return 404 NotFound!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS);
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: NONEXSITING_VERSIONID), "Calling GET {0} with invalid version ID should return 404 NotFound!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS);
 
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
 
@@ -216,10 +262,9 @@ namespace ArtifactStoreTests
         [TestCase(TraceDirection.To)]
         [TestCase(TraceDirection.From)]
         [TestCase(TraceDirection.TwoWay)]
-        [Explicit(IgnoreReasons.ProductBug)]
         [TestRail(183566)]
         [Description("Create and publish artifact with a trace to target. Verify that GetRelationshipsDetails with non-existing revisionId returns 404 Not Found.")]
-        public void GetRelationshipsDetails_GetRelationshipsWithInvalidRevisionId_404NotFound(TraceDirection direction)
+        public void GetRelationshipsDetails_GetRelationshipsWithNonExistingRevisionId_404NotFound(TraceDirection direction)
         {
             // Setup: Create and Publish Two target artifacts: target artifact
             // Create and publish artifact with outgoing trace to target artifact 
@@ -229,41 +274,31 @@ namespace ArtifactStoreTests
             var traces = OpenApiArtifact.AddTrace(bpServerAddress, sourceArtifact, targetArtifact, direction, _user);
             sourceArtifact.Publish(); //creation of first version
 
-            // Execute: Execute GetRelationship for the available versions of the source artifact
+            // GetRelationship for the available versions of the source artifact
             Relationships relationships = null;
             Assert.DoesNotThrow(() =>
             {
                 relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: 1);
             }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
 
-            // Validation: Validates trace properties from relationships for the version
+            // Validates trace properties from relationships for the version
             TraceValidation(relationships, traces, new List<IArtifact> { targetArtifact });
 
+            // Delete the target artifact to test GetRelationshipsDetails for the target artifact with non existing revision ID
+            targetArtifact.Delete();
+            targetArtifact.Publish();
+
             // Execute: Execute GetRelationshipDetails with the invalid revision ID
-            TraceDetails traceDetails = null;
-            var ex = Assert.Throws<Http404NotFoundException>(() => traceDetails = ArtifactStore.GetRelationshipsDetails(bpServerAddress, _user, targetArtifact.Id, revisionId: INVALID_REVISIONID), "Calling GET {0} with invalid revision ID should return 404 NotFound!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS);
+            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.GetRelationshipsDetails(bpServerAddress, _user, targetArtifact.Id, revisionId: NONEXSITING_REVISIONID), "Calling GET {0} with invalid revision ID should return 404 NotFound!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS);
 
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
 
             // Validation: Exception should contain proper errorCode in the response content.
             Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.ResourceNotFound), "GetRelationshipsDetails with invalid revisionId should return {0} errorCode but {1} is returned", ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);
-
-            /* TODO: The commented lines maybe good enough for this test case
-             // Setup: Create and Publish a srouce artifact
-             var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-
-             // Execute: Execute GetRelationshipsDetails with invalid revision ID of the source artifact
-             TraceDetails traceDetails = null;
-             var ex = Assert.Throws<Http404NotFoundException>(() => traceDetails = Helper.ArtifactStore.GetRelationshipsDetails(_user, sourceArtifact, revisionId: INVALID_REVISIONID), "Calling GET {0} with invalid revision ID should return 404 NotFound!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS);
-
-             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
-
-             // Validation: Exception should contain proper errorCode in the response content.
-             Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.ResourceNotFound), "GetRelationshipsDetails with invalid revisionId should return {0} errorCode but {1} is returned", ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);
-             */
         }
 
         #endregion 404 Not Found Tests
+
 
         // TODO: Sort existing test cases inside of this file based on test type e.g. 200 OK test etc..
 

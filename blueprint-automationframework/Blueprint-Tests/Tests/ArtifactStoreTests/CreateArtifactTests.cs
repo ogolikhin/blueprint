@@ -16,6 +16,7 @@ using TestCommon;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
+using System.Globalization;
 
 namespace ArtifactStoreTests
 {
@@ -343,7 +344,6 @@ namespace ArtifactStoreTests
             ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "You do not have permission to perform this action.");
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/uypOAMKF  It gets 201 instead of 403.
         [TestCase]
         [TestRail(183538)]
         [Description("Create an artifact as a user that full access to the project, but no access to the parent.  " +
@@ -361,11 +361,12 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex= Assert.Throws<Http403ForbiddenException>(() => CreateArtifact(userWithoutPermission,
-                _project, ItemTypePredefined.Process, artifactName),
+                _project, ItemTypePredefined.Process, artifactName, parentArtifact.Id),
                 "'POST {0}' should return 403 Forbidden if the user doesn't have permission to parent artifact!", SVC_PATH);
 
             // Verify:
-            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "You do not have permission to perform this action.");
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, string.Format(CultureInfo.InvariantCulture,
+                "You do not have permission to access the artifact (ID: {0})", parentArtifact.Id));
         }
 
         [TestCase(int.MaxValue)]

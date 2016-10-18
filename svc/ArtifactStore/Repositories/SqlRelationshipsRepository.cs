@@ -211,6 +211,8 @@ namespace ArtifactStore.Repositories
         public async Task<RelationshipExtendedInfo> GetRelationshipExtendedInfo(int artifactId, int userId, bool addDraft = true, int revisionId = int.MaxValue)
         {
             var pathInfoDictionary = (await GetPathInfoToRoute(artifactId, userId, addDraft, revisionId)).ToDictionary(a => a.ItemId);
+            if (pathInfoDictionary.Keys.Count == 0)
+                throw new ResourceNotFoundException($"Artifact in revision {revisionId} does not exist.", ErrorCodes.ResourceNotFound);
             var pathToProject = GetPathToProject(artifactId, pathInfoDictionary);
             var description = (await GetItemDescription(artifactId, userId, addDraft, revisionId));
             return new RelationshipExtendedInfo { ArtifactId = artifactId, PathToProject = pathToProject, Description = description };

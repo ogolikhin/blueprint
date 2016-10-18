@@ -202,8 +202,35 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(LinkType.Manual, result.ManualTraces[0].TraceType);
         }
 
+        [ExpectedException(typeof(ResourceNotFoundException))]
         [TestMethod]
-        public async Task GetRelationships_GetRelationshipExtendedInfo_Success()
+        public async Task GetRelationshipExtendedInfo_ArtifactDoesNotExistForRevision_ThrowException()
+        {
+            // Arrange
+            const int artifactId = 1;
+            const int userId = 2;
+            const int revisionId = 999;
+            const bool addDrafts = false;
+
+            _cxn.SetupQueryAsync("GetPathIdsNamesToProject", new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId }, { "addDrafts", addDrafts }, { "revisionId", revisionId } }
+                , new List<ItemIdItemNameParentId>());
+
+            try
+            {
+                // Act
+                await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, userId, addDrafts, revisionId);
+            }
+            catch (ResourceNotFoundException e)
+            {
+                Assert.AreEqual(e.ErrorCode, ErrorCodes.ResourceNotFound);
+                throw;
+            }
+
+            //Assert
+        }
+
+        [TestMethod]
+        public async Task GetRelationshipExtendedInfo_Success()
         {
             // Arrange
             const int artifactId = 1;

@@ -62,7 +62,7 @@ export class ItemStateController {
             } else if (this.itemInfoService.isProject(result)) {
                 // project
                 console.log("about to display project");
-                this.navigateToSubRoute(statefulArtifact);
+                throw new Error("TODO: implement project navigation in a US");
 
             } else if (this.itemInfoService.isArtifact(result)) {
                 // artifact

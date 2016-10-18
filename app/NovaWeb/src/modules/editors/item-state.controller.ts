@@ -32,41 +32,39 @@ export class ItemStateController {
             this.navigateToSubRoute(artifact);
 
         }).catch(error => {
-            console.log("Artifact is not loaded");
             this.getItemInfo(id);
         });
     }
 
     public getItemInfo(id: number) {
         this.itemInfoService.get(id).then((result: IItemInfoResult) => {
-            const artifact: Models.IArtifact = {
-                id: result.id,
-                projectId: result.projectId,
-                name: result.name,
-                parentId: result.parentId,
-                predefinedType: result.predefinedType,
-                prefix: result.prefix,
-                version: result.version,
-                orderIndex: result.orderIndex,
-                lockedByUser: result.lockedByUser,
-                lockedDateTime: result.lockedDateTime,
-                permissions: result.permissions
-            };
-            const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(artifact);
 
             if (this.itemInfoService.isSubArtifact(result)) {
                 // subartifact
-                console.log("about to display subartifact, navigate to artifact: " + result.id);
                 this.navigationService.navigateTo(result.id, true);
 
             } else if (this.itemInfoService.isProject(result)) {
                 // project
-                console.log("about to display project");
                 throw new Error("TODO: implement project navigation in a US");
 
             } else if (this.itemInfoService.isArtifact(result)) {
                 // artifact
-                console.log("about to display artifact");
+                const artifact: Models.IArtifact = {
+                    id: result.id,
+                    projectId: result.projectId,
+                    name: result.name,
+                    parentId: result.parentId,
+                    predefinedType: result.predefinedType,
+                    prefix: result.prefix,
+                    version: result.version,
+                    orderIndex: result.orderIndex,
+                    lockedByUser: result.lockedByUser,
+                    lockedDateTime: result.lockedDateTime,
+                    permissions: result.permissions
+                };
+                const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(artifact);
+                
+                // TODO: fix for orphans
                 this.artifactManager.add(statefulArtifact);
                 this.navigateToSubRoute(statefulArtifact);
 

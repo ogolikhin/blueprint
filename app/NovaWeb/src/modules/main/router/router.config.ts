@@ -13,16 +13,16 @@ export class Routes {
                 $urlRouterProvider: ng.ui.IUrlRouterProvider,
                 $urlMatcherFactoryProvider: any) {
 
-        $urlMatcherFactoryProvider.caseInsensitive(true);
+        // $urlMatcherFactoryProvider.caseInsensitive(true);
 
         // register states with the router 
-        $stateProvider
-            .state("main.artifact", new ArtifactState())
-            .state("main.artifact.process", new ProcessState())
-            .state("main.artifact.details", new ArtifactDetailsState())
-            .state("main.artifact.general", new GeneralState())
-            .state("main.artifact.glossary", new GlossaryState())
-            .state("main.artifact.diagram", new DiagramState());
+        // $stateProvider
+        //     .state("main.artifact", new ArtifactState())
+        //     .state("main.artifact.process", new ProcessState())
+        //     .state("main.artifact.details", new ArtifactDetailsState())
+        //     .state("main.artifact.general", new GeneralState())
+        //     .state("main.artifact.glossary", new GlossaryState())
+        //     .state("main.artifact.diagram", new DiagramState());
     }
 }
 ;

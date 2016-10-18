@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import {INavigationState} from "./navigation-state";
 
 export interface INavigationService {
@@ -5,6 +6,7 @@ export interface INavigationService {
     navigateToMain(): ng.IPromise<any>;
     navigateToArtifact(id: number, enableTracking?: boolean): ng.IPromise<any>;
     navigateBack(pathIndex?: number): ng.IPromise<any>;
+    // navigateTo(id: number): ng.IPromise<any>;
 }
 
 export class NavigationService implements INavigationService {

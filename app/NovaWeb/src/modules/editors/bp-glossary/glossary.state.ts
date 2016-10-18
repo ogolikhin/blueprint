@@ -1,4 +1,4 @@
-﻿import {BaseEditorStateController} from "./base-editor-state-controller";
+﻿import {BaseEditorStateController} from "../base-editor-state.controller";
 
 export class GlossaryState implements ng.ui.IState {
     public template = require("./glossary.state.html");

@@ -5,17 +5,16 @@ import "./bp-glossary";
 import "./bp-artifact";
 import "./bp-diagram";
 import "./bp-process";
+import {ArtifactRoutes} from "./editors.router";
 
 angular.module("bp.editors", [
-    "formly",
-    "formlyBootstrap",
-    "bp.editors.glossary",
-    "bp.editors.details",
-    "bp.editors.diagram",
-    "bp.editors.process"
-
-]);
+        "formly",
+        "formlyBootstrap",
+        "bp.editors.glossary",
+        "bp.editors.details",
+        "bp.editors.diagram",
+        "bp.editors.process"
+    ])
+    .config(ArtifactRoutes);
 
 export {formlyConfig} from "./configuration/formly-config"
-
-

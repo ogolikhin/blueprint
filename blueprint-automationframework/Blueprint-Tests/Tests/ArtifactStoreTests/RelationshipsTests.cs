@@ -634,7 +634,7 @@ namespace ArtifactStoreTests
         [TestCase(0)]
         [TestCase(int.MaxValue)]
         [TestRail(153841)]
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // TODO: This test case need to updated to check 400 bad request instead of 404 nout found
+        [Explicit(IgnoreReasons.UnderDevelopment)]  // TODO: This test case need to updated to check 400 bad request instead of 404 nout found for TestCase(0)
         [Description("Try to Get Relationships for a sub-artifact ID that doesn't exist.  Verify 404 Not Found is returned.")]
         public void GetRelationships_InvalidSubArtifactId_404NotFound(int fakeSubArtifactId)
         {

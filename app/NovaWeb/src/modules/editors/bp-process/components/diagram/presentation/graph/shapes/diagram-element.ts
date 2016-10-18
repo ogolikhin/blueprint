@@ -70,13 +70,10 @@ export class DiagramElement extends mxCell implements IDiagramElement {
         return null;
     }
 
-
-    private _redraw: boolean;
-    private _isNotificationPending: boolean = false;
-
-    public notify(updateModel) {        
+    public notify(updateModel) {
         this.processDiagramManager.action(ProcessEvents.ArtifactUpdate, updateModel);
     }
+
     public getImageSource(image: string) {
         return "/novaweb/static/bp-process/images/" + image;
     }
@@ -92,11 +89,13 @@ export class DiagramNodeElement extends DiagramElement implements IDiagramNodeEl
             }
             parent = (<mxCell>parent).parent;
         }
+
         return null;
     }
 
     public getCenter(): MxPoint {
         const geometry = <MxGeometry>this.geometry;
+
         if (geometry) {
             if (this.parent) {
                 const parentCenterX = (<IDiagramNodeElement>this.parent).getCenter().x;
@@ -127,14 +126,15 @@ export class DiagramNodeElement extends DiagramElement implements IDiagramNodeEl
         if (this.getNode()) {
             return this.getNode().getElementTextLength(cell);
         }
+
         return null;
     }
 
     public formatElementText(cell: MxCell, text: string): string {
-
         if (this.getNode()) {
             return this.getNode().formatElementText(cell, text);
         }
+
         return null;
     }
 }

@@ -81,21 +81,21 @@ export class ProcessViewModel implements IProcessViewModel {
     
     private artifactsOnUpdate = (updateModel: ProcessModels.IArtifactUpdateModel) => {
         const statefulArtifact = this.getStatefulArtifact();
-        if (updateModel.updateType === ProcessEnums.ArtifactUpdateType.LinkLabel) {
+        if (updateModel.updateType === ProcessEnums.ArtifactUpdateType.Link) {
             statefulArtifact.processOnUpdate();
+            return;
         }
-        else {
-            const subArtifact: any = statefulArtifact.subArtifactCollection.get(updateModel.subArtifactId);
-            const processSubArtifact: IStatefulProcessSubArtifact = <IStatefulProcessSubArtifact> subArtifact;
-            if (processSubArtifact) {
-                if (updateModel.propertyValue.typePredefined === Enums.PropertyTypePredefined.Name) {
-                    processSubArtifact.name = updateModel.propertyValue.value;
-                } else if (updateModel.propertyValue.typePredefined === Enums.PropertyTypePredefined.Description) {
-                    processSubArtifact.description = updateModel.propertyValue.value;
-                } else if (updateModel.propertyValue.typePredefined > 0) {
-                    processSubArtifact.specialProperties.set(updateModel.propertyValue.typePredefined, updateModel.propertyValue.value);
-                }
-            } 
+
+        const subArtifact: any = statefulArtifact.subArtifactCollection.get(updateModel.subArtifactId);
+        const processSubArtifact: IStatefulProcessSubArtifact = <IStatefulProcessSubArtifact> subArtifact;
+        if (processSubArtifact) {
+            if (updateModel.propertyValue.typePredefined === Enums.PropertyTypePredefined.Name) {
+                processSubArtifact.name = updateModel.propertyValue.value;
+            } else if (updateModel.propertyValue.typePredefined === Enums.PropertyTypePredefined.Description) {
+                processSubArtifact.description = updateModel.propertyValue.value;
+            } else if (updateModel.propertyValue.typePredefined > 0) {
+                processSubArtifact.specialProperties.set(updateModel.propertyValue.typePredefined, updateModel.propertyValue.value);
+            }
         }
     }
 

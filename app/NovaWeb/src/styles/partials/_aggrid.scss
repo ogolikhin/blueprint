@@ -279,12 +279,12 @@ $has-children-padding-before-arrow: 3px;
         content: $icon-business-process;
     }
 
-    .ag-cell .ag-group-value .ag-group-value-wrapper i.fonticon.fonticon2-collection::before {
+    .ag-cell.is-artifact-collection .ag-group-value .ag-group-value-wrapper i::before {
         font-family: "bp-font2";
         content: $fonticon2-collection;
     }
 
-    .ag-cell .ag-group-value .ag-group-value-wrapper i.fonticon.fonticon2-collection-folder::before {
+    .ag-cell.is-collection-folder .ag-group-value .ag-group-value-wrapper i::before {
         content: $icon-folder;
     }
 
@@ -337,6 +337,10 @@ $has-children-padding-before-arrow: 3px;
     }
 
     .ag-cell.is-folder .ag-group-value .ag-group-value-wrapper i::before {
+        content: $icon-folder;
+    }
+
+    .ag-cell.is-primitive-folder .ag-group-value .ag-group-value-wrapper i::before {
         content: $icon-folder;
     }
 

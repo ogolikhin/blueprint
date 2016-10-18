@@ -116,7 +116,7 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
                     typeId: 0
                 };
             const updateModel: IArtifactUpdateModel = {
-                updateType: ArtifactUpdateType.LinkLabel,
+                updateType: ArtifactUpdateType.Link,
                 propertyValue: propertyValue
                 };
             this.notify(updateModel);

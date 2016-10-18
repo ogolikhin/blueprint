@@ -5,13 +5,13 @@ import {IProcessGraph, IDiagramNode, IDiagramLink, IDiagramNodeElement} from "./
 import {DiagramNodeElement} from "./diagram-element";
 import {ElementType, Direction, NodeType, NodeChange} from "./../models/";
 import {IDialogParams} from "../../../../messages/message-dialog";
-
+import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
 
 export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement implements IDiagramNode {
-
     direction: Direction;
     model: T;
     private nodeType: NodeType;
+    protected dialogManager: IModalDialogCommunication;
 
     public get newShapeColor(): string {
         return "#F7F1CF";
@@ -29,7 +29,8 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
             updateType: updateType,
             propertyValue: this.getProperty(name), 
             subArtifactId: this.model.id
-        }; 
+        };
+
         if (updateModel.propertyValue === null) {  
             let propertyValue: IPropertyValueInformation;          
             if (name === "name") {
@@ -47,8 +48,10 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
                     typeId: 0
                 };
             }
+
             updateModel.propertyValue = propertyValue;
-        }       
+        }
+        
         this.notify(updateModel);
     }
 
@@ -82,6 +85,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
     protected setModelName(value: string, redrawCellLabel: boolean) {
         if (this.model != null && this.model.name !== value) {
             this.model.name = value;
+
             if (redrawCellLabel) {
                 this.updateCellLabel(value);
             } else {
@@ -257,8 +261,10 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
             }).map((edge) => {
                 return (<IDiagramNodeElement>edge.target).getNode();
             });
+
             return <IDiagramNode[]>nextNodes;
         }
+
         return undefined;
     }
 
@@ -271,10 +277,13 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
             }).map((edge) => {
                 return (<IDiagramNodeElement>edge.source).getNode();
             });
+
             return <IDiagramNode[]>previousNodes;
         }
+
         return undefined;
     }
+
     protected getProperty(propertyName: string): IPropertyValueInformation {
         if (this.model == null || this.model.propertyValues == null || this.model.propertyValues[propertyName] == null) {
             return null;
@@ -282,6 +291,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
 
         return this.model.propertyValues[propertyName];
     }
+
     protected getPropertyValue(propertyName: string) {
         if (this.model == null || this.model.propertyValues == null || this.model.propertyValues[propertyName] == null) {
             return null;
@@ -296,8 +306,9 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
         }
 
         const previousValue = this.model.propertyValues[propertyName].value;
+
         if (previousValue !== newValue) {
-            this.model.propertyValues[propertyName].value = newValue;            
+            this.model.propertyValues[propertyName].value = newValue;
             return true;
         }
 
@@ -322,11 +333,10 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
 
     public canGenerateUserStory(): boolean {
         return false;
-    }    
+    }
 
     // TODO: communication with utility panel is different in Nova
     public openPropertiesDialog(scope: ng.IRootScopeService, tab: string) {
-
         //if (!scope)
         //    return;
         //var utilityPanel: Shell.IPropertiesMw = scope["propertiesSvc"]();
@@ -344,6 +354,5 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
         //        tab /*preselected tab*/,
         //        true /*includeDraft*/);
         //}
-
     }
 }

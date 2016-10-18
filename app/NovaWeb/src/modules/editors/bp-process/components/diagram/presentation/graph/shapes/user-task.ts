@@ -14,8 +14,6 @@ import {Button} from "../buttons/button";
 import {DeleteShapeButton} from "../buttons/delete-shape-button";
 import {Label, LabelStyle} from "../labels/label";
 import {SystemDecision} from "./";
-import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
-import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 import {ProcessEvents} from "../../../process-diagram-communication";
 
 export class UserStoryProperties implements IUserStoryProperties {
@@ -41,7 +39,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private previewButton: Button;
     private linkButton: Button;
     private rootScope: any;
-    private dialogManager: IModalDialogCommunication;
     
     // #UNUSED
     // private _userStoryId: number;

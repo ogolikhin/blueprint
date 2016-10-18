@@ -109,6 +109,9 @@ namespace ArtifactStore.Controllers
                 throw new HttpResponseException(HttpStatusCode.NotFound);
             }
 
+            if (revisionId.HasValue && revisionId < 1)
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+
             var isDeleted = await _artifactVersionsRepository.IsItemDeleted(artifactId);
             var artifactInfo = isDeleted && revisionId != null ?
                 (await _artifactVersionsRepository.GetDeletedItemInfo(artifactId)) :

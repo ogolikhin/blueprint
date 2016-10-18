@@ -6,7 +6,7 @@ export {ItemTypePredefined, PropertyTypePredefined};
 
 export interface IArtifactUpdateModel {
     updateType: ArtifactUpdateType;
-    propertyValue: IPropertyValueInformation;
+    propertyValue?: IPropertyValueInformation;
     subArtifactId?: number;
 }
 

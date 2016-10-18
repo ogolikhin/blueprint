@@ -24,7 +24,7 @@ class ObservableHelper {
     }
 
     private somePrivateFunc1() {
-
+        // do nothing
     }
 }
 

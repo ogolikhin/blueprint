@@ -1,15 +1,17 @@
 import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-controller";
-import {SubArtifactDecisionDialogModel} from "../models/sub-artifact-decision-dialog-model";
+import {DecisionEditorModel} from "./decision-editor-model";
 import {IModalProcessViewModel} from "../models/modal-process-view-model";
-import {IArtifactReference, IProcessLink} from "../../../models/process-models";
+import {ArtifactUpdateType} from "../../../models/enums";
+import {IArtifactReference, IProcessLink, IArtifactUpdateModel} from "../../../models/process-models";
 import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
 import {ProcessDeleteHelper} from "../../diagram/presentation/graph/process-delete-helper";
 import {Condition} from "../../diagram/presentation/graph/shapes";
 import {NodeType, NodeChange, IDiagramNode, IDiagramLink, ICondition, ISystemTaskShape} from "../../diagram/presentation/graph/models";
 import {IProcessService} from "../../../services/process.svc";
 import {ILocalizationService} from "../../../../../core";
+import {ProcessEvents} from "../../diagram/process-diagram-communication";
 
-export class DecisionEditorController extends BaseModalDialogController<SubArtifactDecisionDialogModel> implements ng.IComponentController {
+export class DecisionEditorController extends BaseModalDialogController<DecisionEditorModel> implements ng.IComponentController {
     private CONDITION_MAX_LENGTH = 40;
     
     private userTaskIcon: string = "fonticon fonticon-bp-actor";
@@ -18,9 +20,9 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
     private errorIcon: string = "fonticon fonticon-error";
 
     private modalProcessViewModel: IModalProcessViewModel;
-
     private deletedConditions: ICondition[] = [];
-    private isReadonly: boolean = false;
+
+    public isReadonly: boolean = false;
 
     public static $inject = [
         "$rootScope",
@@ -42,7 +44,7 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
         super($rootScope, $scope);
 
         this.modalProcessViewModel = <IModalProcessViewModel>this.resolve["modalProcessViewModel"];
-        this.isReadonly = false;
+        this.isReadonly = this.dialogModel.isReadonly || this.dialogModel.isHistoricalVersion;
         this.setNextNode();
     }
 
@@ -59,7 +61,7 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
     }
 
     public setNextNode() {
-        this.dialogModel.nextNode = this.modalProcessViewModel.getNextNode(<ISystemTaskShape>this.dialogModel.clonedDecision.model);
+        this.dialogModel.nextNode = this.modalProcessViewModel.getNextNode(<ISystemTaskShape>this.dialogModel.originalDecision.model);
     }
 
     private sortById(p1: IArtifactReference, p2: IArtifactReference) {
@@ -93,10 +95,10 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
     public addCondition() {
         const conditionNumber = this.dialogModel.conditions.length + 1;
         const processLink: IProcessLink = <IProcessLink>{
-            sourceId: this.dialogModel.clonedDecision.model.id,
+            sourceId: this.dialogModel.originalDecision.model.id,
             destinationId: null,
             orderindex: null,
-            label: `${this.localization.get("ST_Decision_Modal_New_System_Task_Edge_Label")}${conditionNumber}`
+            label: `${this.localization.get("ST_Decision_Modal_New_System_Task_Edge_Label")} ${conditionNumber}`
         };
 
         const validMergeNodes = this.dialogModel.graph.getValidMergeNodes(processLink);
@@ -164,7 +166,7 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
     }
 
     private populateDecisionChanges() {
-        this.dialogModel.originalDecision.setLabelWithRedrawUi(this.dialogModel.clonedDecision.label);
+        this.dialogModel.originalDecision.setLabelWithRedrawUi(this.dialogModel.label);
 
         let isMergeNodeUpdate: boolean = false;
         // update edges
@@ -177,7 +179,11 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
         }
 
         if (isMergeNodeUpdate) {
-            this.dialogModel.graph.notifyUpdateInModel(NodeChange.Update, this.dialogModel.clonedDecision.model.id);
+            this.dialogModel.graph.viewModel.communicationManager.processDiagramCommunication.modelUpdate(this.dialogModel.originalDecision.model.id);
+            const updateModel: IArtifactUpdateModel = {
+                updateType: ArtifactUpdateType.Link
+            };
+            this.dialogModel.graph.viewModel.communicationManager.processDiagramCommunication.action(ProcessEvents.ArtifactUpdate, updateModel);
         }
     }
 
@@ -199,7 +205,7 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
     }
 
     public isLabelAvailable(): boolean {
-        return this.dialogModel.clonedDecision.label != null && this.dialogModel.clonedDecision.label !== "";
+        return this.dialogModel.label != null && this.dialogModel.label !== "";
     }
     
     public areMergeNodesEmpty(): boolean {
@@ -230,5 +236,17 @@ export class DecisionEditorController extends BaseModalDialogController<SubArtif
             default:
                 return this.errorIcon;
         }
+    }
+
+    public get canApplyChanges(): boolean {
+        return !this.isReadonly && this.isLabelAvailable() && !this.areMergeNodesEmpty();
+    }
+
+    public get canAddCondition(): boolean {
+        return !this.isReadonly && !this.hasMaxConditions;
+    }
+
+    public get canDeleteCondition(): boolean {
+        return !this.isReadonly;
     }
 }

@@ -328,22 +328,24 @@ export class ProcessViewModel implements IProcessViewModel {
         return this.processGraphModel.status;
     }
 
-    protected addStatefulShape(processShape: ProcessModels.IProcessShape) {
-
-        let statefulShape = new StatefulProcessSubArtifact(this.process,
-            processShape, this.process.getServices());
+    protected addToSubArtifactCollection(statefulSubArtifact: IStatefulProcessSubArtifact) {
 
         const statefulArtifact: IStatefulArtifact = this.getStatefulArtifact();
         if (statefulArtifact) {
-            statefulArtifact.subArtifactCollection.add(statefulShape);
+            statefulArtifact.subArtifactCollection.add(statefulSubArtifact);
         }
     }
 
     public addShape(processShape: ProcessModels.IProcessShape) {
+        let services;
+        if (this.process.getServices) {
+            services = this.process.getServices();
+        }
+        let statefulShape = new StatefulProcessSubArtifact(this.process,
+            processShape, services);              
 
-        this.shapes.push(processShape);
-
-        this.addStatefulShape(processShape);
+        this.shapes.push(statefulShape);
+        this.addToSubArtifactCollection(statefulShape);
     }
 
     public removeShape(shapeId: number) {

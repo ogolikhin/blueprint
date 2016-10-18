@@ -1,4 +1,3 @@
-//import * as angular from "angular";
 import { Models, Enums } from "../../../main/models";
 export {Models, Enums}
 
@@ -15,7 +14,7 @@ export class PublishService implements IPublishService {
     }
 
     public publishAll(): ng.IPromise<Models.IPublishResultSet>  {
-        var defer = this.$q.defer<Models.IPublishResultSet>();
+        let defer = this.$q.defer<Models.IPublishResultSet>();
 
         this.$http.post(`/svc/bpartifactstore/artifacts/publish?all=true`, "").then(
             (result: ng.IHttpPromiseCallbackArg<Models.IPublishResultSet>) => defer.resolve(result.data),
@@ -24,7 +23,7 @@ export class PublishService implements IPublishService {
                     defer.reject();
                     return;
                 }
-                var error = {
+                let error = {
                     statusCode: errResult.status,
                     errorCode: errResult.data ? errResult.data.errorCode : -1,
                     message: (errResult.data ? errResult.data.message : "")
@@ -36,7 +35,7 @@ export class PublishService implements IPublishService {
     }
 
     public getUnpublishedArtifacts(): ng.IPromise<Models.IPublishResultSet>  {
-        var defer = this.$q.defer<Models.IPublishResultSet>();
+        let defer = this.$q.defer<Models.IPublishResultSet>();
 
         this.$http.get(`/svc/bpartifactstore/artifacts/unpublished`).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IPublishResultSet>) => defer.resolve(result.data),
@@ -45,7 +44,7 @@ export class PublishService implements IPublishService {
                     defer.reject();
                     return;
                 }
-                var error = {
+                let error = {
                     statusCode: errResult.status,
                     errorCode: errResult.data ? errResult.data.errorCode : -1,
                     message: (errResult.data ? errResult.data.message : "")

@@ -1,8 +1,7 @@
-﻿import * as angular from "angular";
-import {ILocalizationService, IMessageService} from "../../../core";
+﻿import {ILocalizationService, IMessageService} from "../../../core";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {Models} from "../../models";
-import {IPublishService} from "../../../managers/artifact-manager/publish";
+import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
 import {OpenProjectController} from "../dialogs/open-project/open-project";
@@ -56,7 +55,7 @@ class BPToolbarController implements IBPToolbarController {
         private $timeout: ng.ITimeoutService, //Used for testing, remove later
         private $http: ng.IHttpService //Used for testing, remove later
     ) { 
-	}
+    }
 
     execute(evt: any): void {
         if (!evt) {
@@ -117,7 +116,7 @@ class BPToolbarController implements IBPToolbarController {
                 try {
                     //get a list of unpublished artifacts
                     this.publishService.getUnpublishedArtifacts()
-                    .then((data) => {
+                    .then((data: Models.IPublishResultSet) => {
                         this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
 
                         if (data.artifacts.length === 0) {
@@ -138,34 +137,7 @@ class BPToolbarController implements IBPToolbarController {
                                 projectList: data.projects
                             })
                             .then(() => {
-                                let publishAllLoadingId = this.loadingOverlayService.beginLoading();
-                                try {
-                                    //save unsaved artifacts
-                                    let artifactsToSave = [];
-                                    data.artifacts.forEach((artifact) => {
-                                        let foundArtifact = this.projectManager.getArtifact(artifact.id);
-                                        if (foundArtifact && foundArtifact.isCanBeSaved()) {
-                                            artifactsToSave.push(foundArtifact.save());
-                                        }
-                                    });
-
-                                    this.$q.all(artifactsToSave).then(() => {
-                                        //perform publish all
-                                        this.publishService.publishAll()
-                                        .then(() => {
-                                            this.messageService.addInfoWithPar("Publish_All_Success_Message", [data.artifacts.length]);
-                                        })
-                                        .finally(() => {
-                                            this.loadingOverlayService.endLoading(publishAllLoadingId);
-                                        });
-                                    }).catch((err) => {
-                                        this.messageService.addError(err);
-                                        this.loadingOverlayService.endLoading(publishAllLoadingId);
-                                    });
-                                } catch (err) {
-                                    this.loadingOverlayService.endLoading(publishAllLoadingId);
-                                    throw err;
-                                }
+                                this.saveAndPublishAll(data);
                             });
                         }
                     })
@@ -195,6 +167,37 @@ class BPToolbarController implements IBPToolbarController {
             default:
                 this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
                 break;
+        }
+    }
+
+    private saveAndPublishAll(data: Models.IPublishResultSet) {
+        let publishAllLoadingId = this.loadingOverlayService.beginLoading();
+        try {
+            //save unsaved artifacts
+            let artifactsToSave = [];
+            data.artifacts.forEach((artifact) => {
+                let foundArtifact = this.projectManager.getArtifact(artifact.id);
+                if (foundArtifact && foundArtifact.isCanBeSaved()) {
+                    artifactsToSave.push(foundArtifact.save());
+                }
+            });
+
+            this.$q.all(artifactsToSave).then(() => {
+                //perform publish all
+                this.publishService.publishAll()
+                .then(() => {
+                    this.messageService.addInfoWithPar("Publish_All_Success_Message", [data.artifacts.length]);
+                })
+                .finally(() => {
+                    this.loadingOverlayService.endLoading(publishAllLoadingId);
+                });
+            }).catch((err) => {
+                this.messageService.addError(err);
+                this.loadingOverlayService.endLoading(publishAllLoadingId);
+            });
+        } catch (err) {
+            this.loadingOverlayService.endLoading(publishAllLoadingId);
+            throw err;
         }
     }
 

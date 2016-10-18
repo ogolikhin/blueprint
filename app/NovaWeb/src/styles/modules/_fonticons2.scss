@@ -114,6 +114,7 @@ $fonticon2-add-artifact: '\e800'; /* '' */
 $fonticon2-add-folder: '\e801'; /* '' */
 $fonticon2-rapid-review: '\e82a'; /* '' */
 $fonticon2-font-family: '\e840'; /* '' */
+$fonticon2-project: '\e843'; /* '' */
 
 .fonticon2-arrow-down::before {
     content: $fonticon2-arrow-down;
@@ -441,3 +442,6 @@ $fonticon2-font-family: '\e840'; /* '' */
 .fonticon2-font-family:before {
     content: $fonticon2-font-family;
 } /* '' */
+.fonticon2-project:before {
+    content: $fonticon2-project;
+} /* '' */

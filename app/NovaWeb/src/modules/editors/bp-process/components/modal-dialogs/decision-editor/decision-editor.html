@@ -41,7 +41,7 @@
                     </div>
                 </div>
                 <div class="col-sm-1 delete-condition">
-                    <a class="btn" ng-click="$ctrl.deleteCondition(condition)" bp-tooltip="{{::$root.config.labels['ST_Decision_Modal_Delete_Condition_Button_Label']}}" ng-if="!$ctrl.hasMinConditions && !$ctrl.isFirstBranch(condition)" ng-disabled="$ctrl.isReadonly">
+                    <a class="btn" ng-click="$ctrl.deleteCondition(condition)" bp-tooltip="{{::$root.config.labels['ST_Decision_Modal_Delete_Condition_Button_Label']}}" ng-if="!$ctrl.hasMinConditions && !$ctrl.isFirstBranch(condition)" ng-disabled="!$ctrl.canDeleteCondition">
                         <span class="fonticon-delete"></span>
                     </a>
                 </div>
@@ -49,11 +49,11 @@
             <div id="decision-modal-list-bottom"></div>
         </div>
         <div>
-            <button class="btn btn-default" type="button" ng-click="$ctrl.addCondition()" ng-disabled="$ctrl.hasMaxConditions || $ctrl.isReadonly">{{::$root.config.labels['ST_Decision_Modal_Add_Condition_Button_Label']}}</button>
+            <button class="btn btn-default" type="button" ng-click="$ctrl.addCondition()" ng-disabled="!$ctrl.canAddCondition">{{::$root.config.labels['ST_Decision_Modal_Add_Condition_Button_Label']}}</button>
         </div>
     </div>
 </div>
 <div class="modal-footer storyteller-modal-footer">
     <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{::$root.config.labels['App_Button_Cancel']}}</button>
-    <button class="btn btn-promoted-action" type="button" ng-click="$ctrl.ok()" ng-disabled="$ctrl.areMergeNodesEmpty() || !$ctrl.isLabelAvailable() || $ctrl.isReadonly">{{::$root.config.labels['App_Button_Ok']}}</button>
+    <button class="btn btn-promoted-action" type="button" ng-click="$ctrl.ok()" ng-disabled="!$ctrl.canApplyChanges">{{::$root.config.labels['App_Button_Ok']}}</button>
 </div>

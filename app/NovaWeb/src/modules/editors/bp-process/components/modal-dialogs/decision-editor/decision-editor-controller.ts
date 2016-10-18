@@ -20,9 +20,9 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
     private errorIcon: string = "fonticon fonticon-error";
 
     private modalProcessViewModel: IModalProcessViewModel;
-
     private deletedConditions: ICondition[] = [];
-    private isReadonly: boolean = false;
+
+    public isReadonly: boolean = false;
 
     public static $inject = [
         "$rootScope",
@@ -44,7 +44,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         super($rootScope, $scope);
 
         this.modalProcessViewModel = <IModalProcessViewModel>this.resolve["modalProcessViewModel"];
-        this.isReadonly = false;
+        this.isReadonly = this.dialogModel.isReadonly || this.dialogModel.isHistoricalVersion;
         this.setNextNode();
     }
 
@@ -236,5 +236,17 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
             default:
                 return this.errorIcon;
         }
+    }
+
+    public get canApplyChanges(): boolean {
+        return !this.isReadonly && this.isLabelAvailable() && !this.areMergeNodesEmpty();
+    }
+
+    public get canAddCondition(): boolean {
+        return !this.isReadonly && !this.hasMaxConditions;
+    }
+
+    public get canDeleteCondition(): boolean {
+        return !this.isReadonly;
     }
 }

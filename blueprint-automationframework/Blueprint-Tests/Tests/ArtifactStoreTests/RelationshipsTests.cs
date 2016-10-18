@@ -632,11 +632,25 @@ namespace ArtifactStoreTests
         }
 
         [TestCase(0)]
-        [TestCase(int.MaxValue)]
         [TestRail(153841)]
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // TODO: This test case need to updated to check 400 bad request instead of 404 nout found for TestCase(0)
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Description("Try to Get Relationships for a invalid sub-artifact ID .  Verify 400 Bad Request is returned.")]
+        public void GetRelationships_InvalidSubArtifactId_400BadRequest(int fakeSubArtifactId)
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+
+            // Execute & Verify:
+            Assert.Throws<Http400BadRequestException>(() =>
+            {
+                Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, subArtifactId: fakeSubArtifactId);
+            }, "GetArtifactRelationships should return 400 BadRequest if the sub-artifact ID is invalid.");
+        }
+
+        [TestCase(int.MaxValue)]
+        [TestRail(153595)]
         [Description("Try to Get Relationships for a sub-artifact ID that doesn't exist.  Verify 404 Not Found is returned.")]
-        public void GetRelationships_InvalidSubArtifactId_404NotFound(int fakeSubArtifactId)
+        public void GetRelationships_NonExstingSubArtifactId_404NotFound(int fakeSubArtifactId)
         {
             // Setup:
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);

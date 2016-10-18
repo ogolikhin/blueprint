@@ -2,12 +2,11 @@
 using Helper;
 using Model;
 using Model.ArtifactModel;
-using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
 using System.Collections.Generic;
 using TestCommon;
-using System;
+using System.Linq;
 
 namespace ArtifactStoreTests
 {
@@ -37,6 +36,7 @@ namespace ArtifactStoreTests
         #region 200 OK tests
 
         [TestCase(BaseArtifactType.Actor, 2)]
+        [TestCase(BaseArtifactType.PrimitiveFolder, 2)]
         [TestRail(183596)]
         [Description("Create & publish an artifact.  Verify the basic artifact information returned from parent.")]
         public void ArtifactNavigation_PublishedArtifact_ReturnsParentArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
@@ -55,6 +55,7 @@ namespace ArtifactStoreTests
         }
 
         [TestCase(BaseArtifactType.Actor)]
+        [TestCase(BaseArtifactType.PrimitiveFolder)]
         [TestRail(183597)]
         [Description("Create & save an artifact.  Verify the basic artifact information returned from parent.")]
         public void ArtifactNavigation_SavedArtifact_ReturnsParentArtifactInfo_200OK(BaseArtifactType artifactType)
@@ -71,25 +72,50 @@ namespace ArtifactStoreTests
             // Verify:
             VerifyParentInformation(basicArtifactInfoList[0], artifact.ParentId);
         }
-/*
+
         [TestCase(BaseArtifactType.Actor, 2)]
-        [TestRail(0)]
-        [Description("Create & publish an artifact.  Verify the basic artifact information returned with HasChanges flag set to false.")]
-        public void VersionControlInfoWithArtifactId_PublishedArtifact_NoChanges_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
+        [TestRail(183598)]
+        [Description("Create & publish an artifact and its child.  Verify the basic artifact information returned from parent.")]
+        public void ArtifactNavigation_PublishedArtifactWithAChild_ReturnsParentArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
-
+            var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
+            var childArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, parentArtifact, numberOfVersions: numberOfVersions);
+             
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetArtifactPath(_user, artifact.Id),
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetArtifactPath(_user, childArtifact.Id),
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
-            VerifyParentInformation(basicArtifactInfoList[0], artifact.ParentId);
+            VerifyParentInformation(basicArtifactInfoList.Last(), childArtifact.ParentId);
         }
-*/
+
+        [TestCase]
+        [TestRail(183599)]
+        [Description("Verify the basic artifact information returned from project.")]
+        public void ArtifactNavigation_Project_ReturnsArtifactInfo_200OK()
+        {
+            List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetArtifactPath(_user, _project.Id),
+                                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+        }
+
+        [TestCase]
+        [TestRail(183599)]
+        [Description("Verify the basic artifact information returned from project.")]
+        public void ArtifactNavigation_Project_ReturnsArtifactInfo_200OK()
+        {
+            List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetArtifactPath(_user, _project.Id),
+                                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+        }
+
         //TODO Test for artifact in the root
         //TODO Test for artifact in a folder
         //TODO Test for artifact child
@@ -100,6 +126,7 @@ namespace ArtifactStoreTests
         //TODO Test for artifact in a long chain of 10 or more folders
         //TODO Test for artifact in a long chain of 10 or more child artifacts
         //TODO Test for artifact in a long chain of mixwd folders and child artifacts
+        //TODO Test for project in a folder
 
         #endregion 200 OK tests
 

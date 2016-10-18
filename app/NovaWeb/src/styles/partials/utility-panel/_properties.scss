@@ -9,7 +9,7 @@ bp-properties-panel {
     $property-left-margin: 11px;
 
     .properties {
-        min-width: $properties-min-width;
+        //min-width: $properties-min-width;
     }
 
     .tab-content {
@@ -20,7 +20,7 @@ bp-properties-panel {
 
         > .content {
             border: none;
-            padding: 0px 0px;
+            padding: 0;
         }
 
         .nav-tabs {
@@ -29,8 +29,8 @@ bp-properties-panel {
     }
 
     .formly {
-        min-width: $property-width - $property-label-width;
-        margin: 0px;
+        //min-width: $property-width - $property-label-width;
+        margin: 0;
 
         .formly-field-bpFieldInheritFrom {
             min-width: $property-input-width;
@@ -51,8 +51,9 @@ bp-properties-panel {
         }
 
         .formly-field {
-            width: $property-width;
-            margin: 0px;
+            display: block;
+            width: 100%;
+            margin: 0;
 
             .has-messages {
                 display: block;
@@ -85,7 +86,7 @@ bp-properties-panel {
                 }
 
                 .ui-select-search {
-                    min-width: $property-input-width;
+                    //min-width: $property-input-width;
                 }
             }
 
@@ -110,17 +111,17 @@ bp-properties-panel {
 
                 &.simple,
                 &.multiple {
-                    max-width: $property-input-width;
-                    width: $property-input-width;
+                    max-width: 100%;
+                    width: 100%;
                 }
 
                 &.richtext {
-                    min-width: $property-input-width;
+                    //min-width: $property-input-width;
                 }
             }
 
             .form-tinymce {
-                min-width: $property-input-width;
+                //min-width: $property-input-width;
             }
         }
     }
@@ -131,7 +132,7 @@ bp-properties-panel {
 
     .tab-pane {
         .formly {
-            min-width: $property-input-width;
+            //min-width: $property-input-width;
         }
     }
 

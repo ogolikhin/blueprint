@@ -21,7 +21,7 @@ $richtext-y-scrollbar-width: 12px;
 pagecontent, bp-properties-panel {
     .properties {
         border: solid 1px $gray-lighter;
-        min-width: $properties-min-width;
+        //min-width: $properties-min-width;
 
         + .properties {
             margin-top: 15px;
@@ -83,7 +83,7 @@ pagecontent, bp-properties-panel {
         font-size: .9rem;
         justify-content: space-between;
         margin: 0 $property-horiz-spacing;
-        min-width: $property-width - $property-label-width;
+        //min-width: $property-width - $property-label-width;
         padding: 0 0 10px;
 
         // create "padding" to align un-even numbers of property groups
@@ -95,7 +95,7 @@ pagecontent, bp-properties-panel {
             flex-grow: 0;
             flex-shrink: 1;
             order: 0;
-            width: $property-width;
+            //width: $property-width;
         }
 
         &::before {
@@ -613,7 +613,7 @@ pagecontent, bp-properties-panel {
                     font-size: $richtext-fontsize;
                     max-height: 350px;
                     min-height: 150px;
-                    min-width: $property-input-width;
+                    //min-width: $property-input-width;
                     padding: 0;
 
                     a {
@@ -1274,7 +1274,7 @@ pagecontent, bp-properties-panel {
 
     .formly {
         margin: 0;
-        min-width: $property-input-width;
+        //min-width: $property-input-width;
         padding: 0;
 
         .formly-field {

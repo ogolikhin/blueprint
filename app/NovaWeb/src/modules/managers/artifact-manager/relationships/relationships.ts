@@ -38,8 +38,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
         this.changeset = new ChangeSetCollector(statefulItem);
     }
 
-    // refresh = true: turn lazy loading off, always reload
-    public get(refresh: boolean = true): ng.IPromise<IRelationship[]> {
+    public get(refresh: boolean = false): ng.IPromise<IRelationship[]> {
         const deferred = this.statefulItem.getServices().getDeferred<IRelationship[]>();
 
         if (this.isLoaded && !refresh) {

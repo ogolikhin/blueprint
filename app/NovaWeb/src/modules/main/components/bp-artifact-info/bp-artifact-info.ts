@@ -130,10 +130,6 @@ export class BpArtifactInfoController {
         this.updateProperties(this.artifact);
     }
 
-    private onStateChanged = () => {
-        this.updateProperties(this.artifact);
-    }
-
     public onError = (error: any) => {
         if (this.artifact.artifactState.deleted) {
             this.dialogService.alert("Artifact_Lock_DoesNotExist");

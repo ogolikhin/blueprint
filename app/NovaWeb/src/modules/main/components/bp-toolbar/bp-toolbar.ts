@@ -114,7 +114,7 @@ class BPToolbarController implements IBPToolbarController {
                             this.dialogService.open(<IDialogSettings>{
                                 okButton: this.localization.get("App_Button_Yes"),
                                 cancelButton: this.localization.get("App_Button_No"),
-                                message: "Publish_All_Dialog_Message",
+                                message: this.localization.get("Publish_All_Dialog_Message"),
                                 template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
                                 controller: ConfirmPublishController,
                                 css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
@@ -126,6 +126,7 @@ class BPToolbarController implements IBPToolbarController {
                             .then(() => {
                                 let publishAllLoadingId = this.loadingOverlayService.beginLoading();
                                 try {
+                                    //save unsaved artifacts
                                     let artifactsToSave = [];
                                     data.artifacts.forEach((artifact) => {
                                         let foundArtifact = this.projectManager.getArtifact(artifact.id);

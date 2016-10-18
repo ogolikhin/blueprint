@@ -94,6 +94,7 @@ export class Label implements ILabel {
     //private shortContent: string;
     private visibility: string;
     private executionEnvironmentDetector: any;
+    private beforeEditText: string;
 
     public get text() {
         return this._text;
@@ -131,7 +132,7 @@ export class Label implements ILabel {
         if (!_text) {
             this._text = "";
         }
-
+        this.beforeEditText = "";
         // This is temporary code. It will be replaced with
         // a class that wraps this global functionality.
         let w: any = window;
@@ -147,7 +148,8 @@ export class Label implements ILabel {
         this.cancelDefaultAction(e);
     }
     private undo() {
-        this.callback(this._text);
+        this._text = this.beforeEditText;
+        this.callback(this.beforeEditText);
         this.setViewMode();
     }
 
@@ -178,6 +180,7 @@ export class Label implements ILabel {
     private callbackIfTextChanged() {
         const innerText = this.div.innerText.replace(/\n/g, "");
         if (this.isTextChanged(innerText)) {
+            this._text = innerText;
             this.callback(innerText);
         }
     }
@@ -247,6 +250,7 @@ export class Label implements ILabel {
         this.wrapperDiv.style.pointerEvents = "auto";
         //window.console.log("setEditMode this.mode = " + this.mode);
         this.selectText();
+        this.beforeEditText = this._text;
 
         setTimeout(this.addDeferedListener, 300, this.div);
     }

@@ -16,38 +16,38 @@ export class ArtifactRoutes {
 
         // register states with the router
         $stateProvider
-            .state("main.artifact", {
+            .state("main.item", {
                 url: "/{id:any}?{path:string}",
                 template: "<div ui-view class='artifact-state'></div>",
                 reloadOnSearch: false,
                 controller: ItemStateController
             })
 
-            .state("main.artifact.process", {
+            .state("main.item.process", {
                 template: require("./bp-process/process.state.html"),
                 controller: BaseEditorStateController,
                 controllerAs: "$content",
                 params: { context: null }
             })
-            .state("main.artifact.details", {
+            .state("main.item.details", {
                 template: require("./bp-artifact/details.state.html"),
                 controller: BaseEditorStateController,
                 controllerAs: "$content",
                 params: { context: null }
             })
-            .state("main.artifact.general", {
+            .state("main.item.general", {
                 template: require("./bp-artifact/general.state.html"),
                 controller: BaseEditorStateController,
                 controllerAs: "$content",
                 params: { context: null }
             })
-            .state("main.artifact.glossary", {
+            .state("main.item.glossary", {
                 template: require("./bp-glossary/glossary.state.html"),
                 controller: BaseEditorStateController,
                 controllerAs: "$content",
                 params: { context: null }
             })
-            .state("main.artifact.diagram", {
+            .state("main.item.diagram", {
                 template: require("./bp-diagram/diagram.state.html"),
                 controller: BaseEditorStateController,
                 controllerAs: "$content",

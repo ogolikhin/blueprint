@@ -103,7 +103,7 @@ export class NavigationService implements INavigationService {
     }
 
     private navigateToArtifactInternal(getParameters: () => any, stateOptions?: ng.ui.IStateOptions): ng.IPromise<any> {
-        const state = "main.artifact";
+        const state = "main.item";
         const parameters = getParameters();
         // Disables the inheritance of optional url parameters (such as "path")
         const options: ng.ui.IStateOptions = stateOptions || { inherit: false };

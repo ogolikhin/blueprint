@@ -15,7 +15,6 @@ import "../shared";
 import "../managers";
 import "./services/";
 import "./components";
-// import "./router";
 import "./services";
 import "./view";
 import {formlyConfig} from "../editors/";

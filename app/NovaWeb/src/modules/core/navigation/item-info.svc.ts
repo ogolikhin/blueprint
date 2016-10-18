@@ -10,7 +10,7 @@ export interface IItemInfoService {
 
 export interface IItemInfoResult {
   id: number;
-  subArtifactId: number;
+  subArtifactId?: number;
   name: string;
   projectId: number;
   parentId: number;

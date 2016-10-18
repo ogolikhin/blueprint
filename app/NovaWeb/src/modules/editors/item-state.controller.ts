@@ -85,20 +85,20 @@ export class ItemStateController {
             case Models.ItemTypePredefined.UseCaseDiagram:
             case Models.ItemTypePredefined.UseCase:
             case Models.ItemTypePredefined.UIMockup:
-                this.$state.go("main.artifact.diagram", params);
+                this.$state.go("main.item.diagram", params);
                 break;
             case Models.ItemTypePredefined.Glossary:
-                this.$state.go("main.artifact.glossary", params);
+                this.$state.go("main.item.glossary", params);
                 break;
             case Models.ItemTypePredefined.Project:
             case Models.ItemTypePredefined.CollectionFolder:
-                this.$state.go("main.artifact.general", params);
+                this.$state.go("main.item.general", params);
                 break;
             case Models.ItemTypePredefined.Process:
-                this.$state.go("main.artifact.process", params);
+                this.$state.go("main.item.process", params);
                 break;
             default:
-                this.$state.go("main.artifact.details", params);
+                this.$state.go("main.item.details", params);
         }
     }
 }

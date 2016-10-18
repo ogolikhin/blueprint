@@ -36,7 +36,6 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
 
         // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
         let initialContent = null;
-        let editorBody = null;
         let onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
         $scope.to.onChange = () => {
             //fixme: if the function is blank it should not exist
@@ -130,10 +129,10 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                         styles: {"font-size": "20pt"}
                     });
 
-                    editorBody = editor.getBody();
-                    Helper.autoLinkURLText(editorBody);
-                    Helper.setFontFamilyOrOpenSans(editorBody, allowedFonts);
-                    this.handleLinks(editorBody.querySelectorAll("a"));
+                    this.editorBody = editor.getBody();
+                    Helper.autoLinkURLText(this.editorBody);
+                    Helper.setFontFamilyOrOpenSans(this.editorBody, allowedFonts);
+                    this.handleLinks(this.editorBody.querySelectorAll("a"));
 
                     // MutationObserver
                     const mutationObserver = window["MutationObserver"] || window["WebKitMutationObserver"] || window["MozMutationObserver"];
@@ -149,21 +148,21 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                             characterData: false,
                             subtree: true
                         };
-                        this.observer.observe(editorBody, observerConfig);
+                        this.observer.observe(this.editorBody, observerConfig);
                     }
 
                     // we store the initial value so IE doesn't mark the field dirty just for clicking it!
-                    initialContent = editorBody.innerHTML.replace(bogusRegEx, "").replace(zeroWidthNoBreakSpaceRegEx, "");
+                    initialContent = this.editorBody.innerHTML.replace(bogusRegEx, "").replace(zeroWidthNoBreakSpaceRegEx, "");
 
                     editor.on("Focus", (e) => {
-                        if (editorBody.parentElement && editorBody.parentElement.parentElement) {
-                            editorBody.parentElement.parentElement.classList.remove("tinymce-toolbar-hidden");
+                        if (this.editorBody.parentElement && this.editorBody.parentElement.parentElement) {
+                            this.editorBody.parentElement.parentElement.classList.remove("tinymce-toolbar-hidden");
                         }
                     });
 
                     editor.on("Blur", (e) => {
-                        if (editorBody.parentElement && editorBody.parentElement.parentElement) {
-                            editorBody.parentElement.parentElement.classList.add("tinymce-toolbar-hidden");
+                        if (this.editorBody.parentElement && this.editorBody.parentElement.parentElement) {
+                            this.editorBody.parentElement.parentElement.classList.add("tinymce-toolbar-hidden");
                         }
                     });
                 },
@@ -238,9 +237,9 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
         let validators = {
             // tinyMCE may leave empty tags that cause the value to appear not empty
             requiredCustom: {
-                expression: function ($viewValue, $modelValue, scope) {
+                expression: ($viewValue, $modelValue, scope) => {
                     if (initialContent !== null) { // run this part after the field had the chance to load the content
-                        let content = editorBody.innerHTML.replace(bogusRegEx, "").replace(zeroWidthNoBreakSpaceRegEx, "");
+                        let content = this.editorBody.innerHTML.replace(bogusRegEx, "").replace(zeroWidthNoBreakSpaceRegEx, "");
                         if (content !== initialContent) {
                             onChange(content.replace(bogusRegEx, ""), scope.options, scope);
                         }

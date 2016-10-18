@@ -159,7 +159,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         this.mockupButton = new Button(`MB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("mockup-neutral.svg"));
 
         if (nodeFactorySettings && nodeFactorySettings.isMockupButtonEnabled) {
-            this.mockupButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemTaskDetailsDialogType));
+            this.mockupButton.setClickAction(() => this.openDialog(ModalDialogType.SystemTaskDetailsDialogType));
         } else {
             this.mockupButton.setClickAction(() => {
                 //fixme: empty blocks should be removed
@@ -180,7 +180,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("adddetails-neutral.svg"));
 
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
-            this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemTaskDetailsDialogType));
+            this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.SystemTaskDetailsDialogType));
         } else {
             this.detailsButton.setClickAction(() => {
                 //fixme: empty blocks should be removed
@@ -210,9 +210,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
 
         if (valueChanged) {
             if (this.personaLabel) {
-                if (this.personaLabel.text !== value) {
-                    this.personaLabel.text = value;
-                }
+                this.personaLabel.text = value;
                 this.shapesFactory.setSystemTaskPersona(value);
             }
         }

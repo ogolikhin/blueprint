@@ -115,8 +115,7 @@ export class ManageTracesDialogController extends BaseDialogController {
                 currentItemModel.itemName = currentItemModel.name || currentItemModel.displayName;
                 currentItemModel.itemTypePrefix = currentItemModel.prefix;
                 currentItemModel.traceDirection = this.direction;
-                currentItemModel.projectName = currentItemModel.parent ? currentItemModel.parent.name :
-                    currentItem["options"].project.name;
+                currentItemModel.projectName = currentItem["options"] && currentItem["options"].project;
                 currentItemModel.hasAccess = true;
                 currentItemModel.suspect = false;
                 currentItemModel.cssClass = cssClass;

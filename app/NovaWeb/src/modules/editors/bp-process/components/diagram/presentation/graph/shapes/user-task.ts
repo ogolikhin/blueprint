@@ -151,7 +151,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("adddetails-neutral.svg"));
 
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
-            this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemTaskDetailsDialogType));
+            this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserTaskDetailsDialogType));
         } else {
             this.detailsButton.setClickAction(() => {
                 //fixme: empty blocks should be removed
@@ -181,9 +181,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         const valueChanged = this.setPropertyValue("persona", value);
         if (valueChanged) {
             if (this.personaLabel) {
-                if (this.personaLabel.text !== value) {
-                    this.personaLabel.text = value;
-                }
+                this.personaLabel.text = value;
                 this.shapesFactoryService.setUserTaskPersona(value);
             } 
         }

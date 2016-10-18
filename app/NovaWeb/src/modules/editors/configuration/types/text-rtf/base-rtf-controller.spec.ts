@@ -174,8 +174,8 @@ describe("Formly Base RTF Controller", () => {
                 attributeNamespace: null,
                 oldValue: null
             };
-            spyOn(controller, "handleLinks").and.callFake(function () {
-            });
+
+            spyOn(controller, "handleLinks");
 
             controller.handleMutation(mutationRecord);
 

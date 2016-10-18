@@ -36,11 +36,9 @@ export class ItemStateController {
             artifact.unload();
             this.navigateToSubRoute(artifact.id, artifact.predefinedType);
         }).catch(error => {
-            console.log("Artifact not found");
+            console.log("Artifact is not loaded");
             this.getItemInfo(id);
         });
-        
-        // this.getItemInfo(id);
     }
 
     public getItemInfo(id: number) {

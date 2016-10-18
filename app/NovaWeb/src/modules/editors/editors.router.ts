@@ -1,10 +1,6 @@
 import * as angular from "angular";
 import {ItemStateController} from "./item-state.controller";
-import {DetailsStateController} from "./bp-artifact/details.state";
-import {GeneralStateController} from "./bp-artifact/general.state";
-import {ProcessStateController} from "./bp-process/process.state";
-import {GlossaryStateController} from "./bp-glossary/glossary.state";
-import {DiagramStateController} from "./bp-diagram/diagram.state";
+import {BaseEditorStateController} from "./base-editor-state.controller";
 
 export class ArtifactRoutes {
 
@@ -26,33 +22,34 @@ export class ArtifactRoutes {
                 reloadOnSearch: false,
                 controller: ItemStateController
             })
+
             .state("main.artifact.process", {
                 template: require("./bp-process/process.state.html"),
-                controller: ProcessStateController,
+                controller: BaseEditorStateController,
                 controllerAs: "$content",
                 params: { context: null }
             })
             .state("main.artifact.details", {
                 template: require("./bp-artifact/details.state.html"),
-                controller: DetailsStateController,
+                controller: BaseEditorStateController,
                 controllerAs: "$content",
                 params: { context: null }
             })
             .state("main.artifact.general", {
                 template: require("./bp-artifact/general.state.html"),
-                controller: GeneralStateController,
+                controller: BaseEditorStateController,
                 controllerAs: "$content",
                 params: { context: null }
             })
             .state("main.artifact.glossary", {
                 template: require("./bp-glossary/glossary.state.html"),
-                controller: GlossaryStateController,
+                controller: BaseEditorStateController,
                 controllerAs: "$content",
                 params: { context: null }
             })
             .state("main.artifact.diagram", {
                 template: require("./bp-diagram/diagram.state.html"),
-                controller: DiagramStateController,
+                controller: BaseEditorStateController,
                 controllerAs: "$content",
                 params: { context: null }
             });

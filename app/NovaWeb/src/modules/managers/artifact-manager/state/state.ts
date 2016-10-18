@@ -20,156 +20,186 @@ export interface IArtifactState extends IState, IDispose {
     lock(value: Models.ILockResult): void;
     onStateChange: Rx.Observable<IState>;
     get(): IState;
-    //set(value?: IState): void;
+    setState(newState: IState, notifyChange: boolean);
 } 
 
 export class ArtifactState implements IArtifactState {
     
     constructor(private artifact: IIStatefulArtifact) {
-        this._subject = new Rx.BehaviorSubject<IState>(this._state);
+        this.subject = new Rx.BehaviorSubject<IState>(this.currentState);
         this.initialize(artifact);
     }
-    private _prevState: IState;
-    private _state: IState;
-
-    private _subject: Rx.BehaviorSubject<IState>;
     
-    public get onStateChange(): Rx.Observable<IState> {
-        return this._subject.asObservable();
-    }
-    public get(): IState {
-        return this._state;
+    private currentState: IState = this.newState();
+    private prevState: IState = this.clone(this.currentState);
+
+    private subject: Rx.BehaviorSubject<IState>;
+
+    private newState(): IState {
+        // create a new state object with defaults
+        return {
+            lockedBy: Enums.LockedByEnum.None,
+            lockDateTime: null,
+            lockOwner: null,
+            readonly: false,
+            dirty: false,
+            published: false,
+            deleted: false,
+            misplaced: false,
+            invalid: false
+        };
     }
 
-    private set(value?: IState) {
-        if (value) {
-            angular.extend(this._state, value);
-            if (!this.compareEqual(this._prevState, this._state)) {
-                angular.extend(this._prevState, value);
-                // notify subscribers that the state has changed
-                this._subject.onNext(this._state);
+    private reset() {
+        this.currentState = this.newState();
+        this.prevState = this.clone(this.currentState);
+    }
+
+    private clone(source: IState): IState {
+        let duplicate = JSON.parse(JSON.stringify(source));
+        return duplicate;
+    }
+
+    public get onStateChange(): Rx.Observable<IState> {
+        // returns the subject as an observable that can be subscribed to 
+        // subscribers will get notified when the state changes
+        return this.subject.asObservable();
+    }
+
+    public get(): IState {
+        return this.currentState;
+    }
+
+    public setState(newState: IState, notifyChange: boolean = true) {
+        // this function can set 1 or more state properties at once
+        // if notifyChange flag is false observers will not be notified 
+        if (newState) {
+            Object.keys(newState).forEach((item) => {
+                this.currentState[item] = newState[item];
+            });
+            if (notifyChange) {
+                this.notifyStateChange();
+            } else {
+                this.prevState = this.clone(this.currentState);
             }
         }
     }
 
+    private notifyStateChange() {
+        if (!this.compareEqual(this.prevState, this.currentState)) {
+            this.prevState = this.clone(this.currentState);
+            this.subject.onNext(this.currentState);
+        }
+    }
+ 
     private compareEqual(prev: IState, curr: IState): boolean {
         return JSON.stringify(prev) === JSON.stringify(curr);
     }
  
     public get deleted(): boolean {
-        return this._state.deleted;
+        return this.currentState.deleted;
     }
 
     public set deleted(value: boolean) {
-        this.set({ deleted: value });
+        this.currentState.deleted = value;
+        this.notifyStateChange();
     }
 
     public get dirty(): boolean {
-        return this._state.dirty;
+        return this.currentState.dirty;
     }
 
     public set dirty(value: boolean) {
-        this.set({ dirty: value });
+        this.currentState.dirty = value;
+        this.notifyStateChange();
     }
 
     public get invalid(): boolean {
-        return this._state.invalid;
+        return this.currentState.invalid;
     }
 
     public set invalid(value: boolean) {
-        this.set({ invalid: value });
+        this.currentState.invalid = value;
+        this.notifyStateChange();
     }
 
     public get lockedBy(): Enums.LockedByEnum {
-        return this._state.lockedBy;
+        return this.currentState.lockedBy;
     }
    
     public get lockDateTime(): Date {
-        return this._state.lockDateTime;
+        return this.currentState.lockDateTime;
     }
 
     public get lockOwner(): string {
-        return this._state.lockOwner;
+        return this.currentState.lockOwner;
     }
 
     public get misplaced(): boolean {
-        return this._state.misplaced;
+        return this.currentState.misplaced;
     }
 
     public set misplaced(value: boolean) {
-        this.set({ misplaced: value });
+        this.currentState.misplaced = value;
+        this.notifyStateChange();
     }
 
     public get published(): boolean {
-        return this._state.published;
+        return this.currentState.published;
     }
 
     public set published(value: boolean) {
-        this.set({ published: value });
+        this.currentState.published = value;
+        this.notifyStateChange();
     }
 
     public get readonly(): boolean {
-        return this._state.readonly || this.deleted ||
+        return this.currentState.readonly || this.deleted ||
             this.lockedBy === Enums.LockedByEnum.OtherUser ||
             (this.artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
     }
 
     public set readonly(value: boolean) {
-        this.set({ readonly: value });
+        this.currentState.readonly = value;
+        this.notifyStateChange();
     }
-     
+
     public initialize(artifact: Models.IArtifact): IArtifactState {
         if (artifact) {
             this.reset();
             if (artifact.lockedByUser) {
-                let lockinfo: IState = {
-                    lockedBy: Enums.LockedByEnum.None
-                };
-                lockinfo.lockedBy = artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
+                let lockInfo: IState = {};
+                lockInfo.lockedBy = artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
                     Enums.LockedByEnum.CurrentUser :
                     Enums.LockedByEnum.OtherUser;
-                lockinfo.lockOwner = artifact.lockedByUser.displayName;
-                lockinfo.lockDateTime = artifact.lockedDateTime;
-                angular.extend(this._state, lockinfo);
-                angular.extend(this._prevState, this._state);
+                lockInfo.lockOwner = artifact.lockedByUser.displayName;
+                lockInfo.lockDateTime = artifact.lockedDateTime;
+                this.setState(lockInfo, false);
             };
-            
         }
         return this;
     }
 
     public lock(value: Models.ILockResult) {
         if (value) {
-            let lockinfo: IState = {
-                lockedBy: Enums.LockedByEnum.None
-            };
+            let lockInfo: IState = {};
             if (value.result === Enums.LockResultEnum.Success) {
-                lockinfo.lockedBy = Enums.LockedByEnum.CurrentUser;
+                lockInfo.lockedBy = Enums.LockedByEnum.CurrentUser;
             } else if (value.result === Enums.LockResultEnum.AlreadyLocked) {
-                lockinfo.lockedBy = Enums.LockedByEnum.OtherUser;
+                lockInfo.lockedBy = Enums.LockedByEnum.OtherUser;
             }
             if (value.info) {
-                lockinfo.lockDateTime = value.info.utcLockedDateTime;
-                lockinfo.lockOwner = value.info.lockOwnerDisplayName;
+                lockInfo.lockDateTime = value.info.utcLockedDateTime;
+                lockInfo.lockOwner = value.info.lockOwnerDisplayName;
             }
-            this.set(lockinfo);
+            this.setState(lockInfo);
         }
     }
     
-    private reset() {
-        this._state = {};
-        this._state.dirty = false;
-        this._state.lockedBy = Enums.LockedByEnum.None;
-        this._prevState = {};
-
-        angular.extend(this._prevState, this._state);
-         
-    }
-
     public dispose() {
-        if (this._subject) {
-            this._subject.dispose();
-            delete (this._subject);
+        if (this.subject) {
+            this.subject.dispose();
+            delete (this.subject);
         }
     }
 

@@ -46,8 +46,8 @@ export class BpArtifactInfoController {
         "metadataService"
     ];
 
-    private subscribers: Rx.IDisposable[];
-    private artifact: IStatefulArtifact;
+    protected subscribers: Rx.IDisposable[];
+    protected artifact: IStatefulArtifact;
     public isReadonly: boolean;
     public isChanged: boolean;
     public isLocked: boolean;
@@ -103,17 +103,6 @@ export class BpArtifactInfoController {
                     .subscribe(this.onArtifactChanged, this.onError);
 
                 this.subscribers.push(artifactObserver);
-                // watch for state changes (dirty, locked etc) and update header
-                const stateObserver = artifact.artifactState.onStateChange.debounce(100).subscribe(
-                    (state) => {
-                        this.updateProperties(this.artifact);
-                    },
-                    (err) => {
-                        throw new Error(err);
-                    });
-
-                this.subscribers.push(stateObserver);
-                        
             }
         });
     }
@@ -126,8 +115,22 @@ export class BpArtifactInfoController {
         delete this.subscribers;
     }
 
-    private onArtifactChanged = () => {
+    protected onArtifactChanged = () => {
         this.updateProperties(this.artifact);
+        this.subscribeToStateChange(this.artifact);
+    }
+
+    protected subscribeToStateChange(artifact) {
+        // watch for state changes (dirty, locked etc) and update header
+        const stateObserver = artifact.artifactState.onStateChange.debounce(100).subscribe(
+            (state) => {
+                this.updateProperties(this.artifact);
+            },
+            (err) => {
+                throw new Error(err);
+            });
+
+        this.subscribers.push(stateObserver);
     }
 
     public onError = (error: any) => {
@@ -163,7 +166,7 @@ export class BpArtifactInfoController {
         }
     }
 
-    private updateProperties(artifact: IStatefulArtifact) {
+    protected updateProperties(artifact: IStatefulArtifact) {
         this.initProperties();
 
         if (!artifact) {

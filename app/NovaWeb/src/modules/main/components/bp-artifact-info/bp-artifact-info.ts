@@ -199,6 +199,7 @@ export class BpArtifactInfoController {
                 if (artifact.artifactState.lockDateTime) {
                     msg += " on " + this.localization.current.formatShortDateTime(artifact.artifactState.lockDateTime);
                 }
+                msg += ".";
                 this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
                 break;
 

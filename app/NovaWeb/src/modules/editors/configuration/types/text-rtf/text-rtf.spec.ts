@@ -66,12 +66,15 @@ describe("Formly Text RTF", () => {
     let editor = {
         editorCommands: {
             execCommand: (command: string) => {
+                return;
             }
         },
         formatter: {
             apply: () => {
+                return;
             },
             register: (a, b) => {
+                return;
             }
         },
         addButton: (a: string, menuToolbar: IMenuToolbar) => {

@@ -154,6 +154,7 @@ App_Properties_Actor_StepOf_Actor,"Actor (Input)"
 App_Properties_Actor_StepOf_System,"System (Expected Outcome)"
 App_Properties_Actor_InheritancePicker_Title,"Select Actor"
 App_Properties_Actor_SameBaseActor_ErrorMessage,"Actor cannot be set as its own parent"
+App_UP_Properties_No_Properties,"No properties available"
 
 App_Save_Artifact_Error_200,"The artifact has been saved."
 App_Save_Artifact_Error_400,"An error has occurred and the artifact is no longer valid. Please contact an administrator.<br><br>"

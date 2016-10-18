@@ -12,7 +12,7 @@
                 <li ng-repeat="project in $ctrl.projectList">{{project.name}}
 
                     <ul>
-                        <li ng-repeat="artifact in $ctrl.artifactList | filter:{ projectId: project.id }:true">{{artifact.name}}</li>
+                        <li ng-repeat="artifact in $ctrl.artifactList | filter:{ projectId: project.id }:true">{{artifact.prefix}}{{artifact.id}} - {{artifact.name}}</li>
                     </ul>
                 </li>
             </ul>

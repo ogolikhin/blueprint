@@ -5,7 +5,8 @@ export interface IMessageService {
     addMessage(msg: Message): void;
     addError(text: string | Error | any): void;    
     addWarning(text: string): void;    
-    addInfo(text: string): void;    
+    addInfo(text: string): void;
+    addInfoWithPar(text: string, par: any[]): void;    
     deleteMessageById(id: number): void;
     messages: Array<IMessage>;
     dispose(): void;
@@ -112,6 +113,13 @@ export class MessageService implements IMessageService {
         }
 
         this.addMessage(new Message(MessageType.Info, msg));
+    }
+    public addInfoWithPar(msg: string, par: any[]): void {
+        for (let i: number = 0; i < par.length; i++) {
+            msg = msg.replace("{" + i + "}", par[i]);
+        }
+        
+        this.addInfo(msg);
     }
 
     public addMessage(msg: Message): void {

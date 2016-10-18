@@ -107,13 +107,14 @@ class BPToolbarController implements IBPToolbarController {
                         this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
 
                         if (data.artifacts.length === 0) {
-                            this.messageService.addInfo("nothing to publish");
+                            this.messageService.addInfo("Publish_All_No_Unpublished_Changes");
                         } else {
 
                             //confirm that the user wants to continue
                             this.dialogService.open(<IDialogSettings>{
-                                //okButton: this.localization.get("App_Button_Open"),
-                                message: "",
+                                okButton: this.localization.get("App_Button_Yes"),
+                                cancelButton: this.localization.get("App_Button_No"),
+                                message: "Publish_All_Dialog_Message",
                                 template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
                                 controller: ConfirmPublishController,
                                 css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
@@ -137,7 +138,7 @@ class BPToolbarController implements IBPToolbarController {
                                         //perform publish all
                                         this.publishService.publishAll()
                                         .then(() => {
-                                            this.messageService.addInfo("published " + data.artifacts.length + " artifacts");
+                                            this.messageService.addInfoWithPar("Publish_All_Success_Message", [data.artifacts.length]);
                                         })
                                         .finally(() => {
                                             this.loadingOverlayService.endLoading(publishAllLoadingId);

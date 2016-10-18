@@ -38,9 +38,10 @@ namespace ArtifactStore.Controllers
         public async Task<RelationshipResultSet> GetRelationships(int artifactId, int? subArtifactId = null, bool addDrafts = true, int? versionId = null)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1))
+            if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1)
+                || ((versionId.HasValue && versionId.Value < 1)))
             {
-                throw new HttpResponseException(HttpStatusCode.NotFound);
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
             }
             var itemId = subArtifactId ?? artifactId;
 

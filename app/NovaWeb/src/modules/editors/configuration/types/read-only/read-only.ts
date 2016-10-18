@@ -39,7 +39,7 @@ export class BpFieldReadOnlyController {
         switch (data.primitiveType) {
             case Enums.PrimitiveType.Text:
                 if (this.currentModelVal) {
-                    newValue = this.currentModelVal;
+                    newValue = $sce.getTrustedHtml(this.currentModelVal);
                 } else if (data) {
                     newValue = data.stringDefaultValue;
                 }

@@ -41,6 +41,7 @@ export class BpArtifactPicker implements ng.IComponentOptions {
         selectableItemTypes: "<",
         selectionMode: "<",
         showSubArtifacts: "<",
+        isOneProjectLevel: "<",
         onSelectionChanged: "&?"
     };
 }
@@ -49,6 +50,7 @@ export interface IArtifactPickerOptions {
     selectableItemTypes?: Models.ItemTypePredefined[];
     selectionMode?: "single" | "multiple" | "checkbox";
     showSubArtifacts?: boolean;
+    isOneProjectLevel?: boolean;
 }
 
 export interface IArtifactPickerController extends IArtifactPickerOptions {
@@ -69,6 +71,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public selectableItemTypes: Models.ItemTypePredefined[];
     public selectionMode: "single" | "multiple" | "checkbox";
     public showSubArtifacts: boolean;
+    public isOneProjectLevel: boolean;
     public onSelectionChanged: (params: {selectedVMs: ArtifactPickerNodeVM<any>[]}) => void;
     public searchText: string = "";
     public isSearching: boolean = false;
@@ -87,6 +90,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 private projectService: IProjectService) {
         this.selectionMode = angular.isDefined(this.selectionMode) ? this.selectionMode : "single";
         this.showSubArtifacts = angular.isDefined(this.showSubArtifacts) ? this.showSubArtifacts : false;
+        this.isOneProjectLevel = angular.isDefined(this.isOneProjectLevel) ? this.isOneProjectLevel : false;
     };
 
     public $onInit(): void {

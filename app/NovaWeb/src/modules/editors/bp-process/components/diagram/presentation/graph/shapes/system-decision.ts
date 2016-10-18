@@ -9,11 +9,9 @@ import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {DeleteShapeButton} from "../buttons/delete-shape-button";
 import {Label, LabelStyle} from "../labels/label";
-import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 import {ProcessEvents} from "../../../process-diagram-communication";
 
 export class SystemDecision extends UserTaskChildElement<IProcessShape> implements IDecision, IUserTaskChildElement {
-
     private SYSTEM_DECISION_WIDTH = 120;
     private SYSTEM_DECISION_HEIGHT = 120;
     private LABEL_EDIT_MAXLENGTH = 32;
@@ -28,10 +26,13 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
     private detailsButton: Button;
     private deleteShapeButton: Button;
 
-    private rootScope: any;
-    private processDiagramManager: IProcessDiagramCommunication;
+    private rootScope: ng.IRootScopeService;
 
-    constructor(model: IProcessShape, rootScope: any, nodeFactorySettings: NodeFactorySettings = null) {
+    constructor(
+        model: IProcessShape, 
+        rootScope: ng.IRootScopeService, 
+        private nodeFactorySettings: NodeFactorySettings = null
+    ) {
         super(model, NodeType.SystemDecision);
 
         this.rootScope = rootScope;
@@ -48,9 +49,10 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
                 //fixme: empty blocks should be removed or undefined
             });
         }
+
         this.detailsButton.setHoverImage(this.getImageSource("adddetails-hover.svg"));
         this.detailsButton.setDisabledImage(this.getImageSource("adddetails-mute.svg"));
-        this.detailsButton.setTooltip(this.rootScope.config.labels["ST_Settings_Label"]);
+        this.detailsButton.setTooltip(this.rootScope["config"].labels["ST_Settings_Label"]);
 
         //Delete process shape button
         const clickAction = () => {
@@ -58,7 +60,7 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
         };
 
         this.deleteShapeButton = new DeleteShapeButton(nodeId, this.BUTTON_SIZE, this.BUTTON_SIZE,
-            this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"], nodeFactorySettings, clickAction);
+            this.rootScope["config"].labels["ST_Shapes_Delete_Tooltip"], nodeFactorySettings, clickAction);
     }
 
     public setLabelWithRedrawUi(value: string) {
@@ -67,7 +69,7 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
 
     protected updateCellLabel(value: string) {
         this.textLabel.text = value;
-        this.notify(NodeChange.Update, true);
+        this.sendUpdatedSubArtifactModel("name");
     }
 
     public showMenu(mxGraph: MxGraph) {
@@ -87,12 +89,13 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
     }
 
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
-
+        this.dialogManager = graph.viewModel.communicationManager.modalDialogManager;
         this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;
 
         const mxGraph = graph.getMxGraph();
 
         let fillColor = this.DEFAULT_FILL_COLOR;
+
         if (this.model.id < 0) {
             fillColor = justCreated ? this.newShapeColor : this.NEW_FILL_COLOR;
         }
@@ -113,6 +116,7 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
             this.SYSTEM_DECISION_WIDTH - 30,
             "#4C4C4C"
         );
+
         this.textLabel = new Label((value: string) => {
                 this.label = value;
             },
@@ -147,20 +151,13 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
         return this;
     }
 
+    // get the maximum length of text that can be entered
     public getElementTextLength(cell: MxCell): number {
-        /*
-         * get the maximum length of text that can be entered
-         */
         return this.LABEL_EDIT_MAXLENGTH;
     }
 
+    // This function returns formatted text to the getLabel() function to display the label
     public formatElementText(cell: MxCell, text: string): string {
-
-        /***
-         * This function returns formatted text to the getLabel()
-         * function to display the label
-         */
-
         if (cell && text) {
             const maxLen: number = this.LABEL_VIEW_MAXLENGTH;
 
@@ -172,45 +169,42 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
         return text;
     }
 
+    // Save text for the node or for an element within the node
     public setElementText(cell: MxCell, text: string) {
-        /*
-         * save text for the node or for an element within
-         * the node
-         */
         this.label = text;
     }
+
     public getFirstSystemTask(graph: IProcessGraph): ISystemTask {
         const targets = this.getTargets(graph.getMxGraphModel());
+
         if (targets) {
             const firstTarget = targets[0];
+
             if (firstTarget != null && firstTarget.getNodeType() === NodeType.SystemTask) {
                 return <ISystemTask>firstTarget;
             }
+
             if (firstTarget.getNodeType() === NodeType.SystemDecision) {
                 return (<SystemDecision>firstTarget).getFirstSystemTask(graph);
             }
         }
+
         return null;
     }
 
-    /**
-     * Returns an array of targets, which an be either SystemTasks or SystemDecisions
-     * @param graph
-     */
+    // Returns an array of targets, which an be either SystemTasks or SystemDecisions
+    // @param graph
     public getSystemNodes(mxGraph: MxGraph): IDiagramNode[] {
         return this.getTargets(mxGraph.getModel());
     }
 
     private openDialog(dialogType: ModalDialogType) {
-        //alert("<Logic for opening System Decision dialog goes here>");
-        // #TODO: implement new mechanism for opening dialogs
-        //this.rootScope.$broadcast(BaseModalDialogController.dialogOpenEventName,
-        //    this.model.id,
-        //    dialogType);
+        this.dialogManager.openDialog(this.model.id, dialogType);
     }
+
     public getDeleteDialogParameters(): IDialogParams {
         let dialogParams: IDialogParams = {};
-        dialogParams.message = this.rootScope.config.labels["ST_Confirm_Delete_System_Decision"];
+        dialogParams.message = this.rootScope["config"].labels["ST_Confirm_Delete_System_Decision"];
         return dialogParams;
     }
 

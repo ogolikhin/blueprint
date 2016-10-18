@@ -1,10 +1,12 @@
 ﻿import {IDiagramElement, IDiagramNode} from "./../models/";
 import {IDiagramNodeElement, ILabel} from "./../models/";
 import {ElementType, NodeChange} from "./../models/";
+import {IProcessDiagramCommunication, ProcessEvents} from "../../../process-diagram-communication";
 
 export class DiagramElement extends mxCell implements IDiagramElement {
     private elementType: ElementType;
     textLabel: ILabel;
+    protected processDiagramManager: IProcessDiagramCommunication;
 
     constructor(id: any, type: ElementType = ElementType.Undefined, value?: string, geometry?: MxGeometry, style?: string) {
         super(value, geometry, style);
@@ -68,56 +70,8 @@ export class DiagramElement extends mxCell implements IDiagramElement {
         return null;
     }
 
-
-    protected _isChanged: boolean;
-
-    public get isChanged(): boolean {
-        return this._isChanged;
-    }
-
-    private _redraw: boolean;
-    private _isNotificationPending: boolean = false;
-
-    public notify(change: NodeChange, redraw: boolean = false, callback?: any) {
-        this._isChanged = true;
-
-        if (this._redraw || redraw) {
-            this._redraw = true;
-        } else {
-            this._redraw = false;
-        }
-
-        if (!this._isNotificationPending) {
-            this._isNotificationPending = true;
-
-            this.raiseChangedEvent(change, this._redraw);
-            this._isNotificationPending = false;
-            this._redraw = false;
-
-            if (callback != null) {
-                callback();
-            }
-        } else {
-            if (callback != null) {
-                callback();
-            }
-        }
-    }
-
-    private raiseChangedEvent(change: NodeChange, redraw: boolean) {
-        const eventArguments = {
-            processId: this.getParentId(),
-            nodeChanges: [
-                {
-                    nodeId: this.getId(),
-                    change: change,
-                    redraw: redraw
-                }
-            ]
-        };
-        const evt = document.createEvent("CustomEvent");
-        evt.initCustomEvent("graphUpdated", true, true, eventArguments);
-        window.dispatchEvent(evt);
+    public notify(updateModel) {
+        this.processDiagramManager.action(ProcessEvents.ArtifactUpdate, updateModel);
     }
 
     public getImageSource(image: string) {
@@ -135,11 +89,13 @@ export class DiagramNodeElement extends DiagramElement implements IDiagramNodeEl
             }
             parent = (<mxCell>parent).parent;
         }
+
         return null;
     }
 
     public getCenter(): MxPoint {
         const geometry = <MxGeometry>this.geometry;
+
         if (geometry) {
             if (this.parent) {
                 const parentCenterX = (<IDiagramNodeElement>this.parent).getCenter().x;
@@ -170,14 +126,15 @@ export class DiagramNodeElement extends DiagramElement implements IDiagramNodeEl
         if (this.getNode()) {
             return this.getNode().getElementTextLength(cell);
         }
+
         return null;
     }
 
     public formatElementText(cell: MxCell, text: string): string {
-
         if (this.getNode()) {
             return this.getNode().formatElementText(cell, text);
         }
+
         return null;
     }
 }

@@ -24,7 +24,7 @@ class ObservableHelper {
     }
 
     private somePrivateFunc1() {
-
+        // do nothing
     }
 }
 
@@ -152,8 +152,7 @@ describe("SubArtifactEditorModalOpener test", () => {
 
     function createGraph(process: ProcessModels.IProcess): ProcessGraph {
         let clientModel = new ProcessGraphModel(process);
-        let viewModel = new ProcessViewModel(clientModel);
-        viewModel.communicationManager = communicationManager;
+        let viewModel = new ProcessViewModel(clientModel, communicationManager);
         return new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
     }
 

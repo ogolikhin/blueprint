@@ -12,7 +12,7 @@ class Observer1 {
     }
 
     private somePrivateFunc1() {
-
+        // do nothing
     }
 }
 
@@ -27,7 +27,7 @@ class Observer2 {
     }
 
     private somePrivateFunc2() {
-
+        // do nothing
     }
 }
 

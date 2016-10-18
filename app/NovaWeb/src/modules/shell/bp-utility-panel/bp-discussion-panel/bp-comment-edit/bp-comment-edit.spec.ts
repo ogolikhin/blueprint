@@ -117,20 +117,18 @@ describe("Component BPCommentEdit", () => {
 
     it("tinymce setup should call apply after onclick call",
         () => {
-            //Arrange 
+            //Arrange
             interface IMenuItem {
                 icon: string;
                 text: string;
                 onclick();
             }
-            ;
             interface IMenuToolbar {
                 type: string;
                 text: string;
                 icon: string;
                 menu: IMenuItem[];
             }
-            ;
             let menuItems: IMenuItem[];
             let addButton = (a: string, menuToolbar: IMenuToolbar) => {
                 if (!menuItems) {
@@ -161,7 +159,9 @@ describe("Component BPCommentEdit", () => {
             //Act
             vm.tinymceOptions.setup(editor);
             for (let i = 0; i < menuItems.length; i++) {
-                menuItems[i].onclick();
+                if (menuItems[i].text && menuItems[i].text !== "-") { // skip the menu separator
+                    menuItems[i].onclick();
+                }
             }
 
             //Assert

@@ -1,55 +1,48 @@
 import * as angular from "angular";
-/*
- *Code copied from old Rapid Review Shell look at TargetBlankDirective.ts for reference.
- */
-const jsRegEx = /^\s*javascript/i;
+import { INavigationService } from "./../../../core/navigation";
 
-export var linkRules = {
-    externalLinks: {
-        matchedIfAllFalse: true,
-        //if one of the matchers return true, execute action
-        matchers: [
-            ($scope, $element) => {
-                return $element.attr("href") === "#";
-            },
-            ($scope, $element) => {
-                return jsRegEx.test($element.attr("href"));
-            }
-        ],
+export interface IBpLinksHelper {
+    hasExternalLink($element: ng.IAugmentedJQuery): boolean;
+    hasBlueprintLink($element: ng.IAugmentedJQuery): boolean;
+    isRichTextMentionLink($element: ng.IAugmentedJQuery): boolean;
+    getItemId($element: ng.IAugmentedJQuery): number;
+}
 
-        action: ($anchor) => {
-            $anchor.attr("target", "_blank");
-        }
-    },
+export class BpLinksHelper implements IBpLinksHelper {
 
-    dialogLinks: {
-        matchers: [
-            ($scope, $element) => {
-                return !!($element.parent().attr("linkassemblyqualifiedname")) || !!($element.attr("linkassemblyqualifiedname"));
-            }
-        ],
+    private jsRegEx = /^\s*javascript/i;
 
-        action: ($anchor, e, scope) => {
-            e.preventDefault();
-
-            //ignore mentioned user
-            if ($anchor.attr("linkassemblyqualifiedname").toLowerCase().indexOf("richtextmentionlink") < 0) {
-                if (console) {
-                    console.log("Navigate to artifact is not implemented yet.");
-                }
-            }
-        }
+    public hasExternalLink($element: ng.IAugmentedJQuery) {
+        return $element.attr("href") !== "#" && !this.jsRegEx.test($element.attr("href"));
     }
-};
+
+    public hasBlueprintLink($element: ng.IAugmentedJQuery) {
+        return !!($element.parent().attr("linkassemblyqualifiedname")) || !!($element.attr("linkassemblyqualifiedname"));
+    }
+
+    public isRichTextMentionLink($element: ng.IAugmentedJQuery) {
+        return $element.attr("linkassemblyqualifiedname").toLowerCase().indexOf("richtextmentionlink") < 0;
+    }
+
+    public getItemId($element: ng.IAugmentedJQuery) {
+        return $element.attr("subartifactid") ? Number($element.attr("subartifactid")) : Number($element.attr("artifactid"));
+    }
+
+}
 
 export class BpSpecialLinkContainer implements ng.IDirective {
 
     public static factory() {
-        const directive = () => new BpSpecialLinkContainer();
+        const directive = (navigationService: INavigationService, bpLinksHelper: IBpLinksHelper) => 
+            new BpSpecialLinkContainer(navigationService, bpLinksHelper);
+        directive.$inject = ["navigationService", "bpLinksHelper"];
         return directive;
     }
 
     public restrict = "E";
+
+    constructor(private navigationService: INavigationService, private bpLinksHelper: IBpLinksHelper) {
+    }
 
     public link: ng.IDirectiveLinkFn = ($scope: ng.IScope, $element: ng.IAugmentedJQuery) => {
 
@@ -64,17 +57,19 @@ export class BpSpecialLinkContainer implements ng.IDirective {
         if (!$anchor) {
             return;
         }
-        for (let ruleName in linkRules) {
-            const rule = linkRules[ruleName];
 
-            if (rule.matchedIfAllFalse) {
-                if (!this.isMatched(rule.matchers, $scope, $anchor)) {
-                    rule.action($anchor, e, $scope);
-                }
-            } else {
-                if (this.isMatched(rule.matchers, $scope, $anchor)) {
-                    rule.action($anchor, e, $scope);
-                }
+        if (this.bpLinksHelper.hasExternalLink($anchor)) {
+            $anchor.attr("target", "_blank");
+            return;
+        }
+
+        if (this.bpLinksHelper.hasBlueprintLink($anchor)) {
+            e.preventDefault();
+
+            //ignore mentioned user
+            if (this.bpLinksHelper.isRichTextMentionLink($anchor)) {
+                const id = this.bpLinksHelper.getItemId($anchor);
+                this.navigationService.navigateToArtifact(id);
             }
         }
     }
@@ -91,11 +86,4 @@ export class BpSpecialLinkContainer implements ng.IDirective {
         return null;
     }
 
-    private isMatched(matchers: [any], $scope: ng.IScope, $anchor: JQuery) {
-        for (let fn of matchers) {
-            if (fn($scope, $anchor)) {
-                return true;
-            }
-        }
-    }
 }

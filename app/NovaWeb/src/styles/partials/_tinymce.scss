@@ -8,6 +8,19 @@ body {
         padding-right: 3px;
     }
 
+    .mce-floatpanel.mce-popover.mce-bottom {
+        border: 1px solid rgba(0,0,0,0.2);
+        margin-top: -1px;
+
+        &.mce-start {
+            margin-left: -20px;
+        }
+
+        > .mce-arrow {
+            display: none;
+        }
+    }
+
     .mce-menubtn.mce-fixed-width.mce-listbox.mce-btn-has-text button span { // font-family button
         overflow: hidden;
         text-overflow: initial;

@@ -7,7 +7,8 @@
            ng-class="$ctrl.currentItemClass"></i>{{ $ctrl.currentItem }}
     </span>
 </div>
-<div class="utility-panel-content">
+<div class="utility-panel-content" ng-class="{ 'empty-panel' : !$ctrl.IsAnyPanelVisible}">
+    <p ng-if="!$ctrl.IsAnyPanelVisible" class="empty-state">{{::$root.config.labels['App_UtilityPanel_NoPanel']}}</p>
     <bp-accordion accordion-heading-height="31">
         <bp-accordion-panel accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Properties']}}"
                             accordion-panel-class="utility-panel-properties">

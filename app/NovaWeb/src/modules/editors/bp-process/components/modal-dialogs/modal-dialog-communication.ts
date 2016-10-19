@@ -1,4 +1,4 @@
-import {ModalDialogType} from "./base-modal-dialog-controller";
+import {ModalDialogType} from "./modal-dialog-constants";
 import {CommunicationWrapper, ICommunicationWrapper} from "../../services/communication-wrapper";
 
 export interface IModalDialogCommunication {

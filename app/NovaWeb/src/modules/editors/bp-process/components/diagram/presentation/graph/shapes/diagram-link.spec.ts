@@ -1,15 +1,20 @@
 import * as angular from "angular";
-import {ProcessViewModel} from "../../../viewmodel/process-viewmodel";
-import {ProcessGraph} from "../process-graph";
-import {DiagramLink} from "./";
-import {IDiagramNode} from "../models/";
-import {Connector} from "./connector";
-import {Label} from "../labels/label";
-import {createUserDecisionWithoutUserTaskInFirstConditionModel} from "../../../../../models/test-model-factory";
-import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process";
-import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
-import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
-import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
+import { ProcessViewModel } from "../../../viewmodel/process-viewmodel";
+import { ProcessGraph } from "../process-graph";
+import { DiagramLink } from "./";
+import { IDiagramNode } from "../models/";
+import { Connector } from "./connector";
+import { Label } from "../labels/label";
+import { createUserDecisionWithoutUserTaskInFirstConditionModel } from "../../../../../models/test-model-factory";
+import { ICommunicationManager, CommunicationManager } from "../../../../../../bp-process";
+import { LocalizationServiceMock } from "../../../../../../../core/localization/localization.mock";
+import { DialogService } from "../../../../../../../shared/widgets/bp-dialog";
+import { ModalServiceMock } from "../../../../../../../shell/login/mocks.spec";
+import { IStatefulArtifactFactory } from "../../../../../../../managers/artifact-manager/";
+import { StatefulArtifactFactoryMock, IStatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import { ArtifactServiceMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import { StatefulProcessArtifact } from "../../../../../process-artifact";
+import { Models } from "../../../../../../../main/models/";
 
 describe("DiagramLink unit tests", () => {
     let rootScope;
@@ -17,25 +22,30 @@ describe("DiagramLink unit tests", () => {
     let container: HTMLElement;
     let communicationManager: ICommunicationManager,
         dialogService: DialogService,
-        localization: LocalizationServiceMock;
+        localization: LocalizationServiceMock,
+        statefulArtifactFactory: IStatefulArtifactFactoryMock;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("communicationManager", CommunicationManager);
         $provide.service("$uibModal", ModalServiceMock);
         $provide.service("dialogService", DialogService);
         $provide.service("localization", LocalizationServiceMock);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
     beforeEach(inject((_$window_: ng.IWindowService,
-                       $rootScope: ng.IRootScopeService,
-                       _communicationManager_: ICommunicationManager,
-                       _dialogService_: DialogService,
-                       _localization_: LocalizationServiceMock) => {
+        $rootScope: ng.IRootScopeService,
+        _communicationManager_: ICommunicationManager,
+        _dialogService_: DialogService,
+        _localization_: LocalizationServiceMock,
+        _statefulArtifactFactory_: IStatefulArtifactFactoryMock) => {
 
         communicationManager = _communicationManager_;
         dialogService = _dialogService_;
         localization = _localization_;
-        let wrapper = document.createElement("DIV");
+        statefulArtifactFactory = _statefulArtifactFactory_;
+
+        const wrapper = document.createElement("DIV");
         container = document.createElement("DIV");
         wrapper.appendChild(container);
         document.body.appendChild(wrapper);
@@ -54,32 +64,32 @@ describe("DiagramLink unit tests", () => {
         };
 
         rootScope = $rootScope;
-        localScope = {graphContainer: container, graphWrapper: wrapper, isSpa: false};
+        localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
     }));
     describe("Label locations", () => {
 
         it("User Decision with no-op with label, correct location", () => {
             // arrange
-            let userDecisionWidth = 120;
-            let ud = 40;
-            let testModel = createUserDecisionWithoutUserTaskInFirstConditionModel("Condition1", "Condition2");
-            let processModel = new ProcessViewModel(testModel, communicationManager);
+            const userDecisionWidth = 120;
+            const ud = 40;
+            const testModel = createUserDecisionWithoutUserTaskInFirstConditionModel("Condition1", "Condition2");
+            const processModel = new ProcessViewModel(testModel, communicationManager);
 
-            let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             // act
             processGraph.layout.render(true, null);
 
-            let udNode: IDiagramNode = processGraph.layout.getNodeById(ud.toString());
+            const udNode: IDiagramNode = processGraph.layout.getNodeById(ud.toString());
 
-            let firstLink: DiagramLink = <DiagramLink>udNode.getOutgoingLinks(processGraph.getMxGraphModel())[0];
+            const firstLink: DiagramLink = <DiagramLink>udNode.getOutgoingLinks(processGraph.getMxGraphModel())[0];
 
-            let linkLabel: Label = <Label>firstLink.textLabel;
+            const linkLabel: Label = <Label>firstLink.textLabel;
 
-            let x = Number(linkLabel.wrapperDiv.style.left.replace("px", ""));
-            let y = Number(linkLabel.wrapperDiv.style.top.replace("px", ""));
+            const x = Number(linkLabel.wrapperDiv.style.left.replace("px", ""));
+            const y = Number(linkLabel.wrapperDiv.style.top.replace("px", ""));
 
-            let heightOfString = mxUtils.getSizeForString("Condition1", Connector.LABEL_SIZE, Connector.LABEL_FONT, null).height;
+            const heightOfString = mxUtils.getSizeForString("Condition1", Connector.LABEL_SIZE, Connector.LABEL_FONT, null).height;
 
             // assert
             expect(x).toBe(udNode.getCenter().x + userDecisionWidth / 2);
@@ -88,24 +98,24 @@ describe("DiagramLink unit tests", () => {
         });
         it("User Decision with no-op with label, width label correct", () => {
             // arrange
-            let ud = 40;
-            let testModel = createUserDecisionWithoutUserTaskInFirstConditionModel();
-            let processModel = new ProcessViewModel(testModel, communicationManager);
-            let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            const ud = 40;
+            const testModel = createUserDecisionWithoutUserTaskInFirstConditionModel();
+            const processModel = new ProcessViewModel(testModel, communicationManager);
+            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             // act
             processGraph.layout.render(true, null);
 
-            let udNode: IDiagramNode = processGraph.layout.getNodeById(ud.toString());
+            const udNode: IDiagramNode = processGraph.layout.getNodeById(ud.toString());
 
-            let firstLink: DiagramLink = <DiagramLink> udNode.getOutgoingLinks(processGraph.getMxGraphModel())[0];
+            const firstLink: DiagramLink = <DiagramLink>udNode.getOutgoingLinks(processGraph.getMxGraphModel())[0];
 
-            let nextNode: IDiagramNode = processGraph.layout.getNodeById(firstLink.targetNode.model.id.toString());
+            const nextNode: IDiagramNode = processGraph.layout.getNodeById(firstLink.targetNode.model.id.toString());
 
-            let linkLabel: Label = <Label>firstLink.textLabel;
+            const linkLabel: Label = <Label>firstLink.textLabel;
 
-            let width = Number(linkLabel.wrapperDiv.style.width.replace("px", ""));
-            let spaceBetweenNode = nextNode.getCenter().x - nextNode.getWidth() / 2 - (udNode.getCenter().x + udNode.getWidth() / 2);
+            const width = Number(linkLabel.wrapperDiv.style.width.replace("px", ""));
+            const spaceBetweenNode = nextNode.getCenter().x - nextNode.getWidth() / 2 - (udNode.getCenter().x + udNode.getWidth() / 2);
 
             // assert
             expect(width).toBe(spaceBetweenNode);
@@ -113,5 +123,57 @@ describe("DiagramLink unit tests", () => {
         });
     });
 
+    describe("Label modification", () => {
+        it("statefulArtifact's lock, should have been called", () => {
+            const userDecisionWidth = 120;
+            const ud = 40;
+            const testModel = createUserDecisionWithoutUserTaskInFirstConditionModel("Condition1", "Condition2");
+            const artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
+            artifact.predefinedType = Models.ItemTypePredefined.Process;
+            const statefulArtifact = statefulArtifactFactory.createStatefulArtifact(artifact);
+            statefulArtifactFactory.populateStatefulProcessWithPorcessModel(<StatefulProcessArtifact>statefulArtifact, testModel);
+            const processModel = new ProcessViewModel(statefulArtifact, communicationManager);
+
+            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            processGraph.layout.render(true, null);
+
+            const udNode: IDiagramNode = processGraph.layout.getNodeById(ud.toString());
+            const firstLink: DiagramLink = <DiagramLink>udNode.getOutgoingLinks(processGraph.getMxGraphModel())[0];
+            const spy = spyOn(statefulArtifact, "lock");
+            spyOn(statefulArtifact, "refresh")();
+
+            // act
+            firstLink.label = "Testing 123";
+
+            // arrange
+            expect(spy).toHaveBeenCalled();
+        });
+        it("statefulArtifact's lock, artifact state is dirty", () => {
+            const userDecisionWidth = 120;
+            const ud = 40;
+            const testModel = createUserDecisionWithoutUserTaskInFirstConditionModel("Condition1", "Condition2");
+            const artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
+            artifact.predefinedType = Models.ItemTypePredefined.Process;
+            const statefulArtifact = statefulArtifactFactory.createStatefulArtifact(artifact);
+            statefulArtifactFactory.populateStatefulProcessWithPorcessModel(<StatefulProcessArtifact>statefulArtifact, testModel);
+            const processModel = new ProcessViewModel(statefulArtifact, communicationManager);
+
+            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+
+            // act
+            processGraph.layout.render(true, null);
+
+            const udNode: IDiagramNode = processGraph.layout.getNodeById(ud.toString());
+            const firstLink: DiagramLink = <DiagramLink>udNode.getOutgoingLinks(processGraph.getMxGraphModel())[0];
+            const spy = spyOn(statefulArtifact, "lock");
+            spyOn(statefulArtifact, "refresh")();
+
+            // act
+            firstLink.label = "Testing 123";
+
+            // arrange
+            expect(statefulArtifact.artifactState.dirty).toBeTruthy();
+        });
+    });
 
 });

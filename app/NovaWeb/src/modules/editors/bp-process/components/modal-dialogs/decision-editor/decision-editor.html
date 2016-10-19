@@ -1,8 +1,5 @@
-<script type="text/ng-template" id="includeTemplate.html">
-    <a href="" tabindex="-1" ng-bind-html="match.label | highlight:query" ng-attr-title="{{match.label}}"></a>
-</script>
 <div class="modal-header storyteller-modal-header">
-    <h3 class="modal-title" style="display: inline-block">{{this.dialogModel.clonedDecision.label}}</h3>
+    <h3 class="modal-title" style="display: inline-block">{{this.dialogModel.label}}</h3>
     <h3 ng-show="!$ctrl.isLabelAvailable()" class="modal-title" style="color: red; display: inline-block;">{{::$root.config.labels['ST_TaskNameNotValid_Label']}}</h3>
     <div class="contextual-help-container contextual-help-modal-container">
         <contextual-help image-src={{'/novaweb/static/bp-process/images/contextual-help/decisionpoint.png'}}></contextual-help>
@@ -11,7 +8,7 @@
 <div class="modal-body storyteller-modal-body">
     <div>
         <div class="nova-form-group nova-floating-label">
-            <input type="text" ng-class="dialogModel.clonedDecision.label ? 'nova-form-control input-is-dirty' : 'nova-form-control'" id="storyteller-action" ng-model="dialogModel.clonedDecision.label" maxlength="32" ng-disabled="$ctrl.isReadonly">
+            <input type="text" ng-class="dialogModel.label ? 'nova-form-control input-is-dirty' : 'nova-form-control'" id="storyteller-action" ng-model="dialogModel.label" maxlength="32" ng-disabled="$ctrl.isReadonly">
             <label for="storyteller-action" class="nova-label"><i class="fonticon-storyteller-title"></i>{{::$root.config.labels['ST_Decision_Modal_Decision_Label']}}</label>
         </div>
         <div class="condition-list">
@@ -25,10 +22,12 @@
                 </div>
                 <div class="col-sm-4">
                     <div class="nova-form-group nova-floating-label" ng-if="!$ctrl.isFirstBranch(condition)">
-                        <div class="btn-group" uib-dropdown>
-                            <button uib-dropdown-toggle type="button" class="btn btn-default" data-toggle="dropdown" ng-disabled="$ctrl.isReadonly">
-                                <span class="dropdown-toggle-label">{{condition.mergeNode ? condition.mergeNode.label : $ctrl.defaultNextLabel}} </span>
-                                <span class="caret"></span>
+                        <div class="btn-group btn-block" uib-dropdown on-toggle="$ctrl.refreshView()">
+                            <button uib-dropdown-toggle type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" ng-disabled="$ctrl.isReadonly">
+                                <div class="dropdown-toggle-label">{{$ctrl.getMergeNodeLabel(condition)}} </div>
+                                <span class="pull-right">
+                                    <span class="caret"></span>
+                                </span>
                             </button>
                             <ul class="dropdown-menu dropdown-next-node">
                                 <li ng-repeat="node in condition.validMergeNodes">
@@ -41,19 +40,19 @@
                     </div>
                 </div>
                 <div class="col-sm-1 delete-condition">
-                    <a class="btn" ng-click="$ctrl.deleteCondition(condition)" bp-tooltip="{{::$root.config.labels['ST_Decision_Modal_Delete_Condition_Button_Label']}}" ng-if="!$ctrl.hasMinConditions && !$ctrl.isFirstBranch(condition)" ng-disabled="$ctrl.isReadonly">
+                    <span ng-click="$ctrl.deleteCondition(condition)" bp-tooltip="{{::$root.config.labels['ST_Decision_Modal_Delete_Condition_Button_Label']}}" ng-if="$ctrl.isDeleteConditionVisible(condition)" ng-disabled="!$ctrl.canDeleteCondition">
                         <span class="fonticon-delete"></span>
-                    </a>
+                    </span>
                 </div>
             </div>
             <div id="decision-modal-list-bottom"></div>
         </div>
         <div>
-            <button class="btn btn-default" type="button" ng-click="$ctrl.addCondition()" ng-disabled="$ctrl.hasMaxConditions || $ctrl.isReadonly">{{::$root.config.labels['ST_Decision_Modal_Add_Condition_Button_Label']}}</button>
+            <button class="btn btn-default" type="button" ng-click="$ctrl.addCondition()" ng-disabled="!$ctrl.canAddCondition">{{::$root.config.labels['ST_Decision_Modal_Add_Condition_Button_Label']}}</button>
         </div>
     </div>
 </div>
 <div class="modal-footer storyteller-modal-footer">
     <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{::$root.config.labels['App_Button_Cancel']}}</button>
-    <button class="btn btn-promoted-action" type="button" ng-click="$ctrl.ok()" ng-disabled="$ctrl.areMergeNodesEmpty() || $ctrl.isReadonly">{{::$root.config.labels['App_Button_Ok']}}</button>
+    <button class="btn btn-promoted-action" type="button" ng-click="$ctrl.ok()" ng-disabled="!$ctrl.canApplyChanges">{{::$root.config.labels['App_Button_Ok']}}</button>
 </div>

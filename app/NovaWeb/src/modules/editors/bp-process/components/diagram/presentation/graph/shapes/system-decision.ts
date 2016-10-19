@@ -44,11 +44,7 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
         this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("adddetails-neutral.svg"));
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
             this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemDecisionDetailsDialogType));
-        } else {
-            this.detailsButton.setClickAction(() => {
-                //fixme: empty blocks should be removed or undefined
-            });
-        }
+        } 
 
         this.detailsButton.setHoverImage(this.getImageSource("adddetails-hover.svg"));
         this.detailsButton.setDisabledImage(this.getImageSource("adddetails-mute.svg"));
@@ -69,7 +65,6 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
 
     protected updateCellLabel(value: string) {
         this.textLabel.text = value;
-        this.sendUpdatedSubArtifactModel("name");
     }
 
     public showMenu(mxGraph: MxGraph) {
@@ -151,29 +146,6 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
         return this;
     }
 
-    // get the maximum length of text that can be entered
-    public getElementTextLength(cell: MxCell): number {
-        return this.LABEL_EDIT_MAXLENGTH;
-    }
-
-    // This function returns formatted text to the getLabel() function to display the label
-    public formatElementText(cell: MxCell, text: string): string {
-        if (cell && text) {
-            const maxLen: number = this.LABEL_VIEW_MAXLENGTH;
-
-            if (text.length > maxLen) {
-                text = text.substr(0, maxLen) + " ...";
-            }
-        }
-
-        return text;
-    }
-
-    // Save text for the node or for an element within the node
-    public setElementText(cell: MxCell, text: string) {
-        this.label = text;
-    }
-
     public getFirstSystemTask(graph: IProcessGraph): ISystemTask {
         const targets = this.getTargets(graph.getMxGraphModel());
 
@@ -215,11 +187,5 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
     public getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape {
         const id = graph.getDecisionBranchDestLinkForIndex(this.model.id, orderIndex).destinationId;
         return graph.getShapeById(id);
-    }
-
-    public cloneDecision(): IDecision {
-        const decision = new SystemDecision(this.model, this.rootScope, this.nodeFactorySettings);
-        decision.label = this.label;
-        return decision;
     }
 }

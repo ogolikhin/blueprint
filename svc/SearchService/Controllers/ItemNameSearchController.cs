@@ -2,10 +2,10 @@
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using SearchService.Helpers;
 using SearchService.Models;
 using SearchService.Repositories;
 using ServiceLibrary.Attributes;
-using SearchService.Helpers;
 
 namespace SearchService.Controllers
 {
@@ -32,7 +32,7 @@ namespace SearchService.Controllers
             _searchConfigurationProvider = new SearchConfigurationProvider(configuration);
         }
 
-        #region Search
+        #region Post
 
         /// <summary>
         /// Perform an Item search by Name
@@ -58,7 +58,7 @@ namespace SearchService.Controllers
 
             int searchStartOffset = GetStartCounter(startOffset, 0, 0);
 
-            var results = await _itemSearchRepository.FindItemByName(userId, searchCriteria, searchStartOffset, searchPageSize);
+            var results = await _itemSearchRepository.SearchName(userId, searchCriteria, searchStartOffset, searchPageSize);
 
             results.PageItemCount = results.SearchItems.Count();
 
@@ -75,9 +75,6 @@ namespace SearchService.Controllers
 
         }
 
-        #endregion
-
-
-
+        #endregion Post
     }
 }

@@ -1,4 +1,4 @@
-﻿import {ISystemTaskShape, IArtifactUpdateModel} from "../../../../../models/process-models";
+﻿import {ISystemTaskShape} from "../../../../../models/process-models";
 import {ItemIndicatorFlags, ProcessShapeType} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {IProcessGraph, IDiagramNode, IUserTaskChildElement} from "../models/";
@@ -112,11 +112,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         if (nodeFactorySettings && nodeFactorySettings.isCommentsButtonEnabled) {
             // #TODO interaction with utility panel is different in Nova
             //this.commentsButton.setClickAction(() => this.openPropertiesDialog(this.rootScope, Shell.UtilityTab.discussions));
-        } else {
-            this.commentsButton.setClickAction(() => {
-                //fixme: empty blocks should be removed
-            });
-        }
+        } 
 
         this.commentsButton.setTooltip(this.getLocalizedLabel("ST_Comments_Label"));
 
@@ -137,11 +133,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
 
         if (nodeFactorySettings && nodeFactorySettings.isLinkButtonEnabled) {
             this.linkButton.setClickAction(() => this.navigateToProcess());
-        } else {
-            this.linkButton.setClickAction(() => {
-                //fixme: empty blocks should be removed
-            });
-        }
+        } 
 
         this.linkButton.setTooltip(this.getLocalizedLabel("ST_Userstory_Label"));
         this.linkButton.setDisabledImage(this.getImageSource("include-inactive.svg"));
@@ -159,13 +151,8 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         this.mockupButton = new Button(`MB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("mockup-neutral.svg"));
 
         if (nodeFactorySettings && nodeFactorySettings.isMockupButtonEnabled) {
-            this.mockupButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemTaskDetailsDialogType));
-        } else {
-            this.mockupButton.setClickAction(() => {
-                //fixme: empty blocks should be removed
-
-            });
-        }
+            this.mockupButton.setClickAction(() => this.openDialog(ModalDialogType.SystemTaskDetailsDialogType));
+        } 
 
         this.mockupButton.setTooltip(this.getLocalizedLabel("ST_Mockup_Label"));
         this.mockupButton.setActiveImage(this.getImageSource("mockup-active.svg"));
@@ -180,12 +167,8 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("adddetails-neutral.svg"));
 
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
-            this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemTaskDetailsDialogType));
-        } else {
-            this.detailsButton.setClickAction(() => {
-                //fixme: empty blocks should be removed
-            });
-        }
+            this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.SystemTaskDetailsDialogType));
+        } 
 
         this.detailsButton.setTooltip(this.getLocalizedLabel("ST_Settings_Label"));
         this.detailsButton.setHoverImage(this.getImageSource("adddetails-hover.svg"));
@@ -213,7 +196,6 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
                 this.personaLabel.text = value;
                 this.shapesFactory.setSystemTaskPersona(value);
             }
-            this.sendUpdatedSubArtifactModel("persona");
         }
     }
 
@@ -222,10 +204,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     }
 
     public set description(value: string) {
-        const valueChanged = this.setPropertyValue("description", value);
-        if (valueChanged) {
-            this.sendUpdatedSubArtifactModel("description");
-        }
+        this.setPropertyValue("description", value);
     }
 
     public get associatedImageUrl(): string {
@@ -233,10 +212,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     }
 
     public set associatedImageUrl(value: string) {
-        const valueChanged = this.setPropertyValue("associatedImageUrl", value);
-        if (valueChanged) {
-            this.sendUpdatedSubArtifactModel("associatedImageUrl");
-        }
+       this.setPropertyValue("associatedImageUrl", value);
     }
 
     public get imageId(): string {
@@ -246,8 +222,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     public set imageId(value: string) {
         const valueChanged = this.setPropertyValue("imageId", value);
         if (valueChanged) {
-            this.sendUpdatedSubArtifactModel("imageId");
-            if (!Boolean(value)) {
+            if (!value) {
                 this.mockupButton.deactivate();
             } else {
                 this.mockupButton.activate();
@@ -262,8 +237,9 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     public set associatedArtifact(value: any) {
         if (this.model != null && this.model.associatedArtifact !== value) {
             this.model.associatedArtifact = value;
-            this.sendUpdatedSubArtifactModel("associatedArtifact", value);
-            if (!Boolean(value)) {
+            // TODO: create associatedArtifact predefined type and update it in the special properties of the stateful artifact.
+            //this.updateStatefulPropertyValue(<property type predefined>, value);
+            if (!value) {
                 this.linkButton.disable();
             } else {
                 this.linkButton.activate();
@@ -462,60 +438,6 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         //    dialogType);
     }
 
-    public getElementTextLength(cell: MxCell): number {
-
-        // get the maximum length of text that can be entered
-
-        let maxLen: number = this.LABEL_EDIT_MAXLENGTH;
-
-        const element = <IDiagramNodeElement>cell;
-        if (element.getElementType() === ElementType.SystemTaskHeader) {
-            maxLen = this.PERSONA_EDIT_MAXLENGTH;
-        } else {
-            maxLen = this.LABEL_EDIT_MAXLENGTH;
-        }
-        return maxLen;
-    }
-
-    public formatElementText(cell: MxCell, text: string): string {
-
-
-        // This function returns formatted text to the getLabel()
-        // function to display the node's label and persona
-
-
-        if (cell && text) {
-            let maxLen: number = this.LABEL_VIEW_MAXLENGTH;
-
-            const element = <IDiagramNodeElement>cell;
-            if (element.getElementType() === ElementType.SystemTaskHeader) {
-                maxLen = this.PERSONA_VIEW_MAXLENGTH;
-            } else {
-                maxLen = this.LABEL_VIEW_MAXLENGTH;
-            }
-
-            if (text.length > maxLen) {
-                text = text.substr(0, maxLen) + " ...";
-            }
-        }
-
-        return text;
-    }
-
-    public setElementText(cell: MxCell, text: string) {
-
-        // save text for the node or for an element within
-        // the node
-
-
-        const element = <IDiagramNodeElement>cell;
-
-        if (element.getElementType() === ElementType.SystemTaskHeader) {
-            this.persona = text;
-        } else {
-            this.label = text;
-        }
-    }
     public getLabelCell(): MxCell {
         return this.bodyCell;
     }

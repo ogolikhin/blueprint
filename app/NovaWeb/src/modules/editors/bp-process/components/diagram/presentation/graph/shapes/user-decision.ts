@@ -42,11 +42,7 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
 
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
             this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemDecisionDetailsDialogType));
-        } else {
-            this.detailsButton.setClickAction(() => {
-                //fixme: no empty function blocks
-            });
-        }
+        } 
 
         this.detailsButton.setHoverImage(this.getImageSource("adddetails-hover.svg"));
         this.detailsButton.setDisabledImage(this.getImageSource("adddetails-mute.svg"));
@@ -67,7 +63,6 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
 
     protected updateCellLabel(value: string) {
         this.textLabel.text = value;
-        this.sendUpdatedSubArtifactModel("name");
     }
 
     public getX(): number {
@@ -199,28 +194,6 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
         return this;
     }
 
-    // Get the maximum length of text that can be entered
-    public getElementTextLength(cell: MxCell): number {
-        return this.LABEL_EDIT_MAXLENGTH;
-    }
-
-    // This function returns formatted text to the getLabel() function to display the label
-    public formatElementText(cell: MxCell, text: string): string {
-        if (cell && text) {
-            const maxLen: number = this.LABEL_VIEW_MAXLENGTH;
-
-            if (text.length > maxLen) {
-                text = text.substr(0, maxLen) + " ...";
-            }
-        }
-
-        return text;
-    }
-
-    // Save text for the node or for an element within the node
-    public setElementText(cell: MxCell, text: string) {
-        this.label = text;
-    }
 
     private openDialog(dialogType: ModalDialogType) {
         this.dialogManager.openDialog(this.model.id, dialogType);
@@ -239,11 +212,5 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
     public getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape {
         const id = graph.getDecisionBranchDestLinkForIndex(this.model.id, orderIndex).destinationId;
         return graph.getShapeById(id);
-    }
-
-    public cloneDecision(): IDecision {
-        const decision = new UserDecision(this.model, this.rootScope, this.nodeFactorySettings);
-        decision.label = this.label;
-        return decision;
     }
 }

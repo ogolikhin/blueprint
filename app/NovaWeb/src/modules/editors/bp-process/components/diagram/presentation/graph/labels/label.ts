@@ -94,14 +94,17 @@ export class Label implements ILabel {
     //private shortContent: string;
     private visibility: string;
     private executionEnvironmentDetector: any;
+    private beforeEditText: string;
 
     public get text() {
         return this._text;
     }
 
     public set text(value) {
-        this._text = value;
-        this.setShortText();
+        if (this._text !== value) {
+            this._text = value;
+            this.setShortText();
+        }
     }
 
     public setVisible(value: boolean) {
@@ -131,7 +134,7 @@ export class Label implements ILabel {
         if (!_text) {
             this._text = "";
         }
-
+        this.beforeEditText = "";
         // This is temporary code. It will be replaced with
         // a class that wraps this global functionality.
         let w: any = window;
@@ -147,11 +150,14 @@ export class Label implements ILabel {
         this.cancelDefaultAction(e);
     }
     private undo() {
-        this.callback(this._text);
+        this._text = this.beforeEditText;
+        this.callback(this.beforeEditText);
         this.setViewMode();
     }
 
-
+    private onKeyUp = (e) => {
+        this.callbackIfTextChanged();
+    }
     private onKeyDown = (e) => {
         if (e.keyCode === action.ENTER) {
             this.update();
@@ -173,20 +179,17 @@ export class Label implements ILabel {
             this.cancelDefaultAction(e);
             return false;
         }
-        this.callbackIfTextChanged();
     }
     private callbackIfTextChanged() {
         const innerText = this.div.innerText.replace(/\n/g, "");
         if (this.isTextChanged(innerText)) {
+            this._text = innerText;
             this.callback(innerText);
         }
     }
     private isTextChanged(newText: string): boolean {
         return this._text !== newText;
         
-    }
-    private onDelete = (e) => {
-        this.callbackIfTextChanged();
     }
     private onCut = (e) => {
         this.callbackIfTextChanged();
@@ -247,6 +250,7 @@ export class Label implements ILabel {
         this.wrapperDiv.style.pointerEvents = "auto";
         //window.console.log("setEditMode this.mode = " + this.mode);
         this.selectText();
+        this.beforeEditText = this._text;
 
         setTimeout(this.addDeferedListener, 300, this.div);
     }
@@ -351,8 +355,8 @@ export class Label implements ILabel {
             this.div.addEventListener("labelmouseout", this.onMouseout, true);
 
             angular.element(this.div).on("keydown", (e) => this.onKeyDown(e));
+            angular.element(this.div).on("keyup", (e) => this.onKeyUp(e));
             angular.element(this.div).on("paste", (e) => this.onPaste(e));
-            angular.element(this.div).on("delete", (e) => this.onDelete(e));
             angular.element(this.div).on("cut", (e) => this.onCut(e));
             angular.element(this.div).on("dispose", () => this.onDispose());
         }
@@ -365,7 +369,9 @@ export class Label implements ILabel {
                 this.div.removeEventListener("labelmouseover", this.onMouseover, true);
                 this.div.removeEventListener("labelmouseout", this.onMouseout, true);
                 angular.element(this.div).off("keydown", (e) => this.onKeyDown(e));
+                angular.element(this.div).off("keyup", (e) => this.onKeyUp(e));
                 angular.element(this.div).off("paste", (e) => this.onPaste(e));
+                angular.element(this.div).off("cut", (e) => this.onCut(e));
                 angular.element(this.div).off("dispose", () => this.onDispose());
             }
             this.wrapperDiv.removeChild(this.div);

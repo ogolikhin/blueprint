@@ -1,7 +1,7 @@
 ﻿import {IDiagramElement, IDiagramNode} from "./../models/";
 import {IDiagramNodeElement, ILabel} from "./../models/";
 import {ElementType, NodeChange} from "./../models/";
-import {IProcessDiagramCommunication, ProcessEvents} from "../../../process-diagram-communication";
+import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 
 export class DiagramElement extends mxCell implements IDiagramElement {
     private elementType: ElementType;
@@ -51,32 +51,11 @@ export class DiagramElement extends mxCell implements IDiagramElement {
         return new mxPoint(0, 0);
     }
 
-    public setElementText(cell: MxCell, text: string) {
-        // override in descendant classes
-    }
-
-    public getElementTextLength(cell: MxCell): number {
-        // override in descendant classes
-        return null;
-    }
-
-    public formatElementText(cell: MxCell, text: string): string {
-        // override in descendant classes
-        return null;
-    }
-
     protected getParentId(): number {
         // override in descendant classes
         return null;
     }
 
-
-    private _redraw: boolean;
-    private _isNotificationPending: boolean = false;
-
-    public notify(updateModel) {        
-        this.processDiagramManager.action(ProcessEvents.ArtifactUpdate, updateModel);
-    }
     public getImageSource(image: string) {
         return "/novaweb/static/bp-process/images/" + image;
     }
@@ -92,11 +71,13 @@ export class DiagramNodeElement extends DiagramElement implements IDiagramNodeEl
             }
             parent = (<mxCell>parent).parent;
         }
+
         return null;
     }
 
     public getCenter(): MxPoint {
         const geometry = <MxGeometry>this.geometry;
+
         if (geometry) {
             if (this.parent) {
                 const parentCenterX = (<IDiagramNodeElement>this.parent).getCenter().x;
@@ -115,26 +96,5 @@ export class DiagramNodeElement extends DiagramElement implements IDiagramNodeEl
         }
 
         return new mxPoint(0, 0);
-    }
-
-    public setElementText(cell: MxCell, text: string) {
-        if (this.getNode()) {
-            this.getNode().setElementText(cell, text);
-        }
-    }
-
-    public getElementTextLength(cell: MxCell): number {
-        if (this.getNode()) {
-            return this.getNode().getElementTextLength(cell);
-        }
-        return null;
-    }
-
-    public formatElementText(cell: MxCell, text: string): string {
-
-        if (this.getNode()) {
-            return this.getNode().formatElementText(cell, text);
-        }
-        return null;
     }
 }

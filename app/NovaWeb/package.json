@@ -6,7 +6,8 @@
   "license": "UNLICENSED",
   "main": "/",
   "scripts": {
-    "postinstall": "typings prune",
+    "preinstall": "npm prune && typings prune",
+    "postinstall": "typings install",
     "dev": "node_modules/.bin/webpack-dev-server --config webpack/webpack.dev.js --content-base src --inline --hot --NODE_ENV=dev",
     "dev:open-browser": "npm config set nova_open_browser 1 && npm run dev",
     "dev:no-browser": "npm config set nova_open_browser 0 && npm run dev",
@@ -29,7 +30,6 @@
     "angular-formly": "^8.2.1",
     "angular-formly-templates-bootstrap": "^6.4.0",
     "angular-messages": "~1.5.7",
-    "angular-perfect-scrollbar-2": "1.2.4",
     "angular-sanitize": "~1.5.2",
     "angular-ui-bootstrap": "^2.1.4",
     "angular-ui-router": "~0.2.17",
@@ -47,15 +47,6 @@
     "webpack-dev-server": "^1.16.2"
   },
   "devDependencies": {
-    "@types/angular": "^1.5.16",
-    "@types/angular-formly": "^7.2.30",
-    "@types/angular-mocks": "^1.5.5",
-    "@types/angular-ui-bootstrap": "^0.13.35",
-    "@types/angular-ui-router": "^1.1.34",
-    "@types/jasmine": "^2.2.34",
-    "@types/jquery": "^2.0.32",
-    "@types/lodash": "^4.14.37",
-    "@types/node": "^6.0.45",
     "angular-mocks": "~1.5.2",
     "angular-module-mocks": "~1.2.19",
     "awesome-typescript-loader": "^2.2.4",
@@ -67,6 +58,7 @@
     "copy-webpack-plugin": "^3.0.0",
     "css-loader": "^0.25.0",
     "del": "^2.2.0",
+    "es6-shim": "^0.35.1",
     "exports-loader": "^0.6.3",
     "extract-text-webpack-plugin": "^1.0.1",
     "file-loader": "^0.9.0",
@@ -82,6 +74,7 @@
     "karma": "^1.1.2",
     "karma-chrome-launcher": "^1.0.1",
     "karma-coverage": "^1.0.0",
+    "karma-es6-shim": "^1.0.0",
     "karma-jasmine": "^1.0.2",
     "karma-phantomjs-launcher": "^1.0.0",
     "karma-sourcemap-loader": "^0.3.7",
@@ -101,6 +94,7 @@
     "typings": "^1.4.0",
     "url-loader": "~0.5.7",
     "webpack": "^1.12.14",
+    "webpack-dev-server": "^1.16.2",
     "webpack-fail-plugin": "^1.0.5"
   },
   "config": {

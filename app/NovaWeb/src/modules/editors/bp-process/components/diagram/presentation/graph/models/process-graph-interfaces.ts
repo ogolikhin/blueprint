@@ -197,7 +197,6 @@ export interface IDiagramNode extends IDiagramNodeElement, MxCell, IDeletable, I
     getNextNodes(): IDiagramNode[];
     // gets immediate precursor nodes
     getPreviousNodes(): IDiagramNode[];
-    notify(change: NodeChange);
 
     getDeleteDialogParameters(): IDialogParams;
 
@@ -212,9 +211,6 @@ export interface IDiagramElement extends MxCell {
     getHeight(): number;
     getWidth(): number;
     getCenter(): MxPoint;
-    setElementText(cell: MxCell, text: string);
-    formatElementText(cell: MxCell, text: string): string;
-    getElementTextLength(cell: MxCell): number;
 }
 
 export interface IDiagramNodeElement extends IDiagramElement {
@@ -248,7 +244,6 @@ export interface IUserTask extends ITask {
 export interface IDecision extends IDiagramNode, IMenuContainer {
     getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape;
     setLabelWithRedrawUi(value: string);
-    cloneDecision(): IDecision;
 }
 
 export interface IUserTaskChildElement extends IDiagramNode {
@@ -262,9 +257,6 @@ export interface ISystemDecision {
     hideMenu(graph: IProcessGraph);
     renderLabels();
     render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode;
-    getElementTextLength(cell: MxCell): number;
-    formatElementText(cell: MxCell, text: string): string;
-    setElementText(cell: MxCell, text: string);
     getFirstSystemTask(graph: IProcessGraph): ISystemTask;
     getSystemNodes(graph: IProcessGraph): IDiagramNode[];
     openDialog(dialogType: ModalDialogType);

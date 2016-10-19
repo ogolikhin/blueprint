@@ -155,6 +155,7 @@
 
     .modal-dialog {
         width: 600px;
+        max-width: none;
         display: inline-block;
         text-align: left;
         margin-top: 72px;
@@ -375,6 +376,7 @@ bp-process-editor {
         @include text-ellipsis-fixed-width(100%);
         padding-right: 10px;
     }
+
     /* formatting the highlighting of dropdowns and mentions*/
     .dropdown-menu li a strong,
     #storyteller-include[uib-typeahead] + .dropdown-menu li a strong,
@@ -423,6 +425,7 @@ bp-process-editor {
     .rte-autocomplete > li.loading {
         @extend .loading;
     }
+
     .rte-autocomplete {
         max-width: 400px;
     }
@@ -580,10 +583,12 @@ table.mxPopupMenu tr {
 
     .carousel-indicators li {
         border-color: #666;
+
         &.active {
             background: #666;
         }
     }
+
     .carousel-control {
         top: inherit;
         bottom: 45px;
@@ -789,6 +794,8 @@ table.mxPopupMenu tr {
 
 .storyteller-gwt-section p {
     word-wrap: break-word;
+    padding: 2px 0;
+    font-size: 1.3rem;
 }
 
 .storyteller-gwt-section .modal-content-autoscroll {
@@ -798,9 +805,13 @@ table.mxPopupMenu tr {
 }
 
 .storyteller-gwt-label {
-    font-size: $font-size-bigger;
-    color: $brand-secondary;
-    font-weight: bold;
+    font-size: $font-size-big;
+    font-weight: 600;
+    text-decoration: underline;
+
+    a {
+        text-decoration: none;
+    }
 }
 
 .storyteller-label_show-hide {
@@ -822,6 +833,7 @@ table.mxPopupMenu tr {
             display: inline-block;
             color: $brand-secondary;
         }
+
         &:before {
             font-size: 16px;
             margin: 0 -3px 0 0;
@@ -882,7 +894,12 @@ table.mxPopupMenu tr {
 
 .delete-condition {
     margin-left: -20px;
-    padding: 0;
+    padding: 5px;
+    cursor: pointer;
+
+    &:hover {
+        color: $brand-secondary;
+    }
 }
 
 .user-story-preview-center-pane {
@@ -894,9 +911,11 @@ table.mxPopupMenu tr {
     top: 10px;
     right: 3px;
     z-index: 22222222;
+
     .contextual-help {
         color: #fff;
         cursor: pointer;
+
         .fonticon-help:before {
             font-size: 1.5rem;
         }
@@ -928,10 +947,4 @@ body.mce-content-body a, body.mce-content-body a:hover {
     line-height: 0;
     height: 0;
     display: none;
-}
-
-p {
-    margin: 0;
-    padding: 0;
-    font-size: inherit;
 }

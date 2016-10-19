@@ -1,22 +1,22 @@
 ﻿using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web.Http.Results;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using SearchService.Repositories;
-using System.Net.Http;
-using ServiceLibrary.Models;
-using SearchService.Models;
-using System.Web.Http.Results;
-using ServiceLibrary.Helpers;
 using SearchService.Helpers;
+using SearchService.Models;
+using SearchService.Repositories;
 using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 
 namespace SearchService.Controllers
 {
     [TestClass]
     public class FullTextSearchControllerTests
     {
-        #region POST Tests
+        #region Post
 
         [TestMethod]
         public async Task Post_PageSizeNegative_ReturnsConstant()
@@ -53,7 +53,7 @@ namespace SearchService.Controllers
                 badRequestException = e;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(badRequestException, "Bad Request Exception should have been thrown");
             Assert.AreEqual(ErrorCodes.IncorrectSearchCriteria, badRequestException.ErrorCode, "IncorrectSearchCriteria should be provided as Error code");
         }
@@ -76,7 +76,7 @@ namespace SearchService.Controllers
                 badRequestException = e;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(badRequestException, "Bad Request Exception should have been thrown");
             Assert.AreEqual(ErrorCodes.IncorrectSearchCriteria, badRequestException.ErrorCode, "IncorrectSearchCriteria should be provided as Error code");
         }
@@ -99,7 +99,7 @@ namespace SearchService.Controllers
                 badRequestException = e;
             }
 
-            //Assert
+            // Assert
             Assert.IsNotNull(badRequestException, "Bad Request Exception should have been thrown");
             Assert.AreEqual(ErrorCodes.IncorrectSearchCriteria, badRequestException.ErrorCode, "IncorrectSearchCriteria should be provided as Error code");
         }
@@ -189,10 +189,11 @@ namespace SearchService.Controllers
             Assert.AreEqual(result.Content.Page, 10);
         }
 
-        #endregion
+        #endregion Post
 
-        #region METADATA Test
-        public async Task Metadata_PageSizeNegative_ReturnsConstant()
+        #region MetaData
+
+        public async Task MetaData_PageSizeNegative_ReturnsConstant()
         {
             // Arrange
             var configuration = new Mock<ISearchConfiguration>();
@@ -207,11 +208,13 @@ namespace SearchService.Controllers
             Assert.IsNotNull(result, "Result was not retrieved");
             Assert.AreEqual(result.Content.PageSize, ServiceConstants.SearchPageSize);
         }
-        #endregion
+
+        #endregion MetaData
+
         private FullTextSearchController initializeController(Mock<ISearchConfiguration> configuration)
         {
-            var fullTextSearchRepositoryMock = new Mock<IFullTextSearchRepository>();
-            fullTextSearchRepositoryMock.Setup(a => a.Search(It.IsAny<int>(), It.IsAny<SearchCriteria>(), It.IsAny<int>(), It.IsAny<int>())).
+            var itemSearchRepositoryMock = new Mock<IItemSearchRepository>();
+            itemSearchRepositoryMock.Setup(a => a.Search(It.IsAny<int>(), It.IsAny<SearchCriteria>(), It.IsAny<int>(), It.IsAny<int>())).
                 Returns(Task.FromResult
                 (
                     new FullTextSearchResult
@@ -222,11 +225,10 @@ namespace SearchService.Controllers
             var request = new HttpRequestMessage();
             request.Properties.Add("Session", new Session { UserId = 1 });
 
-            return new FullTextSearchController(fullTextSearchRepositoryMock.Object, configuration.Object)
+            return new FullTextSearchController(itemSearchRepositoryMock.Object, configuration.Object)
             {
                 Request = request
             };
-
         }
     }
 }

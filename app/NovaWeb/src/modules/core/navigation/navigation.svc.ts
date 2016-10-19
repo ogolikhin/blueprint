@@ -1,9 +1,10 @@
+import * as angular from "angular";
 import {INavigationState} from "./navigation-state";
 
 export interface INavigationService {
     getNavigationState(): INavigationState;
     navigateToMain(): ng.IPromise<any>;
-    navigateToArtifact(id: number, enableTracking?: boolean): ng.IPromise<any>;
+    navigateTo(id: number, redirect?: boolean, enableTracking?: boolean): ng.IPromise<any>;
     navigateBack(pathIndex?: number): ng.IPromise<any>;
 }
 
@@ -37,7 +38,7 @@ export class NavigationService implements INavigationService {
         return this.$state.go(state);
     }
 
-    public navigateToArtifact(id: number, enableTracking: boolean = false): ng.IPromise<any> {
+    public navigateTo(id: number, redirect: boolean = false, enableTracking: boolean = false): ng.IPromise<any> {
         const deferred: ng.IDeferred<any> = this.$q.defer();
         const currentState = this.getNavigationState();
         const validationError: Error = this.validateArtifactNavigation(id, currentState);
@@ -61,9 +62,14 @@ export class NavigationService implements INavigationService {
             return parameters;
         };
 
-        return this.navigateToArtifactInternal(getParameters);
-    }
+        const stateOptions: ng.ui.IStateOptions = {
+            location: redirect ? "replace" : undefined,
+            inherit: false
+        };
 
+        return this.navigateToArtifactInternal(getParameters, stateOptions);
+    }
+    
     public navigateBack(pathIndex?: number): ng.IPromise<any> {
         const deferred: ng.IDeferred<any> = this.$q.defer();
         const path: number[] = this.getNavigationState().path;
@@ -96,13 +102,13 @@ export class NavigationService implements INavigationService {
         return this.navigateToArtifactInternal(getParameters);
     }
 
-    private navigateToArtifactInternal(getParameters: () => any): ng.IPromise<any> {
-        const state = "main.artifact";
+    private navigateToArtifactInternal(getParameters: () => any, stateOptions?: ng.ui.IStateOptions): ng.IPromise<any> {
+        const state = "main.item";
         const parameters = getParameters();
         // Disables the inheritance of optional url parameters (such as "path")
-        const stateOptions: ng.ui.IStateOptions = <ng.ui.IStateOptions>{inherit: false};
+        const options: ng.ui.IStateOptions = stateOptions || { inherit: false };
 
-        return this.$state.go(state, parameters, stateOptions);
+        return this.$state.go(state, parameters, options);
     }
 
     private validateArtifactNavigation(id: number, navigationState: INavigationState): Error {

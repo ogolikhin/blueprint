@@ -65,10 +65,10 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     }
 
     public hasFields(): boolean  {
-        return ((angular.isArray(this.systemFields) ? this.systemFields.length : 0) + 
-               (angular.isArray(this.customFields) ? this.customFields.length : 0) +
-               (angular.isArray(this.richTextFields) ? this.richTextFields.length : 0) +
-               (angular.isArray(this.specificFields) ? this.specificFields.length : 0)) > 0;
+        return ((this.systemFields || []).length + 
+               (this.customFields || []).length +
+               (this.richTextFields || []).length +
+               (this.specificFields || []).length) > 0;
     }
 
     protected onFieldUpdateFinished() {

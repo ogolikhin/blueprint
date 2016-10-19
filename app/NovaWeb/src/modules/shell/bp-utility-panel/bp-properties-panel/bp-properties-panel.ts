@@ -140,10 +140,11 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     };
 
     private hasFields(): boolean  {
-        return ((angular.isArray(this.systemFields) ? this.systemFields.length : 0) + 
-               (angular.isArray(this.customFields) ? this.customFields.length : 0) +
-               (angular.isArray(this.richTextFields) ? this.richTextFields.length : 0) +
-               (angular.isArray(this.specificFields) ? this.specificFields.length : 0)) > 0;
+        return ((this.systemFields || []).length + 
+               (this.customFields || []).length +
+               (this.richTextFields || []).length +
+               (this.specificFields || []).length) > 0;
+
     }
     
     private shouldRenewFields(): boolean {
@@ -184,8 +185,9 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         propertyTypesPromise.then((propertyTypes) => {
             const propertyEditorFilter = new PropertyEditorFilters(this.localization);
             const propertyFilters = propertyEditorFilter.getPropertyEditorFilters(selectedItem.predefinedType);
-            
-            if (this.editor.create(selectedItem, propertyTypes, this.shouldRenewFields())) {
+            const shouldCreateFields = this.editor.create(selectedItem, propertyTypes, this.shouldRenewFields()); 
+
+            if (shouldCreateFields) {
                 this.clearFields();
                 this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
                     let propertyContext = field.data as PropertyContext;
@@ -194,11 +196,11 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                     }
 
                     //add property change handler to each field
-                    angular.extend(field.templateOptions, {
+                    Object.assign(field.templateOptions, {
                         onChange: this.onValueChange.bind(this)
                     });
 
-                    let isReadOnly = this.selectedArtifact.artifactState.readonly || this.selectedArtifact.artifactState.lockedBy === LockedByEnum.OtherUser;
+                    const isReadOnly = this.selectedArtifact.artifactState.readonly;
                     if (isReadOnly) {
                         field.templateOptions.disabled = true;
                     }

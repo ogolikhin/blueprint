@@ -1,4 +1,3 @@
-import * as angular from "angular";
 import {ILocalizationService, Message} from "../../core";
 import {IWindowManager, IMainWindow} from "../../main";
 //import { Models, Enums } from "../../main";
@@ -62,16 +61,12 @@ export class BpArtifactEditor extends BpBaseEditor {
     }
     
     public hasFields(): boolean  {
-        return (angular.isArray(this.fields) ? this.fields.length : 0) > 0;
+        return (this.fields || []).length > 0;
 
     }
 
     private shouldRenewFields(): boolean {
-        if (this.artifact.artifactState.readonly || !this.hasFields()) {
-            return true;
-        }
-
-        return false;
+        return this.artifact.artifactState.readonly || !this.hasFields();
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
@@ -81,16 +76,16 @@ export class BpArtifactEditor extends BpBaseEditor {
     public onArtifactReady() {
         if (this.editor && this.artifact) {
             this.artifact.metadata.getArtifactPropertyTypes().then((propertyTypes) => {
-                
-                if (this.editor.create(this.artifact, propertyTypes, this.shouldRenewFields())) {
+                const shouldCreateFields = this.editor.create(this.artifact, propertyTypes, this.shouldRenewFields()); 
+                if (shouldCreateFields) {
                     this.clearFields();                    
                     this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
                         //add property change handler to each field
-                        angular.extend(field.templateOptions, {
+                        Object.assign(field.templateOptions, {
                             onChange: this.onValueChange.bind(this)
                         });
 
-                        let isReadOnly = this.artifact.artifactState.readonly || this.artifact.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
+                        const isReadOnly = this.artifact.artifactState.readonly;
                         field.templateOptions["isReadOnly"] = isReadOnly;
                         if (isReadOnly) {
                             if (field.type !== "bpDocumentFile" &&

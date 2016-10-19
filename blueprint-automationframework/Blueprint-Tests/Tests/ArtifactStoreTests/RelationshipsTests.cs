@@ -251,13 +251,13 @@ namespace ArtifactStoreTests
             // Setup: Create and Publish a srouce artifact
             var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
 
-            // Execute: Execute GetRelationships with invalid version ID of the source artifact
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: nonExistingVersionId), "Calling GET {0} with invalid version ID should return 404 NotFound!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS);
+            // Execute: Execute GetRelationships with non-existing version ID of the source artifact
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: nonExistingVersionId), "Calling GET {0} with non-existing version ID should return 404 NotFound!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS);
 
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
 
             // Validation: Exception should contain proper errorCode in the response content.
-            Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.ResourceNotFound), "GetRelationships with invalid versionId should return {0} errorCode but {1} is returned", ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);
+            Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.ResourceNotFound), "GetRelationships with non-existing versionId should return {0} errorCode but {1} is returned", ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);
         }
 
         [TestCase(TraceDirection.To, NONEXSITING_REVISIONID)]
@@ -285,17 +285,17 @@ namespace ArtifactStoreTests
             // Validates trace properties from relationships for the version
             TraceValidation(relationships, traces, new List<IArtifact> { targetArtifact });
 
-            // Delete the target artifact to test GetRelationshipsDetails for the target artifact with non existing revision ID
+            // Delete the target artifact to test GetRelationshipsDetails for the target artifact with non-existing revision ID
             targetArtifact.Delete();
             targetArtifact.Publish();
 
-            // Execute: Execute GetRelationshipDetails with the invalid revision ID
-            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.GetRelationshipsDetails(bpServerAddress, _user, targetArtifact.Id, revisionId: nonExistingRevisionId), "Calling GET {0} with invalid revision ID should return 404 NotFound!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS);
+            // Execute: Execute GetRelationshipDetails with the non-existing revision ID
+            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.GetRelationshipsDetails(bpServerAddress, _user, targetArtifact.Id, revisionId: nonExistingRevisionId), "Calling GET {0} with non-existing revision ID should return 404 NotFound!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS);
 
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
 
             // Validation: Exception should contain proper errorCode in the response content.
-            Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.ResourceNotFound), "GetRelationshipsDetails with invalid revisionId should return {0} errorCode but {1} is returned", ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);
+            Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.ResourceNotFound), "GetRelationshipsDetails with non-existing revisionId should return {0} errorCode but {1} is returned", ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);
         }
 
         #endregion 404 Not Found Tests

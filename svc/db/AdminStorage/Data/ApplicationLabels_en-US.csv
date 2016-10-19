@@ -6,6 +6,7 @@ App_Button_Ok,"OK"
 App_Button_Cancel,"Cancel"
 App_Button_Close,"Close"
 App_Button_Open,"Open"
+App_Button_Publish,"Publish"
 App_Button_PublishAndContinue,"Publish and Continue"
 
 App_DialogTitle_Alert,"Warning"

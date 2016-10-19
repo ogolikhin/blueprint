@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using static Model.ArtifactModel.Impl.NovaArtifactDetails;
 using Model.ArtifactModel.Impl;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Model.ArtifactModel
 {
@@ -62,6 +63,12 @@ namespace Model.ArtifactModel
         List<CustomProperty> CustomPropertyValues { get; }
         List<CustomProperty> SpecificPropertyValues { get; }
         int? PredefinedType { get; set; }
+
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        List<NovaTrace> Traces { get; set; }
+
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        List<INovaSubArtifact> SubArtifacts { get; set; }
 
         #endregion Serialized JSON Properties
     }
@@ -125,6 +132,9 @@ namespace Model.ArtifactModel
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         List<INovaSubArtifact> Children { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        List<NovaTrace> Traces { get; set; }
 
         #endregion Serialized JSON Properties
     }

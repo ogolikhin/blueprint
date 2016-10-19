@@ -29,6 +29,9 @@ namespace Model.ArtifactModel.Impl
         [JsonConverter(typeof(Deserialization.ConcreteListConverter<INovaSubArtifact, NovaSubArtifact>))]
         public List<INovaSubArtifact> Children { get; set; } = new List<INovaSubArtifact>();
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public List<NovaTrace> Traces { get; set; }
+
         public bool ShouldSerializeChildren()
         {
             return Children.Count > 0;

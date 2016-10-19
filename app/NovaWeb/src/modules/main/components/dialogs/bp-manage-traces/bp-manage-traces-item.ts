@@ -43,7 +43,7 @@ export class BPManageTracesItemController implements IBPManageTracesItemControll
 
     public $onInit() {
         this.item.directionIcon = this.getDirectionIcon(this.item.traceDirection);
-        this.traceIcon = this.item.suspect ? "trace-icon-suspect" : "trace-icon-regular";
+        this.item.traceIcon = this.item.suspect ? "trace-icon-suspect" : "trace-icon-regular";
     }
 
     public selectTrace() {

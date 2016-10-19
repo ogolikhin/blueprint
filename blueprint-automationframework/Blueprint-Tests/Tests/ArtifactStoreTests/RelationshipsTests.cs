@@ -101,7 +101,6 @@ namespace ArtifactStoreTests
             }
         }
 
-
         /// TODO: Refine this validation method to cover more trace details test cases
         /// <summary>
         /// Validate traceDetails with properties from artifact 
@@ -113,6 +112,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(traceDetails.PathToProject.Count,2, "PathToProject must have 2 items.");
             Assert.AreEqual(traceDetails.ArtifactId,artifact.Id, "Artifact ID {0} from trace details must be equal to {1}.", traceDetails.ArtifactId, artifact.Id);
         }
+
         #endregion Private Functions
 
         #region 200 OK Tests
@@ -198,7 +198,7 @@ namespace ArtifactStoreTests
         #region 400 Bad Request Tests
 
         [TestCase]
-        [Ignore(IgnoreReasons.UnderDevelopment)]
+        [TestRail(183571)]
         [Description("Create and publish artifact with a trace to target. Verify that GetRelationships with invalid versionId returns 400 Bad Request.")]
         public void GetRelationships_GetRelationshipsWithInvalidVersionId_400BadRequest()
         {
@@ -212,7 +212,7 @@ namespace ArtifactStoreTests
         [TestCase(TraceDirection.To)]
         [TestCase(TraceDirection.From)]
         [TestCase(TraceDirection.TwoWay)]
-        [Ignore(IgnoreReasons.UnderDevelopment)]
+        [TestRail(183572)]
         [Description("Create and publish artifact with a trace to target. Verify that GetRelationshipsDetails with invalid revisionId returns 400 Bad Request.")]
         public void GetRelationshipsDetails_GetRelationshipsWithInvalidRevisionId_400BadRequest(TraceDirection direction)
         {
@@ -242,16 +242,17 @@ namespace ArtifactStoreTests
 
         #region 404 Not Found Tests
 
-        [TestCase]
+        [TestCase(NONEXSITING_REVISIONID)]
+        [TestCase(10)]
         [TestRail(183563)]
         [Description("Create and publish artifact with a trace to target. Verify that GetRelationships with non-existing versionId returns 404 Not Found.")]
-        public void GetRelationships_GetRelationshipsWithNonExistingVersionId_404NotFound()
+        public void GetRelationships_GetRelationshipsWithNonExistingVersionId_404NotFound(int nonExistingVersionId)
         {
             // Setup: Create and Publish a srouce artifact
             var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
 
             // Execute: Execute GetRelationships with invalid version ID of the source artifact
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: NONEXSITING_VERSIONID), "Calling GET {0} with invalid version ID should return 404 NotFound!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS);
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: nonExistingVersionId), "Calling GET {0} with invalid version ID should return 404 NotFound!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS);
 
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
 
@@ -259,12 +260,12 @@ namespace ArtifactStoreTests
             Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.ResourceNotFound), "GetRelationships with invalid versionId should return {0} errorCode but {1} is returned", ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);
         }
 
-        [TestCase(TraceDirection.To)]
-        [TestCase(TraceDirection.From)]
-        [TestCase(TraceDirection.TwoWay)]
+        [TestCase(TraceDirection.To, NONEXSITING_REVISIONID)]
+        [TestCase(TraceDirection.From, 10)]
+        [TestCase(TraceDirection.TwoWay, 3)]
         [TestRail(183566)]
         [Description("Create and publish artifact with a trace to target. Verify that GetRelationshipsDetails with non-existing revisionId returns 404 Not Found.")]
-        public void GetRelationshipsDetails_GetRelationshipsWithNonExistingRevisionId_404NotFound(TraceDirection direction)
+        public void GetRelationshipsDetails_GetRelationshipsWithNonExistingRevisionId_404NotFound(TraceDirection direction, int nonExistingRevisionId)
         {
             // Setup: Create and Publish Two target artifacts: target artifact
             // Create and publish artifact with outgoing trace to target artifact 
@@ -289,7 +290,7 @@ namespace ArtifactStoreTests
             targetArtifact.Publish();
 
             // Execute: Execute GetRelationshipDetails with the invalid revision ID
-            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.GetRelationshipsDetails(bpServerAddress, _user, targetArtifact.Id, revisionId: NONEXSITING_REVISIONID), "Calling GET {0} with invalid revision ID should return 404 NotFound!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS);
+            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.GetRelationshipsDetails(bpServerAddress, _user, targetArtifact.Id, revisionId: nonExistingRevisionId), "Calling GET {0} with invalid revision ID should return 404 NotFound!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS);
 
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
 
@@ -632,11 +633,25 @@ namespace ArtifactStoreTests
         }
 
         [TestCase(0)]
-        [TestCase(int.MaxValue)]
         [TestRail(153841)]
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // TODO: This test case need to updated to check 400 bad request instead of 404 nout found for TestCase(0)
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Description("Try to Get Relationships for a invalid sub-artifact ID .  Verify 400 Bad Request is returned.")]
+        public void GetRelationships_InvalidSubArtifactId_400BadRequest(int fakeSubArtifactId)
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+
+            // Execute & Verify:
+            Assert.Throws<Http400BadRequestException>(() =>
+            {
+                Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, subArtifactId: fakeSubArtifactId);
+            }, "GetArtifactRelationships should return 400 BadRequest if the sub-artifact ID is invalid.");
+        }
+
+        [TestCase(int.MaxValue)]
+        [TestRail(153595)]
         [Description("Try to Get Relationships for a sub-artifact ID that doesn't exist.  Verify 404 Not Found is returned.")]
-        public void GetRelationships_InvalidSubArtifactId_404NotFound(int fakeSubArtifactId)
+        public void GetRelationships_NonExstingSubArtifactId_404NotFound(int fakeSubArtifactId)
         {
             // Setup:
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);

@@ -371,7 +371,7 @@ export class Label implements ILabel {
                 angular.element(this.div).off("keydown", (e) => this.onKeyDown(e));
                 angular.element(this.div).off("keyup", (e) => this.onKeyUp(e));
                 angular.element(this.div).off("paste", (e) => this.onPaste(e));
-                angular.element(this.div).on("cut", (e) => this.onCut(e));
+                angular.element(this.div).off("cut", (e) => this.onCut(e));
                 angular.element(this.div).off("dispose", () => this.onDispose());
             }
             this.wrapperDiv.removeChild(this.div);

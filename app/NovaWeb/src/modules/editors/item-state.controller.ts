@@ -40,15 +40,14 @@ export class ItemStateController {
         this.itemInfoService.get(id).then((result: IItemInfoResult) => {
 
             if (this.itemInfoService.isSubArtifact(result)) {
-                // subartifact
+                // navigate to subartifact's artifact
                 this.navigationService.navigateTo(result.id, true);
 
             } else if (this.itemInfoService.isProject(result)) {
-                // project
-                throw new Error("TODO: implement project navigation in a US");
+                // TODO: implement project navigation in the future US
+                this.messageService.addError("This artifact type cannot be opened directly using the Go To feature.");
 
-            } else if (this.itemInfoService.isArtifact(result)) {
-                // artifact
+            } else if (this.itemInfoService.isArtifact(result) && !this.isBaselineOrReview(result.predefinedType)) {
                 const artifact: Models.IArtifact = {
                     id: result.id,
                     projectId: result.projectId,
@@ -67,9 +66,22 @@ export class ItemStateController {
                 this.navigateToSubRoute(statefulArtifact);
 
             } else {
-                throw new Error("Invalid Id");
+                this.messageService.addError("This artifact type cannot be opened directly using the Go To feature.");
             }
+        }).catch(error => {
+            this.messageService.addError("The artifact cannot be opened. It is no longer accessible by you.");
         });
+    }
+
+    private isBaselineOrReview(itemType: Models.ItemTypePredefined) {
+        const invalidTypes = [
+            Models.ItemTypePredefined.ArtifactBaseline,
+            Models.ItemTypePredefined.BaselineFolder,
+            Models.ItemTypePredefined.Baseline,
+            Models.ItemTypePredefined.ArtifactReviewPackage
+        ];
+
+        return invalidTypes.indexOf(itemType) >= 0;
     }
 
     public navigateToSubRoute(artifact: IStatefulArtifact) {

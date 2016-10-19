@@ -35,7 +35,7 @@ export class ManageTracesDialogController extends BaseDialogController {
     public artifactId: number;
     public isChanged: boolean = false;
     public disabledSave: boolean = true;
-    public initialArray;
+    public initialArray: any[];
 
     public options = [
         {value: "1", label: this.localization.get("App_UP_Relationships_To")},
@@ -90,7 +90,7 @@ export class ManageTracesDialogController extends BaseDialogController {
         }
     }
 
-    public ifTracesChanged() {
+    public toggleSave() {
         const lastVersion = _.map(this.data.manualTraces, (trace) => {
             return _.pick(trace, ["artifactId", "suspect", "traceDirection"]);
         });
@@ -148,13 +148,13 @@ export class ManageTracesDialogController extends BaseDialogController {
         });
 
         this.disableTrace();
-        this.ifTracesChanged();
+        this.toggleSave();
     }
 
     public setDirection(direction: Relationships.TraceDirection): void {
         this.direction = direction;
 
-        this.ifTracesChanged();
+        this.toggleSave();
     }
 
     public toggleTraces(): void {
@@ -185,7 +185,7 @@ export class ManageTracesDialogController extends BaseDialogController {
             }
         }
 
-        this.ifTracesChanged();
+        this.toggleSave();
     }
 
     public deleteTraces(): void {
@@ -198,7 +198,7 @@ export class ManageTracesDialogController extends BaseDialogController {
             if (confirmed) {
                 this.remove(this.selectedTraces[this.data.artifactId], this.data.manualTraces);
                 this.clearSelected();
-                this.ifTracesChanged();
+                this.toggleSave();
             }
         });
     }
@@ -214,7 +214,7 @@ export class ManageTracesDialogController extends BaseDialogController {
                     this.selectedTraces[this.data.artifactId].splice(index, 1);
                 }
 
-                this.ifTracesChanged();
+                this.toggleSave();
             }
         });
 
@@ -225,7 +225,7 @@ export class ManageTracesDialogController extends BaseDialogController {
         this.selectedVMs = selectedVMs;
 
         this.disableTrace();
-        this.ifTracesChanged();
+        this.toggleSave();
     }
 
     private disableTrace() {
@@ -257,7 +257,7 @@ export class ManageTracesDialogController extends BaseDialogController {
             traces[i].traceDirection = direction;
         }
 
-        this.ifTracesChanged();
+        this.toggleSave();
     }
 
     public toggleFlag(artifact: Relationships.IRelationshipView) {
@@ -265,14 +265,14 @@ export class ManageTracesDialogController extends BaseDialogController {
             artifact.suspect = !artifact.suspect;
             artifact.traceIcon = artifact.suspect ? "trace-icon-suspect" : "trace-icon-regular";
 
-            this.ifTracesChanged();
+            this.toggleSave();
         }
     }
 
-    public setTraceDirection(artifact: Relationships.IRelationshipView, direction: Relationships.TraceDirection): void {
+    public setTraceDirection(artifact: Relationships.IRelationshipView): void {
         if (artifact.hasAccess) {
             artifact.directionIcon = this.getDirectionIcon(artifact.traceDirection);
-            this.ifTracesChanged();
+            this.toggleSave();
         }
     }
 

@@ -19,7 +19,7 @@
             </div>
             <div class="properties" ng-class="{'collapsed': isSpecificPropertiesCollapsed}"
                  ng-if="$ctrl.isSpecificPropertyAvailable">
-                <div class="heading" ng-click="isSpecificPropertiesCollapsed = !isSpecificPropertiesCollapsed">{{
+              <div class="heading" ng-click="isSpecificPropertiesCollapsed = !isSpecificPropertiesCollapsed">{{
                     $ctrl.specificPropertiesHeading }}
                 </div>
                 <div class="specific-properties content" uib-collapse="isSpecificPropertiesCollapsed">
@@ -27,7 +27,23 @@
                     </formly-form>
                 </div>
             </div>
-
+            <div class="properties" ng-class="{'collapsed': isSpecificPropertiesCollapsed}"
+                 ng-if="$ctrl.artifact.predefinedType === 4610">
+                <div class="heading" ng-click="isSpecificPropertiesCollapsed = !isSpecificPropertiesCollapsed">
+                    {{
+                    $ctrl.specificPropertiesHeading
+                    }}
+                </div>
+                <div class="specific-properties content" uib-collapse="isSpecificPropertiesCollapsed">
+                    <bp-tree-view grid-class="project-tree"
+                                  selection-mode="'checkbox'"
+                                  row-height="20"
+                                  root-node="$ctrl.rootNode"
+                                  columns="$ctrl.columns"
+                                  header-height="20"
+                                  on-select="$ctrl.onSelect(vm, isSelected, selectedVMs)">
+                </div>
+            </div>
             <div class="properties" ng-class="{'collapsed': isAdditionalPropertiesCollapsed}"
                  ng-if="$ctrl.isCustomPropertyAvailable">
                 <div class="heading" ng-click="isAdditionalPropertiesCollapsed = !isAdditionalPropertiesCollapsed">

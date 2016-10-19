@@ -1,4 +1,5 @@
 ﻿import {Models, Enums} from "../../main";
+import {IColumn, ITreeViewNodeVM} from "../../shared/widgets/bp-tree-view/";
 
 import {
     BpArtifactEditor,
@@ -31,11 +32,15 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     ];
 
     constructor(messageService: IMessageService,
-                artifactManager: IArtifactManager,
-                windowManager: IWindowManager,
-                localization: ILocalizationService,
-                private dialogService: IDialogService) {
+        artifactManager: IArtifactManager,
+        windowManager: IWindowManager,
+        localization: ILocalizationService,
+        private dialogService: IDialogService) {
         super(messageService, artifactManager, windowManager, localization);
+
+        for (let i = 1; i <= 5000; i++) {
+            this.rootNode.push(new CollectionNodeVM({ id: i, name: `New Artifact ${i}`, description: "This is the description" } as Models.IArtifact));
+        }
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];
@@ -64,7 +69,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         this.richTextFields = [];
     }
 
-    protected onFieldUpdateFinished() {
+    protected onFieldUpdateFinished() {        
         if (this.artifact) {
             this.isSystemPropertyAvailable = this.systemFields && this.systemFields.length > 0;
             this.isCustomPropertyAvailable = this.customFields && this.customFields.length > 0;
@@ -100,5 +105,38 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         } else if (Enums.PropertyLookupEnum.Special === propertyContext.lookup) {
             this.specificFields.push(field);
         }
+    }
+
+    public columns: IColumn[] = [{
+        isCheckboxSelection: true
+    }, {
+            headerName: "ID",
+            field: "model.id",
+            isSortable: true,
+            filter: "number"
+        }, {
+            headerName: "Name",
+            field: "model.name",
+            isSortable: true,
+            filter: "text"
+        }, {
+            headerName: "Description",
+            field: "model.description"
+        }, {
+            headerName: "Options"
+        }];
+
+    public rootNode: CollectionNodeVM[] = [];
+}
+
+class CollectionNodeVM implements ITreeViewNodeVM {
+    public readonly key: string;
+
+    constructor(public model: Models.IArtifact) {
+        this.key = String(model.id);
+    }
+
+    public isSelectable(): boolean {
+        return true;
     }
 }

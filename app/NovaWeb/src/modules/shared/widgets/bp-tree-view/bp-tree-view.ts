@@ -45,7 +45,7 @@ export interface IBPTreeViewController extends ng.IComponentController {
     rowBuffer: number;
     selectionMode: "single" | "multiple" | "checkbox";
     rowHeight: number;
-    rootNode: ITreeViewNodeVM;
+    rootNode: ITreeViewNodeVM | ITreeViewNodeVM[];
     rootNodeVisible: boolean;
     columns: IColumn[];
     headerHeight: number;
@@ -56,9 +56,9 @@ export interface IBPTreeViewController extends ng.IComponentController {
 
 export interface ITreeViewNodeVM {
     key: string; // Each row in the dom will have an attribute row-id='key'
-    isExpandable: boolean;
-    children: ITreeViewNodeVM[];
-    isExpanded: boolean;
+    isExpandable?: boolean;
+    children?: ITreeViewNodeVM[];
+    isExpanded?: boolean;
     isSelectable(): boolean;
     loadChildrenAsync?(): ng.IPromise<any>; // To lazy-load children
 }
@@ -67,8 +67,11 @@ export interface IColumn {
     headerName?: string;
     field?: string;
     isGroup?: boolean;
+    isCheckboxSelection?: boolean;
     cellClass?: (vm: ITreeViewNodeVM) => string[];
     innerRenderer?: (vm: ITreeViewNodeVM, eGridCell: HTMLElement) => string;
+    isSortable?: boolean;
+    filter?: "number" | "text" | "set";
 }
 
 export class BPTreeViewController implements IBPTreeViewController {
@@ -82,7 +85,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     public rowBuffer: number;
     public selectionMode: "single" | "multiple" | "checkbox";
     public rowHeight: number;
-    public rootNode: ITreeViewNodeVM;
+    public rootNode: ITreeViewNodeVM | ITreeViewNodeVM[];
     public rootNodeVisible: boolean;
     public columns: IColumn[];
     public headerHeight: number;
@@ -103,6 +106,8 @@ export class BPTreeViewController implements IBPTreeViewController {
             suppressRowClickSelection: true,
             rowBuffer: this.rowBuffer,
             enableColResize: true,
+            enableSorting: true,
+            enableFilter: true,
             icons: {
                 groupExpanded: "<i />",
                 groupContracted: "<i />",
@@ -112,6 +117,8 @@ export class BPTreeViewController implements IBPTreeViewController {
             },
             angularCompileRows: true, // this is needed to compile directives (dynamically added) on the rows
             suppressContextMenu: true,
+            suppressMenuMainPanel: true,
+            suppressMenuColumnPanel: true,
             localeTextFunc: (key: string, defaultValue: string) => this.localization.get("ag-Grid_" + key, defaultValue),
             rowSelection: this.selectionMode === "single" ? "single" : "multiple",
             rowDeselection: this.selectionMode !== "single",
@@ -163,17 +170,20 @@ export class BPTreeViewController implements IBPTreeViewController {
                             (params: any) => column.innerRenderer(params.data as ITreeViewNodeVM, params.eGridCell as HTMLElement) : undefined,
                         padding: 20
                     } : undefined,
-                    suppressMenu: true,
-                    suppressSorting: true
+                    checkboxSelection: column.isCheckboxSelection,
+                    suppressFilter: !column.filter,
+                    suppressSorting: !column.isSortable,
+                    filter: column.filter
                 } as agGrid.ColDef;
             }));
 
             let rowDataAsync: ITreeViewNodeVM[] | ng.IPromise<ITreeViewNodeVM[]>;
             if (this.rootNode) {
-                if (this.rootNodeVisible) {
-                    rowDataAsync = [this.rootNode];
+                if (this.rootNodeVisible || angular.isArray(this.rootNode)) {
+                    rowDataAsync = angular.isArray(this.rootNode) ? this.rootNode : [this.rootNode];
                 } else if (angular.isFunction(this.rootNode.loadChildrenAsync)) {
-                    rowDataAsync = this.rootNode.loadChildrenAsync().then(() => this.rootNode.children);
+                    const rootNode = this.rootNode;
+                    rowDataAsync = rootNode.loadChildrenAsync().then(() => rootNode.children);
                 } else {
                     rowDataAsync = this.rootNode.children;
                 }

@@ -11,7 +11,7 @@
             <ul>
                 <li ng-repeat="artifact in $ctrl.sortedList | limitTo: 100">
                     <div ng-if="$ctrl.mustShowProject(artifact)"><strong>{{artifact.projectName}}</strong></div>
-                    {{artifact.prefix}}{{artifact.id}} - {{artifact.name}}
+                    <bp-item-type-icon predefined-type="artifact.predefinedType"></bp-item-type-icon>{{artifact.prefix}}{{artifact.id}} - {{artifact.name}}
                 </li>
             </ul>
             <div ng-if="$ctrl.sortedList.length > 100">And other {{$ctrl.sortedList.length - 100}}</div>

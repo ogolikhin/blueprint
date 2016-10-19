@@ -1,27 +1,12 @@
-﻿export interface IBPItemTypeIconController {
-    itemTypeId: string;
-    itemTypeIcon?: string;
+﻿import * as angular from "angular";
+import {Models} from "../../../main/models";
+import {Helper} from "../../../shared";
+export interface IBPItemTypeIconController {
+    itemTypeId: number;
+    itemTypeIcon?: number;
+    predefinedType?: number;
     getImageSource(): string;
-}
-
-export class BPItemTypeIconController implements IBPItemTypeIconController {
-    public itemTypeId: string;
-    public itemTypeIcon: string;
-
-    public getImageSource() {
-        let imgUrl: string;
-
-        if (this.itemTypeId && !isNaN(Number(this.itemTypeId))) {
-            imgUrl = "/shared/api/itemTypes/" + parseInt(this.itemTypeId, 10).toString() + "/icon";
-            if (this.itemTypeIcon && !isNaN(Number(this.itemTypeIcon))) {
-                imgUrl += "?" + parseInt(this.itemTypeIcon, 10).toString();
-            }
-        } else {
-            imgUrl = "";
-        }
-
-        return imgUrl;
-    }
+    getIconClass(): string;
 }
 
 export class BPItemTypeIconComponent implements ng.IComponentOptions {
@@ -29,9 +14,45 @@ export class BPItemTypeIconComponent implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BPItemTypeIconController;
     public transclude: boolean = true;
     public bindings: any = {
-        itemTypeId: "@",
-        itemTypeIcon: "@"
+        itemTypeId: "<",
+        itemTypeIcon: "<",
+        predefinedType: "<"
     };
 }
 
+export class BPItemTypeIconController implements IBPItemTypeIconController {
+    public itemTypeId: number;
+    public itemTypeIcon: number;
+    public predefinedType: number;
+    public showBasicIcon: boolean;
 
+    private artifactTypeDescription: string;
+
+    constructor() {
+        this.showBasicIcon = !angular.isUndefined(this.predefinedType) && angular.isNumber(this.predefinedType);
+        this.artifactTypeDescription = Models.ItemTypePredefined[this.predefinedType] || "Document";
+    }
+
+    public getImageSource() {
+        let imgUrl: string;
+
+        if (this.itemTypeId && !isNaN(Number(this.itemTypeId))) {
+            imgUrl = "/shared/api/itemTypes/" + this.itemTypeId.toString() + "/icon";
+            if (this.itemTypeIcon && !isNaN(Number(this.itemTypeIcon))) {
+                imgUrl += "?" + this.itemTypeIcon.toString();
+            }
+        } else {
+            imgUrl = "";
+        }
+
+        return imgUrl;
+    }
+
+    public getIconClass() {
+        return "icon-" + (Helper.toDashCase(this.artifactTypeDescription));
+    }
+
+    public getAltText() {
+        return Helper.fromCamelCase(this.artifactTypeDescription);
+    }
+}

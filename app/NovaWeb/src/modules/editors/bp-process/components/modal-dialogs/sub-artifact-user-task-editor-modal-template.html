@@ -53,26 +53,26 @@
             <div class="row">
                 <div class="col-sm-12">
                     <div class="nova-form-group nova-floating-label">
+                        <div ng-show="!vm.isIncludeResultsVisible">
+                            <button class="btn btn-primary btn-small" ng-click="vm.openArtifactPicker()">Add Include</button>      
+                        </div>
                         <input type="text" cleartext
-                                name="include"
-                                ng-disabled="vm.isReadonly"
-                                ng-class='dialogModel.clonedUserTask.associatedArtifact ? "nova-form-control input-is-dirty" : "nova-form-control"'
-                                
-                                id="storyteller-include"
-                                autocomplete="off"
-                                ng-model='dialogModel.clonedUserTask.associatedArtifact'
-                                
-                                
-                                
-                                typeahead-template-url="includeTemplate.html">                        
-                        <div
-                            ng-show="vm.isIncludeResultsVisible && vm.isIncludeNoResults && userTaskForm.include.$invalid">
-                            {{::$root.config.labels['ST_Inline_Traces_Search_No_Matches_Found']}}
-                        </div>
-                        <div
-                            ng-show="vm.isIncludeResultsVisible && vm.isIncludeBadRequest && userTaskForm.include.$invalid">
-                            {{::$root.config.labels['ST_Inline_Traces_Search_Bad_Request']}}
-                        </div>
+                               name="include"
+                               ng-show="vm.isIncludeResultsVisible"
+                               ng-disabled="vm.isReadonly"
+                               ng-class='dialogModel.clonedUserTask.associatedArtifact ? "nova-form-control input-is-dirty" : "nova-form-control"'
+                               ng-blur="vm.cleanIncludeField()"
+                               ng-focus="vm.prepIncludeField()"
+                               ng-change="vm.changeIncludeField()"
+                               id="storyteller-include"
+                               autocomplete="off"
+                               ng-model='dialogModel.clonedUserTask.associatedArtifact'
+                               typeahead-input-formatter="vm.formatIncludeLabel($model)"
+                               typeahead-editable="false"
+                               typeahead-min-length="3"
+                               placeholder="{{::$root.config.labels['ST_Include_Tab_Placeholder']}}"
+                               uib-typeahead="artifact as artifact.typePrefix + artifact.id + ': ' + artifact.name for artifact in vm.getLinkableArtifacts($viewValue)">
+                                 
                         <!--<label for="storyteller-include" class="nova-label"><i class="fonticon-include-active"></i>{{::$root.config.labels['ST_Include_Label']}}</label>-->
                     </div>
                 </div>                    

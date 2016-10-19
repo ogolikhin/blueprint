@@ -3,16 +3,18 @@ import {SubArtifactDialogModel} from "./models/sub-artifact-dialog-model";
 import {IArtifactReference} from "../../models/process-models";
 import {IModalProcessViewModel} from "./models/modal-process-view-model";
 import {ICommunicationManager} from "../../services/communication-manager";
+import {IDiagramService} from "../../../../editors/bp-diagram/diagram.svc";
+import {IDialogSettings, IDialogService} from "../../../../shared";
+import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../main/components/bp-artifact-picker";
+import {Models} from "../../../../main/models";
 
 export class SubArtifactEditorUserTaskModalController extends BaseModalDialogController<SubArtifactDialogModel> {
     public getLinkableProcesses: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
     public getLinkableArtifacts: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
     public isProjectOnlySearch: boolean = true;
     public isLoadingIncludes: boolean = false;    
-    
-    private isIncludeNoResults: boolean = false;
-    private isIncludeBadRequest: boolean = false;
-    private isIncludeResultsVisible: boolean;
+
+    private isIncludeResultsVisible: boolean = false;
     private isReadonly: boolean = false;
     private isSMB: boolean = false;
     private actionPlaceHolderText: string;
@@ -29,7 +31,8 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
         "$rootScope",
         "$q",
         "$timeout",
-        "$sce"
+        "$sce", 
+        "dialogService"
     ];
 
     constructor($scope: IModalScope,
@@ -41,7 +44,8 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
                 $rootScope: ng.IRootScopeService,
                 private $q: ng.IQService,
                 private $timeout: ng.ITimeoutService,
-                private $sce: ng.ISCEService) {
+                private $sce: ng.ISCEService,
+                private dialogService: IDialogService  ) {
 
         super($rootScope, $scope, $uibModalInstance, dialogModel);
 
@@ -54,9 +58,12 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
         }
 
         this.actionOnBlur();
-        
 
-        this.communicationManager.modalDialogManager.setModalProcessViewModel(this.setModalProcessViewModel);        
+        if (dialogModel.originalUserTask.associatedArtifact) {
+            this.prepIncludeField();
+        }
+
+        this.communicationManager.modalDialogManager.setModalProcessViewModel(this.setModalProcessViewModel);
     }    
 
     private setModalProcessViewModel = (modalProcessViewModel) => {
@@ -84,8 +91,6 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
 
     private clearFields() {
         this.cancelIncludeSearchTimer();
-        this.isIncludeBadRequest = false;
-        this.isIncludeNoResults = false;
     }
 
     public formatIncludeLabel(model) {
@@ -179,5 +184,26 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
         }
 
         return null;
+    }
+
+    public openArtifactPicker() {
+        const dialogSettings = <IDialogSettings>{
+            okButton: "Open",
+            template: require("../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
+            controller: ArtifactPickerDialogController,
+            css: "nova-open-project",
+            header: "Select Artifact"  // to be added to localization
+        };
+
+        const dialogData: IArtifactPickerOptions = {
+            showSubArtifacts: false
+        };
+
+        this.dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {
+            if (items.length === 1) {
+                this.dialogModel.clonedUserTask.associatedArtifact = items[0];
+                this.prepIncludeField();
+            }
+        });
     }
 }

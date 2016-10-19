@@ -88,7 +88,6 @@ export class ProjectManager implements IProjectManager {
             //const refreshOverlayId = this.loadingOverlayService.beginLoading();
             this.refresh(this.getSelectedProject()).finally(() => {
                 this.triggerProjectCollectionRefresh();
-                console.log("refresh complete");
                 //this.loadingOverlayService.endLoading(refreshOverlayId);
             });
         }

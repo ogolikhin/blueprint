@@ -185,17 +185,19 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             return;
         }
         if (!this.lockPromise) {
-            let deferred = this.services.getDeferred<IStatefulArtifact>();
+            const deferred = this.services.getDeferred<IStatefulArtifact>();
             this.lockPromise = deferred.promise;
 
+            const loadingId = this.services.loadingOverlayService.beginLoading();
             this.services.artifactService.lock(this.id).then((result: Models.ILockResult[]) => {
-                let lock = result[0];
+                const lock = result[0];
                 this.processLock(lock);
                 deferred.resolve(this);
             }).catch((err) => {
                 deferred.reject(err);
             }).finally(() => {
                 this.lockPromise = null;
+                this.services.loadingOverlayService.endLoading(loadingId);
             });
         }
 

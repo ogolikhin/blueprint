@@ -493,8 +493,8 @@ namespace ArtifactStoreTests
         [Category(Categories.CustomData)]
         [TestCase(ArtifactTypePredefined.Actor)]
         [TestRail(183640)]
-        [Description("Create an artifact in the 'Custom Data' project for a type that has a required Custom Property with no default value.  " +
-            "Verify the create fails with a 409 Conflict error.")]
+        [Description("Create an artifact in the 'Custom Data' project for a type that has a required Custom Property with default values.  " +
+            "Verify the create succeeds and the artifact has the default values populated.")]
         public void CreateArtifact_ArtifactWithRequiredCustomPropertyWithDefaults_VerifyDefaultValuesArePopulated(ItemTypePredefined artifactType)
         {
             // Setup:

@@ -1,6 +1,6 @@
 ﻿import * as angular from "angular";
 import {ILocalizationService} from "../../../core";
-import {Models, IWindowManager} from "../../../main";
+import {Models, Enums, IWindowManager} from "../../../main";
 import {
     ISelectionManager,
     IStatefulArtifact,
@@ -139,6 +139,30 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
 
     };
 
+    private hasFields(): boolean  {
+        return ((this.systemFields || []).length + 
+               (this.customFields || []).length +
+               (this.richTextFields || []).length +
+               (this.specificFields || []).length) > 0;
+
+    }
+    
+    private shouldRenewFields(): boolean {
+        if (this.selectedSubArtifact.artifactState.readonly || !this.hasFields()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private clearFields() {
+        this.systemFields = [];
+        this.customFields = [];
+        this.specificFields = [];
+        this.richTextFields = [];
+    }
+
+
     public onUpdate() {
         this.reset();
 
@@ -161,34 +185,38 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         propertyTypesPromise.then((propertyTypes) => {
             const propertyEditorFilter = new PropertyEditorFilters(this.localization);
             const propertyFilters = propertyEditorFilter.getPropertyEditorFilters(selectedItem.predefinedType);
-            this.editor.load(selectedItem, propertyTypes);
-            this.model = this.editor.getModel();
-            this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
-                let propertyContext = field.data as PropertyContext;
-                if (propertyContext && propertyFilters[propertyContext.propertyTypePredefined]) {
-                    return;
-                }
+            const shouldCreateFields = this.editor.create(selectedItem, propertyTypes, this.shouldRenewFields()); 
 
-                //add property change handler to each field
-                angular.extend(field.templateOptions, {
-                    onChange: this.onValueChange.bind(this)
+            if (shouldCreateFields) {
+                this.clearFields();
+                this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
+                    let propertyContext = field.data as PropertyContext;
+                    if (propertyContext && propertyFilters[propertyContext.propertyTypePredefined]) {
+                        return;
+                    }
+
+                    //add property change handler to each field
+                    Object.assign(field.templateOptions, {
+                        onChange: this.onValueChange.bind(this)
+                    });
+
+                    const isReadOnly = this.selectedArtifact.artifactState.readonly;
+                    if (isReadOnly) {
+                        field.templateOptions.disabled = true;
+                    }
+                    //if (isReadOnly) {
+                    if (field.key !== "documentFile" &&
+                        field.type !== "bpFieldImage" &&
+                        field.type !== "bpFieldInheritFrom") {
+                        field.type = "bpFieldReadOnly";
+                    }
+                    //}
+
+                    this.onFieldUpdate(field);
+
                 });
-
-                let isReadOnly = this.selectedArtifact.artifactState.readonly || this.selectedArtifact.artifactState.lockedBy === LockedByEnum.OtherUser;
-                if (isReadOnly) {
-                    field.templateOptions.disabled = true;
-                }
-                //if (isReadOnly) {
-                if (field.key !== "documentFile" &&
-                    field.type !== "bpFieldImage" &&
-                    field.type !== "bpFieldInheritFrom") {
-                    field.type = "bpFieldReadOnly";
-                }
-                //}
-
-                this.onFieldUpdate(field);
-
-            });
+            }
+            this.model = this.editor.getModel();
             this.isLoading = false;
         });
     }

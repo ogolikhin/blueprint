@@ -48,7 +48,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         this.setNextNode();
     }
 
-    public get defaultNextLabel(): string {
+    public get defaultMergeNodeLabel(): string {
         return this.localization.get("ST_Decision_Modal_Next_Task_Label");
     }
 
@@ -207,6 +207,10 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
     public isLabelAvailable(): boolean {
         return this.dialogModel.label != null && this.dialogModel.label !== "";
     }
+
+    public getMergeNodeLabel(condition: ICondition): string {
+        return condition.mergeNode ? condition.mergeNode.label : this.defaultMergeNodeLabel;
+    }
     
     public areMergeNodesEmpty(): boolean {
         for (let i = 0; i < this.dialogModel.conditions.length; i++) {
@@ -244,6 +248,10 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
 
     public get canAddCondition(): boolean {
         return !this.isReadonly && !this.hasMaxConditions;
+    }
+
+    public isDeleteConditionVisible(condition): boolean {
+        return !this.hasMinConditions && !this.isFirstBranch(condition);
     }
 
     public get canDeleteCondition(): boolean {

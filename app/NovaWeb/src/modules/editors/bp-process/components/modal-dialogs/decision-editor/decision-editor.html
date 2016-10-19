@@ -24,7 +24,7 @@
                     <div class="nova-form-group nova-floating-label" ng-if="!$ctrl.isFirstBranch(condition)">
                         <div class="btn-group btn-block" uib-dropdown on-toggle="$ctrl.refreshView()">
                             <button uib-dropdown-toggle type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" ng-disabled="$ctrl.isReadonly">
-                                <div class="dropdown-toggle-label">{{condition.mergeNode ? condition.mergeNode.label : $ctrl.defaultNextLabel}} </div>
+                                <div class="dropdown-toggle-label">{{$ctrl.getMergeNodeLabel(condition)}} </div>
                                 <span class="pull-right">
                                     <span class="caret"></span>
                                 </span>
@@ -40,7 +40,7 @@
                     </div>
                 </div>
                 <div class="col-sm-1 delete-condition">
-                    <span ng-click="$ctrl.deleteCondition(condition)" bp-tooltip="{{::$root.config.labels['ST_Decision_Modal_Delete_Condition_Button_Label']}}" ng-if="!$ctrl.hasMinConditions && !$ctrl.isFirstBranch(condition)" ng-disabled="!$ctrl.canDeleteCondition">
+                    <span ng-click="$ctrl.deleteCondition(condition)" bp-tooltip="{{::$root.config.labels['ST_Decision_Modal_Delete_Condition_Button_Label']}}" ng-if="$ctrl.isDeleteConditionVisible(condition)" ng-disabled="!$ctrl.canDeleteCondition">
                         <span class="fonticon-delete"></span>
                     </span>
                 </div>

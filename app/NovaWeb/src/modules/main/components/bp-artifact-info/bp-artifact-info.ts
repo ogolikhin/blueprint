@@ -46,8 +46,8 @@ export class BpArtifactInfoController {
         "metadataService"
     ];
 
-    private subscribers: Rx.IDisposable[];
-    private artifact: IStatefulArtifact;
+    protected subscribers: Rx.IDisposable[];
+    protected artifact: IStatefulArtifact;
     public isReadonly: boolean;
     public isChanged: boolean;
     public isLocked: boolean;
@@ -115,8 +115,22 @@ export class BpArtifactInfoController {
         delete this.subscribers;
     }
 
-    private onArtifactChanged = () => {
+    protected onArtifactChanged = () => {
         this.updateProperties(this.artifact);
+        this.subscribeToStateChange(this.artifact);
+    }
+
+    protected subscribeToStateChange(artifact) {
+        // watch for state changes (dirty, locked etc) and update header
+        const stateObserver = artifact.artifactState.onStateChange.debounce(100).subscribe(
+            (state) => {
+                this.updateProperties(this.artifact);
+            },
+            (err) => {
+                throw new Error(err);
+            });
+
+        this.subscribers.push(stateObserver);
     }
 
     public onError = (error: any) => {
@@ -152,7 +166,7 @@ export class BpArtifactInfoController {
         }
     }
 
-    private updateProperties(artifact: IStatefulArtifact) {
+    protected updateProperties(artifact: IStatefulArtifact) {
         this.initProperties();
 
         if (!artifact) {
@@ -261,7 +275,13 @@ export class BpArtifactInfoController {
     private onWidthResized(mainWindow: IMainWindow) {
         if (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
             let sidebarWrapper: Element;
-            const sidebarSize: number = 270; // MUST match $sidebar-size in styles/modules/_variables.scss
+            //const sidebarSize: number = 270; // MUST match $sidebar-size in styles/modules/_variables.scss
+
+            let sidebarSize = 0;
+            if ((<HTMLElement>document.querySelector(".sidebar.left-panel"))) {
+                sidebarSize = (<HTMLElement>document.querySelector(".sidebar.left-panel")).offsetWidth;
+            }
+
             let sidebarsWidth: number = 20 * 2; // main content area padding
             sidebarWrapper = document.querySelector(".bp-sidebar-wrapper");
 

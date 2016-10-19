@@ -229,52 +229,5 @@ describe("DiagramNodeElement", () => {
             root = $rootScope;
             shapesFactory = new ShapesFactory(root, statefulArtifactFactory);
         }));
-        it("set text element - parent element", () => {
-            // Arrange
-            const testUserTask = ShapeModelMock.instance().UserTaskMock();
-            const parentElement = new UserTask(testUserTask, root, null, shapesFactory);
-
-            const element = new DiagramNodeElement("2", ElementType.Shape, null, new mxGeometry());
-            element.setParent(parentElement);
-            const spyParent = spyOn(parentElement, "setElementText");
-            const textInput = "testing 123";
-            // Act
-            element.setElementText(element, textInput);
-
-            // Assert
-            expect(spyParent).toHaveBeenCalledWith(element, textInput);
-        });
-        it("get text element length - parent element", () => {
-            // Arrange
-            const testUserTask = ShapeModelMock.instance().UserTaskMock();
-            const parentElement = new UserTask(testUserTask, root, null, shapesFactory);
-
-            const element = new DiagramNodeElement("2", ElementType.Shape, null, new mxGeometry());
-            element.setParent(parentElement);
-
-            const spyParent = spyOn(parentElement, "getElementTextLength");
-            // Act
-            element.getElementTextLength(element);
-
-            // Assert
-            expect(spyParent).toHaveBeenCalledWith(element);
-        });
-        it("format text element - parent element", () => {
-            // Arrange
-            const testUserTask = ShapeModelMock.instance().UserTaskMock();
-            const parentElement = new UserTask(testUserTask, root, null, shapesFactory);
-
-            const element = new DiagramNodeElement("2", ElementType.Shape, null, new mxGeometry());
-            element.setParent(parentElement);
-
-            const spyParent = spyOn(parentElement, "formatElementText");
-            const textInput = "testing 123";
-
-            // Act
-            element.formatElementText(element, textInput);
-
-            // Assert
-            expect(spyParent).toHaveBeenCalledWith(element, textInput);
-        });
     });
 });

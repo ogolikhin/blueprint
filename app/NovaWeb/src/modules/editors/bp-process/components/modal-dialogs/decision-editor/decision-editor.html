@@ -1,6 +1,3 @@
-<script type="text/ng-template" id="includeTemplate.html">
-    <a href="" tabindex="-1" ng-bind-html="match.label | highlight:query" ng-attr-title="{{match.label}}"></a>
-</script>
 <div class="modal-header storyteller-modal-header">
     <h3 class="modal-title" style="display: inline-block">{{this.dialogModel.label}}</h3>
     <h3 ng-show="!$ctrl.isLabelAvailable()" class="modal-title" style="color: red; display: inline-block;">{{::$root.config.labels['ST_TaskNameNotValid_Label']}}</h3>
@@ -25,10 +22,12 @@
                 </div>
                 <div class="col-sm-4">
                     <div class="nova-form-group nova-floating-label" ng-if="!$ctrl.isFirstBranch(condition)">
-                        <div class="btn-group" uib-dropdown>
-                            <button uib-dropdown-toggle type="button" class="btn btn-default" data-toggle="dropdown" ng-disabled="$ctrl.isReadonly">
-                                <span class="dropdown-toggle-label">{{condition.mergeNode ? condition.mergeNode.label : $ctrl.defaultNextLabel}} </span>
-                                <span class="caret"></span>
+                        <div class="btn-group btn-block" uib-dropdown on-toggle="$ctrl.refreshView()">
+                            <button uib-dropdown-toggle type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" ng-disabled="$ctrl.isReadonly">
+                                <div class="dropdown-toggle-label">{{$ctrl.getMergeNodeLabel(condition)}} </div>
+                                <span class="pull-right">
+                                    <span class="caret"></span>
+                                </span>
                             </button>
                             <ul class="dropdown-menu dropdown-next-node">
                                 <li ng-repeat="node in condition.validMergeNodes">
@@ -41,9 +40,9 @@
                     </div>
                 </div>
                 <div class="col-sm-1 delete-condition">
-                    <a class="btn" ng-click="$ctrl.deleteCondition(condition)" bp-tooltip="{{::$root.config.labels['ST_Decision_Modal_Delete_Condition_Button_Label']}}" ng-if="!$ctrl.hasMinConditions && !$ctrl.isFirstBranch(condition)" ng-disabled="!$ctrl.canDeleteCondition">
+                    <span ng-click="$ctrl.deleteCondition(condition)" bp-tooltip="{{::$root.config.labels['ST_Decision_Modal_Delete_Condition_Button_Label']}}" ng-if="$ctrl.isDeleteConditionVisible(condition)" ng-disabled="!$ctrl.canDeleteCondition">
                         <span class="fonticon-delete"></span>
-                    </a>
+                    </span>
                 </div>
             </div>
             <div id="decision-modal-list-bottom"></div>

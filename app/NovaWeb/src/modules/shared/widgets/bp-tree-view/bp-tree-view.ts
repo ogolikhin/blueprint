@@ -223,12 +223,9 @@ export class BPTreeViewController implements IBPTreeViewController {
 
     public updateScrollbars(destroy: boolean = false) {
         const viewport = this.$element[0].querySelector(".ag-body-viewport");
-        const perfectScrollBar = (<any>window).PerfectScrollbar;
 
-        if (viewport && angular.isDefined(perfectScrollBar)) {
-            if (destroy) {
-                perfectScrollBar.destroy(viewport);
-            } else {
+        if (viewport ) {
+
                 if (viewport.getAttribute("data-ps-id")) {
                     // perfect-scrollbar has been initialized on the element (data-ps-id is not falsy)
                     const allColumnIds = [];
@@ -236,16 +233,8 @@ export class BPTreeViewController implements IBPTreeViewController {
                         allColumnIds.push(columnDef.field);
                     });
                     this.options.columnApi.autoSizeColumns(allColumnIds);
-                    perfectScrollBar.update(viewport);
-                } else {
-                    perfectScrollBar.initialize(viewport, {
-                        minScrollbarLength: 20,
-                        scrollXMarginOffset: 4,
-                        scrollYMarginOffset: 4
-                    });
                 }
-            }
-        }
+       }
     };
 
     // Callbacks

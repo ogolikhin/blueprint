@@ -96,6 +96,24 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         super.$onDestroy();
     }
 
+    protected onArtifactChanged = () => {
+        this.updateProperties(this.artifact);
+        this.subscribeToStateChange(this.artifact);
+    }
+
+    protected subscribeToStateChange(artifact) {
+        // watch for state changes (dirty, locked etc) and update header
+        const stateObserver = artifact.artifactState.onStateChange.debounce(100).subscribe(
+            (state) => {
+                this.updateProperties(this.artifact);
+            },
+            (err) => {
+                throw new Error(err);
+            });
+
+        this.subscribers.push(stateObserver);
+    }
+
     public navigateTo = (link: IBreadcrumbLink): void => {
         if (!!link && link.isEnabled) {
             const index = this.breadcrumbLinks.indexOf(link);

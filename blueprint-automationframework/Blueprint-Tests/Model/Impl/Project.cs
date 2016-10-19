@@ -7,6 +7,7 @@ using System.Net;
 using Common;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
+using Model.ArtifactModel.Impl;
 using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
@@ -48,6 +49,12 @@ namespace Model.Impl
 
         [JsonIgnore]
         public List<NovaArtifactType> NovaArtifactTypes { get; } = new List<NovaArtifactType>();
+
+        [JsonIgnore]
+        public List<NovaPropertyType> NovaPropertyTypes { get; } = new List<NovaPropertyType>();
+
+        [JsonIgnore]
+        public List<NovaArtifactType> NovaSubArtifactTypes { get; } = new List<NovaArtifactType>();
 
         #endregion Properties
 
@@ -188,10 +195,21 @@ namespace Model.Impl
                 NovaArtifactTypes.Clear();
             }
 
-            foreach (var artifactType in artifactTypes)
+            NovaArtifactTypes.AddRange(artifactTypes);
+
+            if (NovaPropertyTypes.Any())
             {
-                NovaArtifactTypes.Add(artifactType);
+                NovaPropertyTypes.Clear();
             }
+
+            NovaPropertyTypes.AddRange(artifactTypesResult.PropertyTypes);
+
+            if (NovaSubArtifactTypes.Any())
+            {
+                NovaSubArtifactTypes.Clear();
+            }
+
+            NovaSubArtifactTypes.AddRange(artifactTypesResult.SubArtifactTypes);
 
             return artifactTypes;
         }

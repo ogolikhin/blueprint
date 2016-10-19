@@ -340,36 +340,29 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         this.discard();
 
-        let promisesToExecute: ng.IPromise<any>[] = [];
+        const promisesToExecute: ng.IPromise<any>[] = [];
 
-        let loadPromise = this.load();
-        promisesToExecute.push(loadPromise);
-
-        let attachmentPromise: ng.IPromise<any>;
+        promisesToExecute.push(this.load());
 
         if (this._attachments) {
             //this will also reload docRefs, so no need to call docRefs.refresh()
-            attachmentPromise = this._attachments.refresh();
-            promisesToExecute.push(attachmentPromise);
+            promisesToExecute.push(this._attachments.refresh());
         }
-
-        let relationshipPromise: ng.IPromise<any>;
 
         if (this._relationships) {
-            relationshipPromise = this._relationships.refresh();
-            promisesToExecute.push(relationshipPromise);
+            promisesToExecute.push(this._relationships.refresh());
         }
 
-        //History and Discussions refresh independently, triggered by artifact's observable.
+        //History and Discussions are excluded from here.
+        //They refresh independently, triggered by artifact's observable.
+
+        promisesToExecute.push(this.services.metaDataService.remove(this.projectId));
 
         // get promises for custom artifact refresh operations
         promisesToExecute.push.apply(promisesToExecute,
             this.getCustomArtifactPromisesForRefresh());
 
         this.getServices().$q.all(promisesToExecute).then(() => {
-            this.services.metaDataService.remove(this.projectId);
-            return this.services.metaDataService.refresh(this.projectId);
-        }).then(() => {
             this.subject.onNext(this);
             deferred.resolve(this);
         }).catch(error => {

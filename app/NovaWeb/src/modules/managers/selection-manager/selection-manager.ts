@@ -69,7 +69,7 @@ export class SelectionManager implements ISelectionManager {
     public get currentlySelectedArtifactObservable() {
        return this.selectionSubject
            .filter(selection => selection != null && selection.artifact != null)
-           .flatMap((selection) => selection.artifact.getObservable())
+           .flatMap(selection => selection.artifact.getObservable())
            .asObservable();
    }
 

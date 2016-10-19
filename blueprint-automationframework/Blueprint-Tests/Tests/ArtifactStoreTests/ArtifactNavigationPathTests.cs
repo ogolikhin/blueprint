@@ -14,8 +14,7 @@ namespace ArtifactStoreTests
     [Category(Categories.ArtifactStore)]
     public class ArtifactNavigationPathTests : TestBase
     {
-        private const string SVC_PATH = RestPaths.Svc.ArtifactStore.Artifacts.VERSION_CONTROL_INFO_id_;
-
+        private const string SVC_PATH = RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH;
         private IUser _user = null;
         private IProject _project = null;
 
@@ -112,8 +111,9 @@ namespace ArtifactStoreTests
         //TODO Test for collection/baseline/review          
         //TODO Test for artifact in a long chain of 10 or more folders
         //TODO Test for artifact in a long chain of 10 or more child artifacts
-        //TODO Test for artifact in a long chain of mixwd folders and child artifacts
+        //TODO Test for artifact in a long chain of mixwd folders and child artifacts. Use TestCase(TestCaseSources.AllArtifactTypesForOpenApiRestMethods)]
         //TODO Test for project in a folder
+        //TODO Test for sub-artifact at end of a chain of artifacts.
 
         #endregion 200 OK tests
 

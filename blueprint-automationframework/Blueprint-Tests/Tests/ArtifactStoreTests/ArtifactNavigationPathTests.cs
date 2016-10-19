@@ -107,11 +107,7 @@ namespace ArtifactStoreTests
             Assert.IsEmpty(basicArtifactInfoList, "Project should not have a parent information!");
         }
 
-        //TODO Test for artifact in the root
         //TODO Test for artifact in a folder
-        //TODO Test for artifact child
-        //TODO Test for project
-        //TODO Test for folder            
         //TODO Test for sub-artifact
         //TODO Test for collection/baseline/review          
         //TODO Test for artifact in a long chain of 10 or more folders

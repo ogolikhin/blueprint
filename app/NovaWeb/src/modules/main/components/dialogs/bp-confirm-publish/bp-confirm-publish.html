@@ -7,18 +7,11 @@
     </div>
     <div ng-if="!$ctrl.hasError" class="project-wrapper">
         <div class="nova-message"><span ng-bind-html="$ctrl.dialogSettings.message"></span></div>
-        <ul class="artifact-list">
-            <li class="artifact-list__item" ng-repeat="artifact in $ctrl.sortedList track by artifact.id | limitTo: 100">
-                <div class="artifact-list__project" ng-if="$ctrl.mustShowProject(artifact)" bp-tooltip="{{::artifact.projectName}}" bp-tooltip-truncated="true">
-                    <i class="icon icon-project"></i> {{::artifact.projectName}}
-                </div>
-                <div class="artifact-list__artifact" bp-tooltip="{{::$ctrl.itemLabel(artifact)}}" bp-tooltip-truncated="true">
-                    <bp-item-type-icon predefined-type="artifact.predefinedType"></bp-item-type-icon>{{::$ctrl.itemLabel(artifact)}}
-                </div>
-            </li>
-        </ul>
-        <div ng-if="$ctrl.sortedList.length > 100">And other {{$ctrl.sortedList.length - 100}}</div>
-
+        <bp-artifact-list class="bp-artifact-list"
+            artifact-list="$ctrl.artifactList"
+            project-list="$ctrl.projectList"
+            selected-project="$ctrl.selectedProject"
+        ></bp-artifact-list>
     </div>
 </div>
 <div class="modal-footer">

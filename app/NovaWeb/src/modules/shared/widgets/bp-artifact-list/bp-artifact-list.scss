@@ -1,7 +1,7 @@
-@import '../../../../../styles/modules/mixins';
-@import '../../../../../styles/modules/variables';
+@import '../../../../styles/modules/mixins';
+@import '../../../../styles/modules/variables';
 
-.artifact-list {
+.bp-artifact-list {
     overflow: auto;
     margin: 0;
     max-height: 200px;

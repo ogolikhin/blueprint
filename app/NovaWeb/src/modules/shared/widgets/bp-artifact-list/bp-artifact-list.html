@@ -1,0 +1,11 @@
+<ul class="bp-artifact-list">
+    <li class="bp-artifact-list__item" ng-repeat="artifact in $ctrl.sortedList track by artifact.id | limitTo: $ctrl.limit">
+        <div class="bp-artifact-list__project" ng-if="$ctrl.mustShowProject(artifact)" bp-tooltip="{{::artifact.projectName}}" bp-tooltip-truncated="true">
+            <i class="icon icon-project"></i> {{::artifact.projectName}}
+        </div>
+        <div class="bp-artifact-list__artifact" bp-tooltip="{{::$ctrl.itemLabel(artifact)}}" bp-tooltip-truncated="true">
+            <bp-item-type-icon predefined-type="artifact.predefinedType"></bp-item-type-icon>{{::$ctrl.itemLabel(artifact)}}
+        </div>
+    </li>
+</ul>
+<div ng-if="$ctrl.sortedList.length > $ctrl.limit">And other {{::($ctrl.sortedList.length - $ctrl.limit)}}</div>

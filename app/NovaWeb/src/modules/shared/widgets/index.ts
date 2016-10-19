@@ -16,6 +16,7 @@ import "./bp-file-upload";
 import "./bp-toggle";
 import "./bp-breadcrumb";
 import "./bp-toolbar";
+import "./bp-artifact-list";
 
 angular.module("bp.widgets", [
     "bp.widgets.dialog",
@@ -34,7 +35,8 @@ angular.module("bp.widgets", [
     "bp.widgets.fileupload",
     "bp.widgets.toggle",
     "bp.widgets.breadcrumb",
-    "bp.widgets.toolbar"
+    "bp.widgets.toolbar",
+    "bp.widgets.artifactList"
 ]);
 
 export {

@@ -117,7 +117,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
 
         let originalManualTraces = this.originalRelationships.filter((relationship: IRelationship) =>
         relationship.traceType === LinkType.Manual);
-        if (originalManualTraces.length > relationships.length) {  //something was deleted
+        if (originalManualTraces.length > 0 && relationships.length === 0) {  //something was deleted
             //we dont calculate what exactly was deleted as we dont look at the changesets for relationships.
             const changeset = {
                 type: ChangeTypeEnum.Delete,

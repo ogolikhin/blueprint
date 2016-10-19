@@ -21,17 +21,17 @@ import { ArtifactServiceMock } from "../../../../../../../managers/artifact-mana
 
 describe("SystemTask", () => {
     let statefulArtifactFactory: IStatefulArtifactFactoryMock;
-    let LABEL_EDIT_MAXLENGTH = 35;
-    let LABEL_VIEW_MAXLENGTH = 35;
-    let PERSONA_EDIT_MAXLENGTH = 40;
-    let PERSONA_VIEW_MAXLENGTH = 12;
+    const LABEL_EDIT_MAXLENGTH = 35;
+    const LABEL_VIEW_MAXLENGTH = 35;
+    const PERSONA_EDIT_MAXLENGTH = 40;
+    const PERSONA_VIEW_MAXLENGTH = 12;
     let shapesFactory: ShapesFactory;
     let localScope, rootScope: ng.IRootScopeService, wrapper, container;
     let communicationManager: ICommunicationManager,
         dialogService: DialogService,
         localization: LocalizationServiceMock;
 
-    let testArtifactReferenceLink2 = new ArtifactReferenceLinkMock(2);
+    const testArtifactReferenceLink2 = new ArtifactReferenceLinkMock(2);
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("communicationManager", CommunicationManager);
@@ -68,14 +68,14 @@ describe("SystemTask", () => {
 
     it("Test SystemTask class", () => {
         // Arrange
-        let processModel = new ProcessModel();
-        let viewModel = new ProcessViewModel(processModel, communicationManager);
+        const processModel = new ProcessModel();
+        const viewModel = new ProcessViewModel(processModel, communicationManager);
         viewModel.isReadonly = false;
 
         // Act
-        let graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
+        const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
 
-        let node = new SystemTask(ShapeModelMock.instance().SystemTaskMock(), rootScope, "", null, shapesFactory);
+        const node = new SystemTask(ShapeModelMock.instance().SystemTaskMock(), rootScope, "", null, shapesFactory);
         node.render(graph, 80, 120, false);
         node.renderLabels();
 
@@ -100,13 +100,13 @@ describe("SystemTask", () => {
 
         it("Test formatElementText - label overflow", () => {
             // Arrange
-            let testSystemTask = ShapeModelMock.instance().SystemTaskMock();
+            const testSystemTask = ShapeModelMock.instance().SystemTaskMock();
 
-            let node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
-            let textInput = "0123456789,0123456789,0123456789,0123456789";
-            let expectedText = textInput.substr(0, LABEL_VIEW_MAXLENGTH) + " ...";
+            const node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
+            const textInput = "0123456789,0123456789,0123456789,0123456789";
+            const expectedText = textInput.substr(0, LABEL_VIEW_MAXLENGTH) + " ...";
             // Act
-            let actualText = node.formatElementText(node, textInput);
+            const actualText = node.formatElementText(node, textInput);
 
             //Assert
             expect(actualText).toEqual(expectedText);
@@ -114,15 +114,15 @@ describe("SystemTask", () => {
 
         it("Test formatElementText - persona overflow", () => {
             // Arrange 
-            let testSystemTask = ShapeModelMock.instance().SystemTaskMock();
+            const testSystemTask = ShapeModelMock.instance().SystemTaskMock();
 
-            let node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
-            let editNode = new DiagramNodeElement("H1", ElementType.SystemTaskHeader, "", new mxGeometry(), "");
+            const node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
+            const editNode = new DiagramNodeElement("H1", ElementType.SystemTaskHeader, "", new mxGeometry(), "");
 
-            let textInput = "01234567890123456789";
-            let expectedText = textInput.substr(0, PERSONA_VIEW_MAXLENGTH) + " ...";
+            const textInput = "01234567890123456789";
+            const expectedText = textInput.substr(0, PERSONA_VIEW_MAXLENGTH) + " ...";
             // Act
-            let actualText = node.formatElementText(editNode, textInput);
+            const actualText = node.formatElementText(editNode, textInput);
 
             //Assert
             expect(actualText).toEqual(expectedText);
@@ -130,13 +130,13 @@ describe("SystemTask", () => {
 
         it("Test getElementTextLength - label", () => {
             // Arrange
-            let testSystemTask = ShapeModelMock.instance().SystemTaskMock();
+            const testSystemTask = ShapeModelMock.instance().SystemTaskMock();
 
-            let node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
+            const node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
 
 
             // Act
-            let textLength = node.getElementTextLength(node);
+            const textLength = node.getElementTextLength(node);
 
             //Assert
             expect(textLength).toEqual(LABEL_EDIT_MAXLENGTH);
@@ -144,25 +144,25 @@ describe("SystemTask", () => {
 
         it("Test getElementTextLength - persona", () => {
             // Arrange
-            let testSystemTask = ShapeModelMock.instance().SystemTaskMock();
+            const testSystemTask = ShapeModelMock.instance().SystemTaskMock();
 
-            let node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
-            let editNode = new DiagramNodeElement("H1", ElementType.SystemTaskHeader, "", new mxGeometry(), "");
+            const node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
+            const editNode = new DiagramNodeElement("H1", ElementType.SystemTaskHeader, "", new mxGeometry(), "");
 
 
             // Act
-            let textLength = node.getElementTextLength(editNode);
+            const textLength = node.getElementTextLength(editNode);
 
             //Assert
             expect(textLength).toEqual(PERSONA_EDIT_MAXLENGTH);
         });
         it("Test setElementText - label", () => {
             // Arrange
-            let testSystemTask = ShapeModelMock.instance().SystemTaskMock();
+            const testSystemTask = ShapeModelMock.instance().SystemTaskMock();
 
-            let node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
+            const node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
 
-            let testLabelText = "test label";
+            const testLabelText = "test label";
 
 
             // Act
@@ -174,12 +174,12 @@ describe("SystemTask", () => {
 
         it("Test setElementText - persona", () => {
             // Arrange
-            let testSystemTask = ShapeModelMock.instance().SystemTaskMock();
+            const testSystemTask = ShapeModelMock.instance().SystemTaskMock();
 
-            let node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
-            let editNode = new DiagramNodeElement("H1", ElementType.SystemTaskHeader, "", new mxGeometry(), "");
+            const node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
+            const editNode = new DiagramNodeElement("H1", ElementType.SystemTaskHeader, "", new mxGeometry(), "");
 
-            let testLabelText = "test label";
+            const testLabelText = "test label";
 
             // Act
             node.setElementText(editNode, testLabelText);
@@ -190,14 +190,14 @@ describe("SystemTask", () => {
 
         it("Test latest persona value reuse", () => {
             // Arrange
-            let testSystemTask = ShapeModelMock.instance().SystemTaskMock();
+            const testSystemTask = ShapeModelMock.instance().SystemTaskMock();
 
-            let node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
+            const node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
             node.persona = "12345";
 
 
             // Act
-            let node1 = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
+            const node1 = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
 
             //Assert
             expect(node1.persona).toEqual(node.persona);
@@ -214,17 +214,17 @@ describe("SystemTask", () => {
 
         beforeEach(() => {
 
-            let startModel = new ProcessShapeModel(11);
+            const startModel = new ProcessShapeModel(11);
             startModel.propertyValues = shapesFactory.createPropertyValuesForSystemTaskShape();
             startModel.propertyValues["clientType"].value = ProcessShapeType.Start;
             startModel.propertyValues["x"].value = 0;
-            let preconditionModel = new ProcessShapeModel(22);
+            const preconditionModel = new ProcessShapeModel(22);
             preconditionModel.propertyValues = shapesFactory.createPropertyValuesForSystemTaskShape();
             preconditionModel.propertyValues["clientType"].value = ProcessShapeType.PreconditionSystemTask;
             preconditionModel.propertyValues["x"].value = 1;
-            let userTask = shapesFactory.createModelUserTaskShape(2, 1, 33, 2, 0);
-            let systemTask = shapesFactory.createModelSystemTaskShape(2, 1, 44, 3, 0);
-            let endModel = new ProcessShapeModel(55);
+            const userTask = shapesFactory.createModelUserTaskShape(2, 1, 33, 2, 0);
+            const systemTask = shapesFactory.createModelSystemTaskShape(2, 1, 44, 3, 0);
+            const endModel = new ProcessShapeModel(55);
             endModel.propertyValues = shapesFactory.createPropertyValuesForSystemTaskShape();
             endModel.propertyValues["clientType"].value = ProcessShapeType.Start;
             endModel.propertyValues["x"].value = 4;
@@ -252,10 +252,10 @@ describe("SystemTask", () => {
 
         it("return null when attempting to retrieve user task for pre-condition", () => {
             // Arrange
-            let node: ISystemTask = <ISystemTask>graph.getNodeById("22");
+            const node: ISystemTask = <ISystemTask>graph.getNodeById("22");
 
             // Act
-            let userTask = node.getUserTask(graph);
+            const userTask = node.getUserTask(graph);
 
             //Assert
             expect(userTask).toBeNull();
@@ -263,10 +263,10 @@ describe("SystemTask", () => {
 
         it("return user task when attempting to retrieve user task for system task", () => {
             // Arrange
-            let node: ISystemTask = <ISystemTask>graph.getNodeById("44");
+            const node: ISystemTask = <ISystemTask>graph.getNodeById("44");
 
             // Act
-            let userTask = node.getUserTask(graph);
+            const userTask = node.getUserTask(graph);
 
             //Assert
             expect(userTask).not.toBeNull();
@@ -282,16 +282,16 @@ describe("SystemTask", () => {
             statefulSubArtifact: StatefulProcessSubArtifact;
         beforeEach(() => {
             // arrange
-            let processModel = new ProcessModel();
-            let mock = ShapeModelMock.instance().SystemTaskMock();
-            let artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
+            const processModel = new ProcessModel();
+            const mock = ShapeModelMock.instance().SystemTaskMock();
+            const artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
             artifact.predefinedType = Models.ItemTypePredefined.Process;
             processModel.shapes.push(mock);
 
             statefulArtifact = <StatefulProcessArtifact>statefulArtifactFactory.createStatefulArtifact(artifact);
             statefulArtifactFactory.populateStatefulProcessWithPorcessModel(statefulArtifact, processModel);
             statefulSubArtifact = <StatefulProcessSubArtifact>statefulArtifact.subArtifactCollection.get(mock.id);
-            let peronsaPropertyValue = {
+            const peronsaPropertyValue = {
                 propertyTypeId: 0,
                 propertyTypeVersionId: null,
                 propertyTypePredefined: PropertyTypePredefined.Persona,
@@ -327,7 +327,7 @@ describe("SystemTask", () => {
 
             // arrange             
             spyOn(statefulArtifact, "refresh")();
-            let lockSpy = spyOn(statefulArtifact, "lock");
+            const lockSpy = spyOn(statefulArtifact, "lock");
 
             // act
             node.render(graph, 80, 120, false);
@@ -343,7 +343,7 @@ describe("SystemTask", () => {
 
             // arrange             
             spyOn(statefulArtifact, "refresh")();
-            let lockSpy = spyOn(statefulArtifact, "lock");
+            const lockSpy = spyOn(statefulArtifact, "lock");
 
             // act
             node.render(graph, 80, 120, false);

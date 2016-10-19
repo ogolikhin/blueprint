@@ -5,7 +5,7 @@ import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
 import {OpenProjectController} from "../dialogs/open-project/open-project";
-import {ConfirmPublishController, IConfirmPublishDialogData} from "../dialogs/bp-confirm-publish/bp-confirm-publish";
+import {ConfirmPublishController, IConfirmPublishDialogData} from "../dialogs/bp-confirm-publish";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
 import {Helper} from "../../../shared/utils/helper";
 import {ILoadingOverlayService} from "../../../core/loading-overlay";

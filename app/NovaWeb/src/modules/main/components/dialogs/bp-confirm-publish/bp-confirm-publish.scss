@@ -1,10 +1,10 @@
 @import '../../../../../styles/modules/mixins';
 @import '../../../../../styles/modules/variables';
 
-.artifactlist {
+.artifact-list {
     overflow: auto;
     margin: 0;
-    max-height: 400px;
+    max-height: 200px;
     padding: 0;
 
     &__item {
@@ -15,6 +15,8 @@
     &__artifact,
     &__project {
         @include text-ellipsis-fixed-width(100%);
+        height: 20px;
+        line-height: 20px;
     }
 
     &__artifact {

@@ -1,7 +1,5 @@
-import "./bp-confirm-publish.scss";
-
-import { Helper, IBPTreeController, IDialogSettings, BaseDialogController, IDialogService, IDialogData } from "../../../../shared";
-import { Models, Enums } from "../../../../main/models";
+import { IDialogSettings, BaseDialogController, IDialogData } from "../../../../shared";
+import { Models } from "../../../../main/models";
 
 export interface IConfirmPublishController {
     errorMessage: string;

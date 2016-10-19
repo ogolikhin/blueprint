@@ -128,10 +128,7 @@ export class NodeLabelEditor {
         x = e.offsetX;
         y = e.offsetY;
 
-        console.log(`>>>>>>>>>>>>>>>>> x = ${x} | y = ${y}`);
-
         let index = this.getCellIndex(x, y);
-        console.log(`>>>>>>>>>>>>>>>>> index = ${index}`);
         let cell = this.divIndex[index];
         if (cell != null) {
             for (let div of cell) {

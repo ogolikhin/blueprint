@@ -55,14 +55,14 @@ describe("UserDecision", () => {
     it("initializes details button", () => {
         // Arrange
 
-        let id = 3;
+        const id = 3;
 
-        let testModel = new ProcessModels.ProcessModel();
-        let model = shapesFactory.createModelUserDecisionShape(2, 1, id, 0, 0);
+        const testModel = new ProcessModels.ProcessModel();
+        const model = shapesFactory.createModelUserDecisionShape(2, 1, id, 0, 0);
         testModel.shapes.push(model);
-        let processViewModel = new ProcessViewModel(testModel, communicationManager);
+        const processViewModel = new ProcessViewModel(testModel, communicationManager);
 
-        let graph = new ProcessGraph(rootScope, localScope, container, processViewModel, dialogService, localization);
+        const graph = new ProcessGraph(rootScope, localScope, container, processViewModel, dialogService, localization);
 
         // Act
         graph.render(false, null);

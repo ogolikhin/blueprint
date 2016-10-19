@@ -87,9 +87,9 @@ describe("DiagramNode", () => {
             let processModel: IProcessViewModel;
 
             beforeEach(() => {
-                let userTaskModel = shapesFactory.createModelUserTaskShape(1, 1, 77, 0, 0);
-                let systemTaskModel = shapesFactory.createModelSystemTaskShape(1, 1, 88, 1, 0);
-                let link = { sourceId: 77, destinationId: 88, orderindex: 1, label: "" };
+                const userTaskModel = shapesFactory.createModelUserTaskShape(1, 1, 77, 0, 0);
+                const systemTaskModel = shapesFactory.createModelSystemTaskShape(1, 1, 88, 1, 0);
+                const link = { sourceId: 77, destinationId: 88, orderindex: 1, label: "" };
 
                 testModel = new ProcessModel();
                 testModel.propertyValues = {};
@@ -101,8 +101,8 @@ describe("DiagramNode", () => {
                 testModel.links.push(link);
                 processModel = new ProcessViewModel(testModel, communicationManager);
 
-                let wrapper = document.createElement("DIV");
-                let container = document.createElement("DIV");
+                const wrapper = document.createElement("DIV");
+                const container = document.createElement("DIV");
                 wrapper.appendChild(container);
                 document.body.appendChild(wrapper);
 
@@ -118,30 +118,30 @@ describe("DiagramNode", () => {
 
             it("returns empty list for user task source nodes", () => {
                 // Arrange
-                let node = graph.getNodeById("77");
+                const node = graph.getNodeById("77");
 
                 // Act
-                let actual = node.getSources(graph.getMxGraphModel());
+                const actual = node.getSources(graph.getMxGraphModel());
 
                 // Assert
                 expect(actual.length).toEqual(0);
             });
             it("returns empty list for system task target nodes", () => {
                 // Arrange
-                let node = graph.getNodeById("88");
+                const node = graph.getNodeById("88");
 
                 // Act
-                let actual = node.getTargets(graph.getMxGraphModel());
+                const actual = node.getTargets(graph.getMxGraphModel());
 
                 // Assert
                 expect(actual.length).toEqual(0);
             });
             it("returns user task for system task source nodes", () => {
                 // Arrange
-                let node = graph.getNodeById("88");
+                const node = graph.getNodeById("88");
 
                 // Act
-                let actual = node.getSources(graph.getMxGraphModel());
+                const actual = node.getSources(graph.getMxGraphModel());
 
                 // Assert
                 expect(actual.length).toEqual(1);
@@ -149,10 +149,10 @@ describe("DiagramNode", () => {
             });
             it("returns system task for user task target nodes", () => {
                 // Arrange
-                let node = graph.getNodeById("77");
+                const node = graph.getNodeById("77");
 
                 // Act
-                let actual = node.getTargets(graph.getMxGraphModel());
+                const actual = node.getTargets(graph.getMxGraphModel());
 
                 // Assert
                 expect(actual.length).toEqual(1);
@@ -160,30 +160,30 @@ describe("DiagramNode", () => {
             });
             it("returns empty list for user task previous nodes", () => {
                 // Arrange
-                let node = graph.getNodeById("77");
+                const node = graph.getNodeById("77");
 
                 // Act
-                let actual = node.getPreviousNodes();
+                const actual = node.getPreviousNodes();
 
                 // Assert
                 expect(actual.length).toEqual(0);
             });
             it("returns empty list for system task next nodes", () => {
                 // Arrange
-                let node = graph.getNodeById("88");
+                const node = graph.getNodeById("88");
 
                 // Act
-                let actual = node.getNextNodes();
+                const actual = node.getNextNodes();
 
                 // Assert
                 expect(actual.length).toEqual(0);
             });
             it("returns user task for system task previous nodes", () => {
                 // Arrange
-                let node = graph.getNodeById("88");
+                const node = graph.getNodeById("88");
 
                 // Act
-                let actual = node.getPreviousNodes();
+                const actual = node.getPreviousNodes();
 
                 // Assert
                 expect(actual.length).toEqual(1);
@@ -191,10 +191,10 @@ describe("DiagramNode", () => {
             });
             it("returns system task for user task next nodes", () => {
                 // Arrange
-                let node = graph.getNodeById("77");
+                const node = graph.getNodeById("77");
 
                 // Act
-                let actual = node.getNextNodes();
+                const actual = node.getNextNodes();
 
                 // Assert
                 expect(actual.length).toEqual(1);
@@ -203,8 +203,8 @@ describe("DiagramNode", () => {
 
             it("throws exception when rendered", () => {
                 // Arrange
-                let model = new ProcessShapeModel();
-                let diagramNode = new DiagramNode(model);
+                const model = new ProcessShapeModel();
+                const diagramNode = new DiagramNode(model);
                 let exception = null;
 
                 // Act
@@ -220,11 +220,11 @@ describe("DiagramNode", () => {
 
             it("returns default point when getting the center without defined geometry", () => {
                 // Arrange
-                let model = new ProcessShapeModel();
-                let diagramNode = new DiagramNode(model);
+                const model = new ProcessShapeModel();
+                const diagramNode = new DiagramNode(model);
 
                 // Act
-                let actual = diagramNode.getCenter();
+                const actual = diagramNode.getCenter();
 
                 // Assert
                 expect(actual).toEqual(new mxPoint(0, 0));
@@ -232,21 +232,21 @@ describe("DiagramNode", () => {
 
             it("modifies model's name when name is changed", () => {
                 // Arrange
-                let oldValue = "Default";
-                let newValue = "New Name";
-                let model = new ProcessShapeModel();
+                const oldValue = "Default";
+                const newValue = "New Name";
+                const model = new ProcessShapeModel();
                 model.name = oldValue;
-                let label = "label";
-                let propertyValue: IPropertyValueInformation = {
+                const label = "label";
+                const propertyValue: IPropertyValueInformation = {
                     propertyName: label,
                     typePredefined: PropertyTypePredefined.Label,
                     typeId: 5,
                     value: oldValue
                 };
-                let propertyValues: IHashMapOfPropertyValues = {};
+                const propertyValues: IHashMapOfPropertyValues = {};
                 propertyValues[label] = propertyValue;
                 model.propertyValues = propertyValues;
-                let diagramNode = new DiagramNode(model);
+                const diagramNode = new DiagramNode(model);
                 // Act
                 diagramNode.action = newValue;
 
@@ -256,13 +256,13 @@ describe("DiagramNode", () => {
 
             it("modifies model's 'x' when column is updated", () => {
                 // Arrange
-                let oldValue = 0;
-                let newValue = 1;
-                let model = new ProcessShapeModel();
+                const oldValue = 0;
+                const newValue = 1;
+                const model = new ProcessShapeModel();
                 model.propertyValues = {};
 
                 model.propertyValues[shapesFactory.X.key] = shapesFactory.createXValue(oldValue);
-                let diagramNode = new DiagramNode(model);
+                const diagramNode = new DiagramNode(model);
 
                 // Act
                 diagramNode.column = newValue;
@@ -273,12 +273,12 @@ describe("DiagramNode", () => {
 
             it("modifies model's 'y' when row is updated", () => {
                 // Arrange
-                let oldValue = 0;
-                let newValue = 1;
-                let model = new ProcessShapeModel();
+                const oldValue = 0;
+                const newValue = 1;
+                const model = new ProcessShapeModel();
                 model.propertyValues = {};
                 model.propertyValues[shapesFactory.Y.key] = shapesFactory.createXValue(oldValue);
-                let diagramNode = new DiagramNode(model);
+                const diagramNode = new DiagramNode(model);
 
                 // Act
                 diagramNode.row = newValue;
@@ -293,15 +293,15 @@ describe("DiagramNode", () => {
             let processModel: IProcessViewModel;
 
             beforeEach(() => {
-                let systemTaskModel = shapesFactory.createModelUserTaskShape(1, 1, 5, 0, 0);
-                let userDecisionModel = shapesFactory.createModelUserDecisionShape(1, 1, 10, 1, 0);
-                let userTaskModel1 = shapesFactory.createModelUserTaskShape(1, 1, 20, 2, 0);
-                let userTaskModel2 = shapesFactory.createModelUserTaskShape(1, 1, 30, 2, 1);
-                let userTaskModel3 = shapesFactory.createModelUserTaskShape(1, 1, 40, 2, 2);
-                let link0 = { sourceId: 5, destinationId: 10, orderindex: 0, label: "" };
-                let link1 = { sourceId: 10, destinationId: 20, orderindex: 0, label: "" };
-                let link2 = { sourceId: 10, destinationId: 30, orderindex: 10, label: "" };
-                let link3 = { sourceId: 10, destinationId: 40, orderindex: 20, label: "" };
+                const systemTaskModel = shapesFactory.createModelUserTaskShape(1, 1, 5, 0, 0);
+                const userDecisionModel = shapesFactory.createModelUserDecisionShape(1, 1, 10, 1, 0);
+                const userTaskModel1 = shapesFactory.createModelUserTaskShape(1, 1, 20, 2, 0);
+                const userTaskModel2 = shapesFactory.createModelUserTaskShape(1, 1, 30, 2, 1);
+                const userTaskModel3 = shapesFactory.createModelUserTaskShape(1, 1, 40, 2, 2);
+                const link0 = { sourceId: 5, destinationId: 10, orderindex: 0, label: "" };
+                const link1 = { sourceId: 10, destinationId: 20, orderindex: 0, label: "" };
+                const link2 = { sourceId: 10, destinationId: 30, orderindex: 10, label: "" };
+                const link3 = { sourceId: 10, destinationId: 40, orderindex: 20, label: "" };
 
                 testModel = new ProcessModel();
                 testModel.propertyValues = {};
@@ -310,8 +310,8 @@ describe("DiagramNode", () => {
                 testModel.links = [link3, link2, link1, link0];
                 processModel = new ProcessViewModel(testModel, communicationManager);
 
-                let wrapper = document.createElement("DIV");
-                let container = document.createElement("DIV");
+                const wrapper = document.createElement("DIV");
+                const container = document.createElement("DIV");
                 wrapper.appendChild(container);
                 document.body.appendChild(wrapper);
 
@@ -327,10 +327,10 @@ describe("DiagramNode", () => {
 
             it("returns empty list for user task sources", () => {
                 // Arrange
-                let node = graph.getNodeById("5");
+                const node = graph.getNodeById("5");
 
                 // Act
-                let actual = node.getSources(graph.getMxGraphModel());
+                const actual = node.getSources(graph.getMxGraphModel());
 
                 // Assert
                 expect(actual.length).toEqual(0);
@@ -338,10 +338,10 @@ describe("DiagramNode", () => {
 
             it("returns user decision for user task target", () => {
                 // Arrange
-                let node = graph.getNodeById("5");
+                const node = graph.getNodeById("5");
 
                 // Act
-                let actual = node.getTargets(graph.getMxGraphModel());
+                const actual = node.getTargets(graph.getMxGraphModel());
 
                 // Assert
                 expect(actual.length).toEqual(1);
@@ -350,10 +350,10 @@ describe("DiagramNode", () => {
 
             it("returns user task for user decision sources", () => {
                 // Arrange
-                let node = graph.getNodeById("10");
+                const node = graph.getNodeById("10");
 
                 // Act
-                let actual = node.getSources(graph.getMxGraphModel());
+                const actual = node.getSources(graph.getMxGraphModel());
 
                 // Assert
                 expect(actual.length).toEqual(1);
@@ -362,10 +362,10 @@ describe("DiagramNode", () => {
 
             it("returns user tasks for user decision targets in order of ascending link order index", () => {
                 // Arrange
-                let node = graph.getNodeById("10");
+                const node = graph.getNodeById("10");
 
                 // Act
-                let actual = node.getTargets(graph.getMxGraphModel());
+                const actual = node.getTargets(graph.getMxGraphModel());
 
                 // Assert
                 expect(actual.length).toEqual(3);
@@ -384,9 +384,9 @@ describe("DiagramNode", () => {
             statefulSubArtifact: StatefulProcessSubArtifact;
         beforeEach(() => {
             // arrange
-            let processModel = new ProcessModel();
-            let mock = ShapeModelMock.instance().SystemTaskMock();
-            let artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
+            const processModel = new ProcessModel();
+            const mock = ShapeModelMock.instance().SystemTaskMock();
+            const artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
             artifact.predefinedType = Models.ItemTypePredefined.Process;   
             processModel.shapes.push(mock);          
 
@@ -420,7 +420,7 @@ describe("DiagramNode", () => {
 
             // arrange             
             spyOn(statefulArtifact, "refresh")();
-            let lockSpy = spyOn(statefulArtifact, "lock");
+            const lockSpy = spyOn(statefulArtifact, "lock");
 
             // act
             node.render(graph, 80, 120, false);

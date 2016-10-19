@@ -45,7 +45,7 @@ describe("DiagramLink unit tests", () => {
         localization = _localization_;
         statefulArtifactFactory = _statefulArtifactFactory_;
 
-        let wrapper = document.createElement("DIV");
+        const wrapper = document.createElement("DIV");
         container = document.createElement("DIV");
         wrapper.appendChild(container);
         document.body.appendChild(wrapper);
@@ -70,26 +70,26 @@ describe("DiagramLink unit tests", () => {
 
         it("User Decision with no-op with label, correct location", () => {
             // arrange
-            let userDecisionWidth = 120;
-            let ud = 40;
-            let testModel = createUserDecisionWithoutUserTaskInFirstConditionModel("Condition1", "Condition2");
-            let processModel = new ProcessViewModel(testModel, communicationManager);
+            const userDecisionWidth = 120;
+            const ud = 40;
+            const testModel = createUserDecisionWithoutUserTaskInFirstConditionModel("Condition1", "Condition2");
+            const processModel = new ProcessViewModel(testModel, communicationManager);
 
-            let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             // act
             processGraph.layout.render(true, null);
 
-            let udNode: IDiagramNode = processGraph.layout.getNodeById(ud.toString());
+            const udNode: IDiagramNode = processGraph.layout.getNodeById(ud.toString());
 
-            let firstLink: DiagramLink = <DiagramLink>udNode.getOutgoingLinks(processGraph.getMxGraphModel())[0];
+            const firstLink: DiagramLink = <DiagramLink>udNode.getOutgoingLinks(processGraph.getMxGraphModel())[0];
 
-            let linkLabel: Label = <Label>firstLink.textLabel;
+            const linkLabel: Label = <Label>firstLink.textLabel;
 
-            let x = Number(linkLabel.wrapperDiv.style.left.replace("px", ""));
-            let y = Number(linkLabel.wrapperDiv.style.top.replace("px", ""));
+            const x = Number(linkLabel.wrapperDiv.style.left.replace("px", ""));
+            const y = Number(linkLabel.wrapperDiv.style.top.replace("px", ""));
 
-            let heightOfString = mxUtils.getSizeForString("Condition1", Connector.LABEL_SIZE, Connector.LABEL_FONT, null).height;
+            const heightOfString = mxUtils.getSizeForString("Condition1", Connector.LABEL_SIZE, Connector.LABEL_FONT, null).height;
 
             // assert
             expect(x).toBe(udNode.getCenter().x + userDecisionWidth / 2);
@@ -98,24 +98,24 @@ describe("DiagramLink unit tests", () => {
         });
         it("User Decision with no-op with label, width label correct", () => {
             // arrange
-            let ud = 40;
-            let testModel = createUserDecisionWithoutUserTaskInFirstConditionModel();
-            let processModel = new ProcessViewModel(testModel, communicationManager);
-            let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            const ud = 40;
+            const testModel = createUserDecisionWithoutUserTaskInFirstConditionModel();
+            const processModel = new ProcessViewModel(testModel, communicationManager);
+            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             // act
             processGraph.layout.render(true, null);
 
-            let udNode: IDiagramNode = processGraph.layout.getNodeById(ud.toString());
+            const udNode: IDiagramNode = processGraph.layout.getNodeById(ud.toString());
 
-            let firstLink: DiagramLink = <DiagramLink>udNode.getOutgoingLinks(processGraph.getMxGraphModel())[0];
+            const firstLink: DiagramLink = <DiagramLink>udNode.getOutgoingLinks(processGraph.getMxGraphModel())[0];
 
-            let nextNode: IDiagramNode = processGraph.layout.getNodeById(firstLink.targetNode.model.id.toString());
+            const nextNode: IDiagramNode = processGraph.layout.getNodeById(firstLink.targetNode.model.id.toString());
 
-            let linkLabel: Label = <Label>firstLink.textLabel;
+            const linkLabel: Label = <Label>firstLink.textLabel;
 
-            let width = Number(linkLabel.wrapperDiv.style.width.replace("px", ""));
-            let spaceBetweenNode = nextNode.getCenter().x - nextNode.getWidth() / 2 - (udNode.getCenter().x + udNode.getWidth() / 2);
+            const width = Number(linkLabel.wrapperDiv.style.width.replace("px", ""));
+            const spaceBetweenNode = nextNode.getCenter().x - nextNode.getWidth() / 2 - (udNode.getCenter().x + udNode.getWidth() / 2);
 
             // assert
             expect(width).toBe(spaceBetweenNode);
@@ -125,21 +125,21 @@ describe("DiagramLink unit tests", () => {
 
     describe("Label modification", () => {
         it("statefulArtifact's lock, should have been called", () => {
-            let userDecisionWidth = 120;
-            let ud = 40;
-            let testModel = createUserDecisionWithoutUserTaskInFirstConditionModel("Condition1", "Condition2");
-            let artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
+            const userDecisionWidth = 120;
+            const ud = 40;
+            const testModel = createUserDecisionWithoutUserTaskInFirstConditionModel("Condition1", "Condition2");
+            const artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
             artifact.predefinedType = Models.ItemTypePredefined.Process;
-            let statefulArtifact = statefulArtifactFactory.createStatefulArtifact(artifact);
+            const statefulArtifact = statefulArtifactFactory.createStatefulArtifact(artifact);
             statefulArtifactFactory.populateStatefulProcessWithPorcessModel(<StatefulProcessArtifact>statefulArtifact, testModel);
-            let processModel = new ProcessViewModel(statefulArtifact, communicationManager);
+            const processModel = new ProcessViewModel(statefulArtifact, communicationManager);
 
-            let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
             processGraph.layout.render(true, null);
 
-            let udNode: IDiagramNode = processGraph.layout.getNodeById(ud.toString());
-            let firstLink: DiagramLink = <DiagramLink>udNode.getOutgoingLinks(processGraph.getMxGraphModel())[0];
-            let spy = spyOn(statefulArtifact, "lock");
+            const udNode: IDiagramNode = processGraph.layout.getNodeById(ud.toString());
+            const firstLink: DiagramLink = <DiagramLink>udNode.getOutgoingLinks(processGraph.getMxGraphModel())[0];
+            const spy = spyOn(statefulArtifact, "lock");
             spyOn(statefulArtifact, "refresh")();
 
             // act
@@ -149,23 +149,23 @@ describe("DiagramLink unit tests", () => {
             expect(spy).toHaveBeenCalled();
         });
         it("statefulArtifact's lock, artifact state is dirty", () => {
-            let userDecisionWidth = 120;
-            let ud = 40;
-            let testModel = createUserDecisionWithoutUserTaskInFirstConditionModel("Condition1", "Condition2");
-            let artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
+            const userDecisionWidth = 120;
+            const ud = 40;
+            const testModel = createUserDecisionWithoutUserTaskInFirstConditionModel("Condition1", "Condition2");
+            const artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
             artifact.predefinedType = Models.ItemTypePredefined.Process;
-            let statefulArtifact = statefulArtifactFactory.createStatefulArtifact(artifact);
+            const statefulArtifact = statefulArtifactFactory.createStatefulArtifact(artifact);
             statefulArtifactFactory.populateStatefulProcessWithPorcessModel(<StatefulProcessArtifact>statefulArtifact, testModel);
-            let processModel = new ProcessViewModel(statefulArtifact, communicationManager);
+            const processModel = new ProcessViewModel(statefulArtifact, communicationManager);
 
-            let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             // act
             processGraph.layout.render(true, null);
 
-            let udNode: IDiagramNode = processGraph.layout.getNodeById(ud.toString());
-            let firstLink: DiagramLink = <DiagramLink>udNode.getOutgoingLinks(processGraph.getMxGraphModel())[0];
-            let spy = spyOn(statefulArtifact, "lock");
+            const udNode: IDiagramNode = processGraph.layout.getNodeById(ud.toString());
+            const firstLink: DiagramLink = <DiagramLink>udNode.getOutgoingLinks(processGraph.getMxGraphModel())[0];
+            const spy = spyOn(statefulArtifact, "lock");
             spyOn(statefulArtifact, "refresh")();
 
             // act

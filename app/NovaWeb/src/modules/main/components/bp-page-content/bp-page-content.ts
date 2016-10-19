@@ -1,10 +1,9 @@
 import {IWindowManager} from "../../services";
 import {IArtifactManager} from "../../../managers";
-import {IMessageService, INavigationService, ILocalizationService} from "../../../core";
+import {IMessageService, INavigationService} from "../../../core";
 import {IDiagramService} from "../../../editors/bp-diagram/diagram.svc";
-import {IDialogSettings, IDialogService} from "../../../shared";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
-import {Models} from "../../../main/models";
+import {IDialogService, IDialogSettings} from "../../../shared/widgets/bp-dialog/bp-dialog";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./bp-page-content.html");
@@ -36,7 +35,6 @@ class PageContentCtrl {
         //use context reference as the last parameter on subscribe...
         this.subscribers = [
             //subscribe for current artifact change (need to distinct artifact)
-            this.windowManager.mainWindow.subscribeOnNext(this.onAvailableAreaResized, this)
         ];
     }
 
@@ -67,7 +65,7 @@ class PageContentCtrl {
             header: "Single project Artifact picker"
         };
 
-        const dialogData: IArtifactPickerOptions = {            
+        const dialogData: IArtifactPickerOptions = {
             showSubArtifacts: false,
             isOneProjectLevel: true
         };
@@ -75,12 +73,4 @@ class PageContentCtrl {
         this.dialogService.open(dialogSettings, dialogData);
     }
 
-    private onAvailableAreaResized() {
-        let scrollableElem = document.querySelector(".page-body-wrapper.ps-container") as HTMLElement;
-        if (scrollableElem) {
-            setTimeout(() => {
-                (<any>window).PerfectScrollbar.update(scrollableElem);
-            }, 500);
-        }
-    }
 }

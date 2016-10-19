@@ -14,8 +14,8 @@ import {IStatefulArtifactFactory} from "../../../../../../../managers/artifact-m
 import {StatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("ProcessEnd test", () => {
-    var shapesFactory: ShapesFactory;
-    var localScope, rootScope, wrapper, container;
+    let shapesFactory: ShapesFactory;
+    let localScope, rootScope, wrapper, container;
     let communicationManager: ICommunicationManager,
         dialogService: DialogService,
         localization: LocalizationServiceMock;
@@ -53,19 +53,19 @@ describe("ProcessEnd test", () => {
 
     it("Test ProcessEnd class", () => {
         // Arrange
-        var testModel = new ProcessShapeModel(30);
+        const testModel = new ProcessShapeModel(30);
         testModel.propertyValues = shapesFactory.createPropertyValuesForSystemTaskShape();
         testModel.propertyValues["clientType"].value = ProcessShapeType.End;
         testModel.propertyValues["x"].value = 0;
 
-        let processModel = new ProcessModel();
-        let viewModel = new ProcessViewModel(processModel, communicationManager);
+        const processModel = new ProcessModel();
+        const viewModel = new ProcessViewModel(processModel, communicationManager);
         viewModel.isReadonly = false;
 
         // Act
-        let graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
+        const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
 
-        var node = new ProcessEnd(testModel);
+        const node = new ProcessEnd(testModel);
         node.render(graph, 30, 30, false);
 
         //Assert

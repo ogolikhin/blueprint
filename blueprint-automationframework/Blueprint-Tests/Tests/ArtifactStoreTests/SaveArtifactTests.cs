@@ -315,7 +315,7 @@ namespace ArtifactStoreTests
         [Category(Categories.CustomData)]
         [TestCase("value\":10.0", "value\":\"A\"", NumberValueIncorrectFormat)]                         // Insert String into Numeric field.
         [TestCase("value\":\"20", "value\":\"A", DateValueIncorrectFormat)]                             // Insert String into Date field.
-        [TestCase("validValueIds\":[22]", "validValueIds\":[0]", ChoiceValueIncorrectFormat)]           // Insert non-existant choice.
+        [TestCase("validValueIds\":[27]", "validValueIds\":[0]", ChoiceValueIncorrectFormat)]           // Insert non-existant choice.
         [TestCase("usersGroups\":[{\"id\":1", "usersGroups\":[{\"id\":0", UserValueIncorrectFormat)]    // Insert non-existant User ID.
         [TestRail(164561)]
         [Description("Try to update an artifact properties with a improper value types. Verify 400 Bad Request is returned.")]

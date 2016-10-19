@@ -1,19 +1,19 @@
 ﻿import {ISystemTaskShape} from "../../../../../models/process-models";
 import {ItemIndicatorFlags, ProcessShapeType} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
-import {IProcessGraph, IDiagramNode, IUserTaskChildElement} from "../models/";
+import {IProcessGraph, IDiagramNode} from "../models/";
 import {IDiagramNodeElement, ISystemTask} from "../models/";
 import {ILabel} from "../models/";
 import {NodeType, NodeChange, ElementType} from "../models/";
-import {UserTaskChildElement} from "./user-task-child-element";
 import {ShapesFactory} from "./shapes-factory";
 import {DiagramNodeElement} from "./diagram-element";
+import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
 import {ProcessEvents} from "../../../process-diagram-communication";
 
-export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implements ISystemTask, IUserTaskChildElement {
+export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystemTask {
 
     private LABEL_EDIT_MAXLENGTH = 35;
     private LABEL_VIEW_MAXLENGTH = 35;
@@ -438,60 +438,6 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         //    dialogType);
     }
 
-    public getElementTextLength(cell: MxCell): number {
-
-        // get the maximum length of text that can be entered
-
-        let maxLen: number = this.LABEL_EDIT_MAXLENGTH;
-
-        const element = <IDiagramNodeElement>cell;
-        if (element.getElementType() === ElementType.SystemTaskHeader) {
-            maxLen = this.PERSONA_EDIT_MAXLENGTH;
-        } else {
-            maxLen = this.LABEL_EDIT_MAXLENGTH;
-        }
-        return maxLen;
-    }
-
-    public formatElementText(cell: MxCell, text: string): string {
-
-
-        // This function returns formatted text to the getLabel()
-        // function to display the node's label and persona
-
-
-        if (cell && text) {
-            let maxLen: number = this.LABEL_VIEW_MAXLENGTH;
-
-            const element = <IDiagramNodeElement>cell;
-            if (element.getElementType() === ElementType.SystemTaskHeader) {
-                maxLen = this.PERSONA_VIEW_MAXLENGTH;
-            } else {
-                maxLen = this.LABEL_VIEW_MAXLENGTH;
-            }
-
-            if (text.length > maxLen) {
-                text = text.substr(0, maxLen) + " ...";
-            }
-        }
-
-        return text;
-    }
-
-    public setElementText(cell: MxCell, text: string) {
-
-        // save text for the node or for an element within
-        // the node
-
-
-        const element = <IDiagramNodeElement>cell;
-
-        if (element.getElementType() === ElementType.SystemTaskHeader) {
-            this.persona = text;
-        } else {
-            this.label = text;
-        }
-    }
     public getLabelCell(): MxCell {
         return this.bodyCell;
     }

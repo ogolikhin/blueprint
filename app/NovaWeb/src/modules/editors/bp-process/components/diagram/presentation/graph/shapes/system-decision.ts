@@ -1,17 +1,17 @@
 ﻿import {IProcessShape} from "../../../../../models/process-models";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
-import {IProcessGraph, IDiagramNode, IUserTaskChildElement} from "../models/";
+import { IProcessGraph, IDiagramNode} from "../models/";
 import {IDecision, ISystemTask} from "../models/";
 import {NodeType, NodeChange} from "../models/";
-import {UserTaskChildElement} from "./user-task-child-element";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {DeleteShapeButton} from "../buttons/delete-shape-button";
 import {Label, LabelStyle} from "../labels/label";
 import {ProcessEvents} from "../../../process-diagram-communication";
+import {DiagramNode} from "./diagram-node";
 
-export class SystemDecision extends UserTaskChildElement<IProcessShape> implements IDecision, IUserTaskChildElement {
+export class SystemDecision extends DiagramNode<IProcessShape> implements IDecision {
     private SYSTEM_DECISION_WIDTH = 120;
     private SYSTEM_DECISION_HEIGHT = 120;
     private LABEL_EDIT_MAXLENGTH = 32;
@@ -144,29 +144,6 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
             mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, this.BUTTON_SIZE / 2, this.BUTTON_SIZE / 2);
 
         return this;
-    }
-
-    // get the maximum length of text that can be entered
-    public getElementTextLength(cell: MxCell): number {
-        return this.LABEL_EDIT_MAXLENGTH;
-    }
-
-    // This function returns formatted text to the getLabel() function to display the label
-    public formatElementText(cell: MxCell, text: string): string {
-        if (cell && text) {
-            const maxLen: number = this.LABEL_VIEW_MAXLENGTH;
-
-            if (text.length > maxLen) {
-                text = text.substr(0, maxLen) + " ...";
-            }
-        }
-
-        return text;
-    }
-
-    // Save text for the node or for an element within the node
-    public setElementText(cell: MxCell, text: string) {
-        this.label = text;
     }
 
     public getFirstSystemTask(graph: IProcessGraph): ISystemTask {

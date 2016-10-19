@@ -67,8 +67,7 @@ module.exports = {
   module: {
     loaders: loaders,
     postLoaders: postLoaders,
-    preLoaders: preLoaders,
-    noParse: [/angular-perfect-scrollbar-2/, /tinymce/]
+    preLoaders: preLoaders
   }
 };
 

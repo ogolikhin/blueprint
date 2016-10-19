@@ -218,7 +218,7 @@ export class ProjectService implements IProjectService {
         this.canceler = this.$q.defer<any>();
 
         const requestObj: ng.IRequestConfig = {
-            url: `/svc/searchservice/projectsearch?separatorString=${separatorString}&resultCount=${resultCount}`,
+            url: `/svc/searchservice/projectsearch/name?separatorString=${separatorString}&resultCount=${resultCount}`,
             data: searchCriteria,
             method: "POST",
             timeout: this.canceler.promise

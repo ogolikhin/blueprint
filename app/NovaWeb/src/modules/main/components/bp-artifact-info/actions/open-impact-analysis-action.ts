@@ -28,7 +28,11 @@ export class OpenImpactAnalysisAction extends BPButtonAction {
                     ItemTypePredefined.Project,
                     ItemTypePredefined.ArtifactCollection,
                     ItemTypePredefined.Collections,
-                    ItemTypePredefined.CollectionFolder
+                    ItemTypePredefined.CollectionFolder,
+                    ItemTypePredefined.ArtifactBaseline,
+                    ItemTypePredefined.BaselineFolder,
+                    ItemTypePredefined.Baseline,
+                    ItemTypePredefined.ArtifactReviewPackage
                 ];
 
                 if (invalidTypes.indexOf(artifact.predefinedType) >= 0) {

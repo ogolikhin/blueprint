@@ -8,7 +8,6 @@ import "ui-select";
 import * as agGrid from "ag-grid/main";
 import * as agGridEnterprise from "ag-grid-enterprise/main";
 import "ng-draggable";
-import "angular-perfect-scrollbar-2";
 import "tinymce";
 import "../shell";
 import "../shared";
@@ -53,7 +52,6 @@ angular.module("app.main", [
     "ui.tinymce",
     "agGrid",
     "ngDraggable",
-    "angular-perfect-scrollbar-2",
     "bp.managers",
     "bp.editors",
     "bp.components",

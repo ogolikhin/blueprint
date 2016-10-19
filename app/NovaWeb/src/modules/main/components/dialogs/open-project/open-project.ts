@@ -42,13 +42,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         open: "open"
     };
 
-    public scrollOptions = {
-        minScrollbarLength: 20,
-        suppressScrollX: true,
-        scrollYMarginOffset: 4
-    };
-
-    //Dialog return value
+       //Dialog return value
     public get returnValue(): Models.IProject {
         return this.selectedItem || null;
     };

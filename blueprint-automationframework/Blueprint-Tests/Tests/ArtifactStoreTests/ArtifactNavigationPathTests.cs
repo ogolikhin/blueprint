@@ -102,18 +102,9 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetArtifactPath(_user, _project.Id),
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
-        }
-
-        [TestCase]
-        [TestRail(183599)]
-        [Description("Verify the basic artifact information returned from project.")]
-        public void ArtifactNavigation_Project_ReturnsArtifactInfo_200OK()
-        {
-            List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
-
-            // Execute:
-            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetArtifactPath(_user, _project.Id),
-                                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+            
+            // Verify:
+            Assert.IsEmpty(basicArtifactInfoList, "Project should not have a parent informatio!");
         }
 
         //TODO Test for artifact in the root

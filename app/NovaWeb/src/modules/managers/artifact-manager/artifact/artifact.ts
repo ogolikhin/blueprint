@@ -121,7 +121,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     protected load(): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         if (this.isNeedToLoad()) {
-            this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
+            this.services.artifactService.getArtifact(this.id, this.getEffectiveVersion()).then((artifact: Models.IArtifact) => {
                 this.initialize(artifact);
                 if (this.artifactState.misplaced) {
                     deferred.reject(this);
@@ -204,39 +204,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return this.lockPromise;
     }
 
-    public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {
-        const deferred = this.services.getDeferred();
-        this.services.attachmentService.getArtifactAttachments(this.id, null, true)
-            .then((result: IArtifactAttachmentsResultSet) => {
-                // load attachments
-                this.attachments.initialize(result.attachments);
-
-                // load docRefs
-                this.docRefs.initialize(result.documentReferences);
-
-                deferred.resolve(result);
-            }, (error) => {
-                if (error && error.statusCode === HttpStatusCode.NotFound) {
-                    this.deleted = true;
-                }
-                deferred.reject(error);
-            });
-        return deferred.promise;
+    protected getAttachmentsDocRefsInternal(): ng.IPromise<IArtifactAttachmentsResultSet> {
+        return this.services.attachmentService.getArtifactAttachments(this.id, undefined, this.getEffectiveVersion());
     }
 
-    public getRelationships(): ng.IPromise<Relationships.IArtifactRelationshipsResultSet> {
-        const deferred = this.services.getDeferred();
-        this.services.relationshipsService.getRelationships(this.id)
-            .then((result: Relationships.IArtifactRelationshipsResultSet) => {
-                deferred.resolve(result);
-            }, (error) => {
-                if (error && error.statusCode === HttpStatusCode.NotFound) {
-                    this.deleted = true;
-                }
-                deferred.reject(error);
-            });
-
-        return deferred.promise;
+    protected getRelationshipsInternal() {
+        return this.services.relationshipsService.getRelationships(this.id, undefined, this.getEffectiveVersion());
     }
 
     public changes(): Models.IArtifact {

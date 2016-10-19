@@ -366,13 +366,16 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             this.getCustomArtifactPromisesForRefresh());
 
         this.getServices().$q.all(promisesToExecute).then(() => {
+            this.services.metaDataService.remove(this.projectId);
+            return this.services.metaDataService.refresh(this.projectId);
+        }).then(() => {
             this.subject.onNext(this);
             deferred.resolve(this);
         }).catch(error => {
             deferred.reject(error);
 
-            //This steals control flow, don't put anything after it.
-            this.subject.onError(error);
+            //Project manager is listening to this, and will refresh the project.
+            this.subject.onNext(this);
         });
 
 

@@ -83,6 +83,17 @@ export class ProjectManager implements IProjectManager {
         }
     }
 
+    private onChangeInCurrentlySelectedArtifact(artifact: IStatefulArtifact) {
+        if (artifact.artifactState.deleted || artifact.artifactState.misplaced) {
+            //const refreshOverlayId = this.loadingOverlayService.beginLoading();
+            this.refresh(this.getSelectedProject()).finally(() => {
+                this.triggerProjectCollectionRefresh();
+                console.log("refresh complete");
+                //this.loadingOverlayService.endLoading(refreshOverlayId);
+            });
+        }
+    }
+
     private disposeSubscribers() {
         this.subscribers.forEach((s) => s.dispose());
         this.subscribers = [];
@@ -107,6 +118,8 @@ export class ProjectManager implements IProjectManager {
         }
 
         this.subscribers.push(this.artifactManager.collectionChangeObservable.subscribeOnNext(this.onChangeInArtifactManagerCollection, this));
+        this.subscribers.push(this.artifactManager.selection.currentlySelectedArtifactObservable
+            .subscribeOnNext(this.onChangeInCurrentlySelectedArtifact, this));
     }
 
     public get projectCollection(): Rx.BehaviorSubject<Project[]> {

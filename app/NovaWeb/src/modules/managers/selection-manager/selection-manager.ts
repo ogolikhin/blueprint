@@ -5,6 +5,7 @@ import {IDispose} from "./../../managers/models";
 export interface ISelectionManager extends IDispose {
     artifactObservable: Rx.Observable<IStatefulArtifact>;
     subArtifactObservable: Rx.Observable<IStatefulSubArtifact>;
+    currentlySelectedArtifactObservable: Rx.Observable<IStatefulArtifact>;
     selectionObservable: Rx.Observable<ISelection>;
 
     getArtifact(): IStatefulArtifact;
@@ -61,6 +62,16 @@ export class SelectionManager implements ISelectionManager {
             .map(s => s.subArtifact)
             .distinctUntilChanged(this.distinctById).asObservable();
     }
+
+    /**
+     * Observable that always corresponds to the currently selected artifact's observable.
+     */
+    public get currentlySelectedArtifactObservable() {
+       return this.selectionSubject
+           .filter(selection => selection != null && selection.artifact != null)
+           .flatMap((selection) => selection.artifact.getObservable())
+           .asObservable();
+   }
 
     public get selectionObservable() {
         return this.selectionSubject.asObservable();

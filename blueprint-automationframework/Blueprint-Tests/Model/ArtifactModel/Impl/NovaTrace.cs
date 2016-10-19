@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System.Xml.Serialization;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -14,9 +15,10 @@ namespace Model.ArtifactModel.Impl
         public int ArtifactId { get; set; }
 
         [JsonProperty("TraceDirection")]
+        //[JsonConverter(typeof(StringEnumConverter))]
         public TraceDirection Direction { get; set; }
 
-        [JsonConverter(typeof(StringEnumConverter))]
+        //[JsonConverter(typeof(StringEnumConverter))]
         public TraceTypes TraceType { get; set; }
 
         [JsonProperty("Suspect")]

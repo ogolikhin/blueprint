@@ -544,15 +544,19 @@ namespace Helper
         }
 
         /// <summary>
-        /// Attaches file to the artifact (Save changes).
+        /// Adds trace to the artifact (and saves changes).
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
-        /// <param name="artifact">Artifact.</param>
-        /// <param name="traceTarget">.</param>
-        /// <param name="traceDirection">.</param>
+        /// <param name="artifact">Artifact to add trace.</param>
+        /// <param name="traceTarget">Trace's target.</param>
+        /// <param name="traceDirection">Trace direction.</param>
+        /// <param name="changeType">ChangeType 0 - create, 1 - update, 2 - delete.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
-        public static void AddManualArtifactTraceAndSave(IUser user, IArtifact artifact, IArtifact traceTarget,
-            TraceDirection traceDirection, IArtifactStore artifactStore)
+        /// <param name="isSuspect">(optional)isSuspect, true for suspect trace, false otherwise.</param>
+        /// <param name="targetSubArtifact">(optional)subArtifact for trace target(creates trace with subartifact).</param>
+        public static void UpdateManualArtifactTraceAndSave(IUser user, IArtifact artifact, IArtifactBase traceTarget,
+            int changeType, IArtifactStore artifactStore, TraceDirection traceDirection = TraceDirection.From,
+            bool? isSuspect = null, INovaSubArtifact targetSubArtifact = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -567,14 +571,22 @@ namespace Helper
             traceToCreate.ArtifactId = traceTarget.Id;
             traceToCreate.ProjectId = traceTarget.ProjectId;
             traceToCreate.Direction = traceDirection;
-            traceToCreate.ChangeType = 0; // TODO: replace with enum 0 = create
-            
+            traceToCreate.TraceType = TraceTypes.Manual;
+            traceToCreate.ItemId = targetSubArtifact?.Id ?? traceTarget.Id;
+            traceToCreate.ChangeType = changeType; // TODO: replace with enum create = 0, 1 = update, 2 = delete
+            traceToCreate.IsSuspect = isSuspect ?? false;
+
+            List<NovaTrace> updatedTraces = new List<NovaTrace> { traceToCreate };
+
+            artifactDetails.Traces = updatedTraces;
 
             Artifact.UpdateArtifact(artifact, user, artifactDetails, artifactStore.Address);
-            var relationships = artifactStore.GetRelationships(user, artifact, addDrafts: true);
-            Assert.IsTrue(relationships.ManualTraces.Count > 0, "Artifact should have .");
-            Assert.IsTrue(relationships.ManualTraces.Any(tr => tr.ArtifactId == traceTarget.Id && tr.Direction == traceDirection),
-                "..");
+            // TODO: add assertions about changed traces for all 'changeType'
+            /*var relationships = artifactStore.GetRelationships(user, artifact, addDrafts: true);
+            Assert.IsTrue(relationships.ManualTraces.Any(tr => tr.ArtifactId == traceTarget.Id &&
+                tr.Direction == traceDirection),
+                "..");*/
         }
+
     }
 }

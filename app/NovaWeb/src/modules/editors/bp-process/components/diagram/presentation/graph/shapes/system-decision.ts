@@ -146,29 +146,6 @@ export class SystemDecision extends UserTaskChildElement<IProcessShape> implemen
         return this;
     }
 
-    // get the maximum length of text that can be entered
-    public getElementTextLength(cell: MxCell): number {
-        return this.LABEL_EDIT_MAXLENGTH;
-    }
-
-    // This function returns formatted text to the getLabel() function to display the label
-    public formatElementText(cell: MxCell, text: string): string {
-        if (cell && text) {
-            const maxLen: number = this.LABEL_VIEW_MAXLENGTH;
-
-            if (text.length > maxLen) {
-                text = text.substr(0, maxLen) + " ...";
-            }
-        }
-
-        return text;
-    }
-
-    // Save text for the node or for an element within the node
-    public setElementText(cell: MxCell, text: string) {
-        this.label = text;
-    }
-
     public getFirstSystemTask(graph: IProcessGraph): ISystemTask {
         const targets = this.getTargets(graph.getMxGraphModel());
 

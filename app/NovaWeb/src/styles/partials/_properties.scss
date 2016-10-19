@@ -20,7 +20,7 @@ $richtext-fontfamily: $font-family-base;
 pagecontent, bp-properties-panel {
     .properties {
         border: solid 1px $gray-lighter;
-        //min-width: $properties-min-width;
+        min-width: $properties-min-width;
 
         + .properties {
             margin-top: 15px;

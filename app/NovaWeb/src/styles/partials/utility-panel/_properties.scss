@@ -9,7 +9,7 @@ bp-properties-panel {
     $property-left-margin: 11px;
 
     .properties {
-        //min-width: $properties-min-width;
+        min-width: 100%;
     }
 
     .tab-content {
@@ -20,7 +20,7 @@ bp-properties-panel {
 
         > .content {
             border: none;
-            padding: 0;
+            padding: 0 0 10px;
         }
 
         .nav-tabs {

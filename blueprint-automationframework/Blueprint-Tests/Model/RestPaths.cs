@@ -155,6 +155,7 @@ namespace Model
                     public const string SUBARTIFACTS                = "svc/artifactstore/artifacts/{0}/subartifacts";
                     public const string TO_id_                      = "svc/bpartifactstore/artifacts/{0}/to/{1}";   // XXX: For some reason they decided to put this call in blueprint-current!
                     public const string SUBARTIFACTS_id_            = "svc/bpartifactstore/artifacts/{0}/subartifacts/{1}";
+                    public const string NAVIGATION_PATH             = "svc/artifactstore/artifacts/{0}/navigationPath";
 
                     public static class Discussions_id_
                     {

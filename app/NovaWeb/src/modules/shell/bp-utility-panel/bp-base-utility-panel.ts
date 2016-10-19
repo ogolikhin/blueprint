@@ -14,7 +14,7 @@ export class BPBaseUtilityPanelController {
     public $onInit() {
         const selectionObservable = this.selectionManager.selectionObservable;
         const panelActiveObservable = this.bpAccordionPanel.isActiveObservable;
-        const artifactOrVisibilityChange: Rx.IDisposable =
+        const artifactChangeWhileVisible: Rx.IDisposable =
             Rx.Observable
                 .combineLatest(selectionObservable, panelActiveObservable,
                     (selection, isActive) => {
@@ -27,7 +27,10 @@ export class BPBaseUtilityPanelController {
                 .distinctUntilChanged()
                 .subscribe(s => this.selectionChanged(s.artifact, s.subArtifact));
 
-        this._subscribers = [artifactOrVisibilityChange];
+        const visibilityChange: Rx.IDisposable =
+            panelActiveObservable.distinctUntilChanged().subscribe(isVisible => this.onVisibilityChanged(isVisible));
+
+        this._subscribers = [artifactChangeWhileVisible, visibilityChange];
     }
 
     public $onDestroy() {
@@ -54,5 +57,9 @@ export class BPBaseUtilityPanelController {
 
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
         return this.$q.resolve();
+    }
+
+    protected onVisibilityChanged(isVisible: boolean): void {
+        //To be implemented by child.
     }
 }

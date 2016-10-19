@@ -222,7 +222,7 @@ describe("ArtifactPickerNodeVM", () => {
             const result = vm.getCellClass();
 
             // Assert
-            expect(result).toEqual(["has-children", "is-folder"]);
+            expect(result).toEqual(["has-children", "is-primitive-folder"]);
         });
 
         it("getCellClass, when a project, returns correct result", () => {
@@ -293,7 +293,7 @@ describe("ArtifactPickerNodeVM", () => {
             const itemType = {id: 123, iconImageId: 456};
             (projectManager.getArtifact as jasmine.Spy).and.returnValue({
                 metadata: {
-                    getItemType() {
+                    getItemTypeTemp() {
                         return itemType;
                     }
                 }

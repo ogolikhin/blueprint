@@ -26,7 +26,7 @@ bp-toolbar {
         > ul > li {
             font-size: $font-size-bigger;
 
-            > a {
+            > a, bp-goto > a {
                 box-sizing: border-box;
                 color: $gray-dark;
                 height: $toolbar-height;
@@ -74,7 +74,7 @@ bp-toolbar {
             }
 
             &.open > a:hover,
-            > a:hover {
+            > a:hover, bp-goto > a:hover {
                 color: $brand-secondary;
             }
         }

@@ -163,8 +163,7 @@ export class BpArtifactInfoController {
 
         this.artifactName = artifact.name || "";
 
-        let itemType = artifact.metadata.getItemType();
-        if (itemType) {
+        artifact.metadata.getItemType().then(itemType => {
             this.artifactTypeId = itemType.id;
             this.artifactType = itemType.name || Models.ItemTypePredefined[itemType.predefinedType] || "";
 
@@ -173,18 +172,19 @@ export class BpArtifactInfoController {
             }
 
             this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
-        }
 
-        this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[itemType.predefinedType] || "document"));
+            this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[itemType.predefinedType] || "document"));
 
-        this.isLegacy = itemType.predefinedType === Enums.ItemTypePredefined.Storyboard ||
-            itemType.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||
-            itemType.predefinedType === Enums.ItemTypePredefined.BusinessProcess ||
-            itemType.predefinedType === Enums.ItemTypePredefined.UseCase ||
-            itemType.predefinedType === Enums.ItemTypePredefined.UseCaseDiagram ||
-            itemType.predefinedType === Enums.ItemTypePredefined.UIMockup ||
-            itemType.predefinedType === Enums.ItemTypePredefined.DomainDiagram ||
-            itemType.predefinedType === Enums.ItemTypePredefined.Glossary;
+            this.isLegacy = itemType.predefinedType === Enums.ItemTypePredefined.Storyboard ||
+                itemType.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||
+                itemType.predefinedType === Enums.ItemTypePredefined.BusinessProcess ||
+                itemType.predefinedType === Enums.ItemTypePredefined.UseCase ||
+                itemType.predefinedType === Enums.ItemTypePredefined.UseCaseDiagram ||
+                itemType.predefinedType === Enums.ItemTypePredefined.UIMockup ||
+                itemType.predefinedType === Enums.ItemTypePredefined.DomainDiagram ||
+                itemType.predefinedType === Enums.ItemTypePredefined.Glossary;
+
+        });
 
         this.isReadonly = artifact.artifactState.readonly;
         this.isChanged = artifact.artifactState.dirty;
@@ -199,6 +199,7 @@ export class BpArtifactInfoController {
                 if (artifact.artifactState.lockDateTime) {
                     msg += " on " + this.localization.current.formatShortDateTime(artifact.artifactState.lockDateTime);
                 }
+                msg += ".";
                 this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
                 break;
 

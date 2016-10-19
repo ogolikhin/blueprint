@@ -256,7 +256,7 @@ export class ProjectManager implements IProjectManager {
         let oldProject = this.getProject(oldProjectId);
         this.artifactManager.removeAll(oldProjectId);
 
-        this.metadataService.load(oldProjectId).then(() => {
+        this.metadataService.get(oldProjectId).then(() => {
 
             //reload project info
             this.projectService.getProject(oldProjectId).then((result: Models.IProjectNode) => {
@@ -341,7 +341,7 @@ export class ProjectManager implements IProjectManager {
 
         let project: Project = this.getProject(data.id);
         if (!project) {
-            this.metadataService.load(data.id).then(() => {
+            this.metadataService.get(data.id).then(() => {
                 angular.extend(data, {
                     projectId: data.id,
                     itemTypeId: Enums.ItemTypePredefined.Project,

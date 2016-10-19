@@ -35,7 +35,6 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
 
         // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
         let initialContent = null;
-        let editorBody = null;
         let onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
         $scope.to.onChange = () => {
             //fixme: if this function is blank why does it exist?
@@ -57,7 +56,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         let to: AngularFormly.ITemplateOptions = {
             tinymceOptions: { // this will go to ui-tinymce directive
                 menubar: false,
-                toolbar: "bold italic underline strikethrough | fontselect fontsize forecolor format | link table",
+                toolbar: "bold italic underline strikethrough | fontsize fontselect forecolor format | link table",
                 statusbar: false,
                 content_style: `html { overflow: auto !important; }
                 body.mce-content-body { font-family: 'Open Sans', sans-serif; font-size: 9pt; min-height: 100px; 
@@ -84,6 +83,9 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 "border-collapse border-color border-style border-width " +
                 "text-align text-decoration vertical-align " +
                 "height width",
+                paste_word_valid_elements: "-strong/b,-em/i,-u,-span,-p,-ol,-ul,-li,-h1,-h2,-h3,-h4,-h5,-h6," +
+                "-p/div[align],-a[href|name],sub,sup,strike,br,del,table[align|width],tr," +
+                "td[colspan|rowspan|width|align|valign],th[colspan|rowspan|width],thead,tfoot,tbody",
                 paste_filter_drop: false,
                 table_toolbar: "", // https://www.tinymce.com/docs/plugins/table/#table_toolbar
                 table_default_styles: { // https://www.tinymce.com/docs/plugins/table/#table_default_styles
@@ -153,11 +155,11 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         styles: {"font-size": "20pt"}
                     });
 
-                    editorBody = editor.getBody();
-                    Helper.autoLinkURLText(editorBody);
-                    Helper.addTableBorders(editorBody);
-                    Helper.setFontFamilyOrOpenSans(editorBody, allowedFonts);
-                    this.handleLinks(editorBody.querySelectorAll("a"));
+                    this.editorBody = editor.getBody();
+                    Helper.autoLinkURLText(this.editorBody);
+                    Helper.addTableBorders(this.editorBody);
+                    Helper.setFontFamilyOrOpenSans(this.editorBody, allowedFonts);
+                    this.handleLinks(this.editorBody.querySelectorAll("a"));
 
                     // MutationObserver
                     const mutationObserver = window["MutationObserver"] || window["WebKitMutationObserver"] || window["MozMutationObserver"];
@@ -173,11 +175,11 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                             characterData: false,
                             subtree: true
                         };
-                        this.observer.observe(editorBody, observerConfig);
+                        this.observer.observe(this.editorBody, observerConfig);
                     }
 
                     // we store the initial value so IE doesn't mark the field dirty just for clicking it!
-                    initialContent = editorBody.innerHTML.replace(bogusRegEx, "").replace(zeroWidthNoBreakSpaceRegEx, "");
+                    initialContent = this.editorBody.innerHTML.replace(bogusRegEx, "").replace(zeroWidthNoBreakSpaceRegEx, "");
 
                     editor.on("Focus", (e) => {
                         if (editor.editorContainer) {
@@ -306,9 +308,9 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         let validators = {
             // tinyMCE may leave empty tags that cause the value to appear not empty
             requiredCustom: {
-                expression: function ($viewValue, $modelValue, scope) {
+                expression: ($viewValue, $modelValue, scope) => {
                     if (initialContent !== null) { // run this part after the field had the chance to load the content
-                        let content = editorBody.innerHTML.replace(bogusRegEx, "").replace(zeroWidthNoBreakSpaceRegEx, "");
+                        let content = this.editorBody.innerHTML.replace(bogusRegEx, "").replace(zeroWidthNoBreakSpaceRegEx, "");
                         if (content !== initialContent) {
                             onChange(content.replace(bogusRegEx, ""), scope.options, scope);
                         }

@@ -11,8 +11,6 @@ import {DiagramNodeElement} from "./diagram-element";
 import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
-import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
-import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 import {ProcessEvents} from "../../../process-diagram-communication";
 
 export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implements ISystemTask, IUserTaskChildElement {
@@ -39,8 +37,6 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     private linkButton: Button;
     private mockupButton: Button;
     private rootScope: ng.IRootScopeService;
-    private dialogManager: IModalDialogCommunication;
-    private processDiagramManager: IProcessDiagramCommunication;
 
     public callout: DiagramNodeElement;
 
@@ -116,11 +112,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         if (nodeFactorySettings && nodeFactorySettings.isCommentsButtonEnabled) {
             // #TODO interaction with utility panel is different in Nova
             //this.commentsButton.setClickAction(() => this.openPropertiesDialog(this.rootScope, Shell.UtilityTab.discussions));
-        } else {
-            this.commentsButton.setClickAction(() => {
-                //fixme: empty blocks should be removed
-            });
-        }
+        } 
 
         this.commentsButton.setTooltip(this.getLocalizedLabel("ST_Comments_Label"));
 
@@ -141,11 +133,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
 
         if (nodeFactorySettings && nodeFactorySettings.isLinkButtonEnabled) {
             this.linkButton.setClickAction(() => this.navigateToProcess());
-        } else {
-            this.linkButton.setClickAction(() => {
-                //fixme: empty blocks should be removed
-            });
-        }
+        } 
 
         this.linkButton.setTooltip(this.getLocalizedLabel("ST_Userstory_Label"));
         this.linkButton.setDisabledImage(this.getImageSource("include-inactive.svg"));
@@ -163,13 +151,8 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         this.mockupButton = new Button(`MB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("mockup-neutral.svg"));
 
         if (nodeFactorySettings && nodeFactorySettings.isMockupButtonEnabled) {
-            this.mockupButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemTaskDetailsDialogType));
-        } else {
-            this.mockupButton.setClickAction(() => {
-                //fixme: empty blocks should be removed
-
-            });
-        }
+            this.mockupButton.setClickAction(() => this.openDialog(ModalDialogType.SystemTaskDetailsDialogType));
+        } 
 
         this.mockupButton.setTooltip(this.getLocalizedLabel("ST_Mockup_Label"));
         this.mockupButton.setActiveImage(this.getImageSource("mockup-active.svg"));
@@ -184,12 +167,8 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("adddetails-neutral.svg"));
 
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
-            this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemTaskDetailsDialogType));
-        } else {
-            this.detailsButton.setClickAction(() => {
-                //fixme: empty blocks should be removed
-            });
-        }
+            this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.SystemTaskDetailsDialogType));
+        } 
 
         this.detailsButton.setTooltip(this.getLocalizedLabel("ST_Settings_Label"));
         this.detailsButton.setHoverImage(this.getImageSource("adddetails-hover.svg"));
@@ -217,7 +196,6 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
                 this.personaLabel.text = value;
                 this.shapesFactory.setSystemTaskPersona(value);
             }
-            this.notify(NodeChange.Update);
         }
     }
 
@@ -226,10 +204,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     }
 
     public set description(value: string) {
-        const valueChanged = this.setPropertyValue("description", value);
-        if (valueChanged) {
-            this.notify(NodeChange.Update);
-        }
+        this.setPropertyValue("description", value);
     }
 
     public get associatedImageUrl(): string {
@@ -237,10 +212,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     }
 
     public set associatedImageUrl(value: string) {
-        const valueChanged = this.setPropertyValue("associatedImageUrl", value);
-        if (valueChanged) {
-            this.notify(NodeChange.Update);
-        }
+       this.setPropertyValue("associatedImageUrl", value);
     }
 
     public get imageId(): string {
@@ -250,8 +222,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     public set imageId(value: string) {
         const valueChanged = this.setPropertyValue("imageId", value);
         if (valueChanged) {
-            this.notify(NodeChange.Update);
-            if (!Boolean(value)) {
+            if (!value) {
                 this.mockupButton.deactivate();
             } else {
                 this.mockupButton.activate();
@@ -266,8 +237,9 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     public set associatedArtifact(value: any) {
         if (this.model != null && this.model.associatedArtifact !== value) {
             this.model.associatedArtifact = value;
-            this.notify(NodeChange.Update);
-            if (!Boolean(value)) {
+            // TODO: create associatedArtifact predefined type and update it in the special properties of the stateful artifact.
+            //this.updateStatefulPropertyValue(<property type predefined>, value);
+            if (!value) {
                 this.linkButton.disable();
             } else {
                 this.linkButton.activate();
@@ -312,7 +284,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         this.textLabel.render();
         this.personaLabel.render();
     }
-
+    
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
         this.dialogManager = graph.viewModel.communicationManager.modalDialogManager;
         this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;

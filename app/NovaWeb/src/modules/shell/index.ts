@@ -30,7 +30,7 @@ import {BPArtifactDocumentItem} from "./bp-utility-panel/bp-attachments-panel/bp
 import {BPDiscussionReplyItem} from "./bp-utility-panel/bp-discussion-panel/bp-discussion-reply-item/bp-discussion-reply-item";
 import {BPCommentEdit} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/bp-comment-edit";
 import {ErrorComponent} from "./error/error.component";
-import {Routes} from "./router/router.config";
+import {AppRoutes} from "./app.router";
 import {UsersAndGroupsService} from "../core/services/users-and-groups.svc";
 import {MentionService} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/mention.svc";
 import "../shared/filters";
@@ -73,7 +73,7 @@ angular.module("app.shell",
     .component("bpCommentEdit", new BPCommentEdit())
     .component("error", new ErrorComponent())
     .config(Logger)
-    .config(Routes)
+    .config(AppRoutes)
     .config(initializeInterceptors);
 
 function initializeInterceptors($httpProvider: ng.IHttpProvider) {

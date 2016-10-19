@@ -47,7 +47,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     public specificFields: AngularFormly.IFieldConfigurationObject[];
     public richTextFields: AngularFormly.IFieldConfigurationObject[];
 
-    private selectedArtifact: IStatefulArtifact;
+    public selectedArtifact: IStatefulArtifact;
     private selectedSubArtifact: IStatefulSubArtifact;
     protected artifactSubscriber: Rx.IDisposable;
     protected subArtifactSubscriber: Rx.IDisposable;
@@ -97,32 +97,29 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         return this.richTextFields && this.richTextFields.length > 0;
     }
 
-
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
-        try {
-            if (subArtifact) {
-                this.selectedArtifact = artifact;
-                this.selectedSubArtifact = subArtifact;
-                if (Helper.hasArtifactEverBeenSavedOrPublished(subArtifact)) {
-                    //TODO: implement .getObservable
-                    this.onUpdate();
-                    this.subArtifactSubscriber = this.selectedSubArtifact.getObservable().subscribe(this.onSubArtifactChanged);
-                } else {
-                    this.reset();
-                }
-
-                // for new selection
-
-            } else if (artifact) {
-                this.selectedSubArtifact = null;
-                this.selectedArtifact = artifact;
-                this.artifactSubscriber = this.selectedArtifact.getObservable().subscribe(this.onArtifactChanged);
-
+        if (subArtifact) {
+            this.selectedArtifact = artifact;
+            this.selectedSubArtifact = subArtifact;
+            if (Helper.hasArtifactEverBeenSavedOrPublished(subArtifact)) {
+                //TODO: implement .getObservable
+                this.onUpdate();
+                this.subArtifactSubscriber = this.selectedSubArtifact.getObservable().subscribe(this.onSubArtifactChanged);
+            } else {
+                this.reset();
             }
-        } catch (ex) {
-            this.messageService.addError(ex);
-            throw ex;
+            // for new selection
+        } else if (artifact) {
+            this.selectedSubArtifact = null;
+            this.selectedArtifact = artifact;
+            this.artifactSubscriber = this.selectedArtifact.getObservable().subscribe(this.onArtifactChanged);
+
+        } else {
+            this.selectedArtifact = null;
+            this.selectedSubArtifact = null;
+            this.reset();
         }
+
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
@@ -142,54 +139,33 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
 
     };
 
-    // private onLoad(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<void> {
-    //     let deferred = this.$q.defer<any>();
-    //     this.isLoading = true;
-    //     if (subArtifact) {
-    //         subArtifact.load(true, timeout).then(() => {
-    //             this.onUpdate(artifact, subArtifact);
-    //         })
-    //         .finally(() => {
-    //             deferred.resolve();
-    //             this.isLoading = false;
-    //         });
-
-    //     } else {
-    //         artifact.load(false).then(() => {
-    //             this.onUpdate(artifact, subArtifact);
-    //         })
-    //         .finally(() => {
-    //             deferred.resolve();
-    //             this.isLoading = false;
-    //         });
-    //     }
-    //     return deferred.promise;
-    // }
-
     public onUpdate() {
-        try {
-            this.reset();
+        this.reset();
 
-            if (!this.editor || !this.selectedArtifact) {
-                return;
-            }
+        if (!this.editor || !this.selectedArtifact) {
+            return;
+        }
+        
+        let propertyTypesPromise: ng.IPromise<Models.IPropertyType[]>;
+        let selectedItem: IStatefulItem;
 
-            let propertyEditorFilter = new PropertyEditorFilters(this.localization);
-            let propertyFilters: {[id: string]: boolean};
+        if (this.selectedSubArtifact) {
+            propertyTypesPromise = this.selectedSubArtifact.metadata.getSubArtifactPropertyTypes();
+            selectedItem = this.selectedSubArtifact;
+            
+        } else {
+            propertyTypesPromise = this.selectedArtifact.metadata.getArtifactPropertyTypes();
+            selectedItem = this.selectedArtifact;
+        }
 
-            if (this.selectedSubArtifact) {
-                this.editor.load(this.selectedSubArtifact, this.selectedSubArtifact.metadata.getSubArtifactPropertyTypes());
-                propertyFilters = propertyEditorFilter.getPropertyEditorFilters(this.selectedSubArtifact.predefinedType);
-            } else {
-                this.editor.load(this.selectedArtifact, this.selectedArtifact.metadata.getArtifactPropertyTypes());
-                propertyFilters = propertyEditorFilter.getPropertyEditorFilters(this.selectedArtifact.predefinedType);
-            }
-
-
+        propertyTypesPromise.then((propertyTypes) => {
+            const propertyEditorFilter = new PropertyEditorFilters(this.localization);
+            const propertyFilters = propertyEditorFilter.getPropertyEditorFilters(selectedItem.predefinedType);
+            this.editor.load(selectedItem, propertyTypes);
             this.model = this.editor.getModel();
             this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
                 let propertyContext = field.data as PropertyContext;
-                if (propertyContext && propertyFilters[propertyContext.name]) {
+                if (propertyContext && propertyFilters[propertyContext.propertyTypePredefined]) {
                     return;
                 }
 
@@ -213,12 +189,8 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                 this.onFieldUpdate(field);
 
             });
-        } catch (ex) {
-            this.messageService.addError(ex);
-            throw ex;
-        } finally {
             this.isLoading = false;
-        }
+        });
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {

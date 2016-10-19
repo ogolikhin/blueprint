@@ -19,7 +19,7 @@ export class NavigationServiceMock implements INavigationService {
         return deferred.promise;
     }
 
-    public navigateToArtifact(id: number, enableTracking?: boolean): ng.IPromise<any> {
+    public navigateTo(id: number, redirect?: boolean, enableTracking?: boolean): ng.IPromise<any> {
         let deferred = this.$q.defer();
         deferred.resolve();
 

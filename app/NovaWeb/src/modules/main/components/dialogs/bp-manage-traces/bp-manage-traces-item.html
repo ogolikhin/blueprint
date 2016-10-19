@@ -8,19 +8,19 @@
         </div>
         <div class="trace-icon-wrapper">
             <div class="trace-icon"
-                 data-ng-class="{'false': 'trace-icon-regular', 'true' : 'trace-icon-suspect'}[$ctrl.item.suspect]">
-                <i data-ng-class="{'0': 'fonticon2-relationship-right', '1' : 'fonticon2-relationship-left', '2' : 'fonticon2-relationship-bi'}[$ctrl.item.traceDirection]"></i>
+                 data-ng-class="$ctrl.traceIcon">
+                <i data-ng-class="$ctrl.directionIcon"></i>
             </div>
         </div>
-        <div>
-            <i class="icon-textual"></i> <i class="{{$ctrl.item.cssClass}}"></i>{{$ctrl.item.itemTypePrefix}}{{$ctrl.item.itemId}}
+        <div bp-tooltip="{{::$ctrl.item.itemTypePrefix}}{{::$ctrl.item.itemId}} - {{::$ctrl.item.itemName }}"
+             bp-tooltip-truncated="true">
+            <i class="icon-textual"></i> <i class="{{::$ctrl.item.cssClass}}"></i>{{::$ctrl.item.itemTypePrefix}}{{::$ctrl.item.itemId}}
             -
-            {{$ctrl.item.itemName ? $ctrl.item.itemName : $ctrl.item.itemLabel}}<br/>
-            <i class="icon-project"></i> {{$ctrl.item.projectName}}
+            {{::$ctrl.item.itemName}}<br/>
+            <i class="icon-project"></i> {{::$ctrl.item.projectName}}
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-12">
+    <div class="clearfix">
             <div class="icons">
                 <div uib-dropdown>
                     <span uib-dropdown-toggle>
@@ -50,5 +50,4 @@
                    bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Delete')}}"></i>
             </div>
         </div>
-    </div>
 </div>

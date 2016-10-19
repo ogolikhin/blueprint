@@ -1,4 +1,6 @@
-import "angular";
+import * as angular from "angular";
+import * as Rx from "rx";
+
 import "./modules/main/";
 // load our default (non specific) css
 import "./styles/screen.scss";

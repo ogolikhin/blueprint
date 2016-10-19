@@ -58,9 +58,8 @@ describe("UserDecision", () => {
         let testModel = new ProcessModels.ProcessModel();
         let model = shapesFactory.createModelUserDecisionShape(2, 1, id, 0, 0);
         testModel.shapes.push(model);
-        let processViewModel = new ProcessViewModel(testModel);
-        processViewModel.communicationManager = communicationManager;
-
+        let processViewModel = new ProcessViewModel(testModel, communicationManager);
+        
         let graph = new ProcessGraph(rootScope, localScope, container, processViewModel, dialogService, localization);
 
         // Act
@@ -70,55 +69,5 @@ describe("UserDecision", () => {
         expect(graph.getMxGraphModel().getCell(`DB${id}`)).not.toBeNull();
     });
 
-    it("doesn't call notify when label doesn't change", () => {
-        // Arrange
-        let model = shapesFactory.createModelUserDecisionShape(2, 1, 3, 0, 0);
-        model.propertyValues["label"].value = "Test";
-        let userDecision = new UserDecision(model, rootScope);
-
-        let notifySpy = spyOn(userDecision, "notify");
-
-        // Act
-        userDecision.action = "Test";
-
-        // Assert
-        expect(notifySpy).not.toHaveBeenCalled();
-    });
-
-    it("notifies of changes when label changes", () => {
-        // Arrange
-        let model = shapesFactory.createModelUserDecisionShape(2, 1, 3, 0, 0);
-        let userDecision = new UserDecision(model, rootScope);
-
-        let notifySpy = spyOn(userDecision, "notify");
-
-        // Act
-        userDecision.label = "Test";
-
-        // Assert
-        expect(notifySpy).toHaveBeenCalledWith(NodeChange.Update);
-    });
-
-    it("notifies of changes when label changes and UI redraw", () => {
-        // Arrange
-        let model = shapesFactory.createModelUserDecisionShape(2, 1, 3, 0, 0);
-        let userDecision = new UserDecision(model, rootScope);
-        userDecision.textLabel = {
-            render: () => {
-            },
-            text: "",
-            setVisible: (value: boolean) => {
-            },
-            onDispose: () => {
-            }
-        };
-
-        let notifySpy = spyOn(userDecision, "notify");
-
-        // Act
-        userDecision.setLabelWithRedrawUi("Test");
-
-        // Assert
-        expect(notifySpy).toHaveBeenCalledWith(NodeChange.Update, true);
-    });
+    
 });

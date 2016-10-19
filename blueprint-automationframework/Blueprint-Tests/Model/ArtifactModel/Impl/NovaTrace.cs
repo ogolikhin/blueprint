@@ -53,6 +53,8 @@ namespace Model.ArtifactModel.Impl
     {
         public List<NovaTrace> ManualTraces { get; } = new List<NovaTrace>();
         public List<NovaTrace> OtherTraces { get; } = new List<NovaTrace>();
+        public bool CanEdit { get; set; }
+        public int RevisionId { get; set; }
     }
 
     public class TracePathItem

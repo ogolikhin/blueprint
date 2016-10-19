@@ -76,8 +76,7 @@ export class ProcessDiagram {
 
     private createProcessViewModel(process: IProcess): IProcessViewModel {
         if (this.processViewModel == null) {
-            this.processViewModel = new ProcessViewModel(process, this.$rootScope, this.$scope, this.messageService);
-            this.processViewModel.communicationManager = this.communicationManager;
+            this.processViewModel = new ProcessViewModel(process, this.communicationManager, this.$rootScope, this.$scope, this.messageService);
         } else {
             this.processViewModel.updateProcessGraphModel(process);
             this.processViewModel.communicationManager.toolbarCommunicationManager
@@ -108,7 +107,7 @@ export class ProcessDiagram {
     }
 
     private navigateToAssociatedArtifact = (info: any) => {
-        this.navigationService.navigateToArtifact(info.id, info.enableTracking);
+        this.navigationService.navigateTo(info.id, false, info.enableTracking);
     }
 
     private recreateProcessGraph = (selectedNodeId: number = undefined) => {
@@ -190,7 +189,7 @@ export class ProcessDiagram {
         if (this.processViewModel != null) {
             this.processViewModel.destroy();
             this.processViewModel = null;
-        }
+        }        
         this.selectionListeners = null;
     }
 

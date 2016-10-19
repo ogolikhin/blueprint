@@ -28,6 +28,18 @@ namespace Model.Impl
 
         #region Members inherited from IArtifactStore
 
+        /// <seealso cref="IArtifactStore.CreateArtifact(IUser, ArtifactTypePredefined, string, IProject, IArtifactBase, double?, List{HttpStatusCode})"/>
+        public INovaArtifactDetails CreateArtifact(IUser user,
+            ArtifactTypePredefined baseArtifactType,
+            string name,
+            IProject project,
+            IArtifactBase parentArtifact = null,
+            double? orderIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return CreateArtifact(Address, user, (ItemTypePredefined)baseArtifactType, name, project, parentArtifact?.Id, orderIndex, expectedStatusCodes);
+        }
+
         /// <seealso cref="IArtifactStore.CreateArtifact(IUser, ArtifactTypePredefined, string, IProject, INovaArtifactDetails, double?, List{HttpStatusCode})"/>
         public INovaArtifactDetails CreateArtifact(IUser user,
             ArtifactTypePredefined baseArtifactType,
@@ -37,7 +49,7 @@ namespace Model.Impl
             double? orderIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return CreateArtifact(Address, user, (ItemTypePredefined)baseArtifactType, name, project, parentArtifact, orderIndex, expectedStatusCodes);
+            return CreateArtifact(Address, user, (ItemTypePredefined)baseArtifactType, name, project, parentArtifact?.Id, orderIndex, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.CreateArtifact(IUser, ItemTypePredefined, string, IProject, INovaArtifactBase, double?, List{HttpStatusCode})"/>
@@ -49,7 +61,7 @@ namespace Model.Impl
             double? orderIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return CreateArtifact(Address, user, baseArtifactType, name, project, parentArtifact, orderIndex, expectedStatusCodes);
+            return CreateArtifact(Address, user, baseArtifactType, name, project, parentArtifact?.Id, orderIndex, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.DeleteArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
@@ -380,6 +392,7 @@ namespace Model.Impl
             IArtifactBase artifact,
             int? subArtifactId = null,
             bool? addDrafts = null,
+            int? versionId = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -398,6 +411,11 @@ namespace Model.Impl
                 queryParameters.Add("addDrafts", addDrafts.ToString());
             }
 
+            if (versionId !=  null)
+            {
+                queryParameters.Add("versionId", versionId.ToString());
+            }
+
             var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
 
             var relationships = restApi.SendRequestAndDeserializeObject<Relationships>(
@@ -413,29 +431,12 @@ namespace Model.Impl
         public TraceDetails GetRelationshipsDetails(IUser user,
             IArtifactBase artifact,
             bool? addDrafts = null,
+            int? revisionId = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS, artifact.Id);
-            var queryParameters = new Dictionary<string, string>();
-
-            if (addDrafts != null)
-            {
-                queryParameters.Add("addDrafts", addDrafts.ToString());
-            }
-
-            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
-
-            var traceDetails = restApi.SendRequestAndDeserializeObject<TraceDetails>(
-                path,
-                RestRequestMethod.GET,
-                queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: true);
-
-            return traceDetails;
+            return GetRelationshipsDetails(Address, user, artifact.Id, addDrafts, revisionId, expectedStatusCodes);
         }
 
         /*    Commented out because this is still in development.
@@ -622,12 +623,24 @@ namespace Model.Impl
 
         #region Static members
 
+        /// <summary>
+        /// Creates a new Nova artifact.
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="baseArtifactType">The base artifact type (i.e. ItemType) to create.</param>
+        /// <param name="name">The name of the new artifact.</param>
+        /// <param name="project">The project where the artifact will be created in.</param>
+        /// <param name="parentArtifactId">(optional) The ID of the parent of the new artifact.</param>
+        /// <param name="orderIndex">(optional) The order index of the new artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
+        /// <returns>The new Nova artifact that was created.</returns>
         public static INovaArtifactDetails CreateArtifact(string address,
             IUser user,
             ItemTypePredefined baseArtifactType,
             string name,
             IProject project,
-            INovaArtifactBase parentArtifact = null,
+            int? parentArtifactId = null,
             double? orderIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -650,7 +663,7 @@ namespace Model.Impl
                 Name = name,
                 ProjectId = project.Id,
                 ItemTypeId = itemType.Id,
-                ParentId = parentArtifact?.Id ?? project.Id,
+                ParentId = parentArtifactId ?? project.Id,
                 OrderIndex = orderIndex
             };
 
@@ -948,6 +961,53 @@ namespace Model.Impl
 
             return discardedArtifactResponse;
         }
+
+        /// <summary>
+        /// Gets traceDetails for the specified artifact/subartifact
+        /// (Runs: GET svc/artifactstore/artifacts/{artifactId}/relationshipdetails)
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">The artifact ID containing the relationship to get.</param>
+        /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true</param>
+        /// <param name="revisionId">(optional) The revision of the artifact whose details you want to get. null = latest revision.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>RelationshipsDetails object for the specified artifact/subartifact.</returns>
+        public static TraceDetails GetRelationshipsDetails(string address,
+            IUser user,
+            int artifactId,
+            bool? addDrafts = null,
+            int? revisionId = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(address, nameof(address));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS, artifactId);
+            var queryParameters = new Dictionary<string, string>();
+
+            if (addDrafts != null)
+            {
+                queryParameters.Add("addDrafts", addDrafts.ToString());
+            }
+
+            if (revisionId != null)
+            {
+                queryParameters.Add("revisionId", revisionId.ToString());
+            }
+
+            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
+
+            var traceDetails = restApi.SendRequestAndDeserializeObject<TraceDetails>(
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
+
+            return traceDetails;
+        }
+
         #endregion Static members
     }
 }

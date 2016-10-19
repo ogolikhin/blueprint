@@ -46,7 +46,6 @@ export class BpArtifactEditor extends BpBaseEditor {
         this.subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.setArtifactEditorLabelsWidth, this));
     }
 
-
     public $onDestroy() {
         super.$onDestroy();
 
@@ -57,7 +56,6 @@ export class BpArtifactEditor extends BpBaseEditor {
         delete this.fields;
         delete this.model;
     }
-
 
     public clearFields() {
         this.model = {};
@@ -71,36 +69,42 @@ export class BpArtifactEditor extends BpBaseEditor {
         this.fields.push(field);
     }
 
-
     public onArtifactReady() {
         if (this.editor && this.artifact) {
             this.clearFields();
+            this.artifact.metadata.getArtifactPropertyTypes().then((propertyTypes) => {
+                this.model = this.editor.load(this.artifact, propertyTypes);
 
-            this.model = this.editor.load(this.artifact, this.artifact.metadata.getArtifactPropertyTypes());
+                this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
+                    //add property change handler to each field
+                    angular.extend(field.templateOptions, {
+                        onChange: this.onValueChange.bind(this)
+                    });
 
-            this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
-                //add property change handler to each field
-                angular.extend(field.templateOptions, {
-                    onChange: this.onValueChange.bind(this)
-                });
-
-                let isReadOnly = this.artifact.artifactState.readonly || this.artifact.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
-                field.templateOptions["isReadOnly"] = isReadOnly;
-                if (isReadOnly) {
-                    if (field.type !== "bpDocumentFile" &&
-                        field.type !== "bpFieldImage" &&
-                        field.type !== "bpFieldInheritFrom") {
-                        field.type = "bpFieldReadOnly";
+                    let isReadOnly = this.artifact.artifactState.readonly || this.artifact.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
+                    field.templateOptions["isReadOnly"] = isReadOnly;
+                    if (isReadOnly) {
+                        if (field.type !== "bpDocumentFile" &&
+                            field.type !== "bpFieldImage" &&
+                            field.type !== "bpFieldInheritFrom") {
+                            field.type = "bpFieldReadOnly";
+                        }
                     }
-                }
-                this.onFieldUpdate(field);
+                    this.onFieldUpdate(field);
 
+                });
+                this.setArtifactEditorLabelsWidth();
+                super.onArtifactReady();
+                this.onFieldUpdateFinished();
             });
-
-            this.isLoading = false;
+        } else {
+            this.setArtifactEditorLabelsWidth();
+            super.onArtifactReady();
         }
-        this.setArtifactEditorLabelsWidth();
-        super.onArtifactReady();
+    }
+
+    protected onFieldUpdateFinished() {
+        //
     }
 
     public setArtifactEditorLabelsWidth(mainWindow?: IMainWindow) {

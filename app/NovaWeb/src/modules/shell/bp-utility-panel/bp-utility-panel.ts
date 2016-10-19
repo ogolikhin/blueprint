@@ -31,6 +31,7 @@ export class BPUtilityPanelController {
     private _currentItemClass: string;
     private _currentItemType: number;
     private _currentItemIcon: number;
+    private _isAnyPanelVisible: boolean;
 
     public get currentItem() {
         return this._currentItem;
@@ -48,6 +49,10 @@ export class BPUtilityPanelController {
         return this._currentItemIcon;
     }
 
+    public get IsAnyPanelVisible() {
+        return this._isAnyPanelVisible;
+    }
+
     constructor(private localization: ILocalizationService,
                 private artifactManager: IArtifactManager,
                 private $element: ng.IAugmentedJQuery) {
@@ -55,6 +60,7 @@ export class BPUtilityPanelController {
         this._currentItemClass = null;
         this._currentItemType = null;
         this._currentItemIcon = null;
+        this._isAnyPanelVisible = true;
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -63,14 +69,8 @@ export class BPUtilityPanelController {
             .distinctUntilChanged()
             .subscribe(this.onSelectionChanged);
 
-        const selectedItemSubscriber: Rx.IDisposable = this.artifactManager.selection.selectionObservable
-            .map((selection: ISelection) => selection.subArtifact || selection.artifact)
-            .distinctUntilChanged()
-            .subscribe(this.onItemChanged);
-
         this._subscribers = [
-            selectionObservable,
-            selectedItemSubscriber
+            selectionObservable
         ];
     }
 
@@ -100,19 +100,19 @@ export class BPUtilityPanelController {
         return angular.element(this.$element.find("bp-accordion")[0]).controller("bpAccordion");
     }
 
-    private onItemChanged = (item: IStatefulItem) => {
-        if (item != null) {
+    private updateItem(selection: ISelection) {
+        const item: IStatefulItem = selection ? (selection.subArtifact || selection.artifact) : undefined;
+        if (item) {
             this._currentItem = `${(item.prefix || "")}${item.id}: ${item.name}`;
             this._currentItemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[item.predefinedType] || "");
             this._currentItemType = item.itemTypeId;
             this._currentItemIcon = null;
-            //TODO: (PP) Please fix this for both artifact and subartifact
-            // if (item.predefinedType !== ItemTypePredefined.Project) {
-            //     let artifactType = this.projectManager.getArtifactType(item as Models.IArtifact);
-            //     if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-            //         this._currentItemIcon = artifactType.iconImageId;
-            //     }
-            // }
+            if (item.predefinedType !== ItemTypePredefined.Project && !selection.subArtifact) {
+                const artifactType = item.metadata.getItemTypeTemp();
+                if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
+                    this._currentItemIcon = artifactType.iconImageId;
+                }
+            }
         } else {
             this._currentItem = null;
             this._currentItemClass = null;
@@ -122,6 +122,7 @@ export class BPUtilityPanelController {
     }
 
     private onSelectionChanged = (selection: ISelection) => {
+        this.updateItem(selection);
         if (selection && (selection.artifact || selection.subArtifact)) {
             this.toggleHistoryPanel(selection);
             this.togglePropertiesPanel(selection);
@@ -129,6 +130,7 @@ export class BPUtilityPanelController {
             this.toggleRelationshipsPanel(selection);
             this.toggleDiscussionsPanel(selection);
         }
+        this.setAnyPanelIsVisible();
     }
 
     private toggleDiscussionsPanel(selection: ISelection) {
@@ -136,6 +138,8 @@ export class BPUtilityPanelController {
         if (artifact && (artifact.predefinedType === ItemTypePredefined.CollectionFolder
             || artifact.predefinedType === ItemTypePredefined.ArtifactCollection)) {
                 this.hidePanel(PanelType.Discussions);
+            } else {
+                this.showPanel(PanelType.Discussions);
             }
     }
 
@@ -165,8 +169,6 @@ export class BPUtilityPanelController {
             || artifact.predefinedType === ItemTypePredefined.UseCase
             || artifact.predefinedType === ItemTypePredefined.UIMockup
             || artifact.predefinedType === ItemTypePredefined.Process
-            || artifact.predefinedType === ItemTypePredefined.CollectionFolder
-            || artifact.predefinedType === ItemTypePredefined.ArtifactCollection
             || (artifact.predefinedType === ItemTypePredefined.Actor &&
             explorerArtifact &&
             explorerArtifact.predefinedType === ItemTypePredefined.UseCaseDiagram))) {
@@ -200,6 +202,13 @@ export class BPUtilityPanelController {
             this.hidePanel(PanelType.Relationships);
         } else {
             this.showPanel(PanelType.Relationships);
+        }
+    }
+
+    private setAnyPanelIsVisible() {
+        const accordionCtrl: IBpAccordionController = this.getAccordionController();
+        if (accordionCtrl) {
+            this._isAnyPanelVisible = accordionCtrl.panels.filter((p) => { return p.isVisible === true; }).length > 0;
         }
     }
 }

@@ -14,8 +14,6 @@ import {Button} from "../buttons/button";
 import {DeleteShapeButton} from "../buttons/delete-shape-button";
 import {Label, LabelStyle} from "../labels/label";
 import {SystemDecision} from "./";
-import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
-import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 import {ProcessEvents} from "../../../process-diagram-communication";
 
 export class UserStoryProperties implements IUserStoryProperties {
@@ -41,9 +39,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private previewButton: Button;
     private linkButton: Button;
     private rootScope: any;
-    private dialogManager: IModalDialogCommunication;
-    private processDiagramManager: IProcessDiagramCommunication;
-
+    
     // #UNUSED
     // private _userStoryId: number;
 
@@ -72,7 +68,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         return userTask;
     }
 
-    public initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
+    private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
 
         //Delete Shape
         const clickAction = () => {
@@ -90,11 +86,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         if (nodeFactorySettings && nodeFactorySettings.isCommentsButtonEnabled) {
             // #TODO integrate with utility panel in Nova
             // this.commentsButton.setClickAction(() => this.openPropertiesDialog(this.rootScope, Shell.UtilityTab.discussions));
-        } else {
-            this.commentsButton.setClickAction(() => {
-                //fixme: empty blocks should be removed
-            });
-        }
+        } 
 
         this.commentsButton.setTooltip(this.rootScope.config.labels["ST_Comments_Label"]);
         this.commentsButton.setActiveImage(this.getImageSource("/comments-active.svg"));
@@ -112,10 +104,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         if (nodeFactorySettings && nodeFactorySettings.isLinkButtonEnabled) {
             this.linkButton.setClickAction(() => this.navigateToProcess());
-        } else {
-            this.linkButton.setClickAction(() => {
-                //fixme: empty blocks should be removed
-            });
         }
 
         this.linkButton.setTooltip(this.rootScope.config.labels["ST_Userstory_Label"]);
@@ -135,10 +123,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         if (nodeFactorySettings && nodeFactorySettings.isPreviewButtonEnabled) {
             this.previewButton.setClickAction(() => this.openDialog(ModalDialogType.PreviewDialogType));
-        } else {
-            this.previewButton.setClickAction(() => {
-                //fixme: empty blocks should be removed
-            });
         }
 
         this.previewButton.setTooltip(this.rootScope.config.labels["ST_Userstory_Label"]);
@@ -155,11 +139,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("adddetails-neutral.svg"));
 
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
-            this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemTaskDetailsDialogType));
-        } else {
-            this.detailsButton.setClickAction(() => {
-                //fixme: empty blocks should be removed
-            });
+            this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserTaskDetailsDialogType));
         }
 
         this.detailsButton.setTooltip(this.rootScope.config.labels["ST_Settings_Label"]);
@@ -187,9 +167,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             if (this.personaLabel) {
                 this.personaLabel.text = value;
                 this.shapesFactoryService.setUserTaskPersona(value);
-            }
-
-            this.notify(NodeChange.Update, false);
+            } 
         }
     }
 
@@ -198,10 +176,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public set description(value: string) {
-        const valueChanged = this.setPropertyValue("description", value);
-        if (valueChanged) {
-            this.notify(NodeChange.Update, false);
-        }
+       this.setPropertyValue("description", value);
     }
 
     public get objective(): string {
@@ -209,10 +184,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public set objective(value: string) {
-        const valueChanged = this.setPropertyValue("itemLabel", value);
-        if (valueChanged) {
-            this.notify(NodeChange.Update);
-        }
+       this.setPropertyValue("itemLabel", value);
     }
 
     public get associatedArtifact(): any {
@@ -221,8 +193,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
     public set associatedArtifact(value: any) {
         if (this.model != null && this.model.associatedArtifact !== value) {
-            this.model.associatedArtifact = value;
-            this.notify(NodeChange.Update);
+            this.model.associatedArtifact = value;           
+            // TODO: create associatedArtifact predefined type and update it in the special properties of the stateful artifact.
+            //this.updateStatefulPropertyValue(<property type predefined>, value);
             if (!value || value === null) {
                 this.linkButton.disable();
             } else {

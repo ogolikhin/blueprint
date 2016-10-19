@@ -1,10 +1,12 @@
 ﻿import {IProcessGraph, IDiagramNode} from "../models/";
 import {IDiagramElement, IMenuContainer} from "../models/";
-import {IProcessLinkModel} from "../../../../../models/process-models";
+import {IProcessLinkModel, PropertyTypePredefined, IPropertyValueInformation} from "../../../../../models/process-models";
+import {ArtifactUpdateType} from "../../../../../models/enums";
 import {NodeType, NodeChange, ElementType} from "../models/";
 import {Label, LabelStyle} from "../labels/label";
 import {DiagramElement} from "./diagram-element";
 import {Connector, ConnectorOverlay} from "./connector";
+import {ProcessEvents} from "../../../process-diagram-communication";
 
 
 export interface IDiagramLink extends IDiagramElement, IMenuContainer {
@@ -40,6 +42,7 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
     }
 
     public initializeLabel(graph: IProcessGraph, sourceNode: IDiagramNode, targetNode: IDiagramNode) {
+        this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;
         if (sourceNode.getNodeType() === NodeType.SystemDecision || sourceNode.getNodeType() === NodeType.UserDecision) {
 
             let XandY = this.getXandYForLabel(sourceNode, targetNode);
@@ -107,11 +110,10 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
             if (this.textLabel) {
                 this.textLabel.text = value;
             }
-
-            this.notify(NodeChange.Update, true);
+            this.processDiagramManager.action(ProcessEvents.ArtifactUpdate);
         }
     }
-
+    
     public get sourceNode(): IDiagramNode {
         if (this.source != null && this.source.getNode) {
             return this.source.getNode();

@@ -77,11 +77,8 @@ export class ManageTracesDialogController extends BaseDialogController {
 
                 item.isSelected = false;
 
-                if (item.hasAccess) {
-                    return item;
-                }
-
-            }).filter((item) => item)) as Relationships.IRelationshipView[];
+                return item;
+            }));
 
             this.artifactId = this.data.artifactId;
             this.isItemReadOnly = this.data.isItemReadOnly;
@@ -115,11 +112,10 @@ export class ManageTracesDialogController extends BaseDialogController {
             if (!res) {
                 currentItemModel.traceType = Relationships.LinkType.Manual;
                 currentItemModel.artifactName = currentItemModel.name || currentItemModel.displayName;
-                currentItemModel.itemName = currentItemModel.name || currentItemModel.displayName;
+                currentItemModel.itemName = currentItemModel.name || currentItemModel.displayName || currentItemModel.itemLabel;
                 currentItemModel.itemTypePrefix = currentItemModel.prefix;
                 currentItemModel.traceDirection = this.direction;
-                currentItemModel.projectName = currentItemModel.parent ? currentItemModel.parent.name :
-                    currentItem["options"].project.name;
+                currentItemModel.projectName = currentItem["options"] && currentItem["options"].project;
                 currentItemModel.hasAccess = true;
                 currentItemModel.suspect = false;
                 currentItemModel.cssClass = cssClass;
@@ -214,6 +210,13 @@ export class ManageTracesDialogController extends BaseDialogController {
                 found = true;
             }
         });
+
+        if (_.find(this.selectedVMs, (o) => {
+            return o.model.id === this.data.artifactId;
+
+        })) {
+            found = true;
+        }
 
         this.isTraceDisabled = found ? true : false;
     }

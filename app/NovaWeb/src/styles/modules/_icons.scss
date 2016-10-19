@@ -230,6 +230,17 @@ $icon-collection: '\e803';
     content: $icon-subartifact;
 }
 
+// ''
+.icon-artifact-collection:before {
+    font-family: "bp-font2";
+    content: $fonticon2-collection;
+}
+
+// ''
+.icon-collection-folder:before {
+    content: $icon-folder;
+}
+
 /* '' */
 
 .thumb {

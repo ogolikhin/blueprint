@@ -9,12 +9,17 @@
 }
     from "./models/process-models";
 
-import {StatefulArtifact, IStatefulArtifact} from "../../managers/artifact-manager/artifact";
-import {Models} from "../../main/models";
-import {IStatefulProcessArtifactServices} from "../../managers/artifact-manager/services";
-import {StatefulProcessSubArtifact} from "./process-subartifact";
+import { StatefulArtifact, IStatefulArtifact } from "../../managers/artifact-manager/artifact";
+//import { ChangeTypeEnum, IChangeSet } from "../../managers/artifact-manager/changeset";
+import { Models } from "../../main/models";
+import { IStatefulProcessArtifactServices } from "../../managers/artifact-manager/services";
+import { StatefulProcessSubArtifact } from "./process-subartifact";
 
-export class StatefulProcessArtifact extends StatefulArtifact implements IStatefulArtifact, IProcess {
+export interface IStatefulProcessArtifact extends  IStatefulArtifact {
+    processOnUpdate();
+}
+
+export class StatefulProcessArtifact extends StatefulArtifact implements IStatefulProcessArtifact, IProcess {
 
     // private finalLoadPromise: ng.IPromise<IStatefulArtifact>;
     private loadProcessPromise: ng.IPromise<IStatefulArtifact>;
@@ -28,6 +33,12 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
 
     constructor(artifact: Models.IArtifact, protected services: IStatefulProcessArtifactServices) {
         super(artifact, services);
+    }
+    
+
+    public processOnUpdate() {
+        this.artifactState.dirty = true;        
+        this.lock(); 
     }
 
     public get baseItemTypePredefined(): ItemTypePredefined {
@@ -89,12 +100,13 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     }
 
     private initializeSubArtifacts(newProcess: IProcess) {
-
-        let statefulSubArtifacts: StatefulProcessSubArtifact[] = newProcess.shapes.map((shape: IProcessShape) => {
-            return new StatefulProcessSubArtifact(this, shape, this.services);
-        });
-
-        this.shapes = newProcess.shapes;
+        const statefulSubArtifacts = [];
+        this.shapes = [];
+        for (const shape of newProcess.shapes) {
+            const statefulShape = new StatefulProcessSubArtifact(this, shape, this.services);
+            this.shapes.push(statefulShape);
+            statefulSubArtifacts.push(statefulShape);
+        }
         this.subArtifactCollection.initialise(statefulSubArtifacts);
     }
 }

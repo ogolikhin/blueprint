@@ -63,8 +63,7 @@ describe("SystemTask", () => {
     it("Test SystemTask class", () => {
         // Arrange
         let processModel = new ProcessModel();
-        let viewModel = new ProcessViewModel(processModel);
-        viewModel.communicationManager = communicationManager;
+        let viewModel = new ProcessViewModel(processModel, communicationManager);
         viewModel.isReadonly = false;
 
         // Act
@@ -73,8 +72,6 @@ describe("SystemTask", () => {
         let node = new SystemTask(ShapeModelMock.instance().SystemTaskMock(), rootScope, "", null, shapesFactory);
         node.render(graph, 80, 120, false);
         node.renderLabels();
-
-        spyOn(SystemTask.prototype, "notify").and.callThrough();
 
         node.label = "test label";
         node.persona = "test persona";
@@ -91,7 +88,6 @@ describe("SystemTask", () => {
         expect(node.associatedImageUrl).toEqual("test.jpg");
         expect(node.imageId).toEqual("2");
         expect(node.associatedArtifact).toEqual(testArtifactReferenceLink2);
-        expect(SystemTask.prototype.notify).toHaveBeenCalledWith(NodeChange.Update);
     });
 
     describe("Test text elements", () => {
@@ -241,8 +237,7 @@ describe("SystemTask", () => {
             testModel.links.push(new ProcessLinkModel(null, 22, 33));
             testModel.links.push(new ProcessLinkModel(null, 33, 44));
             testModel.links.push(new ProcessLinkModel(null, 44, 55));
-            processModel = new ProcessViewModel(testModel);
-            processModel.communicationManager = communicationManager;
+            processModel = new ProcessViewModel(testModel, communicationManager);
 
             graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 

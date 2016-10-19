@@ -94,14 +94,17 @@ export class Label implements ILabel {
     //private shortContent: string;
     private visibility: string;
     private executionEnvironmentDetector: any;
+    private beforeEditText: string;
 
     public get text() {
         return this._text;
     }
 
     public set text(value) {
-        this._text = value;
-        this.setShortText();
+        if (this._text !== value) {
+            this._text = value;
+            this.setShortText();
+        }
     }
 
     public setVisible(value: boolean) {
@@ -131,7 +134,7 @@ export class Label implements ILabel {
         if (!_text) {
             this._text = "";
         }
-
+        this.beforeEditText = "";
         // This is temporary code. It will be replaced with
         // a class that wraps this global functionality.
         let w: any = window;
@@ -146,6 +149,12 @@ export class Label implements ILabel {
         e.stopPropagation();
         this.cancelDefaultAction(e);
     }
+    private undo() {
+        this._text = this.beforeEditText;
+        this.callback(this.beforeEditText);
+        this.setViewMode();
+    }
+
 
     private onKeyDown = (e) => {
         if (e.keyCode === action.ENTER) {
@@ -168,8 +177,25 @@ export class Label implements ILabel {
             this.cancelDefaultAction(e);
             return false;
         }
+        this.callbackIfTextChanged();
     }
-
+    private callbackIfTextChanged() {
+        const innerText = this.div.innerText.replace(/\n/g, "");
+        if (this.isTextChanged(innerText)) {
+            this._text = innerText;
+            this.callback(innerText);
+        }
+    }
+    private isTextChanged(newText: string): boolean {
+        return this._text !== newText;
+        
+    }
+    private onDelete = (e) => {
+        this.callbackIfTextChanged();
+    }
+    private onCut = (e) => {
+        this.callbackIfTextChanged();
+    }
     private onPaste = (e) => {
         let win: any = window;
         let text: string;
@@ -184,10 +210,11 @@ export class Label implements ILabel {
         tmpStr = tmpStr.replace(/\r\n/g, " ").replace(/\r/g, " ").replace(/\n/g, " ");
 
         if (tmpStr.length <= this.maxTextLength) {
-            this.div.innerText = tmpStr;
+            this.div.innerText = tmpStr;            
         } else {
             this.div.innerText = tmpStr.substring(0, this.maxTextLength - 1);
         }
+        this.callbackIfTextChanged();
         this.cancelDefaultAction(e);
     }
 
@@ -213,12 +240,6 @@ export class Label implements ILabel {
         return value;
     }
 
-    private undo() {
-        //window.console.log("undo() ");
-
-        this.setViewMode();
-    }
-
     private setEditMode() {
         this.div.removeEventListener("blur", this.onBlur, true);
 
@@ -231,6 +252,7 @@ export class Label implements ILabel {
         this.wrapperDiv.style.pointerEvents = "auto";
         //window.console.log("setEditMode this.mode = " + this.mode);
         this.selectText();
+        this.beforeEditText = this._text;
 
         setTimeout(this.addDeferedListener, 300, this.div);
     }
@@ -336,10 +358,11 @@ export class Label implements ILabel {
 
             angular.element(this.div).on("keydown", (e) => this.onKeyDown(e));
             angular.element(this.div).on("paste", (e) => this.onPaste(e));
+            angular.element(this.div).on("delete", (e) => this.onDelete(e));
+            angular.element(this.div).on("cut", (e) => this.onCut(e));
             angular.element(this.div).on("dispose", () => this.onDispose());
         }
     }
-
     public onDispose = () => {
         if (this.div) {
             if (!this.isReadOnly) {

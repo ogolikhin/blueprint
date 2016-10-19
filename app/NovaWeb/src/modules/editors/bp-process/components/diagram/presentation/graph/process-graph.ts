@@ -26,6 +26,8 @@ import {ProcessGraphSelectionHelper} from "./process-graph-selection";
 import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-manager";
 import {ISelectionListener} from "./models/";
 import {ProcessEvents} from "../../process-diagram-communication";
+import {IDragDropHandler, DragDropHandler} from "./drag-drop-handler";
+
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
     public startNode: IDiagramNode;
@@ -43,6 +45,7 @@ export class ProcessGraph implements IProcessGraph {
     private popupMenu: NodePopupMenu = null;
     public globalScope: IScopeContext;
     private shapesFactory: ShapesFactory;
+    public dragDropHandler: IDragDropHandler;
 
     public static get MinConditions(): number {
         return 2;
@@ -104,8 +107,7 @@ export class ProcessGraph implements IProcessGraph {
         this.applyReadOnlyStyles();
         this.initializePopupMenu();
         if (!this.viewModel.isReadonly) {
-            // #TODO: fix up these references later
-            // this.dragDropHandler = new DragDropHandler(this);
+            this.dragDropHandler = new DragDropHandler(this);
             this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         }
         this.initializeGlobalScope();
@@ -362,11 +364,10 @@ export class ProcessGraph implements IProcessGraph {
         while (this.htmlElement.hasChildNodes()) {
             this.htmlElement.removeChild(this.htmlElement.firstChild);
         }
-        // #TODO: fix up these references later
         // Dispose handlers
-        //if (this.dragDropHandler != null) {
-        //    this.dragDropHandler.dispose();
-        //}
+        if (this.dragDropHandler != null) {
+           this.dragDropHandler.dispose();
+        }
         if (this.nodeLabelEditor != null) {
             this.nodeLabelEditor.dispose();
         }

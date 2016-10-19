@@ -290,6 +290,8 @@ namespace Model.ArtifactModel.Impl
         #endregion Serialized JSON Properties
     }
 
+    // TODO: This file is getting way too big. We should move all other classes into their own files
+
     /// <summary>
     /// This class is returned by Nova calls such as: Discard, Publish...
     /// </summary>

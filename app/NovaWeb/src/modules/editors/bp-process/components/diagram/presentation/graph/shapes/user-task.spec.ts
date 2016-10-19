@@ -70,8 +70,7 @@ describe("UserTask test", () => {
 
 
         let processModel = new ProcessModel();
-        viewModel = new ProcessViewModel(processModel);
-        viewModel.communicationManager = communicationManager;
+        viewModel = new ProcessViewModel(processModel, communicationManager);
         viewModel.isReadonly = false;
     }));
 
@@ -315,7 +314,7 @@ describe("UserTask test", () => {
             let testUserTask = ShapeModelMock.instance().UserTaskMock();
 
             let node = new UserTask(testUserTask, rootScope, null, shapesFactory);
-
+            
             let editNode = new DiagramNodeElement("H1", ElementType.UserTaskHeader, "", new mxGeometry(), "");
 
             let testLabelText = "test label";
@@ -378,8 +377,7 @@ describe("UserTask test", () => {
             testModel.links.push(new ProcessLinkModel(null, 22, 33));
             testModel.links.push(new ProcessLinkModel(null, 33, 44));
             testModel.links.push(new ProcessLinkModel(null, 44, 55));
-            processModel = new ProcessViewModel(testModel);
-            processModel.communicationManager = communicationManager;
+            processModel = new ProcessViewModel(testModel, communicationManager);
 
             graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
@@ -417,8 +415,7 @@ describe("UserTask test", () => {
              */
 
             let testModel = createSystemDecisionForAddBranchTestModel();
-            let processModel = new ProcessViewModel(testModel);
-            processModel.communicationManager = communicationManager;
+            let processModel = new ProcessViewModel(testModel, communicationManager);
             processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, msgService);
 
         });

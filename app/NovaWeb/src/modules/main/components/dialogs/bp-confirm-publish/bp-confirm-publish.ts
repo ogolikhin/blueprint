@@ -50,8 +50,6 @@ export class ConfirmPublishController extends BaseDialogController implements IC
             this._sortedList.push(item);
         });
         this._sortedList.sort(this.sortList);
-
-        //console.log("constructing ConfirmPublishController");
     }
 
     public get hasError(): boolean {

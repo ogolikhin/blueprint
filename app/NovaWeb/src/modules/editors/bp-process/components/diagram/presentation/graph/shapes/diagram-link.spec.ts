@@ -1,15 +1,20 @@
 import * as angular from "angular";
-import {ProcessViewModel} from "../../../viewmodel/process-viewmodel";
-import {ProcessGraph} from "../process-graph";
-import {DiagramLink} from "./";
-import {IDiagramNode} from "../models/";
-import {Connector} from "./connector";
-import {Label} from "../labels/label";
-import {createUserDecisionWithoutUserTaskInFirstConditionModel} from "../../../../../models/test-model-factory";
-import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process";
-import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
-import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
-import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
+import { ProcessViewModel } from "../../../viewmodel/process-viewmodel";
+import { ProcessGraph } from "../process-graph";
+import { DiagramLink } from "./";
+import { IDiagramNode } from "../models/";
+import { Connector } from "./connector";
+import { Label } from "../labels/label";
+import { createUserDecisionWithoutUserTaskInFirstConditionModel } from "../../../../../models/test-model-factory";
+import { ICommunicationManager, CommunicationManager } from "../../../../../../bp-process";
+import { LocalizationServiceMock } from "../../../../../../../core/localization/localization.mock";
+import { DialogService } from "../../../../../../../shared/widgets/bp-dialog";
+import { ModalServiceMock } from "../../../../../../../shell/login/mocks.spec";
+import { IStatefulArtifactFactory } from "../../../../../../../managers/artifact-manager/";
+import { StatefulArtifactFactoryMock, IStatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import { ArtifactServiceMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import { StatefulProcessArtifact } from "../../../../../process-artifact";
+import { Models } from "../../../../../../../main/models/";
 
 describe("DiagramLink unit tests", () => {
     let rootScope;
@@ -17,24 +22,29 @@ describe("DiagramLink unit tests", () => {
     let container: HTMLElement;
     let communicationManager: ICommunicationManager,
         dialogService: DialogService,
-        localization: LocalizationServiceMock;
+        localization: LocalizationServiceMock,
+        statefulArtifactFactory: IStatefulArtifactFactoryMock;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("communicationManager", CommunicationManager);
         $provide.service("$uibModal", ModalServiceMock);
         $provide.service("dialogService", DialogService);
         $provide.service("localization", LocalizationServiceMock);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
     beforeEach(inject((_$window_: ng.IWindowService,
-                       $rootScope: ng.IRootScopeService,
-                       _communicationManager_: ICommunicationManager,
-                       _dialogService_: DialogService,
-                       _localization_: LocalizationServiceMock) => {
+        $rootScope: ng.IRootScopeService,
+        _communicationManager_: ICommunicationManager,
+        _dialogService_: DialogService,
+        _localization_: LocalizationServiceMock,
+        _statefulArtifactFactory_: IStatefulArtifactFactoryMock) => {
 
         communicationManager = _communicationManager_;
         dialogService = _dialogService_;
         localization = _localization_;
+        statefulArtifactFactory = _statefulArtifactFactory_;
+
         let wrapper = document.createElement("DIV");
         container = document.createElement("DIV");
         wrapper.appendChild(container);
@@ -54,7 +64,7 @@ describe("DiagramLink unit tests", () => {
         };
 
         rootScope = $rootScope;
-        localScope = {graphContainer: container, graphWrapper: wrapper, isSpa: false};
+        localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
     }));
     describe("Label locations", () => {
 
@@ -98,7 +108,7 @@ describe("DiagramLink unit tests", () => {
 
             let udNode: IDiagramNode = processGraph.layout.getNodeById(ud.toString());
 
-            let firstLink: DiagramLink = <DiagramLink> udNode.getOutgoingLinks(processGraph.getMxGraphModel())[0];
+            let firstLink: DiagramLink = <DiagramLink>udNode.getOutgoingLinks(processGraph.getMxGraphModel())[0];
 
             let nextNode: IDiagramNode = processGraph.layout.getNodeById(firstLink.targetNode.model.id.toString());
 
@@ -113,5 +123,57 @@ describe("DiagramLink unit tests", () => {
         });
     });
 
+    describe("Label modification", () => {
+        it("statefulArtifact's lock, should have been called", () => {
+            let userDecisionWidth = 120;
+            let ud = 40;
+            let testModel = createUserDecisionWithoutUserTaskInFirstConditionModel("Condition1", "Condition2");
+            let artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
+            artifact.predefinedType = Models.ItemTypePredefined.Process;
+            let statefulArtifact = statefulArtifactFactory.createStatefulArtifact(artifact);
+            statefulArtifactFactory.populateStatefulProcessWithPorcessModel(<StatefulProcessArtifact>statefulArtifact, testModel);
+            let processModel = new ProcessViewModel(statefulArtifact, communicationManager);
+
+            let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            processGraph.layout.render(true, null);
+
+            let udNode: IDiagramNode = processGraph.layout.getNodeById(ud.toString());
+            let firstLink: DiagramLink = <DiagramLink>udNode.getOutgoingLinks(processGraph.getMxGraphModel())[0];
+            let spy = spyOn(statefulArtifact, "lock");
+            spyOn(statefulArtifact, "refresh")();
+
+            // act
+            firstLink.label = "Testing 123";
+
+            // arrange
+            expect(spy).toHaveBeenCalled();
+        });
+        it("statefulArtifact's lock, artifact state is dirty", () => {
+            let userDecisionWidth = 120;
+            let ud = 40;
+            let testModel = createUserDecisionWithoutUserTaskInFirstConditionModel("Condition1", "Condition2");
+            let artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
+            artifact.predefinedType = Models.ItemTypePredefined.Process;
+            let statefulArtifact = statefulArtifactFactory.createStatefulArtifact(artifact);
+            statefulArtifactFactory.populateStatefulProcessWithPorcessModel(<StatefulProcessArtifact>statefulArtifact, testModel);
+            let processModel = new ProcessViewModel(statefulArtifact, communicationManager);
+
+            let processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+
+            // act
+            processGraph.layout.render(true, null);
+
+            let udNode: IDiagramNode = processGraph.layout.getNodeById(ud.toString());
+            let firstLink: DiagramLink = <DiagramLink>udNode.getOutgoingLinks(processGraph.getMxGraphModel())[0];
+            let spy = spyOn(statefulArtifact, "lock");
+            spyOn(statefulArtifact, "refresh")();
+
+            // act
+            firstLink.label = "Testing 123";
+
+            // arrange
+            expect(statefulArtifact.artifactState.dirty).toBeTruthy();
+        });
+    });
 
 });

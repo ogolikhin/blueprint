@@ -112,11 +112,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         if (nodeFactorySettings && nodeFactorySettings.isCommentsButtonEnabled) {
             // #TODO interaction with utility panel is different in Nova
             //this.commentsButton.setClickAction(() => this.openPropertiesDialog(this.rootScope, Shell.UtilityTab.discussions));
-        } else {
-            this.commentsButton.setClickAction(() => {
-                //fixme: empty blocks should be removed
-            });
-        }
+        } 
 
         this.commentsButton.setTooltip(this.getLocalizedLabel("ST_Comments_Label"));
 
@@ -137,11 +133,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
 
         if (nodeFactorySettings && nodeFactorySettings.isLinkButtonEnabled) {
             this.linkButton.setClickAction(() => this.navigateToProcess());
-        } else {
-            this.linkButton.setClickAction(() => {
-                //fixme: empty blocks should be removed
-            });
-        }
+        } 
 
         this.linkButton.setTooltip(this.getLocalizedLabel("ST_Userstory_Label"));
         this.linkButton.setDisabledImage(this.getImageSource("include-inactive.svg"));
@@ -159,13 +151,8 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         this.mockupButton = new Button(`MB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("mockup-neutral.svg"));
 
         if (nodeFactorySettings && nodeFactorySettings.isMockupButtonEnabled) {
-            this.mockupButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemTaskDetailsDialogType));
-        } else {
-            this.mockupButton.setClickAction(() => {
-                //fixme: empty blocks should be removed
-
-            });
-        }
+            this.mockupButton.setClickAction(() => this.openDialog(ModalDialogType.SystemTaskDetailsDialogType));
+        } 
 
         this.mockupButton.setTooltip(this.getLocalizedLabel("ST_Mockup_Label"));
         this.mockupButton.setActiveImage(this.getImageSource("mockup-active.svg"));
@@ -180,12 +167,8 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("adddetails-neutral.svg"));
 
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
-            this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemTaskDetailsDialogType));
-        } else {
-            this.detailsButton.setClickAction(() => {
-                //fixme: empty blocks should be removed
-            });
-        }
+            this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.SystemTaskDetailsDialogType));
+        } 
 
         this.detailsButton.setTooltip(this.getLocalizedLabel("ST_Settings_Label"));
         this.detailsButton.setHoverImage(this.getImageSource("adddetails-hover.svg"));
@@ -210,9 +193,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
 
         if (valueChanged) {
             if (this.personaLabel) {
-                if (this.personaLabel.text !== value) {
-                    this.personaLabel.text = value;
-                }
+                this.personaLabel.text = value;
                 this.shapesFactory.setSystemTaskPersona(value);
             }
         }

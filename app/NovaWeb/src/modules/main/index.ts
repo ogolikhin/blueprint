@@ -14,7 +14,6 @@ import "../shared";
 import "../managers";
 import "./services/";
 import "./components";
-import "./router";
 import "./services";
 import "./view";
 import {formlyConfig} from "../editors/";
@@ -23,7 +22,6 @@ config.$inject = ["$rootScope", "$state"];
 
 declare var VERSION: string; //Usages replaced by webpack.DefinePlugin
 declare var BUILD_YEAR: string;
-
 
 export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateService) {
     $rootScope["config"] = window["config"] || {settings: {}, labels: {}};
@@ -36,7 +34,6 @@ export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateSer
     }
 
     tinymce.baseURL = "../novaweb/libs/tinymce";
-
 }
 
 if (agGridEnterprise["LicenseManager"] && angular.isFunction(agGridEnterprise["LicenseManager"].setLicenseKey)) {
@@ -58,7 +55,6 @@ angular.module("app.main", [
     "bp.managers",
     "bp.editors",
     "bp.components",
-    "bp.router",
     "bp.main.services",
     "bp.main.view"
 ])

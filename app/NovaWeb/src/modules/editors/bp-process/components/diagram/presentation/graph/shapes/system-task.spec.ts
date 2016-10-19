@@ -1,28 +1,32 @@
 ﻿import * as angular from "angular";
-import {ShapesFactory} from "./shapes-factory";
-import {ProcessGraph} from "../process-graph";
-import {ArtifactReferenceLinkMock, ShapeModelMock} from "./shape-model.mock";
-import {ProcessModel, ProcessShapeModel, ProcessLinkModel} from "../../../../../models/process-models";
-import {ProcessShapeType, ProcessType} from "../../../../../models/enums";
-import {ProcessViewModel, IProcessViewModel} from "../../../viewmodel/process-viewmodel";
-import {SystemTask, DiagramNodeElement} from "./";
-import {NodeChange, NodeType, ElementType} from "../models/";
-import {ISystemTask} from "../models/";
-import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process";
-import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
-import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
-import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
-import {IStatefulArtifactFactory} from "../../../../../../../managers/artifact-manager/";
-import {StatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import { ShapesFactory } from "./shapes-factory";
+import { ProcessGraph } from "../process-graph";
+import { ArtifactReferenceLinkMock, ShapeModelMock } from "./shape-model.mock";
+import { ProcessModel, ProcessShapeModel, ProcessLinkModel, PropertyTypePredefined } from "../../../../../models/process-models";
+import { ProcessShapeType, ProcessType } from "../../../../../models/enums";
+import { ProcessViewModel, IProcessViewModel } from "../../../viewmodel/process-viewmodel";
+import { SystemTask, DiagramNodeElement } from "./";
+import { NodeChange, NodeType, ElementType } from "../models/";
+import { ISystemTask, ISystemTaskShape } from "../models/";
+import { ICommunicationManager, CommunicationManager } from "../../../../../../bp-process";
+import { LocalizationServiceMock } from "../../../../../../../core/localization/localization.mock";
+import { DialogService } from "../../../../../../../shared/widgets/bp-dialog";
+import { ModalServiceMock } from "../../../../../../../shell/login/mocks.spec";
+import { IStatefulArtifact } from "../../../../../../../managers/artifact-manager/";
+import { StatefulArtifactFactoryMock, IStatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import { StatefulProcessSubArtifact } from "../../../../../process-subartifact";
+import { StatefulProcessArtifact } from "../../../../../process-artifact";
+import { Models } from "../../../../../../../main/models/";
+import { ArtifactServiceMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
 
 describe("SystemTask", () => {
-
+    let statefulArtifactFactory: IStatefulArtifactFactoryMock;
     let LABEL_EDIT_MAXLENGTH = 35;
     let LABEL_VIEW_MAXLENGTH = 35;
     let PERSONA_EDIT_MAXLENGTH = 40;
     let PERSONA_VIEW_MAXLENGTH = 12;
     let shapesFactory: ShapesFactory;
-    let localScope, rootScope, wrapper, container;
+    let localScope, rootScope: ng.IRootScopeService, wrapper, container;
     let communicationManager: ICommunicationManager,
         dialogService: DialogService,
         localization: LocalizationServiceMock;
@@ -38,16 +42,18 @@ describe("SystemTask", () => {
     }));
 
     beforeEach(inject((_$window_: ng.IWindowService,
-                       $rootScope: ng.IRootScopeService,
-                       _communicationManager_: ICommunicationManager,
-                       _dialogService_: DialogService,
-                       _localization_: LocalizationServiceMock,
-                       statefulArtifactFactory: IStatefulArtifactFactory) => {
+        $rootScope: ng.IRootScopeService,
+        _communicationManager_: ICommunicationManager,
+        _dialogService_: DialogService,
+        _localization_: LocalizationServiceMock,
+        _statefulArtifactFactory_: IStatefulArtifactFactoryMock) => {
 
         rootScope = $rootScope;
         communicationManager = _communicationManager_;
         dialogService = _dialogService_;
         localization = _localization_;
+        statefulArtifactFactory = _statefulArtifactFactory_;
+
         wrapper = document.createElement("DIV");
         container = document.createElement("DIV");
         wrapper.appendChild(container);
@@ -56,7 +62,7 @@ describe("SystemTask", () => {
         $rootScope["config"] = {};
         $rootScope["config"].labels = {};
         shapesFactory = new ShapesFactory($rootScope, statefulArtifactFactory);
-        localScope = {graphContainer: container, graphWrapper: wrapper, isSpa: false};
+        localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
     }));
 
 
@@ -268,4 +274,85 @@ describe("SystemTask", () => {
         });
     });
 
+    describe("StatefulSubArtifact changes", () => {
+        let viewModel: IProcessViewModel,
+            statefulArtifact: StatefulProcessArtifact,
+            node: ISystemTask,
+            graph: ProcessGraph,
+            statefulSubArtifact: StatefulProcessSubArtifact;
+        beforeEach(() => {
+            // arrange
+            let processModel = new ProcessModel();
+            let mock = ShapeModelMock.instance().SystemTaskMock();
+            let artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
+            artifact.predefinedType = Models.ItemTypePredefined.Process;
+            processModel.shapes.push(mock);
+
+            statefulArtifact = <StatefulProcessArtifact>statefulArtifactFactory.createStatefulArtifact(artifact);
+            statefulArtifactFactory.populateStatefulProcessWithPorcessModel(statefulArtifact, processModel);
+            statefulSubArtifact = <StatefulProcessSubArtifact>statefulArtifact.subArtifactCollection.get(mock.id);
+            let peronsaPropertyValue = {
+                propertyTypeId: 0,
+                propertyTypeVersionId: null,
+                propertyTypePredefined: PropertyTypePredefined.Persona,
+                isReuseReadOnly: false,
+                value: ""
+            };
+            statefulSubArtifact.specialProperties.initialize([peronsaPropertyValue]);
+
+            node = new SystemTask(<ISystemTaskShape>statefulArtifact.shapes[0], rootScope, "", null, shapesFactory);
+
+            viewModel = new ProcessViewModel(statefulArtifact, communicationManager);
+
+            graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
+        });
+
+        it("when modifying persona - persona matches", () => {
+
+            // arrange             
+            spyOn(statefulArtifact, "refresh")();
+            spyOn(statefulArtifact, "lock")();
+
+            // act
+            node.render(graph, 80, 120, false);
+            node.renderLabels();
+
+            node.persona = "test persona";
+
+            // assert
+            expect(statefulSubArtifact.specialProperties.get(PropertyTypePredefined.Persona).value).toBe(node.persona);
+        });
+
+        it("when modifying persona - attempt lock is called", () => {
+
+            // arrange             
+            spyOn(statefulArtifact, "refresh")();
+            let lockSpy = spyOn(statefulArtifact, "lock");
+
+            // act
+            node.render(graph, 80, 120, false);
+            node.renderLabels();
+
+            node.persona = "test persona";
+
+            // assert
+            expect(lockSpy).toHaveBeenCalled();
+        });
+
+       it("when modifying persona - artifact state is dirty", () => {
+
+            // arrange             
+            spyOn(statefulArtifact, "refresh")();
+            let lockSpy = spyOn(statefulArtifact, "lock");
+
+            // act
+            node.render(graph, 80, 120, false);
+            node.renderLabels();
+
+            node.persona = "test persona";
+
+            // assert
+            expect(statefulArtifact.artifactState.dirty).toBeTruthy();
+        });
+    });
 });

@@ -63,4 +63,28 @@ export class BPManageTracesItemController implements IBPManageTracesItemControll
             this.item.suspect = !this.item.suspect;
         }
     }
+
+    private get traceIcon(): string {
+        return this.item && this.item && this.item.suspect ? "trace-icon-suspect" : "trace-icon-regular";
+    }
+
+    public get directionIcon () {
+        let icon = "fonticon2-relationship-";
+
+        switch (this.item && this.item.traceDirection) {
+            case 0:
+                icon += "right";
+                break;
+            case 1:
+                icon += "left";
+                break;
+            case 2:
+                icon += "bi";
+                break;
+            default:
+                break;
+        }
+
+        return icon;
+    }
 }

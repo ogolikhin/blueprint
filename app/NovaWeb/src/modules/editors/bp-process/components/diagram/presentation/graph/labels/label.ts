@@ -101,8 +101,10 @@ export class Label implements ILabel {
     }
 
     public set text(value) {
-        this._text = value;
-        this.setShortText();
+        if (this._text !== value) {
+            this._text = value;
+            this.setShortText();
+        }
     }
 
     public setVisible(value: boolean) {

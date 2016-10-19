@@ -97,7 +97,6 @@
     <Compile Include="Helpers\RemoveSecurityRelatedHeadersHttpModule.cs" />
     <Compile Include="Helpers\SerializationHelper.cs" />
     <Compile Include="Helpers\ServiceConstants.cs" />
-    <Compile Include="Helpers\SqlMapperHelper.cs" />
     <Compile Include="Helpers\StatusControllerHelper.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />
     <Compile Include="Helpers\ThrowIf.cs" />

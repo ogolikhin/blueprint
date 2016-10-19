@@ -191,9 +191,6 @@ export class Label implements ILabel {
         return this._text !== newText;
         
     }
-    private onDelete = (e) => {
-        this.callbackIfTextChanged();
-    }
     private onCut = (e) => {
         this.callbackIfTextChanged();
     }
@@ -360,7 +357,6 @@ export class Label implements ILabel {
             angular.element(this.div).on("keydown", (e) => this.onKeyDown(e));
             angular.element(this.div).on("keyup", (e) => this.onKeyUp(e));
             angular.element(this.div).on("paste", (e) => this.onPaste(e));
-            angular.element(this.div).on("delete", (e) => this.onDelete(e));
             angular.element(this.div).on("cut", (e) => this.onCut(e));
             angular.element(this.div).on("dispose", () => this.onDispose());
         }
@@ -375,7 +371,6 @@ export class Label implements ILabel {
                 angular.element(this.div).off("keydown", (e) => this.onKeyDown(e));
                 angular.element(this.div).off("keyup", (e) => this.onKeyUp(e));
                 angular.element(this.div).off("paste", (e) => this.onPaste(e));
-                angular.element(this.div).on("delete", (e) => this.onDelete(e));
                 angular.element(this.div).on("cut", (e) => this.onCut(e));
                 angular.element(this.div).off("dispose", () => this.onDispose());
             }

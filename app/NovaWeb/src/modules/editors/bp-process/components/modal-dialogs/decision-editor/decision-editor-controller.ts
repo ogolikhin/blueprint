@@ -258,6 +258,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         return !this.isReadonly;
     }
 
+    // This is a workaround to force re-rendering of the dialog
     public refreshView() {
         const element: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
 
@@ -267,8 +268,13 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
 
         const node = document.createTextNode(" ");
         element.appendChild(node);
-        setTimeout(function () {
-            node.parentNode.removeChild(node);
-        }, 20);
+
+        this.$timeout(
+            () => {
+                node.parentNode.removeChild(node);
+            }, 
+            20,
+            false
+        );
     }
 }

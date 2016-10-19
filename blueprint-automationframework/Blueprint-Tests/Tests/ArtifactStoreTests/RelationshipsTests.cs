@@ -242,16 +242,17 @@ namespace ArtifactStoreTests
 
         #region 404 Not Found Tests
 
-        [TestCase]
+        [TestCase(NONEXSITING_REVISIONID)]
+        [TestCase(10)]
         [TestRail(183563)]
         [Description("Create and publish artifact with a trace to target. Verify that GetRelationships with non-existing versionId returns 404 Not Found.")]
-        public void GetRelationships_GetRelationshipsWithNonExistingVersionId_404NotFound()
+        public void GetRelationships_GetRelationshipsWithNonExistingVersionId_404NotFound(int nonExistingVersionId)
         {
             // Setup: Create and Publish a srouce artifact
             var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
 
             // Execute: Execute GetRelationships with invalid version ID of the source artifact
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: NONEXSITING_VERSIONID), "Calling GET {0} with invalid version ID should return 404 NotFound!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS);
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: nonExistingVersionId), "Calling GET {0} with invalid version ID should return 404 NotFound!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS);
 
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
 
@@ -259,12 +260,12 @@ namespace ArtifactStoreTests
             Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.ResourceNotFound), "GetRelationships with invalid versionId should return {0} errorCode but {1} is returned", ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);
         }
 
-        [TestCase(TraceDirection.To)]
-        [TestCase(TraceDirection.From)]
-        [TestCase(TraceDirection.TwoWay)]
+        [TestCase(TraceDirection.To, NONEXSITING_REVISIONID)]
+        [TestCase(TraceDirection.From, 10)]
+        [TestCase(TraceDirection.TwoWay, 3)]
         [TestRail(183566)]
         [Description("Create and publish artifact with a trace to target. Verify that GetRelationshipsDetails with non-existing revisionId returns 404 Not Found.")]
-        public void GetRelationshipsDetails_GetRelationshipsWithNonExistingRevisionId_404NotFound(TraceDirection direction)
+        public void GetRelationshipsDetails_GetRelationshipsWithNonExistingRevisionId_404NotFound(TraceDirection direction, int nonExistingRevisionId)
         {
             // Setup: Create and Publish Two target artifacts: target artifact
             // Create and publish artifact with outgoing trace to target artifact 
@@ -289,7 +290,7 @@ namespace ArtifactStoreTests
             targetArtifact.Publish();
 
             // Execute: Execute GetRelationshipDetails with the invalid revision ID
-            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.GetRelationshipsDetails(bpServerAddress, _user, targetArtifact.Id, revisionId: NONEXSITING_REVISIONID), "Calling GET {0} with invalid revision ID should return 404 NotFound!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS);
+            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.GetRelationshipsDetails(bpServerAddress, _user, targetArtifact.Id, revisionId: nonExistingRevisionId), "Calling GET {0} with invalid revision ID should return 404 NotFound!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS);
 
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
 

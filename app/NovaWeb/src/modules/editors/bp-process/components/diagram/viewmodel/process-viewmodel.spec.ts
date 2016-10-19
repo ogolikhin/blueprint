@@ -14,6 +14,7 @@ import {
     StatefulArtifactServices,
     StatefulProcessArtifactServices
 } from "../../../../../managers/artifact-manager/services";
+import {ILoadingOverlayService, LoadingOverlayService} from "../../../../../core/loading-overlay";
 
 describe("ProcessViewModel", () => {
     let services: IStatefulProcessArtifactServices;
@@ -23,15 +24,17 @@ describe("ProcessViewModel", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("artifactService", ArtifactServiceMock);
         $provide.service("processService", ProcessServiceMock);
+        $provide.service("loadingOverlayService", LoadingOverlayService);
     }));
 
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,
                        _$q_: ng.IQService,
                        artifactService: IArtifactService,
-                       processService: IProcessService) => {
+                       processService: IProcessService,
+                       loadingOverlayService: ILoadingOverlayService) => {
         $rootScope = _$rootScope_;
         $q = _$q_;
-        let artitfactServices = new StatefulArtifactServices(_$q_, null, null, null, null, artifactService, null, null, null);
+        let artitfactServices = new StatefulArtifactServices(_$q_, null, null, null, null, artifactService, null, null, null, loadingOverlayService);
         services = new StatefulProcessArtifactServices(artitfactServices, _$q_, processService);
     }));
     it("test add stateful Shape", () => {

@@ -128,8 +128,6 @@ $modal-side-clearance: 8px;
                             padding-left: 5px;
                             overflow: hidden;
                             height: $font-size-normal;
-                            display: inline-block;
-
                             &::before {
                                 font-size: $font-size-small;
                             }
@@ -233,7 +231,7 @@ $modal-side-clearance: 8px;
                 color: $gray-light;
                 display: inline-block;
                 float: right;
-                padding: 0 15px 5px 5px;
+                padding: 0 5px 5px 5px;
 
                 .icon {
                     &:hover {

@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using RestSharp.Serializers;
 using JsonSerializer = Newtonsoft.Json.JsonSerializer;
+using Newtonsoft.Json.Serialization;
 
 namespace Utilities
 {
@@ -110,7 +111,8 @@ namespace Utilities
             public string Serialize(object obj)
             {
                 return JsonConvert.SerializeObject(obj, Formatting.None,
-                    new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore});
+                    new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore,
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()});
             }
 
             public string RootElement { get; set; }

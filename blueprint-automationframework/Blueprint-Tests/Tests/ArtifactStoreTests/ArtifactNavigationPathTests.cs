@@ -104,7 +104,7 @@ namespace ArtifactStoreTests
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
             
             // Verify:
-            Assert.IsEmpty(basicArtifactInfoList, "Project should not have a parent informatio!");
+            Assert.IsEmpty(basicArtifactInfoList, "Project should not have a parent information!");
         }
 
         //TODO Test for artifact in the root

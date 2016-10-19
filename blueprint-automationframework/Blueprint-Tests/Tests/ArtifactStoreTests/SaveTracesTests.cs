@@ -40,28 +40,31 @@ namespace ArtifactStoreTests
             Helper?.Dispose();
         }
 
-        [TestCase]
-        [TestRail(1)]
-        [Description(".")]
-        public void AddTrace_Between2PublishedArtifacts_TraceHasExpectedValue()
+        [TestCase(TraceDirection.From)]
+        [TestCase(TraceDirection.To)]
+        [TestCase(TraceDirection.TwoWay)]
+        [TestRail(183600)]
+        [Description("Create trace between 2 published artifacts, check that trace has expected direction.")]
+        public void AddTrace_Between2PublishedArtifacts_TraceHasExpectedValue(TraceDirection direction)
         {
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
             IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
 
-            Assert.DoesNotThrow(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact, traceDirection: TraceDirection.To,
-                changeType: 0, artifactStore: Helper.ArtifactStore); },
-                "...");
+            Assert.DoesNotThrow(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
+                traceDirection: direction, changeType: 0, artifactStore: Helper.ArtifactStore); },
+                "Trace creation shouldn't throw any error.");
             Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
-            Assert.AreEqual(1, relationships.ManualTraces.Count, "..");
+            Relationships targetRelationships = Helper.ArtifactStore.GetRelationships(_authorUser, targetArtifact, addDrafts: true);
+            Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
+            Assert.AreEqual(1, targetRelationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
+            Assert.AreEqual(direction, relationships.ManualTraces[0].Direction, "Trace should have expected direction.");
         }
 
         [TestCase]
-        [TestRail(10)]
-        [Description(".")]
+        [TestRail(183601)]
+        [Description("Create trace between SubArtifact and Artifact, check that trace has expected direction.")]
         public void AddTrace_SubArtifactArtifact_TraceHasExpectedValue()
         {
-            //IArtifact artifact = ArtifactFactory.CreateArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement, 12656);
-            //IArtifact targetArtifact = ArtifactFactory.CreateArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase, 115);
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase);
             IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
 
@@ -85,16 +88,17 @@ namespace ArtifactStoreTests
             artifactDetails.Traces = new List<NovaTrace>();
                         
             Assert.DoesNotThrow(() => { Artifact.UpdateArtifact(artifact, _authorUser, artifactDetails); },
-                "...");
+                "trace creation shouldn't throw any error.");
             Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, subArtifacts[0].Id,
                 addDrafts: true);
-            Assert.AreEqual(1, relationships.ManualTraces.Count, "..");
+            Assert.AreEqual(1, relationships.ManualTraces.Count, "1 manual trace should be created.");
+            Assert.AreEqual(trace.Direction, relationships.ManualTraces[0].Direction, "Trace should have expected direction.");
         }
 
         [TestCase]
-        [TestRail(2)]
-        [Description(".")]
-        public void DeleteTrace_ToManualTrace_ReturnsCorrectTraces()
+        [TestRail(183602)]
+        [Description("Delete trace from artifact with manual trace, check that trace was deleted.")]
+        public void DeleteTrace_ArtifactWithManualTrace_TraceWasDeleted()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.Actor);
@@ -108,7 +112,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact,
                 targetArtifact, changeType: 2, artifactStore: Helper.ArtifactStore, traceDirection: TraceDirection.To); },
-                "...");
+                "trace deletion shouldn't throw any error.");
             Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
 
             // Verify:
@@ -118,9 +122,9 @@ namespace ArtifactStoreTests
         [TestCase(TraceDirection.From, TraceDirection.To)]
         [TestCase(TraceDirection.TwoWay, TraceDirection.To)]
         [TestCase(TraceDirection.To, TraceDirection.TwoWay)]
-        [TestRail(3)]
-        [Description(".")]
-        public void ChangeTraceDirection_ManualTrace_ReturnsCorrectTraces(TraceDirection initialDirection,
+        [TestRail(183603)]
+        [Description("Change trace direction, check that direction was changed.")]
+        public void ChangeTraceDirection_ArtifactWithTrace_TraceHasExpecteddirection(TraceDirection initialDirection,
             TraceDirection finalDirection)
         {
             // Setup:
@@ -137,7 +141,7 @@ namespace ArtifactStoreTests
                 ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
                     changeType: 1, artifactStore: Helper.ArtifactStore, traceDirection: finalDirection);
             },
-                "...");
+                "Changing trace direction shouldn't throw any error.");
             Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
 
             // Verify:
@@ -146,8 +150,8 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [TestRail(4)]
-        [Description(".")]
+        [TestRail(1836044)]
+        [Description("Add trace between Artifact and SubArtifact, check that trace has expected direction.")]
         public void AddTrace_ArtifactSubArtifact_TraceHasExpectedValue()
         {
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
@@ -156,24 +160,92 @@ namespace ArtifactStoreTests
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_authorUser, targetArtifact.Id);
 
             artifact.Lock(_authorUser);
-            var updatedArtifactDetails = AddArtifactTraceToArtifactDetails(artifactDetails, targetArtifact, TraceDirection.From,
+            TraceDirection direction = TraceDirection.From;
+            var updatedArtifactDetails = AddArtifactTraceToArtifactDetails(artifactDetails, targetArtifact, direction,
                 0, subArtifacts[0]);
 
             Assert.DoesNotThrow(() => { Artifact.UpdateArtifact(artifact, _authorUser, updatedArtifactDetails); },
-                "...");
+                "Trace creation shouldn't throw any error.");
             Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
-            Assert.AreEqual(1, relationships.ManualTraces.Count, "..");
+            Assert.AreEqual(1, relationships.ManualTraces.Count, "relationships should have 1 manual trace.");
+            Assert.AreEqual(direction, relationships.ManualTraces[0].Direction, "Relationships should have expected direction.");
         }
 
-        
+        [TestCase]
+        [TestRail(183605)]
+        [Description("Create trace between 2 SubArtifact, Artifact and other Artifacts, check that operation throw no errors.")]
+        public void AddTrace_Between2SubArtifactsArtifactAndArtifact_TraceHasExpectedValue()
+        {
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase);
+            IArtifact targetArtifact1 = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
+            IArtifact targetArtifact2 = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
+            IArtifact targetArtifact3 = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
+
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_authorUser, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
+
+            artifact.Lock(_authorUser);
+
+            NovaTrace trace1 = new NovaTrace();
+            trace1.ProjectId = targetArtifact1.ProjectId;
+            trace1.ArtifactId = targetArtifact1.Id;
+            trace1.ChangeType = 0;
+            trace1.Direction = TraceDirection.From;
+            trace1.IsSuspect = false;
+            trace1.ItemId = targetArtifact1.Id;
+            trace1.TraceType = TraceTypes.Manual;
+
+            subArtifacts[0].Traces = new List<NovaTrace> { trace1 };
+
+            NovaTrace trace2 = new NovaTrace();
+            trace2.ProjectId = targetArtifact2.ProjectId;
+            trace2.ArtifactId = targetArtifact2.Id;
+            trace2.ChangeType = 0;
+            trace2.Direction = TraceDirection.To;
+            trace2.IsSuspect = false;
+            trace2.ItemId = targetArtifact2.Id;
+            trace2.TraceType = TraceTypes.Manual;
+
+            subArtifacts[1].Traces = new List<NovaTrace> { trace2 };
+
+            artifactDetails.SubArtifacts = subArtifacts;
+            artifactDetails.Traces = new List<NovaTrace>();
+
+            var updatedArtifactdetails = AddArtifactTraceToArtifactDetails(artifactDetails, targetArtifact3, TraceDirection.TwoWay,
+                changeType: 0);
+
+            Assert.DoesNotThrow(() => { Artifact.UpdateArtifact(artifact, _authorUser, updatedArtifactdetails); },
+                "trace creation shouldn't throw any error.");
+            Relationships subArtifact1Relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, subArtifacts[0].Id,
+                addDrafts: true);
+            Relationships subArtifact2Relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, subArtifacts[1].Id,
+                addDrafts: true);
+            Relationships subArtifact3Relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, subArtifacts[2].Id,
+                addDrafts: true);
+            Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
+            Assert.AreEqual(1, subArtifact1Relationships.ManualTraces.Count, "1 manual trace should be created.");
+            Assert.AreEqual(targetArtifact1.Id, subArtifact1Relationships.ManualTraces[0].ArtifactId,
+                "Id should have expected value.");
+            Assert.AreEqual(1, subArtifact2Relationships.ManualTraces.Count, "1 manual trace should be created.");
+            Assert.AreEqual(targetArtifact2.Id, subArtifact1Relationships.ManualTraces[1].ArtifactId,
+                "Id should have expected value.");
+            Assert.AreEqual(0, subArtifact3Relationships.ManualTraces.Count, "No manual trace should be created for the 3rd subartifact.");
+            Assert.AreEqual(1, relationships.ManualTraces.Count, "1 manual trace should be created.");
+            Assert.AreEqual(targetArtifact3.Id, relationships.ManualTraces[0].ArtifactId,
+                "Id should have expected value.");
+            //Assert.AreEqual(trace.Direction, relationships.ManualTraces[0].Direction, "Trace should have expected direction.");
+        }
+
+
         /// <summary>
-        /// ....
+        /// Updates NovaArtifactDetails with trace.
         /// </summary>
-        /// <param name="artifactDetails">.</param>
-        /// <param name="traceTarget">.</param>
-        /// <param name="traceDirection">.</param>
+        /// <param name="artifactDetails">NovaArtifactDetails to update.</param>
+        /// <param name="traceTarget">Target artifact of the trace.</param>
+        /// <param name="traceDirection">direction of the trace.</param>
         /// <param name="changeType">changeType.</param>
-        /// <param name="traceTargetSubArtifact">IArtifactStore.</param>
+        /// <param name="traceTargetSubArtifact">SubArtifact (if we need to created trace to subartifact).</param>
+        /// <returns>NovaArtifactDetails with updated list of traces. </returns>
         private static NovaArtifactDetails AddArtifactTraceToArtifactDetails(NovaArtifactDetails artifactDetails, IArtifact traceTarget,
             TraceDirection traceDirection, int changeType, INovaSubArtifact traceTargetSubArtifact = null)
         {

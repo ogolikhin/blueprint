@@ -7,8 +7,6 @@ module.exports = [
     'angular-messages',
     'angular-formly',
     'angular-formly-templates-bootstrap',
-    'angular-perfect-scrollbar-2',
-
     'bootstrap/dist/css/bootstrap.css',
     'ng-draggable',
     'ag-grid',

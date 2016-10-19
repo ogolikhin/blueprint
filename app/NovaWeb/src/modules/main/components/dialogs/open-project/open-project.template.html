@@ -18,13 +18,13 @@
             </bp-tree>
         </div>
         <div class="project-data">
-            <div>{{::$root.config.labels["App_Project_Name"]}}</div>
+            <span class="block">{{::$root.config.labels["App_Project_Name"]}}</span>
             <div class="project-name">{{$ctrl.selectedItem.name}}</div>
             <div ng-if="($ctrl.isProjectSelected)">
-                <div>{{::$root.config.labels["App_Project_Description"]}}</div>
-                <perfect-scrollbar opts="$ctrl.scrollOptions" class="project-description-wrapper">
+                <span class="block">{{::$root.config.labels["App_Project_Description"]}}</span>
+                <div class="project-description-wrapper">
                     <div class="project-description" ng-bind-html="$ctrl.selectedDescription"></div>
-                </perfect-scrollbar>
+                </div>
             </div>
         </div>
     </div>

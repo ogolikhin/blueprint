@@ -1,6 +1,6 @@
 import * as angular from "angular";
 import * as Rx from "rx";
-import 'es6-shim';
+import "es6-shim";
 
 
 import "./modules/main/";

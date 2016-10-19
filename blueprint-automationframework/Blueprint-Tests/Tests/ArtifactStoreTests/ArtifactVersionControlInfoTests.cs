@@ -905,7 +905,6 @@ namespace ArtifactStoreTests
             string expectedExceptionMessage = I18NHelper.FormatInvariant("Item (Id:{0}) is not found.", subArtifacts[0].Id);
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
                 "Expected '{0}' error when user tries to get basic information of an artifact that was removed",
-
                 expectedExceptionMessage);
         }
 

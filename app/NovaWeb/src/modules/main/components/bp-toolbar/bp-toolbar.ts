@@ -9,6 +9,7 @@ import {ConfirmPublishController, IConfirmPublishDialogData} from "../dialogs/bp
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
 import {Helper} from "../../../shared/utils/helper";
 import {ILoadingOverlayService} from "../../../core/loading-overlay";
+import {Project} from "../../../managers/project-manager/project";
 
 interface IBPToolbarController {
     execute(evt: ng.IAngularEvent): void;
@@ -54,7 +55,7 @@ class BPToolbarController implements IBPToolbarController {
         private loadingOverlayService: ILoadingOverlayService,
         private $timeout: ng.ITimeoutService, //Used for testing, remove later
         private $http: ng.IHttpService //Used for testing, remove later
-    ) { 
+    ) {
     }
 
     execute(evt: any): void {
@@ -122,11 +123,11 @@ class BPToolbarController implements IBPToolbarController {
                         if (data.artifacts.length === 0) {
                             this.messageService.addInfo("Publish_All_No_Unpublished_Changes");
                         } else {
-
+                            const selectedProject: Project = this.projectManager.getSelectedProject();
                             //confirm that the user wants to continue
                             this.dialogService.open(<IDialogSettings>{
-                                okButton: this.localization.get("App_Button_Yes"),
-                                cancelButton: this.localization.get("App_Button_No"),
+                                okButton: this.localization.get("App_Button_Publish"),
+                                cancelButton: this.localization.get("App_Button_Cancel"),
                                 message: this.localization.get("Publish_All_Dialog_Message"),
                                 template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
                                 controller: ConfirmPublishController,
@@ -134,7 +135,8 @@ class BPToolbarController implements IBPToolbarController {
                             },
                             <IConfirmPublishDialogData>{
                                 artifactList: data.artifacts,
-                                projectList: data.projects
+                                projectList: data.projects,
+                                selectedProject: selectedProject ? selectedProject.id : undefined
                             })
                             .then(() => {
                                 this.saveAndPublishAll(data);
@@ -149,7 +151,7 @@ class BPToolbarController implements IBPToolbarController {
                     throw err;
                 }
 
-                
+
                 break;
             case `refreshall`:
                 let refreshAllLoadingId = this.loadingOverlayService.beginLoading();

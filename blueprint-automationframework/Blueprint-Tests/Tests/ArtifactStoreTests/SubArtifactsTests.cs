@@ -22,14 +22,14 @@ namespace ArtifactStoreTests
 
         private List<IProject> _projects;
 
-        private int useCaseId = 11;
-        private int businessProcessDiagramId = 30;
-        private int domainDiagramId = 24;
-        private int genericDiagramId = 53;
-        private int glossaryId = 52;
-        private int storyboardId = 22;
-        private int uiMockupId = 25;
-        private int useCaseDiagramId = 21;
+        private int useCaseId = 24;
+        private int businessProcessDiagramId = 33;
+        private int domainDiagramId = 31;
+        private int genericDiagramId = 49;
+        private int glossaryId = 40;
+        private int storyboardId = 32;
+        private int uiMockupId = 22;
+        private int useCaseDiagramId = 29;
 
         [SetUp]
         public void SetUp()

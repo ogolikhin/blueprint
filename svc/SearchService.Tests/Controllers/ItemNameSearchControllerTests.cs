@@ -33,47 +33,48 @@ namespace SearchService.Controllers
         [TestMethod]
         public async Task FindArtifactName_Success()
         {
-            //Arrange            
+            // Arrange
             var searchCriteria = new ItemSearchCriteria {Query = "Test", ProjectIds = new List<int> {5} };
             var searchResult = new ItemSearchResult { PageItemCount = 1, SearchItems = new List<ItemSearchResultItem>()};
             var startOffset = 0;
             var pageSize = 20;
-            _itemSearchRepositoryMock.Setup(m => m.FindItemByName(1, searchCriteria, startOffset, pageSize)).ReturnsAsync(searchResult);
+            _itemSearchRepositoryMock.Setup(m => m.SearchName(1, searchCriteria, startOffset, pageSize)).ReturnsAsync(searchResult);
             var controller = new ItemNameSearchController(_itemSearchRepositoryMock.Object, new SearchConfiguration())
-            {                
+            {
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+            // Act
             var result = await controller.Post(searchCriteria, startOffset, pageSize);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
             var projectSearchResults = ((OkNegotiatedContentResult<ItemSearchResult>)result).Content;
-            Assert.AreEqual(0, projectSearchResults.PageItemCount);           
+            Assert.AreEqual(0, projectSearchResults.PageItemCount);
         }
 
         [TestMethod]
         public async Task FindArtifactName_Forbidden()
         {
-            //Arrange            
+            // Arrange
             var searchCriteria = new ItemSearchCriteria { Query = "Test", ProjectIds = new List<int> { 5 } };
             var searchResult = new ItemSearchResult { PageItemCount = 1, SearchItems = new List<ItemSearchResultItem>() };
             var startOffset = 0;
             var pageSize = 20;
-            _itemSearchRepositoryMock.Setup(m => m.FindItemByName(1, searchCriteria, startOffset, pageSize)).ReturnsAsync(searchResult);
+            _itemSearchRepositoryMock.Setup(m => m.SearchName(1, searchCriteria, startOffset, pageSize)).ReturnsAsync(searchResult);
             var controller = new ItemNameSearchController(_itemSearchRepositoryMock.Object, new SearchConfiguration())
             {
                 Request = new HttpRequestMessage()
             };
-            
+
+            // Act
             try
             {
                 await controller.Post(searchCriteria, startOffset, pageSize);
             }
             catch (AuthenticationException e)
             {
-                //Assert
+                // Assert
                 Assert.AreEqual(ErrorCodes.UnauthorizedAccess, e.ErrorCode);
             }
         }
@@ -81,20 +82,21 @@ namespace SearchService.Controllers
         [TestMethod]
         public async Task FindArtifactName_NullSerachCriteria_BadRequest()
         {
-            //Arrange
+            // Arrange
             var controller = new ItemNameSearchController(_itemSearchRepositoryMock.Object, new SearchConfiguration())
             {
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+
+            // Act
             try
             {
                 await controller.Post(null);
             }
             catch (BadRequestException e)
             {
-                //Assert
+                // Assert
                 Assert.AreEqual(ErrorCodes.IncorrectSearchCriteria, e.ErrorCode);
             }
         }
@@ -102,20 +104,21 @@ namespace SearchService.Controllers
         [TestMethod]
         public async Task FindArtifactName_QueryIsEmpty_BadRequest()
         {
-            //Arrange
+            // Arrange
             var controller = new ItemNameSearchController(_itemSearchRepositoryMock.Object, new SearchConfiguration())
             {
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+
+            // Act
             try
             {
                 await controller.Post(new ItemSearchCriteria { Query = "" });
             }
             catch (BadRequestException e)
             {
-                //Assert
+                // Assert
                 Assert.AreEqual(ErrorCodes.IncorrectSearchCriteria, e.ErrorCode);
             }
         }
@@ -123,22 +126,23 @@ namespace SearchService.Controllers
         [TestMethod]
         public async Task FindArtifactName_ResultCountMoreThanMax_Success()
         {
-            //Arrange            
+            // Arrange
             var searchCriteria = new ItemSearchCriteria { Query = "Test", ProjectIds = new List<int> { 5 } };
-            var searchItems = new List<ItemSearchResultItem>();           
+            var searchItems = new List<ItemSearchResultItem>();
             var searchResult = new ItemSearchResult { PageItemCount = 1, SearchItems = searchItems };
             var startOffset = 0;
             var pageSize = 200;
-            _itemSearchRepositoryMock.Setup(m => m.FindItemByName(1, searchCriteria, startOffset, ItemNameSearchController.MaxResultCount)).ReturnsAsync(searchResult);
+            _itemSearchRepositoryMock.Setup(m => m.SearchName(1, searchCriteria, startOffset, ItemNameSearchController.MaxResultCount)).ReturnsAsync(searchResult);
             var controller = new ItemNameSearchController(_itemSearchRepositoryMock.Object, new SearchConfiguration())
             {
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
-            //Act
+
+            // Act
             var result = await controller.Post(searchCriteria, startOffset, pageSize);
 
-            //Assert
+            // Assert
             Assert.IsNotNull(result);
         }
     }

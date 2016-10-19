@@ -148,7 +148,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     }
     
     private shouldRenewFields(): boolean {
-        if (this.selectedSubArtifact.artifactState.readonly || !this.hasFields()) {
+        if (this.selectedArtifact.artifactState.readonly || !this.hasFields()) {
             return true;
         }
 
@@ -185,6 +185,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         propertyTypesPromise.then((propertyTypes) => {
             const propertyEditorFilter = new PropertyEditorFilters(this.localization);
             const propertyFilters = propertyEditorFilter.getPropertyEditorFilters(selectedItem.predefinedType);
+            
             const shouldCreateFields = this.editor.create(selectedItem, propertyTypes, this.shouldRenewFields()); 
 
             if (shouldCreateFields) {

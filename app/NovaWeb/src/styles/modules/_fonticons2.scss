@@ -48,80 +48,73 @@
     /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
 
-$fonticon2-arrow-down: '\e800'; /* '' */
-$fonticon2-arrow-left: '\e801'; /* '' */
-$fonticon2-arrow-right: '\e802'; /* '' */
-$fonticon2-arrow-up: '\e803'; /* '' */
-$fonticon2-circle-down: '\e804'; /* '' */
-$fonticon2-circle-left: '\e805'; /* '' */
-$fonticon2-circle-right: '\e806'; /* '' */
-$fonticon2-circle-up: '\e807'; /* '' */
-$fonticon2-legacy: '\e808'; /* '' */
-$fonticon2-delete-filled: '\e809'; /* '' */
-$fonticon2-delete: '\e80a'; /* '' */
-$fonticon2-discard: '\e80b'; /* '' */
-$fonticon2-edit: '\e80c'; /* '' */
-$fonticon2-email: '\e80d'; /* '' */
-$fonticon2-error: '\e80e'; /* '' */
-$fonticon2-export: '\e80f'; /* '' */
-$fonticon2-flag-emptied: '\e810'; /* '' */
-$fonticon2-flag: '\e811'; /* '' */
-$fonticon2-help: '\e812'; /* '' */
-$fonticon2-history: '\e813'; /* '' */
-$fonticon2-impact-analysis: '\e814'; /* '' */
-$fonticon2-information-more: '\e815'; /* '' */
-$fonticon2-information: '\e816'; /* '' */
-$fonticon2-arrow-double-left: '\e817'; /* '' */
-$fonticon2-news: '\e818'; /* '' */
-$fonticon2-non-functional: '\e819'; /* '' */
-$fonticon2-pencil: '\e81a'; /* '' */
-$fonticon2-refresh: '\e81b'; /* '' */
-$fonticon2-format: '\e81c'; /* '' */
-$fonticon2-asterisk: '\e81d'; /* '' */
-$fonticon2-lock: '\e81e'; /* '' */
-$fonticon2-relationship: '\e81f'; /* '' */
-$fonticon2-reply: '\e820'; /* '' */
-$fonticon2-reset: '\e821'; /* '' */
-$fonticon2-save: '\e822'; /* '' */
-$fonticon2-sign-in: '\e823'; /* '' */
-$fonticon2-sign-out: '\e824'; /* '' */
-$fonticon2-pin: '\e825'; /* '' */
-$fonticon2-tour: '\e826'; /* '' */
-$fonticon2-unauthorize: '\e827'; /* '' */
-$fonticon2-warning: '\e828'; /* '' */
-$fonticon2-attachment: '\e829'; /* '' */
-$fonticon2-download: '\e82a'; /* '' */
-$fonticon2-upload: '\e82b'; /* '' */
-$fonticon2-close: '\e82c'; /* '' */
-$fonticon2-navigation: '\e82d'; /* '' */
-$fonticon2-arrow-double-right: '\e82e'; /* '' */
-$fonticon2-search: '\e82f'; /* '' */
-$fonticon2-relationship-right: '\e830'; /* '' */
-$fonticon2-relationship-bi: '\e831'; /* '' */
-$fonticon2-relationship-left: '\e832'; /* '' */
-$fonticon2-change-direction: '\e833'; /* '' */
+$fonticon2-arrow-down: '\e805'; /* '' */
+$fonticon2-arrow-left: '\e806'; /* '' */
+$fonticon2-arrow-right: '\e807'; /* '' */
+$fonticon2-arrow-up: '\e804'; /* '' */
+$fonticon2-circle-down: '\e809'; /* '' */
+$fonticon2-circle-left: '\e80a'; /* '' */
+$fonticon2-circle-right: '\e80b'; /* '' */
+$fonticon2-circle-up: '\e80c'; /* '' */
+$fonticon2-legacy: '\e821'; /* '' */
+$fonticon2-delete-filled: '\e810';  /* '' */
+$fonticon2-delete: '\e80f';/* '' */
+$fonticon2-edit: '\e814'; /* '' */
+$fonticon2-email: '\e816';  /* '' */
+$fonticon2-error: '\e817'; /* '' */
+$fonticon2-export: '\e818'; /* '' */
+$fonticon2-flag-emptied: '\e81a'; /* '' */
+$fonticon2-flag: '\e819'; /* '' */
+$fonticon2-help: '\e81c'; /* '' */
+$fonticon2-history: '\e81d'; /* '' */
+$fonticon2-impact-analysis: '\e81e'; /* '' */
+$fonticon2-information-more: '\e820';  /* '' */
+$fonticon2-information: '\e81f';/* '' */
+$fonticon2-arrow-double-left: '\e802'; /* '' */
+$fonticon2-news: '\e824'; /* '' */
+$fonticon2-non-functional: '\e825'; /* '' */
+$fonticon2-pencil: '\e826'; /* '' */
+$fonticon2-format: '\e81b'; /* '' */
+$fonticon2-asterisk: '\e808'; /* '' */
+$fonticon2-lock: '\e83b'; /* '' */
+$fonticon2-relationship: '\e82c'; /* '' */
+$fonticon2-reply: '\e830'; /* '' */
+$fonticon2-reset: '\e831'; /* '' */
+$fonticon2-save: '\e83c'; /* '' */
+$fonticon2-sign-in: '\e83e'; /* '' */
+$fonticon2-sign-out: '\e83f'; /* '' */
+$fonticon2-pin: '\e827'; /* '' */
+$fonticon2-tour: '\e835'; /* '' */
+$fonticon2-unauthorize: '\e841'; /* '' */
+$fonticon2-warning: '\e83d'; /* '' */
+$fonticon2-attachment: '\e839'; /* '' */
+$fonticon2-download: '\e813'; /* '' */
+$fonticon2-upload: '\e836';/* '' */
+$fonticon2-close: '\e80d'; /* '' */
+$fonticon2-navigation: '\e822'; /* '' */
+$fonticon2-arrow-double-right: '\e803'; /* '' */
+$fonticon2-search: '\e833'; /* '' */
+$fonticon2-relationship-right: '\e82f'; /* '' */
+$fonticon2-relationship-bi: '\e82d'; /* '' */
+$fonticon2-relationship-left: '\e82e'; /* '' */
+$fonticon2-change-direction: '\e83a'; /* '' */
 $fonticon2-success: '\e834'; /* '' */
-$fonticon2-comments: '\e835'; /* '' */
-$fonticon2-discard-line: '\e836'; /* '' */
-$fonticon2-discussion: '\e837'; /* '' */
-$fonticon2-edit-comment: '\e838'; /* '' */
-$fonticon2-properties: '\e839'; /* '' */
-$fonticon2-publish-line: '\e83a'; /* '' */
-$fonticon2-publish: '\e83b'; /* '' */
-$fonticon2-new: '\e83c'; /* '' */
-$fonticon2-save-line: '\e83d'; /* '' */
-$fonticon2-save-1: '\e83e'; /* '' */
-$fonticon2-unauthorize-1: '\e83f'; /* '' */
-$fonticon2-project: '\e840'; /* '' */
-$fonticon2-refresh-line: '\e841'; /* '' */
-$fonticon2-subartifact: '\e842'; /* '' */
-$fonticon2-tour-1: '\e844'; /* '' */
-$fonticon2-user-system: '\e845'; /* '' */
-$fonticon2-user-user: '\e846'; /* '' */
-$fonticon2-add-artifact: '\e9a0'; /* '' */
-$fonticon2-collection: '\e9a1'; /* '' */
-$fonticon2-rapid-review: '\e9a2'; /* '' */
-$fonticon2-font-family: '\e9a3'; /* '' */
+$fonticon2-comments: '\e80e'; /* '' */
+$fonticon2-discard-line: '\e811'; /* '' */
+$fonticon2-discussion: '\e812'; /* '' */
+$fonticon2-edit-comment: '\e815'; /* '' */
+$fonticon2-properties: '\e828'; /* '' */
+$fonticon2-publish-line: '\e829'; /* '' */
+$fonticon2-new: '\e823'; /* '' */
+$fonticon2-save-line: '\e832'; /* '' */
+$fonticon2-refresh-line: '\e82b'; /* '' */
+$fonticon2-user-system: '\e837'; /* '' */
+$fonticon2-user-user: '\e838'; /* '' */
+$fonticon2-add-artifact: '\e800'; /* '' */
+$fonticon2-add-folder: '\e801'; /* '' */
+$fonticon2-rapid-review: '\e82a'; /* '' */
+$fonticon2-font-family: '\e840'; /* '' */
+$fonticon2-project: '\e843'; /* '' */
 
 .fonticon2-arrow-down::before {
     content: $fonticon2-arrow-down;
@@ -175,11 +168,6 @@ $fonticon2-font-family: '\e9a3'; /* '' */
 /* '' */
 .fonticon2-delete::before {
     content: $fonticon2-delete;
-}
-
-/* '' */
-.fonticon2-discard::before {
-    content: $fonticon2-discard;
 }
 
 /* '' */
@@ -258,11 +246,7 @@ $fonticon2-font-family: '\e9a3'; /* '' */
 }
 
 /* '' */
-.fonticon2-refresh::before {
-    content: $fonticon2-refresh;
-}
 
-/* '' */
 .fonticon2-format::before {
     content: $fonticon2-format;
 }
@@ -418,11 +402,7 @@ $fonticon2-font-family: '\e9a3'; /* '' */
 }
 
 /* '' */
-.fonticon2-publish::before {
-    content: $fonticon2-publish;
-}
 
-/* '' */
 .fonticon2-new::before {
     content: $fonticon2-new;
 }
@@ -433,36 +413,12 @@ $fonticon2-font-family: '\e9a3'; /* '' */
 }
 
 /* '' */
-.fonticon2-save-1::before {
-    content: $fonticon2-save-1;
-}
-
-/* '' */
-.fonticon2-unauthorize-1::before {
-    content: $fonticon2-unauthorize-1;
-}
-
-/* '' */
-.fonticon2-project::before {
-    content: $fonticon2-project;
-}
-
-/* '' */
 .fonticon2-refresh-line::before {
     content: $fonticon2-refresh-line;
 }
 
 /* '' */
-.fonticon2-subartifact::before {
-    content: $fonticon2-subartifact;
-}
 
-/* '' */
-.fonticon2-tour-1::before {
-    content: $fonticon2-tour-1;
-}
-
-/* '' */
 .fonticon2-user-system::before {
     content: $fonticon2-user-system;
 }
@@ -477,12 +433,15 @@ $fonticon2-font-family: '\e9a3'; /* '' */
 .fonticon2-add-artifact:before {
     content: $fonticon2-add-artifact;
 } /* '' */
-.fonticon2-collection:before {
-    content: $fonticon2-collection;
-} /* '' */
+.fonticon2-add-folder:before {
+    content: $fonticon2-add-folder;
+}
 .fonticon2-rapid-review:before {
     content: $fonticon2-rapid-review;
 } /* '' */
 .fonticon2-font-family:before {
     content: $fonticon2-font-family;
 } /* '' */
+.fonticon2-project:before {
+    content: $fonticon2-project;
+} /* '' */

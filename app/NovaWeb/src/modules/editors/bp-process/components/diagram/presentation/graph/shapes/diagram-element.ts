@@ -51,20 +51,6 @@ export class DiagramElement extends mxCell implements IDiagramElement {
         return new mxPoint(0, 0);
     }
 
-    public setElementText(cell: MxCell, text: string) {
-        // override in descendant classes
-    }
-
-    public getElementTextLength(cell: MxCell): number {
-        // override in descendant classes
-        return null;
-    }
-
-    public formatElementText(cell: MxCell, text: string): string {
-        // override in descendant classes
-        return null;
-    }
-
     protected getParentId(): number {
         // override in descendant classes
         return null;
@@ -110,27 +96,5 @@ export class DiagramNodeElement extends DiagramElement implements IDiagramNodeEl
         }
 
         return new mxPoint(0, 0);
-    }
-
-    public setElementText(cell: MxCell, text: string) {
-        if (this.getNode()) {
-            this.getNode().setElementText(cell, text);
-        }
-    }
-
-    public getElementTextLength(cell: MxCell): number {
-        if (this.getNode()) {
-            return this.getNode().getElementTextLength(cell);
-        }
-
-        return null;
-    }
-
-    public formatElementText(cell: MxCell, text: string): string {
-        if (this.getNode()) {
-            return this.getNode().formatElementText(cell, text);
-        }
-
-        return null;
     }
 }

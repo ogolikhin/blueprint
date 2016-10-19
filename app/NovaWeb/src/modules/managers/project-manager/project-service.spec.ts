@@ -274,7 +274,7 @@ describe("Project Repository", () => {
                 {id: 1, name: "New project 1", path: "Blueprint"},
                 {id: 2, name: "New project 2", path: "Blueprint"}
             ];
-            $httpBackend.expectPOST("/svc/searchservice/projectsearch?separatorString= > &resultCount=100", searchCriteria)
+            $httpBackend.expectPOST("/svc/searchservice/projectsearch/name?separatorString= > &resultCount=100", searchCriteria)
                 .respond(HttpStatusCode.Success, searchResult);
 
             // Act
@@ -293,7 +293,7 @@ describe("Project Repository", () => {
         it("post - unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
             // Arrange
             const searchCriteria: SearchServiceModels.IProjectSearchCriteria = {query: "new"};
-            $httpBackend.expectPOST("/svc/searchservice/projectsearch?separatorString= > &resultCount=100", searchCriteria)
+            $httpBackend.expectPOST("/svc/searchservice/projectsearch/name?separatorString= > &resultCount=100", searchCriteria)
                 .respond(HttpStatusCode.Unauthorized);
 
             // Act

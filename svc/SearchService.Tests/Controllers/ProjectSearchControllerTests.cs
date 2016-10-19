@@ -32,7 +32,7 @@ namespace SearchService.Controllers
         }
 
         [TestMethod]
-        public async Task GetProjects_Success()
+        public async Task SearchName_Success()
         {
             //Arrange
             const int projectId = 10;
@@ -45,7 +45,7 @@ namespace SearchService.Controllers
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
             //Act
-            var result = await controller.GetProjectsByName(searchCriteria, 20);
+            var result = await controller.SearchName(searchCriteria, 20);
 
             //Assert
             Assert.IsNotNull(result);
@@ -55,7 +55,7 @@ namespace SearchService.Controllers
         }
 
         [TestMethod]
-        public async Task GetProjects_ResultCountIsNull_Success()
+        public async Task SearchName_ResultCountIsNull_Success()
         {
             //Arrange
             const int projectId = 10;
@@ -68,7 +68,7 @@ namespace SearchService.Controllers
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
             //Act
-            var result = await controller.GetProjectsByName(searchCriteria, null);
+            var result = await controller.SearchName(searchCriteria, null);
 
             //Assert
             Assert.IsNotNull(result);
@@ -78,7 +78,7 @@ namespace SearchService.Controllers
         }
 
         [TestMethod]
-        public async Task GetProjects_ResultCountMoreThanMax_Success()
+        public async Task SearchName_ResultCountMoreThanMax_Success()
         {
             //Arrange
             const int projectId = 10;
@@ -91,7 +91,7 @@ namespace SearchService.Controllers
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
             //Act
-            var result = await controller.GetProjectsByName(searchCriteria, 1000);
+            var result = await controller.SearchName(searchCriteria, 1000);
 
             //Assert
             Assert.IsNotNull(result);
@@ -101,14 +101,14 @@ namespace SearchService.Controllers
         }
 
         [TestMethod]
-        public async Task GetProjects_QueryIsEmpty_BadRequest()
+        public async Task SearchName_QueryIsEmpty_BadRequest()
         {
             //Arrange
             var controller = new ProjectSearchController(_projectSearchRepositoryMock.Object);
             //Act
             try
             {
-                await controller.GetProjectsByName(new ProjectSearchCriteria { Query = "" });
+                await controller.SearchName(new ProjectSearchCriteria { Query = "" });
             }
             catch (BadRequestException e)
             {
@@ -118,14 +118,14 @@ namespace SearchService.Controllers
         }
 
         [TestMethod]
-        public async Task GetProjects_ResultCountIsNegative_BadRequest()
+        public async Task SearchName_ResultCountIsNegative_BadRequest()
         {
             //Arrange
             var controller = new ProjectSearchController(_projectSearchRepositoryMock.Object);
             //Act
             try
             {
-                await controller.GetProjectsByName(new ProjectSearchCriteria { Query = "test" }, -1);
+                await controller.SearchName(new ProjectSearchCriteria { Query = "test" }, -1);
             }
             catch (BadRequestException e)
             {
@@ -135,14 +135,14 @@ namespace SearchService.Controllers
         }
 
         [TestMethod]
-        public async Task GetProjects_NullSerachCriteria_BadRequest()
+        public async Task SearchName_NullSerachCriteria_BadRequest()
         {
             //Arrange
             var controller = new ProjectSearchController(_projectSearchRepositoryMock.Object);
             //Act
             try
             {
-                await controller.GetProjectsByName(null);
+                await controller.SearchName(null);
             }
             catch (BadRequestException e)
             {
@@ -152,7 +152,7 @@ namespace SearchService.Controllers
         }
 
         [TestMethod]
-        public async Task GetProjects_Forbidden()
+        public async Task SearchName_Forbidden()
         {
             //Arrange
             const int projectId = 10;
@@ -166,7 +166,7 @@ namespace SearchService.Controllers
             //Act
             try
             {
-                await controller.GetProjectsByName(searchCriteria, 1000);
+                await controller.SearchName(searchCriteria, 1000);
             }
             catch (HttpResponseException e)
             {

@@ -50,12 +50,15 @@ export class NodeLabelEditor {
                 x: Number(div.getAttribute("stLabelX")),
                 y: Number(div.getAttribute("stLabelY"))
             };
-
+            let client = {
+                width: Number(div.getAttribute("stLabelWidth")),
+                height: Number(div.getAttribute("stLabelHeight"))
+            };
             if (position != null) {
                 this.addPoint(div, position.x, position.y);
-                this.addPoint(div, position.x + div.clientWidth, position.y);
-                this.addPoint(div, position.x, position.y + div.clientHeight);
-                this.addPoint(div, position.x + div.clientWidth, position.y + div.clientHeight);
+                this.addPoint(div, position.x + client.width, position.y);
+                this.addPoint(div, position.x, position.y + client.height);
+                this.addPoint(div, position.x + client.width, position.y + client.height);
             }
         }
     }
@@ -124,6 +127,7 @@ export class NodeLabelEditor {
 
         x = e.offsetX;
         y = e.offsetY;
+
         let index = this.getCellIndex(x, y);
         let cell = this.divIndex[index];
         if (cell != null) {

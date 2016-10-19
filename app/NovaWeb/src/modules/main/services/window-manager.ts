@@ -122,7 +122,10 @@ export class WindowManager implements IWindowManager {
     };
 
     private getContentWidth(): number {
-        const sidebarWidth = (<HTMLElement>document.querySelector(".sidebar.left-panel")).offsetWidth;
+        let sidebarWidth = 0;
+        if ((<HTMLElement>document.querySelector(".sidebar.left-panel"))) {
+            sidebarWidth = (<HTMLElement>document.querySelector(".sidebar.left-panel")).offsetWidth;
+        }
         return this._width - (this._isLeftSidebarOpen ? sidebarWidth : 0) - (this._isRightSidebarOpen ? sidebarWidth : 0);
     }
 

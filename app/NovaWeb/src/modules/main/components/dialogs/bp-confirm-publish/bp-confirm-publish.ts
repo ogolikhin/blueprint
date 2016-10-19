@@ -1,5 +1,5 @@
-import * as angular from "angular";
-import { ILocalizationService } from "../../../../core";
+import "./bp-confirm-publish.scss";
+
 import { Helper, IBPTreeController, IDialogSettings, BaseDialogController, IDialogService, IDialogData } from "../../../../shared";
 import { Models, Enums } from "../../../../main/models";
 
@@ -67,6 +67,10 @@ export class ConfirmPublishController extends BaseDialogController implements IC
     public get sortedList(): IArtifactWithProject[]{
         return this._sortedList;
     }
+
+    public itemLabel = (artifact: IArtifactWithProject): string => {
+        return artifact.prefix + artifact.id + " - " + artifact.name;
+    };
 
     public mustShowProject = (artifact: Models.IArtifact): boolean => {
         if (this._currentProject !== artifact.projectId) {

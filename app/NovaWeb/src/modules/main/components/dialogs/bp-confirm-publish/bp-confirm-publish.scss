@@ -1,0 +1,23 @@
+@import '../../../../../styles/modules/mixins';
+@import '../../../../../styles/modules/variables';
+
+.artifactlist {
+    overflow: auto;
+    margin: 0;
+    max-height: 400px;
+    padding: 0;
+
+    &__item {
+        font-size: $font-size-normal;
+        list-style: none;
+    }
+
+    &__artifact,
+    &__project {
+        @include text-ellipsis-fixed-width(100%);
+    }
+
+    &__artifact {
+        padding-left: 20px;
+    }
+}

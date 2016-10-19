@@ -1,5 +1,5 @@
 <div class="modal-header">
-    <h3 class="modal-title">{{::$root.config.labels["Publish_All_Dialog_Header"]}}</h3>
+    <h3 class="modal-title"><i class="fonticon-modal"></i><span>{{::$root.config.labels["App_DialogTitle_Confirmation"]}}</span></h3>
 </div>
 <div class="modal-body">
     <div ng-if="$ctrl.hasError">
@@ -7,15 +7,17 @@
     </div>
     <div ng-if="!$ctrl.hasError" class="project-wrapper">
         <div class="nova-message"><span ng-bind-html="$ctrl.dialogSettings.message"></span></div>
-        <div>
-            <ul>
-                <li ng-repeat="artifact in $ctrl.sortedList track by artifact.id | limitTo: 100">
-                    <div ng-if="$ctrl.mustShowProject(artifact)"><strong>{{::artifact.projectName}}</strong></div>
-                    <bp-item-type-icon predefined-type="artifact.predefinedType"></bp-item-type-icon>{{::artifact.prefix}}{{::artifact.id}} - {{::artifact.name}}
-                </li>
-            </ul>
-            <div ng-if="$ctrl.sortedList.length > 100">And other {{$ctrl.sortedList.length - 100}}</div>
-        </div>
+        <ul class="artifactlist">
+            <li class="artifactlist__item" ng-repeat="artifact in $ctrl.sortedList track by artifact.id | limitTo: 100">
+                <div class="artifactlist__project" ng-if="$ctrl.mustShowProject(artifact)" bp-tooltip="{{::artifact.projectName}}" bp-tooltip-truncated="true">
+                    <i class="icon icon-project"></i> {{::artifact.projectName}}
+                </div>
+                <div class="artifactlist__artifact" bp-tooltip="{{::$ctrl.itemLabel(artifact)}}" bp-tooltip-truncated="true">
+                    <bp-item-type-icon predefined-type="artifact.predefinedType"></bp-item-type-icon>{{::$ctrl.itemLabel(artifact)}}
+                </div>
+            </li>
+        </ul>
+        <div ng-if="$ctrl.sortedList.length > 100">And other {{$ctrl.sortedList.length - 100}}</div>
 
     </div>
 </div>

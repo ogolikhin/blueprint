@@ -155,7 +155,9 @@ export class Label implements ILabel {
         this.setViewMode();
     }
 
-
+    private onKeyUp = (e) => {
+        this.callbackIfTextChanged();
+    }
     private onKeyDown = (e) => {
         if (e.keyCode === action.ENTER) {
             this.update();
@@ -177,7 +179,6 @@ export class Label implements ILabel {
             this.cancelDefaultAction(e);
             return false;
         }
-        this.callbackIfTextChanged();
     }
     private callbackIfTextChanged() {
         const innerText = this.div.innerText.replace(/\n/g, "");
@@ -357,6 +358,7 @@ export class Label implements ILabel {
             this.div.addEventListener("labelmouseout", this.onMouseout, true);
 
             angular.element(this.div).on("keydown", (e) => this.onKeyDown(e));
+            angular.element(this.div).on("keyup", (e) => this.onKeyUp(e));
             angular.element(this.div).on("paste", (e) => this.onPaste(e));
             angular.element(this.div).on("delete", (e) => this.onDelete(e));
             angular.element(this.div).on("cut", (e) => this.onCut(e));
@@ -371,7 +373,10 @@ export class Label implements ILabel {
                 this.div.removeEventListener("labelmouseover", this.onMouseover, true);
                 this.div.removeEventListener("labelmouseout", this.onMouseout, true);
                 angular.element(this.div).off("keydown", (e) => this.onKeyDown(e));
+                angular.element(this.div).off("keyup", (e) => this.onKeyUp(e));
                 angular.element(this.div).off("paste", (e) => this.onPaste(e));
+                angular.element(this.div).on("delete", (e) => this.onDelete(e));
+                angular.element(this.div).on("cut", (e) => this.onCut(e));
                 angular.element(this.div).off("dispose", () => this.onDispose());
             }
             this.wrapperDiv.removeChild(this.div);

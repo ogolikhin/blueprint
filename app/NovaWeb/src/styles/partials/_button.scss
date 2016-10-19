@@ -3,11 +3,13 @@
     min-width: 100px;
     padding: 8px 19px;
     text-align: center;
+
     &.btn-small {
         padding: 5px 10px;
         min-width: 20px;
         font-size: 1.2rem;
     }
+
     &[disabled],
     &[disabled]:hover,
     &[disabled]:focus,
@@ -18,28 +20,33 @@
         border-color: #bbb;
         color: #bbb;
         opacity: 1;
+
         &.active {
             background-color: transparent;
         }
     }
 }
+
 .btn-primary {
     background-color: transparent;
     border: 1px solid $gray-light;
     color: $gray-light;
+
     &:hover,
     &:focus,
-    &:active
+    &:active,
     &.active {
         background-color: transparent;
         border-color: $brand-secondary;
         color: $brand-secondary;
     }
 }
+
 .btn-promoted-action {
     background-color: $brand-secondary;
     border: solid 1px $brand-secondary;
     color: $white;
+
     &:hover,
     &:focus,
     &:active,
@@ -49,10 +56,12 @@
         color: $white;
     }
 }
+
 .modal-alert .btn-promoted-action {
     background-color: $brand-warning;
     border: solid 1px $brand-warning;
     color: $white;
+
     &:hover,
     &:focus,
     &:active,
@@ -62,10 +71,12 @@
         color: $white;
     }
 }
+
 .btn-secondary {
     background-color: transparent;
     border: solid 1px $brand-secondary;
     color: $brand-secondary;
+    
     &:hover,
     &:focus,
     &:active,
@@ -76,3 +87,14 @@
     }
 }
 
+.btn-block .dropdown-toggle {
+    width: 100%;
+}
+
+.btn-block .dropdown-toggle .dropdown-toggle-label {
+    float: left;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90%;
+}

@@ -177,6 +177,7 @@ namespace ArtifactStoreTests
             VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: false,
                 versionCount: artifactDetails.Version);
         }
+
         #endregion Artifact Changes
 
         #region Sub-Artifact
@@ -264,6 +265,7 @@ namespace ArtifactStoreTests
 
             // Verify
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
+
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: subArtifacts[0].Id,
@@ -787,7 +789,7 @@ namespace ArtifactStoreTests
             var processLink = process.GetOutgoingLinkForShape(precondition);
             var userTask = process.AddUserAndSystemTask(processLink);
 
-            // Save the process & get new user task.
+            // Save the process.
             process = Helper.Storyteller.UpdateProcess(_user, process);
             userTask = process.GetProcessShapeByShapeName(userTask.Name);
 
@@ -903,6 +905,7 @@ namespace ArtifactStoreTests
             string expectedExceptionMessage = I18NHelper.FormatInvariant("Item (Id:{0}) is not found.", subArtifacts[0].Id);
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
                 "Expected '{0}' error when user tries to get basic information of an artifact that was removed",
+
                 expectedExceptionMessage);
         }
 

@@ -34,8 +34,6 @@ export class WindowManager implements IWindowManager {
     private _isRightSidebarOpen: boolean;
     private _causeOfChange: ResizeCause;
 
-    //fixme: this should not be hard coded and actually should get the value by checking the element
-
     private _toggleObserver: MutationObserver;
     private _messageObserver: MutationObserver;
 

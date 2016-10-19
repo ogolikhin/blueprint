@@ -1,8 +1,7 @@
 import {IWindowManager} from "../../services";
 import {IArtifactManager} from "../../../managers";
-import {IMessageService, INavigationService, ILocalizationService} from "../../../core";
+import {IMessageService, INavigationService} from "../../../core";
 import {IDiagramService} from "../../../editors/bp-diagram/diagram.svc";
-//import {IDialogSettings, IDialogService} from "../../../shared";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
 import {IDialogService, IDialogSettings} from "../../../shared/widgets/bp-dialog/bp-dialog";
 

@@ -159,29 +159,6 @@ describe("SystemTask", () => {
 
             graph.render(false, null);
         });
-
-        it("return null when attempting to retrieve user task for pre-condition", () => {
-            // Arrange
-            const node: ISystemTask = <ISystemTask>graph.getNodeById("22");
-
-            // Act
-            const userTask = node.getUserTask(graph);
-
-            //Assert
-            expect(userTask).toBeNull();
-        });
-
-        it("return user task when attempting to retrieve user task for system task", () => {
-            // Arrange
-            const node: ISystemTask = <ISystemTask>graph.getNodeById("44");
-
-            // Act
-            const userTask = node.getUserTask(graph);
-
-            //Assert
-            expect(userTask).not.toBeNull();
-            expect(userTask.model).toEqual(processModel.shapes[2]);
-        });
     });
 
     describe("StatefulSubArtifact changes", () => {

@@ -390,6 +390,6 @@ namespace Model
         /// <param name="itemId">Id of artifact or sub-artifact.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>An artifact path</returns>
-        List<INovaVersionControlArtifactInfo> GetArtifactPath(IUser user, int itemId, List<HttpStatusCode> expectedStatusCodes = null);
+        List<INovaVersionControlArtifactInfo>GetNavigationPath(IUser user, int itemId, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

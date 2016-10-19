@@ -38,7 +38,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Actor, 2)]
         [TestCase(BaseArtifactType.PrimitiveFolder, 2)]
         [TestRail(183596)]
-        [Description("Create & publish an artifact.  Verify the basic artifact information returned from parent.")]
+        [Description("Create & publish an artifact.  Verify the basic artifact information returned from parent has correct values.")]
         public void ArtifactNavigation_PublishedArtifact_ReturnsParentArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
         {
             // Setup:
@@ -47,7 +47,7 @@ namespace ArtifactStoreTests
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetArtifactPath(_user, artifact.Id),
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, artifact.Id),
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
@@ -57,7 +57,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Actor)]
         [TestCase(BaseArtifactType.PrimitiveFolder)]
         [TestRail(183597)]
-        [Description("Create & save an artifact.  Verify the basic artifact information returned from parent.")]
+        [Description("Create & save an artifact.  Verify the basic artifact information returned from parent has correct values.")]
         public void ArtifactNavigation_SavedArtifact_ReturnsParentArtifactInfo_200OK(BaseArtifactType artifactType)
         {
             // Setup:
@@ -66,7 +66,7 @@ namespace ArtifactStoreTests
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetArtifactPath(_user, artifact.Id),
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, artifact.Id),
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
@@ -75,7 +75,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor, 2)]
         [TestRail(183598)]
-        [Description("Create & publish an artifact and its child.  Verify the basic artifact information returned from parent.")]
+        [Description("Create & publish an artifact and its child.  Verify the basic artifact information returned from parent has correct values.")]
         public void ArtifactNavigation_PublishedArtifactWithAChild_ReturnsParentArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
         {
             // Setup:
@@ -85,7 +85,7 @@ namespace ArtifactStoreTests
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetArtifactPath(_user, childArtifact.Id),
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, childArtifact.Id),
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
@@ -94,24 +94,20 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(183599)]
-        [Description("Verify the basic artifact information returned from project.")]
+        [Description("Verify the basic artifact information returned from project is empty.")]
         public void ArtifactNavigation_Project_ReturnsArtifactInfo_200OK()
         {
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetArtifactPath(_user, _project.Id),
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, _project.Id),
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
             
             // Verify:
-            Assert.IsEmpty(basicArtifactInfoList, "Project should not have a parent informatio!");
+            Assert.IsEmpty(basicArtifactInfoList, "Project should not have a parent information!");
         }
 
-        //TODO Test for artifact in the root
         //TODO Test for artifact in a folder
-        //TODO Test for artifact child
-        //TODO Test for project
-        //TODO Test for folder            
         //TODO Test for sub-artifact
         //TODO Test for collection/baseline/review          
         //TODO Test for artifact in a long chain of 10 or more folders
@@ -130,6 +126,11 @@ namespace ArtifactStoreTests
 
         #region private calls
 
+        /// <summary>
+        /// Verifies that an artifact ancestor in a path returns proper values
+        /// </summary>
+        /// <param name="basicArtifactInfo">Basic information about ancestor artifact/project.</param>
+        /// <param name="id">Id of artifact or sub-artifact.</param>
         private void VerifyParentInformation(INovaVersionControlArtifactInfo basicArtifactInfo, int id)
         {
             INovaVersionControlArtifactInfo parentArtifactInfo = null;

@@ -29,7 +29,7 @@ export class BpArtifactEditor extends BpBaseEditor {
 
     public form: angular.IFormController;
     public model = {};
-    public fields: AngularFormly.IFieldConfigurationObject[];
+    public fields: AngularFormly.IFieldConfigurationObject[] = [];
 
     public editor: PropertyEditor;
 
@@ -58,41 +58,54 @@ export class BpArtifactEditor extends BpBaseEditor {
     }
 
     public clearFields() {
-        this.model = {};
         this.fields = [];
+    }
+    
+    public hasFields(): boolean  {
+        return (angular.isArray(this.fields) ? this.fields.length : 0) > 0;
+
+    }
+
+    private shouldRenewFields(): boolean {
+        if (this.artifact.artifactState.readonly || !this.hasFields()) {
+            return true;
+        }
+
+        return false;
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
-        if (!angular.isArray(this.fields)) {
-            //fixme: why is this empty? if it does nothing remove it!
-        }
         this.fields.push(field);
     }
 
     public onArtifactReady() {
         if (this.editor && this.artifact) {
-            this.clearFields();
             this.artifact.metadata.getArtifactPropertyTypes().then((propertyTypes) => {
-                this.model = this.editor.load(this.artifact, propertyTypes);
+                
+                if (this.editor.create(this.artifact, propertyTypes, this.shouldRenewFields())) {
+                    this.clearFields();                    
+                    this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
+                        //add property change handler to each field
+                        angular.extend(field.templateOptions, {
+                            onChange: this.onValueChange.bind(this)
+                        });
 
-                this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
-                    //add property change handler to each field
-                    angular.extend(field.templateOptions, {
-                        onChange: this.onValueChange.bind(this)
+                        let isReadOnly = this.artifact.artifactState.readonly || this.artifact.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
+                        field.templateOptions["isReadOnly"] = isReadOnly;
+                        if (isReadOnly) {
+                            if (field.type !== "bpDocumentFile" &&
+                                field.type !== "bpFieldImage" &&
+                                field.type !== "bpFieldInheritFrom") {
+                                field.type = "bpFieldReadOnly";
+                            }
+                        }
+                        this.onFieldUpdate(field);
+
                     });
 
-                    let isReadOnly = this.artifact.artifactState.readonly || this.artifact.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
-                    field.templateOptions["isReadOnly"] = isReadOnly;
-                    if (isReadOnly) {
-                        if (field.type !== "bpDocumentFile" &&
-                            field.type !== "bpFieldImage" &&
-                            field.type !== "bpFieldInheritFrom") {
-                            field.type = "bpFieldReadOnly";
-                        }
-                    }
-                    this.onFieldUpdate(field);
-
-                });
+                }
+                this.model = this.editor.getModel();
+                
                 this.setArtifactEditorLabelsWidth();
                 super.onArtifactReady();
                 this.onFieldUpdateFinished();

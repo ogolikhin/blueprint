@@ -64,6 +64,14 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         this.richTextFields = [];
     }
 
+    public hasFields(): boolean  {
+        return ((angular.isArray(this.systemFields) ? this.systemFields.length : 0) + 
+               (angular.isArray(this.customFields) ? this.customFields.length : 0) +
+               (angular.isArray(this.richTextFields) ? this.richTextFields.length : 0) +
+               (angular.isArray(this.specificFields) ? this.specificFields.length : 0)) > 0;
+               
+    }
+
     protected onFieldUpdateFinished() {
         if (this.artifact) {
             this.isSystemPropertyAvailable = this.systemFields && this.systemFields.length > 0;

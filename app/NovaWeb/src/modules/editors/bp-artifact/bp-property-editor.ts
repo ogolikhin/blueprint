@@ -11,6 +11,7 @@ export class PropertyEditor {
     private _fields: AngularFormly.IFieldConfigurationObject[];
     public propertyContexts: PropertyContext[];
     private locale: BPLocale;
+    private itemid: number;
 
     constructor(private localization: ILocalizationService) {
         this.locale = localization.current;
@@ -106,18 +107,21 @@ export class PropertyEditor {
         return $value;
     }
 
-    public load(statefulItem: IStatefulItem, properties: Models.IPropertyType[]): any {
 
+    public create(statefulItem: IStatefulItem, properties: Models.IPropertyType[], force: boolean): boolean {
+        
+        let fieldsupdated: boolean = false;
         this._model = {};
-        this._fields = [];
+
         if (statefulItem && angular.isArray(properties)) {
             this.propertyContexts = properties.map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
             });
-            // var artifactOrSubArtifact = artifact;
-            // if (subArtifact) {
-            //     artifactOrSubArtifact = subArtifact;
-            // }
+            if (this.itemid !== statefulItem.id || force) {
+                fieldsupdated = true;
+                this._fields = [];
+            }
+            
             this.propertyContexts.forEach((propertyContext: PropertyContext) => {
                 if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
                     let modelValue: any = null;
@@ -140,7 +144,7 @@ export class PropertyEditor {
                             statefulItem.readOnlyReuseSettings &&
                             (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Description) === Enums.ReuseSettings.Description) {
                             propertyContext.disabled = true;
-                        }
+                        } 
                     } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Custom) {
                         //Custom property
                         let custompropertyvalue = statefulItem.customProperties.get(propertyContext.modelPropertyName as number);
@@ -166,12 +170,17 @@ export class PropertyEditor {
                     if (isModelSet) {
                         let field = this.createPropertyField(propertyContext, statefulItem.id);
                         this._model[propertyContext.fieldPropertyName] = this.convertToFieldValue(field, modelValue);
-                        this._fields.push(field);
+                        if (fieldsupdated) {
+                            this._fields.push(field);
+                        }
                     }
                 }
             });
+            this.itemid = statefulItem.id;
+            
         }
-        return this._model;
+
+        return fieldsupdated;
     }
 
     private getActorStepOfValue(propertyValue: any): string {

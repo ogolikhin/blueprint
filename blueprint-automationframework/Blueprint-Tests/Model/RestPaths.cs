@@ -307,13 +307,13 @@ namespace Model
             [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
             public static class SearchService
             {
-                public const string FULLTEXTSEARCH                  = "svc/searchservice/fulltextsearch";
+                public const string FULLTEXTSEARCH                  = "svc/searchservice/itemsearch/fulltext";
 
                 public const string STATUS                          = "svc/searchservice/status";
 
                 public static class FullTextSearch
                 {
-                    public const string METADATA                    = "svc/searchservice/fulltextsearch/metadata";
+                    public const string METADATA                    = "svc/searchservice/itemsearch/fulltextmetadata";
                 }
 
                 public static class Status
@@ -321,8 +321,8 @@ namespace Model
                     public const string UPCHECK                     = "svc/searchservice/status/upcheck";
                 }
 
-                public const string PROJECTSEARCH                   = "svc/searchservice/projectsearch";
-                public const string ITEMNAMESEARCH                      = "svc/searchservice/ItemNameSearch";
+                public const string PROJECTSEARCH                   = "svc/searchservice/projectsearch/name";
+                public const string ITEMNAMESEARCH                      = "svc/searchservice/itemsearch/name";
             }
 
             public static class Shared

@@ -140,16 +140,14 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     };
 
     private hasFields(): boolean  {
-        return ((this.systemFields || []).length + 
-               (this.customFields || []).length +
-               (this.richTextFields || []).length +
-               (this.specificFields || []).length) > 0;
-
+        return ((angular.isArray(this.systemFields) ? this.systemFields.length : 0) + 
+               (angular.isArray(this.customFields) ? this.customFields.length : 0) +
+               (angular.isArray(this.richTextFields) ? this.richTextFields.length : 0) +
+               (angular.isArray(this.specificFields) ? this.specificFields.length : 0)) > 0;
     }
     
     private shouldRenewFields(): boolean {
-        if (this.selectedSubArtifact.artifactState.readonly || this.selectedSubArtifact.artifactState.lockedBy === Enums.LockedByEnum.OtherUser ||
-            this.hasFields()) {
+        if (this.selectedSubArtifact.artifactState.readonly || !this.hasFields()) {
             return true;
         }
 

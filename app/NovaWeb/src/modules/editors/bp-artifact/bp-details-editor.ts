@@ -69,7 +69,6 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
                (angular.isArray(this.customFields) ? this.customFields.length : 0) +
                (angular.isArray(this.richTextFields) ? this.richTextFields.length : 0) +
                (angular.isArray(this.specificFields) ? this.specificFields.length : 0)) > 0;
-               
     }
 
     protected onFieldUpdateFinished() {

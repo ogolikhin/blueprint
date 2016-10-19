@@ -104,14 +104,49 @@ namespace ArtifactStoreTests
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
             
             // Verify:
-            Assert.IsEmpty(basicArtifactInfoList, "Project should not have a parent informatio!");
+            Assert.IsEmpty(basicArtifactInfoList, "Project should not have a parent information!");
         }
 
-        //TODO Test for artifact in the root
-        //TODO Test for artifact in a folder
-        //TODO Test for artifact child
-        //TODO Test for project
-        //TODO Test for folder            
+        [TestCase(BaseArtifactType.Actor, 2)]
+        [TestRail(183607)]
+        [Description("Create & publish an artifact within a folder. Verify the basic artifact information returned from folder.")]
+        public void ArtifactNavigation_PublishedArtifactInAFolder_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
+        {
+            // Setup:
+            var folder = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, folder, numberOfVersions: numberOfVersions);
+
+            List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetArtifactPath(_user, artifact.Id),
+                                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+
+            // Verify:
+            VerifyParentInformation(basicArtifactInfoList.Last(), artifact.ParentId);
+        }
+
+        [TestCase(BaseArtifactType.UseCase)]
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(0)]
+        [Description("Create & publish an artifact with subartifacts. Verify the basic artifact information returned from artifact.")]
+        public void ArtifactNavigation_PublishedArtifactWithSubArtifacts_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
+
+            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+            Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
+
+            List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetArtifactPath(_user, subArtifacts.First().Id),
+                                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+
+            // Verify:
+            VerifyParentInformation(basicArtifactInfoList.Last(), artifact.ParentId);
+        }
         //TODO Test for sub-artifact
         //TODO Test for collection/baseline/review          
         //TODO Test for artifact in a long chain of 10 or more folders

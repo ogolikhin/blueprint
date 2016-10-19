@@ -105,6 +105,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         const newCondition: ICondition = Condition.create(processLink, null, validMergeNodes);
         
         this.dialogModel.conditions.push(newCondition);
+        this.refreshView();
         this.scrollToBottomOfConditionList();
     }
 
@@ -128,6 +129,8 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
                 this.deletedConditions.push(item);
             }
         }
+
+        this.refreshView();
     }
 
     private getFirstNonMergingPointShapeId(link: IDiagramLink) {
@@ -245,5 +248,19 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
 
     public get canDeleteCondition(): boolean {
         return !this.isReadonly;
+    }
+
+    public refreshView() {
+        const element: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
+
+        if (!element) {
+            return;
+        }
+
+        const node = document.createTextNode(" ");
+        element.appendChild(node);
+        setTimeout(function () {
+            node.parentNode.removeChild(node);
+        }, 20);
     }
 }

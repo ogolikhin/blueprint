@@ -8,6 +8,7 @@ import {Models, Enums} from "../../main/models";
 import {IProjectService, ProjectServiceStatusCode} from "./project-service";
 import {IArtifactManager} from "../../managers";
 import {IMetaDataService} from "../artifact-manager/metadata";
+import {ILoadingOverlayService} from "../../core/loading-overlay";
 
 export interface IArtifactNode extends IDispose {
     artifact: IStatefulArtifact;
@@ -60,7 +61,8 @@ export class ProjectManager implements IProjectManager {
         "navigationService",
         "artifactManager",
         "metadataService",
-        "statefulArtifactFactory"
+        "statefulArtifactFactory",
+        "loadingOverlayService"
     ];
 
     constructor(private $q: ng.IQService,
@@ -71,7 +73,8 @@ export class ProjectManager implements IProjectManager {
                 private navigationService: INavigationService,
                 private artifactManager: IArtifactManager,
                 private metadataService: IMetaDataService,
-                private statefulArtifactFactory: IStatefulArtifactFactory) {
+                private statefulArtifactFactory: IStatefulArtifactFactory,
+                private loadingOverlayService: ILoadingOverlayService) {
 
         this.subscribers = [];
     }
@@ -85,10 +88,10 @@ export class ProjectManager implements IProjectManager {
 
     private onChangeInCurrentlySelectedArtifact(artifact: IStatefulArtifact) {
         if (artifact.artifactState.deleted || artifact.artifactState.misplaced) {
-            //const refreshOverlayId = this.loadingOverlayService.beginLoading();
+            const refreshOverlayId = this.loadingOverlayService.beginLoading();
             this.refresh(this.getSelectedProject()).finally(() => {
                 this.triggerProjectCollectionRefresh();
-                //this.loadingOverlayService.endLoading(refreshOverlayId);
+                this.loadingOverlayService.endLoading(refreshOverlayId);
             });
         }
     }

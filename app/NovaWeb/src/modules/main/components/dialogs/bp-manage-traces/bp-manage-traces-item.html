@@ -30,13 +30,13 @@
                     </span>
                     <ul class="dropdown-menu" ng-hide="$ctrl.isItemReadOnly || $ctrl.item.readOnly">
                         <li ng-class="{disabled: $ctrl.item.traceDirection === 0}">
-                            <a ng-click=" $ctrl.item.traceDirection = 0; $ctrl.setTraceDirection($ctrl.item)"><i class="fonticon2-relationship-right"></i>
+                            <a ng-click=" $ctrl.item.traceDirection = 0; $ctrl.setTraceDirection()"><i class="fonticon2-relationship-right"></i>
                                 {{::$ctrl.localization.get('App_UP_Relationships_To')}}</a></li>
                         <li ng-class="{disabled: $ctrl.item.traceDirection === 1}">
-                            <a ng-click=" $ctrl.item.traceDirection = 1; $ctrl.setTraceDirection($ctrl.item);"><i class="fonticon2-relationship-left"></i>
+                            <a ng-click=" $ctrl.item.traceDirection = 1; $ctrl.setTraceDirection();"><i class="fonticon2-relationship-left"></i>
                                 {{::$ctrl.localization.get('App_UP_Relationships_From')}}</a></li>
                         <li ng-class="{disabled: $ctrl.item.traceDirection === 2}">
-                            <a ng-click="  $ctrl.item.traceDirection = 2; $ctrl.setTraceDirection($ctrl.item)"><i class="fonticon2-relationship-bi"></i>
+                            <a ng-click="  $ctrl.item.traceDirection = 2; $ctrl.setTraceDirection()"><i class="fonticon2-relationship-bi"></i>
                                 {{::$ctrl.localization.get('App_UP_Relationships_Bidirectional')}}</a></li>
                     </ul>
                 </div>

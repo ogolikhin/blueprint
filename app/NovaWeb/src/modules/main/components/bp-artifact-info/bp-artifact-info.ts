@@ -134,10 +134,8 @@ export class BpArtifactInfoController {
     }
 
     public onError = (error: any) => {
-        if (this.artifact.artifactState.deleted) {
-            this.dialogService.alert("Artifact_Lock_DoesNotExist");
-        } else if (this.artifact.artifactState.misplaced) {
-            //Occurs when refreshing an artifact that's been moved; do nothing
+        if (this.artifact.artifactState.deleted || this.artifact.artifactState.misplaced) {
+            //Occurs when refreshing an artifact that's been moved/deleted; do nothing
         } else {
             this.messageService.addError(error);
         }
@@ -219,12 +217,6 @@ export class BpArtifactInfoController {
 
             default:
                 break;
-        }
-
-        if (artifact.artifactState.misplaced) {
-            this.dialogService.alert("Artifact_Lock_DoesNotExist").then(() => {
-                //fixme: empty function block shoudl be removed
-            });
         }
     }
 

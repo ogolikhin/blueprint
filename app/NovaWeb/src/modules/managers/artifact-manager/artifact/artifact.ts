@@ -176,7 +176,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                     this.artifactState.readonly = true;
                 }
                 this.subject.onNext(this);
-                this.subject.onError(new Error("Artifact_Lock_" + Enums.LockResultEnum[lock.result]));
             }
         }
     }

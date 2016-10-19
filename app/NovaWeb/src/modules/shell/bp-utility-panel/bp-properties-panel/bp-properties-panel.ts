@@ -147,8 +147,8 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
 
     }
     
-    private shouldRenewFields(): boolean {
-        if (this.selectedSubArtifact.artifactState.readonly || !this.hasFields()) {
+    private shouldRenewFields(item: IStatefulItem): boolean {
+        if (item.artifactState.readonly || !this.hasFields()) {
             return true;
         }
 
@@ -185,7 +185,8 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         propertyTypesPromise.then((propertyTypes) => {
             const propertyEditorFilter = new PropertyEditorFilters(this.localization);
             const propertyFilters = propertyEditorFilter.getPropertyEditorFilters(selectedItem.predefinedType);
-            const shouldCreateFields = this.editor.create(selectedItem, propertyTypes, this.shouldRenewFields()); 
+            
+            const shouldCreateFields = this.editor.create(selectedItem, propertyTypes, this.shouldRenewFields(selectedItem)); 
 
             if (shouldCreateFields) {
                 this.clearFields();
@@ -200,7 +201,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                         onChange: this.onValueChange.bind(this)
                     });
 
-                    const isReadOnly = this.selectedArtifact.artifactState.readonly;
+                    const isReadOnly = selectedItem.artifactState.readonly;
                     if (isReadOnly) {
                         field.templateOptions.disabled = true;
                     }

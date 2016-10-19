@@ -232,7 +232,6 @@ export interface IUserStoryProperties {
 export interface ISystemTask extends ITask {
     associatedImageUrl: string;
     imageId: string;
-    getUserTask(graph: IProcessGraph): IUserTask;
 }
 
 export interface IUserTask extends ITask {
@@ -244,10 +243,6 @@ export interface IUserTask extends ITask {
 export interface IDecision extends IDiagramNode, IMenuContainer {
     getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape;
     setLabelWithRedrawUi(value: string);
-}
-
-export interface IUserTaskChildElement extends IDiagramNode {
-    getUserTask(graph: IProcessGraph): IUserTask;
 }
 
 export interface ISystemDecision {
@@ -265,6 +260,3 @@ export interface ISystemDecision {
     getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape;
 }
 
-export interface IUserTaskChildElement extends IDiagramNode {
-    getUserTask(graph: IProcessGraph): IUserTask;
-}

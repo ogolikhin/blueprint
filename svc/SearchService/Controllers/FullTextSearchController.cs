@@ -3,10 +3,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using SearchService.Helpers;
 using SearchService.Models;
 using SearchService.Repositories;
 using ServiceLibrary.Attributes;
-using SearchService.Helpers;
 using ServiceLibrary.Helpers;
 
 namespace SearchService.Controllers
@@ -20,19 +20,19 @@ namespace SearchService.Controllers
 
         private readonly ISearchConfigurationProvider _searchConfigurationProvider;
 
-        public FullTextSearchController() : this(new SqlFullTextSearchRepository(), new SearchConfiguration())
+        public FullTextSearchController() : this(new SqlItemSearchRepository(), new SearchConfiguration())
         {
         }
 
-        private readonly IFullTextSearchRepository _fullTextSearchRepository;
-        internal FullTextSearchController(IFullTextSearchRepository fullTextSearchRepository, ISearchConfiguration configuration)
+        private readonly IItemSearchRepository _itemSearchRepository;
+        internal FullTextSearchController(IItemSearchRepository itemSearchRepository, ISearchConfiguration configuration)
         {
-            _fullTextSearchRepository = fullTextSearchRepository;
+            _itemSearchRepository = itemSearchRepository;
 
             _searchConfigurationProvider = new SearchConfigurationProvider(configuration);
         }
 
-        #region Search
+        #region Post
 
         /// <summary>
         /// Perform a Full Text Search
@@ -59,7 +59,7 @@ namespace SearchService.Controllers
             
             int searchPage = GetStartCounter(page, 1, 1);
             
-            var results = await _fullTextSearchRepository.Search(userId, searchCriteria, searchPage, searchPageSize);
+            var results = await _itemSearchRepository.Search(userId, searchCriteria, searchPage, searchPageSize);
 
             results.Page = searchPage;
             results.PageSize = searchPageSize;
@@ -68,11 +68,9 @@ namespace SearchService.Controllers
             return Ok(results);
         }
 
-        
+        #endregion Post
 
-        #endregion
-
-        #region Metadata
+        #region MetaData
 
         /// <summary>
         /// Return metadata for a Full Text Search
@@ -95,7 +93,7 @@ namespace SearchService.Controllers
 
             int searchPageSize = GetPageSize(_searchConfigurationProvider, pageSize);
 
-            var results = await _fullTextSearchRepository.SearchMetaData(userId, searchCriteria);
+            var results = await _itemSearchRepository.SearchMetaData(userId, searchCriteria);
 
             results.PageSize = searchPageSize;
             results.TotalPages = results.TotalCount >= 0 ? (int)Math.Ceiling((double)results.TotalCount / searchPageSize) : -1;
@@ -103,11 +101,6 @@ namespace SearchService.Controllers
             return Ok(results);
         }
 
-
-
-        #endregion
-
-        
-
+        #endregion MetaData
     }
 }

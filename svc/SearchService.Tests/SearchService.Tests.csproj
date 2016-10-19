@@ -79,6 +79,7 @@
     <Compile Include="Controllers\StatusControllerTests.cs" />
     <Compile Include="Helpers\SearchConfigurationProviderTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\SqlItemSearchRepositoryTests.cs" />
     <Compile Include="Repositories\SqlProjectSearchRepositoryTests.cs" />
   </ItemGroup>
   <ItemGroup>

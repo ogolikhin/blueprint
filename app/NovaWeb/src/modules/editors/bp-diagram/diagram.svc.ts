@@ -5,7 +5,7 @@ import {IUseCase} from "./impl/usecase/models";
 import {UsecaseToDiagram} from "./impl/usecase/usecase-to-diagram";
 
 export interface IDiagramService {
-    getDiagram(id: number, itemType: ItemTypePredefined, cancelationToken: ng.IPromise<any>): ng.IPromise<IDiagram>;
+    getDiagram(id: number, versionId: number, itemType: ItemTypePredefined, cancelationToken: ng.IPromise<any>): ng.IPromise<IDiagram>;
     isDiagram(itemType: ItemTypePredefined): boolean;
 }
 
@@ -24,23 +24,29 @@ export class DiagramService implements IDiagramService {
     constructor(private $http: ng.IHttpService, private $q: ng.IQService, private $log) {
     }
 
-    public getDiagram(id: number, itemType: ItemTypePredefined, cancelationToken: ng.IPromise<any>): ng.IPromise<IDiagram> {
+    public getDiagram(id: number, versionId: number, itemType: ItemTypePredefined, cancelationToken: ng.IPromise<any>): ng.IPromise<IDiagram> {
         let promise: ng.IPromise<IDiagram> = this.promises[String(id)];
         if (!promise) {
             const deferred: ng.IDeferred<IDiagram> = this.$q.defer<IDiagram>();
             cancelationToken.then(() => {
                 deferred.reject(DiagramErrors[DiagramErrors.Cancelled]);
             });
-            this.loadDiagram(id, itemType, cancelationToken, deferred);
+            this.loadDiagram(id, versionId, itemType, cancelationToken, deferred);
             promise = this.promises[String(id)] = deferred.promise;
         }
         return promise;
     }
 
-    private loadDiagram(id: number, itemType: ItemTypePredefined, cancelationToken: ng.IPromise<any>, deferred: ng.IDeferred<IDiagram>) {
+    private loadDiagram(id: number, versionId: number, itemType: ItemTypePredefined, cancelationToken: ng.IPromise<any>, deferred: ng.IDeferred<IDiagram>) {
         const path = this.getPath(id, itemType);
         let diagram: IDiagram = null;
-        this.$http.get<IDiagram | IUseCase>(path, {timeout: cancelationToken})
+        const config = {
+            params: {
+                versionId: versionId
+            },
+            timeout: cancelationToken
+        };
+        this.$http.get<IDiagram | IUseCase>(path, config)
             .then(result => {
                 try {
                     if (itemType === ItemTypePredefined.UseCase) {

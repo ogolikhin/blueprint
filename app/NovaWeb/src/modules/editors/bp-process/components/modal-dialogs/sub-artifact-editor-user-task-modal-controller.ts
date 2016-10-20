@@ -8,15 +8,15 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
     public getLinkableProcesses: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
     public getLinkableArtifacts: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
     public isProjectOnlySearch: boolean = true;
-    public isLoadingIncludes: boolean = false;    
-    
+    public isLoadingIncludes: boolean = false;
+
     private isIncludeNoResults: boolean = false;
     private isIncludeBadRequest: boolean = false;
     private isIncludeResultsVisible: boolean;
     private isReadonly: boolean = false;
     private isSMB: boolean = false;
     private actionPlaceHolderText: string;
-    
+
     private searchIncludesDelay: ng.IPromise<any>;
     private modalProcessViewModel: IModalProcessViewModel;
 
@@ -54,10 +54,10 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
         }
 
         this.actionOnBlur();
-        
 
-        this.communicationManager.modalDialogManager.setModalProcessViewModel(this.setModalProcessViewModel);        
-    }    
+
+        this.communicationManager.modalDialogManager.setModalProcessViewModel(this.setModalProcessViewModel);
+    }
 
     private setModalProcessViewModel = (modalProcessViewModel) => {
         this.modalProcessViewModel = modalProcessViewModel;
@@ -101,7 +101,7 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
         }
 
         return msg;
-    }    
+    }
 
     public sortById(p1: IArtifactReference, p2: IArtifactReference) {
         return p1.id - p2.id;
@@ -143,15 +143,15 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
         if (this.dialogModel.clonedUserTask.associatedArtifact === undefined) {
             this.dialogModel.clonedUserTask.associatedArtifact = null;
         }
-        this.populateUserTaskChanges();                
+        this.populateUserTaskChanges();
     }
 
     private populateUserTaskChanges() {
 
         if (this.dialogModel.originalUserTask && this.dialogModel.clonedUserTask) {
             this.dialogModel.originalUserTask.persona = this.dialogModel.clonedUserTask.persona;
-            this.dialogModel.originalUserTask.action = this.dialogModel.clonedUserTask.action;            
-            this.dialogModel.originalUserTask.objective = this.dialogModel.clonedUserTask.objective;            
+            this.dialogModel.originalUserTask.action = this.dialogModel.clonedUserTask.action;
+            this.dialogModel.originalUserTask.objective = this.dialogModel.clonedUserTask.objective;
             this.dialogModel.originalUserTask.associatedArtifact = this.dialogModel.clonedUserTask.associatedArtifact;
         }
     }
@@ -172,7 +172,7 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
         }, 20);
     }
 
-    public getActiveHeader(): string {       
+    public getActiveHeader(): string {
 
         if (this.dialogModel.isUserTask) {
             return this.dialogModel.clonedUserTask.label;

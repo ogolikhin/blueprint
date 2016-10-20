@@ -108,7 +108,6 @@ export class SubArtifactEditorModalOpener {
             userTaskDialogModel.isUserTask = true;
         } else if (node.getNodeType() === NodeType.SystemTask) {
             systemTaskNode = <SystemTask>node;
-            userTaskNode = <UserTask>systemTaskNode.getUserTask(graph);
             userTaskDialogModel.isUserTask = false;
         } else {
             return;

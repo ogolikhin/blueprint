@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 export var ELLIPSIS_SYMBOL = String.fromCharCode(8230);
 
 export interface ILabel {
@@ -325,6 +325,8 @@ export class Label implements ILabel {
         this.div.style.verticalAlign = "middle";
         this.div.setAttribute("stLabelX", this.style.left.toString());
         this.div.setAttribute("stLabelY", this.style.top.toString());
+        this.div.setAttribute("stLabelWidth", this.style.width.toString());
+        this.div.setAttribute("stLabelHeight", this.style.height.toString());
         //this.div.style.wordBreak = "break-all";
         //this.div.style.whiteSpace = "wrap";
         this.div.style.wordWrap = "break-word";

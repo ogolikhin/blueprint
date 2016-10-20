@@ -1,4 +1,4 @@
-﻿using SearchService.Models;
+using SearchService.Models;
 using SearchService.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Exceptions;
@@ -13,6 +13,7 @@ namespace SearchService.Controllers
 {
     [ApiControllerJsonConfig]
     [BaseExceptionFilter]
+    [RoutePrefix("projectsearch")]
     public class ProjectSearchController : LoggableApiController
     {
         private readonly IProjectSearchRepository _projectSearchRepository;
@@ -44,10 +45,9 @@ namespace SearchService.Controllers
         /// <param name="resultCount"></param>
         /// <param name="separatorString"></param>
         /// <returns></returns>
-        [HttpPost, NoCache]
-        [Route("projectsearch"), SessionRequired]
-        [ActionName("GetProjectsByName")]
-        public async Task<IEnumerable<ProjectSearchResult>> GetProjectsByName(
+        [HttpPost, NoCache, SessionRequired]
+        [Route("name")]
+        public async Task<IEnumerable<ProjectSearchResult>> SearchName(
             [FromBody] ProjectSearchCriteria searchCriteria, 
             int? resultCount = DefaultResultCount,
             string separatorString = DefaultSeparator)

@@ -2,10 +2,10 @@ var backend = process.env.npm_config_backend || process.env.npm_package_config_b
 console.log({backend: backend});
 
 var proxy ={
-    '/svc/*':{
+    '/svc/**':{
         target: backend
     },
-    '/shared/*':{
+    '/shared/**':{
         target:backend
     }
 };

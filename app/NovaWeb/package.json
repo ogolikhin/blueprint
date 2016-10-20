@@ -30,7 +30,6 @@
     "angular-formly": "^8.2.1",
     "angular-formly-templates-bootstrap": "^6.4.0",
     "angular-messages": "~1.5.7",
-    "angular-perfect-scrollbar-2": "1.2.4",
     "angular-sanitize": "~1.5.2",
     "angular-ui-bootstrap": "^2.1.4",
     "angular-ui-router": "~0.2.17",
@@ -95,6 +94,7 @@
     "typings": "^1.4.0",
     "url-loader": "~0.5.7",
     "webpack": "^1.12.14",
+    "webpack-dev-server": "^1.16.2",
     "webpack-fail-plugin": "^1.0.5"
   },
   "config": {

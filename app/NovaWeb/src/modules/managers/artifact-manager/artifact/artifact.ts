@@ -121,7 +121,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     protected load(): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         if (this.isNeedToLoad()) {
-            this.services.artifactService.getArtifact(this.id).then((artifact: Models.IArtifact) => {
+            this.services.artifactService.getArtifact(this.id, this.getEffectiveVersion()).then((artifact: Models.IArtifact) => {
                 this.initialize(artifact);
                 if (this.artifactState.misplaced) {
                     deferred.reject(this);
@@ -176,7 +176,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                     this.artifactState.readonly = true;
                 }
                 this.subject.onNext(this);
-                this.subject.onError(new Error("Artifact_Lock_" + Enums.LockResultEnum[lock.result]));
             }
         }
     }
@@ -186,56 +185,31 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             return;
         }
         if (!this.lockPromise) {
-            let deferred = this.services.getDeferred<IStatefulArtifact>();
+            const deferred = this.services.getDeferred<IStatefulArtifact>();
             this.lockPromise = deferred.promise;
 
+            const loadingId = this.services.loadingOverlayService.beginLoading();
             this.services.artifactService.lock(this.id).then((result: Models.ILockResult[]) => {
-                let lock = result[0];
+                const lock = result[0];
                 this.processLock(lock);
                 deferred.resolve(this);
             }).catch((err) => {
                 deferred.reject(err);
             }).finally(() => {
                 this.lockPromise = null;
+                this.services.loadingOverlayService.endLoading(loadingId);
             });
         }
 
         return this.lockPromise;
     }
 
-    public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {
-        const deferred = this.services.getDeferred();
-        this.services.attachmentService.getArtifactAttachments(this.id, null, true)
-            .then((result: IArtifactAttachmentsResultSet) => {
-                // load attachments
-                this.attachments.initialize(result.attachments);
-
-                // load docRefs
-                this.docRefs.initialize(result.documentReferences);
-
-                deferred.resolve(result);
-            }, (error) => {
-                if (error && error.statusCode === HttpStatusCode.NotFound) {
-                    this.deleted = true;
-                }
-                deferred.reject(error);
-            });
-        return deferred.promise;
+    protected getAttachmentsDocRefsInternal(): ng.IPromise<IArtifactAttachmentsResultSet> {
+        return this.services.attachmentService.getArtifactAttachments(this.id, undefined, this.getEffectiveVersion());
     }
 
-    public getRelationships(): ng.IPromise<Relationships.IArtifactRelationshipsResultSet> {
-        const deferred = this.services.getDeferred();
-        this.services.relationshipsService.getRelationships(this.id)
-            .then((result: Relationships.IArtifactRelationshipsResultSet) => {
-                deferred.resolve(result);
-            }, (error) => {
-                if (error && error.statusCode === HttpStatusCode.NotFound) {
-                    this.deleted = true;
-                }
-                deferred.reject(error);
-            });
-
-        return deferred.promise;
+    protected getRelationshipsInternal() {
+        return this.services.relationshipsService.getRelationships(this.id, undefined, this.getEffectiveVersion());
     }
 
     public changes(): Models.IArtifact {
@@ -339,27 +313,23 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         this.discard();
 
-        let promisesToExecute: ng.IPromise<any>[] = [];
+        const promisesToExecute: ng.IPromise<any>[] = [];
 
-        let loadPromise = this.load();
-        promisesToExecute.push(loadPromise);
-
-        let attachmentPromise: ng.IPromise<any>;
+        promisesToExecute.push(this.load());
 
         if (this._attachments) {
             //this will also reload docRefs, so no need to call docRefs.refresh()
-            attachmentPromise = this._attachments.refresh();
-            promisesToExecute.push(attachmentPromise);
+            promisesToExecute.push(this._attachments.refresh());
         }
-
-        let relationshipPromise: ng.IPromise<any>;
 
         if (this._relationships) {
-            relationshipPromise = this._relationships.refresh();
-            promisesToExecute.push(relationshipPromise);
+            promisesToExecute.push(this._relationships.refresh());
         }
 
-        //History and Discussions refresh independently, triggered by artifact's observable.
+        //History and Discussions are excluded from here.
+        //They refresh independently, triggered by artifact's observable.
+
+        promisesToExecute.push(this.services.metaDataService.remove(this.projectId));
 
         // get promises for custom artifact refresh operations
         promisesToExecute.push.apply(promisesToExecute,
@@ -371,8 +341,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         }).catch(error => {
             deferred.reject(error);
 
-            //This steals control flow, don't put anything after it.
-            this.subject.onError(error);
+            //Project manager is listening to this, and will refresh the project.
+            this.subject.onNext(this);
         });
 
 

@@ -98,96 +98,6 @@ describe("SystemTask", () => {
 
     describe("Test text elements", () => {
 
-        it("Test formatElementText - label overflow", () => {
-            // Arrange
-            const testSystemTask = ShapeModelMock.instance().SystemTaskMock();
-
-            const node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
-            const textInput = "0123456789,0123456789,0123456789,0123456789";
-            const expectedText = textInput.substr(0, LABEL_VIEW_MAXLENGTH) + " ...";
-            // Act
-            const actualText = node.formatElementText(node, textInput);
-
-            //Assert
-            expect(actualText).toEqual(expectedText);
-        });
-
-        it("Test formatElementText - persona overflow", () => {
-            // Arrange 
-            const testSystemTask = ShapeModelMock.instance().SystemTaskMock();
-
-            const node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
-            const editNode = new DiagramNodeElement("H1", ElementType.SystemTaskHeader, "", new mxGeometry(), "");
-
-            const textInput = "01234567890123456789";
-            const expectedText = textInput.substr(0, PERSONA_VIEW_MAXLENGTH) + " ...";
-            // Act
-            const actualText = node.formatElementText(editNode, textInput);
-
-            //Assert
-            expect(actualText).toEqual(expectedText);
-        });
-
-        it("Test getElementTextLength - label", () => {
-            // Arrange
-            const testSystemTask = ShapeModelMock.instance().SystemTaskMock();
-
-            const node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
-
-
-            // Act
-            const textLength = node.getElementTextLength(node);
-
-            //Assert
-            expect(textLength).toEqual(LABEL_EDIT_MAXLENGTH);
-        });
-
-        it("Test getElementTextLength - persona", () => {
-            // Arrange
-            const testSystemTask = ShapeModelMock.instance().SystemTaskMock();
-
-            const node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
-            const editNode = new DiagramNodeElement("H1", ElementType.SystemTaskHeader, "", new mxGeometry(), "");
-
-
-            // Act
-            const textLength = node.getElementTextLength(editNode);
-
-            //Assert
-            expect(textLength).toEqual(PERSONA_EDIT_MAXLENGTH);
-        });
-        it("Test setElementText - label", () => {
-            // Arrange
-            const testSystemTask = ShapeModelMock.instance().SystemTaskMock();
-
-            const node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
-
-            const testLabelText = "test label";
-
-
-            // Act
-            node.setElementText(node, testLabelText);
-
-            //Assert
-            expect(node.label).toEqual(testLabelText);
-        });
-
-        it("Test setElementText - persona", () => {
-            // Arrange
-            const testSystemTask = ShapeModelMock.instance().SystemTaskMock();
-
-            const node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
-            const editNode = new DiagramNodeElement("H1", ElementType.SystemTaskHeader, "", new mxGeometry(), "");
-
-            const testLabelText = "test label";
-
-            // Act
-            node.setElementText(editNode, testLabelText);
-
-            //Assert
-            expect(node.persona).toEqual(testLabelText);
-        });
-
         it("Test latest persona value reuse", () => {
             // Arrange
             const testSystemTask = ShapeModelMock.instance().SystemTaskMock();
@@ -248,29 +158,6 @@ describe("SystemTask", () => {
             graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             graph.render(false, null);
-        });
-
-        it("return null when attempting to retrieve user task for pre-condition", () => {
-            // Arrange
-            const node: ISystemTask = <ISystemTask>graph.getNodeById("22");
-
-            // Act
-            const userTask = node.getUserTask(graph);
-
-            //Assert
-            expect(userTask).toBeNull();
-        });
-
-        it("return user task when attempting to retrieve user task for system task", () => {
-            // Arrange
-            const node: ISystemTask = <ISystemTask>graph.getNodeById("44");
-
-            // Act
-            const userTask = node.getUserTask(graph);
-
-            //Assert
-            expect(userTask).not.toBeNull();
-            expect(userTask.model).toEqual(processModel.shapes[2]);
         });
     });
 

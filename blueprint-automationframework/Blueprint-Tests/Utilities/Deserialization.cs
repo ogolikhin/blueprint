@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using RestSharp.Serializers;
 using JsonSerializer = Newtonsoft.Json.JsonSerializer;
+using Newtonsoft.Json.Serialization;
 
 namespace Utilities
 {

@@ -325,6 +325,8 @@ export class Label implements ILabel {
         this.div.style.verticalAlign = "middle";
         this.div.setAttribute("stLabelX", this.style.left.toString());
         this.div.setAttribute("stLabelY", this.style.top.toString());
+        this.div.setAttribute("stLabelWidth", this.style.width.toString());
+        this.div.setAttribute("stLabelHeight", this.style.height.toString());
         //this.div.style.wordBreak = "break-all";
         //this.div.style.whiteSpace = "wrap";
         this.div.style.wordWrap = "break-word";

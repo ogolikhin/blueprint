@@ -48,7 +48,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         this.setNextNode();
     }
 
-    public get defaultNextLabel(): string {
+    public get defaultMergeNodeLabel(): string {
         return this.localization.get("ST_Decision_Modal_Next_Task_Label");
     }
 
@@ -105,6 +105,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         const newCondition: ICondition = Condition.create(processLink, null, validMergeNodes);
         
         this.dialogModel.conditions.push(newCondition);
+        this.refreshView();
         this.scrollToBottomOfConditionList();
     }
 
@@ -128,6 +129,8 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
                 this.deletedConditions.push(item);
             }
         }
+
+        this.refreshView();
     }
 
     private getFirstNonMergingPointShapeId(link: IDiagramLink) {
@@ -204,6 +207,10 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
     public isLabelAvailable(): boolean {
         return this.dialogModel.label != null && this.dialogModel.label !== "";
     }
+
+    public getMergeNodeLabel(condition: ICondition): string {
+        return condition.mergeNode ? condition.mergeNode.label : this.defaultMergeNodeLabel;
+    }
     
     public areMergeNodesEmpty(): boolean {
         for (let i = 0; i < this.dialogModel.conditions.length; i++) {
@@ -243,7 +250,31 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         return !this.isReadonly && !this.hasMaxConditions;
     }
 
+    public isDeleteConditionVisible(condition): boolean {
+        return !this.hasMinConditions && !this.isFirstBranch(condition);
+    }
+
     public get canDeleteCondition(): boolean {
         return !this.isReadonly;
+    }
+
+    // This is a workaround to force re-rendering of the dialog
+    public refreshView() {
+        const element: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
+
+        if (!element) {
+            return;
+        }
+
+        const node = document.createTextNode(" ");
+        element.appendChild(node);
+
+        this.$timeout(
+            () => {
+                node.parentNode.removeChild(node);
+            }, 
+            20,
+            false
+        );
     }
 }

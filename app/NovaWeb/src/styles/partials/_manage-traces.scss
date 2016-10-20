@@ -128,8 +128,6 @@ $modal-side-clearance: 8px;
                             padding-left: 5px;
                             overflow: hidden;
                             height: $font-size-normal;
-                            display: inline-block;
-
                             &::before {
                                 font-size: $font-size-small;
                             }
@@ -167,6 +165,14 @@ $modal-side-clearance: 8px;
 
             .trace-main {
                 padding: 10px 0 5px;
+
+                i {
+                    color: $brand-secondary;
+
+                    &.icon-project{
+                        color: $gray-light;
+                    }
+                }
 
                 > div {
                     float: left;
@@ -225,7 +231,7 @@ $modal-side-clearance: 8px;
                 color: $gray-light;
                 display: inline-block;
                 float: right;
-                padding: 0 15px 5px 5px;
+                padding: 0 5px 5px 5px;
 
                 .icon {
                     &:hover {
@@ -242,7 +248,7 @@ $modal-side-clearance: 8px;
                 background: $brand-secondary;
                 color: $white;
 
-                a, i {
+                a, i,  i.icon-project {
                     color: $white;
                 }
 

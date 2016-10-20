@@ -1,7 +1,6 @@
 import * as angular from "angular";
 import "angular-formly";
 import "angular-sanitize";
-import "angular-perfect-scrollbar-2";
 import {ILocalizationService} from "../../../../core";
 import {Models, Enums} from "../../../../main/models";
 import {Helper} from "../../../../shared";
@@ -100,14 +99,10 @@ export class BpFieldReadOnlyController {
                 break;
 
         }
-        $scope.model[$scope.options["key"]] = newValue;
 
+        $scope["formattedValue"] = newValue;
         $scope["tooltip"] = tooltip;
         $scope["primitiveType"] = Enums.PrimitiveType;
-        $scope["scrollOptions"] = {
-            minScrollbarLength: 20,
-            scrollYMarginOffset: 4
-        };
 
         $scope["filterMultiChoice"] = this.filterMultiChoice;
     }

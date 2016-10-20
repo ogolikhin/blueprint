@@ -5,6 +5,7 @@ import {BPFieldBaseController} from "../base-controller";
 import {Models} from "../../../../main/models";
 import {ISelectionManager} from "../../../../managers";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../main/components/bp-artifact-picker";
+import {INavigationService} from "../../../../core/navigation/navigation.svc";
 
 export class BPFieldInheritFrom implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldInheritFrom";
@@ -19,14 +20,15 @@ export class BPFieldInheritFrom implements AngularFormly.ITypeOptions {
 }
 
 export class BPFieldInheritFromController extends BPFieldBaseController {
-    static $inject: [string] = ["$scope", "localization", "$window", "messageService", "dialogService", "selectionManager"];
+    static $inject: [string] = ["$scope", "localization", "$window", "messageService", "dialogService", "selectionManager", "navigationService"];
 
     constructor(private $scope: AngularFormly.ITemplateScope,
                 private localization: ILocalizationService,
                 private $window: ng.IWindowService,
                 private messageService: IMessageService,
                 private dialogService: IDialogService,
-                private selectionManager: ISelectionManager) {
+                private selectionManager: ISelectionManager,
+                private navigationService: INavigationService) {
         super();
 
         const templateOptions: AngularFormly.ITemplateOptions = $scope["to"];
@@ -79,7 +81,7 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
 
             const dialogData: IArtifactPickerOptions = {
                 selectableItemTypes: [Models.ItemTypePredefined.Actor],
-                showSubArtifacts: false                
+                showSubArtifacts: false
             };
 
             dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {
@@ -120,6 +122,10 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
             }
             return $scope.fields[1];
         }
+
+        $scope["navigateToItem"] = (id: number) => {
+            this.navigationService.navigateTo(id);
+        };
 
         $scope["selectBaseActor"] = () => {
             setBaseActor();

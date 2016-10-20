@@ -34,7 +34,8 @@ export class PreviewCenterController {
         "$scope",
         "$rootScope",
         "$sce",
-        "artifactManager"
+        "artifactManager",
+        "$state"
     ];
 
     public resizeContentAreas = function (isTabSetVisible) {
@@ -117,9 +118,10 @@ export class PreviewCenterController {
         return this.$sce.trustAsHtml(this.acceptanceCriteria);
     }
 
-    public navigateToUserStory() {
-        this.$scope.$parent["vm"].cancel();
-        // TODO: go to user story artifact
+    public navigateToUserStory() {       
+        let artifactId = this.centerTask.userStoryId;
+        const url = this.$state.href("main.item", {id: artifactId });
+        this.$window.open(url, "_blank");
     }
     public getBusinessRules() {
         return this.$sce.trustAsHtml(this.businessRules);
@@ -133,7 +135,8 @@ export class PreviewCenterController {
                 private $scope: ng.IScope,
                 private $rootScope: ng.IRootScopeService,
                 private $sce: ng.ISCEService,
-                private artifactManager: IArtifactManager
+                private artifactManager: IArtifactManager,
+                private $state: angular.ui.IStateService
                 // private projectManager: IProjectManager,
     ) {
 

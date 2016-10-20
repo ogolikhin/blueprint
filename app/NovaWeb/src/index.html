@@ -55,12 +55,23 @@
 
 <!--<script src="/novaweb/libs/mxClient/js/mxClient.min.js"></script>-->
 
+<!--[if gt IE 9]>-->
 <script src="/novaweb/vendor.bundle.js"></script>
+<!-- <![endif]-->
 
 <script src="/novaweb/static/bowser.js"></script>
 <script src="/novaweb/static/unsupported-browser.js"></script>
 
+<!--[if lte IE 9]>
+<script>
+    if (window.appBootstrap) {
+        window.appBootstrap.isSupportedVersion();
+    }
+</script>
+<![endif]-->
+<!--[if gt IE 9]> -->
 <script src="/novaweb/app.bundle.js"></script>
+<!-- <![endif]-->
 
 </body>
 </html>

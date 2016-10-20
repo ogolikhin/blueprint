@@ -71,6 +71,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
         return this.subject.asObservable();
     }
 
+    // we do not use changesets to calculate what to send back to the server
     public add(relationships: IRelationship[]): IRelationship[] {
         if (relationships) {
             relationships.map((relationship: IRelationship) => {
@@ -114,6 +115,17 @@ export class ArtifactRelationships implements IArtifactRelationships {
             this.changeset.add(changeset);
         });
 
+        let originalManualTraces = this.originalRelationships.filter((relationship: IRelationship) =>
+        relationship.traceType === LinkType.Manual);
+        if (originalManualTraces.length > 0 && relationships.length === 0) {  //something was deleted
+            //we dont calculate what exactly was deleted as we dont look at the changesets for relationships.
+            const changeset = {
+                type: ChangeTypeEnum.Delete,
+                key: null,
+                value: null
+            } as IChangeSet;
+            this.changeset.add(changeset);
+        }
 
         this.statefulItem.lock();
 
@@ -122,6 +134,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
         return this.relationships;
     }
 
+    // we do not use changesets to calculate what to send back to the server
     public remove(relationships: IRelationship[]): IRelationship[] {
         if (relationships) {
             relationships.map((relationship: IRelationship) => {

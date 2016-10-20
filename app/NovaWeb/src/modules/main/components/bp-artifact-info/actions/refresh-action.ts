@@ -41,22 +41,9 @@ export class RefreshAction extends BPButtonAction {
                         loadingOverlayService.endLoading(overlayId);
                     });
                 } else {
-                    artifact.refresh()
-                        .then((artif) => {
-                            metaDataService.remove(artif.projectId);
-                            metaDataService.refresh(artif.projectId);
-                        })
-                        .catch(() => {
-                            // We're not interested in the error type.
-                            // sometimes this error is created by artifact.load(), which returns the statefulArtifact instead of an error object.
-                            const refreshOverlayId = loadingOverlayService.beginLoading();
-                            projectManager.refresh(projectManager.getSelectedProject()).finally(() => {
-                                projectManager.triggerProjectCollectionRefresh();
-                                loadingOverlayService.endLoading(refreshOverlayId);
-                            });
-                        }).finally(() => {
-                        loadingOverlayService.endLoading(overlayId);
-                    });
+                    artifact.refresh().finally(() => {
+                            loadingOverlayService.endLoading(overlayId);
+                        });
                 }
             },
             (): boolean => {

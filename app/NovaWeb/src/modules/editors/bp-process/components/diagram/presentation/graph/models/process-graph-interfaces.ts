@@ -211,9 +211,6 @@ export interface IDiagramElement extends MxCell {
     getHeight(): number;
     getWidth(): number;
     getCenter(): MxPoint;
-    setElementText(cell: MxCell, text: string);
-    formatElementText(cell: MxCell, text: string): string;
-    getElementTextLength(cell: MxCell): number;
 }
 
 export interface IDiagramNodeElement extends IDiagramElement {
@@ -235,7 +232,6 @@ export interface IUserStoryProperties {
 export interface ISystemTask extends ITask {
     associatedImageUrl: string;
     imageId: string;
-    getUserTask(graph: IProcessGraph): IUserTask;
 }
 
 export interface IUserTask extends ITask {
@@ -249,10 +245,6 @@ export interface IDecision extends IDiagramNode, IMenuContainer {
     setLabelWithRedrawUi(value: string);
 }
 
-export interface IUserTaskChildElement extends IDiagramNode {
-    getUserTask(graph: IProcessGraph): IUserTask;
-}
-
 export interface ISystemDecision {
     setLabelWithRedrawUi(value: string);
     updateCellLabel(value: string);
@@ -260,9 +252,6 @@ export interface ISystemDecision {
     hideMenu(graph: IProcessGraph);
     renderLabels();
     render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode;
-    getElementTextLength(cell: MxCell): number;
-    formatElementText(cell: MxCell, text: string): string;
-    setElementText(cell: MxCell, text: string);
     getFirstSystemTask(graph: IProcessGraph): ISystemTask;
     getSystemNodes(graph: IProcessGraph): IDiagramNode[];
     openDialog(dialogType: ModalDialogType);
@@ -271,6 +260,3 @@ export interface ISystemDecision {
     getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape;
 }
 
-export interface IUserTaskChildElement extends IDiagramNode {
-    getUserTask(graph: IProcessGraph): IUserTask;
-}

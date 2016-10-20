@@ -68,7 +68,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         return userTask;
     }
 
-    public initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
+    private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
 
         //Delete Shape
         const clickAction = () => {
@@ -86,11 +86,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         if (nodeFactorySettings && nodeFactorySettings.isCommentsButtonEnabled) {
             // #TODO integrate with utility panel in Nova
             // this.commentsButton.setClickAction(() => this.openPropertiesDialog(this.rootScope, Shell.UtilityTab.discussions));
-        } else {
-            this.commentsButton.setClickAction(() => {
-                //fixme: empty blocks should be removed
-            });
-        }
+        } 
 
         this.commentsButton.setTooltip(this.rootScope.config.labels["ST_Comments_Label"]);
         this.commentsButton.setActiveImage(this.getImageSource("/comments-active.svg"));
@@ -108,10 +104,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         if (nodeFactorySettings && nodeFactorySettings.isLinkButtonEnabled) {
             this.linkButton.setClickAction(() => this.navigateToProcess());
-        } else {
-            this.linkButton.setClickAction(() => {
-                //fixme: empty blocks should be removed
-            });
         }
 
         this.linkButton.setTooltip(this.rootScope.config.labels["ST_Userstory_Label"]);
@@ -131,10 +123,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         if (nodeFactorySettings && nodeFactorySettings.isPreviewButtonEnabled) {
             this.previewButton.setClickAction(() => this.openDialog(ModalDialogType.PreviewDialogType));
-        } else {
-            this.previewButton.setClickAction(() => {
-                //fixme: empty blocks should be removed
-            });
         }
 
         this.previewButton.setTooltip(this.rootScope.config.labels["ST_Userstory_Label"]);
@@ -151,11 +139,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("adddetails-neutral.svg"));
 
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
-            this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemTaskDetailsDialogType));
-        } else {
-            this.detailsButton.setClickAction(() => {
-                //fixme: empty blocks should be removed
-            });
+            this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserTaskDetailsDialogType));
         }
 
         this.detailsButton.setTooltip(this.rootScope.config.labels["ST_Settings_Label"]);
@@ -181,9 +165,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         const valueChanged = this.setPropertyValue("persona", value);
         if (valueChanged) {
             if (this.personaLabel) {
-                if (this.personaLabel.text !== value) {
-                    this.personaLabel.text = value;
-                }
+                this.personaLabel.text = value;
                 this.shapesFactoryService.setUserTaskPersona(value);
             } 
         }
@@ -437,60 +419,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         //this.rootScope.$broadcast(BaseModalDialogController.dialogOpenEventName,
         //    this.model.id,
         //    dialogType);
-    }
-
-    public getElementTextLength(cell: MxCell): number {
-        /*
-         * get the maximum length of text that can be entered in
-         * the cell
-         */
-        let maxLen: number = this.LABEL_EDIT_MAXLENGTH;
-
-        const element = <IDiagramNodeElement>cell;
-        if (element.getElementType() === ElementType.UserTaskHeader) {
-            maxLen = this.PERSONA_EDIT_MAXLENGTH;
-        } else {
-            maxLen = this.LABEL_EDIT_MAXLENGTH;
-        }
-        return maxLen;
-    }
-
-    public formatElementText(cell: MxCell, text: string): string {
-
-        // This function returns formatted text to the getLabel()
-        // function to display the node's label and persona.
-
-
-        if (cell && text) {
-            let maxLen: number = this.LABEL_VIEW_MAXLENGTH;
-
-            const element = <IDiagramNodeElement>cell;
-            if (element.getElementType() === ElementType.UserTaskHeader) {
-                maxLen = this.PERSONA_VIEW_MAXLENGTH;
-            } else {
-                maxLen = this.LABEL_VIEW_MAXLENGTH;
-            }
-
-            if (text.length > maxLen) {
-                text = text.substr(0, maxLen) + " ...";
-            }
-        }
-
-        return text;
-    }
-
-    public setElementText(cell: MxCell, text: string) {
-
-        // save text for the node or for an element within
-        // the node
-
-        const element = <IDiagramNodeElement>cell;
-
-        if (element.getElementType() === ElementType.UserTaskHeader) {
-            this.persona = text;
-        } else {
-            this.label = text;
-        }
     }
 
     public get userStoryId(): number {

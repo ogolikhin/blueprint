@@ -18,7 +18,7 @@ export class BPFilteredInput implements ng.IDirective {
             if (transformedInput !== inputValue) {
                 const el = $element[0];
                 const cursorPosition = el.selectionStart - 1;
-                
+
                 $ctrl.$setViewValue(transformedInput);
                 $ctrl.$render();
 

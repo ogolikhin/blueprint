@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {IArtifactService} from "../../../../../managers/artifact-manager/";
 import {ArtifactServiceMock} from "../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {ProcessServiceMock} from "../../../services/process.svc.mock";

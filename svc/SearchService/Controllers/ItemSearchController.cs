@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -60,9 +60,9 @@ namespace SearchService.Controllers
             ValidateCriteria(searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
 
             int searchPageSize = GetPageSize(_searchConfigurationProvider, pageSize);
-            
+
             int searchPage = GetStartCounter(page, 1, 1);
-            
+
             var results = await _itemSearchRepository.Search(userId, searchCriteria, searchPage, searchPageSize);
 
             results.Page = searchPage;
@@ -112,7 +112,7 @@ namespace SearchService.Controllers
         /// <summary>
         /// Perform an Item search by Name
         /// </summary>
-        /// <param name="searchCriteria">SearchCriteria object</param>      
+        /// <param name="searchCriteria">SearchCriteria object</param>
         /// <param name="startOffset">Search start offset</param>
         /// <param name="pageSize">Page Size</param>
         /// <response code="200">OK.</response>

@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {ILocalizationService} from "../../../core";
 import {Models, Enums, IWindowManager} from "../../../main";
 import {
@@ -140,18 +140,17 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     };
 
     private hasFields(): boolean  {
-        return ((this.systemFields || []).length + 
+        return ((this.systemFields || []).length +
                (this.customFields || []).length +
                (this.richTextFields || []).length +
                (this.specificFields || []).length) > 0;
 
     }
-    
+
     private shouldRenewFields(item: IStatefulItem): boolean {
         if (item.artifactState.readonly || !this.hasFields()) {
             return true;
         }
-
         return false;
     }
 
@@ -185,8 +184,8 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         propertyTypesPromise.then((propertyTypes) => {
             const propertyEditorFilter = new PropertyEditorFilters(this.localization);
             const propertyFilters = propertyEditorFilter.getPropertyEditorFilters(selectedItem.predefinedType);
-            
-            const shouldCreateFields = this.editor.create(selectedItem, propertyTypes, this.shouldRenewFields(selectedItem)); 
+
+            const shouldCreateFields = this.editor.create(selectedItem, propertyTypes, this.shouldRenewFields(selectedItem));
 
             if (shouldCreateFields) {
                 this.clearFields();

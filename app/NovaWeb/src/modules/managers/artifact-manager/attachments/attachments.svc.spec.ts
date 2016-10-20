@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import "angular-mocks";
 import {HttpStatusCode} from "../../../core/http";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
@@ -19,7 +19,7 @@ describe("Artifact Attachments Service", () => {
         inject(($httpBackend: ng.IHttpBackendService, artifactAttachments: IArtifactAttachmentsService) => {
 
             // Arrange
-            $httpBackend.expectGET(`/svc/artifactstore/artifacts/306/attachment?addDrafts=true`)
+            $httpBackend.expectGET(`/svc/artifactstore/artifacts/306/attachment`)
                 .respond(HttpStatusCode.Success, {
                     "artifactId": 306,
                     "subartifactId": null,
@@ -67,7 +67,7 @@ describe("Artifact Attachments Service", () => {
         inject(($httpBackend: ng.IHttpBackendService, artifactAttachments: IArtifactAttachmentsService) => {
 
             // Arrange
-            $httpBackend.expectGET(`/svc/artifactstore/artifacts/0/attachment?addDrafts=true`)
+            $httpBackend.expectGET(`/svc/artifactstore/artifacts/0/attachment`)
                 .respond(HttpStatusCode.NotFound, {
                     statusCode: HttpStatusCode.NotFound,
                     message: "Couldn't find the artifact"

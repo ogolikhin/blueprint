@@ -1,4 +1,4 @@
-﻿import {Models, Enums} from "../../main";
+import {Models, Enums} from "../../main";
 
 import {
     BpArtifactEditor,
@@ -65,7 +65,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     }
 
     public hasFields(): boolean  {
-        return ((this.systemFields || []).length + 
+        return ((this.systemFields || []).length +
                (this.customFields || []).length +
                (this.richTextFields || []).length +
                (this.specificFields || []).length) > 0;

@@ -99,14 +99,10 @@ export class BpFieldReadOnlyController {
                 break;
 
         }
-        $scope.model[$scope.options["key"]] = newValue;
 
+        $scope["formattedValue"] = newValue;
         $scope["tooltip"] = tooltip;
         $scope["primitiveType"] = Enums.PrimitiveType;
-        $scope["scrollOptions"] = {
-            minScrollbarLength: 20,
-            scrollYMarginOffset: 4
-        };
 
         $scope["filterMultiChoice"] = this.filterMultiChoice;
     }

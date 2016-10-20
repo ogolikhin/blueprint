@@ -1,4 +1,4 @@
-﻿using Common;
+using Common;
 using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
@@ -15,6 +15,8 @@ namespace Helper
 {
     public static class ArtifactStoreHelper
     {
+        #region Custom Asserts
+
         /// <summary>
         /// Asserts that the list of returned projects contains only the expected project.
         /// </summary>
@@ -153,235 +155,6 @@ namespace Helper
 
                 AssertNovaArtifactResponsePropertiesMatchWithArtifactSkipVersion(novaArtifactResponse, artifact);
             }
-        }
-
-        /// <summary>
-        /// Gets the custom data project.
-        /// </summary>
-        /// <returns>The custom data project.</returns>
-        public static IProject GetCustomDataProject(IUser user)
-        {
-            List<IProject> allProjects = null;
-            allProjects = ProjectFactory.GetAllProjects(user);
-
-            const string customDataProjectName = "Custom Data";
-
-            Assert.That(allProjects.Exists(p => (p.Name == customDataProjectName)),
-                "No project was found named '{0}'!", customDataProjectName);
-
-            var projectCustomData = allProjects.First(p => (p.Name == customDataProjectName));
-            projectCustomData.GetAllArtifactTypes(ProjectFactory.Address, user);
-
-            return projectCustomData;
-        }
-
-        /// <summary>
-        /// Try to update an invalid Artifact with Property Changes.  Use this for testing cases where the save is expected to fail.
-        /// </summary>
-        /// <param name="address">The base address used for the REST call.</param>
-        /// <param name="requestBody">The request body (i.e. artifact to be updated).</param>
-        /// <param name="artifactId">The ID of the artifact to save.</param>
-        /// <param name="user">The user updating the artifact.</param>
-        /// <returns>The body content returned from ArtifactStore.</returns>
-        public static string UpdateInvalidArtifact(string address, string requestBody,
-            int artifactId, IUser user)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string tokenValue = user.Token?.AccessControlToken;
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
-            RestApiFacade restApi = new RestApiFacade(address, tokenValue);
-            const string contentType = "application/json";
-
-            var response = restApi.SendRequestBodyAndGetResponse(
-                path,
-                RestRequestMethod.PATCH,
-                requestBody,
-                contentType);
-
-            return response.Content;
-        }
-
-        /// <summary>
-        /// Attaches file to the artifact (Save changes).
-        /// </summary>
-        /// <param name="user">User to perform an operation.</param>
-        /// <param name="artifact">Artifact.</param>
-        /// <param name="files">List of files to attach.</param>
-        /// <param name="artifactStore">IArtifactStore.</param>
-        public static void AddArtifactAttachmentAndSave(IUser user, IArtifact artifact, List<INovaFile> files, IArtifactStore artifactStore)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-            ThrowIf.ArgumentNull(files, nameof(files));
-            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
-
-            artifact.Lock(user);
-            NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
-            foreach (var file in files)
-            {
-                artifactDetails.AttachmentValues.Add(new AttachmentValue(user, file));
-            }   
-
-            Artifact.UpdateArtifact(artifact, user, artifactDetails, artifactStore.Address);
-            var attachment = artifactStore.GetAttachments(artifact, user);
-            Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
-        }
-
-        /// <summary>
-        /// deletes file from the artifact (Save changes).
-        /// </summary>
-        /// <param name="user">User to perform an operation.</param>
-        /// <param name="artifact">Artifact.</param>
-        /// <param name="fileId">Id of the file to delete. File must be attached to the artifact.</param>
-        /// <param name="artifactStore">IArtifactStore.</param>
-        public static void DeleteArtifactAttachmentAndSave(IUser user, IArtifact artifact, int fileId, IArtifactStore artifactStore)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
-
-            var attachment = artifactStore.GetAttachments(artifact, user);
-            Assert.IsNotNull(attachment, "Getattachments shouldn't return null.");
-            Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
-            var fileToDelete = attachment.AttachedFiles.FirstOrDefault(f => f.AttachmentId == fileId);
-            Assert.AreEqual(fileId, fileToDelete.AttachmentId, "Attachments must contain file with fileId.");
-
-            artifact.Lock(user);
-            NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
-            artifactDetails.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
-
-            Artifact.UpdateArtifact(artifact, user, artifactDetails, artifactStore.Address);
-        }
-
-        /// <summary>
-        /// Creates a new NovaArtifactDetails with the published artifact
-        /// </summary>
-        /// <param name="artifact">The artifact which contains properties that NovaArtiactDetails refers to</param>
-        /// <param name="user">The user who will create the artifact.</param>
-        /// <returns>NovaArtifactDetails</returns>
-        public static NovaArtifactDetails CreateNovaArtifactDetailsWithArtifact(IArtifactBase artifact)
-        {
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-
-            NovaArtifactDetails novaArtifactDetails = new NovaArtifactDetails
-            {
-                Id = artifact.Id,
-                ProjectId = artifact.ProjectId,
-                ParentId = artifact.ParentId,
-                Version = artifact.Version,
-            };
-            return novaArtifactDetails;
-        }
-
-        /// <summary>
-        /// Creates inline trace text for the provided artifact. For use with RTF properties.
-        /// </summary>
-        /// <param name="inlineTraceArtifact">target artifact for inline traces</param>
-        /// <param name="inlineTraceArtifactDetails">target artifactDetails for inline traces</param>
-        /// <returns>inline trace text</returns>
-        public static string CreateArtifactInlineTraceValue(IArtifactBase inlineTraceArtifact, INovaArtifactDetails inlineTraceArtifactDetails)
-        {
-            ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
-            ThrowIf.ArgumentNull(inlineTraceArtifactDetails, nameof(inlineTraceArtifactDetails));
-
-            string inlineTraceText = null;
-
-            inlineTraceText = I18NHelper.FormatInvariant("<html><head></head><body style=\"padding: 1px 0px 0px; font-family: 'Portable User Interface'; font-size: 10.67px\"><div style=\"padding: 0px\"><p style=\"margin: 0px\">&#x200b;<a linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null\" canclick=\"True\" isvalid=\"True\" href=\"{0}?ArtifactId={1}\" target=\"_blank\" artifactid=\"{1}\" style=\"font-family: 'Portable User Interface'; font-size: 11px; font-style: normal; font-weight: normal; text-decoration: underline; color: #0000FF\" title=\"Project: akim_project\"><span style=\"font-family: 'Portable User Interface'; font-size: 11px; font-style: normal; font-weight: normal; text-decoration: underline; color: #0000FF\">{2}{1}: {3}</span></a><span style=\"-c1-editable: true; font-family: 'Portable User Interface'; font-size: 10.67px; font-style: normal; font-weight: normal; color: Black\">&#x200b;</span></p></div></body></html>",
-                inlineTraceArtifact.Address, inlineTraceArtifact.Id, inlineTraceArtifactDetails.Prefix, inlineTraceArtifactDetails.Name);
-
-            return inlineTraceText;
-        }
-
-        /// <summary>
-        /// Checks if the inline trace link is valid or not.
-        /// </summary>
-        /// <param name="inlineTraceLink">The inline trace link to validate</param>
-        /// <returns> True if the inline trace link is a valid inline trace link, otherwise returns false.</returns>
-        private static bool IsValidInlineTrace(string inlineTraceLink)
-        {
-            const string validTag = "isValid=\"True\"";
-
-            return inlineTraceLink.ToUpper(CultureInfo.InvariantCulture).Contains(validTag.ToUpper(CultureInfo.InvariantCulture));
-        }
-
-        /// <summary>
-        /// Validates inline trace link returned from artifact details
-        /// </summary>
-        /// <param name="artifactdetails">The artifact details containing the inline trace link which needs validation</param>
-        /// <param name="inlineTraceArtifact">The artifact contained within the inline trace link</param>
-        /// <param name="validInlineTraceLink">A flag indicating whether the inline trace link is expected to be valid or not</param>
-        public static void ValidateInlineTraceLinkFromArtifactDetails(NovaArtifactDetails artifactdetails, IArtifactBase inlineTraceArtifact, bool validInlineTraceLink)
-        {
-            ThrowIf.ArgumentNull(artifactdetails, nameof(artifactdetails));
-            ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
-
-            // Validation: Verify that the artifactDeatils' description field which contain inline trace link contains the valid inline trace information (name of the inline trace artifact)
-            Assert.That(artifactdetails.Description.Contains(inlineTraceArtifact.Name), 
-                "Expected outcome should not contains {0} on returned artifactdetails. Returned inline trace content is {1}.", 
-                inlineTraceArtifact.Name, 
-                artifactdetails.Description);
-
-            Assert.AreEqual(validInlineTraceLink, IsValidInlineTrace(artifactdetails.Description),
-                "Expected {0} for valid inline trace but {1} was returned. The returned inlinetrace link is {2}.",
-                validInlineTraceLink,
-                !validInlineTraceLink,
-                artifactdetails.Description);
-        }
-
-        /// <summary>
-        /// Validates inline trace link returned from subartifact details
-        /// </summary>
-        /// <param name="subArtifactdetails">The subartifact details containing the inline trace link which needs validation</param>
-        /// <param name="inlineTraceArtifact">The artifact contained within the inline trace link</param>
-        /// <param name="validInlineTraceLink">A flag indicating whether the inline trace link is expected to be valid or not</param>
-        public static void ValidateInlineTraceLinkFromSubArtifactDetails(NovaSubArtifactDetails subArtifactdetails, IArtifactBase inlineTraceArtifact, bool validInlineTraceLink)
-        {
-            ThrowIf.ArgumentNull(subArtifactdetails, nameof(subArtifactdetails));
-            ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
-
-            // Validation: Verify that the subArtifactDetails' description field which contain inline trace link contains the valid inline trace information (name of the inline trace artifact)
-            Assert.That(subArtifactdetails.Description.Contains(inlineTraceArtifact.Name), 
-                "Expected outcome does not contain {0} on returned artifactdetails. Returned inline trace content is {1}.", 
-                inlineTraceArtifact.Name, 
-                subArtifactdetails.Description);
-
-            Assert.AreEqual(validInlineTraceLink, IsValidInlineTrace(subArtifactdetails.Description), 
-                "Expected {0} for valid inline trace but {1} was returned. The returned inlinetrace link is {2}.", 
-                validInlineTraceLink, 
-                !validInlineTraceLink, 
-                subArtifactdetails.Description);
-        }
-
-        /// <summary>
-        /// Creates new rich text that includes inline trace(s)
-        /// </summary>
-        /// <param name="artifacts">The artifacts being added as inline trace(s)</param>
-        /// <returns>A formatted rich text string with inline traces(s)</returns>
-        public static string CreateTextForProcessInlineTrace(IList<IArtifact> artifacts)
-        {
-            ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
-
-            var text = string.Empty;
-
-            foreach (var artifact in artifacts)
-            {
-                var openApiProperty = artifact.Properties.FirstOrDefault(p => p.Name == "ID");
-                if (openApiProperty != null)
-                {
-                    text = text + I18NHelper.FormatInvariant("<a " +
-                        "href=\"{0}/?/ArtifactId={1}\" target=\"\" artifactid=\"{1}\"" +
-                        " linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\"" +
-                        " canclick=\"True\" isvalid=\"True\" title=\"Project: {3}\"><span style=\"text-decoration: underline; color: #0000ff\">{4}: {2}</span></a>",
-                        artifact.Address, artifact.Id, artifact.Name, artifact.Project.Name,
-                        openApiProperty.TextOrChoiceValue);
-                }
-            }
-
-            Assert.IsFalse(string.IsNullOrWhiteSpace(text), "Text for inline trace was null or whitespace!");
-
-            return I18NHelper.FormatInvariant("<p>{0}</p>", text);
         }
 
         /// <summary>
@@ -538,5 +311,282 @@ namespace Helper
                 Identification.AssertEquals(artifact1.LockedByUser, artifact2.LockedByUser);
             }
         }
+
+        #endregion Custom Asserts
+
+        /// <summary>
+        /// Gets the custom data project.
+        /// </summary>
+        /// <returns>The custom data project.</returns>
+        public static IProject GetCustomDataProject(IUser user)
+        {
+            List<IProject> allProjects = null;
+            allProjects = ProjectFactory.GetAllProjects(user);
+
+            const string customDataProjectName = "Custom Data";
+
+            Assert.That(allProjects.Exists(p => (p.Name == customDataProjectName)),
+                "No project was found named '{0}'!", customDataProjectName);
+
+            var projectCustomData = allProjects.First(p => (p.Name == customDataProjectName));
+            projectCustomData.GetAllArtifactTypes(ProjectFactory.Address, user);
+
+            return projectCustomData;
+        }
+
+        /// <summary>
+        /// Try to update an invalid Artifact with Property Changes.  Use this for testing cases where the save is expected to fail.
+        /// </summary>
+        /// <param name="address">The base address used for the REST call.</param>
+        /// <param name="requestBody">The request body (i.e. artifact to be updated).</param>
+        /// <param name="artifactId">The ID of the artifact to save.</param>
+        /// <param name="user">The user updating the artifact.</param>
+        /// <returns>The body content returned from ArtifactStore.</returns>
+        public static string UpdateInvalidArtifact(string address, string requestBody,
+            int artifactId, IUser user)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string tokenValue = user.Token?.AccessControlToken;
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
+            RestApiFacade restApi = new RestApiFacade(address, tokenValue);
+            const string contentType = "application/json";
+
+            var response = restApi.SendRequestBodyAndGetResponse(
+                path,
+                RestRequestMethod.PATCH,
+                requestBody,
+                contentType);
+
+            return response.Content;
+        }
+
+        /// <summary>
+        /// Attaches file to the artifact (Save changes).
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
+        /// <param name="artifact">Artifact.</param>
+        /// <param name="files">List of files to attach.</param>
+        /// <param name="artifactStore">IArtifactStore.</param>
+        public static void AddArtifactAttachmentAndSave(IUser user, IArtifact artifact, List<INovaFile> files, IArtifactStore artifactStore)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(files, nameof(files));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
+            artifact.Lock(user);
+            NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            foreach (var file in files)
+            {
+                artifactDetails.AttachmentValues.Add(new AttachmentValue(user, file));
+            }
+
+            Artifact.UpdateArtifact(artifact, user, artifactDetails, artifactStore.Address);
+            var attachment = artifactStore.GetAttachments(artifact, user);
+            Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
+        }
+
+        /// <summary>
+        /// deletes file from the artifact (Save changes).
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
+        /// <param name="artifact">Artifact.</param>
+        /// <param name="fileId">Id of the file to delete. File must be attached to the artifact.</param>
+        /// <param name="artifactStore">IArtifactStore.</param>
+        public static void DeleteArtifactAttachmentAndSave(IUser user, IArtifact artifact, int fileId, IArtifactStore artifactStore)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
+            var attachment = artifactStore.GetAttachments(artifact, user);
+            Assert.IsNotNull(attachment, "Getattachments shouldn't return null.");
+            Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
+            var fileToDelete = attachment.AttachedFiles.FirstOrDefault(f => f.AttachmentId == fileId);
+            Assert.AreEqual(fileId, fileToDelete.AttachmentId, "Attachments must contain file with fileId.");
+
+            artifact.Lock(user);
+            NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            artifactDetails.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
+
+            Artifact.UpdateArtifact(artifact, user, artifactDetails, artifactStore.Address);
+        }
+
+        /// <summary>
+        /// Creates a new NovaArtifactDetails with the published artifact
+        /// </summary>
+        /// <param name="artifact">The artifact which contains properties that NovaArtiactDetails refers to</param>
+        /// <param name="user">The user who will create the artifact.</param>
+        /// <returns>NovaArtifactDetails</returns>
+        public static NovaArtifactDetails CreateNovaArtifactDetailsWithArtifact(IArtifactBase artifact)
+        {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            NovaArtifactDetails novaArtifactDetails = new NovaArtifactDetails
+            {
+                Id = artifact.Id,
+                ProjectId = artifact.ProjectId,
+                ParentId = artifact.ParentId,
+                Version = artifact.Version,
+            };
+            return novaArtifactDetails;
+        }
+
+        /// <summary>
+        /// Creates inline trace text for the provided artifact. For use with RTF properties.
+        /// </summary>
+        /// <param name="inlineTraceArtifact">target artifact for inline traces</param>
+        /// <param name="inlineTraceArtifactDetails">target artifactDetails for inline traces</param>
+        /// <returns>inline trace text</returns>
+        public static string CreateArtifactInlineTraceValue(IArtifactBase inlineTraceArtifact, INovaArtifactDetails inlineTraceArtifactDetails)
+        {
+            ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
+            ThrowIf.ArgumentNull(inlineTraceArtifactDetails, nameof(inlineTraceArtifactDetails));
+
+            string inlineTraceText = null;
+
+            inlineTraceText = I18NHelper.FormatInvariant("<html><head></head><body style=\"padding: 1px 0px 0px; font-family: 'Portable User Interface'; font-size: 10.67px\"><div style=\"padding: 0px\"><p style=\"margin: 0px\">&#x200b;<a linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null\" canclick=\"True\" isvalid=\"True\" href=\"{0}?ArtifactId={1}\" target=\"_blank\" artifactid=\"{1}\" style=\"font-family: 'Portable User Interface'; font-size: 11px; font-style: normal; font-weight: normal; text-decoration: underline; color: #0000FF\" title=\"Project: akim_project\"><span style=\"font-family: 'Portable User Interface'; font-size: 11px; font-style: normal; font-weight: normal; text-decoration: underline; color: #0000FF\">{2}{1}: {3}</span></a><span style=\"-c1-editable: true; font-family: 'Portable User Interface'; font-size: 10.67px; font-style: normal; font-weight: normal; color: Black\">&#x200b;</span></p></div></body></html>",
+                inlineTraceArtifact.Address, inlineTraceArtifact.Id, inlineTraceArtifactDetails.Prefix, inlineTraceArtifactDetails.Name);
+
+            return inlineTraceText;
+        }
+
+        /// <summary>
+        /// Checks if the inline trace link is valid or not.
+        /// </summary>
+        /// <param name="inlineTraceLink">The inline trace link to validate</param>
+        /// <returns> True if the inline trace link is a valid inline trace link, otherwise returns false.</returns>
+        private static bool IsValidInlineTrace(string inlineTraceLink)
+        {
+            const string validTag = "isValid=\"True\"";
+
+            return inlineTraceLink.ToUpper(CultureInfo.InvariantCulture).Contains(validTag.ToUpper(CultureInfo.InvariantCulture));
+        }
+
+        /// <summary>
+        /// Validates inline trace link returned from artifact details
+        /// </summary>
+        /// <param name="artifactdetails">The artifact details containing the inline trace link which needs validation</param>
+        /// <param name="inlineTraceArtifact">The artifact contained within the inline trace link</param>
+        /// <param name="validInlineTraceLink">A flag indicating whether the inline trace link is expected to be valid or not</param>
+        public static void ValidateInlineTraceLinkFromArtifactDetails(NovaArtifactDetails artifactdetails, IArtifactBase inlineTraceArtifact, bool validInlineTraceLink)
+        {
+            ThrowIf.ArgumentNull(artifactdetails, nameof(artifactdetails));
+            ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
+
+            // Validation: Verify that the artifactDeatils' description field which contain inline trace link contains the valid inline trace information (name of the inline trace artifact)
+            Assert.That(artifactdetails.Description.Contains(inlineTraceArtifact.Name),
+                "Expected outcome should not contains {0} on returned artifactdetails. Returned inline trace content is {1}.",
+                inlineTraceArtifact.Name,
+                artifactdetails.Description);
+
+            Assert.AreEqual(validInlineTraceLink, IsValidInlineTrace(artifactdetails.Description),
+                "Expected {0} for valid inline trace but {1} was returned. The returned inlinetrace link is {2}.",
+                validInlineTraceLink,
+                !validInlineTraceLink,
+                artifactdetails.Description);
+        }
+
+        /// <summary>
+        /// Validates inline trace link returned from subartifact details
+        /// </summary>
+        /// <param name="subArtifactdetails">The subartifact details containing the inline trace link which needs validation</param>
+        /// <param name="inlineTraceArtifact">The artifact contained within the inline trace link</param>
+        /// <param name="validInlineTraceLink">A flag indicating whether the inline trace link is expected to be valid or not</param>
+        public static void ValidateInlineTraceLinkFromSubArtifactDetails(NovaSubArtifactDetails subArtifactdetails, IArtifactBase inlineTraceArtifact, bool validInlineTraceLink)
+        {
+            ThrowIf.ArgumentNull(subArtifactdetails, nameof(subArtifactdetails));
+            ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
+
+            // Validation: Verify that the subArtifactDetails' description field which contain inline trace link contains the valid inline trace information (name of the inline trace artifact)
+            Assert.That(subArtifactdetails.Description.Contains(inlineTraceArtifact.Name),
+                "Expected outcome does not contain {0} on returned artifactdetails. Returned inline trace content is {1}.",
+                inlineTraceArtifact.Name,
+                subArtifactdetails.Description);
+
+            Assert.AreEqual(validInlineTraceLink, IsValidInlineTrace(subArtifactdetails.Description),
+                "Expected {0} for valid inline trace but {1} was returned. The returned inlinetrace link is {2}.",
+                validInlineTraceLink,
+                !validInlineTraceLink,
+                subArtifactdetails.Description);
+        }
+
+        /// <summary>
+        /// Creates new rich text that includes inline trace(s)
+        /// </summary>
+        /// <param name="artifacts">The artifacts being added as inline trace(s)</param>
+        /// <returns>A formatted rich text string with inline traces(s)</returns>
+        public static string CreateTextForProcessInlineTrace(IList<IArtifact> artifacts)
+        {
+            ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
+
+            var text = string.Empty;
+
+            foreach (var artifact in artifacts)
+            {
+                var openApiProperty = artifact.Properties.FirstOrDefault(p => p.Name == "ID");
+                if (openApiProperty != null)
+                {
+                    text = text + I18NHelper.FormatInvariant("<a " +
+                        "href=\"{0}/?/ArtifactId={1}\" target=\"\" artifactid=\"{1}\"" +
+                        " linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\"" +
+                        " canclick=\"True\" isvalid=\"True\" title=\"Project: {3}\"><span style=\"text-decoration: underline; color: #0000ff\">{4}: {2}</span></a>",
+                        artifact.Address, artifact.Id, artifact.Name, artifact.Project.Name,
+                        openApiProperty.TextOrChoiceValue);
+                }
+            }
+
+            Assert.IsFalse(string.IsNullOrWhiteSpace(text), "Text for inline trace was null or whitespace!");
+
+            return I18NHelper.FormatInvariant("<p>{0}</p>", text);
+        }
+
+        /// <summary>
+        /// Adds trace to the artifact (and saves changes).
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
+        /// <param name="artifact">Artifact to add trace.</param>
+        /// <param name="traceTarget">Trace's target.</param>
+        /// <param name="traceDirection">Trace direction.</param>
+        /// <param name="changeType">ChangeType 0 - create, 1 - update, 2 - delete.</param>
+        /// <param name="artifactStore">IArtifactStore.</param>
+        /// <param name="isSuspect">(optional)isSuspect, true for suspect trace, false otherwise.</param>
+        /// <param name="targetSubArtifact">(optional)subArtifact for trace target(creates trace with subartifact).</param>
+        public static void UpdateManualArtifactTraceAndSave(IUser user, IArtifact artifact, IArtifactBase traceTarget,
+            int changeType, IArtifactStore artifactStore, TraceDirection traceDirection = TraceDirection.From,
+            bool? isSuspect = null, INovaSubArtifact targetSubArtifact = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(traceTarget, nameof(traceTarget));
+            ThrowIf.ArgumentNull(traceDirection, nameof(traceDirection));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
+            artifact.Lock(user);
+            NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+
+            NovaTrace traceToCreate = new NovaTrace();
+            traceToCreate.ArtifactId = traceTarget.Id;
+            traceToCreate.ProjectId = traceTarget.ProjectId;
+            traceToCreate.Direction = traceDirection;
+            traceToCreate.TraceType = TraceTypes.Manual;
+            traceToCreate.ItemId = targetSubArtifact?.Id ?? traceTarget.Id;
+            traceToCreate.ChangeType = changeType; // TODO: replace with enum create = 0, 1 = update, 2 = delete
+            traceToCreate.IsSuspect = isSuspect ?? false;
+
+            List<NovaTrace> updatedTraces = new List<NovaTrace> { traceToCreate };
+
+            artifactDetails.Traces = updatedTraces;
+
+            Artifact.UpdateArtifact(artifact, user, artifactDetails, artifactStore.Address);
+            // TODO: add assertions about changed traces for all 'changeType'
+            /*var relationships = artifactStore.GetRelationships(user, artifact, addDrafts: true);
+            Assert.IsTrue(relationships.ManualTraces.Any(tr => tr.ArtifactId == traceTarget.Id &&
+                tr.Direction == traceDirection),
+                "..");*/
+        }
+
     }
 }

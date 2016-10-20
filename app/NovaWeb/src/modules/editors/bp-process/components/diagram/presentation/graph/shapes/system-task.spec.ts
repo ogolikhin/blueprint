@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import { ShapesFactory } from "./shapes-factory";
 import { ProcessGraph } from "../process-graph";
 import { ArtifactReferenceLinkMock, ShapeModelMock } from "./shape-model.mock";
@@ -159,29 +159,6 @@ describe("SystemTask", () => {
 
             graph.render(false, null);
         });
-
-        it("return null when attempting to retrieve user task for pre-condition", () => {
-            // Arrange
-            const node: ISystemTask = <ISystemTask>graph.getNodeById("22");
-
-            // Act
-            const userTask = node.getUserTask(graph);
-
-            //Assert
-            expect(userTask).toBeNull();
-        });
-
-        it("return user task when attempting to retrieve user task for system task", () => {
-            // Arrange
-            const node: ISystemTask = <ISystemTask>graph.getNodeById("44");
-
-            // Act
-            const userTask = node.getUserTask(graph);
-
-            //Assert
-            expect(userTask).not.toBeNull();
-            expect(userTask.model).toEqual(processModel.shapes[2]);
-        });
     });
 
     describe("StatefulSubArtifact changes", () => {
@@ -219,7 +196,7 @@ describe("SystemTask", () => {
 
         it("when modifying persona - persona matches", () => {
 
-            // arrange             
+            // arrange
             spyOn(statefulArtifact, "refresh")();
             spyOn(statefulArtifact, "lock")();
 
@@ -235,7 +212,7 @@ describe("SystemTask", () => {
 
         it("when modifying persona - attempt lock is called", () => {
 
-            // arrange             
+            // arrange
             spyOn(statefulArtifact, "refresh")();
             const lockSpy = spyOn(statefulArtifact, "lock");
 
@@ -251,7 +228,7 @@ describe("SystemTask", () => {
 
        it("when modifying persona - artifact state is dirty", () => {
 
-            // arrange             
+            // arrange
             spyOn(statefulArtifact, "refresh")();
             const lockSpy = spyOn(statefulArtifact, "lock");
 

@@ -33,7 +33,7 @@ describe("ArtifactState", () => {
         session = new SessionSvcMock($q);
  
         const services = new StatefulArtifactServices(
-                $q, session, null, null, null, artifactService, null, null, null);
+                $q, session, null, null, null, artifactService, null, null, null, null);
 
         artifactModel = {
             id: 22,

@@ -111,9 +111,7 @@
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\BaseSearchController.cs" />
-    <Compile Include="Controllers\ItemNameSearchController.cs" />
-    <Compile Include="Controllers\FullTextSearchController.cs" />
+    <Compile Include="Controllers\ItemSearchController.cs" />
     <Compile Include="Controllers\ProjectSearchController.cs" />
     <Compile Include="Controllers\StatusController.cs" />
     <Compile Include="Global.asax.cs">

@@ -3,16 +3,20 @@ import {SubArtifactDialogModel} from "./models/sub-artifact-dialog-model";
 import {IArtifactReference} from "../../models/process-models";
 import {IModalProcessViewModel} from "./models/modal-process-view-model";
 import {ICommunicationManager} from "../../services/communication-manager";
+import {IDiagramService} from "../../../../editors/bp-diagram/diagram.svc";
+import {IDialogSettings, IDialogService} from "../../../../shared";
+import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../main/components/bp-artifact-picker";
+import {Models} from "../../../../main/models";
+import {ILocalizationService} from "../../../../core";
 
 export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogController<SubArtifactDialogModel> {
     public getLinkableProcesses: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
     public getLinkableArtifacts: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
     public isProjectOnlySearch: boolean = true;
-    public isLoadingIncludes: boolean = false;    
-    
-    private isIncludeNoResults: boolean = false;
-    private isIncludeBadRequest: boolean = false;
+    public isLoadingIncludes: boolean = false;
+
     private isIncludeResultsVisible: boolean;
+    private includeArtifactName: string;
     private isReadonly: boolean = false;
     private isSMB: boolean = false;
     private actionPlaceHolderText: string;
@@ -29,7 +33,9 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
         "$rootScope",
         "$q",
         "$timeout",
-        "$sce"
+        "$sce",
+        "dialogService",
+        "localization"
     ];
 
     constructor($scope: IModalScope,
@@ -41,7 +47,9 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
                 $rootScope: ng.IRootScopeService,
                 private $q: ng.IQService,
                 private $timeout: ng.ITimeoutService,
-                private $sce: ng.ISCEService) {
+                private $sce: ng.ISCEService,
+                private dialogService: IDialogService,
+                private localization: ILocalizationService) {
 
         super($rootScope, $scope, $uibModalInstance, dialogModel);
 
@@ -52,12 +60,16 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
         if (isSMBVal.toLowerCase() === "true") {
             this.isSMB = true;
         }
-        
+
         this.systemNameOnBlur();
+
+        if (dialogModel.originalSystemTask.associatedArtifact) {
+            this.prepIncludeField();
+        }
 
         this.communicationManager.modalDialogManager.setModalProcessViewModel(this.setModalProcessViewModel);
         this.setNextNode(this.modalProcessViewModel);
-    }    
+    }
 
     private setModalProcessViewModel = (modalProcessViewModel) => {
         this.modalProcessViewModel = modalProcessViewModel;
@@ -65,27 +77,12 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
 
     public prepIncludeField(): void {
         this.isIncludeResultsVisible = true;
-        this.clearFields();
+        this.includeArtifactName = this.formatIncludeLabel(this.dialogModel.clonedSystemTask.associatedArtifact);
     }
 
     public cleanIncludeField(): void {
         this.isIncludeResultsVisible = false;
-        this.clearFields();
-    }
-
-    public changeIncludeField(): void {
-        this.clearFields();
-    }
-
-    private cancelIncludeSearchTimer(): void {
-        this.$timeout.cancel(this.searchIncludesDelay);
-        this.isLoadingIncludes = false;
-    }
-
-    private clearFields() {
-        this.cancelIncludeSearchTimer();
-        this.isIncludeBadRequest = false;
-        this.isIncludeNoResults = false;
+        this.dialogModel.clonedSystemTask.associatedArtifact = null;
     }
 
     public formatIncludeLabel(model) {
@@ -95,9 +92,9 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
 
         let msg: string;
         if (model.typePrefix === "<Inaccessible>") {
-            msg = this.$rootScope["config"].labels["HttpError_Forbidden"];
+            msg = this.localization.get("HttpError_Forbidden");
         } else {
-            msg = model.typePrefix + model.id + ": " + model.name;
+            msg = model.prefix + model.id + " - " + model.name;
         }
 
         return msg;
@@ -127,10 +124,10 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
         }
 
         return false;
-    }       
+    }
 
     private systemNameOnFocus = () => {
-        this.systemNamePlaceHolderText = (<any>this.$rootScope).config.labels["ST_System_Task_Name_Label"];
+        this.systemNamePlaceHolderText = this.localization.get("ST_System_Task_Name_Label");
     }
 
     private systemNameOnBlur = () => {
@@ -139,30 +136,30 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
                 this.systemNameOnFocus();
             } else {
                 this.systemNamePlaceHolderText =
-                    (<any>this.$rootScope).config.labels["ST_System_Task_Name_Label"] + " " + this.dialogModel.clonedSystemTask.label;
+                    this.localization.get("ST_System_Task_Name_Label") + " " + this.dialogModel.clonedSystemTask.label;
             }
         }
     }
 
     public saveData() {
-        
+
         if (this.dialogModel.clonedSystemTask.associatedArtifact === undefined) {
             this.dialogModel.clonedSystemTask.associatedArtifact = null;
         }
-        
-        this.populateSystemTaskChanges();        
-    }    
+
+        this.populateSystemTaskChanges();
+    }
 
     private populateSystemTaskChanges() {
-        
+
         if (this.dialogModel.originalSystemTask && this.dialogModel.clonedSystemTask) {
             this.dialogModel.originalSystemTask.persona = this.dialogModel.clonedSystemTask.persona;
             this.dialogModel.originalSystemTask.action = this.dialogModel.clonedSystemTask.action;
-            this.dialogModel.originalSystemTask.imageId = this.dialogModel.clonedSystemTask.imageId;        
-            this.dialogModel.originalSystemTask.associatedImageUrl = this.dialogModel.clonedSystemTask.associatedImageUrl;        
+            this.dialogModel.originalSystemTask.imageId = this.dialogModel.clonedSystemTask.imageId;
+            this.dialogModel.originalSystemTask.associatedImageUrl = this.dialogModel.clonedSystemTask.associatedImageUrl;
             this.dialogModel.originalSystemTask.associatedArtifact = this.dialogModel.clonedSystemTask.associatedArtifact;
-        }        
-    }    
+        }
+    }
 
     private refreshView() {
         let element: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
@@ -183,8 +180,28 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
     public getActiveHeader(): string {
         if (this.dialogModel.isSystemTask) {
             return this.dialogModel.clonedSystemTask.label;
-        }        
+        }
 
         return null;
+    }
+
+    public openArtifactPicker() {
+        const dialogSettings = <IDialogSettings>{
+            okButton: this.localization.get("App_Button_Open"),
+            template: require("../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
+            controller: ArtifactPickerDialogController,
+            css: "nova-open-project",
+            header: this.localization.get("ST_Select_Include_Artifact_Label")
+        };
+
+        const dialogData: IArtifactPickerOptions = {
+        };
+
+        this.dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {
+            if (items.length === 1) {
+                this.dialogModel.clonedSystemTask.associatedArtifact = items[0];
+                this.prepIncludeField();
+            }
+        });
     }
 }

@@ -165,7 +165,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
 
     public canManageTraces(): boolean {
         // if artifact is locked by other user we still can add/manage traces
-        return !this.item.artifactState.deleted &&
+        return !this.item.artifactState.readonly &&
             this.item.relationships.canEdit;
     }
 
@@ -215,20 +215,18 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         let confirmation = this.localization.get("Confirmation_Delete_Traces")
             .replace("{0}", selectedTracesLength.toString());
 
-        this.dialogService.confirm(confirmation).then((confirmed) => {
-            if (confirmed) {
-                this.item.relationships.remove(artifacts);
+        this.dialogService.confirm(confirmation)
+        .then(() => {
+            this.item.relationships.remove(artifacts);
 
-                this.selectedTraces[this.item.id].length = 0;
-            }
+            this.selectedTraces[this.item.id].length = 0;
         });
     }
 
     public deleteTrace(artifact: Relationships.IRelationship): void {
-        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace")).then((confirmed) => {
-            if (confirmed) {
-                this.item.relationships.remove([artifact]);
-            }
+        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace"))
+        .then(() => {
+            this.item.relationships.remove([artifact]);
         });
     }
 

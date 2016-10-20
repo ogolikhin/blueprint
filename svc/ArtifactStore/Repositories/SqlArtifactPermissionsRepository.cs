@@ -59,8 +59,6 @@ namespace ArtifactStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@userId", sessionUserId);
             prm.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(projectArtifactIds, "Int32Collection", "Int32Value"));
-            prm.Add("@revisionId", revisionId);
-            prm.Add("@addDrafts", addDrafts);
             var openArtifactPermissions = (await ConnectionWrapper.QueryAsync<OpenArtifactPermission>("GetOpenArtifactPermissions", prm, commandType: CommandType.StoredProcedure)).ToList();
 
             foreach (var openArtifactPermission in openArtifactPermissions)

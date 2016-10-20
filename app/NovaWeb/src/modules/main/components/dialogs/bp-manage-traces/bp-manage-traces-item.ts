@@ -11,12 +11,16 @@ export class BPManageTracesItem implements ng.IComponentOptions {
         item: "<",
         selectedTraces: "=",
         deleteTrace: "&",
-        isItemReadOnly: "<"
+        isItemReadOnly: "<",
+        toggleFlag: "&",
+        setTraceDirection: "&"
     };
 }
 
 interface IBPManageTracesItemController {
     deleteTrace: Function;
+    toggleFlag: Function;
+    setTraceDirection: Function;
 }
 
 export class BPManageTracesItemController implements IBPManageTracesItemController, ng.IComponentController {
@@ -26,12 +30,20 @@ export class BPManageTracesItemController implements IBPManageTracesItemControll
     ];
 
     public deleteTrace: Function;
-    public selectedTraces: Relationships.IRelationship[];
-    public item: Relationships.IRelationship;
+    public toggleFlag: Function;
+    public setTraceDirection: Function;
+    public selectedTraces: Relationships.IRelationshipView[];
+    public item: Relationships.IRelationshipView;
     public isItemReadOnly: boolean;
+    public traceIcon: string;
 
     constructor(private localization: ILocalizationService,
                 private dialogService: IDialogService) {
+    }
+
+    public $onInit() {
+        this.item.directionIcon = this.getDirectionIcon(this.item.traceDirection);
+        this.item.traceIcon = this.item.suspect ? "trace-icon-suspect" : "trace-icon-regular";
     }
 
     public selectTrace() {
@@ -52,26 +64,10 @@ export class BPManageTracesItemController implements IBPManageTracesItemControll
         this.item.isSelected = !this.item.isSelected;
     }
 
-    public setDirection(direction: Relationships.TraceDirection): void {
-        if (this.item.hasAccess) {
-            this.item.traceDirection = direction;
-        }
-    }
-
-    public toggleFlag() {
-        if (this.item.hasAccess) {
-            this.item.suspect = !this.item.suspect;
-        }
-    }
-
-    private get traceIcon(): string {
-        return this.item && this.item && this.item.suspect ? "trace-icon-suspect" : "trace-icon-regular";
-    }
-
-    public get directionIcon () {
+    public getDirectionIcon (direction: Relationships.TraceDirection) {
         let icon = "fonticon2-relationship-";
 
-        switch (this.item && this.item.traceDirection) {
+        switch (direction) {
             case 0:
                 icon += "right";
                 break;
@@ -82,6 +78,7 @@ export class BPManageTracesItemController implements IBPManageTracesItemControll
                 icon += "bi";
                 break;
             default:
+                icon += "right";
                 break;
         }
 

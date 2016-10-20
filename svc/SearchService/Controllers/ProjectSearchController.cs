@@ -1,4 +1,4 @@
-﻿using SearchService.Models;
+using SearchService.Models;
 using SearchService.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Exceptions;
@@ -13,9 +13,10 @@ namespace SearchService.Controllers
 {
     [ApiControllerJsonConfig]
     [BaseExceptionFilter]
+    [RoutePrefix("projectsearch")]
     public class ProjectSearchController : LoggableApiController
     {
-        private readonly IProjectSearchRepository _projectSearchRepository;
+        internal readonly IProjectSearchRepository _projectSearchRepository;
         private const int MaxResultCount = 100;
         private const int DefaultResultCount = 20;
         private const string DefaultSeparator = "/";
@@ -25,6 +26,7 @@ namespace SearchService.Controllers
         public ProjectSearchController() : this(new SqlProjectSearchRepository())
         {
         }
+
         public ProjectSearchController(IProjectSearchRepository projectSearchRepository)
         {
             _projectSearchRepository = projectSearchRepository;
@@ -44,10 +46,9 @@ namespace SearchService.Controllers
         /// <param name="resultCount"></param>
         /// <param name="separatorString"></param>
         /// <returns></returns>
-        [HttpPost, NoCache]
-        [Route("projectsearch"), SessionRequired]
-        [ActionName("GetProjectsByName")]
-        public async Task<IEnumerable<ProjectSearchResult>> GetProjectsByName(
+        [HttpPost, NoCache, SessionRequired]
+        [Route("name")]
+        public async Task<IEnumerable<ProjectSearchResult>> SearchName(
             [FromBody] ProjectSearchCriteria searchCriteria, 
             int? resultCount = DefaultResultCount,
             string separatorString = DefaultSeparator)

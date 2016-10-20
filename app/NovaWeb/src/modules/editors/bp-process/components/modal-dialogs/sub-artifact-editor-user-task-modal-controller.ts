@@ -15,10 +15,10 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
     public isLoadingIncludes: boolean = false;
 
     private isIncludeResultsVisible: boolean;
+    private includeArtifactName: string;
     private isReadonly: boolean = false;
     private isSMB: boolean = false;
     private actionPlaceHolderText: string;
-    private includeArtifactName: string;
     private searchIncludesDelay: ng.IPromise<any>;
     private modalProcessViewModel: IModalProcessViewModel;
 
@@ -58,6 +58,7 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
         }
 
         this.actionOnBlur();
+
         if (dialogModel.originalUserTask.associatedArtifact) {
             this.prepIncludeField();
         }
@@ -174,11 +175,11 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
 
     public openArtifactPicker() {
         const dialogSettings = <IDialogSettings>{
-            okButton: "Open",
+            okButton: this.$rootScope["config"].labels["App_Button_Open"],
             template: require("../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
             controller: ArtifactPickerDialogController,
             css: "nova-open-project",
-            header: "Select Artifact"  // to be added to localization
+            header: this.$rootScope["config"].labels["ST_Select_Include_Artifact_Label"]
         };
 
         const dialogData: IArtifactPickerOptions = {

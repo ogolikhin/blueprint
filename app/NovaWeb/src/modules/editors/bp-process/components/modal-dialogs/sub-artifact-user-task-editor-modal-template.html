@@ -43,13 +43,6 @@
         <br/>
 
         <div class="small-padding">
-            <!--<div>
-                <i class="fonticon-include-active"
-                    ng-class="{'available': dialogModel.clonedUserTask.associatedArtifact}"
-                    title="{{::$root.config.labels['ST_Include_Tab_Label']}}">
-                </i>
-                {{::$root.config.labels['ST_Include_Tab_Label']}}
-            </div>-->
             <div class="row">
                 <div class="col-sm-12">
                     <div class="nova-form-group nova-floating-label">
@@ -60,7 +53,6 @@
                         </div>
                         <div ng-show="vm.isIncludeResultsVisible">
                             <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Include_Tab_Label']}}
-                            <span class="nova-helper-text">{{::$root.config.labels['ST_Objective_Helper_Text']}}</span>
                             <br />
                             <label for="storyteller-include" class="nova-label">
                                     {{vm.includeArtifactName}}
@@ -71,12 +63,10 @@
                                 <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Browse_Include_Label']}}
                             </button>
                         </div>
-       </div>
+                    </div>
                 </div>
-</div>
             </div>
         </div>
-
     </form>
 </div>
 

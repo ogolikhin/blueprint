@@ -181,12 +181,11 @@ export class ProjectManager implements IProjectManager {
         }).catch(() => {
             //something went wrong - ask user if they want to force refresh
             this.dialogService.confirm(this.localization.get("Confirmation_Continue_Refresh"))
-                .then((confirmed: boolean) => {
-                    if (confirmed) {
-                        this.doRefresh(project, selectedArtifact, defer, projectToRefresh);
-                    } else {
-                        defer.reject();
-                    }
+                .then(() => {
+                    this.doRefresh(project, selectedArtifact, defer, projectToRefresh);
+                })
+                .catch(() => {
+                    defer.reject();
                 });
         });
 

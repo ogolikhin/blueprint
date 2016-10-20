@@ -1,5 +1,5 @@
 ﻿import {ILocalizationService} from "../../../../core";
-import {Helper, IDialogService} from "../../../../shared";
+import {Helper} from "../../../../shared";
 import {Relationships} from "../../../../main";
 import {IArtifactManager} from "../../../../managers";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
@@ -34,8 +34,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     public static $inject: [string] = [
         "localization",
         "relationshipDetailsService",
-        "artifactManager",
-        "dialogService"
+        "artifactManager"
     ];
 
     public expanded: boolean = false;
@@ -50,8 +49,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     public deleteItem: Function;
     constructor(private localization: ILocalizationService,
                 private relationshipDetailsService: IRelationshipDetailsService,
-                private artifactManager: IArtifactManager,
-                private dialogService: IDialogService) {
+                private artifactManager: IArtifactManager) {
 
     }
 

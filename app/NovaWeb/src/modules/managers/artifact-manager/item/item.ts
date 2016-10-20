@@ -151,6 +151,10 @@ export abstract class StatefulItem implements IIStatefulItem {
         return this.services;
     }
 
+    public getEffectiveVersion(): number {
+        return this.deleted ? this.version : undefined;
+    }
+
     public set(name: string, value: any) {
         if (name in this) {
             const changeset = {
@@ -278,11 +282,9 @@ export abstract class StatefulItem implements IIStatefulItem {
         return {} as IState;
     }
 
-
     public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {
         const deferred = this.services.getDeferred();
-        this.services.attachmentService.getArtifactAttachments(this.id, null, true)
-            .then((result: IArtifactAttachmentsResultSet) => {
+        this.getAttachmentsDocRefsInternal().then((result: IArtifactAttachmentsResultSet) => {
                 // load attachments
                 this.attachments.initialize(result.attachments);
 
@@ -299,10 +301,11 @@ export abstract class StatefulItem implements IIStatefulItem {
         return deferred.promise;
     }
 
+    protected abstract getAttachmentsDocRefsInternal(): ng.IPromise<IArtifactAttachmentsResultSet>;
+
     public getRelationships(): ng.IPromise<Relationships.IArtifactRelationshipsResultSet> {
         const deferred = this.services.getDeferred();
-        this.services.relationshipsService.getRelationships(this.id)
-            .then((result: Relationships.IArtifactRelationshipsResultSet) => {
+        this.getRelationshipsInternal().then((result: Relationships.IArtifactRelationshipsResultSet) => {
                 deferred.resolve(result);
             }, (error) => {
                 if (error && error.statusCode === HttpStatusCode.NotFound) {
@@ -310,8 +313,11 @@ export abstract class StatefulItem implements IIStatefulItem {
                 }
                 deferred.reject(error);
             });
+
         return deferred.promise;
     }
+
+    protected abstract getRelationshipsInternal(): ng.IPromise<Relationships.IArtifactRelationshipsResultSet> ;
 
     public changes(): Models.IArtifact {
         let delta: Models.IArtifact = {} as Models.Artifact;

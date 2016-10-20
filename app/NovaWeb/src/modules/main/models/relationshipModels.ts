@@ -20,7 +20,9 @@ export interface IRelationship {
 }
 
 export interface IRelationshipView extends IRelationship {
-    cssClass: string;
+    cssClass?: string;
+    directionIcon?: string;
+    traceIcon?: string;
 }
 
 export interface IDialogRelationshipItem {

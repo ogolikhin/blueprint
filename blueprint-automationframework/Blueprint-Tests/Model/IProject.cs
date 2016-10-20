@@ -3,6 +3,8 @@ using Model.Impl;
 using System.Net;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
+using Model.ArtifactModel.Impl;
+using Newtonsoft.Json;
 
 namespace Model
 {
@@ -39,6 +41,16 @@ namespace Model
         /// Nova Artifact type list for the project.
         /// </summary>
         List<NovaArtifactType> NovaArtifactTypes { get; }
+
+        /// <summary>
+        /// Nova Property type list for the project.
+        /// </summary>
+        List<NovaPropertyType> NovaPropertyTypes { get; }
+
+        /// <summary>
+        /// Nova sub-Artifact type list for the project.
+        /// </summary>
+        List<NovaArtifactType> NovaSubArtifactTypes { get; }
 
         #endregion Properties
 

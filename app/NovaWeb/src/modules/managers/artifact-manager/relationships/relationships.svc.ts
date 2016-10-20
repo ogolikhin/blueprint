@@ -2,7 +2,10 @@
 import {Relationships} from "../../../main";
 
 export interface IArtifactRelationshipsService {
-    getRelationships(artifactId: number, subArtifactId?: number, timeout?: ng.IPromise<void>): ng.IPromise<Relationships.IArtifactRelationshipsResultSet>;
+    getRelationships(artifactId: number,
+                     subArtifactId?: number,
+                     versionId?: number, 
+                     timeout?: ng.IPromise<void>): ng.IPromise<Relationships.IArtifactRelationshipsResultSet>;
 }
 
 export class ArtifactRelationshipsService implements IArtifactRelationshipsService {
@@ -20,13 +23,15 @@ export class ArtifactRelationshipsService implements IArtifactRelationshipsServi
 
     public getRelationships(artifactId: number,
                             subArtifactId?: number,
+                            versionId?: number,
                             timeout?: ng.IPromise<void>): ng.IPromise<Relationships.IArtifactRelationshipsResultSet> {
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
             url: `/svc/artifactstore/artifacts/${artifactId}/relationships`,
             method: "GET",
             params: {
-                subartifactId: subArtifactId
+                subartifactId: subArtifactId,
+                versionId: versionId
             }
         };
 

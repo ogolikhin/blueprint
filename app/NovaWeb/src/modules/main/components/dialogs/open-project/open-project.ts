@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {ILocalizationService} from "../../../../core";
 import {Helper, IBPTreeController, IDialogSettings, BaseDialogController, IDialogService} from "../../../../shared";
 import {Models} from "../../../models";

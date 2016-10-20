@@ -1,4 +1,4 @@
-﻿using Model.Impl;
+using Model.Impl;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using System;

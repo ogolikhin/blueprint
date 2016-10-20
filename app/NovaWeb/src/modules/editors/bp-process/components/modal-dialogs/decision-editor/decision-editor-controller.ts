@@ -272,7 +272,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         this.$timeout(
             () => {
                 node.parentNode.removeChild(node);
-            }, 
+            },
             20,
             false
         );

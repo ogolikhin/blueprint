@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {ElementType} from "../models/";
 import {DiagramElement, DiagramNodeElement, DiagramNode, UserTask} from "./";
 import {ShapeModelMock} from "./shape-model.mock";

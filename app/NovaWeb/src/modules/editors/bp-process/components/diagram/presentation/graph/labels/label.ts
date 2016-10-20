@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 export var ELLIPSIS_SYMBOL = String.fromCharCode(8230);
 
 export interface ILabel {

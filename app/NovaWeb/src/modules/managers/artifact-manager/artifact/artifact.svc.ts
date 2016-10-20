@@ -1,10 +1,10 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {Models, Enums} from "../../../main/models";
 export {Models, Enums}
 
 export interface IArtifactService {
-    getArtifact(id: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.IArtifact>;
-    getSubArtifact(artifactId: number, subArtifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifact>;
+    getArtifact(id: number, versionId?: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.IArtifact>;
+    getSubArtifact(artifactId: number, subArtifactId: number, versionId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifact>;
     lock(artifactId: number): ng.IPromise<Models.ILockResult[]>;
     updateArtifact(artifact: Models.IArtifact);
 }
@@ -16,16 +16,17 @@ export class ArtifactService implements IArtifactService {
     constructor(private $http: ng.IHttpService, private $q: ng.IQService, private fontNormalizer: any) {
     }
 
-    public getArtifact(artifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.IArtifact> {
+    public getArtifact(artifactId: number, versionId?: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.IArtifact> {
         const defer = this.$q.defer<any>();
-
-        const request: ng.IRequestConfig = {
-            url: `/svc/bpartifactstore/artifacts/${artifactId}`,
-            method: "GET",
-            timeout: timeout
+        const url = `/svc/bpartifactstore/artifacts/${artifactId}`;
+        const config: ng.IRequestShortcutConfig = {
+            timeout: timeout,
+            params: {
+                versionId: versionId
+            }
         };
 
-        this.$http(request).then(
+        this.$http.get(url, config).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => defer.resolve(result.data),
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 if (!errResult) {
@@ -42,17 +43,17 @@ export class ArtifactService implements IArtifactService {
         return defer.promise;
     }
 
-    public getSubArtifact(artifactId: number, subArtifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifact> {
+    public getSubArtifact(artifactId: number, subArtifactId: number, versionId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifact> {
         const defer = this.$q.defer<any>();
-        let rest = `/svc/bpartifactstore/artifacts/${artifactId}/subartifacts/${subArtifactId}`;
-
-        const request: ng.IRequestConfig = {
-            url: rest,
-            method: "GET",
-            timeout: timeout
+        const url = `/svc/bpartifactstore/artifacts/${artifactId}/subartifacts/${subArtifactId}`;
+        const config: ng.IRequestShortcutConfig = {
+            timeout: timeout,
+            params: {
+                versionId: versionId
+            }
         };
 
-        this.$http(request).then(
+        this.$http.get(url, config).then(
             (result: ng.IHttpPromiseCallbackArg<Models.ISubArtifact>) => defer.resolve(result.data),
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 const error = {

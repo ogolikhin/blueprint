@@ -7,6 +7,7 @@ import {IDiagramService} from "../../../../editors/bp-diagram/diagram.svc";
 import {IDialogSettings, IDialogService} from "../../../../shared";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../main/components/bp-artifact-picker";
 import {Models} from "../../../../main/models";
+import {ILocalizationService} from "../../../../core";
 
 export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogController<SubArtifactDialogModel> {
     public getLinkableProcesses: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
@@ -33,7 +34,8 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
         "$q",
         "$timeout",
         "$sce",
-        "dialogService"
+        "dialogService",
+        "localization"
     ];
 
     constructor($scope: IModalScope,
@@ -46,7 +48,8 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
                 private $q: ng.IQService,
                 private $timeout: ng.ITimeoutService,
                 private $sce: ng.ISCEService,
-                private dialogService: IDialogService) {
+                private dialogService: IDialogService,
+                private localization: ILocalizationService) {
 
         super($rootScope, $scope, $uibModalInstance, dialogModel);
 
@@ -89,7 +92,7 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
 
         let msg: string;
         if (model.typePrefix === "<Inaccessible>") {
-            msg = this.$rootScope["config"].labels["HttpError_Forbidden"];
+            msg = this.localization.get("HttpError_Forbidden");
         } else {
             msg = model.prefix + model.id + " - " + model.name;
         }
@@ -124,7 +127,7 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
     }
 
     private systemNameOnFocus = () => {
-        this.systemNamePlaceHolderText = (<any>this.$rootScope).config.labels["ST_System_Task_Name_Label"];
+        this.systemNamePlaceHolderText = this.localization.get("ST_System_Task_Name_Label");
     }
 
     private systemNameOnBlur = () => {
@@ -133,7 +136,7 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
                 this.systemNameOnFocus();
             } else {
                 this.systemNamePlaceHolderText =
-                    (<any>this.$rootScope).config.labels["ST_System_Task_Name_Label"] + " " + this.dialogModel.clonedSystemTask.label;
+                    this.localization.get("ST_System_Task_Name_Label") + " " + this.dialogModel.clonedSystemTask.label;
             }
         }
     }
@@ -184,11 +187,11 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
 
     public openArtifactPicker() {
         const dialogSettings = <IDialogSettings>{
-            okButton: this.$rootScope["config"].labels["App_Button_Open"],
+            okButton: this.localization.get("App_Button_Open"),
             template: require("../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
             controller: ArtifactPickerDialogController,
             css: "nova-open-project",
-            header: this.$rootScope["config"].labels["ST_Select_Include_Artifact_Label"]
+            header: this.localization.get("ST_Select_Include_Artifact_Label")
         };
 
         const dialogData: IArtifactPickerOptions = {

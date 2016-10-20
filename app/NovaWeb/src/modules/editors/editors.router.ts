@@ -47,6 +47,12 @@ export class ArtifactRoutes {
                 controllerAs: "$content",
                 params: { context: null }
             })
+            .state("main.item.collection", {
+                template: require("./bp-collection/collection.state.html"),
+                controller: BaseEditorStateController,
+                controllerAs: "$content",
+                params: { context: null }
+            })
             .state("main.item.diagram", {
                 template: require("./bp-diagram/diagram.state.html"),
                 controller: BaseEditorStateController,

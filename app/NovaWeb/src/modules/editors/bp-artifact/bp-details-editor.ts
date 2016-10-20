@@ -36,11 +36,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         windowManager: IWindowManager,
         localization: ILocalizationService,
         private dialogService: IDialogService) {
-        super(messageService, artifactManager, windowManager, localization);
-
-        for (let i = 1; i <= 5000; i++) {
-            this.rootNode.push(new CollectionNodeVM({ id: i, name: `New Artifact ${i}`, description: "This is the description" } as Models.IArtifact));
-        }
+        super(messageService, artifactManager, windowManager, localization);       
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];
@@ -124,19 +120,5 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
             field: "model.description"
         }, {
             headerName: "Options"
-        }];
-
-    public rootNode: CollectionNodeVM[] = [];
-}
-
-class CollectionNodeVM implements ITreeViewNodeVM {
-    public readonly key: string;
-
-    constructor(public model: Models.IArtifact) {
-        this.key = String(model.id);
-    }
-
-    public isSelectable(): boolean {
-        return true;
-    }
+        }];  
 }

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http.Results;
@@ -28,7 +28,7 @@ namespace SearchService.Controllers
 
             // Act
             var actionResult = await controller.SearchFullText(searchCriteria, null, -1);
-            
+
             // Assert
             var result = actionResult as OkNegotiatedContentResult<FullTextSearchResult>;
             Assert.IsNotNull(result, "Result was not retrieved");

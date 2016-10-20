@@ -1,4 +1,4 @@
-﻿import {ILocalizationService, ISettingsService, IMessageService} from "../../../core";
+import {ILocalizationService, ISettingsService, IMessageService} from "../../../core";
 import {Models, Enums} from "../../../main";
 import {ISession} from "../../../shell";
 import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";

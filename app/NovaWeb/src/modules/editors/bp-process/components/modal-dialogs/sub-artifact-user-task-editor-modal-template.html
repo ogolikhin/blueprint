@@ -7,9 +7,9 @@
     <h3 class="modal-title" style="display: inline-block">{{vm.getActiveHeader()}}</h3>
     <h3 ng-if="!vm.getActiveHeader()" class="modal-title" style="color: red; display: inline-block" ng-cloak>
         {{::$root.config.labels['ST_TaskNameNotValid_Label']}}</h3>
-    <div class="contextual-help-container contextual-help-modal-container">        
+    <div class="contextual-help-container contextual-help-modal-container">
         <contextual-help
-            image-src={{'/novaweb/static/bp-process/images/contextual-help/usertask.png'}}></contextual-help>                
+            image-src={{'/novaweb/static/bp-process/images/contextual-help/usertask.png'}}></contextual-help>
     </div>
 </div>
 
@@ -41,8 +41,8 @@
         </div>
 
         <br/>
-        
-        <div class="small-padding">                
+
+        <div class="small-padding">
             <!--<div>
                 <i class="fonticon-include-active"
                     ng-class="{'available': dialogModel.clonedUserTask.associatedArtifact}"
@@ -71,15 +71,21 @@
                                 <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Browse_Include_Label']}}
                             </button>
                         </div>
+<<<<<<< HEAD
 
     <!--<label for="storyteller-include" class="nova-label"><i class="fonticon-include-active"></i>{{::$root.config.labels['ST_Include_Label']}}</label>-->
        </div>
                 </div>
 </div>
                 
+=======
+                        <!--<label for="storyteller-include" class="nova-label"><i class="fonticon-include-active"></i>{{::$root.config.labels['ST_Include_Label']}}</label>-->
+                    </div>
+                </div>
+>>>>>>> dba7198c6d26d25614d6c0f1a6723e09bb1e2694
             </div>
         </div>
-        
+
     </form>
 </div>
 

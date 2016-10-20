@@ -4,8 +4,8 @@ import {ISession} from "./login/session.svc";
 export class AppRoutes {
 
     public static $inject = [
-        "$stateProvider", 
-        "$urlRouterProvider", 
+        "$stateProvider",
+        "$urlRouterProvider",
         "$urlMatcherFactoryProvider"
     ];
 
@@ -15,13 +15,13 @@ export class AppRoutes {
 
         $urlMatcherFactoryProvider.caseInsensitive(true);
 
-        // pass through / to main state 
+        // pass through / to main state
         $urlRouterProvider.when("", "/main");
 
-        // unrecognized routes go to error state 
+        // unrecognized routes go to error state
         $urlRouterProvider.otherwise("/error");
 
-        // register states with the router 
+        // register states with the router
         $stateProvider
             .state("main", {
                 url: "/main",

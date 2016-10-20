@@ -70,7 +70,7 @@ describe("ArtifactState", () => {
         const stateObserver = artifact.artifactState.onStateChange.subscribe(
             (state) => {
                 // assert
-                if (state && state.lockedBy != Enums.LockedByEnum.None) {
+                if (state && state.lockedBy !== Enums.LockedByEnum.None) {
                     expect(state.lockOwner).toBe("Default Instance Admin");
                     stateObserver.dispose();
                     done();
@@ -88,7 +88,7 @@ describe("ArtifactState", () => {
         const stateObserver = artifact.artifactState.onStateChange.subscribe(
             (state) => {
                 // assert
-                if (state && state.lockedBy != Enums.LockedByEnum.None) {
+                if (state && state.lockedBy !== Enums.LockedByEnum.None) {
                     expect(state.dirty).toBe(true);
                     stateObserver.dispose();
                     done();
@@ -102,7 +102,7 @@ describe("ArtifactState", () => {
             lockDateTime: new Date(),
             lockedBy: Enums.LockedByEnum.CurrentUser,
             lockOwner: "Default Instance Admin"
-        }
+        };
 
         artifact.artifactState.setState(newState, false);
         artifact.artifactState.dirty = true;
@@ -114,7 +114,7 @@ describe("ArtifactState", () => {
         const stateObserver = artifact.artifactState.onStateChange.subscribe(
             (state) => {
                 // assert
-                if (state && state.lockedBy != Enums.LockedByEnum.None) {
+                if (state && state.lockedBy !== Enums.LockedByEnum.None) {
                     expect(state.deleted).toBe(true);
                     stateObserver.dispose();
                     done();
@@ -128,7 +128,7 @@ describe("ArtifactState", () => {
             lockDateTime: new Date(),
             lockedBy: Enums.LockedByEnum.CurrentUser,
             lockOwner: "Default Instance Admin"
-        }
+        };
 
         artifact.artifactState.setState(newState, false);
         artifact.artifactState.deleted = true;
@@ -140,7 +140,7 @@ describe("ArtifactState", () => {
         const stateObserver = artifact.artifactState.onStateChange.subscribe(
             (state) => {
                 // assert
-                if (state && state.lockedBy != Enums.LockedByEnum.None) {
+                if (state && state.lockedBy !== Enums.LockedByEnum.None) {
                     expect(state.published).toBe(true);
                     stateObserver.dispose();
                     done();
@@ -154,7 +154,7 @@ describe("ArtifactState", () => {
             lockDateTime: new Date(),
             lockedBy: Enums.LockedByEnum.CurrentUser,
             lockOwner: "Default Instance Admin"
-        }
+        };
 
         artifact.artifactState.setState(newState, false);
         artifact.artifactState.published = true;
@@ -167,7 +167,7 @@ describe("ArtifactState", () => {
             lockDateTime: new Date(),
             lockedBy: Enums.LockedByEnum.OtherUser,
             lockOwner: "Default Instance Admin"
-        }
+        };
 
         artifact.artifactState.setState(newState, false);
         expect(artifact.artifactState.readonly).toBe(true);

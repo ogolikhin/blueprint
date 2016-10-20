@@ -58,12 +58,8 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public cloneUserTask(): UserTask {
-        let userTask = new UserTask(this.model, this.rootScope, this.nodeFactorySettings, this.shapesFactoryService);
+        const userTask = Object.assign({}, this);
         userTask.label = this.label;
-        userTask.persona = this.persona;
-        userTask.objective = this.objective;
-        userTask.action = this.action;
-        userTask.description = this.description;
         userTask.associatedArtifact = this.associatedArtifact;
         return userTask;
     }

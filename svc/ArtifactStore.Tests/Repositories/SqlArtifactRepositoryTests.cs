@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -1290,7 +1290,7 @@ namespace ArtifactStore.Repositories
         {
             // Arrange
             const int projectId = 1;
-       
+
             const int artifactId = 3;
             const int userId = 99;
             var arifactBasicDetails = new List<ArtifactBasicDetails> { new ArtifactBasicDetails { LatestDeleted = false } };

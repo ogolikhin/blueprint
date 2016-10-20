@@ -7,9 +7,9 @@
     <h3 class="modal-title" style="display: inline-block">{{vm.getActiveHeader()}}</h3>
     <h3 ng-if="!vm.getActiveHeader()" class="modal-title" style="color: red; display: inline-block" ng-cloak>
         {{::$root.config.labels['ST_TaskNameNotValid_Label']}}</h3>
-    <div class="contextual-help-container contextual-help-modal-container">        
+    <div class="contextual-help-container contextual-help-modal-container">
         <contextual-help
-            image-src={{'/novaweb/static/bp-process/images/contextual-help/usertask.png'}}></contextual-help>                
+            image-src={{'/novaweb/static/bp-process/images/contextual-help/usertask.png'}}></contextual-help>
     </div>
 </div>
 
@@ -41,8 +41,8 @@
         </div>
 
         <br/>
-        
-        <div class="small-padding">                
+
+        <div class="small-padding">
             <!--<div>
                 <i class="fonticon-include-active"
                     ng-class="{'available': dialogModel.clonedUserTask.associatedArtifact}"
@@ -57,14 +57,14 @@
                                 name="include"
                                 ng-disabled="vm.isReadonly"
                                 ng-class='dialogModel.clonedUserTask.associatedArtifact ? "nova-form-control input-is-dirty" : "nova-form-control"'
-                                
+
                                 id="storyteller-include"
                                 autocomplete="off"
                                 ng-model='dialogModel.clonedUserTask.associatedArtifact'
-                                
-                                
-                                
-                                typeahead-template-url="includeTemplate.html">                        
+
+
+
+                                typeahead-template-url="includeTemplate.html">
                         <div
                             ng-show="vm.isIncludeResultsVisible && vm.isIncludeNoResults && userTaskForm.include.$invalid">
                             {{::$root.config.labels['ST_Inline_Traces_Search_No_Matches_Found']}}
@@ -75,10 +75,10 @@
                         </div>
                         <!--<label for="storyteller-include" class="nova-label"><i class="fonticon-include-active"></i>{{::$root.config.labels['ST_Include_Label']}}</label>-->
                     </div>
-                </div>                    
+                </div>
             </div>
         </div>
-        
+
     </form>
 </div>
 

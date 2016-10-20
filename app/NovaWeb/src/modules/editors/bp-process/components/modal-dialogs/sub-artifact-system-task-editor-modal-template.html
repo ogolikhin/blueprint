@@ -6,14 +6,14 @@
     <h3 class="modal-title" style="display: inline-block">{{vm.getActiveHeader()}}</h3>
     <h3 ng-if="!vm.getActiveHeader()" class="modal-title" style="color: red; display: inline-block" ng-cloak>
         {{::$root.config.labels['ST_TaskNameNotValid_Label']}}</h3>
-    <div class="contextual-help-container contextual-help-modal-container">        
+    <div class="contextual-help-container contextual-help-modal-container">
         <contextual-help
-            image-src={{'/novaweb/static/bp-process/images/contextual-help/systemtask.png'}}></contextual-help>        
+            image-src={{'/novaweb/static/bp-process/images/contextual-help/systemtask.png'}}></contextual-help>
     </div>
 </div>
 
 <div class="modal-body storyteller-modal-body">
-    
+
     <form name="systemTaskForm" novalidate>
         <div class="nova-form-group nova-floating-label">
             <input type="text"
@@ -41,9 +41,9 @@
         </div>
 
         <br/>
-        <div class="small-padding">                
+        <div class="small-padding">
             <!--<div>
-                <label                        
+                <label
                        ng-class="{'available': dialogModel.clonedSystemTask.associatedArtifact}">
                     <i class="fonticon-include-active"  title="{{::$root.config.labels['ST_Include_Tab_Label']}}"></i>{{::$root.config.labels['ST_Include_Tab_Label']}}
                 </label>
@@ -78,11 +78,11 @@
                         </div>
                         <!--<label for="storyteller-include" class="nova-label"><i class="fonticon-include-active"></i>{{::$root.config.labels['ST_Include_Label']}}</label>-->
                     </div>
-                </div>                    
+                </div>
             </div>
         </div>
     </form>
-    
+
 </div>
 
 <div class="modal-footer storyteller-modal-footer">

@@ -8,8 +8,8 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
     public getLinkableProcesses: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
     public getLinkableArtifacts: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
     public isProjectOnlySearch: boolean = true;
-    public isLoadingIncludes: boolean = false;    
-    
+    public isLoadingIncludes: boolean = false;
+
     private isIncludeNoResults: boolean = false;
     private isIncludeBadRequest: boolean = false;
     private isIncludeResultsVisible: boolean;
@@ -52,12 +52,12 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
         if (isSMBVal.toLowerCase() === "true") {
             this.isSMB = true;
         }
-        
+
         this.systemNameOnBlur();
 
         this.communicationManager.modalDialogManager.setModalProcessViewModel(this.setModalProcessViewModel);
         this.setNextNode(this.modalProcessViewModel);
-    }    
+    }
 
     private setModalProcessViewModel = (modalProcessViewModel) => {
         this.modalProcessViewModel = modalProcessViewModel;
@@ -127,7 +127,7 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
         }
 
         return false;
-    }       
+    }
 
     private systemNameOnFocus = () => {
         this.systemNamePlaceHolderText = (<any>this.$rootScope).config.labels["ST_System_Task_Name_Label"];
@@ -145,24 +145,24 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
     }
 
     public saveData() {
-        
+
         if (this.dialogModel.clonedSystemTask.associatedArtifact === undefined) {
             this.dialogModel.clonedSystemTask.associatedArtifact = null;
         }
-        
-        this.populateSystemTaskChanges();        
-    }    
+
+        this.populateSystemTaskChanges();
+    }
 
     private populateSystemTaskChanges() {
-        
+
         if (this.dialogModel.originalSystemTask && this.dialogModel.clonedSystemTask) {
             this.dialogModel.originalSystemTask.persona = this.dialogModel.clonedSystemTask.persona;
             this.dialogModel.originalSystemTask.action = this.dialogModel.clonedSystemTask.action;
-            this.dialogModel.originalSystemTask.imageId = this.dialogModel.clonedSystemTask.imageId;        
-            this.dialogModel.originalSystemTask.associatedImageUrl = this.dialogModel.clonedSystemTask.associatedImageUrl;        
+            this.dialogModel.originalSystemTask.imageId = this.dialogModel.clonedSystemTask.imageId;
+            this.dialogModel.originalSystemTask.associatedImageUrl = this.dialogModel.clonedSystemTask.associatedImageUrl;
             this.dialogModel.originalSystemTask.associatedArtifact = this.dialogModel.clonedSystemTask.associatedArtifact;
-        }        
-    }    
+        }
+    }
 
     private refreshView() {
         let element: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
@@ -183,7 +183,7 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
     public getActiveHeader(): string {
         if (this.dialogModel.isSystemTask) {
             return this.dialogModel.clonedSystemTask.label;
-        }        
+        }
 
         return null;
     }

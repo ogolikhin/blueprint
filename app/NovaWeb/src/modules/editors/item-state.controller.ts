@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import { Models } from "../main/models";
 import { IArtifactManager } from "../managers";
 import { IStatefulArtifact } from "../managers/artifact-manager";
@@ -11,8 +11,8 @@ import { IItemInfoService, IItemInfoResult } from "../core/navigation/item-info.
 export class ItemStateController {
 
     public static $inject = [
-        "$state", 
-        "artifactManager", 
+        "$state",
+        "artifactManager",
         "messageService",
         "localization",
         "navigationService",

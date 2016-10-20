@@ -64,7 +64,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetails);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, newArtifact);
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForNovaRestMethods))]
@@ -169,7 +169,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetails);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, newArtifact);
 
             Assert.NotNull(newArtifact.OrderIndex, "OrderIndex of newly created artifact must not be null!");
             Assert.AreEqual(orderIndexToSet, newArtifact.OrderIndex.Value, "The OrderIndex of the new artifact is not correct!");
@@ -487,6 +487,59 @@ namespace ArtifactStoreTests
 
             ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors,
                 I18NHelper.FormatInvariant("Artifact with Id {0} has validation errors.", artifactDetails.Id));
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // Ignore for now.
+        [Category(Categories.CustomData)]
+        [TestCase(ArtifactTypePredefined.Actor)]
+        [TestRail(183640)]
+        [Description("Create an artifact in the 'Custom Data' project for a type that has a required Custom Property with default values.  " +
+            "Verify the create succeeds and the artifact has the default values populated.")]
+        public void CreateArtifact_ArtifactWithRequiredCustomPropertyWithDefaults_VerifyDefaultValuesArePopulated(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            IProject customDataProject = ProjectFactory.GetProject(_user, "Custom Data", shouldRetrievePropertyTypes: true);
+            customDataProject.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            // Execute:
+            INovaArtifactDetails newArtifact = null;
+
+            Assert.DoesNotThrow(() => newArtifact = CreateArtifactWithRandomName(artifactType, _user, customDataProject),
+                "'POST {0}' should return 201 Created when trying to create an artifact that has required properties with default values!");
+
+            // Verify:
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, newArtifact);
+
+            // Make sure the default values of the required properties got set.
+            /*  Name:                                   Default Value:
+                "CU-Text Required"                      "<html><head/><pre>Default Text</pre></html>"
+                "CU-Number Required with Min & Max"     10
+                "CU-Date Required with Min & Max"       2016-09-01T00:00:00.0000000
+
+            NOTE: These 2 properties are hard to validate properly, so skipping them.
+                "CU-Choice Required with Single Choice  "{\r\n  \"validValueIds\": [\r\n    22\r\n  ]\r\n}"
+                "CU-User Required"                      "{\r\n  \"usersGroups\": [\r\n    {\r\n      \"id\": 1,\r\n      \"displayName\": \"Default Instance Admin\"\r\n    }\r\n  ]\r\n}"
+            */
+
+            Dictionary<string, object> expectedValues = new Dictionary<string, object>
+            {
+                { "CU-Text Required", "<html><head/><pre>Default Text</pre></html>" },
+                { "CU-Number Required with Min & Max", 10 },
+                { "CU-Date Required with Min & Max", new DateTime(2016, 9, 1) }
+            };
+
+            foreach (var expectedValue in expectedValues)
+            {
+                var novaPropertyType = customDataProject.NovaPropertyTypes.Find(o => o.Name == expectedValue.Key);
+                Assert.NotNull(novaPropertyType, "Couldn't find a Nova Artifact Type named '{0}'!", expectedValue.Key);
+
+                var customProperty = artifactDetails.CustomPropertyValues.Find(p => p.PropertyTypeId == novaPropertyType.Id);
+
+                Assert.NotNull(customProperty, "Couldn't find a custom property with PropertyTypeId {0}!", novaPropertyType.Id);
+                Assert.AreEqual(expectedValue.Value, customProperty.CustomPropertyValue,
+                    "Custom Property Value for property '{0}' is not set to the default value!", customProperty.Name);
+            }
         }
 
         [TestCase(ItemTypePredefined.Actor)]

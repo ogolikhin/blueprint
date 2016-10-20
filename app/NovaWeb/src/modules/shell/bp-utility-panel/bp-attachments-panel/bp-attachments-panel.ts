@@ -213,8 +213,4 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         this.docRefList = docRefs;
     }
 
-    private canChangeAttachements() {
-        return !(this.item.artifactState.readonly ||
-            this.item.artifactState.lockedBy === Enums.LockedByEnum.OtherUser);
-    }
 }

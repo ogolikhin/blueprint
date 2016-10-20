@@ -134,10 +134,8 @@ export class BpArtifactInfoController {
     }
 
     public onError = (error: any) => {
-        if (this.artifact.artifactState.deleted) {
-            this.dialogService.alert("Artifact_Lock_DoesNotExist");
-        } else if (this.artifact.artifactState.misplaced) {
-            //Occurs when refreshing an artifact that's been moved; do nothing
+        if (this.artifact.artifactState.deleted || this.artifact.artifactState.misplaced) {
+            //Occurs when refreshing an artifact that's been moved/deleted; do nothing
         } else {
             this.messageService.addError(error);
         }
@@ -220,12 +218,6 @@ export class BpArtifactInfoController {
             default:
                 break;
         }
-
-        if (artifact.artifactState.misplaced) {
-            this.dialogService.alert("Artifact_Lock_DoesNotExist").then(() => {
-                //fixme: empty function block shoudl be removed
-            });
-        }
     }
 
     public get artifactHeadingMinWidth() {
@@ -275,7 +267,13 @@ export class BpArtifactInfoController {
     private onWidthResized(mainWindow: IMainWindow) {
         if (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
             let sidebarWrapper: Element;
-            const sidebarSize: number = 270; // MUST match $sidebar-size in styles/modules/_variables.scss
+            //const sidebarSize: number = 270; // MUST match $sidebar-size in styles/modules/_variables.scss
+
+            let sidebarSize = 0;
+            if ((<HTMLElement>document.querySelector(".sidebar.left-panel"))) {
+                sidebarSize = (<HTMLElement>document.querySelector(".sidebar.left-panel")).offsetWidth;
+            }
+
             let sidebarsWidth: number = 20 * 2; // main content area padding
             sidebarWrapper = document.querySelector(".bp-sidebar-wrapper");
 

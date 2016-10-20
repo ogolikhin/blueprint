@@ -287,10 +287,12 @@ describe("RefreshAction", () => {
                 expect(refreshSpy).toHaveBeenCalled();
             });
 
-            it("calls project manager refresh", () => {
-                // assert
-                expect(projectRefreshSpy).toHaveBeenCalled();
-            });
+            // This is now done indirectly - project only refreshes if the artifact is currently selected
+            // in selection manager.
+            // it("calls project manager refresh", () => {
+            //     // assert
+            //     expect(projectRefreshSpy).toHaveBeenCalled();
+            // });
 
             it("hides loading screen", () => {
                 // assert

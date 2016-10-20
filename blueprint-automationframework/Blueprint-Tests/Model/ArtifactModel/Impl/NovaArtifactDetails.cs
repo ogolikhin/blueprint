@@ -126,6 +126,12 @@ namespace Model.ArtifactModel.Impl
         public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();
         public List<CustomProperty> SpecificPropertyValues { get; } = new List<CustomProperty>();
         public int? PredefinedType { get; set; }
+        
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]     // Ignore this warning for now.
+        public List<NovaTrace> Traces { get; set; }
+
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]     // Ignore this warning for now.
+        public List<INovaSubArtifact> SubArtifacts { get; set; }
 
         // TODO: found following properties when capturing PATCH /svc/bpartifactstore/artifacts/{artifactID}: 
         // SubArtifacts, Traces, DocRefValue

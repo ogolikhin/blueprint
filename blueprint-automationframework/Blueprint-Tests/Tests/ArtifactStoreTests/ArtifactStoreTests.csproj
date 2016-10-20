@@ -68,6 +68,7 @@
     <Compile Include="ActorPropertiesTests.cs" />
     <Compile Include="ArtifactDetailsTests.cs" />
     <Compile Include="ArtifactHistoryTests.cs" />
+    <Compile Include="ArtifactNavigationPathTests.cs" />
     <Compile Include="ArtifactVersionControlInfoTests.cs" />
     <Compile Include="AttachmentTests.cs" />
     <Compile Include="CreateArtifactTests.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="RelationshipsTests.cs" />
     <Compile Include="SaveArtifactTests.cs" />
     <Compile Include="SaveAttachmentTests.cs" />
+    <Compile Include="SaveTracesTests.cs" />
     <Compile Include="StatusTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SubArtifactsTests.cs" />

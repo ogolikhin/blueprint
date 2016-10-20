@@ -119,8 +119,8 @@ namespace ArtifactStoreTests
 
         #endregion 200 OK tests
 
-        #region Negative tests
-        //TODO 400 - The session token is missing or malformed
+        #region 400 Bad Request Tests
+
         [TestCase]
         [TestRail(183631)]
         [Description("Get an artifact navigation path without a Session-Token header. Execute GetArtifactNagivationPath - Must return 400 Bad Request.")]
@@ -133,7 +133,10 @@ namespace ArtifactStoreTests
             Assert.Throws<Http400BadRequestException>(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(user: null, itemId: _project.Id), "Calling GET {0} without a Session-Token header should return 400 BadRequest!", RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH);
         }
 
-        //TODO 401 - The session token is invalid.    
+        #endregion 400 Bad Request Tests
+
+        #region 401 Unauthorized Tests
+
         [TestCase]
         [TestRail(183632)]
         [Description("Get an artifact navigation path using the user with invalid session. Execute GetArtifactNagivationPath - Must return 401 Unautorized.")]
@@ -147,7 +150,10 @@ namespace ArtifactStoreTests
             Assert.Throws<Http401UnauthorizedException>(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(user: userWithBadToken, itemId: _project.Id), "Calling GET {0} using the user with invalid session should return 401 Unauthorized!", RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH);
         }
 
-        //TODO 403 - The user does not have permissions to view the artifact.
+        #endregion 401 Unauthorized Tests
+
+        #region 403 Forbidden Tests
+
         [TestCase]
         [TestRail(183633)]
         [Description("Get an artifact navigation path using the user with invalid session. Execute GetArtifactNagivationPath - Must return 403 Forbidden.")]
@@ -165,7 +171,10 @@ namespace ArtifactStoreTests
             Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.UnauthorizedAccess), "{0} using the user without view permission to the artifact should return {1} errorCode but {2} is returned", RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH, ErrorCodes.UnauthorizedAccess, serviceErrorMessage.ErrorCode);
         }
 
-        //TODO 404 - An artifact for the specified id is not found, does not exist or is deleted
+        #endregion 403 Forbidden Tests
+
+        #region 404 Not Found Tests
+
         [TestCase(int.MaxValue)]
         [TestRail(183634)]
         [Description("Get an artifact navigation path with non-existing artifact ID. Execute GetArtifactNagivationPath - Must return 404 Not Found.")]
@@ -213,7 +222,8 @@ namespace ArtifactStoreTests
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
             Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.ResourceNotFound), "{0} with deleted artifact ID should return {1} errorCode but {2} is returned", RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH, ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);
         }
-        #endregion Negative tests
+
+        #endregion 404 Not Found Tests
 
         #region private calls
 

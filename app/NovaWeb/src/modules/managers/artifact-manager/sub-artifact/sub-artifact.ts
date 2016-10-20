@@ -17,8 +17,6 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
     public isLoaded = false;
     private subject: Rx.BehaviorSubject<IStatefulSubArtifact>;
 
-    public deleted: boolean;
-
     constructor(private parentArtifact: IStatefulArtifact, private subArtifact: Models.ISubArtifact, services: IStatefulArtifactServices) {
         super(subArtifact, services);
         this.metadata = new MetaData(this);
@@ -91,7 +89,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
     }
 
     public getEffectiveVersion(): number {
-        return this.parentArtifact.deleted ? this.parentArtifact.version : undefined;
+        return this.parentArtifact.historical ? this.parentArtifact.version : undefined;
     }
 
     protected getAttachmentsDocRefsInternal(): ng.IPromise<IArtifactAttachmentsResultSet> {

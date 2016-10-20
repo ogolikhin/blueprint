@@ -95,8 +95,10 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
     }
 
     public createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact {
-        if (artifact &&
-            artifact.predefinedType === Models.ItemTypePredefined.Process) {
+        if (!artifact) {
+            throw Error("Argument 'artifact' should not be null or undefined");
+        }
+        if (artifact.predefinedType === Models.ItemTypePredefined.Process) {
             return this.createStatefulProcessArtifact(artifact);
         }
         return new StatefulArtifact(artifact, this.services);

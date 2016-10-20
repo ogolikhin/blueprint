@@ -176,10 +176,6 @@ $modal-side-clearance: 8px;
 
                 .trace-project{
                     @include text-ellipsis-fixed-width(100%);
-
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
                 }
 
                 > div {

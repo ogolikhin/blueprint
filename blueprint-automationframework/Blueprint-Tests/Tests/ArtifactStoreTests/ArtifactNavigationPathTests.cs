@@ -168,11 +168,12 @@ namespace ArtifactStoreTests
 
             IArtifact fakeArtifact = null;
 
-            try
-            {
-                fakeArtifact = ArtifactFactory.CreateArtifact(
+
+            fakeArtifact = ArtifactFactory.CreateArtifact(
                     _project, _user, BaseArtifactType.Actor, collection.Id);   // Don't use Helper because this isn't a real artifact, it's just wrapping the bad artifact ID.
 
+            try
+            {                
                 // Execute:
                 Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, collection.Id),
                                     "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
@@ -191,7 +192,7 @@ namespace ArtifactStoreTests
         [TestCase(96384)]
         [TestRail(185119)]
         [Description("Verify get artifact navigation path call for Baseline returns Baseline & Review folder and project information")]
-        public void ArtifactNavigation_Baseline_ReturnsCollectionFolderAndProjectInfo(int id)
+        public void ArtifactNavigation_Baseline_ReturnsBaselineFolderAndProjectInfo(int id)
         {
             // Setup:
             var basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, id);
@@ -248,31 +249,25 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, artifact.Id),
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
-        // Verify:
-        VerifyAncestorsInformation(basicArtifactInfoList, artifact.ParentId);
+            // Verify:
+            VerifyAncestorsInformation(basicArtifactInfoList, artifact.ParentId);
         }
 
-        [TestCase(BaseArtifactType.Actor, 2)]
+        [TestCase(BaseArtifactType.Glossary, 5, BaseArtifactType.Process)]
         [TestRail(184482)]
         [Description("Create & publish an artifact with chains of 5 child artifacts and 5 folders. Move chain of artifacts to one folder before the last. Verify get artifact navigation path call for artifacts and folders in a chain returns information about all ancestor artifacts and project.")]
-        public void ArtifactNavigation_PublishedArtifactInAChainOfArtifactsAndFolders_ReturnsListOfArtifactAndFolderInfo(BaseArtifactType artifactType, int numberOfVersions)
+        public void ArtifactNavigation_PublishedArtifactInAChainOfArtifactsAndFolders_ReturnsListOfArtifactAndFolderInfo(BaseArtifactType artifactType, int numberOfArtifacts, BaseArtifactType artifactTypeInChain)
         {
-            // Setup:
-            BaseArtifactType[] artifactChain = { BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process,
-                                                     BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process,
-                                                     BaseArtifactType.Process, BaseArtifactType.Process};
+            List<BaseArtifactType> folderTypes = CreateListOfArtifactTypes(numberOfArtifacts, BaseArtifactType.PrimitiveFolder);
+            List<BaseArtifactType> artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactTypeInChain);
 
-            BaseArtifactType[] folderChain = { BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder,
-                                                     BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder,
-                                                     BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder};
-
-            var artifacts = Helper.CreatePublishedArtifactChain(_project, _user, artifactChain);
-            var folders = Helper.CreatePublishedArtifactChain(_project, _user, folderChain);
+            var artifacts = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes.ToArray());
+            var folders = Helper.CreatePublishedArtifactChain(_project, _user, folderTypes.ToArray());
 
             artifacts.First().Lock(_user);
             Helper.ArtifactStore.MoveArtifact(artifacts.First(), folders[folders.Count - 2], _user);
 
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, artifacts.Last(), numberOfVersions: numberOfVersions);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, artifacts.Last());
 
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
@@ -284,20 +279,17 @@ namespace ArtifactStoreTests
             VerifyAncestorsInformation(basicArtifactInfoList, artifact.ParentId);
         }
 
-        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(BaseArtifactType.Glossary, 5, BaseArtifactType.Process)]
         [TestRail(184483)]
         [Description("Create & save an artifact with chains of 5 child artifacts and 5 folders. Move chain of artifacts to one folder before the last. Verify get artifact navigation path call for artifacts and folders in a chain returns information about all ancestor artifacts and project.")]
-        public void ArtifactNavigation_SavedArtifactInAChainOfArtifactsAndFolders_ReturnsListOfArtifactAndFolderInfo(BaseArtifactType artifactType)
+        public void ArtifactNavigation_SavedArtifactInAChainOfArtifactsAndFolders_ReturnsListOfArtifactAndFolderInfo(BaseArtifactType artifactType, int numberOfArtifacts, BaseArtifactType artifactTypeInChain)
         {
             // Setup:
-            BaseArtifactType[] artifactChain = { BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process,
-                                                     BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process};
+            List<BaseArtifactType> folderTypes = CreateListOfArtifactTypes(numberOfArtifacts, BaseArtifactType.PrimitiveFolder);
+            List<BaseArtifactType> artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactTypeInChain);
 
-            BaseArtifactType[] folderChain = { BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder,
-                                                     BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder};
-
-            var artifacts = Helper.CreateSavedArtifactChain(_project, _user, artifactChain);
-            var folders = Helper.CreateSavedArtifactChain(_project, _user, folderChain);
+            var artifacts = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes.ToArray());
+            var folders = Helper.CreatePublishedArtifactChain(_project, _user, folderTypes.ToArray());
 
             artifacts.First().Lock(_user);
             Helper.ArtifactStore.MoveArtifact(artifacts.First(), folders[folders.Count - 2], _user);
@@ -314,20 +306,17 @@ namespace ArtifactStoreTests
             VerifyAncestorsInformation(basicArtifactInfoList, artifact.ParentId);
         }
 
-        [TestCase(BaseArtifactType.UseCase)]
+        [TestCase(BaseArtifactType.UseCase, 5, BaseArtifactType.Process)]
         [TestRail(184484)]
         [Description("Create & publish an artifact with sub-artifacts and chains of 5 child artifacts and 5 folders. Move chain of artifacts to one folder before the last. Verify get artifact navigation path call for artifacts and folders in a chain returns information about all ancestor artifacts and project.")]
-        public void ArtifactNavigation_SubArtifactinPublishedArtifactAndAChainOfArtifactsAndFolders_ReturnsListOfArtifactAndFolderInfo(BaseArtifactType artifactType)
+        public void ArtifactNavigation_SubArtifactinPublishedArtifactAndAChainOfArtifactsAndFolders_ReturnsListOfArtifactAndFolderInfo(BaseArtifactType artifactType, int numberOfArtifacts, BaseArtifactType artifactTypeInChain)
         {
             // Setup:
-            BaseArtifactType[] artifactChain = { BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process,
-                                                     BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process};
+            List<BaseArtifactType> folderTypes = CreateListOfArtifactTypes(numberOfArtifacts, BaseArtifactType.PrimitiveFolder);
+            List<BaseArtifactType> artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactTypeInChain);
 
-            BaseArtifactType[] folderChain = { BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder,
-                                                     BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder};
-
-            var artifacts = Helper.CreatePublishedArtifactChain(_project, _user, artifactChain);
-            var folders = Helper.CreatePublishedArtifactChain(_project, _user, folderChain);
+            var artifacts = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes.ToArray());
+            var folders = Helper.CreatePublishedArtifactChain(_project, _user, folderTypes.ToArray());
 
             artifacts.First().Lock(_user);
             Helper.ArtifactStore.MoveArtifact(artifacts.First(), folders[folders.Count - 2], _user);
@@ -350,7 +339,6 @@ namespace ArtifactStoreTests
         //TODO Test for project in a folder
         //TODO Move Artifact
         //TODO Create & publish artifact, user1 deletes (but doesn't publish), user2 gets navigation path.
-
 
         #endregion 200 OK tests
 

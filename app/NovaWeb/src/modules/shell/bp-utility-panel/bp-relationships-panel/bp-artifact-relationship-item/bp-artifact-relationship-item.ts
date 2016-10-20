@@ -1,5 +1,6 @@
 ﻿import {ILocalizationService} from "../../../../core";
-import {Helper} from "../../../../shared";
+import { INavigationService } from "../../../../core/navigation";
+import {Helper, IDialogService} from "../../../../shared";
 import {Relationships} from "../../../../main";
 import {IArtifactManager} from "../../../../managers";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
@@ -34,7 +35,9 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     public static $inject: [string] = [
         "localization",
         "relationshipDetailsService",
-        "artifactManager"
+        "artifactManager",
+        "dialogService",
+        "navigationService"
     ];
 
     public expanded: boolean = false;
@@ -49,7 +52,10 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     public deleteItem: Function;
     constructor(private localization: ILocalizationService,
                 private relationshipDetailsService: IRelationshipDetailsService,
-                private artifactManager: IArtifactManager) {
+                private artifactManager: IArtifactManager,
+                private dialogService: IDialogService,
+                private navigationService: INavigationService) {
+
 
     }
 
@@ -149,9 +155,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
 
     public navigateToArtifact(relationship: Relationships.IRelationship) {
         if (relationship.hasAccess) {
-            this.artifactManager.get(relationship.artifactId).then((artifact: IStatefulArtifact) => {
-                this.artifactManager.selection.setExplorerArtifact(artifact);
-            });
+            this.navigationService.navigateTo(relationship.itemId);
         }
     }
 }

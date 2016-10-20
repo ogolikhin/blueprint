@@ -160,14 +160,12 @@ namespace ArtifactStoreTests
             // Execute: Execute GetNavigationPath using the user without view permission to the artifact
             var ex = Assert.Throws<Http403ForbiddenException>(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(user: userWithNoPermissionOnAnyProject, itemId: _project.Id), "Calling GET {0} using the user without view permission should return 403 Forbidden!", RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH);
 
-            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
-
             // Validation: Exception should contain proper errorCode in the response content.
+            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
             Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.UnauthorizedAccess), "{0} using the user without view permission to the artifact should return {1} errorCode but {2} is returned", RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH, ErrorCodes.UnauthorizedAccess, serviceErrorMessage.ErrorCode);
         }
 
         //TODO 404 - An artifact for the specified id is not found, does not exist or is deleted
-        //TODO: [TestCase(-1)] [TestCase(0)] Create 400 BadRequest test case, ArtifactNavigationPath_WithInvalidArtifactId_400BadRequest after trello resolved: https://trello.com/c/ihN9qFel
         [TestCase(int.MaxValue)]
         [TestRail(183634)]
         [Description("Get an artifact navigation path with non-existing artifact ID. Execute GetArtifactNagivationPath - Must return 404 Not Found.")]
@@ -176,15 +174,45 @@ namespace ArtifactStoreTests
             // Setup:
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
-            // Execute and Validation: Execute GetNavigationPath with non-existing artifact ID
+            // Execute: Execute GetNavigationPath with non-existing artifact ID
             var ex = Assert.Throws<Http404NotFoundException>(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(user: _user, itemId: nonExistingArtifactId), "Calling GET {0} with non-existing artifact ID should return 404 Not Found!", RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH);
 
-            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
-
             // Validation: Exception should contain proper errorCode in the response content.
-            Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.ResourceNotFound), "{0} using the user without view permission to the artifact should return {1} errorCode but {2} is returned", RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH, ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);
+            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.ResourceNotFound), "{0} with non-exsting artifact ID should return {1} errorCode but {2} is returned", RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH, ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);
         }
 
+        [TestCase(0)]
+        [TestCase(-1)]
+        [TestRail(184485)]
+        [Description("Get an artifact navigation path with non-existing artifact ID. Execute GetArtifactNagivationPath - Must return 404 Not Found.")]
+        public void ArtifactNavigationPath_WithInvalidArtifactId_404NotFound(int invalidArtifactId)
+        {
+            // Setup:
+            List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
+
+            // Execute and Validation: Execute GetNavigationPath with invalidArtifacId artifact ID
+            Assert.Throws<Http404NotFoundException>(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(user: _user, itemId: invalidArtifactId), "Calling GET {0} with non-existing artifact ID should return 404 Not Found!", RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH);
+        }
+
+        [TestCase]
+        [TestRail(184486)]
+        [Description("Get an artifact navigation path with deleted artifact ID. Execute GetArtifactNagivationPath - Must return 404 Not Found.")]
+        public void ArtifactNavigationPath_WithDeletedArtifactId_404NotFound()
+        {
+            // Setup: Created and publish artifact then delete the artifact
+            List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
+            var deletedArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            deletedArtifact.Delete();
+            deletedArtifact.Publish();
+
+            // Execute: Execute GetNavigationPath with the deleted artifact ID
+            var ex = Assert.Throws<Http404NotFoundException>(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(user: _user, itemId: deletedArtifact.Id), "Calling GET {0} with non-existing artifact ID should return 404 Not Found!", RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH);
+
+            // Validation: Exception should contain proper errorCode in the response content.
+            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.ResourceNotFound), "{0} with deleted artifact ID should return {1} errorCode but {2} is returned", RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH, ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);
+        }
         #endregion Negative tests
 
         #region private calls

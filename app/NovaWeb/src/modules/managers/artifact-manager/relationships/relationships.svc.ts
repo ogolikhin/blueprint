@@ -1,10 +1,10 @@
-﻿import {ILocalizationService} from "../../../core";
+import {ILocalizationService} from "../../../core";
 import {Relationships} from "../../../main";
 
 export interface IArtifactRelationshipsService {
     getRelationships(artifactId: number,
                      subArtifactId?: number,
-                     versionId?: number, 
+                     versionId?: number,
                      timeout?: ng.IPromise<void>): ng.IPromise<Relationships.IArtifactRelationshipsResultSet>;
 }
 

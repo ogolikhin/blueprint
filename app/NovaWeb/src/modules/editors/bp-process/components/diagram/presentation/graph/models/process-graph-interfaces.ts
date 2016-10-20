@@ -1,4 +1,4 @@
-﻿import {IProcessShape, IProcessLink, IProcessLinkModel} from "./";
+import {IProcessShape, IProcessLink, IProcessLinkModel} from "./";
 import {IArtifactProperty, ItemIndicatorFlags} from "./";
 import {Direction, NodeType, NodeChange, ElementType} from "./";
 import {IDialogParams} from "../../../../messages/message-dialog";

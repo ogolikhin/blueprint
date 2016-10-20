@@ -10,13 +10,14 @@ import {LocalizationServiceMock} from "../../../../core/localization/localizatio
 import {SelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {ArtifactRelationshipsMock} from "../../../../managers/artifact-manager/relationships/relationships.svc.mock";
+import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 import {Relationships} from "../../../../main";
 import {
     ArtifactManager,
     StatefulArtifactFactory,
     MetaDataService,
     ArtifactService,
-    ArtifactAttachmentsService,
+    ArtifactAttachmentsService
 } from "../../../../managers/artifact-manager";
 
 describe("Component BPDiscussionReplyItem", () => {
@@ -34,6 +35,7 @@ describe("Component BPDiscussionReplyItem", () => {
         $provide.service("artifactAttachments", ArtifactAttachmentsService);
         $provide.service("artifactRelationships", ArtifactRelationshipsMock);
         $provide.service("processService", ProcessServiceMock);
+        $provide.service("navigationService", NavigationServiceMock);
     }));
 
     let directiveTest: ComponentTest<BPArtifactRelationshipItemController>;

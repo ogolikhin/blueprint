@@ -1,4 +1,4 @@
-﻿import {ILocalizationService, IMessageService, Message, MessageType, INavigationService} from "../../../../core";
+import {ILocalizationService, IMessageService, Message, MessageType, INavigationService} from "../../../../core";
 import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";

@@ -69,7 +69,7 @@ export class NavigationService implements INavigationService {
 
         return this.navigateToArtifactInternal(getParameters, stateOptions);
     }
-    
+
     public navigateBack(pathIndex?: number): ng.IPromise<any> {
         const deferred: ng.IDeferred<any> = this.$q.defer();
         const path: number[] = this.getNavigationState().path;

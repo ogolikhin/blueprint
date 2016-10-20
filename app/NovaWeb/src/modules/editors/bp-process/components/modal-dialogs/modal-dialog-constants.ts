@@ -1,4 +1,4 @@
-﻿export enum ModalDialogType {
+export enum ModalDialogType {
     None,
     PreviewDialogType,
     UserSystemDecisionDetailsDialogType,

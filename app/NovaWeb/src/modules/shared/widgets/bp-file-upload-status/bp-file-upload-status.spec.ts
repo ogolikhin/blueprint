@@ -41,7 +41,6 @@ describe("File Upload Status", () => {
             fileUploadService,
             $filter,
             new ModalServiceInstanceMock(),
-            dialogService,
             dialogSettings,
             dialogData
         );

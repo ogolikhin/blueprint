@@ -1,4 +1,4 @@
-﻿import {IArtifactProperty, IUserTaskShape} from "../../../../../models/process-models";
+import {IArtifactProperty, IUserTaskShape} from "../../../../../models/process-models";
 import {ItemIndicatorFlags} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {IProcessGraph, IDiagramNode} from "../models/";
@@ -58,12 +58,8 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public cloneUserTask(): UserTask {
-        let userTask = new UserTask(this.model, this.rootScope, this.nodeFactorySettings, this.shapesFactoryService);
+        const userTask = Object.assign({}, this);
         userTask.label = this.label;
-        userTask.persona = this.persona;
-        userTask.objective = this.objective;
-        userTask.action = this.action;
-        userTask.description = this.description;
         userTask.associatedArtifact = this.associatedArtifact;
         return userTask;
     }
@@ -86,7 +82,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         if (nodeFactorySettings && nodeFactorySettings.isCommentsButtonEnabled) {
             // #TODO integrate with utility panel in Nova
             // this.commentsButton.setClickAction(() => this.openPropertiesDialog(this.rootScope, Shell.UtilityTab.discussions));
-        } 
+        }
 
         this.commentsButton.setTooltip(this.rootScope.config.labels["ST_Comments_Label"]);
         this.commentsButton.setActiveImage(this.getImageSource("/comments-active.svg"));

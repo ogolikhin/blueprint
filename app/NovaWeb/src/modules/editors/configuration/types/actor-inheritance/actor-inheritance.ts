@@ -1,4 +1,4 @@
-﻿import "angular";
+import "angular";
 import {ILocalizationService, IMessageService} from "../../../../core";
 import {IDialogSettings, IDialogService} from "../../../../shared";
 import {BPFieldBaseController} from "../base-controller";

@@ -1,4 +1,4 @@
-﻿import {IProcessShape} from "../../../../../models/process-models";
+import {IProcessShape} from "../../../../../models/process-models";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import { IProcessGraph, IDiagramNode} from "../models/";
 import {IDecision, ISystemTask} from "../models/";
@@ -44,7 +44,7 @@ export class SystemDecision extends DiagramNode<IProcessShape> implements IDecis
         this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("adddetails-neutral.svg"));
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
             this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemDecisionDetailsDialogType));
-        } 
+        }
 
         this.detailsButton.setHoverImage(this.getImageSource("adddetails-hover.svg"));
         this.detailsButton.setDisabledImage(this.getImageSource("adddetails-mute.svg"));

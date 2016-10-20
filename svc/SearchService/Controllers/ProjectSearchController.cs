@@ -1,4 +1,4 @@
-﻿using SearchService.Models;
+using SearchService.Models;
 using SearchService.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Exceptions;
@@ -16,7 +16,7 @@ namespace SearchService.Controllers
     [RoutePrefix("projectsearch")]
     public class ProjectSearchController : LoggableApiController
     {
-        private readonly IProjectSearchRepository _projectSearchRepository;
+        internal readonly IProjectSearchRepository _projectSearchRepository;
         private const int MaxResultCount = 100;
         private const int DefaultResultCount = 20;
         private const string DefaultSeparator = "/";
@@ -26,6 +26,7 @@ namespace SearchService.Controllers
         public ProjectSearchController() : this(new SqlProjectSearchRepository())
         {
         }
+
         public ProjectSearchController(IProjectSearchRepository projectSearchRepository)
         {
             _projectSearchRepository = projectSearchRepository;

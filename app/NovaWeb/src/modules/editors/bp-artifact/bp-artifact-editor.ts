@@ -59,7 +59,7 @@ export class BpArtifactEditor extends BpBaseEditor {
     public clearFields() {
         this.fields = [];
     }
-    
+
     public hasFields(): boolean  {
         return (this.fields || []).length > 0;
 
@@ -76,9 +76,9 @@ export class BpArtifactEditor extends BpBaseEditor {
     public onArtifactReady() {
         if (this.editor && this.artifact) {
             this.artifact.metadata.getArtifactPropertyTypes().then((propertyTypes) => {
-                const shouldCreateFields = this.editor.create(this.artifact, propertyTypes, this.shouldRenewFields()); 
+                const shouldCreateFields = this.editor.create(this.artifact, propertyTypes, this.shouldRenewFields());
                 if (shouldCreateFields) {
-                    this.clearFields();                    
+                    this.clearFields();
                     this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
                         //add property change handler to each field
                         Object.assign(field.templateOptions, {
@@ -100,7 +100,7 @@ export class BpArtifactEditor extends BpBaseEditor {
 
                 }
                 this.model = this.editor.getModel();
-                
+
                 this.setArtifactEditorLabelsWidth();
                 super.onArtifactReady();
                 this.onFieldUpdateFinished();

@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {Models, SearchServiceModels} from "../../main/models";
 
 export enum ProjectServiceStatusCode {

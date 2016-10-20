@@ -1,0 +1,30 @@
+@import "./../../../../styles/modules/variables";
+
+.quick-serach__form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    resize: vertical;
+    overflow: auto;
+}
+
+.quick-serach__input {
+    border: none;
+    border-bottom:solid 1px $gray-light;
+    background:transparent;
+}
+
+.quick-serach__form-control {
+    resize: vertical;
+    position: relative;
+    display: block;
+}
+
+.quick-serach__icon--fixed {
+    position: absolute;
+
+}
+
+.block {
+    display: block;
+}

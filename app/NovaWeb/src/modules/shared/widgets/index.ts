@@ -38,7 +38,7 @@ angular.module("bp.widgets", [
     "bp.widgets.toggle",
     "bp.widgets.breadcrumb",
     "bp.widgets.toolbar",
-    "bp.widgets.artifactList"
+    "bp.widgets.artifactList",
     "bp.widgets.filtered-input",
     "bp.widgets.goto"
 ]);

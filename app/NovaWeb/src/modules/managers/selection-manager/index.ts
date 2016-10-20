@@ -2,8 +2,7 @@ import * as angular from "angular";
 import {
     SelectionManager,
     ISelectionManager,
-    ISelection,
-    SelectionSource
+    ISelection
 } from "./selection-manager";
 
 
@@ -14,6 +13,5 @@ angular.module("bp.managers.selection", [])
 export {
     SelectionManager,
     ISelectionManager,
-    ISelection,
-    SelectionSource
+    ISelection
 };

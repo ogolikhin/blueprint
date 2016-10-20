@@ -41,7 +41,7 @@ export class ProjectExplorerController {
         this.subscribers = [
             //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
-            this.selectionManager.artifactObservable.filter(artifact => !!artifact).subscribeOnNext(this.setSelectedNode, this)
+            this.selectionManager.explorerArtifactObservable.filter(artifact => !!artifact).subscribeOnNext(this.setSelectedNode, this)
         ];
     }
 
@@ -58,7 +58,6 @@ export class ProjectExplorerController {
 
     private setSelectedNode(artifact: IStatefulArtifact) {
         if (this.tree.nodeExists(artifact.id)) {
-            console.log("setting selection here");
             this.tree.selectNode(artifact.id);
         }
     }

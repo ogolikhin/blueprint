@@ -111,8 +111,7 @@ namespace Utilities
             public string Serialize(object obj)
             {
                 return JsonConvert.SerializeObject(obj, Formatting.None,
-                    new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore,
-                    ContractResolver = new CamelCasePropertyNamesContractResolver()});
+                    new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore});
             }
 
             public string RootElement { get; set; }

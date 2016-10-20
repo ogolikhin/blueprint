@@ -240,7 +240,7 @@ describe("DeleteAction", () => {
             const deleteAction = new DeleteAction(artifact, localization, dialogService, {});
             spyOn(dialogService, "open").and.callFake(() => {
                 const deferred = $q.defer();
-                deferred.resolve(false);
+                deferred.reject();
                 return deferred.promise;
             });
             const deleteArtifactSpy = spyOn(deleteAction, "deleteArtifact").and.callThrough();

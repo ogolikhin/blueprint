@@ -103,6 +103,8 @@ export class PropertyEditor {
             } else {
                 return $value.toString();
             }
+        } else if (context.primitiveType === Models.PrimitiveType.Text && context.isRichText) {
+            return Helper.getHtmlBodyContent($value);
         }
         return $value;
     }

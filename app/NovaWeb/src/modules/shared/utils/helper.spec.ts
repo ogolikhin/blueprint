@@ -165,11 +165,8 @@ Popup`);
 
     describe("stripWingdings", () => {
         it("removes CSS style definition for Wingdings font", () => {
-            // Arrange
-            let text;
-
             // Act
-            text = Helper.stripWingdings(html);
+            const text = Helper.stripWingdings(html);
 
             // Assert
             expect(text).not.toContain("Wingdings");
@@ -178,25 +175,97 @@ Popup`);
 
     describe("tagsContainText", () => {
         it("returns true when there is text in a HTML structure", () => {
-            // Arrange
-            let bool;
-
             // Act
-            bool = Helper.tagsContainText(html);
+            const bool = Helper.tagsContainText(html);
 
             // Assert
             expect(bool).toBeTruthy();
         });
 
         it("returns false when there is no text in a HTML structure", () => {
-            // Arrange
-            let bool;
-
             // Act
-            bool = Helper.tagsContainText(emptyHtml);
+            const bool = Helper.tagsContainText(emptyHtml);
 
             // Assert
             expect(bool).toBeFalsy();
+        });
+    });
+
+    describe("stripTinyMceBogusChars", () => {
+        it("strips bogus tags added by tinyMce", () => {
+            // Arrange
+            const div = document.createElement("div");
+            div.innerHTML = html;
+
+            const bogus = document.createElement("div");
+            bogus.innerHTML = `<br data-mce-bogus="1">`;
+
+            div.appendChild(bogus.firstElementChild);
+
+            // Act
+            const out = Helper.stripTinyMceBogusChars(div.innerHTML);
+
+            // Assert
+            expect(out).toBe(html);
+        });
+    });
+
+    describe("relaxedHtmlCompare", () => {
+        it("returns false if the text content is different", () => {
+            // Arrange
+            const html1 = html.replace(/Labels/, "labels");
+
+            // Act
+            const bool = Helper.relaxedHtmlCompare(html, html1);
+
+            // Assert
+            expect(bool).toBeFalsy();
+        });
+
+        it("returns false if the CSS style is different", () => {
+            // Arrange
+            const html1 = html.replace(/Wingdings/, "Webdings");
+
+            // Act
+            const bool = Helper.relaxedHtmlCompare(html, html1);
+
+            // Assert
+            expect(bool).toBeFalsy();
+        });
+
+        it("returns false if the text content is different by ';'", () => {
+            // Arrange
+            const html1 = html.replace(/Labels/, "Labels;");
+
+            // Act
+            const bool = Helper.relaxedHtmlCompare(html, html1);
+
+            // Assert
+            expect(bool).toBeFalsy();
+        });
+
+        it("returns true if the CSS style is different by ';'", () => {
+            // Arrange
+            const html1 = html.replace(/'Wingdings';/, "'Wingdings'");
+
+            // Act
+            const bool = Helper.relaxedHtmlCompare(html, html1);
+
+            // Assert
+            expect(bool).toBeTruthy();
+        });
+    });
+
+    describe("getHtmlBodyContent", () => {
+        it("returns the content of the HTML/BODY tag", () => {
+            // Arrange
+            const body = "<html><body>" + html + "</body></html>";
+
+            // Act
+            const out = Helper.getHtmlBodyContent(body);
+
+            // Assert
+            expect(out).toBe(html);
         });
     });
 });

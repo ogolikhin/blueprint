@@ -1,4 +1,3 @@
-//fixme: each file can only contain one class
 import * as angular from "angular";
 import "angular-formly";
 import "angular-ui-tinymce";
@@ -31,7 +30,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
         super();
 
         // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
-        let initialContent = null;
+        let initialContent: string = undefined;
         let onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
         //we override the default onChange as we need to deal with changes differently when using tinymce
         $scope.to.onChange = undefined;
@@ -41,8 +40,6 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
         allowedFonts.forEach(function (font) {
             fontFormats += `${font}=` + (font.indexOf(" ") !== -1 ? `"${font}";` : `${font};`);
         });
-        const bogusRegEx = /<br data-mce-bogus="1">/gi;
-        const zeroWidthNoBreakSpaceRegEx = /[\ufeff\u200b]/g;
 
         let to: AngularFormly.ITemplateOptions = {
             tinymceOptions: { // this will go to ui-tinymce directive
@@ -146,8 +143,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                         this.observer.observe(this.editorBody, observerConfig);
                     }
 
-                    // we store the initial value so IE doesn't mark the field dirty just for clicking it!
-                    initialContent = this.editorBody.innerHTML.replace(bogusRegEx, "").replace(zeroWidthNoBreakSpaceRegEx, "");
+                    initialContent = $scope.model[$scope.options["key"]];
 
                     editor.on("Focus", (e) => {
                         if (this.editorBody.parentElement && this.editorBody.parentElement.parentElement) {
@@ -233,10 +229,10 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
             // tinyMCE may leave empty tags that cause the value to appear not empty
             requiredCustom: {
                 expression: ($viewValue, $modelValue, scope) => {
-                    if (initialContent !== null) { // run this part after the field had the chance to load the content
-                        let content = this.editorBody.innerHTML.replace(bogusRegEx, "").replace(zeroWidthNoBreakSpaceRegEx, "");
-                        if (content !== initialContent) {
-                            onChange(content.replace(bogusRegEx, ""), scope.options, scope);
+                    if (initialContent) { // run this part after the field had the chance to load the content
+                        if (!Helper.relaxedHtmlCompare($modelValue, initialContent)) {
+                            initialContent = $modelValue;
+                            onChange($modelValue, scope.options, scope);
                         }
                     }
 

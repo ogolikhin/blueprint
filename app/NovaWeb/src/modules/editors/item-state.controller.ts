@@ -69,6 +69,7 @@ export class ItemStateController {
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(artifact);
                 if (result.isDeleted) {
                     statefulArtifact.deleted = true;
+                    statefulArtifact.historical = true;
                     const localizedDate = this.localization.current.formatShortDateTime(result.deletedDateTime);
                     const deletedMessage = `Read Only: Deleted by user '${result.deletedByUser.displayName}' on '${localizedDate}'`;
                     this.messageService.addMessage(new Message(MessageType.Lock, deletedMessage));

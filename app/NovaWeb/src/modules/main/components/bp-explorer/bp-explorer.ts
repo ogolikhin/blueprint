@@ -85,7 +85,12 @@ export class ProjectExplorerController {
             if (params.data.hasChildren) {
                 css.push("has-children");
             }
-            const typeName = Models.ItemTypePredefined[params.data.predefinedType];
+            let typeName: string;
+            if (params.data.predefinedType === Models.ItemTypePredefined.CollectionFolder && params.data.parentNode instanceof Project) {
+                typeName = Models.ItemTypePredefined[Models.ItemTypePredefined.Collections];
+            } else {
+                typeName = Models.ItemTypePredefined[params.data.predefinedType];
+            }
             if (typeName) {
                 css.push("is-" + Helper.toDashCase(typeName));
             }

@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import { UserTask, SystemTask, SystemDecision } from "./";
 import { ShapesFactory } from "./shapes-factory";
 import { ProcessGraph } from "../process-graph";
@@ -409,7 +409,7 @@ describe("UserTask test", () => {
 
         it("when modifying persona - persona matches", () => {
 
-            // arrange             
+            // arrange
             spyOn(statefulArtifact, "refresh")();
             spyOn(statefulArtifact, "lock")();
 
@@ -425,7 +425,7 @@ describe("UserTask test", () => {
 
         it("when modifying persona - attempt lock is called", () => {
 
-            // arrange             
+            // arrange
             spyOn(statefulArtifact, "refresh")();
             const lockSpy = spyOn(statefulArtifact, "lock");
 
@@ -438,10 +438,10 @@ describe("UserTask test", () => {
             // assert
             expect(lockSpy).toHaveBeenCalled();
         });
-        
+
         it("when modifying persona - artifact state is dirty", () => {
 
-            // arrange             
+            // arrange
             spyOn(statefulArtifact, "refresh")();
             spyOn(statefulArtifact, "lock");
 

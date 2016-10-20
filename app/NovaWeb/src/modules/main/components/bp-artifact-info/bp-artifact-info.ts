@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {Models, Enums} from "../../models";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../services";
 import {IMessageService, Message, MessageType, ILocalizationService} from "../../../core";

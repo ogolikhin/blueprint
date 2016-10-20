@@ -56,6 +56,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
                 private dialogService: IDialogService,
                 private navigationService: INavigationService) {
 
+
     }
 
     public get isSelected() {

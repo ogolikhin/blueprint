@@ -41,7 +41,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Actor, 2)]
         [TestCase(BaseArtifactType.PrimitiveFolder, 2)]
         [TestRail(183596)]
-        [Description("Create & publish an artifact.  Verify the basic artifact information returned from parent has correct values.")]
+        [Description("Create & publish an artifact.  Verify get artifact navigation path call returns project information.")]
         public void ArtifactNavigation_PublishedArtifact_ReturnsParentArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
         {
             // Setup:
@@ -60,7 +60,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Actor)]
         [TestCase(BaseArtifactType.PrimitiveFolder)]
         [TestRail(183597)]
-        [Description("Create & save an artifact.  Verify the basic artifact information returned from parent has correct values.")]
+        [Description("Create & save an artifact.  Verify get artifact navigation path call returns project information.")]
         public void ArtifactNavigation_SavedArtifact_ReturnsParentArtifactInfo_200OK(BaseArtifactType artifactType)
         {
             // Setup:
@@ -78,7 +78,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor, 2)]
         [TestRail(183598)]
-        [Description("Create & publish an artifact and its child.  Verify the basic artifact information returned from parent has correct values.")]
+        [Description("Create & publish an artifact and its child.  Verify get artifact navigation path call returns project parent and project information.")]
         public void ArtifactNavigation_PublishedArtifactWithAChild_ReturnsParentArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
         {
             // Setup:
@@ -97,7 +97,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(183599)]
-        [Description("Verify the basic artifact information returned from project is empty.")]
+        [Description("Verify get artifact navigation path call for project returns an empty list.")]
         public void ArtifactNavigation_Project_ReturnsArtifactInfo_200OK()
         {
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
@@ -112,7 +112,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor, 2)]
         [TestRail(183607)]
-        [Description("Create & publish an artifact within a folder. Verify the basic artifact information returned from folder has correct values.")]
+        [Description("Create & publish an artifact within a folder. Verify get artifact navigation path call returns folder and project information")]
         public void ArtifactNavigation_PublishedArtifactInAFolder_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
         {
             // Setup:
@@ -132,7 +132,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.UseCase, 2)]
         [TestCase(BaseArtifactType.Process, 2)]
         [TestRail(183608)]
-        [Description("Create & publish an artifact with subartifacts. Verify the basic artifact information returned from artifact has correct values.")]
+        [Description("Create & publish an artifact with subartifacts. Verify get artifact navigation path call for sub-artifact returns artifact and project information")]
         public void ArtifactNavigation_PublishedArtifactWithSubArtifacts_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
         {
             // Setup:
@@ -154,7 +154,7 @@ namespace ArtifactStoreTests
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(183630)]
-        [Description("Create & publish a collection artifact. Verify the basic artifact information returned from Collections folder has correct values.")]
+        [Description("Create & publish a collection artifact. Verify get artifact navigation path call for collection returns Collections folder and project information.")]
         public void ArtifactNavigation_Collection_ReturnsArtifactInfo_200OK(ItemTypePredefined artifactType)
         {
             // Setup:
@@ -176,7 +176,7 @@ namespace ArtifactStoreTests
         [Ignore(IgnoreReasons.UnderDevelopment)] //Artifacts for Baseline and Review need to be added to Custom Data project
         [TestCase(96384)]
         [TestRail(0)]
-        [Description("Verify the basic artifact information returned from baseline folder has correct values.")]
+        [Description("Verify get artifact navigation path call for Baseline returns Baseline & Review folder and project information")]
         public void ArtifactNavigation_Baseline_ReturnsArtifactInfo_200OK(int id)
         {
             // Setup:
@@ -196,7 +196,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor, 2)]
         [TestRail(183641)]
-        [Description("Create & publish an artifact within a chain of 10 folders. Verify the basic artifact information returned from folder has correct values.")]
+        [Description("Create & publish an artifact within a chain of 10 folders. Verify get artifact navigation path call for artifact in a chain of folders returns information about all ancestor folders and project.")]
         public void ArtifactNavigation_PublishedArtifactInAChainOfFolders_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
         {
             // Setup:
@@ -235,9 +235,9 @@ namespace ArtifactStoreTests
         #region private calls
 
         /// <summary>
-        /// Verifies that an artifact ancestor in a path returns proper values
+        /// Verifies that an artifact ancestors in a path return proper values
         /// </summary>
-        /// <param name="basicArtifactInfo">Basic information about ancestor artifact/project.</param>
+        /// <param name="basicArtifactInfo">List of artifact basic information about ancestors artifact.</param>
         /// <param name="id">Id of artifact or sub-artifact.</param>
         private void VerifyParentInformation(List<INovaVersionControlArtifactInfo> basicArtifactInfo, int? id)
         {

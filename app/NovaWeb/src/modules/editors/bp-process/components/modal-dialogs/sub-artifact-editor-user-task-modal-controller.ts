@@ -189,7 +189,6 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
         this.dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {
             if (items.length === 1) {
                 this.dialogModel.clonedUserTask.associatedArtifact = items[0];
-                console.log(this.dialogModel.originalUserTask.associatedArtifact);
                 this.prepIncludeField();
             }
         });

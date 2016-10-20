@@ -101,6 +101,7 @@ export class DialogService implements IDialogService {
 }
 
 export interface IDialogController {
+    returnValue: any;
     ok: Function;
     cancel: Function;
 }
@@ -109,6 +110,10 @@ export class BaseDialogController implements IDialogController {
 
     public hasCloseButton: boolean;
 
+    public get returnValue(): any {
+        return undefined;
+    }
+
     static $inject = ["$uibModalInstance", "dialogSettings"];
 
     constructor(public $instance: ng.ui.bootstrap.IModalServiceInstance,
@@ -116,7 +121,7 @@ export class BaseDialogController implements IDialogController {
     }
 
     public ok() {
-        this.$instance.close();
+        this.$instance.close(this.returnValue);
     };
 
     public cancel() {

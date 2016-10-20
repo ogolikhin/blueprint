@@ -1,4 +1,4 @@
-﻿import {IProcessShape, PropertyTypePredefined, IPropertyValueInformation} from "../../../../../models/process-models";
+import {IProcessShape, PropertyTypePredefined, IPropertyValueInformation} from "../../../../../models/process-models";
 import {ArtifactUpdateType} from  "../../../../../models/enums";
 import * as Enums from "../../../../../../../main/models/enums";
 import {IProcessGraph, IDiagramNode, IDiagramLink, IDiagramNodeElement} from "./../models/";

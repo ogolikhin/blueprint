@@ -1,4 +1,4 @@
-﻿import {ISystemTaskShape} from "../../../../../models/process-models";
+import {ISystemTaskShape} from "../../../../../models/process-models";
 import {ItemIndicatorFlags, ProcessShapeType} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {IProcessGraph, IDiagramNode} from "../models/";
@@ -112,7 +112,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         if (nodeFactorySettings && nodeFactorySettings.isCommentsButtonEnabled) {
             // #TODO interaction with utility panel is different in Nova
             //this.commentsButton.setClickAction(() => this.openPropertiesDialog(this.rootScope, Shell.UtilityTab.discussions));
-        } 
+        }
 
         this.commentsButton.setTooltip(this.getLocalizedLabel("ST_Comments_Label"));
 
@@ -133,7 +133,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
 
         if (nodeFactorySettings && nodeFactorySettings.isLinkButtonEnabled) {
             this.linkButton.setClickAction(() => this.navigateToProcess());
-        } 
+        }
 
         this.linkButton.setTooltip(this.getLocalizedLabel("ST_Userstory_Label"));
         this.linkButton.setDisabledImage(this.getImageSource("include-inactive.svg"));
@@ -152,7 +152,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
 
         if (nodeFactorySettings && nodeFactorySettings.isMockupButtonEnabled) {
             this.mockupButton.setClickAction(() => this.openDialog(ModalDialogType.SystemTaskDetailsDialogType));
-        } 
+        }
 
         this.mockupButton.setTooltip(this.getLocalizedLabel("ST_Mockup_Label"));
         this.mockupButton.setActiveImage(this.getImageSource("mockup-active.svg"));
@@ -168,7 +168,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
 
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
             this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.SystemTaskDetailsDialogType));
-        } 
+        }
 
         this.detailsButton.setTooltip(this.getLocalizedLabel("ST_Settings_Label"));
         this.detailsButton.setHoverImage(this.getImageSource("adddetails-hover.svg"));

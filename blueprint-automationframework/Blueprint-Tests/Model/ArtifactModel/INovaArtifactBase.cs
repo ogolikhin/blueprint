@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using static Model.ArtifactModel.Impl.NovaArtifactDetails;
 using Model.ArtifactModel.Impl;

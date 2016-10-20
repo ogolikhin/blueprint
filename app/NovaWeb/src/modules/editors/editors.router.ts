@@ -5,7 +5,7 @@ import {BaseEditorStateController} from "./base-editor-state.controller";
 export class ArtifactRoutes {
 
     public static $inject = [
-        "$stateProvider", 
+        "$stateProvider",
         "$urlMatcherFactoryProvider"
     ];
 

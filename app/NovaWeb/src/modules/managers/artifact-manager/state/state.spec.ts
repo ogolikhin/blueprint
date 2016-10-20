@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import "angular-mocks";
 import "rx/dist/rx.lite";
 import { Models, Enums } from "../../../main/models";
@@ -31,7 +31,7 @@ describe("ArtifactState", () => {
         $q = _$q_;
 
         session = new SessionSvcMock($q);
- 
+
         const services = new StatefulArtifactServices(
                 $q, session, null, null, null, artifactService, null, null, null, null);
 
@@ -45,7 +45,7 @@ describe("ArtifactState", () => {
                 displayName: "Default Instance Admin"
             }
         };
-       
+
         artifact = new StatefulArtifact(artifactModel, services);
     }));
 
@@ -79,12 +79,12 @@ describe("ArtifactState", () => {
             (err) => {
                 fail("state change error: " + err);
             });
-  
+
         artifact.artifactState.lock(lock);
     });
-     
+
     it("correctly sets dirty state", (done) => {
-             
+
         const stateObserver = artifact.artifactState.onStateChange.subscribe(
             (state) => {
                 // assert
@@ -162,7 +162,7 @@ describe("ArtifactState", () => {
     });
 
     it("correctly returns readonly when locked by another user", () => {
- 
+
         let newState: IState = {
             lockDateTime: new Date(),
             lockedBy: Enums.LockedByEnum.OtherUser,

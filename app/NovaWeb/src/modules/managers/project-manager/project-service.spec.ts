@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import "angular-mocks";
 import {Models, SearchServiceModels} from "../../main/models";
 import {HttpStatusCode} from "../../core/http";

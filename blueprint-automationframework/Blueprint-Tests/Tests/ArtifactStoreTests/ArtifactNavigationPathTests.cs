@@ -1,4 +1,4 @@
-﻿using CustomAttributes;
+using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
@@ -80,7 +80,7 @@ namespace ArtifactStoreTests
             // Setup:
             var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
             var childArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, parentArtifact, numberOfVersions: numberOfVersions);
-             
+
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
             // Execute:
@@ -101,14 +101,14 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, _project.Id),
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
-            
+
             // Verify:
             Assert.IsEmpty(basicArtifactInfoList, "Project should not have a parent information!");
         }
 
         //TODO Test for artifact in a folder
         //TODO Test for sub-artifact
-        //TODO Test for collection/baseline/review          
+        //TODO Test for collection/baseline/review
         //TODO Test for artifact in a long chain of 10 or more folders
         //TODO Test for artifact in a long chain of 10 or more child artifacts
         //TODO Test for artifact in a long chain of mixwd folders and child artifacts. Use TestCase(TestCaseSources.AllArtifactTypesForOpenApiRestMethods)]
@@ -119,7 +119,7 @@ namespace ArtifactStoreTests
 
         #region Negative tests
         //TODO 400 - The session token is missing or malformed
-        //TODO 401 - The session token is invalid.            
+        //TODO 401 - The session token is invalid.
         //TODO 403 - The user does not have permissions to view the artifact.
         //TODO 404 - An artifact for the specified id is not found, does not exist or is deleted
         #endregion Negative tests

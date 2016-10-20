@@ -10,7 +10,7 @@ export class DeleteShapeButton extends Button {
                 nodeFactorySettings: NodeFactorySettings = null,
                 clickAction?: any) {
 
-        super(`DS${nodeId}`, width, height, null);        
+        super(`DS${nodeId}`, width, height, null);
 
 
         this.setNeutralImage(this.getImageSource("delete-neutral.svg"));
@@ -22,10 +22,10 @@ export class DeleteShapeButton extends Button {
             this.isEnabled = true;
             if (clickAction) {
                 this.setClickAction(clickAction);
-            }            
+            }
 
         } else {
-            this.disable();            
+            this.disable();
         }
 
         this.setTooltip(tooltip);

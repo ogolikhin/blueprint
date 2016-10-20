@@ -1,4 +1,4 @@
-﻿using Model.ArtifactModel.Impl;
+using Model.ArtifactModel.Impl;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 

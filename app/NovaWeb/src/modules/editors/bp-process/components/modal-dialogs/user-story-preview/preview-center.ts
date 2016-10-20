@@ -1,4 +1,4 @@
-﻿import {UserTask, SystemTask} from "../../diagram/presentation/graph/shapes/";
+import {UserTask, SystemTask} from "../../diagram/presentation/graph/shapes/";
 import {IDiagramNode} from "../../diagram/presentation/graph/models";
 import {IArtifactManager} from "../../../../../managers";
 import {IStatefulArtifact} from "../../../../../managers/artifact-manager";
@@ -118,7 +118,7 @@ export class PreviewCenterController {
         return this.$sce.trustAsHtml(this.acceptanceCriteria);
     }
 
-    public navigateToUserStory() {       
+    public navigateToUserStory() {
         let artifactId = this.centerTask.userStoryId;
         const url = this.$state.href("main.item", {id: artifactId });
         this.$window.open(url, "_blank");

@@ -1,4 +1,4 @@
-﻿import * as _ from "lodash";
+import * as _ from "lodash";
 import { INavigationService } from "../../../core/navigation";
 
 export interface IBPGotoController {
@@ -29,7 +29,7 @@ export class BPGotoController implements ng.IComponentController, IBPGotoControl
 
     public showSearch() {
         this.$element.addClass("active");
-        
+
         const inputField = this.$element.find("input")[0];
         inputField.focus();
     }

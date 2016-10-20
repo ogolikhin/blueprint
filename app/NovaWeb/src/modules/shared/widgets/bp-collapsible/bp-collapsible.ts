@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {ILocalizationService} from "../../../core";
 export class BPCollapsible implements ng.IDirective {
     public restrict = "A";

@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {IProcess, ProcessModel} from "../../../../../models/process-models";
 import {IProcessViewModel, ProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {ILocalizationService, LocalizationService} from "../../../../../../../core/localization/";
@@ -59,9 +59,9 @@ describe("Popup Menu", () => {
         popupMenu = new NodePopupMenu(
               layout, shapesFactory, localization, htmlElement, mxgraph, null, null, null, null, null);
     }));
-     
+
     it("should have options to 'Add User Task' and 'Add Decision Point' when edge is not connected to a a user decision node ", () => {
-        
+
         popupMenu.insertionPoint = new mxCell("test", null, null);
         popupMenu.insertionPoint["__proto__"]["edge"] = true;
 
@@ -72,7 +72,7 @@ describe("Popup Menu", () => {
         menu["div"].style.top = "100px";
 
         spyOn(menu, "addItem");
- 
+
         popupMenu.createPopupMenu(mxgraph, menu, null, null);
 
         // assert
@@ -85,7 +85,7 @@ describe("Popup Menu", () => {
     });
 
     it("should have the option to 'Add User Task' when edge is connected to a user decision node ", () => {
- 
+
         popupMenu.insertionPoint = new mxCell("test", null, null);
         popupMenu.insertionPoint["__proto__"]["edge"] = true;
 
@@ -100,7 +100,7 @@ describe("Popup Menu", () => {
         spyOn(popupMenu, "isDestNodeOfType").and.callFake(function () {
             return true;
         });
- 
+
         popupMenu.createPopupMenu(mxgraph, menu, null, null);
 
         // assert
@@ -112,7 +112,7 @@ describe("Popup Menu", () => {
     });
 
     it("should have the option to 'Add Branch' when edge is false and node type is 'UserDecision' ", () => {
- 
+
         popupMenu.insertionPoint = new mxCell("test", null, null);
         popupMenu.insertionPoint["__proto__"]["edge"] = false;
         popupMenu.insertionPoint["__proto__"]["vertex"] = true;
@@ -128,7 +128,7 @@ describe("Popup Menu", () => {
         spyOn(menu, "addItem");
 
         spyOn(popupMenu.insertionPoint, "getNodeType").and.callFake(() => NodeType.UserDecision);
- 
+
         popupMenu.createPopupMenu(mxgraph, menu, null, null);
 
         // assert

@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import "angular-mocks";
 import {HttpStatusCode} from "../../../core/http";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";

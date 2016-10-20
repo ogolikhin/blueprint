@@ -1,4 +1,4 @@
-﻿using SearchService.Models;
+using SearchService.Models;
 using SearchService.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Exceptions;

@@ -28,7 +28,7 @@ namespace SearchService.Controllers
         {
         }
 
-        private readonly IItemSearchRepository _itemSearchRepository;
+        internal readonly IItemSearchRepository _itemSearchRepository;
         internal ItemSearchController(IItemSearchRepository itemSearchRepository, ISearchConfiguration configuration)
         {
             _itemSearchRepository = itemSearchRepository;
@@ -147,7 +147,6 @@ namespace SearchService.Controllers
             }
 
             return Ok(results);
-
         }
 
         #endregion SearchName
@@ -165,7 +164,6 @@ namespace SearchService.Controllers
 
         private void ValidateCriteria(ISearchCriteria searchCriteria, int minSearchQueryLimit = 1)
         {
-
             if (!ModelState.IsValid || !ValidateSearchCriteria(searchCriteria, minSearchQueryLimit))
             {
                 throw new BadRequestException("Please provide correct search criteria", ErrorCodes.IncorrectSearchCriteria);

@@ -151,7 +151,6 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         if (item.artifactState.readonly || !this.hasFields()) {
             return true;
         }
-
         return false;
     }
 

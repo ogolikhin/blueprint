@@ -1,11 +1,12 @@
 ﻿import * as angular from "angular";
-import {Models} from "../main/models";
-import {IArtifactManager} from "../managers";
-import {IStatefulArtifact} from "../managers/artifact-manager";
-import {IStatefulArtifactFactory} from "../managers/artifact-manager/artifact";
-import {IMessageService} from "../shell";
-import {INavigationService} from "../core/navigation";
-import {IItemInfoService, IItemInfoResult} from "../core/navigation/item-info.svc";
+import { Models } from "../main/models";
+import { IArtifactManager } from "../managers";
+import { IStatefulArtifact } from "../managers/artifact-manager";
+import { IStatefulArtifactFactory } from "../managers/artifact-manager/artifact";
+import { IMessageService, Message, MessageType } from "../shell";
+import { INavigationService } from "../core/navigation";
+import { ILocalizationService } from "../core/localization";
+import { IItemInfoService, IItemInfoResult } from "../core/navigation/item-info.svc";
 
 export class ItemStateController {
 
@@ -13,6 +14,7 @@ export class ItemStateController {
         "$state", 
         "artifactManager", 
         "messageService",
+        "localization",
         "navigationService",
         "itemInfoService",
         "statefulArtifactFactory"
@@ -21,19 +23,22 @@ export class ItemStateController {
     constructor(private $state: angular.ui.IStateService,
                 private artifactManager: IArtifactManager,
                 private messageService: IMessageService,
+                private localization: ILocalizationService,
                 private navigationService: INavigationService,
                 private itemInfoService: IItemInfoService,
                 private statefulArtifactFactory: IStatefulArtifactFactory) {
 
         let id = parseInt($state.params["id"], 10);
 
-        artifactManager.get(id).then((artifact: IStatefulArtifact) => {
-            artifact.unload();
-            this.navigateToSubRoute(artifact);
+        if (id) {
+            artifactManager.get(id).then((artifact: IStatefulArtifact) => {
+                artifact.unload();
+                this.navigateToSubRoute(artifact);
 
-        }).catch(error => {
-            this.getItemInfo(id);
-        });
+            }).catch(error => {
+                this.getItemInfo(id);
+            });
+        }
     }
 
     public getItemInfo(id: number) {
@@ -62,6 +67,12 @@ export class ItemStateController {
                     permissions: result.permissions
                 };
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(artifact);
+                if (result.isDeleted) {
+                    statefulArtifact.deleted = true;
+                    const localizedDate = this.localization.current.formatShortDateTime(result.deletedDateTime);
+                    const deletedMessage = `Read Only: Deleted by user '${result.deletedByUser.displayName}' on '${localizedDate}'`;
+                    this.messageService.addMessage(new Message(MessageType.Lock, deletedMessage));
+                }
                 this.artifactManager.addAsOrphan(statefulArtifact);
                 this.navigateToSubRoute(statefulArtifact);
 

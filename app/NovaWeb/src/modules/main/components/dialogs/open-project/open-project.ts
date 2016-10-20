@@ -1,6 +1,6 @@
 import * as angular from "angular";
 import {ILocalizationService} from "../../../../core";
-import {Helper, IBPTreeController, IDialogSettings, BaseDialogController, IDialogService} from "../../../../shared";
+import {Helper, IBPTreeController, IDialogSettings, BaseDialogController} from "../../../../shared";
 import {Models} from "../../../models";
 import {IProjectManager} from "../../../../managers";
 
@@ -19,13 +19,12 @@ export class OpenProjectController extends BaseDialogController implements IOpen
     private _errorMessage: string;
     private tree: IBPTreeController;
 
-    static $inject = ["$scope", "localization", "$uibModalInstance", "projectManager", "dialogService", "dialogSettings", "$sce"];
+    static $inject = ["$scope", "localization", "$uibModalInstance", "projectManager", "dialogSettings", "$sce"];
 
     constructor(private $scope: ng.IScope,
                 private localization: ILocalizationService,
                 $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
                 private manager: IProjectManager,
-                private dialogService: IDialogService,
                 dialogSettings: IDialogSettings,
                 private $sce: ng.ISCEService) {
         super($uibModalInstance, dialogSettings);

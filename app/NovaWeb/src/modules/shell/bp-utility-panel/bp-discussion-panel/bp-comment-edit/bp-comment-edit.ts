@@ -51,25 +51,41 @@ export class BPCommentEditController {
         init_instance_callback: (editor) => { // https://www.tinymce.com/docs/configure/integration-and-setup/#init_instance_callback
             this.commentEditor = editor;
             editor.focus();
-            editor.formatter.register("font8px", {
+            editor.formatter.register("font8", {
                 inline: "span",
-                styles: {"font-size": "8px"}
+                styles: { "font-size": "8pt" }
             });
-            editor.formatter.register("font10px", {
+            editor.formatter.register("font9", { // default font, equivalent to 12px
                 inline: "span",
-                styles: {"font-size": "10px"}
+                styles: { "font-size": "9pt" }
             });
-            editor.formatter.register("font12px", {
+            editor.formatter.register("font10", {
                 inline: "span",
-                styles: {"font-size": "12px"}
+                styles: { "font-size": "10pt" }
             });
-            editor.formatter.register("font15px", {
+            editor.formatter.register("font11", {
                 inline: "span",
-                styles: {"font-size": "15px"}
+                styles: { "font-size": "11pt" }
             });
-            editor.formatter.register("font18px", {
+            editor.formatter.register("font12", {
                 inline: "span",
-                styles: {"font-size": "18px"}
+                styles: { "font-size": "12pt" }
+            });
+            editor.formatter.register("font14", {
+                inline: "span",
+                styles: { "font-size": "14pt" }
+            });
+            editor.formatter.register("font16", {
+                inline: "span",
+                styles: { "font-size": "16pt" }
+            });
+            editor.formatter.register("font18", {
+                inline: "span",
+                styles: { "font-size": "18pt" }
+            });
+            editor.formatter.register("font20", {
+                inline: "span",
+                styles: { "font-size": "20pt" }
             });
         },
         setup: function (editor) {
@@ -123,30 +139,57 @@ export class BPCommentEditController {
                 icon: "font-size",
                 menu: [
                     {
-                        text: "8px",
+                        text: "8",
                         onclick: function () {
-                            editor.formatter.apply("font8px");
+                            editor.formatter.apply("font8");
                         }
                     },
                     {
-                        text: "10px",
+                        text: "9",
                         onclick: function () {
-                            editor.formatter.apply("font10px");
+                            editor.formatter.apply("font9");
                         }
-                    }, {
-                        text: "12px",
+                    },
+                    {
+                        text: "10",
                         onclick: function () {
-                            editor.formatter.apply("font12px");
+                            editor.formatter.apply("font10");
                         }
-                    }, {
-                        text: "15px",
+                    },
+                    {
+                        text: "11",
                         onclick: function () {
-                            editor.formatter.apply("font15px");
+                            editor.formatter.apply("font11");
                         }
-                    }, {
-                        text: "18px",
+                    },
+                    {
+                        text: "12",
                         onclick: function () {
-                            editor.formatter.apply("font18px");
+                            editor.formatter.apply("font12");
+                        }
+                    },
+                    {
+                        text: "14",
+                        onclick: function () {
+                            editor.formatter.apply("font14");
+                        }
+                    },
+                    {
+                        text: "16",
+                        onclick: function () {
+                            editor.formatter.apply("font16");
+                        }
+                    },
+                    {
+                        text: "18",
+                        onclick: function () {
+                            editor.formatter.apply("font18");
+                        }
+                    },
+                    {
+                        text: "20",
+                        onclick: function () {
+                            editor.formatter.apply("font20");
                         }
                     }]
             });

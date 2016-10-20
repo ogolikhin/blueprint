@@ -279,6 +279,10 @@ $has-children-padding-before-arrow: 3px;
         content: $icon-business-process;
     }
 
+    .ag-cell.is-collections .ag-group-value .ag-group-value-wrapper i::before {
+        content: $icon-collections;
+    }
+
     .ag-cell.is-artifact-collection .ag-group-value .ag-group-value-wrapper i::before {
         content: $icon-collection;
     }

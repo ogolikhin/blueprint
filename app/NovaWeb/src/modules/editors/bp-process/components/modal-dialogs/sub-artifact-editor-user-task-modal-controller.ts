@@ -186,7 +186,6 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
         };
 
         const dialogData: IArtifactPickerOptions = {
-            showSubArtifacts: false
         };
 
         this.dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {

@@ -194,15 +194,39 @@ namespace ArtifactStoreTests
             VerifyParentInformation(basicArtifactInfoList, basicArtifactInfo.ParentId);
         }
 
-        [TestCase(BaseArtifactType.Actor, 2)]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(183641)]
         [Description("Create & publish an artifact within a chain of 10 folders. Verify get artifact navigation path call for artifact in a chain of folders returns information about all ancestor folders and project.")]
-        public void ArtifactNavigation_PublishedArtifactInAChainOfFolders_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
+        public void ArtifactNavigation_PublishedArtifactInAChainOfFolders_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
         {
             // Setup:
             BaseArtifactType[] artifactTypeChain = { BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder,
                                                      BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder,
                                                      BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder};
+
+            var folders = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
+
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, folders.Last());
+
+            List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, artifact.Id),
+                                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+
+            // Verify:
+            VerifyParentInformation(basicArtifactInfoList, artifact.ParentId);
+        }
+
+        [TestCase(BaseArtifactType.Actor, 2)]
+        [TestRail(184481)]
+        [Description("Create & publish an artifact within a chain of 10 child artifacts. Verify get artifact navigation path call for artifact in a chain returns information about all ancestor artifacts and project.")]
+        public void ArtifactNavigation_PublishedArtifactInAChainOfArtifacts_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
+        {
+            // Setup:
+            BaseArtifactType[] artifactTypeChain = { BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process,
+                                                     BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process,
+                                                     BaseArtifactType.Process, BaseArtifactType.Process};
 
             var folders = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
 
@@ -218,10 +242,104 @@ namespace ArtifactStoreTests
             VerifyParentInformation(basicArtifactInfoList, artifact.ParentId);
         }
 
-        //TODO Test for artifact in a long chain of 10 or more child artifacts
-        //TODO Test for artifact in a long chain of mixwd folders and child artifacts. Use TestCase(TestCaseSources.AllArtifactTypesForOpenApiRestMethods)]
+        [TestCase(BaseArtifactType.Actor, 2)]
+        [TestRail(184482)]
+        [Description("Create & publish an artifact with chains of 10 child artifacts and 10 folders. Move chain of artifacts to one folder before the last. Verify get artifact navigation path call for artifacts and folders in a chain returns information about all ancestor artifacts and project.")]
+        public void ArtifactNavigation_PublishedArtifactInAChainOfArtifactsAndFolders_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
+        {
+            // Setup:
+            BaseArtifactType[] artifactChain = { BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process,
+                                                     BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process,
+                                                     BaseArtifactType.Process, BaseArtifactType.Process};
+
+            BaseArtifactType[] folderChain = { BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder,
+                                                     BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder,
+                                                     BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder};
+
+            var artifacts = Helper.CreatePublishedArtifactChain(_project, _user, artifactChain);
+            var folders = Helper.CreatePublishedArtifactChain(_project, _user, folderChain);
+
+            artifacts.First().Lock(_user);
+            Helper.ArtifactStore.MoveArtifact(artifacts.First(), folders[folders.Count - 2], _user);
+
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, artifacts.Last(), numberOfVersions: numberOfVersions);
+
+            List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, artifact.Id),
+                                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+
+            // Verify:
+            VerifyParentInformation(basicArtifactInfoList, artifact.ParentId);
+        }
+
+        [TestCase(BaseArtifactType.Actor)]
+        [TestRail(184483)]
+        [Description("Create & save an artifact with chains of 8 child artifacts and 8 folders. Move chain of artifacts to one folder before the last. Verify get artifact navigation path call for artifacts and folders in a chain returns information about all ancestor artifacts and project.")]
+        public void ArtifactNavigation_SavedArtifactInAChainOfArtifactsAndFolders_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
+        {
+            // Setup:
+            BaseArtifactType[] artifactChain = { BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process,
+                                                     BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process};
+
+            BaseArtifactType[] folderChain = { BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder,
+                                                     BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder};
+
+            var artifacts = Helper.CreateSavedArtifactChain(_project, _user, artifactChain);
+            var folders = Helper.CreateSavedArtifactChain(_project, _user, folderChain);
+
+            artifacts.First().Lock(_user);
+            Helper.ArtifactStore.MoveArtifact(artifacts.First(), folders[folders.Count - 2], _user);
+
+            var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType, artifacts.Last());
+
+            List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, artifact.Id),
+                                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+
+            // Verify:
+            VerifyParentInformation(basicArtifactInfoList, artifact.ParentId);
+        }
+
+        [TestCase(BaseArtifactType.UseCase)]
+        [TestRail(184484)]
+        [Description("Create & publish an artifact with sub-artifacts and chains of 8 child artifacts and 8 folders. Move chain of artifacts to one folder before the last. Verify get artifact navigation path call for artifacts and folders in a chain returns information about all ancestor artifacts and project.")]
+        public void ArtifactNavigation_PublishedArtifactWithSubArtifactInAChainOfArtifactsAndFolders_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
+        {
+            // Setup:
+            BaseArtifactType[] artifactChain = { BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process,
+                                                     BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process, BaseArtifactType.Process};
+
+            BaseArtifactType[] folderChain = { BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder,
+                                                     BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder};
+
+            var artifacts = Helper.CreatePublishedArtifactChain(_project, _user, artifactChain);
+            var folders = Helper.CreatePublishedArtifactChain(_project, _user, folderChain);
+
+            artifacts.First().Lock(_user);
+            Helper.ArtifactStore.MoveArtifact(artifacts.First(), folders[folders.Count - 2], _user);
+
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, artifacts.Last());
+
+            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+            Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
+
+            List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, subArtifacts.Last().Id),
+                                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+
+            // Verify:
+            VerifyParentInformation(basicArtifactInfoList, subArtifacts.Last().ParentId);
+        }
+
         //TODO Test for project in a folder
-        //TODO Test for sub-artifact at end of a chain of artifacts.
+        //TODO Move Artifact
+
 
         #endregion 200 OK tests
 

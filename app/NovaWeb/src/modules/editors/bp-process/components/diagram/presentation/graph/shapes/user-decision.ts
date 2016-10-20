@@ -1,4 +1,4 @@
-﻿import {IProcessShape} from "../../../../../models/process-models";
+import {IProcessShape} from "../../../../../models/process-models";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {IProcessGraph, IDiagramNode} from "../models/";
 import {IDecision} from "../models/";
@@ -42,7 +42,7 @@ export class UserDecision extends DiagramNode<IProcessShape> implements IDecisio
 
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
             this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemDecisionDetailsDialogType));
-        } 
+        }
 
         this.detailsButton.setHoverImage(this.getImageSource("adddetails-hover.svg"));
         this.detailsButton.setDisabledImage(this.getImageSource("adddetails-mute.svg"));

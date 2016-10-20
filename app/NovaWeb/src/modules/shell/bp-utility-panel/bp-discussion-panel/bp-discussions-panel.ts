@@ -253,33 +253,31 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     }
 
     public deleteReply(discussion: IDiscussion, reply: IReply) {
-        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Comment")).then((confirmed: boolean) => {
-            if (confirmed) {
-                this.artifactDiscussions.deleteReply(reply.itemId, reply.replyId).then((result: boolean) => {
-                    this.getDiscussionReplies(discussion.discussionId)
-                        .then((updatedReplies: IReply[]) => {
-                            discussion.replies = updatedReplies;
-                            discussion.repliesCount = updatedReplies.length;
-                            discussion.expanded = true;
-                        });
-                }).catch((error) => {
-                    this.messageService.addMessage(new Message(MessageType.Error, error.message));
-                });
-            }
+        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Comment"))
+        .then(() => {
+            this.artifactDiscussions.deleteReply(reply.itemId, reply.replyId).then((result: boolean) => {
+                this.getDiscussionReplies(discussion.discussionId)
+                    .then((updatedReplies: IReply[]) => {
+                        discussion.replies = updatedReplies;
+                        discussion.repliesCount = updatedReplies.length;
+                        discussion.expanded = true;
+                    });
+            }).catch((error) => {
+                this.messageService.addMessage(new Message(MessageType.Error, error.message));
+            });
         });
     }
 
     public deleteCommentThread(discussion: IDiscussion) {
-        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Comment_Thread")).then((confirmed: boolean) => {
-            if (confirmed) {
-                this.artifactDiscussions.deleteCommentThread(discussion.itemId, discussion.discussionId).then((result: boolean) => {
-                    this.getArtifactDiscussions(discussion.itemId).then((discussionsResultSet: IDiscussionResultSet) => {
-                        this.setControllerFieldsAndFlags(discussionsResultSet);
-                    });
-                }).catch((error) => {
-                    this.messageService.addMessage(new Message(MessageType.Error, error.message));
+        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Comment_Thread"))
+        .then(() => {
+            this.artifactDiscussions.deleteCommentThread(discussion.itemId, discussion.discussionId).then((result: boolean) => {
+                this.getArtifactDiscussions(discussion.itemId).then((discussionsResultSet: IDiscussionResultSet) => {
+                    this.setControllerFieldsAndFlags(discussionsResultSet);
                 });
-            }
+            }).catch((error) => {
+                this.messageService.addMessage(new Message(MessageType.Error, error.message));
+            });
         });
     }
 

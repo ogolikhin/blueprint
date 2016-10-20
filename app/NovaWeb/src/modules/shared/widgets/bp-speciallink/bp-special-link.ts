@@ -33,7 +33,7 @@ export class BpLinksHelper implements IBpLinksHelper {
 export class BpSpecialLinkContainer implements ng.IDirective {
 
     public static factory() {
-        const directive = (navigationService: INavigationService, bpLinksHelper: IBpLinksHelper) => 
+        const directive = (navigationService: INavigationService, bpLinksHelper: IBpLinksHelper) =>
             new BpSpecialLinkContainer(navigationService, bpLinksHelper);
         directive.$inject = ["navigationService", "bpLinksHelper"];
         return directive;
@@ -58,11 +58,6 @@ export class BpSpecialLinkContainer implements ng.IDirective {
             return;
         }
 
-        if (this.bpLinksHelper.hasExternalLink($anchor)) {
-            $anchor.attr("target", "_blank");
-            return;
-        }
-
         if (this.bpLinksHelper.hasBlueprintLink($anchor)) {
             e.preventDefault();
 
@@ -70,7 +65,13 @@ export class BpSpecialLinkContainer implements ng.IDirective {
             if (this.bpLinksHelper.isRichTextMentionLink($anchor)) {
                 const id = this.bpLinksHelper.getItemId($anchor);
                 this.navigationService.navigateTo(id);
+                return;
             }
+        }
+
+        if (this.bpLinksHelper.hasExternalLink($anchor)) {
+           $anchor.attr("target", "_blank");
+           return;
         }
     }
 

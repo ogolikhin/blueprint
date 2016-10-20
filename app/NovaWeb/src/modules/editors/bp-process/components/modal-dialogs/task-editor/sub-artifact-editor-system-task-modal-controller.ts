@@ -1,10 +1,10 @@
-import {BaseModalDialogController, IModalScope} from "./base-modal-dialog-controller";
-import {SubArtifactDialogModel} from "./models/sub-artifact-dialog-model";
-import {IArtifactReference} from "../../models/process-models";
-import {IModalProcessViewModel} from "./models/modal-process-view-model";
-import {ICommunicationManager} from "../../services/communication-manager";
+import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-controller";
+import {SubArtifactSystemTaskDialogModel} from "../models/sub-artifact-dialog-model";
+import {IArtifactReference} from "../../../models/process-models";
+import {IModalProcessViewModel} from "../models/modal-process-view-model";
+import {ICommunicationManager} from "../../../services/communication-manager";
 
-export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogController<SubArtifactDialogModel> {
+export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogController<SubArtifactSystemTaskDialogModel> {
     public getLinkableProcesses: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
     public getLinkableArtifacts: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
     public isProjectOnlySearch: boolean = true;
@@ -22,8 +22,7 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
 
     public static $inject = [
         "$scope",
-        "$uibModalInstance",
-        "dialogModel",
+        
         "communicationManager",
         //"artifactSearchService",
         "$rootScope",
@@ -33,8 +32,7 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
     ];
 
     constructor($scope: IModalScope,
-                $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance,
-                dialogModel: SubArtifactDialogModel,
+                
                 private communicationManager: ICommunicationManager,
                 // TODO look at this later
                 //private artifactSearchService: Shell.IArtifactSearchService,
@@ -43,9 +41,9 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
                 private $timeout: ng.ITimeoutService,
                 private $sce: ng.ISCEService) {
 
-        super($rootScope, $scope, $uibModalInstance, dialogModel);
+        super($rootScope, $scope);
 
-        this.isReadonly = this.dialogModel.isReadonly;
+        this.isReadonly = this.dialogModel.isReadonly || this.dialogModel.isHistoricalVersion;
 
         let isSMBVal = $rootScope["config"].settings.StorytellerIsSMB;
 
@@ -56,7 +54,6 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
         this.systemNameOnBlur();
 
         this.communicationManager.modalDialogManager.setModalProcessViewModel(this.setModalProcessViewModel);
-        this.setNextNode(this.modalProcessViewModel);
     }    
 
     private setModalProcessViewModel = (modalProcessViewModel) => {
@@ -101,11 +98,7 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
         }
 
         return msg;
-    }
-
-    public setNextNode(modalProcessViewModel: IModalProcessViewModel) {
-        this.dialogModel.nextNode = modalProcessViewModel.getNextNode(this.dialogModel.clonedSystemTask.model);
-    }
+    }    
 
     public sortById(p1: IArtifactReference, p2: IArtifactReference) {
         return p1.id - p2.id;
@@ -134,20 +127,20 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
     }
 
     private systemNameOnBlur = () => {
-        if (this.dialogModel.clonedSystemTask) {
-            if (this.dialogModel.clonedSystemTask.action) {
+        if (this.dialogModel.clonedItem) {
+            if (this.dialogModel.clonedItem.action) {
                 this.systemNameOnFocus();
             } else {
                 this.systemNamePlaceHolderText =
-                    (<any>this.$rootScope).config.labels["ST_System_Task_Name_Label"] + " " + this.dialogModel.clonedSystemTask.label;
+                    (<any>this.$rootScope).config.labels["ST_System_Task_Name_Label"] + " " + this.dialogModel.clonedItem.label;
             }
         }
     }
 
     public saveData() {
         
-        if (this.dialogModel.clonedSystemTask.associatedArtifact === undefined) {
-            this.dialogModel.clonedSystemTask.associatedArtifact = null;
+        if (this.dialogModel.clonedItem.associatedArtifact === undefined) {
+            this.dialogModel.clonedItem.associatedArtifact = null;
         }
         
         this.populateSystemTaskChanges();        
@@ -155,12 +148,12 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
 
     private populateSystemTaskChanges() {
         
-        if (this.dialogModel.originalSystemTask && this.dialogModel.clonedSystemTask) {
-            this.dialogModel.originalSystemTask.persona = this.dialogModel.clonedSystemTask.persona;
-            this.dialogModel.originalSystemTask.action = this.dialogModel.clonedSystemTask.action;
-            this.dialogModel.originalSystemTask.imageId = this.dialogModel.clonedSystemTask.imageId;        
-            this.dialogModel.originalSystemTask.associatedImageUrl = this.dialogModel.clonedSystemTask.associatedImageUrl;        
-            this.dialogModel.originalSystemTask.associatedArtifact = this.dialogModel.clonedSystemTask.associatedArtifact;
+        if (this.dialogModel.originalItem && this.dialogModel.clonedItem) {
+            this.dialogModel.originalItem.persona = this.dialogModel.clonedItem.persona;
+            this.dialogModel.originalItem.action = this.dialogModel.clonedItem.action;
+            this.dialogModel.originalItem.imageId = this.dialogModel.clonedItem.imageId;        
+            this.dialogModel.originalItem.associatedImageUrl = this.dialogModel.clonedItem.associatedImageUrl;        
+            this.dialogModel.originalItem.associatedArtifact = this.dialogModel.clonedItem.associatedArtifact;
         }        
     }    
 
@@ -182,7 +175,7 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
 
     public getActiveHeader(): string {
         if (this.dialogModel.isSystemTask) {
-            return this.dialogModel.clonedSystemTask.label;
+            return this.dialogModel.clonedItem.label;
         }        
 
         return null;

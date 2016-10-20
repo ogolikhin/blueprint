@@ -1,10 +1,10 @@
-import {BaseModalDialogController, IModalScope} from "./base-modal-dialog-controller";
-import {SubArtifactDialogModel} from "./models/sub-artifact-dialog-model";
-import {IArtifactReference} from "../../models/process-models";
-import {IModalProcessViewModel} from "./models/modal-process-view-model";
-import {ICommunicationManager} from "../../services/communication-manager";
+import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-controller";
+import {SubArtifactUserTaskDialogModel} from "../models/sub-artifact-dialog-model";
+import {IArtifactReference} from "../../../models/process-models";
+import {IModalProcessViewModel} from "../models/modal-process-view-model";
+import {ICommunicationManager} from "../../../services/communication-manager";
 
-export class SubArtifactEditorUserTaskModalController extends BaseModalDialogController<SubArtifactDialogModel> {
+export class SubArtifactEditorUserTaskModalController extends BaseModalDialogController<SubArtifactUserTaskDialogModel> {
     public getLinkableProcesses: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
     public getLinkableArtifacts: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
     public isProjectOnlySearch: boolean = true;
@@ -22,8 +22,8 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
 
     public static $inject = [
         "$scope",
-        "$uibModalInstance",
-        "dialogModel",
+        
+        
         "communicationManager",
         //"artifactSearchService",
         "$rootScope",
@@ -33,8 +33,7 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
     ];
 
     constructor($scope: IModalScope,
-                $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance,
-                dialogModel: SubArtifactDialogModel,
+                
                 private communicationManager: ICommunicationManager,
                 // TODO look at this later
                 //private artifactSearchService: Shell.IArtifactSearchService,
@@ -43,9 +42,9 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
                 private $timeout: ng.ITimeoutService,
                 private $sce: ng.ISCEService) {
 
-        super($rootScope, $scope, $uibModalInstance, dialogModel);
+        super($rootScope, $scope);
 
-        this.isReadonly = this.dialogModel.isReadonly;
+        this.isReadonly = this.dialogModel.isReadonly || this.dialogModel.isHistoricalVersion;
 
         let isSMBVal = $rootScope["config"].settings.StorytellerIsSMB;
 
@@ -130,29 +129,29 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
     }
 
     private actionOnBlur = () => {
-        if (this.dialogModel.clonedUserTask) {
-            if (this.dialogModel.clonedUserTask.action) {
+        if (this.dialogModel.clonedItem) {
+            if (this.dialogModel.clonedItem.action) {
                 this.actionOnFocus();
             } else {
-                this.actionPlaceHolderText = (<any>this.$rootScope).config.labels["ST_User_Task_Name_Label"] + " " + this.dialogModel.clonedUserTask.label;
+                this.actionPlaceHolderText = (<any>this.$rootScope).config.labels["ST_User_Task_Name_Label"] + " " + this.dialogModel.clonedItem.label;
             }
         }
     }
 
     public saveData() {
-        if (this.dialogModel.clonedUserTask.associatedArtifact === undefined) {
-            this.dialogModel.clonedUserTask.associatedArtifact = null;
+        if (this.dialogModel.clonedItem.associatedArtifact === undefined) {
+            this.dialogModel.clonedItem.associatedArtifact = null;
         }
         this.populateUserTaskChanges();                
     }
 
     private populateUserTaskChanges() {
 
-        if (this.dialogModel.originalUserTask && this.dialogModel.clonedUserTask) {
-            this.dialogModel.originalUserTask.persona = this.dialogModel.clonedUserTask.persona;
-            this.dialogModel.originalUserTask.action = this.dialogModel.clonedUserTask.action;            
-            this.dialogModel.originalUserTask.objective = this.dialogModel.clonedUserTask.objective;            
-            this.dialogModel.originalUserTask.associatedArtifact = this.dialogModel.clonedUserTask.associatedArtifact;
+        if (this.dialogModel.originalItem && this.dialogModel.clonedItem) {
+            this.dialogModel.originalItem.persona = this.dialogModel.clonedItem.persona;
+            this.dialogModel.originalItem.action = this.dialogModel.clonedItem.action;            
+            this.dialogModel.originalItem.objective = this.dialogModel.clonedItem.objective;            
+            this.dialogModel.originalItem.associatedArtifact = this.dialogModel.clonedItem.associatedArtifact;
         }
     }
 
@@ -175,7 +174,7 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
     public getActiveHeader(): string {       
 
         if (this.dialogModel.isUserTask) {
-            return this.dialogModel.clonedUserTask.label;
+            return this.dialogModel.clonedItem.label;
         }
 
         return null;

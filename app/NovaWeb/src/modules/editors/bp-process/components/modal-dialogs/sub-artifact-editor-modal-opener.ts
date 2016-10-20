@@ -1,7 +1,7 @@
 import {IModalDialogCommunication} from "../modal-dialogs/modal-dialog-communication";
 import {Condition} from "../diagram/presentation/graph/shapes/condition";
 import {ModalDialogType} from "./modal-dialog-constants";
-import {SubArtifactDialogModel} from "./models/sub-artifact-dialog-model";
+import {SubArtifactUserTaskDialogModel, SubArtifactSystemTaskDialogModel} from "./models/sub-artifact-dialog-model";
 import {UserStoryDialogModel} from "./models/user-story-dialog-model";
 import {DecisionEditorModel} from "./decision-editor/decision-editor-model";
 import {
@@ -14,8 +14,8 @@ import {UserTask} from "../diagram/presentation/graph/shapes/user-task";
 import {SystemTask} from "../diagram/presentation/graph/shapes/system-task";
 import {NodeType} from "../diagram/presentation/graph/models/";
 import {IProcessLink} from "../diagram/presentation/graph/models/";
-import {SubArtifactEditorUserTaskModalController} from "./sub-artifact-editor-user-task-modal-controller";
-import {SubArtifactEditorSystemTaskModalController} from "./sub-artifact-editor-system-task-modal-controller";
+import {SubArtifactEditorUserTaskModalController} from "./task-editor/sub-artifact-editor-user-task-modal-controller";
+import {SubArtifactEditorSystemTaskModalController} from "./task-editor/sub-artifact-editor-system-task-modal-controller";
 import {UserStoryPreviewController} from "./user-story-preview/user-story-preview";
 import {ModalProcessViewModel} from "./models/modal-process-view-model";
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
@@ -89,45 +89,58 @@ export class SubArtifactEditorModalOpener {
         }
     };
 
-    public getSubArtifactDialogModel(shapeId: number, graph: IProcessGraph): SubArtifactDialogModel {
-        const userTaskDialogModel = new SubArtifactDialogModel();
-        userTaskDialogModel.subArtifactId = shapeId;
+    public getSubArtifactUserTaskDialogModel(shapeId: number, graph: IProcessGraph): SubArtifactUserTaskDialogModel {
+        
+        const taskDialogModel = new SubArtifactUserTaskDialogModel();
+        taskDialogModel.subArtifactId = shapeId;
 
-        const node = graph.getNodeById(userTaskDialogModel.subArtifactId.toString());
+        const node = graph.getNodeById(taskDialogModel.subArtifactId.toString());
         let userTaskNode: UserTask;
-        let systemTaskNode: SystemTask;
+
+        taskDialogModel.isUserTask = true;
+        taskDialogModel.isSystemTask = false;
+        // set dialog model isReadonly property to enable/disable input controls
+        taskDialogModel.isReadonly = this.isReadonly;
+        taskDialogModel.isHistoricalVersion = this.isHistorical;        
         
         if (node.getNodeType() === NodeType.UserTask) {
             userTaskNode = <UserTask>node;
-
-            let nextNodes = userTaskNode.getNextSystemTasks(graph);
-            if (nextNodes) {
-                systemTaskNode = nextNodes[0] as SystemTask;
-            }
-
-            userTaskDialogModel.isUserTask = true;
-        } else if (node.getNodeType() === NodeType.SystemTask) {
-            systemTaskNode = <SystemTask>node;
-            userTaskDialogModel.isUserTask = false;
+            if (userTaskNode) { // When the node selected is the "pre-condition",the user taskNode is null, since it is the start node
+                taskDialogModel.originalItem = userTaskNode;
+                taskDialogModel.clonedItem = taskDialogModel.originalItem.cloneUserTask();
+            }            
         } else {
-            return;
-        }
+            return null;
+        }        
 
-        userTaskDialogModel.isSystemTask = !userTaskDialogModel.isUserTask;
+        return taskDialogModel;
+    }
 
-        if (userTaskNode) { // When the node selected is the "pre-condition",the user taskNode is null, since it is the start node
-            userTaskDialogModel.originalUserTask = userTaskNode;
-            userTaskDialogModel.clonedUserTask = userTaskDialogModel.originalUserTask.cloneUserTask();
-        }
-
-        userTaskDialogModel.originalSystemTask = systemTaskNode;
-        userTaskDialogModel.clonedSystemTask = userTaskDialogModel.originalSystemTask.cloneSystemTask();
-
+    public getSubArtifactSystemTaskDialogModel(shapeId: number, graph: IProcessGraph): SubArtifactSystemTaskDialogModel {
+        const taskDialogModel = new SubArtifactSystemTaskDialogModel();
+        taskDialogModel.subArtifactId = shapeId;
+        taskDialogModel.isUserTask = false;
+        taskDialogModel.isSystemTask = true;
         // set dialog model isReadonly property to enable/disable input controls
-        userTaskDialogModel.isReadonly = this.isReadonly;
-        userTaskDialogModel.isHistoricalVersion = this.isHistorical;
+        taskDialogModel.isReadonly = this.isReadonly;
+        taskDialogModel.isHistoricalVersion = this.isHistorical;
 
-        return userTaskDialogModel;
+        const node = graph.getNodeById(taskDialogModel.subArtifactId.toString());
+        
+        let systemTaskNode: SystemTask;
+        
+        if (node.getNodeType() === NodeType.SystemTask) {
+            systemTaskNode = <SystemTask>node;
+            if (systemTaskNode) { // When the node selected is the "pre-condition",the user taskNode is null, since it is the start node
+                taskDialogModel.originalItem = systemTaskNode;
+                taskDialogModel.clonedItem = taskDialogModel.originalItem.cloneSystemTask();
+            }        
+
+        } else {
+            return null;
+        }
+
+        return taskDialogModel;
     }
 
     public getDecisionEditorModel(shapeId: number, graph: IProcessGraph): DecisionEditorModel {
@@ -171,20 +184,45 @@ export class SubArtifactEditorModalOpener {
         return model;
     }
 
-    private openUserTaskDetailsModalDialog($scope: ng.IScope, shapeId: number, graph: IProcessGraph) {
-        this.open("",
-            require("./sub-artifact-user-task-editor-modal-template.html"),
-            SubArtifactEditorUserTaskModalController,
-            this.getSubArtifactDialogModel(shapeId, graph),
-            "storyteller-modal");
+    private openUserTaskDetailsModalDialog = ($scope: ng.IScope, shapeId: number, graph: IProcessGraph): void => {
+        // this.open("",
+        //     require("./task-editor/sub-artifact-user-task-editor-modal-template.html"),
+        //     SubArtifactEditorUserTaskModalController,
+        //     this.getSubArtifactUserTaskDialogModel(shapeId, graph),
+        //     "storyteller-modal");
+
+        const settings = <ModalSettings>{
+            animation: this.animationsEnabled,
+            component: "userTaskEditor",
+            resolve: {
+                dialogModel: () => this.getSubArtifactUserTaskDialogModel(shapeId, graph),
+                modalProcessViewModel: () => this.modalProcessViewModel
+            },
+            windowClass: "storyteller-modal"
+        };
+
+        this.$uibModal.open(settings);
+
     }
 
-    private openSystemTaskDetailsModalDialog($scope: ng.IScope, shapeId: number, graph: IProcessGraph) {
-        this.open("",
-            require("./sub-artifact-system-task-editor-modal-template.html"),
-            SubArtifactEditorSystemTaskModalController,
-            this.getSubArtifactDialogModel(shapeId, graph),
-            "storyteller-modal");
+    private openSystemTaskDetailsModalDialog = ($scope: ng.IScope, shapeId: number, graph: IProcessGraph): void => {
+        // this.open("",
+        //     require("./task-editor/sub-artifact-system-task-editor-modal-template.html"),
+        //     SubArtifactEditorSystemTaskModalController,
+        //     this.getSubArtifactSystemTaskDialogModel(shapeId, graph),
+        //     "storyteller-modal");
+
+        const settings = <ModalSettings>{
+            animation: this.animationsEnabled,
+            component: "systemTaskEditor",
+            resolve: {
+                dialogModel: () => this.getSubArtifactSystemTaskDialogModel(shapeId, graph),
+                modalProcessViewModel: () => this.modalProcessViewModel
+            },
+            windowClass: "storyteller-modal"
+        };
+
+        this.$uibModal.open(settings);
     }
 
     private openDecisionEditorDialog = ($scope: ng.IScope, shapeId: number, graph: IProcessGraph): void => {

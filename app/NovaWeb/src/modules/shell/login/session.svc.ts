@@ -141,39 +141,39 @@ export class SessionSvc implements ISession {
                     } else if (result.samlLogin) {
                         this.dialogService
                             .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"))
-                            .then((confirmed: boolean) => {
-                                if (confirmed) {
-                                    this.loginWithSaml(true).then(
-                                        () => {
-                                            this._isExpired = false;
-                                            done.resolve();
-                                        },
-                                        (err) => {
-                                            this.showLogin(done, err);
-                                        });
-                                } else {
-                                    this.showLogin(done);
-                                }
-                            }).finally(() => {
+                            .then(() => {
+                                this.loginWithSaml(true).then(
+                                    () => {
+                                        this._isExpired = false;
+                                        done.resolve();
+                                    },
+                                    (err) => {
+                                        this.showLogin(done, err);
+                                    });
+                                })
+                            .catch(() => {
+                                this.showLogin(done);
+                            })
+                            .finally(() => {
                             confirmationDialog = null;
                         });
                     } else if (result.userName && result.password) {
                         this.dialogService
-                            .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm")
-                            .then((confirmed: boolean) => {
-                                if (confirmed) {
-                                    this.login(result.userName, result.password, true).then(
-                                        () => {
-                                            this._isExpired = false;
-                                            done.resolve();
-                                        },
-                                        (err) => {
-                                            this.showLogin(done, err);
-                                        });
-                                } else {
-                                    this.showLogin(done);
-                                }
-                            }).finally(() => {
+                        .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm")
+                        .then(() => {
+                            this.login(result.userName, result.password, true).then(
+                                () => {
+                                    this._isExpired = false;
+                                    done.resolve();
+                                },
+                                (err) => {
+                                    this.showLogin(done, err);
+                                });
+                            })
+                        .catch(() => {
+                            this.showLogin(done);
+                        })
+                        .finally(() => {
                             confirmationDialog = null;
                         });
                     } else {

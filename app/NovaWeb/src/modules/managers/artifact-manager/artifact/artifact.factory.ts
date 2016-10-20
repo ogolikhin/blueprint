@@ -16,7 +16,7 @@ import {
     IStatefulProcessArtifactServices
 } from "../services";
 import {IArtifactService} from "./artifact.svc";
-
+import {ILoadingOverlayService} from "../../../core/loading-overlay";
 
 export interface IStatefulArtifactFactory {
     createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact;
@@ -36,7 +36,8 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         "artifactAttachments",
         "artifactRelationships",
         "metadataService",
-        "processService"
+        "processService",
+        "loadingOverlayService"
     ];
 
     private services: IStatefulArtifactServices;
@@ -50,7 +51,8 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
                 private attachmentService: IArtifactAttachmentsService,
                 private relationshipsService: IArtifactRelationshipsService,
                 private metadataService: IMetaDataService,
-                private processService: IProcessService) {
+                private processService: IProcessService,
+                private loadingOverlayService: ILoadingOverlayService) {
 
         this.services = new StatefulArtifactServices(
             this.$q,
@@ -61,7 +63,8 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
             this.artifactService,
             this.attachmentService,
             this.relationshipsService,
-            this.metadataService);
+            this.metadataService,
+            this.loadingOverlayService);
     }
 
     public createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact {

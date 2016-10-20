@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import * as _ from "lodash";
 import {ILocalizationService} from "../../core";
 import {Models} from "../../main";
@@ -60,6 +60,7 @@ export class BPUtilityPanelController {
         this._currentItemClass = null;
         this._currentItemType = null;
         this._currentItemIcon = null;
+        this._isAnyPanelVisible = true;
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step

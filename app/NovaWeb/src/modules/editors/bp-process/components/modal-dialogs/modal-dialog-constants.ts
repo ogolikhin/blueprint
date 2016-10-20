@@ -1,5 +1,7 @@
-﻿export enum ModalDialogType {
-    UserSystemTaskDetailsDialogType,
+export enum ModalDialogType {
+    None,
     PreviewDialogType,
-    UserSystemDecisionDetailsDialogType
+    UserSystemDecisionDetailsDialogType,
+    UserTaskDetailsDialogType,
+    SystemTaskDetailsDialogType
 }

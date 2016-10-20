@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 export var ELLIPSIS_SYMBOL = String.fromCharCode(8230);
 
 export interface ILabel {
@@ -101,8 +101,10 @@ export class Label implements ILabel {
     }
 
     public set text(value) {
-        this._text = value;
-        this.setShortText();
+        if (this._text !== value) {
+            this._text = value;
+            this.setShortText();
+        }
     }
 
     public setVisible(value: boolean) {
@@ -153,7 +155,9 @@ export class Label implements ILabel {
         this.setViewMode();
     }
 
-
+    private onKeyUp = (e) => {
+        this.callbackIfTextChanged();
+    }
     private onKeyDown = (e) => {
         if (e.keyCode === action.ENTER) {
             this.update();
@@ -175,7 +179,6 @@ export class Label implements ILabel {
             this.cancelDefaultAction(e);
             return false;
         }
-        this.callbackIfTextChanged();
     }
     private callbackIfTextChanged() {
         const innerText = this.div.innerText.replace(/\n/g, "");
@@ -187,9 +190,6 @@ export class Label implements ILabel {
     private isTextChanged(newText: string): boolean {
         return this._text !== newText;
         
-    }
-    private onDelete = (e) => {
-        this.callbackIfTextChanged();
     }
     private onCut = (e) => {
         this.callbackIfTextChanged();
@@ -325,6 +325,8 @@ export class Label implements ILabel {
         this.div.style.verticalAlign = "middle";
         this.div.setAttribute("stLabelX", this.style.left.toString());
         this.div.setAttribute("stLabelY", this.style.top.toString());
+        this.div.setAttribute("stLabelWidth", this.style.width.toString());
+        this.div.setAttribute("stLabelHeight", this.style.height.toString());
         //this.div.style.wordBreak = "break-all";
         //this.div.style.whiteSpace = "wrap";
         this.div.style.wordWrap = "break-word";
@@ -355,8 +357,8 @@ export class Label implements ILabel {
             this.div.addEventListener("labelmouseout", this.onMouseout, true);
 
             angular.element(this.div).on("keydown", (e) => this.onKeyDown(e));
+            angular.element(this.div).on("keyup", (e) => this.onKeyUp(e));
             angular.element(this.div).on("paste", (e) => this.onPaste(e));
-            angular.element(this.div).on("delete", (e) => this.onDelete(e));
             angular.element(this.div).on("cut", (e) => this.onCut(e));
             angular.element(this.div).on("dispose", () => this.onDispose());
         }
@@ -369,7 +371,9 @@ export class Label implements ILabel {
                 this.div.removeEventListener("labelmouseover", this.onMouseover, true);
                 this.div.removeEventListener("labelmouseout", this.onMouseout, true);
                 angular.element(this.div).off("keydown", (e) => this.onKeyDown(e));
+                angular.element(this.div).off("keyup", (e) => this.onKeyUp(e));
                 angular.element(this.div).off("paste", (e) => this.onPaste(e));
+                angular.element(this.div).off("cut", (e) => this.onCut(e));
                 angular.element(this.div).off("dispose", () => this.onDispose());
             }
             this.wrapperDiv.removeChild(this.div);

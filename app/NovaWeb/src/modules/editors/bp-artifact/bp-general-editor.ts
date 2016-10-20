@@ -1,4 +1,4 @@
-﻿import {
+import {
     Models, Enums,
     BpArtifactEditor,
     PropertyContext,
@@ -49,6 +49,12 @@ export class BpGeneralArtifactEditorController extends BpArtifactEditor {
     public clearFields() {
         this.systemFields = [];
         this.noteFields = [];
+    }
+
+    public hasFields(): boolean  {
+        return ((angular.isArray(this.systemFields) ? this.systemFields.length : 0) +
+               (angular.isArray(this.noteFields) ? this.noteFields.length : 0)) > 0;
+
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {

@@ -1,4 +1,4 @@
-﻿import {ChangeTypeEnum} from "../../managers/artifact-manager/changeset";
+import {ChangeTypeEnum} from "../../managers/artifact-manager/changeset";
 export interface IRelationship {
     artifactId: number;
     artifactTypePrefix: string;
@@ -20,7 +20,9 @@ export interface IRelationship {
 }
 
 export interface IRelationshipView extends IRelationship {
-    cssClass: string;
+    cssClass?: string;
+    directionIcon?: string;
+    traceIcon?: string;
 }
 
 export interface IDialogRelationshipItem {

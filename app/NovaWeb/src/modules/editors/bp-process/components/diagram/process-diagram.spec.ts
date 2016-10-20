@@ -263,7 +263,7 @@ describe("ProcessDiagram Tests", () => {
             navigationService,
             statefulArtifactFactory
         );
-        let navigateToArtifactSpy = spyOn(navigationService, "navigateToArtifact");
+        let navigateToArtifactSpy = spyOn(navigationService, "navigateTo");
 
         let model = TestModels.createDefaultProcessModel();
         model.propertyValues["clientType"].value = ProcessType.BusinessProcess;
@@ -275,6 +275,6 @@ describe("ProcessDiagram Tests", () => {
         communicationManager.processDiagramCommunication.action(ProcessEvents.NavigateToAssociatedArtifact, {id: artifactId});
 
         // assert
-        expect(navigateToArtifactSpy).toHaveBeenCalledWith(artifactId, undefined);
+        expect(navigateToArtifactSpy).toHaveBeenCalledWith(artifactId, false, undefined);
     });
 });

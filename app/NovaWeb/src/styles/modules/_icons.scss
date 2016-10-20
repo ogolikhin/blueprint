@@ -73,7 +73,8 @@ $icon-folder-open: '\e806';
 $icon-document: '\e804';
 $icon-subartifact: '\e822';
 $icon-baseline: '\e801';
-$icon-collection: '\e803';
+$icon-collection: '\e856';
+$icon-collections: '\e85d';
 
 .icon-business-process::before {
     content: $icon-business-process;
@@ -231,18 +232,21 @@ $icon-collection: '\e803';
 }
 
 // ''
-.icon-artifact-collection:before {
-    font-family: "bp-font2";
-    content: $fonticon2-collection;
-}
 
-// ''
+.icon-collection:before {
+    content: $icon-collection;
+}
+/* '' */
+
 .icon-collection-folder:before {
     content: $icon-folder;
 }
 
 /* '' */
-
+.icon-collections:before {
+    content: $icon-collections;
+}
+// ''
 .thumb {
     width: 40px;
     height: 40px;

@@ -1,8 +1,8 @@
-import {SubArtifactEditorUserTaskModalController} from "./sub-artifact-editor-user-task-modal-controller";
+import {UserTaskModalController} from "./user-task-modal-controller";
 
 export class UserTaskEditor implements ng.IComponentOptions {
-    public controller: ng.Injectable<ng.IControllerConstructor> = SubArtifactEditorUserTaskModalController;
-    public template: string = require("./sub-artifact-user-task-editor-modal-template.html");
+    public controller: ng.Injectable<ng.IControllerConstructor> = UserTaskModalController;
+    public template: string = require("./user-task-modal-template.html");
     public bindings: {[boundProperty: string]: string} = {
         resolve: "<",
         modalInstance: "<",

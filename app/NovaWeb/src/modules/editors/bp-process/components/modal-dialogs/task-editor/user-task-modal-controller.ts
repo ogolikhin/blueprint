@@ -1,10 +1,10 @@
 import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-controller";
-import {SubArtifactSystemTaskDialogModel} from "../models/sub-artifact-dialog-model";
+import {SubArtifactUserTaskDialogModel} from "../models/sub-artifact-dialog-model";
 import {IArtifactReference} from "../../../models/process-models";
 import {IModalProcessViewModel} from "../models/modal-process-view-model";
 import {ICommunicationManager} from "../../../services/communication-manager";
 
-export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogController<SubArtifactSystemTaskDialogModel> {
+export class UserTaskModalController extends BaseModalDialogController<SubArtifactUserTaskDialogModel> {
     public getLinkableProcesses: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
     public getLinkableArtifacts: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
     public isProjectOnlySearch: boolean = true;
@@ -13,15 +13,16 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
     private isIncludeNoResults: boolean = false;
     private isIncludeBadRequest: boolean = false;
     private isIncludeResultsVisible: boolean;
-    private isReadonly: boolean = false;
+    public isReadonly: boolean = false;
     private isSMB: boolean = false;
     private actionPlaceHolderText: string;
-    private systemNamePlaceHolderText: string;
+    
     private searchIncludesDelay: ng.IPromise<any>;
     private modalProcessViewModel: IModalProcessViewModel;
 
     public static $inject = [
         "$scope",
+        
         
         "communicationManager",
         //"artifactSearchService",
@@ -43,6 +44,7 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
 
         super($rootScope, $scope);
 
+        this.modalProcessViewModel = <IModalProcessViewModel>this.resolve["modalProcessViewModel"];
         this.isReadonly = this.dialogModel.isReadonly || this.dialogModel.isHistoricalVersion;
 
         let isSMBVal = $rootScope["config"].settings.StorytellerIsSMB;
@@ -50,10 +52,11 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
         if (isSMBVal.toLowerCase() === "true") {
             this.isSMB = true;
         }
-        
-        this.systemNameOnBlur();
 
-        this.communicationManager.modalDialogManager.setModalProcessViewModel(this.setModalProcessViewModel);
+        this.actionOnBlur();
+        
+
+        this.communicationManager.modalDialogManager.setModalProcessViewModel(this.setModalProcessViewModel);        
     }    
 
     private setModalProcessViewModel = (modalProcessViewModel) => {
@@ -120,42 +123,38 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
         }
 
         return false;
-    }       
-
-    private systemNameOnFocus = () => {
-        this.systemNamePlaceHolderText = (<any>this.$rootScope).config.labels["ST_System_Task_Name_Label"];
     }
 
-    private systemNameOnBlur = () => {
+    private actionOnFocus = () => {
+        this.actionPlaceHolderText = (<any>this.$rootScope).config.labels["ST_User_Task_Name_Label"];
+    }
+
+    private actionOnBlur = () => {
         if (this.dialogModel.clonedItem) {
             if (this.dialogModel.clonedItem.action) {
-                this.systemNameOnFocus();
+                this.actionOnFocus();
             } else {
-                this.systemNamePlaceHolderText =
-                    (<any>this.$rootScope).config.labels["ST_System_Task_Name_Label"] + " " + this.dialogModel.clonedItem.label;
+                this.actionPlaceHolderText = (<any>this.$rootScope).config.labels["ST_User_Task_Name_Label"] + " " + this.dialogModel.clonedItem.label;
             }
         }
     }
 
     public saveData() {
-        
         if (this.dialogModel.clonedItem.associatedArtifact === undefined) {
             this.dialogModel.clonedItem.associatedArtifact = null;
         }
-        
-        this.populateSystemTaskChanges();        
-    }    
+        this.populateUserTaskChanges();                
+    }
 
-    private populateSystemTaskChanges() {
-        
+    private populateUserTaskChanges() {
+
         if (this.dialogModel.originalItem && this.dialogModel.clonedItem) {
             this.dialogModel.originalItem.persona = this.dialogModel.clonedItem.persona;
-            this.dialogModel.originalItem.action = this.dialogModel.clonedItem.action;
-            this.dialogModel.originalItem.imageId = this.dialogModel.clonedItem.imageId;        
-            this.dialogModel.originalItem.associatedImageUrl = this.dialogModel.clonedItem.associatedImageUrl;        
+            this.dialogModel.originalItem.action = this.dialogModel.clonedItem.action;            
+            this.dialogModel.originalItem.objective = this.dialogModel.clonedItem.objective;            
             this.dialogModel.originalItem.associatedArtifact = this.dialogModel.clonedItem.associatedArtifact;
-        }        
-    }    
+        }
+    }
 
     private refreshView() {
         let element: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
@@ -173,10 +172,11 @@ export class SubArtifactEditorSystemTaskModalController extends BaseModalDialogC
         }, 20);
     }
 
-    public getActiveHeader(): string {
-        if (this.dialogModel.isSystemTask) {
+    public getActiveHeader(): string {       
+
+        if (this.dialogModel.isUserTask) {
             return this.dialogModel.clonedItem.label;
-        }        
+        }
 
         return null;
     }

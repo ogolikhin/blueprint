@@ -9,7 +9,6 @@ using TestCommon;
 using System.Linq;
 using Model.Impl;
 using Model.ArtifactModel.Enums;
-using Model.ArtifactModel.Impl;
 
 namespace ArtifactStoreTests
 {
@@ -158,7 +157,7 @@ namespace ArtifactStoreTests
         public void ArtifactNavigation_Collection_ReturnsCollectionFolderAndProjectInfo(ItemTypePredefined artifactType)
         {
             // Setup:
-            var collectionFolder = GetDefaultCollectionFolder(_project, _user);
+            INovaArtifact collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
 
             var collection = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address,
                 _user, artifactType, "Collection test", _project, collectionFolder.Id);
@@ -186,8 +185,9 @@ namespace ArtifactStoreTests
         }
 
         [Ignore(IgnoreReasons.UnderDevelopment)] //Artifacts for Baseline and Review need to be added to Custom Data project
+        [Category(Categories.CustomData)]
         [TestCase(96384)]
-        [TestRail(0)]
+        [TestRail(185119)]
         [Description("Verify get artifact navigation path call for Baseline returns Baseline & Review folder and project information")]
         public void ArtifactNavigation_Baseline_ReturnsCollectionFolderAndProjectInfo(int id)
         {
@@ -206,19 +206,17 @@ namespace ArtifactStoreTests
             VerifyParentInformation(basicArtifactInfoList, basicArtifactInfo.ParentId);
         }
 
-        [TestCase(BaseArtifactType.Actor, 2)]
+        [TestCase(BaseArtifactType.Actor, 10, BaseArtifactType.PrimitiveFolder)]
         [TestRail(183641)]
         [Description("Create & publish an artifact within a chain of 10 folders. Verify get artifact navigation path call for artifact in a chain of folders returns information about all ancestor folders and project.")]
-        public void ArtifactNavigation_PublishedArtifactInAChainOfFolders_ReturnsListOfFoldersAndProjectInfo(BaseArtifactType artifactType, int numberOfVersions)
+        public void ArtifactNavigation_PublishedArtifactInAChainOfFolders_ReturnsListOfFoldersAndProjectInfo(BaseArtifactType artifactType, int numberOfArtifacts, BaseArtifactType folderType)
         {
             // Setup:
-            BaseArtifactType[] artifactTypeChain = { BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder,
-                                                     BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder,
-                                                     BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder};
+            List<BaseArtifactType> artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, folderType);
 
-            var folders = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
+            var folders = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes.ToArray());
 
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, folders.Last(), numberOfVersions: numberOfVersions);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, folders.Last());
 
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
@@ -273,24 +271,22 @@ namespace ArtifactStoreTests
         }
 
         /// <summary>
-        /// Gets the default Collections folder for the project and returns only the Id, PredefinedType, ProjectId and ItemTypeId.
+        /// Creates a list of artifact types.
         /// </summary>
-        /// <param name="project">The project whose collections folder you want to get.</param>
-        /// <param name="user">The user to authenticate with.</param>
-        /// <returns>The default Collections folder for the project.</returns>
-        private INovaArtifactBase GetDefaultCollectionFolder(IProject project, IUser user)
+        /// <param name="numberOfArtifacts">The number of artifact types to add to the list.</param>
+        /// <param name="artifactType">The artifact type.</param>
+        /// <returns>A list of artifact types.</returns>
+        private static List<BaseArtifactType> CreateListOfArtifactTypes(int numberOfArtifacts, BaseArtifactType artifactType)
         {
-            INovaArtifact collectionFolder = project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, user);
+            List<BaseArtifactType> artifactTypes = new List<BaseArtifactType>();
 
-            return new NovaArtifactDetails
+            for (int i = 0; i < numberOfArtifacts; i++)
             {
-                Id = collectionFolder.Id,
-                PredefinedType = collectionFolder.PredefinedType,
-                ProjectId = project.Id,
-                ItemTypeId = collectionFolder.ItemTypeId
-            };
-        }
+                artifactTypes.Add(artifactType);
+            }
 
+            return artifactTypes;
+        }
         #endregion private calls
     }
 }

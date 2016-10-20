@@ -168,11 +168,12 @@ namespace ArtifactStoreTests
 
             IArtifact fakeArtifact = null;
 
-            try
-            {
-                fakeArtifact = ArtifactFactory.CreateArtifact(
+
+            fakeArtifact = ArtifactFactory.CreateArtifact(
                     _project, _user, BaseArtifactType.Actor, collection.Id);   // Don't use Helper because this isn't a real artifact, it's just wrapping the bad artifact ID.
 
+            try
+            {                
                 // Execute:
                 Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, collection.Id),
                                     "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
@@ -191,7 +192,7 @@ namespace ArtifactStoreTests
         [TestCase(96384)]
         [TestRail(185119)]
         [Description("Verify get artifact navigation path call for Baseline returns Baseline & Review folder and project information")]
-        public void ArtifactNavigation_Baseline_ReturnsCollectionFolderAndProjectInfo(int id)
+        public void ArtifactNavigation_Baseline_ReturnsBaselineFolderAndProjectInfo(int id)
         {
             // Setup:
             var basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, id);
@@ -234,6 +235,7 @@ namespace ArtifactStoreTests
         //TODO Test for artifact in a long chain of mixwd folders and child artifacts. Use TestCase(TestCaseSources.AllArtifactTypesForOpenApiRestMethods)]
         //TODO Test for project in a folder
         //TODO Test for sub-artifact at end of a chain of artifacts.
+        //TODO Create & publish artifact, user1 deletes (but doesn't publish), user2 gets navigation path.
 
         #endregion 200 OK tests
 

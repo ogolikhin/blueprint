@@ -10,7 +10,7 @@ import {ILayout} from "./../models/";
 import {IStatefulArtifactFactory} from "../../../../../../../managers/artifact-manager/";
 import {StatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
-describe("Popup Menu test", () => {
+describe("Popup Menu", () => {
     let mxgraph: MxGraph;
     let rootScope: ng.IRootScopeService;
     let htmlElement: HTMLElement;
@@ -19,6 +19,7 @@ describe("Popup Menu test", () => {
     let shapesFactory: ShapesFactory;
     let layout: ILayout;
     let localization: ILocalizationService;
+    let popupMenu: NodePopupMenu;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         // inject any services that are required
@@ -42,7 +43,7 @@ describe("Popup Menu test", () => {
             "ST_Popup_Menu_Add_User_Decision_Label": "Add User Decision Point"
         };
 
-        var wrapper = document.createElement("DIV");
+        const wrapper = document.createElement("DIV");
         htmlElement = document.createElement("DIV");
         wrapper.appendChild(htmlElement);
         document.body.appendChild(wrapper);
@@ -54,91 +55,41 @@ describe("Popup Menu test", () => {
 
         mxgraph = new mxGraph(htmlElement, new BpMxGraphModel());
         shapesFactory = new ShapesFactory(rootScope, statefulArtifactFactory);
+
+        popupMenu = new NodePopupMenu(
+              layout, shapesFactory, localization, htmlElement, mxgraph, null, null, null, null, null);
     }));
-
-    function insertTask(edge: MxCell) {
-
-    };
-
-    function insertUserDecision(edge: MxCell) {
-
-    };
-
-    function insertUserDecisionBranch(edge: MxCell) {
-
-    };
-
-    function insertSystemDecision(edge: MxCell) {
-
-    };
-
-    function insertSystemDecisionBranch(edge: MxCell) {
-
-    };
-
-
-    it("The menu should have options to 'Add User Task' and 'Add Decision Point' when edge is not connected to a a user decision node ", () => {
-        // Arrange
-
-        // Act
-
-        var popupMenu = new NodePopupMenu(
-            layout,
-            shapesFactory,
-            localization,
-            htmlElement,
-            mxgraph,
-            insertTask,
-            insertUserDecision,
-            insertUserDecisionBranch,
-            insertSystemDecision,
-            insertSystemDecisionBranch
-        );
+     
+    it("should have options to 'Add User Task' and 'Add Decision Point' when edge is not connected to a a user decision node ", () => {
+        
         popupMenu.insertionPoint = new mxCell("test", null, null);
         popupMenu.insertionPoint["__proto__"]["edge"] = true;
 
-        var menu = new mxPopupMenu();
+        let menu = new mxPopupMenu();
         menu["div"] = document.createElement("div");
         menu["div"].className = "mxPopupMenu";
         menu["div"].style.left = "100px";
         menu["div"].style.top = "100px";
 
         spyOn(menu, "addItem");
-
-        // Act
-
+ 
         popupMenu.createPopupMenu(mxgraph, menu, null, null);
 
-        //Assert
-
+        // assert
         expect(menu.addItem["calls"].count()).toEqual(2);
-        var args = menu.addItem["calls"].argsFor(0);
+        let args = menu.addItem["calls"].argsFor(0);
         expect(args[0]).toContain("Add User Task");
         args = menu.addItem["calls"].argsFor(1);
         expect(args[0]).toContain("Add User Decision Point");
 
     });
 
-    it("The menu should have the option to 'Add User Task' when edge is connected to a user decision node ", () => {
-        // Arrange
-
-        // Act
-        var popupMenu = new NodePopupMenu(
-            layout,
-            shapesFactory,
-            localization,
-            htmlElement,
-            mxgraph,
-            insertTask,
-            insertUserDecision,
-            insertUserDecisionBranch,
-            insertSystemDecision,
-            insertSystemDecisionBranch
-        );
+    it("should have the option to 'Add User Task' when edge is connected to a user decision node ", () => {
+ 
         popupMenu.insertionPoint = new mxCell("test", null, null);
         popupMenu.insertionPoint["__proto__"]["edge"] = true;
 
-        var menu = new mxPopupMenu();
+        let menu = new mxPopupMenu();
         menu["div"] = document.createElement("div");
         menu["div"].className = "mxPopupMenu";
         menu["div"].style.left = "100px";
@@ -149,44 +100,26 @@ describe("Popup Menu test", () => {
         spyOn(popupMenu, "isDestNodeOfType").and.callFake(function () {
             return true;
         });
-
-        // Act
-
+ 
         popupMenu.createPopupMenu(mxgraph, menu, null, null);
 
-        //Assert
-
+        // assert
         expect(menu.addItem["calls"].count()).toEqual(1);
-        var args = menu.addItem["calls"].argsFor(0);
+        let args = menu.addItem["calls"].argsFor(0);
         expect(args[0]).toContain("Add User Task");
 
 
     });
 
-    it("The menu should have the option to 'Add Branch' when edge is false and node type is 'UserDecision' ", () => {
-        // Arrange
-
-        // Act
-
-        var popupMenu = new NodePopupMenu(
-            layout,
-            shapesFactory,
-            localization,
-            htmlElement,
-            mxgraph,
-            insertTask,
-            insertUserDecision,
-            insertUserDecisionBranch,
-            insertSystemDecision,
-            insertSystemDecisionBranch
-        );
+    it("should have the option to 'Add Branch' when edge is false and node type is 'UserDecision' ", () => {
+ 
         popupMenu.insertionPoint = new mxCell("test", null, null);
         popupMenu.insertionPoint["__proto__"]["edge"] = false;
         popupMenu.insertionPoint["__proto__"]["vertex"] = true;
         popupMenu.insertionPoint["getNodeType"] = () => {
         };
 
-        var menu = new mxPopupMenu();
+        let menu = new mxPopupMenu();
         menu["div"] = document.createElement("div");
         menu["div"].className = "mxPopupMenu";
         menu["div"].style.left = "100px";
@@ -195,15 +128,12 @@ describe("Popup Menu test", () => {
         spyOn(menu, "addItem");
 
         spyOn(popupMenu.insertionPoint, "getNodeType").and.callFake(() => NodeType.UserDecision);
-
-        // Act
-
+ 
         popupMenu.createPopupMenu(mxgraph, menu, null, null);
 
-        //Assert
-
+        // assert
         expect(menu.addItem["calls"].count()).toEqual(1);
-        var args = menu.addItem["calls"].argsFor(0);
+        let args = menu.addItem["calls"].argsFor(0);
         expect(args[0]).toContain("Add Condition");
 
     });

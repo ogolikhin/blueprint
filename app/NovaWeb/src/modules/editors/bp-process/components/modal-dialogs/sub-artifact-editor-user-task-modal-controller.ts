@@ -18,6 +18,7 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
     private isReadonly: boolean = false;
     private isSMB: boolean = false;
     private actionPlaceHolderText: string;
+    private includeArtifactName: string;
     
     private searchIncludesDelay: ng.IPromise<any>;
     private modalProcessViewModel: IModalProcessViewModel;
@@ -72,25 +73,12 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
 
     public prepIncludeField(): void {
         this.isIncludeResultsVisible = true;
-        this.clearFields();
+        this.includeArtifactName = this.formatIncludeLabel(this.dialogModel.clonedUserTask.associatedArtifact);
     }
 
     public cleanIncludeField(): void {
         this.isIncludeResultsVisible = false;
-        this.clearFields();
-    }
-
-    public changeIncludeField(): void {
-        this.clearFields();
-    }
-
-    private cancelIncludeSearchTimer(): void {
-        this.$timeout.cancel(this.searchIncludesDelay);
-        this.isLoadingIncludes = false;
-    }
-
-    private clearFields() {
-        this.cancelIncludeSearchTimer();
+        this.dialogModel.clonedUserTask.associatedArtifact = null;
     }
 
     public formatIncludeLabel(model) {
@@ -102,7 +90,7 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
         if (model.typePrefix === "<Inaccessible>") {
             msg = this.$rootScope["config"].labels["HttpError_Forbidden"];
         } else {
-            msg = model.typePrefix + model.id + ": " + model.name;
+            msg = model.prefix + model.id + " - " + model.name;
         }
 
         return msg;
@@ -202,6 +190,7 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
         this.dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {
             if (items.length === 1) {
                 this.dialogModel.clonedUserTask.associatedArtifact = items[0];
+                console.log(this.dialogModel.originalUserTask.associatedArtifact);
                 this.prepIncludeField();
             }
         });

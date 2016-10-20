@@ -1,4 +1,4 @@
-﻿using Model.Impl;
+using Model.Impl;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using System;
@@ -297,15 +297,16 @@ namespace Model
         NovaUseCaseArtifact GetUseCaseArtifact(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Gets relationshipsdetails for the specified artifact/subartifact
+        /// Gets tracedetails for the specified artifact/subartifact
         /// (Runs: GET svc/artifactstore/artifacts/{itemId}/relationshipdetails)
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="artifact">The artifact containing the relationship to get.</param>
         /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true</param>
+        /// <param name="revisionId">(optional) The revision of the artifact whose details you want to get. null = latest revision.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>RelationshipsDetails object for the specified artifact/subartifact.</returns>
-        TraceDetails GetRelationshipsDetails(IUser user, IArtifactBase artifact, bool? addDrafts = null, List<HttpStatusCode> expectedStatusCodes = null);
+        TraceDetails GetRelationshipsDetails(IUser user, IArtifactBase artifact, bool? addDrafts = null, int? revisionId = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets list of subartifacts for the artifact with the specified ID.
@@ -381,5 +382,14 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
         INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts, IUser user = null, bool? all = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets artifact path by using artifact id
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="itemId">Id of artifact or sub-artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>An artifact path</returns>
+        List<INovaVersionControlArtifactInfo>GetNavigationPath(IUser user, int itemId, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

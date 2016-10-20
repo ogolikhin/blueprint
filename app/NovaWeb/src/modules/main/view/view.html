@@ -1,4 +1,4 @@
-﻿<bp-toolbar ng-if="$main.currentUser"></bp-toolbar>
+<bp-toolbar ng-if="$main.currentUser"></bp-toolbar>
 <bp-sidebar-layout left-panel-title="{{$main.localization.get('App_Sidebar_Left')}}"
                    right-panel-title="{{$main.localization.get('App_Sidebar_Right')}}"
                    ng-if="$main.currentUser"
@@ -10,7 +10,7 @@
     </bp-sidebar-layout-content-left>
 
     <bp-sidebar-layout-content-center>
-        <pagecontent ng-if="$main.isActive"></pagecontent>
+        <pagecontent></pagecontent>
     </bp-sidebar-layout-content-center>
 
     <bp-sidebar-layout-content-right>

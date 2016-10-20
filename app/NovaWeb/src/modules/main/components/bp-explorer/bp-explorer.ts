@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {Models} from "../../models";
 import {ItemTypePredefined} from "../../models/enums";
 import {Helper, IBPTreeController} from "../../../shared";
@@ -124,13 +124,13 @@ export class ProjectExplorerController {
             if (projects && projects.length > 0) {
                 if (!this.selected || this.numberOfProjectsOnLastLoad !== projects.length) {
                     this.selected = projects[0];
-                    this.navigationService.navigateToArtifact(this.selected.id);
+                    this.navigationService.navigateTo(this.selected.id);
                 }
 
                 //if node exists in the tree
                 if (this.tree.nodeExists(this.selected.id)) {
                     this.tree.selectNode(this.selected.id);
-                    this.navigationService.navigateToArtifact(this.selected.id);
+                    this.navigationService.navigateTo(this.selected.id);
 
                     //replace with a new object from tree, since the selected object may be stale after refresh
                     let selectedObjectInTree: IArtifactNode = <IArtifactNode>this.tree.getNodeData(this.selected.id);
@@ -141,7 +141,7 @@ export class ProjectExplorerController {
                     //otherwise, if parent node is in the tree
                     if (this.selected.parentNode && this.tree.nodeExists(this.selected.parentNode.id)) {
                         this.tree.selectNode(this.selected.parentNode.id);
-                        this.navigationService.navigateToArtifact(this.selected.parentNode.id);
+                        this.navigationService.navigateTo(this.selected.parentNode.id);
 
                         //replace with a new object from tree, since the selected object may be stale after refresh
                         let selectedObjectInTree: IArtifactNode = <IArtifactNode>this.tree.getNodeData(this.selected.parentNode.id);
@@ -152,7 +152,7 @@ export class ProjectExplorerController {
                         //otherwise, try with project node
                         if (this.tree.nodeExists(this.selected.projectId)) {
                             this.tree.selectNode(this.selected.projectId);
-                            this.navigationService.navigateToArtifact(this.selected.projectId);
+                            this.navigationService.navigateTo(this.selected.projectId);
                         } else {
                             //if project node fails too - give up
                             this.artifactManager.selection.setExplorerArtifact(null);
@@ -189,7 +189,7 @@ export class ProjectExplorerController {
         this.doSync(node);
         this.selected = node;
         this.tree.selectNode(node.id);
-        this.navigationService.navigateToArtifact(node.id);
+        this.navigationService.navigateTo(node.id);
     };
 
     public doSync = (node: IArtifactNode): IStatefulArtifact => {

@@ -12,10 +12,6 @@ export class DeleteShapeButton extends Button {
 
         super(`DS${nodeId}`, width, height, null);
 
-        const defaultClickAction = () => {
-            //fixme: no empty function blocks
-        };
-
 
         this.setNeutralImage(this.getImageSource("delete-neutral.svg"));
         this.setActiveImage(this.getImageSource("delete-active.svg"));
@@ -27,13 +23,9 @@ export class DeleteShapeButton extends Button {
             if (clickAction) {
                 this.setClickAction(clickAction);
             }
-            else {
-                this.setClickAction(defaultClickAction);
-            }
 
         } else {
             this.disable();
-            this.setClickAction(defaultClickAction);
         }
 
         this.setTooltip(tooltip);

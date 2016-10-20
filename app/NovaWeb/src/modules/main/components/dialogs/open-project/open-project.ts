@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {ILocalizationService} from "../../../../core";
 import {Helper, IBPTreeController, IDialogSettings, BaseDialogController, IDialogService} from "../../../../shared";
 import {Models} from "../../../models";
@@ -42,13 +42,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         open: "open"
     };
 
-    public scrollOptions = {
-        minScrollbarLength: 20,
-        suppressScrollX: true,
-        scrollYMarginOffset: 4
-    };
-
-    //Dialog return value
+       //Dialog return value
     public get returnValue(): Models.IProject {
         return this.selectedItem || null;
     };

@@ -45,6 +45,7 @@ export class BPBaseUtilityPanelController {
         if (this.timeout) {
             this.timeout.resolve();
         }
+        this.onVisibilityChanged(true);
 
         this.timeout = this.$q.defer<any>();
         const selectionChangedResult = this.onSelectionChanged(artifact, subArtifact, this.timeout.promise);

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using Common;
@@ -16,9 +16,11 @@ using TestCommon;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
+using System.Globalization;
 
 namespace ArtifactStoreTests
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // Ignore for now.
     [TestFixture]
     [Category(Categories.ArtifactStore)]
     public class CreateArtifactTests : TestBase
@@ -45,19 +47,7 @@ namespace ArtifactStoreTests
 
         #region 201 Created tests
 
-        [TestCase(ArtifactTypePredefined.Actor)]
-        [TestCase(ArtifactTypePredefined.BusinessProcess)]
-        [TestCase(ArtifactTypePredefined.Document)]
-        [TestCase(ArtifactTypePredefined.DomainDiagram)]
-        [TestCase(ArtifactTypePredefined.GenericDiagram)]
-        [TestCase(ArtifactTypePredefined.Glossary)]
-        [TestCase(ArtifactTypePredefined.PrimitiveFolder)]
-        [TestCase(ArtifactTypePredefined.Process)]
-        [TestCase(ArtifactTypePredefined.Storyboard)]
-        [TestCase(ArtifactTypePredefined.TextualRequirement)]
-        [TestCase(ArtifactTypePredefined.UIMockup)]
-        [TestCase(ArtifactTypePredefined.UseCase)]
-        [TestCase(ArtifactTypePredefined.UseCaseDiagram)]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForNovaRestMethods))]
         [TestRail(154745)]
         [Description("Create an artifact of a supported type in the project root.  Get the artifact.  " +
             "Verify the artifact returned has the same properties as the artifact we created.")]
@@ -74,22 +64,10 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetails);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, newArtifact);
         }
 
-        [TestCase(ArtifactTypePredefined.Actor)]
-        [TestCase(ArtifactTypePredefined.BusinessProcess)]
-        [TestCase(ArtifactTypePredefined.Document)]
-        [TestCase(ArtifactTypePredefined.DomainDiagram)]
-        [TestCase(ArtifactTypePredefined.GenericDiagram)]
-        [TestCase(ArtifactTypePredefined.Glossary)]
-        [TestCase(ArtifactTypePredefined.PrimitiveFolder)]
-        [TestCase(ArtifactTypePredefined.Process)]
-        [TestCase(ArtifactTypePredefined.Storyboard)]
-        [TestCase(ArtifactTypePredefined.TextualRequirement)]
-        [TestCase(ArtifactTypePredefined.UIMockup)]
-        [TestCase(ArtifactTypePredefined.UseCase)]
-        [TestCase(ArtifactTypePredefined.UseCaseDiagram)]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForNovaRestMethods))]
         [TestRail(182496)]
         [Description("Create an artifact of a supported type under a folder.  Get the artifact.  " +
             "Verify the artifact returned has the same properties as the artifact we created.")]
@@ -191,7 +169,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetails);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, newArtifact);
 
             Assert.NotNull(newArtifact.OrderIndex, "OrderIndex of newly created artifact must not be null!");
             Assert.AreEqual(orderIndexToSet, newArtifact.OrderIndex.Value, "The OrderIndex of the new artifact is not correct!");
@@ -330,7 +308,7 @@ namespace ArtifactStoreTests
         public void CreateArtifact_UserWithoutPermissionToProject_403Forbidden()
         {
             // Setup:
-            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
+            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
@@ -343,7 +321,6 @@ namespace ArtifactStoreTests
             ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "You do not have permission to perform this action.");
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/uypOAMKF  It gets 201 instead of 403.
         [TestCase]
         [TestRail(183538)]
         [Description("Create an artifact as a user that full access to the project, but no access to the parent.  " +
@@ -361,11 +338,12 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex= Assert.Throws<Http403ForbiddenException>(() => CreateArtifact(userWithoutPermission,
-                _project, ItemTypePredefined.Process, artifactName),
+                _project, ItemTypePredefined.Process, artifactName, parentArtifact.Id),
                 "'POST {0}' should return 403 Forbidden if the user doesn't have permission to parent artifact!", SVC_PATH);
 
             // Verify:
-            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "You do not have permission to perform this action.");
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, string.Format(CultureInfo.InvariantCulture,
+                "You do not have permission to access the artifact (ID: {0})", parentArtifact.Id));
         }
 
         [TestCase(int.MaxValue)]
@@ -424,7 +402,6 @@ namespace ArtifactStoreTests
             ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound, "Project not found.");
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/rSl4L0zv  Gets a 404 instead of 409.
         [TestCase(ItemTypePredefined.Actor)]
         [TestRail(183543)]
         [Description("Create a regular artifact under the default Collections folder.  Verify the create fails with a 409 Conflict error.")]
@@ -440,7 +417,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
-                "Invalid request.");
+                "Cannot create an artifact at this location.");
         }
 
         [TestCase]
@@ -482,24 +459,87 @@ namespace ArtifactStoreTests
                 "Cannot create an artifact at this location.");
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/zqgZbPQW
-        [Category(Categories.CustomData)]       // NOTE: This won't work on Silver02 until we make a required property without a default value.
+        [Explicit(IgnoreReasons.DeploymentNotReady)]    // NOTE: This won't work on Silver02 until we make a required property without a default value.
+        [Category(Categories.CustomData)]
         [TestCase(ArtifactTypePredefined.Actor)]
         [TestRail(183536)]
         [Description("Create an artifact in the 'Custom Data' project for a type that has a required Custom Property with no default value.  " +
-            "Verify the create fails with a 409 Conflict error.")]
-        public void CreateArtifact_ArtifactWithMissingRequiredCustomProperty_409Conflict(ItemTypePredefined artifactType)
+            "Verify the create succeeds.  Try to publish.  Verify the publish fails with a 409 Conflict error.")]
+        public void CreateArtifact_ArtifactWithMissingRequiredCustomProperty_ArtifactIsCreated_VerifyPublishReturns409Conflict(ItemTypePredefined artifactType)
         {
             // Setup:
             IProject customDataProject = ProjectFactory.GetProject(_user, "Custom Data", shouldRetrievePropertyTypes: true);
             customDataProject.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(artifactType, _user, customDataProject),
-                "'POST {0}' should return 409 Conflict when trying to create an artifact that has a required property without a default value!");
+            INovaArtifactDetails artifactDetails = null;
+
+            Assert.DoesNotThrow(() => artifactDetails = CreateArtifactWithRandomName(artifactType, _user, customDataProject),
+                "'POST {0}' should return 201 Created when trying to create an artifact that has a required property without a default value!");
 
             // Verify:
-            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ValidationFailed, "TODO: Fill in when https://trello.com/c/zqgZbPQW is fixed.");
+            Assert.NotNull(artifactDetails, "A valid object should be returned after creating an artifact!");
+            var artifactBase = Helper.Artifacts.Find(a => a.Id == artifactDetails.Id);
+
+            // Now try to publish and verify that it fails because of validation errors.
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifactBase, _user),
+                "You shouldn't be able to publish an artifact with missing required properties!");
+
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors,
+                I18NHelper.FormatInvariant("Artifact with Id {0} has validation errors.", artifactDetails.Id));
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // Ignore for now.
+        [Category(Categories.CustomData)]
+        [TestCase(ArtifactTypePredefined.Actor)]
+        [TestRail(183640)]
+        [Description("Create an artifact in the 'Custom Data' project for a type that has a required Custom Property with default values.  " +
+            "Verify the create succeeds and the artifact has the default values populated.")]
+        public void CreateArtifact_ArtifactWithRequiredCustomPropertyWithDefaults_VerifyDefaultValuesArePopulated(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            IProject customDataProject = ProjectFactory.GetProject(_user, "Custom Data", shouldRetrievePropertyTypes: true);
+            customDataProject.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            // Execute:
+            INovaArtifactDetails newArtifact = null;
+
+            Assert.DoesNotThrow(() => newArtifact = CreateArtifactWithRandomName(artifactType, _user, customDataProject),
+                "'POST {0}' should return 201 Created when trying to create an artifact that has required properties with default values!");
+
+            // Verify:
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, newArtifact);
+
+            // Make sure the default values of the required properties got set.
+            /*  Name:                                   Default Value:
+                "CU-Text Required"                      "<html><head/><pre>Default Text</pre></html>"
+                "CU-Number Required with Min & Max"     10
+                "CU-Date Required with Min & Max"       2016-09-01T00:00:00.0000000
+
+            NOTE: These 2 properties are hard to validate properly, so skipping them.
+                "CU-Choice Required with Single Choice  "{\r\n  \"validValueIds\": [\r\n    22\r\n  ]\r\n}"
+                "CU-User Required"                      "{\r\n  \"usersGroups\": [\r\n    {\r\n      \"id\": 1,\r\n      \"displayName\": \"Default Instance Admin\"\r\n    }\r\n  ]\r\n}"
+            */
+
+            Dictionary<string, object> expectedValues = new Dictionary<string, object>
+            {
+                { "CU-Text Required", "<html><head/><pre>Default Text</pre></html>" },
+                { "CU-Number Required with Min & Max", 10 },
+                { "CU-Date Required with Min & Max", new DateTime(2016, 9, 1) }
+            };
+
+            foreach (var expectedValue in expectedValues)
+            {
+                var novaPropertyType = customDataProject.NovaPropertyTypes.Find(o => o.Name == expectedValue.Key);
+                Assert.NotNull(novaPropertyType, "Couldn't find a Nova Artifact Type named '{0}'!", expectedValue.Key);
+
+                var customProperty = artifactDetails.CustomPropertyValues.Find(p => p.PropertyTypeId == novaPropertyType.Id);
+
+                Assert.NotNull(customProperty, "Couldn't find a custom property with PropertyTypeId {0}!", novaPropertyType.Id);
+                Assert.AreEqual(expectedValue.Value, customProperty.CustomPropertyValue,
+                    "Custom Property Value for property '{0}' is not set to the default value!", customProperty.Name);
+            }
         }
 
         [TestCase(ItemTypePredefined.Actor)]

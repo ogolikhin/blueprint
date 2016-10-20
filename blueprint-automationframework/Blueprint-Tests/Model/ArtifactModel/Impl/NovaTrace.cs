@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System.Xml.Serialization;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -14,9 +15,10 @@ namespace Model.ArtifactModel.Impl
         public int ArtifactId { get; set; }
 
         [JsonProperty("TraceDirection")]
+        //[JsonConverter(typeof(StringEnumConverter))]
         public TraceDirection Direction { get; set; }
 
-        [JsonConverter(typeof(StringEnumConverter))]
+        //[JsonConverter(typeof(StringEnumConverter))]
         public TraceTypes TraceType { get; set; }
 
         [JsonProperty("Suspect")]
@@ -42,6 +44,8 @@ namespace Model.ArtifactModel.Impl
 
         public int PrimitiveItemTypePredefined { get; set; }
 
+        public int ChangeType { get; set; }
+
         #endregion Additional Properties
     }
 
@@ -49,6 +53,8 @@ namespace Model.ArtifactModel.Impl
     {
         public List<NovaTrace> ManualTraces { get; } = new List<NovaTrace>();
         public List<NovaTrace> OtherTraces { get; } = new List<NovaTrace>();
+        public bool CanEdit { get; set; }
+        public int RevisionId { get; set; }
     }
 
     public class TracePathItem

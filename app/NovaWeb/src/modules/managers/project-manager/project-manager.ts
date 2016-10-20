@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {ILocalizationService, IMessageService, INavigationService, HttpStatusCode} from "../../core";
 import {IDialogService} from "../../shared";
 import {IStatefulArtifactFactory, IStatefulArtifact} from "../artifact-manager/artifact";
@@ -8,6 +8,7 @@ import {Models, Enums} from "../../main/models";
 import {IProjectService, ProjectServiceStatusCode} from "./project-service";
 import {IArtifactManager} from "../../managers";
 import {IMetaDataService} from "../artifact-manager/metadata";
+import {ILoadingOverlayService} from "../../core/loading-overlay";
 
 export interface IArtifactNode extends IDispose {
     artifact: IStatefulArtifact;
@@ -60,7 +61,8 @@ export class ProjectManager implements IProjectManager {
         "navigationService",
         "artifactManager",
         "metadataService",
-        "statefulArtifactFactory"
+        "statefulArtifactFactory",
+        "loadingOverlayService"
     ];
 
     constructor(private $q: ng.IQService,
@@ -71,7 +73,8 @@ export class ProjectManager implements IProjectManager {
                 private navigationService: INavigationService,
                 private artifactManager: IArtifactManager,
                 private metadataService: IMetaDataService,
-                private statefulArtifactFactory: IStatefulArtifactFactory) {
+                private statefulArtifactFactory: IStatefulArtifactFactory,
+                private loadingOverlayService: ILoadingOverlayService) {
 
         this.subscribers = [];
     }
@@ -80,6 +83,16 @@ export class ProjectManager implements IProjectManager {
         //Projects will null parentId have been removed from ArtifactManager
         if (artifact.parentId === null) {
             this.removeArtifact(artifact);
+        }
+    }
+
+    private onChangeInCurrentlySelectedArtifact(artifact: IStatefulArtifact) {
+        if (artifact.artifactState.deleted || artifact.artifactState.misplaced) {
+            const refreshOverlayId = this.loadingOverlayService.beginLoading();
+            this.refresh(this.getSelectedProject()).finally(() => {
+                this.triggerProjectCollectionRefresh();
+                this.loadingOverlayService.endLoading(refreshOverlayId);
+            });
         }
     }
 
@@ -107,6 +120,8 @@ export class ProjectManager implements IProjectManager {
         }
 
         this.subscribers.push(this.artifactManager.collectionChangeObservable.subscribeOnNext(this.onChangeInArtifactManagerCollection, this));
+        this.subscribers.push(this.artifactManager.selection.currentlySelectedArtifactObservable
+            .subscribeOnNext(this.onChangeInCurrentlySelectedArtifact, this));
     }
 
     public get projectCollection(): Rx.BehaviorSubject<Project[]> {

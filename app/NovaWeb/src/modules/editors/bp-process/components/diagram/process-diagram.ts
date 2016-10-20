@@ -1,4 +1,4 @@
-﻿import {ILocalizationService, IMessageService, Message, MessageType, INavigationService} from "../../../../core";
+import {ILocalizationService, IMessageService, Message, MessageType, INavigationService} from "../../../../core";
 import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
@@ -107,7 +107,7 @@ export class ProcessDiagram {
     }
 
     private navigateToAssociatedArtifact = (info: any) => {
-        this.navigationService.navigateToArtifact(info.id, info.enableTracking);
+        this.navigationService.navigateTo(info.id, false, info.enableTracking);
     }
 
     private recreateProcessGraph = (selectedNodeId: number = undefined) => {

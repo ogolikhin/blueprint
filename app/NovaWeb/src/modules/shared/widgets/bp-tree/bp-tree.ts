@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import * as Grid from "ag-grid/main";
 import {ILocalizationService} from "../../../core";
 import {RowNode} from "ag-grid/main";
@@ -286,32 +286,7 @@ export class BPTreeController implements IBPTreeController {
         if (params && params.lastRow && parseInt(params.lastRow, 10) >= 0) { // the grid contains at least one item
             this.hideOverlays();
         }
-
-        let viewport = this.$element[0].querySelector(".ag-body-viewport");
-        if (viewport && !angular.isUndefined((<any>window).PerfectScrollbar)) {
-            if (remove) {
-                (<any>window).PerfectScrollbar.destroy(viewport);
-            } else {
-                if (viewport.getAttribute("data-ps-id")) {
-                    // perfect-scrollbar has been initialized on the element (data-ps-id is not null/undefined/"" )
-                    let allColumnIds = [];
-                    this.options.columnDefs.forEach(function (columnDef) {
-                        allColumnIds.push(columnDef.field);
-                    });
-                    this.options.columnApi.autoSizeColumns(allColumnIds);
-                    (<any>window).PerfectScrollbar.update(viewport);
-                } else {
-                    (<any>window).PerfectScrollbar.initialize(viewport, {
-                        minScrollbarLength: 20,
-                        scrollXMarginOffset: 4,
-                        scrollYMarginOffset: 4
-                    });
-                }
-            }
-        }
     };
-    /* tslint:disable */
-
     private innerRenderer = (params: any) => {
         let inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? `bp-tree-inline-editing="` + params.colDef.field + `"` : "";
 

@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Net;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 
 namespace Helper
 {
@@ -11,6 +12,23 @@ namespace Helper
     public static class TestCaseSources
     {
         #region private variables
+
+        private static readonly List<ArtifactTypePredefined> _allArtifactTypesForNovaRestMethods = new List<ArtifactTypePredefined>
+        {
+            ArtifactTypePredefined.Actor,
+            ArtifactTypePredefined.BusinessProcess,
+            ArtifactTypePredefined.Document,
+            ArtifactTypePredefined.DomainDiagram,
+            ArtifactTypePredefined.GenericDiagram,
+            ArtifactTypePredefined.Glossary,
+            ArtifactTypePredefined.PrimitiveFolder,
+            ArtifactTypePredefined.Process,
+            ArtifactTypePredefined.Storyboard,
+            ArtifactTypePredefined.TextualRequirement,
+            ArtifactTypePredefined.UIMockup,
+            ArtifactTypePredefined.UseCase,
+            ArtifactTypePredefined.UseCaseDiagram
+        };
 
         private static readonly List<BaseArtifactType> _allArtifactTypesForOpenApiRestMethods = new List<BaseArtifactType>
         {
@@ -53,6 +71,9 @@ namespace Helper
         };
 
         #endregion private variables
+
+        /// <summary>Returns a list of all possible regular artifact types that can be used by the Nova REST methods.</summary>
+        public static IReadOnlyCollection<ArtifactTypePredefined> AllArtifactTypesForNovaRestMethods => _allArtifactTypesForNovaRestMethods.AsReadOnly();
 
         /// <summary>Returns a list of all possible artifact types that can be used by the OpenAPI REST methods.</summary>
         public static IReadOnlyCollection<BaseArtifactType> AllArtifactTypesForOpenApiRestMethods => _allArtifactTypesForOpenApiRestMethods.AsReadOnly();

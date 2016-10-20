@@ -6,12 +6,6 @@ export interface IModalScope extends ng.IScope {
     dialogModel: IModalDialogModel;
 }
 
-export enum ModalDialogType {
-    UserSystemTaskDetailsDialogType,
-    PreviewDialogType,
-    UserSystemDecisionDetailsDialogType
-}
-
 export class BaseModalDialogController<T extends IModalDialogModel> {
     protected resolve: { [key: string]: string | Function | Array<string | Function> | Object };
     protected modalInstance: ng.ui.bootstrap.IModalServiceInstance;

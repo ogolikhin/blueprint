@@ -1,4 +1,4 @@
-﻿using CustomAttributes;
+using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
@@ -103,7 +103,7 @@ namespace ArtifactStoreTests
 
         /// TODO: Refine this validation method to cover more trace details test cases
         /// <summary>
-        /// Validate traceDetails with properties from artifact 
+        /// Validate traceDetails with properties from artifact
         /// </summary>
         /// <param name="traceDetails">trace details to validate</param>
         /// <param name="artifact">artifact to compare with</param>
@@ -165,7 +165,7 @@ namespace ArtifactStoreTests
         public void GetRelationshipsDetails_ManualTraceWithRevisionId_ReturnsCorrectTraceDetails(TraceDirection direction)
         {
             // Setup: Create and Publish Two target artifacts: target artifact
-            // Create and publish artifact with outgoing trace to target artifact 
+            // Create and publish artifact with outgoing trace to target artifact
             var bpServerAddress = Helper.BlueprintServer.Address;
             var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Document);
@@ -217,7 +217,7 @@ namespace ArtifactStoreTests
         public void GetRelationshipsDetails_GetRelationshipsWithInvalidRevisionId_400BadRequest(TraceDirection direction)
         {
             // Setup: Create and Publish Two target artifacts: target artifact
-            // Create and publish artifact with outgoing trace to target artifact 
+            // Create and publish artifact with outgoing trace to target artifact
             var bpServerAddress = Helper.BlueprintServer.Address;
             var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Document);
@@ -268,7 +268,7 @@ namespace ArtifactStoreTests
         public void GetRelationshipsDetails_GetRelationshipsWithNonExistingRevisionId_404NotFound(TraceDirection direction, int nonExistingRevisionId)
         {
             // Setup: Create and Publish Two target artifacts: target artifact
-            // Create and publish artifact with outgoing trace to target artifact 
+            // Create and publish artifact with outgoing trace to target artifact
             var bpServerAddress = Helper.BlueprintServer.Address;
             var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Document);

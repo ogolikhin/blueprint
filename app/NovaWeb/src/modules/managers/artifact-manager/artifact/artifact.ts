@@ -52,7 +52,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     public initialize(artifact: Models.IArtifact): IState {
-        if (this.parentId && this.orderIndex && 
+        if (this.parentId && this.orderIndex &&
             (this.parentId !== artifact.parentId || this.orderIndex !== artifact.orderIndex)) {
             this.artifactState.misplaced = true;
         } else {
@@ -63,9 +63,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     public get artifactState(): IArtifactState {
-        return this.state; 
+        return this.state;
     }
- 
+
     public getObservable(): Rx.Observable<IStatefulArtifact> {
         if (!this.isFullArtifactLoadedOrLoading()) {
             this.loadPromise = this.load();
@@ -104,7 +104,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         super.discard();
         this.artifactState.dirty = false;
     }
-   
+
     private isNeedToLoad() {
         if (this.isProject()) {
             return false;
@@ -349,5 +349,5 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return deferred.promise;
     }
 
-   
+
 }

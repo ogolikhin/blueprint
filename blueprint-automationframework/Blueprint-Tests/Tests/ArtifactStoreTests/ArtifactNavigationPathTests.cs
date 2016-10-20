@@ -42,7 +42,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.PrimitiveFolder, 2)]
         [TestRail(183596)]
         [Description("Create & publish an artifact.  Verify get artifact navigation path call returns project information.")]
-        public void ArtifactNavigation_PublishedArtifact_ReturnsParentArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
+        public void ArtifactNavigation_PublishedArtifact_ReturnsProjectInfo(BaseArtifactType artifactType, int numberOfVersions)
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
@@ -61,7 +61,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.PrimitiveFolder)]
         [TestRail(183597)]
         [Description("Create & save an artifact.  Verify get artifact navigation path call returns project information.")]
-        public void ArtifactNavigation_SavedArtifact_ReturnsParentArtifactInfo_200OK(BaseArtifactType artifactType)
+        public void ArtifactNavigation_SavedArtifact_ReturnsProjectInfo(BaseArtifactType artifactType)
         {
             // Setup:
             var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
@@ -79,12 +79,12 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Actor, 2)]
         [TestRail(183598)]
         [Description("Create & publish an artifact and its child.  Verify get artifact navigation path call returns project parent and project information.")]
-        public void ArtifactNavigation_PublishedArtifactWithAChild_ReturnsParentArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
+        public void ArtifactNavigation_PublishedArtifactWithAChild_ReturnsParentArtifactAndProjectInfo(BaseArtifactType artifactType, int numberOfVersions)
         {
             // Setup:
             var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
             var childArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, parentArtifact, numberOfVersions: numberOfVersions);
-             
+
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
             // Execute:
@@ -98,14 +98,14 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(183599)]
         [Description("Verify get artifact navigation path call for project returns an empty list.")]
-        public void ArtifactNavigation_Project_ReturnsArtifactInfo_200OK()
+        public void ArtifactNavigation_Project_ReturnsEmptyList()
         {
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
             // Execute:
             Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, _project.Id),
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
-            
+
             // Verify:
             Assert.IsEmpty(basicArtifactInfoList, "Project should not have a parent information!");
         }
@@ -113,7 +113,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Actor, 2)]
         [TestRail(183607)]
         [Description("Create & publish an artifact within a folder. Verify get artifact navigation path call returns folder and project information")]
-        public void ArtifactNavigation_PublishedArtifactInAFolder_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
+        public void ArtifactNavigation_PublishedArtifactInAFolder_ReturnsFolderAndProjectInfo(BaseArtifactType artifactType, int numberOfVersions)
         {
             // Setup:
             var folder = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
@@ -133,7 +133,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process, 2)]
         [TestRail(183608)]
         [Description("Create & publish an artifact with subartifacts. Verify get artifact navigation path call for sub-artifact returns artifact and project information")]
-        public void ArtifactNavigation_PublishedArtifactWithSubArtifacts_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
+        public void ArtifactNavigation_SubArtifactIdOfPublishedArtifact_ReturnsArtifactAndProjectInfo(BaseArtifactType artifactType, int numberOfVersions)
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
@@ -145,7 +145,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, subArtifacts.First().Id),
-                                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+                                "'GET {0}' should return 200 OK when passed a valid sub-artifact ID!", SVC_PATH);
 
             // Verify:
             VerifyParentInformation(basicArtifactInfoList, subArtifacts.First().ParentId);
@@ -155,29 +155,41 @@ namespace ArtifactStoreTests
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(183630)]
         [Description("Create & publish a collection artifact. Verify get artifact navigation path call for collection returns Collections folder and project information.")]
-        public void ArtifactNavigation_Collection_ReturnsArtifactInfo_200OK(ItemTypePredefined artifactType)
+        public void ArtifactNavigation_Collection_ReturnsCollectionFolderAndProjectInfo(ItemTypePredefined artifactType)
         {
             // Setup:
             var collectionFolder = GetDefaultCollectionFolder(_project, _user);
 
             var collection = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address,
                 _user, artifactType, "Collection test", _project, collectionFolder.Id);
-            
+
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
-            // Execute:
-            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, collection.Id),
-                                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+            IArtifact fakeArtifact = null;
 
-            // Verify:
-            VerifyParentInformation(basicArtifactInfoList, collection.ParentId);
+            try
+            {
+                fakeArtifact = ArtifactFactory.CreateArtifact(
+                    _project, _user, BaseArtifactType.Actor, collection.Id);   // Don't use Helper because this isn't a real artifact, it's just wrapping the bad artifact ID.
+
+                // Execute:
+                Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, collection.Id),
+                                    "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+
+                // Verify:
+                VerifyParentInformation(basicArtifactInfoList, collection.ParentId);
+            }
+            finally
+            {
+                fakeArtifact.Discard(_user);
+            }
         }
 
         [Ignore(IgnoreReasons.UnderDevelopment)] //Artifacts for Baseline and Review need to be added to Custom Data project
         [TestCase(96384)]
         [TestRail(0)]
         [Description("Verify get artifact navigation path call for Baseline returns Baseline & Review folder and project information")]
-        public void ArtifactNavigation_Baseline_ReturnsArtifactInfo_200OK(int id)
+        public void ArtifactNavigation_Baseline_ReturnsCollectionFolderAndProjectInfo(int id)
         {
             // Setup:
             var basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, id);
@@ -197,7 +209,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Actor, 2)]
         [TestRail(183641)]
         [Description("Create & publish an artifact within a chain of 10 folders. Verify get artifact navigation path call for artifact in a chain of folders returns information about all ancestor folders and project.")]
-        public void ArtifactNavigation_PublishedArtifactInAChainOfFolders_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
+        public void ArtifactNavigation_PublishedArtifactInAChainOfFolders_ReturnsListOfFoldersAndProjectInfo(BaseArtifactType artifactType, int numberOfVersions)
         {
             // Setup:
             BaseArtifactType[] artifactTypeChain = { BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder,
@@ -227,7 +239,7 @@ namespace ArtifactStoreTests
 
         #region Negative tests
         //TODO 400 - The session token is missing or malformed
-        //TODO 401 - The session token is invalid.            
+        //TODO 401 - The session token is invalid.
         //TODO 403 - The user does not have permissions to view the artifact.
         //TODO 404 - An artifact for the specified id is not found, does not exist or is deleted
         #endregion Negative tests

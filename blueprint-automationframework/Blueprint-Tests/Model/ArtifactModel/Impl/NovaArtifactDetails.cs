@@ -1,4 +1,4 @@
-﻿using Model.ArtifactModel.Impl.PredefinedProperties;
+using Model.ArtifactModel.Impl.PredefinedProperties;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
@@ -126,7 +126,7 @@ namespace Model.ArtifactModel.Impl
         public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();
         public List<CustomProperty> SpecificPropertyValues { get; } = new List<CustomProperty>();
         public int? PredefinedType { get; set; }
-        
+
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]     // Ignore this warning for now.
         public List<NovaTrace> Traces { get; set; }
 

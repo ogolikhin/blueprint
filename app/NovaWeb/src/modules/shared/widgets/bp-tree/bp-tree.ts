@@ -51,6 +51,7 @@ export interface IBPTreeController {
     isEmpty: boolean;
     //to select a row in in ag-grid (by id)
     selectNode(id: number);
+    clearSelection();    
     nodeExists(id: number): boolean;
     getNodeData(id: number): Object;
     //to reload datasource with data passed, if id specified the data will be loaded to node's children collection
@@ -211,12 +212,27 @@ export class BPTreeController implements IBPTreeController {
 
     //to select a tree node in ag grid
     public selectNode(id: number) {
-        this.options.api.getModel().forEachNode(function (it) {
-            it.setSelected(it.data.id === id, true);
+        this.options.api.getModel().forEachNode((it: RowNode) => {
+            if (it.data.id === id) {
+                it.setSelected(true, true);
+                this.clearFocus();
+            }
         });
-        this.options.api.ensureNodeVisible((it: RowNode) => {
-            return it.data.id === id;
-        });
+        this.options.api.ensureNodeVisible((it: RowNode) => it.data.id === id);
+    }
+
+    public clearSelection() {
+        const selectedNodes = this.options.api.getSelectedNodes() as RowNode[];
+        if (selectedNodes && selectedNodes.length) {
+            selectedNodes.map(node => {
+                node.setSelected(false);
+            });
+            this.clearFocus();
+        }
+    }
+
+    private clearFocus() {
+        this.options.api.setFocusedCell(-1, this.gridColumns[0].field);
     }
 
     public nodeExists(id: number): boolean {
@@ -252,21 +268,17 @@ export class BPTreeController implements IBPTreeController {
         }
 
         if (nodeId) {
-            let node = this.getNode(nodeId, this._datasource);
+            const node = this.getNode(nodeId, this._datasource);
             if (node) {
-                node = angular.extend(node, {
-                    open: true,
-                    loaded: true,
-                    children: nodes
-                });
+                node.open = true;
+                node.loaded = true;
+                node.children = nodes;
             }
         } else {
             this._datasource = nodes;
         }
 
-        //HACk: have to clear cell selection
-        this.options.api.setFocusedCell(-1, this.gridColumns[0].field);
-
+        this.clearFocus();
         this.options.api.setRowData(this._datasource);
     }
 

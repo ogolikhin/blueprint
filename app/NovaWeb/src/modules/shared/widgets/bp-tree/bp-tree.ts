@@ -160,7 +160,6 @@ export class BPTreeController implements IBPTreeController {
         this.selectionSubject.dispose();
     };
 
-    /* tslint:disable */
     private mapData(data: any, propertyMap?: any): ITreeNode {
         propertyMap = propertyMap || this.propertyMap;
 
@@ -186,8 +185,6 @@ export class BPTreeController implements IBPTreeController {
 
         return item;
     }
-
-    /* tslint:enable */
 
     public get isEmpty(): boolean {
         return !Boolean(this._datasource && this._datasource.length);
@@ -283,6 +280,10 @@ export class BPTreeController implements IBPTreeController {
     };
 
     private updateViewport = (params?: any, remove?: boolean) => {
+        const viewport = this.$element[0].querySelector(".ag-body-viewport");
+        if (viewport) {
+            this.options.columnApi.autoSizeColumns(this.options.columnDefs.map(columnDef => columnDef.field ));
+        }
         if (params && params.lastRow && parseInt(params.lastRow, 10) >= 0) { // the grid contains at least one item
             this.hideOverlays();
         }

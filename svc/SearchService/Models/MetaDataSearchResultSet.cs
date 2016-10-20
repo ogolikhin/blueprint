@@ -2,7 +2,7 @@
 
 namespace SearchService.Models
 {
-    public class FullTextSearchMetaDataResult
+    public class MetaDataSearchResultSet
     {
         /// <summary>
         /// Total number of hits in the database
@@ -19,6 +19,6 @@ namespace SearchService.Models
         /// </summary>
         public int PageSize { get; set; }
 
-        public IEnumerable<FullTextSearchTypeItem> FullTextSearchTypeItems { get; set; }
+        public IEnumerable<MetaDataSearchResult> Items { get; set; }
     }
 }

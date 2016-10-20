@@ -6,7 +6,7 @@ export class BPTreeControllerMock implements IBPTreeController {
         return {
             id: id,
             name: `Artifact ${id}`,
-            itemTypeId: 1,
+            itemTypeId: 1
         } as ITreeNode;
 
     }
@@ -18,6 +18,11 @@ export class BPTreeControllerMock implements IBPTreeController {
     }
 
     public selectNode(id: number) {
+        return undefined;
+    }
+
+    public clearSelection() {
+        return undefined;
     }
 
     public nodeExists(id: number): boolean {
@@ -48,11 +53,14 @@ export class BPTreeControllerMock implements IBPTreeController {
     }
 
     public showLoading() {
+        return undefined;
     }
 
     public showNoRows() {
+        return undefined;
     }
 
     public hideOverlays() {
+        return undefined;
     }
 }

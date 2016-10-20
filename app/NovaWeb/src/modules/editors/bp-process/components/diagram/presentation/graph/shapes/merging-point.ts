@@ -20,9 +20,6 @@ export class MergingPoint extends DiagramNode<IProcessShape> {
         return this.MERGING_POINT_WIDTH;
     }
 
-    public addNode(graph: IProcessGraph): IDiagramNode {
-        return this;
-    }
 
     public deleteNode(graph: IProcessGraph) {
 //fixme: if this is empty delete it or have it undefined.

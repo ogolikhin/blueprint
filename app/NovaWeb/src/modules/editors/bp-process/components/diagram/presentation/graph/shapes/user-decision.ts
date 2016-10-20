@@ -1,216 +1,48 @@
-﻿import {IProcessShape} from "../../../../../models/process-models";
-import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
-import {IProcessGraph, IDiagramNode} from "../models/";
-import {IDecision} from "../models/";
-import {NodeType, NodeChange} from "../models/";
-import {IDialogParams} from "../../../../messages/message-dialog";
-import {DiagramNode} from "./diagram-node";
-import {NodeFactorySettings} from "./node-factory-settings";
-import {Button} from "../buttons/button";
-import {DeleteShapeButton} from "../buttons/delete-shape-button";
-import {Label, LabelStyle} from "../labels/label";
-import {ProcessEvents} from "../../../process-diagram-communication";
+﻿import { IProcessShape } from "../../../../../models/process-models";
+import { IDecision, NodeType } from "../models/";
+import { IDialogParams } from "../../../../messages/message-dialog";
+import { NodeFactorySettings } from "./node-factory-settings";
+import { Decision } from "./decision";
 
-export class UserDecision extends DiagramNode<IProcessShape> implements IDecision {
-    private LABEL_EDIT_MAXLENGTH = 32;
-    private LABEL_VIEW_MAXLENGTH = 28;
-    private USER_DECISION_WIDTH = 120;
-    private USER_DECISION_HEIGHT = 120;
-    private USER_DECISION_SHIFT = 33;
-    private BUTTON_SIZE = 16;
-    private DELETE_SHAPE_OFFSET = 3;
 
-    private detailsButton: Button;
-    private deleteShapeButton: Button;
+export class UserDecision extends Decision implements IDecision {
 
-    private rootScope: ng.IRootScopeService;
-
+    protected get DECISION_SHIFT(): number {
+        return 33;
+    }
+    protected get DEFAULT_FILL_COLOR(): string {
+        return "#FFFFFF";
+    }
+    protected get DEFAULT_BORDER_COLOR(): string {
+        return "#D4D5DA";
+    }
     constructor(
-        model: IProcessShape, 
-        rootScope: ng.IRootScopeService, 
-        private nodeFactorySettings: NodeFactorySettings = null
+        model: IProcessShape,
+        rootScope: ng.IRootScopeService,
+        nodeFactorySettings: NodeFactorySettings = null
     ) {
-        super(model, NodeType.UserDecision);
-
-        this.rootScope = rootScope;
-        this.initButtons(model.id.toString(), nodeFactorySettings);
+        super(model, NodeType.UserDecision, rootScope, nodeFactorySettings);
     }
 
-    private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
-        //Details button
-        this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("adddetails-neutral.svg"));
-
-        if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
-            this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.UserSystemDecisionDetailsDialogType));
-        } 
-
-        this.detailsButton.setHoverImage(this.getImageSource("adddetails-hover.svg"));
-        this.detailsButton.setDisabledImage(this.getImageSource("adddetails-mute.svg"));
-        this.detailsButton.setTooltip(this.rootScope["config"].labels["ST_Settings_Label"]);
-
-        //Delete process shape button
-        const clickAction = () => {
-                this.processDiagramManager.action(ProcessEvents.DeleteShape);
-        };
-
-        this.deleteShapeButton = new DeleteShapeButton(nodeId, this.BUTTON_SIZE, this.BUTTON_SIZE,
-            this.rootScope["config"].labels["ST_Shapes_Delete_Tooltip"], nodeFactorySettings, clickAction);
-    }
-
-    public setLabelWithRedrawUi(value: string) {
-        this.setModelName(value, true);
-    }
-
-    protected updateCellLabel(value: string) {
-        this.textLabel.text = value;
+    protected get menuTooltip(): string {
+        return "Add Task/Decision";
     }
 
     public getX(): number {
-        return this.getCenter().x + this.USER_DECISION_SHIFT;
+        return this.getCenter().x + this.DECISION_SHIFT;
     }
 
-    public getHeight(): number {
-        return this.USER_DECISION_HEIGHT;
+    protected get textLabelLeft(): number {
+        return this.DECISION_WIDTH / 2 + 24;
     }
 
-    public getWidth(): number {
-        return this.USER_DECISION_WIDTH;
-    }
-
-    public addNode(graph: IProcessGraph): IDiagramNode {
-        return this;
-    }
-
-    public deleteNode(graph: IProcessGraph) {
-        //fixme: no empty function blocks
-    }
-
-    public hideMenu(mxGraph: MxGraph) {
-        mxGraph.removeCellOverlays(this);
-    }
-
-    public showMenu(mxGraph: MxGraph) {
-        // #TODO change URL for svg
-        this.addOverlay(mxGraph,
-            this,
-            "/novaweb/static/bp-process/images/add-neutral.svg",
-            16,
-            16,
-            "Add Task/Decision",
-            mxConstants.ALIGN_CENTER,
-            mxConstants.ALIGN_BOTTOM,
-            0,
-            7,
-            "hand"
-        );
-    }
-
-    public renderLabels() {
-        this.textLabel.render();
-    }
-
-    public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
-        this.dialogManager = graph.viewModel.communicationManager.modalDialogManager;
-        this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;
-
-        const mxGraph = graph.getMxGraph();
-        let fillColor = "#FFFFFF";
-
-        if (this.model.id < 0) {
-            fillColor = justCreated ? this.newShapeColor : "#FBF8E7";
-        }
-
-        this.insertVertex(
-            mxGraph,
-            this.model.id.toString(),
-            null,
-            x - this.USER_DECISION_SHIFT,
-            y,
-            this.USER_DECISION_WIDTH,
-            this.USER_DECISION_HEIGHT,
-            "shape=rhombus;strokeColor=#D4D5DA;fillColor=" + fillColor +
-            ";fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=12;foldable=0;"
-        );
-
-        const textLabelStyle: LabelStyle = new LabelStyle(
-            "Open Sans",
-            12,
-            "transparent",
-            "#4C4C4C",
-            "bold",
-            y - 20,
-            x - this.USER_DECISION_WIDTH / 2 - 24,
-            44,
-            this.USER_DECISION_WIDTH - 20,
-            "#4C4C4C"
-        );
-
-        this.textLabel = new Label((value: string) => {
-                this.label = value;
-            },
-            graph.getHtmlElement(),
-            this.model.id.toString(),
-            "Label-B" + this.model.id.toString(),
-            this.label,
-            textLabelStyle,
-            this.LABEL_EDIT_MAXLENGTH,
-            this.LABEL_VIEW_MAXLENGTH,
-            graph.viewModel.isReadonly);
-
-        if (!graph.viewModel.isReadonly) {
-            this.showMenu(mxGraph);
-        }
-
-        this.deleteShapeButton.render(
-            mxGraph,
-            this,
-            this.USER_DECISION_WIDTH / 2 - this.BUTTON_SIZE / 2,
-            this.BUTTON_SIZE + this.DELETE_SHAPE_OFFSET,
-            "shape=ellipse;strokeColor=none;fillColor=none;selectable=0"
-        );
-
-        this.detailsButton.render(
-            mxGraph,
-            this,
-            this.USER_DECISION_WIDTH / 2 - this.BUTTON_SIZE / 2,
-            this.USER_DECISION_HEIGHT - this.BUTTON_SIZE - 10,
-            "shape=ellipse;strokeColor=none;fillColor=none;selectable=0"
-        );
-
-        // DO NOT DELETE!!! this is needed for the labels functionality
-        this.addOverlay(
-            mxGraph,
-            this.detailsButton,
-            null,
-            this.BUTTON_SIZE,
-            this.BUTTON_SIZE,
-            null,
-            mxConstants.ALIGN_LEFT,
-            mxConstants.ALIGN_TOP,
-            this.USER_DECISION_WIDTH / 2,
-            this.USER_DECISION_HEIGHT / 2
-        );
-
-        return this;
-    }
-
-
-    private openDialog(dialogType: ModalDialogType) {
-        this.dialogManager.openDialog(this.model.id, dialogType);
+    protected get textLabelWidth(): number {
+        return this.DECISION_WIDTH - 20;
     }
 
     public getDeleteDialogParameters(): IDialogParams {
         let dialogParams: IDialogParams = {};
         dialogParams.message = this.rootScope["config"].labels["ST_Confirm_Delete_User_Decision"];
         return dialogParams;
-    }
-
-    public canDelete(): boolean {
-        return true;
-    }
-
-    public getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape {
-        const id = graph.getDecisionBranchDestLinkForIndex(this.model.id, orderIndex).destinationId;
-        return graph.getShapeById(id);
     }
 }

@@ -272,10 +272,6 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         return this.model.propertyValues["clientType"].value === ProcessShapeType.PreconditionSystemTask;
     }
 
-    public addNode(graph: IProcessGraph): IDiagramNode {
-        return this;
-    }
-
     public deleteNode(graph: IProcessGraph) {
         //fixme: empty blocks should be removed
     }

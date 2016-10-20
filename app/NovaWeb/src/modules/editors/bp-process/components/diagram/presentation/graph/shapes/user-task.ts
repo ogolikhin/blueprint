@@ -267,10 +267,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         }
     }
 
-    public addNode(graph: IProcessGraph): IDiagramNode {
-        return this;
-    }
-
     public deleteNode(graph: IProcessGraph) {
         //fixme: empty blocks should be removed
     }

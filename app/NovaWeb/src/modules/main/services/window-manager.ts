@@ -1,4 +1,4 @@
-﻿import {IWindowResize} from "../../core";
+import {IWindowResize} from "../../core";
 
 export enum ResizeCause {
     unknown,

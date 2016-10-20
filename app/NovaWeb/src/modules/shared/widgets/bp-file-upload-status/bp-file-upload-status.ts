@@ -1,6 +1,6 @@
 import "angular";
 import {ILocalizationService, IFileUploadService, IFileResult} from "../../../core";
-import {IDialogSettings, BaseDialogController, IDialogService} from "../bp-dialog";
+import {IDialogSettings, BaseDialogController} from "../bp-dialog";
 import {FiletypeParser} from "../../../shared/utils/filetypeParser";
 
 export interface IBpFileUploadStatusController {
@@ -41,7 +41,6 @@ export class BpFileUploadStatusController extends BaseDialogController implement
         "fileUploadService",
         "$filter",
         "$uibModalInstance",
-        "dialogService",
         "dialogSettings",
         "dialogData"
     ];
@@ -54,7 +53,6 @@ export class BpFileUploadStatusController extends BaseDialogController implement
                 private fileUploadService: IFileUploadService,
                 private $filter: ng.IFilterService,
                 $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
-                private dialogService: IDialogService,
                 dialogSettings: IDialogSettings,
                 private dialogData: IUploadStatusDialogData) {
 

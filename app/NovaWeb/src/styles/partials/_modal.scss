@@ -164,6 +164,7 @@ $modal-open-project-height: 450px;
         .search-results {
             max-height: $artifact-picker-tree-height;
             box-sizing: content-box;
+            overflow: auto;
         }
 
         .search-result {

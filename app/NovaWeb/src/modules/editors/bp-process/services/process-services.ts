@@ -1,4 +1,4 @@
-﻿import {IProcessService} from "./process.svc";
+import {IProcessService} from "./process.svc";
 import {StatefulArtifactServices, IStatefulArtifactServices} from "../../../managers/artifact-manager/services";
 
 export interface IStatefulProcessArtifactServices extends IStatefulArtifactServices {
@@ -18,7 +18,8 @@ export class StatefulProcessArtifactServices extends StatefulArtifactServices im
             statefulArtifactServices.artifactService,
             statefulArtifactServices.attachmentService,
             statefulArtifactServices.relationshipsService,
-            statefulArtifactServices.metaDataService
+            statefulArtifactServices.metaDataService,
+            statefulArtifactServices.loadingOverlayService
         );
     }
 

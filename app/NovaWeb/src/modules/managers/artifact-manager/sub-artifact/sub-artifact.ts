@@ -1,5 +1,4 @@
 import {Models, Relationships} from "../../../main/models";
-// import { ArtifactState} from "../state";
 import {IStatefulArtifactServices} from "../services";
 import {IStatefulArtifact} from "../artifact";
 import {StatefulItem, IStatefulItem, IIStatefulItem} from "../item";
@@ -18,13 +17,10 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
     public isLoaded = false;
     private subject: Rx.BehaviorSubject<IStatefulSubArtifact>;
 
-    public deleted: boolean;
-
     constructor(private parentArtifact: IStatefulArtifact, private subArtifact: Models.ISubArtifact, services: IStatefulArtifactServices) {
         super(subArtifact, services);
         this.metadata = new MetaData(this);
         this.subject = new Rx.BehaviorSubject<IStatefulSubArtifact>(null);
-        // this.changesets = new ChangeSetCollector(this.artifact);
     }
 
     public get artifactState() {
@@ -37,7 +33,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
 
     protected load(): ng.IPromise<IStatefulSubArtifact> {
         const deferred = this.services.getDeferred<IStatefulSubArtifact>();
-        this.services.artifactService.getSubArtifact(this.parentArtifact.id, this.id).then((artifact: Models.ISubArtifact) => {
+        this.services.artifactService.getSubArtifact(this.parentArtifact.id, this.id, this.getEffectiveVersion()).then((artifact: Models.ISubArtifact) => {
             this.initialize(artifact);
             deferred.resolve(this);
         }).catch((err) => {
@@ -58,11 +54,8 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
             }).finally(() => {
                 this.loadPromise = null;
             });
-        } else {
-//            this.subject.onNext(this);
         }
         return this.subject.filter(it => !!it).asObservable();
-
     }
 
     public changes(): Models.ISubArtifact {
@@ -87,50 +80,24 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
         super.discard();
         this.artifactState.dirty = false;
 
-
-        // this.changesets.reset().forEach((it: IChangeSet) => {
-        //     this[it.key as string].value = it.value;
-        // });
-
         this.attachments.discard();
         this.docRefs.discard();
-
-        // deferred.resolve(this);
     }
 
     public lock(): ng.IPromise<IStatefulArtifact> {
         return this.parentArtifact.lock();
     }
 
-    public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {
-        const deferred = this.services.getDeferred();
-        this.services.attachmentService.getArtifactAttachments(this.parentArtifact.id, this.id, true)
-            .then((result: IArtifactAttachmentsResultSet) => {
-                this.attachments.initialize(result.attachments);
-                this.docRefs.initialize(result.documentReferences);
-
-                deferred.resolve(result);
-            }, (error) => {
-                if (error && error.statusCode === HttpStatusCode.NotFound) {
-                    this.deleted = true;
-                }
-                deferred.reject(error);
-            });
-        return deferred.promise;
+    public getEffectiveVersion(): number {
+        return this.parentArtifact.historical ? this.parentArtifact.version : undefined;
     }
 
-    public getRelationships(): ng.IPromise<Relationships.IArtifactRelationshipsResultSet> {
-        const deferred = this.services.getDeferred();
-        this.services.relationshipsService.getRelationships(this.parentArtifact.id, this.id)
-            .then((result: Relationships.IArtifactRelationshipsResultSet) => {
-                deferred.resolve(result);
-            }, (error) => {
-                if (error && error.statusCode === HttpStatusCode.NotFound) {
-                    this.deleted = true;
-                }
-                deferred.reject(error);
-            });
-        return deferred.promise;
+    protected getAttachmentsDocRefsInternal(): ng.IPromise<IArtifactAttachmentsResultSet> {
+        return this.services.attachmentService.getArtifactAttachments(this.parentArtifact.id, this.id, this.getEffectiveVersion());
+    }
+
+    protected getRelationshipsInternal() {
+        return this.services.relationshipsService.getRelationships(this.parentArtifact.id, this.id, this.getEffectiveVersion());
     }
 
 }

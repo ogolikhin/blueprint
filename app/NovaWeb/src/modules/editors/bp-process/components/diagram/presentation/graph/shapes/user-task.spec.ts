@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import { UserTask, SystemTask, SystemDecision } from "./";
 import { ShapesFactory } from "./shapes-factory";
 import { ProcessGraph } from "../process-graph";
@@ -245,95 +245,6 @@ describe("UserTask test", () => {
 
     describe("Test text elements", () => {
 
-        it("Test formatElementText - label overflow", () => {
-            // Arrange
-            const testUserTask = ShapeModelMock.instance().UserTaskMock();
-
-            const node = new UserTask(testUserTask, rootScope, null, shapesFactory);
-            const textInput = "0123456789,0123456789,0123456789,0123456789";
-            const expectedText = textInput.substr(0, LABEL_VIEW_MAXLENGTH) + " ...";
-            // Act
-            const actualText = node.formatElementText(node, textInput);
-
-            //Assert
-            expect(actualText).toEqual(expectedText);
-        });
-
-        it("Test formatElementText - persona overflow", () => {
-            // Arrange
-            const testUserTask = ShapeModelMock.instance().UserTaskMock();
-
-            const node = new UserTask(testUserTask, rootScope, null, shapesFactory);
-            const editNode = new DiagramNodeElement("H1", ElementType.UserTaskHeader, "", new mxGeometry(), "");
-
-            const textInput = "01234567890123456789";
-            const expectedText = textInput.substr(0, PERSONA_VIEW_MAXLENGTH) + " ...";
-            // Act
-            const actualText = node.formatElementText(editNode, textInput);
-
-            //Assert
-            expect(actualText).toEqual(expectedText);
-        });
-        it("Test getElementTextLength - label", () => {
-            // Arrange
-            const testUserTask = ShapeModelMock.instance().UserTaskMock();
-
-            const node = new UserTask(testUserTask, rootScope, null, shapesFactory);
-
-            // Act
-            const textLength = node.getElementTextLength(node);
-
-            //Assert
-            expect(textLength).toEqual(LABEL_EDIT_MAXLENGTH);
-        });
-
-        it("Test getElementTextLength - persona", () => {
-            // Arrange
-            const testUserTask = ShapeModelMock.instance().UserTaskMock();
-
-            const node = new UserTask(testUserTask, rootScope, null, shapesFactory);
-            const editNode = new DiagramNodeElement("H1", ElementType.UserTaskHeader, "", new mxGeometry(), "");
-
-            // Act
-            const textLength = node.getElementTextLength(editNode);
-
-            //Assert
-            expect(textLength).toEqual(PERSONA_EDIT_MAXLENGTH);
-        });
-
-        it("Test setElementText - label", () => {
-            // Arrange
-            const testUserTask = ShapeModelMock.instance().UserTaskMock();
-
-            const node = new UserTask(testUserTask, rootScope, null, shapesFactory);
-
-            const testLabelText = "test label";
-
-
-            // Act
-            node.setElementText(node, testLabelText);
-
-            //Assert
-            expect(node.label).toEqual(testLabelText);
-        });
-
-        it("Test setElementText - persona", () => {
-            // Arrange
-            const testUserTask = ShapeModelMock.instance().UserTaskMock();
-
-            const node = new UserTask(testUserTask, rootScope, null, shapesFactory);
-
-            const editNode = new DiagramNodeElement("H1", ElementType.UserTaskHeader, "", new mxGeometry(), "");
-
-            const testLabelText = "test label";
-
-            // Act
-            node.setElementText(editNode, testLabelText);
-
-            //Assert
-            expect(node.persona).toEqual(testLabelText);
-        });
-
         it("Test latest persona value reuse", () => {
             // Arrange
             const testUserTask = ShapeModelMock.instance().UserTaskMock();
@@ -498,7 +409,7 @@ describe("UserTask test", () => {
 
         it("when modifying persona - persona matches", () => {
 
-            // arrange             
+            // arrange
             spyOn(statefulArtifact, "refresh")();
             spyOn(statefulArtifact, "lock")();
 
@@ -514,7 +425,7 @@ describe("UserTask test", () => {
 
         it("when modifying persona - attempt lock is called", () => {
 
-            // arrange             
+            // arrange
             spyOn(statefulArtifact, "refresh")();
             const lockSpy = spyOn(statefulArtifact, "lock");
 
@@ -527,10 +438,10 @@ describe("UserTask test", () => {
             // assert
             expect(lockSpy).toHaveBeenCalled();
         });
-        
+
         it("when modifying persona - artifact state is dirty", () => {
 
-            // arrange             
+            // arrange
             spyOn(statefulArtifact, "refresh")();
             spyOn(statefulArtifact, "lock");
 

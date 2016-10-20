@@ -1,4 +1,6 @@
-import {IMessageService, ILocalizationService} from "../../../core";
+import {ILocalizationService} from "../../../core/localization";
+import {IMessageService, Message, MessageType} from "../../../core/messages";
+import {IItemInfoService, IItemInfoResult} from "../../../core/navigation/item-info.svc";
 import {IDialogService} from "../../../shared/";
 import {ISession} from "../../../shell/login/session.svc";
 import {IProcessService} from "../../../editors/bp-process/services/process.svc";
@@ -16,10 +18,11 @@ import {
     IStatefulProcessArtifactServices
 } from "../services";
 import {IArtifactService} from "./artifact.svc";
-
+import {ILoadingOverlayService} from "../../../core/loading-overlay";
 
 export interface IStatefulArtifactFactory {
     createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact;
+    createStatefulArtifactFromId(artifactId: number): ng.IPromise<IStatefulArtifact>;
     createStatefulSubArtifact(artifact: IStatefulArtifact, subArtifact: Models.ISubArtifact): IStatefulSubArtifact;
     createStatefulProcessSubArtifact(artifact: IStatefulArtifact, subArtifact: IProcessShape): StatefulProcessSubArtifact;
 }
@@ -36,7 +39,9 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         "artifactAttachments",
         "artifactRelationships",
         "metadataService",
-        "processService"
+        "processService",
+        "itemInfoService",
+        "loadingOverlayService"
     ];
 
     private services: IStatefulArtifactServices;
@@ -50,7 +55,9 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
                 private attachmentService: IArtifactAttachmentsService,
                 private relationshipsService: IArtifactRelationshipsService,
                 private metadataService: IMetaDataService,
-                private processService: IProcessService) {
+                private processService: IProcessService,
+                private itemInfoService: IItemInfoService,
+                private loadingOverlayService: ILoadingOverlayService) {
 
         this.services = new StatefulArtifactServices(
             this.$q,
@@ -61,12 +68,37 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
             this.artifactService,
             this.attachmentService,
             this.relationshipsService,
-            this.metadataService);
+            this.metadataService,
+            this.loadingOverlayService);
+    }
+
+    public createStatefulArtifactFromId(artifactId: number): ng.IPromise<IStatefulArtifact> {
+
+        return this.itemInfoService.get(artifactId).then((result: IItemInfoResult) => {
+            if (this.itemInfoService.isArtifact(result)) {
+                const artifact: Models.IArtifact = {
+                    id: result.id,
+                    projectId: result.projectId,
+                    name: result.name,
+                    parentId: result.parentId,
+                    predefinedType: result.predefinedType,
+                    prefix: result.prefix,
+                    version: result.version,
+                    orderIndex: result.orderIndex,
+                    lockedByUser: result.lockedByUser,
+                    lockedDateTime: result.lockedDateTime,
+                    permissions: result.permissions
+                };
+                return this.createStatefulArtifact(artifact);
+            }
+        });
     }
 
     public createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact {
-        if (artifact &&
-            artifact.predefinedType === Models.ItemTypePredefined.Process) {
+        if (!artifact) {
+            throw Error("Argument 'artifact' should not be null or undefined");
+        }
+        if (artifact.predefinedType === Models.ItemTypePredefined.Process) {
             return this.createStatefulProcessArtifact(artifact);
         }
         return new StatefulArtifact(artifact, this.services);

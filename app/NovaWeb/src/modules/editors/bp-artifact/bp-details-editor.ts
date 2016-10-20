@@ -1,4 +1,4 @@
-﻿import {Models, Enums} from "../../main";
+import {Models, Enums} from "../../main";
 
 import {
     BpArtifactEditor,
@@ -8,8 +8,6 @@ import {
     IWindowManager,
     PropertyContext
 } from "./bp-artifact-editor";
-
-import {IDialogService} from "../../shared";
 
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {
@@ -26,15 +24,13 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         "messageService",
         "artifactManager",
         "windowManager",
-        "localization",
-        "dialogService"
+        "localization"
     ];
 
     constructor(messageService: IMessageService,
                 artifactManager: IArtifactManager,
                 windowManager: IWindowManager,
-                localization: ILocalizationService,
-                private dialogService: IDialogService) {
+                localization: ILocalizationService) {
         super(messageService, artifactManager, windowManager, localization);
     }
 
@@ -62,6 +58,13 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         this.customFields = [];
         this.specificFields = [];
         this.richTextFields = [];
+    }
+
+    public hasFields(): boolean  {
+        return ((this.systemFields || []).length +
+               (this.customFields || []).length +
+               (this.richTextFields || []).length +
+               (this.specificFields || []).length) > 0;
     }
 
     protected onFieldUpdateFinished() {

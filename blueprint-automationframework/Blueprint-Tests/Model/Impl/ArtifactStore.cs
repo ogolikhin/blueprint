@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -581,6 +581,21 @@ namespace Model.Impl
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             return PublishArtifacts(Address, artifacts, user, all, expectedStatusCodes);
+        }
+
+        /// <seealso cref="IArtifactStore.GetNavigationPath(IUser, int, List{HttpStatusCode})"/>
+        public List<INovaVersionControlArtifactInfo> GetNavigationPath(IUser user, int itemId, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH, itemId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var artifactBaseInfo = restApi.SendRequestAndDeserializeObject<List<NovaVersionControlArtifactInfo>>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
+
+            return artifactBaseInfo.ConvertAll(o => (INovaVersionControlArtifactInfo)o);
         }
 
         #endregion Members inherited from IArtifactStore

@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
 import "rx/dist/rx.lite";
@@ -252,7 +252,7 @@ describe("Component BPPropertiesPanel", () => {
             expect(ctrl.richTextFields[0]).toBeTruthy();
         }));
 
-    it("should return correct property types for a selected sub-artifact",
+    xit("should return correct property types for a selected sub-artifact",
         inject(($q: ng.IQService,
                 $rootScope: ng.IRootScopeService,
                 statefulArtifactFactory: IStatefulArtifactFactory,
@@ -305,7 +305,7 @@ describe("Component BPPropertiesPanel", () => {
             expect(propertyContexts.filter(a => a.name === "Label_Width").length).toBe(1);
             expect(propertyContexts.filter(a => a.name === "Label_Height").length).toBe(1);
         }));
-    it("should contain populated model data for a selected sub-artifact",
+    xit("should contain populated model data for a selected sub-artifact",
         inject(($q: ng.IQService,
                 $rootScope: ng.IRootScopeService,
                 statefulArtifactFactory: IStatefulArtifactFactory,
@@ -383,7 +383,7 @@ describe("Component BPPropertiesPanel", () => {
             expect(model.height).toBe(height);
         }));
 
-    it("should not display properties for a selected process shape ",
+    xit("should not display properties for a selected process shape ",
         inject(($q: ng.IQService,
                 $rootScope: ng.IRootScopeService,
                 statefulArtifactFactory: IStatefulArtifactFactory,

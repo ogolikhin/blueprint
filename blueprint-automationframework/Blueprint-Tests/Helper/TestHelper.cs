@@ -5,6 +5,7 @@ using System.Linq;
 using Common;
 using Model;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
@@ -12,6 +13,7 @@ using Model.StorytellerModel;
 using NUnit.Framework;
 using Utilities;
 using Model.SearchServiceModel;
+using Utilities.Factories;
 
 namespace Helper
 {
@@ -256,6 +258,79 @@ namespace Helper
         }
 
         /// <summary>
+        /// Creates and saves a new artifact collection (wrapped inside an IArtifact object).
+        /// </summary>
+        /// <param name="project">The project where the collection should be created.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="parentId">(optional) The parent of this collection.
+        ///     By default it creates the collection in the project's default collection folder.</param>
+        /// <param name="orderIndex">(optional) The order index of this collection.
+        ///     By default the order index should be after the last collection/folder.</param>
+        /// <returns>The collection wrapped in an IArtifact.  NOTE: the base type is set to PrimitiveFolder
+        ///     because OpenAPI doesn't support collections.</returns>
+        public IArtifact CreateAndSaveCollection(IProject project, IUser user, int? parentId = null, double? orderIndex = null)
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            if (parentId == null)
+            {
+                var collectionFolder = project.GetDefaultCollectionFolder(ArtifactStore.Address, user);
+                parentId = collectionFolder.Id;
+            }
+
+            return CreateAndWrapNovaArtifact(project, user, ItemTypePredefined.ArtifactCollection, parentId, orderIndex, BaseArtifactType.PrimitiveFolder);
+        }
+
+        /// <summary>
+        /// Creates and saves a new artifact collection folder (wrapped inside an IArtifact object).
+        /// </summary>
+        /// <param name="project">The project where the collection folder should be created.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="parentId">(optional) The parent of this collection folder.
+        ///     By default it creates the collection folder in the project's default collection folder.</param>
+        /// <param name="orderIndex">(optional) The order index of this collection folder.
+        ///     By default the order index should be after the last collection/folder.</param>
+        /// <returns>The collection folder wrapped in an IArtifact.  NOTE: the base type is set to PrimitiveFolder
+        ///     because OpenAPI doesn't support collection folders.</returns>
+        public IArtifact CreateAndSaveCollectionFolder(IProject project, IUser user, int? parentId = null, double? orderIndex = null)
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            if (parentId == null)
+            {
+                var collectionFolder = project.GetDefaultCollectionFolder(ArtifactStore.Address, user);
+                parentId = collectionFolder.Id;
+            }
+
+            return CreateAndWrapNovaArtifact(project, user, ItemTypePredefined.CollectionFolder, parentId, orderIndex, BaseArtifactType.PrimitiveFolder);
+        }
+
+        /// <summary>
+        /// Creates and saves a new Nova artifact (wrapped inside an IArtifact object).
+        /// </summary>
+        /// <param name="project">The project where the Nova artifact should be created.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="itemType">The Nova base ItemType to create.</param>
+        /// <param name="parentId">(optional) The parent of this Nova artifact.</param>
+        /// <param name="orderIndex">(optional) The order index of this Nova artifact.
+        ///     By default the order index should be after the last artifact.</param>
+        /// <param name="baseType">(optional) The OpenAPI base artifact type for this artifact.
+        ///     By default the ItemTypePredefined is converted into its equivalent BaseArtifactType.</param>
+        /// <returns>The Nova artifact wrapped in an IArtifact.</returns>
+        private IArtifact CreateAndWrapNovaArtifact(IProject project, IUser user, ItemTypePredefined itemType,
+            int? parentId = null, double? orderIndex = null, BaseArtifactType? baseType = null)
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+
+            var collection = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user,
+                itemType, artifactName, project, parentId, orderIndex);
+
+            return WrapNovaArtifact(collection, project, user, baseType);
+        }
+
+        /// <summary>
         /// Create and save multiple artifacts using the Blueprint application server address from the TestConfiguration file.
         /// </summary>
         /// <param name="project">The target project.</param>
@@ -370,6 +445,40 @@ namespace Helper
             }
 
             return artifactChain;
+        }
+
+        /// <summary>
+        /// Wraps an INovaArtifactDetails in an IArtifact and adds it the list of artifacts that get disposed.
+        /// </summary>
+        /// <param name="novaArtifact">The INovaArtifactDetails that was created by ArtifactStore.</param>
+        /// <param name="project">The project where this artifact exists.</param>
+        /// <param name="user">The user that created this artifact.</param>
+        /// <param name="baseType">(optional) You can select a different BaseArtifactType here other than what's in the novaArtifact.
+        ///     Use this for artifact types that don't exist in the BaseArtifactType enum.</param>
+        /// <returns>The IArtifact wrapper for the novaArtifact.</returns>
+        public IArtifact WrapNovaArtifact(INovaArtifactDetails novaArtifact,
+            IProject project,
+            IUser user,
+            BaseArtifactType? baseType = null)
+        {
+            ThrowIf.ArgumentNull(novaArtifact, nameof(novaArtifact));
+
+            Assert.NotNull(novaArtifact.PredefinedType, "PredefinedType is null in the Nova Artifact!");
+
+            if (baseType == null)
+            {
+                baseType = ((ItemTypePredefined)novaArtifact.PredefinedType.Value).ToBaseArtifactType();
+            }
+
+            var artifact = ArtifactFactory.CreateArtifact(project,
+                user,
+                baseType.Value,
+                novaArtifact.Id);
+
+            artifact.IsSaved = true;
+            Artifacts.Add(artifact);
+
+            return artifact;
         }
 
         #endregion Artifact Management

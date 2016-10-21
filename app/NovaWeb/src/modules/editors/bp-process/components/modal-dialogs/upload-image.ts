@@ -51,10 +51,9 @@ export class UploadImageDirective implements ng.IDirective {
             this.createImage($scope, $element, attr);
         }
 
-        const uploadImageCntr = $element.find("#upload-image");
-
+        const uploadImageCntr = $element.find("input");
         $scope.uploadImage = () => {
-            const fileInput = uploadImageCntr;
+            const fileInput = uploadImageCntr[0];
             fileInput.click();
         };
 
@@ -100,7 +99,6 @@ export class UploadImageDirective implements ng.IDirective {
                 this.fileUploadService.uploadToFileStore(dataFile, expirationDate).then((result: IFileResult) => {
                     $scope.systemTaskModel.associatedImageUrl = result.uriToFile;
                     $scope.systemTaskModel.imageId = result.guid;
-                    $scope.systemTaskModel.model.propertyValues["imageId"].value = result.guid;
                     this.createImage($scope, $element, attr);
                 });
             }

@@ -1,11 +1,13 @@
 ﻿import {Message, MessageType, IMessage} from "./message";
 import {ISettingsService} from "../configuration";
+import {ILocalizationService} from "../../core";
 
 export interface IMessageService {
     addMessage(msg: Message): void;
     addError(text: string | Error | any): void;
     addWarning(text: string): void;
     addInfo(text: string): void;
+    addInfoWithPar(text: string, par: any[]): void;    
     deleteMessageById(id: number): void;
     messages: Array<IMessage>;
     dispose(): void;
@@ -15,9 +17,9 @@ export class MessageService implements IMessageService {
     private timers: { [id: number]: ng.IPromise<any>; } = {};
     private id: number = 0;
 
-    public static $inject = ["$timeout", "settings"];
+    public static $inject = ["$timeout", "settings", "localization"];
 
-    constructor(private $timeout: ng.ITimeoutService, private settings: ISettingsService) {
+    constructor(private $timeout: ng.ITimeoutService, private settings: ISettingsService, private localization: ILocalizationService) {
         this.initialize();
     }
 
@@ -115,6 +117,14 @@ export class MessageService implements IMessageService {
         }
 
         this.addMessage(new Message(MessageType.Info, msg));
+    }
+    public addInfoWithPar(msg: string, par: any[]): void {
+        msg = this.localization.get(msg);
+        for (let i: number = 0; i < par.length; i++) {
+            msg = msg.replace("{" + i + "}", par[i]);
+        }
+        
+        this.addInfo(msg);
     }
 
     public addMessage(msg: Message): void {

@@ -58,7 +58,7 @@ export interface IArtifactPickerController extends IArtifactPickerOptions {
     clearSearch(): void;
     search(): void;
     isSearching: boolean;
-    searchResults: SearchServiceModels.ISearchResult[];
+    searchResults: SearchServiceModels.IProjectSearchResult[];
     project: string;
     rootNode: InstanceItemNodeVM;
     columns: IColumn[];
@@ -75,7 +75,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public onSelectionChanged: (params: {selectedVMs: ArtifactPickerNodeVM<any>[]}) => void;
     public searchText: string = "";
     public isSearching: boolean = false;
-    public searchResults: SearchServiceModels.ISearchResult[];
+    public searchResults: SearchServiceModels.IProjectSearchResult[];
 
     static $inject = [
         "$scope",
@@ -125,7 +125,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         if (this.searchText) {
             this.isSearching = true;
             this.projectService.searchProjects({query: this.searchText}).then(result => {
-                this.searchResults = result.items;
+                this.searchResults = result;
                 this.isSearching = false;
             });
         }

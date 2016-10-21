@@ -28,27 +28,26 @@ namespace SearchService.Repositories
         /// Performs searching projects by name
         /// </summary>
         /// <param name="userId">User Id</param>
-        /// <param name="searchCriteria">SearchCriteria object</param>
+        /// <param name="searchText">Search Text</param>
         /// <param name="resultCount">Result Count</param>
         /// <param name="separatorString">Separator String</param>
         /// <returns></returns>
-        public async Task<ProjectSearchResultSet> SearchName(
-            int userId,
-            SearchCriteria searchCriteria, 
+        public async Task<IEnumerable<ProjectSearchResult>> GetProjectsByName(
+            int userId, 
+            string searchText, 
             int resultCount,
             string separatorString)
         {
-            var param = new DynamicParameters();
-            param.Add("@userId", userId);
-            param.Add("@projectName", searchCriteria.Query);
-            param.Add("@resultCount", resultCount);
-            param.Add("@separatorString", separatorString);
+            var searchPrms = new DynamicParameters();
+            searchPrms.Add("@userId", userId);
+            searchPrms.Add("@projectName", searchText);
+            searchPrms.Add("@resultCount", resultCount);
+            searchPrms.Add("@separatorString", separatorString);
 
-            var items = await ConnectionWrapper.QueryAsync<SearchResult>("GetProjectsByName", param, commandType: CommandType.StoredProcedure);
-            return new ProjectSearchResultSet
-            {
-                Items = items,
-            };
+            return (await ConnectionWrapper.QueryAsync<ProjectSearchResult>(
+                "GetProjectsByName", 
+                searchPrms, 
+                commandType: CommandType.StoredProcedure)).ToList();
         }
     }
 }

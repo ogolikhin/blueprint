@@ -1,6 +1,6 @@
 ﻿namespace SearchService.Models
 {
-    public class MetaDataSearchResult
+    public class FullTextSearchTypeItem
     {
         public int ItemTypeId { get; set; }
 

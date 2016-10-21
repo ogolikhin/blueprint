@@ -87,6 +87,9 @@ describe("Formly Text RTF", () => {
         getBody: () => {
             return tinymceBody;
         },
+        getContent: () => {
+            return tinymceBody;
+        },
         on: (eventName: string, callBack: Function) => {
             callBack.call(null);
         }

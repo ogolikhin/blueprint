@@ -22,7 +22,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     refresh(): ng.IPromise<IStatefulArtifact>;
 
     getObservable(): Rx.Observable<IStatefulArtifact>;
-    isCanBeSaved(): boolean;
+    canBeSaved(): boolean;
 }
 
 // TODO: explore the possibility of using an internal interface for services
@@ -31,7 +31,6 @@ export interface IIStatefulArtifact extends IIStatefulItem {
 
 export class StatefulArtifact extends StatefulItem implements IStatefulArtifact, IIStatefulArtifact {
     private state: IArtifactState;
-    public deleted: boolean;
 
     protected subject: Rx.BehaviorSubject<IStatefulArtifact>;
 
@@ -59,6 +58,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         } else {
             this.artifactState.initialize(artifact);
             super.initialize(artifact);
+        }
+        if (this.historical) {
+            this.artifactState.readonly = true;
         }
         return this.artifactState.get();
     }
@@ -106,7 +108,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         this.artifactState.dirty = false;
     }
     
-    public isCanBeSaved(): boolean {
+    public canBeSaved(): boolean {
         if (this.isProject()) {
             return false;
         } else if (this.artifactState.dirty && this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {

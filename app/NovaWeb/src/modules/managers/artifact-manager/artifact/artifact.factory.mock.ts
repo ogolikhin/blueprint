@@ -17,6 +17,10 @@ export class StatefulArtifactFactoryMock implements IStatefulArtifactFactoryMock
         return new StatefulArtifact(artifact, null);
     }
 
+    public createStatefulArtifactFromId(artifactId: number): ng.IPromise<IStatefulArtifact> {
+        return null;
+    }
+
     public createStatefulSubArtifact(artifact: IStatefulArtifact, subArtifact: Models.ISubArtifact): IStatefulSubArtifact {
         return new StatefulSubArtifact(artifact, subArtifact, null);
     }

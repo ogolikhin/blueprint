@@ -35,6 +35,8 @@ export class MessageServiceMock implements IMessageService {
         this.addMessage(new Message(MessageType.Info, msg));
     }
 
+    public addInfoWithPar(msg: string, par: any[]) {}
+
     public deleteMessageById(id: number) {
         let i = this.messages.length;
         while (i--) {

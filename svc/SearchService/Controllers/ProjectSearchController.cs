@@ -1,13 +1,12 @@
+using System.Net;
+using System.Threading.Tasks;
+using System.Web.Http;
 using SearchService.Models;
 using SearchService.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
-using System.Web.Http;
 
 namespace SearchService.Controllers
 {
@@ -48,8 +47,8 @@ namespace SearchService.Controllers
         /// <returns></returns>
         [HttpPost, NoCache, SessionRequired]
         [Route("name")]
-        public async Task<IEnumerable<ProjectSearchResult>> SearchName(
-            [FromBody] ProjectSearchCriteria searchCriteria, 
+        public async Task<ProjectSearchResultSet> SearchName(
+            [FromBody] SearchCriteria searchCriteria, 
             int? resultCount = DefaultResultCount,
             string separatorString = DefaultSeparator)
         {
@@ -80,9 +79,9 @@ namespace SearchService.Controllers
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
 
-            return await _projectSearchRepository.GetProjectsByName(
+            return await _projectSearchRepository.SearchName(
                 session.UserId, 
-                searchCriteria.Query, 
+                searchCriteria, 
                 resultCount.Value,
                 separatorString);
         }

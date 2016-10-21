@@ -45,7 +45,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
                 private defaultPersonaValue: string,
                 private nodeFactorySettings: NodeFactorySettings = null,
                 private shapesFactory: ShapesFactory) {
-        super(model, NodeType.SystemTask);
+        super(model);
 
         this.rootScope = rootScope;
 
@@ -270,14 +270,6 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         return this.model.propertyValues["clientType"].value === ProcessShapeType.PreconditionSystemTask;
     }
 
-    public addNode(graph: IProcessGraph): IDiagramNode {
-        return this;
-    }
-
-    public deleteNode(graph: IProcessGraph) {
-        //fixme: empty blocks should be removed
-    }
-
     public renderLabels() {
         this.textLabel.render();
         this.personaLabel.render();
@@ -446,4 +438,9 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             this.commentsButton.activate();
         }
     }
+    
+    public getNodeType() {
+        return NodeType.SystemTask;
+    }
+
 }

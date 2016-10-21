@@ -29,7 +29,7 @@ bp-properties-panel {
     }
 
     .formly {
-        //min-width: $property-width - $property-label-width;
+        min-width: 100%;
         margin: 0;
 
         .formly-field-bpFieldInheritFrom {
@@ -116,7 +116,7 @@ bp-properties-panel {
                 }
 
                 &.richtext {
-                    //min-width: $property-input-width;
+                    min-width: 100%;
                 }
             }
 
@@ -132,7 +132,7 @@ bp-properties-panel {
 
     .tab-pane {
         .formly {
-            //min-width: $property-input-width;
+            min-width: 100%;
         }
     }
 

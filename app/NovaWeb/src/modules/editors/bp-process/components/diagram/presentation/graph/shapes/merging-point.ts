@@ -9,7 +9,7 @@ export class MergingPoint extends DiagramNode<IProcessShape> {
     //private MERGING_POINT_HEIGHT = 16;
 
     constructor(model: IProcessShape) {
-        super(model, NodeType.MergingPoint);
+        super(model);
     }
 
     public getHeight(): number {
@@ -20,17 +20,14 @@ export class MergingPoint extends DiagramNode<IProcessShape> {
         return this.MERGING_POINT_WIDTH;
     }
 
-    public addNode(graph: IProcessGraph): IDiagramNode {
-        return this;
-    }
-
-    public deleteNode(graph: IProcessGraph) {
-//fixme: if this is empty delete it or have it undefined.
-    }
-
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
         this.insertVertex(graph.getMxGraph(), this.model.id.toString(), null, x, y, this.MERGING_POINT_WIDTH,
             this.MERGING_POINT_WIDTH, "shape=rhombus;strokeColor=#d4d5da;fillColor=#d4d5da;selectable=0;editable=0");
         return this;
     }
+
+    public getNodeType() {
+        return NodeType.MergingPoint;
+    }
+
 }

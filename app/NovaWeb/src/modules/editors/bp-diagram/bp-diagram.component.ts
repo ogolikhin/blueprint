@@ -75,7 +75,6 @@ export class BPDiagramController extends BpBaseEditor {
                 .filter(this.clearSelectionFilter)
                 .subscribeOnNext(this.clearSelection, this)
         );
-        this.$element.on("click", this.stopPropagation);
     }
 
     private clearSelectionFilter = (selection: ISelection) => {
@@ -93,8 +92,6 @@ export class BPDiagramController extends BpBaseEditor {
         }
 
         this.destroyDiagramView();
-
-        this.$element.off("click", this.stopPropagation);
     }
 
     private destroyDiagramView() {

@@ -43,42 +43,30 @@
         <br/>
 
         <div class="small-padding">
-            <!--<div>
-                <i class="fonticon-include-active"
-                    ng-class="{'available': dialogModel.clonedUserTask.associatedArtifact}"
-                    title="{{::$root.config.labels['ST_Include_Tab_Label']}}">
-                </i>
-                {{::$root.config.labels['ST_Include_Tab_Label']}}
-            </div>-->
             <div class="row">
                 <div class="col-sm-12">
                     <div class="nova-form-group nova-floating-label">
-                        <input type="text" cleartext
-                                name="include"
-                                ng-disabled="vm.isReadonly"
-                                ng-class='dialogModel.clonedUserTask.associatedArtifact ? "nova-form-control input-is-dirty" : "nova-form-control"'
-
-                                id="storyteller-include"
-                                autocomplete="off"
-                                ng-model='dialogModel.clonedUserTask.associatedArtifact'
-
-
-
-                                typeahead-template-url="includeTemplate.html">
-                        <div
-                            ng-show="vm.isIncludeResultsVisible && vm.isIncludeNoResults && userTaskForm.include.$invalid">
-                            {{::$root.config.labels['ST_Inline_Traces_Search_No_Matches_Found']}}
+                        <div ng-show="!vm.isIncludeResultsVisible">
+                            <button class="btn btn-default" type="button" ng-click="vm.openArtifactPicker()" ng-disabled="vm.isReadonly">
+                                <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Add_Include_Tab_Label']}}
+                            </button>
                         </div>
-                        <div
-                            ng-show="vm.isIncludeResultsVisible && vm.isIncludeBadRequest && userTaskForm.include.$invalid">
-                            {{::$root.config.labels['ST_Inline_Traces_Search_Bad_Request']}}
+                        <div ng-show="vm.isIncludeResultsVisible">
+                            <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Include_Tab_Label']}}
+                            <br />
+                            <label for="storyteller-include" class="nova-label">
+                                    {{vm.includeArtifactName}}
+                            </label>
+                            <button class="btn btn-default" type="button" ng-click="vm.cleanIncludeField()" ng-disabled="vm.isReadonly">
+                                <i class="fonticon-include-active fonticon-st-tabs"></i></button>
+                            <button class="btn btn-default" type="button" ng-click="vm.openArtifactPicker()" ng-disabled="vm.isReadonly">
+                                <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Browse_Include_Label']}}
+                            </button>
                         </div>
-                        <!--<label for="storyteller-include" class="nova-label"><i class="fonticon-include-active"></i>{{::$root.config.labels['ST_Include_Label']}}</label>-->
                     </div>
                 </div>
             </div>
         </div>
-
     </form>
 </div>
 

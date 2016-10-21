@@ -1,19 +1,19 @@
 <div class="filter-bar"
      ng-if="$ctrl.attachmentsList.length || $ctrl.docRefList.length">
 
-    <div class="bp-select">
+    <div class="bp-select" ng-class="{'disabled': $ctrl.item.artifactState.readonly}">
         <div uib-dropdown>
             <a href="#" uib-dropdown-toggle><span>{{::$ctrl.localization.get('App_UP_Attachments_Add_New')}}</span><b
                 class="caret"></b></a>
             <ul uib-dropdown-menu class="dropdown-menu">
-                <li ng-class="{'disabled': !$ctrl.item.artifactState.readonly}">
+                <li>
                     <label>
                         <input bp-file-upload="$ctrl.onFileSelect(files, callback)" type="file" multiple="1"
                                class="file-input">
                         {{::$ctrl.localization.get('App_UP_Attachments_Attachment') }}
                     </label>
                 </li>
-                <li ng-click="$ctrl.addDocRef()" ng-class="{'disabled': !$ctrl.item.artifactState.readonly}">
+                <li ng-click="$ctrl.addDocRef()">
                     <a href>{{::$ctrl.localization.get('App_UP_Attachments_Ref_Doc') }}</a>
                 </li>
             </ul>
@@ -93,7 +93,7 @@
 
         <p>{{::$ctrl.localization.get('App_UP_Attachments_Reference_Desc') }}</p>
         <label class="btn btn-secondary btn-small" ng-click="$ctrl.addDocRef()" ng-class="{'disabled': $ctrl.item.artifactState.readonly}">
-            {{ $ctrl.localization.get('App_UP_Attachments_Add_Ref_Doc') }}
+            {{::$ctrl.localization.get('App_UP_Attachments_Add_Ref_Doc') }}
         </label>
     </div>
 </div>

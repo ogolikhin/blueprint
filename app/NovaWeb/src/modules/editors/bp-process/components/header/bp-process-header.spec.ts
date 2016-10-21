@@ -18,6 +18,7 @@ import {
     ArtifactAttachmentsService,
     ArtifactRelationshipsService
 } from "../../../../managers/artifact-manager";
+import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {LoadingOverlayService} from "../../../../core/loading-overlay";
 import {BreadcrumbServiceMock} from "../../services/breadcrumb.svc.mock";
 import {SelectionManager} from "../../../../managers/selection-manager/selection-manager";
@@ -47,7 +48,7 @@ describe("BpProcessHeader", () => {
         $provide.service("breadcrumbService", BreadcrumbServiceMock);
         $provide.service("selectionManager", SelectionManager);
         $provide.service("metadataService", MetaDataService);
-        $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
         $provide.service("session", SessionSvcMock);
         $provide.service("artifactService", ArtifactService);
         $provide.service("artifactAttachments", ArtifactAttachmentsService);

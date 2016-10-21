@@ -9,8 +9,6 @@ import {
     PropertyContext
 } from "./bp-artifact-editor";
 
-import {IDialogService} from "../../shared";
-
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {
     public template: string = require("./bp-details-editor.html");
@@ -26,15 +24,13 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         "messageService",
         "artifactManager",
         "windowManager",
-        "localization",
-        "dialogService"
+        "localization"
     ];
 
     constructor(messageService: IMessageService,
                 artifactManager: IArtifactManager,
                 windowManager: IWindowManager,
-                localization: ILocalizationService,
-                private dialogService: IDialogService) {
+                localization: ILocalizationService) {
         super(messageService, artifactManager, windowManager, localization);
     }
 

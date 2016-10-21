@@ -34,6 +34,19 @@ pagecontent, bp-properties-panel {
             content: '';
             display: table;
         }
+
+        .collection-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+
+        /*.collection-breadcrumbs {
+            padding: 0px;
+            font-size: 12px;
+            border: none;
+            height: auto;
+        }*/
+    }
     }
 
     .page-body-wrapper {

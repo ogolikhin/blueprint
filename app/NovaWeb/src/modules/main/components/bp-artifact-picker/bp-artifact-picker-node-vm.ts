@@ -160,7 +160,7 @@ export class SubArtifactContainerNodeVM extends ArtifactPickerNodeVM<Models.IArt
 export class SubArtifactNodeVM extends ArtifactPickerNodeVM<Models.ISubArtifactNode> {
     constructor(private options: IArtifactPickerOptions, model: Models.ISubArtifactNode) {
         super(model, `${model.prefix}${model.id} ${model.displayName}`, String(model.id), model.hasChildren,
-            model.children ? model.children.map(child => new SubArtifactNodeVM(this.options, child)) : [], false);
+            model.children ? model.children.map(child => new SubArtifactNodeVM(options, child)) : [], false);
     }
 
     public getCellClass(): string[] {

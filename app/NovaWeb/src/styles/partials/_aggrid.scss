@@ -98,21 +98,21 @@ $has-children-padding-before-arrow: 3px;
                 }
             }
 
-            &.ag-row-focus,
-            &.ag-row-focus:hover {
-                .ag-cell:not(.not-selectable) {
-                    span > span,
-                    *::before {
-                        background-color: $tree-focus-background;
-                    }
+            // &.ag-row-focus,
+            // &.ag-row-focus:hover {
+            //     .ag-cell:not(.not-selectable) {
+            //         span > span,
+            //         *::before {
+            //             background-color: $tree-focus-background;
+            //         }
 
-                    .ag-group-contracted,
-                    .ag-group-expanded,
-                    .ag-group-value {
-                        border-color: $tree-focus-border;
-                    }
-                }
-            }
+            //         .ag-group-contracted,
+            //         .ag-group-expanded,
+            //         .ag-group-value {
+            //             border-color: $tree-focus-border;
+            //         }
+            //     }
+            // }
 
             &.ag-row-selected,
             &.ag-row-selected:hover {

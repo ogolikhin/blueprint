@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import {IArtifactManager, ArtifactManager} from "./artifact-manager";
 import {PublishService, IPublishService} from "./publish.svc";
-import {ISelectionManager,  ISelection,  SelectionSource} from "../selection-manager";
+import {ISelectionManager,  ISelection} from "../selection-manager";
 import {StatefulArtifactFactory} from "./artifact/artifact.factory";
 import {IStatefulItem} from "./item";
 import {
@@ -54,7 +54,6 @@ export {
     ArtifactManager,
     ISelectionManager,
     ISelection,
-    SelectionSource,
     StatefulArtifactFactory,
     ArtifactAttachmentsService,
     IArtifactAttachment,

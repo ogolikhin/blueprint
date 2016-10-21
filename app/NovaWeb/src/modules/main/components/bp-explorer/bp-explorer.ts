@@ -5,6 +5,7 @@ import {Helper, IBPTreeController} from "../../../shared";
 import {IProjectManager, IArtifactManager} from "../../../managers";
 import {Project} from "../../../managers/project-manager";
 import {IStatefulArtifact} from "../../../managers/artifact-manager";
+import {ISelectionManager} from "../../../managers/selection-manager";
 import {IArtifactNode} from "../../../managers/project-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 
@@ -21,11 +22,17 @@ export class ProjectExplorerController {
     private numberOfProjectsOnLastLoad: number;
     private selectedArtifactNameBeforeChange: string;
 
-    public static $inject: [string] = ["projectManager", "artifactManager", "navigationService"];
+    public static $inject: [string] = [
+        "projectManager", 
+        "artifactManager", 
+        "navigationService",
+        "selectionManager"
+    ];
 
     constructor(private projectManager: IProjectManager,
                 private artifactManager: IArtifactManager,
-                private navigationService: INavigationService) {
+                private navigationService: INavigationService,
+                private selectionManager: ISelectionManager) {
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -33,7 +40,8 @@ export class ProjectExplorerController {
         //use context reference as the last parameter on subscribe...
         this.subscribers = [
             //subscribe for project collection update
-            this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this)
+            this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
+            this.selectionManager.explorerArtifactObservable.filter(artifact => !!artifact).subscribeOnNext(this.setSelectedNode, this)
         ];
     }
 
@@ -45,6 +53,14 @@ export class ProjectExplorerController {
         });
         if (this.selectedArtifactSubscriber) {
             this.selectedArtifactSubscriber.dispose();
+        }
+    }
+
+    private setSelectedNode(artifact: IStatefulArtifact) {
+        if (this.tree.nodeExists(artifact.id)) {
+            this.tree.selectNode(artifact.id);
+        } else {
+            this.tree.clearSelection();
         }
     }
 

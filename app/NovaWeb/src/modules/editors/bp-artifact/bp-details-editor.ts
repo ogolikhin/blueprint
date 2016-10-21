@@ -1,5 +1,6 @@
-import {Models, Enums} from "../../main";
+﻿import {Models, Enums} from "../../main";
 import {IColumn, ITreeViewNodeVM} from "../../shared/widgets/bp-tree-view/";
+import {IDialogService} from "../../shared";
 
 import {
     BpArtifactEditor,

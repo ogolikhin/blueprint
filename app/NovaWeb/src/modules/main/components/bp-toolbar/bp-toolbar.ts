@@ -176,18 +176,9 @@ class BPToolbarController implements IBPToolbarController {
     }
 
     private saveAndPublishAll(data: Models.IPublishResultSet) {
-        let publishAllLoadingId = this.loadingOverlayService.beginLoading();
+        const publishAllLoadingId = this.loadingOverlayService.beginLoading();
         try {
-            //save unsaved artifacts
-            let artifactsToSave = [];
-            data.artifacts.forEach((artifact) => {
-                let foundArtifact = this.projectManager.getArtifact(artifact.id);
-                if (foundArtifact && foundArtifact.canBeSaved()) {
-                    artifactsToSave.push(foundArtifact.save());
-                }
-            });
-
-            this.$q.all(artifactsToSave).then(() => {
+            this.saveArtifactsAsNeeded(data.artifacts).then(() => {
                 //perform publish all
                 this.publishService.publishAll()
                 .then(() => {
@@ -196,14 +187,28 @@ class BPToolbarController implements IBPToolbarController {
                 .finally(() => {
                     this.loadingOverlayService.endLoading(publishAllLoadingId);
                 });
-            }).catch((err) => {
-                this.messageService.addError(err);
-                this.loadingOverlayService.endLoading(publishAllLoadingId);
             });
         } catch (err) {
             this.loadingOverlayService.endLoading(publishAllLoadingId);
             throw err;
         }
+    }
+
+    private saveArtifactsAsNeeded(artifactsToSave: Models.IArtifact[]): ng.IPromise<any> {
+        const saveArtifactsLoader = this.loadingOverlayService.beginLoading();
+        const savePromises = [];
+        artifactsToSave.forEach((artifact) => {
+            let foundArtifact = this.projectManager.getArtifact(artifact.id);
+            if (foundArtifact && foundArtifact.canBeSaved()) {
+                savePromises.push(foundArtifact.save());
+            }
+        });
+
+        return this.$q.all(savePromises).catch((err) => {
+            this.messageService.addError(err);
+        }).finally(() => {
+            this.loadingOverlayService.endLoading(saveArtifactsLoader);
+        });
     }
 
     showSubLevel(evt: any): void {

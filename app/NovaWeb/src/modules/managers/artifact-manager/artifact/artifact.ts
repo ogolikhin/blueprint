@@ -30,7 +30,6 @@ export interface IIStatefulArtifact extends IIStatefulItem {
 
 export class StatefulArtifact extends StatefulItem implements IStatefulArtifact, IIStatefulArtifact {
     private state: IArtifactState;
-    public deleted: boolean;
 
     protected subject: Rx.BehaviorSubject<IStatefulArtifact>;
 
@@ -58,6 +57,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         } else {
             this.artifactState.initialize(artifact);
             super.initialize(artifact);
+        }
+        if (this.historical) {
+            this.artifactState.readonly = true;
         }
         return this.artifactState.get();
     }

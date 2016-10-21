@@ -180,6 +180,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         } else {
             if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
                 this.refresh();
+                if (lock.info.versionId !== this.version) {
+                    //Show the refresh message only if the version has changed.
+                    this.services.messageService.addInfo("Artifact_Lock_Refresh");
+                }
             } else {
                 this.discard();
                 if (lock.result === Enums.LockResultEnum.DoesNotExist) {

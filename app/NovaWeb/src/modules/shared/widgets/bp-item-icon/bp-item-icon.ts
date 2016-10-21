@@ -29,7 +29,7 @@ export class BPItemTypeIconController implements IBPItemTypeIconController {
     private artifactTypeDescription: string;
 
     constructor() {
-        this.showBasicIcon = !angular.isUndefined(this.predefinedType) && angular.isNumber(this.predefinedType);
+        this.showBasicIcon = !_.isUndefined(this.predefinedType) && _.isNumber(this.predefinedType);
         this.artifactTypeDescription = Models.ItemTypePredefined[this.predefinedType] || "Document";
     }
 
@@ -53,6 +53,6 @@ export class BPItemTypeIconController implements IBPItemTypeIconController {
     }
 
     public getAltText() {
-        return Helper.fromCamelCase(this.artifactTypeDescription);
+        return _.startCase(this.artifactTypeDescription);
     }
 }

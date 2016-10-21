@@ -30,6 +30,7 @@ export class PropertyContext implements Models.IPropertyType {
     public fieldPropertyName: string;
     public modelPropertyName: string | number;
     public lookup: Enums.PropertyLookupEnum;
+    public isFresh?: boolean;
 
 
     constructor(type: Models.IPropertyType) {

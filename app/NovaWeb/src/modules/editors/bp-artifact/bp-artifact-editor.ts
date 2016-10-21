@@ -98,6 +98,10 @@ export class BpArtifactEditor extends BpBaseEditor {
 
                     });
 
+                } else {
+                    this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
+                        field.data["isFresh"] = true;
+                    });
                 }
                 this.model = this.editor.getModel();
 
@@ -117,7 +121,7 @@ export class BpArtifactEditor extends BpBaseEditor {
 
     public setArtifactEditorLabelsWidth(mainWindow?: IMainWindow) {
         // MUST match $property-width in styles/partials/_properties.scss plus various padding/margin
-        const minimumWidth: number = 392 + ((20 + 1 + 15 + 1 + 10) * 2);
+        const minimumWidth: number = 392 + ((20 + 1 + 15 + 1 + 10) * 2) + 20;
 
         let pageBodyWrapper = document.querySelector(".page-body-wrapper") as HTMLElement;
         if (pageBodyWrapper) {
@@ -155,6 +159,7 @@ export class BpArtifactEditor extends BpBaseEditor {
                         this.artifact[context.modelPropertyName] = value;
                         break;
                 }
+                context.isFresh = false;
 
                 if ($scope["form"]) {
                     this.artifact.artifactState.invalid = $scope["form"].$$parentForm.$invalid;

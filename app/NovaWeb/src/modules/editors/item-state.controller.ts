@@ -81,6 +81,7 @@ export class ItemStateController {
                 this.messageService.addError("This artifact type cannot be opened directly using the Go To feature.");
             }
         }).catch(error => {
+            this.navigationService.navigateToMain();
             this.messageService.addError("The artifact cannot be opened. It is no longer accessible by you.");
         });
     }

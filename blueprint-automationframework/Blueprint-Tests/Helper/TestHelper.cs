@@ -316,16 +316,20 @@ namespace Helper
         ///     By default the order index should be after the last artifact.</param>
         /// <param name="baseType">(optional) The OpenAPI base artifact type for this artifact.
         ///     By default the ItemTypePredefined is converted into its equivalent BaseArtifactType.</param>
+        /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
         /// <returns>The Nova artifact wrapped in an IArtifact.</returns>
-        private IArtifact CreateAndWrapNovaArtifact(IProject project, IUser user, ItemTypePredefined itemType,
-            int? parentId = null, double? orderIndex = null, BaseArtifactType? baseType = null)
+        public IArtifact CreateAndWrapNovaArtifact(IProject project, IUser user, ItemTypePredefined itemType,
+            int? parentId = null, double? orderIndex = null, BaseArtifactType? baseType = null, string name = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
-            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+            if (name == null)
+            {
+                name = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+            }
 
             var collection = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user,
-                itemType, artifactName, project, parentId, orderIndex);
+                itemType, name, project, parentId, orderIndex);
 
             return WrapNovaArtifact(collection, project, user, baseType);
         }

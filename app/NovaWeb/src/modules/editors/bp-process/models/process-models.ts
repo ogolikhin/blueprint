@@ -90,6 +90,16 @@ export interface IArtifactReference {
     link: string;
 }
 
+export class ArtifactReference implements IArtifactReference {
+    id: number;
+    projectId: number;
+    name: string;
+    typePrefix: string;
+    projectName: string;
+    baseItemTypePredefined: ItemTypePredefined;
+    link: string;
+}
+
 export interface IProcessLink {
     sourceId: number;
     destinationId: number;

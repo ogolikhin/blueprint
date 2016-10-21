@@ -19,4 +19,4 @@ angular.module("bp.editors", [
     ])
     .config(ArtifactRoutes);
 
-export {formlyConfig} from "./configuration/formly-config"
+export {formlyConfig} from "./configuration/formly-config";

@@ -38,8 +38,6 @@ export class ModalProcessViewModel implements IModalProcessViewModel {
     constructor(public processViewModel: IProcessViewModel) {
     }
 
-    //public processModel: IProcess;
-
     public get isUnpublished(): boolean {
         return this.processViewModel.isUnpublished;
     }
@@ -56,12 +54,9 @@ export class ModalProcessViewModel implements IModalProcessViewModel {
         return this.processViewModel.licenseType;
     }
 
-    //load(processId: string, versionId?: number, revisionId?: number, baselineId?: number, readOnly?: boolean): ng.IPromise<IProcess>;
-
-    //save(): ng.IPromise<IProcess>;
 
     public dispose() {
-//fixme: why does this exist if its empty?
+        //fixme: why does this exist if its empty?
     };
 
     public getNextNode(node: ISystemTaskShape): IProcessShape {

@@ -9,8 +9,8 @@ import {ProcessGraph} from "../diagram/presentation/graph/process-graph";
 import {ProcessGraphModel} from "../diagram/viewmodel/process-graph-model";
 import {ProcessViewModel} from "../diagram/viewmodel/process-viewmodel";
 import {SubArtifactEditorModalOpener} from "./sub-artifact-editor-modal-opener";
-import {SubArtifactEditorUserTaskModalController} from "./sub-artifact-editor-user-task-modal-controller";
-import {SubArtifactEditorSystemTaskModalController} from "./sub-artifact-editor-system-task-modal-controller";
+import {UserTaskModalController} from "./task-editor/user-task-modal-controller";
+import {SystemTaskModalController} from "./task-editor/system-task-modal-controller";
 import * as TestModels from "../../models/test-model-factory";
 import * as ProcessModels from "../../models/process-models";
 
@@ -145,9 +145,9 @@ describe("SubArtifactEditorModalOpener test", () => {
         // Assert
         expect(subArtifactEditorModalOpener.open).toHaveBeenCalledWith(
             "",
-            require("./sub-artifact-user-task-editor-modal-template.html"),
-            SubArtifactEditorUserTaskModalController,
-            subArtifactEditorModalOpener.getSubArtifactDialogModel(80, graph),
+            require("./task-editor/user-task-modal-template.html"),
+            UserTaskModalController,
+            subArtifactEditorModalOpener.getSubArtifactUserTaskDialogModel(80, graph),
             "storyteller-modal");
     });
 

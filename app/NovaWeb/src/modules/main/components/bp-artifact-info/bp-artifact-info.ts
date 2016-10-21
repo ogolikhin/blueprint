@@ -33,6 +33,7 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 
 export class BpArtifactInfoController {
     static $inject: [string] = [
+        "$q",
         "$scope",
         "$element",
         "artifactManager",
@@ -62,7 +63,8 @@ export class BpArtifactInfoController {
     public artifactTypeDescription: string;
     public toolbarActions: IBPAction[];
 
-    constructor(public $scope: ng.IScope,
+    constructor(private $q: ng.IQService,
+                public $scope: ng.IScope,
                 private $element: ng.IAugmentedJQuery,
                 protected artifactManager: IArtifactManager,
                 protected localization: ILocalizationService,
@@ -255,7 +257,7 @@ export class BpArtifactInfoController {
         this.toolbarActions.push(
             new BPButtonGroupAction(
                 new SaveAction(artifact, this.localization, this.messageService, this.loadingOverlayService),
-                new PublishAction(artifact, this.localization),
+                new PublishAction(this.$q, artifact, this.localization, this.messageService, this.loadingOverlayService, this.dialogService),
                 new DiscardAction(artifact, this.localization),
                 new RefreshAction(artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService),
                 new DeleteAction(artifact, this.localization, this.dialogService, deleteDialogSettings)

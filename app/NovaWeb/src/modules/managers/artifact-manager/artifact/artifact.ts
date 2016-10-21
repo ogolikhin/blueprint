@@ -18,7 +18,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     //load(force?: boolean): ng.IPromise<IStatefulArtifact>;
     save(): ng.IPromise<IStatefulArtifact>;
     autosave(): ng.IPromise<IStatefulArtifact>;
-    publish(): ng.IPromise<IStatefulArtifact>;
+    publish(dependentIds: number[]): ng.IPromise<IStatefulArtifact>;
     refresh(): ng.IPromise<IStatefulArtifact>;
 
     getObservable(): Rx.Observable<IStatefulArtifact>;
@@ -316,8 +316,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return deffered.promise;
     }
 
-    public publish(): ng.IPromise<IStatefulArtifact> {
+    public publish(dependentIds: number[]): ng.IPromise<IStatefulArtifact> {
         let deffered = this.services.getDeferred<IStatefulArtifact>();
+
+        let artifactsToPublish: number[] = [this.id];
+        this.services.publishService.publishArtifacts(artifactsToPublish);
+
         return deffered.promise;
     }
 

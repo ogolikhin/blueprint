@@ -1,1 +1,1 @@
-export { PublishService, IPublishService } from "./publish";
+export { PublishService, IPublishService } from "./publish.svc";

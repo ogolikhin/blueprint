@@ -3,7 +3,7 @@ import "angular-mocks";
 import {HttpStatusCode} from "../../../core/http";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import { Models, Enums } from "../../../main/models";
-import {PublishService, IPublishService} from "./publish";
+import {PublishService, IPublishService} from "./publish.svc";
 
 describe("Publish Service", () => {
 

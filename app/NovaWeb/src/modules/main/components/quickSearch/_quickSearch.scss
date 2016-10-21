@@ -1,5 +1,8 @@
 @import "./../../../../styles/modules/variables";
 
+$quick-search__results--input-panel-color: #EAEFF4;
+$quick-search__item--focus-color: #E8F6FB;
+
 .quick-serach__form {
     display: flex;
     flex-direction: column;
@@ -26,21 +29,37 @@
     }
 }
 
-
-.navbar .navbar-light{
-    background:$white;
+.navbar .navbar-light {
+    background: $white;
     border-bottom: 1px solid $gray;
 
-    .navbar-header{
-        background-color:transparent;
+    .navbar-header {
+        background-color: transparent;
     }
+}
+
+.quick-serach__input--full-width {
+    width: 100%;
 }
 
 .quick-serach__input {
     border: none;
     border-bottom: solid 1px $gray;
     background: transparent;
-    padding: .2em 1.2em .2em .2em;
+    padding: .2em .2em .2em 1.5em;
+
+    &::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+        color: $gray-dark !important;
+    }
+
+    &::-moz-placeholder { /* Firefox 19+ */
+        color: $gray-dark !important;
+    }
+
+    &:-ms-input-placeholder {
+        color: $gray-dark !important;
+    }
+
     &:focus {
         & + i {
             color: $brand-secondary;
@@ -58,9 +77,10 @@
 }
 
 .quick-serach__icon--fixed {
+    color: $gray-dark;
     position: absolute;
-    right: 0;
-
+    left: 0;
+    top: 6px
 }
 
 .block {
@@ -82,13 +102,24 @@
     border: none;
     border-right: 1px solid $gray;
     border-left: 1px solid $gray;
-    width:60%;
-    height:100%;
+    width: 60%;
+    height: 100%;
 
 }
 
-.quick-search__results--input-panel{
+.quick-search__results--input-panel {
+    position: relative;
+    background: $quick-search__results--input-panel-color;
+    padding: 1em 2em;
+    font-size:16px;
+    border-bottom: 1px solid $gray;
 
+    .close {
+        position: absolute;
+        top: 0;
+        right: .2em;
+    }
 }
 
-.quick-search__results{}
+.quick-search__results {
+}

@@ -5,13 +5,15 @@ export class QuickSearchController {
     animationsEnabled: boolean;
     modalSize: string;
     modalInstance: ng.ui.bootstrap.IModalServiceInstance;
-    form;
+    form: ng.IFormController;
+
     constructor(private $log: ng.ILogService,
                 private $uibModal: ng.ui.bootstrap.IModalService,
                 private quickSearchService) {
         this.animationsEnabled = false;
         this.modalSize = "full-screen";
     }
+
     openModal() {
         if (this.form.$invalid) {
             this.$log.warn("invalid search");

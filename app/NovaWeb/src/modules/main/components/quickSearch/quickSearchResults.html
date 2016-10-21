@@ -6,11 +6,26 @@
 <div class="quick-search__results--content">
     <div class="quick-search__results--content--center">
         <div class="quick-search__results--input-panel">
-            <input type="search" ng-model="$ctrl.searchTerm"/>
-            <button type="button" ng-click="$ctrl.closeModal()">X</button>
+            <form name="$ctrl.form"
+                  ng-submit="$ctrl.search($ctrl.searchTerm)"
+                  novalidate>
+                <div class="quick-serach__form-control">
+                    <input type="text"
+                           required
+                           ng-minlength="3"
+                           placeholder="Search open project"
+                           class="quick-serach__input quick-serach__input--full-width"
+                           name="searchTerm"
+                           ng-model="$ctrl.searchTerm">
+                    <i class="glyphicon glyphicon-search quick-serach__icon--fixed"></i>
+                </div>
+            </form>
+            <button type="button"
+                    class="close"
+                    ng-click="$ctrl.closeModal()">&times;</button>
         </div>
         <div class="quick-search__results">
-HERE WE CAN PUT RESULTS
+            HERE WE CAN PUT RESULTS
             {{$ctrl}}
         </div>
     </div>

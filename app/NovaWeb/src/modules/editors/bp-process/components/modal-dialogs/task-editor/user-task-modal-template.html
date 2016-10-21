@@ -1,6 +1,6 @@
 <script type="text/ng-template" id="includeTemplate.html">
     <a href="" tabindex="-1" ng-bind-html="match.label | highlight:query"
-       ng-attr-title="{{ match.model.projectName + '\u000A' + match.label}}"></a>
+       ng-attr-title="{{ match.projectName + '\u000A' + match.label}}"></a>
 </script>
 
 <div class="modal-header storyteller-modal-header">
@@ -17,24 +17,24 @@
     <form name="userTaskForm" novalidate>
         <div class="nova-form-group nova-floating-label">
             <input type="text"
-                    ng-class='dialogModel.clonedItem.persona ? "nova-form-control input-is-dirty" : "nova-form-control"'
-                    id="storyteller-user" ng-model='dialogModel.clonedItem.persona' ng-disabled="$ctrl.isReadonly"
+                    ng-class='dialogModel.persona ? "nova-form-control input-is-dirty" : "nova-form-control"'
+                    id="storyteller-user" ng-model='dialogModel.persona' ng-disabled="$ctrl.isReadonly"
                     autofocus maxlength="40" autocomplete="off">
             <label for="storyteller-user" class="nova-label"><i class="fonticon-bp-actor"></i>{{::$root.config.labels['ST_Persona_Label']}}</label>
             <span class="nova-helper-text">{{::$root.config.labels['ST_Persona_Helper_Text']}}</span>
         </div>
         <div class="nova-form-group nova-floating-label">
-            <input type="text" ng-blur="$ctrl.actionOnBlur()" ng-focus="$ctrl.actionOnFocus()"
-                    ng-class="dialogModel.clonedItem.action ? 'nova-form-control input-is-dirty' : 'nova-form-control'"
-                    id="storyteller-action" ng-model="dialogModel.clonedItem.action" ng-disabled="$ctrl.isReadonly"
+            <input type="text" ng-blur="$ctrl.nameOnBlur()" ng-focus="$ctrl.nameOnFocus()"
+                    ng-class="dialogModel.action ? 'nova-form-control input-is-dirty' : 'nova-form-control'"
+                    id="storyteller-action" ng-model="dialogModel.action" ng-disabled="$ctrl.isReadonly"
                     maxlength="140" autocomplete="off">
             <label for="storyteller-action" class="nova-label"><i class="fonticon-storyteller-title"></i>{{$ctrl.actionPlaceHolderText}}</label>
             <span class="nova-helper-text">{{::$root.config.labels['ST_User_Task_Name_Helper_Text']}}</span>
         </div>
         <div class="nova-form-group nova-floating-label">
             <input type="text"
-                    ng-class='dialogModel.clonedItem.objective ? "nova-form-control input-is-dirty" : "nova-form-control"'
-                    id="storyteller-purpose" ng-model='dialogModel.clonedItem.objective'
+                    ng-class='dialogModel.objective ? "nova-form-control input-is-dirty" : "nova-form-control"'
+                    id="storyteller-purpose" ng-model='dialogModel.objective'
                     ng-disabled="$ctrl.isReadonly" maxlength="140" autocomplete="off">
             <label for="storyteller-purpose" class="nova-label"><i class="fonticon-storyteller-objective-1"></i>{{::$root.config.labels['ST_Objective_Label']}}</label>
             <span class="nova-helper-text">{{::$root.config.labels['ST_Objective_Helper_Text']}}</span>

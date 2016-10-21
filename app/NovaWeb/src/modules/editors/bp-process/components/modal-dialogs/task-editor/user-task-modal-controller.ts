@@ -1,16 +1,14 @@
-import {IDiagramService} from "../../../../../editors/bp-diagram/diagram.svc";
 import {IDialogSettings, IDialogService} from "../../../../../shared";
-import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../../main/components/bp-artifact-picker";
-import {Models} from "../../../../../main/models";
 import {ILocalizationService} from "../../../../../core";
 import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-controller";
-import {SubArtifactUserTaskDialogModel} from "../models/sub-artifact-dialog-model";
+import {UserTaskDialogModel} from "./sub-artifact-dialog-model";
 import {IArtifactReference, ArtifactReference} from "../../../models/process-models";
-import {IModalProcessViewModel} from "../models/modal-process-view-model";
 import {ICommunicationManager} from "../../../services/communication-manager";
 import {TaskModalController} from "./task-modal-controller";
 
-export class UserTaskModalController extends TaskModalController<SubArtifactUserTaskDialogModel> {
+export class UserTaskModalController extends TaskModalController<UserTaskDialogModel> {
+    actionPlaceHolderText: string;
+
     public static $inject = [
         "$scope",
         "communicationManager",
@@ -33,48 +31,41 @@ export class UserTaskModalController extends TaskModalController<SubArtifactUser
                 localization: ILocalizationService  ) {
 
         super($scope, communicationManager, $rootScope, $q, $timeout, $sce, dialogService, localization);
-
-        this.actionOnBlur();
     }
 
-    protected  getAssociatedArtifact(): IArtifactReference {
-        return this.dialogModel.clonedItem.associatedArtifact;
-    }
-
-    protected setAssociatedArtifact(value: IArtifactReference) {
-        this.dialogModel.clonedItem.associatedArtifact = value;
-    }
-
-    public actionOnFocus = () => {
+    //public methods
+    nameOnFocus() {
         this.actionPlaceHolderText = this.localization.get("ST_User_Task_Name_Label");
     }
 
-    public actionOnBlur = () => {
-        if (this.dialogModel.clonedItem) {
-            if (this.dialogModel.clonedItem.action) {
-                this.actionOnFocus();
+    nameOnBlur() {
+        if (this.dialogModel.action) {
+                this.nameOnFocus();
             } else {
-                this.actionPlaceHolderText = this.localization.get("ST_User_Task_Name_Label") + " " + this.dialogModel.clonedItem.label;
+                this.actionPlaceHolderText = this.localization.get("ST_User_Task_Name_Label") + " " + this.dialogModel.label;
             }
-        }
+    }
+
+    getActiveHeader(): string {
+        return this.dialogModel.label;
+    }
+
+    //protected methods
+    protected  getAssociatedArtifact(): IArtifactReference {
+        return this.dialogModel.associatedArtifact;
+    }
+
+    protected setAssociatedArtifact(value: IArtifactReference) {
+        this.dialogModel.associatedArtifact = value;
     }
 
     protected populateTaskChanges() {
 
-        if (this.dialogModel.originalItem && this.dialogModel.clonedItem) {
-            this.dialogModel.originalItem.persona = this.dialogModel.clonedItem.persona;
-            this.dialogModel.originalItem.action = this.dialogModel.clonedItem.action;            
-            this.dialogModel.originalItem.objective = this.dialogModel.clonedItem.objective;            
-            this.dialogModel.originalItem.associatedArtifact = this.dialogModel.clonedItem.associatedArtifact;
+        if (this.dialogModel.originalItem && this.dialogModel) {
+            this.dialogModel.originalItem.persona = this.dialogModel.persona;
+            this.dialogModel.originalItem.action = this.dialogModel.action;            
+            this.dialogModel.originalItem.objective = this.dialogModel.objective;            
+            this.dialogModel.originalItem.associatedArtifact = this.dialogModel.associatedArtifact;
         }
-    }
-
-    public getActiveHeader(): string {
-
-        if (this.dialogModel.isUserTask) {
-            return this.dialogModel.clonedItem.label;
-        }
-
-        return null;
-    }
+    }    
 }

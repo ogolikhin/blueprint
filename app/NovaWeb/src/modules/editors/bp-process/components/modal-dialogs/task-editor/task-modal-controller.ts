@@ -4,33 +4,40 @@ import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../.
 import {Models} from "../../../../../main/models";
 import {ILocalizationService} from "../../../../../core";
 import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-controller";
-import {SubArtifactUserTaskDialogModel} from "../models/sub-artifact-dialog-model";
 import {IArtifactReference, ArtifactReference} from "../../../models/process-models";
 import {IModalProcessViewModel} from "../models/modal-process-view-model";
 import {ICommunicationManager} from "../../../services/communication-manager";
 import {IModalDialogModel} from "../models/modal-dialog-model-interface";
 
 export abstract class TaskModalController<T extends IModalDialogModel> extends BaseModalDialogController<T> {
-    public getLinkableProcesses: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
-    public getLinkableArtifacts: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
-    public isProjectOnlySearch: boolean = true;
-    public isLoadingIncludes: boolean = false;
-    public includeArtifactName: string;
-    public isReadonly: boolean = false;
+    
+    //public members
+    getLinkableProcesses: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
+    getLinkableArtifacts: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
+    isProjectOnlySearch: boolean = true;
+    isLoadingIncludes: boolean = false;
+    includeArtifactName: string;
+    isReadonly: boolean = false;
+    isIncludeResultsVisible: boolean;
 
-    protected actionPlaceHolderText: string;
+    //protected members
     protected modalProcessViewModel: IModalProcessViewModel;
-
-    private isIncludeResultsVisible: boolean;    
     private isSMB: boolean = false;    
     private searchIncludesDelay: ng.IPromise<any>;
+    
+    //abstract members --> public
+    abstract nameOnFocus();
+    abstract nameOnBlur();
+    abstract getActiveHeader(): string;
+
+    //protected members --> protected
+    protected abstract getAssociatedArtifact(): IArtifactReference;
+    protected abstract setAssociatedArtifact(value: IArtifactReference);
+    protected abstract populateTaskChanges();
 
     public static $inject = [
         "$scope",
-        
-        
         "communicationManager",
-        //"artifactSearchService",
         "$rootScope",
         "$q",
         "$timeout",
@@ -62,33 +69,27 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
             this.isSMB = true;
         }
 
+        this.nameOnBlur();
+
         if (this.getAssociatedArtifact()) {
             this.prepIncludeField();
         }
 
         this.communicationManager.modalDialogManager.setModalProcessViewModel(this.setModalProcessViewModel);
-    }
+    }    
 
-    public abstract getActiveHeader(): string;
-
-    protected abstract getAssociatedArtifact(): IArtifactReference;
-    protected abstract setAssociatedArtifact(value: IArtifactReference);
-
-    protected setModalProcessViewModel = (modalProcessViewModel) => {
-        this.modalProcessViewModel = modalProcessViewModel;
-    }
-
-    public prepIncludeField(): void {
+    //public methods
+    prepIncludeField(): void {
         this.isIncludeResultsVisible = true;
         this.includeArtifactName = this.formatIncludeLabel(this.getAssociatedArtifact());
     }
 
-    public cleanIncludeField(): void {
+    cleanIncludeField(): void {
         this.isIncludeResultsVisible = false;
         this.setAssociatedArtifact(null);
     }
 
-    public formatIncludeLabel(model) {
+    formatIncludeLabel(model) {
         if (!model) {
             return "";
         }
@@ -103,11 +104,11 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         return msg;
     }
 
-    public sortById(p1: IArtifactReference, p2: IArtifactReference) {
+    sortById(p1: IArtifactReference, p2: IArtifactReference) {
         return p1.id - p2.id;
     }
 
-    public filterByDisplayLabel(process: IArtifactReference, viewValue: string): boolean {
+    filterByDisplayLabel(process: IArtifactReference, viewValue: string): boolean {
         //exlude current process
         if (process.id === this.modalProcessViewModel.processViewModel.id) {
             return false;
@@ -125,32 +126,14 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         return false;
     }    
 
-    public saveData() {
+    saveData() {
         if (this.getAssociatedArtifact() === undefined) {
             this.setAssociatedArtifact(null);
         }
         this.populateTaskChanges();
     }
 
-    protected abstract populateTaskChanges();
-
-    private refreshView() {
-        let element: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
-
-        // temporary solution from: http://stackoverflow.com/questions/8840580/force-dom-redraw-refresh-on-chrome-mac
-        if (!element) {
-            return;
-        }
-
-        let node = document.createTextNode(" ");
-        element.appendChild(node);
-//fixme: use the $timeout services not setTimeout
-        setTimeout(function () {
-            node.parentNode.removeChild(node);
-        }, 20);
-    }
-
-    public openArtifactPicker() {
+    openArtifactPicker() {
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get("App_Button_Open"),
             template: require("../../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
@@ -174,5 +157,27 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
                 this.prepIncludeField();
             }
         });
+    }
+
+    //protected methods
+    protected setModalProcessViewModel = (modalProcessViewModel) => {
+        this.modalProcessViewModel = modalProcessViewModel;
+    }
+
+    //private methods
+    private refreshView() {
+        let element: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
+
+        // temporary solution from: http://stackoverflow.com/questions/8840580/force-dom-redraw-refresh-on-chrome-mac
+        if (!element) {
+            return;
+        }
+
+        let node = document.createTextNode(" ");
+        element.appendChild(node);
+        //fixme: use the $timeout services not setTimeout
+        setTimeout(function () {
+            node.parentNode.removeChild(node);
+        }, 20);
     }
 }

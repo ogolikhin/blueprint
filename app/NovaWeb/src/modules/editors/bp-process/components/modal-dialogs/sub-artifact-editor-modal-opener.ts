@@ -1,7 +1,7 @@
 import {IModalDialogCommunication} from "../modal-dialogs/modal-dialog-communication";
 import {Condition} from "../diagram/presentation/graph/shapes/condition";
 import {ModalDialogType} from "./modal-dialog-constants";
-import {SubArtifactUserTaskDialogModel, SubArtifactSystemTaskDialogModel} from "./models/sub-artifact-dialog-model";
+//import {SubArtifactUserTaskDialogModel, SubArtifactSystemTaskDialogModel} from "./models/sub-artifact-dialog-model";
 import {UserStoryDialogModel} from "./models/user-story-dialog-model";
 import {DecisionEditorModel} from "./decision-editor/decision-editor-model";
 import {
@@ -18,7 +18,7 @@ import {UserTaskModalController} from "./task-editor/user-task-modal-controller"
 import {SystemTaskModalController} from "./task-editor/system-task-modal-controller";
 import {UserStoryPreviewController} from "./user-story-preview/user-story-preview";
 import {ModalProcessViewModel} from "./models/modal-process-view-model";
-import {UserTaskModalModel, SystemTaskModalModel} from "./models/sub-artifact-dialog-model";
+import {UserTaskDialogModel, SystemTaskDialogModel} from "./task-editor/sub-artifact-dialog-model";
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
 import {ILocalizationService} from "../../../../core";
 
@@ -90,16 +90,14 @@ export class SubArtifactEditorModalOpener {
         }
     };
 
-    public getSubArtifactUserTaskDialogModel(shapeId: number, graph: IProcessGraph): SubArtifactUserTaskDialogModel {
+    public getSubArtifactUserTaskDialogModel(shapeId: number, graph: IProcessGraph): UserTaskDialogModel {
         
-        const taskDialogModel = new SubArtifactUserTaskDialogModel();
+        const taskDialogModel = new UserTaskDialogModel();
         taskDialogModel.subArtifactId = shapeId;
 
         const node = graph.getNodeById(taskDialogModel.subArtifactId.toString());
         let userTaskNode: UserTask;
 
-        taskDialogModel.isUserTask = true;
-        taskDialogModel.isSystemTask = false;
         // set dialog model isReadonly property to enable/disable input controls
         taskDialogModel.isReadonly = this.isReadonly;
         taskDialogModel.isHistoricalVersion = this.isHistorical;        
@@ -107,13 +105,12 @@ export class SubArtifactEditorModalOpener {
         if (node.getNodeType() === NodeType.UserTask) {
             userTaskNode = <UserTask>node;
             if (userTaskNode) { // When the node selected is the "pre-condition",the user taskNode is null, since it is the start node
-                taskDialogModel.originalItem = userTaskNode;
-                taskDialogModel.clonedItem = new UserTaskModalModel();
-                taskDialogModel.clonedItem.action = taskDialogModel.originalItem.action;
-                taskDialogModel.clonedItem.associatedArtifact = taskDialogModel.originalItem.associatedArtifact;
-                taskDialogModel.clonedItem.objective = taskDialogModel.originalItem.objective;
-                taskDialogModel.clonedItem.label = taskDialogModel.originalItem.label;
-                taskDialogModel.clonedItem.persona = taskDialogModel.originalItem.persona;
+                taskDialogModel.originalItem = userTaskNode;                
+                taskDialogModel.action = taskDialogModel.originalItem.action;
+                taskDialogModel.associatedArtifact = taskDialogModel.originalItem.associatedArtifact;
+                taskDialogModel.objective = taskDialogModel.originalItem.objective;
+                taskDialogModel.label = taskDialogModel.originalItem.label;
+                taskDialogModel.persona = taskDialogModel.originalItem.persona;
             }            
         } else {
             return null;
@@ -122,11 +119,9 @@ export class SubArtifactEditorModalOpener {
         return taskDialogModel;
     }
 
-    public getSubArtifactSystemTaskDialogModel(shapeId: number, graph: IProcessGraph): SubArtifactSystemTaskDialogModel {
-        const taskDialogModel = new SubArtifactSystemTaskDialogModel();
+    public getSubArtifactSystemTaskDialogModel(shapeId: number, graph: IProcessGraph): SystemTaskDialogModel {
+        const taskDialogModel = new SystemTaskDialogModel();
         taskDialogModel.subArtifactId = shapeId;
-        taskDialogModel.isUserTask = false;
-        taskDialogModel.isSystemTask = true;
         // set dialog model isReadonly property to enable/disable input controls
         taskDialogModel.isReadonly = this.isReadonly;
         taskDialogModel.isHistoricalVersion = this.isHistorical;
@@ -139,13 +134,12 @@ export class SubArtifactEditorModalOpener {
             systemTaskNode = <SystemTask>node;
             if (systemTaskNode) { // When the node selected is the "pre-condition",the user taskNode is null, since it is the start node
                 taskDialogModel.originalItem = systemTaskNode;
-                taskDialogModel.clonedItem = new SystemTaskModalModel();
-                taskDialogModel.clonedItem.action = taskDialogModel.originalItem.action;
-                taskDialogModel.clonedItem.associatedArtifact = taskDialogModel.originalItem.associatedArtifact;
-                taskDialogModel.clonedItem.imageId = taskDialogModel.originalItem.imageId;
-                taskDialogModel.clonedItem.label = taskDialogModel.originalItem.label;
-                taskDialogModel.clonedItem.persona = taskDialogModel.originalItem.persona;
-                taskDialogModel.clonedItem.associatedImageUrl = taskDialogModel.originalItem.associatedImageUrl;
+                taskDialogModel.action = taskDialogModel.originalItem.action;
+                taskDialogModel.associatedArtifact = taskDialogModel.originalItem.associatedArtifact;
+                taskDialogModel.imageId = taskDialogModel.originalItem.imageId;
+                taskDialogModel.label = taskDialogModel.originalItem.label;
+                taskDialogModel.persona = taskDialogModel.originalItem.persona;
+                taskDialogModel.associatedImageUrl = taskDialogModel.originalItem.associatedImageUrl;
             }
         } else {
             return null;
@@ -196,11 +190,6 @@ export class SubArtifactEditorModalOpener {
     }
 
     private openUserTaskDetailsModalDialog = ($scope: ng.IScope, shapeId: number, graph: IProcessGraph): void => {
-        // this.open("",
-        //     require("./task-editor/sub-artifact-user-task-editor-modal-template.html"),
-        //     SubArtifactEditorUserTaskModalController,
-        //     this.getSubArtifactUserTaskDialogModel(shapeId, graph),
-        //     "storyteller-modal");
 
         const settings = <ModalSettings>{
             animation: this.animationsEnabled,
@@ -217,12 +206,7 @@ export class SubArtifactEditorModalOpener {
     }
 
     private openSystemTaskDetailsModalDialog = ($scope: ng.IScope, shapeId: number, graph: IProcessGraph): void => {
-        // this.open("",
-        //     require("./task-editor/sub-artifact-system-task-editor-modal-template.html"),
-        //     SubArtifactEditorSystemTaskModalController,
-        //     this.getSubArtifactSystemTaskDialogModel(shapeId, graph),
-        //     "storyteller-modal");
-
+        
         const settings = <ModalSettings>{
             animation: this.animationsEnabled,
             component: "systemTaskEditor",

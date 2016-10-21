@@ -948,3 +948,28 @@ body.mce-content-body a, body.mce-content-body a:hover {
     height: 0;
     display: none;
 }
+.storyteller-include_container {
+    display: flex;
+}
+.storyteller-include {
+    flex: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative;
+    padding: 8px;
+    padding-right: 30px;
+    font-size: $font-size-big;
+    background-color: $gray-lightest;
+    margin-right: 10px;
+    i.storyteller-include_clear {
+        position: absolute;
+        right: 8px;
+        bottom: 7px;
+        cursor: pointer;
+    }
+}
+.storyteller-include_btn {
+    min-width: auto;
+    padding-left: 14px; // buttons with icons inside are uneven due to padding on the icons
+}

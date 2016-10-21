@@ -45,22 +45,21 @@
         <div class="small-padding">
             <div class="row">
                 <div class="col-sm-12">
-                    <div class="nova-form-group nova-floating-label">
+                    <div class="nova-form-group">
                         <div ng-show="!vm.isIncludeResultsVisible">
-                            <button class="btn btn-default" type="button" ng-click="vm.openArtifactPicker()" ng-disabled="vm.isReadonly">
+                            <button class="btn btn-primary storyteller-include_btn" type="button" ng-click="vm.openArtifactPicker()" ng-disabled="vm.isReadonly">
                                 <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Add_Include_Tab_Label']}}
                             </button>
                         </div>
-                        <div ng-show="vm.isIncludeResultsVisible">
-                            <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Include_Tab_Label']}}
-                            <br />
-                            <label for="storyteller-include" class="nova-label">
+                        <div ng-show="vm.isIncludeResultsVisible" class="storyteller-include_container">
+                            <div class="storyteller-include">
+                                <i class="fonticon-include-active fonticon-st-tabs"></i>
                                     {{vm.includeArtifactName}}
-                            </label>
-                            <button class="btn btn-default" type="button" ng-click="vm.cleanIncludeField()" ng-disabled="vm.isReadonly">
-                                <i class="fonticon-include-active fonticon-st-tabs"></i></button>
-                            <button class="btn btn-default" type="button" ng-click="vm.openArtifactPicker()" ng-disabled="vm.isReadonly">
-                                <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Browse_Include_Label']}}
+                                <i class="fonticon2-delete storyteller-include_clear" ng-click="vm.cleanIncludeField()" ng-disabled="vm.isReadonly"></i>
+
+                            </div>
+                           <button class="btn btn-primary storyteller-include_btn" type="button" ng-click="vm.openArtifactPicker()" ng-disabled="vm.isReadonly">
+                                    <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Browse_Include_Label']}}
                             </button>
                         </div>
                     </div>

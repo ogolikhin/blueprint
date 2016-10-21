@@ -21,7 +21,7 @@
                     id="storyteller-user" ng-model='dialogModel.clonedSystemTask.persona' ng-disabled="vm.isReadonly"
                     autofocus maxlength="40" autocomplete="off">
             <label for="storyteller-user" class="nova-label"><i class="fonticon-bp-actor"></i>{{::$root.config.labels['ST_Persona_Label']}}</label>
-            <span class="nova-helper-text">{{::$root.config.labels['ST_Persona_Helper_Text']}}</span>
+            <span class="storyteller-helper-text">{{::$root.config.labels['ST_Persona_Helper_Text']}}</span>
         </div>
         <div class="nova-form-group nova-floating-label">
             <input type="text" ng-blur="vm.systemNameOnBlur()" ng-focus="vm.systemNameOnFocus()"
@@ -29,7 +29,7 @@
                     id="storyteller-systemtask-action" ng-model="dialogModel.clonedSystemTask.action"
                     ng-disabled="vm.isReadonly" maxlength="140" autocomplete="off">
             <label for="storyteller-systemtask-action" class="nova-label"><i class="fonticon-storyteller-title"></i>{{vm.systemNamePlaceHolderText}}</label>
-            <span class="nova-helper-text">{{::$root.config.labels['ST_System_Task_Name_Helper_Text']}}</span>
+            <span class="storyteller-helper-text">{{::$root.config.labels['ST_System_Task_Name_Helper_Text']}}</span>
         </div>
         <div id="SystemTaskUploadImage">
             <upload-image data-type-error="typeError" data-size-error="sizeError"

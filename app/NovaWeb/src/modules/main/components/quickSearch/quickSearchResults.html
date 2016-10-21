@@ -25,14 +25,23 @@
                     class="close"
                     ng-click="$ctrl.closeModal()">&times;</button>
         </div>
-        <div class="quick-search__results" ng-switch="$ctrl.hasResults">
-            <ul class="quick-search__results--list" ng-switch-when="true">
-                <li class="quick-search__results--item" ng-repeat="item in $ctrl.results track by $index">
+        <div class="quick-search__results">
+            <ul class="quick-search__results--list" ng-if="$ctrl.results.FullTextSearchItems.length>0">
+                <li class="quick-search__results--item"
+                    ng-repeat="item in $ctrl.results.FullTextSearchItems track by $index">
 
                 </li>
             </ul>
-            <div class="quick-search__response" ng-switch-when="false">
-                <span class="center-item larger-font">No Results Found</span>
+
+            <div class="quick-search__response">
+
+                <div ng-if="$ctrl.isLoading" class="quick-serach__loading">
+                    <div class="quick-serach__loading-overlay"></div>
+                    <span class="glyphicon glyphicon-refresh spin quick-serach__loading-icon"></span>
+                </div>
+                <div class="center-item larger-font">
+                    <span ng-if="$ctrl.results.FullTextSearchItems.length==0">No results Found</span>
+                </div>
             </div>
         </div>
     </div>

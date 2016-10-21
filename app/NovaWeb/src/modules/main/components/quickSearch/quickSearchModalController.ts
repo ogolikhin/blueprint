@@ -2,8 +2,7 @@ export class QuickSearchModalController {
     searchTerm: string;
     form: ng.IFormController;
     isLoading: boolean;
-    hasResults: boolean;
-    results: any[];
+    results: {};
     static $inject = [
         "quickSearchService",
         "$log",
@@ -15,7 +14,6 @@ export class QuickSearchModalController {
                 private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance) {
         this.searchTerm = _.clone(this.quickSearchService.searchTerm);
         this.isLoading = true;
-        this.hasResults = false;
     }
 
     search(term) {
@@ -29,9 +27,7 @@ export class QuickSearchModalController {
         this.quickSearchService.search(term).then((results) => {
 //assign the results and display
             //if results are greater than one
-            if (results.FullTextSearchItems.length > 1) {
-                this.hasResults = true;
-            }
+            this.results = results;
             this.isLoading = false;
         });
     }

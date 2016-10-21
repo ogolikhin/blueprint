@@ -1,22 +1,24 @@
 export class QuickSearchService {
     static $inject = [
         "$q",
-        "$http"
+        "$http",
+        "$timeout"
     ];
 
     constructor(private $q: ng.IQService,
-                private $http: ng.IHttpService) {
+                private $http: ng.IHttpService,
+                private $timeout: ng.ITimeoutService) {
     }
 
     searchTerm;
 
     search(term) {
         const MOCK_RESULTS = require("./quickSearch.mock.ts");
-
-
         const deferred = this.$q.defer();
 
-        deferred.resolve(MOCK_RESULTS);
+        this.$timeout(() => {
+            deferred.resolve(MOCK_RESULTS);
+        }, 1000);
         return deferred.promise;
     }
 }

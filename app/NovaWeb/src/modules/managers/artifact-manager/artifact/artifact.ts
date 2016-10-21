@@ -8,6 +8,8 @@ import {ISubArtifactCollection} from "../sub-artifact";
 import {MetaData} from "../metadata";
 import {IDispose} from "../../models";
 import {HttpStatusCode} from "../../../core/http";
+import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../main/components/dialogs/bp-confirm-publish";
+import {IDialogSettings} from "../../../shared";
 
 export interface IStatefulArtifact extends IStatefulItem, IDispose {
     /**
@@ -18,7 +20,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     //load(force?: boolean): ng.IPromise<IStatefulArtifact>;
     save(): ng.IPromise<IStatefulArtifact>;
     autosave(): ng.IPromise<IStatefulArtifact>;
-    publish(dependentIds: number[]): ng.IPromise<IStatefulArtifact>;
+    publish(): ng.IPromise<IStatefulArtifact>;
     refresh(): ng.IPromise<IStatefulArtifact>;
 
     getObservable(): Rx.Observable<IStatefulArtifact>;
@@ -320,16 +322,63 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return deffered.promise;
     }
 
-    public publish(dependentIds: number[]): ng.IPromise<IStatefulArtifact> {
-        //let deffered = this.services.getDeferred<IStatefulArtifact>();
+    public publish(): ng.IPromise<IStatefulArtifact> {
+        let deffered = this.services.getDeferred<IStatefulArtifact>();
 
-        //let artifactsToPublish: number[] = [this.id];
-        dependentIds.unshift(this.id);
-        return this.services.publishService.publishArtifacts(dependentIds);
-        //.then(() => {deffered.resolve(); })
-        //.catch((err) => {deffered.reject(err); });
+        let savePromise = this.services.$q.defer<any>();
+        if (this.canBeSaved()) {
+            savePromise.promise = this.save();
+        } else {
+            savePromise.resolve();
+        }
 
-        //return deffered.promise;
+        savePromise.promise.then(() => {
+            //dependentIds.unshift(this.id);
+            this.internalPublish([])
+            .then(() => {
+                this.services.messageService.addInfo("Published artifact succesfully");
+                deffered.resolve();
+            })
+            .catch((err) => {
+                if (err && err.statusCode === 409) {
+                    let data: Models.IPublishResultSet = err.data;
+                    this.services.dialogService.open(<IDialogSettings>{
+                        okButton: this.services.localizationService.get("App_Button_Publish"),
+                        cancelButton: this.services.localizationService.get("App_Button_Cancel"),
+                        message: this.services.localizationService.get("Publish_All_Dialog_Message"),
+                        template: require("../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish.html"),
+                        controller: ConfirmPublishController,
+                        css: "nova-messaging" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
+                    },
+                    <IConfirmPublishDialogData>{
+                        artifactList: data.artifacts,
+                        projectList: data.projects,
+                        selectedProject: this.projectId
+                    })
+                    .then(() => {
+                        this.internalPublish(data.artifacts.map((d: Models.IArtifact) => {return d.id; }))
+                        .then(() => {
+                            this.services.messageService.addInfo("Published artifact succesfully");
+                        })
+                        .catch((err) => {
+                            this.services.messageService.addError(err);
+                        });
+                    });
+                }
+                this.services.messageService.addError(err);
+                deffered.reject();
+            });
+        })
+        .catch(() => {
+            deffered.reject();
+        });
+
+        return deffered.promise;
+    }
+
+    private internalPublish(artifactIds: number[]): ng.IPromise<any> {
+        artifactIds.unshift(this.id);
+        return this.services.publishService.publishArtifacts(artifactIds);
     }
 
     public refresh(): ng.IPromise<IStatefulArtifact> {

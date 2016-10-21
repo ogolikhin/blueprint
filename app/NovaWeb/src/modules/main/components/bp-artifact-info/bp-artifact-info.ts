@@ -63,8 +63,7 @@ export class BpArtifactInfoController {
     public artifactTypeDescription: string;
     public toolbarActions: IBPAction[];
 
-    constructor(private $q: ng.IQService,
-                public $scope: ng.IScope,
+    constructor(public $scope: ng.IScope,
                 private $element: ng.IAugmentedJQuery,
                 protected artifactManager: IArtifactManager,
                 protected localization: ILocalizationService,
@@ -257,7 +256,7 @@ export class BpArtifactInfoController {
         this.toolbarActions.push(
             new BPButtonGroupAction(
                 new SaveAction(artifact, this.localization, this.messageService, this.loadingOverlayService),
-                new PublishAction(this.$q, artifact, this.localization, this.messageService, this.loadingOverlayService, this.dialogService),
+                new PublishAction(artifact, this.localization, this.messageService, this.loadingOverlayService),
                 new DiscardAction(artifact, this.localization),
                 new RefreshAction(artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService),
                 new DeleteAction(artifact, this.localization, this.dialogService, deleteDialogSettings)

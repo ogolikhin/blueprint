@@ -1,19 +1,14 @@
-﻿import {
-    IProcess,
-    IProcessShape,
-    IProcessLink,
-    IHashMapOfPropertyValues,
-    IItemStatus,
-    IVersionInfo,
-    ItemTypePredefined
-}
-    from "./models/process-models";
-
+﻿import { Models } from "../../main/models";
+import { ILocalizationService, IMessageService } from "../../core";
+import { Message, MessageType } from "../../core/messages/message";
+import { IProcess, IProcessShape, IProcessLink } from "./models/process-models";
+import { IHashMapOfPropertyValues, IItemStatus } from "./models/process-models";
+import { IVersionInfo, ItemTypePredefined } from "./models/process-models";
 import { StatefulArtifact, IStatefulArtifact } from "../../managers/artifact-manager/artifact";
 //import { ChangeTypeEnum, IChangeSet } from "../../managers/artifact-manager/changeset";
-import { Models } from "../../main/models";
 import { IStatefulProcessArtifactServices } from "../../managers/artifact-manager/services";
 import { StatefulProcessSubArtifact } from "./process-subartifact";
+import { IProcessUpdateResult } from "./services/process.svc";
 
 export interface IStatefulProcessArtifact extends  IStatefulArtifact {
     processOnUpdate();
@@ -21,7 +16,6 @@ export interface IStatefulProcessArtifact extends  IStatefulArtifact {
 
 export class StatefulProcessArtifact extends StatefulArtifact implements IStatefulProcessArtifact, IProcess {
 
-    // private finalLoadPromise: ng.IPromise<IStatefulArtifact>;
     private loadProcessPromise: ng.IPromise<IStatefulArtifact>;
 
     public shapes: IProcessShape[];
@@ -35,7 +29,6 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         super(artifact, services);
     }
     
-
     public processOnUpdate() {
         this.artifactState.dirty = true;        
         this.lock(); 
@@ -56,6 +49,11 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     protected getCustomArtifactPromisesForGetObservable(): angular.IPromise<IStatefulArtifact>[] {
         this.loadProcessPromise = this.loadProcess();
         return [this.loadProcessPromise];
+    }
+
+    protected getCustomArtifactPromisesForSave(): angular.IPromise<IStatefulArtifact>[] {
+        let saveProcessPromise = this.saveProcess();
+        return [saveProcessPromise];
     }
 
     protected runPostGetObservable() {
@@ -109,4 +107,37 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         }
         this.subArtifactCollection.initialise(statefulSubArtifacts);
     }
+
+    private saveProcess(): ng.IPromise<IStatefulArtifact> {
+        const deferred = this.services.getDeferred<IStatefulArtifact>();
+        if (!this.artifactState.readonly) {
+            this.services.processService.save(<IProcess>this)
+                .then((result: IProcessUpdateResult) => {
+                    this.showSavedMessage(result);
+                    this.onLoad(result.result);
+                    deferred.resolve(this);
+                }).catch((err: any) => {
+                    deferred.reject(err);
+                });
+        } else {
+            let message = new Message(MessageType.Error,
+                this.services.localizationService.get("ST_View_OpenedInReadonly_Message"));
+            this.services.messageService.addMessage(message);
+            deferred.reject();
+        } 
+        return deferred.promise;
+    }
+
+    private showSavedMessage(result: IProcessUpdateResult) {
+        const processSavedGeneratedMessage = this.services.localizationService.get("ST_Process_Saved_Message");
+        this.services.messageService.addMessage(new Message(MessageType.Info, processSavedGeneratedMessage));
+
+        if (result.messages) {
+            result.messages.forEach((r) => {
+                const message = new Message(MessageType.Warning, r.message);
+                this.services.messageService.addMessage(message);
+            });
+        }
+    }
+
 }

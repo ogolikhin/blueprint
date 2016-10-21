@@ -89,19 +89,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return this.subject.filter(it => !!it).asObservable();
     }
 
-    //Hook for subclasses to provide additional promises which should be run for obtaining data
-    protected getCustomArtifactPromisesForGetObservable(): angular.IPromise<IStatefulArtifact>[] {
-        return [];
-    }
-    protected getCustomArtifactPromisesForRefresh(): ng.IPromise<any>[] {
-         return [];
-    }
-
-    //Hook for subclasses to do some post processing
-    protected runPostGetObservable() {
-//fixme: if empty function should be removed or return undefined
-    }
-
     public discard() {
         super.discard();
         this.artifactState.dirty = false;
@@ -151,8 +138,72 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         this.subject.onNext(null);
     }
 
+    public refresh(): ng.IPromise<IStatefulArtifact> {
+        const deferred = this.services.getDeferred<IStatefulArtifact>();
+        let promisesToExecute: ng.IPromise<any>[] = [];
+        this.discard();
+
+        promisesToExecute.push(this.load());
+
+        if (this._attachments) {
+            //this will also reload docRefs, so no need to call docRefs.refresh()
+            promisesToExecute.push(this._attachments.refresh());
+        }
+        if (this._relationships) {
+            promisesToExecute.push(this._relationships.refresh());
+        }
+        //History and Discussions are excluded from here.
+        //They refresh independently, triggered by artifact's observable.
+
+        promisesToExecute.push(this.services.metaDataService.remove(this.projectId));
+
+        // get promises for custom artifact refresh operations
+        let subclassRefreshPromises = this.getCustomArtifactPromisesForRefresh();
+
+        if (subclassRefreshPromises.length > 0) {
+            for (let i = 0; i < subclassRefreshPromises.length; i++) {
+                promisesToExecute.push(subclassRefreshPromises[i]);
+            }
+        }
+
+        this.getServices().$q.all(promisesToExecute).then(() => {
+            this.subject.onNext(this);
+            deferred.resolve(this);
+        }).catch(error => {
+            deferred.reject(error);
+
+            //Project manager is listening to this, and will refresh the project.
+            this.subject.onNext(this);
+        });
+        return deferred.promise;
+    }
+
     private isProject(): boolean {
         return this.itemTypeId === Enums.ItemTypePredefined.Project;
+    }
+    
+    public lock(): ng.IPromise<IStatefulArtifact> {
+        if (this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
+            return;
+        }
+        if (!this.lockPromise) {
+            const deferred = this.services.getDeferred<IStatefulArtifact>();
+            this.lockPromise = deferred.promise;
+
+            const loadingId = this.services.loadingOverlayService.beginLoading();
+            this.services.artifactService.lock(this.id).then((result: Models.ILockResult[]) => {
+                const lock = result[0];
+                this.processLock(lock);
+                deferred.resolve(this);
+            }).catch((err) => {
+                deferred.reject(err);
+            }).finally(() => {
+                this.lockPromise = null;
+                this.services.loadingOverlayService.endLoading(loadingId);
+            });
+        }
+
+        return this.lockPromise;
     }
 
     private processLock(lock: Models.ILockResult) {
@@ -180,30 +231,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 this.subject.onNext(this);
             }
         }
-    }
-
-    public lock(): ng.IPromise<IStatefulArtifact> {
-        if (this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
-            return;
-        }
-        if (!this.lockPromise) {
-            const deferred = this.services.getDeferred<IStatefulArtifact>();
-            this.lockPromise = deferred.promise;
-
-            const loadingId = this.services.loadingOverlayService.beginLoading();
-            this.services.artifactService.lock(this.id).then((result: Models.ILockResult[]) => {
-                const lock = result[0];
-                this.processLock(lock);
-                deferred.resolve(this);
-            }).catch((err) => {
-                deferred.reject(err);
-            }).finally(() => {
-                this.lockPromise = null;
-                this.services.loadingOverlayService.endLoading(loadingId);
-            });
-        }
-
-        return this.lockPromise;
     }
 
     protected getAttachmentsDocRefsInternal(): ng.IPromise<IArtifactAttachmentsResultSet> {
@@ -245,10 +272,40 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             delta.subArtifacts.push(subArtifact.changes());
         });
     }
-
-    //TODO: moved from bp-artifactinfo
-
+     
     public save(): ng.IPromise<IStatefulArtifact> {
+        let sources: Rx.Observable<IStatefulArtifact>[] = [];
+        let combination: Rx.Observable<IStatefulArtifact>;
+
+        const deferred = this.services.getDeferred<IStatefulArtifact>();
+        let customPromises = this.getCustomArtifactPromisesForSave();
+
+        if (customPromises.length > 0) {
+            for (let i = 0; i < customPromises.length; i++) {
+                sources.push(Rx.Observable.fromPromise(customPromises[i]));
+            }
+        }
+        sources.push(Rx.Observable.fromPromise(this.saveArtifact()));
+
+         // execute save operations in the same order they are added to 
+        // the sources array
+        combination = Rx.Observable.concat(sources);
+       
+        const observer = Rx.Observer.create(
+            result => result,
+            err =>  deferred.reject(err),
+            () => {
+                // when this handler is called all operations
+                // have completed successfully 
+                deferred.resolve(this);
+            }
+        );
+        combination.subscribe(observer);
+ 
+        return deferred.promise;
+    }
+
+    private saveArtifact(): ng.IPromise<IStatefulArtifact> {
         let deferred = this.services.getDeferred<IStatefulArtifact>();
 
         let changes = this.changes();
@@ -309,47 +366,22 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     public publish(): ng.IPromise<IStatefulArtifact> {
         let deffered = this.services.getDeferred<IStatefulArtifact>();
         return deffered.promise;
+    } 
+    
+    //Hook for subclasses to provide additional promises which should be run for obtaining data
+    protected getCustomArtifactPromisesForGetObservable(): angular.IPromise<IStatefulArtifact>[] {
+        return [];
+    }
+    protected getCustomArtifactPromisesForRefresh(): ng.IPromise<any>[] {
+        return [];
+    }
+    protected getCustomArtifactPromisesForSave(): angular.IPromise<IStatefulArtifact>[] {
+        return [];
     }
 
-    public refresh(): ng.IPromise<IStatefulArtifact> {
-        const deferred = this.services.getDeferred<IStatefulArtifact>();
-        this.discard();
-
-        const promisesToExecute: ng.IPromise<any>[] = [];
-
-        promisesToExecute.push(this.load());
-
-        if (this._attachments) {
-            //this will also reload docRefs, so no need to call docRefs.refresh()
-            promisesToExecute.push(this._attachments.refresh());
-        }
-
-        if (this._relationships) {
-            promisesToExecute.push(this._relationships.refresh());
-        }
-
-        //History and Discussions are excluded from here.
-        //They refresh independently, triggered by artifact's observable.
-
-        promisesToExecute.push(this.services.metaDataService.remove(this.projectId));
-
-        // get promises for custom artifact refresh operations
-        promisesToExecute.push.apply(promisesToExecute,
-            this.getCustomArtifactPromisesForRefresh());
-
-        this.getServices().$q.all(promisesToExecute).then(() => {
-            this.subject.onNext(this);
-            deferred.resolve(this);
-        }).catch(error => {
-            deferred.reject(error);
-
-            //Project manager is listening to this, and will refresh the project.
-            this.subject.onNext(this);
-        });
-
-
-        return deferred.promise;
+    //Hook for subclasses to do some post processing
+    protected runPostGetObservable() {
+        ;
     }
-
 
 }

@@ -61,12 +61,12 @@ export class BpSpecialLinkContainer implements ng.IDirective {
         if (this.bpLinksHelper.hasBlueprintLink($anchor)) {
             e.preventDefault();
 
-            //ignore mentioned user
+            //navigate to internal link
             if (this.bpLinksHelper.isRichTextMentionLink($anchor)) {
                 const id = this.bpLinksHelper.getItemId($anchor);
                 this.navigationService.navigateTo(id);
-                return;
             }
+            return;
         }
 
         if (this.bpLinksHelper.hasExternalLink($anchor)) {

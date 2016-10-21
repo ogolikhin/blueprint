@@ -1,16 +1,11 @@
-import {BaseModalDialogController, IModalScope} from "./base-modal-dialog-controller";
-import {SubArtifactDialogModel} from "./models/sub-artifact-dialog-model";
-import {IArtifactReference} from "../../models/process-models";
-import {IModalProcessViewModel} from "./models/modal-process-view-model";
-import {ICommunicationManager} from "../../services/communication-manager";
-import {IDiagramService} from "../../../../editors/bp-diagram/diagram.svc";
-import {IDialogSettings, IDialogService} from "../../../../shared";
-import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../main/components/bp-artifact-picker";
-import {Models} from "../../../../main/models";
-import {ILocalizationService} from "../../../../core";
+import {IDiagramService} from "../../../../../editors/bp-diagram/diagram.svc";
+import {IDialogSettings, IDialogService} from "../../../../../shared";
+import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../../main/components/bp-artifact-picker";
+import {Models} from "../../../../../main/models";
+import {ILocalizationService} from "../../../../../core";
 import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-controller";
 import {SubArtifactSystemTaskDialogModel} from "../models/sub-artifact-dialog-model";
-import {IArtifactReference} from "../../../models/process-models";
+import {IArtifactReference, ArtifactReference} from "../../../models/process-models";
 import {IModalProcessViewModel} from "../models/modal-process-view-model";
 import {ICommunicationManager} from "../../../services/communication-manager";
 
@@ -21,7 +16,7 @@ export class SystemTaskModalController extends BaseModalDialogController<SubArti
     public isLoadingIncludes: boolean = false;
 
     private isIncludeResultsVisible: boolean;
-    private includeArtifactName: string;
+    public includeArtifactName: string;
     public isReadonly: boolean = false;
     private isSMB: boolean = false;
     private actionPlaceHolderText: string;
@@ -67,7 +62,7 @@ export class SystemTaskModalController extends BaseModalDialogController<SubArti
 
         this.systemNameOnBlur();
 
-        if (dialogModel.originalSystemTask.associatedArtifact) {
+        if (this.dialogModel.originalItem.associatedArtifact) {
             this.prepIncludeField();
         }
 
@@ -80,12 +75,12 @@ export class SystemTaskModalController extends BaseModalDialogController<SubArti
 
     public prepIncludeField(): void {
         this.isIncludeResultsVisible = true;
-        this.includeArtifactName = this.formatIncludeLabel(this.dialogModel.clonedSystemTask.associatedArtifact);
+        this.includeArtifactName = this.formatIncludeLabel(this.dialogModel.clonedItem.associatedArtifact);
     }
 
     public cleanIncludeField(): void {
         this.isIncludeResultsVisible = false;
-        this.dialogModel.clonedSystemTask.associatedArtifact = null;
+        this.dialogModel.clonedItem.associatedArtifact = null;
     }
 
     public formatIncludeLabel(model) {
@@ -97,7 +92,7 @@ export class SystemTaskModalController extends BaseModalDialogController<SubArti
         if (model.typePrefix === "<Inaccessible>") {
             msg = this.localization.get("HttpError_Forbidden");
         } else {
-            msg = model.prefix + model.id + " - " + model.name;
+            msg = model.typePrefix + model.id + " - " + model.name;
         }
 
         return msg;
@@ -187,7 +182,7 @@ export class SystemTaskModalController extends BaseModalDialogController<SubArti
     public openArtifactPicker() {
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get("App_Button_Open"),
-            template: require("../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
+            template: require("../../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
             controller: ArtifactPickerDialogController,
             css: "nova-open-project",
             header: this.localization.get("ST_Select_Include_Artifact_Label")
@@ -198,7 +193,12 @@ export class SystemTaskModalController extends BaseModalDialogController<SubArti
 
         this.dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {
             if (items.length === 1) {
-                this.dialogModel.clonedSystemTask.associatedArtifact = items[0];
+                const associatedArtifact = new ArtifactReference();
+                associatedArtifact.baseItemTypePredefined = items[0].predefinedType;
+                associatedArtifact.id = items[0].id;
+                associatedArtifact.name = items[0].name;
+                associatedArtifact.typePrefix = items[0].prefix;
+                this.dialogModel.clonedItem.associatedArtifact = associatedArtifact;                  
                 this.prepIncludeField();
             }
         });

@@ -18,6 +18,7 @@ import {UserTaskModalController} from "./task-editor/user-task-modal-controller"
 import {SystemTaskModalController} from "./task-editor/system-task-modal-controller";
 import {UserStoryPreviewController} from "./user-story-preview/user-story-preview";
 import {ModalProcessViewModel} from "./models/modal-process-view-model";
+import {UserTaskModalModel, SystemTaskModalModel} from "./models/sub-artifact-dialog-model";
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
 import {ILocalizationService} from "../../../../core";
 
@@ -107,7 +108,12 @@ export class SubArtifactEditorModalOpener {
             userTaskNode = <UserTask>node;
             if (userTaskNode) { // When the node selected is the "pre-condition",the user taskNode is null, since it is the start node
                 taskDialogModel.originalItem = userTaskNode;
-                taskDialogModel.clonedItem = taskDialogModel.originalItem.cloneUserTask();
+                taskDialogModel.clonedItem = new UserTaskModalModel();
+                taskDialogModel.clonedItem.action = taskDialogModel.originalItem.action;
+                taskDialogModel.clonedItem.associatedArtifact = taskDialogModel.originalItem.associatedArtifact;
+                taskDialogModel.clonedItem.objective = taskDialogModel.originalItem.objective;
+                taskDialogModel.clonedItem.label = taskDialogModel.originalItem.label;
+                taskDialogModel.clonedItem.persona = taskDialogModel.originalItem.persona;
             }            
         } else {
             return null;
@@ -133,9 +139,14 @@ export class SubArtifactEditorModalOpener {
             systemTaskNode = <SystemTask>node;
             if (systemTaskNode) { // When the node selected is the "pre-condition",the user taskNode is null, since it is the start node
                 taskDialogModel.originalItem = systemTaskNode;
-                taskDialogModel.clonedItem = taskDialogModel.originalItem.cloneSystemTask();
-            }        
-
+                taskDialogModel.clonedItem = new SystemTaskModalModel();
+                taskDialogModel.clonedItem.action = taskDialogModel.originalItem.action;
+                taskDialogModel.clonedItem.associatedArtifact = taskDialogModel.originalItem.associatedArtifact;
+                taskDialogModel.clonedItem.imageId = taskDialogModel.originalItem.imageId;
+                taskDialogModel.clonedItem.label = taskDialogModel.originalItem.label;
+                taskDialogModel.clonedItem.persona = taskDialogModel.originalItem.persona;
+                taskDialogModel.clonedItem.associatedImageUrl = taskDialogModel.originalItem.associatedImageUrl;
+            }
         } else {
             return null;
         }

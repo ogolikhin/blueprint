@@ -43,7 +43,7 @@
     "path": "^0.12.7",
     "rx": "^4.1.0",
     "tinymce": "^4.4.3",
-    "ui-select": "^0.19.1",
+    "ui-select": "0.19.4",
     "webpack-dev-server": "^1.16.2"
   },
   "devDependencies": {

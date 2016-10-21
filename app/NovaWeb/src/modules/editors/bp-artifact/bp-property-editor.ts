@@ -103,6 +103,8 @@ export class PropertyEditor {
             } else {
                 return $value.toString();
             }
+        } else if (context.primitiveType === Models.PrimitiveType.Text && context.isRichText) {
+            return Helper.getHtmlBodyContent($value);
         }
         return $value;
     }
@@ -168,6 +170,7 @@ export class PropertyEditor {
                         }
                     }
                     if (isModelSet) {
+                        propertyContext.isFresh = true;
                         let field = this.createPropertyField(propertyContext, statefulItem.id);
                         this._model[propertyContext.fieldPropertyName] = this.convertToFieldValue(field, modelValue);
                         if (fieldsupdated) {

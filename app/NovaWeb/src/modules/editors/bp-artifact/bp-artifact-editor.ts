@@ -98,6 +98,10 @@ export class BpArtifactEditor extends BpBaseEditor {
 
                     });
 
+                } else {
+                    this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
+                        field.data["isFresh"] = true;
+                    });
                 }
                 this.model = this.editor.getModel();
 
@@ -155,6 +159,7 @@ export class BpArtifactEditor extends BpBaseEditor {
                         this.artifact[context.modelPropertyName] = value;
                         break;
                 }
+                context.isFresh = false;
 
                 if ($scope["form"]) {
                     this.artifact.artifactState.invalid = $scope["form"].$$parentForm.$invalid;

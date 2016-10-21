@@ -22,6 +22,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     refresh(): ng.IPromise<IStatefulArtifact>;
 
     getObservable(): Rx.Observable<IStatefulArtifact>;
+    canBeSaved(): boolean;
 }
 
 // TODO: explore the possibility of using an internal interface for services
@@ -106,7 +107,16 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         super.discard();
         this.artifactState.dirty = false;
     }
-
+    
+    public canBeSaved(): boolean {
+        if (this.isProject()) {
+            return false;
+        } else if (this.artifactState.dirty && this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     private isNeedToLoad() {
         if (this.isProject()) {
             return false;
@@ -170,6 +180,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         } else {
             if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
                 this.refresh();
+                if (lock.info.versionId !== this.version) {
+                    //Show the refresh message only if the version has changed.
+                    this.services.messageService.addInfo("Artifact_Lock_Refresh");
+                }
             } else {
                 this.discard();
                 if (lock.result === Enums.LockResultEnum.DoesNotExist) {

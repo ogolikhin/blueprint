@@ -33,7 +33,6 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 
 export class BpArtifactInfoController {
     static $inject: [string] = [
-        "$q",
         "$scope",
         "$element",
         "artifactManager",

@@ -1,8 +1,7 @@
-import {BPButtonAction, IDialogSettings, IDialogService} from "../../../../shared";
+import {BPButtonAction} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {ILocalizationService, IMessageService} from "../../../../core";
 import {ItemTypePredefined} from "../../../../main/models/enums";
-import {Models} from "../../../../main/models";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay";
 
 

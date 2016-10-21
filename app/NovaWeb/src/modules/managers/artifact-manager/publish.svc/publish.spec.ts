@@ -2,12 +2,10 @@ import * as angular from "angular";
 import "angular-mocks";
 import {HttpStatusCode} from "../../../core/http";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-//import {Models, IArtifactService, ArtifactService} from "./../artifact/artifact.svc";
-//import {ArtifactServiceMock} from "./artifact.svc.mock";
 import { Models, Enums } from "../../../main/models";
 import {PublishService, IPublishService} from "./publish";
 
-describe("Artifact Repository", () => {
+describe("Publish Service", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
@@ -74,7 +72,10 @@ describe("Artifact Repository", () => {
         it("post publish all successfully", inject(($httpBackend: ng.IHttpBackendService, publishService: IPublishService) => {
             // Arrange
             $httpBackend.expectPOST("/svc/bpartifactstore/artifacts/publish?all=true")
-                .respond(HttpStatusCode.Success, <Models.IPublishResultSet>{});
+                .respond(HttpStatusCode.Success, <Models.IPublishResultSet>{
+                    artifacts: [],
+                    projects: []
+                });
 
             // Act
             let error: any;

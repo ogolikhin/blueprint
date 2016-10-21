@@ -7,6 +7,7 @@ import {IDiagramService} from "../../../../editors/bp-diagram/diagram.svc";
 import {IDialogSettings, IDialogService} from "../../../../shared";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../main/components/bp-artifact-picker";
 import {Models} from "../../../../main/models";
+import {ILocalizationService} from "../../../../core";
 
 export class SubArtifactEditorUserTaskModalController extends BaseModalDialogController<SubArtifactDialogModel> {
     public getLinkableProcesses: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
@@ -15,10 +16,10 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
     public isLoadingIncludes: boolean = false;
 
     private isIncludeResultsVisible: boolean;
+    private includeArtifactName: string;
     private isReadonly: boolean = false;
     private isSMB: boolean = false;
     private actionPlaceHolderText: string;
-    private includeArtifactName: string;
     private searchIncludesDelay: ng.IPromise<any>;
     private modalProcessViewModel: IModalProcessViewModel;
 
@@ -32,7 +33,8 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
         "$q",
         "$timeout",
         "$sce", 
-        "dialogService"
+        "dialogService",
+        "localization"
     ];
 
     constructor($scope: IModalScope,
@@ -45,7 +47,8 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
                 private $q: ng.IQService,
                 private $timeout: ng.ITimeoutService,
                 private $sce: ng.ISCEService,
-                private dialogService: IDialogService  ) {
+                private dialogService: IDialogService,
+                private localization: ILocalizationService  ) {
 
         super($rootScope, $scope, $uibModalInstance, dialogModel);
 
@@ -58,6 +61,7 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
         }
 
         this.actionOnBlur();
+
         if (dialogModel.originalUserTask.associatedArtifact) {
             this.prepIncludeField();
         }
@@ -86,7 +90,7 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
 
         let msg: string;
         if (model.typePrefix === "<Inaccessible>") {
-            msg = this.$rootScope["config"].labels["HttpError_Forbidden"];
+            msg = this.localization.get("HttpError_Forbidden");
         } else {
             msg = model.prefix + model.id + " - " + model.name;
         }
@@ -117,7 +121,7 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
     }
 
     private actionOnFocus = () => {
-        this.actionPlaceHolderText = (<any>this.$rootScope).config.labels["ST_User_Task_Name_Label"];
+        this.actionPlaceHolderText = this.localization.get("ST_User_Task_Name_Label");
     }
 
     private actionOnBlur = () => {
@@ -125,7 +129,7 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
             if (this.dialogModel.clonedUserTask.action) {
                 this.actionOnFocus();
             } else {
-                this.actionPlaceHolderText = (<any>this.$rootScope).config.labels["ST_User_Task_Name_Label"] + " " + this.dialogModel.clonedUserTask.label;
+                this.actionPlaceHolderText = this.localization.get("ST_User_Task_Name_Label") + " " + this.dialogModel.clonedUserTask.label;
             }
         }
     }
@@ -174,21 +178,19 @@ export class SubArtifactEditorUserTaskModalController extends BaseModalDialogCon
 
     public openArtifactPicker() {
         const dialogSettings = <IDialogSettings>{
-            okButton: "Open",
+            okButton: this.localization.get("App_Button_Open"),
             template: require("../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
             controller: ArtifactPickerDialogController,
             css: "nova-open-project",
-            header: "Select Artifact"  // to be added to localization
+            header: this.localization.get("ST_Select_Include_Artifact_Label")
         };
 
         const dialogData: IArtifactPickerOptions = {
-            showSubArtifacts: false
         };
 
         this.dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {
             if (items.length === 1) {
                 this.dialogModel.clonedUserTask.associatedArtifact = items[0];
-                console.log(this.dialogModel.originalUserTask.associatedArtifact);
                 this.prepIncludeField();
             }
         });

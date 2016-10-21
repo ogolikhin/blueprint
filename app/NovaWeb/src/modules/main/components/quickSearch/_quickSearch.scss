@@ -10,8 +10,17 @@
 
 .quick-serach__input {
     border: none;
-    border-bottom:solid 1px $gray-light;
-    background:transparent;
+    border-bottom: solid 1px $gray-light;
+    background: transparent;
+    padding: .2em 1.2em;
+    &:focus {
+        &+ i {
+            color:$brand-secondary;
+        }
+        outline: none;
+        border-color:$brand-secondary;
+    }
+
 }
 
 .quick-serach__form-control {
@@ -22,6 +31,7 @@
 
 .quick-serach__icon--fixed {
     position: absolute;
+    right: 0;
 
 }
 

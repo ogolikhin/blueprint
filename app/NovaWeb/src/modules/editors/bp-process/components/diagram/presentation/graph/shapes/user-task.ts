@@ -1,10 +1,10 @@
-import {IArtifactProperty, IUserTaskShape} from "../../../../../models/process-models";
+﻿import {IArtifactProperty, IUserTaskShape} from "../../../../../models/process-models";
 import {ItemIndicatorFlags} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {IProcessGraph, IDiagramNode} from "../models/";
-import {IDiagramNodeElement, ISystemTask} from "../models/";
+import {ISystemTask} from "../models/";
 import {IUserTask, IUserStoryProperties, ILabel} from "../models/";
-import {NodeType, NodeChange, ElementType} from "../models/";
+import {NodeType, ElementType} from "../models/";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {ShapesFactory} from "./shapes-factory";
 import {DiagramNodeElement} from "./diagram-element";
@@ -39,7 +39,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private previewButton: Button;
     private linkButton: Button;
     private rootScope: any;
-    
+
     // #UNUSED
     // private _userStoryId: number;
 
@@ -68,7 +68,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         //Delete Shape
         const clickAction = () => {
-                this.processDiagramManager.action(ProcessEvents.DeleteShape);
+            this.processDiagramManager.action(ProcessEvents.DeleteShape);
         };
 
         this.deleteShapeButton = new DeleteShapeButton(nodeId, this.BUTTON_SIZE, this.BUTTON_SIZE,
@@ -163,7 +163,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             if (this.personaLabel) {
                 this.personaLabel.text = value;
                 this.shapesFactoryService.setUserTaskPersona(value);
-            } 
+            }
         }
     }
 
@@ -172,7 +172,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public set description(value: string) {
-       this.setPropertyValue("description", value);
+        this.setPropertyValue("description", value);
     }
 
     public get objective(): string {
@@ -180,7 +180,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public set objective(value: string) {
-       this.setPropertyValue("itemLabel", value);
+        this.setPropertyValue("itemLabel", value);
     }
 
     public get associatedArtifact(): any {
@@ -189,7 +189,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
     public set associatedArtifact(value: any) {
         if (this.model != null && this.model.associatedArtifact !== value) {
-            this.model.associatedArtifact = value;           
+            this.model.associatedArtifact = value;
             // TODO: create associatedArtifact predefined type and update it in the special properties of the stateful artifact.
             //this.updateStatefulPropertyValue(<property type predefined>, value);
             if (!value || value === null) {

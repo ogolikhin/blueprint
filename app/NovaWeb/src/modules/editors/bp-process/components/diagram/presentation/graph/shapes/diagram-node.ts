@@ -11,18 +11,16 @@ import {IStatefulProcessSubArtifact} from "../../../../../process-subartifact";
 export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement implements IDiagramNode {
     direction: Direction;
     model: T;
-    private nodeType: NodeType;
     protected dialogManager: IModalDialogCommunication;
 
     public get newShapeColor(): string {
         return "#F7F1CF";
     }
 
-    constructor(model: T, nodeType: NodeType = NodeType.Undefined) {
+    constructor(model: T) {
         super(model.id.toString(), ElementType.Shape);
 
         this.model = model;
-        this.nodeType = nodeType;
     }
     
 
@@ -161,11 +159,6 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
         return targets;
     }
 
-
-    public deleteNode(graph: IProcessGraph) {
-        throw new Error("This method is abstract!");
-    }
-
     public render(graph: IProcessGraph, col: number, row: number, justCreated: boolean): IDiagramNode {
         throw new Error("This method is abstract!");
     }
@@ -199,7 +192,8 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
     }
 
     public getNodeType(): NodeType {
-        return this.nodeType;
+        // This is abstract method. Should get overriden;
+        return NodeType.Undefined;
     }
 
     public getNextNodes(): IDiagramNode[] {

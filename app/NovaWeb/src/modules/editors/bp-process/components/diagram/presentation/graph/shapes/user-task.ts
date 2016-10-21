@@ -46,7 +46,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     public userStoryProperties: IUserStoryProperties;
 
     constructor(model: IUserTaskShape, rootScope: any, private nodeFactorySettings: NodeFactorySettings = null, private shapesFactoryService: ShapesFactory) {
-        super(model, NodeType.UserTask);
+        super(model);
 
         this.rootScope = rootScope;
 
@@ -263,10 +263,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         }
     }
 
-    public deleteNode(graph: IProcessGraph) {
-        //fixme: empty blocks should be removed
-    }
-
     public renderLabels() {
         this.textLabel.render();
         this.personaLabel.render();
@@ -458,4 +454,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             this.commentsButton.activate();
         }
     }
+    
+    public getNodeType() {
+        return NodeType.UserTask;
+    }
+
 }

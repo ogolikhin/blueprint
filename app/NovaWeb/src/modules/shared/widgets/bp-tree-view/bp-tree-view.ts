@@ -66,12 +66,12 @@ export interface ITreeViewNodeVM {
 export interface IColumn {
     headerName?: string;
     field?: string;
+    width?: number;
     isGroup?: boolean;
     isCheckboxSelection?: boolean;
+    isCheckboxHidden?: boolean;
     cellClass?: (vm: ITreeViewNodeVM) => string[];
-    innerRenderer?: (vm: ITreeViewNodeVM, eGridCell: HTMLElement) => string;
-    isSortable?: boolean;
-    filter?: "number" | "text" | "set";
+    innerRenderer?: (vm: ITreeViewNodeVM, eGridCell: HTMLElement) => string;    
 }
 
 export class BPTreeViewController implements IBPTreeViewController {
@@ -105,9 +105,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         this.options = {
             suppressRowClickSelection: true,
             rowBuffer: this.rowBuffer,
-            enableColResize: true,
-            enableSorting: true,
-            enableFilter: true,
+            enableColResize: true,         
             icons: {
                 groupExpanded: "<i />",
                 groupContracted: "<i />",
@@ -162,18 +160,17 @@ export class BPTreeViewController implements IBPTreeViewController {
                 return {
                     headerName: column.headerName ? column.headerName : "",
                     field: column.field,
+                    width: column.width,
                     cellClass: column.cellClass ? (params: agGrid.RowNode) => column.cellClass(params.data as ITreeViewNodeVM) : undefined,
                     cellRenderer: column.isGroup ? "group" : undefined,
                     cellRendererParams: column.isGroup ? {
-                        checkbox: this.selectionMode === "checkbox" ? (params: any) => (params.data as ITreeViewNodeVM).isSelectable() : undefined,
+                        checkbox: this.selectionMode === "checkbox" && !column.isCheckboxHidden ?
+                                 (params: any) => (params.data as ITreeViewNodeVM).isSelectable() : undefined,
                         innerRenderer: column.innerRenderer ?
                             (params: any) => column.innerRenderer(params.data as ITreeViewNodeVM, params.eGridCell as HTMLElement) : undefined,
                         padding: 20
                     } : undefined,
-                    checkboxSelection: column.isCheckboxSelection,
-                    suppressFilter: !column.filter,
-                    suppressSorting: !column.isSortable,
-                    filter: column.filter
+                    checkboxSelection: column.isCheckboxSelection                   
                 } as agGrid.ColDef;
             }));
 

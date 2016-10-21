@@ -101,24 +101,5 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         } else if (Enums.PropertyLookupEnum.Special === propertyContext.lookup) {
             this.specificFields.push(field);
         }
-    }
-
-    public columns: IColumn[] = [{
-        isCheckboxSelection: true
-    }, {
-            headerName: "ID",
-            field: "model.id",
-            isSortable: true,
-            filter: "number"
-        }, {
-            headerName: "Name",
-            field: "model.name",
-            isSortable: true,
-            filter: "text"
-        }, {
-            headerName: "Description",
-            field: "model.description"
-        }, {
-            headerName: "Options"
-        }];  
+    }    
 }

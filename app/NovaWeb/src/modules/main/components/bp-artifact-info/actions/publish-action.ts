@@ -41,7 +41,7 @@ export class PublishAction extends BPButtonAction {
                                     okButton: localization.get("App_Button_Publish"),
                                     cancelButton: localization.get("App_Button_Cancel"),
                                     message: localization.get("Publish_All_Dialog_Message"),
-                                    template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
+                                    template: require("../../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
                                     controller: ConfirmPublishController,
                                     css: "nova-messaging" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
                                 },

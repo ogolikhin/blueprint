@@ -317,12 +317,15 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     public publish(dependentIds: number[]): ng.IPromise<IStatefulArtifact> {
-        let deffered = this.services.getDeferred<IStatefulArtifact>();
+        //let deffered = this.services.getDeferred<IStatefulArtifact>();
 
-        let artifactsToPublish: number[] = [this.id];
-        this.services.publishService.publishArtifacts(artifactsToPublish);
+        //let artifactsToPublish: number[] = [this.id];
+        dependentIds.unshift(this.id);
+        return this.services.publishService.publishArtifacts(dependentIds);
+        //.then(() => {deffered.resolve(); })
+        //.catch((err) => {deffered.reject(err); });
 
-        return deffered.promise;
+        //return deffered.promise;
     }
 
     public refresh(): ng.IPromise<IStatefulArtifact> {

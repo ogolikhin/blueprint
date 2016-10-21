@@ -28,6 +28,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
     public isDeleteButtonEnabled: boolean;
 
     static $inject: [string] = [
+        "$q",
         "$scope",
         "$element",
         "artifactManager",
@@ -43,7 +44,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "metadataService"
     ];
 
-    constructor($scope: ng.IScope,
+    constructor($q: ng.IQService,
+                $scope: ng.IScope,
                 $element: ng.IAugmentedJQuery,
                 artifactManager: IArtifactManager,
                 localization: ILocalizationService,
@@ -57,6 +59,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                 protected projectManager: IProjectManager,
                 protected metadataService: IMetaDataService) {
         super(
+            $q,
             $scope,
             $element,
             artifactManager,

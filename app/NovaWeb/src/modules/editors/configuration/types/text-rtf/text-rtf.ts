@@ -30,7 +30,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         super();
 
         // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
-        let initialContent: string = undefined;
+        let freshContent: string = undefined;
         let onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
         //we override the default onChange as we need to deal with changes differently when using tinymce
         $scope.to.onChange = undefined;
@@ -171,20 +171,6 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         this.observer.observe(this.editorBody, observerConfig);
                     }
 
-                    initialContent = $scope.model[$scope.options["key"]];
-
-                    // editor.on("Dirty", (e) => {
-                    //     console.log("dirty " + Date());
-                    // });
-                    //
-                    // editor.on("NodeChange", (e) => {
-                    //     console.log("nodechange " + Date());
-                    // });
-                    //
-                    // editor.on("Change", (e) => {
-                    //     console.log("change " + Date());
-                    // });
-
                     editor.on("Focus", (e) => {
                         if (editor.editorContainer) {
                             editor.editorContainer.parentElement.classList.remove("tinymce-toolbar-hidden");
@@ -323,12 +309,14 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
             // tinyMCE may leave empty tags that cause the value to appear not empty
             requiredCustom: {
                 expression: ($viewValue, $modelValue, scope) => {
-                    if (initialContent) { // run this part after the field had the chance to load the content
-                        if (!Helper.relaxedHtmlCompare($modelValue, initialContent)) {
-                            triggerChange($modelValue);
-                        }
+                    if (scope.options && scope.options.data && scope.options.data.isFresh) {
+                        freshContent = $modelValue;
+                        scope.options.data.isFresh = false;
                     }
-                    console.log("validate " + Date());
+
+                    if ($modelValue !== freshContent) {
+                        triggerChange($modelValue);
+                    }
 
                     let isEmpty = false;
                     if (scope.to && scope.to.required) {
@@ -348,8 +336,10 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         });
 
         function triggerChange(newContent: string) {
-            initialContent = newContent;
-            onChange(newContent, $scope.options, $scope);
+            freshContent = newContent;
+            if (typeof onChange === "function") {
+                onChange(newContent, $scope.options, $scope);
+            }
         }
     }
 }

@@ -98,6 +98,10 @@ export class BpArtifactEditor extends BpBaseEditor {
 
                     });
 
+                } else {
+                    this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
+                        field.data["isFresh"] = true;
+                    });
                 }
                 this.model = this.editor.getModel();
 

@@ -170,6 +170,7 @@ export class PropertyEditor {
                         }
                     }
                     if (isModelSet) {
+                        propertyContext.isFresh = true;
                         let field = this.createPropertyField(propertyContext, statefulItem.id);
                         this._model[propertyContext.fieldPropertyName] = this.convertToFieldValue(field, modelValue);
                         if (fieldsupdated) {

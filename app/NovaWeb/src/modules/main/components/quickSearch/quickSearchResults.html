@@ -1,5 +1,6 @@
 <nav class="navbar navbar-light navbar-fixed-top">
     <div class="navbar-header">
+        <img class="logo" src="/novaweb/668f48fbcbda805a8a10b21184c7e996.svg"/>
         <div class="navbar-brand">Blueprint</div>
     </div>
 </nav>
@@ -24,9 +25,15 @@
                     class="close"
                     ng-click="$ctrl.closeModal()">&times;</button>
         </div>
-        <div class="quick-search__results">
-            HERE WE CAN PUT RESULTS
-            {{$ctrl}}
+        <div class="quick-search__results" ng-switch="$ctrl.hasResults">
+            <ul class="quick-search__results--list" ng-switch-when="true">
+                <li class="quick-search__results--item" ng-repeat="item in $ctrl.results track by $index">
+
+                </li>
+            </ul>
+            <div class="quick-search__response" ng-switch-when="false">
+                <span class="center-item larger-font">No Results Found</span>
+            </div>
         </div>
     </div>
 </div>

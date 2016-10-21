@@ -446,6 +446,27 @@ namespace ArtifactStoreTests
                 "Expected '{0}' error when user without permissions tries to get artifact path.", expectedExceptionMessage);
         }
 
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(185184)]
+        [Description("Create & publish parent and child artifact. User without permissions to parent artifact calls GetArtifactNagivationPath for child artifact.  Verify returned code 403 Forbidden.")]
+        public void ArtifactNavigationPath_PublishedParentAndChildArtifacts_UserWithoutPermissionsToParentArtifact_403Forbidden(BaseArtifactType artifactType)
+        {
+            // Setup:
+            var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var childArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, parentArtifact);
+
+            // Create a user that has access to the project but not the artifact.
+            IUser userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+            Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, parentArtifact);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetNavigationPath(user: userWithoutPermissions, itemId: childArtifact.Id),
+                "'GET {0}' should return 403 Forbidden when user without permissions tries to get artifact path for artifact which parent artifact has no permissions!", SVC_PATH);
+
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", childArtifact.Id);
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "Expected '{0}' error when user without permissions tries to get artifact path for artifact which parent artifact has no permissions.", expectedExceptionMessage);
+        }
         #endregion 403 Forbidden Tests
 
         #region 404 Not Found Tests

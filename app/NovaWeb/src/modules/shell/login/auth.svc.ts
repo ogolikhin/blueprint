@@ -159,7 +159,7 @@ export class AuthSvc implements IAuth {
                         return;
                     }
                     this.pendingLogout = null;
-                    SessionTokenHelper.setToken(null);
+                    SessionTokenHelper.clearSessionToken();
                     this._loggedOut = true;
                     deferred.resolve();
                 });

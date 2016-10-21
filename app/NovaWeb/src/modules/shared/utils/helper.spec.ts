@@ -70,19 +70,6 @@ describe("toCamelCase", () => {
     });
 });
 
-describe("fromCamelCase", () => {
-    it("changes 'DocumentModalPopup' into 'Document Modal Popup'", () => {
-        // Arrange
-        let string = "DocumentModalPopup";
-
-        // Act
-        string = Helper.fromCamelCase(string);
-
-        // Assert
-        expect(string).toEqual("Document Modal Popup");
-    });
-});
-
 describe("findAncestorByCssClass", () => {
     let html = `<div class="root">
         <div class="grandparent">

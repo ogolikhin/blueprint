@@ -31,11 +31,6 @@ export class Helper {
         });
     };
 
-    static fromCamelCase(token: string): string {
-        token = token.replace(/([A-Z])/g, " $1");
-        return token.trim();
-    };
-
     static stripHTMLTags = (stringToSanitize: string): string => {
         const stringSanitizer = window.document.createElement("DIV");
         stringSanitizer.innerHTML = stringToSanitize;

@@ -6,7 +6,7 @@
         {{$ctrl.errorMessage}}
     </div>
     <div ng-if="!$ctrl.hasError" class="project-wrapper">
-        <div class="nova-message"><span ng-bind-html="$ctrl.dialogSettings.message"></span></div>
+        <div class="nova-message" ng-bind-html="$ctrl.dialogSettings.message"></div>
         <bp-artifact-list class="bp-artifact-list"
             artifact-list="$ctrl.artifactList"
             project-list="$ctrl.projectList"

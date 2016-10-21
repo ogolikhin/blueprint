@@ -74,36 +74,36 @@ export class BpArtifactEditor extends BpBaseEditor {
     }
 
     public onArtifactReady() {
-        if (this.editor && this.artifact) {
+        if (this.artifact) {
             this.artifact.metadata.getArtifactPropertyTypes().then((propertyTypes) => {
-                const shouldCreateFields = this.editor.create(this.artifact, propertyTypes, this.shouldRenewFields()); 
-                if (shouldCreateFields) {
-                    this.clearFields();                    
-                    this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
-                        //add property change handler to each field
-                        Object.assign(field.templateOptions, {
-                            onChange: this.onValueChange.bind(this)
-                        });
+                if (this.editor ) {
+                    const shouldCreateFields = this.editor.create(this.artifact, propertyTypes, this.shouldRenewFields()); 
+                    if (shouldCreateFields) {
+                        this.clearFields();                    
+                        this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
+                            //add property change handler to each field
+                            Object.assign(field.templateOptions, {
+                                onChange: this.onValueChange.bind(this)
+                            });
 
-                        const isReadOnly = this.artifact.artifactState.readonly;
-                        field.templateOptions["isReadOnly"] = isReadOnly;
-                        if (isReadOnly) {
-                            if (field.type !== "bpDocumentFile" &&
-                                field.type !== "bpFieldImage" &&
-                                field.type !== "bpFieldInheritFrom") {
-                                field.type = "bpFieldReadOnly";
+                            const isReadOnly = this.artifact.artifactState.readonly;
+                            field.templateOptions["isReadOnly"] = isReadOnly;
+                            if (isReadOnly) {
+                                if (field.type !== "bpDocumentFile" &&
+                                    field.type !== "bpFieldImage" &&
+                                    field.type !== "bpFieldInheritFrom") {
+                                    field.type = "bpFieldReadOnly";
+                                }
                             }
-                        }
-                        this.onFieldUpdate(field);
-
-                    });
-
+                            this.onFieldUpdate(field);
+                        });
+                    }
+                    this.model = this.editor.getModel();
+                    
+                    this.setArtifactEditorLabelsWidth();
+                    super.onArtifactReady();
+                    this.onFieldUpdateFinished();
                 }
-                this.model = this.editor.getModel();
-                
-                this.setArtifactEditorLabelsWidth();
-                super.onArtifactReady();
-                this.onFieldUpdateFinished();
             });
         } else {
             this.setArtifactEditorLabelsWidth();

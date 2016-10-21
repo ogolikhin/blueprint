@@ -1,7 +1,7 @@
 ﻿import * as angular from "angular";
 import {Models, Enums} from "../../models";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../services";
-import {IMessageService, Message, MessageType, ILocalizationService} from "../../../core";
+import {IMessageService, Message, MessageType, ILocalizationService, IAppicationError, HttpStatusCode } from "../../../core";
 import {ILoadingOverlayService} from "../../../core/loading-overlay";
 import {IArtifactManager, IStatefulArtifact, IMetaDataService} from "../../../managers/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager";
@@ -79,19 +79,6 @@ export class BpArtifactInfoController {
 
     public $onInit() {
         const windowSub = this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
-        // const stateSub = this.artifactManager.selection.artifactObservable
-        //     // cannot always skip 1 and rely on the artifact observable having 2 values (initial and new)
-        //     // this is true when navigating to artifact X from artifact X via breadcrumb (loop)
-        //     // .skip(1) // skip the first (initial) value
-
-        //     .filter((artifact: IStatefulArtifact) => artifact != null)
-        //     .distinctUntilChanged(artifact => artifact.id)
-        //     .flatMap((artifact: IStatefulArtifact) => {
-        //         this.artifact = artifact;
-        //         return artifact.getObservable();
-        //     })
-        //     .subscribeOnNext(this.onStateChanged);
-
         this.subscribers.push(windowSub);
     }
 
@@ -99,10 +86,8 @@ export class BpArtifactInfoController {
         this.artifactManager.get(obj.context.currentValue).then((artifact) => {
             if (artifact) {
                 this.artifact = artifact;
-                const artifactObserver = artifact.getObservable()
-                    .subscribe(this.onArtifactChanged, this.onError);
-
-                this.subscribers.push(artifactObserver);
+                this.subscribers.push(artifact.getObservable().subscribeOnNext(this.onArtifactChanged));
+//                this.subscribers.push(artifact.errorObservable().subscribeOnNext(this.onError));
             }
         });
     }
@@ -133,13 +118,14 @@ export class BpArtifactInfoController {
         this.subscribers.push(stateObserver);
     }
 
-    public onError = (error: any) => {
-        if (this.artifact.artifactState.deleted || this.artifact.artifactState.misplaced) {
-            //Occurs when refreshing an artifact that's been moved/deleted; do nothing
-        } else {
-            this.messageService.addError(error);
+    public onError = (error: IAppicationError ) => {
+        if (error && error.message) {
+            if (this.artifact.artifactState.deleted || this.artifact.artifactState.misplaced) {
+                //Occurs when refreshing an artifact that's been moved/deleted; do nothing
+            } else {
+                this.messageService.addError(error);
+            }
         }
-
         this.onArtifactChanged();
     }
 

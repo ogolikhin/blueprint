@@ -29,15 +29,15 @@ export class ArtifactService implements IArtifactService {
         this.$http.get(url, config).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => defer.resolve(result.data),
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                const error = {
-                    statusCode: errResult.status,
-                    message: (errResult.data ? errResult.data.message : "")
-                };
-                defer.reject(error);
+                // if (!errResult) {
+                //     defer.reject();
+                //     return;
+                // }
+                // const error = {
+                //     statusCode: errResult.status,
+                //     message: (errResult.data ? errResult.data.message : "")
+                // };
+                defer.reject(errResult.data);
             }
         );
         return defer.promise;

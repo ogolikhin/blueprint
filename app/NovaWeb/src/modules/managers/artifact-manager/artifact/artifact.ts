@@ -77,7 +77,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 this.subject.onNext(this);
             }).catch((error) => {
                 this.artifactState.readonly = true;
-                this.subject.onError(error);
+                this.error.onNext(error);
             }).finally(() => {
                 this.loadPromise = null;
                 this.runPostGetObservable();

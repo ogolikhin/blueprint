@@ -4,6 +4,7 @@ import { IArtifactManager } from "../managers";
 import { IStatefulArtifact } from "../managers/artifact-manager";
 import { IStatefulArtifactFactory } from "../managers/artifact-manager/artifact";
 import { IMessageService, Message, MessageType } from "../shell";
+import { IAppicationError, HttpStatusCode } from "../core";
 import { INavigationService } from "../core/navigation";
 import { ILocalizationService } from "../core/localization";
 import { IItemInfoService, IItemInfoResult } from "../core/navigation/item-info.svc";
@@ -95,8 +96,11 @@ export class ItemStateController {
         return invalidTypes.indexOf(itemType) >= 0;
     }
 
+
     public navigateToSubRoute(artifact: IStatefulArtifact) {
         const params = { context: artifact.id };
+
+        const errorObserver = artifact.errorObservable().subscribeOnNext(this.onArtifactError);        
 
         switch (artifact.predefinedType) {
             case Models.ItemTypePredefined.GenericDiagram:
@@ -122,4 +126,14 @@ export class ItemStateController {
                 this.$state.go("main.item.details", params);
         }
     }
+
+    protected onArtifactError = (error: IAppicationError) => {
+        if (error.statusCode === HttpStatusCode.Forbidden || 
+            error.statusCode === HttpStatusCode.ServerError ||
+            error.statusCode === HttpStatusCode.Unauthorized
+            ) {
+            this.navigationService.navigateToMain();
+        }
+    }
+    
 }

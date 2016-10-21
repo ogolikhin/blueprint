@@ -9,7 +9,7 @@ import {IDocumentRefs, DocumentRefs} from "../docrefs";
 import {IStatefulArtifactServices} from "../services";
 import {IArtifactProperties} from "../properties";
 import {IArtifactRelationships, ArtifactRelationships} from "../relationships";
-import {HttpStatusCode} from "../../../core";
+import {HttpStatusCode, AppicationError} from "../../../core";
 
 export interface IStatefulItem extends Models.IArtifact {
     artifactState: IArtifactState;
@@ -25,6 +25,7 @@ export interface IStatefulItem extends Models.IArtifact {
     lock();
     discard();
     changes(): Models.ISubArtifact;
+    errorObservable(): Rx.Observable<AppicationError>;
 }
 
 export interface IIStatefulItem extends IStatefulItem {
@@ -47,11 +48,11 @@ export abstract class StatefulItem implements IIStatefulItem {
     protected _changesets: IChangeCollector;
     protected lockPromise: ng.IPromise<IStatefulItem>;
     protected loadPromise: ng.IPromise<IStatefulItem>;
-
+    protected error: Rx.BehaviorSubject<AppicationError>;
 
     constructor(private artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
 //        this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
-
+        this.error = new Rx.BehaviorSubject<AppicationError>(null);
         this.deleted = false;
     }
 
@@ -336,6 +337,11 @@ export abstract class StatefulItem implements IIStatefulItem {
 
         return delta;
     }
+
+    public errorObservable(): Rx.Observable<AppicationError> {
+        return this.error.filter(it => !!it).asObservable();
+    }
+
 
     //TODO: moved from bp-artifactinfo
 

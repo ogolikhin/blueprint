@@ -1,4 +1,4 @@
-﻿import {IMessageService} from "../core";
+﻿import {IMessageService, IAppicationError, HttpStatusCode} from "../core";
 import {IArtifactManager, IProjectManager} from "../managers";
 import {IStatefulArtifact} from "../managers/artifact-manager";
 import {Models, Enums} from "../main/models";
@@ -12,7 +12,8 @@ export class BpBaseEditor {
     public isLoading: boolean;
 
     constructor(public messageService: IMessageService,
-                public artifactManager: IArtifactManager) {
+                public artifactManager: IArtifactManager
+                ) {
         this.subscribers = [];
     }
 
@@ -30,10 +31,11 @@ export class BpBaseEditor {
                 this.artifactManager.selection.setExplorerArtifact(this.artifact);
                 this.artifactManager.selection.setArtifact(this.artifact);
 
-                const artifactObserver = artifact.getObservable()
-                    .subscribe(this.onArtifactChanged, this.onArtifactError);
+                const artifactObserver = artifact.getObservable().subscribeOnNext(this.onArtifactChanged);
 
-                this.subscribers = [artifactObserver];
+                const errorObserver = artifact.errorObservable().subscribeOnNext(this.onArtifactError);
+
+                this.subscribers = [artifactObserver, errorObserver];
             }
         });
     }
@@ -52,7 +54,7 @@ export class BpBaseEditor {
         this.onArtifactReady();
     }
 
-    protected onArtifactError = (error: any) => {
+    protected onArtifactError = (error: IAppicationError) => {
         this.onArtifactReady();
     }
 

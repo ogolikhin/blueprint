@@ -52,7 +52,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
                 this.subject.onNext(this);
             }).catch((error) => {
                 this.artifactState.readonly = true;
-                this.subject.onError(error);
+                this.error.onNext(error);
             }).finally(() => {
                 this.loadPromise = null;
             });

@@ -161,9 +161,6 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
         return targets;
     }
 
-    public addNode(graph: IProcessGraph): IDiagramNode {
-        throw new Error("This method is abstract!");
-    }
 
     public deleteNode(graph: IProcessGraph) {
         throw new Error("This method is abstract!");

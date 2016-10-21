@@ -13,6 +13,7 @@ import {ArtifactRelationshipsMock} from "./../../../managers/artifact-manager/re
 import {MessageServiceMock} from "../../../core/messages/message.mock";
 import {SelectionManager} from "./../../../managers/selection-manager/selection-manager";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
+import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
 import {
     IArtifactManager,
     ArtifactManager,
@@ -47,6 +48,7 @@ describe("Component BPRelationshipsPanel", () => {
         $provide.service("metadataService", MetaDataService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
         $provide.service("processService", ProcessServiceMock);
+        $provide.service("navigationService", NavigationServiceMock);
     }));
 
     beforeEach(inject(() => {

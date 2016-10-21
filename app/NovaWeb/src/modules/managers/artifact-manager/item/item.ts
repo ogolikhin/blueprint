@@ -15,6 +15,7 @@ export interface IStatefulItem extends Models.IArtifact {
     artifactState: IArtifactState;
 
     deleted: boolean;
+    historical: boolean;
     metadata: IMetaData;
 
     customProperties: IArtifactProperties;
@@ -34,9 +35,9 @@ export interface IIStatefulItem extends IStatefulItem {
 }
 
 export abstract class StatefulItem implements IIStatefulItem {
-//    public artifactState: IArtifactState;
     public metadata: IMetaData;
     public deleted: boolean;
+    public historical: boolean;
 
     protected _attachments: IArtifactAttachments;
     protected _docRefs: IDocumentRefs;
@@ -48,10 +49,7 @@ export abstract class StatefulItem implements IIStatefulItem {
     protected lockPromise: ng.IPromise<IStatefulItem>;
     protected loadPromise: ng.IPromise<IStatefulItem>;
 
-
     constructor(private artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
-//        this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
-
         this.deleted = false;
     }
 
@@ -152,7 +150,7 @@ export abstract class StatefulItem implements IIStatefulItem {
     }
 
     public getEffectiveVersion(): number {
-        return this.deleted ? this.version : undefined;
+        return this.historical ? this.version : undefined;
     }
 
     public set(name: string, value: any) {
@@ -217,9 +215,7 @@ export abstract class StatefulItem implements IIStatefulItem {
         return this._subArtifactCollection;
     }
 
-    public lock() {
-        //fixme: if empty function should be removed or return undefined
-    }
+    public abstract lock();
 
     protected isFullArtifactLoadedOrLoading() {
         return (this._customProperties && this._customProperties.isLoaded &&
@@ -337,8 +333,6 @@ export abstract class StatefulItem implements IIStatefulItem {
         return delta;
     }
 
-    //TODO: moved from bp-artifactinfo
-
-    abstract artifactState: IArtifactState;
+    public abstract get artifactState(): IArtifactState;
 
 }

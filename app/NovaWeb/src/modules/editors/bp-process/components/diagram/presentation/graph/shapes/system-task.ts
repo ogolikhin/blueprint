@@ -53,10 +53,8 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
     }
 
     public cloneSystemTask(): SystemTask {
-        let systemTask = new SystemTask(this.model, this.rootScope, this.defaultPersonaValue, this.nodeFactorySettings, this.shapesFactory);
+        const systemTask = Object.assign({}, this);
         systemTask.label = this.label;
-        systemTask.action = this.action;
-        systemTask.description = this.description;
         systemTask.associatedArtifact = this.associatedArtifact;
         return systemTask;
     }
@@ -270,10 +268,6 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
 
     public isPrecondition(): boolean {
         return this.model.propertyValues["clientType"].value === ProcessShapeType.PreconditionSystemTask;
-    }
-
-    public addNode(graph: IProcessGraph): IDiagramNode {
-        return this;
     }
 
     public deleteNode(graph: IProcessGraph) {

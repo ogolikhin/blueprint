@@ -12,12 +12,12 @@ import { Label, LabelStyle } from "../labels/label";
 import { ProcessEvents } from "../../../process-diagram-communication";
 
 export abstract class Decision extends DiagramNode<IProcessShape> implements IDecision {
-    protected abstract menuTooltip: string;
+    
     protected abstract DECISION_SHIFT: number;
     protected abstract DEFAULT_FILL_COLOR: string;
     protected abstract DEFAULT_BORDER_COLOR: string;
     protected abstract textLabelLeft;
-    protected abstract textLabelWidth;
+    protected abstract textLabelWidth;    
 
     protected BUTTON_SIZE: number = 16;
     protected MENU_SIZE: number = 16;
@@ -151,7 +151,7 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
             "/novaweb/static/bp-process/images/add-neutral.svg",
             this.MENU_SIZE,
             this.MENU_SIZE,
-            this.menuTooltip,
+            null, // tooltip
             mxConstants.ALIGN_CENTER,
             mxConstants.ALIGN_BOTTOM,
             0,

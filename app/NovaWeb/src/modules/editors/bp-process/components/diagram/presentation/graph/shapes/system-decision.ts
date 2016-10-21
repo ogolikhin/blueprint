@@ -40,13 +40,11 @@ export class SystemDecision extends Decision {
         dialogParams.message = this.rootScope["config"].labels["ST_Confirm_Delete_System_Decision"];
         return dialogParams;
     }
-    protected get menuTooltip(): string {
-        return "Add Branch";
-    }
 
     protected get textLabelLeft(): number {
         return this.DECISION_WIDTH / 2 - 15;
     }
+    
     protected get textLabelWidth(): number {
         return this.DECISION_WIDTH - 30;
     }

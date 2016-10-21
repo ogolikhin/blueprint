@@ -10,12 +10,15 @@ export class UserDecision extends Decision implements IDecision {
     protected get DECISION_SHIFT(): number {
         return 33;
     }
+
     protected get DEFAULT_FILL_COLOR(): string {
         return "#FFFFFF";
     }
+
     protected get DEFAULT_BORDER_COLOR(): string {
         return "#D4D5DA";
     }
+    
     constructor(
         model: IProcessShape,
         rootScope: ng.IRootScopeService,
@@ -24,13 +27,9 @@ export class UserDecision extends Decision implements IDecision {
         super(model, NodeType.UserDecision, rootScope, nodeFactorySettings);
     }
 
-    protected get menuTooltip(): string {
-        return "Add Task/Decision";
-    }
-
     public getX(): number {
         return this.getCenter().x + this.DECISION_SHIFT;
-    }
+    }    
 
     protected get textLabelLeft(): number {
         return this.DECISION_WIDTH / 2 + 24;

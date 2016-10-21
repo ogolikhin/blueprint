@@ -30,6 +30,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         super();
 
         let contentBuffer: string = undefined;
+        let mceEditor: TinyMceEditor;
 
         // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
         const onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
@@ -112,7 +113,6 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                     Helper.setFontFamilyOrOpenSans(args.node, allowedFonts);
                 },
                 init_instance_callback: (editor) => {
-                    console.log("init start " + Date.now());
                     editor.formatter.register("font8", {
                         inline: "span",
                         styles: {"font-size": "8pt"}
@@ -156,6 +156,11 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                     Helper.setFontFamilyOrOpenSans(this.editorBody, allowedFonts);
                     this.handleLinks(this.editorBody.querySelectorAll("a"));
 
+                    contentBuffer = editor.getContent();
+                    $scope.model[$scope.options["key"]] = contentBuffer;
+                    $scope.options["data"].isFresh = false;
+                    mceEditor = editor;
+
                     // MutationObserver
                     const mutationObserver = window["MutationObserver"] || window["WebKitMutationObserver"] || window["MozMutationObserver"];
                     if (!angular.isUndefined(mutationObserver)) {
@@ -173,6 +178,24 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         this.observer.observe(this.editorBody, observerConfig);
                     }
 
+                    editor.on("Dirty", (e) => {
+                        if (!$scope.options["data"].isFresh) {
+                            const value = editor.getContent();
+                            if (contentBuffer !== value) {
+                                triggerChange(value);
+                            }
+                        }
+                    });
+
+                    editor.on("Change", (e) => {
+                        if (!$scope.options["data"].isFresh) {
+                            const value = editor.getContent();
+                            if (contentBuffer !== value) {
+                                triggerChange(value);
+                            }
+                        }
+                    });
+
                     editor.on("Focus", (e) => {
                         if (editor.editorContainer) {
                             editor.editorContainer.parentElement.classList.remove("tinymce-toolbar-hidden");
@@ -184,9 +207,6 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                             editor.editorContainer.parentElement.classList.add("tinymce-toolbar-hidden");
                         }
                     });
-                    console.log("init end " + Date.now());
-
-                    contentBuffer = editor.getContent();
                 },
                 setup: function (editor) {
                     editor.addButton("format", {
@@ -314,16 +334,14 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
             // tinyMCE may leave empty tags that cause the value to appear not empty
             requiredCustom: {
                 expression: ($viewValue, $modelValue, scope) => {
-                    console.log("validate " + Date.now());
+                    let value = mceEditor ? mceEditor.getContent() : $modelValue;
                     if (scope.options && scope.options.data && scope.options.data.isFresh) {
-                        contentBuffer = $modelValue;
+                        contentBuffer = value;
                         scope.options.data.isFresh = false;
-                        console.log("not fresh " + Date.now());
                     }
 
-                    if ($modelValue !== contentBuffer) {
-                        console.log("trigger " + Date.now());
-                        triggerChange($modelValue);
+                    if (contentBuffer !== value) {
+                        triggerChange(value);
                     }
 
                     let isEmpty = false;

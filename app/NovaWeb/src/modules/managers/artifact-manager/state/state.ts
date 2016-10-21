@@ -18,6 +18,7 @@ export interface IState {
 export interface IArtifactState extends IState, IDispose {
     initialize(artifact: Models.IArtifact): IArtifactState;
     lock(value: Models.ILockResult): void;
+    unlock();
     onStateChange: Rx.Observable<IState>;
     get(): IState;
     setState(newState: IState, notifyChange: boolean);
@@ -194,6 +195,13 @@ export class ArtifactState implements IArtifactState {
             }
             this.setState(lockInfo);
         }
+    }
+
+    public unlock() {
+        let lockInfo: IState = {
+            lockedBy: Enums.LockedByEnum.None
+        };
+        this.setState(lockInfo);
     }
 
     public dispose() {

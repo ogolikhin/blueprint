@@ -337,6 +337,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             this.internalPublish([])
             .then(() => {
                 this.services.messageService.addInfo("Published artifact succesfully");
+                //this.subject.onNext(this);
+                this.artifactState.unlock();
                 deffered.resolve();
             })
             .catch((err) => {
@@ -359,9 +361,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                         this.internalPublish(data.artifacts.map((d: Models.IArtifact) => {return d.id; }))
                         .then(() => {
                             this.services.messageService.addInfo("Published artifact succesfully");
+                            this.artifactState.unlock();
+                            deffered.resolve();
                         })
                         .catch((err) => {
                             this.services.messageService.addError(err);
+                            deffered.reject();
                         });
                     });
                 }

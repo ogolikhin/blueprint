@@ -30,7 +30,6 @@ export interface IIStatefulArtifact extends IIStatefulItem {
 
 export class StatefulArtifact extends StatefulItem implements IStatefulArtifact, IIStatefulArtifact {
     private state: IArtifactState;
-    public deleted: boolean;
 
     protected subject: Rx.BehaviorSubject<IStatefulArtifact>;
 
@@ -58,6 +57,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         } else {
             this.artifactState.initialize(artifact);
             super.initialize(artifact);
+        }
+        if (this.historical) {
+            this.artifactState.readonly = true;
         }
         return this.artifactState.get();
     }
@@ -168,6 +170,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         } else {
             if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
                 this.refresh();
+                if (lock.info.versionId !== this.version) {
+                    //Show the refresh message only if the version has changed.
+                    this.services.messageService.addInfo("Artifact_Lock_Refresh");
+                }
             } else {
                 this.discard();
                 if (lock.result === Enums.LockResultEnum.DoesNotExist) {

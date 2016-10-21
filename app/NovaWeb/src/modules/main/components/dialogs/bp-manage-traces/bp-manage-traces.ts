@@ -11,7 +11,7 @@ import {
 } from "../../../../managers/artifact-manager";
 
 export interface IArtifactSelectedArtifactMap {
-    [artifactId: number]: Relationships.IRelationship[];
+    [artifactId: number]: Relationships.IRelationshipView[];
 }
 
 export class ManageTracesDialogController extends BaseDialogController {
@@ -182,6 +182,8 @@ export class ManageTracesDialogController extends BaseDialogController {
                 } else {
                     traces[i].suspect = true;
                 }
+
+                traces[i].traceIcon = traces[i].suspect ? "trace-icon-suspect" : "trace-icon-regular";
             }
         }
 
@@ -250,6 +252,7 @@ export class ManageTracesDialogController extends BaseDialogController {
 
         for (let i = 0; i < selectedTracesLength; i++) {
             traces[i].traceDirection = direction;
+            traces[i].directionIcon = this.getDirectionIcon(traces[i].traceDirection);
         }
 
         this.toggleSave();

@@ -223,17 +223,8 @@ export class BPTreeViewController implements IBPTreeViewController {
 
     public updateScrollbars(destroy: boolean = false) {
         const viewport = this.$element[0].querySelector(".ag-body-viewport");
-
         if (viewport ) {
-
-                if (viewport.getAttribute("data-ps-id")) {
-                    // perfect-scrollbar has been initialized on the element (data-ps-id is not falsy)
-                    const allColumnIds = [];
-                    this.options.columnDefs.forEach(function (columnDef) {
-                        allColumnIds.push(columnDef.field);
-                    });
-                    this.options.columnApi.autoSizeColumns(allColumnIds);
-                }
+            this.options.columnApi.autoSizeColumns(this.options.columnDefs.map(columnDef => columnDef.field ));
        }
     };
 

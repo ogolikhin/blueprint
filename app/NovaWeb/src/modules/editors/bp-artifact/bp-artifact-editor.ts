@@ -117,7 +117,7 @@ export class BpArtifactEditor extends BpBaseEditor {
 
     public setArtifactEditorLabelsWidth(mainWindow?: IMainWindow) {
         // MUST match $property-width in styles/partials/_properties.scss plus various padding/margin
-        const minimumWidth: number = 392 + ((20 + 1 + 15 + 1 + 10) * 2);
+        const minimumWidth: number = 392 + ((20 + 1 + 15 + 1 + 10) * 2) + 20;
 
         let pageBodyWrapper = document.querySelector(".page-body-wrapper") as HTMLElement;
         if (pageBodyWrapper) {

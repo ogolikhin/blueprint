@@ -1,11 +1,15 @@
-<form class="full-height quick-serach__form"
-         ng-submit="quickSearch.openModal()">
+<form name="quickSearch.form"
+      class="full-height quick-serach__form"
+      ng-submit="quickSearch.openModal()"
+novalidate>
     <div class="quick-serach__form-control">
-        <input type="text"
+        <input type="search"
+               required
+               ng-minlength="3"
                placeholder="Search..."
                class="quick-serach__input"
-               id="searchTerm"
-               ng-model="quickSearch.searchTerm">
+               name="searchTerm"
+               ng-model="quickSearch.quickSearchService.searchTerm">
         <i class="glyphicon glyphicon-search quick-serach__icon--fixed"></i>
     </div>
 

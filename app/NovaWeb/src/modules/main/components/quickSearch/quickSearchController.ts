@@ -1,47 +1,32 @@
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
 
 export class QuickSearchController {
-    static $inject = ["$log", "$uibModal"];
-    searchTerm: string;
+    static $inject = ["$log", "$uibModal", "quickSearchService"];
     animationsEnabled: boolean;
     modalSize: string;
-    modalInstance;
-
+    modalInstance: ng.ui.bootstrap.IModalServiceInstance;
+    form;
     constructor(private $log: ng.ILogService,
-                private $uibModal: ng.ui.bootstrap.IModalService) {
-        this.animationsEnabled = true;
-        this.modalSize = "xxl";
-
+                private $uibModal: ng.ui.bootstrap.IModalService,
+                private quickSearchService) {
+        this.animationsEnabled = false;
+        this.modalSize = "full-screen";
     }
-
     openModal() {
-        this.$log.debug("open modal");
-
+        if (this.form.$invalid) {
+            this.$log.warn("invalid search");
+            return false;
+        }
         const settings = <ModalSettings>{
             animation: this.animationsEnabled,
-            ariaLabelledBy: "modal-title",
-            ariaDescribedBy: "modal-body",
+            windowClass: "quick-search__modal",
             template: require("./quickSearchResults.html"),
-            controller: () => {
-//this is the logic for the inner controller
-            },
+            controller: "quickSearchModalController",
             controllerAs: "$ctrl",
-            size: this.modalSize,
-            resolve: {}
+            size: this.modalSize
         };
 
         this.modalInstance = this.$uibModal.open(settings);
-
-        this.modalInstance.result = this.modalClosed();
-    }
-
-
-    modalClosed() {
-        this.$log.debug("modal is closed now, resolve");
-    }
-
-    closeModal() {
-        this.$log.debug("close modal");
     }
 
 }

@@ -1,1 +1,17 @@
-this is the search results
+<nav class="navbar navbar-light navbar-fixed-top">
+    <div class="navbar-header">
+        <div class="navbar-brand">Blueprint</div>
+    </div>
+</nav>
+<div class="quick-search__results--content">
+    <div class="quick-search__results--content--center">
+        <div class="quick-search__results--input-panel">
+            <input type="search" ng-model="$ctrl.searchTerm"/>
+            <button type="button" ng-click="$ctrl.closeModal()">X</button>
+        </div>
+        <div class="quick-search__results">
+HERE WE CAN PUT RESULTS
+            {{$ctrl}}
+        </div>
+    </div>
+</div>

@@ -21,15 +21,15 @@ export interface IArtifactState extends IState, IDispose {
     onStateChange: Rx.Observable<IState>;
     get(): IState;
     setState(newState: IState, notifyChange: boolean);
-} 
+}
 
 export class ArtifactState implements IArtifactState {
-    
+
     constructor(private artifact: IIStatefulArtifact) {
         this.subject = new Rx.BehaviorSubject<IState>(this.currentState);
         this.initialize(artifact);
     }
-    
+
     private currentState: IState = this.newState();
     private prevState: IState = this.clone(this.currentState);
 
@@ -61,7 +61,7 @@ export class ArtifactState implements IArtifactState {
     }
 
     public get onStateChange(): Rx.Observable<IState> {
-        // returns the subject as an observable that can be subscribed to 
+        // returns the subject as an observable that can be subscribed to
         // subscribers will get notified when the state changes
         return this.subject.asObservable();
     }
@@ -72,7 +72,7 @@ export class ArtifactState implements IArtifactState {
 
     public setState(newState: IState, notifyChange: boolean = true) {
         // this function can set 1 or more state properties at once
-        // if notifyChange flag is false observers will not be notified 
+        // if notifyChange flag is false observers will not be notified
         if (newState) {
             Object.keys(newState).forEach((item) => {
                 this.currentState[item] = newState[item];
@@ -91,11 +91,11 @@ export class ArtifactState implements IArtifactState {
             this.subject.onNext(this.currentState);
         }
     }
- 
+
     private compareEqual(prev: IState, curr: IState): boolean {
         return JSON.stringify(prev) === JSON.stringify(curr);
     }
- 
+
     public get deleted(): boolean {
         return this.currentState.deleted;
     }
@@ -126,7 +126,7 @@ export class ArtifactState implements IArtifactState {
     public get lockedBy(): Enums.LockedByEnum {
         return this.currentState.lockedBy;
     }
-   
+
     public get lockDateTime(): Date {
         return this.currentState.lockDateTime;
     }
@@ -195,7 +195,7 @@ export class ArtifactState implements IArtifactState {
             this.setState(lockInfo);
         }
     }
-    
+
     public dispose() {
         if (this.subject) {
             this.subject.dispose();

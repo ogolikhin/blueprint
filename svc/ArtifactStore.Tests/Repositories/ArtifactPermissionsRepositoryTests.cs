@@ -290,9 +290,7 @@ namespace ArtifactStore.Repositories
                 new Dictionary<string, object>
                 {
                     {"userId", 0},
-                    {"artifactIds", artifactIds},
-                    {"revisionId", revisionId},
-                    {"addDrafts", addDrafts}
+                    {"artifactIds", artifactIds}
                 }, mockOpenArtifactPermissionsResult);
         }
 

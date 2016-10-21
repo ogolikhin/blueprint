@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http.Results;
@@ -16,34 +16,49 @@ namespace SearchService.Controllers
     [TestClass]
     public class ItemSearchControllerTests
     {
+        #region Constuctor
+
+        [TestMethod]
+        public void Constructor_CreatesDefaultDependencies()
+        {
+            // Arrange
+
+            // Act
+            var controller = new ItemSearchController();
+
+            // Assert
+            Assert.IsInstanceOfType(controller._itemSearchRepository, typeof(SqlItemSearchRepository));
+        }
+
+        #endregion
+
         #region SearchFullText
 
         [TestMethod]
         public async Task SearchFullText_PageSizeNegative_ReturnsConstant()
         {
             // Arrange
-            var configuration = new Mock<ISearchConfiguration>();
-            var controller = initializeController(configuration);
-            var searchCriteria = new SearchCriteria { Query = "empty", ProjectIds = new [] { 1 } };
+            var searchCriteria = new SearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var controller = CreateController();
 
             // Act
             var actionResult = await controller.SearchFullText(searchCriteria, null, -1);
-            
+
             // Assert
             var result = actionResult as OkNegotiatedContentResult<FullTextSearchResult>;
             Assert.IsNotNull(result, "Result was not retrieved");
-            Assert.AreEqual(result.Content.PageSize, ServiceConstants.SearchPageSize);
+            Assert.AreEqual(ServiceConstants.SearchPageSize, result.Content.PageSize);
         }
 
         [TestMethod]
-        public async Task SearchFullText_SearchCriteriaIsNull_ThrowsBadRequestException()
+        public async Task SearchFullText_SearchCriteriaIsNull_BadRequest()
         {
             // Arrange
-            var configuration = new Mock<ISearchConfiguration>();
-            var controller = initializeController(configuration);
-            var searchCriteria = new SearchCriteria { Query = null, ProjectIds = new [] { 1 } };
-            BadRequestException badRequestException = null;
+            var searchCriteria = new SearchCriteria { Query = null, ProjectIds = new[] { 1 } };
+            var controller = CreateController();
+
             // Act
+            BadRequestException badRequestException = null;
             try
             {
                 await controller.SearchFullText(searchCriteria, null, -1);
@@ -59,14 +74,14 @@ namespace SearchService.Controllers
         }
 
         [TestMethod]
-        public async Task SearchFullText_SearchCriteriaIsEmpty_ThrowsBadRequestException()
+        public async Task SearchFullText_SearchCriteriaIsEmpty_BadRequest()
         {
             // Arrange
-            var configuration = new Mock<ISearchConfiguration>();
-            var controller = initializeController(configuration);
-            var searchCriteria = new SearchCriteria { Query = "", ProjectIds = new [] { 1 } };
-            BadRequestException badRequestException = null;
+            var searchCriteria = new SearchCriteria { Query = "", ProjectIds = new[] { 1 } };
+            var controller = CreateController();
+
             // Act
+            BadRequestException badRequestException = null;
             try
             {
                 await controller.SearchFullText(searchCriteria, null, -1);
@@ -82,14 +97,14 @@ namespace SearchService.Controllers
         }
 
         [TestMethod]
-        public async Task SearchFullText_SearchCriteriaIsLessThanThreeCharacters_ThrowsBadRequestException()
+        public async Task SearchFullText_SearchCriteriaIsLessThanThreeCharacters_BadRequest()
         {
             // Arrange
-            var configuration = new Mock<ISearchConfiguration>();
-            var controller = initializeController(configuration);
-            var searchCriteria = new SearchCriteria { Query = "12", ProjectIds = new [] { 1 } };
-            BadRequestException badRequestException = null;
+            var searchCriteria = new SearchCriteria { Query = "12", ProjectIds = new[] { 1 } };
+            var controller = CreateController();
+
             // Act
+            BadRequestException badRequestException = null;
             try
             {
                 await controller.SearchFullText(searchCriteria, null, -1);
@@ -108,9 +123,8 @@ namespace SearchService.Controllers
         public async Task SearchFullText_ZeropPageSize_ReturnsConstant()
         {
             // Arrange
-            var configuration = new Mock<ISearchConfiguration>();
-            var controller = initializeController(configuration);
             var searchCriteria = new SearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var controller = CreateController();
 
             // Act
             var actionResult = await controller.SearchFullText(searchCriteria, null, 0);
@@ -118,16 +132,15 @@ namespace SearchService.Controllers
             // Assert
             var result = actionResult as OkNegotiatedContentResult<FullTextSearchResult>;
             Assert.IsNotNull(result, "Result was not retrieved");
-            Assert.AreEqual(result.Content.PageSize, ServiceConstants.SearchPageSize);
+            Assert.AreEqual(ServiceConstants.SearchPageSize, result.Content.PageSize);
         }
 
         [TestMethod]
         public async Task SearchFullText_50PageSize_ReturnsConstant()
         {
             // Arrange
-            var configuration = new Mock<ISearchConfiguration>();
-            var controller = initializeController(configuration);
             var searchCriteria = new SearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var controller = CreateController();
 
             // Act
             var actionResult = await controller.SearchFullText(searchCriteria, null, 50);
@@ -135,16 +148,15 @@ namespace SearchService.Controllers
             // Assert
             var result = actionResult as OkNegotiatedContentResult<FullTextSearchResult>;
             Assert.IsNotNull(result, "Result was not retrieved");
-            Assert.AreEqual(result.Content.PageSize, 50);
+            Assert.AreEqual(50, result.Content.PageSize);
         }
 
         [TestMethod]
         public async Task SearchFullText_RequestNegativePage_ReturnsPageOne()
         {
             // Arrange
-            var configuration = new Mock<ISearchConfiguration>();
-            var controller = initializeController(configuration);
             var searchCriteria = new SearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var controller = CreateController();
 
             // Act
             var actionResult = await controller.SearchFullText(searchCriteria, -10, 1);
@@ -152,16 +164,15 @@ namespace SearchService.Controllers
             // Assert
             var result = actionResult as OkNegotiatedContentResult<FullTextSearchResult>;
             Assert.IsNotNull(result, "Result was not retrieved");
-            Assert.AreEqual(result.Content.Page, 1);
+            Assert.AreEqual(1, result.Content.Page);
         }
 
         [TestMethod]
         public async Task SearchFullText_RequestZeroPage_ReturnsPageOne()
         {
             // Arrange
-            var configuration = new Mock<ISearchConfiguration>();
-            var controller = initializeController(configuration);
             var searchCriteria = new SearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var controller = CreateController();
 
             // Act
             var actionResult = await controller.SearchFullText(searchCriteria, 0, 1);
@@ -169,16 +180,15 @@ namespace SearchService.Controllers
             // Assert
             var result = actionResult as OkNegotiatedContentResult<FullTextSearchResult>;
             Assert.IsNotNull(result, "Result was not retrieved");
-            Assert.AreEqual(result.Content.Page, 1);
+            Assert.AreEqual(1, result.Content.Page);
         }
 
         [TestMethod]
         public async Task SearchFullText_RequestPositivePage_ReturnsPageOne()
         {
             // Arrange
-            var configuration = new Mock<ISearchConfiguration>();
-            var controller = initializeController(configuration);
             var searchCriteria = new SearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var controller = CreateController();
 
             // Act
             var actionResult = await controller.SearchFullText(searchCriteria, 10, 1);
@@ -186,27 +196,27 @@ namespace SearchService.Controllers
             // Assert
             var result = actionResult as OkNegotiatedContentResult<FullTextSearchResult>;
             Assert.IsNotNull(result, "Result was not retrieved");
-            Assert.AreEqual(result.Content.Page, 10);
+            Assert.AreEqual(10, result.Content.Page);
         }
 
         #endregion SearchFullText
 
         #region FullTextMetaData
 
+        [TestMethod]
         public async Task FullTextMetaData_PageSizeNegative_ReturnsConstant()
         {
             // Arrange
-            var configuration = new Mock<ISearchConfiguration>();
-            var controller = initializeController(configuration);
-            var searchCriteria = new SearchCriteria { Query = "empty", ProjectIds = new [] { 1 } };
+            var searchCriteria = new SearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var controller = CreateController();
 
             // Act
             var actionResult = await controller.FullTextMetaData(searchCriteria, -1);
 
             // Assert
-            var result = actionResult as OkNegotiatedContentResult<FullTextSearchResult>;
+            var result = actionResult as OkNegotiatedContentResult<FullTextSearchMetaDataResult>;
             Assert.IsNotNull(result, "Result was not retrieved");
-            Assert.AreEqual(result.Content.PageSize, ServiceConstants.SearchPageSize);
+            Assert.AreEqual(ServiceConstants.SearchPageSize, result.Content.PageSize);
         }
 
         #endregion FullTextMetaData
@@ -218,18 +228,10 @@ namespace SearchService.Controllers
         {
             // Arrange
             var searchCriteria = new ItemSearchCriteria { Query = "Test", ProjectIds = new List<int> { 5 } };
-            var searchResult = new ItemSearchResult { PageItemCount = 1, SearchItems = new List<ItemSearchResultItem>() };
             var startOffset = 0;
             var pageSize = 20;
-            var itemSearchRepositoryMock = new Mock<IItemSearchRepository>();
-            itemSearchRepositoryMock.Setup(m => m.SearchName(1, searchCriteria, startOffset, pageSize)).ReturnsAsync(searchResult);
-            var controller = new ItemSearchController(itemSearchRepositoryMock.Object, new SearchConfiguration())
-            {
-                Request = new HttpRequestMessage()
-            };
-            const int userId = 1;
-            var session = new Session { UserId = userId };
-            controller.Request.Properties[ServiceConstants.SessionProperty] = session;
+            var controller = CreateController();
+
             // Act
             var result = await controller.SearchName(searchCriteria, startOffset, pageSize);
 
@@ -244,15 +246,9 @@ namespace SearchService.Controllers
         {
             // Arrange
             var searchCriteria = new ItemSearchCriteria { Query = "Test", ProjectIds = new List<int> { 5 } };
-            var searchResult = new ItemSearchResult { PageItemCount = 1, SearchItems = new List<ItemSearchResultItem>() };
             var startOffset = 0;
             var pageSize = 20;
-            var itemSearchRepositoryMock = new Mock<IItemSearchRepository>();
-            itemSearchRepositoryMock.Setup(m => m.SearchName(1, searchCriteria, startOffset, pageSize)).ReturnsAsync(searchResult);
-            var controller = new ItemSearchController(itemSearchRepositoryMock.Object, new SearchConfiguration())
-            {
-                Request = new HttpRequestMessage()
-            };
+            var controller = CreateController();
 
             // Act
             try
@@ -270,50 +266,45 @@ namespace SearchService.Controllers
         public async Task SearchName_NullSerachCriteria_BadRequest()
         {
             // Arrange
-            var itemSearchRepositoryMock = new Mock<IItemSearchRepository>();
-            var controller = new ItemSearchController(itemSearchRepositoryMock.Object, new SearchConfiguration())
-            {
-                Request = new HttpRequestMessage()
-            };
-            const int userId = 1;
-            var session = new Session { UserId = userId };
-            controller.Request.Properties[ServiceConstants.SessionProperty] = session;
+            var controller = CreateController();
 
             // Act
+            BadRequestException badRequestException = null;
             try
             {
                 await controller.SearchName(null);
             }
             catch (BadRequestException e)
             {
-                // Assert
-                Assert.AreEqual(ErrorCodes.IncorrectSearchCriteria, e.ErrorCode);
+                badRequestException = e;
             }
+
+            // Assert
+            Assert.IsNotNull(badRequestException, "Bad Request Exception should have been thrown");
+            Assert.AreEqual(ErrorCodes.IncorrectSearchCriteria, badRequestException.ErrorCode, "IncorrectSearchCriteria should be provided as Error code");
         }
 
         [TestMethod]
         public async Task SearchName_QueryIsEmpty_BadRequest()
         {
             // Arrange
-            var itemSearchRepositoryMock = new Mock<IItemSearchRepository>();
-            var controller = new ItemSearchController(itemSearchRepositoryMock.Object, new SearchConfiguration())
-            {
-                Request = new HttpRequestMessage()
-            };
-            const int userId = 1;
-            var session = new Session { UserId = userId };
-            controller.Request.Properties[ServiceConstants.SessionProperty] = session;
+            var searchCriteria = new ItemSearchCriteria { Query = "" };
+            var controller = CreateController();
 
             // Act
+            BadRequestException badRequestException = null;
             try
             {
-                await controller.SearchName(new ItemSearchCriteria { Query = "" });
+                await controller.SearchName(searchCriteria);
             }
             catch (BadRequestException e)
             {
-                // Assert
-                Assert.AreEqual(ErrorCodes.IncorrectSearchCriteria, e.ErrorCode);
+                badRequestException = e;
             }
+
+            // Assert
+            Assert.IsNotNull(badRequestException, "Bad Request Exception should have been thrown");
+            Assert.AreEqual(ErrorCodes.IncorrectSearchCriteria, badRequestException.ErrorCode, "IncorrectSearchCriteria should be provided as Error code");
         }
 
         [TestMethod]
@@ -321,19 +312,9 @@ namespace SearchService.Controllers
         {
             // Arrange
             var searchCriteria = new ItemSearchCriteria { Query = "Test", ProjectIds = new List<int> { 5 } };
-            var searchItems = new List<ItemSearchResultItem>();
-            var searchResult = new ItemSearchResult { PageItemCount = 1, SearchItems = searchItems };
             var startOffset = 0;
             var pageSize = 200;
-            var itemSearchRepositoryMock = new Mock<IItemSearchRepository>();
-            itemSearchRepositoryMock.Setup(m => m.SearchName(1, searchCriteria, startOffset, ItemSearchController.MaxResultCount)).ReturnsAsync(searchResult);
-            var controller = new ItemSearchController(itemSearchRepositoryMock.Object, new SearchConfiguration())
-            {
-                Request = new HttpRequestMessage()
-            };
-            const int userId = 1;
-            var session = new Session { UserId = userId };
-            controller.Request.Properties[ServiceConstants.SessionProperty] = session;
+            var controller = CreateController();
 
             // Act
             var result = await controller.SearchName(searchCriteria, startOffset, pageSize);
@@ -342,26 +323,26 @@ namespace SearchService.Controllers
             Assert.IsNotNull(result);
         }
 
-        private ItemSearchController initializeController(Mock<ISearchConfiguration> configuration)
-        {
-            var itemSearchRepositoryMock = new Mock<IItemSearchRepository>();
-            itemSearchRepositoryMock.Setup(a => a.Search(It.IsAny<int>(), It.IsAny<SearchCriteria>(), It.IsAny<int>(), It.IsAny<int>())).
-                Returns(Task.FromResult
-                (
-                    new FullTextSearchResult
-                    {
-                        FullTextSearchItems = new List<FullTextSearchItem>()
-                    }
-                ));
-            var request = new HttpRequestMessage();
-            request.Properties.Add("Session", new Session { UserId = 1 });
+        #endregion SearchName
 
-            return new ItemSearchController(itemSearchRepositoryMock.Object, configuration.Object)
+        private ItemSearchController CreateController()
+        {
+            var itemSearchRepository = new Mock<IItemSearchRepository>();
+            itemSearchRepository.Setup(a => a.Search(It.IsAny<int>(), It.IsAny<SearchCriteria>(), It.IsAny<int>(), It.IsAny<int>())).
+                ReturnsAsync(new FullTextSearchResult { FullTextSearchItems = new List<FullTextSearchItem>() });
+            itemSearchRepository.Setup(a => a.SearchMetaData(It.IsAny<int>(), It.IsAny<SearchCriteria>())).
+                ReturnsAsync(new FullTextSearchMetaDataResult { FullTextSearchTypeItems = new List<FullTextSearchTypeItem>() });
+            itemSearchRepository.Setup(m => m.SearchName(It.IsAny<int>(), It.IsAny<ItemSearchCriteria>(), It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(new ItemSearchResult { PageItemCount = 1, SearchItems = new List<ItemSearchResultItem>() });
+
+            var configuration = new Mock<ISearchConfiguration>();
+
+            var request = new HttpRequestMessage();
+            request.Properties.Add(ServiceConstants.SessionProperty, new Session { UserId = 1 });
+            return new ItemSearchController(itemSearchRepository.Object, configuration.Object)
             {
                 Request = request
             };
         }
-
-        #endregion SearchName
     }
 }

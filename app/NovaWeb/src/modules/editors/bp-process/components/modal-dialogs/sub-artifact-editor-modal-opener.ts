@@ -158,7 +158,7 @@ export class SubArtifactEditorModalOpener {
         // cloning decision
         model.originalDecision = decision;
         model.label = decision.label;
-        
+
         // populate existing conditions
         const outgoingLinks: IProcessLink[] = model.graph.getNextLinks(decision.model.id);
 
@@ -230,8 +230,7 @@ export class SubArtifactEditorModalOpener {
             animation: this.animationsEnabled,
             component: "decisionEditor",
             resolve: {
-                dialogModel: () => this.getDecisionEditorModel(shapeId, graph),
-                modalProcessViewModel: () => this.modalProcessViewModel
+                dialogModel: () => this.getDecisionEditorModel(shapeId, graph)
             },
             windowClass: "storyteller-modal"
         };

@@ -3,32 +3,32 @@
        ng-attr-title="{{ match.model.projectName + '\u000A' + match.label}}"></a>
 </script>
 <div class="modal-header storyteller-modal-header">
-    <h3 class="modal-title" style="display: inline-block">{{$ctrl.getActiveHeader()}}</h3>
-    <h3 ng-if="!$ctrl.getActiveHeader()" class="modal-title" style="color: red; display: inline-block" ng-cloak>
+    <h3 class="modal-title" style="display: inline-block">{{vm.getActiveHeader()}}</h3>
+    <h3 ng-if="!vm.getActiveHeader()" class="modal-title" style="color: red; display: inline-block" ng-cloak>
         {{::$root.config.labels['ST_TaskNameNotValid_Label']}}</h3>
-    <div class="contextual-help-container contextual-help-modal-container">        
+    <div class="contextual-help-container contextual-help-modal-container">
         <contextual-help
-            image-src={{'/novaweb/static/bp-process/images/contextual-help/systemtask.png'}}></contextual-help>        
+            image-src={{'/novaweb/static/bp-process/images/contextual-help/systemtask.png'}}></contextual-help>
     </div>
 </div>
 
 <div class="modal-body storyteller-modal-body">
-    
+
     <form name="systemTaskForm" novalidate>
         <div class="nova-form-group nova-floating-label">
             <input type="text"
-                    ng-class='dialogModel.clonedItem.persona ? "nova-form-control input-is-dirty" : "nova-form-control"'
-                    id="storyteller-user" ng-model='dialogModel.clonedItem.persona' ng-disabled="$ctrl.isReadonly"
+                    ng-class='dialogModel.clonedSystemTask.persona ? "nova-form-control input-is-dirty" : "nova-form-control"'
+                    id="storyteller-user" ng-model='dialogModel.clonedSystemTask.persona' ng-disabled="vm.isReadonly"
                     autofocus maxlength="40" autocomplete="off">
             <label for="storyteller-user" class="nova-label"><i class="fonticon-bp-actor"></i>{{::$root.config.labels['ST_Persona_Label']}}</label>
             <span class="nova-helper-text">{{::$root.config.labels['ST_Persona_Helper_Text']}}</span>
         </div>
         <div class="nova-form-group nova-floating-label">
-            <input type="text" ng-blur="$ctrl.systemNameOnBlur()" ng-focus="$ctrl.systemNameOnFocus()"
-                    ng-class="dialogModel.clonedItem.action ? 'nova-form-control input-is-dirty' : 'nova-form-control'"
-                    id="storyteller-systemtask-action" ng-model="dialogModel.clonedItem.action"
-                    ng-disabled="$ctrl.isReadonly" maxlength="140" autocomplete="off">
-            <label for="storyteller-systemtask-action" class="nova-label"><i class="fonticon-storyteller-title"></i>{{$ctrl.systemNamePlaceHolderText}}</label>
+            <input type="text" ng-blur="vm.systemNameOnBlur()" ng-focus="vm.systemNameOnFocus()"
+                    ng-class="dialogModel.clonedSystemTask.action ? 'nova-form-control input-is-dirty' : 'nova-form-control'"
+                    id="storyteller-systemtask-action" ng-model="dialogModel.clonedSystemTask.action"
+                    ng-disabled="vm.isReadonly" maxlength="140" autocomplete="off">
+            <label for="storyteller-systemtask-action" class="nova-label"><i class="fonticon-storyteller-title"></i>{{vm.systemNamePlaceHolderText}}</label>
             <span class="nova-helper-text">{{::$root.config.labels['ST_System_Task_Name_Helper_Text']}}</span>
         </div>
         <div id="SystemTaskUploadImage">
@@ -36,61 +36,47 @@
                             data-buttons-container-enabled="true"
                             data-image-container-width-class="file-upload_container"
                             data-image-container-class="file-upload_preview"
-                            data-system-task-model="dialogModel.clonedItem"
+                            data-system-task-model="dialogModel.clonedSystemTask"
                             data-image-uploaded="imageUploaded"></upload-image>
         </div>
 
         <br/>
-        <div class="small-padding">                
-            <!--<div>
-                <label                        
-                       ng-class="{'available': dialogModel.clonedItem.associatedArtifact}">
-                    <i class="fonticon-include-active"  title="{{::$root.config.labels['ST_Include_Tab_Label']}}"></i>{{::$root.config.labels['ST_Include_Tab_Label']}}
-                </label>
-            </div>-->
+        <div class="small-padding">
             <div class="row">
                 <div class="col-sm-12">
                     <div class="nova-form-group nova-floating-label">
-                        <input type="text" cleartext
-                                name="include"
-                                ng-disabled="$ctrl.isReadonly"
-                                ng-class='dialogModel.clonedItem.associatedArtifact ? "nova-form-control input-is-dirty" : "nova-form-control"'
-                                ng-blur="$ctrl.cleanIncludeField()"
-                                ng-focus="$ctrl.prepIncludeField()"
-                                ng-change="$ctrl.changeIncludeField()"
-                                id="storyteller-include"
-                                autocomplete="off"
-                                ng-model='dialogModel.clonedItem.associatedArtifact'
-                                typeahead-input-formatter="$ctrl.formatIncludeLabel($model)"
-                                typeahead-editable="false"
-                                typeahead-min-length="3"
-                                placeholder="{{::$root.config.labels['ST_Include_Tab_Placeholder']}}"
-                                uib-typeahead="artifact as artifact.typePrefix + artifact.id + ': ' + artifact.name for artifact in $ctrl.getLinkableArtifacts($viewValue)"
-                                typeahead-template-url="includeTemplate.html">
-                        <div ng-show="$ctrl.isLoadingIncludes" class="loading"></div>
-                        <div
-                            ng-show="$ctrl.isIncludeResultsVisible && $ctrl.isIncludeNoResults && userTaskForm.include.$invalid">
-                            {{::$root.config.labels['ST_Inline_Traces_Search_No_Matches_Found']}}
+                        <div ng-show="!vm.isIncludeResultsVisible">
+                            <button class="btn btn-default" type="button" ng-click="vm.openArtifactPicker()" ng-disabled="vm.isReadonly">
+                                <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Add_Include_Tab_Label']}}
+                            </button>
                         </div>
-                        <div
-                            ng-show="$ctrl.isIncludeResultsVisible && $ctrl.isIncludeBadRequest && userTaskForm.include.$invalid">
-                            {{::$root.config.labels['ST_Inline_Traces_Search_Bad_Request']}}
+                        <div ng-show="vm.isIncludeResultsVisible">
+                            <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Include_Tab_Label']}}
+                            <br />
+                            <label for="storyteller-include" class="nova-label">
+                                {{vm.includeArtifactName}}
+                            </label>
+                            <button class="btn btn-default" type="button" ng-click="vm.cleanIncludeField()" ng-disabled="vm.isReadonly">
+                                <i class="fonticon-include-active fonticon-st-tabs"></i>
+                            </button>
+                            <button class="btn btn-default" type="button" ng-click="vm.openArtifactPicker()" ng-disabled="vm.isReadonly">
+                                <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Browse_Include_Label']}}
+                            </button>
                         </div>
-                        <!--<label for="storyteller-include" class="nova-label"><i class="fonticon-include-active"></i>{{::$root.config.labels['ST_Include_Label']}}</label>-->
                     </div>
-                </div>                    
+                </div>
             </div>
         </div>
     </form>
-    
+
 </div>
 
 <div class="modal-footer storyteller-modal-footer">
-    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">
         {{::$root.config.labels['App_Button_Cancel']}}
     </button>
-    <button class="btn button-brand-secondary" type="button" ng-click="$ctrl.ok()" ng-disabled="$ctrl.isReadonly">
+    <button class="btn button-brand-secondary" type="button" ng-click="vm.ok()" ng-disabled="vm.isReadonly">
         {{::$root.config.labels['App_Button_Ok']}}
     </button>
-    <!--<button id="artifact-property-modal-helper" style="display:none" type="button" ng-click="$ctrl.openPropertyFloatWindow($event)"></button>-->
+    <!--<button id="artifact-property-modal-helper" style="display:none" type="button" ng-click="vm.openPropertyFloatWindow($event)"></button>-->
 </div>

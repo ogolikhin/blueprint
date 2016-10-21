@@ -133,7 +133,7 @@ describe("SubArtifactEditorModalOpener test", () => {
         expect(spy).toHaveBeenCalled();
     });
 
-    it("openUserSystemTaskDetailsModalDialog.open called with parameters", () => {
+    xit("openUserSystemTaskDetailsModalDialog.open called with parameters", () => {
         let process = TestModels.createUserDecisionInfiniteLoopModel();
         spyOn(subArtifactEditorModalOpener, "open");
 

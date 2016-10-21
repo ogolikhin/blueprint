@@ -29,9 +29,10 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
     constructor(private $scope: AngularFormly.ITemplateScope) {
         super();
 
+        let contentBuffer: string = undefined;
+
         // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
-        let freshContent: string = undefined;
-        let onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
+        const onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
         //we override the default onChange as we need to deal with changes differently when using tinymce
         $scope.to.onChange = undefined;
 
@@ -46,15 +47,15 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         const bodyBgImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAQCAYAAADJViUEAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTExIDc5LjE1ODMyNSwgMjAxNS8wOS8xMC0wMToxMDoyMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkNBRUY4MjFGMTJFNzExRTY5QUM2QjQ5OUFFNTcxMDE1IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkNBRUY4MjIwMTJFNzExRTY5QUM2QjQ5OUFFNTcxMDE1Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6Q0FFRjgyMUQxMkU3MTFFNjlBQzZCNDk5QUU1NzEwMTUiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6Q0FFRjgyMUUxMkU3MTFFNjlBQzZCNDk5QUU1NzEwMTUiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz6zEGidAAABYElEQVR42oyST0rDUBDGk9coIog0rt31Bq5Cb+HCI1gQAikeQhDUTYSS7Ny5rhTBC2ThQg/gxn2i/ZP6mprEb2BGQmg0Ax95meQ338wkHaNFDIfDI8dxdBRFuppXLcBTXJ6hNyrSGvY87wSXAZ1N0+xCT67r9v6FAQ7w8n1RFO9lWb5yugv1hDP/AEfsaGRZ9qiUOkShF9/3z5BeQrm5YUZqc1TPx3F8cYegIzSDMlV3rILkSrFYLMbgxtyuko7VplYlMKuRpulDGIaXuNWsDCqqsCJQa32O81Rc4TgJguCKoRnri+al2tLGFgGWZR0nSXJL5/l8PoHjTQ1MobU4WwxvkxPgvm3bfXIEeM1b/eRuUm45/90JgdAedADtQ7v8TDP0QTvje3IsBba4gHyynGdas9O0CRSYEt/QqlJIM7xsAqXtDi9sh4sZPFtWWU656U8UJ8VFpP1CPkcTSPEjwADmppjiAB7dnwAAAABJRU5ErkJggg==";
         /* tslint:enable:max-line-length */
 
-        let to: AngularFormly.ITemplateOptions = {
+        const to: AngularFormly.ITemplateOptions = {
             tinymceOptions: { // this will go to ui-tinymce directive
                 menubar: false,
                 toolbar: "bold italic underline strikethrough | fontsize fontselect forecolor format | link table",
                 statusbar: false,
-                content_style: `html { overflow: auto !important; }
-                body.mce-content-body { font-family: 'Open Sans', sans-serif; font-size: 9pt; min-height: 100px; 
-                margin: 8px 20px 8px 8px; overflow: visible !important; padding-bottom: 20px !important; }
-                body:hover, body:focus { background: ${bodyBgColor} url(${bodyBgImage}) no-repeat right 4px top 6px; background-attachment: fixed; }
+                content_style: `html { height: 100%; overflow: auto !important; }
+                body.mce-content-body { background: transparent; font-family: 'Open Sans', sans-serif; font-size: 9pt; min-height: 100px; 
+                margin: 8px 20px 8px 8px; overflow: visible !important; padding-bottom: 0 !important; }
+                html:hover, html:focus { background: ${bodyBgColor} url(${bodyBgImage}) no-repeat right 4px top 6px; background-attachment: fixed; }
                 a:hover { cursor: pointer !important; }
                 p { margin: 0 0 8px; }`,
                 extended_valid_elements: "a[href|type|title|linkassemblyqualifiedname|text|canclick|isvalid|mentionid|isgroup|email|" +
@@ -111,6 +112,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                     Helper.setFontFamilyOrOpenSans(args.node, allowedFonts);
                 },
                 init_instance_callback: (editor) => {
+                    console.log("init start " + Date.now());
                     editor.formatter.register("font8", {
                         inline: "span",
                         styles: {"font-size": "8pt"}
@@ -182,6 +184,9 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                             editor.editorContainer.parentElement.classList.add("tinymce-toolbar-hidden");
                         }
                     });
+                    console.log("init end " + Date.now());
+
+                    contentBuffer = editor.getContent();
                 },
                 setup: function (editor) {
                     editor.addButton("format", {
@@ -305,16 +310,19 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         };
         angular.merge($scope.to, to);
 
-        let validators = {
+        $scope.options["validators"] = {
             // tinyMCE may leave empty tags that cause the value to appear not empty
             requiredCustom: {
                 expression: ($viewValue, $modelValue, scope) => {
+                    console.log("validate " + Date.now());
                     if (scope.options && scope.options.data && scope.options.data.isFresh) {
-                        freshContent = $modelValue;
+                        contentBuffer = $modelValue;
                         scope.options.data.isFresh = false;
+                        console.log("not fresh " + Date.now());
                     }
 
-                    if ($modelValue !== freshContent) {
+                    if ($modelValue !== contentBuffer) {
+                        console.log("trigger " + Date.now());
                         triggerChange($modelValue);
                     }
 
@@ -328,7 +336,6 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 }
             }
         };
-        $scope.options["validators"] = validators;
 
         $scope["$on"]("$destroy", () => {
             this.removeObserver();
@@ -336,7 +343,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         });
 
         function triggerChange(newContent: string) {
-            freshContent = newContent;
+            contentBuffer = newContent;
             if (typeof onChange === "function") {
                 onChange(newContent, $scope.options, $scope);
             }

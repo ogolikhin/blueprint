@@ -29,9 +29,10 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
     constructor(private $scope: AngularFormly.ITemplateScope) {
         super();
 
+        let contentBuffer: string = undefined;
+
         // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
-        let freshContent: string = undefined;
-        let onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
+        const onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
         //we override the default onChange as we need to deal with changes differently when using tinymce
         $scope.to.onChange = undefined;
 
@@ -41,7 +42,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
             fontFormats += `${font}=` + (font.indexOf(" ") !== -1 ? `"${font}";` : `${font};`);
         });
 
-        let to: AngularFormly.ITemplateOptions = {
+        const to: AngularFormly.ITemplateOptions = {
             tinymceOptions: { // this will go to ui-tinymce directive
                 inline: true,
                 fixed_toolbar_container: ".tinymce-toolbar-" + $scope.options["key"],
@@ -232,16 +233,16 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
         };
         angular.merge($scope.to, to);
 
-        let validators = {
+        $scope.options["validators"] = {
             // tinyMCE may leave empty tags that cause the value to appear not empty
             requiredCustom: {
                 expression: ($viewValue, $modelValue, scope) => {
                     if (scope.options && scope.options.data && scope.options.data.isFresh) {
-                        freshContent = $modelValue;
+                        contentBuffer = $modelValue;
                         scope.options.data.isFresh = false;
                     }
 
-                    if ($modelValue !== freshContent) {
+                    if ($modelValue !== contentBuffer) {
                         triggerChange($modelValue);
                     }
 
@@ -254,7 +255,6 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                 }
             }
         };
-        $scope.options["validators"] = validators;
 
         $scope["$on"]("$destroy", () => {
             this.removeObserver();
@@ -262,7 +262,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
         });
 
         function triggerChange(newContent: string) {
-            freshContent = newContent;
+            contentBuffer = newContent;
             if (typeof onChange === "function") {
                 onChange(newContent, $scope.options, $scope);
             }

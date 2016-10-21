@@ -225,22 +225,6 @@ export class Helper {
         return _html;
     }
 
-    static relaxedHtmlCompare(html1: string, html2: string): boolean {
-        // The server "sanitizes" the HTML when sending it back.
-        // For example, it removes the ; at the end of a style definition on a tag.
-        // Therefore, we need some special comparison rules
-        const div1 = document.createElement("div");
-        div1.innerHTML = html1 || "";
-
-        const div2 = document.createElement("div");
-        div2.innerHTML = html2 || "";
-
-        const isTextContentSame = div1.textContent === div2.textContent;
-        const isHtmlStructureSame = true; // html1.replace(/;/g, "") === html2.replace(/;/g, "");
-
-        return isTextContentSame && isHtmlStructureSame;
-    }
-
     static getHtmlBodyContent(html: string): string {
         const div = document.createElement("div");
         div.innerHTML = html || "";

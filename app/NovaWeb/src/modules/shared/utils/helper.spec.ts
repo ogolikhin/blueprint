@@ -210,52 +210,6 @@ Popup`);
         });
     });
 
-    describe("relaxedHtmlCompare", () => {
-        it("returns false if the text content is different", () => {
-            // Arrange
-            const html1 = html.replace(/Labels/, "labels");
-
-            // Act
-            const bool = Helper.relaxedHtmlCompare(html, html1);
-
-            // Assert
-            expect(bool).toBeFalsy();
-        });
-
-        it("returns false if the CSS style is different", () => {
-            // Arrange
-            const html1 = html.replace(/Wingdings/, "Webdings");
-
-            // Act
-            const bool = Helper.relaxedHtmlCompare(html, html1);
-
-            // Assert
-            expect(bool).toBeFalsy();
-        });
-
-        it("returns false if the text content is different by ';'", () => {
-            // Arrange
-            const html1 = html.replace(/Labels/, "Labels;");
-
-            // Act
-            const bool = Helper.relaxedHtmlCompare(html, html1);
-
-            // Assert
-            expect(bool).toBeFalsy();
-        });
-
-        it("returns true if the CSS style is different by ';'", () => {
-            // Arrange
-            const html1 = html.replace(/'Wingdings';/, "'Wingdings'");
-
-            // Act
-            const bool = Helper.relaxedHtmlCompare(html, html1);
-
-            // Assert
-            expect(bool).toBeTruthy();
-        });
-    });
-
     describe("getHtmlBodyContent", () => {
         it("returns the content of the HTML/BODY tag", () => {
             // Arrange

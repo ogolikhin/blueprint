@@ -1,4 +1,3 @@
-import * as angular from "angular";
 import {ILocalizationService, Message} from "../../core";
 import {IWindowManager, IMainWindow} from "../../main";
 //import { Models, Enums } from "../../main";
@@ -29,7 +28,7 @@ export class BpArtifactEditor extends BpBaseEditor {
 
     public form: angular.IFormController;
     public model = {};
-    public fields: AngularFormly.IFieldConfigurationObject[];
+    public fields: AngularFormly.IFieldConfigurationObject[] = [];
 
     public editor: PropertyEditor;
 
@@ -58,41 +57,54 @@ export class BpArtifactEditor extends BpBaseEditor {
     }
 
     public clearFields() {
-        this.model = {};
         this.fields = [];
     }
 
+    public hasFields(): boolean  {
+        return (this.fields || []).length > 0;
+
+    }
+
+    private shouldRenewFields(): boolean {
+        return this.artifact.artifactState.readonly || !this.hasFields();
+    }
+
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
-        if (!angular.isArray(this.fields)) {
-            //fixme: why is this empty? if it does nothing remove it!
-        }
         this.fields.push(field);
     }
 
     public onArtifactReady() {
         if (this.editor && this.artifact) {
-            this.clearFields();
             this.artifact.metadata.getArtifactPropertyTypes().then((propertyTypes) => {
-                this.model = this.editor.load(this.artifact, propertyTypes);
+                const shouldCreateFields = this.editor.create(this.artifact, propertyTypes, this.shouldRenewFields());
+                if (shouldCreateFields) {
+                    this.clearFields();
+                    this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
+                        //add property change handler to each field
+                        Object.assign(field.templateOptions, {
+                            onChange: this.onValueChange.bind(this)
+                        });
 
-                this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
-                    //add property change handler to each field
-                    angular.extend(field.templateOptions, {
-                        onChange: this.onValueChange.bind(this)
+                        const isReadOnly = this.artifact.artifactState.readonly;
+                        field.templateOptions["isReadOnly"] = isReadOnly;
+                        if (isReadOnly) {
+                            if (field.type !== "bpDocumentFile" &&
+                                field.type !== "bpFieldImage" &&
+                                field.type !== "bpFieldInheritFrom") {
+                                field.type = "bpFieldReadOnly";
+                            }
+                        }
+                        this.onFieldUpdate(field);
+
                     });
 
-                    let isReadOnly = this.artifact.artifactState.readonly || this.artifact.artifactState.lockedBy === Enums.LockedByEnum.OtherUser;
-                    field.templateOptions["isReadOnly"] = isReadOnly;
-                    if (isReadOnly) {
-                        if (field.type !== "bpDocumentFile" &&
-                            field.type !== "bpFieldImage" &&
-                            field.type !== "bpFieldInheritFrom") {
-                            field.type = "bpFieldReadOnly";
-                        }
-                    }
-                    this.onFieldUpdate(field);
+                } else {
+                    this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
+                        field.data["isFresh"] = true;
+                    });
+                }
+                this.model = this.editor.getModel();
 
-                });
                 this.setArtifactEditorLabelsWidth();
                 super.onArtifactReady();
                 this.onFieldUpdateFinished();
@@ -109,7 +121,7 @@ export class BpArtifactEditor extends BpBaseEditor {
 
     public setArtifactEditorLabelsWidth(mainWindow?: IMainWindow) {
         // MUST match $property-width in styles/partials/_properties.scss plus various padding/margin
-        const minimumWidth: number = 392 + ((20 + 1 + 15 + 1 + 10) * 2);
+        const minimumWidth: number = 392 + ((20 + 1 + 15 + 1 + 10) * 2) + 20;
 
         let pageBodyWrapper = document.querySelector(".page-body-wrapper") as HTMLElement;
         if (pageBodyWrapper) {
@@ -147,6 +159,7 @@ export class BpArtifactEditor extends BpBaseEditor {
                         this.artifact[context.modelPropertyName] = value;
                         break;
                 }
+                context.isFresh = false;
 
                 if ($scope["form"]) {
                     this.artifact.artifactState.invalid = $scope["form"].$$parentForm.$invalid;

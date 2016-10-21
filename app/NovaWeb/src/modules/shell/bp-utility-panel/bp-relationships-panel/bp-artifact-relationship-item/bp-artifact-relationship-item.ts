@@ -1,4 +1,5 @@
 ﻿import {ILocalizationService} from "../../../../core";
+import { INavigationService } from "../../../../core/navigation";
 import {Helper, IDialogService} from "../../../../shared";
 import {Relationships} from "../../../../main";
 import {IArtifactManager} from "../../../../managers";
@@ -35,7 +36,8 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
         "localization",
         "relationshipDetailsService",
         "artifactManager",
-        "dialogService"
+        "dialogService",
+        "navigationService"
     ];
 
     public expanded: boolean = false;
@@ -51,7 +53,9 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     constructor(private localization: ILocalizationService,
                 private relationshipDetailsService: IRelationshipDetailsService,
                 private artifactManager: IArtifactManager,
-                private dialogService: IDialogService) {
+                private dialogService: IDialogService,
+                private navigationService: INavigationService) {
+
 
     }
 
@@ -151,9 +155,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
 
     public navigateToArtifact(relationship: Relationships.IRelationship) {
         if (relationship.hasAccess) {
-            this.artifactManager.get(relationship.artifactId).then((artifact: IStatefulArtifact) => {
-                this.artifactManager.selection.setExplorerArtifact(artifact);
-            });
+            this.navigationService.navigateTo(relationship.itemId);
         }
     }
 }

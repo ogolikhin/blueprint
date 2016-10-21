@@ -1,4 +1,4 @@
-﻿import {IArtifactProperty, IUserTaskShape} from "../../../../../models/process-models";
+import {IArtifactProperty, IUserTaskShape} from "../../../../../models/process-models";
 import {ItemIndicatorFlags} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {IProcessGraph, IDiagramNode} from "../models/";
@@ -58,12 +58,8 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public cloneUserTask(): UserTask {
-        let userTask = new UserTask(this.model, this.rootScope, this.nodeFactorySettings, this.shapesFactoryService);
+        const userTask = Object.assign({}, this);
         userTask.label = this.label;
-        userTask.persona = this.persona;
-        userTask.objective = this.objective;
-        userTask.action = this.action;
-        userTask.description = this.description;
         userTask.associatedArtifact = this.associatedArtifact;
         return userTask;
     }
@@ -86,7 +82,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         if (nodeFactorySettings && nodeFactorySettings.isCommentsButtonEnabled) {
             // #TODO integrate with utility panel in Nova
             // this.commentsButton.setClickAction(() => this.openPropertiesDialog(this.rootScope, Shell.UtilityTab.discussions));
-        } 
+        }
 
         this.commentsButton.setTooltip(this.rootScope.config.labels["ST_Comments_Label"]);
         this.commentsButton.setActiveImage(this.getImageSource("/comments-active.svg"));
@@ -267,10 +263,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         }
     }
 
-    public addNode(graph: IProcessGraph): IDiagramNode {
-        return this;
-    }
-
     public deleteNode(graph: IProcessGraph) {
         //fixme: empty blocks should be removed
     }
@@ -419,60 +411,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         //this.rootScope.$broadcast(BaseModalDialogController.dialogOpenEventName,
         //    this.model.id,
         //    dialogType);
-    }
-
-    public getElementTextLength(cell: MxCell): number {
-        /*
-         * get the maximum length of text that can be entered in
-         * the cell
-         */
-        let maxLen: number = this.LABEL_EDIT_MAXLENGTH;
-
-        const element = <IDiagramNodeElement>cell;
-        if (element.getElementType() === ElementType.UserTaskHeader) {
-            maxLen = this.PERSONA_EDIT_MAXLENGTH;
-        } else {
-            maxLen = this.LABEL_EDIT_MAXLENGTH;
-        }
-        return maxLen;
-    }
-
-    public formatElementText(cell: MxCell, text: string): string {
-
-        // This function returns formatted text to the getLabel()
-        // function to display the node's label and persona.
-
-
-        if (cell && text) {
-            let maxLen: number = this.LABEL_VIEW_MAXLENGTH;
-
-            const element = <IDiagramNodeElement>cell;
-            if (element.getElementType() === ElementType.UserTaskHeader) {
-                maxLen = this.PERSONA_VIEW_MAXLENGTH;
-            } else {
-                maxLen = this.LABEL_VIEW_MAXLENGTH;
-            }
-
-            if (text.length > maxLen) {
-                text = text.substr(0, maxLen) + " ...";
-            }
-        }
-
-        return text;
-    }
-
-    public setElementText(cell: MxCell, text: string) {
-
-        // save text for the node or for an element within
-        // the node
-
-        const element = <IDiagramNodeElement>cell;
-
-        if (element.getElementType() === ElementType.UserTaskHeader) {
-            this.persona = text;
-        } else {
-            this.label = text;
-        }
     }
 
     public get userStoryId(): number {

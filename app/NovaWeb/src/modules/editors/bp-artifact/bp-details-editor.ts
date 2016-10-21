@@ -1,4 +1,4 @@
-﻿import {Models, Enums} from "../../main";
+import {Models, Enums} from "../../main";
 import {IColumn, ITreeViewNodeVM} from "../../shared/widgets/bp-tree-view/";
 
 import {
@@ -9,8 +9,6 @@ import {
     IWindowManager,
     PropertyContext
 } from "./bp-artifact-editor";
-
-import {IDialogService} from "../../shared";
 
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {
@@ -27,8 +25,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         "messageService",
         "artifactManager",
         "windowManager",
-        "localization",
-        "dialogService"
+        "localization"
     ];
 
     constructor(messageService: IMessageService,
@@ -65,7 +62,14 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         this.richTextFields = [];
     }
 
-    protected onFieldUpdateFinished() {        
+    public hasFields(): boolean  {
+        return ((this.systemFields || []).length +
+               (this.customFields || []).length +
+               (this.richTextFields || []).length +
+               (this.specificFields || []).length) > 0;
+    }
+
+    protected onFieldUpdateFinished() {
         if (this.artifact) {
             this.isSystemPropertyAvailable = this.systemFields && this.systemFields.length > 0;
             this.isCustomPropertyAvailable = this.customFields && this.customFields.length > 0;

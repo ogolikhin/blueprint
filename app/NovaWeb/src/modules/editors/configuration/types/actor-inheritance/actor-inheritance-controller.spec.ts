@@ -17,6 +17,7 @@ import {IDialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {ISelectionManager, SelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {BPFieldInheritFromController} from "./actor-inheritance";
 import {ArtifactPickerDialogServiceMock} from "./artifact-picker-dialog.mock";
+import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 
 describe("Actor Inheritance controller", () => {
 
@@ -31,6 +32,7 @@ describe("Actor Inheritance controller", () => {
         $provide.service("messageService", MessageServiceMock);
         $provide.service("dialogService", ArtifactPickerDialogServiceMock);
         $provide.service("selectionManager", SelectionManager);
+        $provide.service("navigationService", NavigationServiceMock);
     }));
 
     beforeEach(

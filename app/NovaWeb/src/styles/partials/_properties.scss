@@ -16,7 +16,6 @@ $richtext-fontcolor: #000;
 $richtext-linkcolor: #00f;
 $richtext-fontsize: 9pt;
 $richtext-fontfamily: $font-family-base;
-$richtext-y-scrollbar-width: 12px;
 
 pagecontent, bp-properties-panel {
     .properties {
@@ -72,7 +71,7 @@ pagecontent, bp-properties-panel {
             .content {
                 display: none;
             }
-    }
+        }
     }
 
     .formly {
@@ -341,13 +340,13 @@ pagecontent, bp-properties-panel {
 
                                 &::before {
                                     content: '\2713';
-                }
+                                }
 
                                 .bp-highlight {
                                     text-decoration: none;
-                }
+                                }
                             }
-            }
+                        }
                     }
 
                     .ui-select-choices-row.active {
@@ -358,7 +357,7 @@ pagecontent, bp-properties-panel {
 
                                 &::before {
                                     content: '\2713';
-                }
+                                }
                             }
                         }
                     }
@@ -520,13 +519,13 @@ pagecontent, bp-properties-panel {
                                     content: '';
                                     display: inline-block;
                                     width: 12px;
-                }
+                                }
 
                                 .bp-highlight {
                                     text-decoration: underline;
-                }
+                                }
                             }
-            }
+                        }
                     }
 
                     &:not(.disable-highlight) {
@@ -551,7 +550,7 @@ pagecontent, bp-properties-panel {
 
                                 &::before {
                                     content: '\2713';
-                }
+                                }
 
                                 .bp-highlight {
                                     text-decoration: none;
@@ -598,6 +597,7 @@ pagecontent, bp-properties-panel {
                     margin-top: 5px;
                     max-height: #{2.5 * $property-min-height};
                     min-height: #{$property-min-height - 5px};
+                    overflow: auto;
                     padding-bottom: 4px;
 
                     .choice {
@@ -614,6 +614,7 @@ pagecontent, bp-properties-panel {
                     max-height: 350px;
                     min-height: 150px;
                     min-width: $property-input-width;
+                    overflow: auto;
                     padding: 0;
 
                     a {
@@ -637,18 +638,6 @@ pagecontent, bp-properties-panel {
                         }
                     }
                 }
-            }
-
-            .overflow-fade {
-                background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
-                display: none;
-                height: 10px;
-                margin-top: -10px;
-                position: relative;
-            }
-
-            .read-only-input.ps-active-y + .overflow-fade {
-                display: block;
             }
 
             .has-messages {
@@ -681,7 +670,7 @@ pagecontent, bp-properties-panel {
                         &:hover {
                             background: $gray-lightest;
                             box-shadow: none;
-            }
+                        }
                     }
                 }
             }
@@ -704,7 +693,7 @@ pagecontent, bp-properties-panel {
 
                 &:not([disabled]):hover {
                     background-color: $yellow-pale;
-        }
+                }
             }
 
             .error-messages {
@@ -810,7 +799,7 @@ pagecontent, bp-properties-panel {
                                         font-size: $font-size-smaller;
                                         line-height: #{$user-picker-choice-size - 12px - 16px};
                                     }
-                }
+                                }
                             }
 
                             .ui-select-choice-icon {
@@ -820,9 +809,9 @@ pagecontent, bp-properties-panel {
                                 text-align: center;
                                 width: #{$user-picker-choice-size - 8px};
                             }
-            }
+                        }
                     }
-        }
+                }
 
                 .ui-select-results-count {
                     border-top: solid 1px $gray-lighter;
@@ -853,7 +842,7 @@ pagecontent, bp-properties-panel {
                         &:active {
                             background: $brand-secondary;
                             color: $white;
-            }
+                        }
                     }
                 }
             }
@@ -866,7 +855,7 @@ pagecontent, bp-properties-panel {
 
             .tinymce-group {
                 display: block;
-                width: calc(100% - #{$richtext-y-scrollbar-width});
+                width: 100%;
             }
 
             .mce-tinymce {
@@ -888,7 +877,7 @@ pagecontent, bp-properties-panel {
                 .mce-btn button {
                     line-height: 19px;
                     padding: 3px;
-        }
+                }
             }
 
             .mce-edit-area {
@@ -896,7 +885,7 @@ pagecontent, bp-properties-panel {
                 border-width: 1px !important;
             }
 
-            .tinymce-toolbar-hidden  .mce-toolbar-grp {
+            .tinymce-toolbar-hidden .mce-toolbar-grp {
                 display: none;
             }
 
@@ -942,7 +931,7 @@ pagecontent, bp-properties-panel {
             .tinymce-toolbar-hidden {
                 .tinymce-toolbar {
                     display: none;
-        }
+                }
             }
 
             .tinymce-body-wrapper {
@@ -1020,7 +1009,7 @@ pagecontent, bp-properties-panel {
                         opacity: $default-disabled-opacity;
                         cursor: not-allowed;
                     }
-        }
+                }
 
                 .actor-image-wrapper {
                     display: inline-flex;
@@ -1042,7 +1031,7 @@ pagecontent, bp-properties-panel {
                     label {
                         width: 90px;
                         height: 120px;
-            display: block;
+                        display: block;
                         margin: 0;
                         box-sizing: content-box;
                         background-size: contain;
@@ -1068,7 +1057,7 @@ pagecontent, bp-properties-panel {
                         &.disabled {
                             background-color: $gray;
                             cursor: not-allowed;
-            }
+                        }
                     }
                 }
             }
@@ -1116,7 +1105,7 @@ pagecontent, bp-properties-panel {
                         display: inline-block;
                         padding-right: 2px;
                     }
-        }
+                }
                 .inheritance-path {
                     border-color: $gray-lighter;
                     background-color: $gray-lightest;
@@ -1144,9 +1133,9 @@ pagecontent, bp-properties-panel {
                             &::before {
                                 content: '';
                             }
-            }
+                        }
                     }
-        }
+                }
 
                 .inheritance-tools {
                     flex-grow: 0;
@@ -1247,8 +1236,8 @@ pagecontent, bp-properties-panel {
                     margin: 2px;
                     max-width: 100%;
                     width: 100%;
-                    &[disabled]{
-                        border:1px solid $gray-lightest;
+                    &[disabled] {
+                        border: 1px solid $gray-lightest;
                     }
                     &:hover,
                     &:focus {
@@ -1256,9 +1245,9 @@ pagecontent, bp-properties-panel {
                         padding-right: $property-padding-default;
                     }
                 }
-      }
+            }
+        }
     }
-  }
 }
 
 .single-column-property .formly .formly-field label {
@@ -1270,7 +1259,7 @@ pagecontent, bp-properties-panel {
 .tab-pane {
     border: solid 1px $gray-lighter;
     border-radius: $border-radius-amount;
-    padding: 18px #{20px - $richtext-y-scrollbar-width} 18px 20px;
+    padding: 18px 20px;
 
     .formly {
         margin: 0;
@@ -1301,21 +1290,9 @@ pagecontent, bp-properties-panel {
 
                 .richtext-body {
                     display: inline-block;
-                    margin-right: $richtext-y-scrollbar-width;
                 }
-
-                &::after {
-                    background: $white;
-                    content: '';
-                    display: block;
-                    height: 100%;
-                    position: absolute;
-                    right: 0;
-                    top: 0;
-                    width: $richtext-y-scrollbar-width;
-        }
             }
-    }
+        }
     }
 }
 
@@ -1325,7 +1302,7 @@ bp-properties-panel {
     }
 
     .tab-pane {
-        padding: 8px #{20px - $richtext-y-scrollbar-width} 8px 15px;
+        padding: 8px 15px;
     }
 }
 
@@ -1342,7 +1319,7 @@ pagecontent {
             &.in {
                 height: auto !important;
             }
-    }
+        }
     }
 
     .empty-collection {
@@ -1386,7 +1363,7 @@ pagecontent {
                 border-left: 0;
                 color: $brand-secondary;
             }
-    }
+        }
     }
 
     table.uib-yearpicker {
@@ -1411,7 +1388,7 @@ pagecontent {
             .btn {
                 width: 100%;
             }
-    }
+        }
     }
 
     table.uib-monthpicker {
@@ -1436,7 +1413,7 @@ pagecontent {
             .btn {
                 width: 100%;
             }
-    }
+        }
     }
 
     table.uib-daypicker {
@@ -1455,7 +1432,7 @@ pagecontent {
                 padding-right: 7px;
                 width: 44px;
             }
-    }
+        }
     }
 
     .btn {
@@ -1480,7 +1457,7 @@ pagecontent {
 
         span {
             color: inherit;
-    }
+        }
         .btn-bp-small {
             margin-left: 5px;
             padding: 5px 9px;
@@ -1501,6 +1478,6 @@ pagecontent {
             border-color: $gray-lighter;
             border-radius: 4px !important;
             float: none;
-    }
+        }
     }
 }

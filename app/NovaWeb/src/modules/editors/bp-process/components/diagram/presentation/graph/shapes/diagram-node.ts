@@ -1,4 +1,4 @@
-﻿import {IProcessShape, PropertyTypePredefined, IPropertyValueInformation} from "../../../../../models/process-models";
+import {IProcessShape, PropertyTypePredefined, IPropertyValueInformation} from "../../../../../models/process-models";
 import {ArtifactUpdateType} from  "../../../../../models/enums";
 import * as Enums from "../../../../../../../main/models/enums";
 import {IProcessGraph, IDiagramNode, IDiagramLink, IDiagramNodeElement} from "./../models/";
@@ -161,9 +161,6 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
         return targets;
     }
 
-    public addNode(graph: IProcessGraph): IDiagramNode {
-        throw new Error("This method is abstract!");
-    }
 
     public deleteNode(graph: IProcessGraph) {
         throw new Error("This method is abstract!");
@@ -203,20 +200,6 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
 
     public getNodeType(): NodeType {
         return this.nodeType;
-    }
-
-    public setElementText(cell: MxCell, text: string) {
-        // override in descendant classes
-    }
-
-    public getElementTextLength(cell: MxCell): number {
-        // override in descendant classes
-        return null;
-    }
-
-    public formatElementText(cell: MxCell, text: string): string {
-        // override in descendant classes
-        return null;
     }
 
     public getNextNodes(): IDiagramNode[] {
@@ -314,26 +297,5 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
 
     public canGenerateUserStory(): boolean {
         return false;
-    }
-
-    // TODO: communication with utility panel is different in Nova
-    public openPropertiesDialog(scope: ng.IRootScopeService, tab: string) {
-        //if (!scope)
-        //    return;
-        //var utilityPanel: Shell.IPropertiesMw = scope["propertiesSvc"]();
-        //if (utilityPanel != null) {
-        //    utilityPanel.openModalDialogWithInfo({
-        //        id: this.model.id,
-        //        containerId: this.model.parentId,
-        //        name: this.model.name,
-        //        typePrefix: this.model.typePrefix,
-        //        predefined: this.model.baseItemTypePredefined,
-        //        isDiagram: false,
-        //        itemStateIndicators: BluePrintSys.RC.Business.Internal.Components.RapidReview.Models.ItemIndicatorFlags.None,
-        //        typeId: undefined
-        //    },
-        //        tab /*preselected tab*/,
-        //        true /*includeDraft*/);
-        //}
     }
 }

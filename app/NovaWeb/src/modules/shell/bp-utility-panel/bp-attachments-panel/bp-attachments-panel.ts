@@ -1,4 +1,4 @@
-﻿import {ILocalizationService, ISettingsService, IMessageService} from "../../../core";
+import {ILocalizationService, ISettingsService, IMessageService} from "../../../core";
 import {Models, Enums} from "../../../main";
 import {ISession} from "../../../shell";
 import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
@@ -213,8 +213,4 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         this.docRefList = docRefs;
     }
 
-    private canChangeAttachements() {
-        return !(this.item.artifactState.readonly ||
-            this.item.artifactState.lockedBy === Enums.LockedByEnum.OtherUser);
-    }
 }

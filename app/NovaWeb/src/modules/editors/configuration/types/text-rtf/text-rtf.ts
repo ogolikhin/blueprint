@@ -4,7 +4,7 @@ import "angular-ui-tinymce";
 import "tinymce";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
 import {Helper} from "../../../../shared";
-//fixme: only one class per file
+
 export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTF";
     public template: string = require("./text-rtf.template.html");
@@ -30,7 +30,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         super();
 
         // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
-        let initialContent = null;
+        let freshContent: string = undefined;
         let onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
         //we override the default onChange as we need to deal with changes differently when using tinymce
         $scope.to.onChange = undefined;
@@ -40,8 +40,6 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         allowedFonts.forEach(function (font) {
             fontFormats += `${font}=` + (font.indexOf(" ") !== -1 ? `"${font}";` : `${font};`);
         });
-        const bogusRegEx = /<br data-mce-bogus="1">/gi;
-        const zeroWidthNoBreakSpaceRegEx = /[\ufeff\u200b]/g;
         const bodyBgColor = "#fbf8e7"; // this is $yellow-pale as defined in styles/modules/_variables.scss
         /* tslint:disable:max-line-length */
         // pencil icon
@@ -173,9 +171,6 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         this.observer.observe(this.editorBody, observerConfig);
                     }
 
-                    // we store the initial value so IE doesn't mark the field dirty just for clicking it!
-                    initialContent = this.editorBody.innerHTML.replace(bogusRegEx, "").replace(zeroWidthNoBreakSpaceRegEx, "");
-
                     editor.on("Focus", (e) => {
                         if (editor.editorContainer) {
                             editor.editorContainer.parentElement.classList.remove("tinymce-toolbar-hidden");
@@ -229,6 +224,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                                 text: " Clear formatting",
                                 onclick: function () {
                                     editor.editorCommands.execCommand("RemoveFormat");
+                                    triggerChange(editor.getContent());
                                 }
                             }
                         ]
@@ -243,54 +239,63 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                                 text: "8",
                                 onclick: function () {
                                     editor.formatter.apply("font8");
+                                    triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "9",
                                 onclick: function () {
                                     editor.formatter.apply("font9");
+                                    triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "10",
                                 onclick: function () {
                                     editor.formatter.apply("font10");
+                                    triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "11",
                                 onclick: function () {
                                     editor.formatter.apply("font11");
+                                    triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "12",
                                 onclick: function () {
                                     editor.formatter.apply("font12");
+                                    triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "14",
                                 onclick: function () {
                                     editor.formatter.apply("font14");
+                                    triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "16",
                                 onclick: function () {
                                     editor.formatter.apply("font16");
+                                    triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "18",
                                 onclick: function () {
                                     editor.formatter.apply("font18");
+                                    triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "20",
                                 onclick: function () {
                                     editor.formatter.apply("font20");
+                                    triggerChange(editor.getContent());
                                 }
                             }
                         ]
@@ -304,11 +309,13 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
             // tinyMCE may leave empty tags that cause the value to appear not empty
             requiredCustom: {
                 expression: ($viewValue, $modelValue, scope) => {
-                    if (initialContent !== null) { // run this part after the field had the chance to load the content
-                        let content = this.editorBody.innerHTML.replace(bogusRegEx, "").replace(zeroWidthNoBreakSpaceRegEx, "");
-                        if (content !== initialContent) {
-                            onChange(content.replace(bogusRegEx, ""), scope.options, scope);
-                        }
+                    if (scope.options && scope.options.data && scope.options.data.isFresh) {
+                        freshContent = $modelValue;
+                        scope.options.data.isFresh = false;
+                    }
+
+                    if ($modelValue !== freshContent) {
+                        triggerChange($modelValue);
                     }
 
                     let isEmpty = false;
@@ -327,5 +334,12 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
             this.removeObserver();
             this.handleLinks(this.$scope["tinymceBody"].querySelectorAll("a"), true);
         });
+
+        function triggerChange(newContent: string) {
+            freshContent = newContent;
+            if (typeof onChange === "function") {
+                onChange(newContent, $scope.options, $scope);
+            }
+        }
     }
 }

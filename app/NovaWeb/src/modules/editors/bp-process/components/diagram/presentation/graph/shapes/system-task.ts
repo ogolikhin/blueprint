@@ -1,19 +1,19 @@
-﻿import {ISystemTaskShape} from "../../../../../models/process-models";
+import {ISystemTaskShape} from "../../../../../models/process-models";
 import {ItemIndicatorFlags, ProcessShapeType} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
-import {IProcessGraph, IDiagramNode, IUserTaskChildElement} from "../models/";
+import {IProcessGraph, IDiagramNode} from "../models/";
 import {IDiagramNodeElement, ISystemTask} from "../models/";
 import {ILabel} from "../models/";
 import {NodeType, NodeChange, ElementType} from "../models/";
-import {UserTaskChildElement} from "./user-task-child-element";
 import {ShapesFactory} from "./shapes-factory";
 import {DiagramNodeElement} from "./diagram-element";
+import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {Label, LabelStyle} from "../labels/label";
 import {ProcessEvents} from "../../../process-diagram-communication";
 
-export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implements ISystemTask, IUserTaskChildElement {
+export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystemTask {
 
     private LABEL_EDIT_MAXLENGTH = 35;
     private LABEL_VIEW_MAXLENGTH = 35;
@@ -53,10 +53,8 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
     }
 
     public cloneSystemTask(): SystemTask {
-        let systemTask = new SystemTask(this.model, this.rootScope, this.defaultPersonaValue, this.nodeFactorySettings, this.shapesFactory);
+        const systemTask = Object.assign({}, this);
         systemTask.label = this.label;
-        systemTask.action = this.action;
-        systemTask.description = this.description;
         systemTask.associatedArtifact = this.associatedArtifact;
         return systemTask;
     }
@@ -112,7 +110,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         if (nodeFactorySettings && nodeFactorySettings.isCommentsButtonEnabled) {
             // #TODO interaction with utility panel is different in Nova
             //this.commentsButton.setClickAction(() => this.openPropertiesDialog(this.rootScope, Shell.UtilityTab.discussions));
-        } 
+        }
 
         this.commentsButton.setTooltip(this.getLocalizedLabel("ST_Comments_Label"));
 
@@ -133,7 +131,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
 
         if (nodeFactorySettings && nodeFactorySettings.isLinkButtonEnabled) {
             this.linkButton.setClickAction(() => this.navigateToProcess());
-        } 
+        }
 
         this.linkButton.setTooltip(this.getLocalizedLabel("ST_Userstory_Label"));
         this.linkButton.setDisabledImage(this.getImageSource("include-inactive.svg"));
@@ -152,7 +150,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
 
         if (nodeFactorySettings && nodeFactorySettings.isMockupButtonEnabled) {
             this.mockupButton.setClickAction(() => this.openDialog(ModalDialogType.SystemTaskDetailsDialogType));
-        } 
+        }
 
         this.mockupButton.setTooltip(this.getLocalizedLabel("ST_Mockup_Label"));
         this.mockupButton.setActiveImage(this.getImageSource("mockup-active.svg"));
@@ -168,7 +166,7 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
 
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
             this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.SystemTaskDetailsDialogType));
-        } 
+        }
 
         this.detailsButton.setTooltip(this.getLocalizedLabel("ST_Settings_Label"));
         this.detailsButton.setHoverImage(this.getImageSource("adddetails-hover.svg"));
@@ -270,10 +268,6 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
 
     public isPrecondition(): boolean {
         return this.model.propertyValues["clientType"].value === ProcessShapeType.PreconditionSystemTask;
-    }
-
-    public addNode(graph: IProcessGraph): IDiagramNode {
-        return this;
     }
 
     public deleteNode(graph: IProcessGraph) {
@@ -438,60 +432,6 @@ export class SystemTask extends UserTaskChildElement<ISystemTaskShape> implement
         //    dialogType);
     }
 
-    public getElementTextLength(cell: MxCell): number {
-
-        // get the maximum length of text that can be entered
-
-        let maxLen: number = this.LABEL_EDIT_MAXLENGTH;
-
-        const element = <IDiagramNodeElement>cell;
-        if (element.getElementType() === ElementType.SystemTaskHeader) {
-            maxLen = this.PERSONA_EDIT_MAXLENGTH;
-        } else {
-            maxLen = this.LABEL_EDIT_MAXLENGTH;
-        }
-        return maxLen;
-    }
-
-    public formatElementText(cell: MxCell, text: string): string {
-
-
-        // This function returns formatted text to the getLabel()
-        // function to display the node's label and persona
-
-
-        if (cell && text) {
-            let maxLen: number = this.LABEL_VIEW_MAXLENGTH;
-
-            const element = <IDiagramNodeElement>cell;
-            if (element.getElementType() === ElementType.SystemTaskHeader) {
-                maxLen = this.PERSONA_VIEW_MAXLENGTH;
-            } else {
-                maxLen = this.LABEL_VIEW_MAXLENGTH;
-            }
-
-            if (text.length > maxLen) {
-                text = text.substr(0, maxLen) + " ...";
-            }
-        }
-
-        return text;
-    }
-
-    public setElementText(cell: MxCell, text: string) {
-
-        // save text for the node or for an element within
-        // the node
-
-
-        const element = <IDiagramNodeElement>cell;
-
-        if (element.getElementType() === ElementType.SystemTaskHeader) {
-            this.persona = text;
-        } else {
-            this.label = text;
-        }
-    }
     public getLabelCell(): MxCell {
         return this.bodyCell;
     }

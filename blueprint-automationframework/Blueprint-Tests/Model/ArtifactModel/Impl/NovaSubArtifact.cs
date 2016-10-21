@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Utilities;
 using Newtonsoft.Json;
@@ -28,6 +28,9 @@ namespace Model.ArtifactModel.Impl
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteListConverter<INovaSubArtifact, NovaSubArtifact>))]
         public List<INovaSubArtifact> Children { get; set; } = new List<INovaSubArtifact>();
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public List<NovaTrace> Traces { get; set; }
 
         public bool ShouldSerializeChildren()
         {

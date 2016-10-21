@@ -26,39 +26,39 @@ namespace SearchService.Repositories
 
         #endregion Constructor
 
-        #region SearchName
+        #region GetProjectsByName
 
         [TestMethod]
-        public async Task SearchName_QueryReturnsResult_ReturnsResult()
+        public async Task GetProjectsByName_QueryReturnsResult_ReturnsResult()
         {
             // Arrange
             const int userId = 1;
-            var searchCriteria = new SearchCriteria { Query = "test" };
+            const string searchText = "test";
             const int resultCount = 1;
             const string separatorString = "/";
-            SearchResult[] queryResult =
+            ProjectSearchResult[] queryResult =
             {
-                new SearchResult()
+                new ProjectSearchResult()
             };
-            var projectSearchRepository = CreateRepository(userId, searchCriteria, resultCount, separatorString, queryResult);
+            var projectSearchRepository = CreateRepository(userId, searchText, resultCount, separatorString, queryResult);
 
             // Act
-            var result = await projectSearchRepository.SearchName(userId, searchCriteria, resultCount, separatorString);
+            var result = await projectSearchRepository.GetProjectsByName(userId, searchText, resultCount, separatorString);
 
             // Assert
-            CollectionAssert.AreEqual(queryResult, result.Items.ToList());
+            CollectionAssert.AreEqual(queryResult, result.ToList());
         }
 
-        #endregion SearchName
+        #endregion GetProjectsByName
 
-        private static SqlProjectSearchRepository CreateRepository(int userId, SearchCriteria searchCriteria, int resultCount, string separatorString, SearchResult[] result)
+        private static IProjectSearchRepository CreateRepository(int userId, string searchText, int resultCount, string separatorString, params ProjectSearchResult[] result)
         {
             var connectionWrapper = new SqlConnectionWrapperMock();
             connectionWrapper.SetupQueryAsync("GetProjectsByName",
                 new Dictionary<string, object>
                 {
                     { "userId", userId },
-                    { "projectName", searchCriteria.Query },
+                    { "projectName", searchText },
                     { "resultCount", resultCount },
                     { "separatorString", separatorString }
                 },

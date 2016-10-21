@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web.Http.Results;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using SearchService.Helpers;
@@ -37,22 +38,23 @@ namespace SearchService.Controllers
         public async Task SearchFullText_PageSizeNegative_ReturnsConstant()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var searchCriteria = new SearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
             var controller = CreateController();
 
             // Act
-            var result = await controller.SearchFullText(searchCriteria, null, -1);
+            var actionResult = await controller.SearchFullText(searchCriteria, null, -1);
 
             // Assert
+            var result = actionResult as OkNegotiatedContentResult<FullTextSearchResult>;
             Assert.IsNotNull(result, "Result was not retrieved");
-            Assert.AreEqual(ServiceConstants.SearchPageSize, result.PageSize);
+            Assert.AreEqual(ServiceConstants.SearchPageSize, result.Content.PageSize);
         }
 
         [TestMethod]
         public async Task SearchFullText_SearchCriteriaIsNull_BadRequest()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = null, ProjectIds = new[] { 1 } };
+            var searchCriteria = new SearchCriteria { Query = null, ProjectIds = new[] { 1 } };
             var controller = CreateController();
 
             // Act
@@ -75,7 +77,7 @@ namespace SearchService.Controllers
         public async Task SearchFullText_SearchCriteriaIsEmpty_BadRequest()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "", ProjectIds = new[] { 1 } };
+            var searchCriteria = new SearchCriteria { Query = "", ProjectIds = new[] { 1 } };
             var controller = CreateController();
 
             // Act
@@ -98,7 +100,7 @@ namespace SearchService.Controllers
         public async Task SearchFullText_SearchCriteriaIsLessThanThreeCharacters_BadRequest()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "12", ProjectIds = new[] { 1 } };
+            var searchCriteria = new SearchCriteria { Query = "12", ProjectIds = new[] { 1 } };
             var controller = CreateController();
 
             // Act
@@ -121,75 +123,80 @@ namespace SearchService.Controllers
         public async Task SearchFullText_ZeropPageSize_ReturnsConstant()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var searchCriteria = new SearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
             var controller = CreateController();
 
             // Act
-            var result = await controller.SearchFullText(searchCriteria, null, 0);
+            var actionResult = await controller.SearchFullText(searchCriteria, null, 0);
 
             // Assert
+            var result = actionResult as OkNegotiatedContentResult<FullTextSearchResult>;
             Assert.IsNotNull(result, "Result was not retrieved");
-            Assert.AreEqual(ServiceConstants.SearchPageSize, result.PageSize);
+            Assert.AreEqual(ServiceConstants.SearchPageSize, result.Content.PageSize);
         }
 
         [TestMethod]
         public async Task SearchFullText_50PageSize_ReturnsConstant()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var searchCriteria = new SearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
             var controller = CreateController();
 
             // Act
-            var result = await controller.SearchFullText(searchCriteria, null, 50);
+            var actionResult = await controller.SearchFullText(searchCriteria, null, 50);
 
             // Assert
+            var result = actionResult as OkNegotiatedContentResult<FullTextSearchResult>;
             Assert.IsNotNull(result, "Result was not retrieved");
-            Assert.AreEqual(50, result.PageSize);
+            Assert.AreEqual(50, result.Content.PageSize);
         }
 
         [TestMethod]
         public async Task SearchFullText_RequestNegativePage_ReturnsPageOne()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var searchCriteria = new SearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
             var controller = CreateController();
 
             // Act
-            var result = await controller.SearchFullText(searchCriteria, -10, 1);
+            var actionResult = await controller.SearchFullText(searchCriteria, -10, 1);
 
             // Assert
+            var result = actionResult as OkNegotiatedContentResult<FullTextSearchResult>;
             Assert.IsNotNull(result, "Result was not retrieved");
-            Assert.AreEqual(1, result.Page);
+            Assert.AreEqual(1, result.Content.Page);
         }
 
         [TestMethod]
         public async Task SearchFullText_RequestZeroPage_ReturnsPageOne()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var searchCriteria = new SearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
             var controller = CreateController();
 
             // Act
-            var result = await controller.SearchFullText(searchCriteria, 0, 1);
+            var actionResult = await controller.SearchFullText(searchCriteria, 0, 1);
 
             // Assert
+            var result = actionResult as OkNegotiatedContentResult<FullTextSearchResult>;
             Assert.IsNotNull(result, "Result was not retrieved");
-            Assert.AreEqual(1, result.Page);
+            Assert.AreEqual(1, result.Content.Page);
         }
 
         [TestMethod]
         public async Task SearchFullText_RequestPositivePage_ReturnsPageOne()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var searchCriteria = new SearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
             var controller = CreateController();
 
             // Act
-            var result = await controller.SearchFullText(searchCriteria, 10, 1);
+            var actionResult = await controller.SearchFullText(searchCriteria, 10, 1);
 
             // Assert
+            var result = actionResult as OkNegotiatedContentResult<FullTextSearchResult>;
             Assert.IsNotNull(result, "Result was not retrieved");
-            Assert.AreEqual(10, result.Page);
+            Assert.AreEqual(10, result.Content.Page);
         }
 
         #endregion SearchFullText
@@ -200,15 +207,16 @@ namespace SearchService.Controllers
         public async Task FullTextMetaData_PageSizeNegative_ReturnsConstant()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var searchCriteria = new SearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
             var controller = CreateController();
 
             // Act
-            var result = await controller.FullTextMetaData(searchCriteria, -1);
+            var actionResult = await controller.FullTextMetaData(searchCriteria, -1);
 
             // Assert
+            var result = actionResult as OkNegotiatedContentResult<FullTextSearchMetaDataResult>;
             Assert.IsNotNull(result, "Result was not retrieved");
-            Assert.AreEqual(ServiceConstants.SearchPageSize, result.PageSize);
+            Assert.AreEqual(ServiceConstants.SearchPageSize, result.Content.PageSize);
         }
 
         #endregion FullTextMetaData
@@ -229,7 +237,8 @@ namespace SearchService.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.PageItemCount);
+            var projectSearchResults = ((OkNegotiatedContentResult<ItemSearchResult>)result).Content;
+            Assert.AreEqual(0, projectSearchResults.PageItemCount);
         }
 
         [TestMethod]
@@ -319,18 +328,12 @@ namespace SearchService.Controllers
         private ItemSearchController CreateController()
         {
             var itemSearchRepository = new Mock<IItemSearchRepository>();
-            itemSearchRepository.Setup(a => a.SearchFullText(It.IsAny<int>(), It.IsAny<ItemSearchCriteria>(), It.IsAny<int>(), It.IsAny<int>())).
-                Returns((int userId, SearchCriteria searchCriteria, int page, int pageSize) => Task.FromResult(new FullTextSearchResultSet
-                {
-                    Items = new List<FullTextSearchResult>(),
-                    Page = page,
-                    PageItemCount = 0,
-                    PageSize = pageSize
-                }));
-            itemSearchRepository.Setup(a => a.FullTextMetaData(It.IsAny<int>(), It.IsAny<ItemSearchCriteria>())).
-                ReturnsAsync(new MetaDataSearchResultSet { Items = new List<MetaDataSearchResult>() });
+            itemSearchRepository.Setup(a => a.Search(It.IsAny<int>(), It.IsAny<SearchCriteria>(), It.IsAny<int>(), It.IsAny<int>())).
+                ReturnsAsync(new FullTextSearchResult { FullTextSearchItems = new List<FullTextSearchItem>() });
+            itemSearchRepository.Setup(a => a.SearchMetaData(It.IsAny<int>(), It.IsAny<SearchCriteria>())).
+                ReturnsAsync(new FullTextSearchMetaDataResult { FullTextSearchTypeItems = new List<FullTextSearchTypeItem>() });
             itemSearchRepository.Setup(m => m.SearchName(It.IsAny<int>(), It.IsAny<ItemSearchCriteria>(), It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(new ItemNameSearchResultSet { Items = new List<ItemSearchResult>(), PageItemCount = 0 });
+                .ReturnsAsync(new ItemSearchResult { PageItemCount = 1, SearchItems = new List<ItemSearchResultItem>() });
 
             var configuration = new Mock<ISearchConfiguration>();
 

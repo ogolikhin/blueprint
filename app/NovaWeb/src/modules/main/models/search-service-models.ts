@@ -1,16 +1,9 @@
-export interface ISearchCriteria {
+export interface IProjectSearchCriteria {
     query: string;
 }
 
-export interface ISearchResultSet<T extends ISearchResult> {
-    items: T[];
-}
-
-export interface ISearchResult {
-    itemId: number;
+export interface IProjectSearchResult {
+    id: number;
     name: string;
-    path?: string;
-}
-
-export interface IProjectSearchResultSet extends ISearchResultSet<ISearchResult> {
+    path: string;
 }

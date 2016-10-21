@@ -1,13 +1,14 @@
 ﻿using SearchService.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SearchService.Repositories
 {
     public interface IProjectSearchRepository
     {
-        Task<ProjectSearchResultSet> SearchName(
+        Task<IEnumerable<ProjectSearchResult>> GetProjectsByName(
             int userId,
-            SearchCriteria searchCriteria,
+            string searchText,
             int resultCount,
             string separatorString);
     }

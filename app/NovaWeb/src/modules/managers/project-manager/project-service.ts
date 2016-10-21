@@ -13,9 +13,9 @@ export interface IProjectService {
     getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta>;
     getSubArtifactTree(artifactId: number): ng.IPromise<Models.ISubArtifactNode[]>;
     getProjectTree(projectId: number, artifactId: number, loadChildren?: boolean): ng.IPromise<Models.IArtifact[]>;
-    searchProjects(searchCriteria: SearchServiceModels.ISearchCriteria,
+    searchProjects(searchCriteria: SearchServiceModels.IProjectSearchCriteria,
                    resultCount?: number,
-                   separatorString?: string): ng.IPromise<SearchServiceModels.IProjectSearchResultSet>;
+                   separatorString?: string): ng.IPromise<SearchServiceModels.IProjectSearchResult[]>;
 }
 
 export class ProjectService implements IProjectService {
@@ -212,9 +212,9 @@ export class ProjectService implements IProjectService {
         return defer.promise;
     }
 
-    public searchProjects(searchCriteria: SearchServiceModels.ISearchCriteria,
+    public searchProjects(searchCriteria: SearchServiceModels.IProjectSearchCriteria,
                           resultCount: number = 100,
-                          separatorString: string = " > "): ng.IPromise<SearchServiceModels.IProjectSearchResultSet> {
+                          separatorString: string = " > "): ng.IPromise<SearchServiceModels.IProjectSearchResult[]> {
         this.canceler = this.$q.defer<any>();
 
         const requestObj: ng.IRequestConfig = {
@@ -225,7 +225,7 @@ export class ProjectService implements IProjectService {
         };
 
         return this.$http(requestObj).then(
-            (result: ng.IHttpPromiseCallbackArg<SearchServiceModels.IProjectSearchResultSet>) => {
+            (result: ng.IHttpPromiseCallbackArg<SearchServiceModels.IProjectSearchResult[]>) => {
                 return result.data;
             },
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {

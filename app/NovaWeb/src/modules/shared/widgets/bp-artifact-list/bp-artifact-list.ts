@@ -27,14 +27,18 @@ export class BPArtifactListController implements IBPArtifactListController {
     public projectList: Models.IItem[];
     public selectedProject: number;
     public limit: number;
+    public limitTo: number;
 
     private _sortedList: IArtifactWithProject[];
-    private _currentProject: number;
+    private initialLimit: number;
 
     public $onInit = () => {
+        // limit set on the component
         if (!this.limit) {
-            this.limit = 100;
+            this.limit = 100; // if no limit is set, default to 100
         }
+        this.initialLimit = 10; // limit of the initial list
+        this.limitTo = this.initialLimit;
 
         this._sortedList = [];
         this.artifactList.forEach((artifact) => {
@@ -53,16 +57,12 @@ export class BPArtifactListController implements IBPArtifactListController {
         return this._sortedList;
     }
 
-    public itemLabel = (artifact: IArtifactWithProject): string => {
-        return artifact.prefix + artifact.id + " - " + artifact.name;
+    public loadMore = () => {
+        this.limitTo = this.limit;
     };
 
-    public mustShowProject = (artifact: IArtifactWithProject): boolean => {
-        if (artifact.projectName && this._currentProject !== artifact.projectId) {
-            this._currentProject = artifact.projectId;
-            return true;
-        }
-        return false;
+    public itemLabel = (artifact: IArtifactWithProject): string => {
+        return artifact.prefix + artifact.id + " - " + artifact.name;
     };
 
     private sortList = (a, b) => {

@@ -2,14 +2,17 @@
 @import '../../../../styles/modules/variables';
 
 .bp-artifact-list {
-    overflow: auto;
     margin: 0;
-    max-height: 200px;
     padding: 0;
 
     &__item {
-        font-size: $font-size-normal;
+        font-size: $font-size-small;
         list-style: none;
+        padding-left: 16px;
+    }
+
+    &__icon {
+        font-size: $font-size-big;
     }
 
     &__artifact,
@@ -20,6 +23,20 @@
     }
 
     &__artifact {
-        padding-left: 20px;
+        padding-left: 24px;
     }
+
+    &__counter {
+        font-size: $font-size-small;
+    }
+
+    &__load-more {
+        font-size: $font-size-small;
+        text-align: right;
+    }
+}
+
+.bp-artifact-list--overflow {
+    max-height: 220px; // optimistic: only 1 project was initially shown
+    overflow: auto;
 }

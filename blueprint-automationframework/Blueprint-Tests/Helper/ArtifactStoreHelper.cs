@@ -1,5 +1,6 @@
 ﻿using Common;
 using Model;
+using Model.Impl;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
@@ -383,7 +384,7 @@ namespace Helper
                 artifactDetails.AttachmentValues.Add(new AttachmentValue(user, file));
             }
 
-            Artifact.UpdateArtifact(artifact, user, artifactDetails, artifactStore.Address);
+            Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
             var attachment = artifactStore.GetAttachments(artifact, user);
             Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
         }
@@ -411,7 +412,7 @@ namespace Helper
             NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
             artifactDetails.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
 
-            Artifact.UpdateArtifact(artifact, user, artifactDetails, artifactStore.Address);
+            Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
         }
 
         /// <summary>
@@ -555,7 +556,7 @@ namespace Helper
         /// <param name="isSuspect">(optional)isSuspect, true for suspect trace, false otherwise.</param>
         /// <param name="targetSubArtifact">(optional)subArtifact for trace target(creates trace with subartifact).</param>
         public static void UpdateManualArtifactTraceAndSave(IUser user, IArtifact artifact, IArtifactBase traceTarget,
-            int changeType, IArtifactStore artifactStore, TraceDirection traceDirection = TraceDirection.From,
+            ArtifactUpdateChangeType changeType, IArtifactStore artifactStore, TraceDirection traceDirection = TraceDirection.From,
             bool? isSuspect = null, INovaSubArtifact targetSubArtifact = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -580,7 +581,7 @@ namespace Helper
 
             artifactDetails.Traces = updatedTraces;
 
-            Artifact.UpdateArtifact(artifact, user, artifactDetails, artifactStore.Address);
+            Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
             // TODO: add assertions about changed traces for all 'changeType'
             /*var relationships = artifactStore.GetRelationships(user, artifact, addDrafts: true);
             Assert.IsTrue(relationships.ManualTraces.Any(tr => tr.ArtifactId == traceTarget.Id &&

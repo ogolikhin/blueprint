@@ -11,6 +11,7 @@ using Model.ArtifactModel.Enums;
 using Model.Factories;
 using Model.Impl;
 using Utilities.Factories;
+using Newtonsoft.Json;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -444,13 +445,14 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user updating the artifact.</param>
         /// <param name="artifactDetailsChanges">(optional) The changes to make to the artifact.  This should contain the bare minimum changes that you want to make.
         ///     By default if null is passed, this function will make a random change to the 'Description' property.</param>
+        /// <param name="expectedServiceErrorMessage">(optional).</param>
         /// <param name="address">(optional) The address of the ArtifactStore service.  If null, the Address property of the artifactToUpdate is used.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>The ArtifactDetails that was sent to ArtifactStore to be saved.</returns>        
         public static NovaArtifactDetails UpdateArtifact(IArtifactBase artifactToUpdate,
             IUser user,
             NovaArtifactDetails artifactDetailsChanges = null,
-
+            IServiceErrorMessage expectedServiceErrorMessage = null,
             string address = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -481,40 +483,55 @@ namespace Model.ArtifactModel.Impl
             }
 
             RestApiFacade restApi = new RestApiFacade(address, tokenValue);
-            restApi.SendRequestAndGetResponse(
+            try {
+                restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.PATCH,
                 bodyObject: artifactChanges,
                 expectedStatusCodes: expectedStatusCodes);
 
-            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
-            {
-                artifactToUpdate.IsSaved = true;
-
-                if (user?.Token?.OpenApiToken == null)
+                if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
                 {
-                    // We need an OpenAPI token to make the GetProject call below.
-                    Assert.NotNull(artifactToUpdate.Project, "Project is null and we don't have an OpenAPI token!");
+                    artifactToUpdate.IsSaved = true;
+
+                    if (user?.Token?.OpenApiToken == null)
+                    {
+                        // We need an OpenAPI token to make the GetProject call below.
+                        Assert.NotNull(artifactToUpdate.Project, "Project is null and we don't have an OpenAPI token!");
+                    }
+
+                    IProject project = artifactToUpdate.Project ?? ProjectFactory.CreateProject().GetProject(address, artifactToUpdate.ProjectId, user);
+                    ArtifactBase artifactBaseToUpdate = artifactToUpdate as ArtifactBase;
+
+                    // Copy updated properties into original artifact.
+                    if (artifactDetailsChanges == null)
+                    {
+                        artifactBaseToUpdate.Id = artifactToUpdate.Id;
+                        artifactBaseToUpdate.ProjectId = artifactToUpdate.ProjectId;
+                        artifactBaseToUpdate.Version = artifactToUpdate.Version;
+                        artifactBaseToUpdate.AddOrReplaceTextOrChoiceValueProperty("Description", artifactChanges.Description, project, user);
+                    }
+                    else
+                    {
+                        artifactBaseToUpdate.ReplacePropertiesWithPropertiesFromSourceArtifactDetails(artifactChanges, project, user);
+                    }
                 }
 
-                IProject project = artifactToUpdate.Project ?? ProjectFactory.CreateProject().GetProject(address, artifactToUpdate.ProjectId, user);
-                ArtifactBase artifactBaseToUpdate = artifactToUpdate as ArtifactBase;
-
-                // Copy updated properties into original artifact.
-                if (artifactDetailsChanges == null)
-                {
-                    artifactBaseToUpdate.Id = artifactToUpdate.Id;
-                    artifactBaseToUpdate.ProjectId = artifactToUpdate.ProjectId;
-                    artifactBaseToUpdate.Version = artifactToUpdate.Version;
-                    artifactBaseToUpdate.AddOrReplaceTextOrChoiceValueProperty("Description", artifactChanges.Description, project, user);
-                }
-                else
-                {
-                    artifactBaseToUpdate.ReplacePropertiesWithPropertiesFromSourceArtifactDetails(artifactChanges, project, user);
-                }
+                return artifactChanges;
             }
 
-            return artifactChanges;
+            catch (Exception)
+            {
+                Logger.WriteDebug("Content = '{0}'", restApi.Content);
+
+                if (expectedServiceErrorMessage != null)
+                {
+                    var serviceErrorMessage = JsonConvert.DeserializeObject<ServiceErrorMessage>(restApi.Content);
+                    serviceErrorMessage.AssertEquals(expectedServiceErrorMessage);
+                }
+
+                throw;
+            }
         }
 
         /// <summary>

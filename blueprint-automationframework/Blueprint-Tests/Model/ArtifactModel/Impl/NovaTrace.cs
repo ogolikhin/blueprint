@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Model.Impl;
 using Newtonsoft.Json.Converters;
 using System.Xml.Serialization;
 
@@ -44,7 +45,7 @@ namespace Model.ArtifactModel.Impl
 
         public int PrimitiveItemTypePredefined { get; set; }
 
-        public int ChangeType { get; set; }
+        public ArtifactUpdateChangeType ChangeType { get; set; }
 
         #endregion Additional Properties
     }

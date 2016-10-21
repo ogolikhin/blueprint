@@ -10,6 +10,7 @@ using System.Linq;
 using Model.ArtifactModel.Enums;
 using TestCommon;
 using Utilities;
+using Common;
 
 namespace ArtifactStoreTests
 {
@@ -422,6 +423,27 @@ namespace ArtifactStoreTests
             // Validation: Exception should contain proper errorCode in the response content.
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
             Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.UnauthorizedAccess), "{0} using the user without view permission to the artifact should return {1} errorCode but {2} is returned", RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH, ErrorCodes.UnauthorizedAccess, serviceErrorMessage.ErrorCode);
+        }
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(185178)]
+        [Description("Create & publish an artifact. User without permissions to artifact calls GetArtifactNagivationPath.  Verify returned code 403 Forbidden.")]
+        public void ArtifactNavigationPath_PublishedArtifact_UserWithoutPermissionsToArtifact_403Forbidden(BaseArtifactType artifactType)
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            // Create a user that has access to the project but not the artifact.
+            IUser userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+            Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, artifact);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetNavigationPath(user: userWithoutPermissions, itemId: artifact.Id),
+                "'GET {0}' should return 403 Forbidden when user without permissions tries to get artifact path!", SVC_PATH);
+
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifact.Id);
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "Expected '{0}' error when user without permissions tries to get artifact path.", expectedExceptionMessage);
         }
 
         #endregion 403 Forbidden Tests

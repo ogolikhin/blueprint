@@ -123,24 +123,7 @@ class BPToolbarController implements IBPToolbarController {
                         if (data.artifacts.length === 0) {
                             this.messageService.addInfo("Publish_All_No_Unpublished_Changes");
                         } else {
-                            const selectedProject: Project = this.projectManager.getSelectedProject();
-                            //confirm that the user wants to continue
-                            this.dialogService.open(<IDialogSettings>{
-                                okButton: this.localization.get("App_Button_Publish"),
-                                cancelButton: this.localization.get("App_Button_Cancel"),
-                                message: this.localization.get("Publish_All_Dialog_Message"),
-                                template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
-                                controller: ConfirmPublishController,
-                                css: "nova-messaging" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
-                            },
-                            <IConfirmPublishDialogData>{
-                                artifactList: data.artifacts,
-                                projectList: data.projects,
-                                selectedProject: selectedProject ? selectedProject.id : undefined
-                            })
-                            .then(() => {
-                                this.saveAndPublishAll(data);
-                            });
+                            this.confirmPublishAll(data);
                         }
                     })
                     .finally(() => {
@@ -172,6 +155,26 @@ class BPToolbarController implements IBPToolbarController {
         }
     }
 
+    private confirmPublishAll(data: Models.IPublishResultSet) {
+        const selectedProject: Project = this.projectManager.getSelectedProject();
+        this.dialogService.open(<IDialogSettings>{
+            okButton: this.localization.get("App_Button_Publish"),
+            cancelButton: this.localization.get("App_Button_Cancel"),
+            message: this.localization.get("Publish_All_Dialog_Message"),
+            template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
+            controller: ConfirmPublishController,
+            css: "nova-messaging" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
+        },
+        <IConfirmPublishDialogData>{
+            artifactList: data.artifacts,
+            projectList: data.projects,
+            selectedProject: selectedProject ? selectedProject.id : undefined
+        })
+        .then(() => {
+            this.saveAndPublishAll(data);
+        });
+    }
+
     private saveAndPublishAll(data: Models.IPublishResultSet) {
         let publishAllLoadingId = this.loadingOverlayService.beginLoading();
         try {
@@ -179,7 +182,7 @@ class BPToolbarController implements IBPToolbarController {
             let artifactsToSave = [];
             data.artifacts.forEach((artifact) => {
                 let foundArtifact = this.projectManager.getArtifact(artifact.id);
-                if (foundArtifact && foundArtifact.isCanBeSaved()) {
+                if (foundArtifact && foundArtifact.canBeSaved()) {
                     artifactsToSave.push(foundArtifact.save());
                 }
             });

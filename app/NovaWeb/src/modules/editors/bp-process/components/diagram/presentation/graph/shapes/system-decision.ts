@@ -16,14 +16,6 @@ export class SystemDecision extends Decision {
         return "#53BBED";
     }
 
-    constructor(
-        model: IProcessShape,
-        rootScope: ng.IRootScopeService,
-        nodeFactorySettings: NodeFactorySettings = null
-    ) {
-        super(model, NodeType.SystemDecision, rootScope, nodeFactorySettings);
-    }
-
     public showMenu(mxGraph: MxGraph) {
         super.showMenu(mxGraph);
 
@@ -40,11 +32,15 @@ export class SystemDecision extends Decision {
         dialogParams.message = this.rootScope["config"].labels["ST_Confirm_Delete_System_Decision"];
         return dialogParams;
     }
+    
+    public getNodeType() {
+        return NodeType.SystemDecision;
+    }
 
     protected get textLabelLeft(): number {
         return this.DECISION_WIDTH / 2 - 15;
     }
-    
+
     protected get textLabelWidth(): number {
         return this.DECISION_WIDTH - 30;
     }

@@ -274,8 +274,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
      
     public save(): ng.IPromise<IStatefulArtifact> {
+        // execute one or more save operations in sequence
         let sources: Rx.Observable<IStatefulArtifact>[] = [];
         let combination: Rx.Observable<IStatefulArtifact>;
+        let subscription: Rx.IDisposable;
 
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         let customPromises = this.getCustomArtifactPromisesForSave();
@@ -286,21 +288,18 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             }
         }
         sources.push(Rx.Observable.fromPromise(this.saveArtifact()));
-
-         // execute save operations in the same order they are added to 
-        // the sources array
         combination = Rx.Observable.concat(sources);
        
         const observer = Rx.Observer.create(
             result => result,
             err =>  deferred.reject(err),
             () => {
-                // when this handler is called all operations
-                // have completed successfully 
+                // all operations completed successfully
+                subscription.dispose();
                 deferred.resolve(this);
             }
         );
-        combination.subscribe(observer);
+        subscription = combination.subscribe(observer);
  
         return deferred.promise;
     }

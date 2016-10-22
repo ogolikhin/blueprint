@@ -12,15 +12,14 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
     
     constructor(
                 $scope: IModalScope,
-                communicationManager: ICommunicationManager,
                 $rootScope: ng.IRootScopeService,
-                $q: ng.IQService,
                 $timeout: ng.ITimeoutService,
-                $sce: ng.ISCEService,
                 dialogService: IDialogService,
-                localization: ILocalizationService) {
+                localization: ILocalizationService,
+                $uibModalInstance?: ng.ui.bootstrap.IModalServiceInstance,
+                dialogModel?: SystemTaskDialogModel) {
 
-        super($scope, communicationManager, $rootScope, $q, $timeout, $sce, dialogService, localization);
+        super($scope, $rootScope, $timeout, dialogService, localization, $uibModalInstance, dialogModel);
     }
 
     //public methods
@@ -57,8 +56,8 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
         if (this.dialogModel.originalItem && this.dialogModel) {
             this.dialogModel.originalItem.persona = this.dialogModel.persona;
             this.dialogModel.originalItem.action = this.dialogModel.action;
-            this.dialogModel.originalItem.imageId = this.dialogModel.imageId;        
-            this.dialogModel.originalItem.associatedImageUrl = this.dialogModel.associatedImageUrl;        
+            this.dialogModel.originalItem.imageId = this.dialogModel.imageId;
+            this.dialogModel.originalItem.associatedImageUrl = this.dialogModel.associatedImageUrl;
             this.dialogModel.originalItem.associatedArtifact = this.dialogModel.associatedArtifact;
         }        
     }   

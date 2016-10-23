@@ -341,49 +341,6 @@ describe("DecisionEditorController", () => {
         });
     });
 
-    describe("isDeleteConditionVisible", () => {
-        it("is false for all conditions if minimum conditions reached", () => {
-            // arrange
-            const model = new DecisionEditorModel();
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
-                $location, localization, $uibModalInstance, model
-            );
-
-            // act
-            model.conditions = createConditions(ProcessGraph.MinConditions);
-
-            // assert
-            for (const condition of model.conditions) {
-                expect(controller.isDeleteConditionVisible(condition)).toBe(false);
-            }
-        });
-
-        it("is true for all conditions but first if minimum conditions not reached", () => {
-            // arrange
-            const model = new DecisionEditorModel();
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
-                $location, localization, $uibModalInstance, model
-            );
-
-            // act
-            model.conditions = createConditions(ProcessGraph.MinConditions + 1);
-
-            // assert
-            for (const condition of model.conditions) {
-                if (condition.orderindex === 0) {
-                    expect(controller.isDeleteConditionVisible(condition)).toBe(false);
-                    continue;
-                }
-
-                expect(controller.isDeleteConditionVisible(condition)).toBe(true);
-            }
-        });
-    });
-
     describe("canDeleteCondition", () => {
         it("is false when read-only", () => {
             // arrange
@@ -399,10 +356,30 @@ describe("DecisionEditorController", () => {
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
 
             // assert
-            expect(controller.canDeleteCondition).toBe(false);
+            for (const condition of model.conditions) {
+                expect(controller.canDeleteCondition(condition)).toBe(false);
+            }
         });
 
-        it("is true when not read-only", () => {
+        it("is false for all conditions if minimum conditions reached", () => {
+            // arrange
+            const model = new DecisionEditorModel();
+            const $scope = <IModalScope>$rootScope.$new();
+            const controller = new DecisionEditorController(
+                $rootScope, $scope, $timeout, $anchorScroll, 
+                $location, localization, $uibModalInstance, model
+            );
+
+            // act
+            model.conditions = createConditions(ProcessGraph.MinConditions);
+
+            // assert
+            for (const condition of model.conditions) {
+                expect(controller.canDeleteCondition(condition)).toBe(false);
+            }
+        });
+
+        it("is true for all conditions but first if not read-only and minimum conditions not reached", () => {
             // arrange
             const model = new DecisionEditorModel();
             const $scope = <IModalScope>$rootScope.$new();
@@ -414,8 +391,15 @@ describe("DecisionEditorController", () => {
             // act
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
 
-            // arrange
-            expect(controller.canDeleteCondition).toBe(true);
+            // assert
+            for (const condition of model.conditions) {
+                if (condition.orderindex === 0) {
+                    expect(controller.canDeleteCondition(condition)).toBe(false);
+                    continue;
+                }
+
+                expect(controller.canDeleteCondition(condition)).toBe(true);
+            }
         });
     });
 

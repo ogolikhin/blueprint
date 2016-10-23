@@ -3,7 +3,6 @@
     IProcessShape,
     IProcessLink,
     IHashMapOfPropertyValues,
-    IItemStatus,
     IVersionInfo,
     ItemTypePredefined
 } from "./models/process-models";
@@ -23,7 +22,6 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     public links: IProcessLink[];
     public decisionBranchDestinationLinks: IProcessLink[];
     public propertyValues: IHashMapOfPropertyValues;
-    public status: IItemStatus;
     public requestedVersionInfo: IVersionInfo;
 
     constructor(artifact: Models.IArtifact, protected services: IStatefulProcessArtifactServices) {
@@ -93,7 +91,6 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         currentProcess.decisionBranchDestinationLinks = newProcess.decisionBranchDestinationLinks;
         currentProcess.propertyValues = newProcess.propertyValues;
         currentProcess.requestedVersionInfo = newProcess.requestedVersionInfo;
-        currentProcess.status = newProcess.status;
     }
 
     private initializeSubArtifacts(newProcess: IProcess) {

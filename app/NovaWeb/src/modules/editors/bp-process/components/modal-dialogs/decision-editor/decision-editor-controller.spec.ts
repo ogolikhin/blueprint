@@ -8,7 +8,6 @@ import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
 import {ILocalizationService} from "../../../../../core/localization";
 import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
 import {IModalScope} from "../base-modal-dialog-controller";
-import {IModalProcessViewModel} from "../models/modal-process-view-model";
 import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
 import {IProcessGraph, IDiagramNode, IDiagramLink, NodeType, ICondition, IDecision} from "../../diagram/presentation/graph/models";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";

@@ -1,6 +1,5 @@
 import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-controller";
 import {DecisionEditorModel} from "./decision-editor-model";
-import {IModalProcessViewModel} from "../models/modal-process-view-model";
 import {ArtifactUpdateType} from "../../../models/enums";
 import {IArtifactReference, IProcessLink} from "../../../models/process-models";
 import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";

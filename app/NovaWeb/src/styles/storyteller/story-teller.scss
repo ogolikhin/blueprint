@@ -105,7 +105,7 @@
     margin-left: -8px;
 }
 
-.storyteller-modal-header {
+.storyteller-modal-header.modal-header {
     background-color: $brand-secondary;
     padding: 25px 42px;
     -webkit-border-top-left-radius: 4px;
@@ -154,15 +154,11 @@
     }
 
     .modal-dialog {
-        width: 600px;
-        max-width: none;
+        max-width: 440px;
         display: inline-block;
         text-align: left;
         margin-top: 72px;
     }
-}
-.storyteller-helper-text {
-    float: right;
 }
 .file-upload_container {
     width: 100%;

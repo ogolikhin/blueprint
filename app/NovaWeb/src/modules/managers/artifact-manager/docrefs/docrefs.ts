@@ -125,28 +125,31 @@ export class DocumentRefs implements IDocumentRefs {
     }
 
     public changes(): IArtifactDocRef[] {
-        let docRefChanges = new Array<IArtifactDocRef>();
-        let changes = this.changeset.get();
-        let uniqueKeys = changes
+        const changes = this.changeset.get();
+        const uniqueKeys = changes
             .map(change => change.key)
             .filter((elem, index, self) => index === self.indexOf(elem));
-        let deltaChanges = new Array<IChangeSet>();
+        const deltaChanges = new Array<IChangeSet>();
         // remove changesets that cancel eachother.
         uniqueKeys.forEach((key) => {
-            let addChanges = changes.filter(a => a.key === key && a.type === ChangeTypeEnum.Add);
-            let deleteChanges = changes.filter(a => a.key === key && a.type === ChangeTypeEnum.Delete);
+            const addChanges = changes.filter(a => a.key === key && a.type === ChangeTypeEnum.Add);
+            const deleteChanges = changes.filter(a => a.key === key && a.type === ChangeTypeEnum.Delete);
             if (addChanges.length > deleteChanges.length) {
                 deltaChanges.push(addChanges[0]);
             } else if (addChanges.length < deleteChanges.length) {
                 deltaChanges.push(deleteChanges[0]);
             }
         });
-        deltaChanges.forEach(change => {
-            const docRef = change.value as IArtifactDocRef;
-            docRef.changeType = change.type;
-            docRefChanges.push(docRef);
-        });
-        return docRefChanges;
+        if (deltaChanges.length > 0) {
+            const docRefChanges: IArtifactDocRef[] = [];
+            deltaChanges.forEach(change => {
+                const docRef = change.value as IArtifactDocRef;
+                docRef.changeType = change.type;
+                docRefChanges.push(docRef);
+            });
+            return docRefChanges;
+        }
+        return undefined;
     }
 
     public dispose() {

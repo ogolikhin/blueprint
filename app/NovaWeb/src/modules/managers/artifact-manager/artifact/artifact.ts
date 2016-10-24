@@ -253,10 +253,13 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     private addSubArtifactChanges(delta: Models.IArtifact) {
-        let subArtifacts = this.subArtifactCollection.list();
+        const subArtifacts = this.subArtifactCollection.list();
         delta.subArtifacts = new Array<Models.ISubArtifact>();
         subArtifacts.forEach(subArtifact => {
-            delta.subArtifacts.push(subArtifact.changes());
+            const changes = subArtifact.changes();
+            if (changes) {
+                delta.subArtifacts.push(changes);
+            }
         });
     }
 

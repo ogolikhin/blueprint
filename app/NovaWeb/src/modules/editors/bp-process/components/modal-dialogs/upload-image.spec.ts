@@ -8,12 +8,16 @@ import { IFileUploadService, FileUploadService } from "../../../../core/file-upl
 import { UploadImageDirective } from "./upload-image";
 import { IStatefulArtifactFactory } from "../../../../managers/artifact-manager";
 import { StatefulArtifactFactoryMock } from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import { IMessageService } from "../../../../core/messages";
+import { MessageServiceMock } from "../../../../core/messages/message.mock";
 
 describe("UploadImage Directive", () => {
     let element: ng.IAugmentedJQuery;
     let scope: ng.IScope;
     let imageUpload: any;
     let isolatedScope: ng.IScope;
+
+    let messageService: IMessageService;
 
     const directiveTemplate: string = "<button id=\"upload-image-btn\" class=\"btn btn-block button-white\" ng-click=\"uploadImage()\">Upload</button>";
 
@@ -36,11 +40,16 @@ describe("UploadImage Directive", () => {
         $compileProvider.directive("uploadImage", UploadImageDirective.factory());
         $provide.service("fileUploadService", FileUploadService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
+        $provide.service("messageService", MessageServiceMock);
     }));
 
     beforeEach(
-        inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService,
-            $templateCache: ng.ITemplateCacheService, $injector: ng.auto.IInjectorService, statefulArtifactFactory: IStatefulArtifactFactory) => {
+        inject(($compile: ng.ICompileService,
+            $rootScope: ng.IRootScopeService,
+            $templateCache: ng.ITemplateCacheService,
+            $injector: ng.auto.IInjectorService,
+            statefulArtifactFactory: IStatefulArtifactFactory,
+            _messageService_: IMessageService) => {
             shapesFactory = new ShapesFactory($rootScope, statefulArtifactFactory);
             $templateCache.put("/Areas/Web/App/Components/Storyteller/Directives/UploadImageTemplate.html", directiveTemplate);
             scope = $rootScope.$new();
@@ -59,6 +68,7 @@ describe("UploadImage Directive", () => {
             imageUpload = $injector.get("uploadImageDirective")[0].__proto__;
 
             isolatedScope = element.isolateScope();
+            messageService = _messageService_;
         })
     );
 

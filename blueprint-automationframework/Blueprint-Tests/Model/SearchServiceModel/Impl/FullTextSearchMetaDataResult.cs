@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Model.SearchServiceModel.Impl
 {
@@ -22,6 +23,7 @@ namespace Model.SearchServiceModel.Impl
         /// <summary>
         /// The search artifact type items returned by the search
         /// </summary>
+        [JsonProperty("items")]
         public IEnumerable<FullTextSearchTypeItem> FullTextSearchTypeItems { get; set; }
     }
 }

@@ -53,18 +53,18 @@ namespace SearchServiceTests
         public void SearchProject_UserAdminAccess_ReturnsCorrectProjects()
         {
             // Setup:
-            List<ProjectSearchResult> projects = null;
+            List<SearchItem> projects = null;
             string searchString = "es";//project name is 'test' - search using 'es' substring
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
                 projects = Helper.SearchService.SearchProjects(_userAdmin, searchString);
-            }, "GetArtifactDiscussions shouldn't throw any error.");
+            }, "SearchProjects shouldn't throw any error.");
 
             // Verify:
             Assert.IsTrue(projects.Count >= 1, "Search result should have at least 1 project, but it doesn't.");
-            Assert.IsTrue(projects[0].ProjectName.Contains(searchString), "Name of returned project should contain searchString, but it doesn't");
+            Assert.IsTrue(projects[0].Name.Contains(searchString), "Name of returned project should contain searchString, but it doesn't");
             Assert.AreEqual(projectPath, projects[0].Path, "Path of the returned project should be 'Blueprint'");
         }
 
@@ -74,7 +74,7 @@ namespace SearchServiceTests
         public void SearchProject_UserHasNoProjectAccess_ReturnsEmptyList()
         {
             // Setup:
-            List<ProjectSearchResult> projects = null;
+            List<SearchItem> projects = null;
             Helper.AdminStore.AddSession(_userAuthorLicense);
             string searchString = "es";//project name is 'test' - search using 'es' substring
 
@@ -94,7 +94,7 @@ namespace SearchServiceTests
         public void SearchProject_UserHasAuthorAccess_ReturnsCorrectProjects()
         {
             // Setup:
-            List<ProjectSearchResult> projects = null;
+            List<SearchItem> projects = null;
             _group.AssignRoleToProjectOrArtifact(_project, _viewerRole);
             Helper.AdminStore.AddSession(_userAuthorLicense);
             string searchString = "es";//project name is 'test' - search using 'es' substring
@@ -107,7 +107,7 @@ namespace SearchServiceTests
 
             // Verify:
             Assert.IsTrue(projects.Count >= 1, "Search result should have at least 1 project, but it doesn't.");
-            Assert.IsTrue(projects[0].ProjectName.Contains(searchString), "Name of returned project should contain searchString, but it doesn't");
+            Assert.IsTrue(projects[0].Name.Contains(searchString), "Name of returned project should contain searchString, but it doesn't");
             Assert.AreEqual(projectPath, projects[0].Path, "Path of the returned project should be 'Blueprint'");
         }
 
@@ -117,7 +117,7 @@ namespace SearchServiceTests
         public void SearchProjectByFullName_UserHasAuthorAccess_ReturnsCorrectProjects()
         {
             // Setup:
-            List<ProjectSearchResult> projects = null;
+            List<SearchItem> projects = null;
             _group.AssignRoleToProjectOrArtifact(_project, _viewerRole);
             Helper.AdminStore.AddSession(_userAuthorLicense);
 
@@ -129,8 +129,30 @@ namespace SearchServiceTests
 
             // Verify:
             Assert.IsTrue(projects.Count >= 1, "Search result should have at least 1 project, but it doesn't.");
-            Assert.AreEqual(_project.Name, projects[0].ProjectName, "Name of returned project should have expected value, but it doesn't");
+            Assert.AreEqual(_project.Name, projects[0].Name, "Name of returned project should have expected value, but it doesn't");
             Assert.AreEqual(projectPath, projects[0].Path, "Path of the returned project should be 'Blueprint'");
+        }
+
+        [TestCase]
+        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/Hq3GimE1
+        [TestRail(185205)]
+        [Description("Search project by full name, user has admin privilege, check that found project has expected id.")]
+        public void SearchProjectByFullName_UserAdminAccess_ReturnsCorrectProjectId()
+        {
+            // Setup:
+            List<SearchItem> projects = null;
+            
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                projects = Helper.SearchService.SearchProjects(_userAdmin, _project.Name);
+            }, "SearchProjects shouldn't throw any error.");
+
+            // Verify:
+            Assert.IsTrue(projects.Count >= 1, "Search result should have at least 1 project, but it doesn't.");
+            Assert.AreEqual(_project.Name, projects[0].Name, "Project should have expected name, but it doesn't");
+            Assert.AreEqual(projectPath, projects[0].Path, "Path of the returned project should be 'Blueprint'");
+            Assert.AreEqual(_project.Id, projects[0].ProjectId, "Project should have expected id, but it doesn't");
         }
     }
 }

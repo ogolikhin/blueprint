@@ -5,7 +5,7 @@ import {ILocalizationService} from "../../../core";
 import {ArtifactPickerNodeVM, InstanceItemNodeVM} from "./bp-artifact-picker-node-vm";
 import {IDialogSettings, BaseDialogController} from "../../../shared/";
 import {Models, SearchServiceModels} from "../../models";
-import {IProjectManager} from "../../../managers";
+import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 
 export class ArtifactPickerDialogController extends BaseDialogController {
@@ -59,11 +59,11 @@ export interface IArtifactPickerController extends IArtifactPickerOptions {
     search(): void;
     isSearching: boolean;
     searchResults: SearchServiceModels.ISearchResult[];
-    project: string;
+    project: Models.IProjectNode;
     rootNode: InstanceItemNodeVM;
     columns: IColumn[];
     onSelect: (vm: ArtifactPickerNodeVM<any>, isSelected: boolean, selectedVMs: ArtifactPickerNodeVM<any>[]) => void;
-    setProject(id: number, name: string, hasChildren?: boolean);
+    setProject(project: Models.IProjectNode): void;
     clearProject(): void;
 }
 
@@ -80,12 +80,14 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     static $inject = [
         "$scope",
         "localization",
+        "artifactManager",
         "projectManager",
         "projectService"
     ];
 
     constructor(private $scope: ng.IScope,
                 private localization: ILocalizationService,
+                private artifactManager: IArtifactManager,
                 private projectManager: IProjectManager,
                 private projectService: IProjectService) {
         this.selectionMode = angular.isDefined(this.selectionMode) ? this.selectionMode : "single";
@@ -94,8 +96,24 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     };
 
     public $onInit(): void {
-        const project = this.projectManager.getSelectedProject();
-        this.setProject(project.id, project.name, project.hasChildren);
+        const selectedArtifact = this.artifactManager.selection.getArtifact();
+        const projectId = selectedArtifact ? selectedArtifact.projectId : undefined;
+        if (projectId) {
+            const project = this.projectManager.getProject(projectId);
+            if (project) {
+                this.setProject({
+                    id: project.id,
+                    type: Models.ProjectNodeType.Project,
+                    name: project.name,
+                    hasChildren: project.hasChildren
+                } as Models.IProjectNode);
+            } else {
+                this.projectService.getProject(projectId)
+                    .then(project => this.setProject(project));
+            }
+        } else {
+            this.clearProject();
+        }
     }
 
     public $onDestroy(): void {
@@ -108,7 +126,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         this.projectService.abort();
     }
 
-    private setSelectedVMs(items: ArtifactPickerNodeVM<any>[]) {
+    private setSelectedVMs(items: ArtifactPickerNodeVM<any>[]): void {
         this.$scope.$applyAsync((s) => {
             if (this.onSelectionChanged) {
                 this.onSelectionChanged({selectedVMs: items});
@@ -148,26 +166,21 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         if (vm instanceof InstanceItemNodeVM) {
             this.setSelectedVMs([]);
             if (vm.model.type === Models.ProjectNodeType.Project) {
-                this.setProject(vm.model.id, vm.model.name, vm.model.hasChildren);
+                this.setProject(vm.model);
             }
         } else {
             this.setSelectedVMs(selectedVMs);
         }
     };
 
-    public project: string;
+    public project: Models.IProjectNode;
 
-    public setProject(id: number, name: string, hasChildren: boolean = true) {
+    public setProject(project: Models.IProjectNode): void {
         this.clearSearch();
         this.setSelectedVMs([]);
-        this.project = name;
+        this.project = project;
         this.currentSelectionMode = this.selectionMode || "single";
-        this.rootNode = new InstanceItemNodeVM(this.projectManager, this.projectService, this, {
-            id: id,
-            type: Models.ProjectNodeType.Project,
-            name: name,
-            hasChildren: hasChildren
-        } as Models.IProjectNode, true);
+        this.rootNode = new InstanceItemNodeVM(this.artifactManager, this.projectService, this, project, true);
     }
 
     public clearProject(): void {
@@ -175,7 +188,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         this.setSelectedVMs([]);
         this.project = undefined;
         this.currentSelectionMode = "single";
-        this.rootNode = new InstanceItemNodeVM(this.projectManager, this.projectService, this, {
+        this.rootNode = new InstanceItemNodeVM(this.artifactManager, this.projectService, this, {
             id: 0,
             type: Models.ProjectNodeType.Folder,
             name: "",

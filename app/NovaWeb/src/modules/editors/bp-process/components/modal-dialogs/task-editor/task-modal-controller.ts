@@ -55,7 +55,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
     }
 
     public cleanIncludeField(): void {
-        if (!this.dialogModel.isReadonly) {
+        if (this.canCleanIncludeField()) {
             this.isIncludeResultsVisible = false;
             this.setAssociatedArtifact(null);
         }
@@ -111,6 +111,10 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
                 this.prepIncludeField();
             }
         });
+    }
+
+    private canCleanIncludeField(): boolean {
+        return !this.dialogModel.isReadonly;
     }
 
     private refreshView() {

@@ -147,6 +147,7 @@ namespace SearchServiceTests
         #region Custom data tests
 
         [TestCase]
+        [Category(Categories.CustomData)]
         [TestRail(183347)]
         [Description("Search published artifact by full name in 2 projects, user has access to both projects, verify that artifact could be found in both projects.")]
         public void SearchArtifactByName_2Projects_VerifyArtifactCanBeFoundInBoth()
@@ -172,6 +173,7 @@ namespace SearchServiceTests
         }
 
         [TestCase]
+        [Category(Categories.CustomData)]
         [TestRail(183348)]
         [Description("Search published artifact by full name in 2 projects, user has access to one project, verify that search results has accessible project only.")]
         public void SearchArtifactByName_2ProjectsUserHasAccessTo1Project_VerifyResults()
@@ -202,18 +204,18 @@ namespace SearchServiceTests
         public void SearchArtifactByNameAndItemTypeId_AllProjects_VerifyResults()
         {
             // Setup:
+            Assert.IsTrue(_projects.Count >= 2, "This test expect that Blueprint server has at least 2 projects.");
             string artifactName = RandomGenerator.RandomAlphaNumeric(12);
             List<IArtifact> artifacts = new List<IArtifact>();
 
             // create and publish Storyboard and Actor in each project. All artifacts have the same name
             foreach (var pr in _projects)
             {
-                artifacts.Add(ArtifactFactory.CreateArtifact(pr, _adminUser, BaseArtifactType.Storyboard, name: artifactName));
-                artifacts.Add(ArtifactFactory.CreateArtifact(pr, _adminUser, BaseArtifactType.Actor, name: artifactName));
+                artifacts.Add(Helper.CreateAndSaveArtifact(pr, _adminUser, BaseArtifactType.Storyboard, name: artifactName));
+                artifacts.Add(Helper.CreateAndSaveArtifact(pr, _adminUser, BaseArtifactType.Actor, name: artifactName));
             }
             foreach (var a in artifacts)
             {
-                a.Save(_adminUser);
                 Helper.ArtifactStore.PublishArtifact(a, _adminUser);
             }
 

@@ -144,4 +144,8 @@ bp-properties-panel {
             width: $property-input-width;
         }
     }
+
+    .properties.collapsed .content.system-properties {
+        height: #{$property-min-height * 2};
+    }
 }

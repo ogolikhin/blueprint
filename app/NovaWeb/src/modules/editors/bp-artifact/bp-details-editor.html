@@ -32,7 +32,8 @@
             </div>
             <div class="properties" ng-class="{'collapsed': isAdditionalPropertiesCollapsed}"
                  ng-if="$ctrl.isCustomPropertyAvailable">
-                <div class="heading" ng-click="isAdditionalPropertiesCollapsed = !isAdditionalPropertiesCollapsed">
+                <div class="heading"
+                     ng-click="isAdditionalPropertiesCollapsed = !isAdditionalPropertiesCollapsed">
                     {{::$root.config.labels['App_Properties_Additional_Properties_Label']}}
                 </div>
                 <div class="additional-properties content" uib-collapse="isAdditionalPropertiesCollapsed">

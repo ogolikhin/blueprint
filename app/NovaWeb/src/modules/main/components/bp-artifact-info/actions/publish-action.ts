@@ -20,7 +20,11 @@ export class PublishAction extends BPButtonAction {
                 let overlayId: number = loadingOverlayService.beginLoading();
 
                 try {
-                    artifact.publish().finally(() => {
+                    artifact.publish()
+                    .catch((err) => {
+                        messageService.addError(err);
+                    })
+                    .finally(() => {
                         loadingOverlayService.endLoading(overlayId);
                     });
                 } catch (err) {

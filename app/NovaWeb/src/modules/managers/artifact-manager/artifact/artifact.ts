@@ -347,8 +347,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 deffered.reject();
             });
         })
-        .catch(() => {
-            deffered.reject();
+        .catch((err) => {
+            deffered.reject(err);
         });
 
         return deffered.promise;

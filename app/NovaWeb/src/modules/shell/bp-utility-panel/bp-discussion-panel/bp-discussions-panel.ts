@@ -270,15 +270,16 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
 
     public deleteCommentThread(discussion: IDiscussion) {
         this.dialogService.confirm(this.localization.get("Confirmation_Delete_Comment_Thread"))
-        .then(() => {
-            this.artifactDiscussions.deleteCommentThread(discussion.itemId, discussion.discussionId).then((result: boolean) => {
-                this.getArtifactDiscussions(discussion.itemId).then((discussionsResultSet: IDiscussionResultSet) => {
-                    this.setControllerFieldsAndFlags(discussionsResultSet);
+            .then(() => {
+                this.artifactDiscussions.deleteCommentThread(discussion.itemId, discussion.discussionId).then((result: boolean) => {
+                    this.getArtifactDiscussions(this.artifactId, this.subArtifact ? this.subArtifact.id : null)
+                        .then((discussionsResultSet: IDiscussionResultSet) => {
+                            this.setControllerFieldsAndFlags(discussionsResultSet);
+                        });
+                }).catch((error) => {
+                    this.messageService.addMessage(new Message(MessageType.Error, error.message));
                 });
-            }).catch((error) => {
-                this.messageService.addMessage(new Message(MessageType.Error, error.message));
             });
-        });
     }
 
     public discussionEdited(discussion: IDiscussion) {

@@ -474,10 +474,13 @@ namespace Helper
                 baseType = ((ItemTypePredefined)novaArtifact.PredefinedType.Value).ToBaseArtifactType();
             }
 
+            var fakeParent = ArtifactFactory.CreateArtifact(project, user, baseType.Value, novaArtifact.ParentId);
+
             var artifact = ArtifactFactory.CreateArtifact(project,
                 user,
                 baseType.Value,
-                novaArtifact.Id);
+                novaArtifact.Id,
+                fakeParent);
 
             artifact.IsSaved = true;
             Artifacts.Add(artifact);

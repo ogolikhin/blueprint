@@ -18,15 +18,6 @@ export class UserDecision extends Decision implements IDecision {
     protected get DEFAULT_BORDER_COLOR(): string {
         return "#D4D5DA";
     }
-    
-    constructor(
-        model: IProcessShape,
-        rootScope: ng.IRootScopeService,
-        nodeFactorySettings: NodeFactorySettings = null
-    ) {
-        super(model, NodeType.UserDecision, rootScope, nodeFactorySettings);
-    }
-
     public getX(): number {
         return this.getCenter().x + this.DECISION_SHIFT;
     }    
@@ -43,5 +34,9 @@ export class UserDecision extends Decision implements IDecision {
         let dialogParams: IDialogParams = {};
         dialogParams.message = this.rootScope["config"].labels["ST_Confirm_Delete_User_Decision"];
         return dialogParams;
+    }
+
+    public getNodeType() {
+        return NodeType.UserDecision;
     }
 }

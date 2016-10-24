@@ -1,10 +1,15 @@
-import {ISystemTaskShape} from "../../../../../models/process-models";
+import {ISystemTaskShape, PropertyTypePredefined} from "../../../../../models/process-models";
 import {ItemIndicatorFlags, ProcessShapeType} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
-import {IProcessGraph, IDiagramNode} from "../models/";
-import {IDiagramNodeElement, ISystemTask} from "../models/";
-import {ILabel} from "../models/";
-import {NodeType, NodeChange, ElementType} from "../models/";
+import {
+    IProcessGraph, 
+    IDiagramNode, 
+    IDiagramNodeElement, 
+    ISystemTask, 
+    ILabel, 
+    NodeType, 
+    NodeChange, 
+    ElementType} from "../models/";
 import {ShapesFactory} from "./shapes-factory";
 import {DiagramNodeElement} from "./diagram-element";
 import {DiagramNode} from "./diagram-node";
@@ -45,18 +50,11 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
                 private defaultPersonaValue: string,
                 private nodeFactorySettings: NodeFactorySettings = null,
                 private shapesFactory: ShapesFactory) {
-        super(model, NodeType.SystemTask);
+        super(model);
 
         this.rootScope = rootScope;
 
         this.initButtons(model.id.toString(), nodeFactorySettings);
-    }
-
-    public cloneSystemTask(): SystemTask {
-        const systemTask = Object.assign({}, this);
-        systemTask.label = this.label;
-        systemTask.associatedArtifact = this.associatedArtifact;
-        return systemTask;
     }
 
     private initChildElements(justCreated: boolean) {
@@ -235,8 +233,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
     public set associatedArtifact(value: any) {
         if (this.model != null && this.model.associatedArtifact !== value) {
             this.model.associatedArtifact = value;
-            // TODO: create associatedArtifact predefined type and update it in the special properties of the stateful artifact.
-            //this.updateStatefulPropertyValue(<property type predefined>, value);
+            this.updateStatefulPropertyValue(PropertyTypePredefined.AssociatedArtifact, value);
             if (!value) {
                 this.linkButton.disable();
             } else {
@@ -268,10 +265,6 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
 
     public isPrecondition(): boolean {
         return this.model.propertyValues["clientType"].value === ProcessShapeType.PreconditionSystemTask;
-    }
-
-    public deleteNode(graph: IProcessGraph) {
-        //fixme: empty blocks should be removed
     }
 
     public renderLabels() {
@@ -442,4 +435,9 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             this.commentsButton.activate();
         }
     }
+    
+    public getNodeType() {
+        return NodeType.SystemTask;
+    }
+
 }

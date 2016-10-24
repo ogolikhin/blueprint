@@ -1,10 +1,18 @@
-﻿import {IArtifactProperty, IUserTaskShape} from "../../../../../models/process-models";
+﻿import {IArtifactProperty, IUserTaskShape, PropertyTypePredefined} from "../../../../../models/process-models";
 import {ItemIndicatorFlags} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
-import {IProcessGraph, IDiagramNode} from "../models/";
-import {ISystemTask} from "../models/";
-import {IUserTask, IUserStoryProperties, ILabel} from "../models/";
-import {NodeType, ElementType} from "../models/";
+import {
+    IDiagramNodeElement, 
+    ISystemTask, 
+    IUserTask, 
+    IUserStoryProperties, 
+    ILabel, 
+    IProcessGraph, 
+    IDiagramNode, 
+    NodeType, 
+    NodeChange, 
+    ElementType} 
+    from "../models/";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {ShapesFactory} from "./shapes-factory";
 import {DiagramNodeElement} from "./diagram-element";
@@ -46,7 +54,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     public userStoryProperties: IUserStoryProperties;
 
     constructor(model: IUserTaskShape, rootScope: any, private nodeFactorySettings: NodeFactorySettings = null, private shapesFactoryService: ShapesFactory) {
-        super(model, NodeType.UserTask);
+        super(model);
 
         this.rootScope = rootScope;
 
@@ -190,8 +198,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     public set associatedArtifact(value: any) {
         if (this.model != null && this.model.associatedArtifact !== value) {
             this.model.associatedArtifact = value;
-            // TODO: create associatedArtifact predefined type and update it in the special properties of the stateful artifact.
-            //this.updateStatefulPropertyValue(<property type predefined>, value);
+            this.updateStatefulPropertyValue(PropertyTypePredefined.AssociatedArtifact, value);
             if (!value || value === null) {
                 this.linkButton.disable();
             } else {
@@ -261,10 +268,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
                 }
             }
         }
-    }
-
-    public deleteNode(graph: IProcessGraph) {
-        //fixme: empty blocks should be removed
     }
 
     public renderLabels() {
@@ -458,4 +461,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             this.commentsButton.activate();
         }
     }
+    
+    public getNodeType() {
+        return NodeType.UserTask;
+    }
+
 }

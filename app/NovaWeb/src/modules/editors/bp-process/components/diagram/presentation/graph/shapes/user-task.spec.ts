@@ -22,14 +22,12 @@ import { StatefulProcessArtifact } from "../../../../../process-artifact";
 import { Models } from "../../../../../../../main/models/";
 import { ArtifactServiceMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
 
-
-
 describe("UserTask test", () => {
-
     const LABEL_EDIT_MAXLENGTH = 40;
     const PERSONA_EDIT_MAXLENGTH = 40;
     const LABEL_VIEW_MAXLENGTH = 40;
     const PERSONA_VIEW_MAXLENGTH = 16;
+    
     //const graph: ProcessGraph;
     let localScope, rootScope, shapesFactory, wrapper, container;
     let viewModel: ProcessViewModel;
@@ -73,13 +71,12 @@ describe("UserTask test", () => {
             "ST_Colors_Label": "Color",
             "ST_Comments_Label": "Comments"
         };
+
         shapesFactory = new ShapesFactory($rootScope, statefulArtifactFactory);
         localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
 
-
         const processModel = new ProcessModel();
         viewModel = new ProcessViewModel(processModel, communicationManager);
-        viewModel.isReadonly = false;
     }));
 
     it("Test UserTask class", () => {

@@ -1321,6 +1321,16 @@ pagecontent {
             }
         }
     }
+
+    .empty-collection {
+            background: $gray-lighter;
+            color: $gray-dark;
+            font-size: $font-size-big;
+            font-weight: 600;
+            line-height: 1em;
+            min-height: 36px;
+            padding: 11px 14px;            
+            }
 }
 
 .uib-datepicker-popup {

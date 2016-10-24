@@ -144,9 +144,12 @@ export enum PropertyTypePredefined {
     CreatedOn = 4125,
     LastEditedBy = 4126,
     LastEditedOn = 4127,
-    ActorInheritance = 4128,    
+    ActorInheritance = 4128,
     Persona = 4130,
     StoryLink = 4131,
+    ImageId = 4132,
+    AssociatedArtifact = 4133,
+    
     VisualizationGroup = 8192,
     X = 8193,
     Y = 8194,
@@ -171,21 +174,21 @@ export enum TraceType {
     /// Parent
     /// </summary>
     Parent = 0,
-        /// <summary>
-        /// Child
-        /// </summary>
+    /// <summary>
+    /// Child
+    /// </summary>
     Child = 1,
-        /// <summary>
-        /// Manual
-        /// </summary>
+    /// <summary>
+    /// Manual
+    /// </summary>
     Manual = 2,
-        /// <summary>
-        /// All other traces including inherits from etc
-        /// </summary>
+    /// <summary>
+    /// All other traces including inherits from etc
+    /// </summary>
     Other = 4,
-        /// <summary>
-        /// Reuse
-        /// </summary>
+    /// <summary>
+    /// Reuse
+    /// </summary>
     Reuse = 8
 }
 
@@ -194,40 +197,40 @@ export enum RolePermissions {
     // No privileges
     None = 0,  //0
 
-        // Allows the viewing of an artifact
+    // Allows the viewing of an artifact
     Read = 1 << 0, // = 1
 
-        // Allows the editing of an artifact. This includes deleting & adding children.
+    // Allows the editing of an artifact. This includes deleting & adding children.
     Edit = 1 << 1, // = 2
 
-        // Allows deleting an artifact.
+    // Allows deleting an artifact.
     Delete = 1 << 2, // = 4
 
-        // Allow tracing from/To an artifact project.
+    // Allow tracing from/To an artifact project.
     Trace = 1 << 3, // = 8
 
-        // Allow the user to comment on an artifact.
+    // Allow the user to comment on an artifact.
     Comment = 1 << 4, // 16
 
-        // Allows a user to steal a lock on artifacts.
+    // Allows a user to steal a lock on artifacts.
     StealLock = 1 << 5, //= 32
 
-        // Allows a user to report on the project.
+    // Allows a user to report on the project.
     CanReport = 1 << 6, // = 64
 
-        // Allows a user to share an artifact.
+    // Allows a user to share an artifact.
     Share = 1 << 7, // = 128
 
-        // Allow reuse traces from/To an artifact project.
+    // Allow reuse traces from/To an artifact project.
     Reuse = 1 << 8, // = 256
 
-        // Allows a user to perform Excel Update.
+    // Allows a user to perform Excel Update.
     ExcelUpdate = 1 << 9, // = 512
 
-        // Allow the user to delete someone else's comment on an artifact.
+    // Allow the user to delete someone else's comment on an artifact.
     DeleteAnyComment = 1 << 10, // = 1024
 
-        // Allow the user to create/edit/save rapid review
+    // Allow the user to create/edit/save rapid review
     CreateRapidReview = 1 << 11 // = 2048
 }
 
@@ -256,9 +259,9 @@ export enum TraceDirection {
     /// Child link always has direction To
     /// </summary>
     To, //Child link always has direction To
-        /// <summary>
-        /// Parent link always has direction From
-        /// </summary>
+    /// <summary>
+    /// Parent link always has direction From
+    /// </summary>
     From, //Parent link always has direction From
     Bidirectional
 }

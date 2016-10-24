@@ -105,7 +105,7 @@ export class ShapeModelMock {
         };
 
 
-        var testArtifactReferenceLink1 = new ArtifactReferenceLinkMock(1);
+        const testArtifactReferenceLink1 = new ArtifactReferenceLinkMock(1);
         this.sampleSystemTask = {
             id: 30,
             projectId: 0,

@@ -1,4 +1,6 @@
 import * as angular from "angular";
+import "angular-mocks";
+require("script!mxClient");
 import {IModalDialogCommunication, ModalDialogCommunication} from "./modal-dialog-communication";
 import {ModalDialogType} from "./modal-dialog-constants";
 import {CommunicationManager} from "../../../bp-process/services/communication-manager";
@@ -8,11 +10,13 @@ import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog"
 import {ProcessGraph} from "../diagram/presentation/graph/process-graph";
 import {ProcessGraphModel} from "../diagram/viewmodel/process-graph-model";
 import {ProcessViewModel} from "../diagram/viewmodel/process-viewmodel";
+import {UserTask, SystemDecision} from "../diagram/presentation/graph/shapes";
 import {SubArtifactEditorModalOpener} from "./sub-artifact-editor-modal-opener";
 import {UserTaskModalController} from "./task-editor/user-task-modal-controller";
 import {SystemTaskModalController} from "./task-editor/system-task-modal-controller";
 import * as TestModels from "../../models/test-model-factory";
 import * as ProcessModels from "../../models/process-models";
+import {ProcessShapeType} from "../../models/enums";
 
 class ObservableHelper {
     public getGraph: () => any;
@@ -96,7 +100,6 @@ describe("SubArtifactEditorModalOpener test", () => {
         subArtifactEditorModalOpener = new SubArtifactEditorModalOpener(
             localScope,
             $uibModal,
-            rootScope,
             communicationManager.modalDialogManager,
             localization);
     });
@@ -109,53 +112,269 @@ describe("SubArtifactEditorModalOpener test", () => {
     });
 
     it("graph has to be injected into subArtifactEditorModalOpener", () => {
-        let process = TestModels.createSystemDecisionForAddBranchTestModel();
-
-        // Act
+        // arrange
+        const process = TestModels.createSystemDecisionForAddBranchTestModel();
         graph = createGraph(process);
-        graph.render(true, null);
+        const getGraph = () => graph;
 
-        // Assert
-        expect(subArtifactEditorModalOpener.getGraph()).toEqual(graph);
-        expect(subArtifactEditorModalOpener.getGraph().viewModel).toBeDefined();
+        // act
+        communicationManager.modalDialogManager.setGraph(getGraph);
+
+        // assert
+        expect(subArtifactEditorModalOpener["graph"]).toEqual(graph);
+        expect(subArtifactEditorModalOpener["graph"].viewModel).toBeDefined();
     });
 
-    it("subArtifactEditorModalOpener.openDialog should be called on modalDialogManager.openDialog", () => {
-        let process = TestModels.createSystemDecisionForAddBranchTestModel();
-        let spy = spyOn(subArtifactEditorModalOpener, "openDialog");
+    describe("open", () => {
+        it("calls openUserTaskDetailsModalDialog when open dialog for user task is invoked", () => {
+            // arrange
+            const shapeId: number = 40;
+            const process = TestModels.createUserDecisionInfiniteLoopModel();
+            const openDialogSpy = spyOn(subArtifactEditorModalOpener, "openUserTaskDetailsModalDialog").and.callFake(() => {/* no op */});
+            graph = createGraph(process);
+            subArtifactEditorModalOpener["graph"] = graph;
+            
+            // act
+            communicationManager.modalDialogManager.openDialog(1, ModalDialogType.UserTaskDetailsDialogType);
 
-        // Act
-        graph = createGraph(process);
-        graph.render(true, null);
-        communicationManager.modalDialogManager.openDialog(1, ModalDialogType.UserTaskDetailsDialogType);
+            // assert
+            expect(openDialogSpy).toHaveBeenCalled();
+        });
 
-        // Assert
-        expect(spy).toHaveBeenCalled();
+        it("calls openSystemTaskDetailsModalDialog when open dialog for system task is invoked", () => {
+            // arrange
+            const shapeId: number = 70;
+            const process = TestModels.createUserDecisionInfiniteLoopModel();
+            const openDialogSpy = spyOn(subArtifactEditorModalOpener, "openSystemTaskDetailsModalDialog").and.callFake(() => {/* no op */});
+            graph = createGraph(process);
+            subArtifactEditorModalOpener["graph"] = graph;
+            
+            // act
+            communicationManager.modalDialogManager.openDialog(shapeId, ModalDialogType.SystemTaskDetailsDialogType);
+
+            // assert
+            expect(openDialogSpy).toHaveBeenCalled();
+        });
+
+        it("calls openDecisionEditorDialog when open dialog for decision is invoked", () => {
+            // arrange
+            const shapeId: number = 30;
+            const process = TestModels.createUserDecisionInfiniteLoopModel();
+            const openDialogSpy = spyOn(subArtifactEditorModalOpener, "openDecisionEditorDialog").and.callFake(() => {/* no op */});
+            graph = createGraph(process);
+            subArtifactEditorModalOpener["graph"] = graph;
+
+            // act
+            communicationManager.modalDialogManager.openDialog(shapeId, ModalDialogType.UserSystemDecisionDetailsDialogType);
+
+            // assert
+            expect(openDialogSpy).toHaveBeenCalled();
+        });
+
+        it("calls openPreviewModalDialog when preview dialog is invoked", () => {
+            // arrange
+            const shapeId: number = 30;
+            const process = TestModels.createUserDecisionInfiniteLoopModel();
+            const openDialogSpy = spyOn(subArtifactEditorModalOpener, "openPreviewModalDialog").and.callFake(() => {/* no op */});
+            graph = createGraph(process);
+            subArtifactEditorModalOpener["graph"] = graph;
+
+            // act
+            communicationManager.modalDialogManager.openDialog(shapeId, ModalDialogType.PreviewDialogType);
+
+            // assert
+            expect(openDialogSpy).toHaveBeenCalled();
+        });
     });
 
-    xit("openUserSystemTaskDetailsModalDialog.open called with parameters", () => {
-        let process = TestModels.createUserDecisionInfiniteLoopModel();
-        spyOn(subArtifactEditorModalOpener, "open");
+    describe("getDecisionEditorModel", () => {
+        it("returns null for non-existing shape", () => {
+            // arrange
+            const process: ProcessModels.IProcess = TestModels.createUserDecisionForAddBranchTestModel();
+            graph = createGraph(process);
+            spyOn(graph, "getNodeById").and.returnValue(null);
 
-        // Act
-        graph = createGraph(process);
-        graph.render(true, null);
-        communicationManager.modalDialogManager.openDialog(80, ModalDialogType.UserTaskDetailsDialogType);
+            // act
+            const model = subArtifactEditorModalOpener.getDecisionEditorModel(1, graph);
 
-        // Assert
-        expect(subArtifactEditorModalOpener.open).toHaveBeenCalledWith(
-            "",
-            require("./task-editor/user-task-modal-template.html"),
-            UserTaskModalController,
-            subArtifactEditorModalOpener.getSubArtifactUserTaskDialogModel(80, graph),
-            "storyteller-modal");
+            // assert
+            expect(model).toBeNull();
+        });
+
+        it("returns null for non-decision shape", () => {
+            // arrange
+            const process: ProcessModels.IProcess = TestModels.createDefaultProcessModel();
+            const userTask: ProcessModels.IUserTaskShape = <ProcessModels.IUserTaskShape>process.shapes[2];
+            const userTaskNode = new UserTask(userTask, rootScope, null, null);
+            
+            graph = createGraph(process);
+            spyOn(graph, "getNodeById").and.returnValue(userTaskNode);
+
+            // act
+            const model = subArtifactEditorModalOpener.getDecisionEditorModel(userTask.id, graph);
+
+            // assert
+            expect(model).toBeNull();
+        });
+
+        it("returns correct decision model graph for decision shape", () => {
+            // arrange
+            const process: ProcessModels.IProcess = TestModels.createSystemDecisionForAddBranchTestModel();
+            const decisionShape: ProcessModels.IProcessShape = process.shapes[3];
+            const systemDecision = new SystemDecision(decisionShape, rootScope);
+            
+            graph = createGraph(process);
+            spyOn(graph, "getNodeById").and.returnValue(systemDecision);
+
+            // act
+            const model = subArtifactEditorModalOpener.getDecisionEditorModel(decisionShape.id, graph);
+
+            // assert
+            expect(model.graph).toBe(graph);
+        });
+
+        it("returns correct decision model conditions for decision shape", () => {
+            // arrange
+            const process: ProcessModels.IProcess = TestModels.createSystemDecisionForAddBranchTestModel();
+            const decisionShape: ProcessModels.IProcessShape = process.shapes[3];
+            const systemDecision = new SystemDecision(decisionShape, rootScope);
+            
+            graph = createGraph(process);
+            spyOn(graph, "getNodeById").and.returnValue(systemDecision);
+
+            // act
+            const model = subArtifactEditorModalOpener.getDecisionEditorModel(decisionShape.id, graph);
+
+            // assert
+            expect(model.conditions.length).toEqual(2);
+        });
+
+        it("returns correct decision model original for decision shape", () => {
+            // arrange
+            const process: ProcessModels.IProcess = TestModels.createSystemDecisionForAddBranchTestModel();
+            const decisionShape: ProcessModels.IProcessShape = process.shapes[3];
+            const systemDecision = new SystemDecision(decisionShape, rootScope);
+            
+            graph = createGraph(process);
+            spyOn(graph, "getNodeById").and.returnValue(systemDecision);
+
+            // act
+            const model = subArtifactEditorModalOpener.getDecisionEditorModel(decisionShape.id, graph);
+
+            // assert
+            expect(model.originalDecision).toBe(systemDecision);
+        });
+
+        it("returns correct decision model label for decision shape", () => {
+            // arrange
+            const process: ProcessModels.IProcess = TestModels.createSystemDecisionForAddBranchTestModel();
+            const decisionShape: ProcessModels.IProcessShape = process.shapes[3];
+            decisionShape.name = "SD1";
+            const systemDecision = new SystemDecision(decisionShape, rootScope);
+            
+            graph = createGraph(process);
+            spyOn(graph, "getNodeById").and.returnValue(systemDecision);
+
+            // act
+            const model = subArtifactEditorModalOpener.getDecisionEditorModel(decisionShape.id, graph);
+
+            // assert
+            expect(model.label).toEqual(systemDecision.label);
+        });
+
+        it("returns decision model is read-only if read-only", () => {
+            // arrange
+            const process: ProcessModels.IProcess = TestModels.createSystemDecisionForAddBranchTestModel();
+            process["artifactState"] = { readonly: true };
+            const decisionShape: ProcessModels.IProcessShape = process.shapes[3];
+            const systemDecision = new SystemDecision(decisionShape, rootScope);
+            
+            graph = createGraph(process);
+            spyOn(graph, "getNodeById").and.returnValue(systemDecision);
+
+            // act
+            const model = subArtifactEditorModalOpener.getDecisionEditorModel(decisionShape.id, graph);
+
+            // assert
+            expect(model.isReadonly).toEqual(true);
+        });
+
+        it("returns decision model is not read-only if not read-only", () => {
+            // arrange
+            const process: ProcessModels.IProcess = TestModels.createSystemDecisionForAddBranchTestModel();
+            process["artifactState"] = { readonly: false };
+            const decisionShape: ProcessModels.IProcessShape = process.shapes[3];
+            const systemDecision = new SystemDecision(decisionShape, rootScope);
+            
+            graph = createGraph(process);
+            spyOn(graph, "getNodeById").and.returnValue(systemDecision);
+
+            // act
+            const model = subArtifactEditorModalOpener.getDecisionEditorModel(decisionShape.id, graph);
+
+            // assert
+            expect(model.isReadonly).toEqual(false);
+        });
+
+        it("returns decision model is historical if historical", () => {
+            // arrange
+            const process: ProcessModels.IProcess = TestModels.createSystemDecisionForAddBranchTestModel();
+            process["historical"] = true;
+            const decisionShape: ProcessModels.IProcessShape = process.shapes[3];
+            const systemDecision = new SystemDecision(decisionShape, rootScope);
+            
+            graph = createGraph(process);
+            spyOn(graph, "getNodeById").and.returnValue(systemDecision);
+
+            // act
+            const model = subArtifactEditorModalOpener.getDecisionEditorModel(decisionShape.id, graph);
+
+            // assert
+            expect(model.isHistoricalVersion).toEqual(true);
+        });
+
+        it("returns decision model is not historical if not historical", () => {
+            // arrange
+            const process: ProcessModels.IProcess = TestModels.createSystemDecisionForAddBranchTestModel();
+            process["historical"] = false;
+            const decisionShape: ProcessModels.IProcessShape = process.shapes[3];
+            const systemDecision = new SystemDecision(decisionShape, rootScope);
+            
+            graph = createGraph(process);
+            spyOn(graph, "getNodeById").and.returnValue(systemDecision);
+
+            // act
+            const model = subArtifactEditorModalOpener.getDecisionEditorModel(decisionShape.id, graph);
+
+            // assert
+            expect(model.isHistoricalVersion).toEqual(false);
+        });
+
+        it("throw an error if graph doesn't have viewModel", () => {
+            // arrange
+            const process: ProcessModels.IProcess = TestModels.createSystemDecisionForAddBranchTestModel();
+            const decisionShape: ProcessModels.IProcessShape = process.shapes[3];
+            const systemDecision = new SystemDecision(decisionShape, rootScope);
+            
+            graph = createGraph(process);
+            graph.viewModel = null;
+            spyOn(graph, "getNodeById").and.returnValue(systemDecision);
+            let error: Error;
+
+            // act
+            try {
+                subArtifactEditorModalOpener.getDecisionEditorModel(decisionShape.id, graph);
+            } catch (ex) {
+                error = ex;
+            }
+            
+            // assert
+            expect(error).not.toBeNull();
+        });
     });
 
     function createGraph(process: ProcessModels.IProcess): ProcessGraph {
-        let clientModel = new ProcessGraphModel(process);
-        let viewModel = new ProcessViewModel(clientModel, communicationManager);
+        let viewModel = new ProcessViewModel(process, communicationManager);
         return new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
     }
-
 });
-

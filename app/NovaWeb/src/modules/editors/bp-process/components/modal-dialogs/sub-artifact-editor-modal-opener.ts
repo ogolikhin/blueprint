@@ -13,24 +13,19 @@ import {UserTask} from "../diagram/presentation/graph/shapes/user-task";
 import {SystemTask} from "../diagram/presentation/graph/shapes/system-task";
 import {NodeType} from "../diagram/presentation/graph/models/";
 import {IProcessLink} from "../diagram/presentation/graph/models/";
-import {UserTaskModalController} from "./task-editor/user-task-modal-controller";
-import {SystemTaskModalController} from "./task-editor/system-task-modal-controller";
 import {UserStoryPreviewController} from "./user-story-preview/user-story-preview";
 import {UserTaskDialogModel, SystemTaskDialogModel} from "./task-editor/sub-artifact-dialog-model";
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
 import {ILocalizationService} from "../../../../core";
 
 export class SubArtifactEditorModalOpener {
-    private animationsEnabled: boolean = true;
-    private isReadonly: boolean;
-    private isHistorical: boolean;
+    private graph: IProcessGraph;
     private setGraphHandler: string;
     private openDialogCallerHandler: string;
 
     constructor(
         private $scope: ng.IScope,
         private $uibModal: angular.ui.bootstrap.IModalService,
-        private $rootScope: ng.IRootScopeService,
         private dialogCommunication: IModalDialogCommunication,
         private localization: ILocalizationService
     ) {
@@ -38,10 +33,8 @@ export class SubArtifactEditorModalOpener {
         this.openDialogCallerHandler = dialogCommunication.registerOpenDialogObserver(this.openDialogCaller);
     }
 
-    public getGraph: () => any;
-
-    private setGraph = (graph) => {
-        this.getGraph = graph;
+    private setGraph = (getGraph: () => IProcessGraph) => {
+        this.graph = getGraph();
     }
 
     private openDialogCaller = (args: any[]) => {
@@ -52,27 +45,14 @@ export class SubArtifactEditorModalOpener {
         window.console.log(`Open dialog with parameters ${id}, ${dialogType}`);
 
         try {
-            const graph = this.getGraph();
-
-            // get read-only status from viewmodel's isReadonly property
-            const viewModel = graph.viewModel;
-            if (viewModel) {
-                this.isReadonly = viewModel.isReadonly;
-                this.isHistorical = viewModel.isHistorical;
-            } else {
-                throw new Error("ProcessViewModel is null in SubArtifactEditorModalOpener");
-            }
-
             if (dialogType === ModalDialogType.UserTaskDetailsDialogType) {
-                this.openUserTaskDetailsModalDialog(this.$scope, id, graph);
-            }
-
-            if (dialogType === ModalDialogType.SystemTaskDetailsDialogType) {
-                this.openSystemTaskDetailsModalDialog(this.$scope, id, graph);
+                this.openUserTaskDetailsModalDialog(this.$scope, id, this.graph);
+            } else if (dialogType === ModalDialogType.SystemTaskDetailsDialogType) {
+                this.openSystemTaskDetailsModalDialog(this.$scope, id, this.graph);
             } else if (dialogType === ModalDialogType.UserSystemDecisionDetailsDialogType) {
-                this.openDecisionEditorDialog(this.$scope, id, graph);
+                this.openDecisionEditorDialog(this.$scope, id, this.graph);
             } else if (dialogType === ModalDialogType.PreviewDialogType) {
-                this.openPreviewModalDialog(this.$scope, id, graph);
+                this.openPreviewModalDialog(this.$scope, id, this.graph);
             }
         } catch (err) {
             window.console.log(err);
@@ -87,8 +67,12 @@ export class SubArtifactEditorModalOpener {
         let userTaskNode: UserTask;
 
         // set dialog model isReadonly property to enable/disable input controls
-        taskDialogModel.isReadonly = this.isReadonly;
-        taskDialogModel.isHistoricalVersion = this.isHistorical;
+        if (!graph.viewModel) {
+            throw new Error("ProcessViewModel is null in SubArtifactEditorModalOpener");
+        }
+
+        taskDialogModel.isReadonly = graph.viewModel.isReadonly;
+        taskDialogModel.isHistoricalVersion = graph.viewModel.isHistorical;
         
         if (node.getNodeType() === NodeType.UserTask) {
             userTaskNode = <UserTask>node;
@@ -110,9 +94,14 @@ export class SubArtifactEditorModalOpener {
     public getSubArtifactSystemTaskDialogModel(shapeId: number, graph: IProcessGraph): SystemTaskDialogModel {
         const taskDialogModel = new SystemTaskDialogModel();
         taskDialogModel.subArtifactId = shapeId;
+
         // set dialog model isReadonly property to enable/disable input controls
-        taskDialogModel.isReadonly = this.isReadonly;
-        taskDialogModel.isHistoricalVersion = this.isHistorical;
+        if (!graph.viewModel) {
+            throw new Error("ProcessViewModel is null in SubArtifactEditorModalOpener");
+        }
+
+        taskDialogModel.isReadonly = graph.viewModel.isReadonly;
+        taskDialogModel.isHistoricalVersion = graph.viewModel.isHistorical;
 
         const node = graph.getNodeById(taskDialogModel.subArtifactId.toString());
 
@@ -144,8 +133,23 @@ export class SubArtifactEditorModalOpener {
             return null;
         }
 
+        const allowedNodeTypes: NodeType[] = [NodeType.UserDecision, NodeType.SystemDecision];
+        const nodeType: NodeType = decision.getNodeType();
+        
+        if (allowedNodeTypes.indexOf(nodeType) < 0) {
+            return null;
+        }
+
         const model: DecisionEditorModel = new DecisionEditorModel();
 
+        // set dialog model isReadonly property to enable/disable input controls
+        if (!graph.viewModel) {
+            throw new Error("ProcessViewModel is null in SubArtifactEditorModalOpener");
+        }
+
+        model.isReadonly = graph.viewModel.isReadonly;
+        model.isHistoricalVersion = graph.viewModel.isHistorical;
+        
         model.graph = graph;
         model.conditions = [];
 
@@ -171,16 +175,12 @@ export class SubArtifactEditorModalOpener {
             model.conditions.push(condition);
         }
 
-        // set dialog model isReadonly property to enable/disable input controls
-        model.isReadonly = this.isReadonly;
-        model.isHistoricalVersion = this.isHistorical;
-
         return model;
     }
 
     private openUserTaskDetailsModalDialog = ($scope: ng.IScope, shapeId: number, graph: IProcessGraph): void => {
         const settings = <ModalSettings>{
-            animation: this.animationsEnabled,
+            animation: true,
             component: "userTaskEditor",
             resolve: {
                 dialogModel: () => this.getSubArtifactUserTaskDialogModel(shapeId, graph)
@@ -193,7 +193,7 @@ export class SubArtifactEditorModalOpener {
 
     private openSystemTaskDetailsModalDialog = ($scope: ng.IScope, shapeId: number, graph: IProcessGraph): void => {
         const settings = <ModalSettings>{
-            animation: this.animationsEnabled,
+            animation: true,
             component: "systemTaskEditor",
             resolve: {
                 dialogModel: () => this.getSubArtifactSystemTaskDialogModel(shapeId, graph)
@@ -206,7 +206,7 @@ export class SubArtifactEditorModalOpener {
 
     private openDecisionEditorDialog = ($scope: ng.IScope, shapeId: number, graph: IProcessGraph): void => {
         const settings = <ModalSettings>{
-            animation: this.animationsEnabled,
+            animation: true,
             component: "decisionEditor",
             resolve: {
                 dialogModel: () => this.getDecisionEditorModel(shapeId, graph)
@@ -229,8 +229,12 @@ export class SubArtifactEditorModalOpener {
         userStoryDialogModel.isUserSystemProcess = graph.isUserSystemProcess;
 
         // set dialog model isReadonly property to enable/disable input controls
-        userStoryDialogModel.isReadonly = this.isReadonly;
-        userStoryDialogModel.isHistoricalVersion = this.isHistorical;
+        if (!graph.viewModel) {
+            throw new Error("ProcessViewModel is null in SubArtifactEditorModalOpener");
+        }
+
+        userStoryDialogModel.isReadonly = graph.viewModel.isReadonly;
+        userStoryDialogModel.isHistoricalVersion = graph.viewModel.isHistorical;
 
         return userStoryDialogModel;
     }
@@ -243,23 +247,10 @@ export class SubArtifactEditorModalOpener {
             "preview-modal");
     }
 
-    public cloneNode = (node): any => {
-        return JSON.parse(JSON.stringify(node));
-    }
-
-    public cloneArray = (arr: any[]): any[] => {
-        const retArr: any[] = [];
-        for (let node of arr) {
-            retArr.push(this.cloneNode(node));
-        }
-
-        return retArr;
-    }
-
     public open = (size, htmlTemplate: string, ctrl: any, dialogModel: any, windowClass: string) => {
         this.$uibModal.open(<ModalSettings>{
             okButton: this.localization.get("App_Button_Ok"),
-            animation: this.animationsEnabled,
+            animation: true,
             template: htmlTemplate,
             controller: ctrl,
             controllerAs: "vm",

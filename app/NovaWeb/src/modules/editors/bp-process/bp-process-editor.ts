@@ -42,25 +42,27 @@ export class BpProcessEditorController extends BpBaseEditor {
         "statefulArtifactFactory"
     ];
 
-    constructor(messageService: IMessageService,
-                artifactManager: IArtifactManager,
-                private windowManager: IWindowManager,
-                private $rootScope: ng.IRootScopeService,
-                private $scope: ng.IScope,
-                private $element: ng.IAugmentedJQuery,
-                private $q: ng.IQService,
-                private $log: ng.ILogService,
-                private $uibModal: ng.ui.bootstrap.IModalService,
-                private localization: ILocalizationService,
-                private $timeout: ng.ITimeoutService,
-                private communicationManager: ICommunicationManager,
-                private dialogService: IDialogService,
-                private navigationService: INavigationService,
-                private statefulArtifactFactory: IStatefulArtifactFactory) {
+    constructor(
+        messageService: IMessageService,
+        artifactManager: IArtifactManager,
+        private windowManager: IWindowManager,
+        private $rootScope: ng.IRootScopeService,
+        private $scope: ng.IScope,
+        private $element: ng.IAugmentedJQuery,
+        private $q: ng.IQService,
+        private $log: ng.ILogService,
+        private $uibModal: ng.ui.bootstrap.IModalService,
+        private localization: ILocalizationService,
+        private $timeout: ng.ITimeoutService,
+        private communicationManager: ICommunicationManager,
+        private dialogService: IDialogService,
+        private navigationService: INavigationService,
+        private statefulArtifactFactory: IStatefulArtifactFactory
+    ) {
         super(messageService, artifactManager);
 
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener(
-            $scope, $uibModal, $rootScope, communicationManager.modalDialogManager, localization);
+            $scope, $uibModal, communicationManager.modalDialogManager, localization);
     }
 
     public $onInit() {

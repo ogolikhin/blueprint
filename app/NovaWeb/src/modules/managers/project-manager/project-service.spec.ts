@@ -270,11 +270,11 @@ describe("Project Repository", () => {
         it("post - successful", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
             // Arrange
             const searchCriteria: SearchServiceModels.ISearchCriteria = {query: "new"};
-            const searchResult: SearchServiceModels.ISearchResult[] = [
+            const searchResult: SearchServiceModels.IProjectSearchResultSet = {items: [
                 {itemId: 1, name: "New project 1", path: "Blueprint"},
                 {itemId: 2, name: "New project 2", path: "Blueprint"}
-            ];
-            $httpBackend.expectPOST("/svc/searchservice/projectsearch/name?separatorString= > &resultCount=100", searchCriteria)
+            ]};
+            $httpBackend.expectPOST("/svc/searchservice/projectsearch/name?resultCount=100&separatorString=+%3E+", searchCriteria)
                 .respond(HttpStatusCode.Success, searchResult);
 
             // Act
@@ -293,13 +293,61 @@ describe("Project Repository", () => {
         it("post - unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
             // Arrange
             const searchCriteria: SearchServiceModels.ISearchCriteria = {query: "new"};
-            $httpBackend.expectPOST("/svc/searchservice/projectsearch/name?separatorString= > &resultCount=100", searchCriteria)
+            $httpBackend.expectPOST("/svc/searchservice/projectsearch/name?resultCount=100&separatorString=+%3E+", searchCriteria)
                 .respond(HttpStatusCode.Unauthorized);
 
             // Act
             let data: SearchServiceModels.IProjectSearchResultSet;
             let error: any;
             projectService.searchProjects(searchCriteria).then(response => data = response, err => error = err);
+
+            // Assert
+            $httpBackend.flush();
+            expect(data).toBeUndefined();
+            expect(error.statusCode).toEqual(401);
+            expect(error.message).toEqual("");
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+    });
+
+    describe("searchItemNames", () => {
+        it("post - successful", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
+            // Arrange
+            const searchCriteria: SearchServiceModels.IItemSearchCriteria = {query: "new", projectIds: [1]};
+            const searchResult: SearchServiceModels.IItemNameSearchResultSet = {
+                items: [
+                    {projectId: 1, artifactId: 2, itemId: 2, name: "New Actor 1", itemTypeId: 6, typeName: "Actor", typePrefix: "AC", path: ""},
+                    {projectId: 1, artifactId: 3, itemId: 3, name: "New Actor 2", itemTypeId: 6, typeName: "Actor", typePrefix: "AC", path: ""}
+                ],
+                pageItemCount: 2
+            };
+            $httpBackend.expectPOST("/svc/searchservice/itemsearch/name?pageSize=100&startOffset=0", searchCriteria)
+                .respond(HttpStatusCode.Success, searchResult);
+
+            // Act
+            let data: SearchServiceModels.IItemNameSearchResultSet;
+            let error: any;
+            projectService.searchItemNames(searchCriteria).then(response => data = response, err => error = err);
+
+            // Assert
+            $httpBackend.flush();
+            expect(error).toBeUndefined();
+            expect(data).toEqual(searchResult);
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+
+        it("post - unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
+            // Arrange
+            const searchCriteria: SearchServiceModels.IItemSearchCriteria = {query: "new", projectIds: [1]};
+            $httpBackend.expectPOST("/svc/searchservice/itemsearch/name?pageSize=100&startOffset=0", searchCriteria)
+                .respond(HttpStatusCode.Unauthorized);
+
+            // Act
+            let data: SearchServiceModels.IItemNameSearchResultSet;
+            let error: any;
+            projectService.searchItemNames(searchCriteria).then(response => data = response, err => error = err);
 
             // Assert
             $httpBackend.flush();

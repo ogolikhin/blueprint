@@ -3,6 +3,7 @@ import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
 import {IProcessGraph, ISelectionListener} from "./presentation/graph/models/";
+import {SystemTask} from "./presentation/graph/shapes";
 import {ProcessGraph} from "./presentation/graph/process-graph";
 import {ICommunicationManager} from "../../../bp-process";
 import {IDialogService} from "../../../../shared";
@@ -98,8 +99,16 @@ export class ProcessDiagram {
     }
 
     private processTypeChanged = (processType: number) => {
+        const isSystemTaskVisible: boolean = processType === ProcessType.UserToSystemProcess;
+        this.graph.setSystemTasksVisible(isSystemTaskVisible);
         this.processViewModel.processType = <ProcessType>processType;
-        this.recreateProcessGraph();
+
+        if (!isSystemTaskVisible) {
+            const hasSelectedSystemTask: boolean = this.graph.getMxGraph().getSelectionCells().filter(cell => cell instanceof SystemTask).length > 0;
+            if (hasSelectedSystemTask) {
+                this.graph.clearSelection();
+            }
+        }
     }
 
     private modelUpdate = (selectedNodeId: number) => {

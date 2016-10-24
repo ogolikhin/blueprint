@@ -56,9 +56,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         //    this.rootNode.push(new CollectionNodeVM({ id: i, name: `New Artifact ${i}`, description: "This is the description" } as Models.IArtifact));
         //}
     }
-    public onArtifactReady() {
-        super.onArtifactReady();
-        if (this.editor && this.artifact) {            
+    public onArtifactReady() {        
+        if (this.editor && this.artifact) {
             this.collectionService.getCollection(this.artifact.id).then((result: ICollection) => {
                 this.metadataService.get(result.projectId).then(() => {
                     this.collection = result;
@@ -69,16 +68,17 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                         this.messageService.addError(error["message"] || "Project_MetaDataNotFound");
                     }
                 }).finally(() => {
-                    //this.isLoading = false;
-                });                   
+                    super.onArtifactReady();
+                });
             }).catch((error: any) => {
-                //ignore authentication errors here
                 if (error) {
                     this.messageService.addError(error["message"] || "Artifact_NotFound");
                 }
-            }).finally(() => {
-                //this.isLoading = false;
-            });               
+                super.onArtifactReady();
+            });
+        }
+        else {
+            super.onArtifactReady();
         }
     }
    

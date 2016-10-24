@@ -55,7 +55,7 @@
                             <div class="storyteller-include">
                                 <i class="fonticon-include-active fonticon-st-tabs"></i>
                                     {{$ctrl.includeArtifactName}}
-                                <i class="fonticon2-delete storyteller-include_clear" ng-click="$ctrl.cleanIncludeField()" ng-disabled="$ctrl.isReadonly"></i>
+                                <i class="fonticon2-delete storyteller-include_clear" ng-click="$ctrl.cleanIncludeField()" ng-if="!$ctrl.isReadonly"></i>
 
                             </div>
                            <button class="btn btn-primary storyteller-include_btn" type="button" ng-click="$ctrl.openArtifactPicker()" ng-disabled="$ctrl.isReadonly">
@@ -73,7 +73,7 @@
     <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">
         {{::$root.config.labels['App_Button_Cancel']}}
     </button>
-    <button class="btn button-brand-secondary" type="button" ng-click="$ctrl.ok()" ng-disabled="$ctrl.isReadonly">
+    <button class="btn btn-promoted-action" type="button" ng-click="$ctrl.ok()" ng-disabled="$ctrl.isReadonly">
         {{::$root.config.labels['App_Button_Ok']}}
     </button>
     <!--<button id="artifact-property-modal-helper" style="display:none" type="button" ng-click="$ctrl.openPropertyFloatWindow($event)"></button>-->

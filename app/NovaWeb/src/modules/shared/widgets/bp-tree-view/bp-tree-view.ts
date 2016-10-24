@@ -170,7 +170,9 @@ export class BPTreeViewController implements IBPTreeViewController {
                             (params: any) => column.innerRenderer(params.data as ITreeViewNodeVM, params.eGridCell as HTMLElement) : undefined,
                         padding: 20
                     } : undefined,
-                    checkboxSelection: column.isCheckboxSelection                   
+                    checkboxSelection: column.isCheckboxSelection,
+                    suppressMenu: true,
+                    suppressSorting: true               
                 } as agGrid.ColDef;
             }));
 

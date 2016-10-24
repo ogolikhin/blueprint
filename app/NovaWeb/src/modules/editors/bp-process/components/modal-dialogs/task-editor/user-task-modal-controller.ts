@@ -7,7 +7,7 @@ import {ICommunicationManager} from "../../../services/communication-manager";
 import {TaskModalController} from "./task-modal-controller";
 
 export class UserTaskModalController extends TaskModalController<UserTaskDialogModel> {
-    actionPlaceHolderText: string;
+    public actionPlaceHolderText: string;
 
     public static $inject = [
         "$scope",
@@ -18,35 +18,33 @@ export class UserTaskModalController extends TaskModalController<UserTaskDialogM
     ];
 
     constructor(
-                $scope: IModalScope,
-                $rootScope: ng.IRootScopeService,                
-                $timeout: ng.ITimeoutService,                
-                dialogService: IDialogService,
-                localization: ILocalizationService,
-                $uibModalInstance?: ng.ui.bootstrap.IModalServiceInstance,
-                dialogModel?: UserTaskDialogModel) {
-
+        $scope: IModalScope,
+        $rootScope: ng.IRootScopeService,
+        $timeout: ng.ITimeoutService,
+        dialogService: IDialogService,
+        localization: ILocalizationService,
+        $uibModalInstance?: ng.ui.bootstrap.IModalServiceInstance,
+        dialogModel?: UserTaskDialogModel
+    ) {
         super($scope, $rootScope, $timeout, dialogService, localization, $uibModalInstance, dialogModel);
     }
 
-    //public methods
-    nameOnFocus() {
+    public nameOnFocus() {
         this.actionPlaceHolderText = this.localization.get("ST_User_Task_Name_Label");
     }
 
-    nameOnBlur() {
+    public nameOnBlur() {
         if (this.dialogModel.action) {
-                this.nameOnFocus();
-            } else {
-                this.actionPlaceHolderText = this.localization.get("ST_User_Task_Name_Label") + " " + this.dialogModel.label;
-            }
+            this.nameOnFocus();
+        } else {
+            this.actionPlaceHolderText = this.localization.get("ST_User_Task_Name_Label") + " " + this.dialogModel.label;
+        }
     }
 
-    getActiveHeader(): string {
+    public getActiveHeader(): string {
         return this.dialogModel.label;
     }
 
-    //protected methods
     protected  getAssociatedArtifact(): IArtifactReference {
         return this.dialogModel.associatedArtifact;
     }
@@ -59,9 +57,9 @@ export class UserTaskModalController extends TaskModalController<UserTaskDialogM
 
         if (this.dialogModel.originalItem && this.dialogModel) {
             this.dialogModel.originalItem.persona = this.dialogModel.persona;
-            this.dialogModel.originalItem.action = this.dialogModel.action;            
-            this.dialogModel.originalItem.objective = this.dialogModel.objective;            
+            this.dialogModel.originalItem.action = this.dialogModel.action;
+            this.dialogModel.originalItem.objective = this.dialogModel.objective;
             this.dialogModel.originalItem.associatedArtifact = this.dialogModel.associatedArtifact;
         }
-    }    
+    }
 }

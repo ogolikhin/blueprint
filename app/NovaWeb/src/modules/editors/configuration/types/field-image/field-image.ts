@@ -40,16 +40,6 @@ export class BPFieldImageController extends BPFieldBaseController {
          }
          };*/
 
-        let currentModelVal = <Models.IActorImagePropertyValue>$scope.model[$scope.options["key"]];
-        //let currentModelVal = <Models.IActorImagePropertyValue>$scope.model[$scope.options.key];
-        if (!currentModelVal) {
-            currentModelVal = <Models.IActorImagePropertyValue>{};
-        } else {            
-            if (currentModelVal.url) {
-                currentModelVal.imageSource = currentModelVal.url;
-            }            
-        }
-
         function chooseActorImage(files: File[], callback?: Function) {
             const dialogSettings = <IDialogSettings>{
                 okButton: localization.get("App_Button_Ok", "OK"),
@@ -67,7 +57,6 @@ export class BPFieldImageController extends BPFieldBaseController {
                 allowedExtentions: allowedExtensions
             };
 
-
             dialogService.open(dialogSettings, dialogData).then((uploadList: any[]) => {
                 // TODO: add state manager handling
 
@@ -78,6 +67,7 @@ export class BPFieldImageController extends BPFieldBaseController {
 
                     reader.onload = function (e) {
                         let imageContent = e.target["result"];
+                        const currentModelVal = <Models.IActorImagePropertyValue>$scope.model[$scope.options["key"]] || <Models.IActorImagePropertyValue>{};
                         currentModelVal.imageSource = imageContent;
                         currentModelVal.guid = image.guid;
                         $scope.model[$scope.options["key"]] = currentModelVal;                       
@@ -97,6 +87,11 @@ export class BPFieldImageController extends BPFieldBaseController {
             }
             return $scope.fields[0];
         }
+
+        $scope["getImageSource"] = () => { 
+            const currentModelVal = <Models.IActorImagePropertyValue>$scope.model[$scope.options["key"]] || <Models.IActorImagePropertyValue>{};        
+            return currentModelVal.imageSource || currentModelVal.url;
+        };
 
         $scope["onFileSelect"] = (files: File[], callback?: Function) => {
             chooseActorImage(files, callback);

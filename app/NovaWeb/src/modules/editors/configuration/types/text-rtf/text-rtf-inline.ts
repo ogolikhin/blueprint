@@ -82,10 +82,11 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                     args.content = content;
                 },
                 paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
-                    Helper.autoLinkURLText(args.node);
-                    Helper.setFontFamilyOrOpenSans(args.node, allowedFonts);
+                    prepBody(args.node);
                 },
                 init_instance_callback: (editor) => {
+                    mceEditor = editor;
+
                     editor.formatter.register("font8", {
                         inline: "span",
                         styles: {"font-size": "8pt"}
@@ -124,14 +125,8 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                     });
 
                     this.editorBody = editor.getBody();
-                    Helper.autoLinkURLText(this.editorBody);
-                    Helper.setFontFamilyOrOpenSans(this.editorBody, allowedFonts);
-                    this.handleLinks(this.editorBody.querySelectorAll("a"));
-
-                    contentBuffer = editor.getContent();
-                    $scope.model[$scope.options["key"]] = contentBuffer;
-                    $scope.options["data"].isFresh = false;
-                    mceEditor = editor;
+                    prepBody(this.editorBody);
+                    updateModel();
 
                     // MutationObserver
                     const mutationObserver = window["MutationObserver"] || window["WebKitMutationObserver"] || window["MozMutationObserver"];
@@ -165,6 +160,9 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                             if (contentBuffer !== value) {
                                 triggerChange(value);
                             }
+                        } else { // this will get called when refreshing the artifact
+                            prepBody(editor.getBody());
+                            updateModel();
                         }
                     });
 
@@ -290,6 +288,19 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
             contentBuffer = newContent;
             if (typeof onChange === "function") {
                 onChange(newContent, $scope.options, $scope);
+            }
+        }
+
+        function prepBody(body: Node) {
+            Helper.autoLinkURLText(body);
+            Helper.setFontFamilyOrOpenSans(body, allowedFonts);
+        }
+
+        function updateModel() {
+            if (mceEditor) {
+                contentBuffer = mceEditor.getContent();
+                $scope.model[$scope.options["key"]] = contentBuffer;
+                $scope.options["data"].isFresh = false;
             }
         }
     }

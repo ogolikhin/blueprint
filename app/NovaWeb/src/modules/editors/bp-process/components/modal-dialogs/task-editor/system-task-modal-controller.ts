@@ -7,42 +7,38 @@ import {ICommunicationManager} from "../../../services/communication-manager";
 import {TaskModalController} from "./task-modal-controller";
 
 export class SystemTaskModalController extends TaskModalController<SystemTaskDialogModel> {
-    
     private systemNamePlaceHolderText: string;
     
     constructor(
-                $scope: IModalScope,
-                $rootScope: ng.IRootScopeService,
-                $timeout: ng.ITimeoutService,
-                dialogService: IDialogService,
-                localization: ILocalizationService,
-                $uibModalInstance?: ng.ui.bootstrap.IModalServiceInstance,
-                dialogModel?: SystemTaskDialogModel) {
-
+        $scope: IModalScope,
+        $rootScope: ng.IRootScopeService,
+        $timeout: ng.ITimeoutService,
+        dialogService: IDialogService,
+        localization: ILocalizationService,
+        $uibModalInstance?: ng.ui.bootstrap.IModalServiceInstance,
+        dialogModel?: SystemTaskDialogModel
+    ) {
         super($scope, $rootScope, $timeout, dialogService, localization, $uibModalInstance, dialogModel);
     }
 
-    //public methods
-    nameOnFocus() {
+    public nameOnFocus() {
         this.systemNamePlaceHolderText = this.localization.get("ST_System_Task_Name_Label");
     }
 
-    nameOnBlur() {
+    public nameOnBlur() {
         if (this.dialogModel) {
             if (this.dialogModel.action) {
                 this.nameOnFocus(); 
             } else {
-                this.systemNamePlaceHolderText =
-                    this.localization.get("ST_System_Task_Name_Label") + " " + this.dialogModel.label;
+                this.systemNamePlaceHolderText = `${this.localization.get("ST_System_Task_Name_Label")} ${this.dialogModel.label}`;
             }
         }
     }
 
-    getActiveHeader(): string {
+    public getActiveHeader(): string {
         return this.dialogModel.label;
     }
 
-    //protected methods
     protected  getAssociatedArtifact(): IArtifactReference {
         return this.dialogModel.associatedArtifact;
     }
@@ -52,13 +48,12 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
     }
 
     protected populateTaskChanges() {
-        
         if (this.dialogModel.originalItem && this.dialogModel) {
             this.dialogModel.originalItem.persona = this.dialogModel.persona;
             this.dialogModel.originalItem.action = this.dialogModel.action;
             this.dialogModel.originalItem.imageId = this.dialogModel.imageId;
             this.dialogModel.originalItem.associatedImageUrl = this.dialogModel.associatedImageUrl;
             this.dialogModel.originalItem.associatedArtifact = this.dialogModel.associatedArtifact;
-        }        
-    }   
+        }
+    }
 }

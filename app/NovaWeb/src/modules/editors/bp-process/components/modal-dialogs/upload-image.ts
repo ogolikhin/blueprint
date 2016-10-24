@@ -1,6 +1,6 @@
 import * as angular from "angular";
-import {IFileResult, IFileUploadService} from "../../../../core/file-upload/";
-import {ISystemTask} from "../diagram/presentation/graph/models/";
+import { IFileResult, IFileUploadService } from "../../../../core/file-upload/";
+import { ISystemTask } from "../diagram/presentation/graph/models/";
 
 export interface IUploadImageScope extends ng.IScope {
     uploadImage: () => void;
@@ -28,12 +28,12 @@ export class UploadImageDirective implements ng.IDirective {
     public defaultName = "default";
 
     constructor(private fileUploadService: IFileUploadService, private $window: ng.IWindowService,
-                private $timeout: ng.ITimeoutService, private $compile: ng.ICompileService) {
+        private $timeout: ng.ITimeoutService, private $compile: ng.ICompileService) {
     }
 
     public static factory(): ng.IDirectiveFactory {
         const directive: ng.IDirectiveFactory = (fileUploadService: IFileUploadService,
-                                                 $window: ng.IWindowService, $timeout: ng.ITimeoutService, $compile: ng.ICompileService) =>
+            $window: ng.IWindowService, $timeout: ng.ITimeoutService, $compile: ng.ICompileService) =>
             new UploadImageDirective(fileUploadService, $window, $timeout, $compile);
         directive.$inject = ["fileUploadService", "$window", "$timeout", "$compile"];
         return directive;
@@ -115,16 +115,16 @@ export class UploadImageDirective implements ng.IDirective {
             imageUrl += "&" + decacheValue;
         } else {
             //add request for latest version
-           imageUrl += "?revisionId=2147483647&" + decacheValue;
+            imageUrl += "?revisionId=2147483647&" + decacheValue;
         }
 
         const imageAlt = $scope.systemTaskModel.action ? $scope.systemTaskModel.action.replace(/"/g, "'") : "";
 
         const zoomableImage = "<zoomable-image id=\"uploadedImage\" class=\"img-responsive preview-image-placeholder\"" +
-                                "enable-zoom=\"" + !!$scope.systemTaskModel.associatedImageUrl + "\"" +
-                            "image-src=\"" + imageUrl + "\"" +
-            "image-alt=\""  + imageAlt + "\" ></zoomable-image>";
-            
+            "enable-zoom=\"" + !!$scope.systemTaskModel.associatedImageUrl + "\"" +
+            "image-src=\"" + imageUrl + "\"" +
+            "image-alt=\"" + imageAlt + "\" ></zoomable-image>";
+
         const el = this.$compile(zoomableImage)($scope);
         const result = document.getElementsByClassName("file-upload_preview");
         const wrappedResult = angular.element(result);

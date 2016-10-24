@@ -4,7 +4,7 @@
         <ui-select
             ng-model="model[options.key]"
             ng-disabled="{{to.disabled}}"
-            uis-open-close="bpFieldSelect.onOpenClose(isOpen)">
+            uis-open-close="bpFieldSelect.onOpenClose($select, isOpen)">
             <ui-select-match placeholder="{{to.placeholder}}">
                 <div class="ui-select-match-item-chosen" bp-tooltip="{{$select.selected[to.labelProp]}}"
                      bp-tooltip-truncated="true">{{$select.selected[to.labelProp]}}</div>

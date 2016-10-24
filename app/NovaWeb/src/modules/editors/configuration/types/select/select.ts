@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import "angular-formly";
 import {ILocalizationService} from "../../../../core";
-import {Enums} from "../../../../main/models";
+import {Enums, Models} from "../../../../main/models";
 import {BPFieldBaseController} from "../base-controller";
 
 export class BPFieldSelect implements AngularFormly.ITypeOptions {
@@ -22,10 +22,10 @@ export class BPFieldSelect implements AngularFormly.ITypeOptions {
         });
     };
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldSelectController;
+}
 
-    constructor() {
-        //fixme: empty constructors can be removed
-    }
+interface Items {
+
 }
 
 export class BpFieldSelectController extends BPFieldBaseController {
@@ -34,16 +34,12 @@ export class BpFieldSelectController extends BPFieldBaseController {
     constructor(private $scope: AngularFormly.ITemplateScope, private localization: ILocalizationService) {
         super();
 
-        let to: AngularFormly.ITemplateOptions = {
+        const to: AngularFormly.ITemplateOptions = {
             placeholder: localization.get("Property_Placeholder_Select_Option"),
             valueProp: "value",
             labelProp: "name"
         };
         angular.merge($scope.to, to);
-
-        let newCustomValueId = function (): string {
-            return (-1 * (Math.random() * 100 + 100)).toString(); // not to conflict with special IDs like project (-1) or collections (-2)
-        };
 
         $scope["$on"]("$destroy", function () {
             if ($scope["uiSelectContainer"]) {
@@ -51,19 +47,28 @@ export class BpFieldSelectController extends BPFieldBaseController {
             }
         });
 
-        let customValueId = "-1";
-        // we need to generate a custom id everytime, otherwise the select won't be able to recognize two different custom values
+        $scope.options["expressionProperties"] = {
+            "templateOptions.options": () => {
+                let options = [];
+                let context: Models.IPropertyType = $scope.options["data"];
+                if (context.validValues && context.validValues.length) {
+                    options = context.validValues.map(function (it) {
+                        return {value: it.id, name: it.value} as any;
+                    });
+                }
 
-        let currentModelVal = $scope.model[$scope.options["key"]];
-        if (angular.isObject(currentModelVal) && currentModelVal.customValue) {
-            let newVal = {
-                value: customValueId,
-                name: currentModelVal.customValue,
-                isCustom: true
-            };
-            $scope.to.options.push(newVal);
-            $scope.model[$scope.options["key"]] = customValueId;
-        }
+                const currentModelVal = $scope.model[$scope.options["key"]];
+                if (_.isObject(currentModelVal) && currentModelVal.customValue) {
+                    let newVal = {
+                        value: currentModelVal,
+                        name: currentModelVal.customValue
+                    };
+                    options.push(newVal);
+                }
+
+                return options;
+            }
+        };
 
         $scope["bpFieldSelect"] = {
             closeDropdownOnTab: this.closeDropdownOnTab,
@@ -72,16 +77,15 @@ export class BpFieldSelectController extends BPFieldBaseController {
             },
             refreshResults: function ($select) {
                 if (!$scope.options["data"].isValidated && $scope.options["data"].lookup === Enums.PropertyLookupEnum.Custom) {
-                    let search = $select.search;
+                    let optionList = angular.copy($select.items);
 
+                    //remove last user input
+                    optionList = optionList.filter(function (item) {
+                        return !_.isObject(item.value);
+                    });
+
+                    const search = $select.search;
                     if (search) {
-                        let optionList = angular.copy($select.items);
-
-                        //remove last user input
-                        optionList = optionList.filter(function (item) {
-                            return !item.isCustom;
-                        });
-
                         let isDuplicate = false;
                         $select.items.forEach(function (item) {
                             if (item[$scope.to.labelProp] === search) {
@@ -92,40 +96,52 @@ export class BpFieldSelectController extends BPFieldBaseController {
 
                         if (!isDuplicate) {
                             //manually add user input and set selection
-                            customValueId = newCustomValueId();
-                            let userInputItem = {
+                            const userInputItem = {
                                 value: {customValue: search},
-                                name: search,
-                                isCustom: true
+                                name: search
                             };
                             $select.items = [userInputItem].concat(optionList);
                             $select.selected = userInputItem;
                         }
+                    } else {
+                        $select.items = optionList;
                     }
                 }
             },
-            onOpenClose: function (isOpen) {
+            onOpenClose: function ($select, isOpen) {
                 if (isOpen && $scope["uiSelectContainer"]) {
-                    let currentVal = $scope.model[$scope.options["key"]];
-                    if (angular.isObject(currentVal)) {
-                        $scope["uiSelectContainer"].querySelector(".ui-select-choices-row").classList.add("active");
-                    } else if (angular.isNumber(currentVal)) {
-                        let options = $scope["uiSelectContainer"].querySelectorAll(".ui-select-choices-row");
-                        [].forEach.call(options, function (option) {
-                            option.classList.remove("active");
-                        });
-                        let elem = $scope["uiSelectContainer"].querySelector(".ui-select-choice-item-selected");
-                        if (elem) {
-                            while (elem && !elem.classList.contains("ui-select-choices-row")) {
-                                elem = elem.parentElement;
-                            }
-                            if (elem) {
-                                elem.classList.add("active");
-                            }
-                        }
+                    if (_.isObject(($select.selected.value))) {
+                        let optionList = angular.copy($select.items);
+                        const userInputItem = {
+                            value: $select.selected.value,
+                            name: $select.selected.name
+                        };
+                        $select.items = [userInputItem].concat(optionList);
                     }
+                    // let currentVal = $scope.model[$scope.options["key"]];
+                    // if (angular.isObject(currentVal)) {
+                    //     $scope["uiSelectContainer"].querySelector(".ui-select-choices-row").classList.add("active");
+                    // } else if (angular.isNumber(currentVal)) {
+                    //     let options = $scope["uiSelectContainer"].querySelectorAll(".ui-select-choices-row");
+                    //     [].forEach.call(options, function (option) {
+                    //         option.classList.remove("active");
+                    //     });
+                    //     let elem = $scope["uiSelectContainer"].querySelector(".ui-select-choice-item-selected");
+                    //     if (elem) {
+                    //         while (elem && !elem.classList.contains("ui-select-choices-row")) {
+                    //             elem = elem.parentElement;
+                    //         }
+                    //         if (elem) {
+                    //             elem.classList.add("active");
+                    //         }
+                    //     }
+                    // }
                 }
             }
         };
+    }
+
+    private filterCustomItems = (items: any[]): any[] => {
+return [];
     }
 }

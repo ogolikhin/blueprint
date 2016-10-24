@@ -31,13 +31,13 @@ export class ItemStateController {
         let id = parseInt($state.params["id"], 10);
 
         if (id) {
-            artifactManager.get(id).then((artifact: IStatefulArtifact) => {
+            const artifact = artifactManager.get(id);
+            if (artifact) {
                 artifact.unload();
                 this.navigateToSubRoute(artifact);
-
-            }).catch(error => {
+            } else {
                 this.getItemInfo(id);
-            });
+            }
         }
     }
 
@@ -117,7 +117,7 @@ export class ItemStateController {
             case Models.ItemTypePredefined.CollectionFolder:
                 this.$state.go("main.item.general", params);
                 break;
-            case Models.ItemTypePredefined.ArtifactCollection:            
+            case Models.ItemTypePredefined.ArtifactCollection:
                 this.$state.go("main.item.collection", params);
                 break;
             case Models.ItemTypePredefined.Process:

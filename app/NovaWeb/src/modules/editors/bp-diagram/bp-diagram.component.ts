@@ -166,9 +166,12 @@ export class BPDiagramController extends BpBaseEditor {
     private getUseCaseDiagramArtifact(shape: IShape): ng.IPromise<IStatefulArtifact> {
         const artifactId = parseInt(ShapeExtensions.getPropertyByName(shape, ShapeProps.ARTIFACT_ID), 10);
         if (isFinite(artifactId)) {
-            return this.artifactManager.get(artifactId).catch(error => {
+            const artifact = this.artifactManager.get(artifactId);
+            if (artifact) {
+                return this.$q.resolve(artifact);
+            } else {
                 return this.statefulArtifactFactory.createStatefulArtifactFromId(artifactId);
-            });
+            }
         }
         return undefined;
     }

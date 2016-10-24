@@ -55,8 +55,10 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
     }
 
     public cleanIncludeField(): void {
-        this.isIncludeResultsVisible = false;
-        this.setAssociatedArtifact(null);
+        if (this.canCleanIncludeField()) {
+            this.isIncludeResultsVisible = false;
+            this.setAssociatedArtifact(null);
+        }
     }
 
     public formatIncludeLabel(model: IArtifactReference) {
@@ -109,6 +111,10 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
                 this.prepIncludeField();
             }
         });
+    }
+
+    private canCleanIncludeField(): boolean {
+        return !this.dialogModel.isReadonly;
     }
 
     private refreshView() {

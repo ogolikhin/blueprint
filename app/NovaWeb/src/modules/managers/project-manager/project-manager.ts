@@ -36,7 +36,7 @@ export interface IProjectManager extends IDispose {
     refreshAll(): ng.IPromise<any>;
     loadArtifact(id: number): void;
     loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
-    getProject(id: number);
+    getProject(id: number): Project;
     getArtifactNode(id: number): IArtifactNode;
     getArtifact(id: number): IStatefulArtifact;
     getSelectedProject(): Project;
@@ -474,10 +474,12 @@ export class ProjectManager implements IProjectManager {
     }
 
     public getProject(id: number): Project {
-        let project = this.projectCollection.getValue().filter(function (it) {
-            return it.id === id;
-        })[0];
-        return project;
+        for (let project of this.projectCollection.getValue()) {
+            if (project.id === id) {
+                return project;
+            }
+        }
+        return undefined;
     }
 
     public getSelectedProject(): Project {

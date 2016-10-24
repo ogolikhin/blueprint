@@ -22,20 +22,19 @@ export class BpBaseEditor {
 
     public $onChanges(obj: any) {
         this.isDestroyed = false;
-        this.artifactManager.get(obj.context.currentValue).then((artifact) => {
-            if (artifact) {
-                this.isLoading = true;
-                this.artifact = artifact;
-                //TODO come up with better way to fix bug in use case diagram when user selects actor/ use case
-                this.artifactManager.selection.setExplorerArtifact(this.artifact);
-                this.artifactManager.selection.setArtifact(this.artifact);
+        const artifact = this.artifactManager.get(obj.context.currentValue);
+        if (artifact) {
+            this.isLoading = true;
+            this.artifact = artifact;
+            //TODO come up with better way to fix bug in use case diagram when user selects actor/ use case
+            this.artifactManager.selection.setExplorerArtifact(this.artifact);
+            this.artifactManager.selection.setArtifact(this.artifact);
 
-                const artifactObserver = artifact.getObservable()
-                    .subscribe(this.onArtifactChanged, this.onArtifactError);
+            const artifactObserver = artifact.getObservable()
+                .subscribe(this.onArtifactChanged, this.onArtifactError);
 
-                this.subscribers = [artifactObserver];
-            }
-        });
+            this.subscribers = [artifactObserver];
+        }
     }
 
     public $onDestroy() {

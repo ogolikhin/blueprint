@@ -96,15 +96,14 @@ export class BpArtifactInfoController {
     }
 
     public $onChanges(obj: any) {
-        this.artifactManager.get(obj.context.currentValue).then((artifact) => {
-            if (artifact) {
-                this.artifact = artifact;
-                const artifactObserver = artifact.getObservable()
-                    .subscribe(this.onArtifactChanged, this.onError);
+        const artifact = this.artifactManager.get(obj.context.currentValue);
+        if (artifact) {
+            this.artifact = artifact;
+            const artifactObserver = artifact.getObservable()
+                .subscribe(this.onArtifactChanged, this.onError);
 
-                this.subscribers.push(artifactObserver);
-            }
-        });
+            this.subscribers.push(artifactObserver);
+        }
     }
 
     public $onDestroy() {

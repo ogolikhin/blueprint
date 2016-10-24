@@ -59,21 +59,19 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
     }
 
     public changes(): Models.ISubArtifact {
-        if (this.artifactState.invalid) {
-            throw new Error("App_Save_Artifact_Error_400_114");
+        const traces = this.relationships.changes();
+        const attachmentValues = this.attachments.changes();
+        const docRefValues = this.docRefs.changes();
+
+        if (traces || attachmentValues || docRefValues) {
+            const delta = <Models.ISubArtifact>{};
+            delta.id = this.id;
+            delta.traces = traces;
+            delta.attachmentValues = attachmentValues;
+            delta.docRefValues = docRefValues;
+            return delta;
         }
-        let delta: Models.ISubArtifact = {} as Models.ISubArtifact;
-        delta.id = this.id;
-        /*delta.customPropertyValues = [];
-         this.changesets.get().forEach((it: IChangeSet) => {
-         delta[it.key as string] = it.value;
-         });*/
-        //delta.customPropertyValues = this.customProperties.changes();
-        //delta.specificPropertyValues = this.specialProperties.changes();
-        delta.traces = this.relationships.changes();
-        delta.attachmentValues = this.attachments.changes();
-        delta.docRefValues = this.docRefs.changes();
-        return delta;
+        return undefined;
     }
 
     public discard() {

@@ -1,4 +1,5 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
+import * as _ from "lodash";
 import {BPLocale, ILocalizationService} from "../../core";
 import {Enums, Models} from "../../main";
 import {PropertyContext} from "./bp-property-context";
@@ -103,13 +104,15 @@ export class PropertyEditor {
             } else {
                 return $value.toString();
             }
+        } else if (context.primitiveType === Models.PrimitiveType.Text && context.isRichText) {
+            return Helper.getHtmlBodyContent($value);
         }
         return $value;
     }
 
 
     public create(statefulItem: IStatefulItem, properties: Models.IPropertyType[], force: boolean): boolean {
-        
+
         let fieldsupdated: boolean = false;
         this._model = {};
 
@@ -117,11 +120,25 @@ export class PropertyEditor {
             this.propertyContexts = properties.map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
             });
-            if (this.itemid !== statefulItem.id || force) {
+
+            //Check if fields changed (from metadata)
+            let fieldNamesChanged = true;
+            let namesChanged = true;
+            if (this._fields) {
+                const newFieldNames = this.propertyContexts.map((prop) => prop.fieldPropertyName);
+                const previousFieldNames = this._fields.map((field) => (field.data as PropertyContext).fieldPropertyName);
+                fieldNamesChanged = _.xor(newFieldNames, previousFieldNames).length > 0; 
+
+                const newNames = this.propertyContexts.map((prop) => prop.name);
+                const previousNames = this._fields.map((field) => (field.data as PropertyContext).name);
+                namesChanged = _.xor(newNames, previousNames).length > 0;
+            }
+
+            if (this.itemid !== statefulItem.id || fieldNamesChanged || namesChanged || force) {
                 fieldsupdated = true;
                 this._fields = [];
             }
-            
+
             this.propertyContexts.forEach((propertyContext: PropertyContext) => {
                 if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
                     let modelValue: any = null;
@@ -144,7 +161,7 @@ export class PropertyEditor {
                             statefulItem.readOnlyReuseSettings &&
                             (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Description) === Enums.ReuseSettings.Description) {
                             propertyContext.disabled = true;
-                        } 
+                        }
                     } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Custom) {
                         //Custom property
                         let custompropertyvalue = statefulItem.customProperties.get(propertyContext.modelPropertyName as number);
@@ -168,6 +185,7 @@ export class PropertyEditor {
                         }
                     }
                     if (isModelSet) {
+                        propertyContext.isFresh = true;
                         let field = this.createPropertyField(propertyContext, statefulItem.id);
                         this._model[propertyContext.fieldPropertyName] = this.convertToFieldValue(field, modelValue);
                         if (fieldsupdated) {
@@ -177,7 +195,7 @@ export class PropertyEditor {
                 }
             });
             this.itemid = statefulItem.id;
-            
+
         }
 
         return fieldsupdated;

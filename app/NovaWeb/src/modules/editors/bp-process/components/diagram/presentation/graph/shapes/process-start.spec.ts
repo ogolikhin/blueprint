@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {ProcessStart} from "./";
 import {ShapesFactory} from "./shapes-factory";
 import {ProcessGraph} from "../process-graph";
@@ -59,7 +59,6 @@ describe("ProcessStart test", () => {
 
         const processModel = new ProcessModel();
         const viewModel = new ProcessViewModel(processModel, communicationManager);
-        viewModel.isReadonly = false;
 
         // Act
         const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);

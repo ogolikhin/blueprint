@@ -1,17 +1,10 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace SearchService.Models
 {
-
-    public class SearchCriteria : ISearchCriteria
+    public class SearchCriteria
     {
         [Required]
         public string Query { get; set; }
-
-        [Required]
-        public IEnumerable<int> ProjectIds { get; set; }
-
-        public IEnumerable<int> ItemTypeIds { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {Models, Enums} from "../../models";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../services";
 import {IMessageService, Message, MessageType, ILocalizationService} from "../../../core";
@@ -185,7 +185,11 @@ export class BpArtifactInfoController {
 
             this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
 
-            this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[itemType.predefinedType] || "document"));
+            if (artifact.orderIndex < 0 && artifact.predefinedType === Models.ItemTypePredefined.CollectionFolder) {
+                this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[Models.ItemTypePredefined.Collections] || "document"));
+            } else { 
+                this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[itemType.predefinedType] || "document"));
+            }
 
             this.isLegacy = itemType.predefinedType === Enums.ItemTypePredefined.Storyboard ||
                 itemType.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||

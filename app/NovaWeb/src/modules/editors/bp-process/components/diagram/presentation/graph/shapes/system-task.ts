@@ -1,10 +1,15 @@
-﻿import {ISystemTaskShape} from "../../../../../models/process-models";
+import {ISystemTaskShape, PropertyTypePredefined} from "../../../../../models/process-models";
 import {ItemIndicatorFlags, ProcessShapeType} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
-import {IProcessGraph, IDiagramNode} from "../models/";
-import {IDiagramNodeElement, ISystemTask} from "../models/";
-import {ILabel} from "../models/";
-import {NodeType, NodeChange, ElementType} from "../models/";
+import {
+    IProcessGraph,
+    IDiagramNode,
+    IDiagramNodeElement,
+    ISystemTask,
+    ILabel,
+    NodeType,
+    NodeChange,
+    ElementType} from "../models/";
 import {ShapesFactory} from "./shapes-factory";
 import {DiagramNodeElement} from "./diagram-element";
 import {DiagramNode} from "./diagram-node";
@@ -45,20 +50,11 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
                 private defaultPersonaValue: string,
                 private nodeFactorySettings: NodeFactorySettings = null,
                 private shapesFactory: ShapesFactory) {
-        super(model, NodeType.SystemTask);
+        super(model);
 
         this.rootScope = rootScope;
 
         this.initButtons(model.id.toString(), nodeFactorySettings);
-    }
-
-    public cloneSystemTask(): SystemTask {
-        let systemTask = new SystemTask(this.model, this.rootScope, this.defaultPersonaValue, this.nodeFactorySettings, this.shapesFactory);
-        systemTask.label = this.label;
-        systemTask.action = this.action;
-        systemTask.description = this.description;
-        systemTask.associatedArtifact = this.associatedArtifact;
-        return systemTask;
     }
 
     private initChildElements(justCreated: boolean) {
@@ -112,7 +108,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         if (nodeFactorySettings && nodeFactorySettings.isCommentsButtonEnabled) {
             // #TODO interaction with utility panel is different in Nova
             //this.commentsButton.setClickAction(() => this.openPropertiesDialog(this.rootScope, Shell.UtilityTab.discussions));
-        } 
+        }
 
         this.commentsButton.setTooltip(this.getLocalizedLabel("ST_Comments_Label"));
 
@@ -133,7 +129,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
 
         if (nodeFactorySettings && nodeFactorySettings.isLinkButtonEnabled) {
             this.linkButton.setClickAction(() => this.navigateToProcess());
-        } 
+        }
 
         this.linkButton.setTooltip(this.getLocalizedLabel("ST_Userstory_Label"));
         this.linkButton.setDisabledImage(this.getImageSource("include-inactive.svg"));
@@ -152,7 +148,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
 
         if (nodeFactorySettings && nodeFactorySettings.isMockupButtonEnabled) {
             this.mockupButton.setClickAction(() => this.openDialog(ModalDialogType.SystemTaskDetailsDialogType));
-        } 
+        }
 
         this.mockupButton.setTooltip(this.getLocalizedLabel("ST_Mockup_Label"));
         this.mockupButton.setActiveImage(this.getImageSource("mockup-active.svg"));
@@ -168,7 +164,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
 
         if (nodeFactorySettings && nodeFactorySettings.isDetailsButtonEnabled) {
             this.detailsButton.setClickAction(() => this.openDialog(ModalDialogType.SystemTaskDetailsDialogType));
-        } 
+        }
 
         this.detailsButton.setTooltip(this.getLocalizedLabel("ST_Settings_Label"));
         this.detailsButton.setHoverImage(this.getImageSource("adddetails-hover.svg"));
@@ -237,8 +233,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
     public set associatedArtifact(value: any) {
         if (this.model != null && this.model.associatedArtifact !== value) {
             this.model.associatedArtifact = value;
-            // TODO: create associatedArtifact predefined type and update it in the special properties of the stateful artifact.
-            //this.updateStatefulPropertyValue(<property type predefined>, value);
+            this.updateStatefulPropertyValue(PropertyTypePredefined.AssociatedArtifact, value);
             if (!value) {
                 this.linkButton.disable();
             } else {
@@ -270,14 +265,6 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
 
     public isPrecondition(): boolean {
         return this.model.propertyValues["clientType"].value === ProcessShapeType.PreconditionSystemTask;
-    }
-
-    public addNode(graph: IProcessGraph): IDiagramNode {
-        return this;
-    }
-
-    public deleteNode(graph: IProcessGraph) {
-        //fixme: empty blocks should be removed
     }
 
     public renderLabels() {
@@ -448,4 +435,9 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             this.commentsButton.activate();
         }
     }
+
+    public getNodeType() {
+        return NodeType.SystemTask;
+    }
+
 }

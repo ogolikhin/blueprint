@@ -111,7 +111,7 @@ export class BaseDialogController implements IDialogController {
     public hasCloseButton: boolean;
 
     public get returnValue(): any {
-        return true;
+        return undefined;
     }
 
     static $inject = ["$uibModalInstance", "dialogSettings"];

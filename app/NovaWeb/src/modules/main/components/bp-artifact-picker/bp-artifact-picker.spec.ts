@@ -3,7 +3,7 @@ import "angular-mocks";
 import {BpArtifactPicker, BpArtifactPickerController} from "./bp-artifact-picker";
 import {ArtifactPickerNodeVM, InstanceItemNodeVM, ArtifactNodeVM} from "./bp-artifact-picker-node-vm";
 import {ILocalizationService} from "../../../core";
-import {Models} from "../../models";
+import {Models, SearchServiceModels} from "../../models";
 import {IProjectManager} from "../../../managers";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 
@@ -12,14 +12,14 @@ describe("BpArtifactPicker", () => {
         .component("bpArtifactPicker", new BpArtifactPicker());
 
     beforeEach(angular.mock.module("bp.components.artifactpicker", ($provide: ng.auto.IProvideService) => {
-        $provide.service("localization", () => {});
-        $provide.service("projectManager", () => { 
-            return { 
-                getSelectedProject: () => ({id: 1, name: "default"}) }; 
+        $provide.service("localization", () => undefined);
+        $provide.service("projectManager", () => {
+            return {
+                getSelectedProject: () => ({id: 1, name: "default"}) };
             });
         $provide.service("projectService", () => {
             return {
-                abort: () => {}
+                abort: () => { return; }
             };
         });
     }));
@@ -108,7 +108,7 @@ describe("BpArtifactPickerController", () => {
     it("search, when search text is not empty, performs search", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
         // Arrange
         controller.searchText = "test";
-        const searchResults = [] as Models.IProjectNode[];
+        const searchResults = {items: []} as SearchServiceModels.IProjectSearchResultSet;
         (projectService.searchProjects as jasmine.Spy).and.returnValue($q.resolve(searchResults));
 
         // Act

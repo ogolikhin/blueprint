@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import "angular-mocks";
 import {HttpStatusCode} from "../../../core/http";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
@@ -20,8 +20,8 @@ describe("Artifact Repository", () => {
                 .respond(HttpStatusCode.Success, ArtifactServiceMock.createArtifact(100));
 
             // Act
-            var error: any;
-            var data: Models.IArtifact;
+            let error: any;
+            let data: Models.IArtifact;
             artifactService.getArtifact(100).then((responce) => {
                 data = responce;
             }, (err) => error = err);
@@ -42,8 +42,8 @@ describe("Artifact Repository", () => {
                 .respond(HttpStatusCode.Unauthorized);
 
             // Act
-            var error: any;
-            var data: Models.IArtifact;
+            let error: any;
+            let data: Models.IArtifact;
             artifactService.getArtifact(100).then((responce) => {
                 data = responce;
             }, (err) => error = err);
@@ -65,8 +65,8 @@ describe("Artifact Repository", () => {
                 .respond(HttpStatusCode.Success, ArtifactServiceMock.createLightArtifact(100));
 
             // Act
-            var error: any;
-            var data: Models.IArtifact;
+            let error: any;
+            let data: Models.IArtifact;
             artifactService.updateArtifact(ArtifactServiceMock.createArtifact(100)).then((responce) => {
                 data = responce;
             }, (err) => error = err);
@@ -88,8 +88,8 @@ describe("Artifact Repository", () => {
                 .respond(HttpStatusCode.Unauthorized);
 
             // Act
-            var error: any;
-            var data: Models.IArtifact;
+            let error: any;
+            let data: Models.IArtifact;
             artifactService.updateArtifact(ArtifactServiceMock.createArtifact(100)).then((responce) => {
                 data = responce;
             }, (err) => error = err);

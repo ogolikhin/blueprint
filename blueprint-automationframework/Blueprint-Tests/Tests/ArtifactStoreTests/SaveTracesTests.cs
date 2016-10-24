@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using CustomAttributes;
 using Helper;
@@ -95,7 +95,7 @@ namespace ArtifactStoreTests
 
             artifactDetails.SubArtifacts = subArtifacts;
             artifactDetails.Traces = new List<NovaTrace>();
-                        
+
             Assert.DoesNotThrow(() => { Artifact.UpdateArtifact(artifact, _authorUser, artifactDetails); },
                 "Trace creation shouldn't throw any error.");
             Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, subArtifacts[0].Id,
@@ -462,7 +462,7 @@ namespace ArtifactStoreTests
             traceToCreate.ChangeType = changeType;
 
             List<NovaTrace> updatedTraces = new List<NovaTrace> { traceToCreate };
-            
+
             artifactDetails.Traces = updatedTraces;
 
             return artifactDetails;

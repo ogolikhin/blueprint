@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using Common;
@@ -64,7 +64,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetails);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, newArtifact);
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForNovaRestMethods))]
@@ -169,7 +169,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetails);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, newArtifact);
 
             Assert.NotNull(newArtifact.OrderIndex, "OrderIndex of newly created artifact must not be null!");
             Assert.AreEqual(orderIndexToSet, newArtifact.OrderIndex.Value, "The OrderIndex of the new artifact is not correct!");
@@ -426,15 +426,40 @@ namespace ArtifactStoreTests
         public void CreateArtifact_AddCollectionUnderAnotherCollection_409Conflict()
         {
             // Setup:
-            var collectionFolder = GetDefaultCollectionFolder(_project, _user);
-            ItemTypePredefined artifactType = ItemTypePredefined.ArtifactCollection;
-            BaseArtifactType dummyType = BaseArtifactType.PrimitiveFolder;  // Need to pass something that OpenApi recognizes for the WrapNovaArtifact() call.
-            var parentCollection = CreateArtifactWithRandomName(artifactType, _user, _project, collectionFolder.Id, baseType: dummyType);
+            var parentCollection = Helper.CreateAndSaveCollection(_project, _user);
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(
-                artifactType, _user, _project, parentCollection.Id),
-                "'POST {0}' should return 409 Conflict when creating a Collection under another Collectino!");
+                ItemTypePredefined.ArtifactCollection, _user, _project, parentCollection.Id),
+                "'POST {0}' should return 409 Conflict when creating a Collection under another Collection!");
+
+            // Verify:
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
+                "Cannot create an artifact at this location.");
+        }
+
+        [TestCase]
+        [TestRail(185175)]
+        [Description("Create a Collection under the project.  Verify the create fails with a 409 Conflict error.")]
+        public void CreateArtifact_AddCollectionUnderProject_409Conflict()
+        {
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.CreateAndSaveCollection(_project, _user, parentId: _project.Id),
+            "'POST {0}' should return 409 Conflict when creating a Collection under the project!");
+
+            // Verify:
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
+                "Cannot create an artifact at this location.");
+        }
+
+        [TestCase]
+        [TestRail(185176)]
+        [Description("Create a Collection Folder under the project.  Verify the create fails with a 409 Conflict error.")]
+        public void CreateArtifact_AddCollectionFolderUnderProject_409Conflict()
+        {
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.CreateAndSaveCollectionFolder(_project, _user, parentId: _project.Id),
+            "'POST {0}' should return 409 Conflict when creating a Collection Folder under the project!");
 
             // Verify:
             ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
@@ -487,6 +512,59 @@ namespace ArtifactStoreTests
 
             ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors,
                 I18NHelper.FormatInvariant("Artifact with Id {0} has validation errors.", artifactDetails.Id));
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // Ignore for now.
+        [Category(Categories.CustomData)]
+        [TestCase(ArtifactTypePredefined.Actor)]
+        [TestRail(183640)]
+        [Description("Create an artifact in the 'Custom Data' project for a type that has a required Custom Property with default values.  " +
+            "Verify the create succeeds and the artifact has the default values populated.")]
+        public void CreateArtifact_ArtifactWithRequiredCustomPropertyWithDefaults_VerifyDefaultValuesArePopulated(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            IProject customDataProject = ProjectFactory.GetProject(_user, "Custom Data", shouldRetrievePropertyTypes: true);
+            customDataProject.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            // Execute:
+            INovaArtifactDetails newArtifact = null;
+
+            Assert.DoesNotThrow(() => newArtifact = CreateArtifactWithRandomName(artifactType, _user, customDataProject),
+                "'POST {0}' should return 201 Created when trying to create an artifact that has required properties with default values!");
+
+            // Verify:
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, newArtifact);
+
+            // Make sure the default values of the required properties got set.
+            /*  Name:                                   Default Value:
+                "CU-Text Required"                      "<html><head/><pre>Default Text</pre></html>"
+                "CU-Number Required with Min & Max"     10
+                "CU-Date Required with Min & Max"       2016-09-01T00:00:00.0000000
+
+            NOTE: These 2 properties are hard to validate properly, so skipping them.
+                "CU-Choice Required with Single Choice  "{\r\n  \"validValueIds\": [\r\n    22\r\n  ]\r\n}"
+                "CU-User Required"                      "{\r\n  \"usersGroups\": [\r\n    {\r\n      \"id\": 1,\r\n      \"displayName\": \"Default Instance Admin\"\r\n    }\r\n  ]\r\n}"
+            */
+
+            Dictionary<string, object> expectedValues = new Dictionary<string, object>
+            {
+                { "CU-Text Required", "<html><head/><pre>Default Text</pre></html>" },
+                { "CU-Number Required with Min & Max", 10 },
+                { "CU-Date Required with Min & Max", new DateTime(2016, 9, 1) }
+            };
+
+            foreach (var expectedValue in expectedValues)
+            {
+                var novaPropertyType = customDataProject.NovaPropertyTypes.Find(o => o.Name == expectedValue.Key);
+                Assert.NotNull(novaPropertyType, "Couldn't find a Nova Artifact Type named '{0}'!", expectedValue.Key);
+
+                var customProperty = artifactDetails.CustomPropertyValues.Find(p => p.PropertyTypeId == novaPropertyType.Id);
+
+                Assert.NotNull(customProperty, "Couldn't find a custom property with PropertyTypeId {0}!", novaPropertyType.Id);
+                Assert.AreEqual(expectedValue.Value, customProperty.CustomPropertyValue,
+                    "Custom Property Value for property '{0}' is not set to the default value!", customProperty.Name);
+            }
         }
 
         [TestCase(ItemTypePredefined.Actor)]
@@ -591,7 +669,7 @@ namespace ArtifactStoreTests
             var artifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address,
                 user, artifactType, artifactName, project, parentId, orderIndex);
 
-            WrapNovaArtifact(artifact, project, user, baseType);
+            Helper.WrapNovaArtifact(artifact, project, user, baseType);
 
             return artifact;
         }
@@ -627,7 +705,7 @@ namespace ArtifactStoreTests
             RestResponse response = CreateArtifactFromJson(user, jsonBody);
             INovaArtifactDetails createdArtifact = JsonConvert.DeserializeObject<NovaArtifactDetails>(response.Content);
 
-            WrapNovaArtifact(createdArtifact, project, user, baseType);
+            Helper.WrapNovaArtifact(createdArtifact, project, user, baseType);
 
             return createdArtifact;
         }
@@ -724,39 +802,7 @@ namespace ArtifactStoreTests
             serviceError.AssertEquals(expectedError);
         }
 
-        /// <summary>
-        /// Wraps an INovaArtifactDetails in an IArtifactBase and adds it Helper.Artifacts so it gets disposed properly.
-        /// </summary>
-        /// <param name="novaArtifact">The INovaArtifactDetails that was created by ArtifactStore.</param>
-        /// <param name="project">The project where this artifact exists.</param>
-        /// <param name="user">The user that created this artifact.</param>
-        /// <param name="baseType">(optional) You can select a different BaseArtifactType here other than what's in the novaArtifact.
-        ///     Use this for artifact types that don't exist in the BaseArtifactType enum.</param>
-        /// <returns>The IArtifactBase wrapper for the novaArtifact.</returns>
-        private IArtifactBase WrapNovaArtifact(INovaArtifactDetails novaArtifact,
-            IProject project,
-            IUser user,
-            BaseArtifactType? baseType = null)
-        {
-            ThrowIf.ArgumentNull(novaArtifact, nameof(novaArtifact));
 
-            Assert.NotNull(novaArtifact.PredefinedType, "PredefinedType is null in the Nova Artifact!");
-
-            if (baseType == null)
-            {
-                baseType = ((ItemTypePredefined) novaArtifact.PredefinedType.Value).ToBaseArtifactType();
-            }
-
-            IArtifactBase artifact = ArtifactFactory.CreateArtifact(project,
-                user,
-                baseType.Value,
-                novaArtifact.Id);
-
-            artifact.IsSaved = true;
-            Helper.Artifacts.Add(artifact);
-
-            return artifact;
-        }
         
         #endregion Private functions
     }

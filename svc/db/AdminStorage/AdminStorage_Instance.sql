@@ -1,4 +1,4 @@
-﻿
+
 -- --------------------------------------------------
 -- Set the DB
 -- --------------------------------------------------
@@ -941,6 +941,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Ok', 'e
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Cancel', 'en-US', N'Cancel')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Close', 'en-US', N'Close')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Open', 'en-US', N'Open')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Publish', 'en-US', N'Publish')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_PublishAndContinue', 'en-US', N'Publish and Continue')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_DialogTitle_Alert', 'en-US', N'Warning')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_DialogTitle_Confirmation', 'en-US', N'Confirmation')
@@ -1089,6 +1090,12 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_Other', 'en-US', N'Sorry, but an error has occurred and the artifact cannot be saved. Please contact an administrator.<br><br>')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Refresh_Project_NotFound', 'en-US', N'You have attempted to access a project that has been deleted.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Refresh_Artifact_Deleted', 'en-US', N'The artifact you were viewing has been deleted. The artifact''s parent or project is now being displayed.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_All_Dialog_Header', 'en-US', N'Publish All')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_All_Dialog_Message', 'en-US', N'After publishing, all changes made to each artifact will be available to other users. Please review and confirm:')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_All_Success_Message', 'en-US', N'Successfully published {0} artifact(s).')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_All_No_Unpublished_Changes', 'en-US', N'There are no artifacts that can be published.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_All_Load_More', 'en-US', N'Load more')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_All_More_Artifacts', 'en-US', N'Not showing other {0} artifact(s).')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Glossary_Term', 'en-US', N'Term')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Glossary_Definition', 'en-US', N'Definition')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Glossary_Empty', 'en-US', N'No terms have been defined.')
@@ -1236,8 +1243,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Popup_Menu_Add_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_User_Task_Name_Label', 'en-US', N'Action:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_System_Task_Name_Label', 'en-US', N'System Response:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_TaskNameNotValid_Label', 'en-US', N'The shape requires a label.')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Persona_Label', 'en-US', N'Persona:')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Persona_Helper_Text', 'en-US', N'Who/What is doing the task')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_System_Name_Label', 'en-US', N'System Name:')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_System_Name_Helper_Text', 'en-US', N'Who/What is doing the task')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_User_Task_Name_Helper_Text', 'en-US', N'The persona wants to [Action]')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Objective_Label', 'en-US', N'Objective:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Objective_Helper_Text', 'en-US', N'So that the persona can [Objective]')
@@ -1245,11 +1252,14 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Show_Less', 'en
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Show_More', 'en-US', N'Show More')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Additional_Info_Tab_Label', 'en-US', N'Additional Info')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Include_Tab_Label', 'en-US', N'Include')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Add_Include_Tab_Label', 'en-US', N'Add Include')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Browse_Include_Label', 'en-US', N'Browse')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Select_Include_Artifact_Label', 'en-US', N'Select Artifact')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Include_Tab_Placeholder', 'en-US', N'Search by artifact name')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Inline_Traces_Search_No_Matches_Found', 'en-US', N'No matches found')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Inline_Traces_Search_Bad_Request', 'en-US', N'Bad search request')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Search_Project_Scope_Mentions_Includes', 'en-US', N'#mention or include artifacts from the current project only')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_System_Task_Name_Helper_Text', 'en-US', N'The system will be [Response]')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Response_Helper_Text', 'en-US', N'The system will be [Response]')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Shapes_Delete_Tooltip', 'en-US', N'Delete Shape')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Decision_Modal_Decision_Label', 'en-US', N'Decision Label:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Decision_Modal_Decision_Condition_Label', 'en-US', N'Condition:')

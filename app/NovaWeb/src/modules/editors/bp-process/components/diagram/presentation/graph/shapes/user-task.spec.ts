@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import { UserTask, SystemTask, SystemDecision } from "./";
 import { ShapesFactory } from "./shapes-factory";
 import { ProcessGraph } from "../process-graph";
@@ -22,14 +22,12 @@ import { StatefulProcessArtifact } from "../../../../../process-artifact";
 import { Models } from "../../../../../../../main/models/";
 import { ArtifactServiceMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
 
-
-
 describe("UserTask test", () => {
-
     const LABEL_EDIT_MAXLENGTH = 40;
     const PERSONA_EDIT_MAXLENGTH = 40;
     const LABEL_VIEW_MAXLENGTH = 40;
     const PERSONA_VIEW_MAXLENGTH = 16;
+
     //const graph: ProcessGraph;
     let localScope, rootScope, shapesFactory, wrapper, container;
     let viewModel: ProcessViewModel;
@@ -73,13 +71,12 @@ describe("UserTask test", () => {
             "ST_Colors_Label": "Color",
             "ST_Comments_Label": "Comments"
         };
+
         shapesFactory = new ShapesFactory($rootScope, statefulArtifactFactory);
         localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
 
-
         const processModel = new ProcessModel();
         viewModel = new ProcessViewModel(processModel, communicationManager);
-        viewModel.isReadonly = false;
     }));
 
     it("Test UserTask class", () => {
@@ -409,7 +406,7 @@ describe("UserTask test", () => {
 
         it("when modifying persona - persona matches", () => {
 
-            // arrange             
+            // arrange
             spyOn(statefulArtifact, "refresh")();
             spyOn(statefulArtifact, "lock")();
 
@@ -425,7 +422,7 @@ describe("UserTask test", () => {
 
         it("when modifying persona - attempt lock is called", () => {
 
-            // arrange             
+            // arrange
             spyOn(statefulArtifact, "refresh")();
             const lockSpy = spyOn(statefulArtifact, "lock");
 
@@ -438,10 +435,10 @@ describe("UserTask test", () => {
             // assert
             expect(lockSpy).toHaveBeenCalled();
         });
-        
+
         it("when modifying persona - artifact state is dirty", () => {
 
-            // arrange             
+            // arrange
             spyOn(statefulArtifact, "refresh")();
             spyOn(statefulArtifact, "lock");
 

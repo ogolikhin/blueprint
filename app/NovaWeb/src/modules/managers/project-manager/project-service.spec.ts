@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import "angular-mocks";
 import {Models, SearchServiceModels} from "../../main/models";
 import {HttpStatusCode} from "../../core/http";
@@ -20,8 +20,8 @@ describe("Project Repository", () => {
                 ]);
 
             // Act
-            var error: any;
-            var data: Models.IProjectNode[];
+            let error: any;
+            let data: Models.IProjectNode[];
             projectService.getFolders().then((responce) => {
                 data = responce;
             }, (err) => error = err);
@@ -42,8 +42,8 @@ describe("Project Repository", () => {
                 .respond(HttpStatusCode.Unauthorized);
 
             // Act
-            var error: any;
-            var data: Models.IProjectNode[];
+            let error: any;
+            let data: Models.IProjectNode[];
             projectService.getFolders(5).then((responce) => {
                 data = responce;
             }, (err) => error = err);
@@ -69,8 +69,8 @@ describe("Project Repository", () => {
                 ]);
 
             // Act
-            var error: any;
-            var data: Models.IProjectNode;
+            let error: any;
+            let data: Models.IProjectNode;
             projectService.getProject(10).then((responce) => {
                 data = responce;
             }, (err) => error = err);
@@ -92,8 +92,8 @@ describe("Project Repository", () => {
                 .respond(HttpStatusCode.Unauthorized);
 
             // Act
-            var error: any;
-            var data: Models.IProjectNode;
+            let error: any;
+            let data: Models.IProjectNode;
             projectService.getProject(10).then((responce) => {
                 data = responce;
             }, (err) => error = err);
@@ -125,15 +125,15 @@ describe("Project Repository", () => {
                                 predefinedType: 100,
                                 parentId: 10,
                                 prefix: "AT",
-                                hasChildren: false,
+                                hasChildren: false
                             }
                         ]
                     }
                 ]);
 
             // Act
-            var error: any;
-            var data: Models.IArtifact[];
+            let error: any;
+            let data: Models.IArtifact[];
             projectService.getArtifacts(10).then((responce) => {
                 data = responce;
             }, (err) => error = err);
@@ -160,7 +160,7 @@ describe("Project Repository", () => {
                             predefinedType: 100,
                             parentId: 10,
                             prefix: "AT",
-                            hasChildren: false,
+                            hasChildren: false
                         },
                         {
                             id: 14,
@@ -170,15 +170,15 @@ describe("Project Repository", () => {
                             predefinedType: 100,
                             parentId: 10,
                             prefix: "AT",
-                            hasChildren: true,
+                            hasChildren: true
                         }
                     ]
 
                 );
 
             // Act
-            var error: any;
-            var data: Models.IArtifact[];
+            let error: any;
+            let data: Models.IArtifact[];
             projectService.getArtifacts(10, 111).then((responce) => {
                 data = responce;
             }, (err) => error = err);
@@ -199,8 +199,8 @@ describe("Project Repository", () => {
                 .respond(HttpStatusCode.Unauthorized);
 
             // Act
-            var error: any;
-            var data: Models.IArtifact[];
+            let error: any;
+            let data: Models.IArtifact[];
             projectService.getArtifacts(10, 111).then((responce) => {
                 data = responce;
             }, (err) => error = err);
@@ -223,8 +223,8 @@ describe("Project Repository", () => {
                 .respond(HttpStatusCode.Success, ProjectServiceMock.populateMetaData());
 
             // Act
-            var error: any;
-            var data: Models.IProjectMeta;
+            let error: any;
+            let data: Models.IProjectMeta;
             projectService.getProjectMeta(10).then((responce) => {
                 data = responce;
             }, (err) => error = err);
@@ -249,8 +249,8 @@ describe("Project Repository", () => {
                 .respond(HttpStatusCode.Unauthorized);
 
             // Act
-            var error: any;
-            var data: Models.IProjectMeta;
+            let error: any;
+            let data: Models.IProjectMeta;
             projectService.getProjectMeta(10).then((responce) => {
                 data = responce;
             }, (err) => error = err);
@@ -269,16 +269,16 @@ describe("Project Repository", () => {
     describe("searchProjects", () => {
         it("post - successful", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
             // Arrange
-            const searchCriteria: SearchServiceModels.IProjectSearchCriteria = {query: "new"};
-            const searchResult: SearchServiceModels.IProjectSearchResult[] = [
-                {id: 1, name: "New project 1", path: "Blueprint"},
-                {id: 2, name: "New project 2", path: "Blueprint"}
+            const searchCriteria: SearchServiceModels.ISearchCriteria = {query: "new"};
+            const searchResult: SearchServiceModels.ISearchResult[] = [
+                {itemId: 1, name: "New project 1", path: "Blueprint"},
+                {itemId: 2, name: "New project 2", path: "Blueprint"}
             ];
             $httpBackend.expectPOST("/svc/searchservice/projectsearch/name?separatorString= > &resultCount=100", searchCriteria)
                 .respond(HttpStatusCode.Success, searchResult);
 
             // Act
-            let data: SearchServiceModels.IProjectSearchResult[];
+            let data: SearchServiceModels.IProjectSearchResultSet;
             let error: any;
             projectService.searchProjects(searchCriteria).then(response => data = response, err => error = err);
 
@@ -292,12 +292,12 @@ describe("Project Repository", () => {
 
         it("post - unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
             // Arrange
-            const searchCriteria: SearchServiceModels.IProjectSearchCriteria = {query: "new"};
+            const searchCriteria: SearchServiceModels.ISearchCriteria = {query: "new"};
             $httpBackend.expectPOST("/svc/searchservice/projectsearch/name?separatorString= > &resultCount=100", searchCriteria)
                 .respond(HttpStatusCode.Unauthorized);
 
             // Act
-            let data: SearchServiceModels.IProjectSearchResult[];
+            let data: SearchServiceModels.IProjectSearchResultSet;
             let error: any;
             projectService.searchProjects(searchCriteria).then(response => data = response, err => error = err);
 

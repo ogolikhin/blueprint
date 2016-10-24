@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {Models, SearchServiceModels} from "../../main/models";
 
 export enum ProjectServiceStatusCode {
@@ -13,9 +13,9 @@ export interface IProjectService {
     getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta>;
     getSubArtifactTree(artifactId: number): ng.IPromise<Models.ISubArtifactNode[]>;
     getProjectTree(projectId: number, artifactId: number, loadChildren?: boolean): ng.IPromise<Models.IArtifact[]>;
-    searchProjects(searchCriteria: SearchServiceModels.IProjectSearchCriteria,
+    searchProjects(searchCriteria: SearchServiceModels.ISearchCriteria,
                    resultCount?: number,
-                   separatorString?: string): ng.IPromise<SearchServiceModels.IProjectSearchResult[]>;
+                   separatorString?: string): ng.IPromise<SearchServiceModels.IProjectSearchResultSet>;
 }
 
 export class ProjectService implements IProjectService {
@@ -212,9 +212,9 @@ export class ProjectService implements IProjectService {
         return defer.promise;
     }
 
-    public searchProjects(searchCriteria: SearchServiceModels.IProjectSearchCriteria,
+    public searchProjects(searchCriteria: SearchServiceModels.ISearchCriteria,
                           resultCount: number = 100,
-                          separatorString: string = " > "): ng.IPromise<SearchServiceModels.IProjectSearchResult[]> {
+                          separatorString: string = " > "): ng.IPromise<SearchServiceModels.IProjectSearchResultSet> {
         this.canceler = this.$q.defer<any>();
 
         const requestObj: ng.IRequestConfig = {
@@ -225,7 +225,7 @@ export class ProjectService implements IProjectService {
         };
 
         return this.$http(requestObj).then(
-            (result: ng.IHttpPromiseCallbackArg<SearchServiceModels.IProjectSearchResult[]>) => {
+            (result: ng.IHttpPromiseCallbackArg<SearchServiceModels.IProjectSearchResultSet>) => {
                 return result.data;
             },
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {

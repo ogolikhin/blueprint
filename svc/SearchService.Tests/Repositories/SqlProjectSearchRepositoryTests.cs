@@ -10,30 +10,60 @@ namespace SearchService.Repositories
     [TestClass]
     public class SqlProjectSearchRepositoryTests
     {
-        private IProjectSearchRepository _projectSearchRepository;
-        private SqlConnectionWrapperMock _cxn;
-
-        [TestInitialize]
-        public void Initialize()
-        {
-            _cxn = new SqlConnectionWrapperMock();
-            _projectSearchRepository = new SqlProjectSearchRepository(_cxn.Object);
-        }
+        #region Constructor
 
         [TestMethod]
-        public async Task GetProjects_EmptyListReturned()
+        public void Constructor_CreatesConnectionToBlueprint()
+        {
+            // Arrange
+
+            // Act
+            var repository = new SqlProjectSearchRepository();
+
+            // Assert
+            Assert.AreEqual(WebApiConfig.BlueprintConnectionString, repository.ConnectionWrapper.CreateConnection().ConnectionString);
+        }
+
+        #endregion Constructor
+
+        #region SearchName
+
+        [TestMethod]
+        public async Task SearchName_QueryReturnsResult_ReturnsResult()
         {
             // Arrange
             const int userId = 1;
+            var searchCriteria = new SearchCriteria { Query = "test" };
             const int resultCount = 1;
-            const string searchText = "test";
             const string separatorString = "/";
-            _cxn.SetupQueryAsync("GetProjectsByName",
-                new Dictionary<string, object> { { "userId", userId }, { "projectName", searchText }, { "resultCount", resultCount }, { "separatorString", separatorString } },
-                new List<ProjectSearchResult>());
+            SearchResult[] queryResult =
+            {
+                new SearchResult()
+            };
+            var projectSearchRepository = CreateRepository(userId, searchCriteria, resultCount, separatorString, queryResult);
+
             // Act
-            var result = (await _projectSearchRepository.GetProjectsByName(userId, searchText, resultCount, separatorString)).ToList();
-            Assert.AreEqual(0, result.Count);
+            var result = await projectSearchRepository.SearchName(userId, searchCriteria, resultCount, separatorString);
+
+            // Assert
+            CollectionAssert.AreEqual(queryResult, result.Items.ToList());
+        }
+
+        #endregion SearchName
+
+        private static SqlProjectSearchRepository CreateRepository(int userId, SearchCriteria searchCriteria, int resultCount, string separatorString, SearchResult[] result)
+        {
+            var connectionWrapper = new SqlConnectionWrapperMock();
+            connectionWrapper.SetupQueryAsync("GetProjectsByName",
+                new Dictionary<string, object>
+                {
+                    { "userId", userId },
+                    { "projectName", searchCriteria.Query },
+                    { "resultCount", resultCount },
+                    { "separatorString", separatorString }
+                },
+                result);
+            return new SqlProjectSearchRepository(connectionWrapper.Object);
         }
     }
 }

@@ -39,8 +39,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-1 delete-condition">
-                    <span ng-click="$ctrl.deleteCondition(condition)" bp-tooltip="{{::$root.config.labels['ST_Decision_Modal_Delete_Condition_Button_Label']}}" ng-if="$ctrl.isDeleteConditionVisible(condition)" ng-disabled="!$ctrl.canDeleteCondition">
+                <div class="col-sm-1 delete-condition" ng-if="$ctrl.canDeleteCondition(condition)">
+                    <span ng-click="$ctrl.deleteCondition(condition)" bp-tooltip="{{::$root.config.labels['ST_Decision_Modal_Delete_Condition_Button_Label']}}">
                         <span class="fonticon-delete"></span>
                     </span>
                 </div>

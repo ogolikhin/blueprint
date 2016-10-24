@@ -53,7 +53,8 @@ namespace Model.SearchServiceModel.Impl
                 RestRequestMethod.POST,
                 searchCriteria,
                 queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
 
             return restResponse;
         }
@@ -82,13 +83,14 @@ namespace Model.SearchServiceModel.Impl
                 RestRequestMethod.POST,
                 searchCriteria,
                 queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes, 
+                shouldControlJsonChanges: true);
 
             return restResponse;
         }
 
         /// <seealso cref="ISearchService.SearchProjects(IUser, string, int, List{HttpStatusCode})"/>
-        public List<ProjectSearchResult> SearchProjects(IUser user, string searchText, int? resultCount = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<SearchItem> SearchProjects(IUser user, string searchText, int? resultCount = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -109,7 +111,7 @@ namespace Model.SearchServiceModel.Impl
 
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            var projects = restApi.SendRequestAndDeserializeObject<List<ProjectSearchResult>, Dictionary<string, string>>(
+            var projectSearchResult = restApi.SendRequestAndDeserializeObject<ProjectSearchResult, Dictionary<string, string>>(
                 RestPaths.Svc.SearchService.PROJECTSEARCH,
                 RestRequestMethod.POST,
                 jsonObject: jsonObject,
@@ -117,7 +119,7 @@ namespace Model.SearchServiceModel.Impl
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: true);
 
-            return projects;
+            return projectSearchResult.Items;
         }
 
         /// <seealso cref="ISearchService.SearchItems(IUser, FullTextSearchCriteria, int?, int?, List{HttpStatusCode})"/>

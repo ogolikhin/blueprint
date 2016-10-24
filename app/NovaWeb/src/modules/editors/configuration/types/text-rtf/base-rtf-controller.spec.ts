@@ -2,6 +2,7 @@ import * as angular from "angular";
 import "angular-mocks";
 
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
+import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 
 describe("Formly Base RTF Controller", () => {
     let scope, rootScope;
@@ -20,6 +21,10 @@ describe("Formly Base RTF Controller", () => {
 
         return mouseEvent;
     }
+
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("navigationService", NavigationServiceMock);
+    }));
 
     beforeEach(
         inject(
@@ -61,11 +66,12 @@ describe("Formly Base RTF Controller", () => {
             const mouseEvent: MouseEvent = createMouseEvent();
             aTag.addEventListener("click", controller.handleClick);
 
-            spyOn(console, "log");
+            spyOn(controller.navigationService, "navigateTo");
 
             aTag.dispatchEvent(mouseEvent);
 
-            expect(console.log).toHaveBeenCalled();
+            expect(controller.navigationService.navigateTo).toHaveBeenCalled();
+            expect(controller.navigationService.navigateTo).toHaveBeenCalledWith(365);
 
             aTag.removeEventListener("click", controller.handleClick);
         });
@@ -81,9 +87,7 @@ describe("Formly Base RTF Controller", () => {
             controller.handleLinks(aTags);
 
             expect(aTags[0].addEventListener).toHaveBeenCalled();
-            expect(aTags[0].addEventListener).toHaveBeenCalledWith("click", controller.handleClick);
             expect(aTags[1].addEventListener).toHaveBeenCalled();
-            expect(aTags[1].addEventListener).toHaveBeenCalledWith("click", controller.handleClick);
         });
 
         it("removes event listners", () => {
@@ -96,9 +100,7 @@ describe("Formly Base RTF Controller", () => {
             controller.handleLinks(aTags, true);
 
             expect(aTags[0].removeEventListener).toHaveBeenCalled();
-            expect(aTags[0].removeEventListener).toHaveBeenCalledWith("click", controller.handleClick);
             expect(aTags[1].removeEventListener).toHaveBeenCalled();
-            expect(aTags[1].removeEventListener).toHaveBeenCalledWith("click", controller.handleClick);
         });
 
         it("adds mouseover/out listners in IE", () => {

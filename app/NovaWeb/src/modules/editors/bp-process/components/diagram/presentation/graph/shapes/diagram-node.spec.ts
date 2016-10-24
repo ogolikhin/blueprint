@@ -377,7 +377,7 @@ describe("DiagramNode", () => {
     });
 
     describe("StatefulSubArtifact changes", () => {
-        let viewModel: IProcessViewModel, 
+        let viewModel: IProcessViewModel,
             statefulArtifact: StatefulProcessArtifact,
             node: IDiagramNode,
             graph: ProcessGraph,
@@ -387,22 +387,22 @@ describe("DiagramNode", () => {
             const processModel = new ProcessModel();
             const mock = ShapeModelMock.instance().SystemTaskMock();
             const artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
-            artifact.predefinedType = Models.ItemTypePredefined.Process;   
-            processModel.shapes.push(mock);          
+            artifact.predefinedType = Models.ItemTypePredefined.Process;
+            processModel.shapes.push(mock);
 
             statefulArtifact = <StatefulProcessArtifact>statefulArtifactFactory.createStatefulArtifact(artifact);
             statefulArtifactFactory.populateStatefulProcessWithPorcessModel(statefulArtifact, processModel);
             statefulSubArtifact = <StatefulProcessSubArtifact>statefulArtifact.subArtifactCollection.get(mock.id);
-     
+
             node = new SystemTask(<ISystemTaskShape>statefulArtifact.shapes[0], rootScope, "", null, shapesFactory);
-            
+
             viewModel = new ProcessViewModel(statefulArtifact, communicationManager);
 
             graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
         });
         it("when modifying label - labels matches", () => {
 
-            // arrange             
+            // arrange
             spyOn(statefulArtifact, "refresh")();
             spyOn(statefulArtifact, "lock")();
 
@@ -418,7 +418,7 @@ describe("DiagramNode", () => {
 
         it("when modifying label - attempt lock is called", () => {
 
-            // arrange             
+            // arrange
             spyOn(statefulArtifact, "refresh")();
             const lockSpy = spyOn(statefulArtifact, "lock");
 
@@ -433,7 +433,7 @@ describe("DiagramNode", () => {
         });
         it("when modifying label - artifact state is dirty", () => {
 
-            // arrange             
+            // arrange
             spyOn(statefulArtifact, "refresh")();
             spyOn(statefulArtifact, "lock");
 

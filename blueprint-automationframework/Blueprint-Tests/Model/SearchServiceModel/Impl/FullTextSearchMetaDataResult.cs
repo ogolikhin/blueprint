@@ -22,6 +22,6 @@ namespace Model.SearchServiceModel.Impl
         /// <summary>
         /// The search artifact type items returned by the search
         /// </summary>
-        public IEnumerable<FullTextSearchTypeItem> FullTextSearchTypeItems { get; set; }
+        public IEnumerable<FullTextSearchTypeItem> Items { get; set; }
     }
 }

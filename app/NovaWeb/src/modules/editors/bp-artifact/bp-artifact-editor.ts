@@ -29,7 +29,7 @@ export class BpArtifactEditor extends BpBaseEditor {
     public form: angular.IFormController;
     public model = {};
     public fields: AngularFormly.IFieldConfigurationObject[] = [];
-
+    public artifactPreviouslyReadonly: boolean = false;
     public editor: PropertyEditor;
 
     constructor(public messageService: IMessageService,
@@ -59,14 +59,18 @@ export class BpArtifactEditor extends BpBaseEditor {
     public clearFields() {
         this.fields = [];
     }
-    
+
     public hasFields(): boolean  {
         return (this.fields || []).length > 0;
 
     }
 
     private shouldRenewFields(): boolean {
-        return this.artifact.artifactState.readonly || !this.hasFields();
+        //Renew fields only if readonly status has changed
+        const readonlyStatusChanged = this.artifact.artifactState.readonly !== this.artifactPreviouslyReadonly;
+        this.artifactPreviouslyReadonly = this.artifact.artifactState.readonly;
+
+        return readonlyStatusChanged || !this.hasFields();
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
@@ -76,9 +80,9 @@ export class BpArtifactEditor extends BpBaseEditor {
     public onArtifactReady() {
         if (this.editor && this.artifact) {
             this.artifact.metadata.getArtifactPropertyTypes().then((propertyTypes) => {
-                const shouldCreateFields = this.editor.create(this.artifact, propertyTypes, this.shouldRenewFields()); 
+                const shouldCreateFields = this.editor.create(this.artifact, propertyTypes, this.shouldRenewFields());
                 if (shouldCreateFields) {
-                    this.clearFields();                    
+                    this.clearFields();
                     this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
                         //add property change handler to each field
                         Object.assign(field.templateOptions, {
@@ -98,9 +102,13 @@ export class BpArtifactEditor extends BpBaseEditor {
 
                     });
 
+                } else {
+                    this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
+                        field.data["isFresh"] = true;
+                    });
                 }
                 this.model = this.editor.getModel();
-                
+
                 this.setArtifactEditorLabelsWidth();
                 super.onArtifactReady();
                 this.onFieldUpdateFinished();
@@ -117,7 +125,7 @@ export class BpArtifactEditor extends BpBaseEditor {
 
     public setArtifactEditorLabelsWidth(mainWindow?: IMainWindow) {
         // MUST match $property-width in styles/partials/_properties.scss plus various padding/margin
-        const minimumWidth: number = 392 + ((20 + 1 + 15 + 1 + 10) * 2);
+        const minimumWidth: number = 392 + ((20 + 1 + 15 + 1 + 10) * 2) + 20;
 
         let pageBodyWrapper = document.querySelector(".page-body-wrapper") as HTMLElement;
         if (pageBodyWrapper) {
@@ -155,6 +163,7 @@ export class BpArtifactEditor extends BpBaseEditor {
                         this.artifact[context.modelPropertyName] = value;
                         break;
                 }
+                context.isFresh = false;
 
                 if ($scope["form"]) {
                     this.artifact.artifactState.invalid = $scope["form"].$$parentForm.$invalid;

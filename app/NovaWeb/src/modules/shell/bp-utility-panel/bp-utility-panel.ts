@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import * as _ from "lodash";
 import {ILocalizationService} from "../../core";
 import {Models} from "../../main";
@@ -104,7 +104,11 @@ export class BPUtilityPanelController {
         const item: IStatefulItem = selection ? (selection.subArtifact || selection.artifact) : undefined;
         if (item) {
             this._currentItem = `${(item.prefix || "")}${item.id}: ${item.name}`;
-            this._currentItemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[item.predefinedType] || "");
+            if (item.orderIndex < 0 && item.predefinedType === ItemTypePredefined.CollectionFolder) {
+                this._currentItemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[ItemTypePredefined.Collections] || "");
+            } else {
+                this._currentItemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[item.predefinedType] || "");
+            }
             this._currentItemType = item.itemTypeId;
             this._currentItemIcon = null;
             if (item.predefinedType !== ItemTypePredefined.Project && !selection.subArtifact) {

@@ -5,7 +5,7 @@ import {BaseEditorStateController} from "./base-editor-state.controller";
 export class ArtifactRoutes {
 
     public static $inject = [
-        "$stateProvider", 
+        "$stateProvider",
         "$urlMatcherFactoryProvider"
     ];
 
@@ -43,6 +43,12 @@ export class ArtifactRoutes {
             })
             .state("main.item.glossary", {
                 template: require("./bp-glossary/glossary.state.html"),
+                controller: BaseEditorStateController,
+                controllerAs: "$content",
+                params: { context: null }
+            })
+            .state("main.item.collection", {
+                template: require("./bp-collection/collection.state.html"),
                 controller: BaseEditorStateController,
                 controllerAs: "$content",
                 params: { context: null }

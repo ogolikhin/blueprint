@@ -57,7 +57,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <strong>Created on: </strong>
-                                        <span>{{item.createdDateTime|momentDate}}</span>
+                                        <span>{{item.createdDateTime|momentDate:'MMMM DD, YYYY'}}</span>
                                     </div>
                                     <div class="col-md-4">
                                         <strong>Last Edited: </strong>
@@ -68,7 +68,7 @@
                                     <div class="col-md-12">
                                     <span class="quick-search__results--truncate">
                                         <strong>Description: </strong>
-                                        <span>
+                                        <span ng-if="item.description">
                                             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lobortis eros lorem, sit amet scelerisque nulla eleifend vel. Suspendisse potenti. Etiam convallis in nisl a placerat. Integer eget ante ut ex pharetra volutpat. Pellentesque lobortis quis neque ut ultricies. Cras fermentum diam vitae vestibulum porttitor. Mauris tincidunt odio et lobortis eleifend. Aenean hendrerit dapibus dolor id euismod. Phasellus congue velit sit amet dolor tincidunt, quis mattis nibh porta. Praesent rutrum lorem vitae laoreet consectetur. Morbi tincidunt aliquet tellus, ac mollis leo placerat ut. Suspendisse cursus luctus ante id ullamcorper. Nunc sagittis felis at mi lacinia pretium. Etiam ut massa porta, rutrum risus id, blandit quam.
                                         </span>
                                     </span>

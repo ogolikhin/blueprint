@@ -199,10 +199,10 @@ $quick-search__item--focus-color: #E8F6FB;
 
 .quick-search__results--truncate {
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    height: 4em;
+    height: 3em;
 }
 
 .margin-bottom--none {

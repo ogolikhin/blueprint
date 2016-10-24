@@ -73,7 +73,7 @@ $icon-folder-open: '\e806';
 $icon-document: '\e804';
 $icon-subartifact: '\e822';
 $icon-baseline: '\e801';
-$icon-collection: '\e856';
+$icon-artifact-collection: '\e856';
 $icon-collections: '\e85d';
 
 .icon-business-process::before {
@@ -233,8 +233,8 @@ $icon-collections: '\e85d';
 
 // ''
 
-.icon-collection:before {
-    content: $icon-collection;
+.icon-artifact-collection:before {
+    content: $icon-artifact-collection;
 }
 /* '' */
 

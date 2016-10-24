@@ -29,7 +29,7 @@ export class BpArtifactEditor extends BpBaseEditor {
     public form: angular.IFormController;
     public model = {};
     public fields: AngularFormly.IFieldConfigurationObject[] = [];
-
+    public artifactPreviouslyReadonly: boolean = false;
     public editor: PropertyEditor;
 
     constructor(public messageService: IMessageService,
@@ -66,7 +66,11 @@ export class BpArtifactEditor extends BpBaseEditor {
     }
 
     private shouldRenewFields(): boolean {
-        return this.artifact.artifactState.readonly || !this.hasFields();
+        //Renew fields only if readonly status has changed
+        const readonlyStatusChanged = this.artifact.artifactState.readonly !== this.artifactPreviouslyReadonly;
+        this.artifactPreviouslyReadonly = this.artifact.artifactState.readonly;
+
+        return readonlyStatusChanged || !this.hasFields();
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
@@ -98,6 +102,10 @@ export class BpArtifactEditor extends BpBaseEditor {
 
                     });
 
+                } else {
+                    this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
+                        field.data["isFresh"] = true;
+                    });
                 }
                 this.model = this.editor.getModel();
 
@@ -155,6 +163,7 @@ export class BpArtifactEditor extends BpBaseEditor {
                         this.artifact[context.modelPropertyName] = value;
                         break;
                 }
+                context.isFresh = false;
 
                 if ($scope["form"]) {
                     this.artifact.artifactState.invalid = $scope["form"].$$parentForm.$invalid;

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -31,7 +30,7 @@ namespace SearchService.Controllers
             Assert.IsInstanceOfType(controller._projectSearchRepository, typeof(SqlProjectSearchRepository));
         }
 
-        #endregion
+        #endregion Constructor
 
         #region SearchName
 
@@ -40,18 +39,19 @@ namespace SearchService.Controllers
         {
             // Arrange
             const int projectId = 10;
-            var searchCriteria = new ProjectSearchCriteria {Query = "Test"};
-            var project = new ProjectSearchResult { Id = projectId, Name = searchCriteria.Query };
-            var controller = CreateController(searchCriteria, project);
+            var searchCriteria = new SearchCriteria { Query = "Test"};
+            var project = new SearchResult { ItemId = projectId, Name = searchCriteria.Query };
+            var searchResult = new ProjectSearchResultSet { Items = new[] { project } };
+            var controller = CreateController(searchCriteria, searchResult);
 
             // Act
             var result = await controller.SearchName(searchCriteria, 20);
 
             // Assert
             Assert.IsNotNull(result);
-            var projectSearchResults = result as IList<ProjectSearchResult> ?? result.ToList();
+            var projectSearchResults = result.Items.ToList();
             Assert.AreEqual(projectSearchResults.Count, 1);
-            Assert.AreEqual(projectId, projectSearchResults[0].Id);
+            Assert.AreEqual(projectId, projectSearchResults[0].ItemId);
         }
 
         [TestMethod]
@@ -59,18 +59,19 @@ namespace SearchService.Controllers
         {
             // Arrange
             const int projectId = 10;
-            var searchCriteria = new ProjectSearchCriteria { Query = "Test" };
-            var project = new ProjectSearchResult { Id = projectId, Name = searchCriteria.Query };
-            var controller = CreateController(searchCriteria, project);
+            var searchCriteria = new SearchCriteria { Query = "Test" };
+            var project = new SearchResult { ItemId = projectId, Name = searchCriteria.Query };
+            var searchResult = new ProjectSearchResultSet { Items = new[] { project } };
+            var controller = CreateController(searchCriteria, searchResult);
 
             // Act
             var result = await controller.SearchName(searchCriteria, null);
 
             // Assert
             Assert.IsNotNull(result);
-            var projectSearchResults = result as IList<ProjectSearchResult> ?? result.ToList();
+            var projectSearchResults = result.Items.ToList();
             Assert.AreEqual(projectSearchResults.Count, 1);
-            Assert.AreEqual(projectId, projectSearchResults[0].Id);
+            Assert.AreEqual(projectId, projectSearchResults[0].ItemId);
         }
 
         [TestMethod]
@@ -78,25 +79,26 @@ namespace SearchService.Controllers
         {
             // Arrange
             const int projectId = 10;
-            var searchCriteria = new ProjectSearchCriteria { Query = "Test" };
-            var project = new ProjectSearchResult { Id = projectId, Name = searchCriteria.Query };
-            var controller = CreateController(searchCriteria, project);
+            var searchCriteria = new SearchCriteria { Query = "Test" };
+            var project = new SearchResult { ItemId = projectId, Name = searchCriteria.Query };
+            var searchResult = new ProjectSearchResultSet { Items = new[] { project } };
+            var controller = CreateController(searchCriteria, searchResult);
 
             // Act
             var result = await controller.SearchName(searchCriteria, 1000);
 
             // Assert
             Assert.IsNotNull(result);
-            var projectSearchResults = result as IList<ProjectSearchResult> ?? result.ToList();
+            var projectSearchResults = result.Items.ToList();
             Assert.AreEqual(projectSearchResults.Count, 1);
-            Assert.AreEqual(projectId, projectSearchResults[0].Id);
+            Assert.AreEqual(projectId, projectSearchResults[0].ItemId);
         }
 
         [TestMethod]
         public async Task SearchName_QueryIsEmpty_BadRequest()
         {
             // Arrange
-            var searchCriteria = new ProjectSearchCriteria
+            var searchCriteria = new SearchCriteria
             {
                 Query = ""
             };
@@ -122,7 +124,7 @@ namespace SearchService.Controllers
         public async Task SearchName_ResultCountIsNegative_BadRequest()
         {
             // Arrange
-            var searchCriteria = new ProjectSearchCriteria
+            var searchCriteria = new SearchCriteria
             {
                 Query = "test"
             };
@@ -171,9 +173,10 @@ namespace SearchService.Controllers
         {
             // Arrange
             const int projectId = 10;
-            var searchCriteria = new ProjectSearchCriteria { Query = "Test" };
-            var project = new ProjectSearchResult { Id = projectId, Name = searchCriteria.Query };
-            var controller = CreateController(searchCriteria, project);
+            var searchCriteria = new SearchCriteria { Query = "Test" };
+            var project = new SearchResult { ItemId = projectId, Name = searchCriteria.Query };
+            var searchResult = new ProjectSearchResultSet { Items = new[] { project } };
+            var controller = CreateController(searchCriteria, searchResult);
             controller.Request.Properties.Remove(ServiceConstants.SessionProperty);
 
             // Act
@@ -194,11 +197,10 @@ namespace SearchService.Controllers
 
         #endregion SearchName
 
-        public static ProjectSearchController CreateController(ProjectSearchCriteria searchCriteria, params ProjectSearchResult[] result)
+        public static ProjectSearchController CreateController(SearchCriteria searchCriteria, ProjectSearchResultSet result = null)
         {
             var projectSearchRepository = new Mock<IProjectSearchRepository>();
-            string searchText = searchCriteria?.Query;
-            projectSearchRepository.Setup(m => m.GetProjectsByName(1, searchText, It.IsAny<int>(), "/")).ReturnsAsync(result);
+            projectSearchRepository.Setup(m => m.SearchName(1, searchCriteria, It.IsAny<int>(), "/")).ReturnsAsync(result);
 
             var request = new HttpRequestMessage();
             request.Properties.Add(ServiceConstants.SessionProperty, new Session { UserId = 1 });

@@ -49,9 +49,9 @@ namespace SearchService.Repositories
                 ProjectIds = new[] { 1 },
                 ItemTypeIds = new[] { 10, 20, 30 }
             };
-            ItemSearchResultItem[] queryResult =
+            ItemSearchResult[] queryResult =
             {
-                new ItemSearchResultItem()
+                new ItemSearchResult()
             };
             var itemSearchRepository = CreateRepository(searchCriteria, queryResult);
 
@@ -59,7 +59,8 @@ namespace SearchService.Repositories
             var result = await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize);
 
             // Assert
-            CollectionAssert.AreEqual(queryResult, result.SearchItems.ToList());
+            CollectionAssert.AreEqual(queryResult, result.Items.ToList());
+            Assert.AreEqual(queryResult.Length, result.PageItemCount);
         }
 
         [TestMethod]
@@ -71,9 +72,9 @@ namespace SearchService.Repositories
                 Query = "test",
                 ProjectIds = new[] { 1 }
             };
-            ItemSearchResultItem[] queryResult =
+            ItemSearchResult[] queryResult =
             {
-                new ItemSearchResultItem()
+                new ItemSearchResult()
             };
             var itemSearchRepository = CreateRepository(searchCriteria, queryResult);
 
@@ -81,75 +82,82 @@ namespace SearchService.Repositories
             var result = await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize);
 
             // Assert
-            CollectionAssert.AreEqual(queryResult, result.SearchItems.ToList());
+            CollectionAssert.AreEqual(queryResult, result.Items.ToList());
+            Assert.AreEqual(queryResult.Length, result.PageItemCount);
         }
 
         #endregion SearchName
 
-        #region Search
+        #region SearchFullText
 
         [TestMethod]
-        public async Task Search_WithItemTypes_ReturnsResults()
+        public async Task SearchFullText_WithItemTypes_ReturnsResults()
         {
             // Arrange
-            var searchCriteria = new SearchCriteria
+            var searchCriteria = new ItemSearchCriteria
             {
                 Query = "test",
                 ProjectIds = new[] { 1 },
                 ItemTypeIds = new[] { 10, 20, 30 }
             };
-            FullTextSearchItem[] queryResult =
+            FullTextSearchResult[] queryResult =
             {
-                new FullTextSearchItem()
+                new FullTextSearchResult()
             };
             var itemSearchRepository = CreateRepository(searchCriteria, queryResult);
 
             // Act
-            var result = await itemSearchRepository.Search(UserId, searchCriteria, Page, PageSize);
+            var result = await itemSearchRepository.SearchFullText(UserId, searchCriteria, Page, PageSize);
 
             // Assert
-            CollectionAssert.AreEqual(queryResult, result.FullTextSearchItems.ToList());
+            CollectionAssert.AreEqual(queryResult, result.Items.ToList());
+            Assert.AreEqual(Page, result.Page);
+            Assert.AreEqual(queryResult.Length, result.PageItemCount);
+            Assert.AreEqual(PageSize, result.PageSize);
         }
 
         [TestMethod]
-        public async Task Search_WithoutItemTypes_ReturnsResults()
+        public async Task SearchFullText_WithoutItemTypes_ReturnsResults()
         {
             // Arrange
-            var searchCriteria = new SearchCriteria
+            var searchCriteria = new ItemSearchCriteria
             {
                 Query = "test",
                 ProjectIds = new[] { 1 }
             };
-            FullTextSearchItem[] queryResult =
+            FullTextSearchResult[] queryResult =
             {
-                new FullTextSearchItem()
+                new FullTextSearchResult()
             };
             var itemSearchRepository = CreateRepository(searchCriteria, queryResult);
 
             // Act
-            var result = await itemSearchRepository.Search(UserId, searchCriteria, Page, PageSize);
+            var result = await itemSearchRepository.SearchFullText(UserId, searchCriteria, Page, PageSize);
 
             // Assert
-            CollectionAssert.AreEqual(queryResult, result.FullTextSearchItems.ToList());
+            CollectionAssert.AreEqual(queryResult, result.Items.ToList());
+            Assert.AreEqual(Page, result.Page);
+            Assert.AreEqual(queryResult.Length, result.PageItemCount);
+            Assert.AreEqual(PageSize, result.PageSize);
         }
 
-        #endregion Search
+        #endregion SearchFullText
 
-        #region SearchMetaData
+        #region FullTextMetaData
 
         [TestMethod]
-        public async Task SearchMetaData_WithItemTypes_ReturnsResults()
+        public async Task FullTextMetaData_WithItemTypes_ReturnsResults()
         {
             // Arrange
-            var searchCriteria = new SearchCriteria
+            var searchCriteria = new ItemSearchCriteria
             {
                 Query = "test",
                 ProjectIds = new[] { 1 },
                 ItemTypeIds = new[] { 10, 20, 30 }
             };
-            FullTextSearchTypeItem[] queryResult =
+            MetaDataSearchResult[] queryResult =
             {
-                new FullTextSearchTypeItem()
+                new MetaDataSearchResult()
             };
             int?[] queryResult2 =
             {
@@ -158,25 +166,25 @@ namespace SearchService.Repositories
             var itemSearchRepository = CreateRepository(searchCriteria, queryResult, queryResult2);
 
             // Act
-            var result = await itemSearchRepository.SearchMetaData(UserId, searchCriteria);
+            var result = await itemSearchRepository.FullTextMetaData(UserId, searchCriteria);
 
             // Assert
-            CollectionAssert.AreEqual(queryResult.ToList(), result.FullTextSearchTypeItems.ToList());
+            CollectionAssert.AreEqual(queryResult.ToList(), result.Items.ToList());
             Assert.AreEqual(queryResult2[0], result.TotalCount);
         }
 
         [TestMethod]
-        public async Task SearchMetaData_WithoutItemTypes_ReturnsResults()
+        public async Task FullTextMetaData_WithoutItemTypes_ReturnsResults()
         {
             // Arrange
-            var searchCriteria = new SearchCriteria
+            var searchCriteria = new ItemSearchCriteria
             {
                 Query = "test",
                 ProjectIds = new[] { 1 }
             };
-            FullTextSearchTypeItem[] queryResult =
+            MetaDataSearchResult[] queryResult =
             {
-                new FullTextSearchTypeItem()
+                new MetaDataSearchResult()
             };
             int?[] queryResult2 =
             {
@@ -185,16 +193,16 @@ namespace SearchService.Repositories
             var itemSearchRepository = CreateRepository(searchCriteria, queryResult, queryResult2);
 
             // Act
-            var result = await itemSearchRepository.SearchMetaData(UserId, searchCriteria);
+            var result = await itemSearchRepository.FullTextMetaData(UserId, searchCriteria);
 
             // Assert
-            CollectionAssert.AreEqual(queryResult.ToList(), result.FullTextSearchTypeItems.ToList());
+            CollectionAssert.AreEqual(queryResult.ToList(), result.Items.ToList());
             Assert.AreEqual(queryResult2[0], result.TotalCount);
         }
 
         #endregion SearchMetaData
 
-        private static IItemSearchRepository CreateRepository<T>(ISearchCriteria searchCriteria, ICollection<T> queryResult, ICollection<int?> queryResult2 = null)
+        private static IItemSearchRepository CreateRepository<T>(ItemSearchCriteria searchCriteria, ICollection<T> queryResult, ICollection<int?> queryResult2 = null)
         {
             var connectionWrapper = new SqlConnectionWrapperMock();
             var commonParams = new Dictionary<string, object>

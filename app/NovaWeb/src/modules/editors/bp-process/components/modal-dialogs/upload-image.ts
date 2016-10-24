@@ -44,17 +44,16 @@ export class UploadImageDirective implements ng.IDirective {
     public link: ng.IDirectiveLinkFn = ($scope: IUploadImageScope, $element: ng.IAugmentedJQuery, attr: ng.IAttributes) => {
         $scope.imageUploaded = false;
 
-        $scope.isReadonly = $scope.$parent["vm"].isReadonly;
+        $scope.isReadonly = $scope.$parent["$ctrl"].isReadonly;
 
         if (!!$scope.systemTaskModel && !!$scope.systemTaskModel.associatedImageUrl) {
 
             this.createImage($scope, $element, attr);
         }
 
-        const uploadImageCntr = $element.find("#upload-image");
-
+        const uploadImageCntr = $element.find("input");
         $scope.uploadImage = () => {
-            const fileInput = uploadImageCntr;
+            const fileInput = uploadImageCntr[0];
             fileInput.click();
         };
 
@@ -100,7 +99,6 @@ export class UploadImageDirective implements ng.IDirective {
                 this.fileUploadService.uploadToFileStore(dataFile, expirationDate).then((result: IFileResult) => {
                     $scope.systemTaskModel.associatedImageUrl = result.uriToFile;
                     $scope.systemTaskModel.imageId = result.guid;
-                    $scope.systemTaskModel.model.propertyValues["imageId"].value = result.guid;
                     this.createImage($scope, $element, attr);
                 });
             }

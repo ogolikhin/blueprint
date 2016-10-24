@@ -74,6 +74,8 @@ namespace Model.StorytellerModel
         LastEditedOn = 4127,
         Persona = 4130,
         StoryLink = 4131,
+        ImageId = 4132,
+        AssociatedArtifact = 4133,
 
         X = 8193,
         Y = 8194,

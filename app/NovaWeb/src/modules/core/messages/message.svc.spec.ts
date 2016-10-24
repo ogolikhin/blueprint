@@ -35,6 +35,24 @@ describe("messageService", () => {
             expect(result[0].messageType).toEqual(MessageType.Error);
         }));
 
+    it("addInfoWithPar, returns the message",
+        inject((messageService: IMessageService) => {
+            // Arrange
+            let message = "show {0} items of type {1}";
+            let par1 = 3;
+            let par2 = "variable";
+            let expectedMessage = "show 3 items of type variable";
+            messageService.addInfoWithPar(message, [par1, par2]);
+
+            // Act
+            let result = messageService.messages;
+
+            // Assert
+            expect(result.length).toEqual(1);
+            expect(result[0].messageText).toEqual(expectedMessage);
+            expect(result[0].messageType).toEqual(MessageType.Info);
+        }));
+
     it("addError as an Error, returns the message",
         inject((messageService: IMessageService) => {
             // Arrange

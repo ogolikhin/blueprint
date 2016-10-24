@@ -16,12 +16,16 @@ import {PreviewWingDirective} from "./components/modal-dialogs/user-story-previe
 import {ZoomableImageDirective} from "./components/modal-dialogs/user-story-preview/zoomable-image";
 
 import {DecisionEditor} from "./components/modal-dialogs/decision-editor";
+import {UserTaskEditor} from "./components/modal-dialogs/task-editor";
+import {SystemTaskEditor} from "./components/modal-dialogs/task-editor";
 
 angular.module("bp.editors.process", ["ui.bootstrap"])
     .component("bpProcessHeader", new BpProcessHeader())
     .component("bpProcessEditor", new BpProcessEditor())
     .component("previewCenter", new PreviewCenterComponent())
     .component("decisionEditor", new DecisionEditor())
+    .component("userTaskEditor", new UserTaskEditor())
+    .component("systemTaskEditor", new SystemTaskEditor())
     .directive("previewWing", PreviewWingDirective.directive)
     .directive("zoomableImage", ZoomableImageDirective.directive)
     .service("processService", ProcessService)

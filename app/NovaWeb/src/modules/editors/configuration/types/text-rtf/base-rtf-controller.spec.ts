@@ -45,11 +45,11 @@ describe("Formly Base RTF Controller", () => {
         )
     );
 
-    describe("getHandleClick", () => {
+    describe("handleClick", () => {
         it("click on a link opens a new window", () => {
             const aTag: HTMLElement = angular.element("a")[0];
             const mouseEvent: MouseEvent = createMouseEvent();
-            aTag.addEventListener("click", controller.getHandleClick());
+            aTag.addEventListener("click", controller.handleClick);
 
             spyOn(window, "open");
 
@@ -58,21 +58,22 @@ describe("Formly Base RTF Controller", () => {
             expect(window.open).toHaveBeenCalled();
             expect(window.open).toHaveBeenCalledWith("http://www.yahoo.com/", "_blank");
 
-            aTag.removeEventListener("click", controller.getHandleClick());
+            aTag.removeEventListener("click", controller.handleClick);
         });
 
         it("click on an inline trace goes to the artifact", () => {
             const aTag: HTMLElement = angular.element("a")[1];
             const mouseEvent: MouseEvent = createMouseEvent();
-            aTag.addEventListener("click", controller.getHandleClick());
+            aTag.addEventListener("click", controller.handleClick);
 
-            spyOn(console, "log");
+            spyOn(controller.navigationService, "navigateTo");
 
             aTag.dispatchEvent(mouseEvent);
 
-            //expect(console.log).toHaveBeenCalled();
+            expect(controller.navigationService.navigateTo).toHaveBeenCalled();
+            expect(controller.navigationService.navigateTo).toHaveBeenCalledWith(365);
 
-            aTag.removeEventListener("click", controller.getHandleClick());
+            aTag.removeEventListener("click", controller.handleClick);
         });
     });
 

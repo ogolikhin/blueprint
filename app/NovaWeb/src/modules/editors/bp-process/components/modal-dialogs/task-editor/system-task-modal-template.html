@@ -38,7 +38,7 @@ RawBlameHistory
                     id="storyteller-system-persona" ng-model='dialogModel.persona' ng-disabled="$ctrl.isReadonly"
                     autofocus maxlength="40" autocomplete="off">
             <label for="storyteller-user" class="nova-label"><i class="fonticon-bp-actor"></i>{{::$root.config.labels['ST_System_Name_Label']}}</label>
-            <span class="nova-helper-text">{{::$root.config.labels['ST_System_Name_Helper_Text']}}</span>
+            <span class="storyteller-helper-text">{{::$root.config.labels['ST_System_Name_Helper_Text']}}</span>
         </div>
         <div class="nova-form-group nova-floating-label">
             <input type="text" ng-blur="$ctrl.nameOnBlur()" ng-focus="$ctrl.nameOnFocus()"
@@ -46,7 +46,7 @@ RawBlameHistory
                     id="storyteller-systemtask-action" ng-model="dialogModel.action"
                     ng-disabled="$ctrl.isReadonly" maxlength="140" autocomplete="off">
             <label for="storyteller-systemtask-action" class="nova-label"><i class="fonticon-storyteller-title"></i>{{$ctrl.systemNamePlaceHolderText}}</label>
-            <span class="nova-helper-text">{{::$root.config.labels['ST_Response_Helper_Text']}}</span>
+            <span class="storyteller-helper-text">{{::$root.config.labels['ST_Response_Helper_Text']}}</span>
         </div>
         <div id="SystemTaskUploadImage">
             <upload-image data-type-error="typeError" data-size-error="sizeError"

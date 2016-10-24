@@ -1,5 +1,6 @@
 import * as ProcessModels from "../models/process-models";
 import { IProcessModelProcessor } from "./process-model-processor";
+import { ProcessModelProcessor } from "./process-model-processor";
 import { IStatefulProcessArtifact } from "../process-artifact";
 
 export { ProcessModels }
@@ -45,6 +46,7 @@ export class ProcessService implements IProcessService {
 
     constructor(private $http: ng.IHttpService,
         private $q: ng.IQService) {
+        this.processModelProcessor = new ProcessModelProcessor();
 
     }
 
@@ -119,9 +121,9 @@ export class ProcessService implements IProcessService {
 
         const procModel: ProcessModels.IProcess = this.processModelProcessor.processModelBeforeSave(process);
 
-        this.$http.patch<IProcessUpdateResult>(restPath, procModel).then((result: IProcessUpdateResult) => {
+        this.$http.patch<IProcessUpdateResult>(restPath, procModel).then((result) => {
             // success
-            deferred.resolve(result);
+            deferred.resolve(result.data);
 
         }).catch((err) => {
             deferred.reject(err);

@@ -155,10 +155,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         promisesToExecute.push(this.load());
 
-        if (this._attachments) {
-            //this will also reload docRefs, so no need to call docRefs.refresh()
-            promisesToExecute.push(this._attachments.refresh());
-        }
+        // #DEBUG
+        //if (this._attachments) {
+        //    //this will also reload docRefs, so no need to call docRefs.refresh()
+        //    promisesToExecute.push(this._attachments.refresh());
+        //}
+
         if (this._relationships) {
             promisesToExecute.push(this._relationships.refresh());
         }
@@ -168,11 +170,11 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         promisesToExecute.push(this.services.metaDataService.remove(this.projectId));
 
         // get promises for custom artifact refresh operations
-        let subclassRefreshPromises = this.getCustomArtifactPromisesForRefresh();
+        let refreshPromises = this.getCustomArtifactPromisesForRefresh();
 
-        if (subclassRefreshPromises.length > 0) {
-            for (let i = 0; i < subclassRefreshPromises.length; i++) {
-                promisesToExecute.push(subclassRefreshPromises[i]);
+        if (refreshPromises.length > 0) {
+            for (let i = 0; i < refreshPromises.length; i++) {
+                promisesToExecute.push(refreshPromises[i]);
             }
         }
 
@@ -288,36 +290,33 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
      
     public save(): ng.IPromise<IStatefulArtifact> {
-        // execute one or more save operations in sequence
-        let sources: Rx.Observable<IStatefulArtifact>[] = [];
-        let combination: Rx.Observable<IStatefulArtifact>;
-        let subscription: Rx.IDisposable;
-
         const deferred = this.services.getDeferred<IStatefulArtifact>();
-        let customPromises = this.getCustomArtifactPromisesForSave();
+        const fn = this.getCustomArtifactPromisesForSave();
+        if (fn) {
+            fn.then(() => {
+                this.saveArtifact().then(() => {
+                    deferred.resolve(this);
+                })
+                .catch((err) => {
+                    deferred.reject(err);
+                });
+            })
+            .catch((err) => {
+                deferred.reject(err);
+            });
+        } else {
+            this.saveArtifact()
+                .then(() => {
+                    deferred.resolve(this);
+                })
+                .catch((err) => {
+                    deferred.reject(err);
+                });
+        } 
 
-        if (customPromises.length > 0) {
-            for (let i = 0; i < customPromises.length; i++) {
-                sources.push(Rx.Observable.fromPromise(customPromises[i]));
-            }
-        }
-        sources.push(Rx.Observable.fromPromise(this.saveArtifact()));
-        combination = Rx.Observable.concat(sources);
-       
-        const observer = Rx.Observer.create(
-            result => result,
-            err =>  deferred.reject(err),
-            () => {
-                // all operations completed successfully
-                subscription.dispose();
-                deferred.resolve(this);
-            }
-        );
-        subscription = combination.subscribe(observer);
- 
         return deferred.promise;
     }
-
+   
     private saveArtifact(): ng.IPromise<IStatefulArtifact> {
         let deferred = this.services.getDeferred<IStatefulArtifact>();
 
@@ -382,16 +381,16 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     } 
     
     //Hook for subclasses to provide additional promises which should be run for obtaining data
-    protected getCustomArtifactPromisesForGetObservable(): angular.IPromise<IStatefulArtifact>[] {
+    protected getCustomArtifactPromisesForGetObservable(): ng.IPromise<IStatefulArtifact>[] {
         return [];
     }
     protected getCustomArtifactPromisesForRefresh(): ng.IPromise<any>[] {
         return [];
     }
-    protected getCustomArtifactPromisesForSave(): angular.IPromise<IStatefulArtifact>[] {
-        return [];
+    protected getCustomArtifactPromisesForSave(): ng.IPromise<IStatefulArtifact> {
+        return null;
     }
-
+    
     //Hook for subclasses to do some post processing
     protected runPostGetObservable() {
         ;

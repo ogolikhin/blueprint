@@ -2,10 +2,9 @@
 import { ILocalizationService, IMessageService } from "../../core";
 import { Message, MessageType } from "../../core/messages/message";
 import { IProcess, IProcessShape, IProcessLink } from "./models/process-models";
-import { IHashMapOfPropertyValues, IItemStatus } from "./models/process-models";
+import { IHashMapOfPropertyValues } from "./models/process-models";
 import { IVersionInfo, ItemTypePredefined } from "./models/process-models";
 import { StatefulArtifact, IStatefulArtifact } from "../../managers/artifact-manager/artifact";
-//import { ChangeTypeEnum, IChangeSet } from "../../managers/artifact-manager/changeset";
 import { IStatefulProcessArtifactServices } from "../../managers/artifact-manager/services";
 import { StatefulProcessSubArtifact } from "./process-subartifact";
 import { IProcessUpdateResult } from "./services/process.svc";
@@ -44,16 +43,16 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     public getServices(): IStatefulProcessArtifactServices {
         return this.services;
     }
-
+   
     protected getCustomArtifactPromisesForGetObservable(): angular.IPromise<IStatefulArtifact>[] {
         this.loadProcessPromise = this.loadProcess();
 
         return [this.loadProcessPromise];
     }
 
-    protected getCustomArtifactPromisesForSave(): angular.IPromise<IStatefulArtifact>[] {
+    protected getCustomArtifactPromisesForSave(): angular.IPromise<IStatefulArtifact> {
         let saveProcessPromise = this.saveProcess();
-        return [saveProcessPromise];
+        return saveProcessPromise;
     }
 
     protected runPostGetObservable() {
@@ -116,7 +115,6 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         if (!this.artifactState.readonly) {
             this.services.processService.save(<IProcess>this)
                 .then((result: IProcessUpdateResult) => {
-                    this.showSavedMessage(result);
                     this.onLoad(result.result);
                     deferred.resolve(this);
                 }).catch((err: any) => {
@@ -128,19 +126,8 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
             this.services.messageService.addMessage(message);
             deferred.reject();
         } 
+         
         return deferred.promise;
     }
-
-    private showSavedMessage(result: IProcessUpdateResult) {
-        const processSavedGeneratedMessage = this.services.localizationService.get("ST_Process_Saved_Message");
-        this.services.messageService.addMessage(new Message(MessageType.Info, processSavedGeneratedMessage));
-
-        if (result.messages) {
-            result.messages.forEach((r) => {
-                const message = new Message(MessageType.Warning, r.message);
-                this.services.messageService.addMessage(message);
-            });
-        }
-    }
-
+ 
 }

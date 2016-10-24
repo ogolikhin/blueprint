@@ -21,13 +21,12 @@ export class QuickSearchModalController {
             return false;
         }
         this.isLoading = true;
-        this.$log.debug("searching form ", term);
         this.quickSearchService.searchTerm = _.clone(this.searchTerm);
 
         this.quickSearchService.search(term).then((results) => {
-//assign the results and display
+            //assign the results and display
             //if results are greater than one
-            this.results = results;
+            this.results = results.fullTextSearchItems;
             this.isLoading = false;
         });
     }

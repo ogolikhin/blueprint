@@ -5,7 +5,7 @@ novalidate>
     <div class="quick-serach__form-control">
         <input type="text"
                required
-               ng-minlength="3"
+               ng-disabled="quickSearch.quickSearchService.canSearch()"
                placeholder="Search open project"
                class="quick-serach__input"
                name="searchTerm"

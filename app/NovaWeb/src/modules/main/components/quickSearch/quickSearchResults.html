@@ -6,77 +6,82 @@
 </nav>
 <div class="quick-search__results--content">
     <div class="quick-search__results--content--center">
-        <div class="quick-search__results--input-panel">
-            <form name="$ctrl.form"
-                  ng-submit="$ctrl.search($ctrl.searchTerm)"
-                  novalidate>
-                <div class="quick-serach__form-control">
-                    <input type="text"
-                           required
-                           ng-minlength="3"
-                           placeholder="Search open project"
-                           class="quick-serach__input quick-serach__input--full-width"
-                           name="searchTerm"
-                           ng-model="$ctrl.searchTerm">
-                    <i class="glyphicon glyphicon-search quick-serach__icon--fixed"></i>
-                </div>
-            </form>
-            <button type="button"
-                    class="close"
-                    ng-click="$ctrl.closeModal()">&times;</button>
-        </div>
-        <div class="quick-search__results">
-            <ul class="list-unstyled quick-search__results--list" ng-if="$ctrl.results.FullTextSearchItems.length>0">
-                <li class="quick-search__results--item"
-                    ng-repeat="item in $ctrl.results.FullTextSearchItems track by $index">
-                    <div class="row small-gutter">
-                        <div class="col-md-1 text-center">
-                            <i class="fonticon fonticon2-publish-line quick-search__results--large-font font-blue"></i>
-                        </div>
-                        <div class="col-md-11">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <h4 class="font-blue quick-search__results--large-font bottom-margin">
-                                        TITLE
-                                    </h4>
-                                </div>
+        <div class="quick-search__results--side-border">
+            <div class="quick-search__results--input-panel">
+                <form name="$ctrl.form"
+                      ng-submit="$ctrl.search($ctrl.searchTerm)"
+                      novalidate>
+                    <div class="quick-serach__form-control">
+                        <input type="text"
+                               required
+                               ng-minlength="3"
+                               placeholder="Search open project"
+                               class="quick-serach__input quick-serach__input--full-width"
+                               name="searchTerm"
+                               ng-model="$ctrl.searchTerm">
+                        <i class="glyphicon glyphicon-search quick-serach__icon--fixed"></i>
+                    </div>
+                </form>
+                <button type="button"
+                        class="close"
+                        ng-click="$ctrl.closeModal()">&times;</button>
+            </div>
+            <div class="quick-search__results">
+                <ul class="list-unstyled quick-search__results--list" ng-if="$ctrl.results.length>0">
+                    <li class="quick-search__results--item"
+                        ng-repeat="item in $ctrl.results track by $index">
+                        <div class="row small-gutter">
+                            <div class="col-md-1 text-center">
+                                <i class="fonticon fonticon2-publish-line quick-search__results--large-font font-blue"></i>
                             </div>
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <strong>Author: </strong>
-                                    <span>Jacob Harasimo</span>
+                            <div class="col-md-11">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h4 class="font-blue quick-search__results--large-font margin-bottom--none">
+                                            TITLE
+                                        </h4>
+                                    </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <strong>created: </strong>
-                                    <span>October 11, 1980</span>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <strong>Author: </strong>
+                                        <span>Jacob Harasimo</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <strong>Created on: </strong>
+                                        <span>October 11, 1980</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <strong>Last Edited: </strong>
+                                        <span> October 11, 1980</span>
+                                    </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <strong>last edit: </strong>
-                                    <span> October 11, 1980</span>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-12">
                                     <span class="quick-search__results--truncate">
                                         <strong>Description: </strong>
                                         <span>
                                             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lobortis eros lorem, sit amet scelerisque nulla eleifend vel. Suspendisse potenti. Etiam convallis in nisl a placerat. Integer eget ante ut ex pharetra volutpat. Pellentesque lobortis quis neque ut ultricies. Cras fermentum diam vitae vestibulum porttitor. Mauris tincidunt odio et lobortis eleifend. Aenean hendrerit dapibus dolor id euismod. Phasellus congue velit sit amet dolor tincidunt, quis mattis nibh porta. Praesent rutrum lorem vitae laoreet consectetur. Morbi tincidunt aliquet tellus, ac mollis leo placerat ut. Suspendisse cursus luctus ante id ullamcorper. Nunc sagittis felis at mi lacinia pretium. Etiam ut massa porta, rutrum risus id, blandit quam.
                                         </span>
                                     </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </li>
-            </ul>
+                    </li>
+                </ul>
 
-            <div class="quick-search__response">
-                <div ng-if="$ctrl.isLoading" class="quick-serach__loading">
-                    <div class="quick-serach__loading-overlay"></div>
-                    <span class="glyphicon glyphicon-refresh spin quick-serach__loading-icon"></span>
+                <div class="quick-search__response" ng-if="$ctrl.isLoading">
+                    <div class="quick-serach__loading">
+                        <div class="quick-serach__loading-overlay"></div>
+                        <span class="glyphicon glyphicon-refresh spin quick-serach__loading-icon"></span>
+                    </div>
                 </div>
-                <div class="center-item font-larger">
-                    <span ng-if="$ctrl.results.FullTextSearchItems.length==0">No results Found</span>
+
+                <div class="quick-search__response" ng-if="$ctrl.results.length===0">
+                    <div class="center-item font-larger">
+                        <span>No results Found</span>
+                    </div>
                 </div>
             </div>
         </div>

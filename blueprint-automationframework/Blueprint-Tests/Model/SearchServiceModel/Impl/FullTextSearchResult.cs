@@ -22,6 +22,6 @@ namespace Model.SearchServiceModel.Impl
         /// <summary>
         /// The search items returned by the search
         /// </summary>
-        public IEnumerable<FullTextSearchItem> FullTextSearchItems { get; set; }
+        public IEnumerable<FullTextSearchItem> Items { get; set; }
     }
 }

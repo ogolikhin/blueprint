@@ -19,7 +19,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
 
     public handleClick = (event: Event) => {
         const navigationService = this.navigationService;
-        const target = event.target as HTMLElement;
+        const target = event.currentTarget as HTMLElement;
 
         event.stopPropagation();
         event.preventDefault();

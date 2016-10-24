@@ -5,13 +5,13 @@
     "artifactParentId": "1",
     "artifactTypeId": "78",
     "artifactProperties": "[]",
-    "getAuthenticationApiUrl": "http://52.202.237.164/authentication/v1/login",
-    "postCreateArtifactUrl": "http://52.202.237.164/api/v1/projects/1/artifacts",
-    "postPublishArtifactUrl": "http://52.202.237.164/api/v1/vc/publish?",
-    "siteUrl": "http://52.202.237.164/Web/#/Storyteller/",
-    "baseURL": "http://52.202.237.164",
-    "getProjectUrl": "http://52.202.237.164/api/v1/projects?Location=True",
-    "getNovaUrl": "http://52.202.237.164/#/main"
+    "getAuthenticationApiUrl": "http://ncover.blueprintsys.net/authentication/v1/login",
+    "postCreateArtifactUrl": "http://ncover.blueprintsys.net/api/v1/projects/1/artifacts",
+    "postPublishArtifactUrl": "http://ncover.blueprintsys.net/api/v1/vc/publish?",
+    "siteUrl": "http://ncover.blueprintsys.net/Web/#/Storyteller/",
+    "baseURL": "http://ncover.blueprintsys.net",
+    "getProjectUrl": "http://ncover.blueprintsys.net/api/v1/projects?Location=True",
+    "getNovaUrl": "http://ncover.blueprintsys.net/#/main"
 
   } 
 }

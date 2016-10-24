@@ -104,7 +104,7 @@ export class BPUtilityPanelController {
         const item: IStatefulItem = selection ? (selection.subArtifact || selection.artifact) : undefined;
         if (item) {
             this._currentItem = `${(item.prefix || "")}${item.id}: ${item.name}`;
-            if (item.orderIndex < 0 && item.predefinedType === ItemTypePredefined.CollectionFolder) {
+            if (item.itemTypeId === ItemTypePredefined.Collections && item.predefinedType === ItemTypePredefined.CollectionFolder) {
                 this._currentItemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[ItemTypePredefined.Collections] || "");
             } else {
                 this._currentItemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[item.predefinedType] || "");

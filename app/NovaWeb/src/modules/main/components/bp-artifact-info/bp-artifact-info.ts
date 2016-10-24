@@ -185,7 +185,7 @@ export class BpArtifactInfoController {
 
             this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
 
-            if (artifact.orderIndex < 0 && artifact.predefinedType === Models.ItemTypePredefined.CollectionFolder) {
+            if (artifact.itemTypeId === Models.ItemTypePredefined.Collections && artifact.predefinedType === Models.ItemTypePredefined.CollectionFolder) {
                 this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[Models.ItemTypePredefined.Collections] || "document"));
             } else { 
                 this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[itemType.predefinedType] || "document"));

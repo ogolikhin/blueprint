@@ -13,6 +13,6 @@ export interface ICollectionArtifact {
     prefix: string;
     description: string;
     itemTypeId: number;    
-    artifactPath: string;  
+    artifactPath: string[];
     itemTypePredefined: Models.ItemTypePredefined;   
 }

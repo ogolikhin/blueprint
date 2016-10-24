@@ -26,7 +26,11 @@ export class SaveAction extends BPButtonAction {
                 let overlayId: number = loadingOverlayService.beginLoading();
 
                 try {
-                    artifact.save().finally(() => {
+                    artifact.save()
+                    .catch((err) => {
+                        messageService.addError(err);
+                    })
+                    .finally(() => {
                         loadingOverlayService.endLoading(overlayId);
                     });
                 } catch (err) {

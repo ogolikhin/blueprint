@@ -232,7 +232,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     public changes(): Models.IArtifact {
         if (this.artifactState.invalid) {
-            throw new Error("App_Save_Artifact_Error_400_114");
+            return null;
         }
 
         let delta: Models.IArtifact = {} as Models.Artifact;
@@ -271,49 +271,54 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         let deferred = this.services.getDeferred<IStatefulArtifact>();
 
         let changes = this.changes();
-        this.services.artifactService.updateArtifact(changes)
-            .then((artifact: Models.IArtifact) => {
-                this.discard();
-                this.refresh().then((a) => {
-                    deferred.resolve(a);
+        if (!changes) {
+            deferred.reject(new Error("App_Save_Artifact_Error_400_114"));
+        } else {
+            this.services.artifactService.updateArtifact(changes)
+                .then((artifact: Models.IArtifact) => {
+                    this.discard();
+                    this.refresh().then((a) => {
+                        deferred.resolve(a);
+                    }).catch((error) => {
+                        deferred.reject(error);
+                    });
+                    this.services.messageService.addInfo("App_Save_Artifact_Error_200");
                 }).catch((error) => {
                     deferred.reject(error);
-                });
-                this.services.messageService.addInfo("App_Save_Artifact_Error_200");
-            }).catch((error) => {
-                deferred.reject(error);
-                let message: string;
-                // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
-                if (error) {
-                    if (error.statusCode === 400) {
-                        if (error.errorCode === 114) {
-                            message = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
+                    let message: string;
+                    // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
+                    if (error) {
+                        if (error.statusCode === 400) {
+                            if (error.errorCode === 114) {
+                                message = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
+                            } else {
+                                message = this.services.localizationService.get("App_Save_Artifact_Error_400") + error.message;
+                            }
+                        } else if (error.statusCode === HttpStatusCode.NotFound) {
+                            message = this.services.localizationService.get("App_Save_Artifact_Error_404");
+                        } else if (error.statusCode === 409) {
+                            if (error.errorCode === 116) {
+                                message = this.services.localizationService.get("App_Save_Artifact_Error_409_116");
+                            } else if (error.errorCode === 117) {
+                                message = this.services.localizationService.get("App_Save_Artifact_Error_409_117");
+                            } else if (error.errorCode === 111 || error.errorCode === 115) {
+                                message = this.services.localizationService.get("App_Save_Artifact_Error_409_115");
+                            } else if (error.errorCode === 124) {
+                                message = this.services.localizationService.get("App_Save_Artifact_Error_409_123");
+                            } else {
+                                message = this.services.localizationService.get("App_Save_Artifact_Error_409");
+                            }
                         } else {
-                            message = this.services.localizationService.get("App_Save_Artifact_Error_400") + error.message;
+                            message = this.services.localizationService.get("App_Save_Artifact_Error_Other") + error.statusCode;
                         }
-                    } else if (error.statusCode === HttpStatusCode.NotFound) {
-                        message = this.services.localizationService.get("App_Save_Artifact_Error_404");
-                    } else if (error.statusCode === 409) {
-                        if (error.errorCode === 116) {
-                            message = this.services.localizationService.get("App_Save_Artifact_Error_409_116");
-                        } else if (error.errorCode === 117) {
-                            message = this.services.localizationService.get("App_Save_Artifact_Error_409_117");
-                        } else if (error.errorCode === 111 || error.errorCode === 115) {
-                            message = this.services.localizationService.get("App_Save_Artifact_Error_409_115");
-                        } else if (error.errorCode === 124) {
-                            message = this.services.localizationService.get("App_Save_Artifact_Error_409_123");
-                        } else {
-                            message = this.services.localizationService.get("App_Save_Artifact_Error_409");
-                        }
-                    } else {
-                        message = this.services.localizationService.get("App_Save_Artifact_Error_Other") + error.statusCode;
-                    }
 
-                    this.services.messageService.addError(message);
-                    throw new Error(message);
+                        //this.services.messageService.addError(message);
+                        //throw new Error(message);
+                        deferred.reject(new Error(message));
+                    }
                 }
-            }
-        );
+            );
+        }
 
         return deferred.promise;
     }

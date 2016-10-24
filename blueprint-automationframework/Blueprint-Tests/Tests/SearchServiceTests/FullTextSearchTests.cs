@@ -480,7 +480,7 @@ namespace SearchServiceTests
                     "Nova FullTextSearch call failed when using following search term: {0}, page: {1}, pageSize: {2}", searchCriteria.Query, pageCount, pageSize);
 
                 // Adds search result per page into total returned search count
-                returnedSearchCount += fullTextSearchResult.FullTextSearchItems.Count();
+                returnedSearchCount += fullTextSearchResult.Items.Count();
 
                 // Create a artifact list per page, decending ordered by Last Edited On
                 List<IArtifactBase> pagedArtifacts = CreateArtifactListPerPage(expectedArtifactsStackDescOrderedByLastEditedOn, pageSize);
@@ -522,10 +522,10 @@ namespace SearchServiceTests
             FullTextSearchResultValidation(fullTextSearchResult, _publishedArtifacts, pageSize: customSearchPageSize);
 
             // Validation: Compaire returned FullTextSearchItems from search result with the expected ordered artifacts
-            for (int i = 0; i < fullTextSearchResult.FullTextSearchItems.Count(); i++ )
+            for (int i = 0; i < fullTextSearchResult.Items.Count(); i++ )
             {
-                Assert.That(fullTextSearchResult.FullTextSearchItems.Cast<FullTextSearchItem>().ToList()[i].ArtifactId.
-                    Equals(LastEditedOnOrderedArtifacts[i].Id), "artfiact with ID {0} was expected from the returned FullTextSearchItems but artifact with ID {1} is found on data row {2}.", LastEditedOnOrderedArtifacts[i].Id, fullTextSearchResult.FullTextSearchItems.Cast<FullTextSearchItem>().ToList()[i].ArtifactId, i);
+                Assert.That(fullTextSearchResult.Items.Cast<FullTextSearchItem>().ToList()[i].ArtifactId.
+                    Equals(LastEditedOnOrderedArtifacts[i].Id), "artfiact with ID {0} was expected from the returned FullTextSearchItems but artifact with ID {1} is found on data row {2}.", LastEditedOnOrderedArtifacts[i].Id, fullTextSearchResult.Items.Cast<FullTextSearchItem>().ToList()[i].ArtifactId, i);
             }
         }
 
@@ -653,7 +653,7 @@ namespace SearchServiceTests
 
             if (artifactsToBeFound.Any())
             {
-                searchResult.FullTextSearchItems.Cast<FullTextSearchItem>().ToList().ForEach(a => ReturnedFullTextSearchItemArtifactIds.Add(a.ArtifactId));
+                searchResult.Items.Cast<FullTextSearchItem>().ToList().ForEach(a => ReturnedFullTextSearchItemArtifactIds.Add(a.ArtifactId));
 
                 for (int i = 0; i < Math.Min(artifactsToBeFound.Count, (int)pageSize); i++)
                 {
@@ -661,7 +661,7 @@ namespace SearchServiceTests
                 }
             } else
             {
-                Assert.That(searchResult.FullTextSearchItems.Count().Equals(0), "The FullTextSearchItems should be null list when expected return result is empty but the response from the Nova FullTextSearch call returns {0} results", searchResult.FullTextSearchItems.Count());
+                Assert.That(searchResult.Items.Count().Equals(0), "The FullTextSearchItems should be null list when expected return result is empty but the response from the Nova FullTextSearch call returns {0} results", searchResult.Items.Count());
             }
 
             // Validation: Verify that searchResult uses page value passed as optional parameter and DefaultPageSize

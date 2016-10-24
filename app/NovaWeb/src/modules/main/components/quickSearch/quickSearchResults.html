@@ -14,6 +14,7 @@
                     <div class="quick-serach__form-control">
                         <input type="text"
                                required
+                               autocomplete="off"
                                ng-minlength="3"
                                placeholder="Search open project"
                                class="quick-serach__input quick-serach__input--full-width"
@@ -32,28 +33,35 @@
                         ng-repeat="item in $ctrl.results track by $index">
                         <div class="row small-gutter">
                             <div class="col-md-1 text-center">
-                                <i class="fonticon fonticon2-publish-line quick-search__results--large-font font-blue"></i>
+                                <div class="icon quick-search__results--large-font font-blue" ng-class="!item.artifactTypeIcon ? item.artifactClass : ''"
+                                     bp-tooltip="{{ item.propertyName }}">
+                                    <bp-item-type-icon
+                                        ng-if="!!item.artifactTypeIcon"
+                                        item-type-id="item.itemTypeId"
+                                        item-type-icon="item.artifactTypeIcon"></bp-item-type-icon>
+                                </div>
                             </div>
                             <div class="col-md-11">
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <h4 class="font-blue quick-search__results--large-font margin-bottom--none">
-                                            TITLE
+                                        <h4 title="{{item.typeName}} - {{item.name}}"
+                                            class="font-blue margin-bottom--none quick-search__text--no-wrap">
+                                            {{item.typeName}} - {{item.name}}
                                         </h4>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <strong>Author: </strong>
-                                        <span>Jacob Harasimo</span>
+                                        <span>{{item.createdBy}}</span>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <strong>Created on: </strong>
-                                        <span>October 11, 1980</span>
+                                        <span>{{item.createdDateTime|momentDate}}</span>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <strong>Last Edited: </strong>
-                                        <span> October 11, 1980</span>
+                                        <span> {{item.lastModifiedDateTime|momentDate:'MMMM DD, YYYY'}}</span>
                                     </div>
                                 </div>
                                 <div class="row">

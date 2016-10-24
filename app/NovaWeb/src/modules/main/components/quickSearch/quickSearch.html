@@ -1,11 +1,12 @@
 <form name="quickSearch.form"
       class="full-height quick-serach__form"
       ng-submit="quickSearch.openModal()"
-novalidate>
+      novalidate>
     <div class="quick-serach__form-control">
         <input type="text"
                required
                ng-disabled="quickSearch.quickSearchService.canSearch()"
+               autocomplete="off"
                placeholder="Search open project"
                class="quick-serach__input"
                name="searchTerm"

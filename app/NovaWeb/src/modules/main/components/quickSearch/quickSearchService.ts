@@ -1,18 +1,26 @@
 import {IProjectManager} from "../../../managers/project-manager/project-manager";
+import {IMetaDataService} from "../../../managers/artifact-manager/metadata/metadata.svc";
+import {IItemType} from "../../models/models";
+import {Helper} from "../../../shared/utils/helper";
+import {Models} from "../../models";
+
 export class QuickSearchService {
     static $inject = [
         "$q",
         "$http",
         "$timeout",
         "$log",
-        "projectManager"
+        "projectManager",
+        "metadataService"
+
     ];
 
     constructor(private $q: ng.IQService,
                 private $http: ng.IHttpService,
                 private $timeout: ng.ITimeoutService,
                 private $log: ng.ILogService,
-                private projectManager: IProjectManager) {
+                private projectManager: IProjectManager,
+                private metadataService: IMetaDataService) {
     }
 
     searchTerm;
@@ -38,7 +46,19 @@ export class QuickSearchService {
         };
 
         this.$http(request).then((result) => {
-                deferred.resolve(result.data);
+                let p = [];
+                _.each((<any>result.data).fullTextSearchItems, (item) => {
+                    p.push(this.metadataService.getArtifactItemType(item.projectId, item.itemTypeId).then((itemType: IItemType) => {
+                        return _.extend(item, {
+                            iconImageId: itemType.iconImageId,
+                            predefinedType: itemType.predefinedType,
+                            artifactClass : "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[itemType.predefinedType] || "document"))
+                        });
+                    }));
+                });
+                this.$q.all(p).then(() => {
+                    deferred.resolve(result.data);
+                });
             },
             (error) => {
                 deferred.reject(error);

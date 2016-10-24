@@ -12,19 +12,10 @@ import {IModalDialogModel} from "../models/modal-dialog-model-interface";
 export abstract class TaskModalController<T extends IModalDialogModel> extends BaseModalDialogController<T> {
     
     //public members
-    getLinkableProcesses: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
-    getLinkableArtifacts: (viewValue: string) => ng.IPromise<IArtifactReference[]>;
-    isProjectOnlySearch: boolean = true;
-    isLoadingIncludes: boolean = false;
     includeArtifactName: string;
     isReadonly: boolean = false;
     isIncludeResultsVisible: boolean;
 
-    //protected members
-    protected modalProcessViewModel: IModalProcessViewModel;
-    private isSMB: boolean = false;    
-    private searchIncludesDelay: ng.IPromise<any>;
-    
     //abstract members --> public
     abstract nameOnFocus();
     abstract nameOnBlur();
@@ -37,45 +28,30 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
 
     public static $inject = [
         "$scope",
-        "communicationManager",
         "$rootScope",
-        "$q",
         "$timeout",
-        "$sce", 
         "dialogService",
         "localization"
     ];
 
-    constructor($scope: IModalScope,
-                
-                private communicationManager: ICommunicationManager,
-                // TODO look at this later
-                //private artifactSearchService: Shell.IArtifactSearchService,
+    constructor(
+                $scope: IModalScope,
                 $rootScope: ng.IRootScopeService,
-                private $q: ng.IQService,
                 private $timeout: ng.ITimeoutService,
-                private $sce: ng.ISCEService,
                 private dialogService: IDialogService,
-                protected localization: ILocalizationService  ) {
+                protected localization: ILocalizationService,
+                $uibModalInstance?: ng.ui.bootstrap.IModalServiceInstance,
+                dialogModel?: T) {
 
-        super($rootScope, $scope);
-
-        this.modalProcessViewModel = <IModalProcessViewModel>this.resolve["modalProcessViewModel"];
+        super($rootScope, $scope, $uibModalInstance, dialogModel);
+        
         this.isReadonly = this.dialogModel.isReadonly || this.dialogModel.isHistoricalVersion;
-
-        let isSMBVal = $rootScope["config"].settings.StorytellerIsSMB;
-
-        if (isSMBVal.toLowerCase() === "true") {
-            this.isSMB = true;
-        }
-
+        
         this.nameOnBlur();
 
         if (this.getAssociatedArtifact()) {
             this.prepIncludeField();
         }
-
-        this.communicationManager.modalDialogManager.setModalProcessViewModel(this.setModalProcessViewModel);
     }    
 
     //public methods
@@ -89,7 +65,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         this.setAssociatedArtifact(null);
     }
 
-    formatIncludeLabel(model) {
+    formatIncludeLabel(model: IArtifactReference) {
         if (!model) {
             return "";
         }
@@ -102,31 +78,13 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         }
 
         return msg;
-    }
-
-    sortById(p1: IArtifactReference, p2: IArtifactReference) {
-        return p1.id - p2.id;
-    }
-
-    filterByDisplayLabel(process: IArtifactReference, viewValue: string): boolean {
-        //exlude current process
-        if (process.id === this.modalProcessViewModel.processViewModel.id) {
-            return false;
-        }
-
-        //show all if viewValue is null/'underfined' or empty string
-        if (!viewValue) {
-            return true;
-        }
-
-        if ((`${process.typePrefix}${process.id}: ${process.name}`).toLowerCase().indexOf(viewValue.toLowerCase()) > -1) {
-            return true;
-        }
-
-        return false;
     }    
 
     saveData() {
+        if (this.dialogModel.isReadonly) {
+            throw new Error("Changes cannot be made or saved as this is a read-only item");
+        }
+
         if (this.getAssociatedArtifact() === undefined) {
             this.setAssociatedArtifact(null);
         }
@@ -157,12 +115,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
                 this.prepIncludeField();
             }
         });
-    }
-
-    //protected methods
-    protected setModalProcessViewModel = (modalProcessViewModel) => {
-        this.modalProcessViewModel = modalProcessViewModel;
-    }
+    }    
 
     //private methods
     private refreshView() {

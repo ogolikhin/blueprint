@@ -11,26 +11,22 @@ export class UserTaskModalController extends TaskModalController<UserTaskDialogM
 
     public static $inject = [
         "$scope",
-        "communicationManager",
         "$rootScope",
-        "$q",
         "$timeout",
-        "$sce", 
         "dialogService",
         "localization"
     ];
 
     constructor(
                 $scope: IModalScope,
-                communicationManager: ICommunicationManager,
-                $rootScope: ng.IRootScopeService,
-                $q: ng.IQService,
-                $timeout: ng.ITimeoutService,
-                $sce: ng.ISCEService,
+                $rootScope: ng.IRootScopeService,                
+                $timeout: ng.ITimeoutService,                
                 dialogService: IDialogService,
-                localization: ILocalizationService  ) {
+                localization: ILocalizationService,
+                $uibModalInstance?: ng.ui.bootstrap.IModalServiceInstance,
+                dialogModel?: UserTaskDialogModel) {
 
-        super($scope, communicationManager, $rootScope, $q, $timeout, $sce, dialogService, localization);
+        super($scope, $rootScope, $timeout, dialogService, localization, $uibModalInstance, dialogModel);
     }
 
     //public methods

@@ -185,9 +185,9 @@ export class ArtifactRelationships implements IArtifactRelationships {
     }
 
     public changes() {
-        let deltaRelationshipChanges = new Array<IRelationship>();
+        const deltaRelationshipChanges: IRelationship[] = [];
         this.relationships.forEach((updatedRelationship: IRelationship) => {
-            let oldRelationship = this.getMatchingRelationshipEntry(updatedRelationship, this.originalRelationships);
+            const oldRelationship = this.getMatchingRelationshipEntry(updatedRelationship, this.originalRelationships);
             if (oldRelationship && this.isChanged(updatedRelationship, oldRelationship)) {
                 deltaRelationshipChanges.push(this.composeDeltaChangeObject(updatedRelationship, ChangeTypeEnum.Update));
             } else if (!oldRelationship) {
@@ -195,12 +195,15 @@ export class ArtifactRelationships implements IArtifactRelationships {
             }
         });
         this.originalRelationships.forEach((originalRelationship: IRelationship) => {
-            let updatedRelationship = this.getMatchingRelationshipEntry(originalRelationship, this.relationships);
+            const updatedRelationship = this.getMatchingRelationshipEntry(originalRelationship, this.relationships);
             if (!updatedRelationship) {
                 deltaRelationshipChanges.push(this.composeDeltaChangeObject(originalRelationship, ChangeTypeEnum.Delete));
             }
         });
-        return deltaRelationshipChanges;
+        if (deltaRelationshipChanges && deltaRelationshipChanges.length > 0) {
+            return deltaRelationshipChanges;
+        }
+        return undefined;
     }
 
     public discard() {

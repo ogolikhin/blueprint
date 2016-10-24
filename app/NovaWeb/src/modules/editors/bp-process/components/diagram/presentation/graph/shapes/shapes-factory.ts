@@ -1,4 +1,4 @@
-﻿import {ItemTypePredefined, PropertyTypePredefined} from "../../../../../../../main/models/enums";
+import {ItemTypePredefined, PropertyTypePredefined} from "../../../../../../../main/models/enums";
 import {ProcessShapeType, ProcessType} from "../../../../../models/enums";
 import {ProcessShapeModel, UserTaskShapeModel} from "../../../../../models/process-models";
 import {SystemTaskShapeModel, IHashMapOfPropertyValues} from "../../../../../models/process-models";
@@ -67,7 +67,6 @@ export class ShapesFactory {
         name: "AssociatedImageUrl"
     };
     public ImageId: IPropertyNameConstantsInformation = {key: "imageId", name: "ImageId"};
-    public Include: IPropertyNameConstantsInformation = {key: "include", name: "Include"};
     public StoryLinks: IPropertyNameConstantsInformation = {key: "storyLinks", name: "StoryLinks"};
 
     public static $inject = ["$rootScope", "statefulArtifactFactory"];
@@ -255,7 +254,6 @@ export class ShapesFactory {
         propertyValues[this.Height.key] = this.createHeightValue(height);
         propertyValues[this.ClientType.key] = this.createClientTypeValue(ProcessShapeType.UserTask);
         propertyValues[this.Objective.key] = this.createObjectiveValue(objective);
-        propertyValues[this.Include.key] = this.createIncludeValue(include);
 
         return propertyValues;
     }
@@ -285,7 +283,6 @@ export class ShapesFactory {
         propertyValues[this.Height.key] = this.createHeightValue(height);
         propertyValues[this.ClientType.key] = this.createClientTypeValue(ProcessShapeType.SystemTask);
         propertyValues[this.Objective.key] = this.createObjectiveValue(objective);
-        propertyValues[this.Include.key] = this.createIncludeValue(include);
 
         return propertyValues;
     }
@@ -444,7 +441,7 @@ export class ShapesFactory {
     public createImageIdValue(imageId: string = ""): IPropertyValueInformation {
         return {
             propertyName: this.ImageId.name,
-            typePredefined: PropertyTypePredefined.None,
+            typePredefined: PropertyTypePredefined.ImageId,
             typeId: -1,
             value: imageId
         };
@@ -457,15 +454,6 @@ export class ShapesFactory {
             typeId: -1,
             value: persona
 
-        };
-    }
-
-    public createIncludeValue(includeValue: IArtifactReference): IPropertyValueInformation {
-        return {
-            propertyName: this.Include.name,
-            typePredefined: PropertyTypePredefined.None,
-            typeId: -1,
-            value: includeValue
         };
     }
 

@@ -86,7 +86,8 @@ $has-children-padding-before-arrow: 3px;
         .ag-row {
             &:hover {
                 span > span,
-                *::before {
+                *::before,
+                    &.ag-cell-value {
                     background-color: $tree-hover-background;
                 }
 
@@ -117,7 +118,8 @@ $has-children-padding-before-arrow: 3px;
             &.ag-row-selected:hover {
                 .ag-cell:not(.not-selectable) {
                     span > span,
-                    *::before {
+                    *::before,
+                    &.ag-cell-value {
                         background-color: $brand-secondary;
                         color: $white;
                     }
@@ -138,7 +140,8 @@ $has-children-padding-before-arrow: 3px;
 
             .ag-cell.not-selectable {
                 span > span,
-                *::before {
+                *::before,
+                &.ag-cell-value {
                     background-color: $white;
                     color: $gray-light;
                 }
@@ -173,7 +176,8 @@ $has-children-padding-before-arrow: 3px;
             vertical-align: bottom;
         }
 
-        > span .ag-group-checkbox {
+        > span .ag-group-checkbox,
+        > span .ag-selection-checkbox {
             height: 20px;
             padding-left: 2px;
             vertical-align: top;
@@ -254,7 +258,7 @@ $has-children-padding-before-arrow: 3px;
     }
 
     .ag-cell.is-artifact-collection .ag-group-value .ag-group-value-wrapper i::before {
-        content: $icon-collection;
+        content: $icon-artifact-collection;
     }
 
     .ag-cell.is-collection-folder .ag-group-value .ag-group-value-wrapper i::before {

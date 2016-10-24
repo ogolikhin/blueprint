@@ -45,7 +45,7 @@ export interface IBPTreeViewController extends ng.IComponentController {
     rowBuffer: number;
     selectionMode: "single" | "multiple" | "checkbox";
     rowHeight: number;
-    rootNode: ITreeViewNodeVM;
+    rootNode: ITreeViewNodeVM | ITreeViewNodeVM[];
     rootNodeVisible: boolean;
     columns: IColumn[];
     headerHeight: number;
@@ -56,9 +56,9 @@ export interface IBPTreeViewController extends ng.IComponentController {
 
 export interface ITreeViewNodeVM {
     key: string; // Each row in the dom will have an attribute row-id='key'
-    isExpandable: boolean;
-    children: ITreeViewNodeVM[];
-    isExpanded: boolean;
+    isExpandable?: boolean;
+    children?: ITreeViewNodeVM[];
+    isExpanded?: boolean;
     isSelectable(): boolean;
     loadChildrenAsync?(): ng.IPromise<any>; // To lazy-load children
 }
@@ -66,9 +66,12 @@ export interface ITreeViewNodeVM {
 export interface IColumn {
     headerName?: string;
     field?: string;
+    width?: number;
     isGroup?: boolean;
+    isCheckboxSelection?: boolean;
+    isCheckboxHidden?: boolean;
     cellClass?: (vm: ITreeViewNodeVM) => string[];
-    innerRenderer?: (vm: ITreeViewNodeVM, eGridCell: HTMLElement) => string;
+    innerRenderer?: (vm: ITreeViewNodeVM, eGridCell: HTMLElement) => string;    
 }
 
 export class BPTreeViewController implements IBPTreeViewController {
@@ -82,7 +85,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     public rowBuffer: number;
     public selectionMode: "single" | "multiple" | "checkbox";
     public rowHeight: number;
-    public rootNode: ITreeViewNodeVM;
+    public rootNode: ITreeViewNodeVM | ITreeViewNodeVM[];
     public rootNodeVisible: boolean;
     public columns: IColumn[];
     public headerHeight: number;
@@ -102,7 +105,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         this.options = {
             suppressRowClickSelection: true,
             rowBuffer: this.rowBuffer,
-            enableColResize: true,
+            enableColResize: true,         
             icons: {
                 groupExpanded: "<i />",
                 groupContracted: "<i />",
@@ -112,6 +115,8 @@ export class BPTreeViewController implements IBPTreeViewController {
             },
             angularCompileRows: true, // this is needed to compile directives (dynamically added) on the rows
             suppressContextMenu: true,
+            suppressMenuMainPanel: true,
+            suppressMenuColumnPanel: true,
             localeTextFunc: (key: string, defaultValue: string) => this.localization.get("ag-Grid_" + key, defaultValue),
             rowSelection: this.selectionMode === "single" ? "single" : "multiple",
             rowDeselection: this.selectionMode !== "single",
@@ -155,14 +160,17 @@ export class BPTreeViewController implements IBPTreeViewController {
                 return {
                     headerName: column.headerName ? column.headerName : "",
                     field: column.field,
+                    width: column.width,
                     cellClass: column.cellClass ? (params: agGrid.RowNode) => column.cellClass(params.data as ITreeViewNodeVM) : undefined,
                     cellRenderer: column.isGroup ? "group" : undefined,
                     cellRendererParams: column.isGroup ? {
-                        checkbox: this.selectionMode === "checkbox" ? (params: any) => (params.data as ITreeViewNodeVM).isSelectable() : undefined,
+                        checkbox: this.selectionMode === "checkbox" && !column.isCheckboxHidden ?
+                                 (params: any) => (params.data as ITreeViewNodeVM).isSelectable() : undefined,
                         innerRenderer: column.innerRenderer ?
                             (params: any) => column.innerRenderer(params.data as ITreeViewNodeVM, params.eGridCell as HTMLElement) : undefined,
                         padding: 20
                     } : undefined,
+                    checkboxSelection: column.isCheckboxSelection,
                     suppressMenu: true,
                     suppressSorting: true
                 } as agGrid.ColDef;
@@ -170,10 +178,11 @@ export class BPTreeViewController implements IBPTreeViewController {
 
             let rowDataAsync: ITreeViewNodeVM[] | ng.IPromise<ITreeViewNodeVM[]>;
             if (this.rootNode) {
-                if (this.rootNodeVisible) {
-                    rowDataAsync = [this.rootNode];
+                if (this.rootNodeVisible || angular.isArray(this.rootNode)) {
+                    rowDataAsync = angular.isArray(this.rootNode) ? this.rootNode : [this.rootNode];
                 } else if (angular.isFunction(this.rootNode.loadChildrenAsync)) {
-                    rowDataAsync = this.rootNode.loadChildrenAsync().then(() => this.rootNode.children);
+                    const rootNode = this.rootNode;
+                    rowDataAsync = rootNode.loadChildrenAsync().then(() => rootNode.children);
                 } else {
                     rowDataAsync = this.rootNode.children;
                 }

@@ -4,10 +4,6 @@
             <div class="file-upload_container">
                 <div class="file-upload_inner">
                     <div class="file-upload_preview" ng-show="imageUploaded">
-                        <zoomable-image class="img-responsive preview-image-placeholder"
-                                        enable-zoom="!!systemTaskModel.associatedImageUrl"
-                                        image-src="{{imageUrl}}"
-                                        image-alt="{{imageAlt}}"></zoomable-image>
                     </div>
                     <div class="file-upload_emptied" ng-show="!imageUploaded">
                         <div>
@@ -27,7 +23,7 @@
                 <div class="buttons-container-inner">
                     <div class="buttons-container-row">
                         <div class="buttons-container-cell buttons-container-cell-bottom">
-                            <button id="upload-image-btn" class="btn btn-block button-white" ng-disabled="true"
+                            <button id="upload-image-btn" class="btn btn-block button-white" ng-disabled="isReadonly"
                                     ng-click="uploadImage()">{{imageUploaded ? "Change" : "Upload"}}
                             </button>
                         </div>

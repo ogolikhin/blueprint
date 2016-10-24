@@ -1,4 +1,4 @@
-﻿
+
 -- --------------------------------------------------
 -- Set the DB
 -- --------------------------------------------------
@@ -1245,8 +1245,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Popup_Menu_Add_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_User_Task_Name_Label', 'en-US', N'Action:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_System_Task_Name_Label', 'en-US', N'System Response:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_TaskNameNotValid_Label', 'en-US', N'The shape requires a label.')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Persona_Label', 'en-US', N'Persona:')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Persona_Helper_Text', 'en-US', N'Who/What is doing the task')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_System_Name_Label', 'en-US', N'System Name:')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_System_Name_Helper_Text', 'en-US', N'Who/What is doing the task')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_User_Task_Name_Helper_Text', 'en-US', N'The persona wants to [Action]')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Objective_Label', 'en-US', N'Objective:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Objective_Helper_Text', 'en-US', N'So that the persona can [Objective]')
@@ -1261,7 +1261,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Include_Tab_Pla
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Inline_Traces_Search_No_Matches_Found', 'en-US', N'No matches found')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Inline_Traces_Search_Bad_Request', 'en-US', N'Bad search request')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Search_Project_Scope_Mentions_Includes', 'en-US', N'#mention or include artifacts from the current project only')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_System_Task_Name_Helper_Text', 'en-US', N'The system will be [Response]')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Response_Helper_Text', 'en-US', N'The system will be [Response]')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Shapes_Delete_Tooltip', 'en-US', N'Delete Shape')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Decision_Modal_Decision_Label', 'en-US', N'Decision Label:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Decision_Modal_Decision_Condition_Label', 'en-US', N'Condition:')

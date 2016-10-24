@@ -1,4 +1,4 @@
-﻿import { IProcessShape } from "../../../../../models/process-models";
+import { IProcessShape } from "../../../../../models/process-models";
 import { IDecision, NodeType } from "../models/";
 import { IDialogParams } from "../../../../messages/message-dialog";
 import { NodeFactorySettings } from "./node-factory-settings";
@@ -14,14 +14,6 @@ export class SystemDecision extends Decision {
     }
     protected get DEFAULT_BORDER_COLOR(): string {
         return "#53BBED";
-    }
-
-    constructor(
-        model: IProcessShape,
-        rootScope: ng.IRootScopeService,
-        nodeFactorySettings: NodeFactorySettings = null
-    ) {
-        super(model, NodeType.SystemDecision, rootScope, nodeFactorySettings);
     }
 
     public showMenu(mxGraph: MxGraph) {
@@ -41,10 +33,14 @@ export class SystemDecision extends Decision {
         return dialogParams;
     }
 
+    public getNodeType() {
+        return NodeType.SystemDecision;
+    }
+
     protected get textLabelLeft(): number {
         return this.DECISION_WIDTH / 2 - 15;
     }
-    
+
     protected get textLabelWidth(): number {
         return this.DECISION_WIDTH - 30;
     }

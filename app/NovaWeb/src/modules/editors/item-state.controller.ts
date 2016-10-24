@@ -117,6 +117,9 @@ export class ItemStateController {
             case Models.ItemTypePredefined.CollectionFolder:
                 this.$state.go("main.item.general", params);
                 break;
+            case Models.ItemTypePredefined.ArtifactCollection:            
+                this.$state.go("main.item.collection", params);
+                break;
             case Models.ItemTypePredefined.Process:
                 this.$state.go("main.item.process", params);
                 break;

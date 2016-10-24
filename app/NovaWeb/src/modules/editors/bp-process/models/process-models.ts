@@ -58,7 +58,6 @@ export interface IProcess {
     links: IProcessLink[];
     decisionBranchDestinationLinks: IProcessLink[];
     propertyValues: IHashMapOfPropertyValues;
-    status: IItemStatus;
     requestedVersionInfo: IVersionInfo;
 }
 
@@ -90,6 +89,16 @@ export interface IArtifactReference {
     link: string;
 }
 
+export class ArtifactReference implements IArtifactReference {
+    id: number;
+    projectId: number;
+    name: string;
+    typePrefix: string;
+    projectName: string;
+    baseItemTypePredefined: ItemTypePredefined;
+    link: string;
+}
+
 export interface IProcessLink {
     sourceId: number;
     destinationId: number;
@@ -101,21 +110,6 @@ export interface IProcessLinkModel extends IProcessLink {
     parentId: number;
     sourceNode: any;
     destinationNode: any;
-}
-
-export interface IItemStatus {
-    userId: number;
-    lockOwnerId: number;
-    revisionId: number;
-    isDeleted: boolean;
-    isLocked: boolean;
-    isLockedByMe: boolean;
-    isUnpublished: boolean;
-    hasEverBeenPublished: boolean;
-    hasReadOnlyReuse: boolean;
-    hasReuse: boolean;
-    isReadOnly: boolean;
-    versionId: number;
 }
 
 export interface IUserTaskShape extends ITaskShape {
@@ -213,8 +207,6 @@ export class ProcessShapeModel implements IProcessShape {
     }
 }
 export class ProcessModel implements IProcess {
-    public status: IItemStatus;
-
     constructor(public id: number = 0,
                 public name: string = "",
                 public typePrefix: string = "",
@@ -225,9 +217,7 @@ export class ProcessModel implements IProcess {
                 public propertyValues: IHashMapOfPropertyValues = {},
                 public decisionBranchDestinationLinks: IProcessLink[] = [],
                 public itemTypeId: number = 0,
-                status?: IItemStatus,
                 public requestedVersionInfo: IVersionInfo = null) {
-        this.status = status || <IItemStatus>{};
     }
 }
 

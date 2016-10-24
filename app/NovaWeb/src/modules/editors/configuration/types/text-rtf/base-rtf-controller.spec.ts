@@ -40,11 +40,11 @@ describe("Formly Base RTF Controller", () => {
         )
     );
 
-    describe("handleClick", () => {
+    describe("getHandleClick", () => {
         it("click on a link opens a new window", () => {
             const aTag: HTMLElement = angular.element("a")[0];
             const mouseEvent: MouseEvent = createMouseEvent();
-            aTag.addEventListener("click", controller.handleClick);
+            aTag.addEventListener("click", controller.getHandleClick());
 
             spyOn(window, "open");
 
@@ -53,13 +53,13 @@ describe("Formly Base RTF Controller", () => {
             expect(window.open).toHaveBeenCalled();
             expect(window.open).toHaveBeenCalledWith("http://www.yahoo.com/", "_blank");
 
-            aTag.removeEventListener("click", controller.handleClick);
+            aTag.removeEventListener("click", controller.getHandleClick());
         });
 
         it("click on an inline trace goes to the artifact", () => {
             const aTag: HTMLElement = angular.element("a")[1];
             const mouseEvent: MouseEvent = createMouseEvent();
-            aTag.addEventListener("click", controller.handleClick);
+            aTag.addEventListener("click", controller.getHandleClick());
 
             spyOn(console, "log");
 
@@ -67,7 +67,7 @@ describe("Formly Base RTF Controller", () => {
 
             expect(console.log).toHaveBeenCalled();
 
-            aTag.removeEventListener("click", controller.handleClick);
+            aTag.removeEventListener("click", controller.getHandleClick());
         });
     });
 
@@ -81,9 +81,9 @@ describe("Formly Base RTF Controller", () => {
             controller.handleLinks(aTags);
 
             expect(aTags[0].addEventListener).toHaveBeenCalled();
-            expect(aTags[0].addEventListener).toHaveBeenCalledWith("click", controller.handleClick);
+            expect(aTags[0].addEventListener).toHaveBeenCalledWith("click", controller.getHandleClick());
             expect(aTags[1].addEventListener).toHaveBeenCalled();
-            expect(aTags[1].addEventListener).toHaveBeenCalledWith("click", controller.handleClick);
+            expect(aTags[1].addEventListener).toHaveBeenCalledWith("click", controller.getHandleClick());
         });
 
         it("removes event listners", () => {
@@ -96,9 +96,9 @@ describe("Formly Base RTF Controller", () => {
             controller.handleLinks(aTags, true);
 
             expect(aTags[0].removeEventListener).toHaveBeenCalled();
-            expect(aTags[0].removeEventListener).toHaveBeenCalledWith("click", controller.handleClick);
+            expect(aTags[0].removeEventListener).toHaveBeenCalledWith("click", controller.getHandleClick());
             expect(aTags[1].removeEventListener).toHaveBeenCalled();
-            expect(aTags[1].removeEventListener).toHaveBeenCalledWith("click", controller.handleClick);
+            expect(aTags[1].removeEventListener).toHaveBeenCalledWith("click", controller.getHandleClick());
         });
 
         it("adds mouseover/out listners in IE", () => {

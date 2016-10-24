@@ -3,6 +3,7 @@ import { INavigationService } from "../../../../core/navigation";
 export interface IBPFieldBaseRTFController {
     editorBody: HTMLElement;
     observer: MutationObserver;
+    getHandleClick();
     handleLinks(nodeList: Node[] | NodeList, remove: boolean): void;
     handleMutation(mutation: MutationRecord): void;
     removeObserver(): void;
@@ -16,7 +17,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     public editorBody: HTMLElement;
     public observer: MutationObserver;
 
-    private getHandleClick = () => {
+    public getHandleClick = () => {
          const navigationService = this.navigationService;
          return function (event) {
             event.stopPropagation();

@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Model.Impl;
 using Newtonsoft.Json.Converters;
 using System.Xml.Serialization;
+using Utilities;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -48,6 +49,21 @@ namespace Model.ArtifactModel.Impl
         public ArtifactUpdateChangeType ChangeType { get; set; }
 
         #endregion Additional Properties
+
+        public NovaTrace()
+        { }
+        public NovaTrace (IArtifact targetArtifact, TraceDirection direction = TraceDirection.From, bool isSuspect = false,
+            ArtifactUpdateChangeType changeType = ArtifactUpdateChangeType.Add)
+        {
+            ThrowIf.ArgumentNull(targetArtifact, nameof(targetArtifact));
+            ArtifactId = targetArtifact.Id;
+            ChangeType = changeType;
+            Direction = direction;
+            IsSuspect = isSuspect;
+            ItemId = targetArtifact.Id;
+            ProjectId = targetArtifact.ProjectId;
+            TraceType = TraceTypes.Manual;
+        }
     }
 
     public class Relationships

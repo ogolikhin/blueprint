@@ -222,9 +222,9 @@ namespace SearchServiceTests
             Assert.AreEqual(2 * _projects.Count, artifacts.Count, "Expected number of artifacts is number of projects times 2.");
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             //create list of TypeId for search criteria, TypeId depends from Project; TypeId == ArtifactTypeId
-            List<int> actorTypeId = (artifacts.FindAll(a => a.BaseArtifactType == BaseArtifactType.Actor)).ConvertAll(a =>a.ArtifactTypeId);
+            List<int> actorTypeIds = (artifacts.FindAll(a => a.BaseArtifactType == BaseArtifactType.Actor)).ConvertAll(a =>a.ArtifactTypeId);
             var nameSearchCriteria = new FullTextSearchCriteria(artifactName, selectedProjectIds);//search by name across all projects
-            var itemTypeIdSearchCriteria = new FullTextSearchCriteria(artifactName, selectedProjectIds, actorTypeId);//search by name and TypeId across all projects
+            var itemTypeIdSearchCriteria = new FullTextSearchCriteria(artifactName, selectedProjectIds, actorTypeIds);//search by name and TypeId across all projects
 
             ItemSearchResult nameSearchResult = Helper.SearchService.SearchItems(_adminUser, nameSearchCriteria);
             Assert.AreEqual(artifacts.Count, nameSearchResult.Items.Count, "Search by name across all projects should return all artifacts with the artifactName name.");
@@ -245,7 +245,7 @@ namespace SearchServiceTests
             }
             foreach (var si in nameAndTypeIdSearchResult.Items)
             {
-                Assert.AreEqual(artifactName, si.Name, "Found artifacts should have expected name.");
+                Assert.IsTrue(artifacts.Exists(a => DoesSearchItemCorrespondsToArtifact(a, si)), "Search results must include all expected artifacts.");
             }
         }
 

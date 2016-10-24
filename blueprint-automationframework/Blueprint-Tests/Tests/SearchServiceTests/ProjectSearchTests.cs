@@ -134,7 +134,7 @@ namespace SearchServiceTests
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/Hq3GimE1
+        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/Hq3GimE1 project search returns 0 instead of valid ProjectId
         [TestRail(185205)]
         [Description("Search project by full name, user has admin privilege, check that found project has expected id.")]
         public void SearchProjectByFullName_UserAdminAccess_ReturnsCorrectProjectId()

@@ -1,30 +1,34 @@
+import { INavigationService } from "../../../../core/navigation";
+
 export interface IBPFieldBaseRTFController {
     editorBody: HTMLElement;
     observer: MutationObserver;
-    handleClick(event: Event): void;
     handleLinks(nodeList: Node[] | NodeList, remove: boolean): void;
     handleMutation(mutation: MutationRecord): void;
     removeObserver(): void;
 }
 
 export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
+    constructor( private navigationService: INavigationService ) {
+
+    }
+
     public editorBody: HTMLElement;
     public observer: MutationObserver;
 
-    public handleClick = function (event) {
-        event.stopPropagation();
-        event.preventDefault();
-
-        const href = this.href;
-        if (href.indexOf("?ArtifactId=") !== -1 && this.getAttribute("artifactid")) {
-            const artifactId = parseInt(href.split("?ArtifactId=")[1], 10);
-            if (artifactId === parseInt(this.getAttribute("artifactid"), 10)) {
-                console.log("Should GOTO " + artifactId);
+    private getHandleClick = () => {
+         const navigationService = this.navigationService;
+         return function (event) {
+            event.stopPropagation();
+            event.preventDefault();
+            const itemId = Number(this.getAttribute("subartifactid")) || Number(this.getAttribute("artifactid"));
+            if (itemId) {
+                 navigationService.navigateTo(itemId);
+            } else {
+                window.open(this.href, "_blank");
             }
-        } else {
-            window.open(href, "_blank");
-        }
-    };
+        };
+    }
 
     public handleLinks = (nodeList: Node[] | NodeList, remove: boolean = false) => {
         if (nodeList.length === 0) {
@@ -40,13 +44,13 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                     element.addEventListener("mouseover", this.disableEditability);
                     element.addEventListener("mouseout", this.enableEditability);
                 }
-                element.addEventListener("click", this.handleClick);
+                element.addEventListener("click", this.getHandleClick());
             } else {
                 if (document.body.classList.contains("is-msie")) {
                     element.removeEventListener("mouseover", this.disableEditability);
                     element.removeEventListener("mouseout", this.enableEditability);
                 }
-                element.removeEventListener("click", this.handleClick);
+                element.removeEventListener("click", this.getHandleClick());
             }
         }
     };

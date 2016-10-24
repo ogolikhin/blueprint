@@ -5,6 +5,7 @@ import "angular-ui-tinymce";
 import "tinymce";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
 import {Helper} from "../../../../shared";
+import { INavigationService } from "../../../../core/navigation";
 
 export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTFInline";
@@ -25,10 +26,10 @@ export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
 }
 
 export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
-    static $inject: [string] = ["$scope"];
+    static $inject: [string] = ["$scope", "navigationService"];
 
-    constructor(private $scope: AngularFormly.ITemplateScope) {
-        super();
+    constructor(private $scope: AngularFormly.ITemplateScope, navigationService: INavigationService) {
+        super(navigationService);
 
         // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
         let initialContent = null;

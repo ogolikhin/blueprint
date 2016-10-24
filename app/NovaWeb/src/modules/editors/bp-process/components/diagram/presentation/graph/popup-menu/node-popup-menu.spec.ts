@@ -50,7 +50,6 @@ describe("Popup Menu", () => {
 
         processModel = new ProcessModel();
         viewModel = new ProcessViewModel(processModel, null);
-        viewModel.isReadonly = false;
         viewModel.isSpa = true;
 
         mxgraph = new mxGraph(htmlElement, new BpMxGraphModel());

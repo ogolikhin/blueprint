@@ -4,9 +4,7 @@ import {NodeType} from "../models/";
 import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory-settings";
 
-
 export class ProcessEnd extends DiagramNode<IProcessShape> {
-
     private PROCESS_END_WIDTH = 20;
     private PROCESS_END_HEIGHT = 20;
     private PROCESS_END_SHIFT = 50;

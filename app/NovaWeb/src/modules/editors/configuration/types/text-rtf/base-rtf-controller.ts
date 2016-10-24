@@ -24,7 +24,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             event.preventDefault();
             const itemId = Number(this.getAttribute("subartifactid")) || Number(this.getAttribute("artifactid"));
             if (itemId) {
-                 navigationService.navigateTo(itemId);
+                navigationService.navigateTo(itemId);
             } else {
                 window.open(this.href, "_blank");
             }

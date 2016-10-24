@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace SearchService.Models
+﻿namespace SearchService.Models
 {
-    public class ItemSearchResult
-    {        
-        /// <summary>
-        /// Number of items contained in this Page
-        /// </summary>
-        public int PageItemCount { get; set; }
+    public class ItemSearchResult : SearchResult
+    {
+        public int ProjectId { get; set; }
 
-        public IEnumerable<ItemSearchResultItem> SearchItems { get; set; }
+        public int ArtifactId { get; set; }
+
+        public int ItemTypeId { get; set; }
+
+        public string TypeName { get; set; }
+
+        public string TypePrefix { get; set; }
     }
 }

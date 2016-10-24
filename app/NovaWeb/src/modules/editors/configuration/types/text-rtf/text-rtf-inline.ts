@@ -1,4 +1,3 @@
-//fixme: each file can only contain one class
 import * as angular from "angular";
 import "angular-formly";
 import "angular-ui-tinymce";
@@ -30,9 +29,11 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
     constructor(private $scope: AngularFormly.ITemplateScope) {
         super();
 
+        let contentBuffer: string = undefined;
+        let mceEditor: TinyMceEditor;
+
         // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
-        let initialContent = null;
-        let onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
+        const onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
         //we override the default onChange as we need to deal with changes differently when using tinymce
         $scope.to.onChange = undefined;
 
@@ -41,10 +42,8 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
         allowedFonts.forEach(function (font) {
             fontFormats += `${font}=` + (font.indexOf(" ") !== -1 ? `"${font}";` : `${font};`);
         });
-        const bogusRegEx = /<br data-mce-bogus="1">/gi;
-        const zeroWidthNoBreakSpaceRegEx = /[\ufeff\u200b]/g;
 
-        let to: AngularFormly.ITemplateOptions = {
+        const to: AngularFormly.ITemplateOptions = {
             tinymceOptions: { // this will go to ui-tinymce directive
                 inline: true,
                 fixed_toolbar_container: ".tinymce-toolbar-" + $scope.options["key"],
@@ -83,10 +82,11 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                     args.content = content;
                 },
                 paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
-                    Helper.autoLinkURLText(args.node);
-                    Helper.setFontFamilyOrOpenSans(args.node, allowedFonts);
+                    prepBody(args.node);
                 },
                 init_instance_callback: (editor) => {
+                    mceEditor = editor;
+
                     editor.formatter.register("font8", {
                         inline: "span",
                         styles: {"font-size": "8pt"}
@@ -125,9 +125,8 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                     });
 
                     this.editorBody = editor.getBody();
-                    Helper.autoLinkURLText(this.editorBody);
-                    Helper.setFontFamilyOrOpenSans(this.editorBody, allowedFonts);
-                    this.handleLinks(this.editorBody.querySelectorAll("a"));
+                    prepBody(this.editorBody);
+                    updateModel();
 
                     // MutationObserver
                     const mutationObserver = window["MutationObserver"] || window["WebKitMutationObserver"] || window["MozMutationObserver"];
@@ -146,8 +145,26 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                         this.observer.observe(this.editorBody, observerConfig);
                     }
 
-                    // we store the initial value so IE doesn't mark the field dirty just for clicking it!
-                    initialContent = this.editorBody.innerHTML.replace(bogusRegEx, "").replace(zeroWidthNoBreakSpaceRegEx, "");
+                    editor.on("Dirty", (e) => {
+                        if (!$scope.options["data"].isFresh) {
+                            const value = editor.getContent();
+                            if (contentBuffer !== value) {
+                                triggerChange(value);
+                            }
+                        }
+                    });
+
+                    editor.on("Change", (e) => {
+                        if (!$scope.options["data"].isFresh) {
+                            const value = editor.getContent();
+                            if (contentBuffer !== value) {
+                                triggerChange(value);
+                            }
+                        } else { // this will get called when refreshing the artifact
+                            prepBody(editor.getBody());
+                            updateModel();
+                        }
+                    });
 
                     editor.on("Focus", (e) => {
                         if (this.editorBody.parentElement && this.editorBody.parentElement.parentElement) {
@@ -172,54 +189,63 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                                 text: "8",
                                 onclick: function () {
                                     editor.formatter.apply("font8");
+                                    triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "9",
                                 onclick: function () {
                                     editor.formatter.apply("font9");
+                                    triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "10",
                                 onclick: function () {
                                     editor.formatter.apply("font10");
+                                    triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "11",
                                 onclick: function () {
                                     editor.formatter.apply("font11");
+                                    triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "12",
                                 onclick: function () {
                                     editor.formatter.apply("font12");
+                                    triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "14",
                                 onclick: function () {
                                     editor.formatter.apply("font14");
+                                    triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "16",
                                 onclick: function () {
                                     editor.formatter.apply("font16");
+                                    triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "18",
                                 onclick: function () {
                                     editor.formatter.apply("font18");
+                                    triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "20",
                                 onclick: function () {
                                     editor.formatter.apply("font20");
+                                    triggerChange(editor.getContent());
                                 }
                             }
                         ]
@@ -229,15 +255,18 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
         };
         angular.merge($scope.to, to);
 
-        let validators = {
+        $scope.options["validators"] = {
             // tinyMCE may leave empty tags that cause the value to appear not empty
             requiredCustom: {
                 expression: ($viewValue, $modelValue, scope) => {
-                    if (initialContent !== null) { // run this part after the field had the chance to load the content
-                        let content = this.editorBody.innerHTML.replace(bogusRegEx, "").replace(zeroWidthNoBreakSpaceRegEx, "");
-                        if (content !== initialContent) {
-                            onChange(content.replace(bogusRegEx, ""), scope.options, scope);
-                        }
+                    let value = mceEditor ? mceEditor.getContent() : $modelValue;
+                    if (scope.options && scope.options.data && scope.options.data.isFresh) {
+                        contentBuffer = value;
+                        scope.options.data.isFresh = false;
+                    }
+
+                    if (contentBuffer !== value) {
+                        triggerChange(value);
                     }
 
                     let isEmpty = false;
@@ -249,11 +278,30 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                 }
             }
         };
-        $scope.options["validators"] = validators;
 
         $scope["$on"]("$destroy", () => {
             this.removeObserver();
             this.handleLinks(this.$scope["tinymceBody"].querySelectorAll("a"), true);
         });
+
+        function triggerChange(newContent: string) {
+            contentBuffer = newContent;
+            if (typeof onChange === "function") {
+                onChange(newContent, $scope.options, $scope);
+            }
+        }
+
+        function prepBody(body: Node) {
+            Helper.autoLinkURLText(body);
+            Helper.setFontFamilyOrOpenSans(body, allowedFonts);
+        }
+
+        function updateModel() {
+            if (mceEditor) {
+                contentBuffer = mceEditor.getContent();
+                $scope.model[$scope.options["key"]] = contentBuffer;
+                $scope.options["data"].isFresh = false;
+            }
+        }
     }
 }

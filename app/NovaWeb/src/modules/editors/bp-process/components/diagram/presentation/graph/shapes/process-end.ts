@@ -4,15 +4,13 @@ import {NodeType} from "../models/";
 import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory-settings";
 
-
 export class ProcessEnd extends DiagramNode<IProcessShape> {
-
     private PROCESS_END_WIDTH = 20;
     private PROCESS_END_HEIGHT = 20;
     private PROCESS_END_SHIFT = 50;
 
     constructor(model: IProcessShape, nodeFactorySettings: NodeFactorySettings = null) {
-        super(model, NodeType.ProcessEnd);
+        super(model);
     }
 
     public get label(): string {
@@ -65,4 +63,9 @@ export class ProcessEnd extends DiagramNode<IProcessShape> {
     public formatElementText(cell: MxCell, text: string): string {
         return text.toUpperCase();
     }
+
+    public getNodeType() {
+        return NodeType.ProcessEnd;
+    }
+
 }

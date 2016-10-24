@@ -22,7 +22,6 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     public links: IProcessLink[];
     public decisionBranchDestinationLinks: IProcessLink[];
     public propertyValues: IHashMapOfPropertyValues;
-    public status: IItemStatus;
     public requestedVersionInfo: IVersionInfo;
 
     constructor(artifact: Models.IArtifact, protected services: IStatefulProcessArtifactServices) {
@@ -30,7 +29,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     }
     
     public processOnUpdate() {
-        this.artifactState.dirty = true;        
+        this.artifactState.dirty = true;
         this.lock(); 
     }
 
@@ -48,6 +47,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
 
     protected getCustomArtifactPromisesForGetObservable(): angular.IPromise<IStatefulArtifact>[] {
         this.loadProcessPromise = this.loadProcess();
+
         return [this.loadProcessPromise];
     }
 
@@ -60,10 +60,8 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         this.loadProcessPromise = null;
     }
 
+    // Returns promises for operations that are needed to refresh this process artifact
     public getCustomArtifactPromisesForRefresh(): ng.IPromise<any>[] {
-        // Returns promises for operations that are needed to refresh
-        // this process artifact
-
         const loadProcessPromise = this.loadProcess();
 
         return [loadProcessPromise];
@@ -75,36 +73,41 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
 
     private loadProcess(): ng.IPromise<IStatefulArtifact> {
         const processDeffered = this.services.getDeferred<IStatefulArtifact>();
+
         this.services.processService.load(this.id.toString())
             .then((process: IProcess) => {
                 this.onLoad(process);
                 processDeffered.resolve(this);
-            }).catch((err: any) => {
-            processDeffered.reject(err);
-        });
+            })
+            .catch((err: any) => {
+                processDeffered.reject(err);
+            });
+
         return processDeffered.promise;
     }
 
     private onLoad(newProcess: IProcess) {
-        // TODO: updating name seems to cause an infinite loading of process, something with base class's 'set' logic.
-        //(<IProcess>this).name = process.name;
-        let currentProcess = <IProcess> this;
         this.initializeSubArtifacts(newProcess);
+
+        const currentProcess = <IProcess>this;
+        // TODO: updating name seems to cause an infinite loading of process, something with base class's 'set' logic.
+        //currentProcess.name = newProcess.name;
         currentProcess.links = newProcess.links;
         currentProcess.decisionBranchDestinationLinks = newProcess.decisionBranchDestinationLinks;
         currentProcess.propertyValues = newProcess.propertyValues;
         currentProcess.requestedVersionInfo = newProcess.requestedVersionInfo;
-        currentProcess.status = newProcess.status;
     }
 
     private initializeSubArtifacts(newProcess: IProcess) {
         const statefulSubArtifacts = [];
         this.shapes = [];
+
         for (const shape of newProcess.shapes) {
             const statefulShape = new StatefulProcessSubArtifact(this, shape, this.services);
             this.shapes.push(statefulShape);
             statefulSubArtifacts.push(statefulShape);
         }
+
         this.subArtifactCollection.initialise(statefulSubArtifacts);
     }
 

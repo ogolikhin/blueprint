@@ -1,9 +1,10 @@
 ﻿import "angular";
-import {ILocalizationService} from "../../core/";
-import {IDialogService} from "../../shared/";
-import {IAuth, IUser} from "./auth.svc";
-import {ISession} from "./session-interface";
-import {LoginCtrl, ILoginInfo} from "./login.ctrl";
+import { ILocalizationService } from "../../core/";
+import { IDialogService } from "../../shared/";
+import { IAuth, IUser } from "./auth.svc";
+import { ISession } from "./session-interface";
+import { SessionTokenHelper } from "./session.token.helper";
+import { LoginCtrl, ILoginInfo } from "./login.ctrl";
 
 export {ISession}
 
@@ -105,17 +106,20 @@ export class SessionSvc implements ISession {
         const defer = this.$q.defer();
         this._loginMsg = this.localization.get("Login_Session_EnterCredentials");
         this._isForceSameUsername = false;
-        this.auth.getCurrentUser().then(
-            (result: IUser) => {
-                if (result) {
-                    this._currentUser = result;
+        if (SessionTokenHelper.hasSessionToken()) {
+            this.auth.getCurrentUser().then(user => {
+                    this._currentUser = user;
+                }
+            ).finally(() => {
+                if (this._currentUser) {
                     defer.resolve();
                 } else {
                     this.showLogin(defer);
                 }
-            },
-            () => this.showLogin(defer)
-        );
+            });
+        } else {
+            this.showLogin(defer);
+        }
         return defer.promise;
     }
 

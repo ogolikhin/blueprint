@@ -71,7 +71,7 @@ pagecontent, bp-properties-panel {
             .content {
                 display: none;
             }
-    }
+        }
     }
 
     .formly {
@@ -82,7 +82,7 @@ pagecontent, bp-properties-panel {
         font-size: .9rem;
         justify-content: space-between;
         margin: 0 $property-horiz-spacing;
-        //min-width: $property-width - $property-label-width;
+        min-width: $property-width - $property-label-width;
         padding: 0 0 10px;
 
         // create "padding" to align un-even numbers of property groups
@@ -94,7 +94,7 @@ pagecontent, bp-properties-panel {
             flex-grow: 0;
             flex-shrink: 1;
             order: 0;
-            //width: $property-width;
+            width: $property-width;
         }
 
         &::before {
@@ -340,13 +340,13 @@ pagecontent, bp-properties-panel {
 
                                 &::before {
                                     content: '\2713';
-                }
+                                }
 
                                 .bp-highlight {
                                     text-decoration: none;
-                }
+                                }
                             }
-            }
+                        }
                     }
 
                     .ui-select-choices-row.active {
@@ -357,7 +357,7 @@ pagecontent, bp-properties-panel {
 
                                 &::before {
                                     content: '\2713';
-                }
+                                }
                             }
                         }
                     }
@@ -519,13 +519,13 @@ pagecontent, bp-properties-panel {
                                     content: '';
                                     display: inline-block;
                                     width: 12px;
-                }
+                                }
 
                                 .bp-highlight {
                                     text-decoration: underline;
-                }
+                                }
                             }
-            }
+                        }
                     }
 
                     &:not(.disable-highlight) {
@@ -550,7 +550,7 @@ pagecontent, bp-properties-panel {
 
                                 &::before {
                                     content: '\2713';
-                }
+                                }
 
                                 .bp-highlight {
                                     text-decoration: none;
@@ -613,7 +613,7 @@ pagecontent, bp-properties-panel {
                     font-size: $richtext-fontsize;
                     max-height: 350px;
                     min-height: 150px;
-                    //min-width: $property-input-width;
+                    min-width: $property-input-width;
                     overflow: auto;
                     padding: 0;
 
@@ -670,7 +670,7 @@ pagecontent, bp-properties-panel {
                         &:hover {
                             background: $gray-lightest;
                             box-shadow: none;
-            }
+                        }
                     }
                 }
             }
@@ -693,7 +693,7 @@ pagecontent, bp-properties-panel {
 
                 &:not([disabled]):hover {
                     background-color: $yellow-pale;
-        }
+                }
             }
 
             .error-messages {
@@ -799,7 +799,7 @@ pagecontent, bp-properties-panel {
                                         font-size: $font-size-smaller;
                                         line-height: #{$user-picker-choice-size - 12px - 16px};
                                     }
-                }
+                                }
                             }
 
                             .ui-select-choice-icon {
@@ -809,9 +809,9 @@ pagecontent, bp-properties-panel {
                                 text-align: center;
                                 width: #{$user-picker-choice-size - 8px};
                             }
-            }
+                        }
                     }
-        }
+                }
 
                 .ui-select-results-count {
                     border-top: solid 1px $gray-lighter;
@@ -842,7 +842,7 @@ pagecontent, bp-properties-panel {
                         &:active {
                             background: $brand-secondary;
                             color: $white;
-            }
+                        }
                     }
                 }
             }
@@ -877,7 +877,7 @@ pagecontent, bp-properties-panel {
                 .mce-btn button {
                     line-height: 19px;
                     padding: 3px;
-        }
+                }
             }
 
             .mce-edit-area {
@@ -885,7 +885,7 @@ pagecontent, bp-properties-panel {
                 border-width: 1px !important;
             }
 
-            .tinymce-toolbar-hidden  .mce-toolbar-grp {
+            .tinymce-toolbar-hidden .mce-toolbar-grp {
                 display: none;
             }
 
@@ -931,7 +931,7 @@ pagecontent, bp-properties-panel {
             .tinymce-toolbar-hidden {
                 .tinymce-toolbar {
                     display: none;
-        }
+                }
             }
 
             .tinymce-body-wrapper {
@@ -1009,7 +1009,7 @@ pagecontent, bp-properties-panel {
                         opacity: $default-disabled-opacity;
                         cursor: not-allowed;
                     }
-        }
+                }
 
                 .actor-image-wrapper {
                     display: inline-flex;
@@ -1031,7 +1031,7 @@ pagecontent, bp-properties-panel {
                     label {
                         width: 90px;
                         height: 120px;
-            display: block;
+                        display: block;
                         margin: 0;
                         box-sizing: content-box;
                         background-size: contain;
@@ -1057,7 +1057,7 @@ pagecontent, bp-properties-panel {
                         &.disabled {
                             background-color: $gray;
                             cursor: not-allowed;
-            }
+                        }
                     }
                 }
             }
@@ -1105,7 +1105,7 @@ pagecontent, bp-properties-panel {
                         display: inline-block;
                         padding-right: 2px;
                     }
-        }
+                }
                 .inheritance-path {
                     border-color: $gray-lighter;
                     background-color: $gray-lightest;
@@ -1133,9 +1133,9 @@ pagecontent, bp-properties-panel {
                             &::before {
                                 content: '';
                             }
-            }
+                        }
                     }
-        }
+                }
 
                 .inheritance-tools {
                     flex-grow: 0;
@@ -1236,8 +1236,8 @@ pagecontent, bp-properties-panel {
                     margin: 2px;
                     max-width: 100%;
                     width: 100%;
-                    &[disabled]{
-                        border:1px solid $gray-lightest;
+                    &[disabled] {
+                        border: 1px solid $gray-lightest;
                     }
                     &:hover,
                     &:focus {
@@ -1245,9 +1245,9 @@ pagecontent, bp-properties-panel {
                         padding-right: $property-padding-default;
                     }
                 }
-      }
+            }
+        }
     }
-  }
 }
 
 .single-column-property .formly .formly-field label {
@@ -1263,7 +1263,7 @@ pagecontent, bp-properties-panel {
 
     .formly {
         margin: 0;
-        //min-width: $property-input-width;
+        min-width: $property-input-width;
         padding: 0;
 
         .formly-field {
@@ -1319,8 +1319,18 @@ pagecontent {
             &.in {
                 height: auto !important;
             }
+        }
     }
-    }
+
+    .empty-collection {
+            background: $gray-lighter;
+            color: $gray-dark;
+            font-size: $font-size-big;
+            font-weight: 600;
+            line-height: 1em;
+            min-height: 36px;
+            padding: 11px 14px;            
+            }
 }
 
 .uib-datepicker-popup {
@@ -1353,7 +1363,7 @@ pagecontent {
                 border-left: 0;
                 color: $brand-secondary;
             }
-    }
+        }
     }
 
     table.uib-yearpicker {
@@ -1378,7 +1388,7 @@ pagecontent {
             .btn {
                 width: 100%;
             }
-    }
+        }
     }
 
     table.uib-monthpicker {
@@ -1403,7 +1413,7 @@ pagecontent {
             .btn {
                 width: 100%;
             }
-    }
+        }
     }
 
     table.uib-daypicker {
@@ -1422,7 +1432,7 @@ pagecontent {
                 padding-right: 7px;
                 width: 44px;
             }
-    }
+        }
     }
 
     .btn {
@@ -1447,7 +1457,7 @@ pagecontent {
 
         span {
             color: inherit;
-    }
+        }
         .btn-bp-small {
             margin-left: 5px;
             padding: 5px 9px;
@@ -1468,6 +1478,6 @@ pagecontent {
             border-color: $gray-lighter;
             border-radius: 4px !important;
             float: none;
-    }
+        }
     }
 }

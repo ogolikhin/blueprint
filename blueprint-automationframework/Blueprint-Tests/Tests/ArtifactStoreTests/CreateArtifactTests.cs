@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using Common;
@@ -426,15 +426,40 @@ namespace ArtifactStoreTests
         public void CreateArtifact_AddCollectionUnderAnotherCollection_409Conflict()
         {
             // Setup:
-            var collectionFolder = GetDefaultCollectionFolder(_project, _user);
-            ItemTypePredefined artifactType = ItemTypePredefined.ArtifactCollection;
-            BaseArtifactType dummyType = BaseArtifactType.PrimitiveFolder;  // Need to pass something that OpenApi recognizes for the WrapNovaArtifact() call.
-            var parentCollection = CreateArtifactWithRandomName(artifactType, _user, _project, collectionFolder.Id, baseType: dummyType);
+            var parentCollection = Helper.CreateAndSaveCollection(_project, _user);
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(
-                artifactType, _user, _project, parentCollection.Id),
-                "'POST {0}' should return 409 Conflict when creating a Collection under another Collectino!");
+                ItemTypePredefined.ArtifactCollection, _user, _project, parentCollection.Id),
+                "'POST {0}' should return 409 Conflict when creating a Collection under another Collection!");
+
+            // Verify:
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
+                "Cannot create an artifact at this location.");
+        }
+
+        [TestCase]
+        [TestRail(185175)]
+        [Description("Create a Collection under the project.  Verify the create fails with a 409 Conflict error.")]
+        public void CreateArtifact_AddCollectionUnderProject_409Conflict()
+        {
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.CreateAndSaveCollection(_project, _user, parentId: _project.Id),
+            "'POST {0}' should return 409 Conflict when creating a Collection under the project!");
+
+            // Verify:
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
+                "Cannot create an artifact at this location.");
+        }
+
+        [TestCase]
+        [TestRail(185176)]
+        [Description("Create a Collection Folder under the project.  Verify the create fails with a 409 Conflict error.")]
+        public void CreateArtifact_AddCollectionFolderUnderProject_409Conflict()
+        {
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.CreateAndSaveCollectionFolder(_project, _user, parentId: _project.Id),
+            "'POST {0}' should return 409 Conflict when creating a Collection Folder under the project!");
 
             // Verify:
             ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
@@ -644,7 +669,7 @@ namespace ArtifactStoreTests
             var artifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address,
                 user, artifactType, artifactName, project, parentId, orderIndex);
 
-            WrapNovaArtifact(artifact, project, user, baseType);
+            Helper.WrapNovaArtifact(artifact, project, user, baseType);
 
             return artifact;
         }
@@ -680,7 +705,7 @@ namespace ArtifactStoreTests
             RestResponse response = CreateArtifactFromJson(user, jsonBody);
             INovaArtifactDetails createdArtifact = JsonConvert.DeserializeObject<NovaArtifactDetails>(response.Content);
 
-            WrapNovaArtifact(createdArtifact, project, user, baseType);
+            Helper.WrapNovaArtifact(createdArtifact, project, user, baseType);
 
             return createdArtifact;
         }
@@ -777,39 +802,7 @@ namespace ArtifactStoreTests
             serviceError.AssertEquals(expectedError);
         }
 
-        /// <summary>
-        /// Wraps an INovaArtifactDetails in an IArtifactBase and adds it Helper.Artifacts so it gets disposed properly.
-        /// </summary>
-        /// <param name="novaArtifact">The INovaArtifactDetails that was created by ArtifactStore.</param>
-        /// <param name="project">The project where this artifact exists.</param>
-        /// <param name="user">The user that created this artifact.</param>
-        /// <param name="baseType">(optional) You can select a different BaseArtifactType here other than what's in the novaArtifact.
-        ///     Use this for artifact types that don't exist in the BaseArtifactType enum.</param>
-        /// <returns>The IArtifactBase wrapper for the novaArtifact.</returns>
-        private IArtifactBase WrapNovaArtifact(INovaArtifactDetails novaArtifact,
-            IProject project,
-            IUser user,
-            BaseArtifactType? baseType = null)
-        {
-            ThrowIf.ArgumentNull(novaArtifact, nameof(novaArtifact));
-
-            Assert.NotNull(novaArtifact.PredefinedType, "PredefinedType is null in the Nova Artifact!");
-
-            if (baseType == null)
-            {
-                baseType = ((ItemTypePredefined) novaArtifact.PredefinedType.Value).ToBaseArtifactType();
-            }
-
-            IArtifactBase artifact = ArtifactFactory.CreateArtifact(project,
-                user,
-                baseType.Value,
-                novaArtifact.Id);
-
-            artifact.IsSaved = true;
-            Helper.Artifacts.Add(artifact);
-
-            return artifact;
-        }
+        
         
         #endregion Private functions
     }

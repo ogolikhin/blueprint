@@ -325,7 +325,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return deffered.promise;
     }
 
-    public publish(): ng.IPromise<IStatefulArtifact> {
+    public publish(): ng.IPromise<any> {
         let deffered = this.services.getDeferred<IStatefulArtifact>();
 
         let savePromise = this.services.$q.defer<any>();
@@ -336,47 +336,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         }
 
         savePromise.promise.then(() => {
-            this.services.publishService.publishArtifacts([this.id])
-            .then(() => {
-                this.services.messageService.addInfo("Publish_Success_Message");
-                //this.subject.onNext(this);
-                this.artifactState.unlock();
+            this.doPublish().then(() => {
                 deffered.resolve();
-            })
-            .catch((err) => {
-                if (err && err.statusCode === 409) {
-                    let data: Models.IPublishResultSet = err.content;
-                    this.services.dialogService.open(<IDialogSettings>{
-                        okButton: this.services.localizationService.get("App_Button_Publish"),
-                        cancelButton: this.services.localizationService.get("App_Button_Cancel"),
-                        message: this.services.localizationService.get("Publish_Dependents_Dialog_Message"),
-                        template: require("../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish.html"),
-                        controller: ConfirmPublishController,
-                        css: "nova-messaging" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
-                    },
-                    <IConfirmPublishDialogData>{
-                        artifactList: data.artifacts,
-                        projectList: data.projects,
-                        selectedProject: this.projectId
-                    })
-                    .then(() => {
-                        let publishOverlayId = this.services.loadingOverlayService.beginLoading();
-                        this.services.publishService.publishArtifacts(data.artifacts.map((d: Models.IArtifact) => {return d.id; }))
-                        .then(() => {
-                            this.services.messageService.addInfo("Publish_Success_Message");
-                            this.artifactState.unlock();
-                            deffered.resolve();
-                        })
-                        .catch((err) => {
-                            this.services.messageService.addError(err);
-                            deffered.reject();
-                        }).finally(() => {
-                            this.services.loadingOverlayService.endLoading(publishOverlayId);
-                        });
-                    });
-                } else {
-                    this.services.messageService.addError(err);
-                }
+            }).catch(() => {
                 deffered.reject();
             });
         })
@@ -385,6 +347,56 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         });
 
         return deffered.promise;
+    }
+
+    private doPublish(): ng.IPromise<any> {
+        let deffered = this.services.getDeferred<any>();
+
+        this.services.publishService.publishArtifacts([this.id])
+        .then(() => {
+            this.services.messageService.addInfo("Publish_Success_Message");
+            this.artifactState.unlock();
+            deffered.resolve();
+        })
+        .catch((err) => {
+            if (err && err.statusCode === 409) {
+                this.publishDependents(err.content);
+            } else {
+                this.services.messageService.addError(err);
+            }
+            deffered.reject();
+        });
+
+        return deffered.promise;
+    }
+
+    private publishDependents(dependents: Models.IPublishResultSet){
+        this.services.dialogService.open(<IDialogSettings>{
+            okButton: this.services.localizationService.get("App_Button_Publish"),
+            cancelButton: this.services.localizationService.get("App_Button_Cancel"),
+            message: this.services.localizationService.get("Publish_Dependents_Dialog_Message"),
+            template: require("../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish.html"),
+            controller: ConfirmPublishController,
+            css: "nova-messaging" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
+        },
+        <IConfirmPublishDialogData>{
+            artifactList: dependents.artifacts,
+            projectList: dependents.projects,
+            selectedProject: this.projectId
+        })
+        .then(() => {
+            let publishOverlayId = this.services.loadingOverlayService.beginLoading();
+            this.services.publishService.publishArtifacts(dependents.artifacts.map((d: Models.IArtifact) => {return d.id; }))
+            .then(() => {
+                this.services.messageService.addInfo("Publish_Success_Message");
+                this.artifactState.unlock();
+            })
+            .catch((err) => {
+                this.services.messageService.addError(err);
+            }).finally(() => {
+                this.services.loadingOverlayService.endLoading(publishOverlayId);
+            });
+        });
     }
 
     public refresh(): ng.IPromise<IStatefulArtifact> {

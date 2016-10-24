@@ -199,7 +199,9 @@ export class ArtifactState implements IArtifactState {
 
     public unlock() {
         let lockInfo: IState = {
-            lockedBy: Enums.LockedByEnum.None
+            lockedBy: Enums.LockedByEnum.None,
+            lockDateTime: undefined,
+            lockOwner: undefined
         };
         this.setState(lockInfo);
     }

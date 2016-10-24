@@ -3,6 +3,7 @@ import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {ILocalizationService, IMessageService} from "../../../../core";
 import {ItemTypePredefined} from "../../../../main/models/enums";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay";
+import {Enums} from "../../../../main/models";
 
 
 export class PublishAction extends BPButtonAction {
@@ -46,6 +47,10 @@ export class PublishAction extends BPButtonAction {
                 }
 
                 if (artifact.artifactState.readonly) {
+                    return false;
+                }
+
+                if (!artifact.artifactState.dirty && artifact.artifactState.lockedBy !== Enums.LockedByEnum.CurrentUser) {
                     return false;
                 }
 

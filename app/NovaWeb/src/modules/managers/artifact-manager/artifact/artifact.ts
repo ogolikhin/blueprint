@@ -333,21 +333,20 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         }
 
         savePromise.promise.then(() => {
-            //dependentIds.unshift(this.id);
-            this.internalPublish([])
+            this.services.publishService.publishArtifacts([this.id])
             .then(() => {
-                this.services.messageService.addInfo("Published artifact succesfully");
+                this.services.messageService.addInfo("Publish_Success_Message");
                 //this.subject.onNext(this);
                 this.artifactState.unlock();
                 deffered.resolve();
             })
             .catch((err) => {
                 if (err && err.statusCode === 409) {
-                    let data: Models.IPublishResultSet = err.data;
+                    let data: Models.IPublishResultSet = err.content;
                     this.services.dialogService.open(<IDialogSettings>{
                         okButton: this.services.localizationService.get("App_Button_Publish"),
                         cancelButton: this.services.localizationService.get("App_Button_Cancel"),
-                        message: this.services.localizationService.get("Publish_All_Dialog_Message"),
+                        message: this.services.localizationService.get("Publish_Dependents_Dialog_Message"),
                         template: require("../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish.html"),
                         controller: ConfirmPublishController,
                         css: "nova-messaging" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
@@ -358,19 +357,23 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                         selectedProject: this.projectId
                     })
                     .then(() => {
-                        this.internalPublish(data.artifacts.map((d: Models.IArtifact) => {return d.id; }))
+                        let publishOverlayId = this.services.loadingOverlayService.beginLoading();
+                        this.services.publishService.publishArtifacts(data.artifacts.map((d: Models.IArtifact) => {return d.id; }))
                         .then(() => {
-                            this.services.messageService.addInfo("Published artifact succesfully");
+                            this.services.messageService.addInfo("Publish_Success_Message");
                             this.artifactState.unlock();
                             deffered.resolve();
                         })
                         .catch((err) => {
                             this.services.messageService.addError(err);
                             deffered.reject();
+                        }).finally(() => {
+                            this.services.loadingOverlayService.endLoading(publishOverlayId);
                         });
                     });
+                } else {
+                    this.services.messageService.addError(err);
                 }
-                this.services.messageService.addError(err);
                 deffered.reject();
             });
         })
@@ -379,11 +382,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         });
 
         return deffered.promise;
-    }
-
-    private internalPublish(artifactIds: number[]): ng.IPromise<any> {
-        artifactIds.unshift(this.id);
-        return this.services.publishService.publishArtifacts(artifactIds);
     }
 
     public refresh(): ng.IPromise<IStatefulArtifact> {

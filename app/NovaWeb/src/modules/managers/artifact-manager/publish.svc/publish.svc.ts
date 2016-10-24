@@ -67,6 +67,7 @@ export class PublishService implements IPublishService {
                     return;
                 }
                 let error = {
+                    content: errResult.data.errorContent,
                     statusCode: errResult.status,
                     errorCode: errResult.data ? errResult.data.errorCode : -1,
                     message: (errResult.data ? errResult.data.message : "")

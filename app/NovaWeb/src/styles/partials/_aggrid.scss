@@ -258,7 +258,7 @@ $has-children-padding-before-arrow: 3px;
     }
 
     .ag-cell.is-artifact-collection .ag-group-value .ag-group-value-wrapper i::before {
-        content: $icon-collection;
+        content: $icon-artifact-collection;
     }
 
     .ag-cell.is-collection-folder .ag-group-value .ag-group-value-wrapper i::before {

@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {ILocalizationService} from "../../../core";
 import {Relationships} from "../../../main";
 import {IDialogSettings, IDialogService} from "../../../shared";
@@ -127,7 +127,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
 
         if (this.item && Helper.hasArtifactEverBeenSavedOrPublished(this.item)) {
             this.isLoading = true;
-            const refresh = this.item.relationships.changes().length === 0; //Todo implemt efficient method to check if has changes 
+            const refresh = !this.item.relationships.changes(); //Todo implemt efficient method to check if has changes
             this.item.relationships.get(refresh).then((relationships: Relationships.IRelationship[]) => {
                 this.setRelationships(relationships);
 

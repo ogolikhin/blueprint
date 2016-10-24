@@ -119,7 +119,23 @@ export class PropertyEditor {
             this.propertyContexts = properties.map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
             });
-            if (this.itemid !== statefulItem.id || force) {
+
+            //Check if fields changed (from metadata)
+            let fieldNamesChanged = true;
+            let namesChanged = true;
+            if (this._fields) {
+                const newFieldNames = this.propertyContexts.map((prop) => prop.fieldPropertyName);
+                const previousFieldNames = this._fields.map((field) => (field.data as PropertyContext).fieldPropertyName);
+                fieldNamesChanged = newFieldNames.length !== previousFieldNames.length 
+                    || newFieldNames.some((element, index) => element !== previousFieldNames[index]);
+
+                const newNames = this.propertyContexts.map((prop) => prop.name);
+                const previousNames = this._fields.map((field) => (field.data as PropertyContext).name);
+                namesChanged = newNames.length !== previousNames.length 
+                    || newNames.some((element, index) => element !== previousNames[index]);
+            }
+
+            if (this.itemid !== statefulItem.id || fieldNamesChanged || namesChanged || force) {
                 fieldsupdated = true;
                 this._fields = [];
             }

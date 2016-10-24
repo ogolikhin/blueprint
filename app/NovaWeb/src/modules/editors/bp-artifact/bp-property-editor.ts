@@ -1,4 +1,5 @@
 import * as angular from "angular";
+import * as _ from "lodash";
 import {BPLocale, ILocalizationService} from "../../core";
 import {Enums, Models} from "../../main";
 import {PropertyContext} from "./bp-property-context";
@@ -119,7 +120,21 @@ export class PropertyEditor {
             this.propertyContexts = properties.map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
             });
-            if (this.itemid !== statefulItem.id || force) {
+
+            //Check if fields changed (from metadata)
+            let fieldNamesChanged = true;
+            let namesChanged = true;
+            if (this._fields) {
+                const newFieldNames = this.propertyContexts.map((prop) => prop.fieldPropertyName);
+                const previousFieldNames = this._fields.map((field) => (field.data as PropertyContext).fieldPropertyName);
+                fieldNamesChanged = _.xor(newFieldNames, previousFieldNames).length > 0; 
+
+                const newNames = this.propertyContexts.map((prop) => prop.name);
+                const previousNames = this._fields.map((field) => (field.data as PropertyContext).name);
+                namesChanged = _.xor(newNames, previousNames).length > 0;
+            }
+
+            if (this.itemid !== statefulItem.id || fieldNamesChanged || namesChanged || force) {
                 fieldsupdated = true;
                 this._fields = [];
             }

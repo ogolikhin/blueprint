@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -47,15 +47,15 @@ namespace Model.StorytellerModel.Impl
 
         private static readonly string ClientType = PropertyTypePredefined.ClientType.ToString();
 
-        private const string Persona = "Persona";
+        private static readonly string Persona = PropertyTypePredefined.Persona.ToString();
+
+        private static readonly string ImageId = PropertyTypePredefined.ImageId.ToString();
 
         private const string AssociatedImageUrl = "AssociatedImageUrl";
 
         private const string StoryLinks = "StoryLinks";
 
         private const string ItemLabel = "ItemLabel";
-
-        public const string ImageId = "ImageId";
 
         private const string SystemTaskNamePrefix = "ST";
 
@@ -781,7 +781,7 @@ namespace Model.StorytellerModel.Impl
                 new PropertyValueInformation
                 {
                     PropertyName = ImageId,
-                    TypePredefined = PropertyTypePredefined.None,
+                    TypePredefined = PropertyTypePredefined.ImageId,
                     TypeId = GetPropertyNameTypeId(ImageId),
                     Value = imageId
                 }
@@ -856,7 +856,7 @@ namespace Model.StorytellerModel.Impl
                 new PropertyValueInformation
                 {
                     PropertyName = ImageId,
-                    TypePredefined = PropertyTypePredefined.None,
+                    TypePredefined = PropertyTypePredefined.ImageId,
                     TypeId = GetPropertyNameTypeId(ImageId),
                     Value = imageId
                 }

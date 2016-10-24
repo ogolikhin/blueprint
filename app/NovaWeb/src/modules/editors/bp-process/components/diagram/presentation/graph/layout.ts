@@ -1,4 +1,4 @@
-﻿import {IMessageService} from "../../../../../../core/";
+import {IMessageService} from "../../../../../../core/";
 import {IProcessShape, IProcessLink} from "../../../../models/process-models";
 import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/process-models";
 import {NewUserTaskInfo, SourcesAndDestinations, EdgeGeo} from "../../../../models/process-models";
@@ -85,7 +85,7 @@ export class Layout implements ILayout {
 
         const nodeFactorySettings = new NodeFactorySettings();
         nodeFactorySettings.isCommentsButtonEnabled = !this.viewModel.isHistorical && !this.viewModel.isSMB;
-        nodeFactorySettings.isRelationshipButtonEnabled = !this.viewModel.isHistorical && !this.viewModel.isSMB;        
+        nodeFactorySettings.isRelationshipButtonEnabled = !this.viewModel.isHistorical && !this.viewModel.isSMB;
         nodeFactorySettings.isDetailsButtonEnabled = this.viewModel.isSpa;
         nodeFactorySettings.isLinkButtonEnabled = this.viewModel.isSpa && !this.viewModel.isHistorical;
         nodeFactorySettings.isMockupButtonEnabled = this.viewModel.isSpa;

@@ -1,4 +1,4 @@
-﻿using CustomAttributes;
+using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
@@ -10,6 +10,7 @@ using System.Linq;
 using Model.ArtifactModel.Enums;
 using TestCommon;
 using Utilities;
+using Common;
 
 namespace ArtifactStoreTests
 {
@@ -54,7 +55,7 @@ namespace ArtifactStoreTests
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
-            VerifyParentInformation(basicArtifactInfoList, artifact.ParentId);
+            VerifyAncestorsInformation(basicArtifactInfoList, artifact.ParentId);
         }
 
         [TestCase(BaseArtifactType.Actor)]
@@ -73,7 +74,7 @@ namespace ArtifactStoreTests
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
-            VerifyParentInformation(basicArtifactInfoList, artifact.ParentId);
+            VerifyAncestorsInformation(basicArtifactInfoList, artifact.ParentId);
         }
 
         [TestCase(BaseArtifactType.Actor, 2)]
@@ -92,7 +93,7 @@ namespace ArtifactStoreTests
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
-            VerifyParentInformation(basicArtifactInfoList, childArtifact.ParentId);
+            VerifyAncestorsInformation(basicArtifactInfoList, childArtifact.ParentId);
         }
 
         [TestCase]
@@ -127,7 +128,7 @@ namespace ArtifactStoreTests
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
-            VerifyParentInformation(basicArtifactInfoList, artifact.ParentId);
+            VerifyAncestorsInformation(basicArtifactInfoList, artifact.ParentId);
         }
 
         [TestCase(BaseArtifactType.UseCase, 2)]
@@ -149,7 +150,7 @@ namespace ArtifactStoreTests
                                 "'GET {0}' should return 200 OK when passed a valid sub-artifact ID!", SVC_PATH);
 
             // Verify:
-            VerifyParentInformation(basicArtifactInfoList, subArtifacts.First().ParentId);
+            VerifyAncestorsInformation(basicArtifactInfoList, subArtifacts.First().ParentId);
         }
 
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
@@ -179,7 +180,7 @@ namespace ArtifactStoreTests
                                     "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
                 // Verify:
-                VerifyParentInformation(basicArtifactInfoList, collection.ParentId);
+                VerifyAncestorsInformation(basicArtifactInfoList, collection.ParentId);
             }
             finally
             {
@@ -206,8 +207,9 @@ namespace ArtifactStoreTests
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
-            VerifyParentInformation(basicArtifactInfoList, basicArtifactInfo.ParentId);
+            VerifyAncestorsInformation(basicArtifactInfoList, basicArtifactInfo.ParentId);
         }
+
 
         [TestCase(BaseArtifactType.Actor, 10, BaseArtifactType.PrimitiveFolder)]
         [TestRail(183641)]
@@ -228,14 +230,148 @@ namespace ArtifactStoreTests
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
-            VerifyParentInformation(basicArtifactInfoList, artifact.ParentId);
+            VerifyAncestorsInformation(basicArtifactInfoList, artifact.ParentId);
         }
 
-        //TODO Test for artifact in a long chain of 10 or more child artifacts
-        //TODO Test for artifact in a long chain of mixwd folders and child artifacts. Use TestCase(TestCaseSources.AllArtifactTypesForOpenApiRestMethods)]
+        [TestCase(BaseArtifactType.PrimitiveFolder, // PrimitiveFolders can only have projects as parents.
+            BaseArtifactType.Actor,
+            BaseArtifactType.BusinessProcess,
+            BaseArtifactType.Document,
+            BaseArtifactType.DomainDiagram,
+            BaseArtifactType.GenericDiagram,
+            BaseArtifactType.Glossary,
+            BaseArtifactType.Process,
+            BaseArtifactType.Storyboard,
+            BaseArtifactType.TextualRequirement,
+            BaseArtifactType.UIMockup,
+            BaseArtifactType.UseCase,
+            BaseArtifactType.UseCaseDiagram)]
+        [TestRail(184481)]
+        [Description("Create a chain of published parent/child artifacts and other top level artifacts. Verify a list of top level artifact information is returned and values of properties are correct.")]
+        public void ArtifactNavigation_PublishedChainWithAllArtifactTypes_ReturnListOfArtifactInfo(params BaseArtifactType[] artifactTypeChain)
+        {
+            ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
+
+            // Setup:
+            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
+
+            List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, artifactChain.Last().Id),
+                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+
+            // Verify:
+            VerifyAncestorsInformation(basicArtifactInfoList, artifactChain.Last().ParentId);
+        }
+
+        [TestCase(BaseArtifactType.Glossary, 5, BaseArtifactType.Process)]
+        [TestRail(184482)]
+        [Description("Create & publish an artifact with chains of 5 child artifacts and 5 folders. Move chain of artifacts to one folder before the last. Verify get artifact navigation path call for artifacts and folders in a chain returns information about all ancestor artifacts and project.")]
+        public void ArtifactNavigation_PublishedArtifactInAChainOfArtifactsAndFolders_ReturnsListOfArtifactAndFolderInfo(BaseArtifactType artifactType, int numberOfArtifacts, BaseArtifactType artifactTypeInChain)
+        {
+            List<BaseArtifactType> folderTypes = CreateListOfArtifactTypes(numberOfArtifacts, BaseArtifactType.PrimitiveFolder);
+            List<BaseArtifactType> artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactTypeInChain);
+
+            var artifacts = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes.ToArray());
+            var folders = Helper.CreatePublishedArtifactChain(_project, _user, folderTypes.ToArray());
+
+            artifacts.First().Lock(_user);
+            Helper.ArtifactStore.MoveArtifact(artifacts.First(), folders[folders.Count - 2], _user);
+
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, artifacts.Last());
+
+            List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, artifact.Id),
+                                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+
+            // Verify:
+            VerifyAncestorsInformation(basicArtifactInfoList, artifact.ParentId);
+        }
+
+        [TestCase(BaseArtifactType.Glossary, 5, BaseArtifactType.Process)]
+        [TestRail(184483)]
+        [Description("Create & save an artifact with chains of 5 child artifacts and 5 folders. Move chain of artifacts to one folder before the last. Verify get artifact navigation path call for artifacts and folders in a chain returns information about all ancestor artifacts and project.")]
+        public void ArtifactNavigation_SavedArtifactInAChainOfArtifactsAndFolders_ReturnsListOfArtifactAndFolderInfo(BaseArtifactType artifactType, int numberOfArtifacts, BaseArtifactType artifactTypeInChain)
+        {
+            // Setup:
+            List<BaseArtifactType> folderTypes = CreateListOfArtifactTypes(numberOfArtifacts, BaseArtifactType.PrimitiveFolder);
+            List<BaseArtifactType> artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactTypeInChain);
+
+            var artifacts = Helper.CreateSavedArtifactChain(_project, _user, artifactTypes.ToArray());
+            var folders = Helper.CreateSavedArtifactChain(_project, _user, folderTypes.ToArray());
+
+            artifacts.First().Lock(_user);
+            Helper.ArtifactStore.MoveArtifact(artifacts.First(), folders[folders.Count - 2], _user);
+
+            var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType, artifacts.Last());
+
+            List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, artifact.Id),
+                                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+
+            // Verify:
+            VerifyAncestorsInformation(basicArtifactInfoList, artifact.ParentId);
+        }
+
+        [TestCase(BaseArtifactType.UseCase, 5, BaseArtifactType.Process)]
+        [TestRail(184484)]
+        [Description("Create & publish an artifact with sub-artifacts and chains of 5 child artifacts and 5 folders. Move chain of artifacts to one folder before the last. Verify get artifact navigation path call for artifacts and folders in a chain returns information about all ancestor artifacts and project.")]
+        public void ArtifactNavigation_SubArtifactinPublishedArtifactAndAChainOfArtifactsAndFolders_ReturnsListOfArtifactAndFolderInfo(BaseArtifactType artifactType, int numberOfArtifacts, BaseArtifactType artifactTypeInChain)
+        {
+            // Setup:
+            List<BaseArtifactType> folderTypes = CreateListOfArtifactTypes(numberOfArtifacts, BaseArtifactType.PrimitiveFolder);
+            List<BaseArtifactType> artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactTypeInChain);
+
+            var artifacts = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes.ToArray());
+            var folders = Helper.CreatePublishedArtifactChain(_project, _user, folderTypes.ToArray());
+
+            artifacts.First().Lock(_user);
+            Helper.ArtifactStore.MoveArtifact(artifacts.First(), folders[folders.Count - 2], _user);
+
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, artifacts.Last());
+
+            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+            Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
+
+            List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, subArtifacts.Last().Id),
+                                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+
+            // Verify:
+            VerifyAncestorsInformation(basicArtifactInfoList, subArtifacts.Last().ParentId);
+        }
+
+        [TestCase(BaseArtifactType.Actor, 2)]
+        [TestCase(BaseArtifactType.PrimitiveFolder, 2)]
+        [TestRail(185143)]
+        [Description("Create, publish & delete artifact.  Verify get artifact navigation path call returns project information for another user.")]
+        public void ArtifactNavigation_PublishedArtifactDeletedAndAccessedByAnotherUser_ReturnsProjectInfo(BaseArtifactType artifactType, int numberOfVersions)
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
+
+            List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
+
+            artifact.Delete(_user);
+
+            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+
+            // Execute:
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(anotherUser, artifact.Id),
+                                "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
+
+            // Verify:
+            VerifyAncestorsInformation(basicArtifactInfoList, artifact.ParentId);
+        }
+
         //TODO Test for project in a folder
-        //TODO Test for sub-artifact at end of a chain of artifacts.
-        //TODO Create & publish artifact, user1 deletes (but doesn't publish), user2 gets navigation path.
 
         #endregion 200 OK tests
 
@@ -289,6 +425,48 @@ namespace ArtifactStoreTests
             Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.UnauthorizedAccess), "{0} using the user without view permission to the artifact should return {1} errorCode but {2} is returned", RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH, ErrorCodes.UnauthorizedAccess, serviceErrorMessage.ErrorCode);
         }
 
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(185178)]
+        [Description("Create & publish an artifact. User without permissions to artifact calls GetArtifactNagivationPath.  Verify returned code 403 Forbidden.")]
+        public void ArtifactNavigationPath_PublishedArtifact_UserWithoutPermissionsToArtifact_403Forbidden(BaseArtifactType artifactType)
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            // Create a user that has access to the project but not the artifact.
+            IUser userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+            Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, artifact);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetNavigationPath(user: userWithoutPermissions, itemId: artifact.Id),
+                "'GET {0}' should return 403 Forbidden when user without permissions tries to get artifact path!", SVC_PATH);
+
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifact.Id);
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "Expected '{0}' error when user without permissions tries to get artifact path.", expectedExceptionMessage);
+        }
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(185184)]
+        [Description("Create & publish parent and child artifact. User without permissions to parent artifact calls GetArtifactNagivationPath for child artifact.  Verify returned code 403 Forbidden.")]
+        public void ArtifactNavigationPath_PublishedParentAndChildArtifacts_UserWithoutPermissionsToParentArtifact_403Forbidden(BaseArtifactType artifactType)
+        {
+            // Setup:
+            var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var childArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, parentArtifact);
+
+            // Create a user that has access to the project but not the artifact.
+            IUser userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+            Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, parentArtifact);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetNavigationPath(user: userWithoutPermissions, itemId: childArtifact.Id),
+                "'GET {0}' should return 403 Forbidden when user without permissions tries to get artifact path for artifact which parent artifact has no permissions!", SVC_PATH);
+
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", childArtifact.Id);
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "Expected '{0}' error when user without permissions tries to get artifact path for artifact which parent artifact has no permissions.", expectedExceptionMessage);
+        }
         #endregion 403 Forbidden Tests
 
         #region 404 Not Found Tests
@@ -361,7 +539,7 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="basicArtifactInfo">List of artifact basic information about ancestors artifact.</param>
         /// <param name="id">Id of artifact or sub-artifact.</param>
-        private void VerifyParentInformation(List<INovaVersionControlArtifactInfo> basicArtifactInfo, int? id)
+        private void VerifyAncestorsInformation(List<INovaVersionControlArtifactInfo> basicArtifactInfo, int? id)
         {
             INovaVersionControlArtifactInfo parentArtifactInfo = null;
 

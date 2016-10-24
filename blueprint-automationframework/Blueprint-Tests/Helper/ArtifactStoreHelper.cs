@@ -418,7 +418,6 @@ namespace Helper
         /// Creates a new NovaArtifactDetails with the published artifact
         /// </summary>
         /// <param name="artifact">The artifact which contains properties that NovaArtiactDetails refers to</param>
-        /// <param name="user">The user who will create the artifact.</param>
         /// <returns>NovaArtifactDetails</returns>
         public static NovaArtifactDetails CreateNovaArtifactDetailsWithArtifact(IArtifactBase artifact)
         {
@@ -447,8 +446,15 @@ namespace Helper
 
             string inlineTraceText = null;
 
-            inlineTraceText = I18NHelper.FormatInvariant("<html><head></head><body style=\"padding: 1px 0px 0px; font-family: 'Portable User Interface'; font-size: 10.67px\"><div style=\"padding: 0px\"><p style=\"margin: 0px\">&#x200b;<a linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null\" canclick=\"True\" isvalid=\"True\" href=\"{0}?ArtifactId={1}\" target=\"_blank\" artifactid=\"{1}\" style=\"font-family: 'Portable User Interface'; font-size: 11px; font-style: normal; font-weight: normal; text-decoration: underline; color: #0000FF\" title=\"Project: akim_project\"><span style=\"font-family: 'Portable User Interface'; font-size: 11px; font-style: normal; font-weight: normal; text-decoration: underline; color: #0000FF\">{2}{1}: {3}</span></a><span style=\"-c1-editable: true; font-family: 'Portable User Interface'; font-size: 10.67px; font-style: normal; font-weight: normal; color: Black\">&#x200b;</span></p></div></body></html>",
-                inlineTraceArtifact.Address, inlineTraceArtifact.Id, inlineTraceArtifactDetails.Prefix, inlineTraceArtifactDetails.Name);
+            inlineTraceText = I18NHelper.FormatInvariant("<html><head></head><body style=\"padding: 1px 0px 0px; font-family: 'Portable User Interface'; font-size: 10.67px\">" +
+                "<div style=\"padding: 0px\"><p style=\"margin: 0px\">&#x200b;<a linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, " +
+                "BluePrintSys.RC.Client.SL.RichText, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null\" canclick=\"True\" isvalid=\"True\" href=\"{0}?ArtifactId={1}\" " +
+                "target=\"_blank\" artifactid=\"{1}\" style=\"font-family: 'Portable User Interface'; font-size: 11px; font-style: normal; font-weight: normal; " +
+                "text-decoration: underline; color: #0000FF\" title=\"Project: {4}\"><span style=\"font-family: 'Portable User Interface'; font-size: 11px; " +
+                "font-style: normal; font-weight: normal; text-decoration: underline; color: #0000FF\">{2}{1}: {3}</span></a><span " +
+                "style=\"-c1-editable: true; font-family: 'Portable User Interface'; font-size: 10.67px; font-style: normal; font-weight: normal; color: Black\">" +
+                "&#x200b;</span></p></div></body></html>",
+                inlineTraceArtifact.Address, inlineTraceArtifact.Id, inlineTraceArtifactDetails.Prefix, inlineTraceArtifactDetails.Name, inlineTraceArtifact.Project.Name);
 
             return inlineTraceText;
         }
@@ -471,12 +477,15 @@ namespace Helper
         /// <param name="artifactdetails">The artifact details containing the inline trace link which needs validation</param>
         /// <param name="inlineTraceArtifact">The artifact contained within the inline trace link</param>
         /// <param name="validInlineTraceLink">A flag indicating whether the inline trace link is expected to be valid or not</param>
-        public static void ValidateInlineTraceLinkFromArtifactDetails(NovaArtifactDetails artifactdetails, IArtifactBase inlineTraceArtifact, bool validInlineTraceLink)
+        public static void ValidateInlineTraceLinkFromArtifactDetails(NovaArtifactDetails artifactdetails,
+            IArtifactBase inlineTraceArtifact,
+            bool validInlineTraceLink)
         {
             ThrowIf.ArgumentNull(artifactdetails, nameof(artifactdetails));
             ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
 
-            // Validation: Verify that the artifactDeatils' description field which contain inline trace link contains the valid inline trace information (name of the inline trace artifact)
+            // Validation: Verify that the artifactDetails' description field which contain inline trace link contains the valid
+            // inline trace information (name of the inline trace artifact).
             Assert.That(artifactdetails.Description.Contains(inlineTraceArtifact.Name),
                 "Expected outcome should not contains {0} on returned artifactdetails. Returned inline trace content is {1}.",
                 inlineTraceArtifact.Name,
@@ -495,12 +504,15 @@ namespace Helper
         /// <param name="subArtifactdetails">The subartifact details containing the inline trace link which needs validation</param>
         /// <param name="inlineTraceArtifact">The artifact contained within the inline trace link</param>
         /// <param name="validInlineTraceLink">A flag indicating whether the inline trace link is expected to be valid or not</param>
-        public static void ValidateInlineTraceLinkFromSubArtifactDetails(NovaSubArtifactDetails subArtifactdetails, IArtifactBase inlineTraceArtifact, bool validInlineTraceLink)
+        public static void ValidateInlineTraceLinkFromSubArtifactDetails(NovaSubArtifactDetails subArtifactdetails,
+            IArtifactBase inlineTraceArtifact,
+            bool validInlineTraceLink)
         {
             ThrowIf.ArgumentNull(subArtifactdetails, nameof(subArtifactdetails));
             ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
 
-            // Validation: Verify that the subArtifactDetails' description field which contain inline trace link contains the valid inline trace information (name of the inline trace artifact)
+            // Validation: Verify that the subArtifactDetails' description field which contain inline trace link contains the valid
+            // inline trace information (name of the inline trace artifact).
             Assert.That(subArtifactdetails.Description.Contains(inlineTraceArtifact.Name),
                 "Expected outcome does not contain {0} on returned artifactdetails. Returned inline trace content is {1}.",
                 inlineTraceArtifact.Name,
@@ -529,10 +541,10 @@ namespace Helper
                 var openApiProperty = artifact.Properties.FirstOrDefault(p => p.Name == "ID");
                 if (openApiProperty != null)
                 {
-                    text = text + I18NHelper.FormatInvariant("<a " +
-                        "href=\"{0}/?/ArtifactId={1}\" target=\"\" artifactid=\"{1}\"" +
-                        " linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\"" +
-                        " canclick=\"True\" isvalid=\"True\" title=\"Project: {3}\"><span style=\"text-decoration: underline; color: #0000ff\">{4}: {2}</span></a>",
+                    text = text + I18NHelper.FormatInvariant("<a href=\"{0}/?/ArtifactId={1}\" target=\"\" artifactid=\"{1}\"" +
+                        " linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, " +
+                        "Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\" canclick=\"True\" isvalid=\"True\" title=\"Project: {3}\">" +
+                        "<span style=\"text-decoration: underline; color: #0000ff\">{4}: {2}</span></a>",
                         artifact.Address, artifact.Id, artifact.Name, artifact.Project.Name,
                         openApiProperty.TextOrChoiceValue);
                 }

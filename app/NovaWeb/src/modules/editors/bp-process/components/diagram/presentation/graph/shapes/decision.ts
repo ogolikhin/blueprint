@@ -12,7 +12,7 @@ import { Label, LabelStyle } from "../labels/label";
 import { ProcessEvents } from "../../../process-diagram-communication";
 
 export abstract class Decision extends DiagramNode<IProcessShape> implements IDecision {
-    
+
     protected abstract DECISION_SHIFT: number;
     protected abstract DEFAULT_FILL_COLOR: string;
     protected abstract DEFAULT_BORDER_COLOR: string;
@@ -38,11 +38,10 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
 
     constructor(
         model: IProcessShape,
-        nodeType: NodeType,
         rootScope: ng.IRootScopeService,
         private nodeFactorySettings: NodeFactorySettings = null
     ) {
-        super(model, nodeType);
+        super(model);
 
         this.rootScope = rootScope;
         this.initButtons(model.id.toString(), nodeFactorySettings);

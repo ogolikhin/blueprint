@@ -1,4 +1,4 @@
-﻿import {IProcessShape} from "../../../../../models/process-models";
+import {IProcessShape} from "../../../../../models/process-models";
 import {IProcessGraph, IDiagramNode} from "../models/";
 import {NodeType} from "../models/";
 import {DiagramNode} from "./diagram-node";
@@ -11,7 +11,7 @@ export class ProcessStart extends DiagramNode<IProcessShape> {
     private PROCESS_START_SHIFT = 40;
 
     constructor(model: IProcessShape, nodeFactorySettings: NodeFactorySettings = null) {
-        super(model, NodeType.ProcessStart);
+        super(model);
     }
 
     public get label(): string {
@@ -59,4 +59,9 @@ export class ProcessStart extends DiagramNode<IProcessShape> {
     public formatElementText(cell: MxCell, text: string): string {
         return text.toUpperCase();
     }
+
+    public getNodeType() {
+        return NodeType.ProcessStart;
+    }
+
 }

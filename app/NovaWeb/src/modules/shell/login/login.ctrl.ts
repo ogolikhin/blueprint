@@ -4,7 +4,7 @@ import {
     ISettingsService,
     HttpStatusCode
 } from "../../core";
-import {ISession} from "./session-interface";
+import {ISession} from "./session.svc";
 
 export class ILoginInfo {
     public userName: string;

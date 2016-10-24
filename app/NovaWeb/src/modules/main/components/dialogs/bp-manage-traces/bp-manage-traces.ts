@@ -11,7 +11,7 @@ import {
 } from "../../../../managers/artifact-manager";
 
 export interface IArtifactSelectedArtifactMap {
-    [artifactId: number]: Relationships.IRelationship[];
+    [artifactId: number]: Relationships.IRelationshipView[];
 }
 
 export class ManageTracesDialogController extends BaseDialogController {
@@ -182,6 +182,8 @@ export class ManageTracesDialogController extends BaseDialogController {
                 } else {
                     traces[i].suspect = true;
                 }
+
+                traces[i].traceIcon = traces[i].suspect ? "trace-icon-suspect" : "trace-icon-regular";
             }
         }
 
@@ -194,31 +196,26 @@ export class ManageTracesDialogController extends BaseDialogController {
         let confirmation = this.localization.get("Confirmation_Delete_Traces")
             .replace("{0}", selectedTracesLength.toString());
 
-        this.dialogService.confirm(confirmation).then((confirmed) => {
-            if (confirmed) {
-                this.remove(this.selectedTraces[this.data.artifactId], this.data.manualTraces);
-                this.clearSelected();
-                this.toggleSave();
-            }
+        this.dialogService.confirm(confirmation)
+        .then(() => {
+            this.remove(this.selectedTraces[this.data.artifactId], this.data.manualTraces);
+            this.clearSelected();
+            this.toggleSave();
         });
     }
 
     public deleteTrace(artifact: Relationships.IRelationship): void {
-        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace")).then((confirmed) => {
-            if (confirmed) {
-                this.remove([artifact], this.data.manualTraces);
+        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace")).then(() => {
+            this.remove([artifact], this.data.manualTraces);
 
-                let index = _.findIndex(this.selectedTraces[this.data.artifactId], {itemId: artifact.itemId});
+            let index = _.findIndex(this.selectedTraces[this.data.artifactId], {itemId: artifact.itemId});
 
-                if (index > -1) {
-                    this.selectedTraces[this.data.artifactId].splice(index, 1);
-                }
-
-                this.toggleSave();
+            if (index > -1) {
+                this.selectedTraces[this.data.artifactId].splice(index, 1);
             }
+
+            this.toggleSave();
         });
-
-
     }
 
     public onSelectionChanged(selectedVMs: ArtifactPickerNodeVM<any>[]): void {
@@ -255,6 +252,7 @@ export class ManageTracesDialogController extends BaseDialogController {
 
         for (let i = 0; i < selectedTracesLength; i++) {
             traces[i].traceDirection = direction;
+            traces[i].directionIcon = this.getDirectionIcon(traces[i].traceDirection);
         }
 
         this.toggleSave();

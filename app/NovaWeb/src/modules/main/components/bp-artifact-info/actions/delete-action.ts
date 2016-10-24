@@ -22,12 +22,10 @@ export class DeleteAction extends BPButtonAction {
 
         super(
             () => {
-                dialogService.open(deleteDialogSettings).then((confirm: boolean) => {
-                    if (confirm) {
-                        dialogService.alert("you clicked confirm!");
-                        this.deleteArtifact();
-                    }
-                    ;
+                dialogService.open(deleteDialogSettings)
+                .then(() => {
+                    dialogService.alert("you clicked confirm!");
+                    this.deleteArtifact();
                 });
             },
             () => {

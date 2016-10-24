@@ -1,4 +1,4 @@
-﻿import {IDiagramElement, IDiagramNode} from "./../models/";
+import {IDiagramElement, IDiagramNode} from "./../models/";
 import {IDiagramNodeElement, ILabel} from "./../models/";
 import {ElementType, NodeChange} from "./../models/";
 import {IProcessDiagramCommunication} from "../../../process-diagram-communication";

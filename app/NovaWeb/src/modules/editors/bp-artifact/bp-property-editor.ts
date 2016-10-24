@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {BPLocale, ILocalizationService} from "../../core";
 import {Enums, Models} from "../../main";
 import {PropertyContext} from "./bp-property-context";
@@ -103,13 +103,15 @@ export class PropertyEditor {
             } else {
                 return $value.toString();
             }
+        } else if (context.primitiveType === Models.PrimitiveType.Text && context.isRichText) {
+            return Helper.getHtmlBodyContent($value);
         }
         return $value;
     }
 
 
     public create(statefulItem: IStatefulItem, properties: Models.IPropertyType[], force: boolean): boolean {
-        
+
         let fieldsupdated: boolean = false;
         this._model = {};
 
@@ -121,7 +123,7 @@ export class PropertyEditor {
                 fieldsupdated = true;
                 this._fields = [];
             }
-            
+
             this.propertyContexts.forEach((propertyContext: PropertyContext) => {
                 if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
                     let modelValue: any = null;
@@ -144,7 +146,7 @@ export class PropertyEditor {
                             statefulItem.readOnlyReuseSettings &&
                             (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Description) === Enums.ReuseSettings.Description) {
                             propertyContext.disabled = true;
-                        } 
+                        }
                     } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Custom) {
                         //Custom property
                         let custompropertyvalue = statefulItem.customProperties.get(propertyContext.modelPropertyName as number);
@@ -168,6 +170,7 @@ export class PropertyEditor {
                         }
                     }
                     if (isModelSet) {
+                        propertyContext.isFresh = true;
                         let field = this.createPropertyField(propertyContext, statefulItem.id);
                         this._model[propertyContext.fieldPropertyName] = this.convertToFieldValue(field, modelValue);
                         if (fieldsupdated) {
@@ -177,7 +180,7 @@ export class PropertyEditor {
                 }
             });
             this.itemid = statefulItem.id;
-            
+
         }
 
         return fieldsupdated;

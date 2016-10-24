@@ -1,4 +1,6 @@
 ﻿import {Models, Enums} from "../../main";
+import {IColumn, ITreeViewNodeVM} from "../../shared/widgets/bp-tree-view/";
+import {IDialogService} from "../../shared";
 
 import {
     BpArtifactEditor,
@@ -8,8 +10,6 @@ import {
     IWindowManager,
     PropertyContext
 } from "./bp-artifact-editor";
-
-import {IDialogService} from "../../shared";
 
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {
@@ -26,16 +26,15 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         "messageService",
         "artifactManager",
         "windowManager",
-        "localization",
-        "dialogService"
+        "localization"
     ];
 
     constructor(messageService: IMessageService,
-                artifactManager: IArtifactManager,
-                windowManager: IWindowManager,
-                localization: ILocalizationService,
-                private dialogService: IDialogService) {
-        super(messageService, artifactManager, windowManager, localization);
+        artifactManager: IArtifactManager,
+        windowManager: IWindowManager,
+        localization: ILocalizationService,
+        private dialogService: IDialogService) {
+        super(messageService, artifactManager, windowManager, localization);       
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];
@@ -65,7 +64,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     }
 
     public hasFields(): boolean  {
-        return ((this.systemFields || []).length + 
+        return ((this.systemFields || []).length +
                (this.customFields || []).length +
                (this.richTextFields || []).length +
                (this.specificFields || []).length) > 0;
@@ -107,5 +106,5 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         } else if (Enums.PropertyLookupEnum.Special === propertyContext.lookup) {
             this.specificFields.push(field);
         }
-    }
+    }    
 }

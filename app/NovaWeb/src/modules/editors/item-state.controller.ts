@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import { Models } from "../main/models";
 import { IArtifactManager } from "../managers";
 import { IStatefulArtifact } from "../managers/artifact-manager";
@@ -12,8 +12,8 @@ import { IItemInfoService, IItemInfoResult } from "../core/navigation/item-info.
 export class ItemStateController {
 
     public static $inject = [
-        "$state", 
-        "artifactManager", 
+        "$state",
+        "artifactManager",
         "messageService",
         "localization",
         "navigationService",
@@ -70,6 +70,7 @@ export class ItemStateController {
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(artifact);
                 if (result.isDeleted) {
                     statefulArtifact.deleted = true;
+                    statefulArtifact.historical = true;
                     const localizedDate = this.localization.current.formatShortDateTime(result.deletedDateTime);
                     const deletedMessage = `Read Only: Deleted by user '${result.deletedByUser.displayName}' on '${localizedDate}'`;
                     this.messageService.addMessage(new Message(MessageType.Lock, deletedMessage));
@@ -81,6 +82,7 @@ export class ItemStateController {
                 this.messageService.addError("This artifact type cannot be opened directly using the Go To feature.");
             }
         }).catch(error => {
+            this.navigationService.navigateToMain();
             this.messageService.addError("The artifact cannot be opened. It is no longer accessible by you.");
         });
     }
@@ -118,6 +120,9 @@ export class ItemStateController {
             case Models.ItemTypePredefined.Project:
             case Models.ItemTypePredefined.CollectionFolder:
                 this.$state.go("main.item.general", params);
+                break;
+            case Models.ItemTypePredefined.ArtifactCollection:            
+                this.$state.go("main.item.collection", params);
                 break;
             case Models.ItemTypePredefined.Process:
                 this.$state.go("main.item.process", params);

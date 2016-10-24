@@ -22,7 +22,7 @@
             </div>
             <div class="search-results" ng-if="!$ctrl.isSearching && $ctrl.searchResults.length !== 0">
                 <div class="search-result" ng-repeat="searchResult in $ctrl.searchResults"
-                     ng-click="$ctrl.setProject(searchResult.id, searchResult.name, true)">
+                     ng-click="$ctrl.setProject(searchResult.itemId, searchResult.name, true)">
                     <i class="icon-project"></i>
                     <div class="search-details">
                         <div bp-tooltip="{{searchResult.name}}" bp-tooltip-truncated="true"><span

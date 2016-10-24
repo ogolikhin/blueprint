@@ -1,11 +1,11 @@
-﻿// import "angular";
+// import "angular";
 // import "angular-mocks";
 // import "angular-sanitize";
 
 // import {LocalizationServiceMock} from "../../core/localization/localization.mock";
 // import {MessageServiceMock} from "../../core/messages/message.mock";
 // import {ISelectionManager, IProjectManager, SelectionManager, ProjectManager} from "../services";
-// import {SelectionSource} from "../services/selection-manager"; 
+// import {SelectionSource} from "../services/selection-manager";
 // import {ArtifactStateController} from "../router/artifact.state";
 // import {Models, Enums} from "../";
 // import {IEditorParameters} from "./artifact.state";

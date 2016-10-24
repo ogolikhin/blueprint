@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 
 import { BPFilteredInput } from "./bp-filtered-input";
 

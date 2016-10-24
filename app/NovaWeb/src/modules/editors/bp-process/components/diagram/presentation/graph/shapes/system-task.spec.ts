@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import { ShapesFactory } from "./shapes-factory";
 import { ProcessGraph } from "../process-graph";
 import { ArtifactReferenceLinkMock, ShapeModelMock } from "./shape-model.mock";
@@ -196,7 +196,7 @@ describe("SystemTask", () => {
 
         it("when modifying persona - persona matches", () => {
 
-            // arrange             
+            // arrange
             spyOn(statefulArtifact, "refresh")();
             spyOn(statefulArtifact, "lock")();
 
@@ -212,7 +212,7 @@ describe("SystemTask", () => {
 
         it("when modifying persona - attempt lock is called", () => {
 
-            // arrange             
+            // arrange
             spyOn(statefulArtifact, "refresh")();
             const lockSpy = spyOn(statefulArtifact, "lock");
 
@@ -228,7 +228,7 @@ describe("SystemTask", () => {
 
        it("when modifying persona - artifact state is dirty", () => {
 
-            // arrange             
+            // arrange
             spyOn(statefulArtifact, "refresh")();
             const lockSpy = spyOn(statefulArtifact, "lock");
 

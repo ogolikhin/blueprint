@@ -22,6 +22,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     refresh(): ng.IPromise<IStatefulArtifact>;
 
     getObservable(): Rx.Observable<IStatefulArtifact>;
+    canBeSaved(): boolean;
 }
 
 // TODO: explore the possibility of using an internal interface for services
@@ -30,7 +31,6 @@ export interface IIStatefulArtifact extends IIStatefulItem {
 
 export class StatefulArtifact extends StatefulItem implements IStatefulArtifact, IIStatefulArtifact {
     private state: IArtifactState;
-    public deleted: boolean;
 
     protected subject: Rx.BehaviorSubject<IStatefulArtifact>;
 
@@ -52,20 +52,23 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     public initialize(artifact: Models.IArtifact): IState {
-        if (this.parentId && this.orderIndex && 
+        if (this.parentId && this.orderIndex &&
             (this.parentId !== artifact.parentId || this.orderIndex !== artifact.orderIndex)) {
             this.artifactState.misplaced = true;
         } else {
             this.artifactState.initialize(artifact);
             super.initialize(artifact);
         }
+        if (this.historical) {
+            this.artifactState.readonly = true;
+        }
         return this.artifactState.get();
     }
 
     public get artifactState(): IArtifactState {
-        return this.state; 
+        return this.state;
     }
- 
+
     public getObservable(): Rx.Observable<IStatefulArtifact> {
         if (!this.isFullArtifactLoadedOrLoading()) {
             this.loadPromise = this.load();
@@ -104,7 +107,16 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         super.discard();
         this.artifactState.dirty = false;
     }
-   
+    
+    public canBeSaved(): boolean {
+        if (this.isProject()) {
+            return false;
+        } else if (this.artifactState.dirty && this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     private isNeedToLoad() {
         if (this.isProject()) {
             return false;
@@ -168,6 +180,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         } else {
             if (lock.result === Enums.LockResultEnum.AlreadyLocked) {
                 this.refresh();
+                if (lock.info.versionId !== this.version) {
+                    //Show the refresh message only if the version has changed.
+                    this.services.messageService.addInfo("Artifact_Lock_Refresh");
+                }
             } else {
                 this.discard();
                 if (lock.result === Enums.LockResultEnum.DoesNotExist) {
@@ -349,5 +365,5 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return deferred.promise;
     }
 
-   
+
 }

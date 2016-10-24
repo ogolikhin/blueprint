@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import * as _ from "lodash";
 import {ILocalizationService} from "../../core";
 import {Models} from "../../main";

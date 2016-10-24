@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {Models, Enums} from "../../../main/models";
 export {Models, Enums}
 

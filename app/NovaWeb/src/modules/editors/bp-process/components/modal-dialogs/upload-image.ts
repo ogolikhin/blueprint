@@ -44,7 +44,7 @@ export class UploadImageDirective implements ng.IDirective {
     public link: ng.IDirectiveLinkFn = ($scope: IUploadImageScope, $element: ng.IAugmentedJQuery, attr: ng.IAttributes) => {
         $scope.imageUploaded = false;
 
-        $scope.isReadonly = $scope.$parent["vm"].isReadonly;
+        $scope.isReadonly = $scope.$parent["$ctrl"].isReadonly;
 
         if (!!$scope.systemTaskModel && !!$scope.systemTaskModel.associatedImageUrl) {
 

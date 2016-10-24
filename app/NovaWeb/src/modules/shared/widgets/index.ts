@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import "./bp-dialog";
 import "./bp-avatar";
 import "./bp-tree";
@@ -16,6 +16,7 @@ import "./bp-file-upload";
 import "./bp-toggle";
 import "./bp-breadcrumb";
 import "./bp-toolbar";
+import "./bp-artifact-list";
 import "./bp-filtered-input";
 import "./bp-goto";
 
@@ -37,6 +38,7 @@ angular.module("bp.widgets", [
     "bp.widgets.toggle",
     "bp.widgets.breadcrumb",
     "bp.widgets.toolbar",
+    "bp.widgets.artifactList",
     "bp.widgets.filtered-input",
     "bp.widgets.goto"
 ]);

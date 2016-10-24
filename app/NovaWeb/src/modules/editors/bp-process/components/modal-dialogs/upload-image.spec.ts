@@ -44,7 +44,7 @@ describe("UploadImage Directive", () => {
             shapesFactory = new ShapesFactory($rootScope, statefulArtifactFactory);
             $templateCache.put("/Areas/Web/App/Components/Storyteller/Directives/UploadImageTemplate.html", directiveTemplate);
             scope = $rootScope.$new();
-            scope.$parent["vm"] = {
+            scope.$parent["$ctrl"] = {
                 isReadonly: false
             };
             sampleSystemTask.propertyValues["associatedImageUrl"] = shapesFactory.createAssociatedImageUrlValue(fakeUrl);

@@ -5,6 +5,7 @@ import {ILocalizationService} from "../../core";
 import {IDiagramService, DiagramErrors} from "./diagram.svc";
 import {DiagramView} from "./impl/diagram-view";
 import {ISelection, IStatefulArtifactFactory} from "../../managers/artifact-manager";
+import {IStatefulArtifact} from "../../managers/artifact-manager/artifact";
 import {IDiagram, IShape, IDiagramElement} from "./impl/models";
 import {SafaryGestureHelper} from "./impl/utils/gesture-helper";
 import {Diagrams, Shapes, ShapeProps} from "./impl/utils/constants";
@@ -74,7 +75,6 @@ export class BPDiagramController extends BpBaseEditor {
                 .filter(this.clearSelectionFilter)
                 .subscribeOnNext(this.clearSelection, this)
         );
-        this.$element.on("click", this.stopPropagation);
     }
 
     private clearSelectionFilter = (selection: ISelection) => {
@@ -92,8 +92,6 @@ export class BPDiagramController extends BpBaseEditor {
         }
 
         this.destroyDiagramView();
-
-        this.$element.off("click", this.stopPropagation);
     }
 
     private destroyDiagramView() {
@@ -165,10 +163,12 @@ export class BPDiagramController extends BpBaseEditor {
         });
     }
 
-    private getUseCaseDiagramArtifact(shape: IShape) {
+    private getUseCaseDiagramArtifact(shape: IShape): ng.IPromise<IStatefulArtifact> {
         const artifactId = parseInt(ShapeExtensions.getPropertyByName(shape, ShapeProps.ARTIFACT_ID), 10);
         if (isFinite(artifactId)) {
-            return this.artifactManager.get(artifactId);
+            return this.artifactManager.get(artifactId).catch(error => {
+                return this.statefulArtifactFactory.createStatefulArtifactFromId(artifactId);
+            });
         }
         return undefined;
     }

@@ -96,15 +96,14 @@ export class BpArtifactInfoController {
     }
 
     public $onChanges(obj: any) {
-        this.artifactManager.get(obj.context.currentValue).then((artifact) => {
-            if (artifact) {
-                this.artifact = artifact;
-                const artifactObserver = artifact.getObservable()
-                    .subscribe(this.onArtifactChanged, this.onError);
+        const artifact = this.artifactManager.get(obj.context.currentValue);
+        if (artifact) {
+            this.artifact = artifact;
+            const artifactObserver = artifact.getObservable()
+                .subscribe(this.onArtifactChanged, this.onError);
 
-                this.subscribers.push(artifactObserver);
-            }
-        });
+            this.subscribers.push(artifactObserver);
+        }
     }
 
     public $onDestroy() {
@@ -185,7 +184,7 @@ export class BpArtifactInfoController {
 
             this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
 
-            if (artifact.orderIndex < 0 && artifact.predefinedType === Models.ItemTypePredefined.CollectionFolder) {
+            if (artifact.itemTypeId === Models.ItemTypePredefined.Collections && artifact.predefinedType === Models.ItemTypePredefined.CollectionFolder) {
                 this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[Models.ItemTypePredefined.Collections] || "document"));
             } else { 
                 this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[itemType.predefinedType] || "document"));

@@ -11,7 +11,7 @@ export interface IArtifactManager extends IDispose {
     list(): IStatefulArtifact[];
     add(artifact: IStatefulArtifact);
     addAsOrphan(artifact: IStatefulArtifact);
-    get(id: number): ng.IPromise<IStatefulArtifact>;
+    get(id: number): IStatefulArtifact;
     remove(id: number): IStatefulArtifact;
     removeAll(projectId?: number);
 }
@@ -23,7 +23,6 @@ export class ArtifactManager implements IArtifactManager {
 
     public static $inject = [
         "$log",
-        "$q",
         "messageService",
         "selectionManager",
         "metadataService",
@@ -31,7 +30,6 @@ export class ArtifactManager implements IArtifactManager {
     ];
 
     constructor(private $log: ng.ILogService,
-                private $q: ng.IQService,
                 private messageService: IMessageService,
                 private selectionService: ISelectionManager,
                 private metadataService: IMetaDataService,
@@ -58,15 +56,8 @@ export class ArtifactManager implements IArtifactManager {
         return this.collectionChangeSubject.filter((it: IStatefulArtifact) => it != null).asObservable();
     }
 
-    public get(id: number): ng.IPromise<IStatefulArtifact> {
-        const deferred = this.$q.defer<IStatefulArtifact>();
-        const artifact = this.artifactDictionary[id];
-        if (artifact) {
-            deferred.resolve(artifact);
-        } else {
-            deferred.reject();
-        }
-        return deferred.promise;
+    public get(id: number): IStatefulArtifact {
+        return this.artifactDictionary[id];
     }
 
     private clearOrphans() {

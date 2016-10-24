@@ -186,13 +186,14 @@ export class PreviewCenterController {
 
     private loadUserStory(userStoryId: number) {
         if (userStoryId) {
-            this.artifactManager.get(userStoryId).then((it: IStatefulArtifact) => {
-                this.statefulUserStoryArtifact = it;
+            const artifact = this.artifactManager.get(userStoryId);
+            if (artifact) {
+                this.statefulUserStoryArtifact = artifact;
                 let observer = this.statefulUserStoryArtifact.getObservable().subscribe((obs: IStatefulArtifact) => {
                     this.loadMetaData(obs);
                 });
                 this.subscribers = [observer];
-            });
+            };
         }
     }
 

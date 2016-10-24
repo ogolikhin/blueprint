@@ -176,22 +176,17 @@ class BPToolbarController implements IBPToolbarController {
     }
 
     private saveAndPublishAll(data: Models.IPublishResultSet) {
-        const publishAllLoadingId = this.loadingOverlayService.beginLoading();
-        try {
-            this.saveArtifactsAsNeeded(data.artifacts).then(() => {
-                //perform publish all
-                this.publishService.publishAll()
-                .then(() => {
-                    this.messageService.addInfoWithPar("Publish_All_Success_Message", [data.artifacts.length]);
-                })
-                .finally(() => {
-                    this.loadingOverlayService.endLoading(publishAllLoadingId);
-                });
+        this.saveArtifactsAsNeeded(data.artifacts).then(() => {
+            const publishAllLoadingId = this.loadingOverlayService.beginLoading();
+            //perform publish all
+            this.publishService.publishAll()
+            .then(() => {
+                this.messageService.addInfoWithPar("Publish_All_Success_Message", [data.artifacts.length]);
+            })
+            .finally(() => {
+                this.loadingOverlayService.endLoading(publishAllLoadingId);
             });
-        } catch (err) {
-            this.loadingOverlayService.endLoading(publishAllLoadingId);
-            throw err;
-        }
+        }); 
     }
 
     private saveArtifactsAsNeeded(artifactsToSave: Models.IArtifact[]): ng.IPromise<any> {
@@ -204,11 +199,15 @@ class BPToolbarController implements IBPToolbarController {
             }
         });
 
-        return this.$q.all(savePromises).catch((err) => {
+        const allPromises = this.$q.all(savePromises);
+
+        allPromises.catch((err) => {
             this.messageService.addError(err);
         }).finally(() => {
             this.loadingOverlayService.endLoading(saveArtifactsLoader);
         });
+
+        return allPromises;
     }
 
     showSubLevel(evt: any): void {

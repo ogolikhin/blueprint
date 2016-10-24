@@ -143,7 +143,7 @@ $quick-search__item--focus-color: #E8F6FB;
 
     background: $quick-search__item--color;
     border-bottom: 1px solid $gray;
-    &:focus {
+    &:focus, &:hover {
         background: $quick-search__item--focus-color;
     }
 }
@@ -190,14 +190,17 @@ $quick-search__item--focus-color: #E8F6FB;
     margin-left: -24px;
 }
 
-.quick-search__results--large-font,
-i.fonticon.quick-search__results--large-font::before {
-    font-size: 36px;
+.quick-search__results--large-font{
+    font-size: 12px;
+}
+i.fonticon.quick-search__results--large-font,
+i.fonticon.quick-search__results--large-font::before{
+    font-size:28px;
 }
 
 .small-gutter > [class*='col-'] {
-    padding-right: 10px;
-    padding-left: 10px;
+    padding-right: 7px;
+    padding-left: 7px;
 }
 
 .quick-search__results--truncate {

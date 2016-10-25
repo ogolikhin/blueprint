@@ -5,6 +5,7 @@ import { IProcess, IProcessShape, IProcessLink } from "./models/process-models";
 import { IHashMapOfPropertyValues } from "./models/process-models";
 import { IVersionInfo, ItemTypePredefined } from "./models/process-models";
 import { StatefulArtifact, IStatefulArtifact } from "../../managers/artifact-manager/artifact";
+import { IStatefulSubArtifact } from "../../managers/artifact-manager/sub-artifact/sub-artifact";
 import { IStatefulProcessArtifactServices } from "../../managers/artifact-manager/services";
 import { StatefulProcessSubArtifact } from "./process-subartifact";
 import { IProcessUpdateResult } from "./services/process.svc";
@@ -97,8 +98,20 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         currentProcess.requestedVersionInfo = newProcess.requestedVersionInfo;
     }
 
-    private replaceTemporaryIdsAfterSave() {
-
+    private mapTempIdsAfterSave(tempIdMap: Models.IKeyValuePair[]) {
+        if (tempIdMap && tempIdMap.length > 0) {
+            this.subArtifactCollection.list().forEach(item => {
+                if (item.id <= 0) {
+                    // subartifact id is temporary 
+                    for (let i = 0; i < tempIdMap.length; i++) {
+                        if (item.id === tempIdMap[i].key) {
+                            item.id = tempIdMap[i].value;
+                            break;
+                        }
+                    }
+                }
+            });
+        }
     }
 
     private initializeSubArtifacts(newProcess: IProcess) {
@@ -118,7 +131,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         if (!this.artifactState.readonly) {
             this.services.processService.save(<IProcess>this)
                 .then((result: IProcessUpdateResult) => {
-                    
+                    this.mapTempIdsAfterSave(result.tempIdMap);
                     deferred.resolve(this);
                 }).catch((err: any) => {
                     deferred.reject(err);

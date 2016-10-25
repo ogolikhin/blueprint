@@ -109,12 +109,12 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
 
         this.subArtifactCollection.initialise(statefulSubArtifacts);
     }
-
     private saveProcess(): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         if (!this.artifactState.readonly) {
             this.services.processService.save(<IProcess>this)
                 .then((result: IProcessUpdateResult) => {
+                    console.log(result.tempIdMap);
                     this.onLoad(result.result);
                     deferred.resolve(this);
                 }).catch((err: any) => {

@@ -1,4 +1,4 @@
-﻿export enum ILayoutPanel {
+export enum ILayoutPanel {
     Left,
     Right
 }
@@ -149,7 +149,7 @@ export enum PropertyTypePredefined {
     StoryLink = 4131,
     ImageId = 4132,
     AssociatedArtifact = 4133,
-    
+
     VisualizationGroup = 8192,
     X = 8193,
     Y = 8194,

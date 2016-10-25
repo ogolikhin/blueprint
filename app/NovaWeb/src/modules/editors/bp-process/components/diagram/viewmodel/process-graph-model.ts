@@ -1,4 +1,4 @@
-﻿import {ItemTypePredefined} from "../../../../../main/models/enums";
+import {ItemTypePredefined} from "../../../../../main/models/enums";
 import {Models} from "../../../../../main";
 import {ProcessModels, ProcessEnums} from "../../../";
 
@@ -15,7 +15,6 @@ export interface IProcessGraphModel {
     links: ProcessModels.IProcessLinkModel[];
     propertyValues: ProcessModels.IHashMapOfPropertyValues;
     decisionBranchDestinationLinks: ProcessModels.IProcessLink[];
-    status: ProcessModels.IItemStatus;
 
     updateTree();
     updateTreeAndFlows();
@@ -110,10 +109,6 @@ export class ProcessGraphModel implements IProcessGraphModel {
 
     public set decisionBranchDestinationLinks(newValue: ProcessModels.IProcessLink[]) {
         this.process.decisionBranchDestinationLinks = newValue;
-    }
-
-    public get status(): ProcessModels.IItemStatus {
-        return this.process.status;
     }
 
     // tree

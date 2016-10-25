@@ -6,7 +6,6 @@ import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
 import {ILocalizationService} from "../../../../../core/localization";
 import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
 import {IModalScope} from "../base-modal-dialog-controller";
-import {IModalProcessViewModel} from "../models/modal-process-view-model";
 import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
 import {IProcessGraph, IDiagramNode, IDiagramLink, NodeType, ICondition, IDecision} from "../../diagram/presentation/graph/models";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
@@ -38,21 +37,21 @@ describe("UserTaskModalController", () => {
         _$uibModalInstance_: ng.ui.bootstrap.IModalServiceInstance
     ) => {
         $rootScope = _$rootScope_;
-        $timeout = _$timeout_;        
+        $timeout = _$timeout_;
         localization = _localization_;
         $uibModalInstance = _$uibModalInstance_;
     }));
 
     function createUserTaskNode(): UserTask {
-        return <UserTask>{ 
-            model: { id: 1 }, 
-            direction: null, 
-            action: null, 
-            label: null, 
-            row: null, 
-            column: null, 
-            newShapeColor: null, 
-            getNodeType: () => NodeType.UserTask            
+        return <UserTask>{
+            model: { id: 1 },
+            direction: null,
+            action: null,
+            label: null,
+            row: null,
+            column: null,
+            newShapeColor: null,
+            getNodeType: () => NodeType.UserTask
         };
     }
 
@@ -78,15 +77,15 @@ describe("UserTaskModalController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const localizationSpy = spyOn(localization, "get");
             const controller = new UserTaskModalController($scope,
-                $rootScope, 
+                $rootScope,
                 $timeout,
-                dialogService, 
+                dialogService,
                 localization,
                 $uibModalInstance,
                 model);
 
             const artifactReference: IArtifactReference = null;
-            
+
             //act
             controller.saveData();
 

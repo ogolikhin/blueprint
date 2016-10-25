@@ -26,9 +26,6 @@ export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactInfoController;
     public transclude: boolean = true;
-    public bindings: any = {
-        context: "<"
-    };
 }
 
 export class BpArtifactInfoController {
@@ -79,17 +76,11 @@ export class BpArtifactInfoController {
 
     public $onInit() {
         const windowSub = this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
-        this.subscribers.push(windowSub);
-    }
-
-    public $onChanges(obj: any) {
-        this.artifactManager.get(obj.context.currentValue).then((artifact) => {
-            if (artifact) {
-                this.artifact = artifact;
-                this.subscribers.push(artifact.getObservable().subscribeOnNext(this.onArtifactChanged));
-//                this.subscribers.push(artifact.errorObservable().subscribeOnNext(this.onError));
-            }
-        });
+        const artifactStateSub = this.artifactManager.selection.currentlySelectedArtifactObservable
+            .subscribe(this.onArtifactChanged, this.onError);
+        
+        this.subscribers.push(windowSub, artifactStateSub);
+        this.artifact = this.artifactManager.selection.getArtifact();
     }
 
     public $onDestroy() {
@@ -98,11 +89,14 @@ export class BpArtifactInfoController {
             subscriber.dispose();
         });
         delete this.subscribers;
+        delete this.artifact;
     }
 
     protected onArtifactChanged = () => {
-        this.updateProperties(this.artifact);
-        this.subscribeToStateChange(this.artifact);
+        if (this.artifact) {
+            this.updateProperties(this.artifact);
+            this.subscribeToStateChange(this.artifact);
+        }
     }
 
     protected subscribeToStateChange(artifact) {
@@ -171,7 +165,11 @@ export class BpArtifactInfoController {
 
             this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
 
-            this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[itemType.predefinedType] || "document"));
+            if (artifact.itemTypeId === Models.ItemTypePredefined.Collections && artifact.predefinedType === Models.ItemTypePredefined.CollectionFolder) {
+                this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[Models.ItemTypePredefined.Collections] || "document"));
+            } else { 
+                this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[itemType.predefinedType] || "document"));
+            }
 
             this.isLegacy = itemType.predefinedType === Enums.ItemTypePredefined.Storyboard ||
                 itemType.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||

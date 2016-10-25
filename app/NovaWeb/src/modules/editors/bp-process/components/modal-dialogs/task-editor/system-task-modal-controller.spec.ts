@@ -6,7 +6,6 @@ import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
 import {ILocalizationService} from "../../../../../core/localization";
 import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
 import {IModalScope} from "../base-modal-dialog-controller";
-import {IModalProcessViewModel} from "../models/modal-process-view-model";
 import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
 import {IProcessGraph, IDiagramNode, IDiagramLink, NodeType, ICondition, IDecision} from "../../diagram/presentation/graph/models";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
@@ -38,21 +37,21 @@ describe("SystemTaskModalController", () => {
         _$uibModalInstance_: ng.ui.bootstrap.IModalServiceInstance
     ) => {
         $rootScope = _$rootScope_;
-        $timeout = _$timeout_;        
+        $timeout = _$timeout_;
         localization = _localization_;
         $uibModalInstance = _$uibModalInstance_;
     }));
 
     function createSystemTaskNode(): SystemTask {
-        return <SystemTask>{ 
-            model: { id: 1 }, 
-            direction: null, 
-            action: null, 
-            label: null, 
-            row: null, 
-            column: null, 
-            newShapeColor: null, 
-            getNodeType: () => NodeType.SystemTask            
+        return <SystemTask>{
+            model: { id: 1 },
+            direction: null,
+            action: null,
+            label: null,
+            row: null,
+            column: null,
+            newShapeColor: null,
+            getNodeType: () => NodeType.SystemTask
         };
     }
 
@@ -68,15 +67,15 @@ describe("SystemTaskModalController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const localizationSpy = spyOn(localization, "get");
             const controller = new SystemTaskModalController($scope,
-                $rootScope, 
+                $rootScope,
                 $timeout,
-                dialogService, 
+                dialogService,
                 localization,
                 $uibModalInstance,
                 model);
 
             const artifactReference: IArtifactReference = null;
-            
+
             // act
             const label = controller.formatIncludeLabel(artifactReference);
 
@@ -95,9 +94,9 @@ describe("SystemTaskModalController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const localizationSpy = spyOn(localization, "get");
             const controller = new SystemTaskModalController($scope,
-                $rootScope, 
+                $rootScope,
                 $timeout,
-                dialogService, 
+                dialogService,
                 localization,
                 $uibModalInstance,
                 model);
@@ -123,9 +122,9 @@ describe("SystemTaskModalController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const localizationSpy = spyOn(localization, "get");
             const controller = new SystemTaskModalController($scope,
-                $rootScope, 
+                $rootScope,
                 $timeout,
-                dialogService, 
+                dialogService,
                 localization,
                 $uibModalInstance,
                 model);
@@ -160,15 +159,15 @@ describe("SystemTaskModalController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const localizationSpy = spyOn(localization, "get");
             const controller = new SystemTaskModalController($scope,
-                $rootScope, 
+                $rootScope,
                 $timeout,
-                dialogService, 
+                dialogService,
                 localization,
                 $uibModalInstance,
                 model);
 
             const artifactReference: IArtifactReference = null;
-            
+
             // act and assert
             expect(controller.saveData).toThrow();
         });
@@ -198,15 +197,15 @@ describe("SystemTaskModalController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const localizationSpy = spyOn(localization, "get");
             const controller = new SystemTaskModalController($scope,
-                $rootScope, 
+                $rootScope,
                 $timeout,
-                dialogService, 
+                dialogService,
                 localization,
                 $uibModalInstance,
                 model);
 
             const artifactReference: IArtifactReference = null;
-            
+
             //act
             controller.saveData();
 

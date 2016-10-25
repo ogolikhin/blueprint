@@ -1,7 +1,6 @@
 ﻿import {Models, Enums} from "../../main";
 import {IColumn, ITreeViewNodeVM} from "../../shared/widgets/bp-tree-view/";
 import {IDialogService} from "../../shared";
-
 import {
     BpArtifactEditor,
     ILocalizationService,
@@ -15,10 +14,6 @@ import {
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {
     public template: string = require("./bp-details-editor.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactDetailsEditorController;
-    public controllerAs = "$ctrl";
-    public bindings: any = {
-        context: "<"
-    };
 }
 
 export class BpArtifactDetailsEditorController extends BpArtifactEditor {
@@ -46,7 +41,6 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public isRichTextPropertyAvailable: boolean;
     public isSpecificPropertyAvailable: boolean;
     public specificPropertiesHeading: string;
-
 
     public $onDestroy() {
         delete this.systemFields;
@@ -89,14 +83,14 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
-        let propertyContext = field.data as PropertyContext;
+        const propertyContext = field.data as PropertyContext;
         if (!propertyContext) {
             return;
         }
 
         //re-group fields
-        if (true === propertyContext.isRichText &&
-            (true === propertyContext.isMultipleAllowed || Models.PropertyTypePredefined.Description === propertyContext.propertyTypePredefined)
+        if (propertyContext.isRichText &&
+            (propertyContext.isMultipleAllowed || Models.PropertyTypePredefined.Description === propertyContext.propertyTypePredefined)
         ) {
             this.richTextFields.push(field);
         } else if (Enums.PropertyLookupEnum.System === propertyContext.lookup) {

@@ -2,13 +2,13 @@ import {ISystemTaskShape, PropertyTypePredefined} from "../../../../../models/pr
 import {ItemIndicatorFlags, ProcessShapeType} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {
-    IProcessGraph, 
-    IDiagramNode, 
-    IDiagramNodeElement, 
-    ISystemTask, 
-    ILabel, 
-    NodeType, 
-    NodeChange, 
+    IProcessGraph,
+    IDiagramNode,
+    IDiagramNodeElement,
+    ISystemTask,
+    ILabel,
+    NodeType,
+    NodeChange,
     ElementType} from "../models/";
 import {ShapesFactory} from "./shapes-factory";
 import {DiagramNodeElement} from "./diagram-element";
@@ -435,7 +435,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             this.commentsButton.activate();
         }
     }
-    
+
     public getNodeType() {
         return NodeType.SystemTask;
     }

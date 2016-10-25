@@ -13,11 +13,6 @@ import {ISelection, IStatefulArtifactFactory} from "../../managers/artifact-mana
 export class BpProcessEditor implements ng.IComponentOptions {
     public template: string = require("./bp-process-editor.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BpProcessEditorController;
-    public controllerAs = "$ctrl";
-    public transclude: boolean = true;
-    public bindings: any = {
-        context: "<"
-    };
 }
 
 export class BpProcessEditorController extends BpBaseEditor {

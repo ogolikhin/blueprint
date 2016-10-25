@@ -1,6 +1,5 @@
 import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-controller";
 import {DecisionEditorModel} from "./decision-editor-model";
-import {IModalProcessViewModel} from "../models/modal-process-view-model";
 import {ArtifactUpdateType} from "../../../models/enums";
 import {IArtifactReference, IProcessLink} from "../../../models/process-models";
 import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
@@ -115,26 +114,26 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         });
     }
 
-    public isDeleteConditionVisible(condition): boolean {
+    public isDeleteConditionVisible(condition: ICondition): boolean {
         return !this.hasMinConditions && !this.isFirstBranch(condition);
     }
 
-    public get canDeleteCondition(): boolean {
-        return !this.isReadonly;
+    public canDeleteCondition(condition: ICondition): boolean {
+        return !this.isReadonly && this.isDeleteConditionVisible(condition);
     }
 
-    public deleteCondition(item: ICondition) {
-        if (!this.canDeleteCondition) {
+    public deleteCondition(condition: ICondition) {
+        if (!this.canDeleteCondition(condition)) {
             return;
         }
 
-        const itemToDeleteIndex = this.dialogModel.conditions.indexOf(item);
+        const itemToDeleteIndex = this.dialogModel.conditions.indexOf(condition);
 
         if (itemToDeleteIndex > -1) {
             this.dialogModel.conditions.splice(itemToDeleteIndex, 1);
 
-            if (item.destinationId != null) {
-                this.deletedConditions.push(item);
+            if (condition.destinationId != null) {
+                this.deletedConditions.push(condition);
             }
         }
 

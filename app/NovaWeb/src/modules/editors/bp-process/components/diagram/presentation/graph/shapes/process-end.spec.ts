@@ -60,7 +60,6 @@ describe("ProcessEnd test", () => {
 
         const processModel = new ProcessModel();
         const viewModel = new ProcessViewModel(processModel, communicationManager);
-        viewModel.isReadonly = false;
 
         // Act
         const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);

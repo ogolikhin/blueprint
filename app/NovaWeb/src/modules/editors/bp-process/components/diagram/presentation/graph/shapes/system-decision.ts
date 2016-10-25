@@ -1,4 +1,4 @@
-﻿import { IProcessShape } from "../../../../../models/process-models";
+import { IProcessShape } from "../../../../../models/process-models";
 import { IDecision, NodeType } from "../models/";
 import { IDialogParams } from "../../../../messages/message-dialog";
 import { NodeFactorySettings } from "./node-factory-settings";
@@ -32,7 +32,7 @@ export class SystemDecision extends Decision {
         dialogParams.message = this.rootScope["config"].labels["ST_Confirm_Delete_System_Decision"];
         return dialogParams;
     }
-    
+
     public getNodeType() {
         return NodeType.SystemDecision;
     }

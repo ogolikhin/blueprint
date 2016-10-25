@@ -607,12 +607,13 @@ namespace SearchServiceTests
             Assert.That(searchResult.TotalCount.Equals(expectedSearchResult.TotalCount), "The expected total hit count is {0} but {1} was found from the returned searchResult.", expectedSearchResult.TotalCount, searchResult.TotalCount);
             Assert.That(searchResult.TotalPages.Equals(expectedSearchResult.TotalPages), "The expected total pages is {0} but {1} was found from the returned searchResult.", expectedSearchResult.TotalPages, searchResult.TotalPages);
 
-            Assert.That(searchResult.FullTextSearchTypeItems.Count().Equals(expectedSearchResult.FullTextSearchTypeItems.Count()), "The expected item type count is {0} but {1} was found from the returned searchResult.", expectedSearchResult.FullTextSearchTypeItems.Count(), searchResult.FullTextSearchTypeItems.Count());
+            Assert.IsNotNull(searchResult.Items, "List of items shouldn't be empty");
+            Assert.That(searchResult.Items.Count().Equals(expectedSearchResult.Items.Count()), "The expected item type count is {0} but {1} was found from the returned searchResult.", expectedSearchResult.Items.Count(), searchResult.Items.Count());
 
-            foreach (var expectedFullTextSearchTypeItem in expectedSearchResult.FullTextSearchTypeItems)
+            foreach (var expectedFullTextSearchTypeItem in expectedSearchResult.Items)
             {
                 var fullTextSearchTypeItem =
-                    searchResult.FullTextSearchTypeItems.FirstOrDefault(
+                    searchResult.Items.FirstOrDefault(
                         i => i.ItemTypeId == expectedFullTextSearchTypeItem.ItemTypeId);
 
                 Assert.IsNotNull(fullTextSearchTypeItem, "Item type id {0} was expected but not found", expectedFullTextSearchTypeItem.ItemTypeId);
@@ -685,7 +686,7 @@ namespace SearchServiceTests
                 PageSize = (int)pageSize,
                 TotalCount = selectedArtifacts.Count,
                 TotalPages = (int)Math.Ceiling((decimal)selectedArtifacts.Count / (int)pageSize),
-                FullTextSearchTypeItems = fullTextSearchTypeItems
+                Items = fullTextSearchTypeItems
             };
 
             return expectedFullTestSearchMetaDataResult;
@@ -707,9 +708,9 @@ namespace SearchServiceTests
         {
             ThrowIf.ArgumentNull(searchResult, nameof(searchResult));
 
-            Assert.That(searchResult.FullTextSearchTypeItems.Count().Equals(expectedHitCount),
+            Assert.That(searchResult.Items.Count().Equals(expectedHitCount),
                 "Returned Full text search type items count of {0} did not match expected count of {1}",
-                searchResult.FullTextSearchTypeItems.Count(), expectedHitCount);
+                searchResult.Items.Count(), expectedHitCount);
             Assert.That(searchResult.TotalCount.Equals(expectedHitCount),
                 "The expected search hit count is {0} but {1} was returned.",
                 expectedHitCount, searchResult.TotalCount);

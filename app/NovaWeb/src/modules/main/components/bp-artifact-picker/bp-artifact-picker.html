@@ -39,8 +39,8 @@
                 <div ng-if="$ctrl.project">
                     <i class="fonticon2-arrow-double-left" ng-class="{'hide-project-navigation': $ctrl.isOneProjectLevel}" ng-click="$ctrl.clearProject()"></i>
                     <i class="icon-project"></i>
-                    &nbsp;&nbsp;&nbsp;<span class="project-name" bp-tooltip="{{$ctrl.project}}"
-                                            bp-tooltip-truncated="true">{{$ctrl.project}}</span>
+                    &nbsp;&nbsp;&nbsp;<span class="project-name" bp-tooltip="{{$ctrl.project.name}}"
+                                            bp-tooltip-truncated="true">{{$ctrl.project.name}}</span>
                 </div>
                 <div ng-if="!$ctrl.project">
                     {{::$root.config.labels['App_Header_Name']}}

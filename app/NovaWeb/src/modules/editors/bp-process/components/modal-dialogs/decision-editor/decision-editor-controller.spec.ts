@@ -8,7 +8,6 @@ import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
 import {ILocalizationService} from "../../../../../core/localization";
 import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
 import {IModalScope} from "../base-modal-dialog-controller";
-import {IModalProcessViewModel} from "../models/modal-process-view-model";
 import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
 import {IProcessGraph, IDiagramNode, IDiagramLink, NodeType, ICondition, IDecision} from "../../diagram/presentation/graph/models";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
@@ -400,10 +399,30 @@ describe("DecisionEditorController", () => {
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
 
             // assert
-            expect(controller.canDeleteCondition).toBe(false);
+            for (const condition of model.conditions) {
+                expect(controller.canDeleteCondition(condition)).toBe(false);
+            }
         });
 
-        it("is true when not read-only", () => {
+        it("is false for all conditions if minimum conditions reached", () => {
+            // arrange
+            const model = new DecisionEditorModel();
+            const $scope = <IModalScope>$rootScope.$new();
+            const controller = new DecisionEditorController(
+                $rootScope, $scope, $timeout, $anchorScroll, 
+                $location, localization, $uibModalInstance, model
+            );
+
+            // act
+            model.conditions = createConditions(ProcessGraph.MinConditions);
+
+            // assert
+            for (const condition of model.conditions) {
+                expect(controller.canDeleteCondition(condition)).toBe(false);
+            }
+        });
+
+        it("is true for all conditions but first if not read-only and minimum conditions not reached", () => {
             // arrange
             const model = new DecisionEditorModel();
             const $scope = <IModalScope>$rootScope.$new();
@@ -415,8 +434,15 @@ describe("DecisionEditorController", () => {
             // act
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
 
-            // arrange
-            expect(controller.canDeleteCondition).toBe(true);
+            // assert
+            for (const condition of model.conditions) {
+                if (condition.orderindex === 0) {
+                    expect(controller.canDeleteCondition(condition)).toBe(false);
+                    continue;
+                }
+
+                expect(controller.canDeleteCondition(condition)).toBe(true);
+            }
         });
     });
 

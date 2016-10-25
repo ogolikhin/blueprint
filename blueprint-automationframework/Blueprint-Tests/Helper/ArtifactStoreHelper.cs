@@ -1,4 +1,4 @@
-﻿using Common;
+using Common;
 using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;

@@ -238,3 +238,5 @@ _Pvt_Extensions
 
 # NetBeans project files
 /app/NovaWeb/nbproject/
+/app/NovaWeb/start-server.bat
+/app/NovaWeb/private-build.bat

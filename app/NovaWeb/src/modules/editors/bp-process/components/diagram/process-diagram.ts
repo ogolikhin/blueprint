@@ -133,6 +133,7 @@ export class ProcessDiagram {
                                selectedNodeId: number = undefined) {
 
         try {
+
             this.graph = new ProcessGraph(
                 this.$rootScope,
                 this.$scope,

@@ -1,4 +1,4 @@
-﻿import { IProcessShape } from "../../../../../models/process-models";
+import { IProcessShape } from "../../../../../models/process-models";
 import { IDecision, NodeType } from "../models/";
 import { IDialogParams } from "../../../../messages/message-dialog";
 import { NodeFactorySettings } from "./node-factory-settings";

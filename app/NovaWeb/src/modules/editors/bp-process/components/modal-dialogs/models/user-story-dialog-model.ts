@@ -6,6 +6,7 @@ export class UserStoryDialogModel implements IModalDialogModel {
     public originalUserTask: UserTask;
     public previousSytemTasks: SystemTask[];
     public nextSystemTasks: SystemTask[];
+    public artifactId: number;
     public subArtifactId: number;
     public isUserSystemProcess: boolean;
     public propertiesMw: any; //TODO correct interface required! 

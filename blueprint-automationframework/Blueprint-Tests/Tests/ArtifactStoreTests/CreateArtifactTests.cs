@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using Common;
@@ -802,7 +802,7 @@ namespace ArtifactStoreTests
             serviceError.AssertEquals(expectedError);
         }
 
-        
+
         
         #endregion Private functions
     }

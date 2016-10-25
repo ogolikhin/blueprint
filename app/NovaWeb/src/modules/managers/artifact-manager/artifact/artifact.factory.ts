@@ -19,6 +19,7 @@ import {
 } from "../services";
 import {IArtifactService} from "./artifact.svc";
 import {ILoadingOverlayService} from "../../../core/loading-overlay";
+import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
 
 export interface IStatefulArtifactFactory {
     createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact;
@@ -41,7 +42,8 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         "metadataService",
         "processService",
         "itemInfoService",
-        "loadingOverlayService"
+        "loadingOverlayService",
+        "publishService"
     ];
 
     private services: IStatefulArtifactServices;
@@ -57,7 +59,8 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
                 private metadataService: IMetaDataService,
                 private processService: IProcessService,
                 private itemInfoService: IItemInfoService,
-                private loadingOverlayService: ILoadingOverlayService) {
+                private loadingOverlayService: ILoadingOverlayService,
+                private publishService: IPublishService) {
 
         this.services = new StatefulArtifactServices(
             this.$q,
@@ -69,7 +72,8 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
             this.attachmentService,
             this.relationshipsService,
             this.metadataService,
-            this.loadingOverlayService);
+            this.loadingOverlayService,
+            this.publishService);
     }
 
     public createStatefulArtifactFromId(artifactId: number): ng.IPromise<IStatefulArtifact> {

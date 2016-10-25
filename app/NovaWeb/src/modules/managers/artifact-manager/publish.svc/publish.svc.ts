@@ -4,6 +4,7 @@ export {Models, Enums}
 export interface IPublishService {
     publishAll(): ng.IPromise<Models.IPublishResultSet>;
     getUnpublishedArtifacts(): ng.IPromise<Models.IPublishResultSet>;
+    publishArtifacts(artifactIds: number[]): ng.IPromise<Models.IPublishResultSet>;
 }
 
 export class PublishService implements IPublishService {
@@ -45,6 +46,28 @@ export class PublishService implements IPublishService {
                     return;
                 }
                 let error = {
+                    statusCode: errResult.status,
+                    errorCode: errResult.data ? errResult.data.errorCode : -1,
+                    message: (errResult.data ? errResult.data.message : "")
+                };
+                defer.reject(error);
+            }
+        );
+        return defer.promise;
+    }
+
+    public publishArtifacts(artifactIds: number[]): ng.IPromise<Models.IPublishResultSet> {
+        let defer = this.$q.defer<Models.IPublishResultSet>();
+
+        this.$http.post(`/svc/bpartifactstore/artifacts/publish?all=false`, artifactIds).then(
+            (result: ng.IHttpPromiseCallbackArg<Models.IPublishResultSet>) => defer.resolve(result.data),
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                if (!errResult) {
+                    defer.reject();
+                    return;
+                }
+                let error = {
+                    content: errResult.data.errorContent,
                     statusCode: errResult.status,
                     errorCode: errResult.data ? errResult.data.errorCode : -1,
                     message: (errResult.data ? errResult.data.message : "")

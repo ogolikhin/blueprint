@@ -3,13 +3,15 @@
     "authorizationTokenbase64": "YWRtaW46JEFkbWluOTM=",
     "artifactName": "FROMPOSTREQUEST_fromAuto_new1",
     "artifactParentId": "1",
-    "artifactTypeId": "77",
+    "artifactTypeId": "78",
     "artifactProperties": "[]",
     "getAuthenticationApiUrl": "http://ncover.blueprintsys.net/authentication/v1/login",
     "postCreateArtifactUrl": "http://ncover.blueprintsys.net/api/v1/projects/1/artifacts",
     "postPublishArtifactUrl": "http://ncover.blueprintsys.net/api/v1/vc/publish?",
     "siteUrl": "http://ncover.blueprintsys.net/Web/#/Storyteller/",
-    "baseURL": "http://ncover.blueprintsys.net"
+    "baseURL": "http://ncover.blueprintsys.net",
+    "getProjectUrl": "http://ncover.blueprintsys.net/api/v1/projects?Location=True",
+    "getNovaUrl": "http://ncover.blueprintsys.net/#/main"
 
   } 
 }

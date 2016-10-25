@@ -1,4 +1,4 @@
-﻿import {ItemTypePredefined} from "../../../../../main/models/enums";
+import {ItemTypePredefined} from "../../../../../main/models/enums";
 import {Models} from "../../../../../main";
 import {ProcessModels, ProcessEnums} from "../../../";
 

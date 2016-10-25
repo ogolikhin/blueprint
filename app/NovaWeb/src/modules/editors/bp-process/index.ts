@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {BpProcessHeader} from "./components/header/bp-process-header";
 import {BpProcessEditor} from "./bp-process-editor";
 import {ProcessService} from "./services/process.svc";
@@ -19,6 +19,8 @@ import {DecisionEditor} from "./components/modal-dialogs/decision-editor";
 import {UserTaskEditor} from "./components/modal-dialogs/task-editor";
 import {SystemTaskEditor} from "./components/modal-dialogs/task-editor";
 
+import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shapes-factory";
+
 angular.module("bp.editors.process", ["ui.bootstrap"])
     .component("bpProcessHeader", new BpProcessHeader())
     .component("bpProcessEditor", new BpProcessEditor())
@@ -29,6 +31,7 @@ angular.module("bp.editors.process", ["ui.bootstrap"])
     .directive("previewWing", PreviewWingDirective.directive)
     .directive("zoomableImage", ZoomableImageDirective.directive)
     .service("processService", ProcessService)
+    .service("shapesFactory", ShapesFactory)
     .service("breadcrumbService", BreadcrumbService)
     .service("communicationManager", CommunicationManager)
     .directive("contextualHelp", ContextualHelpDirective.factory())
@@ -42,5 +45,7 @@ export {
     ProcessService,
     ProcessModels,
     ProcessEnums,
-    ICommunicationManager, CommunicationManager
+    ICommunicationManager, 
+    CommunicationManager,
+    ShapesFactory
 };

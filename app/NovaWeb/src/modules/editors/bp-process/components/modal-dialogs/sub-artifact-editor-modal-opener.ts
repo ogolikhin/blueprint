@@ -81,6 +81,7 @@ export class SubArtifactEditorModalOpener {
 
     public getSubArtifactUserTaskDialogModel(shapeId: number, graph: IProcessGraph): UserTaskDialogModel {
         const taskDialogModel = new UserTaskDialogModel();
+        taskDialogModel.artifactId = graph.viewModel.id;
         taskDialogModel.subArtifactId = shapeId;
 
         const node = graph.getNodeById(taskDialogModel.subArtifactId.toString());
@@ -110,14 +111,15 @@ export class SubArtifactEditorModalOpener {
     public getSubArtifactSystemTaskDialogModel(shapeId: number, graph: IProcessGraph): SystemTaskDialogModel {
         const taskDialogModel = new SystemTaskDialogModel();
         taskDialogModel.subArtifactId = shapeId;
+        taskDialogModel.artifactId = graph.viewModel.id;
         // set dialog model isReadonly property to enable/disable input controls
         taskDialogModel.isReadonly = this.isReadonly;
         taskDialogModel.isHistoricalVersion = this.isHistorical;
 
         const node = graph.getNodeById(taskDialogModel.subArtifactId.toString());
-        
+
         let systemTaskNode: SystemTask;
-        
+
         if (node.getNodeType() === NodeType.SystemTask) {
             systemTaskNode = <SystemTask>node;
 
@@ -145,6 +147,8 @@ export class SubArtifactEditorModalOpener {
         }
 
         const model: DecisionEditorModel = new DecisionEditorModel();
+
+        model.artifactId = graph.viewModel.id;
 
         model.graph = graph;
         model.conditions = [];
@@ -219,6 +223,7 @@ export class SubArtifactEditorModalOpener {
 
     public getUserStoryDialogModel(shapeId: number, graph: IProcessGraph): UserStoryDialogModel {
         const userStoryDialogModel = new UserStoryDialogModel();
+        userStoryDialogModel.artifactId = graph.viewModel.id;
         userStoryDialogModel.subArtifactId = shapeId;
         const node = graph.getNodeById(userStoryDialogModel.subArtifactId.toString());
         const userTaskNode = <UserTask>node;

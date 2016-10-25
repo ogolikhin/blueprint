@@ -4,7 +4,8 @@ import "angular-ui-tinymce";
 import "tinymce";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
 import {Helper} from "../../../../shared";
-
+import { INavigationService } from "../../../../core/navigation";
+//fixme: only one class per file
 export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTF";
     public template: string = require("./text-rtf.template.html");
@@ -24,10 +25,10 @@ export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
 }
 
 export class BpFieldTextRTFController extends BPFieldBaseRTFController {
-    static $inject: [string] = ["$scope"];
+    static $inject: [string] = ["$scope", "navigationService"];
 
-    constructor(private $scope: AngularFormly.ITemplateScope) {
-        super();
+    constructor(private $scope: AngularFormly.ITemplateScope, navigationService: INavigationService) {
+        super(navigationService);
 
         let contentBuffer: string = undefined;
         let mceEditor: TinyMceEditor;
@@ -54,7 +55,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 toolbar: "bold italic underline strikethrough | fontsize fontselect forecolor format | link table",
                 statusbar: false,
                 content_style: `html { height: 100%; overflow: auto !important; }
-                body.mce-content-body { background: transparent; font-family: 'Open Sans', sans-serif; font-size: 9pt; min-height: 100px; 
+                body.mce-content-body { background: transparent; font-family: 'Open Sans', sans-serif; font-size: 9pt; min-height: 100px;
                 margin: 8px 20px 8px 8px; overflow: visible !important; padding-bottom: 0 !important; }
                 html:hover, html:focus { background: ${bodyBgColor} url(${bodyBgImage}) no-repeat right 4px top 6px; background-attachment: fixed; }
                 a:hover { cursor: pointer !important; }

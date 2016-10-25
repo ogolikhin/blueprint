@@ -62,7 +62,7 @@ export class BpProcessEditorController extends BpBaseEditor {
         super(messageService, artifactManager);
 
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener(
-            $scope, $uibModal, communicationManager.modalDialogManager, localization);
+            $uibModal, communicationManager.modalDialogManager, localization);
     }
 
     public $onInit() {
@@ -136,7 +136,7 @@ export class BpProcessEditorController extends BpBaseEditor {
 
     private destroy() {
         if (this.subArtifactEditorModalOpener) {
-            this.subArtifactEditorModalOpener.onDestroy();
+            this.subArtifactEditorModalOpener.destroy();
         }
 
         if (this.processDiagram) {

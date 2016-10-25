@@ -77,7 +77,7 @@ export class ProcessViewModel implements IProcessViewModel {
     }
 
     public get isReadonly(): boolean {
-        const statefulProcess = <StatefulProcessArtifact>this.process;
+        const statefulProcess: StatefulProcessArtifact = <StatefulProcessArtifact>this.process;
 
         if (statefulProcess && statefulProcess.artifactState) {
             return statefulProcess.artifactState.readonly;
@@ -87,7 +87,7 @@ export class ProcessViewModel implements IProcessViewModel {
     }
 
     public get isChanged(): boolean {
-        const statefulProcess = <StatefulProcessArtifact>this.process;
+        const statefulProcess: StatefulProcessArtifact = <StatefulProcessArtifact>this.process;
 
         if (statefulProcess && statefulProcess.artifactState) {
             return statefulProcess.artifactState.dirty;
@@ -392,9 +392,9 @@ export class ProcessViewModel implements IProcessViewModel {
     }
 
     public get isHistorical(): boolean {
-        const statefulProcess = <StatefulProcessArtifact>this.process;
+        const statefulProcess: StatefulProcessArtifact = <StatefulProcessArtifact>this.process;
 
-        if (statefulProcess) {
+        if (statefulProcess && statefulProcess.historical !== undefined) {
             return statefulProcess.historical;
         }
 

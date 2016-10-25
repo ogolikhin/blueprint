@@ -44,7 +44,7 @@ export function createShapeModel(type: ProcessShapeType, id: number, x?: number,
     return shapeModel;
 }
 
-export function createUserTask(id: number, x?: number, y?: number, hasComments?: boolean, hasTraces?: boolean): IUserTaskShape {
+export function createUserTask(id: number, x?: number, y?: number, hasComments: boolean = false, hasTraces: boolean = false): IUserTaskShape {
     const shape = createShapeModel(ProcessShapeType.UserTask, id, x, y);
     shape["flags"] = {
         hasComments: hasComments,
@@ -76,7 +76,7 @@ export function createDefaultProcessModelWithoutXAndY(): IProcess {
 
     let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
     let pre = createShapeModel(ProcessShapeType.PreconditionSystemTask, 15, 0, 0);
-    let ut1 = createShapeModel(ProcessShapeType.UserTask, 20, 0, 0);
+    let ut1 = createUserTask(20, 0, 0);
     let st2 = createShapeModel(ProcessShapeType.SystemTask, 25, 0, 0);
     let end = createShapeModel(ProcessShapeType.End, 30, 0, 0);
 

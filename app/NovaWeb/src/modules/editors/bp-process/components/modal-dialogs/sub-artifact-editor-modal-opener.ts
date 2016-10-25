@@ -24,7 +24,6 @@ export class SubArtifactEditorModalOpener {
     private openDialogCallerHandler: string;
 
     constructor(
-        private $scope: ng.IScope,
         private $uibModal: angular.ui.bootstrap.IModalService,
         private dialogCommunication: IModalDialogCommunication,
         private localization: ILocalizationService
@@ -42,170 +41,60 @@ export class SubArtifactEditorModalOpener {
     }
 
     private openDialog = (id: number, dialogType: ModalDialogType) => {
-        window.console.log(`Open dialog with parameters ${id}, ${dialogType}`);
-
         try {
-            if (dialogType === ModalDialogType.UserTaskDetailsDialogType) {
-                this.openUserTaskDetailsModalDialog(this.$scope, id, this.graph);
-            } else if (dialogType === ModalDialogType.SystemTaskDetailsDialogType) {
-                this.openSystemTaskDetailsModalDialog(this.$scope, id, this.graph);
-            } else if (dialogType === ModalDialogType.UserSystemDecisionDetailsDialogType) {
-                this.openDecisionEditorDialog(this.$scope, id, this.graph);
-            } else if (dialogType === ModalDialogType.PreviewDialogType) {
-                this.openPreviewModalDialog(this.$scope, id, this.graph);
+            const settings: ModalSettings = this.getModalSettings(id, dialogType, this.graph);
+
+            if (settings) {
+                this.$uibModal.open(settings);
             }
         } catch (err) {
             window.console.log(err);
         }
     };
 
-    public getSubArtifactUserTaskDialogModel(shapeId: number, graph: IProcessGraph): UserTaskDialogModel {
-        const taskDialogModel = new UserTaskDialogModel();
-        taskDialogModel.subArtifactId = shapeId;
+    private getModalSettings(id: number, dialogType: ModalDialogType, graph: IProcessGraph): ModalSettings {
+        switch (dialogType) {
+            case ModalDialogType.UserTaskDetailsDialogType:
+                return this.getUserTaskEditorDialogSettings(id, graph);
 
-        const node = graph.getNodeById(taskDialogModel.subArtifactId.toString());
-        let userTaskNode: UserTask;
+            case ModalDialogType.SystemTaskDetailsDialogType:
+                return this.getSystemTaskEditorDialogSettings(id, graph);
 
-        // set dialog model isReadonly property to enable/disable input controls
-        if (!graph.viewModel) {
-            throw new Error("ProcessViewModel is null in SubArtifactEditorModalOpener");
+            case ModalDialogType.UserSystemDecisionDetailsDialogType:
+                return this.getDecisionEditorDialogSettings(id, graph);
+
+            case ModalDialogType.PreviewDialogType:
+                return this.getPreviewModalDialogSettings(id, graph);
+
+            default:
+                return null;
         }
-
-        taskDialogModel.isReadonly = graph.viewModel.isReadonly;
-        taskDialogModel.isHistoricalVersion = graph.viewModel.isHistorical;
-        
-        if (node.getNodeType() === NodeType.UserTask) {
-            userTaskNode = <UserTask>node;
-            if (userTaskNode) { // When the node selected is the "pre-condition",the user taskNode is null, since it is the start node
-                taskDialogModel.originalItem = userTaskNode;
-                taskDialogModel.action = taskDialogModel.originalItem.action;
-                taskDialogModel.associatedArtifact = taskDialogModel.originalItem.associatedArtifact;
-                taskDialogModel.objective = taskDialogModel.originalItem.objective;
-                taskDialogModel.label = taskDialogModel.originalItem.label;
-                taskDialogModel.persona = taskDialogModel.originalItem.persona;
-            }
-        } else {
-            return null;
-        }
-
-        return taskDialogModel;
     }
 
-    public getSubArtifactSystemTaskDialogModel(shapeId: number, graph: IProcessGraph): SystemTaskDialogModel {
-        const taskDialogModel = new SystemTaskDialogModel();
-        taskDialogModel.subArtifactId = shapeId;
-
-        // set dialog model isReadonly property to enable/disable input controls
-        if (!graph.viewModel) {
-            throw new Error("ProcessViewModel is null in SubArtifactEditorModalOpener");
-        }
-
-        taskDialogModel.isReadonly = graph.viewModel.isReadonly;
-        taskDialogModel.isHistoricalVersion = graph.viewModel.isHistorical;
-
-        const node = graph.getNodeById(taskDialogModel.subArtifactId.toString());
-
-        let systemTaskNode: SystemTask;
-
-        if (node.getNodeType() === NodeType.SystemTask) {
-            systemTaskNode = <SystemTask>node;
-
-            if (systemTaskNode) { // When the node selected is the "pre-condition",the user taskNode is null, since it is the start node
-                taskDialogModel.originalItem = systemTaskNode;
-                taskDialogModel.action = taskDialogModel.originalItem.action;
-                taskDialogModel.associatedArtifact = taskDialogModel.originalItem.associatedArtifact;
-                taskDialogModel.imageId = taskDialogModel.originalItem.imageId;
-                taskDialogModel.label = taskDialogModel.originalItem.label;
-                taskDialogModel.persona = taskDialogModel.originalItem.persona;
-                taskDialogModel.associatedImageUrl = taskDialogModel.originalItem.associatedImageUrl;
-            }
-        } else {
-            return null;
-        }
-
-        return taskDialogModel;
-    }
-
-    public getDecisionEditorModel(shapeId: number, graph: IProcessGraph): DecisionEditorModel {
-        const decision = <IDecision>graph.getNodeById(shapeId.toString());
-
-        if (!decision) {
-            return null;
-        }
-
-        const allowedNodeTypes: NodeType[] = [NodeType.UserDecision, NodeType.SystemDecision];
-        const nodeType: NodeType = decision.getNodeType();
-        
-        if (allowedNodeTypes.indexOf(nodeType) < 0) {
-            return null;
-        }
-
-        const model: DecisionEditorModel = new DecisionEditorModel();
-
-        // set dialog model isReadonly property to enable/disable input controls
-        if (!graph.viewModel) {
-            throw new Error("ProcessViewModel is null in SubArtifactEditorModalOpener");
-        }
-
-        model.isReadonly = graph.viewModel.isReadonly;
-        model.isHistoricalVersion = graph.viewModel.isHistorical;
-        
-        model.graph = graph;
-        model.conditions = [];
-
-        // cloning decision
-        model.originalDecision = decision;
-        model.label = decision.label;
-
-        // populate existing conditions
-        const outgoingLinks: IProcessLink[] = model.graph.getNextLinks(decision.model.id);
-
-        for (let index = 0; index < outgoingLinks.length; index++) {
-            const outgoingLink: IProcessLink = outgoingLinks[index];
-            let mergePoint: IDiagramNode = null;
-
-            // We do not display change merge node option for first branch
-            if (index !== 0) {
-                const mergeNodeId: string = model.originalDecision.getMergeNode(graph, outgoingLink.orderindex).id.toString();
-                mergePoint = graph.getNodeById(mergeNodeId);
-            }
-
-            const validMergeNodes: IDiagramNode[] = model.graph.getValidMergeNodes(outgoingLink);
-            const condition: ICondition = Condition.create(outgoingLink, mergePoint, validMergeNodes);
-            model.conditions.push(condition);
-        }
-
-        return model;
-    }
-
-    private openUserTaskDetailsModalDialog = ($scope: ng.IScope, shapeId: number, graph: IProcessGraph): void => {
-        const settings = <ModalSettings>{
+    private getUserTaskEditorDialogSettings = (shapeId: number, graph: IProcessGraph): ModalSettings => {
+        return <ModalSettings>{
             animation: true,
             component: "userTaskEditor",
             resolve: {
-                dialogModel: () => this.getSubArtifactUserTaskDialogModel(shapeId, graph)
+                dialogModel: () => this.getUserTaskDialogModel(shapeId, graph)
             },
             windowClass: "storyteller-modal"
         };
-
-        this.$uibModal.open(settings);
     }
 
-    private openSystemTaskDetailsModalDialog = ($scope: ng.IScope, shapeId: number, graph: IProcessGraph): void => {
-        const settings = <ModalSettings>{
+    private getSystemTaskEditorDialogSettings = (shapeId: number, graph: IProcessGraph): ModalSettings => {
+        return <ModalSettings>{
             animation: true,
             component: "systemTaskEditor",
             resolve: {
-                dialogModel: () => this.getSubArtifactSystemTaskDialogModel(shapeId, graph)
+                dialogModel: () => this.getSystemTaskDialogModel(shapeId, graph)
             },
             windowClass: "storyteller-modal"
         };
-
-        this.$uibModal.open(settings);
     }
 
-    private openDecisionEditorDialog = ($scope: ng.IScope, shapeId: number, graph: IProcessGraph): void => {
-        const settings = <ModalSettings>{
+    private getDecisionEditorDialogSettings = (shapeId: number, graph: IProcessGraph): ModalSettings => {
+        return <ModalSettings>{
             animation: true,
             component: "decisionEditor",
             resolve: {
@@ -213,56 +102,153 @@ export class SubArtifactEditorModalOpener {
             },
             windowClass: "storyteller-modal"
         };
-
-        this.$uibModal.open(settings);
     };
 
-    public getUserStoryDialogModel(shapeId: number, graph: IProcessGraph): UserStoryDialogModel {
-        const userStoryDialogModel = new UserStoryDialogModel();
-        userStoryDialogModel.subArtifactId = shapeId;
-        const node = graph.getNodeById(userStoryDialogModel.subArtifactId.toString());
-        const userTaskNode = <UserTask>node;
-        userStoryDialogModel.previousSytemTasks = userTaskNode.getPreviousSystemTasks(graph) as SystemTask[];
-        userStoryDialogModel.nextSystemTasks = userTaskNode.getNextSystemTasks(graph) as SystemTask[];
-        userStoryDialogModel.originalUserTask = userTaskNode;
-        userStoryDialogModel.clonedUserTask = userStoryDialogModel.originalUserTask.cloneUserTask();
-        userStoryDialogModel.isUserSystemProcess = graph.isUserSystemProcess;
-
-        // set dialog model isReadonly property to enable/disable input controls
-        if (!graph.viewModel) {
-            throw new Error("ProcessViewModel is null in SubArtifactEditorModalOpener");
-        }
-
-        userStoryDialogModel.isReadonly = graph.viewModel.isReadonly;
-        userStoryDialogModel.isHistoricalVersion = graph.viewModel.isHistorical;
-
-        return userStoryDialogModel;
-    }
-
-    private openPreviewModalDialog($scope: ng.IScope, shapeId: number, graph: IProcessGraph) {
-        this.open("",
-            require("./user-story-preview/user-story-preview.html"),
-            UserStoryPreviewController,
-            this.getUserStoryDialogModel(shapeId, graph),
-            "preview-modal");
-    }
-
-    public open = (size, htmlTemplate: string, ctrl: any, dialogModel: any, windowClass: string) => {
-        this.$uibModal.open(<ModalSettings>{
+    private getPreviewModalDialogSettings = (shapeId: number, graph: IProcessGraph): ModalSettings => {
+        return <ModalSettings>{
             okButton: this.localization.get("App_Button_Ok"),
             animation: true,
-            template: htmlTemplate,
-            controller: ctrl,
+            template: require("./user-story-preview/user-story-preview.html"),
+            controller: UserStoryPreviewController,
             controllerAs: "vm",
-            windowClass: windowClass,
-            size: size,
+            windowClass: "preview-modal",
+            size: "",
             resolve: {
-                dialogModel: () => dialogModel
+                dialogModel: () => this.getUserStoryDialogModel(shapeId, graph)
             }
-        });
+        };
     }
 
-    public onDestroy = () => {
+    private getUserTaskDialogModel(shapeId: number, graph: IProcessGraph): UserTaskDialogModel {
+        if (!graph || !graph.viewModel) {
+            throw new Error("graph is null or invalid in SubArtifactEditorModalOpener");
+        }
+
+        const node = graph.getNodeById(shapeId.toString());
+
+        if (!node || node.getNodeType() !== NodeType.UserTask) {
+            return null;
+        }
+
+        const userTask: UserTask = <UserTask>node;
+        const model = new UserTaskDialogModel();
+
+        model.subArtifactId = shapeId;
+        model.isReadonly = graph.viewModel.isReadonly;
+        model.isHistoricalVersion = graph.viewModel.isHistorical;
+        model.originalItem = userTask;
+        model.action = model.originalItem.action;
+        model.associatedArtifact = model.originalItem.associatedArtifact;
+        model.objective = model.originalItem.objective;
+        model.label = model.originalItem.label;
+        model.persona = model.originalItem.persona;
+
+        return model;
+    }
+
+    private getSystemTaskDialogModel(shapeId: number, graph: IProcessGraph): SystemTaskDialogModel {
+        if (!graph || !graph.viewModel) {
+            throw new Error("graph is null or invalid in SubArtifactEditorModalOpener");
+        }
+
+        const node = graph.getNodeById(shapeId.toString());
+
+        if (!node || node.getNodeType() !== NodeType.SystemTask) {
+            return null;
+        }
+
+        const systemTask: SystemTask = <SystemTask>node;
+        const model = new SystemTaskDialogModel();
+
+        model.subArtifactId = shapeId;
+        model.isReadonly = graph.viewModel.isReadonly;
+        model.isHistoricalVersion = graph.viewModel.isHistorical;
+        model.originalItem = systemTask;
+        model.action = model.originalItem.action;
+        model.associatedArtifact = model.originalItem.associatedArtifact;
+        model.imageId = model.originalItem.imageId;
+        model.label = model.originalItem.label;
+        model.persona = model.originalItem.persona;
+        model.associatedImageUrl = model.originalItem.associatedImageUrl;
+
+        return model;
+    }
+
+    private getDecisionEditorModel(shapeId: number, graph: IProcessGraph): DecisionEditorModel {
+        if (!graph || !graph.viewModel) {
+            throw new Error("graph is null or invalid in SubArtifactEditorModalOpener");
+        }
+
+        const node = graph.getNodeById(shapeId.toString());
+        const allowedNodeTypes: NodeType[] = [NodeType.UserDecision, NodeType.SystemDecision];
+
+        if (!node || allowedNodeTypes.indexOf(node.getNodeType()) < 0) {
+            return null;
+        }
+
+        const decision: IDecision = <IDecision>node;
+        const model: DecisionEditorModel = new DecisionEditorModel();
+
+        model.subArtifactId = shapeId;
+        model.label = decision.label;
+        model.conditions = this.getConditions(decision, graph);
+        model.isReadonly = graph.viewModel.isReadonly;
+        model.isHistoricalVersion = graph.viewModel.isHistorical;
+        model.graph = graph;
+        model.originalDecision = decision;
+
+        return model;
+    }
+
+    private getConditions(decision: IDecision, graph: IProcessGraph): ICondition[] {
+        const conditions: ICondition[] = [];
+        const outgoingLinks: IProcessLink[] = graph.getNextLinks(decision.model.id);
+
+        for (let index = 0; index < outgoingLinks.length; index++) {
+            const outgoingLink: IProcessLink = outgoingLinks[index];
+            let mergePoint: IDiagramNode = null;
+
+            // We do not display change merge node option for first branch
+            if (index !== 0) {
+                const mergeNodeId: string = decision.getMergeNode(graph, outgoingLink.orderindex).id.toString();
+                mergePoint = graph.getNodeById(mergeNodeId);
+            }
+
+            const validMergeNodes: IDiagramNode[] = graph.getValidMergeNodes(outgoingLink);
+            const condition: ICondition = Condition.create(outgoingLink, mergePoint, validMergeNodes);
+            conditions.push(condition);
+        }
+
+        return conditions;
+    }
+
+    private getUserStoryDialogModel(shapeId: number, graph: IProcessGraph): UserStoryDialogModel {
+        if (!graph || !graph.viewModel) {
+            throw new Error("graph is null or invalid in SubArtifactEditorModalOpener");
+        }
+
+        const node = graph.getNodeById(shapeId.toString());
+
+        if (!node || node.getNodeType() !== NodeType.UserTask) {
+            return null;
+        }
+
+        const userTask = <UserTask>node;
+        const model: UserStoryDialogModel = new UserStoryDialogModel();
+
+        model.subArtifactId = shapeId;
+        model.previousSytemTasks = userTask.getPreviousSystemTasks(graph) as SystemTask[];
+        model.nextSystemTasks = userTask.getNextSystemTasks(graph) as SystemTask[];
+        model.originalUserTask = userTask;
+        model.clonedUserTask = model.originalUserTask.cloneUserTask();
+        model.isUserSystemProcess = graph.isUserSystemProcess;
+        model.isReadonly = graph.viewModel.isReadonly;
+        model.isHistoricalVersion = graph.viewModel.isHistorical;
+
+        return model;
+    }
+
+    public destroy = () => {
         this.dialogCommunication.removeSetGraphObserver(this.setGraphHandler);
         this.dialogCommunication.removeOpenDialogObserver(this.openDialogCallerHandler);
     }

@@ -4,7 +4,6 @@ import {
     IUserTaskShape,
     IProcessShape,
     ISystemTaskShape,
-    IArtifactReference,
     IArtifactReferenceLink,
     ITaskFlags
 } from "../../../../../models/process-models";

@@ -1,4 +1,4 @@
-﻿import {IMessageService} from "../../../../../../core/";
+import {IMessageService} from "../../../../../../core/";
 import {IProcessShape, IProcessLink} from "../../../../models/process-models";
 import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/process-models";
 import {NewUserTaskInfo, SourcesAndDestinations, EdgeGeo} from "../../../../models/process-models";

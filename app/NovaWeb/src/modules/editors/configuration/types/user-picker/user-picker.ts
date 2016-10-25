@@ -57,10 +57,6 @@ export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
         });
     };
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldUserPickerController;
-
-    constructor() {
-        //fixme: empty constructors can be removed
-    }
 }
 
 export class BpFieldUserPickerController extends BPFieldBaseController {
@@ -72,14 +68,14 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 private $compile: ng.ICompileService) {
         super();
 
-        let to: AngularFormly.ITemplateOptions = {
+        const to: AngularFormly.ITemplateOptions = {
             placeholder: localization.get("Property_Placeholder_Select_Option"),
             valueProp: "value",
             labelProp: "name"
         };
         angular.merge($scope.to, to);
 
-        let validators = {
+        $scope.options["validators"] = {
             // despite what the Formly doc says, "required" is not supported in ui-select, therefore we need our own implementation.
             // See: https://github.com/angular-ui/ui-select/issues/1226#event-604773506
             requiredCustom: {
@@ -93,37 +89,35 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 }
             }
         };
-        $scope.options["validators"] = validators;
 
-        let currentModelVal = $scope.model[$scope.options["key"]];
-        if (currentModelVal) {
-            if (angular.isArray(currentModelVal) && currentModelVal.length) {
-                // create the initial options in the dropdown just to be able to display the selected options in the field
-                // the dropdown will be dynamically loaded from the webservice
-                // TODO: remove <any> - needs to return proper interface from map method return statement
-                $scope.to.options = <any>currentModelVal.map((it: IUserGroup) => {
-                    return {
-                        value: it,
-                        name: (it.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + it.displayName
-                    } as IUserPickerItem;
-                });
-            } else if (angular.isString(currentModelVal)) {
-                // TODO: remove <any> - need to return property interface from map return method
-                let optionsFromString = <any>currentModelVal.split(",").map((it: string) => {
-                    return {
-                        value: {
-                            id: -1,
-                            displayName: it,
-                            isImported: true
-                        },
-                        name: it
-                    } as IUserPickerItem;
-                });
-                $scope.to.options = optionsFromString;
+        $scope.options["expressionProperties"] = {
+            "templateOptions.options": () => {
+                const currentModelVal = $scope.model[$scope.options["key"]];
+                if (currentModelVal) {
+                    let options: IUserPickerItem[] = [];
+                    if (_.isArray(currentModelVal) && currentModelVal.length) {
+                        // create the initial options in the dropdown just to be able to display the selected options in the field
+                        // the dropdown will be dynamically loaded from the webservice
+                        options = currentModelVal.map((it: IUserGroup) => {
+                            return {
+                                value: it,
+                                name: (it.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + it.displayName
+                            } as IUserPickerItem;
+                        });
+                    } else if (_.isString(currentModelVal)) {
+                        $scope.model[$scope.options["key"]] = currentModelVal.split(",").map((it: string) => {
+                            return {
+                                id: -1,
+                                displayName: it,
+                                isImported: true
+                            } as IUserGroup;
+                        });
+                    }
 
-                $scope.model[$scope.options["key"]] = optionsFromString;
+                    return options;
+                }
             }
-        }
+        };
 
         $scope["$on"]("$destroy", function () {
             if ($scope["uiSelectContainer"]) {

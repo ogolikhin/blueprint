@@ -15,6 +15,7 @@ import { StatefulArtifactFactoryMock, IStatefulArtifactFactoryMock } from "../..
 import { ArtifactServiceMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import { StatefulProcessArtifact } from "../../../../../process-artifact";
 import { Models } from "../../../../../../../main/models/";
+import { ShapesFactory } from "./shapes-factory";
 
 describe("DiagramLink unit tests", () => {
     let rootScope;
@@ -23,7 +24,8 @@ describe("DiagramLink unit tests", () => {
     let communicationManager: ICommunicationManager,
         dialogService: DialogService,
         localization: LocalizationServiceMock,
-        statefulArtifactFactory: IStatefulArtifactFactoryMock;
+        statefulArtifactFactory: IStatefulArtifactFactoryMock,
+        shapesFactory: ShapesFactory;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("communicationManager", CommunicationManager);
@@ -31,6 +33,7 @@ describe("DiagramLink unit tests", () => {
         $provide.service("dialogService", DialogService);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
+        $provide.service("shapesFactory", ShapesFactory);
     }));
 
     beforeEach(inject((_$window_: ng.IWindowService,
@@ -38,12 +41,14 @@ describe("DiagramLink unit tests", () => {
         _communicationManager_: ICommunicationManager,
         _dialogService_: DialogService,
         _localization_: LocalizationServiceMock,
-        _statefulArtifactFactory_: IStatefulArtifactFactoryMock) => {
+        _statefulArtifactFactory_: IStatefulArtifactFactoryMock,
+        _shapesFactory_: ShapesFactory) => {
 
         communicationManager = _communicationManager_;
         dialogService = _dialogService_;
         localization = _localization_;
         statefulArtifactFactory = _statefulArtifactFactory_;
+        shapesFactory = _shapesFactory_;
 
         const wrapper = document.createElement("DIV");
         container = document.createElement("DIV");
@@ -75,7 +80,7 @@ describe("DiagramLink unit tests", () => {
             const testModel = createUserDecisionWithoutUserTaskInFirstConditionModel("Condition1", "Condition2");
             const processModel = new ProcessViewModel(testModel, communicationManager);
 
-            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
 
             // act
             processGraph.layout.render(true, null);
@@ -101,7 +106,7 @@ describe("DiagramLink unit tests", () => {
             const ud = 40;
             const testModel = createUserDecisionWithoutUserTaskInFirstConditionModel();
             const processModel = new ProcessViewModel(testModel, communicationManager);
-            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
 
             // act
             processGraph.layout.render(true, null);
@@ -131,10 +136,10 @@ describe("DiagramLink unit tests", () => {
             const artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
             artifact.predefinedType = Models.ItemTypePredefined.Process;
             const statefulArtifact = statefulArtifactFactory.createStatefulArtifact(artifact);
-            statefulArtifactFactory.populateStatefulProcessWithPorcessModel(<StatefulProcessArtifact>statefulArtifact, testModel);
+            statefulArtifactFactory.populateStatefulProcessWithProcessModel(<StatefulProcessArtifact>statefulArtifact, testModel);
             const processModel = new ProcessViewModel(statefulArtifact, communicationManager);
 
-            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
             processGraph.layout.render(true, null);
 
             const udNode: IDiagramNode = processGraph.layout.getNodeById(ud.toString());
@@ -155,10 +160,10 @@ describe("DiagramLink unit tests", () => {
             const artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
             artifact.predefinedType = Models.ItemTypePredefined.Process;
             const statefulArtifact = statefulArtifactFactory.createStatefulArtifact(artifact);
-            statefulArtifactFactory.populateStatefulProcessWithPorcessModel(<StatefulProcessArtifact>statefulArtifact, testModel);
+            statefulArtifactFactory.populateStatefulProcessWithProcessModel(<StatefulProcessArtifact>statefulArtifact, testModel);
             const processModel = new ProcessViewModel(statefulArtifact, communicationManager);
 
-            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
 
             // act
             processGraph.layout.render(true, null);

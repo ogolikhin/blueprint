@@ -1,4 +1,4 @@
-﻿import {ItemTypePredefined, PropertyTypePredefined} from "../../../../../../../main/models/enums";
+import {ItemTypePredefined, PropertyTypePredefined} from "../../../../../../../main/models/enums";
 import {ProcessShapeType, ProcessType} from "../../../../../models/enums";
 import {ProcessShapeModel, UserTaskShapeModel} from "../../../../../models/process-models";
 import {SystemTaskShapeModel, IHashMapOfPropertyValues} from "../../../../../models/process-models";
@@ -14,7 +14,7 @@ export interface IPropertyNameConstantsInformation {
     name: string;
 }
 
-class ShapesFactorySettings {
+export class ShapesFactorySettings {
     private _userTaskPersona = null;
     private _systemTaskPersona = null;
 
@@ -69,17 +69,9 @@ export class ShapesFactory {
     public ImageId: IPropertyNameConstantsInformation = {key: "imageId", name: "ImageId"};
     public StoryLinks: IPropertyNameConstantsInformation = {key: "storyLinks", name: "StoryLinks"};
 
-    public static $inject = ["$rootScope", "statefulArtifactFactory"];
-
     private settings = new ShapesFactorySettings();
 
-    public setUserTaskPersona(value) {
-        this.settings.setUserTaskPersona(value);
-    }
-
-    public setSystemTaskPersona(value) {
-        this.settings.setSystemTaskPersona(value);
-    }
+    public static $inject = ["$rootScope", "statefulArtifactFactory"];
 
     constructor(private $rootScope: ng.IRootScopeService, private statefulArtifactFactory: IStatefulArtifactFactory) {
 
@@ -145,6 +137,14 @@ export class ShapesFactory {
                 this.NEW_MERGE_NODE_NAME = "";
             }
         }
+    }
+
+    public setUserTaskPersona(value) {
+        this.settings.setUserTaskPersona(value);
+    }
+
+    public setSystemTaskPersona(value) {
+        this.settings.setSystemTaskPersona(value);
     }
 
     public createStatefulSubArtifact(artifact: IStatefulArtifact, subartifact: IProcessShape): StatefulProcessSubArtifact {
@@ -466,10 +466,20 @@ export class ShapesFactory {
         };
     }
 
+    public reset() {
+        if (this._idGenerator) {
+            this._idGenerator.reset();
+        }        
+    }
+
     public destroy() {
         if (this.settings) {
             this.settings.destroy();
         }
     }
 
+}
+
+export class ShapesFactoryMock {
+ 
 }

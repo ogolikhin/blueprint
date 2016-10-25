@@ -1,4 +1,4 @@
-﻿import "angular";
+import "angular";
 import {ILocalizationService, IMessageService} from "../../../../core";
 import {IDialogSettings, IDialogService} from "../../../../shared";
 import {IUploadStatusDialogData} from "../../../../shared/widgets";
@@ -88,8 +88,8 @@ export class BPFieldImageController extends BPFieldBaseController {
             return $scope.fields[0];
         }
 
-        $scope["getImageSource"] = () => { 
-            const currentModelVal = <Models.IActorImagePropertyValue>$scope.model[$scope.options["key"]] || <Models.IActorImagePropertyValue>{};        
+        $scope["getImageSource"] = () => {
+            const currentModelVal = <Models.IActorImagePropertyValue>$scope.model[$scope.options["key"]] || <Models.IActorImagePropertyValue>{};
             return currentModelVal.imageSource || currentModelVal.url;
         };
 

@@ -40,20 +40,20 @@ namespace SearchService.Repositories
         #region SearchName
 
         [TestMethod]
-        public async Task SearchName_WithItemTypes_ReturnsResults()
+        public async Task SearchName_WithPredefinedTypeIds_ReturnsResults()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria
+            var searchCriteria = new ItemNameSearchCriteria
             {
                 Query = "test",
                 ProjectIds = new[] { 1 },
-                ItemTypeIds = new[] { 10, 20, 30 }
+                PredefinedTypeIds = new[] { 4104 }
             };
             ItemSearchResult[] queryResult =
             {
                 new ItemSearchResult()
             };
-            var itemSearchRepository = CreateRepository(searchCriteria, queryResult);
+            var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult);
 
             // Act
             var result = await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize);
@@ -67,7 +67,7 @@ namespace SearchService.Repositories
         public async Task SearchName_WithoutItemTypes_ReturnsResults()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria
+            var searchCriteria = new ItemNameSearchCriteria
             {
                 Query = "test",
                 ProjectIds = new[] { 1 }
@@ -76,7 +76,7 @@ namespace SearchService.Repositories
             {
                 new ItemSearchResult()
             };
-            var itemSearchRepository = CreateRepository(searchCriteria, queryResult);
+            var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult);
 
             // Act
             var result = await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize);
@@ -94,7 +94,7 @@ namespace SearchService.Repositories
         public async Task SearchFullText_WithItemTypes_ReturnsResults()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria
+            var searchCriteria = new FullTextSearchCriteria
             {
                 Query = "test",
                 ProjectIds = new[] { 1 },
@@ -104,7 +104,7 @@ namespace SearchService.Repositories
             {
                 new FullTextSearchResult()
             };
-            var itemSearchRepository = CreateRepository(searchCriteria, queryResult);
+            var itemSearchRepository = CreateFullTextSearchRepository(searchCriteria, queryResult);
 
             // Act
             var result = await itemSearchRepository.SearchFullText(UserId, searchCriteria, Page, PageSize);
@@ -120,7 +120,7 @@ namespace SearchService.Repositories
         public async Task SearchFullText_WithoutItemTypes_ReturnsResults()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria
+            var searchCriteria = new FullTextSearchCriteria
             {
                 Query = "test",
                 ProjectIds = new[] { 1 }
@@ -129,7 +129,7 @@ namespace SearchService.Repositories
             {
                 new FullTextSearchResult()
             };
-            var itemSearchRepository = CreateRepository(searchCriteria, queryResult);
+            var itemSearchRepository = CreateFullTextSearchRepository(searchCriteria, queryResult);
 
             // Act
             var result = await itemSearchRepository.SearchFullText(UserId, searchCriteria, Page, PageSize);
@@ -149,7 +149,7 @@ namespace SearchService.Repositories
         public async Task FullTextMetaData_WithItemTypes_ReturnsResults()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria
+            var searchCriteria = new FullTextSearchCriteria
             {
                 Query = "test",
                 ProjectIds = new[] { 1 },
@@ -163,7 +163,7 @@ namespace SearchService.Repositories
             {
                 1
             };
-            var itemSearchRepository = CreateRepository(searchCriteria, queryResult, queryResult2);
+            var itemSearchRepository = CreateFullTextSearchRepository(searchCriteria, queryResult, queryResult2);
 
             // Act
             var result = await itemSearchRepository.FullTextMetaData(UserId, searchCriteria);
@@ -177,7 +177,7 @@ namespace SearchService.Repositories
         public async Task FullTextMetaData_WithoutItemTypes_ReturnsResults()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria
+            var searchCriteria = new FullTextSearchCriteria
             {
                 Query = "test",
                 ProjectIds = new[] { 1 }
@@ -190,7 +190,7 @@ namespace SearchService.Repositories
             {
                 1
             };
-            var itemSearchRepository = CreateRepository(searchCriteria, queryResult, queryResult2);
+            var itemSearchRepository = CreateFullTextSearchRepository(searchCriteria, queryResult, queryResult2);
 
             // Act
             var result = await itemSearchRepository.FullTextMetaData(UserId, searchCriteria);
@@ -202,24 +202,12 @@ namespace SearchService.Repositories
 
         #endregion SearchMetaData
 
-        private static IItemSearchRepository CreateRepository<T>(ItemSearchCriteria searchCriteria, ICollection<T> queryResult, ICollection<int?> queryResult2 = null)
+        private static IItemSearchRepository CreateFullTextSearchRepository<T>(
+            FullTextSearchCriteria searchCriteria, 
+            ICollection<T> queryResult, 
+            ICollection<int?> queryResult2 = null)
         {
             var connectionWrapper = new SqlConnectionWrapperMock();
-            var commonParams = new Dictionary<string, object>
-            {
-                { "userId", UserId },
-                { "query", searchCriteria.Query },
-                { "projectIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ProjectIds, "Int32Collection", "Int32Value") },
-                { "primitiveItemTypePredefineds", SqlItemSearchRepository.PrimitiveItemTypePredefineds },
-                { "maxSearchableValueStringSize", MaxSearchableValueStringSize },
-            };
-            connectionWrapper.SetupQueryAsync("SearchItemName",
-                new Dictionary<string, object>
-                {
-                    { "startOffset", StartOffset },
-                    { "pageSize", PageSize },
-                },
-                queryResult);
             connectionWrapper.SetupQueryAsync("SearchFullText",
                 new Dictionary<string, object>
                 {
@@ -237,14 +225,6 @@ namespace SearchService.Repositories
                 new Tuple<IEnumerable<T>, IEnumerable<int?>>(queryResult, queryResult2));
             if (searchCriteria.ItemTypeIds != null)
             {
-                connectionWrapper.SetupQueryAsync("SearchItemNameByItemTypes",
-                    new Dictionary<string, object>(commonParams)
-                    {
-                    { "startOffset", StartOffset },
-                    { "pageSize", PageSize },
-                    { "itemTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ItemTypeIds, "Int32Collection", "Int32Value") }
-                    },
-                    queryResult);
                 connectionWrapper.SetupQueryAsync("SearchFullTextByItemTypes",
                     new Dictionary<string, object>
                     {
@@ -263,6 +243,37 @@ namespace SearchService.Repositories
                     },
                     new Tuple<IEnumerable<T>, IEnumerable<int?>>(queryResult, queryResult2));
             }
+
+            var configuration = new Mock<ISearchConfiguration>();
+            configuration.Setup(c => c.MaxItems).Returns(MaxItems.ToStringInvariant());
+            configuration.Setup(c => c.MaxSearchableValueStringSize).Returns(MaxSearchableValueStringSize.ToStringInvariant());
+
+            return new SqlItemSearchRepository(connectionWrapper.Object, configuration.Object);
+        }
+
+        private static IItemSearchRepository CreateItemNameRepository<T>(
+            ItemNameSearchCriteria searchCriteria,
+            ICollection<T> queryResult)
+        {
+            var connectionWrapper = new SqlConnectionWrapperMock();
+            var parameters = new Dictionary<string, object>
+            {
+                {"userId", UserId},
+                {"query", searchCriteria.Query},
+                {"projectIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ProjectIds, "Int32Collection", "Int32Value")},
+                {"excludedPredefineds", SqlItemSearchRepository.PrimitiveItemTypePredefineds},
+                {"maxSearchableValueStringSize", MaxSearchableValueStringSize},
+                {"startOffset", StartOffset},
+                {"pageSize", PageSize}
+            };
+            if (searchCriteria.PredefinedTypeIds != null)
+            {
+                parameters.Add("predefinedTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.PredefinedTypeIds, "Int32Collection", "Int32Value"));
+            }
+            connectionWrapper.SetupQueryAsync(
+                "SearchItemNameByItemTypes",
+                parameters,
+                queryResult);
 
             var configuration = new Mock<ISearchConfiguration>();
             configuration.Setup(c => c.MaxItems).Returns(MaxItems.ToStringInvariant());

@@ -100,8 +100,11 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
 
     private mapTempIdsAfterSave(tempIdMap: Models.IKeyValuePair[]) {
         if (tempIdMap && tempIdMap.length > 0) {
-            if (this.decisionBranchDestinationLinks) {
-                for (let counter = 0; counter < tempIdMap.length; counter++) {
+            
+            for (let counter = 0; counter < tempIdMap.length; counter++) {
+
+                //update decisionBranchDestinationLinks temporary ids
+                if (this.decisionBranchDestinationLinks) {    
                     this.decisionBranchDestinationLinks.forEach((link) => {
                         if (link.destinationId === tempIdMap[counter].key) {
                             link.destinationId = tempIdMap[counter].value;
@@ -111,16 +114,30 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
                         }
                     });
 
-                    for (let sCounter = 0; sCounter < this.shapes.length; sCounter++) {
+                //Update shapes temporary ids
+                for (let sCounter = 0; sCounter < this.shapes.length; sCounter++) {
                         const shape = this.shapes[sCounter];
                         if (shape.id <= 0 && shape.id === tempIdMap[counter].key) {
                             shape.id = tempIdMap[counter].value;
                             break;                          
                         }
                     }                    
-                }            
+                }
+
+                //Update links temporary ids
+                if (this.links) {
+                    this.links.forEach((link) => {
+                        if (link.destinationId === tempIdMap[counter].key) {
+                            link.destinationId = tempIdMap[counter].value;
+                        }
+                        if (link.sourceId === tempIdMap[counter].key) {
+                            link.sourceId = tempIdMap[counter].value;
+                        }
+                    });
+                }
             }
 
+            //update sub artifact collection temporary ids
             this.subArtifactCollection.list().forEach(item => {
                 if (item.id <= 0) {
                     // subartifact id is temporary 

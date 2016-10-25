@@ -69,6 +69,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         const userTask = Object.assign({}, this);
         userTask.label = this.label;
         userTask.associatedArtifact = this.associatedArtifact;
+        userTask.userStoryId = this.userStoryId;
         return userTask;
     }
 

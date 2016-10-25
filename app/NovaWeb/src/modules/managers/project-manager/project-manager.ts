@@ -31,7 +31,8 @@ export interface IProjectManager extends IDispose {
     // eventManager
     initialize();
     add(data: Models.IProject);
-    remove(all?: boolean): void;
+    remove(): void;
+    removeAll(): void;
     refresh(data: Models.IProject): ng.IPromise<any>;
     refreshAll(): ng.IPromise<any>;
     loadArtifact(id: number): void;
@@ -102,7 +103,7 @@ export class ProjectManager implements IProjectManager {
     }
 
     public dispose() {
-        this.remove(true);
+        this.removeAll();
         this.disposeSubscribers();
 
         if (this._projectCollection) {
@@ -398,31 +399,29 @@ export class ProjectManager implements IProjectManager {
         }
     }
 
-    public remove(all: boolean = false) {
-        try {
-            let projectId: number = 0;
-            if (!all) {
-                let artifact = this.artifactManager.selection.getArtifact();
-                if (artifact) {
-                    projectId = artifact.projectId;
+    public remove() {
+        const artifact = this.artifactManager.selection.getArtifact();
+        if (artifact) {
+            const projectId = artifact.projectId;
+            this.artifactManager.removeAll(projectId);
+            const projects = this.projectCollection.getValue().filter((project) => {
+                if (project.projectId === projectId) {
+                    project.dispose();
+                    return false;
                 }
-            }
-            let _projectCollection = this.projectCollection.getValue().filter((it: Project) => {
-                let result = true;
-                if (all || it.id === projectId) {
-                    this.artifactManager.removeAll(it.projectId);
-                    it.dispose();
-                    result = false;
-                }
-                return result;
+                return true;
             });
-
-            this.projectCollection.onNext(_projectCollection);
-        } catch (ex) {
-            this.messageService.addError(ex);
-            throw ex;
+            
+            this.projectCollection.onNext(projects);
         }
+    }
 
+    public removeAll() {
+        this.projectCollection.getValue().forEach((project) => {
+            this.artifactManager.removeAll(project.projectId);
+            project.dispose();
+        });
+        this.projectCollection.onNext([]);
     }
 
     public loadArtifact(id: number): ng.IPromise<any> {

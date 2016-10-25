@@ -278,13 +278,8 @@ export class PropertyEditor {
                     field.type = context.isMultipleAllowed ? "bpFieldSelectMulti" : "bpFieldSelect";
                     field.templateOptions["optionsAttr"] = "bs-options";
                     field.templateOptions.options = [];
-                    if (context.validValues && context.validValues.length) {
-                        field.templateOptions.options = context.validValues.map(function (it) {
-                            return {value: it.id, name: it.value} as any;
-                        });
-                        if (angular.isNumber(context.defaultValidValueId)) {
-                            field.defaultValue = context.defaultValidValueId.toString();
-                        }
+                    if (context.validValues && context.validValues.length && _.isNumber(context.defaultValidValueId)) {
+                        field.defaultValue = context.defaultValidValueId.toString();
                     }
                     break;
                 case Models.PrimitiveType.User:

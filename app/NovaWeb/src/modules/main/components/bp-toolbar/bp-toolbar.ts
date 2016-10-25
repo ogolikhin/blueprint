@@ -69,7 +69,8 @@ class BPToolbarController implements IBPToolbarController {
                 this.projectManager.remove();
                 break;
             case `projectcloseall`:
-                this.projectManager.remove(true);
+                this.projectManager.removeAll();
+                this.artifactManager.selection.clearAll();
                 break;
             case `openproject`:
                 this.dialogService.open(<IDialogSettings>{
@@ -158,12 +159,12 @@ class BPToolbarController implements IBPToolbarController {
     private confirmPublishAll(data: Models.IPublishResultSet) {
         const selectedProject: Project = this.projectManager.getSelectedProject();
         this.dialogService.open(<IDialogSettings>{
-            okButton: this.localization.get("App_Button_Publish"),
-            cancelButton: this.localization.get("App_Button_Cancel"),
+            okButton: this.localization.get("App_Button_Yes"),
+            cancelButton: this.localization.get("App_Button_No"),
             message: this.localization.get("Publish_All_Dialog_Message"),
             template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
             controller: ConfirmPublishController,
-            css: "nova-messaging" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
+            css: "nova-publish"
         },
         <IConfirmPublishDialogData>{
             artifactList: data.artifacts,
@@ -181,13 +182,12 @@ class BPToolbarController implements IBPToolbarController {
             //perform publish all
             this.publishService.publishAll()
             .then(() => {
-                //remove lock on artifacts in openned projects
-                data.artifacts.forEach((a) => {
-                    let foundArtifact = this.projectManager.getArtifact(a.id);
-                    if (foundArtifact) {
-                        foundArtifact.artifactState.unlock();
-                    }
-                });
+                //remove lock on current artifact
+                let currentSelection = this.projectManager.getArtifact(this.currentArtifact);
+                if (currentSelection) {
+                    currentSelection.artifactState.unlock();
+                    currentSelection.refresh();
+                }
                
                 this.messageService.addInfoWithPar("Publish_All_Success_Message", [data.artifacts.length]);
             })

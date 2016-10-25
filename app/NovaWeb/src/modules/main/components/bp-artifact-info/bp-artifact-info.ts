@@ -75,12 +75,17 @@ export class BpArtifactInfoController {
     }
 
     public $onInit() {
+
         const windowSub = this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
-        const artifactStateSub = this.artifactManager.selection.currentlySelectedArtifactObservable
-            .subscribe(this.onArtifactChanged, this.onError);
-        
-        this.subscribers.push(windowSub, artifactStateSub);
+        this.subscribers.push(windowSub);
+
         this.artifact = this.artifactManager.selection.getArtifact();
+        if (this.artifact) {
+            const artifactStateSub = this.artifact.getObservable()
+                .subscribe(this.onArtifactChanged, this.onError);
+            
+            this.subscribers.push(artifactStateSub);
+        }
     }
 
     public $onDestroy() {

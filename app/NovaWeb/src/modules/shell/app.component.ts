@@ -2,6 +2,8 @@
 import { IUser } from "./login/auth.svc";
 import { ISettingsService } from "./../core";
 import { INavigationService } from "./../core/navigation";
+import { IProjectManager } from "./../managers/project-manager/";
+import { ISelectionManager } from "./../managers/selection-manager";
 
 export class AppComponent implements ng.IComponentOptions {
     // Inline template
@@ -18,10 +20,14 @@ export class AppComponent implements ng.IComponentOptions {
 }
 
 export class AppController {
-    static $inject: [string] = ["navigationService", "session", "settings", "$window"];
+    static $inject: [string] = ["navigationService", "projectManager", "selectionManager", "session", "settings", "$window"];
 
-    constructor(private navigation: INavigationService, private session: ISession,
-                private settings: ISettingsService, private $window: ng.IWindowService) {
+    constructor(private navigation: INavigationService,
+                private projectManager: IProjectManager,
+                private selectionManager: ISelectionManager,
+                private session: ISession,
+                private settings: ISettingsService,
+                private $window: ng.IWindowService) {
     }
 
     public get currentUser(): IUser {
@@ -31,7 +37,11 @@ export class AppController {
     public logout(evt: ng.IAngularEvent) {
         evt.preventDefault();
         this.session.logout().finally(() => {
-            this.navigation.navigateToMain().finally(() => this.session.ensureAuthenticated());
+            this.navigation.navigateToMain().finally(() => {
+                this.projectManager.removeAll();
+                this.selectionManager.clearAll();
+                this.session.ensureAuthenticated();
+            });
         });
     }
 

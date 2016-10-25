@@ -1,4 +1,4 @@
-﻿@mixin rounded-corners($radius: .5em) {
+@mixin rounded-corners($radius: .5em) {
     -webkit-border-radius: $radius;
     -moz-border-radius: $radius;
     -ms-border-radius: $radius;
@@ -42,7 +42,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
 @mixin gradient($from, $to) {
     background: -webkit-gradient(linear, left top, left bottom, from($from), to($to));
     background: -moz-linear-gradient(top, $from, $to);

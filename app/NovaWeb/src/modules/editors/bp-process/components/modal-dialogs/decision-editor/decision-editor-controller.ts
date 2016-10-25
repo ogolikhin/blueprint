@@ -114,8 +114,12 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         });
     }
 
+    public isDeleteConditionVisible(condition: ICondition): boolean {
+        return !this.hasMinConditions && !this.isFirstBranch(condition);
+    }
+
     public canDeleteCondition(condition: ICondition): boolean {
-        return !this.isReadonly && !this.hasMinConditions && !this.isFirstBranch(condition);
+        return !this.isReadonly && this.isDeleteConditionVisible(condition);
     }
 
     public deleteCondition(condition: ICondition) {

@@ -18,7 +18,8 @@ namespace SearchServiceTests
     {
         private IUser _adminUser = null;
         private IUser _authorUser = null;
-        private IProject _projectTest = null;
+        private IProject _firstProject = null;
+        private IProject _secondProject = null;
         private List<IProject> _projects = null;
 
         [SetUp]
@@ -27,8 +28,12 @@ namespace SearchServiceTests
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _projects = ProjectFactory.GetAllProjects(_adminUser, shouldRetrievePropertyTypes: true);
-            _projectTest = _projects[0];
-            _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _projectTest);
+
+            Assert.IsTrue(_projects.Count >= 2, "These tests expect that Blueprint server has at least 2 projects.");
+
+            _firstProject = _projects[0];
+            _secondProject = _projects[1];
+            _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _firstProject);
         }
 
         [TearDown]
@@ -37,15 +42,29 @@ namespace SearchServiceTests
             Helper?.Dispose();
         }
 
-        [TestCase]
+        [TestCase(0, 2)]
+        [TestCase(2, 0)]
+        [TestCase(2, 2)]
         [TestRail(182900)]
-        [Description("Search published artifact across 2 projects by random part of its name, verify search results.")]
-        public void SearchArtifact_2Projects_VerifySearchResult()
+        [Description("Search published artifact across 2 projects by a partial part of its name.  Verify search results.")]
+        public void SearchArtifactByPartialName_2Projects_VerifySearchResult(int startCharsToRemove, int endCharsToRemove)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.Actor);
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchCriteria = new FullTextSearchCriteria(GetRandomSubString(artifact.Name), selectedProjectIds);
+            string partialName = artifact.Name;
+
+            if (startCharsToRemove > 0)
+            {
+                partialName = partialName.Remove(0, startCharsToRemove);
+            }
+
+            if (endCharsToRemove > 0)
+            {
+                partialName = partialName.Remove(partialName.Length - endCharsToRemove);
+            }
+
+            var searchCriteria = new FullTextSearchCriteria(partialName, selectedProjectIds);
             ItemSearchResult results = null;
 
             // Execute:
@@ -64,8 +83,9 @@ namespace SearchServiceTests
         public void SearchArtifactByFullName_2Projects_VerifySearchResult()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.Document);
-            var artifact2 = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.Storyboard);
+            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.Document);
+            var artifact2 = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.Storyboard);
+
             Assert.AreNotEqual(artifact.Name, artifact2.Name, "Random artifacts should have different names.");
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
@@ -88,7 +108,8 @@ namespace SearchServiceTests
         public void SearchArtifactNonExistingName_2Projects_VerifyEmptyResult()
         {
             // Setup:
-            Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.Glossary);
+            Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.Glossary);
+
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             string nonExistingArtifactName = RandomGenerator.RandomLowerCase(50);
             var searchCriteria = new FullTextSearchCriteria(nonExistingArtifactName, selectedProjectIds);
@@ -109,8 +130,8 @@ namespace SearchServiceTests
         public void SearchDraftNeverPublishedArtifactByName_ParentProject_VerifyEmptySearchResult()
         {
             // Setup:
-            var artifact = Helper.CreateAndSaveArtifact(_projectTest, _authorUser, BaseArtifactType.Process);
-            var searchCriteria = new FullTextSearchCriteria(artifact.Name, _projectTest.Id);
+            var artifact = Helper.CreateAndSaveArtifact(_firstProject, _authorUser, BaseArtifactType.Process);
+            var searchCriteria = new FullTextSearchCriteria(artifact.Name, _firstProject.Id);
             ItemSearchResult results = null;
 
             // Execute:
@@ -119,7 +140,8 @@ namespace SearchServiceTests
 
             // Verify:
             Assert.AreEqual(0, results.PageItemCount, "For empty list PageItemCount should be 0.");
-            Assert.IsFalse(results.Items.Exists(si => DoesSearchItemCorrespondsToArtifact(artifact, si)), "Search shouldn't return draft never published artifact.");
+            Assert.IsFalse(results.Items.Exists(si => DoesSearchItemCorrespondsToArtifact(artifact, si)),
+                "Search shouldn't return draft never published artifact.");
         }
 
         [TestCase]
@@ -128,10 +150,11 @@ namespace SearchServiceTests
         public void SearchDeletedArtifactByFullName_AllProjects_VerifySearchResult()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCaseDiagram);
-            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.UseCaseDiagram);
             artifact.Delete(_adminUser);
             artifact.Publish(_adminUser);
+
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
             ItemSearchResult results = null;
 
@@ -144,19 +167,16 @@ namespace SearchServiceTests
             Assert.AreEqual(0, results.PageItemCount, "For empty list PageItemCount should be 0.");
         }
 
-        #region Custom data tests
-
         [TestCase]
-        [Category(Categories.CustomData)]
         [TestRail(183347)]
         [Description("Search published artifact by full name in 2 projects, user has access to both projects, verify that artifact could be found in both projects.")]
         public void SearchArtifactByName_2Projects_VerifyArtifactCanBeFoundInBoth()
         {
             // Setup:
-            IProject _projectCustomData = ProjectFactory.GetProject(_adminUser, "Custom Data");
-            string existingArtifactName = "InheritedFromParentActor"; //existing artifact name in Custom Data project
-            var artifact = Helper.CreateAndSaveArtifact(_projectTest, _adminUser, BaseArtifactType.UIMockup, name: existingArtifactName);
-            artifact.Publish(_adminUser);
+            string artifactName = RandomGenerator.RandomAlphaNumeric(12);
+            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.UIMockup, name: artifactName);
+            Helper.CreateAndPublishArtifact(_secondProject, _adminUser, BaseArtifactType.UIMockup, name: artifactName);
+
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
             ItemSearchResult results = null;
@@ -168,21 +188,20 @@ namespace SearchServiceTests
             // Verify:
             Assert.IsTrue(results.PageItemCount > 0, "For non-empty list PageItemCount shouldn't be 0.");
             Assert.IsTrue(results.Items.Exists(si => DoesSearchItemCorrespondsToArtifact(artifact, si)), "Search should return published artifact.");
-            Assert.IsTrue(results.Items.Exists(si => si.ProjectId == _projectCustomData.Id), "Artifact should be found in Custom Data project.");
-            Assert.IsTrue(results.Items.Exists(si => si.ProjectId == _projectTest.Id), "Artifact should be found in Test project.");
+            Assert.IsTrue(results.Items.Exists(si => si.ProjectId == _firstProject.Id), "Artifact should be found in first project.");
+            Assert.IsTrue(results.Items.Exists(si => si.ProjectId == _secondProject.Id), "Artifact should be found in second project.");
         }
 
         [TestCase]
-        [Category(Categories.CustomData)]
         [TestRail(183348)]
         [Description("Search published artifact by full name in 2 projects, user has access to one project, verify that search results has accessible project only.")]
         public void SearchArtifactByName_2ProjectsUserHasAccessTo1Project_VerifyResults()
         {
             // Setup:
-            IProject _projectCustomData = ProjectFactory.GetProject(_adminUser, "Custom Data");
-            string existingArtifactName = "InheritedFromParentActor";//existing artifact name in Custom Data project
-            var artifact = Helper.CreateAndSaveArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase, name: existingArtifactName);
-            artifact.Publish(_adminUser);
+            string artifactName = RandomGenerator.RandomAlphaNumeric(12);
+            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.UseCase, name: artifactName);
+            Helper.CreateAndPublishArtifact(_secondProject, _adminUser, BaseArtifactType.UIMockup, name: artifactName);
+
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
             ItemSearchResult results = null;
@@ -194,8 +213,8 @@ namespace SearchServiceTests
             // Verify:
             Assert.IsTrue(results.PageItemCount > 0, "For non-empty list PageItemCount shouldn't be 0.");
             Assert.IsTrue(results.Items.Exists(si => DoesSearchItemCorrespondsToArtifact(artifact, si)), "Search should return published artifact.");
-            Assert.IsTrue(results.Items.Exists(si => si.ProjectId == _projectTest.Id), "Artifact should be found in Test project.");
-            Assert.IsFalse(results.Items.Exists(si => si.ProjectId == _projectCustomData.Id), "Artifact shouldn't be found in Custom Data project to which user has no access.");
+            Assert.IsTrue(results.Items.Exists(si => si.ProjectId == _firstProject.Id), "Artifact should be found in first project.");
+            Assert.IsFalse(results.Items.Exists(si => si.ProjectId == _secondProject.Id), "Artifact shouldn't be found in second project to which user has no access.");
         }
 
         [TestCase]
@@ -204,30 +223,27 @@ namespace SearchServiceTests
         public void SearchArtifactByNameAndItemTypeId_AllProjects_VerifyResults()
         {
             // Setup:
-            Assert.IsTrue(_projects.Count >= 2, "This test expect that Blueprint server has at least 2 projects.");
             string artifactName = RandomGenerator.RandomAlphaNumeric(12);
             List<IArtifact> artifacts = new List<IArtifact>();
 
-            // create and publish Storyboard and Actor in each project. All artifacts have the same name
+            // Create and publish Storyboard and Actor in each project.  All artifacts have the same name.
             foreach (var pr in _projects)
             {
-                artifacts.Add(Helper.CreateAndSaveArtifact(pr, _adminUser, BaseArtifactType.Storyboard, name: artifactName));
-                artifacts.Add(Helper.CreateAndSaveArtifact(pr, _adminUser, BaseArtifactType.Actor, name: artifactName));
-            }
-            foreach (var a in artifacts)
-            {
-                Helper.ArtifactStore.PublishArtifact(a, _adminUser);
+                artifacts.Add(Helper.CreateAndPublishArtifact(pr, _adminUser, BaseArtifactType.Storyboard, name: artifactName));
+                artifacts.Add(Helper.CreateAndPublishArtifact(pr, _adminUser, BaseArtifactType.Actor, name: artifactName));
             }
 
             Assert.AreEqual(2 * _projects.Count, artifacts.Count, "Expected number of artifacts is number of projects times 2.");
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            //create list of TypeId for search criteria, TypeId depends from Project; TypeId == ArtifactTypeId
+
+            // Create list of TypeId for search criteria, TypeId depends from Project; TypeId == ArtifactTypeId.
             List<int> actorTypeIds = (artifacts.FindAll(a => a.BaseArtifactType == BaseArtifactType.Actor)).ConvertAll(a =>a.ArtifactTypeId);
-            var nameSearchCriteria = new FullTextSearchCriteria(artifactName, selectedProjectIds);//search by name across all projects
-            var itemTypeIdSearchCriteria = new FullTextSearchCriteria(artifactName, selectedProjectIds, actorTypeIds);//search by name and TypeId across all projects
+            var nameSearchCriteria       = new FullTextSearchCriteria(artifactName, selectedProjectIds);                // Search by name across all projects.
+            var itemTypeIdSearchCriteria = new FullTextSearchCriteria(artifactName, selectedProjectIds, actorTypeIds);  // Search by name and TypeId across all projects.
 
             ItemSearchResult nameSearchResult = Helper.SearchService.SearchItems(_adminUser, nameSearchCriteria);
-            Assert.AreEqual(artifacts.Count, nameSearchResult.Items.Count, "Search by name across all projects should return all artifacts with the artifactName name.");
+            Assert.AreEqual(artifacts.Count, nameSearchResult.Items.Count,
+                "Search by name across all projects should return all artifacts with the artifactName name.");
 
             ItemSearchResult nameAndTypeIdSearchResult = null;
 
@@ -239,37 +255,17 @@ namespace SearchServiceTests
 
             // Verify:
             Assert.IsTrue(nameSearchResult.PageItemCount > 0, "For non-empty list PageItemCount shouldn't be 0.");
+
             foreach (var p in _projects)
             {
-                Assert.IsTrue(nameAndTypeIdSearchResult.Items.Exists(si => si.ProjectId == p.Id), "Artifact of specified name and type should be found each project.");
+                Assert.IsTrue(nameAndTypeIdSearchResult.Items.Exists(si => si.ProjectId == p.Id),
+                    "Artifact of specified name and type should be found each project.");
             }
+
             foreach (var si in nameAndTypeIdSearchResult.Items)
             {
-                Assert.IsTrue(artifacts.Exists(a => DoesSearchItemCorrespondsToArtifact(a, si)), "Search results must include all expected artifacts.");
-            }
-        }
-
-        #endregion Custom data tests
-
-        /// <summary>
-        /// Returns random substring with non-zero length from input string
-        /// </summary>
-        /// <param name="inputString">string to create substring from</param>
-        /// <return>Random substring with non-zero length</return>
-        private static string GetRandomSubString(string inputString)
-        {
-            var initialLength = inputString.Length;
-
-            if (initialLength <= 1)
-            {
-                return inputString;
-            }
-            else
-            {
-                var startIndex = RandomGenerator.RandomNumber(initialLength - 1);
-                var length = 1 + RandomGenerator.RandomNumber(initialLength - startIndex - 1);
-                Logger.WriteInfo("inputString - {0}, searchString - {1}", inputString, inputString.Substring(startIndex, length));
-                return inputString.Substring(startIndex, length);
+                Assert.IsTrue(artifacts.Exists(a => DoesSearchItemCorrespondsToArtifact(a, si)),
+                    "Search results must include all expected artifacts.");
             }
         }
 

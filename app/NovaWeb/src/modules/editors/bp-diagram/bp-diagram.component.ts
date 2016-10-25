@@ -22,9 +22,6 @@ import {
 export class BPDiagram implements ng.IComponentOptions {
     public template: string = require("./bp-diagram.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPDiagramController;
-    public bindings: any = {
-        context: "<"
-    };
 }
 
 export class BPDiagramController extends BpBaseEditor {
@@ -34,7 +31,6 @@ export class BPDiagramController extends BpBaseEditor {
         "artifactManager",
         "$element",
         "$q",
-        "$sanitize",
         "stencilService",
         "diagramService",
         "localization",
@@ -54,7 +50,6 @@ export class BPDiagramController extends BpBaseEditor {
                 public artifactManager: IArtifactManager,
                 private $element: ng.IAugmentedJQuery,
                 private $q: ng.IQService,
-                private $sanitize: any,
                 private stencilService: IStencilService,
                 private diagramService: IDiagramService,
                 private localization: ILocalizationService,
@@ -178,11 +173,7 @@ export class BPDiagramController extends BpBaseEditor {
 
     private getSubArtifact(id: number) {
         if (this.artifact) {
-            for (let subArtifact of this.artifact.subArtifactCollection.list()) {
-                if (subArtifact.id === id) {
-                    return subArtifact;
-                }
-            }
+            return this.artifact.subArtifactCollection.get(id);
         }
         return undefined;
     }

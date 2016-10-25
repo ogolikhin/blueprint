@@ -99,9 +99,11 @@ export class BpProcessEditorController extends BpBaseEditor {
 
         if (this.processDiagram) {
             this.processDiagram.destroy();
+        } else {
+            //When the process is navigated to from explorer, inline trace, manual trace etc. we want to reset the shapes factory.
+            //This allows the temp ids to be generated from -1, -2 again. Otherwise the temp ids will continue to decrease incrementally across processes 
+            this.shapesFactory.reset();
         }
-
-        this.shapesFactory.reset();
 
         this.processDiagram = new ProcessDiagram(
             this.$rootScope,

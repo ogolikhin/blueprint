@@ -1,6 +1,6 @@
 import * as angular from "angular";
 import { UserTask, SystemTask, SystemDecision } from "./";
-import { ShapesFactory, ShapesFactoryMock } from "./shapes-factory";
+import { ShapesFactory } from "./shapes-factory";
 import { ProcessGraph } from "../process-graph";
 import { ProcessModel, ProcessShapeModel, ProcessLinkModel, PropertyTypePredefined } from "../../../../../models/process-models";
 import { ProcessShapeType, ProcessType } from "../../../../../models/enums";
@@ -44,7 +44,6 @@ describe("UserTask test", () => {
         $provide.service("dialogService", DialogService);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
-        $provide.service("shapesFactory", ShapesFactory);
     }));
 
     beforeEach(inject((_$window_: ng.IWindowService,
@@ -53,15 +52,12 @@ describe("UserTask test", () => {
         _communicationManager_: ICommunicationManager,
         _dialogService_: DialogService,
         _localization_: LocalizationServiceMock,
-        _statefulArtifactFactory_: IStatefulArtifactFactoryMock,
-        _shapesFactory_: ShapesFactory) => {
-
+        _statefulArtifactFactory_: IStatefulArtifactFactoryMock) => {
         rootScope = $rootScope;
         communicationManager = _communicationManager_;
         dialogService = _dialogService_;
         localization = _localization_;
         statefulArtifactFactory = _statefulArtifactFactory_;
-        shapesFactory = _shapesFactory_;
 
         wrapper = document.createElement("DIV");
         container = document.createElement("DIV");
@@ -108,7 +104,7 @@ describe("UserTask test", () => {
         testUserTask.propertyValues["storyLinks"] = shapesFactory.createStoryLinksValue(testArtifactReferenceLink);
 
         // Act
-        const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, null, null, null, shapesFactory);
+        const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
 
         const node = new UserTask(testUserTask, rootScope, null, shapesFactory);
         node.render(graph, 80, 80, false);
@@ -135,7 +131,7 @@ describe("UserTask test", () => {
         const testSytemTask = ShapeModelMock.instance().SystemTaskMock();
         const testUserTask = ShapeModelMock.instance().UserTaskMock();
 
-        const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, null, null, null, shapesFactory);
+        const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
         const node = new UserTask(testUserTask, rootScope, null, shapesFactory);
         spyOn(node, "getSources").and.returnValue([new SystemTask(testSytemTask, rootScope, "", null, shapesFactory)]);
 
@@ -151,7 +147,7 @@ describe("UserTask test", () => {
         const testSytemTask = ShapeModelMock.instance().SystemTaskMock();
         const testUserTask = ShapeModelMock.instance().UserTaskMock();
 
-        const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, null, null, null, shapesFactory);
+        const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
         const node = new UserTask(testUserTask, rootScope, null, shapesFactory);
         spyOn(node, "getTargets").and.returnValue([new SystemTask(testSytemTask, rootScope, "", null, shapesFactory)]);
 
@@ -168,7 +164,7 @@ describe("UserTask test", () => {
         const testUserTask = ShapeModelMock.instance().UserTaskMock();
         const testSystemDecision = ShapeModelMock.instance().SystemDecisionmock();
 
-        const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, null, null, null, shapesFactory);
+        const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
         const UserTaskNode = new UserTask(testUserTask, rootScope, null, shapesFactory);
         const SystemDecisionNode = new SystemDecision(testSystemDecision, rootScope);
         spyOn(UserTaskNode, "getTargets").and.returnValue([SystemDecisionNode]);
@@ -192,7 +188,7 @@ describe("UserTask test", () => {
         const testUserTask = ShapeModelMock.instance().UserTaskMock();
         const testSystemDecision = ShapeModelMock.instance().SystemDecisionmock();
 
-        const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, null, null, null, shapesFactory);
+        const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
         const UserTaskNode = new UserTask(testUserTask, rootScope, null, shapesFactory);
         const SystemDecisionNode1 = new SystemDecision(testSystemDecision, rootScope);
         const SystemDecisionNode2 = new SystemDecision(testSystemDecision, rootScope);
@@ -299,7 +295,7 @@ describe("UserTask test", () => {
             testModel.links.push(new ProcessLinkModel(null, 44, 55));
             processModel = new ProcessViewModel(testModel, communicationManager);
 
-            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             graph.render(false, null);
         });
@@ -336,7 +332,7 @@ describe("UserTask test", () => {
 
             const testModel = createSystemDecisionForAddBranchTestModel();
             const processModel = new ProcessViewModel(testModel, communicationManager);
-            processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, msgService, null, null, shapesFactory);
+            processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, msgService);
 
         });
         afterEach(() => {
@@ -405,7 +401,7 @@ describe("UserTask test", () => {
 
             viewModel = new ProcessViewModel(statefulArtifact, communicationManager);
 
-            graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, null, null, null, shapesFactory);
+            graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
         });
 
         it("when modifying persona - persona matches", () => {

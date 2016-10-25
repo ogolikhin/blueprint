@@ -29,11 +29,4 @@ export class IdGenerator implements IIdGenerator {
         return ++this.tempId;
 
     }
-
-    public reset() {
-        this.systemDecisionNewNodeCounter = 0;
-        this.systemTaskNewNodeCounter = 0;
-        this.userDecisionNewNodeCounter = 0;
-        this.userTaskNewNodeCounter = 0;        
-    }
 }

@@ -16,7 +16,7 @@ import {LocalizationServiceMock} from "../../../../../../core/localization/local
 import {DialogService} from "../../../../../../shared/widgets/bp-dialog";
 import {ModalServiceMock} from "../../../../../../shell/login/mocks.spec";
 import {ProcessAddHelper} from "./process-add-helper";
-import {ShapesFactory, ShapesFactoryMock} from "./shapes/shapes-factory";
+import {ShapesFactory} from "./shapes/shapes-factory";
 import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-manager/";
 import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
@@ -30,8 +30,7 @@ describe("Layout test", () => {
         shapesFactoryService: ShapesFactory,
         dialogService: DialogService,
         localization: LocalizationServiceMock,
-        statefulArtifactFactory: IStatefulArtifactFactory,
-        shapesFactory: ShapesFactory;
+        statefulArtifactFactory: IStatefulArtifactFactory;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("messageService", MessageServiceMock);
@@ -40,7 +39,6 @@ describe("Layout test", () => {
         $provide.service("dialogService", DialogService);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
-        $provide.service("shapesFactory", ShapesFactory);
     }));
 
     let setProcessViewModel = function (model) {
@@ -54,8 +52,7 @@ describe("Layout test", () => {
                        _communicationManager_: ICommunicationManager,
                        _dialogService_: DialogService,
                        _localization_: LocalizationServiceMock,
-                       _statefulArtifactFactory_: IStatefulArtifactFactory,
-                       _shapesFactory_: ShapesFactory
+                       _statefulArtifactFactory_: IStatefulArtifactFactory
     ) => {
         rootScope = $rootScope;
         msgService = messageService;
@@ -67,7 +64,6 @@ describe("Layout test", () => {
         dialogService = _dialogService_;
         localization = _localization_;
         statefulArtifactFactory = _statefulArtifactFactory_;
-        shapesFactory = _shapesFactory_;
 
         $rootScope["config"] = {
             labels: {
@@ -104,7 +100,7 @@ describe("Layout test", () => {
         const processModel = setProcessViewModel(testModel);
 
         // Act
-        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(false, null);
 
         //Assert
@@ -119,7 +115,7 @@ describe("Layout test", () => {
         const processModel = setProcessViewModel(testModel);
 
         // Act
-        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(false, null);
 
         //Assert
@@ -134,7 +130,7 @@ describe("Layout test", () => {
         // Arrange
         const testModel = TestModels.createDefaultProcessModel();
         const processModel = setProcessViewModel(testModel);
-        let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
         //bypass testing adding stateful shapes logic here
         spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
@@ -144,7 +140,7 @@ describe("Layout test", () => {
         ProcessAddHelper.insertTaskWithUpdate(graph.getNodeById("15").getConnectableElement().edges[1], graph.layout, shapesFactoryService);
 
         graph.destroy();
-        graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(true, null);
 
         //Assert
@@ -164,7 +160,7 @@ describe("Layout test", () => {
         // Arrange
         const testModel = TestModels.createDefaultProcessModel();
         const processModel = setProcessViewModel(testModel);
-        let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
         //bypass testing adding stateful shapes logic here
         spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
@@ -175,7 +171,7 @@ describe("Layout test", () => {
         ProcessAddHelper.insertUserDecision(graph.getNodeById("15").getConnectableElement().edges[1], graph.layout, shapesFactoryService);
 
         graph.destroy();
-        graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(true, null);
 
         //Assert
@@ -195,7 +191,7 @@ describe("Layout test", () => {
         // Arrange
         const processModel = setProcessViewModel(TestModels.createDefaultProcessModel());
         let graph = new ProcessGraph(rootScope, {graphContainer: container, graphWrapper: wrapper},
-            container, processModel, dialogService, localization, null, null, null, shapesFactory);
+            container, processModel, dialogService, localization);
         graph.layout.setTempShapeId(0);
 
         //bypass testing adding stateful shapes logic here
@@ -207,7 +203,7 @@ describe("Layout test", () => {
         ProcessAddHelper.insertUserDecision(graph.getNodeById("25").getConnectableElement().edges[1], graph.layout, shapesFactoryService);
 
         graph.destroy();
-        graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(true, null);
 
         //Assert
@@ -250,7 +246,7 @@ describe("Layout test", () => {
         // Arrange
         const testModel = TestModels.createDefaultProcessModel();
         const processModel = setProcessViewModel(testModel);
-        let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
         const link = new ProcessLinkModel(0, 20, 25);
         const diagramLink = new DiagramLink(link, null);
@@ -264,7 +260,7 @@ describe("Layout test", () => {
         ProcessAddHelper.insertSystemDecision(diagramLink, graph.layout, shapesFactoryService);
 
         graph.destroy();
-        graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(true, null);
 
         //Assert
@@ -286,7 +282,7 @@ describe("Layout test", () => {
         const processModel = setProcessViewModel(testModel);
 
         // Act
-        let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.layout.setTempShapeId(0);
         graph.render(true, null);
 
@@ -301,7 +297,7 @@ describe("Layout test", () => {
         // Arrange
         const testModel = TestModels.createLargeTestModel();
         const processModel = setProcessViewModel(testModel);
-        let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.layout.setTempShapeId(0);
 
         //bypass testing adding stateful shapes logic here
@@ -312,13 +308,13 @@ describe("Layout test", () => {
         ProcessAddHelper.insertUserDecision(graph.getNodeById("27").getConnectableElement().edges[1], graph.layout, shapesFactoryService);
 
         graph.destroy();
-        graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(true, null);
 
         ProcessAddHelper.insertUserDecision(graph.getNodeById("30").getConnectableElement().edges[0], graph.layout, shapesFactoryService);
 
         graph.destroy();
-        graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(true, null);
 
         //Assert
@@ -337,7 +333,7 @@ describe("Layout test", () => {
         // Arrange
         const testModel = TestModels.createLargeTestModel();
         const processModel = setProcessViewModel(testModel);
-        let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.layout.setTempShapeId(0);
 
         //bypass testing adding stateful shapes logic here
@@ -348,13 +344,13 @@ describe("Layout test", () => {
         ProcessAddHelper.insertUserDecision(graph.getNodeById("30").getConnectableElement().edges[0], graph.layout, shapesFactoryService);
 
         graph.destroy();
-        graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(true, null);
 
         ProcessAddHelper.insertUserDecision(graph.getNodeById("27").getConnectableElement().edges[1], graph.layout, shapesFactoryService);
 
         graph.destroy();
-        graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(true, null);
 
         //Assert
@@ -371,7 +367,7 @@ describe("Layout test", () => {
         // Arrange
         const testModel = TestModels.createLargeTestModel();
         const processModel = setProcessViewModel(testModel);
-        let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.layout.setTempShapeId(0);
 
         //bypass testing adding stateful shapes logic here
@@ -382,7 +378,7 @@ describe("Layout test", () => {
         ProcessAddHelper.insertTaskWithUpdate(graph.getNodeById("25").getConnectableElement().edges[1], graph.layout, shapesFactoryService);
 
         graph.destroy();
-        graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(true, null);
 
         //Assert
@@ -396,11 +392,11 @@ describe("Layout test", () => {
         // Arrange
         const testModel = TestModels.createLargeTestModel();
         const processModel = setProcessViewModel(testModel);
-        let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
         const unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
             graph.destroy();
-            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
             graph.render(true, selectedNodeId);
         });
 
@@ -421,11 +417,11 @@ describe("Layout test", () => {
         // Arrange
         const testModel = TestModels.createLargeTestModel();
         const processModel = setProcessViewModel(testModel);
-        let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
         const unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
             graph.destroy();
-            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
             graph.render(true, selectedNodeId);
         });
 
@@ -445,7 +441,7 @@ describe("Layout test", () => {
         // Arrange
         const testModel = TestModels.createLargeTestModel();
         const processModel = setProcessViewModel(testModel);
-        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(false, null);
 
         //bypass testing adding stateful shapes logic here
@@ -462,7 +458,7 @@ describe("Layout test", () => {
         // Arrange
         const testModel = TestModels.createLargeTestModel();
         const processModel = setProcessViewModel(testModel);
-        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(false, null);
 
         //bypass testing adding stateful shapes logic here
@@ -479,7 +475,7 @@ describe("Layout test", () => {
         // Arrange
         const testModel = TestModels.createLargeTestModel();
         const processModel = setProcessViewModel(testModel);
-        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(false, null);
 
         // Act
@@ -493,7 +489,7 @@ describe("Layout test", () => {
         // Arrange && Act
         const testModel = TestModels.createDefaultProcessModelWithoutXAndY();
         const processModel = setProcessViewModel(testModel);
-        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(true, null);
 
         // Act
@@ -510,7 +506,7 @@ describe("Layout test", () => {
         // Arrange && Act
         const testModel = TestModels.createSimpleCaseModelWithoutXandY();
         const processModel = setProcessViewModel(testModel);
-        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(true, null);
 
         // Act
@@ -527,7 +523,7 @@ describe("Layout test", () => {
         // Arrange && Act
         const testModel = TestModels.createMultiDecisionBranchModelWithoutXAndY();
         const processModel = setProcessViewModel(testModel);
-        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(true, null);
 
         // Act
@@ -544,7 +540,7 @@ describe("Layout test", () => {
         // Arrange && Act
         const testModel = TestModels.createTwoMergePointsModelWithoutXAndY();
         const processModel = setProcessViewModel(testModel);
-        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(true, null);
 
         // Act
@@ -561,7 +557,7 @@ describe("Layout test", () => {
         // Arrange && Act
         const testModel = TestModels.createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY();
         const processModel = setProcessViewModel(testModel);
-        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(true, null);
 
         // Act
@@ -578,7 +574,7 @@ describe("Layout test", () => {
         // Arrange && Act
         const testModel = TestModels.createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY();
         const processModel = setProcessViewModel(testModel);
-        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         graph.render(true, null);
 
         // Act
@@ -597,10 +593,10 @@ describe("Layout test", () => {
             // Arrange
             const testModel = TestModels.createLargeTestModel();
             const processModel = setProcessViewModel(testModel);
-            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
             const unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
                 graph.destroy();
-                graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+                graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 graph.render(true, null);
             });
 
@@ -618,10 +614,10 @@ describe("Layout test", () => {
             // Arrange
             const testModel = TestModels.createSystemDecisionBeforeUserDecisionInBranchModel();
             const processModel = setProcessViewModel(testModel);
-            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
             const unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
                 graph.destroy();
-                graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+                graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 graph.render(true, null);
             });
 
@@ -651,7 +647,7 @@ describe("Layout test", () => {
             const ut1Id = 20;
             const ut4Id = 40;
 
-            const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+            const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             // Act
             graph.render(false, null);
@@ -684,7 +680,7 @@ describe("Layout test", () => {
                 // Arrange
                 const testModel = TestModels.createDnDComplicatedModel();
                 processModel = setProcessViewModel(testModel);
-                graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+                graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 /*
                  start -> pre -> ut1 -> st1 -> ut2 -> sd2 -> st2A ---------> ud3 -> ut4 -> st4 -> ut6 -> st6 -> end
                  -> st2B -> ut1         -> ut5 -> st5 -> ut1                        
@@ -703,7 +699,7 @@ describe("Layout test", () => {
                 let mergeToUt1 = graph.getNodeById(ut1Id.toString()).getIncomingLinks(graph.getMxGraphModel())[0];
                 graph.layout.handleUserTaskDragDrop(ut2Id, mergeToUt1);
                 graph.destroy();
-                graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+                graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 graph.render(true, null);
 
                 let st4ToUt6 = graph.getNodeById(ut6Id.toString()).getIncomingLinks(graph.getMxGraphModel())[0];
@@ -774,7 +770,7 @@ describe("Layout test", () => {
             let UT3 = 80;
             let ST1 = 50;
             let processModel = setProcessViewModel(testModel);
-            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
             graph.render(false, null);
             let st1ToEnd = graph.getNodeById(ST1.toString()).getOutgoingLinks(graph.getMxGraphModel())[0];
 
@@ -803,7 +799,7 @@ describe("Layout test", () => {
             let UT3 = 80;
             let ST2 = 70;
             let processModel = setProcessViewModel(testModel);
-            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
             graph.render(false, null);
             let st2ToMergeUt3 = graph.getNodeById(ST2.toString()).getOutgoingLinks(graph.getMxGraphModel())[0];
 
@@ -831,7 +827,7 @@ describe("Layout test", () => {
             let UT3 = 80;
             let ST5 = 130;
             let processModel = setProcessViewModel(testModel);
-            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
             graph.render(false, null);
             let st5ToMergeUt3 = graph.getNodeById(ST5.toString()).getOutgoingLinks(graph.getMxGraphModel())[0];
 
@@ -854,7 +850,7 @@ describe("Layout test", () => {
             let testModel = TestModels.createUserDecisionWithUserTaskWithSimpleSystemDecisioFamily();
 
             let processModel = setProcessViewModel(testModel);
-            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
             graph.render(true, null);
             let ut2Id = 60;
             let endId = 120;
@@ -879,7 +875,7 @@ describe("Layout test", () => {
             // Arrange
             const testModel = TestModels.createLargeTestModel();
             const processModel = setProcessViewModel(testModel);
-            const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+            const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             // Act
             graph.render(true, null);
@@ -897,7 +893,7 @@ describe("Layout test", () => {
             // Arrange
             const process = TestModels.createSystemDecisionLoopModel();
             const viewModel = setProcessViewModel(process);
-            const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, null, null, null, shapesFactory);
+            const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
             graph.render(true, null);
 
             const userTaskId = 30;
@@ -916,7 +912,7 @@ describe("Layout test", () => {
         // Arrange
         const testModel = TestModels.createLargeTestModel();
         const processModel = setProcessViewModel(testModel);
-        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
         const p1: MxPoint = new mxPoint(607, 388);
         const p2: MxPoint = new mxPoint(520, 420);
 
@@ -932,7 +928,7 @@ describe("Layout test", () => {
         // Arrange && Act
         const testModel = TestModels.createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY();
         const processModel = setProcessViewModel(testModel);
-        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
         // Act
         graph.render(true, null);
@@ -954,7 +950,7 @@ describe("Layout test", () => {
         // Arrange
         const process = TestModels.createUserDecisionLoopModelWithoutXAndY();
         const model = setProcessViewModel(process);
-        const graph = new ProcessGraph(rootScope, localScope, container, model, dialogService, localization, null, null, null, shapesFactory);
+        const graph = new ProcessGraph(rootScope, localScope, container, model, dialogService, localization);
 
         // Act
         graph.render(true, null);
@@ -976,7 +972,7 @@ describe("Layout test", () => {
                 //test models used in each test are different and only generated in each test
                 spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
-                const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+                const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 processGraph.render(true, false);
 
                 const ud: IDecision = processGraph.getMxGraphModel().getCell(udId.toString());
@@ -994,7 +990,7 @@ describe("Layout test", () => {
                 // Arrange
                 const process = TestModels.createUserDecisionWithoutUserTaskInFirstConditionModel();
                 const processModel = setProcessViewModel(process);
-                const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+                const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 const decisionId = 40;
                 const expectedConditions = 3;
 
@@ -1020,7 +1016,7 @@ describe("Layout test", () => {
                 //bypass testing adding stateful shapes logic here
                 spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
-                const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+                const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 processGraph.render(true, false);
 
                 ProcessAddHelper.insertSystemDecisionCondition(sdId, processGraph.layout, shapesFactoryService);
@@ -1042,7 +1038,7 @@ describe("Layout test", () => {
                 //bypass testing adding stateful shapes logic here
                 spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
-                const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+                const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 processGraph.render(true, false);
 
                 ProcessAddHelper.insertSystemDecisionCondition(sd1Id, processGraph.layout, shapesFactoryService);
@@ -1064,7 +1060,7 @@ describe("Layout test", () => {
                 //bypass testing adding stateful shapes logic here
                 spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
-                const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+                const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
                 processGraph.render(true, false);
 
                 ProcessAddHelper.insertSystemDecisionCondition(sd2Id, processGraph.layout, shapesFactoryService);
@@ -1083,7 +1079,7 @@ describe("Layout test", () => {
             // Arrange
             const testModel = TestModels.createDefaultProcessModel();
             const processModel = new ProcessViewModel(testModel, communicationManager, rootScope, localScope, msgService);
-            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             //bypass testing adding stateful shapes logic here
             spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
@@ -1097,7 +1093,7 @@ describe("Layout test", () => {
             ProcessAddHelper.insertTaskWithUpdate(edge, graph.layout, shapesFactoryService);
 
             graph.destroy();
-            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
             graph.render(true, null);
 
             //Assert
@@ -1110,7 +1106,7 @@ describe("Layout test", () => {
             // Arrange
             const testModel = TestModels.createDefaultProcessModel();
             const processModel = new ProcessViewModel(testModel, communicationManager, rootScope, localScope, msgService);
-            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
 
             //bypass testing adding stateful shapes logic here
             spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
@@ -1126,7 +1122,7 @@ describe("Layout test", () => {
             ProcessAddHelper.insertTaskWithUpdate(edge, graph.layout, shapesFactoryService);
 
             graph.destroy();
-            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
             graph.render(true, null);
 
             //Assert

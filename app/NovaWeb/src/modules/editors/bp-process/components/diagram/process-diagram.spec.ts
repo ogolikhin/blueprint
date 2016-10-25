@@ -13,7 +13,6 @@ import {ModalServiceMock} from "../../../../shell/login/mocks.spec";
 import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ProcessEvents} from "./process-diagram-communication";
-import {ShapesFactory, ShapesFactoryMock} from "./presentation/graph/shapes/shapes-factory";
 
 describe("ProcessDiagram Tests", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -24,7 +23,6 @@ describe("ProcessDiagram Tests", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
-        $provide.service("shapesFactory", ShapesFactoryMock);
     }));
     let rootScope: ng.IRootScopeService,
         scope,
@@ -36,8 +34,7 @@ describe("ProcessDiagram Tests", () => {
     let communicationManager: ICommunicationManager,
         dialogService: DialogService,
         localization: LocalizationServiceMock,
-        navigationService: INavigationService,
-        shapesFactory: ShapesFactory;
+        navigationService: INavigationService;
 
     let container: HTMLElement,
         wrapper: HTMLElement;
@@ -51,8 +48,7 @@ describe("ProcessDiagram Tests", () => {
                        _dialogService_: DialogService,
                        _localization_: LocalizationServiceMock,
                        _navigationService_: INavigationService,
-                       _statefulArtifactFactory_: IStatefulArtifactFactory,
-                       _shapesFactory_: ShapesFactory) => {
+                       _statefulArtifactFactory_: IStatefulArtifactFactory) => {
 
         $rootScope["config"] = {
             settings: {
@@ -72,7 +68,6 @@ describe("ProcessDiagram Tests", () => {
         localization = _localization_;
         navigationService = _navigationService_;
         statefulArtifactFactory = _statefulArtifactFactory_;
-        shapesFactory = _shapesFactory_;
 
         wrapper = document.createElement("DIV");
         container = document.createElement("DIV");
@@ -93,8 +88,7 @@ describe("ProcessDiagram Tests", () => {
             dialogService,
             localization,
             navigationService,
-            statefulArtifactFactory,
-            shapesFactory
+            statefulArtifactFactory
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -120,8 +114,7 @@ describe("ProcessDiagram Tests", () => {
             dialogService,
             localization,
             navigationService,
-            statefulArtifactFactory,
-            shapesFactory
+            statefulArtifactFactory
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -150,8 +143,7 @@ describe("ProcessDiagram Tests", () => {
             dialogService,
             localization,
             navigationService,
-            statefulArtifactFactory,
-            shapesFactory
+            statefulArtifactFactory
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -180,8 +172,7 @@ describe("ProcessDiagram Tests", () => {
             dialogService,
             localization,
             navigationService,
-            statefulArtifactFactory,
-            shapesFactory
+            statefulArtifactFactory
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -211,8 +202,7 @@ describe("ProcessDiagram Tests", () => {
             dialogService,
             localization,
             navigationService,
-            statefulArtifactFactory,
-            shapesFactory
+            statefulArtifactFactory
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -241,8 +231,7 @@ describe("ProcessDiagram Tests", () => {
             dialogService,
             localization,
             navigationService,
-            statefulArtifactFactory,
-            shapesFactory
+            statefulArtifactFactory
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -272,8 +261,7 @@ describe("ProcessDiagram Tests", () => {
             dialogService,
             localization,
             navigationService,
-            statefulArtifactFactory,
-            shapesFactory
+            statefulArtifactFactory
         );
         let navigateToArtifactSpy = spyOn(navigationService, "navigateTo");
 

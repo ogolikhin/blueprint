@@ -9,7 +9,6 @@ import {ICommunicationManager} from "../../../bp-process";
 import {IDialogService} from "../../../../shared";
 import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {ProcessEvents} from "./process-diagram-communication";
-import {ShapesFactory} from "./presentation/graph/shapes/shapes-factory";
 
 export class ProcessDiagram {
     public processModel: IProcess;
@@ -32,9 +31,7 @@ export class ProcessDiagram {
                 private dialogService: IDialogService,
                 private localization: ILocalizationService,
                 private navigationService: INavigationService,
-                private statefulArtifactFactory: IStatefulArtifactFactory,
-                private shapesFactory: ShapesFactory
-                ) {
+                private statefulArtifactFactory: IStatefulArtifactFactory) {
 
         this.processModel = null;
         this.selectionListeners = [];
@@ -142,9 +139,7 @@ export class ProcessDiagram {
                 this.localization,
                 this.messageService,
                 this.$log,
-                this.statefulArtifactFactory,
-                this.shapesFactory);
-                
+                this.statefulArtifactFactory);
             this.registerSelectionListeners();
         } catch (err) {
             this.handleInitProcessGraphFailed(processViewModel.id, err);

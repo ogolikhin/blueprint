@@ -1,10 +1,10 @@
 <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Text">
-    <div id="{{::id}}" ng-if="(options.data.isMultipleAllowed || options.data.propertyTypePredefined === propertyTypePredefined.Description) && options.data.isRichText"
+    <div id="{{::id}}" ng-if="options.data.isMultipleAllowed && options.data.isRichText"
          class="read-only-input richtext">
         <div class="richtext-body" ng-bind-html="formattedValue"></div>
     </div>
-    <div id="{{::id}}" ng-if="(!options.data.isMultipleAllowed && options.data.propertyTypePredefined !== propertyTypePredefined.Description) && options.data.isRichText"
-         class="read-only-input richtext inline" bp-tooltip="{{::tooltip}}" bp-tooltip-truncated="true">
+    <div id="{{::id}}" ng-if="!options.data.isMultipleAllowed && options.data.isRichText"
+         class="read-only-input richtext inline" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">
         <div class="richtext-body" ng-bind-html="formattedValue"></div>
     </div>
     <div id="{{::id}}" ng-if="options.data.isMultipleAllowed && !options.data.isRichText"
@@ -12,16 +12,16 @@
         <div ng-bind-html="formattedValue"></div>
     </div>
     <div id="{{::id}}" ng-if="!options.data.isMultipleAllowed && !options.data.isRichText"
-         class="read-only-input simple" bp-tooltip="{{::tooltip}}" bp-tooltip-truncated="true">{{::formattedValue}}</div>
+         class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{formattedValue}}</div>
 </div>
 <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Date">
-    <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{::tooltip}}" bp-tooltip-truncated="true">{{::formattedValue}}</div>
+    <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{formattedValue}}</div>
 </div>
 <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.Number">
-    <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{::tooltip}}" bp-tooltip-truncated="true">{{::formattedValue}}</div>
+    <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{formattedValue}}</div>
 </div>
 <div class="input-group has-messages" ng-if="options.data.primitiveType == primitiveType.User">
-    <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{::tooltip}}" bp-tooltip-truncated="true">{{::formattedValue}}</div>
+    <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{formattedValue}}</div>
 </div>
 <div class="input-group has-messages"
      ng-if="options.data.primitiveType == primitiveType.Choice && options.data.isMultipleAllowed">
@@ -32,5 +32,5 @@
 </div>
 <div class="input-group has-messages"
      ng-if="options.data.primitiveType == primitiveType.Choice && !options.data.isMultipleAllowed">
-    <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{::tooltip}}" bp-tooltip-truncated="true">{{::formattedValue}}</div>
+    <div id="{{::id}}" class="read-only-input simple" bp-tooltip="{{tooltip}}" bp-tooltip-truncated="true">{{formattedValue}}</div>
 </div>

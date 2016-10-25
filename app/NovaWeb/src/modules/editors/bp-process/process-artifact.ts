@@ -100,6 +100,24 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
 
     private mapTempIdsAfterSave(tempIdMap: Models.IKeyValuePair[]) {
         if (tempIdMap && tempIdMap.length > 0) {
+            if (this.decisionBranchDestinationLinks) {
+                for (let counter = 0; counter < tempIdMap.length; counter++) {
+                    this.decisionBranchDestinationLinks.forEach((link) => {
+                        if (link.destinationId === tempIdMap[counter].key) {
+                            link.destinationId = tempIdMap[counter].value;
+                        }
+                        if (link.sourceId === tempIdMap[counter].key) {
+                            link.sourceId = tempIdMap[counter].value;
+                        }
+                    });
+                    this.shapes.forEach((shape) => {
+                        if (shape.id === tempIdMap[counter].key) {
+                            shape.id = tempIdMap[counter].value;
+                        }
+                    });
+                }            
+            }
+
             this.subArtifactCollection.list().forEach(item => {
                 if (item.id <= 0) {
                     // subartifact id is temporary 

@@ -17,8 +17,9 @@ export class QuickSearchModalController {
     }
 
     search(term) {
-        if (!term) {
-            return false;
+        if (this.form.$invalid) {
+            this.$log.warn("invalid search");
+            return null;
         }
         this.isLoading = true;
         this.quickSearchService.searchTerm = _.clone(this.searchTerm);

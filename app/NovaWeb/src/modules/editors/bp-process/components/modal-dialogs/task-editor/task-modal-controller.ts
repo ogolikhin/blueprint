@@ -12,6 +12,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
     public includeArtifactName: string;
     public isReadonly: boolean = false;
     public isIncludeResultsVisible: boolean;
+    public isIncludeError: boolean;
 
     public abstract nameOnFocus();
     public abstract nameOnBlur();
@@ -47,6 +48,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         if (this.getAssociatedArtifact()) {
             this.prepIncludeField();
         }
+        this.isIncludeError = false;
     }
 
     public prepIncludeField(): void {
@@ -106,9 +108,15 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
                 associatedArtifact.id = items[0].id;
                 associatedArtifact.name = items[0].name;
                 associatedArtifact.typePrefix = items[0].prefix;
-                this.setAssociatedArtifact(associatedArtifact);
-                this.prepIncludeField();
-                this.prepIncludeField();
+                if (associatedArtifact.id === this.dialogModel.artifactId) {
+                    this.isIncludeError = true;
+                }
+                else {
+                    this.setAssociatedArtifact(associatedArtifact);
+                    this.prepIncludeField();
+                    this.prepIncludeField();
+                    this.isIncludeError = false;
+                }
             }
         });
     }

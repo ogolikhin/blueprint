@@ -282,7 +282,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                     }).catch((error) => {
                         deferred.reject(error);
                     });
-                    this.services.messageService.addInfo("App_Save_Artifact_Error_200");
                 }).catch((error) => {
                     deferred.reject(error);
                     let message: string;
@@ -312,8 +311,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                             message = this.services.localizationService.get("App_Save_Artifact_Error_Other") + error.statusCode;
                         }
 
-                        //this.services.messageService.addError(message);
-                        //throw new Error(message);
                         deferred.reject(new Error(message));
                     }
                 }

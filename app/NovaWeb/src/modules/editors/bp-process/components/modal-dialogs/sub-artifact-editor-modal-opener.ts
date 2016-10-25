@@ -227,10 +227,9 @@ export class SubArtifactEditorModalOpener {
         userStoryDialogModel.subArtifactId = shapeId;
         const node = graph.getNodeById(userStoryDialogModel.subArtifactId.toString());
         const userTaskNode = <UserTask>node;
-        userStoryDialogModel.previousSytemTasks = userTaskNode.getPreviousSystemTasks(graph) as SystemTask[];
+        userStoryDialogModel.previousSystemTasks = userTaskNode.getPreviousSystemTasks(graph) as SystemTask[];
         userStoryDialogModel.nextSystemTasks = userTaskNode.getNextSystemTasks(graph) as SystemTask[];
         userStoryDialogModel.originalUserTask = userTaskNode;
-        userStoryDialogModel.clonedUserTask = userStoryDialogModel.originalUserTask.cloneUserTask();
         userStoryDialogModel.isUserSystemProcess = graph.isUserSystemProcess;
 
         // set dialog model isReadonly property to enable/disable input controls

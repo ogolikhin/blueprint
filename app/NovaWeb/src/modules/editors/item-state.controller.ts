@@ -30,7 +30,7 @@ export class ItemStateController {
 
         let id = parseInt($state.params["id"], 10);
 
-        if (id) {
+        if (_.isNumber(id)) {
             this.clearLockedMessages();
             this.artifactManager.selection.clearAll();
             

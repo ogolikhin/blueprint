@@ -110,23 +110,4 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
             }
         });
     }
-
-    private refreshView() {
-        const element: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
-
-        // temporary solution from: http://stackoverflow.com/questions/8840580/force-dom-redraw-refresh-on-chrome-mac
-        if (!element) {
-            return;
-        }
-
-        const node = document.createTextNode(" ");
-        element.appendChild(node);
-        
-        this.$timeout(
-            () => {
-                node.parentNode.removeChild(node);
-            }, 
-            20
-        );
-    }
 }

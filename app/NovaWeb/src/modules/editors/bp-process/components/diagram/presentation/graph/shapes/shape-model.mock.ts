@@ -4,6 +4,7 @@ import {
     IUserTaskShape,
     IProcessShape,
     ISystemTaskShape,
+    IArtifactReference,
     IArtifactReferenceLink,
     ITaskFlags
 } from "../../../../../models/process-models";
@@ -20,7 +21,6 @@ export class ArtifactReferenceLinkMock implements IArtifactReferenceLink {
         this.associatedReferenceArtifactId = associatedReferenceArtifactId;
     }
 }
-
 export class ShapeModelMock {
     private static shapeModelMock: ShapeModelMock;
     private sampleUserTask: IUserTaskShape;

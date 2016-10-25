@@ -1,4 +1,4 @@
-import {ISystemTaskShape, PropertyTypePredefined} from "../../../../../models/process-models";
+import {ISystemTaskShape, PropertyTypePredefined, IArtifactReference} from "../../../../../models/process-models";
 import {ItemIndicatorFlags, ProcessShapeType} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {
@@ -226,11 +226,11 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         }
     }
 
-    public get associatedArtifact(): any {
+    public get associatedArtifact(): IArtifactReference {
         return this.model.associatedArtifact;
     }
 
-    public set associatedArtifact(value: any) {
+    public set associatedArtifact(value: IArtifactReference) {
         if (this.model != null && this.model.associatedArtifact !== value) {
             this.model.associatedArtifact = value;
             this.updateStatefulPropertyValue(PropertyTypePredefined.AssociatedArtifact, value);

@@ -32,10 +32,9 @@ export class BpBaseEditor {
                 this.artifactManager.selection.setArtifact(this.artifact);
 
                 const artifactObserver = artifact.getObservable().subscribeOnNext(this.onArtifactChanged);
+                
 
-                const errorObserver = artifact.errorObservable().subscribeOnNext(this.onArtifactError);
-
-                this.subscribers = [artifactObserver, errorObserver];
+                this.subscribers = [artifactObserver];
             }
         });
     }
@@ -51,10 +50,6 @@ export class BpBaseEditor {
     }
 
     protected onArtifactChanged = () => {
-        this.onArtifactReady();
-    }
-
-    protected onArtifactError = (error: IAppicationError) => {
         this.onArtifactReady();
     }
 

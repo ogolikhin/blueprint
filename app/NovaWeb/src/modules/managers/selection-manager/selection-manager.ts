@@ -1,6 +1,9 @@
+import {IAppicationError, HttpStatusCode} from "./../../core";
 import {IItem} from "./../../main/models/models";
 import {IStatefulArtifact, IStatefulSubArtifact} from "./../../managers/artifact-manager";
 import {IDispose} from "./../../managers/models";
+import { INavigationService } from "../../core/navigation";
+
 
 export interface ISelectionManager extends IDispose {
     artifactObservable: Rx.Observable<IStatefulArtifact>;
@@ -27,11 +30,15 @@ export interface ISelection {
 }
 
 export class SelectionManager implements ISelectionManager {
+    static $inject: [string] = [
+        "navigationService"
+    ];
+    
     private selectionSubject: Rx.BehaviorSubject<ISelection>;
     private explorerArtifactSelectionSubject: Rx.BehaviorSubject<IStatefulArtifact>;
     private editorArtifact: IStatefulArtifact;
-
-    constructor() {
+    private errorObserver: Rx.IDisposable;
+    constructor(private navigationService: INavigationService) {
         const selection = <ISelection>{
             artifact: null,
             subArtifact: null
@@ -87,7 +94,18 @@ export class SelectionManager implements ISelectionManager {
             artifact: artifact,
             subArtifact: null
         };
+
+        if (artifact) {
+            if (!this.editorArtifact || this.editorArtifact.id !== artifact.id) {
+                if (this.errorObserver) {
+                    this.errorObserver.dispose();
+                }
+                this.errorObserver = artifact.errorObservable().subscribeOnNext(this.onArtifactError);        
+            }
+        }
+
         this.editorArtifact = artifact;
+
         this.setSelectionSubject(selection);
     }
 
@@ -144,4 +162,14 @@ export class SelectionManager implements ISelectionManager {
     private setSelectionSubject(selection: ISelection) {
         this.selectionSubject.onNext(selection);
     }
+
+    private onArtifactError = (error: IAppicationError) => {
+        if (error.statusCode === HttpStatusCode.Forbidden || 
+            error.statusCode === HttpStatusCode.ServerError ||
+            error.statusCode === HttpStatusCode.Unauthorized
+            ) {
+            this.navigationService.navigateToMain();
+        } 
+    }
+    
 }

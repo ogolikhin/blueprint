@@ -1,3 +1,5 @@
+import * as _ from "lodash";
+
 export interface IAppicationError {
     handled?: boolean;
     statusCode?: number;
@@ -15,7 +17,7 @@ export class AppicationError extends Error implements IAppicationError {
         if (message instanceof String) {
             this.message = message;
         } else {
-            Object.assign(this, message);
+            _.assign(this, message);
         }
     }
 }

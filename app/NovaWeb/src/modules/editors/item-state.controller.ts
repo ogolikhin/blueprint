@@ -101,9 +101,7 @@ export class ItemStateController {
 
     public navigateToSubRoute(artifact: IStatefulArtifact) {
         const params = { context: artifact.id };
-
-        const errorObserver = artifact.errorObservable().subscribeOnNext(this.onArtifactError);        
-
+        
         switch (artifact.predefinedType) {
             case Models.ItemTypePredefined.GenericDiagram:
             case Models.ItemTypePredefined.BusinessProcess:

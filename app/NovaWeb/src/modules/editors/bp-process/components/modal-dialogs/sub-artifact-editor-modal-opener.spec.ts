@@ -378,9 +378,8 @@ describe("SubArtifactEditorModalOpener test", () => {
                 size: "",
                 resolve: {
                     dialogModel: () => <UserStoryDialogModel>{
-                        clonedUserTask: userTask,
                         originalUserTask: userTask,
-                        previousSytemTasks: [],
+                        previousSystemTasks: [],
                         nextSystemTasks: [],
                         subArtifactId: shapeId,
                         isUserSystemProcess: false,
@@ -838,7 +837,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 expect(model).toBeNull();
             });
 
-            xit("returns model as read-only if process is read-only", () => {
+            it("returns model as read-only if process is read-only", () => {
                 // arrange
                 const process = TestModels.createDefaultProcessModel();
                 process["artifactState"] = {readonly: true};
@@ -857,7 +856,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 expect(model.isReadonly).toBe(true);
             });
 
-            xit("returns model as historical if process is historical", () => {
+            it("returns model as historical if process is historical", () => {
                 // arrange
                 const process = TestModels.createDefaultProcessModel();
                 process["historical"] = true;
@@ -876,7 +875,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 expect(model.isHistoricalVersion).toBe(true);
             });
 
-            xit("returns correct properties", () => {
+            it("returns correct properties", () => {
                 // arrange
                 const process = TestModels.createDefaultProcessModel();
                 const userTaskShape = <ProcessModels.IUserTaskShape>process.shapes[2];
@@ -893,11 +892,10 @@ describe("SubArtifactEditorModalOpener test", () => {
                 // assert
                 expect(model.subArtifactId).toBe(shapeId);
                 expect(model.originalUserTask).toBe(userTask);
-                expect(model.clonedUserTask).toEqual(userTask);
                 expect(model.isReadonly).toBe(graph.viewModel.isReadonly);
                 expect(model.isHistoricalVersion).toBe(graph.viewModel.isHistorical);
-                expect(model.previousSytemTasks).not.toBeNull();
-                expect(model.previousSytemTasks.length).toBe(0);
+                expect(model.previousSystemTasks).not.toBeNull();
+                expect(model.previousSystemTasks.length).toBe(0);
                 expect(model.nextSystemTasks).not.toBeNull();
                 expect(model.nextSystemTasks.length).toBe(0);
                 expect(model.isUserSystemProcess).toBe(false);

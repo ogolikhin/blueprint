@@ -97,6 +97,10 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         currentProcess.requestedVersionInfo = newProcess.requestedVersionInfo;
     }
 
+    private replaceTemporaryIdsAfterSave() {
+
+    }
+
     private initializeSubArtifacts(newProcess: IProcess) {
         const statefulSubArtifacts = [];
         this.shapes = [];
@@ -115,7 +119,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         if (!this.artifactState.readonly) {
             this.services.processService.save(<IProcess>this)
                 .then((result: IProcessUpdateResult) => {
-                    this.onLoad(result.result);
+                    
                     deferred.resolve(this);
                 }).catch((err: any) => {
                     deferred.reject(err);

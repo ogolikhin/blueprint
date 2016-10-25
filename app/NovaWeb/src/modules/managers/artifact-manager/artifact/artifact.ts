@@ -149,49 +149,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         // null values get filtered out before it gets to the observer
         this.subject.onNext(null);
     }
-
-    public refresh(): ng.IPromise<IStatefulArtifact> {
-        const deferred = this.services.getDeferred<IStatefulArtifact>();
-        let promisesToExecute: ng.IPromise<any>[] = [];
-        this.discard();
-
-        promisesToExecute.push(this.load());
-
-        // #DEBUG
-        //if (this._attachments) {
-        //    //this will also reload docRefs, so no need to call docRefs.refresh()
-        //    promisesToExecute.push(this._attachments.refresh());
-        //}
-
-        if (this._relationships) {
-            promisesToExecute.push(this._relationships.refresh());
-        }
-        //History and Discussions are excluded from here.
-        //They refresh independently, triggered by artifact's observable.
-
-        promisesToExecute.push(this.services.metaDataService.remove(this.projectId));
-
-        // get promises for custom artifact refresh operations
-        let refreshPromises = this.getCustomArtifactPromisesForRefresh();
-
-        if (refreshPromises.length > 0) {
-            for (let i = 0; i < refreshPromises.length; i++) {
-                promisesToExecute.push(refreshPromises[i]);
-            }
-        }
-
-        this.getServices().$q.all(promisesToExecute).then(() => {
-            this.subject.onNext(this);
-            deferred.resolve(this);
-        }).catch(error => {
-            deferred.reject(error);
-
-            //Project manager is listening to this, and will refresh the project.
-            this.subject.onNext(this);
-        });
-        return deferred.promise;
-    }
-
+    
     private isProject(): boolean {
         return this.itemTypeId === Enums.ItemTypePredefined.Project;
     }
@@ -499,4 +457,19 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return deferred.promise;
     }
 
+    //Hook for subclasses to provide additional promises which should be run for obtaining data
+    protected getCustomArtifactPromisesForGetObservable(): ng.IPromise < IStatefulArtifact > [] {
+        return [];
+    }
+    protected getCustomArtifactPromisesForRefresh(): ng.IPromise < any > [] {
+        return [];
+    }
+    protected getCustomArtifactPromisesForSave(): ng.IPromise < IStatefulArtifact > {
+        return null;
+    }
+
+    //Hook for subclasses to do some post processing
+    protected runPostGetObservable() {
+        ;
+    }
 }

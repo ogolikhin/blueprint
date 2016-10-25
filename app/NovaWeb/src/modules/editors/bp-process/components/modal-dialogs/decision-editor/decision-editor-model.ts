@@ -6,10 +6,10 @@ import {
 import {IModalDialogModel} from "../models/modal-dialog-model-interface";
 
 export class DecisionEditorModel implements IModalDialogModel {
+    public artifactId: number;
     public subArtifactId: number;
     public label: string;
     public conditions: ICondition[];
-
     public graph: IProcessGraph;
     public originalDecision: IDecision;
     public isReadonly: boolean;

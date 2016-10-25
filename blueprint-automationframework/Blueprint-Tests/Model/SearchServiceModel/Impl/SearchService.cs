@@ -53,8 +53,7 @@ namespace Model.SearchServiceModel.Impl
                 RestRequestMethod.POST,
                 searchCriteria,
                 queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: true);
+                expectedStatusCodes: expectedStatusCodes);
 
             return restResponse;
         }

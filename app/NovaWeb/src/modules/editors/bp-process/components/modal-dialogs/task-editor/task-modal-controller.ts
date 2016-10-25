@@ -12,6 +12,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
     public includeArtifactName: string;
     public isReadonly: boolean = false;
     public isIncludeResultsVisible: boolean;
+    public isIncludeError: boolean;
 
     public abstract nameOnFocus();
     public abstract nameOnBlur();
@@ -47,6 +48,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         if (this.getAssociatedArtifact()) {
             this.prepIncludeField();
         }
+        this.isIncludeError = false;
     }
 
     public prepIncludeField(): void {
@@ -55,8 +57,10 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
     }
 
     public cleanIncludeField(): void {
-        this.isIncludeResultsVisible = false;
-        this.setAssociatedArtifact(null);
+        if (this.canCleanIncludeField()) {
+            this.isIncludeResultsVisible = false;
+            this.setAssociatedArtifact(null);
+        }
     }
 
     public formatIncludeLabel(model: IArtifactReference) {
@@ -104,29 +108,21 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
                 associatedArtifact.id = items[0].id;
                 associatedArtifact.name = items[0].name;
                 associatedArtifact.typePrefix = items[0].prefix;
-                this.setAssociatedArtifact(associatedArtifact);
-                this.prepIncludeField();
-                this.prepIncludeField();
+                if (associatedArtifact.id === this.dialogModel.artifactId) {
+                    this.isIncludeError = true;
+                }
+                else {
+                    this.setAssociatedArtifact(associatedArtifact);
+                    this.prepIncludeField();
+                    this.prepIncludeField();
+                    this.isIncludeError = false;
+                }
             }
         });
     }
 
-    private refreshView() {
-        const element: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
-
-        // temporary solution from: http://stackoverflow.com/questions/8840580/force-dom-redraw-refresh-on-chrome-mac
-        if (!element) {
-            return;
-        }
-
-        const node = document.createTextNode(" ");
-        element.appendChild(node);
-
-        this.$timeout(
-            () => {
-                node.parentNode.removeChild(node);
-            },
-            20
-        );
+    private canCleanIncludeField(): boolean {
+        return !this.dialogModel.isReadonly;
     }
+   
 }

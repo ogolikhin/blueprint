@@ -26,9 +26,6 @@ export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactInfoController;
     public transclude: boolean = true;
-    public bindings: any = {
-        context: "<"
-    };
 }
 
 export class BpArtifactInfoController {
@@ -78,33 +75,17 @@ export class BpArtifactInfoController {
     }
 
     public $onInit() {
+
         const windowSub = this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
-        // const stateSub = this.artifactManager.selection.artifactObservable
-        //     // cannot always skip 1 and rely on the artifact observable having 2 values (initial and new)
-        //     // this is true when navigating to artifact X from artifact X via breadcrumb (loop)
-        //     // .skip(1) // skip the first (initial) value
-
-        //     .filter((artifact: IStatefulArtifact) => artifact != null)
-        //     .distinctUntilChanged(artifact => artifact.id)
-        //     .flatMap((artifact: IStatefulArtifact) => {
-        //         this.artifact = artifact;
-        //         return artifact.getObservable();
-        //     })
-        //     .subscribeOnNext(this.onStateChanged);
-
         this.subscribers.push(windowSub);
-    }
 
-    public $onChanges(obj: any) {
-        this.artifactManager.get(obj.context.currentValue).then((artifact) => {
-            if (artifact) {
-                this.artifact = artifact;
-                const artifactObserver = artifact.getObservable()
-                    .subscribe(this.onArtifactChanged, this.onError);
-
-                this.subscribers.push(artifactObserver);
-            }
-        });
+        this.artifact = this.artifactManager.selection.getArtifact();
+        if (this.artifact) {
+            const artifactStateSub = this.artifact.getObservable()
+                .subscribe(this.onArtifactChanged, this.onError);
+            
+            this.subscribers.push(artifactStateSub);
+        }
     }
 
     public $onDestroy() {
@@ -113,11 +94,14 @@ export class BpArtifactInfoController {
             subscriber.dispose();
         });
         delete this.subscribers;
+        delete this.artifact;
     }
 
     protected onArtifactChanged = () => {
-        this.updateProperties(this.artifact);
-        this.subscribeToStateChange(this.artifact);
+        if (this.artifact) {
+            this.updateProperties(this.artifact);
+            this.subscribeToStateChange(this.artifact);
+        }
     }
 
     protected subscribeToStateChange(artifact) {
@@ -259,7 +243,7 @@ export class BpArtifactInfoController {
         this.toolbarActions.push(
             new BPButtonGroupAction(
                 new SaveAction(artifact, this.localization, this.messageService, this.loadingOverlayService),
-                new PublishAction(artifact, this.localization),
+                new PublishAction(artifact, this.localization, this.messageService, this.loadingOverlayService),
                 new DiscardAction(artifact, this.localization),
                 new RefreshAction(artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService),
                 new DeleteAction(artifact, this.localization, this.dialogService, deleteDialogSettings)

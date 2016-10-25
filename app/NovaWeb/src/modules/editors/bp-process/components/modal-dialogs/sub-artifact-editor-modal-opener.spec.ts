@@ -5,11 +5,13 @@ import {IModalDialogCommunication, ModalDialogCommunication} from "./modal-dialo
 import {ModalDialogType} from "./modal-dialog-constants";
 import {CommunicationManager} from "../../../bp-process/services/communication-manager";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ModalServiceMock} from "../../../../shell/login/mocks.spec";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {ProcessGraph} from "../diagram/presentation/graph/process-graph";
 import {ProcessViewModel} from "../diagram/viewmodel/process-viewmodel";
 import {UserTask, SystemTask, UserDecision} from "../diagram/presentation/graph/shapes";
+import {ShapesFactory} from "../diagram/presentation/graph/shapes/shapes-factory";
 import {ICondition} from "../diagram/presentation/graph/models";
 import {SubArtifactEditorModalOpener} from "./sub-artifact-editor-modal-opener";
 import {UserStoryPreviewController} from "./user-story-preview/user-story-preview";
@@ -34,6 +36,7 @@ class ExecutionEnvironmentDetectorMock {
 describe("SubArtifactEditorModalOpener test", () => {
     let dialogManager: IModalDialogCommunication;
     let localScope, localization;
+    let shapesFactory: ShapesFactory;
     let dialogService: DialogServiceMock;
     let modalOpener: SubArtifactEditorModalOpener;
     let communicationManager: CommunicationManager;
@@ -50,18 +53,22 @@ describe("SubArtifactEditorModalOpener test", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("$uibModal", ModalServiceMock);
         $provide.service("dialogService", DialogServiceMock);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
+        $provide.service("shapesFactory", ShapesFactory);
     }));
 
     beforeEach(inject(($rootScope: ng.IRootScopeService,
                        _localization_: LocalizationServiceMock,
                        _communicationManager_: CommunicationManager,
                        _$uibModal_: ModalServiceMock,
-                       _dialogService_: DialogServiceMock) => {
+                       _dialogService_: DialogServiceMock,
+                       _shapesFactory_: ShapesFactory) => {
         rootScope = $rootScope;
         localization = _localization_;
         $uibModal = _$uibModal_;
         dialogService = _dialogService_;
         communicationManager = _communicationManager_;
+        shapesFactory = _shapesFactory_;
 
         wrapper = document.createElement("DIV");
         container = document.createElement("DIV");
@@ -314,6 +321,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 component: "decisionEditor",
                 resolve: {
                     dialogModel: () => <DecisionEditorModel>{
+                        artifactId: graph.viewModel.id,
                         subArtifactId: shapeId,
                         label: decision.label,
                         conditions: [
@@ -900,6 +908,6 @@ describe("SubArtifactEditorModalOpener test", () => {
 
     function createGraph(process: ProcessModels.IProcess): ProcessGraph {
         let viewModel = new ProcessViewModel(process, communicationManager);
-        return new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
+        return new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory);
     }
 });

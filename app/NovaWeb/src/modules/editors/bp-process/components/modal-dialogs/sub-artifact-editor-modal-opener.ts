@@ -133,6 +133,7 @@ export class SubArtifactEditorModalOpener {
         const userTask: UserTask = <UserTask>node;
         const model = new UserTaskDialogModel();
 
+        model.artifactId = graph.viewModel.id;
         model.subArtifactId = shapeId;
         model.isReadonly = graph.viewModel.isReadonly;
         model.isHistoricalVersion = graph.viewModel.isHistorical;
@@ -160,6 +161,7 @@ export class SubArtifactEditorModalOpener {
         const systemTask: SystemTask = <SystemTask>node;
         const model = new SystemTaskDialogModel();
 
+        model.artifactId = graph.viewModel.id;
         model.subArtifactId = shapeId;
         model.isReadonly = graph.viewModel.isReadonly;
         model.isHistoricalVersion = graph.viewModel.isHistorical;
@@ -189,6 +191,7 @@ export class SubArtifactEditorModalOpener {
         const decision: IDecision = <IDecision>node;
         const model: DecisionEditorModel = new DecisionEditorModel();
 
+        model.artifactId = graph.viewModel.id;
         model.subArtifactId = shapeId;
         model.label = decision.label;
         model.conditions = this.getConditions(decision, graph);
@@ -236,6 +239,7 @@ export class SubArtifactEditorModalOpener {
         const userTask = <UserTask>node;
         const model: UserStoryDialogModel = new UserStoryDialogModel();
 
+        model.artifactId = graph.viewModel.id;
         model.subArtifactId = shapeId;
         model.previousSytemTasks = userTask.getPreviousSystemTasks(graph) as SystemTask[];
         model.nextSystemTasks = userTask.getNextSystemTasks(graph) as SystemTask[];

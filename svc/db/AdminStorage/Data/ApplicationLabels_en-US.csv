@@ -178,6 +178,9 @@ Publish_All_No_Unpublished_Changes,"There are no artifacts that can be published
 Publish_All_Load_More,"Load more"
 Publish_All_More_Artifacts,"Not showing other {0} artifact(s)."
 
+Publish_Dependents_Dialog_Message,"If you publish the artifact, other related artifacts will also need to be published. Please review and confirm:"
+Publish_Success_Message,"The artifact has been published."
+
 # glossary artifact
 Artifact_Glossary_Term,"Term"
 Artifact_Glossary_Definition,"Definition"
@@ -342,6 +345,8 @@ ST_Popup_Menu_Add_User_Decision_Label ,"Add User Decision Point"
 ST_User_Task_Name_Label, "Action:"
 ST_System_Task_Name_Label, "System Response:"
 ST_TaskNameNotValid_Label, "The shape requires a label."
+ST_Persona_Label,"Persona:"
+ST_Persona_Helper_Text, "Who/What is doing the task"
 ST_System_Name_Label, "System Name:"
 ST_System_Name_Helper_Text, "Who/What is doing the task"
 ST_User_Task_Name_Helper_Text, "The persona wants to [Action]"
@@ -366,6 +371,7 @@ ST_Decision_Modal_Next_Task_Label, "Next Task"
 ST_Decision_Modal_Add_Condition_Button_Label, "Add Condition"
 ST_Decision_Modal_Delete_Condition_Button_Label, "Delete Condition"
 ST_Decision_Modal_New_System_Task_Edge_Label, "Condition "
+ST_Cannot_Include_Parent_Process,"A task cannot include its parent Process"
 
 ST_Given_Label, "Given"
 ST_Then_Label, "Then"

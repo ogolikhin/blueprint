@@ -44,7 +44,6 @@ export class ProcessGraph implements IProcessGraph {
     private deleteShapeHandler: string;
     private popupMenu: NodePopupMenu = null;
     public globalScope: IScopeContext;
-    private shapesFactory: ShapesFactory;
     public dragDropHandler: IDragDropHandler;
 
     public static get MinConditions(): number {
@@ -59,17 +58,20 @@ export class ProcessGraph implements IProcessGraph {
         return this.viewModel.isUserToSystemProcess;
     }
 
-    constructor(public rootScope: any,
-                private scope: any,
-                private htmlElement: HTMLElement,
-                // #TODO fix up references later
-                //private artifactVersionControlService: Shell.IArtifactVersionControlService,
-                public viewModel: IProcessViewModel,
-                private dialogService: IDialogService,
-                private localization: ILocalizationService,
-                public messageService: IMessageService = null,
-                private $log: ng.ILogService = null,
-                private statefulArtifactFactory: IStatefulArtifactFactory = null) {
+    constructor(
+        public rootScope: any,
+        private scope: any,
+        private htmlElement: HTMLElement,
+        // #TODO fix up references later
+        //private artifactVersionControlService: Shell.IArtifactVersionControlService,
+        public viewModel: IProcessViewModel,
+        private dialogService: IDialogService,
+        private localization: ILocalizationService,
+        private shapesFactory: ShapesFactory,
+        public messageService: IMessageService = null,
+        private $log: ng.ILogService = null,
+        private statefulArtifactFactory: IStatefulArtifactFactory = null,
+    ) {
         // Creates the graph inside the given container
         // This is temporary code. It will be replaced with
         // a class that wraps this global functionality.
@@ -77,7 +79,6 @@ export class ProcessGraph implements IProcessGraph {
         let w: any = window;
         this.executionEnvironmentDetector = new w.executionEnvironmentDetector();
         this.mxgraph = new mxGraph(this.htmlElement, new BpMxGraphModel());
-        this.shapesFactory = new ShapesFactory(this.rootScope, this.statefulArtifactFactory);
         this.layout = new Layout(this, viewModel, rootScope, this.shapesFactory, this.messageService, this.$log);
         this.init();
     }

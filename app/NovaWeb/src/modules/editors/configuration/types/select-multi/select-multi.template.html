@@ -12,7 +12,7 @@
         <ui-select-match placeholder="{{to.placeholder}}">
             <div class="ui-select-match-item-chosen" bp-tooltip="{{$item[to.labelProp]}}" bp-tooltip-truncated="true">{{$item[to.labelProp]}}</div>
         </ui-select-match>
-        <ui-select-choices class="ps-child"
+        <ui-select-choices
                            on-highlight="bpFieldSelectMulti.onHighlight(option, $select)"
                            data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}">
             <div class="ui-select-choice-item"

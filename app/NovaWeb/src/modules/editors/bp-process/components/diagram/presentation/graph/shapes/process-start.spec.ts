@@ -61,7 +61,7 @@ describe("ProcessStart test", () => {
         const viewModel = new ProcessViewModel(processModel, communicationManager);
 
         // Act
-        const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
+        const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory);
 
         const node = new ProcessStart(testModel);
         node.render(graph, 30, 30, false);

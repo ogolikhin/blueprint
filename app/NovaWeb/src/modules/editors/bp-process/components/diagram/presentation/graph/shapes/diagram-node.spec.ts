@@ -42,19 +42,22 @@ describe("DiagramNode", () => {
         $provide.service("dialogService", DialogService);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
+        $provide.service("shapesFactory", ShapesFactory);
     }));
 
     beforeEach(inject(($rootScope: ng.IRootScopeService,
         _communicationManager_: ICommunicationManager,
         _dialogService_: DialogService,
         _localization_: LocalizationServiceMock,
-        _statefulArtifactFactory_: IStatefulArtifactFactoryMock) => {
+        _statefulArtifactFactory_: IStatefulArtifactFactoryMock,
+        _shapesFactory_: ShapesFactory) => {
 
         communicationManager = _communicationManager_;
         dialogService = _dialogService_;
         localization = _localization_;
         rootScope = $rootScope;
         statefulArtifactFactory = _statefulArtifactFactory_;
+        shapesFactory = _shapesFactory_;
 
         rootScope["config"] = {
             labels: {
@@ -107,7 +110,7 @@ describe("DiagramNode", () => {
                 document.body.appendChild(wrapper);
 
                 graph = new ProcessGraph(rootScope, { graphContainer: container, graphWrapper: wrapper },
-                    container, processModel, dialogService, localization);
+                    container, processModel, dialogService, localization, shapesFactory, null, null, null);
                 graph.render(false, null);
             });
 
@@ -316,7 +319,7 @@ describe("DiagramNode", () => {
                 document.body.appendChild(wrapper);
 
                 graph = new ProcessGraph(rootScope, { graphContainer: container, graphWrapper: wrapper },
-                    container, processModel, dialogService, localization);
+                    container, processModel, dialogService, localization, shapesFactory, null, null, null);
                 graph.render(false, null);
             });
 
@@ -391,14 +394,14 @@ describe("DiagramNode", () => {
             processModel.shapes.push(mock);
 
             statefulArtifact = <StatefulProcessArtifact>statefulArtifactFactory.createStatefulArtifact(artifact);
-            statefulArtifactFactory.populateStatefulProcessWithPorcessModel(statefulArtifact, processModel);
+            statefulArtifactFactory.populateStatefulProcessWithProcessModel(statefulArtifact, processModel);
             statefulSubArtifact = <StatefulProcessSubArtifact>statefulArtifact.subArtifactCollection.get(mock.id);
 
             node = new SystemTask(<ISystemTaskShape>statefulArtifact.shapes[0], rootScope, "", null, shapesFactory);
 
             viewModel = new ProcessViewModel(statefulArtifact, communicationManager);
 
-            graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory, null, null, null);
         });
         it("when modifying label - labels matches", () => {
 

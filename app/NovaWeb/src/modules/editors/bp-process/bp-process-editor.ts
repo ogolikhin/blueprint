@@ -9,15 +9,11 @@ import {BpBaseEditor, IArtifactManager} from "../bp-base-editor";
 import {IDialogService} from "../../shared";
 import {IDiagramNode} from "./components/diagram/presentation/graph/models/";
 import {ISelection, IStatefulArtifactFactory} from "../../managers/artifact-manager";
+import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shapes-factory";
 
 export class BpProcessEditor implements ng.IComponentOptions {
     public template: string = require("./bp-process-editor.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BpProcessEditorController;
-    public controllerAs = "$ctrl";
-    public transclude: boolean = true;
-    public bindings: any = {
-        context: "<"
-    };
 }
 
 export class BpProcessEditorController extends BpBaseEditor {
@@ -39,7 +35,8 @@ export class BpProcessEditorController extends BpBaseEditor {
         "communicationManager",
         "dialogService",
         "navigationService",
-        "statefulArtifactFactory"
+        "statefulArtifactFactory",
+        "shapesFactory"
     ];
 
     constructor(
@@ -57,7 +54,8 @@ export class BpProcessEditorController extends BpBaseEditor {
         private communicationManager: ICommunicationManager,
         private dialogService: IDialogService,
         private navigationService: INavigationService,
-        private statefulArtifactFactory: IStatefulArtifactFactory
+        private statefulArtifactFactory: IStatefulArtifactFactory,
+        private shapesFactory: ShapesFactory = null
     ) {
         super(messageService, artifactManager);
 
@@ -103,6 +101,8 @@ export class BpProcessEditorController extends BpBaseEditor {
             this.processDiagram.destroy();
         }
 
+        this.shapesFactory.reset();
+
         this.processDiagram = new ProcessDiagram(
             this.$rootScope,
             this.$scope,
@@ -114,7 +114,8 @@ export class BpProcessEditorController extends BpBaseEditor {
             this.dialogService,
             this.localization,
             this.navigationService,
-            this.statefulArtifactFactory
+            this.statefulArtifactFactory,
+            this.shapesFactory
         );
 
         let htmlElement = this.getHtmlElement();

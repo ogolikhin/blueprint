@@ -12,6 +12,6 @@ export class LocalizationServiceMock extends LocalizationService {
     }
 
     public set current(value: BPLocale) {
-
+        return;
     }
 }

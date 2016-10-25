@@ -37,7 +37,7 @@ namespace SearchService.Controllers
         public async Task SearchFullText_PageSizeNegative_ReturnsConstant()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var searchCriteria = new FullTextSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
             var controller = CreateController();
 
             // Act
@@ -52,7 +52,7 @@ namespace SearchService.Controllers
         public async Task SearchFullText_SearchCriteriaIsNull_BadRequest()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = null, ProjectIds = new[] { 1 } };
+            var searchCriteria = new FullTextSearchCriteria { Query = null, ProjectIds = new[] { 1 } };
             var controller = CreateController();
 
             // Act
@@ -75,7 +75,7 @@ namespace SearchService.Controllers
         public async Task SearchFullText_SearchCriteriaIsEmpty_BadRequest()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "", ProjectIds = new[] { 1 } };
+            var searchCriteria = new FullTextSearchCriteria { Query = "", ProjectIds = new[] { 1 } };
             var controller = CreateController();
 
             // Act
@@ -98,7 +98,7 @@ namespace SearchService.Controllers
         public async Task SearchFullText_SearchCriteriaIsLessThanThreeCharacters_BadRequest()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "12", ProjectIds = new[] { 1 } };
+            var searchCriteria = new FullTextSearchCriteria { Query = "12", ProjectIds = new[] { 1 } };
             var controller = CreateController();
 
             // Act
@@ -121,7 +121,7 @@ namespace SearchService.Controllers
         public async Task SearchFullText_ZeropPageSize_ReturnsConstant()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var searchCriteria = new FullTextSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
             var controller = CreateController();
 
             // Act
@@ -136,7 +136,7 @@ namespace SearchService.Controllers
         public async Task SearchFullText_50PageSize_ReturnsConstant()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var searchCriteria = new FullTextSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
             var controller = CreateController();
 
             // Act
@@ -151,7 +151,7 @@ namespace SearchService.Controllers
         public async Task SearchFullText_RequestNegativePage_ReturnsPageOne()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var searchCriteria = new FullTextSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
             var controller = CreateController();
 
             // Act
@@ -166,7 +166,7 @@ namespace SearchService.Controllers
         public async Task SearchFullText_RequestZeroPage_ReturnsPageOne()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var searchCriteria = new FullTextSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
             var controller = CreateController();
 
             // Act
@@ -181,7 +181,7 @@ namespace SearchService.Controllers
         public async Task SearchFullText_RequestPositivePage_ReturnsPageOne()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var searchCriteria = new FullTextSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
             var controller = CreateController();
 
             // Act
@@ -200,7 +200,7 @@ namespace SearchService.Controllers
         public async Task FullTextMetaData_PageSizeNegative_ReturnsConstant()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var searchCriteria = new FullTextSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
             var controller = CreateController();
 
             // Act
@@ -219,7 +219,7 @@ namespace SearchService.Controllers
         public async Task SearchName_Success()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "Test", ProjectIds = new List<int> { 5 } };
+            var searchCriteria = new ItemNameSearchCriteria { Query = "Test", ProjectIds = new List<int> { 5 } };
             var startOffset = 0;
             var pageSize = 20;
             var controller = CreateController();
@@ -236,7 +236,7 @@ namespace SearchService.Controllers
         public async Task SearchName_Forbidden()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "Test", ProjectIds = new List<int> { 5 } };
+            var searchCriteria = new ItemNameSearchCriteria { Query = "Test", ProjectIds = new List<int> { 5 } };
             var startOffset = 0;
             var pageSize = 20;
             var controller = CreateController();
@@ -279,7 +279,7 @@ namespace SearchService.Controllers
         public async Task SearchName_QueryIsEmpty_BadRequest()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "" };
+            var searchCriteria = new ItemNameSearchCriteria { Query = "" };
             var controller = CreateController();
 
             // Act
@@ -302,7 +302,7 @@ namespace SearchService.Controllers
         public async Task SearchName_ResultCountMoreThanMax_Success()
         {
             // Arrange
-            var searchCriteria = new ItemSearchCriteria { Query = "Test", ProjectIds = new List<int> { 5 } };
+            var searchCriteria = new ItemNameSearchCriteria { Query = "Test", ProjectIds = new List<int> { 5 } };
             var startOffset = 0;
             var pageSize = 200;
             var controller = CreateController();
@@ -319,7 +319,7 @@ namespace SearchService.Controllers
         private ItemSearchController CreateController()
         {
             var itemSearchRepository = new Mock<IItemSearchRepository>();
-            itemSearchRepository.Setup(a => a.SearchFullText(It.IsAny<int>(), It.IsAny<ItemSearchCriteria>(), It.IsAny<int>(), It.IsAny<int>())).
+            itemSearchRepository.Setup(a => a.SearchFullText(It.IsAny<int>(), It.IsAny<FullTextSearchCriteria>(), It.IsAny<int>(), It.IsAny<int>())).
                 Returns((int userId, SearchCriteria searchCriteria, int page, int pageSize) => Task.FromResult(new FullTextSearchResultSet
                 {
                     Items = new List<FullTextSearchResult>(),
@@ -327,9 +327,9 @@ namespace SearchService.Controllers
                     PageItemCount = 0,
                     PageSize = pageSize
                 }));
-            itemSearchRepository.Setup(a => a.FullTextMetaData(It.IsAny<int>(), It.IsAny<ItemSearchCriteria>())).
+            itemSearchRepository.Setup(a => a.FullTextMetaData(It.IsAny<int>(), It.IsAny<FullTextSearchCriteria>())).
                 ReturnsAsync(new MetaDataSearchResultSet { Items = new List<MetaDataSearchResult>() });
-            itemSearchRepository.Setup(m => m.SearchName(It.IsAny<int>(), It.IsAny<ItemSearchCriteria>(), It.IsAny<int>(), It.IsAny<int>()))
+            itemSearchRepository.Setup(m => m.SearchName(It.IsAny<int>(), It.IsAny<ItemNameSearchCriteria>(), It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(new ItemNameSearchResultSet { Items = new List<ItemSearchResult>(), PageItemCount = 0 });
 
             var configuration = new Mock<ISearchConfiguration>();

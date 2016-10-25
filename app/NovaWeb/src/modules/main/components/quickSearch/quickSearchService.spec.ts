@@ -23,4 +23,11 @@ describe("Service: Quick Search", () => {
         expect(service).toBeDefined();
     });
 
+    it('search is only enabled if you have at least one open project', () => {
+        //const mocProject;
+        expect(service.canSearch()).toBe(true);
+        service.projectManager.projectCollection.value = [{id:123}];
+        expect(service.canSearch()).toBe(false);
+    });
+
 });

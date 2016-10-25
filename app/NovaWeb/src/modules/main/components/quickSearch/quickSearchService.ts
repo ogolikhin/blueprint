@@ -32,7 +32,7 @@ export class QuickSearchService {
     search(term: string) {
         this.$log.debug("seraching server for ", term);
 
-        const MOCK_RESULTS = require("./quickSearch.mock.ts");
+        //const MOCK_RESULTS = require("./quickSearch.mock.ts");
 
         const deferred = this.$q.defer();
         const request: ng.IRequestConfig = {

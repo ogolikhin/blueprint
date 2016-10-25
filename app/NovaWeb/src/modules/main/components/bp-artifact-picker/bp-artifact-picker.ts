@@ -33,7 +33,6 @@ export class ArtifactPickerDialogController extends BaseDialogController {
     }
 }
 
-
 export class BpArtifactPicker implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactPickerController;
     public template: string = require("./bp-artifact-picker.html");
@@ -59,6 +58,7 @@ export interface IArtifactPickerController extends IArtifactPickerOptions {
     search(): void;
     isSearching: boolean;
     searchResults: SearchServiceModels.ISearchResult[];
+    isMoreSearchResults: boolean;
     project: Models.IProjectNode;
     rootNode: InstanceItemNodeVM;
     columns: IColumn[];
@@ -68,6 +68,8 @@ export interface IArtifactPickerController extends IArtifactPickerOptions {
 }
 
 export class BpArtifactPickerController implements ng.IComponentController, IArtifactPickerController {
+    private static readonly maxSearchResults = 100;
+
     public selectableItemTypes: Models.ItemTypePredefined[];
     public selectionMode: "single" | "multiple" | "checkbox";
     public showSubArtifacts: boolean;
@@ -76,6 +78,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public searchText: string = "";
     public isSearching: boolean = false;
     public searchResults: SearchServiceModels.ISearchResult[];
+    public isMoreSearchResults: boolean;
 
     static $inject = [
         "$scope",
@@ -137,22 +140,31 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public clearSearch(): void {
         this.searchText = undefined;
         this.searchResults = undefined;
+        this.isMoreSearchResults = undefined;
     }
 
     public search(): void {
         if (this.searchText) {
             this.isSearching = true;
+            let search: ng.IPromise<SearchServiceModels.ISearchResultSet<SearchServiceModels.ISearchResult>>;
             if (this.project) {
-                this.projectService.searchItemNames({query: this.searchText, projectIds: [this.project.id], includeArtifactPath: true}).then(result => {
-                    this.searchResults = result.items;
-                    this.isSearching = false;
-                });
+                const searchCriteria: SearchServiceModels.IItemSearchCriteria = {
+                    query: this.searchText,
+                    projectIds: [this.project.id],
+                    includeArtifactPath: true
+                };
+                search = this.projectService.searchItemNames(searchCriteria, 0, BpArtifactPickerController.maxSearchResults + 1);
             } else {
-                this.projectService.searchProjects({query: this.searchText}).then(result => {
-                    this.searchResults = result.items;
-                    this.isSearching = false;
-                });
+                const searchCriteria: SearchServiceModels.ISearchCriteria = {
+                    query: this.searchText
+                };
+                search = this.projectService.searchProjects(searchCriteria, BpArtifactPickerController.maxSearchResults + 1);
             }
+            search.then(result => {
+                this.searchResults = result.items.slice(0, BpArtifactPickerController.maxSearchResults);
+                this.isMoreSearchResults = (result.items.length > BpArtifactPickerController.maxSearchResults);
+                this.isSearching = false;
+            });
         }
     }
 

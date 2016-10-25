@@ -110,11 +110,14 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
                             link.sourceId = tempIdMap[counter].value;
                         }
                     });
-                    this.shapes.forEach((shape) => {
+
+                    for (let sCounter = 0; sCounter < this.shapes.length; sCounter++) {
+                        const shape = this.shapes[sCounter];
                         if (shape.id <= 0 && shape.id === tempIdMap[counter].key) {
                             shape.id = tempIdMap[counter].value;
+                            break;                          
                         }
-                    });
+                    }                    
                 }            
             }
 

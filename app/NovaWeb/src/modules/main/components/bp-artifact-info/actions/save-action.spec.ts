@@ -290,9 +290,9 @@ describe("SaveAction", () => {
                 expect(saveSpy).toHaveBeenCalledTimes(1);
             });
 
-            it("doesn't add error message to message service", () => {
+            it("does add error message to message service", () => {
                 // assert
-                expect(addErrorSpy).not.toHaveBeenCalled();
+                expect(addErrorSpy).toHaveBeenCalled();
             });
 
             it("hides loading screen", () => {

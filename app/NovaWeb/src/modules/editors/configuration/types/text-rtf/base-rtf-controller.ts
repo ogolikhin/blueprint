@@ -1,3 +1,5 @@
+import { INavigationService } from "../../../../core/navigation";
+
 export interface IBPFieldBaseRTFController {
     editorBody: HTMLElement;
     observer: MutationObserver;
@@ -8,21 +10,24 @@ export interface IBPFieldBaseRTFController {
 }
 
 export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
+    constructor( public navigationService: INavigationService ) {
+
+    }
+
     public editorBody: HTMLElement;
     public observer: MutationObserver;
 
-    public handleClick = function (event) {
+    public handleClick = (event: Event) => {
+        const navigationService = this.navigationService;
+        const target = event.currentTarget as HTMLElement;
+
         event.stopPropagation();
         event.preventDefault();
-
-        const href = this.href;
-        if (href.indexOf("?ArtifactId=") !== -1 && this.getAttribute("artifactid")) {
-            const artifactId = parseInt(href.split("?ArtifactId=")[1], 10);
-            if (artifactId === parseInt(this.getAttribute("artifactid"), 10)) {
-                console.log("Should GOTO " + artifactId);
-            }
+        const itemId = Number(target.getAttribute("subartifactid")) || Number(target.getAttribute("artifactid"));
+        if (itemId) {
+            navigationService.navigateTo(itemId);
         } else {
-            window.open(href, "_blank");
+            window.open(target.getAttribute("href"), "_blank");
         }
     };
 

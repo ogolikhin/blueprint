@@ -115,9 +115,9 @@ export class SubArtifactEditorModalOpener {
         taskDialogModel.isHistoricalVersion = this.isHistorical;
 
         const node = graph.getNodeById(taskDialogModel.subArtifactId.toString());
-        
+
         let systemTaskNode: SystemTask;
-        
+
         if (node.getNodeType() === NodeType.SystemTask) {
             systemTaskNode = <SystemTask>node;
 

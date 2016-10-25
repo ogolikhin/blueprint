@@ -8,7 +8,7 @@ import {TaskModalController} from "./task-modal-controller";
 
 export class SystemTaskModalController extends TaskModalController<SystemTaskDialogModel> {
     private systemNamePlaceHolderText: string;
-    
+
     constructor(
         $scope: IModalScope,
         $rootScope: ng.IRootScopeService,
@@ -28,7 +28,7 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
     public nameOnBlur() {
         if (this.dialogModel) {
             if (this.dialogModel.action) {
-                this.nameOnFocus(); 
+                this.nameOnFocus();
             } else {
                 this.systemNamePlaceHolderText = `${this.localization.get("ST_System_Task_Name_Label")} ${this.dialogModel.label}`;
             }

@@ -39,9 +39,9 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         dialogModel?: T
     ) {
         super($rootScope, $scope, $uibModalInstance, dialogModel);
-        
+
         this.isReadonly = this.dialogModel.isReadonly || this.dialogModel.isHistoricalVersion;
-        
+
         this.nameOnBlur();
 
         if (this.getAssociatedArtifact()) {
@@ -55,8 +55,10 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
     }
 
     public cleanIncludeField(): void {
-        this.isIncludeResultsVisible = false;
-        this.setAssociatedArtifact(null);
+        if (this.canCleanIncludeField()) {
+            this.isIncludeResultsVisible = false;
+            this.setAssociatedArtifact(null);
+        }
     }
 
     public formatIncludeLabel(model: IArtifactReference) {
@@ -110,4 +112,9 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
             }
         });
     }
+
+    private canCleanIncludeField(): boolean {
+        return !this.dialogModel.isReadonly;
+    }
+   
 }

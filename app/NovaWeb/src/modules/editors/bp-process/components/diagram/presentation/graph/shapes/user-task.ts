@@ -2,16 +2,16 @@ import {IArtifactProperty, IUserTaskShape, PropertyTypePredefined, IArtifactRefe
 import {ItemIndicatorFlags} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {
-    IDiagramNodeElement, 
-    ISystemTask, 
-    IUserTask, 
-    IUserStoryProperties, 
-    ILabel, 
-    IProcessGraph, 
-    IDiagramNode, 
-    NodeType, 
-    NodeChange, 
-    ElementType} 
+    IDiagramNodeElement,
+    ISystemTask,
+    IUserTask,
+    IUserStoryProperties,
+    ILabel,
+    IProcessGraph,
+    IDiagramNode,
+    NodeType,
+    NodeChange,
+    ElementType}
     from "../models/";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {ShapesFactory} from "./shapes-factory";
@@ -461,7 +461,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             this.commentsButton.activate();
         }
     }
-    
+
     public getNodeType() {
         return NodeType.UserTask;
     }

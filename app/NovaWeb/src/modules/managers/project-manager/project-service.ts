@@ -16,10 +16,13 @@ export interface IProjectService {
     searchProjects(searchCriteria: SearchServiceModels.ISearchCriteria,
                    resultCount?: number,
                    separatorString?: string): ng.IPromise<SearchServiceModels.IProjectSearchResultSet>;
+    searchItemNames(searchCriteria: SearchServiceModels.IItemSearchCriteria,
+                startOffset?: number,
+                pageSize?: number): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet>;
 }
 
 export class ProjectService implements IProjectService {
-    static $inject: [string] = ["$q", "$http"];
+    public static $inject = ["$q", "$http"];
 
     private canceler: ng.IDeferred<any>;
 
@@ -218,7 +221,8 @@ export class ProjectService implements IProjectService {
         this.canceler = this.$q.defer<any>();
 
         const requestObj: ng.IRequestConfig = {
-            url: `/svc/searchservice/projectsearch/name?separatorString=${separatorString}&resultCount=${resultCount}`,
+            url: `/svc/searchservice/projectsearch/name`,
+            params: {resultCount: resultCount, separatorString: separatorString},
             data: searchCriteria,
             method: "POST",
             timeout: this.canceler.promise
@@ -226,6 +230,32 @@ export class ProjectService implements IProjectService {
 
         return this.$http(requestObj).then(
             (result: ng.IHttpPromiseCallbackArg<SearchServiceModels.IProjectSearchResultSet>) => {
+                return result.data;
+            },
+            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                return this.$q.reject(errResult ? {
+                    statusCode: errResult.status,
+                    message: (errResult.data ? errResult.data.message : "")
+                } : undefined);
+            }
+        );
+    }
+
+    public searchItemNames(searchCriteria: SearchServiceModels.IItemSearchCriteria,
+                           startOffset: number = 0,
+                           pageSize: number = 100): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet> {
+        this.canceler = this.$q.defer<any>();
+
+        const requestObj: ng.IRequestConfig = {
+            url: `/svc/searchservice/itemsearch/name`,
+            params: { startOffset: startOffset, pageSize: pageSize},
+            data: searchCriteria,
+            method: "POST",
+            timeout: this.canceler.promise
+        };
+
+        return this.$http(requestObj).then(
+            (result: ng.IHttpPromiseCallbackArg<SearchServiceModels.IItemNameSearchResultSet>) => {
                 return result.data;
             },
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {

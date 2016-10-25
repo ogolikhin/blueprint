@@ -27,7 +27,7 @@ describe("UserTask test", () => {
     const PERSONA_EDIT_MAXLENGTH = 40;
     const LABEL_VIEW_MAXLENGTH = 40;
     const PERSONA_VIEW_MAXLENGTH = 16;
-    
+
     //const graph: ProcessGraph;
     let localScope, rootScope, shapesFactory, wrapper, container;
     let viewModel: ProcessViewModel;

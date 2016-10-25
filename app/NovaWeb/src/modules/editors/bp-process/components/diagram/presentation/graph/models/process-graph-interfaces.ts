@@ -122,6 +122,8 @@ export interface IProcessGraph {
     addSelectionListener(listener: ISelectionListener);
     clearSelection();
     destroy();
+    setSystemTasksVisible(value: boolean);
+    clearSelection();
 }
 
 export interface ILayout {

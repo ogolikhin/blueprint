@@ -12,14 +12,10 @@ import {RapidReviewAction, AddCollectionArtifactAction} from "./actions";
 export class BpCollectionHeader implements ng.IComponentOptions {
     public template: string = require("../../main/components/bp-artifact-info/bp-artifact-info.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BpCollectionHeaderController;
-    public transclude: boolean = true;
-    public bindings: any = {
-        context: "<"
-    };
 }
 
 export class BpCollectionHeaderController extends BpArtifactInfoController {
-   
+
     static $inject: [string] = [
         "$scope",
         "$element",
@@ -27,9 +23,9 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         "localization",
         "messageService",
         "dialogService",
-        "windowManager",        
+        "windowManager",
         "loadingOverlayService",
-        "navigationService",        
+        "navigationService",
         "projectManager",
         "metadataService"
     ];
@@ -40,9 +36,9 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
                 localization: ILocalizationService,
                 messageService: IMessageService,
                 dialogService: IDialogService,
-                windowManager: IWindowManager,                
+                windowManager: IWindowManager,
                 loadingOverlayService: ILoadingOverlayService,
-                navigationService: INavigationService,                
+                navigationService: INavigationService,
                 projectManager: IProjectManager,
                 metadataService: IMetaDataService) {
         super(
@@ -57,8 +53,8 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             navigationService,
             projectManager,
             metadataService
-        );      
-    }   
+        );
+    }
 
     protected updateToolbarOptions(artifact: any): void {
         super.updateToolbarOptions(artifact);
@@ -71,7 +67,7 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
 
         this.toolbarActions.push(
             new RapidReviewAction(processArtifact, this.localization),
-            new AddCollectionArtifactAction(processArtifact, this.localization)         
+            new AddCollectionArtifactAction(processArtifact, this.localization)
         );
     }
 }

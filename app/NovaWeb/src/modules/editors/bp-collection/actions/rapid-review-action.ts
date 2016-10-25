@@ -12,13 +12,13 @@ export class RapidReviewAction extends BPButtonAction {
 
         super(
             (): void => {
-                let a = 5;    
+                let a = 5;
             },
             (): boolean => {
                 if (!artifact) {
                     return false;
                 }
-                               
+
                 if (artifact.predefinedType !== ItemTypePredefined.ArtifactCollection) {
                     return false;
                 }

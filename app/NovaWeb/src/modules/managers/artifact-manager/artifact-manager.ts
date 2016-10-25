@@ -10,34 +10,25 @@ export interface IArtifactManager extends IDispose {
     selection: ISelectionManager;
     list(): IStatefulArtifact[];
     add(artifact: IStatefulArtifact);
-    addAsOrphan(artifact: IStatefulArtifact);
-    get(id: number): ng.IPromise<IStatefulArtifact>;
+    get(id: number): IStatefulArtifact;
     remove(id: number): IStatefulArtifact;
     removeAll(projectId?: number);
 }
 
 export class ArtifactManager implements IArtifactManager {
     private artifactDictionary: { [id: number]: IStatefulArtifact };
-    private orphanArtifacts: IStatefulArtifact[];
     private collectionChangeSubject: Rx.BehaviorSubject<IStatefulArtifact>;
 
     public static $inject = [
         "$log",
-        "$q",
-        "messageService",
         "selectionManager",
-        "metadataService",
-        "statefulArtifactFactory"
+        "metadataService"
     ];
 
     constructor(private $log: ng.ILogService,
-                private $q: ng.IQService,
-                private messageService: IMessageService,
                 private selectionService: ISelectionManager,
-                private metadataService: IMetaDataService,
-                private artifactFactory: IStatefulArtifactFactory) {
+                private metadataService: IMetaDataService) {
         this.artifactDictionary = {};
-        this.orphanArtifacts = [];
         this.collectionChangeSubject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
     }
 
@@ -58,28 +49,8 @@ export class ArtifactManager implements IArtifactManager {
         return this.collectionChangeSubject.filter((it: IStatefulArtifact) => it != null).asObservable();
     }
 
-    public get(id: number): ng.IPromise<IStatefulArtifact> {
-        const deferred = this.$q.defer<IStatefulArtifact>();
-        const artifact = this.artifactDictionary[id];
-        if (artifact) {
-            deferred.resolve(artifact);
-        } else {
-            deferred.reject();
-        }
-        return deferred.promise;
-    }
-
-    private clearOrphans() {
-        _.each(this.orphanArtifacts, artifact => {
-            this.remove(artifact.id);
-        });
-        this.orphanArtifacts = [];
-    }
-
-    public addAsOrphan(artifact: IStatefulArtifact) {
-        this.clearOrphans();
-        this.orphanArtifacts.push(artifact);
-        this.add(artifact);
+    public get(id: number): IStatefulArtifact {
+        return this.artifactDictionary[id];
     }
 
     public add(artifact: IStatefulArtifact) {

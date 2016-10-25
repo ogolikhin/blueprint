@@ -2,7 +2,7 @@ import * as angular from "angular";
 import {Models} from "../../models";
 import {Helper} from "../../../shared/";
 import {ITreeViewNodeVM} from "../../../shared/widgets/bp-tree-view/";
-import {IProjectManager} from "../../../managers";
+import {IArtifactManager} from "../../../managers";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 import {IArtifactPickerOptions} from "./bp-artifact-picker";
 
@@ -44,7 +44,7 @@ export abstract class ArtifactPickerNodeVM<T> implements ITreeViewNodeVM {
 }
 
 export class InstanceItemNodeVM extends ArtifactPickerNodeVM<Models.IProjectNode> {
-    constructor(private projectManager: IProjectManager,
+    constructor(private artifactManager: IArtifactManager,
                 private projectService: IProjectService,
                 private options: IArtifactPickerOptions,
                 model: Models.IProjectNode,
@@ -72,12 +72,12 @@ export class InstanceItemNodeVM extends ArtifactPickerNodeVM<Models.IProjectNode
         switch (this.model.type) {
             case Models.ProjectNodeType.Folder:
                 return this.projectService.getFolders(this.model.id).then((children: Models.IProjectNode[]) => {
-                    this.children = children.map(child => new InstanceItemNodeVM(this.projectManager, this.projectService, this.options, child));
+                    this.children = children.map(child => new InstanceItemNodeVM(this.artifactManager, this.projectService, this.options, child));
                 });
             case Models.ProjectNodeType.Project:
                 return this.projectService.getArtifacts(this.model.id).then((children: Models.IArtifact[]) => {
                     children = ArtifactPickerNodeVM.processChildArtifacts(children, this.model);
-                    this.children = children.map(child => new ArtifactNodeVM(this.projectManager, this.projectService, this.options, child));
+                    this.children = children.map(child => new ArtifactNodeVM(this.artifactManager, this.projectService, this.options, child));
                 });
             default:
                 return;
@@ -86,7 +86,7 @@ export class InstanceItemNodeVM extends ArtifactPickerNodeVM<Models.IProjectNode
 }
 
 export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
-    constructor(private projectManager: IProjectManager,
+    constructor(private artifactManager: IArtifactManager,
                 private projectService: IProjectService,
                 private options: IArtifactPickerOptions,
                 model: Models.IArtifact) {
@@ -105,7 +105,7 @@ export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
 
     public getIcon(): string {
         //TODO: for now it display custom icons just for already loaded projects
-        let statefulArtifact = this.projectManager.getArtifact(this.model.id);
+        let statefulArtifact = this.artifactManager.get(this.model.id);
         if (statefulArtifact) {
             let artifactType = statefulArtifact.metadata.getItemTypeTemp();
             if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
@@ -125,7 +125,7 @@ export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
         this.loadChildrenAsync = undefined;
         return this.projectService.getArtifacts(this.model.projectId, this.model.id).then((children: Models.IArtifact[]) => {
             children = ArtifactPickerNodeVM.processChildArtifacts(children, this.model);
-            this.children = children.map(child => new ArtifactNodeVM(this.projectManager, this.projectService, this.options, child));
+            this.children = children.map(child => new ArtifactNodeVM(this.artifactManager, this.projectService, this.options, child));
             if (this.options.showSubArtifacts && Models.ItemTypePredefined.canContainSubartifacts(this.model.predefinedType)) {
                 const name = Models.ItemTypePredefined.getSubArtifactsContainerNodeTitle(this.model.predefinedType);
                 this.children.unshift(new SubArtifactContainerNodeVM(this.projectService, this.options, this.model, name)); //TODO localize

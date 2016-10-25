@@ -39,9 +39,9 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         dialogModel?: T
     ) {
         super($rootScope, $scope, $uibModalInstance, dialogModel);
-        
+
         this.isReadonly = this.dialogModel.isReadonly || this.dialogModel.isHistoricalVersion;
-        
+
         this.nameOnBlur();
 
         if (this.getAssociatedArtifact()) {
@@ -55,8 +55,10 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
     }
 
     public cleanIncludeField(): void {
-        this.isIncludeResultsVisible = false;
-        this.setAssociatedArtifact(null);
+        if (this.canCleanIncludeField()) {
+            this.isIncludeResultsVisible = false;
+            this.setAssociatedArtifact(null);
+        }
     }
 
     public formatIncludeLabel(model: IArtifactReference) {
@@ -111,22 +113,8 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         });
     }
 
-    private refreshView() {
-        const element: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
-
-        // temporary solution from: http://stackoverflow.com/questions/8840580/force-dom-redraw-refresh-on-chrome-mac
-        if (!element) {
-            return;
-        }
-
-        const node = document.createTextNode(" ");
-        element.appendChild(node);
-        
-        this.$timeout(
-            () => {
-                node.parentNode.removeChild(node);
-            }, 
-            20
-        );
+    private canCleanIncludeField(): boolean {
+        return !this.dialogModel.isReadonly;
     }
+   
 }

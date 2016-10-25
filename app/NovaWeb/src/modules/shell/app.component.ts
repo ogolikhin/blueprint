@@ -1,6 +1,7 @@
-﻿import {ISession} from "./login/session.svc";
-import {IUser} from "./login/auth.svc";
-import {ISettingsService} from "../core";
+﻿import { ISession } from "./login/session.svc";
+import { IUser } from "./login/auth.svc";
+import { ISettingsService } from "./../core";
+import { INavigationService } from "./../core/navigation";
 
 export class AppComponent implements ng.IComponentOptions {
     // Inline template
@@ -17,9 +18,9 @@ export class AppComponent implements ng.IComponentOptions {
 }
 
 export class AppController {
-    static $inject: [string] = ["$state", "session", "settings", "$window"];
+    static $inject: [string] = ["navigationService", "session", "settings", "$window"];
 
-    constructor(private $state: ng.ui.IStateService, private session: ISession,
+    constructor(private navigation: INavigationService, private session: ISession,
                 private settings: ISettingsService, private $window: ng.IWindowService) {
     }
 
@@ -29,8 +30,9 @@ export class AppController {
 
     public logout(evt: ng.IAngularEvent) {
         evt.preventDefault();
-        const promise: ng.IPromise<any> = this.session.logout();
-        promise.finally(() => this.$state.reload());
+        this.session.logout().finally(() => {
+            this.navigation.navigateToMain().finally(() => this.session.ensureAuthenticated());
+        });
     }
 
     public navigateToHelpUrl(evt: ng.IAngularEvent) {

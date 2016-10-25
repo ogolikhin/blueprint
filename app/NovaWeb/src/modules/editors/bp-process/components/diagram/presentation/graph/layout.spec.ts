@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {ProcessGraph} from "./process-graph";
 import {MessageServiceMock} from "../../../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../../../core/messages/message.svc";
@@ -686,7 +686,7 @@ describe("Layout test", () => {
                  -> st2B -> ut1         -> ut5 -> st5 -> ut1                        
                  */
             });
-            
+
             afterEach(() => {
                 processModel = null;
                 graph = null;

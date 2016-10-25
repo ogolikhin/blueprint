@@ -1,14 +1,14 @@
-import {ISystemTaskShape, PropertyTypePredefined} from "../../../../../models/process-models";
+import {ISystemTaskShape, PropertyTypePredefined, IArtifactReference} from "../../../../../models/process-models";
 import {ItemIndicatorFlags, ProcessShapeType} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {
-    IProcessGraph, 
-    IDiagramNode, 
-    IDiagramNodeElement, 
-    ISystemTask, 
-    ILabel, 
-    NodeType, 
-    NodeChange, 
+    IProcessGraph,
+    IDiagramNode,
+    IDiagramNodeElement,
+    ISystemTask,
+    ILabel,
+    NodeType,
+    NodeChange,
     ElementType} from "../models/";
 import {ShapesFactory} from "./shapes-factory";
 import {DiagramNodeElement} from "./diagram-element";
@@ -226,11 +226,11 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         }
     }
 
-    public get associatedArtifact(): any {
+    public get associatedArtifact(): IArtifactReference {
         return this.model.associatedArtifact;
     }
 
-    public set associatedArtifact(value: any) {
+    public set associatedArtifact(value: IArtifactReference) {
         if (this.model != null && this.model.associatedArtifact !== value) {
             this.model.associatedArtifact = value;
             this.updateStatefulPropertyValue(PropertyTypePredefined.AssociatedArtifact, value);
@@ -435,7 +435,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             this.commentsButton.activate();
         }
     }
-    
+
     public getNodeType() {
         return NodeType.SystemTask;
     }

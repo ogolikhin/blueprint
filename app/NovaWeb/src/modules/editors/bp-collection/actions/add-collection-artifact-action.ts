@@ -12,13 +12,13 @@ export class AddCollectionArtifactAction extends BPButtonAction {
 
         super(
             (): void => {
-                let a = 5;    
+                let a = 5;
             },
             (): boolean => {
                 if (!artifact) {
                     return false;
                 }
-                               
+
                 if (artifact.predefinedType !== ItemTypePredefined.ArtifactCollection) {
                     return false;
                 }
@@ -30,7 +30,7 @@ export class AddCollectionArtifactAction extends BPButtonAction {
                 return true;
             },
             "fonticon fonticon2-add-artifact",
-            "Add artifact to collection"            
+            "Add artifact to collection"
         );
     }
 }

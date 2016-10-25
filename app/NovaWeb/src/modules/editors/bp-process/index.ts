@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {BpProcessHeader} from "./components/header/bp-process-header";
 import {BpProcessEditor} from "./bp-process-editor";
 import {ProcessService} from "./services/process.svc";

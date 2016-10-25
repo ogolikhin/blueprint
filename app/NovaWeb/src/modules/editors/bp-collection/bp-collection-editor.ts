@@ -1,4 +1,4 @@
-﻿import {Models, Enums} from "../../main";
+import {Models, Enums} from "../../main";
 import {IColumn, ITreeViewNodeVM} from "../../shared/widgets/bp-tree-view/";
 import {BpArtifactDetailsEditorController} from "../bp-artifact/bp-details-editor";
 import {ICollectionService} from "./collection.svc";
@@ -22,10 +22,6 @@ import {IDialogService} from "../../shared";
 export class BpArtifactCollectionEditor implements ng.IComponentOptions {
     public template: string = require("./bp-collection-editor.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactCollectionEditorController;
-    public controllerAs = "$ctrl";
-    public bindings: any = {
-        context: "<"
-    };
 }
 
 export class BpArtifactCollectionEditorController extends BpArtifactDetailsEditorController {
@@ -57,8 +53,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         //}
     }
     public onArtifactReady() {
-        super.onArtifactReady();
-        if (this.editor && this.artifact) {            
+        if (this.editor && this.artifact) {
             this.collectionService.getCollection(this.artifact.id).then((result: ICollection) => {
                 this.metadataService.get(result.projectId).then(() => {
                     this.collection = result;
@@ -69,16 +64,17 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                         this.messageService.addError(error["message"] || "Project_MetaDataNotFound");
                     }
                 }).finally(() => {
-                    //this.isLoading = false;
-                });                   
+                    super.onArtifactReady();
+                });
             }).catch((error: any) => {
-                //ignore authentication errors here
                 if (error) {
                     this.messageService.addError(error["message"] || "Artifact_NotFound");
                 }
-            }).finally(() => {
-                //this.isLoading = false;
-            });               
+                super.onArtifactReady();
+            });
+        }
+        else {
+            super.onArtifactReady();
         }
     }
    
@@ -106,9 +102,24 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             headerName: "Name",
             field: "model.name"         
         },
-        {
+        {           
             headerName: "Description",
             field: "model.description"
+        },
+        {
+            headerName: "Artifact Path",
+            isGroup: true,             
+            isCheckboxHidden: true,
+            innerRenderer: (vm: CollectionNodeVM, eGridCell: HTMLElement) => {
+                const path = vm.model.artifactPath;
+
+                let html = `<ul class="breadcrumbs"><li>`;
+                path.map((collectionArtifact: string) => {
+                    html = html + `<a>${Helper.escapeHTMLText(collectionArtifact)}</a>`;
+                });
+                html = html + `</ul></li>`;
+                return html;
+            }
         },
         {
             headerName: "Options",            

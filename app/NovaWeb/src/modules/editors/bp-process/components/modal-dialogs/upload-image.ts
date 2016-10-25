@@ -1,6 +1,7 @@
 import * as angular from "angular";
 import { IFileResult, IFileUploadService } from "../../../../core/file-upload/";
 import { ISystemTask } from "../diagram/presentation/graph/models/";
+import { IMessageService } from "../../../../core/messages";
 
 export interface IUploadImageScope extends ng.IScope {
     uploadImage: () => void;
@@ -27,15 +28,22 @@ export class UploadImageDirective implements ng.IDirective {
     public restrict = "E";
     public defaultName = "default";
 
-    constructor(private fileUploadService: IFileUploadService, private $window: ng.IWindowService,
-        private $timeout: ng.ITimeoutService, private $compile: ng.ICompileService) {
+    constructor(private fileUploadService: IFileUploadService,
+        private $window: ng.IWindowService,
+        private $timeout: ng.ITimeoutService,
+        private $compile: ng.ICompileService,
+        private messageService: IMessageService) {
     }
 
     public static factory(): ng.IDirectiveFactory {
         const directive: ng.IDirectiveFactory = (fileUploadService: IFileUploadService,
-            $window: ng.IWindowService, $timeout: ng.ITimeoutService, $compile: ng.ICompileService) =>
-            new UploadImageDirective(fileUploadService, $window, $timeout, $compile);
-        directive.$inject = ["fileUploadService", "$window", "$timeout", "$compile"];
+            $window: ng.IWindowService, $timeout: ng.ITimeoutService, $compile: ng.ICompileService, messageService: IMessageService) =>
+            new UploadImageDirective(fileUploadService, $window, $timeout, $compile, messageService);
+        directive.$inject = ["fileUploadService",
+            "$window",
+            "$timeout",
+            "$compile",
+            "messageService"];
         return directive;
     }
 
@@ -98,7 +106,10 @@ export class UploadImageDirective implements ng.IDirective {
                     $scope.systemTaskModel.associatedImageUrl = result.uriToFile;
                     $scope.systemTaskModel.imageId = result.guid;
                     this.createImage($scope, $element, attr);
-                });
+                },
+                    (error: any) => {
+                        this.messageService.addError(error.message);
+                    });
             }
         };
     };

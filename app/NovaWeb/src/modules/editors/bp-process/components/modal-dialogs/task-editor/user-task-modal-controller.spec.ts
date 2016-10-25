@@ -37,21 +37,21 @@ describe("UserTaskModalController", () => {
         _$uibModalInstance_: ng.ui.bootstrap.IModalServiceInstance
     ) => {
         $rootScope = _$rootScope_;
-        $timeout = _$timeout_;        
+        $timeout = _$timeout_;
         localization = _localization_;
         $uibModalInstance = _$uibModalInstance_;
     }));
 
     function createUserTaskNode(): UserTask {
-        return <UserTask>{ 
-            model: { id: 1 }, 
-            direction: null, 
-            action: null, 
-            label: null, 
-            row: null, 
-            column: null, 
-            newShapeColor: null, 
-            getNodeType: () => NodeType.UserTask            
+        return <UserTask>{
+            model: { id: 1 },
+            direction: null,
+            action: null,
+            label: null,
+            row: null,
+            column: null,
+            newShapeColor: null,
+            getNodeType: () => NodeType.UserTask
         };
     }
 
@@ -77,15 +77,15 @@ describe("UserTaskModalController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const localizationSpy = spyOn(localization, "get");
             const controller = new UserTaskModalController($scope,
-                $rootScope, 
+                $rootScope,
                 $timeout,
-                dialogService, 
+                dialogService,
                 localization,
                 $uibModalInstance,
                 model);
 
             const artifactReference: IArtifactReference = null;
-            
+
             //act
             controller.saveData();
 

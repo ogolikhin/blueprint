@@ -1,4 +1,4 @@
-﻿import { Models } from "../../main/models";
+import { Models } from "../../main/models";
 import { ILocalizationService, IMessageService } from "../../core";
 import { Message, MessageType } from "../../core/messages/message";
 import { IProcess, IProcessShape, IProcessLink } from "./models/process-models";

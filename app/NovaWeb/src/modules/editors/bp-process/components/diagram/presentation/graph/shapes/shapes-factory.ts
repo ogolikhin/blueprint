@@ -1,4 +1,4 @@
-﻿import {ItemTypePredefined, PropertyTypePredefined} from "../../../../../../../main/models/enums";
+import {ItemTypePredefined, PropertyTypePredefined} from "../../../../../../../main/models/enums";
 import {ProcessShapeType, ProcessType} from "../../../../../models/enums";
 import {ProcessShapeModel, UserTaskShapeModel} from "../../../../../models/process-models";
 import {SystemTaskShapeModel, IHashMapOfPropertyValues} from "../../../../../models/process-models";

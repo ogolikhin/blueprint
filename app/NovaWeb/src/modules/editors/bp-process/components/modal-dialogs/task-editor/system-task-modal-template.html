@@ -54,7 +54,7 @@
                             <div class="storyteller-include">
                                 <i class="fonticon-include-active fonticon-st-tabs"></i>
                                 {{$ctrl.includeArtifactName}}
-                                 <i class="fonticon2-delete storyteller-include_clear" ng-click="$ctrl.cleanIncludeField()" ng-if="!$ctrl.isReadonly"></i>
+                                 <i class="fonticon2-delete storyteller-include_clear" ng-click="$ctrl.cleanIncludeField()" ng-disabled="$ctrl.isReadonly"></i>
                             </div>
                             <button class="btn btn-primary storyteller-include_btn" type="button" ng-click="$ctrl.openArtifactPicker()" ng-disabled="$ctrl.isReadonly">
                                     <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Browse_Include_Label']}}

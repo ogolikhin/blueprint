@@ -1,4 +1,4 @@
-﻿import * as Models from "../../../../../main/models/models";
+import * as Models from "../../../../../main/models/models";
 import * as Enums from "../../../../../main/models/enums";
 import {IMessageService, Message, MessageType} from "../../../../../core/";
 import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
@@ -454,7 +454,7 @@ export class ProcessViewModel implements IProcessViewModel {
             this.processGraphModel.destroy();
             this.processGraphModel = null;
         }
-        
+
         if (this.communicationManager) {
             this.communicationManager.processDiagramCommunication
                 .unregister(ProcessEvents.ArtifactUpdate, this.artifactUpdateHandler);

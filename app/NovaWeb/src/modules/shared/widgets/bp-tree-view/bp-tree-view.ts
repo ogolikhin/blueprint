@@ -172,7 +172,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                     } : undefined,
                     checkboxSelection: column.isCheckboxSelection,
                     suppressMenu: true,
-                    suppressSorting: true               
+                    suppressSorting: true
                 } as agGrid.ColDef;
             }));
 

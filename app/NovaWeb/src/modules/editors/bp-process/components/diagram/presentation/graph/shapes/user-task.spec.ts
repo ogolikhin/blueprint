@@ -2,7 +2,7 @@ import * as angular from "angular";
 import { UserTask, SystemTask, SystemDecision } from "./";
 import { ShapesFactory } from "./shapes-factory";
 import { ProcessGraph } from "../process-graph";
-import { ProcessModel, ProcessShapeModel, ProcessLinkModel, PropertyTypePredefined } from "../../../../../models/process-models";
+import { ProcessModel, ProcessShapeModel, ProcessLinkModel, PropertyTypePredefined, ArtifactReference } from "../../../../../models/process-models";
 import { ProcessShapeType, ProcessType } from "../../../../../models/enums";
 import { createSystemDecisionForAddBranchTestModel } from "../../../../../models/test-model-factory";
 import { ProcessViewModel, IProcessViewModel } from "../../../viewmodel/process-viewmodel";
@@ -27,7 +27,7 @@ describe("UserTask test", () => {
     const PERSONA_EDIT_MAXLENGTH = 40;
     const LABEL_VIEW_MAXLENGTH = 40;
     const PERSONA_VIEW_MAXLENGTH = 16;
-    
+
     //const graph: ProcessGraph;
     let localScope, rootScope, shapesFactory, wrapper, container;
     let viewModel: ProcessViewModel;
@@ -82,6 +82,7 @@ describe("UserTask test", () => {
     it("Test UserTask class", () => {
         // Arrange
         const testUserTask = ShapeModelMock.instance().UserTaskMock();
+        const testArtifactReference = new ArtifactReference();
         const testArtifactReferenceLink = new ArtifactReferenceLinkMock(1);
         testUserTask.propertyValues["label"] = {
             propertyName: "label", value: "", typeId: 0, typePredefined: 0
@@ -114,7 +115,7 @@ describe("UserTask test", () => {
         node.persona = "test persona";
         node.description = "test description";
         node.objective = "test objective";
-        node.associatedArtifact = testArtifactReferenceLink;
+        node.associatedArtifact = testArtifactReference;
 
         //Assert
         expect(graph.getNodeById("30").getNodeType()).toEqual(NodeType.UserTask);
@@ -123,7 +124,7 @@ describe("UserTask test", () => {
         expect(node.persona).toEqual("test persona");
         expect(node.description).toEqual("test description");
         expect(node.objective).toEqual("test objective");
-        expect(node.associatedArtifact).toEqual(testArtifactReferenceLink);
+        expect(node.associatedArtifact).toEqual(testArtifactReference);
     });
 
     it("Test getSourceSystemTasks", () => {
@@ -386,16 +387,8 @@ describe("UserTask test", () => {
             processModel.shapes.push(mock);
 
             statefulArtifact = <StatefulProcessArtifact>statefulArtifactFactory.createStatefulArtifact(artifact);
-            statefulArtifactFactory.populateStatefulProcessWithPorcessModel(statefulArtifact, processModel);
-            statefulSubArtifact = <StatefulProcessSubArtifact>statefulArtifact.subArtifactCollection.get(mock.id);
-            const peronsaPropertyValue = {
-                propertyTypeId: 0,
-                propertyTypeVersionId: null,
-                propertyTypePredefined: PropertyTypePredefined.Persona,
-                isReuseReadOnly: false,
-                value: ""
-            };
-            statefulSubArtifact.specialProperties.initialize([peronsaPropertyValue]);
+            statefulArtifactFactory.populateStatefulProcessWithProcessModel(statefulArtifact, processModel);
+            statefulSubArtifact = <StatefulProcessSubArtifact>statefulArtifact.subArtifactCollection.get(mock.id);           
 
             node = new UserTask(<IUserTaskShape>statefulArtifact.shapes[0], rootScope, null, shapesFactory);
 

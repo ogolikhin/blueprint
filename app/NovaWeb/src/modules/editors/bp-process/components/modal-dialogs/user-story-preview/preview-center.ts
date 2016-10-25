@@ -122,13 +122,6 @@ export class PreviewCenterController {
         const url = this.$state.href("main.item", { id: artifactId });
         this.$window.open(url, "_blank");
     }
-    public getBusinessRules() {
-        return this.$sce.trustAsHtml(this.userStoryProperties.businessRules.value);
-    }
-
-    public getNonFunctionalRequirements() {
-        return this.$sce.trustAsHtml(this.userStoryProperties.nfr.value);
-    }
 
     constructor(private $window: ng.IWindowService,
         private $scope: ng.IScope,
@@ -199,14 +192,7 @@ export class PreviewCenterController {
                     this.title = propertyValue.value;
                 } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryAcceptanceCriteria)) {
                     this.acceptanceCriteria = propertyValue.value;
-                } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryBusinessRules)) {
-                    //TODO: Assign business rule to the property
-                    // this.userStoryProperties.businessRules = ;
-                } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryNFR)) {
-
-                    //TODO: Assign non functional requirements to the property value
-                    // this.userStoryProperties.nfr = ;
-                }
+                } 
             });
         });
     }

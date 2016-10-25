@@ -13,8 +13,6 @@ export class UserStoryDialogModel implements IModalDialogModel {
     public isReadonly: boolean;
     public isHistoricalVersion: boolean;
 
-    public userStoryProperties: UserStoryProperties;
-
     public get userStoryId(): number {
         return this.originalUserTask.userStoryId;
     }
@@ -23,9 +21,5 @@ export class UserStoryDialogModel implements IModalDialogModel {
     }
     public get userTaskAction(): string {
         return this.originalUserTask.action;
-    }
-
-    constructor() {
-        this.userStoryProperties = new UserStoryProperties();
     }
 }

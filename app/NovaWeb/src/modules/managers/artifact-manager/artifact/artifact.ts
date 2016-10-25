@@ -254,9 +254,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
      
     public save(): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
-        const fn = this.getCustomArtifactPromisesForSave();
-        if (fn) {
-            fn.then(() => {
+        const saveCustomArtifact = this.getCustomArtifactPromisesForSave();
+        if (saveCustomArtifact) {
+            saveCustomArtifact.then(() => {
                 this.saveArtifact().then(() => {
                     deferred.resolve(this);
                 })

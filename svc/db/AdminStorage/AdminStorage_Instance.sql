@@ -1175,6 +1175,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_ActorInherit
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Group_Identifier', 'en-US', N'(g)')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Search_Projects', 'en-US', N'Search for projects')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Search_Artifacts', 'en-US', N'Search for artifacts')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Search_Results', 'en-US', N'Displaying top {0} results.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Search_Refine', 'en-US', N'Try a more specific search term to refine your search.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Searching', 'en-US', N'Searching...')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_No_Results_Found', 'en-US', N'No results found.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_X', 'en-US', N'X')

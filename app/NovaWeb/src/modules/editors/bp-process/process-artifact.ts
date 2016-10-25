@@ -111,7 +111,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
                         }
                     });
                     this.shapes.forEach((shape) => {
-                        if (shape.id === tempIdMap[counter].key) {
+                        if (shape.id <= 0 && shape.id === tempIdMap[counter].key) {
                             shape.id = tempIdMap[counter].value;
                         }
                     });
@@ -123,7 +123,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
                     // subartifact id is temporary 
                     for (let i = 0; i < tempIdMap.length; i++) {
                         if (item.id === tempIdMap[i].key) {
-                            item.id = tempIdMap[i].value;
+                            item.updateId(tempIdMap[i].value);
                             break;
                         }
                     }

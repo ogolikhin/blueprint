@@ -1,3 +1,4 @@
+import {Models} from "../../../main/models";
 import * as ProcessModels from "../models/process-models";
 import { IProcessModelProcessor } from "./process-model-processor";
 import { ProcessModelProcessor } from "./process-model-processor";
@@ -14,7 +15,7 @@ export interface IProcessService {
 export interface IProcessUpdateResult {
     messages: IOperationMessageResult[];
     result: ProcessModels.IProcess;
-    idMap: ProcessModels.IHashMapOfPropertyValues;
+    tempIdMap: Models.IKeyValuePair[];
 }
 
 interface IHttpError {

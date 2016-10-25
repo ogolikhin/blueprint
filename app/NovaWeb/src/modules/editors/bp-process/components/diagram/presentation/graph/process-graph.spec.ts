@@ -33,6 +33,7 @@ describe("ProcessGraph", () => {
         $provide.service("dialogService", DialogService);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
+        $provide.service("shapesFactory", ShapesFactory);
     }));
 
     beforeEach(inject((_$window_: ng.IWindowService,
@@ -41,7 +42,8 @@ describe("ProcessGraph", () => {
                        _communicationManager_: ICommunicationManager,
                        _dialogService_: DialogService,
                        _localization_: LocalizationServiceMock,
-                       _statefulArtifactFactory_: IStatefulArtifactFactory) => {
+                       _statefulArtifactFactory_: IStatefulArtifactFactory,
+                       _shapesFactory_: ShapesFactory) => {
         rootScope = $rootScope;
         timeout = $timeout;
         communicationManager = _communicationManager_;
@@ -52,6 +54,7 @@ describe("ProcessGraph", () => {
         wrapper.appendChild(container);
         document.body.appendChild(wrapper);
         statefulArtifactFactory = _statefulArtifactFactory_;
+        shapesFactory = _shapesFactory_;
 
         $rootScope["config"] = {};
         $rootScope["config"].labels = {
@@ -185,7 +188,7 @@ describe("ProcessGraph", () => {
                 process = TestModels.createDefaultProcessModel();
                 clientModel = new ProcessGraphModel(process);
                 viewModel = new ProcessViewModel(clientModel, communicationManager);
-                graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
+                graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, null, null, null, shapesFactory);
 
                 //bypass testing remove stateful shapes logic here
                 spyOn(viewModel, "removeStatefulShape").and.returnValue(null);
@@ -230,7 +233,7 @@ describe("ProcessGraph", () => {
                 process = TestModels.createDefaultProcessModel();
                 clientModel = new ProcessGraphModel(process);
                 viewModel = new ProcessViewModel(clientModel, communicationManager);
-                graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
+                graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, null, null, null, shapesFactory);
 
                 //bypass testing remove stateful shapes logic here
                 spyOn(viewModel, "removeStatefulShape").and.returnValue(null);
@@ -275,7 +278,7 @@ describe("ProcessGraph", () => {
             process = TestModels.createTwoUserTaskModel();
             clientModel = new ProcessGraphModel(process);
             viewModel = new ProcessViewModel(clientModel, communicationManager);
-            graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, null, null, null, shapesFactory);
 
             //bypass testing remove stateful shapes logic here
             spyOn(viewModel, "removeStatefulShape").and.returnValue(null);
@@ -332,7 +335,7 @@ describe("ProcessGraph", () => {
                 // UT3 = 80
                 clientModel = new ProcessGraphModel(process);
                 viewModel = new ProcessViewModel(clientModel, communicationManager);
-                graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
+                graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, null, null, null, shapesFactory);
 
                 //bypass testing remove stateful shapes logic here
                 spyOn(viewModel, "removeStatefulShape").and.returnValue(null);
@@ -423,7 +426,7 @@ describe("ProcessGraph", () => {
                 process = TestModels.createUserDecisionWithThreeConditionsAndTwoUserTasksModel();
                 clientModel = new ProcessGraphModel(process);
                 viewModel = new ProcessViewModel(clientModel, communicationManager);
-                graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
+                graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, null, null, null, shapesFactory);
 
                 //bypass testing remove stateful shapes logic here
                 spyOn(viewModel, "removeStatefulShape").and.returnValue(null);
@@ -606,7 +609,7 @@ describe("ProcessGraph", () => {
             //Arrange
             let testModel = TestModels.createSimpleProcessModelWithSystemDecision();
             let processModel = new ProcessViewModel(testModel, communicationManager);            
-            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
             let shapeLengthBeforeDelete = processModel.shapes.length;
             let linkLengthBeforeDelete = processModel.links.length;
 
@@ -640,7 +643,7 @@ describe("ProcessGraph", () => {
 
             let userTaskShapeDiagramNode = new UserDecision(userTaskShape, rootScope);
 
-            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
 
             //Act
             let result = ProcessDeleteHelper.deleteUserTask(userTaskShapeDiagramNode.model.id, null, graph);
@@ -671,7 +674,7 @@ describe("ProcessGraph", () => {
 
             let userTaskShapeDiagramNode = new UserDecision(userTaskShape, rootScope);
 
-            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
 
             //Act
             let result = ProcessDeleteHelper.deleteUserTask(userTaskShapeDiagramNode.model.id, null, graph);
@@ -702,7 +705,7 @@ describe("ProcessGraph", () => {
 
             let userTaskShapeDiagramNode = new UserDecision(userTaskShape, rootScope);
 
-            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
 
             let shapeIdBeforeUserTask = processModel.links.filter(a => a.destinationId === userTaskShape.id)[0].sourceId;
 
@@ -751,7 +754,7 @@ describe("ProcessGraph", () => {
             let ST5 = 130;
             let END = 140;
             let processModel = new ProcessViewModel(testModel, communicationManager);
-            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
 
             //bypass testing remove stateful shapes logic here
             spyOn(processModel, "removeStatefulShape").and.returnValue(null);
@@ -777,7 +780,7 @@ describe("ProcessGraph", () => {
             //Arrange
             let testModel = TestModels.createInfiniteLoopFromDifferentDecisions();
             let processModel = new ProcessViewModel(testModel, communicationManager);
-            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
 
             //bypass testing remove stateful shapes logic here
             spyOn(processModel, "removeStatefulShape").and.returnValue(null);
@@ -813,7 +816,7 @@ describe("ProcessGraph", () => {
             //bypass testing remove stateful shapes logic here
             spyOn(processModel, "removeStatefulShape").and.returnValue(null);
 
-            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
             let shapeLengthBeforeDelete = processModel.shapes.length;
             let linkLengthBeforeDelete = processModel.links.length;
 
@@ -845,7 +848,7 @@ describe("ProcessGraph", () => {
             //bypass testing remove stateful shapes logic here
             spyOn(processModel, "removeStatefulShape").and.returnValue(null);
 
-            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
             let shapeLengthBeforeDelete = processModel.shapes.length;
             let linkLengthBeforeDelete = processModel.links.length;
 
@@ -878,7 +881,7 @@ describe("ProcessGraph", () => {
             //bypass testing remove stateful shapes logic here
             spyOn(processModel, "removeStatefulShape").and.returnValue(null);
 
-            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
             let shapeIdBeforeDecision = processModel.links.filter(a => a.destinationId === decisionShape.id)[0].sourceId;
             let shapeIdToConnectAfterDecision = processModel.links
                 .filter(a => a.sourceId === decisionShape.id)
@@ -912,7 +915,7 @@ describe("ProcessGraph", () => {
             //bypass testing remove stateful shapes logic here
             spyOn(processModel, "removeStatefulShape").and.returnValue(null);
 
-            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
             let shapeLengthBeforeDelete = processModel.shapes.length;
             let linkLengthBeforeDelete = processModel.links.length;
 
@@ -943,7 +946,7 @@ describe("ProcessGraph", () => {
             //bypass testing remove stateful shapes logic here
             spyOn(processModel, "removeStatefulShape").and.returnValue(null);
 
-            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
             let shapeLengthBeforeDelete = processModel.shapes.length;
             let linkLengthBeforeDelete = processModel.links.length;
 
@@ -974,7 +977,7 @@ describe("ProcessGraph", () => {
             //bypass testing remove stateful shapes logic here
             spyOn(processModel, "removeStatefulShape").and.returnValue(null);
 
-            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
             let shapeIdBeforeDecision = processModel.links.filter(a => a.destinationId === decisionShape.id)[0].sourceId;
             let shapeIdToConnectAfterDecision = processModel.links
                 .filter(a => a.sourceId === decisionShape.id)
@@ -1259,7 +1262,7 @@ describe("ProcessGraph", () => {
                 beforeEach(() => {
                     testModel = TestModels.createUserDecisionWithTwoBranchesModel();
                     processModel = new ProcessViewModel(testModel, communicationManager);
-                    graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+                    graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
                     graph.render(true, null);
                 });
 
@@ -1314,7 +1317,7 @@ describe("ProcessGraph", () => {
                     //bypass testing remove stateful shapes logic here
                     spyOn(processModel, "removeStatefulShape").and.returnValue(null);
 
-                    graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+                    graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
                     graph.render(true, null);
                 });
 
@@ -1383,7 +1386,7 @@ describe("ProcessGraph", () => {
                 beforeEach(() => {
                     testModel = TestModels.createMultipleUserDecisionsWithMultipleBranchesModel();
                     processModel = new ProcessViewModel(testModel, communicationManager);
-                    graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+                    graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
                     graph.render(true, null);
                 });
 
@@ -1411,7 +1414,7 @@ describe("ProcessGraph", () => {
                     testModel = TestModels.createSystemDecisionWithTwoBranchesModel();
                     processModel = new ProcessViewModel(testModel, communicationManager);
                     processModel.communicationManager = communicationManager;
-                    graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+                    graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
                     graph.render(true, null);
                 });
 
@@ -1454,7 +1457,7 @@ describe("ProcessGraph", () => {
                     //bypass testing remove stateful shapes logic here
                     spyOn(processModel, "removeStatefulShape").and.returnValue(null);
 
-                    graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+                    graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
                     graph.render(true, null);
                 });
 
@@ -1518,7 +1521,7 @@ describe("ProcessGraph", () => {
              */
             testModel = TestModels.createUserDecisionWithMultipleBranchesModel_V2();
             processModel = new ProcessViewModel(testModel, communicationManager);
-            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
             graph.render(null, null);
         });
 
@@ -1638,7 +1641,7 @@ describe("ProcessGraph", () => {
         //bypass testing stateful shapes logic here
         spyOn(viewModel, "removeStatefulShape").and.returnValue(null);
         spyOn(viewModel, "addToSubArtifactCollection").and.returnValue(null);
-        return new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, messageService, null, statefulArtifactFactory);
+        return new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, messageService, null, statefulArtifactFactory, shapesFactory);
     }
 });
 

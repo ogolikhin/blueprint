@@ -6,6 +6,7 @@ import {IMetaDataService} from "../metadata";
 import {IArtifactAttachmentsService} from "../attachments";
 import {IArtifactRelationshipsService} from "../relationships";
 import {ILoadingOverlayService} from "../../../core/loading-overlay";
+import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
 
 export interface IStatefulArtifactServices {
     //request<T>(config: ng.IRequestConfig): ng.IPromise<T>;
@@ -20,6 +21,7 @@ export interface IStatefulArtifactServices {
     relationshipsService: IArtifactRelationshipsService;
     metaDataService: IMetaDataService;
     loadingOverlayService: ILoadingOverlayService;
+    publishService: IPublishService;
 }
 
 export class StatefulArtifactServices implements IStatefulArtifactServices {
@@ -32,7 +34,8 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
                 private _attachmentService: IArtifactAttachmentsService,
                 private _relationshipsService: IArtifactRelationshipsService,
                 private _metadataService: IMetaDataService,
-                private _loadingOverlayService: ILoadingOverlayService) {
+                private _loadingOverlayService: ILoadingOverlayService,
+                private _publishService: IPublishService) {
     }
 
     public getDeferred<T>(): ng.IDeferred<T> {
@@ -73,6 +76,10 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
 
     public get loadingOverlayService(): ILoadingOverlayService {
         return this._loadingOverlayService;
+    }
+
+    public get publishService(): IPublishService {
+        return this._publishService;
     }
 
     // public request<T>(request: ng.IRequestConfig): ng.IPromise<T> {

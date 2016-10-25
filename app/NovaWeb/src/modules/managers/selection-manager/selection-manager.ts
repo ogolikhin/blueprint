@@ -77,7 +77,7 @@ export class SelectionManager implements ISelectionManager {
        return this.selectionSubject
            .filter(selection => !!(selection && selection.artifact))
            .flatMap(selection => selection.artifact.getObservable())
-           .asObservable();
+           .distinctUntilChanged(this.distinctById).asObservable();
    }
 
     public get selectionObservable() {

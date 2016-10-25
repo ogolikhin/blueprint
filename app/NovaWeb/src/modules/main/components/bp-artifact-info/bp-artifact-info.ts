@@ -75,12 +75,17 @@ export class BpArtifactInfoController {
     }
 
     public $onInit() {
+
         const windowSub = this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
-        const artifactStateSub = this.artifactManager.selection.currentlySelectedArtifactObservable
-            .subscribe(this.onArtifactChanged, this.onError);
-        
-        this.subscribers.push(windowSub, artifactStateSub);
+        this.subscribers.push(windowSub);
+
         this.artifact = this.artifactManager.selection.getArtifact();
+        if (this.artifact) {
+            const artifactStateSub = this.artifact.getObservable()
+                .subscribe(this.onArtifactChanged, this.onError);
+            
+            this.subscribers.push(artifactStateSub);
+        }
     }
 
     public $onDestroy() {
@@ -239,7 +244,7 @@ export class BpArtifactInfoController {
         this.toolbarActions.push(
             new BPButtonGroupAction(
                 new SaveAction(artifact, this.localization, this.messageService, this.loadingOverlayService),
-                new PublishAction(artifact, this.localization),
+                new PublishAction(artifact, this.localization, this.messageService, this.loadingOverlayService),
                 new DiscardAction(artifact, this.localization),
                 new RefreshAction(artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService),
                 new DeleteAction(artifact, this.localization, this.dialogService, deleteDialogSettings)

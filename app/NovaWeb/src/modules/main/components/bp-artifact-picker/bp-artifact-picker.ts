@@ -142,10 +142,17 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public search(): void {
         if (this.searchText) {
             this.isSearching = true;
-            this.projectService.searchProjects({query: this.searchText}).then(result => {
-                this.searchResults = result.items;
-                this.isSearching = false;
-            });
+            if (this.project) {
+                this.projectService.searchItemNames({query: this.searchText, projectIds: [this.project.id], includeArtifactPath: true}).then(result => {
+                    this.searchResults = result.items;
+                    this.isSearching = false;
+                });
+            } else {
+                this.projectService.searchProjects({query: this.searchText}).then(result => {
+                    this.searchResults = result.items;
+                    this.isSearching = false;
+                });
+            }
         }
     }
 

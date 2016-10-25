@@ -1,3 +1,4 @@
+import * as _ from "lodash";
 import {ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector} from "../changeset";
 import {IStatefulArtifactServices} from "../services";
 import {IIStatefulArtifact} from "../artifact";
@@ -36,7 +37,7 @@ export class StatefulSubArtifactCollection implements ISubArtifactCollection {
     }
 
     public get(id: number): IStatefulSubArtifact {
-        return this.subArtifactList.filter((subArtifact: IStatefulSubArtifact) => subArtifact.id === id)[0] || null;
+        return _.find(this.subArtifactList, (subArtifact: IStatefulSubArtifact) => subArtifact.id === id);
     }
 
     public add(subArtifact: IStatefulSubArtifact): IStatefulSubArtifact {

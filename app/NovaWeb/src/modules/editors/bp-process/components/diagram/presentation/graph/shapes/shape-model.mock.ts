@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {ShapesFactory} from "./shapes-factory";
 import {
     IUserTaskShape,
@@ -20,7 +20,6 @@ export class ArtifactReferenceLinkMock implements IArtifactReferenceLink {
         this.associatedReferenceArtifactId = associatedReferenceArtifactId;
     }
 }
-
 export class ShapeModelMock {
     private static shapeModelMock: ShapeModelMock;
     private sampleUserTask: IUserTaskShape;

@@ -22,6 +22,7 @@ export class DecisionEditorModel implements IModalDialogModel {
     public label: string;
     public originalDecision: IDecision;
 
+    public artifactId: number;
     public subArtifactId: number;
     public nextNode: IProcessShape;
     public propertiesMw: any; //TODO correct interface required! 

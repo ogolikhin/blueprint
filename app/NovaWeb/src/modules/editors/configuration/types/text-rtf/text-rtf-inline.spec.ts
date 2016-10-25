@@ -10,6 +10,7 @@ import "tinymce";
 import {Helper} from "../../../../shared";
 import {BpFieldTextRTFInlineController} from "./text-rtf-inline";
 import {createFormlyModule} from "../../formly-config.mock";
+import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 
 describe("Formly Text RTF Inline", () => {
     let fieldsDefinition = [
@@ -33,6 +34,10 @@ describe("Formly Text RTF Inline", () => {
     ], fieldsDefinition);
 
     beforeEach(angular.mock.module(moduleName));
+
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("navigationService", NavigationServiceMock);
+    }));
 
     afterEach(() => {
         angular.element("body").empty();
@@ -97,7 +102,7 @@ describe("Formly Text RTF Inline", () => {
 
     beforeEach(
         inject(
-            ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $controller: ng.IControllerService) => {
+            ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $controller: ng.IControllerService, navigationService: NavigationServiceMock) => {
                 rootScope = $rootScope;
                 compile = $compile;
                 scope = rootScope.$new();
@@ -105,7 +110,7 @@ describe("Formly Text RTF Inline", () => {
                 scope.options = {};
                 scope.to = {};
                 scope.tinymceBody = tinymceBody;
-                controller = $controller(BpFieldTextRTFInlineController, {$scope: scope});
+                controller = $controller(BpFieldTextRTFInlineController, {$scope: scope, navigationService: navigationService});
             }
         )
     );

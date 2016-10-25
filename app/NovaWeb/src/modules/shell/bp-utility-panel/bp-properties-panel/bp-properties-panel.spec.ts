@@ -9,6 +9,7 @@ import {LocalizationServiceMock} from "../../../core/localization/localization.m
 import {ArtifactRelationshipsMock} from "./../../../managers/artifact-manager/relationships/relationships.svc.mock";
 import {ArtifactAttachmentsMock} from "./../../../managers/artifact-manager/attachments/attachments.svc.mock";
 import {ArtifactServiceMock} from "./../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {PublishServiceMock} from "./../../../managers/artifact-manager/publish.svc/publish.svc.mock";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
 //import { Models } from "../../../main/services/project-manager";
@@ -50,6 +51,7 @@ describe("Component BPPropertiesPanel", () => {
         $provide.service("metadataService", MetaDataService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
         $provide.service("processService", ProcessServiceMock);
+        $provide.service("publishService", PublishServiceMock);
     }));
 
     beforeEach(inject(() => {

@@ -21,7 +21,7 @@
                     id="storyteller-user" ng-model='dialogModel.persona' ng-disabled="$ctrl.isReadonly"
                     autofocus maxlength="40" autocomplete="off">
             <label for="storyteller-user" class="nova-label"><i class="fonticon-bp-actor"></i>{{::$root.config.labels['ST_Persona_Label']}}</label>
-            <span class="nova-helper-text">{{::$root.config.labels['ST_Persona_Helper_Text']}}</span>
+            <span class="storyteller-helper-text">{{::$root.config.labels['ST_Persona_Helper_Text']}}</span>
         </div>
         <div class="nova-form-group nova-floating-label">
             <input type="text" ng-blur="$ctrl.nameOnBlur()" ng-focus="$ctrl.nameOnFocus()"
@@ -29,7 +29,7 @@
                     id="storyteller-action" ng-model="dialogModel.action" ng-disabled="$ctrl.isReadonly"
                     maxlength="140" autocomplete="off">
             <label for="storyteller-action" class="nova-label"><i class="fonticon-storyteller-title"></i>{{$ctrl.actionPlaceHolderText}}</label>
-            <span class="nova-helper-text">{{::$root.config.labels['ST_User_Task_Name_Helper_Text']}}</span>
+            <span class="storyteller-helper-text">{{::$root.config.labels['ST_User_Task_Name_Helper_Text']}}</span>
         </div>
         <div class="nova-form-group nova-floating-label">
             <input type="text"
@@ -37,7 +37,7 @@
                     id="storyteller-purpose" ng-model='dialogModel.objective'
                     ng-disabled="$ctrl.isReadonly" maxlength="140" autocomplete="off">
             <label for="storyteller-purpose" class="nova-label"><i class="fonticon-storyteller-objective-1"></i>{{::$root.config.labels['ST_Objective_Label']}}</label>
-            <span class="nova-helper-text">{{::$root.config.labels['ST_Objective_Helper_Text']}}</span>
+            <span class="storyteller-helper-text">{{::$root.config.labels['ST_Objective_Helper_Text']}}</span>
         </div>
 
         <br/>
@@ -47,7 +47,7 @@
                 <div class="col-sm-12">
                     <div class="nova-form-group">
                         <div ng-show="!$ctrl.isIncludeResultsVisible">
-                            <button class="btn btn-primary storyteller-include_btn" type="button" ng-click="$ctrl.openArtifactPicker()" ng-disabled="$ctrl.isReadonly">
+                            <button class="btn btn-primary btn-small storyteller-include_btn" type="button" ng-click="$ctrl.openArtifactPicker()" ng-disabled="$ctrl.isReadonly">
                                 <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Add_Include_Tab_Label']}}
                             </button>
                         </div>
@@ -58,10 +58,11 @@
                                 <i class="fonticon2-delete storyteller-include_clear" ng-click="$ctrl.cleanIncludeField()" ng-disabled="$ctrl.isReadonly"></i>
 
                             </div>
-                           <button class="btn btn-primary storyteller-include_btn" type="button" ng-click="$ctrl.openArtifactPicker()" ng-disabled="$ctrl.isReadonly">
+                           <button class="btn btn-primary btn-small storyteller-include_btn" type="button" ng-click="$ctrl.openArtifactPicker()" ng-disabled="$ctrl.isReadonly">
                                     <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Browse_Include_Label']}}
                             </button>
                         </div>
+                        <label class="nova-label" ng-if="$ctrl.isIncludeError">{{::$root.config.labels['ST_Cannot_Include_Parent_Process']}}</label>
                     </div>
                 </div>
             </div>
@@ -73,7 +74,7 @@
     <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">
         {{::$root.config.labels['App_Button_Cancel']}}
     </button>
-    <button class="btn button-brand-secondary" type="button" ng-click="$ctrl.ok()" ng-disabled="$ctrl.isReadonly">
+    <button class="btn btn-promoted-action" type="button" ng-click="$ctrl.ok()" ng-disabled="$ctrl.isReadonly">
         {{::$root.config.labels['App_Button_Ok']}}
     </button>
     <!--<button id="artifact-property-modal-helper" style="display:none" type="button" ng-click="$ctrl.openPropertyFloatWindow($event)"></button>-->

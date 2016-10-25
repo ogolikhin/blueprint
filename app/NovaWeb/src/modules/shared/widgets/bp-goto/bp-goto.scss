@@ -1,0 +1,105 @@
+@import "../../../../styles/modules/variables";
+
+.bp-goto {
+    &__search {
+        position: absolute;
+        opacity: 0;
+        display: inline-block;
+        background: #E1E1E1;
+    }
+
+    &__input {
+        transition: width 0.3s ease-out;
+        background: none;
+        height: 42px;
+        width: 50px;
+        padding: 10px 0 0 28px;
+        color: $gray-darker;
+        border: none;
+        border-bottom: 1px solid $brand-secondary;
+        margin: 0 0 3px 5px;
+
+        &:focus {
+            outline: none;
+        }
+    }
+
+    &__clear-search {
+        cursor: pointer;
+        position: absolute;
+        color: $gray-light;
+        top: 7px;
+        right: 0;
+        height: 34px;
+        padding-top: 8px;
+
+        &::before {
+            font-size: 2.2rem !important;
+        }
+    }
+
+    &__button {
+        position: relative;
+        display: inline-block;
+
+        box-sizing: border-box;
+        color: $gray-dark;
+        height: $toolbar-height;
+        width: 50px;
+        line-height: normal;
+        padding: 6px 0 0 0;
+        text-align: center;
+
+        &:focus, &:hover {
+            text-decoration: none;
+            background-color: #eee;
+            cursor: pointer;
+            color: $brand-secondary;
+        }
+    }
+
+    &__button-label {
+        display: block;
+        font-size: $font-size-smaller;
+        line-height: 0.9rem;
+        font-weight: normal;
+        padding: 0 5px;
+        margin: 0;
+    }
+
+    &__button-icon::before {
+        font-size: 22px !important;
+    }
+}
+
+.bp-goto--active {
+    .bp-goto__search {
+        opacity: 1;
+    }
+
+    .bp-goto__input {
+        width: 170px;
+    }
+
+    .bp-goto__button {
+        cursor: default;
+        pointer-events: none;
+        width: initial;
+        height: inherit;
+        text-align: left;
+        margin-top: 10px;
+
+        &:hover, &:focus {
+            background: none;
+        }
+    }
+
+    .bp-goto__button-label {
+        display: none;
+    }
+    
+    .bp-goto__button-icon {
+        color: $brand-secondary;
+        padding-left: 5px;
+    }
+}

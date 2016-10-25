@@ -1,6 +1,7 @@
 import * as angular from "angular";
 import "angular-formly";
 import {ILocalizationService} from "../../../../core";
+import {Models} from "../../../../main/models";
 import {BPFieldBaseController} from "../base-controller";
 
 export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
@@ -33,11 +34,6 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
         });
     };
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldSelectMultiController;
-
-    constructor() {
-        //fixme: empty constructors can be removed
-
-    }
 }
 
 export class BpFieldSelectMultiController extends BPFieldBaseController {
@@ -46,14 +42,14 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
     constructor(private $scope: AngularFormly.ITemplateScope, private localization: ILocalizationService, private $timeout: ng.ITimeoutService) {
         super();
 
-        let to: AngularFormly.ITemplateOptions = {
+        const to: AngularFormly.ITemplateOptions = {
             placeholder: localization.get("Property_Placeholder_Select_Option"),
             valueProp: "value",
             labelProp: "name"
         };
         angular.merge($scope.to, to);
 
-        let validators = {
+        $scope.options["validators"] = {
             // despite what the Formly doc says, "required" is not supported in ui-select, therefore we need our own implementation.
             // See: https://github.com/angular-ui/ui-select/issues/1226#event-604773506
             requiredCustom: {
@@ -67,7 +63,6 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                 }
             }
         };
-        $scope.options["validators"] = validators;
 
         $scope["$on"]("$destroy", function () {
             if ($scope["uiSelectContainer"]) {
@@ -80,6 +75,19 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                 }
             }
         });
+
+        $scope.options["expressionProperties"] = {
+            "templateOptions.options": () => {
+                let options = [];
+                let context: Models.IPropertyType = $scope.options["data"];
+                if (context.validValues && context.validValues.length) {
+                    options = context.validValues.map(function (it) {
+                        return {value: it.id, name: it.value} as any;
+                    });
+                }
+                return options;
+            }
+        };
 
         $scope["bpFieldSelectMulti"] = {
             $select: null,

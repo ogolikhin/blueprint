@@ -158,12 +158,12 @@ class BPToolbarController implements IBPToolbarController {
     private confirmPublishAll(data: Models.IPublishResultSet) {
         const selectedProject: Project = this.projectManager.getSelectedProject();
         this.dialogService.open(<IDialogSettings>{
-            okButton: this.localization.get("App_Button_Publish"),
-            cancelButton: this.localization.get("App_Button_Cancel"),
+            okButton: this.localization.get("App_Button_Yes"),
+            cancelButton: this.localization.get("App_Button_No"),
             message: this.localization.get("Publish_All_Dialog_Message"),
             template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
             controller: ConfirmPublishController,
-            css: "nova-messaging" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
+            css: "nova-publish"
         },
         <IConfirmPublishDialogData>{
             artifactList: data.artifacts,

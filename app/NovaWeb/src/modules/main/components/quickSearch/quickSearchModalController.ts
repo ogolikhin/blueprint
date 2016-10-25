@@ -17,7 +17,7 @@ export class QuickSearchModalController {
     }
 
     search(term) {
-        if (this.form.$invalid) {
+        if (this.form && this.form.$invalid) {
             this.$log.warn("invalid search");
             return null;
         }

@@ -6,7 +6,7 @@
 </nav>
 <div class="quick-search__results--content">
     <div class="quick-search__results--content--center">
-        <div class="quick-search__results--side-border">
+        <div class="quick-search__results--side-border" ng-class="{'quick-search__results':$ctrl.results.length===0}">
             <div class="quick-search__results--input-panel">
                 <form name="$ctrl.form"
                       ng-submit="$ctrl.search($ctrl.searchTerm)"

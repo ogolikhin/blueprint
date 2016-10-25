@@ -22,9 +22,6 @@ import {
 export class BPDiagram implements ng.IComponentOptions {
     public template: string = require("./bp-diagram.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPDiagramController;
-    public bindings: any = {
-        context: "<"
-    };
 }
 
 export class BPDiagramController extends BpBaseEditor {

@@ -1245,6 +1245,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Popup_Menu_Add_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_User_Task_Name_Label', 'en-US', N'Action:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_System_Task_Name_Label', 'en-US', N'System Response:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_TaskNameNotValid_Label', 'en-US', N'The shape requires a label.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Persona_Label', 'en-US', N'Persona:')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Persona_Helper_Text', 'en-US', N'Who/What is doing the task')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_System_Name_Label', 'en-US', N'System Name:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_System_Name_Helper_Text', 'en-US', N'Who/What is doing the task')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_User_Task_Name_Helper_Text', 'en-US', N'The persona wants to [Action]')

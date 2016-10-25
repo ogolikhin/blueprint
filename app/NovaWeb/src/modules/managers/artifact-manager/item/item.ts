@@ -26,8 +26,6 @@ export interface IStatefulItem extends Models.IArtifact {
     lock();
     discard();
     changes(): Models.ISubArtifact;
-
-    updateId(newId: number);
 }
 
 export interface IIStatefulItem extends IStatefulItem {
@@ -63,12 +61,8 @@ export abstract class StatefulItem implements IIStatefulItem {
         return this.artifact.id;
     }
 
-    public updateId(newId: number) {
-        if (this.id <= 0) {
-            this.artifact.id = newId;
-            return;
-        }        
-        throw new Error("Id can only be modified for a temporary never saved artifact.");
+    public set id(value: number) {
+        this.artifact.id = value;
     }    
 
     public get projectId() {

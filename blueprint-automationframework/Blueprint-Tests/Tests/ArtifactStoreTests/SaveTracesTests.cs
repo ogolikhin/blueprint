@@ -383,9 +383,43 @@ namespace ArtifactStoreTests
             Assert.AreEqual(targetArtifact.Id, relationships.ManualTraces[0].ArtifactId,
                 "Id should have expected value.");
         }
-        
+
+        [TestCase]
+        [TestRail(1)]//https://trello.com/c/dI1XaYSz
+        [Description(".")]
+        public void AddSubArtifactTrace_ArtifactWithoutSubArtifacts_Returns409()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase);
+            IArtifact artifactWithNoSubArtifactSupport = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
+
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_authorUser, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifactWithNoSubArtifactSupport.Id);
+
+            artifactWithNoSubArtifactSupport.Lock(_authorUser);
+
+            NovaTrace trace = new NovaTrace(artifact);
+
+            subArtifacts[0].Traces = new List<NovaTrace> { trace };
+
+            artifactDetails.SubArtifacts = subArtifacts;// Add SubArtifacts to Artifact details of without SubArtifacts supports
+
+            IServiceErrorMessage addSubArtifactsToNoSubartifactsSupportArtifactMessage = new ServiceErrorMessage("Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.", 123);
+
+            // Execute:
+            Assert.Throws<Http409ConflictException>(() => {
+                Artifact.UpdateArtifact(artifactWithNoSubArtifactSupport, _authorUser,
+                    artifactDetails, expectedServiceErrorMessage: addSubArtifactsToNoSubartifactsSupportArtifactMessage);
+            }, "Trace creation should throw 409 error.");
+
+            // Verify:
+            Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifactWithNoSubArtifactSupport,
+                addDrafts: true);
+            Assert.AreEqual(0, relationships.ManualTraces.Count, "No traces should be created.");
+        }
+
         #region Custom Data
-        
+
         [TestCase(4)]
         [TestCase(6)]
         [TestCase(87)]

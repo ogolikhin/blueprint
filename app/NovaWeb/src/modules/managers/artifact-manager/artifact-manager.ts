@@ -10,7 +10,6 @@ export interface IArtifactManager extends IDispose {
     selection: ISelectionManager;
     list(): IStatefulArtifact[];
     add(artifact: IStatefulArtifact);
-    addAsOrphan(artifact: IStatefulArtifact);
     get(id: number): IStatefulArtifact;
     remove(id: number): IStatefulArtifact;
     removeAll(projectId?: number);
@@ -18,24 +17,18 @@ export interface IArtifactManager extends IDispose {
 
 export class ArtifactManager implements IArtifactManager {
     private artifactDictionary: { [id: number]: IStatefulArtifact };
-    private orphanArtifacts: IStatefulArtifact[];
     private collectionChangeSubject: Rx.BehaviorSubject<IStatefulArtifact>;
 
     public static $inject = [
         "$log",
-        "messageService",
         "selectionManager",
-        "metadataService",
-        "statefulArtifactFactory"
+        "metadataService"
     ];
 
     constructor(private $log: ng.ILogService,
-                private messageService: IMessageService,
                 private selectionService: ISelectionManager,
-                private metadataService: IMetaDataService,
-                private artifactFactory: IStatefulArtifactFactory) {
+                private metadataService: IMetaDataService) {
         this.artifactDictionary = {};
-        this.orphanArtifacts = [];
         this.collectionChangeSubject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
     }
 
@@ -58,19 +51,6 @@ export class ArtifactManager implements IArtifactManager {
 
     public get(id: number): IStatefulArtifact {
         return this.artifactDictionary[id];
-    }
-
-    private clearOrphans() {
-        _.each(this.orphanArtifacts, artifact => {
-            this.remove(artifact.id);
-        });
-        this.orphanArtifacts = [];
-    }
-
-    public addAsOrphan(artifact: IStatefulArtifact) {
-        this.clearOrphans();
-        this.orphanArtifacts.push(artifact);
-        this.add(artifact);
     }
 
     public add(artifact: IStatefulArtifact) {

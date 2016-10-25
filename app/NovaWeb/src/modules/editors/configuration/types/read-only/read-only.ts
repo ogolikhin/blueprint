@@ -131,6 +131,7 @@ export class BpFieldReadOnlyController {
         this.$scope["formattedValue"] = newValue;
         this.$scope["tooltip"] = tooltip;
         this.$scope["primitiveType"] = Enums.PrimitiveType;
+        this.$scope["propertyTypePredefined"] = Models.PropertyTypePredefined;
 
         data.isFresh = false;
     };

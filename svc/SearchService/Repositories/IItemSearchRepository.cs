@@ -5,8 +5,8 @@ namespace SearchService.Repositories
 {
     public interface IItemSearchRepository
     {
-        Task<FullTextSearchResultSet> SearchFullText(int userId, ItemSearchCriteria searchCriteria, int page, int pageSize);
-        Task<MetaDataSearchResultSet> FullTextMetaData(int userId, ItemSearchCriteria searchCriteria);
-        Task<ItemNameSearchResultSet> SearchName(int userId, ItemSearchCriteria searchCriteria, int startOffset, int pageSize);
+        Task<FullTextSearchResultSet> SearchFullText(int userId, FullTextSearchCriteria searchCriteria, int page, int pageSize);
+        Task<MetaDataSearchResultSet> FullTextMetaData(int userId, FullTextSearchCriteria searchCriteria);
+        Task<ItemNameSearchResultSet> SearchName(int userId, ItemNameSearchCriteria searchCriteria, int startOffset, int pageSize);
     }
 }

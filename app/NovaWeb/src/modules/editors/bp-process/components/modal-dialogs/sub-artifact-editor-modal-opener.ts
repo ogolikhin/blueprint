@@ -238,13 +238,12 @@ export class SubArtifactEditorModalOpener {
 
         const userTask = <UserTask>node;
         const model: UserStoryDialogModel = new UserStoryDialogModel();
-
+        
         model.artifactId = graph.viewModel.id;
         model.subArtifactId = shapeId;
-        model.previousSytemTasks = userTask.getPreviousSystemTasks(graph) as SystemTask[];
+        model.previousSystemTasks = userTask.getPreviousSystemTasks(graph) as SystemTask[];
         model.nextSystemTasks = userTask.getNextSystemTasks(graph) as SystemTask[];
         model.originalUserTask = userTask;
-        model.clonedUserTask = model.originalUserTask.cloneUserTask();
         model.isUserSystemProcess = graph.isUserSystemProcess;
         model.isReadonly = graph.viewModel.isReadonly;
         model.isHistoricalVersion = graph.viewModel.isHistorical;

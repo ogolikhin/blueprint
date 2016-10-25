@@ -31,7 +31,9 @@ export class SaveAction extends BPButtonAction {
                         messageService.addInfo("App_Save_Artifact_Error_200");
                     })
                     .catch((err) => {
-                        messageService.addError(err);
+                        if (err) {
+                            messageService.addError(err);
+                        }
                     })
                     .finally(() => {
                         loadingOverlayService.endLoading(overlayId);

@@ -261,10 +261,19 @@ pagecontent, bp-properties-panel {
                         right: 20px;
                         color: #999;
                         padding: 0;
-                        line-height: 28px;
-                        min-width: initial;
-                        font-size: 12px;
+                        line-height: #{$property-min-height - 2px};
+                        min-width: auto;
+                        font-size: $font-size-normal;
                         font-weight: normal;
+                    }
+
+                    .glyphicon {
+                        font-family: 'bp-font2';
+                        position: static;
+                    }
+
+                    .glyphicon-remove::before {
+                        content: $fonticon2-error;
                     }
                 }
 

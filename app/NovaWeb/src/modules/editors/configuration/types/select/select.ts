@@ -54,7 +54,9 @@ export class BpFieldSelectController extends BPFieldBaseController {
             requiredCustom: {
                 expression: function ($viewValue, $modelValue, scope) {
                     if ((<AngularFormly.ITemplateScope>scope.$parent).to.required) { // TODO: find a better way to get the "required" flag
-                        return !(_.isNull($modelValue) || _.isUndefined($modelValue));
+                        const isInvalid = _.isNull($modelValue) || _.isUndefined($modelValue);
+                        scope.options.validation.show = isInvalid;
+                        return !isInvalid;
                     }
                     return true;
                 }
@@ -121,7 +123,6 @@ export class BpFieldSelectController extends BPFieldBaseController {
             },
             refreshResults: function ($select) {
                 if (isCustomSelect) {
-                    // _$select = $select;
                     const search = $select.search;
                     if (search) {
                         let isDuplicate = false;

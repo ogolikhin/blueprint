@@ -1,4 +1,4 @@
-import {IArtifactProperty, IUserTaskShape, PropertyTypePredefined} from "../../../../../models/process-models";
+import {IArtifactProperty, IUserTaskShape, PropertyTypePredefined, IArtifactReference} from "../../../../../models/process-models";
 import {ItemIndicatorFlags} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {
@@ -191,11 +191,11 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
        this.setPropertyValue("itemLabel", value);
     }
 
-    public get associatedArtifact(): any {
+    public get associatedArtifact(): IArtifactReference {
         return this.model.associatedArtifact;
     }
 
-    public set associatedArtifact(value: any) {
+    public set associatedArtifact(value: IArtifactReference) {
         if (this.model != null && this.model.associatedArtifact !== value) {
             this.model.associatedArtifact = value;           
             this.updateStatefulPropertyValue(PropertyTypePredefined.AssociatedArtifact, value);

@@ -118,8 +118,7 @@ $has-children-padding-before-arrow: 3px;
             &.ag-row-selected:hover {
                 .ag-cell:not(.not-selectable) {
                     span > span,
-                    *::before,
-                    &.ag-cell-value {
+                    *::before {
                         background-color: $brand-secondary;
                         color: $white;
                     }

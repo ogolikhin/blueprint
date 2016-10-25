@@ -369,6 +369,7 @@ ST_Decision_Modal_Next_Task_Label, "Next Task"
 ST_Decision_Modal_Add_Condition_Button_Label, "Add Condition"
 ST_Decision_Modal_Delete_Condition_Button_Label, "Delete Condition"
 ST_Decision_Modal_New_System_Task_Edge_Label, "Condition "
+ST_Cannot_Include_Parent_Process,"A task cannot include its parent Process"
 
 ST_Given_Label, "Given"
 ST_Then_Label, "Then"

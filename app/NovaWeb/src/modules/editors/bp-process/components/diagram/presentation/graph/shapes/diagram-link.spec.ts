@@ -136,7 +136,7 @@ describe("DiagramLink unit tests", () => {
             const artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
             artifact.predefinedType = Models.ItemTypePredefined.Process;
             const statefulArtifact = statefulArtifactFactory.createStatefulArtifact(artifact);
-            statefulArtifactFactory.populateStatefulProcessWithPorcessModel(<StatefulProcessArtifact>statefulArtifact, testModel);
+            statefulArtifactFactory.populateStatefulProcessWithProcessModel(<StatefulProcessArtifact>statefulArtifact, testModel);
             const processModel = new ProcessViewModel(statefulArtifact, communicationManager);
 
             const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
@@ -160,7 +160,7 @@ describe("DiagramLink unit tests", () => {
             const artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
             artifact.predefinedType = Models.ItemTypePredefined.Process;
             const statefulArtifact = statefulArtifactFactory.createStatefulArtifact(artifact);
-            statefulArtifactFactory.populateStatefulProcessWithPorcessModel(<StatefulProcessArtifact>statefulArtifact, testModel);
+            statefulArtifactFactory.populateStatefulProcessWithProcessModel(<StatefulProcessArtifact>statefulArtifact, testModel);
             const processModel = new ProcessViewModel(statefulArtifact, communicationManager);
 
             const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);

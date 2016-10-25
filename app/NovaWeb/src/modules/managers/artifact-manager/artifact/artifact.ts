@@ -282,7 +282,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                     }).catch((error) => {
                         deferred.reject(error);
                     });
-                    this.services.messageService.addInfo("App_Save_Artifact_Error_200");
                 }).catch((error) => {
                     deferred.reject(error);
                     let message: string;
@@ -312,8 +311,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                             message = this.services.localizationService.get("App_Save_Artifact_Error_Other") + error.statusCode;
                         }
 
-                        //this.services.messageService.addError(message);
-                        //throw new Error(message);
                         deferred.reject(new Error(message));
                     }
                 }
@@ -361,6 +358,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         .then(() => {
             this.services.messageService.addInfo("Publish_Success_Message");
             this.artifactState.unlock();
+            this.refresh();
             deffered.resolve();
         })
         .catch((err) => {
@@ -377,12 +375,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     private publishDependents(dependents: Models.IPublishResultSet) {
         this.services.dialogService.open(<IDialogSettings>{
-            okButton: this.services.localizationService.get("App_Button_Publish"),
-            cancelButton: this.services.localizationService.get("App_Button_Cancel"),
+            okButton: this.services.localizationService.get("App_Button_Yes"),
+            cancelButton: this.services.localizationService.get("App_Button_No"),
             message: this.services.localizationService.get("Publish_Dependents_Dialog_Message"),
             template: require("../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish.html"),
             controller: ConfirmPublishController,
-            css: "nova-messaging" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
+            css: "nova-publish"
         },
         <IConfirmPublishDialogData>{
             artifactList: dependents.artifacts,
@@ -395,6 +393,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             .then(() => {
                 this.services.messageService.addInfo("Publish_Success_Message");
                 this.artifactState.unlock();
+                this.refresh();
             })
             .catch((err) => {
                 this.services.messageService.addError(err);

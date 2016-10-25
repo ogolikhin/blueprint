@@ -361,6 +361,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         .then(() => {
             this.services.messageService.addInfo("Publish_Success_Message");
             this.artifactState.unlock();
+            this.refresh();
             deffered.resolve();
         })
         .catch((err) => {
@@ -395,6 +396,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             .then(() => {
                 this.services.messageService.addInfo("Publish_Success_Message");
                 this.artifactState.unlock();
+                this.refresh();
             })
             .catch((err) => {
                 this.services.messageService.addError(err);

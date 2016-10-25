@@ -1,3 +1,57 @@
+@import "../../../../styles/modules/variables";
+
+/*.bp-goto {
+    &__search {
+        position: absolute;
+        opacity: 0;
+        display: inline-block;
+        background: #E1E1E1;
+
+        &--active {
+            opacity: 1;
+        }
+    }
+
+    &__input {
+        transition: width 0.3s ease-out;
+        background: #E1E1E1;
+        height: 42px;
+        width: 50px;
+        padding: 10px 0 0 28px;
+        color: $gray-darker;
+        border: none;
+        border-bottom: 1px solid $brand-secondary;
+        margin: 0 0 3px 5px;
+
+        &:focus {
+            outline: none;
+        }
+    }
+
+    &__clear-search {
+        position: absolute;
+        color: $gray-light;
+        top: 7px;
+        right: 0;
+        height: 34px;
+        padding-top: 8px;
+
+        &::before {
+            font-size: 2.2rem;
+        }
+    }
+
+    &__button {
+        position: relative;
+        display: inline-block;
+
+        &:hover {
+            text-decoration: none;
+        }
+    }
+}*/
+
+
 bp-goto {
     position: relative;
     display: block;

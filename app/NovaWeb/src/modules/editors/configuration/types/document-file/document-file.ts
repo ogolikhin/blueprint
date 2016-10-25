@@ -38,23 +38,23 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
 
         let currentModelVal = this.$scope.model[this.$scope.options["key"]];
         let guid: number; //we use this to download newly added files (prior to saving).
-        let setFields = (model: any) => {
-            if (model) {
-                this.$scope["hasFile"] = true;
-                this.$scope["fileName"] = model.fileName;
-                this.$scope["extension"] = FiletypeParser.getFiletypeClass(model.fileName);
-            }
-        };
 
-        let clearFields = () => {
-            this.$scope["hasFile"] = false;
-            this.$scope["fileName"] = null;
-            this.$scope["extension"] = null;
-        };
         let maxAttachmentFilesize: number = this.settings.getNumber("MaxAttachmentFilesize", maxAttachmentFilesizeDefault);
         if (maxAttachmentFilesize < 0 || !Helper.isInt(maxAttachmentFilesize)) {
             maxAttachmentFilesize = maxAttachmentFilesizeDefault;
         }
+
+        this.$scope["getFilename"] = () => {
+            return this.$scope.model[this.$scope.options["key"]]["fileName"];
+        };
+
+        this.$scope["getExtension"] = () => {
+            FiletypeParser.getFiletypeClass($scope["getFilename"]());
+        };
+
+        this.$scope["getHasFile"] = () => {
+            return this.$scope.model && this.$scope.model[this.$scope.options["key"]] && this.$scope.model[this.$scope.options["key"]]["fileName"];
+        };
 
         let chooseDocumentFile = (files: File[], callback?: Function) => {
             const dialogSettings = <IDialogSettings>{
@@ -83,7 +83,6 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                     if (onChange) {
                         onChange(newFileObject, $scope.fields[0], $scope);
                     }
-                    setFields(newFileObject);
                     guid = uploadedFile.guid;
                 }
             }).finally(() => {
@@ -126,7 +125,6 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                     if (onChange) {
                         onChange(null, $scope.fields[0], $scope);
                     }
-                    clearFields();
                     guid = null;
                 });
             }
@@ -135,7 +133,5 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
         $scope["changeLabelText"] = localization.get("App_UP_Document_File_Change", "Change");
         $scope["uploadLabelText"] = localization.get("App_UP_Document_File_Upload", "Upload");
         $scope["downloadLabelText"] = localization.get("App_UP_Document_File_Download", "Download");
-
-        setFields(currentModelVal);
     }
 }

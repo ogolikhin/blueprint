@@ -1,46 +1,55 @@
 import * as angular from "angular";
-import {SystemTask} from "../diagram/presentation/graph/shapes/system-task";
-import {ShapesFactory} from "../diagram/presentation/graph/shapes/shapes-factory";
-import {ITaskFlags} from "../../models/process-models";
-import {ItemTypePredefined} from "../../../../main/models/enums";
-import {ISystemTaskShape} from "../diagram/presentation/graph/models/";
-import {IFileUploadService, FileUploadService} from "../../../../core/file-upload/";
-import {UploadImageDirective} from "./upload-image";
-import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
-import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import { SystemTask } from "../diagram/presentation/graph/shapes/system-task";
+import { ShapesFactory } from "../diagram/presentation/graph/shapes/shapes-factory";
+import { ITaskFlags } from "../../models/process-models";
+import { ItemTypePredefined } from "../../../../main/models/enums";
+import { ISystemTaskShape } from "../diagram/presentation/graph/models/";
+import { IFileUploadService, FileUploadService } from "../../../../core/file-upload/";
+import { UploadImageDirective } from "./upload-image";
+import { IStatefulArtifactFactory } from "../../../../managers/artifact-manager";
+import { StatefulArtifactFactoryMock } from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import { IMessageService } from "../../../../core/messages";
+import { MessageServiceMock } from "../../../../core/messages/message.mock";
 
 describe("UploadImage Directive", () => {
-    var element: ng.IAugmentedJQuery;
-    var scope: ng.IScope;
-    var imageUpload: any;
-    var isolatedScope: ng.IScope;
+    let element: ng.IAugmentedJQuery;
+    let scope: ng.IScope;
+    let imageUpload: any;
+    let isolatedScope: ng.IScope;
 
-    var directiveTemplate: string = "<button id=\"upload-image-btn\" class=\"btn btn-block button-white\" ng-click=\"uploadImage()\">Upload</button>";
+    let messageService: IMessageService;
 
-    var sampleSystemTask: ISystemTaskShape = {
+    const directiveTemplate: string = "<button id=\"upload-image-btn\" class=\"btn btn-block button-white\" ng-click=\"uploadImage()\">Upload</button>";
+
+    const sampleSystemTask: ISystemTaskShape = {
         id: 1, name: "", projectId: 1, typePrefix: "", parentId: 2,
         baseItemTypePredefined: ItemTypePredefined.PROShape,
         propertyValues: {}, associatedArtifact: null, flags: <ITaskFlags>{}
     };
-    var fakeRootScope = {
+    const fakeRootScope = {
         config: {
             labels: {
                 ["ST_Settings_Label"]: ""
             }
         }
     };
-    var fakeUrl = "api to call get image";
+    const fakeUrl = "api to call get image";
 
-    var shapesFactory: ShapesFactory;
+    let shapesFactory: ShapesFactory;
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService, $compileProvider: ng.ICompileProvider) => {
         $compileProvider.directive("uploadImage", UploadImageDirective.factory());
         $provide.service("fileUploadService", FileUploadService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
+        $provide.service("messageService", MessageServiceMock);
     }));
 
     beforeEach(
-        inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService,
-                $templateCache: ng.ITemplateCacheService, $injector: ng.auto.IInjectorService, statefulArtifactFactory: IStatefulArtifactFactory) => {
+        inject(($compile: ng.ICompileService,
+            $rootScope: ng.IRootScopeService,
+            $templateCache: ng.ITemplateCacheService,
+            $injector: ng.auto.IInjectorService,
+            statefulArtifactFactory: IStatefulArtifactFactory,
+            _messageService_: IMessageService) => {
             shapesFactory = new ShapesFactory($rootScope, statefulArtifactFactory);
             $templateCache.put("/Areas/Web/App/Components/Storyteller/Directives/UploadImageTemplate.html", directiveTemplate);
             scope = $rootScope.$new();
@@ -59,6 +68,7 @@ describe("UploadImage Directive", () => {
             imageUpload = $injector.get("uploadImageDirective")[0].__proto__;
 
             isolatedScope = element.isolateScope();
+            messageService = _messageService_;
         })
     );
 
@@ -89,11 +99,11 @@ describe("UploadImage Directive", () => {
         inject(
             ($injector: ng.auto.IInjectorService, $compile: ng.ICompileService) => {
                 //Arange
-                var image = new Image();
-                var imageElement = $compile(image)(scope);
+                const image = new Image();
+                const imageElement = $compile(image)(scope);
 
                 spyOn(imageUpload, "toggleButtons").and.callThrough();
-                var attr = {};
+                const attr = {};
                 attr["imageContainerClass"] = "file-upload_preview";
 
                 //Act
@@ -115,18 +125,20 @@ describe("UploadImage Directive", () => {
         // Assert     
         expect(element.find("#upload-image-btn").text()).toEqual("Change");
     }));
-    xit("uploadImage", inject(($injector: ng.auto.IInjectorService) => {
+
+    it("uploadImage", inject(($injector: ng.auto.IInjectorService) => {
         //Arange
-        spyOn($.fn, "click");
+        const imageBtn = element.find("input")[0];
+        const spy = spyOn(imageBtn, "click");
         //Act
         isolatedScope["uploadImage"]();
         // Assert           
-        expect($.fn.click).toHaveBeenCalled();
+        expect(spy).toHaveBeenCalled();
     }));
 
-    xit("fileChanged", inject(($injector: ng.auto.IInjectorService, fileUploadService: IFileUploadService) => {
+    it("fileChanged", inject(($injector: ng.auto.IInjectorService, fileUploadService: IFileUploadService) => {
         //Arrange
-        var fileMock = {
+        const fileMock = {
             files: {
                 [0]: {
                     type: "image/jpeg",
@@ -142,9 +154,9 @@ describe("UploadImage Directive", () => {
         expect(fileUploadService.uploadToFileStore).toHaveBeenCalled();
     }));
 
-    xit("fileChanged, size over 2mb", inject(($injector: ng.auto.IInjectorService, fileUploadService: IFileUploadService) => {
+    it("fileChanged, size over 2mb", inject(($injector: ng.auto.IInjectorService, fileUploadService: IFileUploadService) => {
         //Arrange
-        var fileMock = {
+        const fileMock = {
             files: {
                 [0]: {
                     type: "image/jpeg",
@@ -160,9 +172,9 @@ describe("UploadImage Directive", () => {
         expect(isolatedScope["sizeError"]).toBeTruthy();
     }));
 
-    xit("fileChanged, file type not image", inject(($injector: ng.auto.IInjectorService, fileUploadService: IFileUploadService) => {
+    it("fileChanged, file type not image", inject(($injector: ng.auto.IInjectorService, fileUploadService: IFileUploadService) => {
         //Arrange
-        var fileMock = {
+        const fileMock = {
             files: {
                 [0]: {
                     type: "application/pdf",

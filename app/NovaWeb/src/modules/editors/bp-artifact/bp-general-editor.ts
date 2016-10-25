@@ -11,10 +11,6 @@ import {
 export class BpArtifactGeneralEditor implements ng.IComponentOptions {
     public template: string = require("./bp-general-editor.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BpGeneralArtifactEditorController;
-    public controllerAs = "$ctrl";
-    public bindings: any = {
-        context: "<"
-    };
 }
 
 export class BpGeneralArtifactEditorController extends BpArtifactEditor {

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -367,11 +367,17 @@ namespace Helper
         /// <param name="user">The user who will create the artifact.</param>
         /// <param name="artifactType">The type of artifact to create.</param>
         /// <param name="parent">(optional) The parent artifact. By default artifact will be created in the root of the project.</param>
+        /// <param name="name">(optional) Artifact's name.</param>
         /// <param name="numberOfVersions">(optional) The number of times to save and publish the artifact (to create multiple historical versions).</param>
         /// <returns>The artifact.</returns>
-        public IArtifact CreateAndPublishArtifact(IProject project, IUser user, BaseArtifactType artifactType, IArtifactBase parent = null, int numberOfVersions = 1)
+        public IArtifact CreateAndPublishArtifact(IProject project,
+            IUser user,
+            BaseArtifactType artifactType,
+            IArtifactBase parent = null,
+            string name = null,
+            int numberOfVersions = 1)
         {
-            IArtifact artifact = CreateArtifact(project, user, artifactType, parent);
+            IArtifact artifact = CreateArtifact(project, user, artifactType, parent, name);
 
             for (int i = 0; i < numberOfVersions; ++i)
             {
@@ -474,10 +480,13 @@ namespace Helper
                 baseType = ((ItemTypePredefined)novaArtifact.PredefinedType.Value).ToBaseArtifactType();
             }
 
+            var fakeParent = ArtifactFactory.CreateArtifact(project, user, baseType.Value, novaArtifact.ParentId);
+
             var artifact = ArtifactFactory.CreateArtifact(project,
                 user,
                 baseType.Value,
-                novaArtifact.Id);
+                novaArtifact.Id,
+                fakeParent);
 
             artifact.IsSaved = true;
             Artifacts.Add(artifact);

@@ -25,6 +25,7 @@ describe("ProcessViewModel", () => {
         $provide.service("artifactService", ArtifactServiceMock);
         $provide.service("processService", ProcessServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayService);
+        $provide.service("publishService", null);
     }));
 
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,
@@ -34,7 +35,7 @@ describe("ProcessViewModel", () => {
                        loadingOverlayService: ILoadingOverlayService) => {
         $rootScope = _$rootScope_;
         $q = _$q_;
-        let artitfactServices = new StatefulArtifactServices(_$q_, null, null, null, null, artifactService, null, null, null, loadingOverlayService);
+        let artitfactServices = new StatefulArtifactServices(_$q_, null, null, null, null, artifactService, null, null, null, loadingOverlayService, null);
         services = new StatefulProcessArtifactServices(artitfactServices, _$q_, processService);
     }));
     it("test add stateful Shape", () => {

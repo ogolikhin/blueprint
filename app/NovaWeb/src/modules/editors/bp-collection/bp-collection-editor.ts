@@ -22,10 +22,6 @@ import {IDialogService} from "../../shared";
 export class BpArtifactCollectionEditor implements ng.IComponentOptions {
     public template: string = require("./bp-collection-editor.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactCollectionEditorController;
-    public controllerAs = "$ctrl";
-    public bindings: any = {
-        context: "<"
-    };
 }
 
 export class BpArtifactCollectionEditorController extends BpArtifactDetailsEditorController {
@@ -106,9 +102,24 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             headerName: "Name",
             field: "model.name"         
         },
-        {
+        {           
             headerName: "Description",
             field: "model.description"
+        },
+        {
+            headerName: "Artifact Path",
+            isGroup: true,             
+            isCheckboxHidden: true,
+            innerRenderer: (vm: CollectionNodeVM, eGridCell: HTMLElement) => {
+                const path = vm.model.artifactPath;
+
+                let html = `<ul class="breadcrumbs"><li>`;
+                path.map((collectionArtifact: string) => {
+                    html = html + `<a>${Helper.escapeHTMLText(collectionArtifact)}</a>`;
+                });
+                html = html + `</ul></li>`;
+                return html;
+            }
         },
         {
             headerName: "Options",            

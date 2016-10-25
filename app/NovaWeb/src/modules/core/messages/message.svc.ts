@@ -3,10 +3,23 @@ import {ISettingsService} from "../configuration";
 import {ILocalizationService} from "../../core";
 
 export interface IMessageService {
+
+    /**
+     * Given a message, displays it as a ribbon header
+     * msg: Message to display.
+     * messageTimeout: Optional, default is based on msg.messageType type. Time to display message in ms. 0 = no timeout.
+     */
     addMessage(msg: Message): void;
+
     addError(text: string | Error | any): void;
     addWarning(text: string): void;
-    addInfo(text: string): void;
+
+    /**
+     * Given a message, displays it as a ribbon info header
+     * text: Message to display.
+     * messageTimeout: Optional, default is set by Settings service. time to display message in ms. 0 = no timeout.
+     */
+    addInfo(text: string, messageTimeout?: number): void;
     addInfoWithPar(text: string, par: any[]): void;    
     deleteMessageById(id: number): void;
     messages: Array<IMessage>;
@@ -111,12 +124,12 @@ export class MessageService implements IMessageService {
         this.addMessage(new Message(MessageType.Warning, msg));
     }
 
-    public addInfo(msg: string): void {
+    public addInfo(msg: string, messageTimeout?: number): void {
         if (!msg) {
             return;
         }
 
-        this.addMessage(new Message(MessageType.Info, msg));
+        this.addMessage(new Message(MessageType.Info, msg), messageTimeout);
     }
     public addInfoWithPar(msg: string, par: any[]): void {
         msg = this.localization.get(msg);
@@ -127,7 +140,12 @@ export class MessageService implements IMessageService {
         this.addInfo(msg);
     }
 
-    public addMessage(msg: Message): void {
+    /**
+     * Given a message, displays it as a ribbon header
+     * msg: Message to display.
+     * messageTimeout: Optional, default is based on msg.messageType type. Time to display message in ms. 0 = no timeout.
+     */
+    public addMessage(msg: Message, messageTimeout?: number): void {
         // if the message of that type and with that text is already displayed, don't add another one
         if (this.findDuplicateMessages(msg).length) {
             return;
@@ -137,7 +155,10 @@ export class MessageService implements IMessageService {
         this.id++;
         this._messages.push(msg);
 
-        let messageTimeout = this.getMessageTimeout(msg.messageType);
+        if (!messageTimeout) {
+            messageTimeout = this.getMessageTimeout(msg.messageType);
+        }
+
         if (messageTimeout > 0) {
             this.timers[msg.id] = this.$timeout(this.clearMessageAfterInterval.bind(null, msg.id), messageTimeout);
         }

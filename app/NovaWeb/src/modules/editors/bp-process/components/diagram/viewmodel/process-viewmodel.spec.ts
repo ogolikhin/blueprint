@@ -196,7 +196,7 @@ describe("ProcessViewModel", () => {
         expect(isHistorical).toBe(true);
     });
 
-    it("returns isReadonly false if process is not read-only", () => {
+    it("returns isHistorical false if process is not historical", () => {
         // arrange
         const process = TestModels.createDefaultProcessModel();
         process["historical"] = false;

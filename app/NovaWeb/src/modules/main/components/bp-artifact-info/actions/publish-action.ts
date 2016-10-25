@@ -22,7 +22,9 @@ export class PublishAction extends BPButtonAction {
                 try {
                     artifact.publish()
                     .catch((err) => {
-                        messageService.addError(err);
+                        if (err) {
+                            messageService.addError(err);
+                        }
                     })
                     .finally(() => {
                         loadingOverlayService.endLoading(overlayId);

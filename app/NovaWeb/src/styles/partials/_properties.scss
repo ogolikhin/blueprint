@@ -255,6 +255,17 @@ pagecontent, bp-properties-panel {
                     &:focus {
                         background-color: $yellow-pale;
                     }
+
+                    a {
+                        position: absolute;
+                        right: 20px;
+                        color: #999;
+                        padding: 0;
+                        line-height: 28px;
+                        min-width: initial;
+                        font-size: 12px;
+                        font-weight: normal;
+                    }
                 }
 
                 .caret.pull-right {
@@ -1329,7 +1340,7 @@ pagecontent {
             font-weight: 600;
             line-height: 1em;
             min-height: 36px;
-            padding: 11px 14px;            
+            padding: 11px 14px;
             }
 }
 

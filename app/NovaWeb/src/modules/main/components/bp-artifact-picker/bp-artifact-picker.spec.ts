@@ -125,13 +125,14 @@ describe("BpArtifactPickerController", () => {
 
         // Assert
         expect(controller.isSearching).toEqual(true);
-        expect(projectService.searchItemNames).toHaveBeenCalledWith({query: "test", projectIds: [2], includeArtifactPath: true});
+        expect(projectService.searchItemNames).toHaveBeenCalledWith({query: "test", projectIds: [2], includeArtifactPath: true}, 0, 101);
         $rootScope.$digest(); // Resolves promises
         expect(controller.isSearching).toEqual(false);
         expect(controller.searchResults).toEqual([]);
+        expect(controller.isMoreSearchResults).toEqual(false);
     }));
 
-    it("search, when project is not set, seraches projects", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
+    it("search, when project is not set, searches projects", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
         // Arrange
         controller.searchText = "test";
         const searchResults = {items: []} as SearchServiceModels.IProjectSearchResultSet;
@@ -142,10 +143,11 @@ describe("BpArtifactPickerController", () => {
 
         // Assert
         expect(controller.isSearching).toEqual(true);
-        expect(projectService.searchProjects).toHaveBeenCalledWith({query: "test"});
+        expect(projectService.searchProjects).toHaveBeenCalledWith({query: "test"}, 101);
         $rootScope.$digest(); // Resolves promises
         expect(controller.isSearching).toEqual(false);
         expect(controller.searchResults).toEqual([]);
+        expect(controller.isMoreSearchResults).toEqual(false);
     }));
 
     describe("columns", () => {

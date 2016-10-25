@@ -18,7 +18,7 @@ namespace SearchService.Controllers
     public class ItemSearchController : LoggableApiController
     {
         public override string LogSource => "SearchService.ItemSearch";
-        internal const int MaxResultCount = 100;
+        internal const int MaxResultCount = 101;
         private const string ArtifactPathStub = "Selected Project > Selected Folder > Selected Artifact";
 
         internal readonly IItemSearchRepository _itemSearchRepository;

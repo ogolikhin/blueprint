@@ -54,6 +54,8 @@ namespace ArtifactStoreTests
         [Description("Create & publish an artifact, GetArtifactDetails.  Verify the artifact details are returned.")]
         public void GetArtifactDetails_PublishedArtifact_ReturnsArtifactDetails(BaseArtifactType artifactType)
         {
+            const int VIEWER_PERMISSIONS = 1;
+
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
             var retrievedArtifact = OpenApiArtifact.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
 
@@ -68,7 +70,7 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifact);
 
-            Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
+            Assert.AreEqual(VIEWER_PERMISSIONS, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
         }
 
         [TestCase(2)]
@@ -392,9 +394,30 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(166147)]
+        [Description("Create & publish an artifact, modify save & publish it again.  GetArtifactDetails with version=1 with a user that doesn't have access to the artifact.  " +
+            "Verify it returns 403 Forbidden.")]
+        public void GetArtifactDetailsWithVersion1_PublishedArtifactWithMultipleVersions_UserWithoutPermissions_403Forbidden()
+        {
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process);
+
+            IUser unauthorizedUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
+            Helper.AssignProjectRolePermissionsToUser(unauthorizedUser, TestHelper.ProjectRole.None, _projects[0], artifact);
+
+            var ex = Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                Helper.ArtifactStore.GetArtifactDetails(unauthorizedUser, artifact.Id, versionId: 1);
+            }, "'GET {0}' should return 403 Forbidden when passed a valid artifact ID but the user doesn't have permission to view the artifact!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", artifact.Id);
+
+            AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content, "If called by a user without permission to the artifact, we should get an error message of '{0}'!", expectedMessage);
+        }
+
+        [TestCase]
+        [TestRail(185236)]
         [Description("Create & publish parent & child artifacts.  Make sure viewer does not have access to parent.  Viewer request GetArtifactDetails from child artifact.  " +
                     "Verify it returns 403 Forbidden.")]
-        public void GetArtifactDetailsWithVersion1_PublishedArtifactWithMultipleVersions_UserWithoutPermissions_403Forbidden()
+        public void GetArtifactDetails_PublishedArtifactWithAChild_UserWithoutPermissionsToParent_403Forbidden()
         {
             IArtifact parent = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process);
             IArtifact child = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process, parent);

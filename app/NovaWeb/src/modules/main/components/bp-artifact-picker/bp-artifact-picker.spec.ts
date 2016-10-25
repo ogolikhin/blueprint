@@ -73,7 +73,7 @@ describe("BpArtifactPickerController", () => {
         (artifactManager.selection.getArtifact as jasmine.Spy).and.returnValue(artifact);
         const projectManager = jasmine.createSpyObj("projectManager", ["getProject"]) as IProjectManager;
         (projectManager.getProject as jasmine.Spy).and.returnValue(project);
-        projectService = jasmine.createSpyObj("projectService", ["abort", "searchProjects"]) as IProjectService;
+        projectService = jasmine.createSpyObj("projectService", ["abort", "searchItemNames", "searchProjects"]) as IProjectService;
         controller = new BpArtifactPickerController($scope, localization, artifactManager, projectManager, projectService);
     }));
 
@@ -113,7 +113,25 @@ describe("BpArtifactPickerController", () => {
         expect(controller.searchResults).toBeUndefined();
     });
 
-    it("search, when search text is not empty, performs search", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
+    it("search, when project is set, searches artifacts", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
+        // Arrange
+        controller.project = {id: 2, name: "proj", type: Models.ProjectNodeType.Project} as Models.IProjectNode;
+        controller.searchText = "test";
+        const searchResults = {items: []} as SearchServiceModels.IItemNameSearchResultSet;
+        (projectService.searchItemNames as jasmine.Spy).and.returnValue($q.resolve(searchResults));
+
+        // Act
+        controller.search();
+
+        // Assert
+        expect(controller.isSearching).toEqual(true);
+        expect(projectService.searchItemNames).toHaveBeenCalledWith({query: "test", projectIds: [2], includeArtifactPath: true});
+        $rootScope.$digest(); // Resolves promises
+        expect(controller.isSearching).toEqual(false);
+        expect(controller.searchResults).toEqual([]);
+    }));
+
+    it("search, when project is not set, seraches projects", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
         // Arrange
         controller.searchText = "test";
         const searchResults = {items: []} as SearchServiceModels.IProjectSearchResultSet;
@@ -124,6 +142,7 @@ describe("BpArtifactPickerController", () => {
 
         // Assert
         expect(controller.isSearching).toEqual(true);
+        expect(projectService.searchProjects).toHaveBeenCalledWith({query: "test"});
         $rootScope.$digest(); // Resolves promises
         expect(controller.isSearching).toEqual(false);
         expect(controller.searchResults).toEqual([]);

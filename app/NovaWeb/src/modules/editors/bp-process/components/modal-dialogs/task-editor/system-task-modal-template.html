@@ -40,28 +40,22 @@
                             data-image-uploaded="imageUploaded"></upload-image>
         </div>
 
-        <br/>
-        <div class="small-padding">
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="nova-form-group">
-                        <div ng-show="!$ctrl.isIncludeResultsVisible">
-                            <button class="btn btn-primary btn-small storyteller-include_btn" type="button" ng-click="$ctrl.openArtifactPicker()" ng-disabled="$ctrl.isReadonly">
-                                <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Add_Include_Tab_Label']}}
-                            </button>
-                        </div>
-                        <div ng-show="$ctrl.isIncludeResultsVisible" class="storyteller-include_container">
-                            <div class="storyteller-include">
-                                <i class="fonticon-include-active fonticon-st-tabs"></i>
+
+        <div class="nova-form-group">
+            <div ng-show="!$ctrl.isIncludeResultsVisible">
+                <button class="btn btn-primary btn-small storyteller-include_btn" type="button" ng-click="$ctrl.openArtifactPicker()" ng-disabled="$ctrl.isReadonly">
+                    <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Add_Include_Tab_Label']}}
+                </button>
+            </div>
+            <div ng-show="$ctrl.isIncludeResultsVisible" class="storyteller-include_container">
+                <div class="storyteller-include">
+                    <i class="fonticon-include-active fonticon-st-tabs"></i>
                                 {{$ctrl.includeArtifactName}}
-                                 <i class="fonticon2-delete storyteller-include_clear" ng-click="$ctrl.cleanIncludeField()" ng-disabled="$ctrl.isReadonly"></i>
-                            </div>
-                            <button class="btn btn-primary btn-small storyteller-include_btn" type="button" ng-click="$ctrl.openArtifactPicker()" ng-disabled="$ctrl.isReadonly">
-                                    <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Browse_Include_Label']}}
-                            </button>
-                        </div>
-                    </div>
+                    <i class="fonticon2-delete storyteller-include_clear" ng-click="$ctrl.cleanIncludeField()" ng-disabled="$ctrl.isReadonly"></i>
                 </div>
+                <button class="btn btn-primary btn-small storyteller-include_btn" type="button" ng-click="$ctrl.openArtifactPicker()" ng-disabled="$ctrl.isReadonly">
+                    <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Browse_Include_Label']}}
+                </button>
             </div>
         </div>
     </form>

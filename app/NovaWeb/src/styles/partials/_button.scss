@@ -3,19 +3,14 @@
     min-width: 100px;
     padding: 8px 19px;
     text-align: center;
-
-    &.btn-small {
-        padding: 5px 10px;
-        min-width: 20px;
-        font-size: 1.2rem;
-    }
-
     &[disabled],
     &[disabled]:hover,
     &[disabled]:focus,
+    &[disabled]:active,
     &.disabled,
     &.disabled:hover,
-    &.disabled:focus {
+    &.disabled:focus,
+    &.disabled:active {
         background-color: $gray-lighter;
         border-color: #bbb;
         color: #bbb;
@@ -26,7 +21,11 @@
         }
     }
 }
-
+.btn-small {
+        padding: 5px 10px;
+        min-width: 20px;
+        font-size: 1.2rem;
+}
 .btn-primary {
     background-color: transparent;
     border: 1px solid $gray-light;
@@ -35,7 +34,7 @@
     &:hover,
     &:focus,
     &:active,
-    &.active {
+    &.active, {
         background-color: transparent;
         border-color: $brand-secondary;
         color: $brand-secondary;
@@ -65,11 +64,30 @@
     &:hover,
     &:focus,
     &:active,
-    &.active {
+    &.active,
+    &.focus,
+    &:active:focus{
         background-color: darken($brand-warning, 10%);
         border-color: darken($brand-warning, 10%);
         color: $white;
+        outline: none;
     }
+}
+.open > .dropdown-toggle.btn-primary {
+    background-color: transparent;
+    border: 1px solid $gray-light;
+    color: $gray-light;
+    &:hover,
+    &:focus,
+    &:active,
+    &.active,
+    &.focus,
+    &:active:hover{
+          background-color: transparent;
+          border-color: $brand-secondary;
+          color: $brand-secondary;
+           outline: none;
+      }
 }
 
 .btn-secondary {
@@ -80,10 +98,13 @@
     &:hover,
     &:focus,
     &:active,
-    &.active {
+    &.active,
+    &.focus,
+    &:active:focus{
         background-color: $brand-secondary;
         border: solid 1px $brand-secondary;
         color: $white;
+        outline: none;
     }
 }
 

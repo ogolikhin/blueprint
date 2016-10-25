@@ -125,7 +125,7 @@
     padding: 35px 42px 15px 42px;
 
     .condition-list {
-        padding-top: 15px;
+        padding-top: 1px;
         margin-bottom: 5px;
 
         div.nova-form-control.input-is-dirty {
@@ -217,7 +217,7 @@
         text-align: right;
         padding: 3px 5px;
     &:hover {
-        background-color: rgba(255,255,255, 0.5);
+        background-color: rgba(255,255,255, 1);
     }
 }
 
@@ -233,13 +233,6 @@
         }
         &:hover {
             color: $brand-secondary;
-        }
-        &--disabled {
-            color: $gray-lighter;
-            cursor: not-allowed;
-        }
-        &--disabled:hover {
-            color: $gray-lighter;
         }
     }
 }
@@ -926,7 +919,6 @@ table.mxPopupMenu tr {
 }
 
 .delete-condition {
-    margin-left: -20px;
     padding: 5px;
     cursor: pointer;
 
@@ -1004,5 +996,5 @@ body.mce-content-body a, body.mce-content-body a:hover {
 }
 .storyteller-include_btn {
     min-width: auto;
-    padding-left: 14px; // buttons with icons inside are uneven due to padding on the icons
+    padding-left: 7px; // buttons with icons inside are uneven due to padding on the icons
 }

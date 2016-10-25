@@ -1,8 +1,8 @@
 import {IAppicationError, HttpStatusCode} from "./../../core";
 import {IItem} from "./../../main/models/models";
-import {IStatefulArtifact, IStatefulSubArtifact} from "./../../managers/artifact-manager";
+import {IStatefulArtifact, IStatefulSubArtifact, IStatefulItem} from "./../../managers/artifact-manager";
 import {IDispose} from "./../../managers/models";
-import { INavigationService } from "../../core/navigation";
+import {INavigationService } from "../../core/navigation";
 
 
 export interface ISelectionManager extends IDispose {
@@ -149,18 +149,21 @@ export class SelectionManager implements ISelectionManager {
     }
 
 
-    private unsubscribe() {
-        const selection = this.selectionSubject.getValue();
-        if (selection && selection.artifact) {
-            selection.artifact.unsubscribe();
-        }
-        if (selection && selection.subArtifact) {
-            selection.subArtifact.unsubscribe();
+    private unsubscribe(selection: ISelection) {
+        const prevSelection = this.selectionSubject.getValue();
+        
+        if (prevSelection) {
+            if (prevSelection.artifact && selection &&  prevSelection.artifact.id !== selection.artifact.id) {
+                prevSelection.artifact.unsubscribe();
+            }
+            if (prevSelection.subArtifact && selection &&  prevSelection.subArtifact.id !== selection.subArtifact.id) {
+                prevSelection.subArtifact.unsubscribe();
+            }
         }
     } 
 
     private setSelectionSubject(selection: ISelection) {
-        this.unsubscribe();
+        this.unsubscribe(selection);
         this.selectionSubject.onNext(selection);
     }
 

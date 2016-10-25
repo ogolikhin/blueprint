@@ -7,7 +7,7 @@ $quick-search__item--focus-color: #E8F6FB;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    overflow: auto;
+
 }
 
 .modal {
@@ -76,6 +76,24 @@ $quick-search__item--focus-color: #E8F6FB;
 .quick-serach__form-control {
     position: relative;
     display: block;
+
+    .error-messages {
+        position: absolute;
+        right: 0;
+        color: #d95f5e;
+        font-size: 1rem;
+        margin-top: -2px;
+    }
+
+    &.has-error {
+        color: #d95f5e;
+        .quick-serach__input {
+            border-bottom-color: #d95f5e;
+        }
+        .glyphicon {
+            color: #d95f5e;
+        }
+    }
 }
 
 .quick-serach__icon--fixed {
@@ -208,10 +226,11 @@ $quick-search__item--focus-color: #E8F6FB;
 .margin-bottom--none {
     margin-bottom: 0;
 }
-.quick-search__text--no-wrap{
-margin-bottom: 0;
-white-space: nowrap;
-word-wrap: break-word;
-overflow: hidden;
-text-overflow: ellipsis;
+
+.quick-search__text--no-wrap {
+    margin-bottom: 0;
+    white-space: nowrap;
+    word-wrap: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

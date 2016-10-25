@@ -31,6 +31,11 @@ export class QuickSearchModalController {
         });
     }
 
+    hasError() {
+        return this.form.$submitted &&
+            this.form.$invalid;
+    }
+
     $onInit() {
         if (this.searchTerm.length) {
             this.search(this.searchTerm);

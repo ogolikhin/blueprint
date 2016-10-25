@@ -14,6 +14,11 @@ export class QuickSearchController {
         this.modalSize = "full-screen";
     }
 
+    hasError() {
+        return this.form.$submitted &&
+            this.form.$invalid;
+    }
+
     openModal() {
         if (this.form.$invalid) {
             this.$log.warn("invalid search");

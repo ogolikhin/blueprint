@@ -403,7 +403,7 @@ describe("SubArtifactEditorModalOpener test", () => {
         });
 
         describe("getUserTaskEditorDialogSettings", () => {
-            it("throws error is graph is null", () => {
+            it("throws error if graph is null", () => {
                 // arrange
                 const process = TestModels.createDefaultProcessModel();
                 const userTaskShape = <ProcessModels.IUserTaskShape>process.shapes[2];
@@ -422,7 +422,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 expect(error).not.toBeNull();
             });
 
-            it("throws error is graph.viewModel is null", () => {
+            it("throws error if graph.viewModel is null", () => {
                 // arrange
                 const process = TestModels.createDefaultProcessModel();
                 const userTaskShape = <ProcessModels.IUserTaskShape>process.shapes[2];
@@ -528,7 +528,7 @@ describe("SubArtifactEditorModalOpener test", () => {
         });
 
         describe("getSystemTaskDialogModel", () => {
-            it("throws error is graph is null", () => {
+            it("throws error if graph is null", () => {
                 // arrange
                 const process = TestModels.createDefaultProcessModel();
                 const systemTaskShape = <ProcessModels.ISystemTaskShape>process.shapes[3];
@@ -547,7 +547,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 expect(error).not.toBeNull();
             });
 
-            it("throws error is graph.viewModel is null", () => {
+            it("throws error if graph.viewModel is null", () => {
                 // arrange
                 const process = TestModels.createDefaultProcessModel();
                 const systemTaskShape = <ProcessModels.ISystemTaskShape>process.shapes[3];
@@ -654,7 +654,7 @@ describe("SubArtifactEditorModalOpener test", () => {
         });
 
         describe("getDecisionEditorModel", () => {
-            it("throws error is graph is null", () => {
+            it("throws error if graph is null", () => {
                 // arrange
                 const process = TestModels.createUserDecisionForAddBranchTestModel();
                 const userDecisionShape = process.shapes[3];
@@ -673,7 +673,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 expect(error).not.toBeNull();
             });
 
-            it("throws error is graph.viewModel is null", () => {
+            it("throws error if graph.viewModel is null", () => {
                 // arrange
                 const process = TestModels.createUserDecisionForAddBranchTestModel();
                 const userDecisionShape = process.shapes[3];
@@ -778,7 +778,7 @@ describe("SubArtifactEditorModalOpener test", () => {
         });
 
         describe("getUserStoryDialogModel", () => {
-            it("throws error is graph is null", () => {
+            it("throws error if graph is null", () => {
                 // arrange
                 const process = TestModels.createDefaultProcessModel();
                 const userTaskShape = <ProcessModels.IUserTaskShape>process.shapes[2];
@@ -797,7 +797,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 expect(error).not.toBeNull();
             });
 
-            it("throws error is graph.viewModel is null", () => {
+            it("throws error if graph.viewModel is null", () => {
                 // arrange
                 const process = TestModels.createDefaultProcessModel();
                 const userTaskShape = <ProcessModels.IUserTaskShape>process.shapes[2];

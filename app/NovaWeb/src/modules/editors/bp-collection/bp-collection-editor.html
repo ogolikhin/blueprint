@@ -19,9 +19,7 @@
             </div>            
             <div class="properties" ng-class="{'collapsed': isSpecificPropertiesCollapsed}">
                 <div class="heading" ng-click="isSpecificPropertiesCollapsed = !isSpecificPropertiesCollapsed">
-                    {{
-                    $ctrl.specificPropertiesHeading
-                    }}
+                    {{::$root.config.labels['Artifact_Collection_Content_Header']}}
                 </div>
                 <div class="specific-properties content"
                      uib-collapse="isSpecificPropertiesCollapsed"

@@ -1,10 +1,10 @@
-import {UserTask, SystemTask} from "../../diagram/presentation/graph/shapes/";
-import {IModalDialogModel} from "./modal-dialog-model-interface";
+import { UserTask, SystemTask } from "../../diagram/presentation/graph/shapes/";
+import { UserStoryProperties } from "../../diagram/presentation/graph/shapes/user-task";
+import { IModalDialogModel } from "./modal-dialog-model-interface";
 
 export class UserStoryDialogModel implements IModalDialogModel {
-    public clonedUserTask: UserTask;
     public originalUserTask: UserTask;
-    public previousSytemTasks: SystemTask[];
+    public previousSystemTasks: SystemTask[];
     public nextSystemTasks: SystemTask[];
     public artifactId: number;
     public subArtifactId: number;
@@ -12,4 +12,20 @@ export class UserStoryDialogModel implements IModalDialogModel {
     public propertiesMw: any; //TODO correct interface required! 
     public isReadonly: boolean;
     public isHistoricalVersion: boolean;
+
+    public userStoryProperties: UserStoryProperties;
+
+    public get userStoryId(): number {
+        return this.originalUserTask.userStoryId;
+    }
+    public get userTaskLabel(): string {
+        return this.originalUserTask.label;
+    }
+    public get userTaskAction(): string {
+        return this.originalUserTask.action;
+    }
+
+    constructor() {
+        this.userStoryProperties = new UserStoryProperties();
+    }
 }

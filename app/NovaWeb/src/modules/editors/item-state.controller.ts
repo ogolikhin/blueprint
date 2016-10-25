@@ -117,6 +117,7 @@ export class ItemStateController {
 
     public navigateToSubRoute(artifact: IStatefulArtifact) {
         this.setSelectedArtifact(artifact);
+        const params =  {id: artifact.id};
 
         switch (artifact.predefinedType) {
             case Models.ItemTypePredefined.GenericDiagram:
@@ -126,23 +127,23 @@ export class ItemStateController {
             case Models.ItemTypePredefined.UseCaseDiagram:
             case Models.ItemTypePredefined.UseCase:
             case Models.ItemTypePredefined.UIMockup:
-                this.$state.go("main.item.diagram");
+                this.$state.go("main.item.diagram", params);
                 break;
             case Models.ItemTypePredefined.Glossary:
-                this.$state.go("main.item.glossary");
+                this.$state.go("main.item.glossary", params);
                 break;
             case Models.ItemTypePredefined.Project:
             case Models.ItemTypePredefined.CollectionFolder:
-                this.$state.go("main.item.general");
+                this.$state.go("main.item.general", params);
                 break;
             case Models.ItemTypePredefined.ArtifactCollection:
-                this.$state.go("main.item.collection");
+                this.$state.go("main.item.collection", params);
                 break;
             case Models.ItemTypePredefined.Process:
-                this.$state.go("main.item.process");
+                this.$state.go("main.item.process", params);
                 break;
             default:
-                this.$state.go("main.item.details");
+                this.$state.go("main.item.details", params);
         }
     }
 

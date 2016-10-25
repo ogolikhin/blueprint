@@ -3,8 +3,9 @@ import { INavigationService } from "../../../core/navigation";
 
 export interface IBPGotoController {
     showSearch();
-    clearSearch();
+    hideSearch();
     onKeypress($event: KeyboardEvent);
+    onClearInput($event: MouseEvent);
 }
 
 export class BPGotoComponent implements ng.IComponentOptions {
@@ -27,16 +28,34 @@ export class BPGotoController implements ng.IComponentController, IBPGotoControl
     ) {
     }
 
-    public showSearch() {
-        this.$element.addClass("active");
-
+    private focusInputField() {
         const inputField = this.$element.find("input")[0];
         inputField.focus();
     }
 
-    public clearSearch() {
-        this.$element.removeClass("active");
+    private blurInputField() {
+        const inputField = this.$element.find("input")[0];
+        inputField.blur();
+    }
+
+    private clearSearch() {
         this.gotoValue = "";
+        this.focusInputField();
+    }
+
+    public showSearch() {
+        this.$element.addClass("bp-goto--active");
+        this.focusInputField();
+    }
+
+    public hideSearch() {
+        this.$element.removeClass("bp-goto--active");
+        this.blurInputField();
+    }
+
+    public onClearInput($event: MouseEvent) {
+        $event.preventDefault();
+        this.clearSearch();
     }
 
     public onKeypress($event: KeyboardEvent) {
@@ -45,6 +64,7 @@ export class BPGotoController implements ng.IComponentController, IBPGotoControl
             if (!_.isNaN(parsedValue)) {
                 this.navigationService.navigateTo(parsedValue);
                 this.clearSearch();
+                this.hideSearch();
             }
         }
     }

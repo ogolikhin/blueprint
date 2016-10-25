@@ -31,6 +31,9 @@ export class ItemStateController {
         let id = parseInt($state.params["id"], 10);
 
         if (id) {
+            this.clearLockedMessages();
+            this.artifactManager.selection.clearAll();
+            
             const artifact = artifactManager.get(id);
             if (artifact) {
                 artifact.unload();
@@ -74,7 +77,6 @@ export class ItemStateController {
                     const deletedMessage = `Read Only: Deleted by user '${result.deletedByUser.displayName}' on '${localizedDate}'`;
                     this.messageService.addMessage(new Message(MessageType.Lock, deletedMessage));
                 }
-                this.artifactManager.addAsOrphan(statefulArtifact);
                 this.navigateToSubRoute(statefulArtifact);
 
             } else {
@@ -97,8 +99,21 @@ export class ItemStateController {
         return invalidTypes.indexOf(itemType) >= 0;
     }
 
+    private clearLockedMessages() {
+        this.messageService.messages.forEach(message => {
+            if (message.messageType === MessageType.Lock) {
+                this.messageService.deleteMessageById(message.id);
+            }
+        });
+    }
+
+    private setSelectedArtifact(artifact: IStatefulArtifact) {
+        this.artifactManager.selection.setExplorerArtifact(artifact);
+        this.artifactManager.selection.setArtifact(artifact);
+    }
+
     public navigateToSubRoute(artifact: IStatefulArtifact) {
-        const params = { context: artifact.id };
+        this.setSelectedArtifact(artifact);
 
         switch (artifact.predefinedType) {
             case Models.ItemTypePredefined.GenericDiagram:
@@ -108,23 +123,23 @@ export class ItemStateController {
             case Models.ItemTypePredefined.UseCaseDiagram:
             case Models.ItemTypePredefined.UseCase:
             case Models.ItemTypePredefined.UIMockup:
-                this.$state.go("main.item.diagram", params);
+                this.$state.go("main.item.diagram");
                 break;
             case Models.ItemTypePredefined.Glossary:
-                this.$state.go("main.item.glossary", params);
+                this.$state.go("main.item.glossary");
                 break;
             case Models.ItemTypePredefined.Project:
             case Models.ItemTypePredefined.CollectionFolder:
-                this.$state.go("main.item.general", params);
+                this.$state.go("main.item.general");
                 break;
-            case Models.ItemTypePredefined.ArtifactCollection:
-                this.$state.go("main.item.collection", params);
+            case Models.ItemTypePredefined.ArtifactCollection:            
+                this.$state.go("main.item.collection");
                 break;
             case Models.ItemTypePredefined.Process:
-                this.$state.go("main.item.process", params);
+                this.$state.go("main.item.process");
                 break;
             default:
-                this.$state.go("main.item.details", params);
+                this.$state.go("main.item.details");
         }
     }
 }

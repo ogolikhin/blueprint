@@ -24,40 +24,22 @@ export class ArtifactRoutes {
             })
 
             .state("main.item.process", {
-                template: require("./bp-process/process.state.html"),
-                controller: BaseEditorStateController,
-                controllerAs: "$content",
-                params: { context: null }
+                template: require("./bp-process/process.state.html")
             })
             .state("main.item.details", {
-                template: require("./bp-artifact/details.state.html"),
-                controller: BaseEditorStateController,
-                controllerAs: "$content",
-                params: { context: null }
+                template: require("./bp-artifact/details.state.html")
             })
             .state("main.item.general", {
-                template: require("./bp-artifact/general.state.html"),
-                controller: BaseEditorStateController,
-                controllerAs: "$content",
-                params: { context: null }
+                template: require("./bp-artifact/general.state.html")
             })
             .state("main.item.glossary", {
-                template: require("./bp-glossary/glossary.state.html"),
-                controller: BaseEditorStateController,
-                controllerAs: "$content",
-                params: { context: null }
+                template: require("./bp-glossary/glossary.state.html")
             })
             .state("main.item.collection", {
-                template: require("./bp-collection/collection.state.html"),
-                controller: BaseEditorStateController,
-                controllerAs: "$content",
-                params: { context: null }
+                template: require("./bp-collection/collection.state.html")
             })
             .state("main.item.diagram", {
-                template: require("./bp-diagram/diagram.state.html"),
-                controller: BaseEditorStateController,
-                controllerAs: "$content",
-                params: { context: null }
+                template: require("./bp-diagram/diagram.state.html")
             });
     }
 }

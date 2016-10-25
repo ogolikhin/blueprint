@@ -1,5 +1,6 @@
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
 
+
 export class QuickSearchController {
     static $inject = ["$log", "$uibModal", "quickSearchService"];
     animationsEnabled: boolean;
@@ -22,7 +23,7 @@ export class QuickSearchController {
     openModal() {
         if (this.form.$invalid) {
             this.$log.warn("invalid search");
-            return false;
+            return null;
         }
         const settings = <ModalSettings>{
             animation: this.animationsEnabled,
@@ -33,7 +34,7 @@ export class QuickSearchController {
             size: this.modalSize
         };
 
-        this.modalInstance = this.$uibModal.open(settings);
+        return this.modalInstance = this.$uibModal.open(settings);
     }
 
 }

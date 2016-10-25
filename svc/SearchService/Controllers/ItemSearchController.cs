@@ -49,12 +49,12 @@ namespace SearchService.Controllers
         /// /// <response code="500">Service Not Available.</response>
         [HttpPost, NoCache, SessionRequired]
         [Route("fulltext")]
-        public async Task<FullTextSearchResultSet> SearchFullText([FromBody] ItemSearchCriteria searchCriteria, int? page = null, int? pageSize = null)
+        public async Task<FullTextSearchResultSet> SearchFullText([FromBody] FullTextSearchCriteria searchCriteria, int? page = null, int? pageSize = null)
         {
             // get the UserId from the session
             var userId = ValidateAndExtractUserId();
 
-            ValidateCriteria(searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
+            ValidateFullTextCriteria(searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
 
             int searchPageSize = GetPageSize(_searchConfigurationProvider, pageSize);
 
@@ -78,12 +78,12 @@ namespace SearchService.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost, NoCache, SessionRequired]
         [Route("fulltextmetadata")]
-        public async Task<MetaDataSearchResultSet> FullTextMetaData([FromBody] ItemSearchCriteria searchCriteria, int? pageSize = null)
+        public async Task<MetaDataSearchResultSet> FullTextMetaData([FromBody] FullTextSearchCriteria searchCriteria, int? pageSize = null)
         {
             // get the UserId from the session
             int userId = ValidateAndExtractUserId();
 
-            ValidateCriteria(searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
+            ValidateFullTextCriteria(searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
 
             int searchPageSize = GetPageSize(_searchConfigurationProvider, pageSize);
 
@@ -111,12 +111,12 @@ namespace SearchService.Controllers
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost, NoCache, SessionRequired]
         [Route("name")]
-        public async Task<ItemNameSearchResultSet> SearchName([FromBody] ItemSearchCriteria searchCriteria, int? startOffset = null, int? pageSize = null)
+        public async Task<ItemNameSearchResultSet> SearchName([FromBody] ItemNameSearchCriteria searchCriteria, int? startOffset = null, int? pageSize = null)
         {
             // get the UserId from the session
             var userId = ValidateAndExtractUserId();
 
-            ValidateCriteria(searchCriteria);
+            ValidateItemNameCriteria(searchCriteria);
 
             int searchPageSize = GetPageSize(_searchConfigurationProvider, pageSize, MaxResultCount);
 
@@ -149,15 +149,28 @@ namespace SearchService.Controllers
             return ((Session)sessionValue).UserId;
         }
 
-        private void ValidateCriteria(ItemSearchCriteria searchCriteria, int minSearchQueryLimit = 1)
+        private void ValidateItemNameCriteria(ItemNameSearchCriteria searchCriteria, int minSearchQueryLimit = 1)
         {
-            if (!ModelState.IsValid ||
-                string.IsNullOrWhiteSpace(searchCriteria?.Query) ||
-                searchCriteria.Query.Trim().Length < minSearchQueryLimit ||
+            if (IsCriteriaQueryInvalid(searchCriteria, minSearchQueryLimit) || 
                 !searchCriteria.ProjectIds.Any())
             {
                 throw new BadRequestException("Please provide correct search criteria", ErrorCodes.IncorrectSearchCriteria);
             }
+        }
+
+        private void ValidateFullTextCriteria(FullTextSearchCriteria searchCriteria, int minSearchQueryLimit = 1)
+        {
+            if (IsCriteriaQueryInvalid(searchCriteria, minSearchQueryLimit) || !searchCriteria.ProjectIds.Any())
+            {
+                throw new BadRequestException("Please provide correct search criteria", ErrorCodes.IncorrectSearchCriteria);
+            }
+        }
+
+        private bool IsCriteriaQueryInvalid(SearchCriteria searchCriteria, int minSearchQueryLimit = 1)
+        {
+            return !ModelState.IsValid ||
+                   string.IsNullOrWhiteSpace(searchCriteria?.Query) ||
+                   searchCriteria.Query.Trim().Length < minSearchQueryLimit;
         }
 
         private int GetPageSize(ISearchConfigurationProvider searchConfigurationProvider, int? requestedPageSize, int maxPageSize = Int32.MaxValue)

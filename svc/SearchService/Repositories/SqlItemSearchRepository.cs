@@ -51,7 +51,7 @@ namespace SearchService.Repositories
         /// <param name="page">Page Number</param>
         /// <param name="pageSize">Page Size</param>
         /// <returns></returns>
-        public async Task<FullTextSearchResultSet> SearchFullText(int userId, ItemSearchCriteria searchCriteria, int page, int pageSize)
+        public async Task<FullTextSearchResultSet> SearchFullText(int userId, FullTextSearchCriteria searchCriteria, int page, int pageSize)
         {
             string sql;
             var param = new DynamicParameters();
@@ -91,7 +91,7 @@ namespace SearchService.Repositories
         /// <param name="userId"></param>
         /// <param name="searchCriteria">SearchCriteria object</param>
         /// <returns>FullTextSearchMetaDataResult</returns>
-        public async Task<MetaDataSearchResultSet> FullTextMetaData(int userId, ItemSearchCriteria searchCriteria)
+        public async Task<MetaDataSearchResultSet> FullTextMetaData(int userId, FullTextSearchCriteria searchCriteria)
         {
             string sql;
             var param = new DynamicParameters();
@@ -128,29 +128,20 @@ namespace SearchService.Repositories
         /// <param name="startOffset">Search start offset</param>
         /// <param name="pageSize">Page Size</param>
         /// <returns></returns>
-        public async Task<ItemNameSearchResultSet> SearchName(int userId, ItemSearchCriteria searchCriteria, int startOffset, int pageSize)
+        public async Task<ItemNameSearchResultSet> SearchName(int userId, ItemNameSearchCriteria searchCriteria, int startOffset, int pageSize)
         {
-            string sql;
             var param = new DynamicParameters();
             param.Add("@userId", userId);
             param.Add("@query", searchCriteria.Query);
             param.Add("@projectIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ProjectIds, "Int32Collection", "Int32Value"));
-            param.Add("@primitiveItemTypePredefineds", PrimitiveItemTypePredefineds);
+            if (searchCriteria.PredefinedTypeIds != null && searchCriteria.PredefinedTypeIds.Any())
+                param.Add("@predefinedTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.PredefinedTypeIds, "Int32Collection", "Int32Value"));
+            param.Add("@excludedPredefineds", PrimitiveItemTypePredefineds);
             param.Add("@startOffset", startOffset);
             param.Add("@pageSize", pageSize);
             param.Add("@maxSearchableValueStringSize", _searchConfigurationProvider.MaxSearchableValueStringSize);
 
-            if (searchCriteria.ItemTypeIds?.ToArray().Length > 0)
-            {
-                param.Add("@itemTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ItemTypeIds, "Int32Collection", "Int32Value"));
-                sql = "SearchItemNameByItemTypes";
-            }
-            else
-            {
-                sql = "SearchItemName";
-            }
-
-            var items = (await ConnectionWrapper.QueryAsync<ItemSearchResult>(sql, param, commandType: CommandType.StoredProcedure)).ToList();
+            var items = (await ConnectionWrapper.QueryAsync<ItemSearchResult>("SearchItemNameByItemTypes", param, commandType: CommandType.StoredProcedure)).ToList();
             return new ItemNameSearchResultSet
             {
                 Items = items,

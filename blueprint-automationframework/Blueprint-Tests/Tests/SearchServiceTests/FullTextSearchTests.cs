@@ -58,13 +58,15 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with search term with page parameter value
             FullTextSearchResult fullTextSearchResult = null;
-            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria, page: page), "POST {0} call failed when using search term {1} with page parameter = {2}!", FULLTEXTSEARCH_PATH, searchCriteria.Query, page);
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria, page: page),
+                "POST {0} call failed when using search term {1} with page parameter = {2}!", FULLTEXTSEARCH_PATH, searchCriteria.Query, page);
 
             // Validation: Verify that searchResult uses poptional page value and and DefaultPageSize
             FullTextSearchResultValidation(searchResult: fullTextSearchResult, page: page);
         }
 
         [TestCase(3)]
+        [TestCase(72)]
         [TestRail(181023)]
         [Description("Searching with optional pageSize parameter. Execute Search - Must return SearchResult that uses the default page value (FirstPage) and the requested pageSize value.")]
         public void FullTextSearch_SearchWithPageSizeOnly_VerifySearchResult(int pageSize)
@@ -75,13 +77,15 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with search term with pageSize parameter value
             FullTextSearchResult fullTextSearchResult = null;
-            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria, pageSize: pageSize), "POST {0} call failed when using search term {1} with pageSize parameter = {2}!", FULLTEXTSEARCH_PATH, searchCriteria.Query, pageSize);
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria, pageSize: pageSize),
+                "POST {0} call failed when using search term {1} with pageSize parameter = {2}!", FULLTEXTSEARCH_PATH, searchCriteria.Query, pageSize);
 
             // Validation: Verify that searchResult uses FirstPage and optional pageSize value
             FullTextSearchResultValidation(searchResult: fullTextSearchResult, pageSize: pageSize);
         }
 
-        [TestCase(4,5)]
+        [TestCase(4, 5)]
+        [TestCase(12, 38)]
         [TestRail(166156)]
         [Description("Searching with both optional page and pageSize parameters. Execute Search - Must return SearchResult that uses requested page and pageSize values.")]
         public void FullTextSearch_SearchWithBothPageAndPageSize_VerifySearchResult(int page, int pageSize)
@@ -92,7 +96,8 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with search term with both page and pageSize parameter values
             FullTextSearchResult fullTextSearchResult = null;
-            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria, page: page, pageSize: pageSize), "POST {0} call failed when using search term {1} with page paramter = {2} and pageSize parameter = {3}!", FULLTEXTSEARCH_PATH, searchCriteria.Query, page, pageSize);
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria, page: page, pageSize: pageSize),
+                "POST {0} call failed when using search term {1} with page paramter = {2} and pageSize parameter = {3}!", FULLTEXTSEARCH_PATH, searchCriteria.Query, page, pageSize);
 
             // Validation: Verify that searchResult uses optional page and pageSize values
             FullTextSearchResultValidation(searchResult: fullTextSearchResult, page: page, pageSize: pageSize);
@@ -109,13 +114,15 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with search term
             FullTextSearchResult fullTextSearchResult = null;
-            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria), "POST {0} call failed when using search term {1}!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria),
+                "POST {0} call failed when using search term {1}!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
 
             // Validation: Verify that searchResult uses default page value (FirstPage) and the Default pageSize value
             FullTextSearchResultValidation(searchResult: fullTextSearchResult, page: DEFAULT_PAGE_VALUE);
         }
 
         [TestCase(-3)]
+        [TestCase(int.MinValue)]
         [TestRail(181024)]
         [Description("Searching with invalid page value. Execute Search - Must return SearchResult that uses default page value (FirstPage).")]
         public void FullTextSearch_SearchWithInvalidPage_VerifySearchResultUsesFirstPage(int page)
@@ -126,13 +133,15 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with search term with invalid page parameter value
             FullTextSearchResult fullTextSearchResult = null;
-            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria, page: page), "POST {0} call failed when using search term {1} with invalid page paramter = {2}!", FULLTEXTSEARCH_PATH, searchCriteria.Query, page);
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria, page: page),
+                "POST {0} call failed when using search term {1} with invalid page paramter = {2}!", FULLTEXTSEARCH_PATH, searchCriteria.Query, page);
 
             // Validation: Verify that searchResult uses default page value (FirstPage)
             FullTextSearchResultValidation(searchResult: fullTextSearchResult, page: DEFAULT_PAGE_VALUE);
         }
 
         [TestCase(-10)]
+        [TestCase(int.MinValue)]
         [TestRail(181025)]
         [Description("Searching with invalid pageSize value. Execute Search - Must return SearchResult that uses default pageSize.")]
         public void FullTextSearch_SearchWithInvalidPageSize_VerifySearchResultUsesDefaultPageSize(int pageSize)
@@ -143,13 +152,15 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with search term with invalid pageSize parameter value
             FullTextSearchResult fullTextSearchResult = null;
-            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria, pageSize: pageSize), "POST {0} call failed when using search term {1} with invalid pageSize parameter = {2}!", FULLTEXTSEARCH_PATH, searchCriteria.Query, pageSize);
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria, pageSize: pageSize),
+                "POST {0} call failed when using search term {1} with invalid pageSize parameter = {2}!", FULLTEXTSEARCH_PATH, searchCriteria.Query, pageSize);
 
             // Validation: Verify that searchResult uses default PageSize value
             FullTextSearchResultValidation(searchResult: fullTextSearchResult, pageSize: DEFAULT_PAGESIZE_VALUE);
         }
 
         [TestCase(-12, -100)]
+        [TestCase(int.MinValue, int.MinValue)]
         [TestRail(181021)]
         [Description("Searching with both invalid page and pageSize values. Execute Search - Must return SearchResult that uses default page value (FirstPage) and default pageSize.")]
         public void FullTextSearch_SearchWithInvalidPageAndPageSize_VerifySearchResultUsesFirstPageAndDefaultPageSize(int page, int pageSize)
@@ -160,7 +171,8 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with search term with invalid page and invalid pageSize parameter values
             FullTextSearchResult fullTextSearchResult = null;
-            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria, page: page, pageSize: pageSize), "POST {0} call failed when using search term {1} with invalid page parameter = {2} and invalid pageSize parameter = {3}!", FULLTEXTSEARCH_PATH, searchCriteria.Query, page, pageSize);
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria, page: page, pageSize: pageSize),
+                "POST {0} call failed when using search term {1} with invalid page parameter = {2} and invalid pageSize parameter = {3}!", FULLTEXTSEARCH_PATH, searchCriteria.Query, page, pageSize);
 
             // Validation: Verify that searchResult uses default page value (FirstPage) and default PageSize value
             FullTextSearchResultValidation(searchResult: fullTextSearchResult, page: DEFAULT_PAGE_VALUE, pageSize: DEFAULT_PAGESIZE_VALUE);
@@ -182,7 +194,8 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with the search term using the same user
             FullTextSearchResult fullTextSearchResult = null;
-            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria), "POST {0} call failed when using search term {1} which matches with saved-only artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria),
+                "POST {0} call failed when using search term {1} which matches with saved-only artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
 
             // Validation: Verify that searchResult contains empty list of FullTextSearchItems 
             FullTextSearchResultValidation(searchResult: fullTextSearchResult);
@@ -204,7 +217,8 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with search term using the different user
             FullTextSearchResult fullTextSearchResult = null;
-            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_userSecond, searchCriteria: searchCriteria), "POST {0} call failed when using search term {1} which matches with saved-only artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_userSecond, searchCriteria: searchCriteria),
+                "POST {0} call failed when using search term {1} which matches with saved-only artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
 
             // Validation: Verify that searchResult contains empty list of FullTextSearchItems 
             FullTextSearchResultValidation(searchResult: fullTextSearchResult);
@@ -225,7 +239,8 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with search term that matches published artifact(s) description
             FullTextSearchResult fullTextSearchResult = null;
-            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria, pageSize: customSearchPageSize), "POST {0} call failed when using search term {1} which matches with published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria, pageSize: customSearchPageSize),
+                "POST {0} call failed when using search term {1} which matches with published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
 
             // Validation: Verify that searchResult contains all published artifacts
             FullTextSearchResultValidation(searchResult: fullTextSearchResult, artifactsToBeFound: _publishedArtifacts, pageSize: customSearchPageSize);
@@ -250,7 +265,8 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with the search term using the same user
             FullTextSearchResult fullTextSearchResult = null;
-            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria), "POST {0} call failed when using search term {1} which matches with deleted but not published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria),
+                "POST {0} call failed when using search term {1} which matches with deleted but not published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
 
             // Validation: Verify that searchResult contains empty list of FullTextSearchItems
             FullTextSearchResultValidation(searchResult: fullTextSearchResult);
@@ -278,7 +294,8 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with the search term using the different user
             FullTextSearchResult fullTextSearchResult = null;
-            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_userSecond, searchCriteria: searchCriteria), "POST {0} call failed when using search term {1} which matches with deleted but not published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_userSecond, searchCriteria: searchCriteria),
+                "POST {0} call failed when using search term {1} which matches with deleted but not published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
 
             // Validation: Verify that searchResult contains list of FullTextSearchItems
             FullTextSearchResultValidation(searchResult: fullTextSearchResult, artifactsToBeFound: _publishedArtifacts, pageSize: customSearchPageSize);
@@ -304,7 +321,8 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with the search term using the same user
             FullTextSearchResult fullTextSearchResult = null;
-            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria), "POST {0} call failed when using search term {1} which matches with deleted and published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria),
+                "POST {0} call failed when using search term {1} which matches with deleted and published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
 
             // Validation: Verify that searchResult contains empty list of FullTextSearchItems
             FullTextSearchResultValidation(searchResult: fullTextSearchResult);
@@ -330,7 +348,8 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with the search term using the different user
             FullTextSearchResult fullTextSearchResult = null;
-            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_userSecond, searchCriteria: searchCriteria), "POST {0} call failed when using search term {1} which matches with deleted and published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_userSecond, searchCriteria: searchCriteria),
+                "POST {0} call failed when using search term {1} which matches with deleted and published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
 
             // Validation: Verify that searchResult contains empty list of FullTextSearchItems
             FullTextSearchResultValidation(searchResult: fullTextSearchResult);
@@ -351,7 +370,8 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with search term that matches published artifact(s) name
             FullTextSearchResult fullTextSearchResult = null;
-            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(userWithNoPermissionOnAnyProject, searchCriteria: searchCriteria), "POST {0} call failed when using search term {1} which matches with published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(userWithNoPermissionOnAnyProject, searchCriteria: searchCriteria),
+                "POST {0} call failed when using search term {1} which matches with published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
 
             // Validation: Verify that searchResult contains empty list of FullTextSearchItems
             FullTextSearchResultValidation(searchResult: fullTextSearchResult);
@@ -390,7 +410,8 @@ namespace SearchServiceTests
             // Execute: Execute FullTextSearch with the search term using the user with the specific permission on project(s)
             var userWithSelectiveProjectPermission = Helper.CreateUserWithProjectRolePermissions(projectRole, projects: selectedProjects);
             FullTextSearchResult fullTextSearchResult = null;
-            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(userWithSelectiveProjectPermission, searchCriteria: searchCriteria, pageSize: customSearchPageSize), "POST {0} call failed when using search term {1} which matches with published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(userWithSelectiveProjectPermission, searchCriteria: searchCriteria, pageSize: customSearchPageSize),
+                "POST {0} call failed when using search term {1} which matches with published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
 
             // Validation: Verify that searchResult contains list of FullTextSearchItems depending on permission for project(s)
             FullTextSearchResultValidation(searchResult: fullTextSearchResult, artifactsToBeFound: publishedArtifactsForSelectedProjects, pageSize: customSearchPageSize);
@@ -418,7 +439,8 @@ namespace SearchServiceTests
             foreach (var publishedArtifact in publishedArtifacts.ConvertAll(o => (IArtifact)o))
             {
                 publishedArtifact.Lock(_user);
-                SearchServiceTestHelper.UpdateArtifactProperty(Helper, _user, _projects.Find(p=>p.Id.Equals(publishedArtifact.ProjectId)), publishedArtifact, publishedArtifact.BaseArtifactType, "Description", newSearchTerm);
+                SearchServiceTestHelper.UpdateArtifactProperty(
+                    Helper, _user, _projects.Find(p=>p.Id.Equals(publishedArtifact.ProjectId)), publishedArtifact, publishedArtifact.BaseArtifactType, "Description", newSearchTerm);
                 publishedArtifact.Publish(_user);
             }
 
@@ -427,7 +449,8 @@ namespace SearchServiceTests
 
             // Execute: Execute FullTextSearch with the old search term
             FullTextSearchResult fullTextSearchResult = null;
-            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_userSecond, searchCriteria), "POST {0} call failed when using search term {1} which matches with older version of artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_userSecond, searchCriteria),
+                "POST {0} call failed when using search term {1} which matches with older version of artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
 
             // Validation: Verify that searchResult contains empty list of FullTextSearchItems
             FullTextSearchResultValidation(searchResult: fullTextSearchResult);
@@ -489,7 +512,8 @@ namespace SearchServiceTests
             var customSearchPageSize = _publishedArtifacts.Count();
 
             // Execute: Execute FullTextSearch with search term that matches published artifact(s) description
-            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria, pageSize: customSearchPageSize), "POST {0} call failed when using search term {1} which matches with published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria, pageSize: customSearchPageSize),
+                "POST {0} call failed when using search term {1} which matches with published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
 
             // Validation: Verify that searchResult contains published artifacts
             FullTextSearchResultValidation(searchResult: fullTextSearchResult, artifactsToBeFound: _publishedArtifacts, pageSize: customSearchPageSize);
@@ -502,7 +526,9 @@ namespace SearchServiceTests
             for (int i = 0; i < fullTextSearchResult.Items.Count(); i++ )
             {
                 Assert.That(fullTextSearchResult.Items.Cast<FullTextSearchItem>().ToList()[i].ArtifactId.
-                    Equals(LastEditedOnOrderedArtifacts[i].Id), "artfiact with ID {0} was expected from the returned FullTextSearchItems but artifact with ID {1} is found on data row {2}.", LastEditedOnOrderedArtifacts[i].Id, fullTextSearchResult.Items.Cast<FullTextSearchItem>().ToList()[i].ArtifactId, i);
+                    Equals(LastEditedOnOrderedArtifacts[i].Id),
+                    "artfiact with ID {0} was expected from the returned FullTextSearchItems but artifact with ID {1} is found on data row {2}.",
+                    LastEditedOnOrderedArtifacts[i].Id, fullTextSearchResult.Items.Cast<FullTextSearchItem>().ToList()[i].ArtifactId, i);
             }
         }
 
@@ -519,12 +545,14 @@ namespace SearchServiceTests
             var invalidSearchCriteria = new FullTextSearchCriteria();
 
             // Execute: Execute FullTextSearch with invalid Search criteria
-            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.SearchService.FullTextSearch(_user, searchCriteria: invalidSearchCriteria), "POST {0} call should exit with 400 BadRequestException when using invalid search criteria!", FULLTEXTSEARCH_PATH);
+            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.SearchService.FullTextSearch(_user, searchCriteria: invalidSearchCriteria),
+                "POST {0} call should exit with 400 BadRequestException when using invalid search criteria!", FULLTEXTSEARCH_PATH);
 
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
 
             // Validation: Exception should contain proper errorCode in the response content.
-            Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.IncorrectSearchCriteria), "POST {0} call with invalid searchCriteria should return {1} errorCode but {2} is returned", FULLTEXTSEARCH_PATH, ErrorCodes.IncorrectSearchCriteria, serviceErrorMessage.ErrorCode);
+            Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.IncorrectSearchCriteria),
+                "POST {0} call with invalid searchCriteria should return {1} errorCode but {2} is returned", FULLTEXTSEARCH_PATH, ErrorCodes.IncorrectSearchCriteria, serviceErrorMessage.ErrorCode);
         }
 
         [TestCase]
@@ -537,12 +565,14 @@ namespace SearchServiceTests
             var lessThanMinimumSearchTermSearchCriteria = new FullTextSearchCriteria("ox", selectedProjectIds);
 
             // Execute: Execute FullTextSearch with the search term less than minimum size
-            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.SearchService.FullTextSearch(_user, lessThanMinimumSearchTermSearchCriteria), "POST {0} call shuold exit with 400 BadRequestException when using less than minimum length search term!", FULLTEXTSEARCH_PATH);
+            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.SearchService.FullTextSearch(_user, lessThanMinimumSearchTermSearchCriteria),
+                "POST {0} call shuold exit with 400 BadRequestException when using less than minimum length search term!", FULLTEXTSEARCH_PATH);
 
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
 
             // Validation: Exception should contain proper errorCode in the  response content.
-            Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.IncorrectSearchCriteria), "POST {0} call with the searchCriteria less than minimum length search term should return {1} errorCode but {2} is returned", FULLTEXTSEARCH_PATH, ErrorCodes.IncorrectSearchCriteria, serviceErrorMessage.ErrorCode);
+            Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.IncorrectSearchCriteria),
+                "POST {0} call with the searchCriteria less than minimum length search term should return {1} errorCode but {2} is returned", FULLTEXTSEARCH_PATH, ErrorCodes.IncorrectSearchCriteria, serviceErrorMessage.ErrorCode);
         }
 
         #endregion 400 Bad Request Tests
@@ -560,7 +590,8 @@ namespace SearchServiceTests
             IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
             // Execute: Execute FullTextSearch with invalid session
-            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.SearchService.FullTextSearch(userWithBadToken, searchCriteria), "POST {0} call should exit with 401 UnauthorizedException when using invalid session!", FULLTEXTSEARCH_PATH);
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.SearchService.FullTextSearch(userWithBadToken, searchCriteria),
+                "POST {0} call should exit with 401 UnauthorizedException when using invalid session!", FULLTEXTSEARCH_PATH);
 
             // Validation: Exception should contain expected message.
             const string expectedExceptionMessage = "Token is invalid";

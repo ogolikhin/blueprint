@@ -147,7 +147,14 @@ export class ItemStateController {
     }
 
     protected onArtifactError = (error: IAppicationError) => {
-        if (!error) {
+        if (error.statusCode === HttpStatusCode.NotFound) {
+            const artifact = this.artifactManager.selection.getArtifact();
+            this.navigationService.navigateToMain().finally(() => {
+                if (artifact) {
+                    this.artifactManager.remove(artifact.id);
+                    this.navigationService.navigateTo(artifact.id);
+                }
+            });
             return;
         }
         if (error.statusCode === HttpStatusCode.Forbidden || 

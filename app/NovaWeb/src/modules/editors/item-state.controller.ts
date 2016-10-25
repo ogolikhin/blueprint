@@ -33,8 +33,7 @@ export class ItemStateController {
 
         if (id) {
             this.clearLockedMessages();
-            this.artifactManager.selection.clearAll();
-            
+
             const artifact = artifactManager.get(id);
             if (artifact) {
                 artifact.unload();
@@ -109,8 +108,11 @@ export class ItemStateController {
     }
 
     private setSelectedArtifact(artifact: IStatefulArtifact) {
+        
         this.artifactManager.selection.setExplorerArtifact(artifact);
         this.artifactManager.selection.setArtifact(artifact);
+        this.artifactManager.selection.getArtifact().errorObservable().subscribeOnNext(this.onArtifactError);
+        
     }
 
     public navigateToSubRoute(artifact: IStatefulArtifact) {
@@ -145,6 +147,9 @@ export class ItemStateController {
     }
 
     protected onArtifactError = (error: IAppicationError) => {
+        if (!error) {
+            return;
+        }
         if (error.statusCode === HttpStatusCode.Forbidden || 
             error.statusCode === HttpStatusCode.ServerError ||
             error.statusCode === HttpStatusCode.Unauthorized

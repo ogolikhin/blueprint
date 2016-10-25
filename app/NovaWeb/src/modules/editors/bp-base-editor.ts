@@ -22,7 +22,7 @@ export class BpBaseEditor {
         this.isLoading = true;
         this.artifact = this.artifactManager.selection.getArtifact();
         const selectedArtifactObserver = this.artifactManager.selection.currentlySelectedArtifactObservable
-            .subscribe(this.onArtifactChanged, this.onArtifactError);
+            .subscribeOnNext(this.onArtifactChanged);
 
         this.subscribers.push(selectedArtifactObserver);
     }

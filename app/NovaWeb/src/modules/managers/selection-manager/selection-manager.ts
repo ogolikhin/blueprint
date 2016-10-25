@@ -36,12 +36,11 @@ export class SelectionManager implements ISelectionManager {
     
     private selectionSubject: Rx.BehaviorSubject<ISelection>;
     private explorerArtifactSelectionSubject: Rx.BehaviorSubject<IStatefulArtifact>;
-    private editorArtifact: IStatefulArtifact;
-    private errorObserver: Rx.IDisposable;
+
     constructor(private navigationService: INavigationService) {
         const selection = <ISelection>{
-            artifact: null,
-            subArtifact: null
+            artifact: undefined,
+            subArtifact: undefined
         };
         this.selectionSubject = new Rx.BehaviorSubject<ISelection>(selection);
         this.explorerArtifactSelectionSubject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
@@ -76,7 +75,7 @@ export class SelectionManager implements ISelectionManager {
      */
     public get currentlySelectedArtifactObservable() {
        return this.selectionSubject
-           .filter(selection => selection != null && selection.artifact != null)
+           .filter(selection => !!(selection && selection.artifact))
            .flatMap(selection => selection.artifact.getObservable())
            .asObservable();
    }
@@ -86,25 +85,15 @@ export class SelectionManager implements ISelectionManager {
     }
 
     public getArtifact(): IStatefulArtifact {
-        return this.editorArtifact;
+        return this.selectionSubject.getValue().artifact;
     }
 
     public setArtifact(artifact: IStatefulArtifact) {
+        
         const selection = <ISelection>{
             artifact: artifact,
-            subArtifact: null
+            subArtifact: undefined
         };
-
-        if (artifact) {
-            if (!this.editorArtifact || this.editorArtifact.id !== artifact.id) {
-                if (this.errorObserver) {
-                    this.errorObserver.dispose();
-                }
-                this.errorObserver = artifact.errorObservable().subscribeOnNext(this.onArtifactError);        
-            }
-        }
-
-        this.editorArtifact = artifact;
 
         this.setSelectionSubject(selection);
     }
@@ -137,19 +126,19 @@ export class SelectionManager implements ISelectionManager {
     }
 
     public clearAll() {
-        const selection = <ISelection>{
-            artifact: null,
-            subArtifact: null
+        const emptyselection = <ISelection>{
+            artifact: undefined,
+            subArtifact: undefined
         };
-        this.setExplorerArtifact(null);
-        this.setSelectionSubject(selection);
+        this.setExplorerArtifact(undefined);
+        this.setSelectionSubject(emptyselection);
     }
 
     public clearSubArtifact() {
         const val = this.selectionSubject.getValue();
         const selection = <ISelection>{
             artifact: val.artifact,
-            subArtifact: null
+            subArtifact: undefined
         };
 
         this.setSelectionSubject(selection);
@@ -159,17 +148,21 @@ export class SelectionManager implements ISelectionManager {
         return item ? item.id : -1;
     }
 
+
+    private unsubscribe() {
+        const selection = this.selectionSubject.getValue();
+        if (selection && selection.artifact) {
+            selection.artifact.unsubscribe();
+        }
+        if (selection && selection.subArtifact) {
+            selection.subArtifact.unsubscribe();
+        }
+    } 
+
     private setSelectionSubject(selection: ISelection) {
+        this.unsubscribe();
         this.selectionSubject.onNext(selection);
     }
 
-    private onArtifactError = (error: IAppicationError) => {
-        if (error.statusCode === HttpStatusCode.Forbidden || 
-            error.statusCode === HttpStatusCode.ServerError ||
-            error.statusCode === HttpStatusCode.Unauthorized
-            ) {
-            this.navigationService.navigateToMain();
-        } 
-    }
     
 }

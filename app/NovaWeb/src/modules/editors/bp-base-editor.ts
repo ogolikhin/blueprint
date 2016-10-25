@@ -17,25 +17,13 @@ export class BpBaseEditor {
     }
 
     public $onInit() {
-//fixme: empty methods should be removed
-    }
-
-    public $onChanges(obj: any) {
         this.isDestroyed = false;
-        this.artifactManager.get(obj.context.currentValue).then((artifact) => {
-            if (artifact) {
-                this.isLoading = true;
-                this.artifact = artifact;
-                //TODO come up with better way to fix bug in use case diagram when user selects actor/ use case
-                this.artifactManager.selection.setExplorerArtifact(this.artifact);
-                this.artifactManager.selection.setArtifact(this.artifact);
+        this.isLoading = true;
+        this.artifact = this.artifactManager.selection.getArtifact();
+        const selectedArtifactObserver = this.artifactManager.selection.currentlySelectedArtifactObservable
+            .subscribe(this.onArtifactChanged, this.onArtifactError);
 
-                const artifactObserver = artifact.getObservable()
-                    .subscribe(this.onArtifactChanged, this.onArtifactError);
-
-                this.subscribers = [artifactObserver];
-            }
-        });
+        this.subscribers.push(selectedArtifactObserver);
     }
 
     public $onDestroy() {
@@ -43,7 +31,6 @@ export class BpBaseEditor {
         this.subscribers.forEach(subscriber => {
             subscriber.dispose();
         });
-        this.artifactManager.selection.clearAll();
         delete this.subscribers;
         this.isDestroyed = true;
     }
@@ -59,5 +46,4 @@ export class BpBaseEditor {
     public onArtifactReady() {
         this.isLoading = false;
     }
-
 }

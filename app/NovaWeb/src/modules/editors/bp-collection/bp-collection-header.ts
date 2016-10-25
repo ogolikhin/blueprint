@@ -12,10 +12,6 @@ import {RapidReviewAction, AddCollectionArtifactAction} from "./actions";
 export class BpCollectionHeader implements ng.IComponentOptions {
     public template: string = require("../../main/components/bp-artifact-info/bp-artifact-info.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BpCollectionHeaderController;
-    public transclude: boolean = true;
-    public bindings: any = {
-        context: "<"
-    };
 }
 
 export class BpCollectionHeaderController extends BpArtifactInfoController {

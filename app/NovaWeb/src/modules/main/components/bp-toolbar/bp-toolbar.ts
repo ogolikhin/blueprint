@@ -181,6 +181,14 @@ class BPToolbarController implements IBPToolbarController {
             //perform publish all
             this.publishService.publishAll()
             .then(() => {
+                //remove lock on artifacts in openned projects
+                data.artifacts.forEach((a) => {
+                    let foundArtifact = this.projectManager.getArtifact(a.id);
+                    if (foundArtifact) {
+                        foundArtifact.artifactState.unlock();
+                    }
+                });
+               
                 this.messageService.addInfoWithPar("Publish_All_Success_Message", [data.artifacts.length]);
             })
             .finally(() => {

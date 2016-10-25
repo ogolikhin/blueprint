@@ -36,6 +36,7 @@ describe("StatefulProcessArtifact", () => {
         $provide.service("relationshipsService", null);
         $provide.service("projectManager", null);
         $provide.service("metadataService", null);
+        $provide.service("publishService", null);
     }));
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,
                        _$q_: ng.IQService,
@@ -43,7 +44,7 @@ describe("StatefulProcessArtifact", () => {
                        processService: IProcessService) => {
         $rootScope = _$rootScope_;
         $q = _$q_;
-        let artitfactServices = new StatefulArtifactServices(_$q_, null, null, null, null, artifactService, null, null, null, null);
+        let artitfactServices = new StatefulArtifactServices(_$q_, null, null, null, null, artifactService, null, null, null, null, null);
         services = new StatefulProcessArtifactServices(artitfactServices, _$q_, processService);
     }));
 

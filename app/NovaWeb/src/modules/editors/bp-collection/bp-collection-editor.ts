@@ -22,10 +22,6 @@ import {IDialogService} from "../../shared";
 export class BpArtifactCollectionEditor implements ng.IComponentOptions {
     public template: string = require("./bp-collection-editor.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactCollectionEditorController;
-    public controllerAs = "$ctrl";
-    public bindings: any = {
-        context: "<"
-    };
 }
 
 export class BpArtifactCollectionEditorController extends BpArtifactDetailsEditorController {

@@ -147,6 +147,8 @@ export class BpFieldSelectController extends BPFieldBaseController {
                     if (!_.isUndefined($select.selected) && !_.isNull($select.selected) && _.isObject($select.selected.value)) {
                         selectCustomItem($select, $select.selected.value.customValue);
 
+                        // un-comment the following to make the custom value the only value in the dropdown
+                        // this has no effect when a standard value is selected
                         // if (isOpen) {
                         //     $select.search = $select.selected.value.customValue;
                         // }

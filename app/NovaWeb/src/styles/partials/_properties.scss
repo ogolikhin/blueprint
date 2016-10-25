@@ -627,14 +627,11 @@ pagecontent, bp-properties-panel {
                     }
                 }
 
+                &.inline,
                 &.richtext {
                     color: $richtext-fontcolor;
                     font-family: $richtext-fontfamily;
                     font-size: $richtext-fontsize;
-                    max-height: 350px;
-                    min-height: 150px;
-                    min-width: $property-input-width;
-                    overflow: auto;
                     padding: 0;
 
                     a {
@@ -642,6 +639,13 @@ pagecontent, bp-properties-panel {
                         cursor: pointer;
                         text-decoration: underline;
                     }
+                }
+
+                &.richtext {
+                    max-height: 350px;
+                    min-height: 150px;
+                    min-width: $property-input-width;
+                    overflow: auto;
 
                     table {
                         border-collapse: collapse;
@@ -656,6 +660,22 @@ pagecontent, bp-properties-panel {
                             border-width: 1px;
                             padding: 0 7px;
                         }
+                    }
+                }
+
+                &.inline {
+                    line-height: $property-min-height;
+                    max-height: $property-min-height;
+                    min-height: $property-min-height;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    width: $property-input-width;
+
+                    * {
+                        overflow: auto !important;
+                        text-overflow: ellipsis !important;
+                        white-space: nowrap !important;
                     }
                 }
             }

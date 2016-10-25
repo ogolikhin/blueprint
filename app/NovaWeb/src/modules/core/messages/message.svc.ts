@@ -9,7 +9,7 @@ export interface IMessageService {
      * msg: Message to display.
      * messageTimeout: Optional, default is based on msg.messageType type. Time to display message in ms. 0 = no timeout.
      */
-    addMessage(msg: Message): void;
+    addMessage(msg: Message, messageTimeout?: number): void;
 
     addError(text: string | Error | any): void;
     addWarning(text: string): void;

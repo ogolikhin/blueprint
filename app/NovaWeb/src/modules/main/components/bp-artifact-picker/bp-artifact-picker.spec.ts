@@ -125,7 +125,12 @@ describe("BpArtifactPickerController", () => {
 
         // Assert
         expect(controller.isSearching).toEqual(true);
-        expect(projectService.searchItemNames).toHaveBeenCalledWith({query: "test", projectIds: [2], includeArtifactPath: true}, 0, 101);
+        expect(projectService.searchItemNames).toHaveBeenCalledWith({
+            query: "test",
+            projectIds: [2],
+            predefinedTypeIds: undefined,
+            includeArtifactPath: true
+        }, 0, 101);
         $rootScope.$digest(); // Resolves promises
         expect(controller.isSearching).toEqual(false);
         expect(controller.searchResults).toEqual([]);
@@ -250,13 +255,13 @@ describe("BpArtifactPickerController", () => {
         expect(controller.onSelectionChanged).toHaveBeenCalledWith({selectedVMs: [vm]});
     }));
 
-    it("setProject clears selection and sets project and root node", inject(($browser) => {
+    it("set project, when project is defined, clears selection and sets project and root node", inject(($browser) => {
         // Arrange
         const newProject = {id: 6, name: "new", hasChildren: true} as Models.IProjectNode;
         controller.onSelectionChanged = jasmine.createSpy("onSelectionChanged");
 
         // Act
-        controller.setProject(newProject);
+        controller.project = newProject;
 
         // Assert
         $browser.defer.flush(); // wait for $applyAsync()
@@ -265,12 +270,12 @@ describe("BpArtifactPickerController", () => {
         expect(controller.rootNode).toEqual(new InstanceItemNodeVM(artifactManager, projectService, controller, newProject, true));
     }));
 
-    it("clearProject clears search, selection and project and sets root node", inject(($browser) => {
+    it("set project, when project is undefined, clears search, selection and project and sets root node", inject(($browser) => {
         // Arrange
         controller.onSelectionChanged = jasmine.createSpy("onSelectionChanged");
 
         // Act
-        controller.clearProject();
+        controller.project = undefined;
 
         // Assert
         $browser.defer.flush(); // wait for $applyAsync()

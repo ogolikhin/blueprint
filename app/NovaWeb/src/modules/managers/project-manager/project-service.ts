@@ -16,9 +16,9 @@ export interface IProjectService {
     searchProjects(searchCriteria: SearchServiceModels.ISearchCriteria,
                    resultCount?: number,
                    separatorString?: string): ng.IPromise<SearchServiceModels.IProjectSearchResultSet>;
-    searchItemNames(searchCriteria: SearchServiceModels.IItemSearchCriteria,
-                startOffset?: number,
-                pageSize?: number): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet>;
+    searchItemNames(searchCriteria: SearchServiceModels.IItemNameSearchCriteria,
+                    startOffset?: number,
+                    pageSize?: number): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet>;
 }
 
 export class ProjectService implements IProjectService {
@@ -241,7 +241,7 @@ export class ProjectService implements IProjectService {
         );
     }
 
-    public searchItemNames(searchCriteria: SearchServiceModels.IItemSearchCriteria,
+    public searchItemNames(searchCriteria: SearchServiceModels.IItemNameSearchCriteria,
                            startOffset: number = 0,
                            pageSize: number = 100): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet> {
         this.canceler = this.$q.defer<any>();

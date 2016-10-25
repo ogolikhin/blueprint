@@ -184,6 +184,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_Success_Me
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Glossary_Term', 'en-US', N'Term')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Glossary_Definition', 'en-US', N'Definition')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Glossary_Empty', 'en-US', N'No terms have been defined.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collection_Content_Header', 'en-US', N'Collection Contents')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Confirmation_Delete_Comment', 'en-US', N'Are you sure you want to permanently delete the selected comment?')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Confirmation_Delete_Comment_Thread', 'en-US', N'Are you sure you want to permanently delete all comments in this discussion?')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Comment_Deleted', 'en-US', N'This comment has been deleted. Please refresh.')

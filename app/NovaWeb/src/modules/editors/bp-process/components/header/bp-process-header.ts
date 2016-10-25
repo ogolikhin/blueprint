@@ -16,10 +16,6 @@ import {StatefulProcessArtifact} from "../../process-artifact";
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("./bp-process-header.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BpProcessHeaderController;
-    public transclude: boolean = true;
-    public bindings: any = {
-        context: "<"
-    };
 }
 
 export class BpProcessHeaderController extends BpArtifactInfoController {

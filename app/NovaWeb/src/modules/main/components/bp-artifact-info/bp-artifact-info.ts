@@ -26,9 +26,6 @@ export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactInfoController;
     public transclude: boolean = true;
-    public bindings: any = {
-        context: "<"
-    };
 }
 
 export class BpArtifactInfoController {
@@ -79,31 +76,11 @@ export class BpArtifactInfoController {
 
     public $onInit() {
         const windowSub = this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
-        // const stateSub = this.artifactManager.selection.artifactObservable
-        //     // cannot always skip 1 and rely on the artifact observable having 2 values (initial and new)
-        //     // this is true when navigating to artifact X from artifact X via breadcrumb (loop)
-        //     // .skip(1) // skip the first (initial) value
-
-        //     .filter((artifact: IStatefulArtifact) => artifact != null)
-        //     .distinctUntilChanged(artifact => artifact.id)
-        //     .flatMap((artifact: IStatefulArtifact) => {
-        //         this.artifact = artifact;
-        //         return artifact.getObservable();
-        //     })
-        //     .subscribeOnNext(this.onStateChanged);
-
-        this.subscribers.push(windowSub);
-    }
-
-    public $onChanges(obj: any) {
-        const artifact = this.artifactManager.get(obj.context.currentValue);
-        if (artifact) {
-            this.artifact = artifact;
-            const artifactObserver = artifact.getObservable()
-                .subscribe(this.onArtifactChanged, this.onError);
-
-            this.subscribers.push(artifactObserver);
-        }
+        const artifactStateSub = this.artifactManager.selection.currentlySelectedArtifactObservable
+            .subscribe(this.onArtifactChanged, this.onError);
+        
+        this.subscribers.push(windowSub, artifactStateSub);
+        this.artifact = this.artifactManager.selection.getArtifact();
     }
 
     public $onDestroy() {
@@ -112,11 +89,14 @@ export class BpArtifactInfoController {
             subscriber.dispose();
         });
         delete this.subscribers;
+        delete this.artifact;
     }
 
     protected onArtifactChanged = () => {
-        this.updateProperties(this.artifact);
-        this.subscribeToStateChange(this.artifact);
+        if (this.artifact) {
+            this.updateProperties(this.artifact);
+            this.subscribeToStateChange(this.artifact);
+        }
     }
 
     protected subscribeToStateChange(artifact) {

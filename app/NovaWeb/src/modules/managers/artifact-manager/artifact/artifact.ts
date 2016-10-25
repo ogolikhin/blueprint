@@ -20,7 +20,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     //load(force?: boolean): ng.IPromise<IStatefulArtifact>;
     save(): ng.IPromise<IStatefulArtifact>;
     autosave(): ng.IPromise<IStatefulArtifact>;
-    publish(): ng.IPromise<IStatefulArtifact>;
+    publish(): ng.IPromise<void>;
     refresh(): ng.IPromise<IStatefulArtifact>;
 
     getObservable(): Rx.Observable<IStatefulArtifact>;
@@ -296,7 +296,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                             }
                         } else if (error.statusCode === HttpStatusCode.NotFound) {
                             message = this.services.localizationService.get("App_Save_Artifact_Error_404");
-                        } else if (error.statusCode === 409) {
+                        } else if (error.statusCode === HttpStatusCode.Conflict) {
                             if (error.errorCode === 116) {
                                 message = this.services.localizationService.get("App_Save_Artifact_Error_409_116");
                             } else if (error.errorCode === 117) {
@@ -330,10 +330,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return deffered.promise;
     }
 
-    public publish(): ng.IPromise<any> {
-        let deffered = this.services.getDeferred<IStatefulArtifact>();
+    public publish(): ng.IPromise<void> {
+        let deffered = this.services.getDeferred<void>();
 
-        let savePromise = this.services.$q.defer<any>();
+        let savePromise = this.services.$q.defer<IStatefulArtifact>();
         if (this.canBeSaved()) {
             savePromise.promise = this.save();
         } else {
@@ -354,8 +354,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return deffered.promise;
     }
 
-    private doPublish(): ng.IPromise<any> {
-        let deffered = this.services.getDeferred<any>();
+    private doPublish(): ng.IPromise<void> {
+        let deffered = this.services.getDeferred<void>();
 
         this.services.publishService.publishArtifacts([this.id])
         .then(() => {
@@ -364,7 +364,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             deffered.resolve();
         })
         .catch((err) => {
-            if (err && err.statusCode === 409) {
+            if (err && err.statusCode === HttpStatusCode.Conflict) {
                 this.publishDependents(err.content);
             } else {
                 this.services.messageService.addError(err);
@@ -375,7 +375,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return deffered.promise;
     }
 
-    private publishDependents(dependents: Models.IPublishResultSet){
+    private publishDependents(dependents: Models.IPublishResultSet) {
         this.services.dialogService.open(<IDialogSettings>{
             okButton: this.services.localizationService.get("App_Button_Publish"),
             cancelButton: this.services.localizationService.get("App_Button_Cancel"),
@@ -391,7 +391,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         })
         .then(() => {
             let publishOverlayId = this.services.loadingOverlayService.beginLoading();
-            this.services.publishService.publishArtifacts(dependents.artifacts.map((d: Models.IArtifact) => {return d.id; }))
+            this.services.publishService.publishArtifacts(dependents.artifacts.map((d: Models.IArtifact) => d.id ))
             .then(() => {
                 this.services.messageService.addInfo("Publish_Success_Message");
                 this.artifactState.unlock();

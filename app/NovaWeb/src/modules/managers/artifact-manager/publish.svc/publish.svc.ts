@@ -59,7 +59,7 @@ export class PublishService implements IPublishService {
     public publishArtifacts(artifactIds: number[]): ng.IPromise<Models.IPublishResultSet> {
         let defer = this.$q.defer<Models.IPublishResultSet>();
 
-        this.$http.post(`/svc/bpartifactstore/artifacts/publish?all=false`, angular.toJson(artifactIds)).then(
+        this.$http.post(`/svc/bpartifactstore/artifacts/publish?all=false`, artifactIds).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IPublishResultSet>) => defer.resolve(result.data),
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 if (!errResult) {

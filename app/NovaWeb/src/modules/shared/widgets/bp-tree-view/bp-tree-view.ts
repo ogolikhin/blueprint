@@ -80,7 +80,7 @@ export interface IColumn {
 }
 
 export class BPTreeViewController implements IBPTreeViewController {
-    public static $inject = ["$q", "$element", "localization", "$timeout", "$scope", "windowManager"];
+    public static $inject = ["$q", "$element", "localization", "$timeout", "windowManager"];
 
     // Template bindings
     public gridClass: string;
@@ -98,10 +98,11 @@ export class BPTreeViewController implements IBPTreeViewController {
     public onDoubleClick: (param: {vm: ITreeViewNodeVM}) => void;
     public onError: (param: {reason: any}) => void;
     public enableColResize: boolean;
+    public timers = [];
 
 
     constructor(private $q: ng.IQService, private $element: ng.IAugmentedJQuery, private localization: ILocalizationService,
-                private $timeout, private $scope, private windowManager) {
+                private $timeout: ng.ITimeoutService, private windowManager: IWindowManager) {
         this.gridClass = angular.isDefined(this.gridClass) ? this.gridClass : "project-explorer";
         this.rowBuffer = angular.isDefined(this.rowBuffer) ? this.rowBuffer : 200;
         this.selectionMode = angular.isDefined(this.selectionMode) ? this.selectionMode : "single";
@@ -165,7 +166,7 @@ export class BPTreeViewController implements IBPTreeViewController {
             if (mainWindow.causeOfChange === ResizeCause.browserResize) {
                 this.options.api.sizeColumnsToFit();
             } else if (mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
-                this.$timeout(() => {
+                this.timers[0] = this.$timeout(() => {
                     this.options.api.sizeColumnsToFit();
                 }, 900);
             }
@@ -175,7 +176,11 @@ export class BPTreeViewController implements IBPTreeViewController {
     public $onDestroy(): void {
         this.options.api.setRowData(null);
         this.updateScrollbars(true);
-        delete this.rootNode;
+        this.timers.forEach((timer) => {
+            this.$timeout.cancel(timer);
+        });
+
+        this.rootNode = null;
     }
 
     public resetGridAsync(saveSelection: boolean): ng.IPromise<void> {
@@ -383,7 +388,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     };
 
     public onGridReady = (event?: any) => {
-        this.$timeout(() => {
+        this.timers[1] = this.$timeout(() => {
             this.options.api.sizeColumnsToFit();
         }, 500);
 

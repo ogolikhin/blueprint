@@ -153,6 +153,8 @@ describe("Formly ReadOnly", () => {
         let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[2];
 
         expect(fieldInput.children.length).toBe(2);
+        expect(fieldInput.children[0].innerHTML).toContain("Option 1");
+        expect(fieldInput.children[1].innerHTML).toContain("Option 2");
     });
 
     it("should display read only select", function () {

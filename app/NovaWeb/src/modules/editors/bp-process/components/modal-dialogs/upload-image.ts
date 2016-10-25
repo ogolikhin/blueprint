@@ -93,10 +93,12 @@ export class UploadImageDirective implements ng.IDirective {
                 }
                 if (type !== "jpeg" && type !== "jpg" && type !== "png") {
                     $scope.typeError = true;
+                    $scope.$digest();
                     return;
                 }
                 if (dataFile.size > 2 * 1024 * 1024) {//2 MegaBytes
                     $scope.sizeError = true;
+                    $scope.$digest();
                     return;
                 }
                 // Create new file in filestore as a temporary file with expirary 1 day.

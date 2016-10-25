@@ -148,49 +148,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         // sets initial value on subject so it doesn't send up update with old info
         // null values get filtered out before it gets to the observer
         this.subject.onNext(null);
-    }
-
-    public refresh(): ng.IPromise<IStatefulArtifact> {
-        const deferred = this.services.getDeferred<IStatefulArtifact>();
-        let promisesToExecute: ng.IPromise<any>[] = [];
-        this.discard();
-
-        promisesToExecute.push(this.load());
-
-        // #DEBUG
-        //if (this._attachments) {
-        //    //this will also reload docRefs, so no need to call docRefs.refresh()
-        //    promisesToExecute.push(this._attachments.refresh());
-        //}
-
-        if (this._relationships) {
-            promisesToExecute.push(this._relationships.refresh());
-        }
-        //History and Discussions are excluded from here.
-        //They refresh independently, triggered by artifact's observable.
-
-        promisesToExecute.push(this.services.metaDataService.remove(this.projectId));
-
-        // get promises for custom artifact refresh operations
-        let refreshPromises = this.getCustomArtifactPromisesForRefresh();
-
-        if (refreshPromises.length > 0) {
-            for (let i = 0; i < refreshPromises.length; i++) {
-                promisesToExecute.push(refreshPromises[i]);
-            }
-        }
-
-        this.getServices().$q.all(promisesToExecute).then(() => {
-            this.subject.onNext(this);
-            deferred.resolve(this);
-        }).catch(error => {
-            deferred.reject(error);
-
-            //Project manager is listening to this, and will refresh the project.
-            this.subject.onNext(this);
-        });
-        return deferred.promise;
-    }
+    }    
 
     private isProject(): boolean {
         return this.itemTypeId === Enums.ItemTypePredefined.Project;

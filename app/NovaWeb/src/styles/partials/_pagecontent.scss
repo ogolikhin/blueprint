@@ -50,6 +50,11 @@ pagecontent, bp-properties-panel {
         z-index: 0;
     }
 
+    .process-page-body-wrapper { 
+        @extend .page-body-wrapper;
+        overflow:hidden;
+    }
+
     bp-artifact-info {
         display: flex;
         flex-wrap: wrap;

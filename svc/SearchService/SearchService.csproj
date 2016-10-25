@@ -121,6 +121,7 @@
     <Compile Include="Helpers\SearchConfiguration.cs" />
     <Compile Include="Helpers\ISearchConfiguration.cs" />
     <Compile Include="Helpers\SearchConfigurationProvider.cs" />
+    <Compile Include="Models\FullTextSearchCriteria.cs" />
     <Compile Include="Models\FullTextSearchResult.cs" />
     <Compile Include="Models\FullTextSearchResultSet.cs" />
     <Compile Include="Models\MetaDataSearchResultSet.cs" />
@@ -129,7 +130,7 @@
     <Compile Include="Models\ItemSearchResult.cs" />
     <Compile Include="Models\ProjectSearchResultSet.cs" />
     <Compile Include="Models\SearchCriteria.cs" />
-    <Compile Include="Models\ItemSearchCriteria.cs" />
+    <Compile Include="Models\ItemNameSearchCriteria.cs" />
     <Compile Include="Models\SearchResultSet.cs" />
     <Compile Include="Models\SearchResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

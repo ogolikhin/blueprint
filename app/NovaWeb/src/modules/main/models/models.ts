@@ -283,6 +283,11 @@ export class Artifact implements IArtifact {
 
 }
 
+export interface IKeyValuePair {
+    key: any;
+    value: any;
+}
+
 export interface IHashMap<T> {
     [key: string]: T;
 }

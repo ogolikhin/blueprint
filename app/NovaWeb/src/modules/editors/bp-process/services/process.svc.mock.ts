@@ -1,4 +1,5 @@
-﻿import {IProcessService, ProcessModels} from "./process.svc";
+﻿import { IProcessService, ProcessModels } from "./process.svc";
+import { IProcessUpdateResult } from "./process.svc";
 
 export class ProcessServiceMock implements IProcessService {
     private processModel;
@@ -15,6 +16,10 @@ export class ProcessServiceMock implements IProcessService {
 
     public load(processId: string, versionId?: number, revisionId?: number, baselineId?: number, readOnly?: boolean): ng.IPromise<ProcessModels.IProcess> {
         return this.$q.when(this.processModel);
+    }
+
+    public save(processVM: ProcessModels.IProcess): ng.IPromise<IProcessUpdateResult> {
+        throw new Error("not implemented");
     }
 
     public getProcesses(projectId: number): ng.IPromise<ProcessModels.IArtifactReference[]> {

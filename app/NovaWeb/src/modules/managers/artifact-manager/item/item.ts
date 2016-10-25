@@ -86,6 +86,10 @@ export abstract class StatefulItem implements IIStatefulItem {
         return this.artifact.id;
     }
 
+    public set id(value: number) {
+        this.artifact.id = value;
+    }    
+
     public get projectId() {
         return this.artifact.projectId;
     }

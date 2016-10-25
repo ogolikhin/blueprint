@@ -25,12 +25,17 @@
                      ng-click="$ctrl.setProject(searchResult.itemId, searchResult.name, true)">
                     <i class="icon-project"></i>
                     <div class="search-details">
-                        <div bp-tooltip="{{searchResult.name}}" bp-tooltip-truncated="true"><span
-                            ng-bind-html="::searchResult.name | bpEscapeAndHighlight:$ctrl.searchText"></div>
-                        <div bp-tooltip="{{searchResult.path}}" bp-tooltip-truncated="true">Path:
-                            {{searchResult.path}}
+                        <div bp-tooltip="{{searchResult.name}}" bp-tooltip-truncated="true">
+                            <span ng-bind-html="::searchResult.name | bpEscapeAndHighlight:$ctrl.searchText">
+                        </div>
+                        <div bp-tooltip="{{searchResult.path}}" bp-tooltip-truncated="true">
+                            Path: {{searchResult.path}}
                         </div>
                     </div>
+                </div>
+                <div class="more-search-results" ng-if="$ctrl.isMoreSearchResults">
+                    <p>{{::$root.config.labels['Label_Search_Results'] | bpFormat:$ctrl.searchResults.length}}</p>
+                    <p>{{::$root.config.labels['Label_Search_Refine']}}</p>
                 </div>
             </div>
         </div>

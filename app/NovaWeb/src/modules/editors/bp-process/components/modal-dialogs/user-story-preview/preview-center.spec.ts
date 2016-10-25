@@ -77,17 +77,6 @@ xdescribe("PreviewCenter Directive", () => {
         expect(element.find("preview-center").length).toBeGreaterThan(0);
     })));
 
-    it("test on destroy", (inject(() => {
-        //Arrange
-        controller.previousSystemTask = new SystemTask(ShapeModelMock.instance().SystemTaskMock(), ShapeModelMock.instance().RootscopeMock(), "", null, null);
-
-        // Act
-        scope.$destroy();
-
-        //Assert
-        expect(controller.previousSystemTask).toBeNull();
-    })));
-
     it("showMore Label", (inject(() => {
         //Arrange
         let event = jQuery.Event("keydown", {

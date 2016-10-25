@@ -22,7 +22,6 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
 
         this.model = model;
     }
-    
 
     public getNode(): IDiagramNode {
         return this;

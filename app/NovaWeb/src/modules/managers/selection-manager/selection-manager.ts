@@ -2,7 +2,6 @@ import {IAppicationError, HttpStatusCode} from "./../../core";
 import {IItem} from "./../../main/models/models";
 import {IStatefulArtifact, IStatefulSubArtifact, IStatefulItem} from "./../../managers/artifact-manager";
 import {IDispose} from "./../../managers/models";
-import {INavigationService } from "../../core/navigation";
 
 
 export interface ISelectionManager extends IDispose {
@@ -30,14 +29,11 @@ export interface ISelection {
 }
 
 export class SelectionManager implements ISelectionManager {
-    static $inject: [string] = [
-        "navigationService"
-    ];
     
     private selectionSubject: Rx.BehaviorSubject<ISelection>;
     private explorerArtifactSelectionSubject: Rx.BehaviorSubject<IStatefulArtifact>;
 
-    constructor(private navigationService: INavigationService) {
+    constructor() {
         const selection = <ISelection>{
             artifact: undefined,
             subArtifact: undefined

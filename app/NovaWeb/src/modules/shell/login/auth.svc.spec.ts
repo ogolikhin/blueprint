@@ -17,9 +17,9 @@ describe("AuthSvc", () => {
         it("reject on error with default error message", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, $rootScope: ng.IRootScopeService) => {
             // Arrange
             $httpBackend.expectGET("/svc/adminstore/users/loginuser")
-                .respond(HttpStatusCode.Unauthorized);
+                .respond(HttpStatusCode.Unauthorized, {statusCode: HttpStatusCode.Unauthorized} );
             $httpBackend.expectPOST("/Login/WinLogin.aspx", "")
-                .respond(HttpStatusCode.Unauthorized);
+                .respond(HttpStatusCode.Unauthorized, {statusCode: HttpStatusCode.Unauthorized});
             $rootScope["config"] = {
                 settings: {DisableWindowsIntegratedSignIn: "false"}
             };
@@ -41,7 +41,7 @@ describe("AuthSvc", () => {
             inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, $rootScope: ng.IRootScopeService) => {
                 // Arrange
                 $httpBackend.expectGET("/svc/adminstore/users/loginuser")
-                    .respond(HttpStatusCode.Unauthorized);
+                    .respond(HttpStatusCode.Unauthorized, {statusCode: HttpStatusCode.Unauthorized});
                 $httpBackend.expectPOST("/Login/WinLogin.aspx", "")
                     .respond(HttpStatusCode.Success, "6be473a999a140d894805746bf54c129");
                 $httpBackend.expectPOST("/svc/shared/licenses/verify", "")
@@ -100,7 +100,7 @@ describe("AuthSvc", () => {
             const status: number = HttpStatusCode.Unauthorized;
             const message: string = "Login Failed";
             $httpBackend.expectPOST("/svc/adminstore/sessions/?login=" + AuthSvc.encode("admin") + "&force=false", angular.toJson(AuthSvc.encode("changeme")))
-                .respond(status, {message: message, errorCode: 2000});
+                .respond(status, {message: message, errorCode: 2000, statusCode: HttpStatusCode.Unauthorized});
 
             // Act
             let error: any;
@@ -173,7 +173,7 @@ describe("AuthSvc", () => {
             $httpBackend.expectPOST("/svc/shared/licenses/verify", "")
                 .respond(HttpStatusCode.Success);
             $httpBackend.expectGET("/svc/adminstore/users/loginuser")
-                .respond(HttpStatusCode.Unauthorized, {message: "Unauthorized error"});
+                .respond(HttpStatusCode.Unauthorized, {message: "Unauthorized error", statusCode: HttpStatusCode.Unauthorized});
 
             // Act
             let error: any;
@@ -199,7 +199,7 @@ describe("AuthSvc", () => {
                     }
                 );
             $httpBackend.expectPOST("/svc/shared/licenses/verify", "")
-                .respond(HttpStatusCode.NotFound);
+                .respond(HttpStatusCode.NotFound, {statusCode: HttpStatusCode.NotFound});
             $httpBackend.expectDELETE("/svc/adminstore/sessions")
                 .respond(HttpStatusCode.Success);
 
@@ -225,7 +225,7 @@ describe("AuthSvc", () => {
                     }
                 );
             $httpBackend.expectPOST("/svc/shared/licenses/verify", "")
-                .respond(HttpStatusCode.Forbidden);
+                .respond(HttpStatusCode.Forbidden, {statusCode: HttpStatusCode.Forbidden});
             $httpBackend.expectDELETE("/svc/adminstore/sessions")
                 .respond(HttpStatusCode.Success);
 
@@ -296,7 +296,7 @@ describe("AuthSvc", () => {
         it("respond with saml error", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, $window: ng.IWindowService) => {
             // Arrange
             $httpBackend.expectPOST("/svc/adminstore/sessions/sso?force=false", angular.toJson("PHNhbWx"))
-                .respond(HttpStatusCode.Unauthorized, {message: "saml login error"});
+                .respond(HttpStatusCode.Unauthorized, {message: "saml login error", statusCode: HttpStatusCode.Unauthorized});
 
             // Act
             let error: any;
@@ -386,7 +386,7 @@ describe("AuthSvc", () => {
                 OldPass: encOldPassword,
                 NewPass: encNewPassword
             }))
-                .respond(HttpStatusCode.Unauthorized, {message: errorMsg});
+                .respond(HttpStatusCode.Unauthorized, {message: errorMsg, statusCode: HttpStatusCode.Unauthorized});
 
             // Act
             let error: any;

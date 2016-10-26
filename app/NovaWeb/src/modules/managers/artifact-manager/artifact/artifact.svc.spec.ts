@@ -88,7 +88,9 @@ describe("Artifact Repository", () => {
         it("update artifact unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
             // Arrange
             $httpBackend.expectPATCH("/svc/bpartifactstore/artifacts/100", angular.toJson(ArtifactServiceMock.createArtifact(100)))
-                .respond(HttpStatusCode.Unauthorized);
+                .respond(HttpStatusCode.Unauthorized, {
+                    statusCode: HttpStatusCode.Unauthorized
+                });
 
             // Act
             let error: any;

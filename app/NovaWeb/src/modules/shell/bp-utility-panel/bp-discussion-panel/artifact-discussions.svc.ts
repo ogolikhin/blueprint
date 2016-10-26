@@ -1,5 +1,5 @@
 ﻿import * as angular from "angular";
-import {ILocalizationService, HttpStatusCode} from "../../../core";
+import {ILocalizationService, HttpStatusCode, IAppicationError} from "../../../core";
 
 export interface IArtifactDiscussions {
     artifactDiscussions: ng.IPromise<IDiscussion[]>;
@@ -76,16 +76,9 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
         this.$http(requestObj)
             .then((result: ng.IHttpPromiseCallbackArg<IDiscussionResultSet>) => {
                 defer.resolve(result.data);
-            }, (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                const error = {
-                    statusCode: errResult.status,
-                    message: errResult.data ? errResult.data.message : "Artifact_NotFound"
-                };
-                defer.reject(error);
+            },
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                defer.reject(result.data);
             });
 
         return defer.promise;
@@ -107,16 +100,9 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
         this.$http(requestObj)
             .then((result: ng.IHttpPromiseCallbackArg<IReply[]>) => {
                 defer.resolve(result.data);
-            }, (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                const error = {
-                    statusCode: errResult.status,
-                    message: errResult.data ? errResult.data.message : "Artifact_NotFound"
-                };
-                defer.reject(error);
+            }, 
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                defer.reject(result.data);
             });
 
         return defer.promise;
@@ -134,16 +120,9 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
             .then((result: ng.IHttpPromiseCallbackArg<IDiscussion>) => {
                 defer.resolve(result.data);
 
-            }, (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                const error = {
-                    statusCode: errResult.status,
-                    message: errResult.data ? errResult.data.message : "Artifact_NotFound"
-                };
-                defer.reject(error);
+            },
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                defer.reject(result.data);
             });
 
         return defer.promise;
@@ -160,16 +139,9 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
         this.$http(requestObj)
             .then((result: ng.IHttpPromiseCallbackArg<IReply>) => {
                 defer.resolve(result.data);
-            }, (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                const error = {
-                    statusCode: errResult.status,
-                    message: errResult.data ? errResult.data.message : "Artifact_NotFound"
-                };
-                defer.reject(error);
+            }, 
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                defer.reject(result.data);
             });
 
         return defer.promise;
@@ -187,16 +159,8 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
             .then((result: ng.IHttpPromiseCallbackArg<IDiscussion>) => {
                 defer.resolve(result);
 
-            }, (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                const error = {
-                    statusCode: errResult.status,
-                    message: errResult.data ? errResult.data.message : "Artifact_NotFound"
-                };
-                defer.reject(error);
+            }, (result: ng.IHttpPromiseCallbackArg<any>) => {
+                defer.reject(result.data);
             });
 
         return defer.promise;
@@ -214,16 +178,9 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
             .then((result: ng.IHttpPromiseCallbackArg<IReply>) => {
                 defer.resolve(result);
 
-            }, (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                const error = {
-                    statusCode: errResult.status,
-                    message: errResult.data ? errResult.data.message : "Artifact_NotFound"
-                };
-                defer.reject(error);
+            },
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                defer.reject(result.data);
             });
 
         return defer.promise;
@@ -238,22 +195,12 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
         this.$http(requestObj)
             .then((result: ng.IHttpPromiseCallbackArg<any>) => {
                 defer.resolve(true);
-            }, (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                let msg: string;
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                if (errResult.status === HttpStatusCode.NotFound) {
-                    msg = this.localization.get("Error_Comment_Deleted", "Error");
-                } else {
-                    msg = (errResult.data ? errResult.data.message : "");
-                }
-                const error = {
-                    statusCode: errResult.status,
-                    message: msg
-                };
-                defer.reject(error);
+            }, (result: ng.IHttpPromiseCallbackArg<any>) => {
+
+                if (result.status === HttpStatusCode.NotFound) {
+                    result.data.message = this.localization.get("Error_Comment_Deleted", "Error");
+                } 
+                defer.reject(result.data);
             });
         return defer.promise;
     }
@@ -267,22 +214,12 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
         this.$http(requestObj)
             .then((result: ng.IHttpPromiseCallbackArg<any>) => {
                 defer.resolve(true);
-            }, (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                let msg: string;
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                if (errResult.status === HttpStatusCode.NotFound) {
-                    msg = this.localization.get("Error_Comment_Deleted", "Error");
-                } else {
-                    msg = (errResult.data ? errResult.data.message : "");
-                }
-                const error = {
-                    statusCode: errResult.status,
-                    message: msg
-                };
-                defer.reject(error);
+            }, (result: ng.IHttpPromiseCallbackArg<any>) => {
+
+                if (result.status === HttpStatusCode.NotFound) {
+                    result.data.message = this.localization.get("Error_Comment_Deleted", "Error");
+                } 
+                defer.reject(result.data);
             });
         return defer.promise;
     }

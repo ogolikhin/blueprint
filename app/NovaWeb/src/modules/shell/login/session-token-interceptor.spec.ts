@@ -4,10 +4,6 @@ import {SessionTokenInterceptor} from "./session-token-interceptor";
 import {SessionTokenHelper} from "./session.token.helper";
 
 describe("SessionTokenInterceptor", () => {
-    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-
-    }));
-
     it("return http config when Session-Token already defined", () => {
         // Arrange
         let tokenHelperSpy = spyOn(SessionTokenHelper, "getSessionToken");

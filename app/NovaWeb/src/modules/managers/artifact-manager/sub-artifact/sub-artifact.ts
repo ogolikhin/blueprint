@@ -15,13 +15,26 @@ export interface IStatefulSubArtifact extends IStatefulItem, Models.ISubArtifact
 
 export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArtifact, IIStatefulSubArtifact {
     public isLoaded = false;
-    private subject: Rx.BehaviorSubject<IStatefulSubArtifact>;
+    private _subject: Rx.BehaviorSubject<IStatefulSubArtifact>;
 
     constructor(private parentArtifact: IStatefulArtifact, private subArtifact: Models.ISubArtifact, services: IStatefulArtifactServices) {
         super(subArtifact, services);
         this.metadata = new MetaData(this);
-        this.subject = new Rx.BehaviorSubject<IStatefulSubArtifact>(null);
     }
+
+    public unsubscribe() {
+        super.unsubscribe();
+        this.subject.onCompleted();
+        delete this.subject;
+    }
+
+    protected get subject(): Rx.BehaviorSubject<IStatefulSubArtifact> {
+        if (!this._subject) {
+            this._subject = new Rx.BehaviorSubject<IStatefulSubArtifact>(null);            
+        }    
+        return this._subject;    
+    } 
+
 
     public get artifactState() {
         return this.parentArtifact.artifactState;
@@ -50,14 +63,13 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
                 this.subject.onNext(this);
             }).catch((error) => {
                 this.artifactState.readonly = true;
-                this.subject.onError(error);
+                this.error.onNext(error);
             }).finally(() => {
                 this.loadPromise = null;
             });
         }
         return this.subject.filter(it => !!it).asObservable();
     }
-
     public changes(): Models.ISubArtifact {
         const traces = this.relationships.changes();
         const attachmentValues = this.attachments.changes();

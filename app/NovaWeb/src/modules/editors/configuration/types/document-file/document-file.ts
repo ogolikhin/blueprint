@@ -49,7 +49,7 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
         };
 
         this.$scope["getExtension"] = () => {
-            FiletypeParser.getFiletypeClass($scope["getFilename"]());
+            return FiletypeParser.getFiletypeClass($scope["getFilename"]());
         };
 
         this.$scope["getHasFile"] = () => {
@@ -133,5 +133,6 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
         $scope["changeLabelText"] = localization.get("App_UP_Document_File_Change", "Change");
         $scope["uploadLabelText"] = localization.get("App_UP_Document_File_Upload", "Upload");
         $scope["downloadLabelText"] = localization.get("App_UP_Document_File_Download", "Download");
+        $scope["deleteLabelText"] = localization.get("App_UP_Attachments_Delete", "Delete");
     }
 }

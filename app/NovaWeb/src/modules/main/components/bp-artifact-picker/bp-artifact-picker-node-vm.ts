@@ -1,5 +1,5 @@
 import * as angular from "angular";
-import {Models} from "../../models";
+import {Models, AdminStoreModels} from "../../models";
 import {Helper} from "../../../shared/";
 import {ITreeViewNodeVM} from "../../../shared/widgets/bp-tree-view/";
 import {IArtifactManager} from "../../../managers";
@@ -43,11 +43,11 @@ export abstract class ArtifactPickerNodeVM<T> implements ITreeViewNodeVM {
     }
 }
 
-export class InstanceItemNodeVM extends ArtifactPickerNodeVM<Models.IProjectNode> {
+export class InstanceItemNodeVM extends ArtifactPickerNodeVM<AdminStoreModels.IInstanceItem> {
     constructor(private artifactManager: IArtifactManager,
                 private projectService: IProjectService,
                 private options: IArtifactPickerOptions,
-                model: Models.IProjectNode,
+                model: AdminStoreModels.IInstanceItem,
                 isExpanded: boolean = false) {
         super(model, model.name, String(model.id), model.hasChildren, [], isExpanded);
     }
@@ -55,10 +55,10 @@ export class InstanceItemNodeVM extends ArtifactPickerNodeVM<Models.IProjectNode
     public getCellClass(): string[] {
         const result = super.getCellClass();
         switch (this.model.type) {
-            case Models.ProjectNodeType.Folder:
+            case AdminStoreModels.InstanceItemType.Folder:
                 result.push("is-folder");
                 break;
-            case Models.ProjectNodeType.Project:
+            case AdminStoreModels.InstanceItemType.Project:
                 result.push("is-project");
                 break;
             default:
@@ -70,11 +70,11 @@ export class InstanceItemNodeVM extends ArtifactPickerNodeVM<Models.IProjectNode
     public loadChildrenAsync(): ng.IPromise<void> {
         this.loadChildrenAsync = undefined;
         switch (this.model.type) {
-            case Models.ProjectNodeType.Folder:
-                return this.projectService.getFolders(this.model.id).then((children: Models.IProjectNode[]) => {
+            case AdminStoreModels.InstanceItemType.Folder:
+                return this.projectService.getFolders(this.model.id).then((children: AdminStoreModels.IInstanceItem[]) => {
                     this.children = children.map(child => new InstanceItemNodeVM(this.artifactManager, this.projectService, this.options, child));
                 });
-            case Models.ProjectNodeType.Project:
+            case AdminStoreModels.InstanceItemType.Project:
                 return this.projectService.getArtifacts(this.model.id).then((children: Models.IArtifact[]) => {
                     children = ArtifactPickerNodeVM.processChildArtifacts(children, this.model);
                     this.children = children.map(child => new ArtifactNodeVM(this.artifactManager, this.projectService, this.options, child));

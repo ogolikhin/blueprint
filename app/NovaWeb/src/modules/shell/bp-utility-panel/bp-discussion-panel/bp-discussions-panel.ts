@@ -1,5 +1,4 @@
 ﻿import {ILocalizationService, IMessageService} from "../../../core";
-// import { IArtifactService} from "../../../main";
 import {
     IArtifactManager,
     IStatefulArtifact,
@@ -31,7 +30,6 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         "$q"
     ];
 
-    //private loadLimit: number = 10;
     private artifactId: number;
     private subArtifact: IStatefulSubArtifact;
 
@@ -73,7 +71,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         super.$onDestroy();
 
         // clean up history list
-        this.artifactDiscussionList = null;
+        delete this.artifactDiscussionList;
     }
 
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
@@ -82,10 +80,9 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
             subscriber.dispose();
             return false;
         });
+        this.clearDiscussions();
         if (subArtifact) {
-            if (!Helper.hasArtifactEverBeenSavedOrPublished(subArtifact)) {
-                this.resetReadOnly();
-            } else {
+            if (Helper.hasArtifactEverBeenSavedOrPublished(subArtifact)) {
                 this.subscribers.push(
                     subArtifact.getObservable().subscribe((subArtif) => {
                         this.onSelectedItemModified(artifact, subArtif, timeout);
@@ -94,7 +91,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         } else if (artifact) {
             this.subscribers.push(
                 artifact.getObservable().subscribe((artif) => {
-                    this.onSelectedItemModified(artif, null, timeout);
+                    this.onSelectedItemModified(artif, undefined, timeout);
                 }));
         }
         return super.onSelectionChanged(artifact, subArtifact, timeout);
@@ -106,27 +103,22 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
 
     private onSelectedItemModified = (artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>) => {
         if (this.isVisible) {
-            this.artifactDiscussionList = [];
-            this.showAddComment = false;
             if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
                 this.artifactId = artifact.id;
                 this.subArtifact = subArtifact;
-                return this.setEverPublishedAndDiscussions(artifact.version, timeout);
-            } else {
-                this.resetReadOnly();
+                //We always should artifact version 
+                this.artifactEverPublished = artifact.version > 0;
+                return this.setDiscussions(timeout);
             }
         }
     }
 
-    private resetReadOnly() {
-        this.reset();
-        this.setReadOnly();
-    }
-
-    private reset() {
-        this.artifactId = null;
-        this.subArtifact = null;
+    private clearDiscussions() {
+        this.artifactId = undefined;
+        this.subArtifact = undefined;
         this.artifactDiscussionList = [];
+        this.showAddComment = false;
+        this.setReadOnly();
     }
 
     private setReadOnly() {
@@ -142,14 +134,8 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         this.emailDiscussionsEnabled = discussionResultSet.emailDiscussionsEnabled;
     }
 
-    private setEverPublishedAndDiscussions(artifactVersion, timeout: ng.IPromise<void>): ng.IPromise<void> {
-        //We should not check the subartifact version to make sure it's published
-        this.artifactEverPublished = artifactVersion > 0;
-        return this.setDiscussions(timeout);
-    }
-
     private setDiscussions(timeout?: ng.IPromise<void>): ng.IPromise<void> {
-        return this.getArtifactDiscussions(this.artifactId, this.subArtifact ? this.subArtifact.id : null, timeout)
+        return this.getDiscussions(this.artifactId, this.subArtifact ? this.subArtifact.id : undefined, timeout)
             .then((discussionResultSet: IDiscussionResultSet) => {
                 this.setControllerFieldsAndFlags(discussionResultSet);
             });
@@ -225,9 +211,9 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         discussion.showAddReply = false;
     }
 
-    private getArtifactDiscussions(artifactId: number, subArtifactId: number = null, timeout?: ng.IPromise<void>): ng.IPromise<IDiscussionResultSet> {
+    private getDiscussions(artifactId: number, subArtifactId: number = undefined, timeout?: ng.IPromise<void>): ng.IPromise<IDiscussionResultSet> {
         this.isLoading = true;
-        return this.artifactDiscussions.getArtifactDiscussions(artifactId, subArtifactId, timeout)
+        return this.artifactDiscussions.getDiscussions(artifactId, subArtifactId, timeout)
             .then((discussionResultSet: IDiscussionResultSet) => {
                 return discussionResultSet;
             })
@@ -271,8 +257,8 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     public deleteCommentThread(discussion: IDiscussion) {
         this.dialogService.confirm(this.localization.get("Confirmation_Delete_Comment_Thread"))
             .then(() => {
-                this.artifactDiscussions.deleteCommentThread(discussion.itemId, discussion.discussionId).then((result: boolean) => {
-                    this.getArtifactDiscussions(this.artifactId, this.subArtifact ? this.subArtifact.id : null)
+                this.artifactDiscussions.deleteDiscussion(discussion.itemId, discussion.discussionId).then((result: boolean) => {
+                    this.getDiscussions(this.artifactId, this.subArtifact ? this.subArtifact.id : undefined)
                         .then((discussionsResultSet: IDiscussionResultSet) => {
                             this.setControllerFieldsAndFlags(discussionsResultSet);
                         });

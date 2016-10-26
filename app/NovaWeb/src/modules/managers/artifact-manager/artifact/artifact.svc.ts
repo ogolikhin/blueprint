@@ -29,15 +29,7 @@ export class ArtifactService implements IArtifactService {
         this.$http.get(url, config).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => defer.resolve(result.data),
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                const error = {
-                    statusCode: errResult.status,
-                    message: (errResult.data ? errResult.data.message : "")
-                };
-                defer.reject(error);
+                defer.reject(errResult.data);
             }
         );
         return defer.promise;
@@ -55,12 +47,8 @@ export class ArtifactService implements IArtifactService {
 
         this.$http.get(url, config).then(
             (result: ng.IHttpPromiseCallbackArg<Models.ISubArtifact>) => defer.resolve(result.data),
-            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                const error = {
-                    statusCode: errResult.status,
-                    message: (errResult.data ? errResult.data.message : "")
-                };
-                defer.reject(error);
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                defer.reject(result.data);
             }
         );
         return defer.promise;
@@ -78,16 +66,8 @@ export class ArtifactService implements IArtifactService {
 
         this.$http(request).then(
             (result: ng.IHttpPromiseCallbackArg<Models.ILockResult>) => defer.resolve(result.data),
-            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                const error = {
-                    statusCode: errResult.status,
-                    message: (errResult.data ? errResult.data.message : "")
-                };
-                defer.reject(error);
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                defer.reject(result.data);
             }
         );
         return defer.promise;
@@ -99,17 +79,8 @@ export class ArtifactService implements IArtifactService {
 
         this.$http.patch(`/svc/bpartifactstore/artifacts/${artifact.id}`, angular.toJson(artifact)).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => defer.resolve(result.data),
-            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                const error = {
-                    statusCode: errResult.status,
-                    errorCode: errResult.data ? errResult.data.errorCode : -1,
-                    message: (errResult.data ? errResult.data.message : "")
-                };
-                defer.reject(error);
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                defer.reject(result.data);
             }
         );
         return defer.promise;

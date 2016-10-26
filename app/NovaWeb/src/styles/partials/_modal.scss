@@ -169,8 +169,13 @@ $modal-open-project-height: 450px;
 
         .search-result {
             display: flex;
+            align-items: center;
             border-bottom: 1px solid $gray-lightest;
             padding: 8px;
+
+            .checkbox {
+                width: 25px;
+            }
 
             & > i {
                 font-size: 24px;
@@ -180,6 +185,15 @@ $modal-open-project-height: 450px;
 
             &:hover {
                 background-color: $tree-hover-background;
+            }
+
+            &.selected {
+                background: $brand-secondary;
+                color: $white;
+
+                & > i {
+                    color: $white;
+                }
             }
         }
 

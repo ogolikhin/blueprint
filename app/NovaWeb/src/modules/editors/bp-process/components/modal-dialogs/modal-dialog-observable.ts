@@ -14,7 +14,7 @@ export class ModalDialogObservable<T> implements IModalDialogObservable<T> {
     }
 
     public registerObserver(observer: any): void {
-        for (var i = 0; i < this._observers.length; i++) {
+        for (let i = 0; i < this._observers.length; i++) {
             if (this._observers[i] === observer) {
                 throw new Error("Observer registration duplcation error!");
             }
@@ -23,8 +23,8 @@ export class ModalDialogObservable<T> implements IModalDialogObservable<T> {
     }
 
     public removeObserver(observer: any): void {
-        var wasRemoved: boolean = false;
-        for (var i = 0; i < this._observers.length; i++) {
+        let wasRemoved: boolean = false;
+        for (let i = 0; i < this._observers.length; i++) {
             if (this._observers[i] === observer) {
                 this._observers.splice(i, 1);
                 wasRemoved = true;

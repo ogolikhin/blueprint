@@ -161,7 +161,7 @@ $has-children-padding-before-arrow: 3px;
         }
     }
 
-    .ag-cell {
+    .ag-cell, .ag-header-cell-text {
         > span .ag-group-contracted i::before,
         > span .ag-group-expanded i::before {
             box-sizing: border-box;

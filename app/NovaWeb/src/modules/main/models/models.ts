@@ -18,20 +18,6 @@ export enum ArtifactStateEnum {
     Deleted = 2
 }
 
-export enum ProjectNodeType {
-    Folder = 0,
-    Project = 1
-}
-
-export interface IProjectNode {
-    id: number;
-    type: ProjectNodeType;
-    name: string;
-    parentFolderId: number;
-    description?: string;
-    hasChildren: boolean;
-    children?: IProjectNode[];
-}
 export interface ISubArtifactNode {
     id: number;
     parentId: number;
@@ -281,6 +267,11 @@ export class Artifact implements IArtifact {
     public itemTypeId: number;
     public itemTypeVersionId: number;
 
+}
+
+export interface IKeyValuePair {
+    key: any;
+    value: any;
 }
 
 export interface IHashMap<T> {

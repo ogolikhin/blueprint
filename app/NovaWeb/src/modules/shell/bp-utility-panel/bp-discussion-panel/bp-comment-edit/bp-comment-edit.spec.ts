@@ -19,7 +19,7 @@ describe("Component BPCommentEdit", () => {
     }));
 
     let directiveTest: ComponentTest<BPCommentEditController>;
-    let template = `<bp-comment-edit 
+    let template = `<bp-comment-edit
                         cancel-comment="null"
                         add-button-text=''
                         cancel-button-text=''
@@ -45,8 +45,7 @@ describe("Component BPCommentEdit", () => {
     it("callPostComment should finally make isWaiting false",
         inject(($timeout: ng.ITimeoutService, $q: ng.IQService) => {
             //Arrange
-            vm.postComment = () => {
-            };
+            vm.postComment = () => undefined;
             vm.isWaiting = false;
             let formatter = {};
             let body = {};
@@ -57,10 +56,8 @@ describe("Component BPCommentEdit", () => {
                 formatter: formatter,
                 contentDocument: contentDocument
             };
-            formatter["register"] = (a, b) => {
-            };
-            editor["focus"] = () => {
-            };
+            formatter["register"] = (a, b) => undefined;
+            editor["focus"] = () => undefined;
             body["innerHTML"] = "<p></p>";
             vm.tinymceOptions.init_instance_callback(editor);
             vm.postComment = (): ng.IPromise<any> => {
@@ -85,10 +82,8 @@ describe("Component BPCommentEdit", () => {
             let editor = {
                 formatter: formatter
             };
-            formatter["register"] = (a, b) => {
-            };
-            editor["focus"] = () => {
-            };
+            formatter["register"] = (a, b) => undefined;
+            editor["focus"] = () => undefined;
             spyOn(formatter, "register").and.callThrough();
 
             //Act
@@ -101,8 +96,7 @@ describe("Component BPCommentEdit", () => {
     it("tinymce setup should call addButton",
         () => {
             //Arrange
-            let addButton = (a, b) => {
-            };
+            let addButton = (a, b) => undefined;
             let editor = {
                 addButton: addButton
             };
@@ -150,10 +144,8 @@ describe("Component BPCommentEdit", () => {
                 formatter: formatter,
                 editorCommands: editorCommands
             };
-            editor.formatter.apply = () => {
-            };
-            editor.editorCommands.execCommand = (command: string) => {
-            };
+            editor.formatter.apply = () => undefined;
+            editor.editorCommands.execCommand = (command: string) => undefined;
             spyOn(editor.formatter, "apply").and.callThrough();
 
             //Act

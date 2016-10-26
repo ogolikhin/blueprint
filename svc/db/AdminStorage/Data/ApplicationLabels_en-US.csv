@@ -307,10 +307,10 @@ Property_UserPicker_ShowMore,"Show more"
 Property_UserPicker_Display_Top_N_Results,"Displaying first {0} results"
 
 #Messages
-HttpError_ServiceUnavailable, "Service is unavailable"
+HttpError_ServiceUnavailable, "A service on the Blueprint web server is unavailable. Please try again later. If the problem continues, contact your administrator for assistance."
 HttpError_Forbidden, "You do not have permission to view this artifact."
-HttpError_NotFound, "Not found. A project or an artifact for the specified ids is not found, does not exist or is deleted"
-HttpError_InternalServer,"Internal Server Error. An error occurred"
+HttpError_NotFound, "Sorry, but the artifact cannot be found. It has likely been deleted or moved."
+HttpError_InternalServer,"Sorry, but there is a problem with the Blueprint web server. Please contact your administrator for assistance."
 
 Project_NoProjectsAvailable,"Either no projects are available or you do not have the required permissions to access them."
 Error_Page_Message1,"An error ocurred while loading the page."

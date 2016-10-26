@@ -4,7 +4,7 @@ import { IArtifactManager } from "../managers";
 import { IStatefulArtifact } from "../managers/artifact-manager";
 import { IStatefulArtifactFactory } from "../managers/artifact-manager/artifact";
 import { IMessageService, Message, MessageType } from "../shell";
-import { IAppicationError, HttpStatusCode } from "../core";
+import { IApplicationError, HttpStatusCode } from "../core";
 import { INavigationService } from "../core/navigation";
 import { ILocalizationService } from "../core/localization";
 import { IItemInfoService, IItemInfoResult } from "../core/navigation/item-info.svc";
@@ -148,7 +148,7 @@ export class ItemStateController {
         }
     }
 
-    protected onArtifactError = (error: IAppicationError) => {
+    protected onArtifactError = (error: IApplicationError) => {
         if (error.statusCode === HttpStatusCode.NotFound) {
             const artifact = this.artifactManager.selection.getArtifact();
             this.navigationService.navigateToMain().finally(() => {

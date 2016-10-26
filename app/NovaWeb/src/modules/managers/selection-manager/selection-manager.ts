@@ -1,4 +1,4 @@
-import {IAppicationError, HttpStatusCode} from "./../../core";
+import {IApplicationError, HttpStatusCode} from "./../../core";
 import {IItem} from "./../../main/models/models";
 import {IStatefulArtifact, IStatefulSubArtifact, IStatefulItem} from "./../../managers/artifact-manager";
 import {IDispose} from "./../../managers/models";

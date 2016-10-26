@@ -261,7 +261,14 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                     deferred.resolve(this);
                 })
                 .catch((err) => {
-                    deferred.reject(err);
+                    const customErrorHandler = this.getCustomArtifactPromisesForSaveFailed();
+                    if (customErrorHandler) {
+                        customErrorHandler.finally(() => {
+                            deferred.reject(err);
+                        });
+                    } else {
+                        deferred.reject(err);
+                    }
                 });
             })
             .catch((err) => {
@@ -279,7 +286,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         return deferred.promise;
     }
-   
+
     private saveArtifact(): ng.IPromise<IStatefulArtifact> {
         let deferred = this.services.getDeferred<IStatefulArtifact>();
 
@@ -329,7 +336,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 }
             );
         }
-
+        
         return deferred.promise;
     }
 
@@ -464,6 +471,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return [];
     }
     protected getCustomArtifactPromisesForSave(): ng.IPromise <IStatefulArtifact> {
+        return null;
+    }
+    protected getCustomArtifactPromisesForSaveFailed(): ng.IPromise <IStatefulArtifact> {
         return null;
     }
 

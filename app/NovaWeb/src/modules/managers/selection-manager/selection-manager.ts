@@ -71,7 +71,8 @@ export class SelectionManager implements ISelectionManager {
        return this.selectionSubject
            .filter(selection => selection != null && selection.artifact != null)
            .flatMap(selection => selection.artifact.getObservable())
-           .distinctUntilChanged(this.distinctById).asObservable();
+           //.distinctUntilChanged(this.distinctById) -Don't re-enable without testing refreshing a deleted artifact; we need every artifact event.
+           .asObservable();
    }
 
     public get selectionObservable() {

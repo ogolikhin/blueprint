@@ -13,6 +13,7 @@ import {WindowManager, IWindowManager} from "../../main/services/window-manager"
 import {IMessageService} from "../../shell/";
 import {DialogService, IDialogService} from "../../shared/widgets/bp-dialog";
 import {ProcessServiceMock} from "../../editors/bp-process/services/process.svc.mock";
+import {PropertyEditor} from "../../editors/bp-artifact/bp-property-editor";
 import {
     IArtifactManager,
     ArtifactManager,
@@ -75,8 +76,11 @@ describe("Component BP Collection Editor", () => {
             collectionService,
             metadataService);
                
-        const collection = statefulArtifactFactory.createStatefulArtifact({ id: this.collectionId });
-        vm.artifact = collection;        
+        let collection = statefulArtifactFactory.createStatefulArtifact({ id: this.collectionId });       
+        vm.artifact = collection;
+        //vm.artifact.id = this.collectionId;
+        vm.editor = new PropertyEditor(localization);
+
         //vm.artifact = {
         //    id: collectionId,
         //    unload() { },
@@ -90,13 +94,24 @@ describe("Component BP Collection Editor", () => {
         vm = null;
     });    
 
-    it("should display data for a provided collection id", inject(($timeout: ng.ITimeoutService) => {        
+    it("collection loading is finished", inject(() => {        
 
-        vm.onArtifactReady();
-        //$timeout.flush();
+        vm.editor = undefined;
+        expect(vm.isLoading).toBeUndefined();
+        
+        vm.onArtifactReady();        
 
         //Assert
-        expect(vm.rootNode).not.toBeNull()        
+        expect(vm.isLoading).toBeFalsy();
+    }));
+
+    it("collection loading is finished", inject(($timeout: ng.ITimeoutService) => {        
+
+        vm.onArtifactReady();
+        $timeout.flush();
+
+        //Assert
+        expect(vm.rootNode).not.toBeNull();
     }));
 
     //it("should select a specified term", inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager) => {

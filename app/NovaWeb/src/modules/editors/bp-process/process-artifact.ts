@@ -56,14 +56,6 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         return saveProcessPromise;
     }
 
-    protected getCustomArtifactPromisesForSaveFailed(): ng.IPromise <IStatefulArtifact> {
-        const refresh = this.refresh();
-        refresh.finally(() => {
-            this.artifactState.dirty = true;
-        });
-        return refresh;
-    }
-
     protected runPostGetObservable() {
         this.loadProcessPromise = null;
     }

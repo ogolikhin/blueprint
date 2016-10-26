@@ -70,7 +70,7 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifact);
 
-            Assert.AreEqual(VIEWER_PERMISSIONS, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
+            Assert.AreEqual(VIEWER_PERMISSIONS, artifactDetails.Permissions, "Viewer should have read permissions (i.e. 1)!");
         }
 
         [TestCase(2)]

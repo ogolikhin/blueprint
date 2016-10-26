@@ -1,4 +1,4 @@
-import {IArtifactProperty, IUserTaskShape, PropertyTypePredefined} from "../../../../../models/process-models";
+import {IArtifactProperty, IUserTaskShape, PropertyTypePredefined, IArtifactReference} from "../../../../../models/process-models";
 import {ItemIndicatorFlags} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {
@@ -46,12 +46,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private detailsButton: Button;
     private previewButton: Button;
     private linkButton: Button;
-    private rootScope: any;
-    
-    // #UNUSED
-    // private _userStoryId: number;
-
-    public userStoryProperties: IUserStoryProperties;
+    private rootScope: any;    
 
     constructor(model: IUserTaskShape, rootScope: any, private nodeFactorySettings: NodeFactorySettings = null, private shapesFactoryService: ShapesFactory) {
         super(model);
@@ -60,16 +55,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         this.initButtons(model.id.toString(), nodeFactorySettings);
 
-        this.userStoryProperties = new UserStoryProperties();
-
         this.initChildElements();
-    }
-
-    public cloneUserTask(): UserTask {
-        const userTask = Object.assign({}, this);
-        userTask.label = this.label;
-        userTask.associatedArtifact = this.associatedArtifact;
-        return userTask;
     }
 
     private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
@@ -191,11 +177,11 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
        this.setPropertyValue("itemLabel", value);
     }
 
-    public get associatedArtifact(): any {
+    public get associatedArtifact(): IArtifactReference {
         return this.model.associatedArtifact;
     }
 
-    public set associatedArtifact(value: any) {
+    public set associatedArtifact(value: IArtifactReference) {
         if (this.model != null && this.model.associatedArtifact !== value) {
             this.model.associatedArtifact = value;           
             this.updateStatefulPropertyValue(PropertyTypePredefined.AssociatedArtifact, value);

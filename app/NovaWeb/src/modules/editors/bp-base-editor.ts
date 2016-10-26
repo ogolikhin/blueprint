@@ -19,11 +19,14 @@ export class BpBaseEditor {
     public $onInit() {
         this.isDestroyed = false;
         this.isLoading = true;
-        this.artifact = this.artifactManager.selection.getArtifact();
-        const selectedArtifactObserver = this.artifactManager.selection.currentlySelectedArtifactObservable
-            .subscribe(this.onArtifactChanged, this.onArtifactError);
+        
+        this.artifact = this.artifactManager.selection.getArtifact();       
+        if (this.artifact) {
+            const selectedArtifactSub = this.artifact.getObservable()
+                .subscribe(this.onArtifactChanged, this.onArtifactError);
 
-        this.subscribers.push(selectedArtifactObserver);
+            this.subscribers.push(selectedArtifactSub);
+        }
     }
 
     public $onDestroy() {

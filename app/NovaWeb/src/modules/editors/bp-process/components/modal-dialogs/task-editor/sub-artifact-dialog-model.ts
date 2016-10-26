@@ -4,6 +4,7 @@ import {DiagramNodeElement, UserTask, SystemTask} from "../../diagram/presentati
 import {IArtifactReference} from "../../../models/process-models";
 
 export abstract class SubArtifactTaskDialogModel implements IModalDialogModel {
+    artifactId: number;
     subArtifactId: number;
     isHistoricalVersion: boolean;
     isReadonly: boolean;

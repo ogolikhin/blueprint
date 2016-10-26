@@ -62,7 +62,7 @@ describe("UserDecision", () => {
         testModel.shapes.push(model);
         const processViewModel = new ProcessViewModel(testModel, communicationManager);
 
-        const graph = new ProcessGraph(rootScope, localScope, container, processViewModel, dialogService, localization);
+        const graph = new ProcessGraph(rootScope, localScope, container, processViewModel, dialogService, localization, shapesFactory);
 
         // Act
         graph.render(false, null);

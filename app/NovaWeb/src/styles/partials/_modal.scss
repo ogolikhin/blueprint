@@ -195,6 +195,13 @@ $modal-open-project-height: 450px;
             }
         }
 
+        .more-search-results {
+            font-size: 1.2rem;
+            font-style: italic;
+            padding: 8px;
+            text-align: center;
+        }
+
         .bp-highlight {
             text-decoration: underline;
         }
@@ -321,6 +328,25 @@ $modal-open-project-height: 450px;
             font-size: $font-size-normal;
             min-height: 3em;
     }
+    }
+}
+
+.modal.nova-publish {
+    .modal-header{
+        padding: 15px;
+        .modal-title .fonticon-modal::before {
+                font-size: 2.8rem;
+            }
+    }
+    .modal-body {
+        padding: 20px 56px;
+
+        .nova-message {
+            box-sizing: content-box;
+            font-size: $font-size-normal;
+            min-height: 3em;
+            padding-bottom: 5px;
+        }
     }
 }
 

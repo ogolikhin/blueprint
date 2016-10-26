@@ -4,7 +4,7 @@ import {Helper} from "../../../shared/";
 import {ILocalizationService} from "../../../core";
 import {ArtifactPickerNodeVM, InstanceItemNodeVM} from "./bp-artifact-picker-node-vm";
 import {IDialogSettings, BaseDialogController} from "../../../shared/";
-import {Models, SearchServiceModels} from "../../models";
+import {Models, AdminStoreModels, SearchServiceModels} from "../../models";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 
@@ -33,7 +33,6 @@ export class ArtifactPickerDialogController extends BaseDialogController {
     }
 }
 
-
 export class BpArtifactPicker implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactPickerController;
     public template: string = require("./bp-artifact-picker.html");
@@ -59,15 +58,18 @@ export interface IArtifactPickerController extends IArtifactPickerOptions {
     search(): void;
     isSearching: boolean;
     searchResults: SearchServiceModels.ISearchResult[];
-    project: Models.IProjectNode;
+    isMoreSearchResults: boolean;
+    onSearchResultClicked(searchResult: SearchServiceModels.ISearchResult);
+    project: AdminStoreModels.IInstanceItem;
     rootNode: InstanceItemNodeVM;
     columns: IColumn[];
     onSelect: (vm: ArtifactPickerNodeVM<any>, isSelected: boolean, selectedVMs: ArtifactPickerNodeVM<any>[]) => void;
-    setProject(project: Models.IProjectNode): void;
-    clearProject(): void;
+    onSelectionChanged: (params: {selectedVMs: ArtifactPickerNodeVM<any>[]}) => void;
 }
 
 export class BpArtifactPickerController implements ng.IComponentController, IArtifactPickerController {
+    private static readonly maxSearchResults = 100;
+
     public selectableItemTypes: Models.ItemTypePredefined[];
     public selectionMode: "single" | "multiple" | "checkbox";
     public showSubArtifacts: boolean;
@@ -76,6 +78,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public searchText: string = "";
     public isSearching: boolean = false;
     public searchResults: SearchServiceModels.ISearchResult[];
+    public isMoreSearchResults: boolean;
 
     static $inject = [
         "$scope",
@@ -101,18 +104,18 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         if (projectId) {
             const project = this.projectManager.getProject(projectId);
             if (project) {
-                this.setProject({
+                this.project = {
                     id: project.id,
-                    type: Models.ProjectNodeType.Project,
+                    type: AdminStoreModels.InstanceItemType.Project,
                     name: project.name,
                     hasChildren: project.hasChildren
-                } as Models.IProjectNode);
+                } as AdminStoreModels.IInstanceItem;
             } else {
                 this.projectService.getProject(projectId)
-                    .then(project => this.setProject(project));
+                    .then(project => this.project = project);
             }
         } else {
-            this.clearProject();
+            this.project = undefined;
         }
     }
 
@@ -135,17 +138,51 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     }
 
     public clearSearch(): void {
+        if (this.isSearching) {
+            this.projectService.abort();
+        }
         this.searchText = undefined;
         this.searchResults = undefined;
+        this.isMoreSearchResults = undefined;
     }
 
     public search(): void {
-        if (this.searchText) {
+        if (!this.isSearching && this.searchText && this.searchText.trim().length > 0) {
             this.isSearching = true;
-            this.projectService.searchProjects({query: this.searchText}).then(result => {
-                this.searchResults = result.items;
+            let search: ng.IPromise<SearchServiceModels.ISearchResultSet<SearchServiceModels.ISearchResult>>;
+            if (this.project) {
+                const searchCriteria: SearchServiceModels.IItemNameSearchCriteria = {
+                    query: this.searchText,
+                    projectIds: [this.project.id],
+                    predefinedTypeIds: this.selectableItemTypes,
+                    includeArtifactPath: true
+                };
+                search = this.projectService.searchItemNames(searchCriteria, 0, BpArtifactPickerController.maxSearchResults + 1);
+            } else {
+                const searchCriteria: SearchServiceModels.ISearchCriteria = {
+                    query: this.searchText
+                };
+                search = this.projectService.searchProjects(searchCriteria, BpArtifactPickerController.maxSearchResults + 1);
+            }
+            search.then(result => {
+                this.searchResults = result.items.slice(0, BpArtifactPickerController.maxSearchResults);
+                this.isMoreSearchResults = (result.items.length > BpArtifactPickerController.maxSearchResults);
+            }).finally(() => {
                 this.isSearching = false;
             });
+        }
+    }
+
+    public onSearchResultClicked(searchResult: SearchServiceModels.ISearchResult) {
+        if (this.project) {
+            return; //TODO
+        } else {
+            this.project = {
+                id: searchResult.itemId,
+                type: AdminStoreModels.InstanceItemType.Project,
+                name: searchResult.name,
+                hasChildren: true
+            } as AdminStoreModels.IInstanceItem;
         }
     }
 
@@ -165,34 +202,30 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public onSelect = (vm: ArtifactPickerNodeVM<any>, isSelected: boolean, selectedVMs: ArtifactPickerNodeVM<any>[]) => {
         if (vm instanceof InstanceItemNodeVM) {
             this.setSelectedVMs([]);
-            if (vm.model.type === Models.ProjectNodeType.Project) {
-                this.setProject(vm.model);
+            if (vm.model.type === AdminStoreModels.InstanceItemType.Project) {
+                this.project = vm.model;
             }
         } else {
             this.setSelectedVMs(selectedVMs);
         }
     };
 
-    public project: Models.IProjectNode;
+    private _project: AdminStoreModels.IInstanceItem;
 
-    public setProject(project: Models.IProjectNode): void {
-        this.clearSearch();
-        this.setSelectedVMs([]);
-        this.project = project;
-        this.currentSelectionMode = this.selectionMode || "single";
-        this.rootNode = new InstanceItemNodeVM(this.artifactManager, this.projectService, this, project, true);
+    public get project(): AdminStoreModels.IInstanceItem {
+        return this._project;
     }
 
-    public clearProject(): void {
+    public set project(project: AdminStoreModels.IInstanceItem) {
         this.clearSearch();
         this.setSelectedVMs([]);
-        this.project = undefined;
-        this.currentSelectionMode = "single";
-        this.rootNode = new InstanceItemNodeVM(this.artifactManager, this.projectService, this, {
+        this._project = project;
+        this.currentSelectionMode = this.selectionMode || "single";
+        this.rootNode = new InstanceItemNodeVM(this.artifactManager, this.projectService, this, project || {
             id: 0,
-            type: Models.ProjectNodeType.Folder,
+            type: AdminStoreModels.InstanceItemType.Folder,
             name: "",
             hasChildren: true
-        } as Models.IProjectNode, true);
+        } as AdminStoreModels.IInstanceItem, true);
     }
 }

@@ -2,7 +2,7 @@ import * as angular from "angular";
 import { ShapesFactory } from "./shapes-factory";
 import { ProcessGraph } from "../process-graph";
 import { ArtifactReferenceLinkMock, ShapeModelMock } from "./shape-model.mock";
-import { ProcessModel, ProcessShapeModel, ProcessLinkModel, PropertyTypePredefined } from "../../../../../models/process-models";
+import { ProcessModel, ProcessShapeModel, ProcessLinkModel, PropertyTypePredefined, ArtifactReference } from "../../../../../models/process-models";
 import { ProcessShapeType, ProcessType } from "../../../../../models/enums";
 import { ProcessViewModel, IProcessViewModel } from "../../../viewmodel/process-viewmodel";
 import { SystemTask, DiagramNodeElement } from "./";
@@ -31,7 +31,7 @@ describe("SystemTask", () => {
         dialogService: DialogService,
         localization: LocalizationServiceMock;
 
-    const testArtifactReferenceLink2 = new ArtifactReferenceLinkMock(2);
+    const testArtifactReference2 = new ArtifactReference();
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("communicationManager", CommunicationManager);
@@ -72,7 +72,7 @@ describe("SystemTask", () => {
         const viewModel = new ProcessViewModel(processModel, communicationManager);
 
         // Act
-        const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
+        const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory);
 
         const node = new SystemTask(ShapeModelMock.instance().SystemTaskMock(), rootScope, "", null, shapesFactory);
         node.render(graph, 80, 120, false);
@@ -83,7 +83,7 @@ describe("SystemTask", () => {
         node.description = "test description";
         node.associatedImageUrl = "test.jpg";
         node.imageId = "2";
-        node.associatedArtifact = testArtifactReferenceLink2;
+        node.associatedArtifact = testArtifactReference2;
 
         //Assert
         expect(graph.getNodeById("30").getNodeType()).toEqual(NodeType.SystemTask);
@@ -92,7 +92,7 @@ describe("SystemTask", () => {
         expect(node.description).toEqual("test description");
         expect(node.associatedImageUrl).toEqual("test.jpg");
         expect(node.imageId).toEqual("2");
-        expect(node.associatedArtifact).toEqual(testArtifactReferenceLink2);
+        expect(node.associatedArtifact).toEqual(testArtifactReference2);
     });
 
     describe("Test text elements", () => {
@@ -154,7 +154,7 @@ describe("SystemTask", () => {
             testModel.links.push(new ProcessLinkModel(null, 44, 55));
             processModel = new ProcessViewModel(testModel, communicationManager);
 
-            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory);
 
             graph.render(false, null);
         });
@@ -175,22 +175,14 @@ describe("SystemTask", () => {
             processModel.shapes.push(mock);
 
             statefulArtifact = <StatefulProcessArtifact>statefulArtifactFactory.createStatefulArtifact(artifact);
-            statefulArtifactFactory.populateStatefulProcessWithPorcessModel(statefulArtifact, processModel);
+            statefulArtifactFactory.populateStatefulProcessWithProcessModel(statefulArtifact, processModel);
             statefulSubArtifact = <StatefulProcessSubArtifact>statefulArtifact.subArtifactCollection.get(mock.id);
-            const peronsaPropertyValue = {
-                propertyTypeId: 0,
-                propertyTypeVersionId: null,
-                propertyTypePredefined: PropertyTypePredefined.Persona,
-                isReuseReadOnly: false,
-                value: ""
-            };
-            statefulSubArtifact.specialProperties.initialize([peronsaPropertyValue]);
 
             node = new SystemTask(<ISystemTaskShape>statefulArtifact.shapes[0], rootScope, "", null, shapesFactory);
 
             viewModel = new ProcessViewModel(statefulArtifact, communicationManager);
 
-            graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory);
         });
 
         it("when modifying persona - persona matches", () => {

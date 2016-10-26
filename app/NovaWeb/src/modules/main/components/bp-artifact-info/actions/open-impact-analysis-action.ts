@@ -24,6 +24,10 @@ export class OpenImpactAnalysisAction extends BPButtonAction {
                     return false;
                 }
 
+                if (artifact.deleted) {
+                    return false;
+                }
+
                 const invalidTypes = [
                     ItemTypePredefined.Project,
                     ItemTypePredefined.ArtifactCollection,

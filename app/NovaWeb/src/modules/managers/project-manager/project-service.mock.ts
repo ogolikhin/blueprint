@@ -1,4 +1,4 @@
-﻿import {Models, SearchServiceModels} from "../../main/models";
+﻿import {Models, AdminStoreModels, SearchServiceModels} from "../../main/models";
 import {IProjectService} from "./project-service";
 
 export class ProjectServiceMock implements IProjectService {
@@ -52,7 +52,6 @@ export class ProjectServiceMock implements IProjectService {
 
 
     public getArtifacts(id?: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
-
         const deferred = this.$q.defer<Models.IArtifact[]>();
         let items: Models.IArtifact[];
         if (!id && !artifactId) {
@@ -70,9 +69,9 @@ export class ProjectServiceMock implements IProjectService {
         return deferred.promise;
     }
 
-    public getProject(id?: number): ng.IPromise<Models.IProjectNode> {
-        const deferred = this.$q.defer<Models.IProjectNode>();
-        let item: Models.IProjectNode = {id: 1, name: "test", type: 1, parentFolderId: 0, hasChildren: false};
+    public getProject(id?: number): ng.IPromise<AdminStoreModels.IInstanceItem> {
+        const deferred = this.$q.defer<AdminStoreModels.IInstanceItem>();
+        const item: AdminStoreModels.IInstanceItem = {id: 1, name: "test", type: 1, parentFolderId: 0, hasChildren: false};
         deferred.resolve(item);
         return deferred.promise;
     }
@@ -80,21 +79,21 @@ export class ProjectServiceMock implements IProjectService {
 
     public getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta> {
         const deferred = this.$q.defer<Models.IProjectMeta>();
-        let meta = {} as Models.IProjectMeta;
+        const meta = {} as Models.IProjectMeta;
         deferred.resolve(meta);
         return deferred.promise;
     }
 
     public getSubArtifactTree(artifactId: number): ng.IPromise<Models.ISubArtifactNode[]> {
         const deferred = this.$q.defer<Models.ISubArtifactNode[]>();
-        let tree = [] as Models.ISubArtifactNode[];
+        const tree = [] as Models.ISubArtifactNode[];
         deferred.resolve(tree);
         return deferred.promise;
     }
 
     public getProjectTree(projectId: number, artifactId: number, loadChildren?: boolean): ng.IPromise<Models.IArtifact[]> {
         const deferred = this.$q.defer<Models.IArtifact[]>();
-        let tree = [] as Models.IArtifact[];
+        const tree = [] as Models.IArtifact[];
         deferred.resolve(tree);
         return deferred.promise;
     }
@@ -103,7 +102,16 @@ export class ProjectServiceMock implements IProjectService {
                           resultCount?: number,
                           separatorString?: string): ng.IPromise<SearchServiceModels.IProjectSearchResultSet> {
         const deferred = this.$q.defer<SearchServiceModels.IProjectSearchResultSet>();
-        let result = {} as SearchServiceModels.IProjectSearchResultSet;
+        const result = {} as SearchServiceModels.IProjectSearchResultSet;
+        deferred.resolve(result);
+        return deferred.promise;
+    }
+
+    public searchItemNames(searchCriteria: SearchServiceModels.IItemNameSearchCriteria,
+                           startOffset: number = 0,
+                           pageSize: number = 100): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet> {
+        const deferred = this.$q.defer<SearchServiceModels.IItemNameSearchResultSet>();
+        const result = {} as SearchServiceModels.IItemNameSearchResultSet;
         deferred.resolve(result);
         return deferred.promise;
     }
@@ -178,4 +186,3 @@ export class ProjectServiceMock implements IProjectService {
         return result;
     }
 }
-

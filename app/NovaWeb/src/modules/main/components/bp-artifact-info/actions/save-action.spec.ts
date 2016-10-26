@@ -271,7 +271,7 @@ describe("SaveAction", () => {
                 // arrange
                 saveSpy.and.callFake(() => {
                     const deferred = $q.defer();
-                    deferred.reject();
+                    deferred.reject(new Error(""));
                     return deferred.promise;
                 });
 

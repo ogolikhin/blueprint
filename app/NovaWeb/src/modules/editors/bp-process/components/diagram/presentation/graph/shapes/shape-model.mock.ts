@@ -20,7 +20,6 @@ export class ArtifactReferenceLinkMock implements IArtifactReferenceLink {
         this.associatedReferenceArtifactId = associatedReferenceArtifactId;
     }
 }
-
 export class ShapeModelMock {
     private static shapeModelMock: ShapeModelMock;
     private sampleUserTask: IUserTaskShape;

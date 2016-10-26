@@ -4,15 +4,16 @@
         <ui-select
             ng-model="model[options.key]"
             ng-disabled="{{to.disabled}}"
-            uis-open-close="bpFieldSelect.onOpenClose(isOpen)">
-            <ui-select-match placeholder="{{to.placeholder}}">
+            uis-open-close="bpFieldSelect.onOpenClose($select, isOpen)">
+            <ui-select-match placeholder="{{to.placeholder}}" allow-clear="true">
                 <div class="ui-select-match-item-chosen" bp-tooltip="{{$select.selected[to.labelProp]}}"
                      bp-tooltip-truncated="true">{{$select.selected[to.labelProp]}}</div>
             </ui-select-match>
-            <ui-select-choices class="ps-child"
-                               data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}"
-                               refresh="bpFieldSelect.refreshResults($select)"
-                               refresh-delay="0">
+            <ui-select-choices
+                   data-repeat="option[to.valueProp] as option in to.options | filter: {'name': $select.search}"
+                   refresh="bpFieldSelect.refreshResults($select)"
+                   refresh-delay="0"
+                   minimum-input-length="0">
                 <div class="ui-select-choice-item"
                      ng-class="{'ui-select-choice-item-selected': $select.selected[to.valueProp] === option[to.valueProp]}"
                      ng-bind-html="option[to.labelProp] | bpEscapeAndHighlight: $select.search"

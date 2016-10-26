@@ -202,6 +202,7 @@ export class MetaDataService implements IMetaDataService {
                     value: it.name
                 };
             }),
+            disabled: true, // makes the artifact type read-only
             isRequired: true
         });
         properties.push(<IPropertyType>{

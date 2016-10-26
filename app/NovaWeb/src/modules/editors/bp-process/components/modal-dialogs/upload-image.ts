@@ -59,8 +59,10 @@ export class UploadImageDirective implements ng.IDirective {
 
         const uploadImageCntr = $element.find("input");
         $scope.uploadImage = () => {
-            const fileInput = uploadImageCntr[0];
-            fileInput.click();
+            if (!$scope.isReadonly) {
+                const fileInput = uploadImageCntr[0];
+                fileInput.click();
+            }
         };
 
         $scope.downloadImage = () => {
@@ -70,15 +72,17 @@ export class UploadImageDirective implements ng.IDirective {
         };
 
         $scope.clearImage = () => {
-            const fileInput = uploadImageCntr;
-            fileInput.val("");
-            this.clearImageContainer($scope, $element, attr);
-            this.toggleButtons($scope, $element, false);
-            if (!!$scope.systemTaskModel.associatedImageUrl) {
-                $scope.systemTaskModel.associatedImageUrl = null;
-            }
-            if (!!$scope.systemTaskModel.imageId) {
-                $scope.systemTaskModel.imageId = null;
+            if (!$scope.isReadonly) {
+                const fileInput = uploadImageCntr;
+                fileInput.val("");
+                this.clearImageContainer($scope, $element, attr);
+                this.toggleButtons($scope, $element, false);
+                if (!!$scope.systemTaskModel.associatedImageUrl) {
+                    $scope.systemTaskModel.associatedImageUrl = null;
+                }
+                if (!!$scope.systemTaskModel.imageId) {
+                    $scope.systemTaskModel.imageId = null;
+                }
             }
         };
 
@@ -93,10 +97,12 @@ export class UploadImageDirective implements ng.IDirective {
                 }
                 if (type !== "jpeg" && type !== "jpg" && type !== "png") {
                     $scope.typeError = true;
+                    $scope.$digest();
                     return;
                 }
                 if (dataFile.size > 2 * 1024 * 1024) {//2 MegaBytes
                     $scope.sizeError = true;
+                    $scope.$digest();
                     return;
                 }
                 // Create new file in filestore as a temporary file with expirary 1 day.

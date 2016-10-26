@@ -2,19 +2,26 @@ import * as angular from "angular";
 import "angular-mocks";
 require("script!mxClient");
 import "../../..";
-import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
-import {ILocalizationService} from "../../../../../core/localization";
-import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
-import {IModalScope} from "../base-modal-dialog-controller";
-import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
-import {IProcessGraph, IDiagramNode, IDiagramLink, NodeType, ICondition, IDecision} from "../../diagram/presentation/graph/models";
-import {ProcessEvents} from "../../diagram/process-diagram-communication";
-import {ProcessDeleteHelper} from "../../diagram/presentation/graph/process-delete-helper";
-import {IDialogSettings, IDialogService} from "../../../../../shared";
-import {SystemTaskDialogModel} from "./sub-artifact-dialog-model";
-import {SystemTaskModalController} from "./system-task-modal-controller";
-import {IArtifactReference, ArtifactReference} from "../../../models/process-models";
-import {DiagramNodeElement, UserTask, SystemTask} from "../../diagram/presentation/graph/shapes/";
+import { ModalServiceInstanceMock } from "../../../../../shell/login/mocks.spec";
+import { ILocalizationService } from "../../../../../core/localization";
+import { LocalizationServiceMock } from "../../../../../core/localization/localization.mock";
+import { IModalScope } from "../base-modal-dialog-controller";
+import { ProcessGraph } from "../../diagram/presentation/graph/process-graph";
+import { IProcessGraph, IDiagramNode, IDiagramLink, NodeType, ICondition, IDecision } from "../../diagram/presentation/graph/models";
+import { ProcessEvents } from "../../diagram/process-diagram-communication";
+import { ProcessDeleteHelper } from "../../diagram/presentation/graph/process-delete-helper";
+import { IDialogSettings, IDialogService } from "../../../../../shared";
+import { SystemTaskDialogModel } from "./sub-artifact-dialog-model";
+import { SystemTaskModalController } from "./system-task-modal-controller";
+import { IArtifactReference, ArtifactReference, ProcessModel, ISystemTaskShape } from "../../../models/process-models";
+import { DiagramNodeElement, UserTask, SystemTask } from "../../diagram/presentation/graph/shapes/";
+import { ShapeModelMock } from "../../diagram/presentation/graph/shapes/shape-model.mock";
+import { ShapesFactory } from "../../diagram/presentation/graph/shapes/shapes-factory";
+import { Models } from "../../../../../main/models/";
+import { StatefulArtifactFactoryMock } from "../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import { ArtifactServiceMock } from "../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import { StatefulProcessSubArtifact } from "../../../process-subartifact";
+import { StatefulProcessArtifact } from "../../../process-artifact";
 
 describe("SystemTaskModalController", () => {
     let $rootScope: ng.IRootScopeService;
@@ -40,6 +47,8 @@ describe("SystemTaskModalController", () => {
         $timeout = _$timeout_;
         localization = _localization_;
         $uibModalInstance = _$uibModalInstance_;
+        $rootScope["config"] = {};
+        $rootScope["config"].labels = {};
     }));
 
     function createSystemTaskNode(): SystemTask {
@@ -216,6 +225,111 @@ describe("SystemTaskModalController", () => {
             expect(model.originalItem.imageId).toEqual(model.imageId);
             expect(model.originalItem.label).toEqual(null);
             expect(model.originalItem.persona).toEqual(model.persona);
+        });
+
+        describe("Stateful Changes - save data - ", () => {
+            let model: SystemTaskDialogModel;
+            let controller: SystemTaskModalController;
+            let statefulArtifact: StatefulProcessArtifact;
+            beforeEach(() => {
+                const factory = new StatefulArtifactFactoryMock();
+                const artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
+                artifact.predefinedType = Models.ItemTypePredefined.Process;
+                statefulArtifact = <StatefulProcessArtifact>factory.createStatefulArtifact(artifact);
+
+                const processModel = new ProcessModel();
+                const mock = ShapeModelMock.instance().SystemTaskMock();
+                processModel.shapes.push(mock);
+
+                factory.populateStatefulProcessWithProcessModel(statefulArtifact, processModel);
+                const statefulSubArtifact = <StatefulProcessSubArtifact>statefulArtifact.subArtifactCollection.get(mock.id);
+                const shapesFactory = new ShapesFactory($rootScope, factory);
+                const diagramNode = new SystemTask(<ISystemTaskShape>statefulArtifact.shapes[0], $rootScope, "", null, shapesFactory);
+                model = new SystemTaskDialogModel();
+                model.originalItem = diagramNode;
+                model.isReadonly = false;
+                model.isHistoricalVersion = false;
+                model.action = diagramNode.action;
+                model.imageId = diagramNode.imageId;
+                model.associatedImageUrl = diagramNode.associatedImageUrl;
+                model.label = diagramNode.label;
+                model.persona = diagramNode.persona;
+                model.associatedArtifact = diagramNode.associatedArtifact;
+                model.originalItem = diagramNode;
+
+                const $scope = <IModalScope>$rootScope.$new();
+                const localizationSpy = spyOn(localization, "get");
+                controller = new SystemTaskModalController($scope,
+                    $rootScope,
+                    $timeout,
+                    dialogService,
+                    localization,
+                    $uibModalInstance,
+                    model);
+            });
+
+
+            it("persona changes, triggers lock and is dirty", () => {
+
+                spyOn(statefulArtifact, "refresh")();
+                const lockSpy = spyOn(statefulArtifact, "lock");
+
+                model.persona = "new persona";
+
+                controller.saveData();
+
+                expect(lockSpy).toHaveBeenCalled();
+                expect(statefulArtifact.artifactState.dirty).toBeTruthy();
+            });
+
+
+            it("action (label) changes, triggers lock and is dirty", () => {
+
+                spyOn(statefulArtifact, "refresh")();
+                const lockSpy = spyOn(statefulArtifact, "lock");
+
+                model.action = "new system action";
+
+                controller.saveData();
+
+                expect(lockSpy).toHaveBeenCalled();
+                expect(statefulArtifact.artifactState.dirty).toBeTruthy();
+            });
+
+            it("image changes, triggers lock and is dirty", () => {
+
+                spyOn(statefulArtifact, "refresh")();
+                const lockSpy = spyOn(statefulArtifact, "lock");
+
+                model.imageId = "6b021f82-0e3c-4df7-8eb2-74730b92dc3a";
+
+                controller.saveData();
+
+                expect(lockSpy).toHaveBeenCalled();
+                expect(statefulArtifact.artifactState.dirty).toBeTruthy();
+            });
+
+            it("associated artifact changes, triggers lock and is dirty", () => {
+
+                spyOn(statefulArtifact, "refresh")();
+                const lockSpy = spyOn(statefulArtifact, "lock");
+
+                const artifactReference: ArtifactReference = {
+                    baseItemTypePredefined: Models.ItemTypePredefined.Actor,
+                    id: 99,
+                    name: "test actor",
+                    projectId: 2,
+                    projectName: "Test",
+                    link: "",
+                    typePrefix: ""
+                }
+                model.associatedArtifact = artifactReference;
+
+                controller.saveData();
+
+                expect(lockSpy).toHaveBeenCalled();
+                expect(statefulArtifact.artifactState.dirty).toBeTruthy();
+            });
         });
 
     });

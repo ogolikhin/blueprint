@@ -105,7 +105,7 @@
     margin-left: -8px;
 }
 
-.storyteller-modal-header {
+.storyteller-modal-header.modal-header {
     background-color: $brand-secondary;
     padding: 25px 42px;
     -webkit-border-top-left-radius: 4px;
@@ -154,14 +154,12 @@
     }
 
     .modal-dialog {
-        width: 600px;
-        max-width: none;
+        max-width: 440px;
         display: inline-block;
         text-align: left;
         margin-top: 72px;
     }
 }
-
 .file-upload_container {
     width: 100%;
     @include rounded-corners(3px);
@@ -174,7 +172,7 @@
 
 .file-upload_outer-container {
     position: relative;
-    margin-bottom: 45px;
+    margin-bottom: 35px;
 
     label {
         font-weight: 500;
@@ -210,7 +208,42 @@
     justify-content: center;
     width: 100%;
     height: 100%;
+    position: relative;
+    .file-upload__button-bar {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background-color: rgba(255,255,255, 0.5);
+        text-align: right;
+        padding: 3px 5px;
+    &:hover {
+        background-color: rgba(255,255,255, 0.5);
+    }
 }
+
+    .file-upload__button {
+        padding: 3px;
+        color: $gray;
+        cursor: pointer;
+        [class^="fonticon2-"] {
+            margin-right: 2px;
+            &:before {
+            font-size: $font-size-big;
+            }
+        }
+        &:hover {
+            color: $brand-secondary;
+        }
+        &--disabled {
+            color: $gray-lighter;
+            cursor: not-allowed;
+        }
+        &--disabled:hover {
+            color: $gray-lighter;
+        }
+    }
+}
+
 
 .file-upload_emptied, .file-upload_preview {
     /*text-align: center;
@@ -678,7 +711,7 @@ table.mxPopupMenu tr {
         color: #fff;
         position: absolute;
         bottom: 5px;
-        right: 5px;
+        left: 5px;
         z-index: 999;
         opacity: 0.9;
         cursor: pointer;

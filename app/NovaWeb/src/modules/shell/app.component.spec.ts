@@ -12,6 +12,12 @@ describe("Component AppComponent", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("session", SessionSvcMock);
         $provide.service("navigationService", NavigationService);
+        $provide.service("projectManager", () => ({
+            removeAll: () => { return undefined; }
+        }));
+        $provide.service("selectionManager", () => ({
+            clearAll: () => { return undefined; }
+        }));
         $provide.service("settings", SettingsMock);
         $provide.service("$window", WindowMock);
     }));

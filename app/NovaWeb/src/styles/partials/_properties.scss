@@ -1251,14 +1251,21 @@ pagecontent, bp-properties-panel {
 
                 .icon {
                     display: inline-block;
-                    line-height: #{$property-min-height + 12px}; // so it's the same height as the input field (which has 2px margin + 4px padding top and bottom)
                     padding-left: $padding-smaller;
                     padding-right: $padding-smaller;
-                    &.disabled {
+                }
+
+                .icon__action{
+                    &:hover{
+                        cursor: pointer;
+                    }
+
+                    &.disabled, &[disabled] {
                         cursor: not-allowed;
-                        opacity: $default-disabled-opacity;
+                        color: $default-disabled-opacity;
                     }
                 }
+
                 &:not(:first-child):not(:last-child) {
                     padding-right: 5px;
                     .icon {

@@ -92,7 +92,7 @@ pagecontent, bp-properties-panel {
         justify-content: space-between;
         margin: 0 $property-horiz-spacing;
         min-width: $property-width - $property-label-width;
-        padding: 0 0 10px;
+        padding: 0;
 
         // create "padding" to align un-even numbers of property groups
         &::after,

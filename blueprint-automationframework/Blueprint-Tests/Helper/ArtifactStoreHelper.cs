@@ -567,9 +567,10 @@ namespace Helper
         /// <param name="artifactStore">IArtifactStore.</param>
         /// <param name="isSuspect">(optional)isSuspect, true for suspect trace, false otherwise.</param>
         /// <param name="targetSubArtifact">(optional)subArtifact for trace target(creates trace with subartifact).</param>
+        /// <param name="expectedErrorMessage">(optional)Expected error message.</param>
         public static void UpdateManualArtifactTraceAndSave(IUser user, IArtifact artifact, IArtifactBase traceTarget,
             ArtifactUpdateChangeType changeType, IArtifactStore artifactStore, TraceDirection traceDirection = TraceDirection.From,
-            bool? isSuspect = null, INovaSubArtifact targetSubArtifact = null)
+            bool? isSuspect = null, INovaSubArtifact targetSubArtifact = null, IServiceErrorMessage expectedErrorMessage = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -586,19 +587,16 @@ namespace Helper
             traceToCreate.Direction = traceDirection;
             traceToCreate.TraceType = TraceTypes.Manual;
             traceToCreate.ItemId = targetSubArtifact?.Id ?? traceTarget.Id;
-            traceToCreate.ChangeType = changeType; // TODO: replace with enum create = 0, 1 = update, 2 = delete
+            traceToCreate.ChangeType = changeType;
             traceToCreate.IsSuspect = isSuspect ?? false;
 
             List<NovaTrace> updatedTraces = new List<NovaTrace> { traceToCreate };
 
             artifactDetails.Traces = updatedTraces;
 
-            Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
-            // TODO: add assertions about changed traces for all 'changeType'
-            /*var relationships = artifactStore.GetRelationships(user, artifact, addDrafts: true);
-            Assert.IsTrue(relationships.ManualTraces.Any(tr => tr.ArtifactId == traceTarget.Id &&
-                tr.Direction == traceDirection),
-                "..");*/
+            Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address,
+                expectedServiceErrorMessage: expectedErrorMessage);
+            // TODO: add assertions about changed traces
         }
 
     }

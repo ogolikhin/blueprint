@@ -33,11 +33,6 @@ namespace ArtifactStoreTests
             _projects = ProjectFactory.GetAllProjects(_adminUser, shouldRetrievePropertyTypes: true);
             _projectTest = _projects[0];
             _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _projectTest);
-            /*_authorUser = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
-            Helper.AssignProjectRolePermissionsToUser(_authorUser, RolePermissions.Trace | RolePermissions.Read | RolePermissions.Edit,
-                _projectTest);
-            Helper.AdminStore.AddSession(_authorUser);
-            Helper.BlueprintServer.LoginUsingBasicAuthorization(_authorUser);*/
         }
 
         [TearDown]
@@ -106,7 +101,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(183602)]
         [Description("Delete trace from artifact with manual trace, check that trace was deleted.")]
-        public void DeleteTrace_ArtifactWithManualTrace_TraceWasDeleted()
+        public void DeleteTrace_PublishedArtifactWithTrace_TraceWasDeleted()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.Actor);
@@ -127,6 +122,32 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(0, relationships.ManualTraces.Count, "Relationships should have no manual traces.");
             Assert.AreEqual(0, targetRelationships.ManualTraces.Count, "Relationships should have no manual traces.");
+        }
+
+        [TestCase]
+        [TestRail(185252)]
+        [Description("Delete trace from artifact with manual trace, check that trace was deleted.")]
+        public void DeleteTrace_DraftArtifactWithTrace_TraceWasDeleted()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.Actor);
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase);
+
+            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
+                    changeType: ArtifactUpdateChangeType.Add, artifactStore: Helper.ArtifactStore);
+
+            Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
+            Assert.AreEqual(1, relationships.ManualTraces.Count, "Artifact should have 1 trace.");
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
+                    changeType: ArtifactUpdateChangeType.Delete, artifactStore: Helper.ArtifactStore);
+            }, "Trace delete shouldn't throw any error.");
+
+            // Verify:
+            relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
+            Assert.AreEqual(0, relationships.ManualTraces.Count, "Artifact shouldn't have traces.");
         }
 
         [TestCase(TraceDirection.From, TraceDirection.To)]
@@ -157,6 +178,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(finalDirection, relationships.ManualTraces[0].Direction, "Relationships should have expected direction.");
+            ValidateTrace(relationships.ManualTraces[0], targetArtifact);
         }
 
         [TestCase]
@@ -188,7 +210,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(183605)]
         [Description("Create trace between 2 SubArtifacts, Artifact and other Artifacts, check that operation throw no errors.")]
-        public void AddTrace_Between2SubArtifactsArtifactAndArtifact_TraceHasExpectedValue()
+        public void AddTrace_Between2SubArtifactsArtifactAnd3OtherArtifacts_TracesHaveExpectedValue()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase);
@@ -223,15 +245,110 @@ namespace ArtifactStoreTests
                 addDrafts: true);
             Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
             Assert.AreEqual(1, subArtifact1Relationships.ManualTraces.Count, "1 manual trace should be created.");
-            Assert.AreEqual(targetArtifact1.Id, subArtifact1Relationships.ManualTraces[0].ArtifactId,
-                "Id should have expected value.");
+            ValidateTrace(subArtifact1Relationships.ManualTraces[0], targetArtifact1);
             Assert.AreEqual(1, subArtifact2Relationships.ManualTraces.Count, "1 manual trace should be created.");
-            Assert.AreEqual(targetArtifact2.Id, subArtifact2Relationships.ManualTraces[0].ArtifactId,
-                "Id should have expected value.");
+            ValidateTrace(subArtifact2Relationships.ManualTraces[0], targetArtifact2);
             Assert.AreEqual(0, subArtifact3Relationships.ManualTraces.Count, "No manual trace should be created for the 3rd subartifact.");
             Assert.AreEqual(1, relationships.ManualTraces.Count, "1 manual trace should be created.");
-            Assert.AreEqual(targetArtifact3.Id, relationships.ManualTraces[0].ArtifactId,
-                "Id should have expected value.");
+            ValidateTrace(relationships.ManualTraces[0], targetArtifact3);
+        }
+
+        [TestCase]
+        [TestRail(185256)]
+        [Description("Create trace between 2 SubArtifacts, Artifact and other Artifact, check that operation throw no errors.")]
+        public void AddTrace_Between2SubArtifactsArtifactAndArtifact_TracesWereCreated()
+        {
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase);
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
+
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_authorUser, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
+
+            artifact.Lock(_authorUser);
+
+            NovaTrace trace = new NovaTrace(targetArtifact);
+            trace.TraceType = TraceTypes.ActorInherits;
+
+            subArtifacts[0].Traces = new List<NovaTrace> { trace };
+            subArtifacts[1].Traces = new List<NovaTrace> { trace };
+
+            artifactDetails.SubArtifacts = subArtifacts;
+
+            var updatedArtifactdetails = AddArtifactTraceToArtifactDetails(artifactDetails, targetArtifact, TraceDirection.TwoWay,
+                changeType: ArtifactUpdateChangeType.Add);
+
+            Assert.DoesNotThrow(() => { Artifact.UpdateArtifact(artifact, _authorUser, updatedArtifactdetails); },
+                "trace creation shouldn't throw any error.");
+            Relationships subArtifact1Relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, subArtifacts[0].Id,
+                addDrafts: true);
+            Relationships subArtifact2Relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, subArtifacts[1].Id,
+                addDrafts: true);
+            Relationships subArtifact3Relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, subArtifacts[2].Id,
+                addDrafts: true);
+            Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
+            Assert.AreEqual(1, subArtifact1Relationships.ManualTraces.Count, "1 manual trace should be created.");
+            ValidateTrace(subArtifact1Relationships.ManualTraces[0], targetArtifact);
+            Assert.AreEqual(1, subArtifact2Relationships.ManualTraces.Count, "1 manual trace should be created.");
+            ValidateTrace(subArtifact2Relationships.ManualTraces[0], targetArtifact);
+            Assert.AreEqual(0, subArtifact3Relationships.ManualTraces.Count, "No manual trace should be created for the 3rd subartifact.");
+            Assert.AreEqual(1, relationships.ManualTraces.Count, "1 manual trace should be created.");
+            ValidateTrace(relationships.ManualTraces[0], targetArtifact);
+        }
+
+        [TestCase]
+        [TestRail(185241)]
+        [Description("Create trace between SubArtifact and Artifact, check that trace has expected direction.")]
+        public void AddTrace_ArtifactAndItsSubArtifact_TraceHasExpectedValue()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase);
+
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_authorUser, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
+
+            artifact.Lock(_authorUser);
+
+            NovaTrace trace = new NovaTrace(artifact);
+
+            subArtifacts[0].Traces = new List<NovaTrace> { trace };
+
+            artifactDetails.SubArtifacts = subArtifacts;
+
+            // Execute:
+            Assert.DoesNotThrow(() => { Artifact.UpdateArtifact(artifact, _authorUser, artifactDetails); },
+                "Trace creation shouldn't throw any error.");
+
+            // Verify:
+            Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, subArtifacts[0].Id,
+                addDrafts: true);
+            Assert.AreEqual(1, relationships.ManualTraces.Count, "1 manual trace should be created.");
+            ValidateTrace(relationships.ManualTraces[0], artifact);
+        }
+
+        [TestCase]
+        [TestRail(185257)]
+        [Description("Add trace when trace's target is locked by other user, check that trace was created.")]
+        public void AddTrace_TraceTargetLockedByOtherUser_TraceWasCreated()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.Actor);
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase);
+
+            targetArtifact.Lock(_adminUser);
+            
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
+                    changeType: ArtifactUpdateChangeType.Add, artifactStore: Helper.ArtifactStore, traceDirection: TraceDirection.TwoWay);
+            }, "Trace adding shouldn't throw any error.");
+            Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
+            Relationships targetRelationships = Helper.ArtifactStore.GetRelationships(_authorUser, targetArtifact, addDrafts: true);
+
+            // Verify:
+            Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual traces.");
+            Assert.AreEqual(1, targetRelationships.ManualTraces.Count, "Relationships should have 1 manual traces.");
+            ValidateTrace(relationships.ManualTraces[0], targetArtifact);
+            ValidateTrace(targetRelationships.ManualTraces[0], artifact);
         }
         #endregion Positive Tests
 
@@ -276,7 +393,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.Throws<Http409ConflictException>(() => {
-                Artifact.UpdateArtifact(artifact, _authorUser, artifactDetails,traceToItselfMessage);
+                Artifact.UpdateArtifact(artifact, _authorUser, artifactDetails, traceToItselfMessage);
             }, "Trace creation should throw 409 error.");
 
             // Verify:
@@ -285,108 +402,8 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [TestRail(4)]
-        [Description("Delete trace from artifact with manual trace, check that trace was deleted.")]
-        public void DeleteTrace_PublishedArtifactWithTrace_TraceWasDeleted()
-        {
-            // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.Actor);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase);
-
-            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
-                    changeType: ArtifactUpdateChangeType.Add, artifactStore: Helper.ArtifactStore, traceDirection: TraceDirection.To);
-
-            // Execute:
-            Assert.DoesNotThrow(() => {
-                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
-                    changeType: ArtifactUpdateChangeType.Add, artifactStore: Helper.ArtifactStore, traceDirection: TraceDirection.To);
-                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, targetArtifact, artifact,
-                        changeType: ArtifactUpdateChangeType.Add, artifactStore: Helper.ArtifactStore, traceDirection: TraceDirection.TwoWay);
-            }, "Trace update shouldn't throw any error.");
-
-            // Verify:
-            Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: false);
-            Assert.AreEqual(0, relationships.ManualTraces.Count, "..");
-            relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
-            Assert.AreEqual(1, relationships.ManualTraces.Count, "..");
-        }
-
-        [TestCase]
-        [TestRail(5)]//https://trello.com/c/98PdWkQ8
-        [Description("...")]
-        public void AddTrace_NonSubArtifactArtifact_ThrowException()
-        {
-            // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
-
-            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_authorUser, artifact.Id);
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
-
-            artifact.Lock(_authorUser);
-            
-            subArtifacts[0].Traces = new List<NovaTrace> { new NovaTrace(targetArtifact) };
-
-            artifactDetails.SubArtifacts = subArtifacts;
-
-            // Execute:
-            Assert.DoesNotThrow(() => { Artifact.UpdateArtifact(artifact, _authorUser, artifactDetails); },
-                "Trace creation shouldn't throw any error.");
-
-            // Verify:
-            Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, subArtifacts[0].Id,
-                addDrafts: true);
-            Assert.AreEqual(1, relationships.ManualTraces.Count, "1 manual trace should be created.");
-        }
-
-        [TestCase]
-        [TestRail(6)]
-        [Description("Create trace between 2 SubArtifacts, Artifact and other Artifact, check that operation throw no errors.")]
-        public void AddTrace_Between2SubArtifactsArtifactAndArtifact_Error()
-        {
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
-            
-            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_authorUser, artifact.Id);
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
-
-            artifact.Lock(_authorUser);
-
-            NovaTrace trace = new NovaTrace(targetArtifact);
-            trace.TraceType = TraceTypes.ActorInherits;
-
-            subArtifacts[0].Traces = new List<NovaTrace> { trace };
-            subArtifacts[1].Traces = new List<NovaTrace> { trace };
-
-            artifactDetails.SubArtifacts = subArtifacts;
-            
-            var updatedArtifactdetails = AddArtifactTraceToArtifactDetails(artifactDetails, targetArtifact, TraceDirection.TwoWay,
-                changeType: ArtifactUpdateChangeType.Add);
-
-            Assert.DoesNotThrow(() => { Artifact.UpdateArtifact(artifact, _authorUser, updatedArtifactdetails); },
-                "trace creation shouldn't throw any error.");
-            Relationships subArtifact1Relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, subArtifacts[0].Id,
-                addDrafts: true);
-            Relationships subArtifact2Relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, subArtifacts[1].Id,
-                addDrafts: true);
-            Relationships subArtifact3Relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, subArtifacts[2].Id,
-                addDrafts: true);
-            Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
-            Assert.AreEqual(1, subArtifact1Relationships.ManualTraces.Count, "1 manual trace should be created.");
-            Assert.AreEqual(targetArtifact.Id, subArtifact1Relationships.ManualTraces[0].ArtifactId,
-                "Id should have expected value.");
-            Assert.AreEqual(1, subArtifact2Relationships.ManualTraces.Count, "1 manual trace should be created.");
-            Assert.AreEqual(targetArtifact.Id, subArtifact2Relationships.ManualTraces[0].ArtifactId,
-                "Id should have expected value.");
-            Assert.AreEqual(0, subArtifact3Relationships.ManualTraces.Count, "No manual trace should be created for the 3rd subartifact.");
-            Assert.AreEqual(1, relationships.ManualTraces.Count, "1 manual trace should be created.");
-            Assert.AreEqual(targetArtifact.Id, relationships.ManualTraces[0].ArtifactId,
-                "Id should have expected value.");
-        }
-
-        [TestCase]
-        [TestRail(1)]//https://trello.com/c/dI1XaYSz
-        [Description(".")]
+        [TestRail(185242)]//https://trello.com/c/dI1XaYSz
+        [Description("Tries to add SubArtifact trace for Artifact without SubArtifacts support (update subartifacts of TextualRequirement with trace).")]
         public void AddSubArtifactTrace_ArtifactWithoutSubArtifacts_Returns409()
         {
             // Setup:
@@ -418,27 +435,118 @@ namespace ArtifactStoreTests
             Assert.AreEqual(0, relationships.ManualTraces.Count, "No traces should be created.");
         }
 
+        [TestCase]//https://trello.com/c/fr3IOGF4 message should be updated
+        [TestRail(185244)]
+        [Description("Try to create trace, user has no access for artifact he tries to update, check 409 exception.")]
+        public void AddTrace_UserHasNoTracePermissionForArtifacts_Returns409()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
+
+            Helper.AssignProjectRolePermissionsToUser(_authorUser, RolePermissions.Read | RolePermissions.Edit | RolePermissions.Delete,
+                _projectTest, artifact);
+
+            IServiceErrorMessage traceToItselfMessage = new ServiceErrorMessage("Cannot perform save, the artifact provided is attempting to override a property made readonly by reuse.", 116);
+
+            // Execute:
+            Assert.Throws<Http409ConflictException>(() => {
+                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
+                    traceDirection: TraceDirection.From, changeType: ArtifactUpdateChangeType.Add,
+                    artifactStore: Helper.ArtifactStore, expectedErrorMessage: traceToItselfMessage);
+                },"Trace creation shouldn't throw any error.");
+
+            // Verify:
+            Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
+            Relationships targetRelationships = Helper.ArtifactStore.GetRelationships(_authorUser, targetArtifact, addDrafts: true);
+            Assert.AreEqual(0, relationships.ManualTraces.Count, "Relationships should have no manual traces.");
+            Assert.AreEqual(0, targetRelationships.ManualTraces.Count, "Relationships should have no manual traces.");
+        }
+
+        [TestCase]
+        [Explicit(IgnoreReasons.ProductBug)]//https://trello.com/c/EcIJ5qsM message should be updated
+        [TestRail(185255)]
+        [Description("Try to create trace, user has no Edit permission for trace target, check 403 exception.")]
+        public void AddTrace_UserHasNoEditPermissionForArtifact_Returns403()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
+
+            Helper.AssignProjectRolePermissionsToUser(_authorUser, RolePermissions.Read | RolePermissions.Delete, _projectTest,
+                targetArtifact);
+
+            IServiceErrorMessage traceToItselfMessage = new ServiceErrorMessage("Cannot perform save, the artifact provided is attempting to override a property made readonly by reuse.", 108);
+
+            // Execute:
+            Assert.Throws<Http403ForbiddenException>(() => {
+                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
+                    traceDirection: TraceDirection.From, changeType: ArtifactUpdateChangeType.Add,
+                    artifactStore: Helper.ArtifactStore, expectedErrorMessage: traceToItselfMessage);
+            }, "Trace creation shouldn't throw any error.");
+
+            // Verify:
+            Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
+            Relationships targetRelationships = Helper.ArtifactStore.GetRelationships(_authorUser, targetArtifact, addDrafts: true);
+            Assert.AreEqual(0, relationships.ManualTraces.Count, "Relationships should have no manual traces.");
+            Assert.AreEqual(0, targetRelationships.ManualTraces.Count, "Relationships should have no manual traces.");
+        }
+
+        [TestCase]
+        [Explicit(IgnoreReasons.ProductBug)]//https://trello.com/c/0uKqlnag message should be updated
+        [TestRail(185245)]
+        [Description("Try to create trace, user has no access for artifact he tries to update, check 409 exception.")]
+        public void AddTrace_UserHasNoTracePermissionForTargetArtifacts_Returns409()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
+
+            Helper.AssignProjectRolePermissionsToUser(_authorUser, RolePermissions.Read, _projectTest, targetArtifact);
+
+            IServiceErrorMessage traceToItselfMessage = new ServiceErrorMessage("Should be updated?", 108);
+
+            // Execute:
+            Assert.Throws<Http409ConflictException>(() => {
+                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
+                    traceDirection: TraceDirection.From, changeType: ArtifactUpdateChangeType.Add,
+                    artifactStore: Helper.ArtifactStore, expectedErrorMessage: traceToItselfMessage);
+            }, "Trace creation shouldn't throw any error.");
+
+            // Verify:
+            Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
+            Relationships targetRelationships = Helper.ArtifactStore.GetRelationships(_authorUser, targetArtifact, addDrafts: true);
+            Assert.AreEqual(0, relationships.ManualTraces.Count, "Relationships should have no manual traces.");
+            Assert.AreEqual(0, targetRelationships.ManualTraces.Count, "Relationships should have no manual traces.");
+        }
+
         #region Custom Data
 
-        [TestCase(4)]
-        [TestCase(6)]
-        [TestCase(87)]
-        [TestCase(5)]
+        [TestCase(4)]//Project 'Custom Data'
+        [TestCase(6)]//'Collections' folder
+        [TestCase(87)]//Collection
+        [TestCase(5)]//'Baseline and Reviews' folder
         [Category(Categories.CustomData)]
         [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/jzr6xUb1
-        [TestRail(7)]
-        [Description("Tries to create trace to Project/Collection/Collection Folder/Baseline Folder")]
+        [TestRail(185246)]
+        [Description("Tries to create trace to Project/Collection/Collection Folder/Baseline Folder.")]
         public void AddTrace_BetweenArtifactAndNonValidItem_ExceptionThrown(int nonValidItemId)
         {
+            // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
             IArtifact projectArtifact = ArtifactFactory.CreateArtifact(_projectTest, _adminUser, BaseArtifactType.Glossary, nonValidItemId);
 
-            Assert.DoesNotThrow(() => {
-                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_adminUser, artifact, projectArtifact,
-                    traceDirection: TraceDirection.To, changeType: ArtifactUpdateChangeType.Add, artifactStore: Helper.ArtifactStore);
+            IServiceErrorMessage wrongArtifactTypeMessage = new ServiceErrorMessage("Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.", 123);
+
+            // Execute:
+            Assert.Throws<Http409ConflictException>(() => {
+                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_adminUser, artifact, projectArtifact, traceDirection: TraceDirection.To, changeType: ArtifactUpdateChangeType.Add,
+                    artifactStore: Helper.ArtifactStore, expectedErrorMessage: wrongArtifactTypeMessage);
             }, "Trace creation shouldn't throw any error.");
+
+            // Verify:
             Relationships relationships = Helper.ArtifactStore.GetRelationships(_adminUser, artifact, addDrafts: true);
-            Assert.AreEqual(1, relationships.ManualTraces.Count);
+            Assert.AreEqual(0, relationships.ManualTraces.Count, "Artifact shouldn't have any traces.");
         }
 
         #endregion Custom Data
@@ -459,13 +567,8 @@ namespace ArtifactStoreTests
             {
                 Assert.AreEqual(traceTarget.Id, traceTargetSubArtifact.ParentId, "...");
             }
-            NovaTrace traceToCreate = new NovaTrace();
-            traceToCreate.ArtifactId = traceTarget.Id;
-            traceToCreate.ProjectId = traceTarget.ProjectId;
-            traceToCreate.Direction = traceDirection;
-            traceToCreate.TraceType = TraceTypes.Manual;
+            NovaTrace traceToCreate = new NovaTrace(traceTarget, traceDirection, changeType: changeType);
             traceToCreate.ItemId = traceTargetSubArtifact?.Id ?? traceTarget.Id;
-            traceToCreate.ChangeType = changeType;
 
             List<NovaTrace> updatedTraces = new List<NovaTrace> { traceToCreate };
 
@@ -476,13 +579,18 @@ namespace ArtifactStoreTests
 
         private static void ValidateTrace(NovaTrace trace, IArtifact artifact)
         {
-            Assert.AreEqual(artifact.Id, trace.ArtifactId);
+            Assert.AreEqual(trace.ArtifactId, artifact.Id, "Id from trace and artifact should be equal to each other.");
+            Assert.AreEqual(trace.ArtifactName, artifact.Name, "Name from trace and artifact should be equal to each other.");
+            Assert.AreEqual(trace.ItemId, artifact.Id, "itemId from trace and artifact should be equal to each other.");
+            Assert.AreEqual(trace.ProjectId, artifact.ProjectId, "ProjectId from trace and artifact should be equal to each other.");
+            Assert.AreEqual(trace.ProjectName, artifact.Project.Name, "ProjectName from trace and artifact should be equal to each other.");
         }
 
         private static void ValidateTrace(NovaTrace trace, INovaSubArtifact subArtifact)
         {
-            Assert.AreEqual(subArtifact.ParentId, trace.ArtifactId);
-            Assert.AreEqual(subArtifact.Prefix, trace.ItemTypePrefix);
+            Assert.AreEqual(trace.ArtifactId, subArtifact.ParentId, "ArtifactId from trace and subartifact should be equal to each other.");
+            Assert.AreEqual(subArtifact.Id, trace.ItemId, "ItemId from trace and subartifact should be equal to each other.");
+            Assert.AreEqual(subArtifact.PredefinedType, trace.PrimitiveItemTypePredefined, "PredefinedType from trace and subartifact should be equal to each other.");
         }
     }
 }

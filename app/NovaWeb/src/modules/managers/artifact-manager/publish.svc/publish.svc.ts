@@ -19,17 +19,8 @@ export class PublishService implements IPublishService {
 
         this.$http.post(`/svc/bpartifactstore/artifacts/publish?all=true`, "").then(
             (result: ng.IHttpPromiseCallbackArg<Models.IPublishResultSet>) => defer.resolve(result.data),
-            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                let error = {
-                    statusCode: errResult.status,
-                    errorCode: errResult.data ? errResult.data.errorCode : -1,
-                    message: (errResult.data ? errResult.data.message : "")
-                };
-                defer.reject(error);
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                defer.reject(result.data);
             }
         );
         return defer.promise;
@@ -40,17 +31,8 @@ export class PublishService implements IPublishService {
 
         this.$http.get(`/svc/bpartifactstore/artifacts/unpublished`).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IPublishResultSet>) => defer.resolve(result.data),
-            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                let error = {
-                    statusCode: errResult.status,
-                    errorCode: errResult.data ? errResult.data.errorCode : -1,
-                    message: (errResult.data ? errResult.data.message : "")
-                };
-                defer.reject(error);
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                defer.reject(result.data);
             }
         );
         return defer.promise;
@@ -61,18 +43,8 @@ export class PublishService implements IPublishService {
 
         this.$http.post(`/svc/bpartifactstore/artifacts/publish?all=false`, artifactIds).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IPublishResultSet>) => defer.resolve(result.data),
-            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                let error = {
-                    content: errResult.data.errorContent,
-                    statusCode: errResult.status,
-                    errorCode: errResult.data ? errResult.data.errorCode : -1,
-                    message: (errResult.data ? errResult.data.message : "")
-                };
-                defer.reject(error);
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                defer.reject(result.data);
             }
         );
         return defer.promise;

@@ -1,6 +1,5 @@
 import * as angular from "angular";
 import {ItemStateController} from "./item-state.controller";
-import {BaseEditorStateController} from "./base-editor-state.controller";
 
 export class ArtifactRoutes {
 

@@ -5,13 +5,17 @@ import "./bp-toolbar";
 import "./bp-sidebar-layout";
 import "./bp-explorer";
 import "./bp-page-content";
+import "./quickSearch";
+import "./momentDateFilter";
 
 angular.module("bp.components", [
+    "bp.components.momentDateFilter",
     "bp.components.accordion",
     "bp.components.artifactinfo",
     "bp.components.toolbar",
     "bp.components.sidebar",
     "bp.components.explorer",
     "bp.components.pagecontent",
-    "bp.components.artifactpicker"
+    "bp.components.artifactpicker",
+    "bp.components.quickSearch"
 ]);

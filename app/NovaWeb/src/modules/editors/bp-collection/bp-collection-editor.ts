@@ -35,10 +35,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         "localization",
         "dialogService",
         "collectionService",
-        "metadataService",
-        "$scope",
-        "$window",
-        "$timeout"
+        "metadataService"
     ];
 
     private collection: ICollection;
@@ -52,10 +49,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         localization: ILocalizationService,
         dialogService: IDialogService,
         private collectionService: ICollectionService,
-        private metadataService: IMetaDataService,
-        $scope: ng.IScope,
-        $window,
-        $timeout
+        private metadataService: IMetaDataService
     ) {
         super(messageService, artifactManager, windowManager, localization, dialogService);
 
@@ -68,8 +62,6 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 this.metadataService.get(result.projectId).then(() => {
                     this.collection = result;
                     this.rootNode = result.artifacts.map((a: ICollectionArtifact) => {
-                        a.name = Helper.limitChars(a.name, 150);
-                        a.description = Helper.limitChars(a.description, 250);
                         return new CollectionNodeVM(a, result.projectId, this.metadataService);
                     });
                 }).catch((error: any) => {
@@ -99,12 +91,12 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             isCheckboxSelection: true,
             width: 30,
             headerName: `<span><span class="ag-selection-checkbox">` +
-            `<i ng-class="$ctrl.selectAllClass" ng-click="console.log(1)"></i></span></span>`
+            `<i ng-class="$ctrl.selectAllClass"></i></span></span>`
         },
         {
             width: 100,
             colWidth: 100,
-            headerName: `<span class="header-name">ID</span>`,
+            headerName: `<span class="header-name">` + this.localization.get("Label_ID") + `</span>`,
             field: "model.id",
             isGroup: true,
             isCheckboxHidden: true,
@@ -117,7 +109,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             }
         },
         {
-            headerName: "Name",
+            headerName: this.localization.get("Label_Name"),
             isGroup: true,
             isCheckboxHidden: true,
             innerRenderer: (vm: CollectionNodeVM, eGridCell: HTMLElement) => {
@@ -136,11 +128,11 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             }
         },
         {
-            headerName: "Description",
+            headerName: this.localization.get("Label_Description"),
             field: "model.description"
         },
         {
-            headerName: "Options",
+            headerName: this.localization.get("Label_Options"),
             isGroup: true,
             width: 60,
             colWidth: 60,
@@ -154,7 +146,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
 
     public toggleAll(): void {
         this.selectAll = !this.selectAll;
-        this.selectAllClass = this.selectAll ? "ag-checkbox-checked" : "ag-checkbox-checked";
+        this.selectAllClass = this.selectAll ? "ag-checkbox-checked" : "ag-checkbox-unchecked";
     }
 }
 

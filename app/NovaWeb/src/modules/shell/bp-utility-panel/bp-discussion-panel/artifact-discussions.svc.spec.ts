@@ -56,7 +56,7 @@ describe("Artifact Discussion Service", () => {
         // Act
         let error: any;
         let data: IDiscussionResultSet;
-        artifactDiscussions.getArtifactDiscussions(5).then((response) => {
+        artifactDiscussions.getDiscussions(5).then((response) => {
             data = response;
         }, (err) => {
             error = err;
@@ -84,7 +84,7 @@ describe("Artifact Discussion Service", () => {
         // Act
         let error: any;
         let data: IDiscussionResultSet;
-        artifactDiscussions.getArtifactDiscussions(5).then((response) => {
+        artifactDiscussions.getDiscussions(5).then((response) => {
             data = response;
         }, (err) => {
             error = err;
@@ -475,7 +475,7 @@ describe("Artifact Discussion Service", () => {
 
         // Act
         let success: boolean;
-        artifactDiscussions.deleteCommentThread(5, 1).then((response) => {
+        artifactDiscussions.deleteDiscussion(5, 1).then((response) => {
             success = true;
         }, () => {
             success = false;
@@ -498,7 +498,7 @@ describe("Artifact Discussion Service", () => {
         let success: boolean;
         let errorStatusCode: number;
         // Act
-        artifactDiscussions.deleteCommentThread(5, 1).then((response) => {
+        artifactDiscussions.deleteDiscussion(5, 1).then((response) => {
             success = true;
         }, (error) => {
             success = false;

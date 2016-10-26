@@ -12,12 +12,11 @@ import { Label, LabelStyle } from "../labels/label";
 import { ProcessEvents } from "../../../process-diagram-communication";
 
 export abstract class Decision extends DiagramNode<IProcessShape> implements IDecision {
-
     protected abstract DECISION_SHIFT: number;
     protected abstract DEFAULT_FILL_COLOR: string;
     protected abstract DEFAULT_BORDER_COLOR: string;
     protected abstract textLabelLeft;
-    protected abstract textLabelWidth;    
+    protected abstract textLabelWidth;
 
     protected BUTTON_SIZE: number = 16;
     protected MENU_SIZE: number = 16;

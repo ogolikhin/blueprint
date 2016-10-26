@@ -1,22 +1,52 @@
+import {Models} from "../../../main/models";
 import * as ProcessModels from "../models/process-models";
-import {IMessageService} from "../../../core";
-export {ProcessModels}
+import { IProcessModelProcessor } from "./process-model-processor";
+import { ProcessModelProcessor } from "./process-model-processor";
+import { IStatefulProcessArtifact } from "../process-artifact";
+
+export { ProcessModels }
 
 export interface IProcessService {
     load(processId: string, versionId?: number, revisionId?: number, baselineId?: number, readOnly?: boolean): ng.IPromise<ProcessModels.IProcess>;
-    getProcesses(projectId: number): ng.IPromise<ProcessModels.IArtifactReference[]>;
+    save(processVM: ProcessModels.IProcess): ng.IPromise<IProcessUpdateResult>;
+}
+
+export interface IProcessUpdateResult {
+    messages: IOperationMessageResult[];
+    result: ProcessModels.IProcess;
+    tempIdMap: Models.IKeyValuePair[];
+}
+
+interface IHttpError {
+    message: string;
+    statusCode: number; // client side only
+    errorCode: number;
+}
+
+const enum MessageLevel {
+    None = 0,
+    Info = 1,
+    Warning = 2,
+    Error = 3
+}
+
+interface IOperationMessageResult {
+    level: MessageLevel;
+    propertyTypeId: number;
+    itemId: number;
+    code: number;
+    message: string;
 }
 
 export class ProcessService implements IProcessService {
-    public static $inject = [
-        "$http",
-        "$q",
-        "messageService"
-    ];
+
+    public static $inject = ["$http", "$q"];
+
+    private processModelProcessor: IProcessModelProcessor;
 
     constructor(private $http: ng.IHttpService,
-                private $q: ng.IQService,
-                private messageService: IMessageService) {
+        private $q: ng.IQService) {
+        this.processModelProcessor = new ProcessModelProcessor();
 
     }
 
@@ -50,38 +80,32 @@ export class ProcessService implements IProcessService {
                 if (!result) {
                     deferred.reject();
                     return;
-                }
-                const error = {
-                    statusCode: result.status,
-                    message: result.data ? result.data.message : ""
-                };
-                deferred.reject(error);
-            }
-        );
-        return deferred.promise;
-    }
-
-
-    public getProcesses(projectId: number): ng.IPromise<ProcessModels.IArtifactReference[]> {
-        const restPath = `/svc/components/storyteller/projects/${projectId}/processes`;
-        const deferred = this.$q.defer<ProcessModels.IArtifactReference[]>();
-
-        this.$http.get<ProcessModels.IArtifactReference[]>(restPath).then(
-            (result: ng.IHttpPromiseCallbackArg<ProcessModels.IArtifactReference[]>) => {
-
-                deferred.resolve(result.data);
-
-            }, (result: ng.IHttpPromiseCallbackArg<any/*Shell.IHttpError*/>) => {
-
-                result.data.statusCode = result.status;
+                }                
                 deferred.reject(result.data);
             }
         );
+        return deferred.promise;
+    }
+
+    private processRestPath(processId: string | number): string {
+        return "/svc/components/storyteller/processes/" + processId;
+    }
+
+    public save(process: ProcessModels.IProcess): ng.IPromise<IProcessUpdateResult> {
+        const restPath = this.processRestPath(process.id);
+        const deferred = this.$q.defer<IProcessUpdateResult>();
+
+        const procModel: ProcessModels.IProcess = this.processModelProcessor.processModelBeforeSave(process);
+
+        this.$http.patch<IProcessUpdateResult>(restPath, procModel).then((result) => {
+            // success
+            deferred.resolve(result.data);
+
+        }).catch((err) => {
+            deferred.reject(err.data);
+        });
 
         return deferred.promise;
     }
 
-    private processRestPath(processId: string): string {
-        return "/svc/components/storyteller/processes/" + processId;
-    }
 }

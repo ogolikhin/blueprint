@@ -54,19 +54,23 @@ namespace ArtifactStoreTests
         [Description("Create & publish an artifact, GetArtifactDetails.  Verify the artifact details are returned.")]
         public void GetArtifactDetails_PublishedArtifact_ReturnsArtifactDetails(BaseArtifactType artifactType)
         {
+            const int VIEWER_PERMISSIONS = 1;
+
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
             var retrievedArtifact = OpenApiArtifact.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
 
             NovaArtifactDetails artifactDetails = null;
 
+            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
+
             Assert.DoesNotThrow(() =>
             {
-                artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+                artifactDetails = Helper.ArtifactStore.GetArtifactDetails(viewer, artifact.Id);
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifact);
 
-            Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
+            Assert.AreEqual(VIEWER_PERMISSIONS, artifactDetails.Permissions, "Viewer should have read permissions (i.e. 1)!");
         }
 
         [TestCase(2)]
@@ -187,7 +191,7 @@ namespace ArtifactStoreTests
         [TestRail(182509)]
         [Description("Create two artifacts: main artifact that has inline trace to inline trace artifact. Update the inline trace artifact information - Verify that GetArtifactDetails call returns updated inline trace information.")]
         public void GetArtifactDetails_UpdateInlineTraceArtifact_ReturnsUpdatedInlineTraceLink(
-            BaseArtifactType baseArtifactType )
+            BaseArtifactType baseArtifactType)
         {
             // Setup: Create to artifacts: main artifact and inline trace artifact with the same user on the same project
             var mainArtifact = Helper.CreateAndPublishArtifact(_projects[0], _user, baseArtifactType);
@@ -267,7 +271,7 @@ namespace ArtifactStoreTests
         [TestRail(182549)]
         [Description("Create two artifacts: main and inline trace. Delete the inline trace artifact. - Verify that GetArtifactDetails call returns invalid inline trace link")]
         public void GetArtifactDetails_DeletedInlinetraceArtifact_ReturnsInvalidInlineTraceLink(
-            BaseArtifactType baseArtifactType )
+            BaseArtifactType baseArtifactType)
         {
             // Setup: Create two artifacts: main artifact under main project and inline trace artifact under the second project
             var mainArtifact = Helper.CreateAndPublishArtifact(_projects[0], _user, baseArtifactType);
@@ -299,7 +303,7 @@ namespace ArtifactStoreTests
         [TestRail(182550)]
         [Description("Create two artifacts: main and inline trace on different project. - Verify that GetArtifactDetails call returns invalid inline trace link if the user doesn't have the access permission for the inline trace artifact")]
         public void GetArtifactDetails_GetArtifactDetailsUsingUserWithoutPermissionToInlineTraceArtifact_ReturnsInvalidInlineTraceLink(
-            BaseArtifactType baseArtifactType )
+            BaseArtifactType baseArtifactType)
         {
             // Setup: Get projects available from testing environment
             var mainProject = _projects[0];
@@ -373,12 +377,13 @@ namespace ArtifactStoreTests
         public void GetArtifactDetails_PublishedArtifactUserWithoutPermissions_403Forbidden()
         {
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process);
-            IUser unauthorizedUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
-                InstanceAdminRole.BlueprintAnalytics);
+
+            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
+            Helper.AssignProjectRolePermissionsToUser(viewer, TestHelper.ProjectRole.None, _projects[0], artifact);
 
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
-                Helper.ArtifactStore.GetArtifactDetails(unauthorizedUser, artifact.Id);
+                Helper.ArtifactStore.GetArtifactDetails(viewer, artifact.Id);
             }, "'GET {0}' should return 403 Forbidden when passed a valid artifact ID but the user doesn't have permission to view the artifact!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -394,18 +399,41 @@ namespace ArtifactStoreTests
         public void GetArtifactDetailsWithVersion1_PublishedArtifactWithMultipleVersions_UserWithoutPermissions_403Forbidden()
         {
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process);
-            IUser unauthorizedUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
-                InstanceAdminRole.BlueprintAnalytics);
+
+            IUser unauthorizedUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
+            Helper.AssignProjectRolePermissionsToUser(unauthorizedUser, TestHelper.ProjectRole.None, _projects[0], artifact);
 
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
                 Helper.ArtifactStore.GetArtifactDetails(unauthorizedUser, artifact.Id, versionId: 1);
-            }, "'GET {0}' should return 403 Forbidden when passed a valid artifact ID but the user doesn't have permission to view the artifact!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+            }, "'GET {0}' should return 403 Forbidden when passed a valid artifact ID but the user doesn't have permission to view the artifact!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", artifact.Id);
+
+            AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content, "If called by a user without permission to the artifact, we should get an error message of '{0}'!", expectedMessage);
+        }
+
+        [TestCase]
+        [TestRail(185236)]
+        [Description("Create & publish parent & child artifacts.  Make sure viewer does not have access to parent.  Viewer request GetArtifactDetails from child artifact.  " +
+                    "Verify it returns 403 Forbidden.")]
+        public void GetArtifactDetails_PublishedArtifactWithAChild_UserWithoutPermissionsToParent_403Forbidden()
+        {
+            IArtifact parent = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process);
+            IArtifact child = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process, parent);
+
+            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
+            Helper.AssignProjectRolePermissionsToUser(viewer, TestHelper.ProjectRole.None, _projects[0], parent);
+
+            var ex = Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                Helper.ArtifactStore.GetArtifactDetails(viewer, child.Id, versionId: 1);
+            }, "'GET {0}' should return 403 Forbidden when passed a valid child artifact ID but the user doesn't have permission to view parent artifact!",
+                            RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", child.Id);
             AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
-                "If called by a user without permission to the artifact, we should get an error message of '{0}'!", expectedMessage);
+                "If called by a user that does not have permissions to parent artifact, we should get an error message of '{0}'!", expectedMessage);
         }
 
         #endregion 403 Forbidden Tests

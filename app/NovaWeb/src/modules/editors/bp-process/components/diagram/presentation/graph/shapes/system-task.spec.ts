@@ -72,7 +72,7 @@ describe("SystemTask", () => {
         const viewModel = new ProcessViewModel(processModel, communicationManager);
 
         // Act
-        const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
+        const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory);
 
         const node = new SystemTask(ShapeModelMock.instance().SystemTaskMock(), rootScope, "", null, shapesFactory);
         node.render(graph, 80, 120, false);
@@ -154,7 +154,7 @@ describe("SystemTask", () => {
             testModel.links.push(new ProcessLinkModel(null, 44, 55));
             processModel = new ProcessViewModel(testModel, communicationManager);
 
-            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory);
 
             graph.render(false, null);
         });
@@ -182,7 +182,7 @@ describe("SystemTask", () => {
 
             viewModel = new ProcessViewModel(statefulArtifact, communicationManager);
 
-            graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
+            graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory);
         });
 
         it("when modifying persona - persona matches", () => {

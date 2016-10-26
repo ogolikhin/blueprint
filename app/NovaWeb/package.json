@@ -8,7 +8,7 @@
   "scripts": {
     "preinstall": "npm prune",
     "postinstall": "typings prune && typings install",
-    "dev": "node_modules/.bin/webpack-dev-server --config webpack/webpack.dev.js --content-base src --inline --hot --NODE_ENV=dev",
+    "dev": "node_modules/.bin/webpack-dev-server --progress --config webpack/webpack.dev.js --content-base src --inline --hot --NODE_ENV=dev",
     "dev:open-browser": "npm config set nova_open_browser 1 && npm run dev",
     "dev:no-browser": "npm config set nova_open_browser 0 && npm run dev",
     "dev:nolint": "npm run dev",
@@ -49,6 +49,7 @@
   "devDependencies": {
     "angular-mocks": "~1.5.2",
     "angular-module-mocks": "~1.2.19",
+    "angular-vs-repeat": "^1.1.7",
     "awesome-typescript-loader": "^2.2.4",
     "babel-core": "^6.7.2",
     "babel-istanbul": "^0.11.0",

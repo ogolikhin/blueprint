@@ -23,7 +23,7 @@ bp-relationships-panel {
 
         i {
             display: inline-block;
-            
+
             &::before {
                 font-size: $font-size-normal;
             }
@@ -37,10 +37,10 @@ bp-relationships-panel {
             float: right;
             padding-top: 5px;
             i {
-                padding-left: 10px;
+                margin-left: 10px;
 
                 &.fonticon-delete-filled {
-                    padding-left: 6px;
+                    margin-left: 6px;
                 }
             }
         }
@@ -72,9 +72,8 @@ bp-relationships-panel {
 
         &.header-icons {
             @include transition(max-height 0.5s, opacity 0.5s, overflow 0.5s);
-            padding: 0 5px;
+            padding: 5px;
             color: $gray-dark;
-            line-height: $utility-panel-title-height;
             max-height: 0;
             opacity: 0;
             overflow: hidden;

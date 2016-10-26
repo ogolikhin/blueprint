@@ -71,6 +71,15 @@ pagecontent, bp-properties-panel {
             .content {
                 display: none;
             }
+
+            .content.system-properties {
+                display: block;
+                height: #{$property-min-height + 12px};
+
+                &.collapse:not(.in) .formly .formly-field:first-child {
+                    width: 100%;
+                }
+            }
         }
     }
 
@@ -83,7 +92,7 @@ pagecontent, bp-properties-panel {
         justify-content: space-between;
         margin: 0 $property-horiz-spacing;
         min-width: $property-width - $property-label-width;
-        padding: 0 0 10px;
+        padding: 0;
 
         // create "padding" to align un-even numbers of property groups
         &::after,
@@ -1043,8 +1052,7 @@ pagecontent, bp-properties-panel {
 
                 .icon {
                     display: inline-block;
-                    padding-left: 9px;
-                    padding-top: 28px;
+                    margin-left: 9px;
                     cursor: pointer;
                     &.disabled {
                         opacity: $default-disabled-opacity;
@@ -1242,14 +1250,21 @@ pagecontent, bp-properties-panel {
 
                 .icon {
                     display: inline-block;
-                    line-height: #{$property-min-height + 12px}; // so it's the same height as the input field (which has 2px margin + 4px padding top and bottom)
                     padding-left: $padding-smaller;
                     padding-right: $padding-smaller;
-                    &.disabled {
+                }
+
+                .icon__action{
+                    &:hover{
+                        cursor: pointer;
+                    }
+
+                    &.disabled, &[disabled] {
                         cursor: not-allowed;
-                        opacity: $default-disabled-opacity;
+                        color: $default-disabled-opacity;
                     }
                 }
+
                 &:not(:first-child):not(:last-child) {
                     padding-right: 5px;
                     .icon {
@@ -1291,10 +1306,16 @@ pagecontent, bp-properties-panel {
     }
 }
 
-.single-column-property .formly .formly-field label {
-    margin-right: 0;
-    padding: 0;
-    width: $property-input-width;
+.single-column-property {
+    .properties.collapsed .content.system-properties {
+        height: #{$property-min-height + 23px + 12px}; // + label's height + margin-bottom
+    }
+
+    .formly .formly-field label {
+        margin-right: 0;
+        padding: 0;
+        width: $property-input-width;
+    }
 }
 
 .tab-pane {
@@ -1348,21 +1369,6 @@ bp-properties-panel {
 }
 
 pagecontent {
-    .system-properties {
-        &.collapse:not(.in) .formly .formly-field:first-child {
-            width: 100%;
-        }
-
-        &.collapse {
-            display: block !important;
-            height: #{$property-min-height + 12px} !important;
-
-            &.in {
-                height: auto !important;
-            }
-        }
-    }
-
     .empty-collection {
             background: $gray-lighter;
             color: $gray-dark;

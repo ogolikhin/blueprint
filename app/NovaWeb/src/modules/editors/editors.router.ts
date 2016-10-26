@@ -1,6 +1,5 @@
 import * as angular from "angular";
 import {ItemStateController} from "./item-state.controller";
-import {BaseEditorStateController} from "./base-editor-state.controller";
 
 export class ArtifactRoutes {
 
@@ -17,7 +16,7 @@ export class ArtifactRoutes {
         // register states with the router
         $stateProvider
             .state("main.item", {
-                url: "/{id:any}?{path:string}",
+                url: "/{id:int}?{path:string}",
                 template: "<div ui-view class='artifact-state'></div>",
                 reloadOnSearch: false,
                 controller: ItemStateController

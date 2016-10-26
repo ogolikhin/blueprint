@@ -1,6 +1,6 @@
 import "angular";
 import "angular-mocks";
-import {Models} from "../../models";
+import {Models, AdminStoreModels} from "../../models";
 import {IArtifactManager} from "../../../managers/";
 import {IProjectService} from "../../../managers/project-manager/";
 import {IArtifactPickerOptions} from "./bp-artifact-picker";
@@ -29,7 +29,7 @@ describe("ArtifactPickerNodeVM", () => {
                 id: 123,
                 name: "name",
                 hasChildren: true
-            } as Models.IProjectNode;
+            } as AdminStoreModels.IInstanceItem;
 
             // Act
             const vm = new InstanceItemNodeVM(artifactManager, projectService, options, model);
@@ -46,9 +46,9 @@ describe("ArtifactPickerNodeVM", () => {
         it("getCellClass, when a folder, returns correct class", () => {
             // Arrange
             const model = {
-                type: Models.ProjectNodeType.Folder,
+                type: AdminStoreModels.InstanceItemType.Folder,
                 hasChildren: true
-            } as Models.IProjectNode;
+            } as AdminStoreModels.IInstanceItem;
             const vm = new InstanceItemNodeVM(artifactManager, projectService, options, model);
 
             // Act
@@ -61,9 +61,9 @@ describe("ArtifactPickerNodeVM", () => {
         it("getCellClass, when a project, returns correct result", () => {
             // Arrange
             const model = {
-                type: Models.ProjectNodeType.Project,
+                type: AdminStoreModels.InstanceItemType.Project,
                 hasChildren: true
-            } as Models.IProjectNode;
+            } as AdminStoreModels.IInstanceItem;
             const vm = new InstanceItemNodeVM(artifactManager, projectService, options, model);
 
             // Act
@@ -76,9 +76,9 @@ describe("ArtifactPickerNodeVM", () => {
         it("getCellClass, when invalid, returns correct result", () => {
             // Arrange
             const model = {
-                type: -999 as Models.ProjectNodeType,
+                type: -999 as AdminStoreModels.InstanceItemType,
                 hasChildren: false
-            } as Models.IProjectNode;
+            } as AdminStoreModels.IInstanceItem;
             const vm = new InstanceItemNodeVM(artifactManager, projectService, options, model);
 
             // Act
@@ -90,7 +90,7 @@ describe("ArtifactPickerNodeVM", () => {
 
         it("getIcon returns correct result", () => {
             // Arrange
-            const model = {} as Models.IProjectNode;
+            const model = {} as AdminStoreModels.IInstanceItem;
 
             const vm = new InstanceItemNodeVM(artifactManager, projectService, options, model);
 
@@ -103,7 +103,7 @@ describe("ArtifactPickerNodeVM", () => {
 
         it("isSelectable returns correct result", () => {
             // Arrange
-            const model = {} as Models.IProjectNode;
+            const model = {} as AdminStoreModels.IInstanceItem;
             const vm = new InstanceItemNodeVM(artifactManager, projectService, options, model);
 
             // Act
@@ -116,11 +116,11 @@ describe("ArtifactPickerNodeVM", () => {
         it("loadChildrenAsync, when a folder, loads children", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
                     // Arrange
-                    const children = [{id: 1234}, {id: 5678}] as Models.IProjectNode[];
+                    const children = [{id: 1234}, {id: 5678}] as AdminStoreModels.IInstanceItem[];
                     (projectService.getFolders as jasmine.Spy).and.returnValue($q.resolve(children));
                     const model = {
-                        type: Models.ProjectNodeType.Folder
-                    } as Models.IProjectNode;
+                        type: AdminStoreModels.InstanceItemType.Folder
+                    } as AdminStoreModels.IInstanceItem;
                     const vm = new InstanceItemNodeVM(artifactManager, projectService, options, model);
 
                     // Act
@@ -144,8 +144,8 @@ describe("ArtifactPickerNodeVM", () => {
                     }] as Models.IArtifact[];
                     (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
                     const model = {
-                        type: Models.ProjectNodeType.Project
-                    } as Models.IProjectNode;
+                        type: AdminStoreModels.InstanceItemType.Project
+                    } as AdminStoreModels.IInstanceItem;
                     const vm = new InstanceItemNodeVM(artifactManager, projectService, options, model);
 
                     // Act

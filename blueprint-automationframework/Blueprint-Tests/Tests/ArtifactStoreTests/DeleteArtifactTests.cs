@@ -4,6 +4,7 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
@@ -42,16 +43,49 @@ namespace ArtifactStoreTests
         public void DeleteArtifact_PublishedArtifactWithNoChildren_ArtifactIsDeleted(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            IUser authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, authorUser, artifactType);
 
             // Execute:
             List<INovaArtifactResponse> deletedArtifacts = null;
 
-            Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+            Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifact, authorUser),
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
+            Assert.AreEqual(1, deletedArtifacts.Count, "There should only be 1 deleted artifact returned!");
+            Assert.AreEqual(artifact.Id, deletedArtifacts[0].Id, "The artifact ID doesn't match the one that we deleted!");
+
+            VerifyArtifactIsDeleted(artifact, authorUser);
+        }
+
+        [Explicit(IgnoreReasons.ProductBug)]    // TFS Bug: 3129  The new Delete REST call gives a 404 error when trying to delete a Collection or Collection Folder.
+        [TestCase(ItemTypePredefined.ArtifactCollection)]
+        [TestCase(ItemTypePredefined.CollectionFolder)]
+        [TestRail(185237)]
+        [Description("Create & publish a collection or collection folder.  Delete the artifact - it should return 200 OK and the deleted artifact." +
+            "Try to get the artifact and verify you get a 404 since it was deleted.")]
+        public void DeleteArtifact_PublishedCollectionOrCollectionFolderWithNoChildren_ArtifactIsDeleted(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            IUser authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+            IArtifact artifact = Helper.CreateAndWrapNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            artifact.Publish();
+
+            // Execute:
+            List<INovaArtifactResponse> deletedArtifacts = null;
+
+            Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifact, authorUser),
+                "'DELETE {0}' should return 200 OK if a valid {1} ID is sent!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactType);
+
+            // Verify:
+            artifact.IsDeleted = true;
             Assert.AreEqual(1, deletedArtifacts.Count, "There should only be 1 deleted artifact returned!");
             Assert.AreEqual(artifact.Id, deletedArtifacts[0].Id, "The artifact ID doesn't match the one that we deleted!");
 
@@ -65,12 +99,13 @@ namespace ArtifactStoreTests
         public void DeleteArtifact_SavedArtifactWithNoChildren_ArtifactIsDeleted(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            IUser authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, authorUser, artifactType);
 
             // Execute:
             List<INovaArtifactResponse> deletedArtifacts = null;
 
-            Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+            Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifact, authorUser),
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -133,8 +168,8 @@ namespace ArtifactStoreTests
             VerifyArtifactsAreDeleted(artifactChain, indexToDelete);
         }
 
-        [TestCase(0, BaseArtifactType.Actor, BaseArtifactType.Glossary, BaseArtifactType.Process, Explicit = true, IgnoreReason = IgnoreReasons.UnderDevelopment)]  // XXX: Gets a 409 in the TearDown.
-        [TestCase(1, BaseArtifactType.Actor, BaseArtifactType.Glossary, BaseArtifactType.Process, Explicit = true, IgnoreReason = IgnoreReasons.UnderDevelopment)]
+        [TestCase(0, BaseArtifactType.Actor, BaseArtifactType.Glossary, BaseArtifactType.Process)]
+        [TestCase(1, BaseArtifactType.Actor, BaseArtifactType.Glossary, BaseArtifactType.Process)]
         [TestCase(2, BaseArtifactType.Actor, BaseArtifactType.Glossary, BaseArtifactType.Process)]
         [TestRail(165799)]
         [Description("Create & save an artifact with a child & grandchild.  Delete one of the artifacts in the chain - it should return 200 OK and the deleted artifact and its children." +
@@ -163,8 +198,8 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor, BaseArtifactType.Process)]
         [TestRail(165809)]
-        [Description("Create & publish a parent artifact and create a child artifact that is only saved but not published.  Delete the parent artifact - it should return 200 OK and the deleted artifact and its children." +
-            "Try to get the artifact & its children and verify you get a 404 since they were deleted.")]
+        [Description("Create & publish a parent artifact and create a child artifact that is only saved but not published.  Delete the parent artifact.  " +
+            "Verify it returns 200 OK with the deleted artifact and its children.  Try to get the artifact & its children and verify you get a 404 since they were deleted.")]
         public void DeleteArtifact_PublishedArtifactWithSavedChild_ArtifactIsDeleted(BaseArtifactType parentArtifactType, BaseArtifactType childArtifactType)
         {
             // Setup:
@@ -190,8 +225,8 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor, BaseArtifactType.Process)]
         [TestRail(165810)]
-        [Description("Create & publish parent & child artifacts then modify & save the child artifact.  Delete the parent artifact - it should return 200 OK and the deleted artifact and its children." +
-            "Try to get the artifact & its children and verify you get a 404 since they were deleted.")]
+        [Description("Create & publish parent & child artifacts then modify & save the child artifact.  Delete the parent artifact.  " +
+            "Verify it returns 200 OK with the deleted artifact and its children.  Try to get the artifact & its children and verify you get a 404 since they were deleted.")]
         public void DeleteArtifact_PublishedArtifactWithPublishedChildWithDraft_ArtifactIsDeleted(BaseArtifactType parentArtifactType, BaseArtifactType childArtifactType)
         {
             // Setup:
@@ -278,20 +313,17 @@ namespace ArtifactStoreTests
         #region 401 Unauthorized tests
 
         [TestRail(165823)]
-        [TestCase(BaseArtifactType.Actor, "4f2cfd40d8994b8b812534b51711100d")]
-        [TestCase(BaseArtifactType.Actor, "BADTOKEN")]
+        [TestCase(BaseArtifactType.Actor)]
         [Description("Create an artifact and publish. Attempt to delete the artifact with a user that does not have authorization " +
                      "to delete. Verify that HTTP 401 Unauthorized exception is thrown.")]
-        public void DeleteArtifact_UserDoesNotHaveAuthorizationToDelete_401Unauthorized(BaseArtifactType artifactType, string invalidAccessControlToken)
+        public void DeleteArtifact_UserDoesNotHaveAuthorizationToDelete_401Unauthorized(BaseArtifactType artifactType)
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-
-            // Replace the valid AccessControlToken with an invalid token
-            _user.SetToken(invalidAccessControlToken);
+            IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
             // Execute & Verify:
-            Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+            Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, userWithBadToken),
                 "We should get a 401 Unauthorized when a user trying to delete an artifact does not have authorization to delete!");
         }
 
@@ -323,35 +355,12 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             // Create a user without permission to the artifact.
-            IUser userWithoutPermission = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
-
-            IProjectRole viewerRole = ProjectRoleFactory.CreateProjectRole(_project, RolePermissions.Read);
-            IProjectRole authorRole = ProjectRoleFactory.CreateProjectRole(
-                _project,
-                RolePermissions.Delete |
-                RolePermissions.Edit |
-                RolePermissions.CanReport |
-                RolePermissions.Comment |
-                RolePermissions.DeleteAnyComment |
-                RolePermissions.CreateRapidReview |
-                RolePermissions.ExcelUpdate |
-                RolePermissions.Read |
-                RolePermissions.Reuse |
-                RolePermissions.Share |
-                RolePermissions.Trace);
-
-            IGroup authorsGroup = Helper.CreateGroupAndAddToDatabase();
-            authorsGroup.AddUser(userWithoutPermission);
-            authorsGroup.AssignRoleToProjectOrArtifact(_project, role: authorRole);
-
-            IGroup viewersGroup = Helper.CreateGroupAndAddToDatabase();
-            viewersGroup.AddUser(userWithoutPermission);
-            viewersGroup.AssignRoleToProjectOrArtifact(_project, role: viewerRole, artifact: artifact);
-
-            Helper.AdminStore.AddSession(userWithoutPermission);
+            // NOTE: The difference between AuthorFullAccess & Author is that Author doesn't have delete permission.
+            IUser userWithoutDeletePermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            Helper.AssignProjectRolePermissionsToUser(userWithoutDeletePermission, TestHelper.ProjectRole.Author, _project, artifact);
 
             // Execute & Verify:
-            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, userWithoutPermission),
+            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, userWithoutDeletePermission),
                 "We should get a 403 Fordbidden when a user trying to delete an artifact does not have permission to delete!");
         }
 
@@ -359,44 +368,20 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process, BaseArtifactType.Actor)]
         [Description("User attempts to delete a parent artifact when they do not have permission to delete the child. " +
              "Verify 403 Forbidden is thrown.")]
-        public void DeleteArtifact_UserTriesToDeleteParentArtifactWithoutPermissionToDeleteChildArtifact_403Forbidden(BaseArtifactType parentArtifactType, BaseArtifactType childArtifactType)
+        public void DeleteArtifact_UserTriesToDeleteParentArtifactWithoutPermissionToDeleteChildArtifact_403Forbidden(
+            BaseArtifactType parentArtifactType, BaseArtifactType childArtifactType)
         {
             // Setup:
-            var artifactChain = new List<IArtifact>();
+            var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, parentArtifactType);
+            var childArtifact = Helper.CreateAndPublishArtifact(_project, _user, childArtifactType, parentArtifact);
 
-            artifactChain.Add(Helper.CreateAndPublishArtifact(_project, _user, parentArtifactType));
-            artifactChain.Add(Helper.CreateAndPublishArtifact(_project, _user, childArtifactType, artifactChain.First()));
-
-            // Create a user without permission to the artifact.
-            IUser userWithoutPermission = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
-
-            IProjectRole viewerRole = ProjectRoleFactory.CreateProjectRole(_project, RolePermissions.Read);
-            IProjectRole authorRole = ProjectRoleFactory.CreateProjectRole(
-                _project,
-                RolePermissions.Delete |
-                RolePermissions.Edit |
-                RolePermissions.CanReport |
-                RolePermissions.Comment |
-                RolePermissions.DeleteAnyComment |
-                RolePermissions.CreateRapidReview |
-                RolePermissions.ExcelUpdate |
-                RolePermissions.Read |
-                RolePermissions.Reuse |
-                RolePermissions.Share |
-                RolePermissions.Trace);
-
-            IGroup authorsGroup = Helper.CreateGroupAndAddToDatabase();
-            authorsGroup.AddUser(userWithoutPermission);
-            authorsGroup.AssignRoleToProjectOrArtifact(_project, role: authorRole);
-
-            IGroup viewersGroup = Helper.CreateGroupAndAddToDatabase();
-            viewersGroup.AddUser(userWithoutPermission);
-            viewersGroup.AssignRoleToProjectOrArtifact(_project, role: viewerRole, artifact: artifactChain.Last());
-
-            Helper.AdminStore.AddSession(userWithoutPermission);
+            // Create a user without permission to the child artifact.
+            // NOTE: The difference between AuthorFullAccess & Author is that Author doesn't have delete permission.
+            IUser userWithoutDeletePermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            Helper.AssignProjectRolePermissionsToUser(userWithoutDeletePermission, TestHelper.ProjectRole.Author, _project, childArtifact);
 
             // Execute & Verify:
-            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(artifactChain.First(), userWithoutPermission),
+            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(parentArtifact, userWithoutDeletePermission),
                 "We should get a 403 Forbidden when a user trying to delete a parent artifact does not have permission to delete one of its children!");
         }
 
@@ -486,7 +471,8 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process, BaseArtifactType.Actor)]
         [Description("Create an artifact and child and publish both artifacts. Lock child with another user. Attempt to delete the parent artifact " +
              "with the user that does not have the lock on the child artifact. Verify that HTTP 409 Conflict exception is thrown.")]
-        public void DeleteArtifact_UserTriesToDeleteArtifactWithChildLockedByAnotherUser_409Conflict(BaseArtifactType parentArtifactType, BaseArtifactType childArtifactType)
+        public void DeleteArtifact_UserTriesToDeleteArtifactWithChildLockedByAnotherUser_409Conflict(
+            BaseArtifactType parentArtifactType, BaseArtifactType childArtifactType)
         {
             // Setup:
             IUser userWithLock = null;
@@ -531,12 +517,18 @@ namespace ArtifactStoreTests
         /// Try to get the artifact and verify a 404 error is returned.
         /// </summary>
         /// <param name="artifact">The artifact whose existence is being verified.</param>
-        private void VerifyArtifactIsDeleted(IArtifact artifact)
+        /// <param name="user">(optional) The user to use to get the artifact details.  Defaults to _user.</param>
+        private void VerifyArtifactIsDeleted(IArtifact artifact, IUser user = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
+            if (user == null)
+            {
+                user = _user;
+            }
+
             // Try to get the artifact to verify it's deleted.
-            Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id),
+            Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id),
                 "We should get a 404 Not Found when trying to get artifact details of a deleted artifact!");
         }
 

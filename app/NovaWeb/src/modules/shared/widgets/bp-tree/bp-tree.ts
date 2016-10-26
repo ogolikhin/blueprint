@@ -3,6 +3,21 @@ import * as Grid from "ag-grid/main";
 import {ILocalizationService} from "../../../core";
 import {RowNode} from "ag-grid/main";
 
+/**
+ * Usage:
+ *
+ * <bp-tree bp-ref="$ctrl.tree"
+ *          grid-columns="$ctrl.columns"
+ *          enable-editing-on="name"
+ *          enable-dragndrop="true"
+ *          property-map="$ctrl.propertyMap"
+ *          data-source="$ctrl.datasource"
+ *          on-load="$ctrl.doLoad(prms)"
+ *          on-select="$ctrl.doSelect(item)"
+ *          on-sync="$ctrl.doSync(item)">
+ * </bp-tree>
+ */
+
 export class BPTreeComponent implements ng.IComponentOptions {
     public template: string = require("./bp-tree.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPTreeController;
@@ -51,7 +66,7 @@ export interface IBPTreeController {
     isEmpty: boolean;
     //to select a row in in ag-grid (by id)
     selectNode(id: number);
-    clearSelection();    
+    clearSelection();
     nodeExists(id: number): boolean;
     getNodeData(id: number): Object;
     //to reload datasource with data passed, if id specified the data will be loaded to node's children collection

@@ -39,27 +39,28 @@ export class BpProcessEditorController extends BpBaseEditor {
         "shapesFactory"
     ];
 
-    constructor(messageService: IMessageService,
-                artifactManager: IArtifactManager,
-                private windowManager: IWindowManager,
-                private $rootScope: ng.IRootScopeService,
-                private $scope: ng.IScope,
-                private $element: ng.IAugmentedJQuery,
-                private $q: ng.IQService,
-                private $log: ng.ILogService,
-                private $uibModal: ng.ui.bootstrap.IModalService,
-                private localization: ILocalizationService,
-                private $timeout: ng.ITimeoutService,
-                private communicationManager: ICommunicationManager,
-                private dialogService: IDialogService,
-                private navigationService: INavigationService,
-                private statefulArtifactFactory: IStatefulArtifactFactory,
-                private shapesFactory: ShapesFactory = null
-                ) {
+    constructor(
+        messageService: IMessageService,
+        artifactManager: IArtifactManager,
+        private windowManager: IWindowManager,
+        private $rootScope: ng.IRootScopeService,
+        private $scope: ng.IScope,
+        private $element: ng.IAugmentedJQuery,
+        private $q: ng.IQService,
+        private $log: ng.ILogService,
+        private $uibModal: ng.ui.bootstrap.IModalService,
+        private localization: ILocalizationService,
+        private $timeout: ng.ITimeoutService,
+        private communicationManager: ICommunicationManager,
+        private dialogService: IDialogService,
+        private navigationService: INavigationService,
+        private statefulArtifactFactory: IStatefulArtifactFactory,
+        private shapesFactory: ShapesFactory = null
+    ) {
         super(messageService, artifactManager);
 
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener(
-            $scope, $uibModal, $rootScope, communicationManager.modalDialogManager, localization);
+            $uibModal, communicationManager.modalDialogManager, localization);
     }
 
     public $onInit() {
@@ -98,9 +99,11 @@ export class BpProcessEditorController extends BpBaseEditor {
 
         if (this.processDiagram) {
             this.processDiagram.destroy();
+        } else {
+            //When the process is navigated to from explorer, inline trace, manual trace etc. we want to reset the shapes factory.
+            //This allows the temp ids to be generated from -1, -2 again. Otherwise the temp ids will continue to decrease incrementally across processes 
+            this.shapesFactory.reset();
         }
-
-        this.shapesFactory.reset();
 
         this.processDiagram = new ProcessDiagram(
             this.$rootScope,
@@ -136,7 +139,7 @@ export class BpProcessEditorController extends BpBaseEditor {
 
     private destroy() {
         if (this.subArtifactEditorModalOpener) {
-            this.subArtifactEditorModalOpener.onDestroy();
+            this.subArtifactEditorModalOpener.destroy();
         }
 
         if (this.processDiagram) {

@@ -4,6 +4,7 @@ import {
     IArtifactAttachmentsService,
     IArtifactAttachmentsResultSet
 } from "../../../../managers/artifact-manager";
+import {INavigationService} from "../../../../core/navigation/navigation.svc";
 
 export class BPArtifactDocumentItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-document-item.html");
@@ -26,6 +27,7 @@ export class BPArtifactDocumentItemController implements IBPArtifactAttachmentIt
         "localization",
         "artifactAttachments",
         "messageService",
+        "navigationService",
         "$window"
     ];
 
@@ -38,6 +40,7 @@ export class BPArtifactDocumentItemController implements IBPArtifactAttachmentIt
                 private localization: ILocalizationService,
                 private artifactAttachments: IArtifactAttachmentsService,
                 private messageService: IMessageService,
+                private navigationService: INavigationService,
                 private $window: ng.IWindowService) {
     }
 
@@ -58,5 +61,8 @@ export class BPArtifactDocumentItemController implements IBPArtifactAttachmentIt
                     this.messageService.addError(this.localization.get("App_UP_Attachments_Download_No_Attachment"));
                 }
             });
+    }
+    public navigateToDocumentReference (artifactId: number) {
+        this.navigationService.navigateTo(artifactId);
     }
 }

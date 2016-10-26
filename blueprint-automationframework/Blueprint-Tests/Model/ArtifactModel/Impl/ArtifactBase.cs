@@ -727,8 +727,10 @@ namespace Model.ArtifactModel.Impl
             // For each user that created artifacts, discard the list of artifacts they created.
             foreach (IUser user in savedArtifactsDictionary.Keys)
             {
+                var artifacts = savedArtifactsDictionary[user];
+
                 Logger.WriteDebug("*** Discarding all unpublished artifacts created by user: '{0}'.", user.Username);
-                Artifact.DiscardArtifacts(savedArtifactsDictionary[user], savedArtifactsDictionary[user].First().Address, user);
+                ArtifactStore.DiscardArtifacts(artifacts.First().Address, artifacts, user, all: true);
             }
         }
 

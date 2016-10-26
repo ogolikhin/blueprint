@@ -98,7 +98,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         {
             width: 100,
             colWidth: 100,
-            headerName: `<span class="header-name">ID</span>`,
+            headerName: `<span class="header-name">` + this.localization.get("Label_ID") + `</span>`,
             field: "model.id",
             isGroup: true,
             isCheckboxHidden: true,
@@ -111,7 +111,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             }
         },
         {
-            headerName: "Name",
+            headerName: this.localization.get("Label_Name"),
             isGroup: true,
             isCheckboxHidden: true,
             innerRenderer: (vm: CollectionNodeVM, eGridCell: HTMLElement) => {
@@ -130,11 +130,11 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             }
         },
         {
-            headerName: "Description",
+            headerName: this.localization.get("Label_Description"),
             field: "model.description"
         },
         {
-            headerName: "Options",
+            headerName: this.localization.get("Label_Options"),
             isGroup: true,
             width: 60,
             colWidth: 60,

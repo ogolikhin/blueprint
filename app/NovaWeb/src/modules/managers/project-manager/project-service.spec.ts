@@ -314,7 +314,7 @@ describe("Project Repository", () => {
     describe("searchItemNames", () => {
         it("post - successful", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
             // Arrange
-            const searchCriteria: SearchServiceModels.IItemSearchCriteria = {query: "new", projectIds: [1]};
+            const searchCriteria: SearchServiceModels.IItemNameSearchCriteria = {query: "new", projectIds: [1]};
             const searchResult: SearchServiceModels.IItemNameSearchResultSet = {
                 items: [
                     {projectId: 1, artifactId: 2, itemId: 2, name: "New Actor 1", itemTypeId: 6, typeName: "Actor", typePrefix: "AC", path: ""},
@@ -340,7 +340,7 @@ describe("Project Repository", () => {
 
         it("post - unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
             // Arrange
-            const searchCriteria: SearchServiceModels.IItemSearchCriteria = {query: "new", projectIds: [1]};
+            const searchCriteria: SearchServiceModels.IItemNameSearchCriteria = {query: "new", projectIds: [1]};
             $httpBackend.expectPOST("/svc/searchservice/itemsearch/name?pageSize=100&startOffset=0", searchCriteria)
                 .respond(HttpStatusCode.Unauthorized);
 

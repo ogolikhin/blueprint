@@ -59,12 +59,12 @@ export interface IArtifactPickerController extends IArtifactPickerOptions {
     isSearching: boolean;
     searchResults: SearchServiceModels.ISearchResult[];
     isMoreSearchResults: boolean;
+    onSearchResultClicked(searchResult: SearchServiceModels.ISearchResult);
     project: AdminStoreModels.IInstanceItem;
     rootNode: InstanceItemNodeVM;
     columns: IColumn[];
     onSelect: (vm: ArtifactPickerNodeVM<any>, isSelected: boolean, selectedVMs: ArtifactPickerNodeVM<any>[]) => void;
-    setProject(project: AdminStoreModels.IInstanceItem): void;
-    clearProject(): void;
+    onSelectionChanged: (params: {selectedVMs: ArtifactPickerNodeVM<any>[]}) => void;
 }
 
 export class BpArtifactPickerController implements ng.IComponentController, IArtifactPickerController {
@@ -104,18 +104,18 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         if (projectId) {
             const project = this.projectManager.getProject(projectId);
             if (project) {
-                this.setProject({
+                this.project = {
                     id: project.id,
                     type: AdminStoreModels.InstanceItemType.Project,
                     name: project.name,
                     hasChildren: project.hasChildren
-                } as AdminStoreModels.IInstanceItem);
+                } as AdminStoreModels.IInstanceItem;
             } else {
                 this.projectService.getProject(projectId)
-                    .then(project => this.setProject(project));
+                    .then(project => this.project = project);
             }
         } else {
-            this.clearProject();
+            this.project = undefined;
         }
     }
 
@@ -138,19 +138,23 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     }
 
     public clearSearch(): void {
+        if (this.isSearching) {
+            this.projectService.abort();
+        }
         this.searchText = undefined;
         this.searchResults = undefined;
         this.isMoreSearchResults = undefined;
     }
 
     public search(): void {
-        if (this.searchText) {
+        if (!this.isSearching && this.searchText && this.searchText.trim().length > 0) {
             this.isSearching = true;
             let search: ng.IPromise<SearchServiceModels.ISearchResultSet<SearchServiceModels.ISearchResult>>;
             if (this.project) {
-                const searchCriteria: SearchServiceModels.IItemSearchCriteria = {
+                const searchCriteria: SearchServiceModels.IItemNameSearchCriteria = {
                     query: this.searchText,
                     projectIds: [this.project.id],
+                    predefinedTypeIds: this.selectableItemTypes,
                     includeArtifactPath: true
                 };
                 search = this.projectService.searchItemNames(searchCriteria, 0, BpArtifactPickerController.maxSearchResults + 1);
@@ -163,8 +167,22 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             search.then(result => {
                 this.searchResults = result.items.slice(0, BpArtifactPickerController.maxSearchResults);
                 this.isMoreSearchResults = (result.items.length > BpArtifactPickerController.maxSearchResults);
+            }).finally(() => {
                 this.isSearching = false;
             });
+        }
+    }
+
+    public onSearchResultClicked(searchResult: SearchServiceModels.ISearchResult) {
+        if (this.project) {
+            return; //TODO
+        } else {
+            this.project = {
+                id: searchResult.itemId,
+                type: AdminStoreModels.InstanceItemType.Project,
+                name: searchResult.name,
+                hasChildren: true
+            } as AdminStoreModels.IInstanceItem;
         }
     }
 
@@ -185,29 +203,25 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         if (vm instanceof InstanceItemNodeVM) {
             this.setSelectedVMs([]);
             if (vm.model.type === AdminStoreModels.InstanceItemType.Project) {
-                this.setProject(vm.model);
+                this.project = vm.model;
             }
         } else {
             this.setSelectedVMs(selectedVMs);
         }
     };
 
-    public project: AdminStoreModels.IInstanceItem;
+    private _project: AdminStoreModels.IInstanceItem;
 
-    public setProject(project: AdminStoreModels.IInstanceItem): void {
-        this.clearSearch();
-        this.setSelectedVMs([]);
-        this.project = project;
-        this.currentSelectionMode = this.selectionMode || "single";
-        this.rootNode = new InstanceItemNodeVM(this.artifactManager, this.projectService, this, project, true);
+    public get project(): AdminStoreModels.IInstanceItem {
+        return this._project;
     }
 
-    public clearProject(): void {
+    public set project(project: AdminStoreModels.IInstanceItem) {
         this.clearSearch();
         this.setSelectedVMs([]);
-        this.project = undefined;
-        this.currentSelectionMode = "single";
-        this.rootNode = new InstanceItemNodeVM(this.artifactManager, this.projectService, this, {
+        this._project = project;
+        this.currentSelectionMode = this.selectionMode || "single";
+        this.rootNode = new InstanceItemNodeVM(this.artifactManager, this.projectService, this, project || {
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,
             name: "",

@@ -107,7 +107,7 @@ export class ProjectServiceMock implements IProjectService {
         return deferred.promise;
     }
 
-    public searchItemNames(searchCriteria: SearchServiceModels.IItemSearchCriteria,
+    public searchItemNames(searchCriteria: SearchServiceModels.IItemNameSearchCriteria,
                            startOffset: number = 0,
                            pageSize: number = 100): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet> {
         const deferred = this.$q.defer<SearchServiceModels.IItemNameSearchResultSet>();

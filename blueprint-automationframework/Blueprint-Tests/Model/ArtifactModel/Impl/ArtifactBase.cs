@@ -222,12 +222,18 @@ namespace Model.ArtifactModel.Impl
             }
 
             RestApiFacade restApi = new RestApiFacade(artifactToDelete.Address, tokenValue);
-            var artifactResults = restApi.SendRequestAndDeserializeObject<List<DeleteArtifactResult>>(
+            var response = restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.DELETE,
                 queryParameters: queryparameters,
                 expectedStatusCodes: expectedStatusCodes);
 
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                return null;
+            }
+
+            var artifactResults = JsonConvert.DeserializeObject<List<DeleteArtifactResult>>(response.Content);
             ArtifactBase artifaceBaseToDelete = artifactToDelete as ArtifactBase;
 
             foreach (var deletedArtifactResult in artifactResults)
@@ -673,11 +679,20 @@ namespace Model.ArtifactModel.Impl
         /// <param name="observer">The observer to notify when artifacts are disposed.</param>
         public static void DisposeArtifacts(List<IArtifactBase> artifactList, IArtifactObserver observer)
         {
-            if (artifactList == null)
+            if ((artifactList == null) || !artifactList.Any())
             {
                 return;
             }
 
+            // Get a list of all child artifacts that were deleted along with the parent.
+            var deletedArtifactResults = new List<DeleteArtifactResult>();
+
+            foreach (var artifact in artifactList.ToArray())
+            {
+                deletedArtifactResults.AddRange(((ArtifactBase) artifact).DeletedArtifactResults);
+            }
+
+            var otherDeletedArtifactIds = deletedArtifactResults.ConvertAll(a => a.ArtifactId).Distinct();
             var savedArtifactsDictionary = new Dictionary<IUser, List<IArtifactBase>>();
 
             // Separate the published from the unpublished artifacts.  Delete the published ones, and discard the saved ones.
@@ -694,7 +709,7 @@ namespace Model.ArtifactModel.Impl
                 {
                     DeleteAndPublishArtifact(artifact, user);
                 }
-                else if (artifact.IsSaved)
+                else if (artifact.IsSaved && !otherDeletedArtifactIds.Contains(artifact.Id))
                 {
                     if (savedArtifactsDictionary.ContainsKey(user))
                     {
@@ -726,12 +741,14 @@ namespace Model.ArtifactModel.Impl
         {
             if (!artifact.IsMarkedForDeletion && artifact.IsPublished)
             {
-                Logger.WriteDebug("Deleting artifact ID: {0}.", artifact.Id);
-                artifact.Delete(artifact.LockOwner, deleteChildren: true);
+                Logger.WriteDebug("Deleting artifact ID: {0}, and its children.", artifact.Id);
+                var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.NotFound };
+                artifact.Delete(artifact.LockOwner, expectedStatusCodes, deleteChildren: true);
             }
 
-            Logger.WriteDebug("Publishing deleted artifact ID: {0}.", artifact.Id);
-            artifact.Publish(user);
+            // Publish all artifacts changed by this user.
+            Logger.WriteDebug("Publishing deleted artifact ID: {0}, and its children.", artifact.Id);
+            ArtifactStore.PublishArtifacts(artifact.Address, artifacts: null, user: user, all: true);
         }
     }
 

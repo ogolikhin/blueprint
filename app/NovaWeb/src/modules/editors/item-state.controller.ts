@@ -29,7 +29,7 @@ export class ItemStateController {
                 private itemInfoService: IItemInfoService,
                 private statefulArtifactFactory: IStatefulArtifactFactory) {
 
-        let id = parseInt($state.params["id"], 10);
+        const id = parseInt($state.params["id"], 10);
 
         if (_.isFinite(id)) {
             this.clearLockedMessages();

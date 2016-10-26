@@ -14,6 +14,20 @@ export class Helper {
         });
     }
 
+    static limitChars(str, limit: number = 100) {
+        if (str) {
+            let text = this.stripHTMLTags(str);
+            if (text) {
+                if (text.length > limit) {
+                    return text.substring(0, limit) + "...";
+                }
+                return text;
+            }
+            return "";
+        }
+        return "";
+    }
+
     static toDashCase(token: string): string {
         token = token.replace(/(\B[A-Z][a-z]+)/g, function (match) {
             return "-" + match.toLowerCase();

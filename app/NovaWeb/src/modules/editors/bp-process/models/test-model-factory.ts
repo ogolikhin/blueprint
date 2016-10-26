@@ -1,5 +1,5 @@
 ﻿import {ProcessShapeType, ProcessType} from "./enums";
-import {IProcess, IProcessShape, ProcessModel, ProcessShapeModel} from "./process-models";
+import {IProcess, IProcessShape, ProcessModel, ProcessShapeModel, IUserTaskShape} from "./process-models";
 import {ShapesFactory} from "../components/diagram/presentation/graph/shapes/shapes-factory";
 import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
@@ -16,6 +16,7 @@ export function createProcessModel(id: number = 1, type: ProcessType = ProcessTy
 
     return process;
 }
+
 export function createShapeModel(type: ProcessShapeType, id: number, x?: number, y?: number): IProcessShape {
     let shapeModel = new ProcessShapeModel(id);
     shapeModel.name = id.toString();
@@ -43,6 +44,16 @@ export function createShapeModel(type: ProcessShapeType, id: number, x?: number,
     return shapeModel;
 }
 
+export function createUserTask(id: number, x?: number, y?: number, hasComments: boolean = false, hasTraces: boolean = false): IUserTaskShape {
+    const shape = createShapeModel(ProcessShapeType.UserTask, id, x, y);
+    shape["flags"] = {
+        hasComments: hasComments,
+        hasTraces: hasTraces
+    };
+
+    return <IUserTaskShape>shape;
+}
+
 export function createDefaultProcessModel(): IProcess {
     let process: IProcess = createDefaultProcessModelWithoutXAndY();
 
@@ -65,7 +76,7 @@ export function createDefaultProcessModelWithoutXAndY(): IProcess {
 
     let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
     let pre = createShapeModel(ProcessShapeType.PreconditionSystemTask, 15, 0, 0);
-    let ut1 = createShapeModel(ProcessShapeType.UserTask, 20, 0, 0);
+    let ut1 = createUserTask(20, 0, 0);
     let st2 = createShapeModel(ProcessShapeType.SystemTask, 25, 0, 0);
     let end = createShapeModel(ProcessShapeType.End, 30, 0, 0);
 

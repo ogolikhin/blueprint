@@ -4,7 +4,7 @@ import {IDialogService} from "../../shared";
 import {IStatefulArtifactFactory, IStatefulArtifact} from "../artifact-manager/artifact";
 import {Project, ArtifactNode} from "./project";
 import {IDispose} from "../models";
-import {Models, Enums} from "../../main/models";
+import {Models, AdminStoreModels, Enums} from "../../main/models";
 import {IProjectService, ProjectServiceStatusCode} from "./project-service";
 import {IArtifactManager} from "../../managers";
 import {IMetaDataService} from "../artifact-manager/metadata";
@@ -19,7 +19,7 @@ export interface IArtifactNode extends IDispose {
     projectId: number;
     //parentId: number;
     permissions: Enums.RolePermissions;
-    predefinedType: Models.ItemTypePredefined;
+    predefinedType: Enums.ItemTypePredefined;
     hasChildren?: boolean;
     loaded?: boolean;
     open?: boolean;
@@ -36,7 +36,7 @@ export interface IProjectManager extends IDispose {
     refresh(data: Models.IProject): ng.IPromise<any>;
     refreshAll(): ng.IPromise<any>;
     loadArtifact(id: number): void;
-    loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
+    loadFolders(id?: number): ng.IPromise<AdminStoreModels.IInstanceItem[]>;
     getProject(id: number): Project;
     getArtifactNode(id: number): IArtifactNode;
     getArtifact(id: number): IStatefulArtifact;
@@ -274,7 +274,7 @@ export class ProjectManager implements IProjectManager {
         this.metadataService.get(oldProjectId).then(() => {
 
             //reload project info
-            this.projectService.getProject(oldProjectId).then((result: Models.IProjectNode) => {
+            this.projectService.getProject(oldProjectId).then((result: AdminStoreModels.IInstanceItem) => {
 
                 //add some additional info
                 angular.extend(result, {
@@ -411,7 +411,7 @@ export class ProjectManager implements IProjectManager {
                 }
                 return true;
             });
-            
+
             this.projectCollection.onNext(projects);
         }
     }
@@ -468,7 +468,7 @@ export class ProjectManager implements IProjectManager {
         return defer.promise;
     }
 
-    public loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]> {
+    public loadFolders(id?: number): ng.IPromise<AdminStoreModels.IInstanceItem[]> {
         return this.projectService.getFolders(id);
     }
 

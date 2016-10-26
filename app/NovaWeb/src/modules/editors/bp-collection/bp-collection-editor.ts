@@ -1,3 +1,5 @@
+import * as angular from "angular";
+import * as _ from "lodash";
 import {Models, Enums} from "../../main";
 import {IColumn, ITreeViewNodeVM} from "../../shared/widgets/bp-tree-view/";
 import {BpArtifactDetailsEditorController} from "../bp-artifact/bp-details-editor";
@@ -33,10 +35,15 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         "localization",
         "dialogService",
         "collectionService",
-        "metadataService"
+        "metadataService",
+        "$scope",
+        "$window",
+        "$timeout"
     ];
 
     private collection: ICollection;
+    public selectAll: boolean = false;
+    public selectAllClass: string;
 
     constructor(private $state: ng.ui.IStateService,
         messageService: IMessageService,
@@ -45,19 +52,26 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         localization: ILocalizationService,
         dialogService: IDialogService,
         private collectionService: ICollectionService,
-        private metadataService: IMetaDataService) {
+        private metadataService: IMetaDataService,
+        $scope: ng.IScope,
+        $window,
+        $timeout
+    ) {
         super(messageService, artifactManager, windowManager, localization, dialogService);
 
-        //for (let i = 1; i <= 500; i++) {
-        //    this.rootNode.push(new CollectionNodeVM({ id: i, name: `New Artifact ${i}`, description: "This is the description" } as Models.IArtifact));
-        //}
+
     }
+
     public onArtifactReady() {
         if (this.editor && this.artifact) {
             this.collectionService.getCollection(this.artifact.id).then((result: ICollection) => {
                 this.metadataService.get(result.projectId).then(() => {
                     this.collection = result;
-                    this.rootNode = result.artifacts.map((a: ICollectionArtifact) => new CollectionNodeVM(a, result.projectId, this.metadataService));
+                    this.rootNode = result.artifacts.map((a: ICollectionArtifact) => {
+                        a.name = Helper.limitChars(a.name, 150);
+                        a.description = Helper.limitChars(a.description, 250);
+                        return new CollectionNodeVM(a, result.projectId, this.metadataService);
+                    });
                 }).catch((error: any) => {
                     //ignore authentication errors here
                     if (error) {
@@ -77,68 +91,78 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             super.onArtifactReady();
         }
     }
-   
-           
+
+
 
     public columns: IColumn[] = [
         {
             isCheckboxSelection: true,
-            width: 20
+            width: 30,
+            headerName: `<span><span class="ag-selection-checkbox">` +
+            `<i ng-class="$ctrl.selectAllClass" ng-click="console.log(1)"></i></span></span>`
         },
         {
-            headerName: "ID",
-            field: "model.id", 
+            width: 100,
+            colWidth: 100,
+            headerName: `<span class="header-name">ID</span>`,
+            field: "model.id",
             isGroup: true,
             isCheckboxHidden: true,
             cellClass: (vm: CollectionNodeVM) => vm.getCellClass(),
             innerRenderer: (vm: CollectionNodeVM, eGridCell: HTMLElement) => {
                 const prefix = Helper.escapeHTMLText(vm.model.prefix);
                 const icon = vm.getIcon();
-                const url = this.$state.href("main.item", { id: vm.model.id });                
+                const url = this.$state.href("main.item", { id: vm.model.id });
                 return `<span class="ag-group-value-wrapper">${icon} <a ng-href="${url}" target="_blank">${prefix}${vm.model.id}</a></span>`;
-            }                     
+            }
         },
         {
             headerName: "Name",
-            field: "model.name"         
-        },
-        {           
-            headerName: "Description",
-            field: "model.description"
-        },
-        {
-            headerName: "Artifact Path",
-            isGroup: true,             
+            isGroup: true,
             isCheckboxHidden: true,
             innerRenderer: (vm: CollectionNodeVM, eGridCell: HTMLElement) => {
                 const path = vm.model.artifactPath;
 
-                let html = `<ul class="breadcrumbs"><li>`;
-                path.map((collectionArtifact: string) => {
-                    html = html + `<a>${Helper.escapeHTMLText(collectionArtifact)}</a>`;
+                let tooltipText = "";
+                path.map((collectionArtifact: string, index: number) => {
+                    if (index !== 0) {
+                        tooltipText += " > ";
+                    }
+
+                    tooltipText = tooltipText + `${Helper.escapeHTMLText(collectionArtifact)}` ;
                 });
-                html = html + `</ul></li>`;
-                return html;
+
+                return `${vm.model.name} <div bp-tooltip="${tooltipText}" bp-tooltip-truncated="true" class="path">` + tooltipText + `</div>`;
             }
         },
         {
-            headerName: "Options",            
+            headerName: "Description",
+            field: "model.description"
+        },
+        {
+            headerName: "Options",
             isGroup: true,
-            width: 50,
-            isCheckboxHidden: true,            
-            innerRenderer: (vm: CollectionNodeVM, eGridCell: HTMLElement) => {               
-                return `<i class="icon fonticon-delete-filled"></i>`;
-            }          
+            width: 60,
+            colWidth: 60,
+            isCheckboxHidden: true,
+            innerRenderer: (vm: CollectionNodeVM, eGridCell: HTMLElement) => {
+                return `<i class="icon icon__normal fonticon-delete-filled"></i>`;
+            }
         }];
 
     public rootNode: CollectionNodeVM[] = [];
+
+    public toggleAll(): void {
+        this.selectAll = !this.selectAll;
+        this.selectAllClass = this.selectAll ? "ag-checkbox-checked" : "ag-checkbox-checked";
+    }
 }
 
 class CollectionNodeVM implements ITreeViewNodeVM {
     public key: string;
 
     constructor(public model: ICollectionArtifact, private projectId: number, private metadataService: IMetaDataService) {
-        this.key = String(model.id);       
+        this.key = String(model.id);
     }
 
 
@@ -147,20 +171,20 @@ class CollectionNodeVM implements ITreeViewNodeVM {
         let artifactType = this.metadataService.getArtifactItemTypeTemp(this.projectId, this.model.itemTypeId);
         if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
             return `<bp-item-type-icon item-type-id="${artifactType.id}" item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
-        }       
+        }
         return `<i></i>`;
     }
 
-    public getCellClass(): string[] {     
+    public getCellClass(): string[] {
         const result = [] as string[];
         const typeName = Models.ItemTypePredefined[this.model.itemTypePredefined];
         if (typeName) {
-            result.push("is-" + Helper.toDashCase(typeName));
+            result.push("is-" + _.kebabCase(typeName));
         }
         return result;
     }
 
     public isSelectable(): boolean {
         return true;
-    }   
+    }
 }

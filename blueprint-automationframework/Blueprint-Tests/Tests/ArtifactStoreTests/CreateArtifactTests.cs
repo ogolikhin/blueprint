@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using Common;
@@ -53,17 +53,20 @@ namespace ArtifactStoreTests
             "Verify the artifact returned has the same properties as the artifact we created.")]
         public void CreateArtifact_ValidArtifactTypeUnderProject_CanGetArtifact(ItemTypePredefined artifactType)
         {
+            // Setup:
+            var authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+
             // Execute:
             INovaArtifactDetails newArtifact = null;
 
             Assert.DoesNotThrow(() =>
-                newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project),
+                newArtifact = CreateArtifactWithRandomName(artifactType, authorUser, _project),
                 "'POST {0}' should return 201 Created when trying to create an artifact of type: '{1}'!",
                 SVC_PATH, artifactType);
 
             // Verify:
             Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(authorUser, newArtifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, newArtifact);
         }
 
@@ -98,19 +101,20 @@ namespace ArtifactStoreTests
         public void CreateArtifact_ValidCollectionOrCollectionFolder_CanGetArtifact(ItemTypePredefined artifactType)
         {
             // Setup:
-            var collectionFolder = GetDefaultCollectionFolder(_project, _user);
+            var authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+            var collectionFolder = GetDefaultCollectionFolder(_project, authorUser);
 
             // Execute:
             INovaArtifactDetails newArtifact = null;
 
             Assert.DoesNotThrow(() =>
-                newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, collectionFolder.Id, baseType: BaseArtifactType.PrimitiveFolder),
+                newArtifact = CreateArtifactWithRandomName(artifactType, authorUser, _project, collectionFolder.Id, baseType: BaseArtifactType.PrimitiveFolder),
                 "'POST {0}' should return 201 Created when trying to create an artifact of type: '{1}'!",
                 SVC_PATH, artifactType);
 
             // Verify:
             Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(authorUser, newArtifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, newArtifact);
         }
 
@@ -151,7 +155,8 @@ namespace ArtifactStoreTests
         public void CreateArtifact_ValidArtifactTypeUnderProjectWithOrderIndex_VerifyOrderIndexIsCorrect(ItemTypePredefined artifactType, double orderIndexOffset)
         {
             // Setup:
-            var firstArtifact = CreateArtifactWithRandomName(artifactType, _user, _project);
+            var authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+            var firstArtifact = CreateArtifactWithRandomName(artifactType, authorUser, _project);
 
             Assert.NotNull(firstArtifact.OrderIndex, "OrderIndex of newly created artifact must not be null!");
             Assert.Greater(firstArtifact.OrderIndex, 0, "OrderIndex of newly created artifact must be > 0!");
@@ -162,13 +167,13 @@ namespace ArtifactStoreTests
             INovaArtifactDetails newArtifact = null;
 
             Assert.DoesNotThrow(() =>
-                newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, orderIndex: orderIndexToSet),
+                newArtifact = CreateArtifactWithRandomName(artifactType, authorUser, _project, orderIndex: orderIndexToSet),
                 "'POST {0}' should return 201 Created when trying to create an artifact of type: '{1}'!",
                 SVC_PATH, artifactType);
 
             // Verify:
             Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(authorUser, newArtifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, newArtifact);
 
             Assert.NotNull(newArtifact.OrderIndex, "OrderIndex of newly created artifact must not be null!");
@@ -331,7 +336,7 @@ namespace ArtifactStoreTests
             var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
 
             // Create a user that has full access to project, but no access to parentArtifact.
-            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermission, TestHelper.ProjectRole.None, _project, parentArtifact);
 
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
@@ -339,11 +344,36 @@ namespace ArtifactStoreTests
             // Execute:
             var ex= Assert.Throws<Http403ForbiddenException>(() => CreateArtifact(userWithoutPermission,
                 _project, ItemTypePredefined.Process, artifactName, parentArtifact.Id),
-                "'POST {0}' should return 403 Forbidden if the user doesn't have permission to parent artifact!", SVC_PATH);
+                "'POST {0}' should return 403 Forbidden if the user doesn't have write permission to parent artifact!", SVC_PATH);
 
             // Verify:
             ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, string.Format(CultureInfo.InvariantCulture,
                 "You do not have permission to access the artifact (ID: {0})", parentArtifact.Id));
+        }
+
+        [TestCase]
+        [TestRail(185235)]
+        [Description("Create an artifact as a user that full access to the project, but only view access to the parent.  " +
+            "Verify 403 Forbidden is returned.")]
+        public void CreateArtifact_UserHasViewPermissionToParentArtifact_403Forbidden()
+        {
+            // Setup:
+            var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+
+            // Create a user that has full access to project, but no access to parentArtifact.
+            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+            Helper.AssignProjectRolePermissionsToUser(userWithoutPermission, TestHelper.ProjectRole.Viewer, _project, parentArtifact);
+
+            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => CreateArtifact(userWithoutPermission,
+                 _project, ItemTypePredefined.Process, artifactName, parentArtifact.Id),
+                "'POST {0}' should return 403 Forbidden if the user doesn't have write permission to parent artifact!", SVC_PATH);
+
+            // Verify:
+            ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, string.Format(CultureInfo.InvariantCulture,
+                "You do not have permission to edit the artifact (ID: {0})", parentArtifact.Id));
         }
 
         [TestCase(int.MaxValue)]
@@ -801,8 +831,6 @@ namespace ArtifactStoreTests
 
             serviceError.AssertEquals(expectedError);
         }
-
-
         
         #endregion Private functions
     }

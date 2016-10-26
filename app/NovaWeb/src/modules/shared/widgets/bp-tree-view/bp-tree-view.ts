@@ -1,6 +1,7 @@
 import * as angular from "angular";
 import * as agGrid from "ag-grid/main";
 import {ILocalizationService} from "../../../core";
+import {IWindowManager, IMainWindow, ResizeCause} from "../../../main/services";
 
 /**
  * Usage:
@@ -32,7 +33,8 @@ export class BPTreeViewComponent implements ng.IComponentOptions {
         headerHeight: "<",
         onSelect: "&?",
         onDoubleClick: "&?",
-        onError: "&?"
+        onError: "&?",
+        enableColResize: "<"
     };
 }
 
@@ -64,18 +66,21 @@ export interface ITreeViewNodeVM {
 }
 
 export interface IColumn {
+    headerCellRenderer?: Function;
     headerName?: string;
     field?: string;
     width?: number;
+    colWidth?: number;
+    minColWidth?: number;
     isGroup?: boolean;
     isCheckboxSelection?: boolean;
     isCheckboxHidden?: boolean;
     cellClass?: (vm: ITreeViewNodeVM) => string[];
-    innerRenderer?: (vm: ITreeViewNodeVM, eGridCell: HTMLElement) => string;    
+    innerRenderer?: (vm: ITreeViewNodeVM, eGridCell: HTMLElement) => string;
 }
 
 export class BPTreeViewController implements IBPTreeViewController {
-    public static $inject = ["$q", "$element", "localization"];
+    public static $inject = ["$q", "$element", "localization", "$timeout", "windowManager"];
 
     // Template bindings
     public gridClass: string;
@@ -92,8 +97,12 @@ export class BPTreeViewController implements IBPTreeViewController {
     public onSelect: (param: {vm: ITreeViewNodeVM, isSelected: boolean, selectedVMs: ITreeViewNodeVM[]}) => void;
     public onDoubleClick: (param: {vm: ITreeViewNodeVM}) => void;
     public onError: (param: {reason: any}) => void;
+    public enableColResize: boolean;
+    public timers = [];
 
-    constructor(private $q: ng.IQService, private $element: ng.IAugmentedJQuery, private localization: ILocalizationService) {
+
+    constructor(private $q: ng.IQService, private $element: ng.IAugmentedJQuery, private localization: ILocalizationService,
+                private $timeout: ng.ITimeoutService, private windowManager: IWindowManager) {
         this.gridClass = angular.isDefined(this.gridClass) ? this.gridClass : "project-explorer";
         this.rowBuffer = angular.isDefined(this.rowBuffer) ? this.rowBuffer : 200;
         this.selectionMode = angular.isDefined(this.selectionMode) ? this.selectionMode : "single";
@@ -103,9 +112,10 @@ export class BPTreeViewController implements IBPTreeViewController {
         this.headerHeight = angular.isDefined(this.headerHeight) ? this.headerHeight : 0;
 
         this.options = {
+            angularCompileHeaders: true,
             suppressRowClickSelection: true,
             rowBuffer: this.rowBuffer,
-            enableColResize: true,         
+            enableColResize: this.enableColResize || true,
             icons: {
                 groupExpanded: "<i />",
                 groupContracted: "<i />",
@@ -147,9 +157,30 @@ export class BPTreeViewController implements IBPTreeViewController {
         }
     }
 
+    public $onInit() {
+        this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
+    }
+
+    private onWidthResized(mainWindow: IMainWindow) {
+        if (this.options.api) {
+            if (mainWindow.causeOfChange === ResizeCause.browserResize) {
+                this.options.api.sizeColumnsToFit();
+            } else if (mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
+                this.timers[0] = this.$timeout(() => {
+                    this.options.api.sizeColumnsToFit();
+                }, 900);
+            }
+        }
+    }
+
     public $onDestroy(): void {
         this.options.api.setRowData(null);
         this.updateScrollbars(true);
+        this.timers.forEach((timer) => {
+            this.$timeout.cancel(timer);
+        });
+
+        this.rootNode = null;
     }
 
     public resetGridAsync(saveSelection: boolean): ng.IPromise<void> {
@@ -357,6 +388,10 @@ export class BPTreeViewController implements IBPTreeViewController {
     };
 
     public onGridReady = (event?: any) => {
+        this.timers[1] = this.$timeout(() => {
+            this.options.api.sizeColumnsToFit();
+        }, 500);
+
         this.resetGridAsync(false);
     }
 }

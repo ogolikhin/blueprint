@@ -43,9 +43,9 @@ export class StatefulArtifactFactoryMock implements IStatefulArtifactFactoryMock
             const specialProperties = [];
             for (const propertyValue in shape.propertyValues) {
                 const property = shape.propertyValues[propertyValue];
-                if (property.typePredefined === Models.PropertyTypePredefined.Persona || 
-                    property.typePredefined === Models.PropertyTypePredefined.Label|| 
-                    property.typePredefined === Models.PropertyTypePredefined.AssociatedArtifact|| 
+                if (property.typePredefined === Models.PropertyTypePredefined.Persona ||
+                    property.typePredefined === Models.PropertyTypePredefined.Label ||
+                    property.typePredefined === Models.PropertyTypePredefined.AssociatedArtifact ||
                     property.typePredefined === Models.PropertyTypePredefined.ImageId) {
                     const newProperty = {
                         propertyTypeId: property.typeId,

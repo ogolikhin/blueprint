@@ -469,7 +469,7 @@ export class ShapesFactory {
     public reset() {
         if (this._idGenerator) {
             this._idGenerator.reset();
-        }        
+        }
     }
 
     public destroy() {

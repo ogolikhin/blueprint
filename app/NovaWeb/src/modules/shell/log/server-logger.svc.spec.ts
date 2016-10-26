@@ -11,10 +11,10 @@ describe("ServerLoggerSvc", () => {
     describe("log", () => {
         it("logs succesfully", inject(($httpBackend: ng.IHttpBackendService, serverLogger: ServerLoggerSvc) => {
             // Arrange
-            var success: boolean;
-            var level: number = 2;
-            var inError = {message: "test"};
-            var outMessage = {Source: "NovaClient", LogLevel: level, Message: inError.message, StackTrace: ""};
+            let success: boolean;
+            const level: number = 2;
+            const inError = {message: "test"};
+            const outMessage = {Source: "NovaClient", LogLevel: level, Message: inError.message, StackTrace: ""};
             $httpBackend.expectPOST("/svc/adminstore/log", angular.toJson(outMessage))
                 .respond(HttpStatusCode.Success);
 
@@ -32,10 +32,10 @@ describe("ServerLoggerSvc", () => {
 
         it("logs unsuccesfully", inject(($httpBackend: ng.IHttpBackendService, serverLogger: ServerLoggerSvc) => {
             // Arrange
-            var success: boolean;
-            var level: number = 1;
-            var inError = {message: "test"};
-            var outMessage = {Source: "NovaClient", LogLevel: level, Message: inError.message, StackTrace: ""};
+            let success: boolean;
+            const level: number = 1;
+            const inError = {message: "test"};
+            const outMessage = {Source: "NovaClient", LogLevel: level, Message: inError.message, StackTrace: ""};
             $httpBackend.expectPOST("/svc/adminstore/log", angular.toJson(outMessage))
                 .respond(400);
 

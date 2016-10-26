@@ -133,6 +133,7 @@ export class ProcessDiagram {
                                selectedNodeId: number = undefined) {
 
         try {
+
             this.graph = new ProcessGraph(
                 this.$rootScope,
                 this.$scope,
@@ -140,10 +141,11 @@ export class ProcessDiagram {
                 this.processViewModel,
                 this.dialogService,
                 this.localization,
+                this.shapesFactory,
                 this.messageService,
                 this.$log,
                 this.statefulArtifactFactory,
-                this.shapesFactory);
+            );
                 
             this.registerSelectionListeners();
         } catch (err) {

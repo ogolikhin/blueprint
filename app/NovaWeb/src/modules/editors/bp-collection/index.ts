@@ -1,3 +1,5 @@
+require("./bp-collection.scss");
+
 import * as angular from "angular";
 import {BpArtifactCollectionEditor} from "./bp-collection-editor";
 import {BpCollectionHeader} from "./bp-collection-header";

@@ -8,7 +8,6 @@ export { ProcessModels }
 
 export interface IProcessService {
     load(processId: string, versionId?: number, revisionId?: number, baselineId?: number, readOnly?: boolean): ng.IPromise<ProcessModels.IProcess>;
-    getProcesses(projectId: number): ng.IPromise<ProcessModels.IArtifactReference[]>;
     save(processVM: ProcessModels.IProcess): ng.IPromise<IProcessUpdateResult>;
 }
 
@@ -81,34 +80,10 @@ export class ProcessService implements IProcessService {
                 if (!result) {
                     deferred.reject();
                     return;
-                }
-                const error = {
-                    statusCode: result.status,
-                    message: result.data ? result.data.message : ""
-                };
-                deferred.reject(error);
-            }
-        );
-        return deferred.promise;
-    }
-
-
-    public getProcesses(projectId: number): ng.IPromise<ProcessModels.IArtifactReference[]> {
-        const restPath = `/svc/components/storyteller/projects/${projectId}/processes`;
-        const deferred = this.$q.defer<ProcessModels.IArtifactReference[]>();
-
-        this.$http.get<ProcessModels.IArtifactReference[]>(restPath).then(
-            (result: ng.IHttpPromiseCallbackArg<ProcessModels.IArtifactReference[]>) => {
-
-                deferred.resolve(result.data);
-
-            }, (result: ng.IHttpPromiseCallbackArg<any/*Shell.IHttpError*/>) => {
-
-                result.data.statusCode = result.status;
+                }                
                 deferred.reject(result.data);
             }
         );
-
         return deferred.promise;
     }
 
@@ -127,7 +102,7 @@ export class ProcessService implements IProcessService {
             deferred.resolve(result.data);
 
         }).catch((err) => {
-            deferred.reject(err);
+            deferred.reject(err.data);
         });
 
         return deferred.promise;

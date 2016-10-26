@@ -1,6 +1,6 @@
 ﻿import * as angular from "angular";
 import {SessionTokenHelper} from "./session.token.helper";
-import {ILocalizationService, ISettingsService, IHttpInterceptorConfig, HttpStatusCode, AppicationError} from "../../core";
+import {ILocalizationService, ISettingsService, IHttpInterceptorConfig, HttpStatusCode, ApplicationError} from "../../core";
 import {Helper} from "../../shared";
 
 export interface IUser {
@@ -201,7 +201,7 @@ export class AuthSvc implements IAuth {
                     deferred.reject(err);
                 });
         } else {
-            deferred.reject(new AppicationError({
+            deferred.reject(new ApplicationError({
                 statusCode: HttpStatusCode.ServerError,
                 message: this.localization.get("Login_Auth_SessionTokenRetrievalFailed")
             }));

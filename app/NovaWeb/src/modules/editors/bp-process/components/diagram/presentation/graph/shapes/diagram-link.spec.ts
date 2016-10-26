@@ -80,7 +80,7 @@ describe("DiagramLink unit tests", () => {
             const testModel = createUserDecisionWithoutUserTaskInFirstConditionModel("Condition1", "Condition2");
             const processModel = new ProcessViewModel(testModel, communicationManager);
 
-            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
 
             // act
             processGraph.layout.render(true, null);
@@ -106,7 +106,7 @@ describe("DiagramLink unit tests", () => {
             const ud = 40;
             const testModel = createUserDecisionWithoutUserTaskInFirstConditionModel();
             const processModel = new ProcessViewModel(testModel, communicationManager);
-            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
 
             // act
             processGraph.layout.render(true, null);
@@ -139,7 +139,7 @@ describe("DiagramLink unit tests", () => {
             statefulArtifactFactory.populateStatefulProcessWithProcessModel(<StatefulProcessArtifact>statefulArtifact, testModel);
             const processModel = new ProcessViewModel(statefulArtifact, communicationManager);
 
-            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
             processGraph.layout.render(true, null);
 
             const udNode: IDiagramNode = processGraph.layout.getNodeById(ud.toString());
@@ -163,7 +163,7 @@ describe("DiagramLink unit tests", () => {
             statefulArtifactFactory.populateStatefulProcessWithProcessModel(<StatefulProcessArtifact>statefulArtifact, testModel);
             const processModel = new ProcessViewModel(statefulArtifact, communicationManager);
 
-            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, null, null, null, shapesFactory);
+            const processGraph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
 
             // act
             processGraph.layout.render(true, null);

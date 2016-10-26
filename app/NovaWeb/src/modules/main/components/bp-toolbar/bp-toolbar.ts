@@ -1,4 +1,4 @@
-﻿import {ILocalizationService, IMessageService} from "../../../core";
+﻿import {ILocalizationService, IMessageService, MessageType} from "../../../core";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {Models} from "../../models";
 import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
@@ -58,7 +58,7 @@ class BPToolbarController implements IBPToolbarController {
     ) {
     }
 
-    execute(evt: any): void {
+    public execute(evt: any): void {
         if (!evt) {
             return;
         }
@@ -67,10 +67,12 @@ class BPToolbarController implements IBPToolbarController {
         switch (element.id.toLowerCase()) {
             case `projectclose`:
                 this.projectManager.remove();
+                this.clearLockedMessages();
                 break;
             case `projectcloseall`:
                 this.projectManager.removeAll();
                 this.artifactManager.selection.clearAll();
+                this.clearLockedMessages();
                 break;
             case `openproject`:
                 this.dialogService.open(<IDialogSettings>{
@@ -156,11 +158,19 @@ class BPToolbarController implements IBPToolbarController {
         }
     }
 
+    private clearLockedMessages() {
+        this.messageService.messages.forEach(message => {
+            if (message.messageType === MessageType.Lock) {
+                this.messageService.deleteMessageById(message.id);
+            }
+        });
+    }
+
     private confirmPublishAll(data: Models.IPublishResultSet) {
         const selectedProject: Project = this.projectManager.getSelectedProject();
         this.dialogService.open(<IDialogSettings>{
-            okButton: this.localization.get("App_Button_Yes"),
-            cancelButton: this.localization.get("App_Button_No"),
+            okButton: this.localization.get("App_Button_Publish"),
+            cancelButton: this.localization.get("App_Button_Cancel"),
             message: this.localization.get("Publish_All_Dialog_Message"),
             template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
             controller: ConfirmPublishController,

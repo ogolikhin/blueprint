@@ -21,23 +21,29 @@
                 {{::$root.config.labels['Label_No_Results_Found']}}
             </div>
             <div class="search-results" ng-if="!$ctrl.isSearching && $ctrl.searchResults.length !== 0">
-                <div class="search-result" ng-repeat="searchResult in $ctrl.searchResults"
-                     ng-click="$ctrl.setProject(searchResult.itemId, searchResult.name, true)">
+                <div class="search-result"
+                     ng-repeat="searchResult in $ctrl.searchResults"
+                     ng-click="$ctrl.onSearchResultClicked(searchResult)">
                     <i class="icon-project"></i>
                     <div class="search-details">
-                        <div bp-tooltip="{{searchResult.name}}" bp-tooltip-truncated="true"><span
-                            ng-bind-html="::searchResult.name | bpEscapeAndHighlight:$ctrl.searchText"></div>
-                        <div bp-tooltip="{{searchResult.path}}" bp-tooltip-truncated="true">Path:
-                            {{searchResult.path}}
+                        <div bp-tooltip="{{searchResult.name}}" bp-tooltip-truncated="true">
+                            <span ng-bind-html="::searchResult.name | bpEscapeAndHighlight:$ctrl.searchText">
+                        </div>
+                        <div bp-tooltip="{{searchResult.path}}" bp-tooltip-truncated="true">
+                            Path: {{searchResult.path}}
                         </div>
                     </div>
+                </div>
+                <div class="more-search-results" ng-if="$ctrl.isMoreSearchResults">
+                    <p>{{::$root.config.labels['Label_Search_Results'] | bpFormat:$ctrl.searchResults.length}}</p>
+                    <p>{{::$root.config.labels['Label_Search_Refine']}}</p>
                 </div>
             </div>
         </div>
         <div ng-hide="$ctrl.isSearching || $ctrl.searchResults">
             <div class="grid-header">
                 <div ng-if="$ctrl.project">
-                    <i class="fonticon2-arrow-double-left" ng-class="{'hide-project-navigation': $ctrl.isOneProjectLevel}" ng-click="$ctrl.clearProject()"></i>
+                    <i class="fonticon2-arrow-double-left" ng-class="{'hide-project-navigation': $ctrl.isOneProjectLevel}" ng-click="$ctrl.project = undefined"></i>
                     <i class="icon-project"></i>
                     &nbsp;&nbsp;&nbsp;<span class="project-name" bp-tooltip="{{$ctrl.project.name}}"
                                             bp-tooltip-truncated="true">{{$ctrl.project.name}}</span>

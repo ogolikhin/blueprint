@@ -110,7 +110,7 @@ describe("DiagramNode", () => {
                 document.body.appendChild(wrapper);
 
                 graph = new ProcessGraph(rootScope, { graphContainer: container, graphWrapper: wrapper },
-                    container, processModel, dialogService, localization, null, null, null, shapesFactory);
+                    container, processModel, dialogService, localization, shapesFactory, null, null, null);
                 graph.render(false, null);
             });
 
@@ -319,7 +319,7 @@ describe("DiagramNode", () => {
                 document.body.appendChild(wrapper);
 
                 graph = new ProcessGraph(rootScope, { graphContainer: container, graphWrapper: wrapper },
-                    container, processModel, dialogService, localization, null, null, null, shapesFactory);
+                    container, processModel, dialogService, localization, shapesFactory, null, null, null);
                 graph.render(false, null);
             });
 
@@ -401,7 +401,7 @@ describe("DiagramNode", () => {
 
             viewModel = new ProcessViewModel(statefulArtifact, communicationManager);
 
-            graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, null, null, null, shapesFactory);
+            graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory, null, null, null);
         });
         it("when modifying label - labels matches", () => {
 

@@ -1,7 +1,8 @@
-import {UserTask, SystemTask} from "../../diagram/presentation/graph/shapes/";
-import {IDiagramNode} from "../../diagram/presentation/graph/models";
-import {IArtifactManager} from "../../../../../managers";
-import {IStatefulArtifact} from "../../../../../managers/artifact-manager";
+import { UserTask, SystemTask } from "../../diagram/presentation/graph/shapes/";
+import { UserStoryProperties } from "../../diagram/presentation/graph/shapes/user-task";
+import { IDiagramNode } from "../../diagram/presentation/graph/models";
+import { IArtifactManager } from "../../../../../managers";
+import { IStatefulArtifact, IStatefulArtifactFactory } from "../../../../../managers/artifact-manager";
 
 export class PreviewCenterController {
     private userStoryTitle: string = "ST-Title";
@@ -9,9 +10,7 @@ export class PreviewCenterController {
     private userStoryBusinessRules: string = "ST-Business Rules";
     private userStoryNFR: string = "ST-Non-Functional Requirements";
 
-    public centerTask: UserTask;
-    public previousSystemTask: SystemTask;
-    public nextSystemTask: SystemTask;
+    public userStoryProperties: UserStoryProperties;
     public isUserSystemProcess: boolean;
     public subArtifactId: number;
     private isTabsVisible: boolean;
@@ -19,8 +18,6 @@ export class PreviewCenterController {
 
     public title: string;
     public acceptanceCriteria: string;
-    public businessRules: string;
-    public nonfunctionalRequirements: string;
     public isReadonly: boolean = false;
     public isSMB: boolean = false;
     public isProjectOnlySearch: boolean = true;
@@ -29,13 +26,16 @@ export class PreviewCenterController {
     private statefulUserStoryArtifact: IStatefulArtifact;
     private subscribers: Rx.IDisposable[];
 
+    private userStoryId: number;
+
     public static $inject = [
         "$window",
         "$scope",
         "$rootScope",
         "$sce",
         "artifactManager",
-        "$state"
+        "$state",
+        "statefulArtifactFactory"
     ];
 
     public resizeContentAreas = function (isTabSetVisible) {
@@ -119,25 +119,18 @@ export class PreviewCenterController {
     }
 
     public navigateToUserStory() {
-        let artifactId = this.centerTask.userStoryId;
-        const url = this.$state.href("main.item", {id: artifactId });
+        let artifactId = this.userStoryId;
+        const url = this.$state.href("main.item", { id: artifactId });
         this.$window.open(url, "_blank");
-    }
-    public getBusinessRules() {
-        return this.$sce.trustAsHtml(this.businessRules);
-    }
-
-    public getNonFunctionalRequirements() {
-        return this.$sce.trustAsHtml(this.nonfunctionalRequirements);
     }
 
     constructor(private $window: ng.IWindowService,
-                private $scope: ng.IScope,
-                private $rootScope: ng.IRootScopeService,
-                private $sce: ng.ISCEService,
-                private artifactManager: IArtifactManager,
-                private $state: angular.ui.IStateService
-                // private projectManager: IProjectManager,
+        private $scope: ng.IScope,
+        private $rootScope: ng.IRootScopeService,
+        private $sce: ng.ISCEService,
+        private artifactManager: IArtifactManager,
+        private $state: angular.ui.IStateService,
+        private statefulArtifactFactory: IStatefulArtifactFactory
     ) {
 
         this.subscribers = [];
@@ -149,25 +142,20 @@ export class PreviewCenterController {
             this.isSMB = true;
         }
 
-        this.centerTask = $scope["centerCtrl"].userTaskModel;
+        this.userStoryId = $scope["centerCtrl"].userStoryId;
+        const userTaskLabel = $scope["centerCtrl"].userTaskLabel;
+        const userTaskAction = $scope["centerCtrl"].userTaskAction;
 
         $scope["centerCtrl"].isReadonly = "disabled";
 
-        this.when = PreviewCenterController.getTaskLabelNameValue(this.centerTask.label, PreviewCenterController.getTaskLabel(this.centerTask));
+        this.when = PreviewCenterController.getTaskLabelNameValue(userTaskLabel, userTaskAction);
 
-        this.previousSystemTask = $scope["centerCtrl"].previousSystemTask;
-        this.nextSystemTask = $scope["centerCtrl"].nextSystemTask;
-        const userStoryId = this.centerTask.userStoryId;
-
-        this.loadUserStory(userStoryId);
+        this.loadUserStory(this.userStoryId);
 
         this.$window.addEventListener("resize", this.resizeContentAreas);
         this.resizeContentAreas(false);
 
         $scope.$on("$destroy", () => {
-            this.centerTask = null;
-            this.previousSystemTask = null;
-            this.nextSystemTask = null;
             this.$window.removeEventListener("resize", this.resizeContentAreas);
 
             if (this.subscribers) {
@@ -188,12 +176,15 @@ export class PreviewCenterController {
         if (userStoryId) {
             const artifact = this.artifactManager.get(userStoryId);
             if (artifact) {
-                this.statefulUserStoryArtifact = artifact;
-                let observer = this.statefulUserStoryArtifact.getObservable().subscribe((obs: IStatefulArtifact) => {
-                    this.loadMetaData(obs);
-                });
-                this.subscribers = [observer];
-            };
+                this.statefulUserStoryArtifact = artifact;               
+            } else {
+                this.statefulUserStoryArtifact = this.statefulArtifactFactory.createStatefulArtifact({id: userStoryId});
+
+            }
+            const observer = this.statefulUserStoryArtifact.getObservable().subscribe((obs: IStatefulArtifact) => {
+                this.loadMetaData(obs);
+            });
+            this.subscribers = [observer];
         }
     }
 
@@ -205,11 +196,7 @@ export class PreviewCenterController {
                     this.title = propertyValue.value;
                 } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryAcceptanceCriteria)) {
                     this.acceptanceCriteria = propertyValue.value;
-                } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryBusinessRules)) {
-                    this.businessRules = propertyValue.value;
-                } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryNFR)) {
-                    this.nonfunctionalRequirements = propertyValue.value;
-                }
+                } 
             });
         });
     }
@@ -224,9 +211,10 @@ export class PreviewCenterComponent implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = PreviewCenterController;
     public controllerAs = "centerCtrl";
     public bindings: any = {
-        userTaskModel: "=",
-        previousSystemTask: "=",
-        nextSystemTask: "=",
+        userStoryId: "=",
+        userTaskLabel: "=",
+        userTaskAction: "=",
+        userStoryProperties: "=",
         isUserSystemProcess: "="
     };
     public transclude: boolean = true;

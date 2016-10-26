@@ -236,7 +236,6 @@ export interface ISystemTask extends ITask {
 
 export interface IUserTask extends ITask {
     objective: string;
-    userStoryProperties: IUserStoryProperties;
     getNextSystemTasks(graph: IProcessGraph): ISystemTask[];
 }
 

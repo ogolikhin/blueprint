@@ -1,3 +1,5 @@
+import {ItemTypePredefined} from "./enums";
+
 export interface ISearchCriteria {
     query: string;
 }
@@ -15,9 +17,9 @@ export interface ISearchResult {
 export interface IProjectSearchResultSet extends ISearchResultSet<ISearchResult> {
 }
 
-export interface IItemSearchCriteria extends ISearchCriteria {
+export interface IItemNameSearchCriteria extends ISearchCriteria {
     projectIds: number[];
-    ItemTypeIds?: number[];
+    predefinedTypeIds?: ItemTypePredefined[];
     includeArtifactPath?: boolean;
 }
 

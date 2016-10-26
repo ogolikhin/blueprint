@@ -20,13 +20,8 @@ describe("HttpErrorInterceptor", () => {
                                                                           httpErrorInterceptor: HttpErrorInterceptor) => {
             // Arrange
             let processedResponse: ng.IHttpPromiseCallbackArg<any>;
-<<<<<<< HEAD
-            let response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
-            let config = <IHttpInterceptorConfig>{url: "/test-end-point", method: "GET"};
-=======
             const response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
             const config = <IHttpInterceptorConfig>{url: "/test-end-point", method: "GET"};
->>>>>>> f8f5da3c9a38f403c745858b91c68458d7ea269f
             response.config = config;
             response.status = HttpStatusCode.Unauthorized;
             $httpBackend.expectGET("/test-end-point").respond(HttpStatusCode.Success, "OK");
@@ -54,13 +49,8 @@ describe("HttpErrorInterceptor", () => {
                                                                      httpErrorInterceptor: HttpErrorInterceptor) => {
             // Arrange
             let processedResponse: ng.IHttpPromiseCallbackArg<any>;
-<<<<<<< HEAD
-            let response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
-            let config = <IHttpInterceptorConfig>{url: "/test-end-point", method: "GET"};
-=======
             const response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
             const config = <IHttpInterceptorConfig>{url: "/test-end-point", method: "GET"};
->>>>>>> f8f5da3c9a38f403c745858b91c68458d7ea269f
             response.config = config;
             response.status = HttpStatusCode.Unauthorized;
             $httpBackend.expectGET("/test-end-point").respond(HttpStatusCode.ServerError, "Any Error");
@@ -85,13 +75,8 @@ describe("HttpErrorInterceptor", () => {
                                                                                           $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor) => {
             // Arrange
             let processedResponse: ng.IHttpPromiseCallbackArg<any>;
-<<<<<<< HEAD
-            let response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
-            let config = <IHttpInterceptorConfig>{ignoreInterceptor: true};
-=======
             const response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
             const config = <IHttpInterceptorConfig>{ignoreInterceptor: true};
->>>>>>> f8f5da3c9a38f403c745858b91c68458d7ea269f
             response.config = config;
             response.status = HttpStatusCode.Unauthorized;
 
@@ -115,13 +100,8 @@ describe("HttpErrorInterceptor", () => {
                                                                                               $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor) => {
             // Arrange
             let processedResponse: ng.IHttpPromiseCallbackArg<any>;
-<<<<<<< HEAD
-            let response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
-            let config = <IHttpInterceptorConfig>{dontRetry: true};
-=======
             const response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
             const config = <IHttpInterceptorConfig>{dontRetry: true};
->>>>>>> f8f5da3c9a38f403c745858b91c68458d7ea269f
             response.config = config;
             response.status = HttpStatusCode.Unauthorized;
 
@@ -142,19 +122,11 @@ describe("HttpErrorInterceptor", () => {
         }));
 
         it("process ServerError from http request", inject(($rootScope: ng.IRootScopeService,
-<<<<<<< HEAD
-                                                            $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor, 
-                                                            messageService: MessageServiceMock) => {
-            // Arrange
-            let processedResponse: ng.IHttpPromiseCallbackArg<any>;
-            let response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
-=======
                                                             $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor,
                                                             messageService: MessageServiceMock) => {
             // Arrange
             let processedResponse: ng.IHttpPromiseCallbackArg<any>;
             const response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
->>>>>>> f8f5da3c9a38f403c745858b91c68458d7ea269f
             response.status = HttpStatusCode.ServerError;
 
             // Act
@@ -177,19 +149,11 @@ describe("HttpErrorInterceptor", () => {
         }));
 
         it("process -1: Unavailbale, timeout error ", inject(($rootScope: ng.IRootScopeService,
-<<<<<<< HEAD
-                                                              $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor, 
-                                                              messageService: MessageServiceMock) => {
-            // Arrange
-            let processedResponse: ng.IHttpPromiseCallbackArg<any>;
-            let response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
-=======
                                                               $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor,
                                                               messageService: MessageServiceMock) => {
             // Arrange
             let processedResponse: ng.IHttpPromiseCallbackArg<any>;
             const response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
->>>>>>> f8f5da3c9a38f403c745858b91c68458d7ea269f
             response.status = -1;
 
             // Act
@@ -216,13 +180,8 @@ describe("HttpErrorInterceptor", () => {
                                                     messageService: MessageServiceMock) => {
             // Arrange
             let processedResponse: ng.IHttpPromiseCallbackArg<any>;
-<<<<<<< HEAD
-            let response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
-            let timeout: ng.IDeferred<any> = $q.defer();
-=======
             const response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
             const timeout: ng.IDeferred<any> = $q.defer();
->>>>>>> f8f5da3c9a38f403c745858b91c68458d7ea269f
             timeout.resolve();
             response.config = {
                 method: "GET",

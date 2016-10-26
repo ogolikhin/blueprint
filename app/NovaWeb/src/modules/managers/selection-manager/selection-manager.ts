@@ -166,6 +166,5 @@ export class SelectionManager implements ISelectionManager {
         this.unsubscribe(selection);
         this.selectionSubject.onNext(selection);
     }
-
     
 }

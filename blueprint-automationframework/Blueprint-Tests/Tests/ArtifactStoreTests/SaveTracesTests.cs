@@ -1,16 +1,12 @@
 using System.Collections.Generic;
-using System.Linq;
 using CustomAttributes;
 using Helper;
 using Model;
 using Model.Impl;
 using Model.ArtifactModel;
-using Model.NovaModel;
 using Model.Factories;
 using NUnit.Framework;
 using TestCommon;
-using Common;
-using Utilities.Factories;
 using Utilities;
 using Model.ArtifactModel.Impl;
 

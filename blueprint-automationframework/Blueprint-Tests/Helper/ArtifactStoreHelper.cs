@@ -563,7 +563,7 @@ namespace Helper
         /// <param name="artifact">Artifact to add trace.</param>
         /// <param name="traceTarget">Trace's target.</param>
         /// <param name="traceDirection">Trace direction.</param>
-        /// <param name="changeType">ChangeType 0 - create, 1 - update, 2 - delete.</param>
+        /// <param name="changeType">ChangeType enum - Add, Update or Delete trace</param>
         /// <param name="artifactStore">IArtifactStore.</param>
         /// <param name="isSuspect">(optional)isSuspect, true for suspect trace, false otherwise.</param>
         /// <param name="targetSubArtifact">(optional)subArtifact for trace target(creates trace with subartifact).</param>

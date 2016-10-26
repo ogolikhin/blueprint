@@ -1,3 +1,4 @@
+import * as _ from "lodash";
 import * as angular from "angular";
 import * as agGrid from "ag-grid/main";
 import {ILocalizationService} from "../../../core";
@@ -176,7 +177,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     public $onDestroy(): void {
         this.options.api.setRowData(null);
         this.updateScrollbars(true);
-        this.timers.forEach((timer) => {
+        _.each(this.timers, (timer) => {
             this.$timeout.cancel(timer);
         });
 

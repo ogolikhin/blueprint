@@ -1,12 +1,15 @@
-﻿import {ILocalizationService} from "../../../core";
+﻿import {ILocalizationService, IMessageService, MessageType} from "../../../core";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {Models} from "../../models";
+import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
 import {OpenProjectController} from "../dialogs/open-project/open-project";
+import {ConfirmPublishController, IConfirmPublishDialogData} from "../dialogs/bp-confirm-publish";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
 import {Helper} from "../../../shared/utils/helper";
 import {ILoadingOverlayService} from "../../../core/loading-overlay";
+import {Project} from "../../../managers/project-manager/project";
 
 interface IBPToolbarController {
     execute(evt: ng.IAngularEvent): void;
@@ -28,27 +31,34 @@ class BPToolbarController implements IBPToolbarController {
     }
 
     static $inject = [
+        "$q",
         "localization",
         "dialogService",
         "projectManager",
         "artifactManager",
+        "publishService",
+        "messageService",
         "$rootScope",
         "loadingOverlayService",
         "$timeout",
         "$http"];
 
-    constructor(private localization: ILocalizationService,
-                private dialogService: IDialogService,
-                private projectManager: IProjectManager,
-                private artifactManager: IArtifactManager,
-                private $rootScope: ng.IRootScopeService,
-                private loadingOverlayService: ILoadingOverlayService,
-                private $timeout: ng.ITimeoutService, //Used for testing, remove later
-                private $http: ng.IHttpService //Used for testing, remove later
+    constructor(
+        private $q: ng.IQService,
+        private localization: ILocalizationService,
+        private dialogService: IDialogService,
+        private projectManager: IProjectManager,
+        private artifactManager: IArtifactManager,
+        private publishService: IPublishService,
+        private messageService: IMessageService,
+        private $rootScope: ng.IRootScopeService,
+        private loadingOverlayService: ILoadingOverlayService,
+        private $timeout: ng.ITimeoutService, //Used for testing, remove later
+        private $http: ng.IHttpService //Used for testing, remove later
     ) {
     }
 
-    execute(evt: any): void {
+    public execute(evt: any): void {
         if (!evt) {
             return;
         }
@@ -57,9 +67,12 @@ class BPToolbarController implements IBPToolbarController {
         switch (element.id.toLowerCase()) {
             case `projectclose`:
                 this.projectManager.remove();
+                this.clearLockedMessages();
                 break;
             case `projectcloseall`:
-                this.projectManager.remove(true);
+                this.projectManager.removeAll();
+                this.artifactManager.selection.clearAll();
+                this.clearLockedMessages();
                 break;
             case `openproject`:
                 this.dialogService.open(<IDialogSettings>{
@@ -103,15 +116,28 @@ class BPToolbarController implements IBPToolbarController {
                 });
                 break;
             case `publishall`:
-                //Test Code: Display load screen for 5s, then popup result.
-                let publishLoadingId = this.loadingOverlayService.beginLoading();
-                let publishPromise: ng.IPromise<number> = this.$timeout(() => {
-                    return 0;
-                }, 5000);
-                publishPromise.finally(() => {
-                    this.loadingOverlayService.endLoading(publishLoadingId);
-                    this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
-                });
+                let getUnpublishedLoadingId = this.loadingOverlayService.beginLoading();
+                try {
+                    //get a list of unpublished artifacts
+                    this.publishService.getUnpublishedArtifacts()
+                    .then((data: Models.IPublishResultSet) => {
+                        this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
+
+                        if (data.artifacts.length === 0) {
+                            this.messageService.addInfo("Publish_All_No_Unpublished_Changes");
+                        } else {
+                            this.confirmPublishAll(data);
+                        }
+                    })
+                    .finally(() => {
+                        this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
+                    });
+                } catch (err) {
+                    this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
+                    throw err;
+                }
+
+
                 break;
             case `refreshall`:
                 let refreshAllLoadingId = this.loadingOverlayService.beginLoading();
@@ -130,6 +156,76 @@ class BPToolbarController implements IBPToolbarController {
                 this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
                 break;
         }
+    }
+
+    private clearLockedMessages() {
+        this.messageService.messages.forEach(message => {
+            if (message.messageType === MessageType.Lock) {
+                this.messageService.deleteMessageById(message.id);
+            }
+        });
+    }
+
+    private confirmPublishAll(data: Models.IPublishResultSet) {
+        const selectedProject: Project = this.projectManager.getSelectedProject();
+        this.dialogService.open(<IDialogSettings>{
+            okButton: this.localization.get("App_Button_Publish"),
+            cancelButton: this.localization.get("App_Button_Cancel"),
+            message: this.localization.get("Publish_All_Dialog_Message"),
+            template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
+            controller: ConfirmPublishController,
+            css: "nova-publish"
+        },
+        <IConfirmPublishDialogData>{
+            artifactList: data.artifacts,
+            projectList: data.projects,
+            selectedProject: selectedProject ? selectedProject.id : undefined
+        })
+        .then(() => {
+            this.saveAndPublishAll(data);
+        });
+    }
+
+    private saveAndPublishAll(data: Models.IPublishResultSet) {
+        this.saveArtifactsAsNeeded(data.artifacts).then(() => {
+            const publishAllLoadingId = this.loadingOverlayService.beginLoading();
+            //perform publish all
+            this.publishService.publishAll()
+            .then(() => {
+                //remove lock on current artifact
+                let currentSelection = this.projectManager.getArtifact(this.currentArtifact);
+                if (currentSelection) {
+                    currentSelection.artifactState.unlock();
+                    currentSelection.refresh();
+                }
+               
+                this.messageService.addInfoWithPar("Publish_All_Success_Message", [data.artifacts.length]);
+            })
+            .finally(() => {
+                this.loadingOverlayService.endLoading(publishAllLoadingId);
+            });
+        }); 
+    }
+
+    private saveArtifactsAsNeeded(artifactsToSave: Models.IArtifact[]): ng.IPromise<any> {
+        const saveArtifactsLoader = this.loadingOverlayService.beginLoading();
+        const savePromises = [];
+        artifactsToSave.forEach((artifact) => {
+            let foundArtifact = this.projectManager.getArtifact(artifact.id);
+            if (foundArtifact && foundArtifact.canBeSaved()) {
+                savePromises.push(foundArtifact.save());
+            }
+        });
+
+        const allPromises = this.$q.all(savePromises);
+
+        allPromises.catch((err) => {
+            this.messageService.addError(err);
+        }).finally(() => {
+            this.loadingOverlayService.endLoading(saveArtifactsLoader);
+        });
+
+        return allPromises;
     }
 
     showSubLevel(evt: any): void {

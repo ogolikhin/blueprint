@@ -1,4 +1,4 @@
-﻿import {Models, SearchServiceModels} from "../../main/models";
+﻿import {Models, AdminStoreModels, SearchServiceModels} from "../../main/models";
 import {IProjectService} from "./project-service";
 
 export class ProjectServiceMock implements IProjectService {
@@ -9,12 +9,13 @@ export class ProjectServiceMock implements IProjectService {
     }
 
     public abort(): void {
+        return;
     }
 
     public getFolders(id?: number): ng.IPromise<any[]> {
-        var deferred = this.$q.defer<any[]>();
+        const deferred = this.$q.defer<any[]>();
 
-        var folders = [
+        let folders = [
             {
                 "id": 3,
                 "parentFolderId": 1,
@@ -51,8 +52,7 @@ export class ProjectServiceMock implements IProjectService {
 
 
     public getArtifacts(id?: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
-
-        var deferred = this.$q.defer<Models.IArtifact[]>();
+        const deferred = this.$q.defer<Models.IArtifact[]>();
         let items: Models.IArtifact[];
         if (!id && !artifactId) {
             items = null;
@@ -69,41 +69,49 @@ export class ProjectServiceMock implements IProjectService {
         return deferred.promise;
     }
 
-    public getProject(id?: number): ng.IPromise<Models.IProjectNode> {
-
-        var deferred = this.$q.defer<Models.IProjectNode>();
-        let item: Models.IProjectNode = {id: 1, name: "test", type: 1, parentFolderId: 0, hasChildren: false};
+    public getProject(id?: number): ng.IPromise<AdminStoreModels.IInstanceItem> {
+        const deferred = this.$q.defer<AdminStoreModels.IInstanceItem>();
+        const item: AdminStoreModels.IInstanceItem = {id: 1, name: "test", type: 1, parentFolderId: 0, hasChildren: false};
         deferred.resolve(item);
         return deferred.promise;
     }
 
 
     public getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta> {
-        var deferred = this.$q.defer<Models.IProjectMeta>();
-        let meta = {} as Models.IProjectMeta;
+        const deferred = this.$q.defer<Models.IProjectMeta>();
+        const meta = {} as Models.IProjectMeta;
         deferred.resolve(meta);
         return deferred.promise;
     }
 
     public getSubArtifactTree(artifactId: number): ng.IPromise<Models.ISubArtifactNode[]> {
-        var deferred = this.$q.defer<Models.ISubArtifactNode[]>();
-        let tree = [] as Models.ISubArtifactNode[];
+        const deferred = this.$q.defer<Models.ISubArtifactNode[]>();
+        const tree = [] as Models.ISubArtifactNode[];
         deferred.resolve(tree);
         return deferred.promise;
     }
 
     public getProjectTree(projectId: number, artifactId: number, loadChildren?: boolean): ng.IPromise<Models.IArtifact[]> {
-        var deferred = this.$q.defer<Models.IArtifact[]>();
-        let tree = [] as Models.IArtifact[];
+        const deferred = this.$q.defer<Models.IArtifact[]>();
+        const tree = [] as Models.IArtifact[];
         deferred.resolve(tree);
         return deferred.promise;
     }
 
-    public searchProjects(searchCriteria: SearchServiceModels.IProjectSearchCriteria,
+    public searchProjects(searchCriteria: SearchServiceModels.ISearchCriteria,
                           resultCount?: number,
-                          separatorString?: string): ng.IPromise<SearchServiceModels.IProjectSearchResult[]> {
-        var deferred = this.$q.defer<Models.IArtifact[]>();
-        let result = [] as Models.IProjectNode[];
+                          separatorString?: string): ng.IPromise<SearchServiceModels.IProjectSearchResultSet> {
+        const deferred = this.$q.defer<SearchServiceModels.IProjectSearchResultSet>();
+        const result = {} as SearchServiceModels.IProjectSearchResultSet;
+        deferred.resolve(result);
+        return deferred.promise;
+    }
+
+    public searchItemNames(searchCriteria: SearchServiceModels.IItemNameSearchCriteria,
+                           startOffset: number = 0,
+                           pageSize: number = 100): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet> {
+        const deferred = this.$q.defer<SearchServiceModels.IItemNameSearchResultSet>();
+        const result = {} as SearchServiceModels.IItemNameSearchResultSet;
         deferred.resolve(result);
         return deferred.promise;
     }
@@ -116,7 +124,7 @@ export class ProjectServiceMock implements IProjectService {
             projectId: projectId || artifactId,
             itemTypeId: Math.floor(Math.random() * 100),
             itemTypeVersionId: Math.floor(Math.random() * 100),
-            predefinedType: Math.floor(Math.random() * 100),
+            predefinedType: Math.floor(Math.random() * 100)
         } as Models.IArtifact;
         if (children) {
             this.createDependentArtifacts(artifact, children);
@@ -129,7 +137,7 @@ export class ProjectServiceMock implements IProjectService {
             return;
         }
         artifact.children = artifact.children || [];
-        for (var i = 0; i < count; i++) {
+        for (let i = 0; i < count; i++) {
             let child = this.createArtifact(artifact.id + 100, artifact.projectId);
 
             artifact.children.push(child);
@@ -148,38 +156,20 @@ export class ProjectServiceMock implements IProjectService {
     }
 
     public static populatePropertyTypes(id: number, count?: number) {
-        var result: Models.IPropertyType[] = [];
-        for (var i = 0; i < (count || 0); i++) {
+        const result: Models.IPropertyType[] = [];
+        for (let i = 0; i < (count || 0); i++) {
             result.push({
                 id: id + 1000,
                 name: "Item Type " + id,
-                versionId: 1,
-                //primitiveType?: PrimitiveType;
-                //instancePropertyTypeId?: number;
-                //isRichText?: boolean;
-                //decimalDefaultValue?: number;
-                //dateDefaultValue?: Date;
-                //userGroupDefaultValue?: any[];
-                //stringDefaultValue?: string;
-                //decimalPlaces?: number;
-                //maxNumber?: number;
-                //minNumber?: number;
-                //maxDate?: Date;
-                //minDate?: Date;
-                //isMultipleAllowed?: boolean;
-                //isRequired?: boolean;
-                //isValidated?: boolean;
-                //validValues?: IOption[];
-                //defaultValidValueId?: number;
+                versionId: 1
             });
         }
         return result;
-
     }
 
     public static populateItemTypes(id: number, count?: number) {
-        var result: Models.IItemType[] = [];
-        for (var i = 0; i < (count || 0); i++) {
+        const result: Models.IItemType[] = [];
+        for (let i = 0; i < (count || 0); i++) {
             result.push({
                 id: id + 1000,
                 name: "Item Type " + id,
@@ -196,4 +186,3 @@ export class ProjectServiceMock implements IProjectService {
         return result;
     }
 }
-

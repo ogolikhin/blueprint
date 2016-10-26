@@ -1,0 +1,17 @@
+<ul class="bp-artifact-list" ng-class="{'bp-artifact-list--overflow': $ctrl.limitTo !== $ctrl.initialLimit}">
+    <li class="bp-artifact-list__item" ng-repeat="artifact in $ctrl.sortedList | limitTo: $ctrl.limitTo track by artifact.id">
+        <div class="bp-artifact-list__project"
+             ng-if="artifact.projectName && ($index === 0 || $ctrl.sortedList[$index].projectName !== $ctrl.sortedList[$index - 1].projectName)"
+             bp-tooltip="{{::artifact.projectName}}" bp-tooltip-truncated="true">
+            <i class="bp-artifact-list__icon icon icon-project"></i> {{::artifact.projectName}}
+        </div>
+        <div class="bp-artifact-list__artifact" bp-tooltip="{{::$ctrl.itemLabel(artifact)}}" bp-tooltip-truncated="true">
+            <bp-item-type-icon predefined-type="artifact.predefinedType" class="bp-artifact-list__icon"></bp-item-type-icon>{{::$ctrl.itemLabel(artifact)}}
+        </div>
+    </li>
+</ul>
+<div class="bp-artifact-list__load-more" ng-if="$ctrl.limitTo === $ctrl.initialLimit && $ctrl.sortedList.length > $ctrl.limitTo">
+    <a href="javascript://" ng-click="$ctrl.loadMore()">{{::$root.config.labels["Publish_All_Load_More"]}}</a></div>
+<div class="bp-artifact-list__counter"
+     ng-if="$ctrl.limitTo !== $ctrl.initialLimit && $ctrl.sortedList.length > $ctrl.limit"
+>{{::$root.config.labels["Publish_All_More_Artifacts"].replace("{0}", $ctrl.sortedList.length - $ctrl.limit)}}</div>

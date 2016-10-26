@@ -14,6 +14,20 @@ export class Helper {
         });
     }
 
+    static limitChars(str, limit: number = 100) {
+        if (str) {
+            let text = this.stripHTMLTags(str);
+            if (text) {
+                if (text.length > limit) {
+                    return text.substring(0, limit) + "...";
+                }
+                return text;
+            }
+            return "";
+        }
+        return "";
+    }
+
     static toDashCase(token: string): string {
         token = token.replace(/(\B[A-Z][a-z]+)/g, function (match) {
             return "-" + match.toLowerCase();
@@ -212,6 +226,24 @@ export class Helper {
         content = content.replace(/\s/gi, ""); // remove any "spacing" characters
         content = content.replace(/[^\x00-\x7F]/gi, ""); // remove non ASCII characters
         return content !== "";
+    }
+
+    static stripTinyMceBogusChars(html: string): string {
+        const bogusRegEx = /<br data-mce-bogus="1">/gi;
+        const zeroWidthNoBreakSpaceRegEx = /[\ufeff\u200b]/g;
+
+        let _html = html || "";
+        _html = _html.replace(bogusRegEx, "");
+        _html = _html.replace(zeroWidthNoBreakSpaceRegEx, "");
+
+        return _html;
+    }
+
+    static getHtmlBodyContent(html: string): string {
+        const div = document.createElement("div");
+        div.innerHTML = html || "";
+
+        return div.innerHTML;
     }
 
     public static toFlat(root: any): any[] {

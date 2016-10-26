@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {ProcessStart} from "./";
 import {ShapesFactory} from "./shapes-factory";
 import {ProcessGraph} from "../process-graph";
@@ -14,8 +14,8 @@ import {IStatefulArtifactFactory} from "../../../../../../../managers/artifact-m
 import {StatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("ProcessStart test", () => {
-    var shapesFactory: ShapesFactory;
-    var localScope, rootScope, wrapper, container;
+    let shapesFactory: ShapesFactory;
+    let localScope, rootScope, wrapper, container;
     let communicationManager: ICommunicationManager,
         dialogService: DialogService,
         localization: LocalizationServiceMock;
@@ -52,19 +52,18 @@ describe("ProcessStart test", () => {
 
     it("Test ProcessStart class", () => {
         // Arrange
-        var testModel = new ProcessShapeModel(30);
+        const testModel = new ProcessShapeModel(30);
         testModel.propertyValues = shapesFactory.createPropertyValuesForSystemTaskShape();
         testModel.propertyValues["clientType"].value = ProcessShapeType.Start;
         testModel.propertyValues["x"].value = 0;
 
-        let processModel = new ProcessModel();
-        let viewModel = new ProcessViewModel(processModel, communicationManager);
-        viewModel.isReadonly = false;
+        const processModel = new ProcessModel();
+        const viewModel = new ProcessViewModel(processModel, communicationManager);
 
         // Act
-        let graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization);
+        const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory);
 
-        var node = new ProcessStart(testModel);
+        const node = new ProcessStart(testModel);
         node.render(graph, 30, 30, false);
 
         //Assert

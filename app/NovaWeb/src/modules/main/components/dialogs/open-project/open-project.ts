@@ -1,7 +1,7 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {ILocalizationService} from "../../../../core";
-import {Helper, IBPTreeController, IDialogSettings, BaseDialogController, IDialogService} from "../../../../shared";
-import {Models} from "../../../models";
+import {Helper, IBPTreeController, IDialogSettings, BaseDialogController} from "../../../../shared";
+import {Models, AdminStoreModels} from "../../../models";
 import {IProjectManager} from "../../../../managers";
 
 export interface IOpenProjectController {
@@ -19,13 +19,12 @@ export class OpenProjectController extends BaseDialogController implements IOpen
     private _errorMessage: string;
     private tree: IBPTreeController;
 
-    static $inject = ["$scope", "localization", "$uibModalInstance", "projectManager", "dialogService", "dialogSettings", "$sce"];
+    static $inject = ["$scope", "localization", "$uibModalInstance", "projectManager", "dialogSettings", "$sce"];
 
     constructor(private $scope: ng.IScope,
                 private localization: ILocalizationService,
                 $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
                 private manager: IProjectManager,
-                private dialogService: IDialogService,
                 dialogSettings: IDialogSettings,
                 private $sce: ng.ISCEService) {
         super($uibModalInstance, dialogSettings);
@@ -42,13 +41,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         open: "open"
     };
 
-    public scrollOptions = {
-        minScrollbarLength: 20,
-        suppressScrollX: true,
-        scrollYMarginOffset: 4
-    };
-
-    //Dialog return value
+       //Dialog return value
     public get returnValue(): Models.IProject {
         return this.selectedItem || null;
     };
@@ -142,7 +135,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         let self = this;
         let id = (prms && angular.isNumber(prms.id)) ? prms.id : null;
         this.manager.loadFolders(id)
-            .then((nodes: Models.IProjectNode[]) => {
+            .then((nodes: AdminStoreModels.IInstanceItem[]) => {
                 self.tree.reload(nodes, id);
                 if (self.tree.isEmpty) {
                     this._errorMessage = this.localization.get("Project_NoProjectsAvailable");

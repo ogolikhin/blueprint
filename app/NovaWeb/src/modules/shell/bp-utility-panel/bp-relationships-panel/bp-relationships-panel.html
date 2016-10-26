@@ -66,17 +66,17 @@
 </div>
 
 <div ng-if="!$ctrl.isLoading && ($ctrl.manualTraces2.length || $ctrl.otherTraces.length)"
-     class="scrollable-content" perfect-scrollbar>
+     class="scrollable-content">
     <h6 ng-if="$ctrl.manualTraces2.length && $ctrl.categoryFilter !== 2" class="util-panel-heading">
         {{::$ctrl.localization.get('App_UP_Relationships_Traces') }}</h6>
     <div ng-if="$ctrl.categoryFilter!==2">
         <div ng-repeat="artifact in $ctrl.manualTraces2"
-             class="artifact-item-wrapper">
+             class="artifact-item-wrapper"  ng-class="{true: 'last'}[$last && $index > 1]">
             <div class="separator"></div>
             <bp-artifact-relationship-item
                 artifact="::artifact"
                 selectable="true"
-                is-item-read-only="$ctrl.item.isItemReadOnly || !$ctrl.canManageTraces()"
+                is-item-read-only="$ctrl.item.artifactState.readonly || !$ctrl.canManageTraces()"
                 selected-traces="$ctrl.selectedTraces[$ctrl.item.id]"
                 set-item-direction="$ctrl.setItemDirection(artifact)"
                 toggle-item-flag="$ctrl.toggleItemFlag(artifact)"

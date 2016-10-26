@@ -75,7 +75,7 @@ describe("Component BPUtilityPanel", () => {
             expect(vm.currentItem).toBe("My22: Artifact");
         }));
 
-    it("should hide files tab for collections",
+    it("should hide all tabs for collections",
         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
             //Arrange
             const artifact = statefulArtifactFactory.createStatefulArtifact({
@@ -91,6 +91,6 @@ describe("Component BPUtilityPanel", () => {
             const accordionCtrl = vm.getAccordionController();
 
             // Assert
-            expect((<IBpAccordionPanelController>accordionCtrl.getPanels()[PanelType.Files]).isVisible).toBe(false);
+            expect(vm.IsAnyPanelVisible).toBe(false);
         }));
 });

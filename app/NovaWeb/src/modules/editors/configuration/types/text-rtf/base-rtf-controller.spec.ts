@@ -2,13 +2,14 @@ import * as angular from "angular";
 import "angular-mocks";
 
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
+import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 
 describe("Formly Base RTF Controller", () => {
     let scope, rootScope;
     let controller: BPFieldBaseRTFController;
 
     function createMouseEvent(eventType: string = "click"): MouseEvent {
-        let mouseEvent = document.createEvent("MouseEvent");
+        const mouseEvent = document.createEvent("MouseEvent");
         mouseEvent.initMouseEvent(
             eventType,
             /*bubble*/true, /*cancelable*/true,
@@ -20,6 +21,10 @@ describe("Formly Base RTF Controller", () => {
 
         return mouseEvent;
     }
+
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("navigationService", NavigationServiceMock);
+    }));
 
     beforeEach(
         inject(
@@ -42,12 +47,11 @@ describe("Formly Base RTF Controller", () => {
 
     describe("handleClick", () => {
         it("click on a link opens a new window", () => {
-            let aTag: HTMLElement = angular.element("a")[0];
-            let mouseEvent: MouseEvent = createMouseEvent();
+            const aTag: HTMLElement = angular.element("a")[0];
+            const mouseEvent: MouseEvent = createMouseEvent();
             aTag.addEventListener("click", controller.handleClick);
 
-            spyOn(window, "open").and.callFake(function () {
-            });
+            spyOn(window, "open");
 
             aTag.dispatchEvent(mouseEvent);
 
@@ -58,62 +62,110 @@ describe("Formly Base RTF Controller", () => {
         });
 
         it("click on an inline trace goes to the artifact", () => {
-            let aTag: HTMLElement = angular.element("a")[1];
-            let mouseEvent: MouseEvent = createMouseEvent();
+            const aTag: HTMLElement = angular.element("a")[1];
+            const mouseEvent: MouseEvent = createMouseEvent();
             aTag.addEventListener("click", controller.handleClick);
 
-            spyOn(console, "log").and.callFake(function () {
-            });
+            spyOn(controller.navigationService, "navigateTo");
 
             aTag.dispatchEvent(mouseEvent);
 
-            expect(console.log).toHaveBeenCalled();
+            expect(controller.navigationService.navigateTo).toHaveBeenCalled();
+            expect(controller.navigationService.navigateTo).toHaveBeenCalledWith(365);
 
             aTag.removeEventListener("click", controller.handleClick);
         });
     });
 
     describe("handleLinks", () => {
-        it("adds event listners and attributes", () => {
-            let container = angular.element(".container")[0];
-            let aTags = container.querySelectorAll("a");
-            spyOn(aTags[0], "addEventListener").and.callFake(function () {
-            });
-            spyOn(aTags[1], "addEventListener").and.callFake(function () {
-            });
+        it("adds event listners", () => {
+            const container = angular.element(".container")[0];
+            const aTags = container.querySelectorAll("a");
+            spyOn(aTags[0], "addEventListener");
+            spyOn(aTags[1], "addEventListener");
 
             controller.handleLinks(aTags);
 
-            expect(aTags[0].getAttribute("contenteditable")).toBe("false");
             expect(aTags[0].addEventListener).toHaveBeenCalled();
-            expect(aTags[0].addEventListener).toHaveBeenCalledWith("click", controller.handleClick);
-            expect(aTags[1].getAttribute("contenteditable")).toBe("false");
             expect(aTags[1].addEventListener).toHaveBeenCalled();
-            expect(aTags[1].addEventListener).toHaveBeenCalledWith("click", controller.handleClick);
         });
 
         it("removes event listners", () => {
-            let container = angular.element(".container")[0];
-            let aTags = container.querySelectorAll("a");
-            spyOn(aTags[0], "removeEventListener").and.callFake(function () {
-            });
-            spyOn(aTags[1], "removeEventListener").and.callFake(function () {
-            });
+            const container = angular.element(".container")[0];
+            const aTags = container.querySelectorAll("a");
+            spyOn(aTags[0], "removeEventListener");
+            spyOn(aTags[1], "removeEventListener");
 
             controller.handleLinks(aTags);
             controller.handleLinks(aTags, true);
 
             expect(aTags[0].removeEventListener).toHaveBeenCalled();
-            expect(aTags[0].removeEventListener).toHaveBeenCalledWith("click", controller.handleClick);
             expect(aTags[1].removeEventListener).toHaveBeenCalled();
-            expect(aTags[1].removeEventListener).toHaveBeenCalledWith("click", controller.handleClick);
+        });
+
+        it("adds mouseover/out listners in IE", () => {
+            const body = angular.element("body")[0];
+            body.classList.add("is-msie");
+            const container = angular.element(".container")[0];
+            const aTags = container.querySelectorAll("a");
+            spyOn(aTags[0], "addEventListener");
+            spyOn(aTags[1], "addEventListener");
+
+            controller.handleLinks(aTags);
+
+            expect(aTags[0].addEventListener).toHaveBeenCalled();
+            expect(aTags[0].addEventListener).toHaveBeenCalledWith("mouseover", controller.disableEditability);
+            expect(aTags[0].addEventListener).toHaveBeenCalledWith("mouseout", controller.enableEditability);
+            expect(aTags[1].addEventListener).toHaveBeenCalled();
+            expect(aTags[1].addEventListener).toHaveBeenCalledWith("mouseover", controller.disableEditability);
+            expect(aTags[1].addEventListener).toHaveBeenCalledWith("mouseout", controller.enableEditability);
+        });
+
+        it("removes mouseover/out listners in IE", () => {
+            const body = angular.element("body")[0];
+            body.classList.add("is-msie");
+            const container = angular.element(".container")[0];
+            const aTags = container.querySelectorAll("a");
+            spyOn(aTags[0], "removeEventListener");
+            spyOn(aTags[1], "removeEventListener");
+
+            controller.handleLinks(aTags);
+            controller.handleLinks(aTags, true);
+
+            expect(aTags[0].removeEventListener).toHaveBeenCalled();
+            expect(aTags[0].removeEventListener).toHaveBeenCalledWith("mouseover", controller.disableEditability);
+            expect(aTags[0].removeEventListener).toHaveBeenCalledWith("mouseout", controller.enableEditability);
+            expect(aTags[1].removeEventListener).toHaveBeenCalled();
+            expect(aTags[1].removeEventListener).toHaveBeenCalledWith("mouseover", controller.disableEditability);
+            expect(aTags[1].removeEventListener).toHaveBeenCalledWith("mouseout", controller.enableEditability);
+        });
+    });
+
+    describe("dis/enableEditability", () => {
+        it("contenteditable=true", () => {
+            const body = angular.element("body")[0];
+            controller.editorBody = body;
+
+            controller.enableEditability(null);
+
+            expect(body.getAttribute("contenteditable")).toBe("true");
+        });
+
+        it("contenteditable=false", () => {
+            const body = angular.element("body")[0];
+            controller.editorBody = body;
+
+            controller.enableEditability(null);
+            controller.disableEditability(null);
+
+            expect(body.getAttribute("contenteditable")).toBe("false");
         });
     });
 
     describe("handleMutation", () => {
         it("adds/removes event listners on mutated A tags", () => {
-            let container = angular.element("body")[0].querySelector(".container");
-            let mutationRecord: MutationRecord = {
+            const container = angular.element("body")[0].querySelector(".container");
+            const mutationRecord: MutationRecord = {
                 type: "childList",
                 target: container,
                 addedNodes: container.querySelectorAll(".added"),
@@ -124,8 +176,8 @@ describe("Formly Base RTF Controller", () => {
                 attributeNamespace: null,
                 oldValue: null
             };
-            spyOn(controller, "handleLinks").and.callFake(function () {
-            });
+
+            spyOn(controller, "handleLinks");
 
             controller.handleMutation(mutationRecord);
 

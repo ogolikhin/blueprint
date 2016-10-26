@@ -105,7 +105,7 @@
     margin-left: -8px;
 }
 
-.storyteller-modal-header {
+.storyteller-modal-header.modal-header {
     background-color: $brand-secondary;
     padding: 25px 42px;
     -webkit-border-top-left-radius: 4px;
@@ -125,7 +125,7 @@
     padding: 35px 42px 15px 42px;
 
     .condition-list {
-        padding-top: 15px;
+        padding-top: 1px;
         margin-bottom: 5px;
 
         div.nova-form-control.input-is-dirty {
@@ -154,13 +154,12 @@
     }
 
     .modal-dialog {
-        width: 600px;
+        max-width: 440px;
         display: inline-block;
         text-align: left;
         margin-top: 72px;
     }
 }
-
 .file-upload_container {
     width: 100%;
     @include rounded-corners(3px);
@@ -173,7 +172,7 @@
 
 .file-upload_outer-container {
     position: relative;
-    margin-bottom: 45px;
+    margin-bottom: 35px;
 
     label {
         font-weight: 500;
@@ -205,11 +204,38 @@
 }
 
 .file-upload_inner {
-    display: flex;
-    justify-content: center;
     width: 100%;
     height: 100%;
+    position: relative;
+    display: flex;
 }
+.file-upload__button-bar {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 100%;
+        background-color: rgba(255,255,255, 0.5);
+        text-align: right;
+        padding: 3px 5px;
+    &:hover {
+        background-color: rgba(255,255,255, 1);
+    }
+}
+.file-upload__button {
+     padding: 3px;
+     color: $gray;
+     cursor: pointer;
+     [class^="fonticon2-"] {
+        margin-right: 2px;
+       &:before {
+        font-size: $font-size-big;
+                }
+       }
+      &:hover {
+            color: $brand-secondary;
+        }
+}
+
 
 .file-upload_emptied, .file-upload_preview {
     /*text-align: center;
@@ -375,6 +401,7 @@ bp-process-editor {
         @include text-ellipsis-fixed-width(100%);
         padding-right: 10px;
     }
+
     /* formatting the highlighting of dropdowns and mentions*/
     .dropdown-menu li a strong,
     #storyteller-include[uib-typeahead] + .dropdown-menu li a strong,
@@ -423,6 +450,7 @@ bp-process-editor {
     .rte-autocomplete > li.loading {
         @extend .loading;
     }
+
     .rte-autocomplete {
         max-width: 400px;
     }
@@ -580,10 +608,12 @@ table.mxPopupMenu tr {
 
     .carousel-indicators li {
         border-color: #666;
+
         &.active {
             background: #666;
         }
     }
+
     .carousel-control {
         top: inherit;
         bottom: 45px;
@@ -673,7 +703,7 @@ table.mxPopupMenu tr {
         color: #fff;
         position: absolute;
         bottom: 5px;
-        right: 5px;
+        left: 5px;
         z-index: 999;
         opacity: 0.9;
         cursor: pointer;
@@ -789,6 +819,8 @@ table.mxPopupMenu tr {
 
 .storyteller-gwt-section p {
     word-wrap: break-word;
+    padding: 2px 0;
+    font-size: 1.3rem;
 }
 
 .storyteller-gwt-section .modal-content-autoscroll {
@@ -798,9 +830,13 @@ table.mxPopupMenu tr {
 }
 
 .storyteller-gwt-label {
-    font-size: $font-size-bigger;
-    color: $brand-secondary;
-    font-weight: bold;
+    font-size: $font-size-big;
+    font-weight: 600;
+    text-decoration: underline;
+
+    a {
+        text-decoration: none;
+    }
 }
 
 .storyteller-label_show-hide {
@@ -822,6 +858,7 @@ table.mxPopupMenu tr {
             display: inline-block;
             color: $brand-secondary;
         }
+
         &:before {
             font-size: 16px;
             margin: 0 -3px 0 0;
@@ -881,8 +918,12 @@ table.mxPopupMenu tr {
 }
 
 .delete-condition {
-    margin-left: -20px;
-    padding: 0;
+    padding: 5px;
+    cursor: pointer;
+
+    &:hover {
+        color: $brand-secondary;
+    }
 }
 
 .user-story-preview-center-pane {
@@ -894,9 +935,11 @@ table.mxPopupMenu tr {
     top: 10px;
     right: 3px;
     z-index: 22222222;
+
     .contextual-help {
         color: #fff;
         cursor: pointer;
+
         .fonticon-help:before {
             font-size: 1.5rem;
         }
@@ -929,9 +972,28 @@ body.mce-content-body a, body.mce-content-body a:hover {
     height: 0;
     display: none;
 }
-
-p {
-    margin: 0;
-    padding: 0;
-    font-size: inherit;
+.storyteller-include_container {
+    display: flex;
+}
+.storyteller-include {
+    flex: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative;
+    padding: 8px;
+    padding-right: 30px;
+    font-size: $font-size-big;
+    background-color: $gray-lightest;
+    margin-right: 10px;
+    i.storyteller-include_clear {
+        position: absolute;
+        right: 8px;
+        bottom: 7px;
+        cursor: pointer;
+    }
+}
+.storyteller-include_btn {
+    min-width: auto;
+    padding-left: 7px; // buttons with icons inside are uneven due to padding on the icons
 }

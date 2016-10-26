@@ -111,14 +111,29 @@ namespace AdminStoreTests
 
         [TestCase]
         [TestRail(146299)]
-        [Explicit(IgnoreReasons.ProductBug)]    // Bug: 1387  - Documentation says token is required, but code says it isn't.
-        [Description("Run:  GET /config/config.js  but don't pass a Session-Token header.  Verify it returns 400 Bad Request.")]
-        public void GetConfigJS_MissingTokenHeader_400BadRequest()
+        [Description("Run:  GET /config/config.js  but don't pass a Session-Token header.  Verify it returns a the config.js file.")]
+        public void GetConfigJS_MissingTokenHeader_ReturnsConfigJS()
         {
-            Assert.Throws<Http400BadRequestException>(() =>
+            string configJs = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
             {
-                Helper.AdminStore.GetConfigJs(session: null);
-            }, "GetConfigJs() should return 400 Bad Request if a no Session-Token header was passed!");
+                configJs = Helper.AdminStore.GetConfigJs(session: null);
+            }, "GetConfigJs() should return 200 OK if token is missing!");
+
+            // Verify:
+            Logger.WriteDebug("GetConfigJS returned: {0}", configJs);
+            var textValues = ReadApplicationLabelsFromDatabase();
+
+            foreach (string value in textValues)
+            {
+                Logger.WriteDebug("Checking if JSON contains '{0}'...", value);
+
+                // Note: We need to replace ' with \' because single quotes are escaped in JSON.
+                Assert.That(configJs.Contains(value.Replace("'", "\\'")),
+                    "The expected string '{0}' wasn't found in the returned JSON text!", value);
+            }
         }
 
         /// <summary>

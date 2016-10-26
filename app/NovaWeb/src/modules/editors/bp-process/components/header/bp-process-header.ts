@@ -16,10 +16,6 @@ import {StatefulProcessArtifact} from "../../process-artifact";
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("./bp-process-header.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BpProcessHeaderController;
-    public transclude: boolean = true;
-    public bindings: any = {
-        context: "<"
-    };
 }
 
 export class BpProcessHeaderController extends BpArtifactInfoController {
@@ -94,6 +90,24 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
 
     public $onDestroy() {
         super.$onDestroy();
+    }
+
+    protected onArtifactChanged = () => {
+        this.updateProperties(this.artifact);
+        this.subscribeToStateChange(this.artifact);
+    }
+
+    protected subscribeToStateChange(artifact) {
+        // watch for state changes (dirty, locked etc) and update header
+        const stateObserver = artifact.artifactState.onStateChange.debounce(100).subscribe(
+            (state) => {
+                this.updateProperties(this.artifact);
+            },
+            (err) => {
+                throw new Error(err);
+            });
+
+        this.subscribers.push(stateObserver);
     }
 
     public navigateTo = (link: IBreadcrumbLink): void => {

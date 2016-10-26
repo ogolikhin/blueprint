@@ -1,15 +1,22 @@
 import * as angular from "angular";
 import "angular-mocks";
+import "angular-sanitize";
+import "rx/dist/rx.lite";
 import * as agGrid from "ag-grid/main";
 import {BPTreeViewComponent, BPTreeViewController, ITreeViewNodeVM, IColumn} from "./bp-tree-view";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+import {WindowManager, IWindowManager} from "../../../main/services/window-manager";
+import {WindowResize} from "../../../core/services/window-resize";
 
 describe("BPTreeViewComponent", () => {
     angular.module("bp.widgets.treeView", [])
         .component("bpTreeView", new BPTreeViewComponent());
 
+
     beforeEach(angular.mock.module("bp.widgets.treeView", ($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
+        $provide.service("windowManager", WindowManager);
+        $provide.service("windowResize", WindowResize);
     }));
 
     it("Values are bound", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
@@ -89,9 +96,15 @@ describe("BPTreeViewComponent", () => {
 describe("BPTreeViewController", () => {
     let controller: BPTreeViewController;
 
-    beforeEach(inject(($q: ng.IQService, $rootScope: ng.IRootScopeService) => {
+    beforeEach(angular.mock.module("bp.widgets.treeView", ($provide: ng.auto.IProvideService) => {
+        $provide.service("localization", LocalizationServiceMock);
+        $provide.service("windowManager", WindowManager);
+        $provide.service("windowResize", WindowResize);
+    }));
+
+    beforeEach(inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, $timeout, windowManager) => {
         const element = angular.element(`<bp-tree-view />`);
-        controller = new BPTreeViewController($q, element, new LocalizationServiceMock($rootScope));
+        controller = new BPTreeViewController($q, element, new LocalizationServiceMock($rootScope), $timeout, windowManager);
         controller.options = {
             api: jasmine.createSpyObj("api", [
                 "setColumnDefs",
@@ -232,9 +245,7 @@ describe("BPTreeViewController", () => {
                 cellRenderer: "group",
                 cellRendererParams: jasmine.objectContaining({
                     padding: 20
-                }),
-                suppressMenu: true,
-                suppressSorting: true,
+                })
             })]);
             expect(angular.isFunction(controller.options.columnDefs[0].cellClass)).toEqual(true);
             expect(angular.isFunction(controller.options.columnDefs[0].cellRendererParams.innerRenderer)).toEqual(true);
@@ -346,7 +357,13 @@ describe("BPTreeViewController", () => {
                 }
             });
             controller.rootNode = {
-                children: [{key: "child"}] as ITreeViewNodeVM[]
+                key: "",
+                children: [{
+                    key: "child",
+                    children: [],
+                    isSelectable: () => false
+                }] as ITreeViewNodeVM[],
+                isSelectable: () => false
             } as ITreeViewNodeVM;
 
             // Act
@@ -355,7 +372,7 @@ describe("BPTreeViewController", () => {
                 // Assert
                 expect(controller.options.api.setRowData).toHaveBeenCalledWith([]);
                 expect(controller.options.api.showLoadingOverlay).toHaveBeenCalledWith();
-                expect(controller.options.api.setRowData).toHaveBeenCalledWith(controller.rootNode.children);
+                expect(controller.options.api.setRowData).toHaveBeenCalledWith((<ITreeViewNodeVM>controller.rootNode).children);
                 expect(controller.options.api.sizeColumnsToFit).toHaveBeenCalled();
                 expect(controller.options.api.hideOverlay).toHaveBeenCalledWith();
                 expect(controller.options.api.showNoRowsOverlay).not.toHaveBeenCalled();
@@ -456,7 +473,13 @@ describe("BPTreeViewController", () => {
     describe("ag-grid event handlers", () => {
         it("onRowGroupOpened, when expandable, sets isExpanded", () => {
             // Arrange
-            const vm = {isExpandable: true, isExpanded: false} as ITreeViewNodeVM;
+            const vm = {
+                isExpandable: true,
+                isExpanded: false,
+                key: "",
+                children: [],
+                isSelectable: () => false
+            } as ITreeViewNodeVM;
             const node = {data: vm, expanded: true} as agGrid.RowNode;
 
             // Act
@@ -504,7 +527,13 @@ describe("BPTreeViewController", () => {
 
         it("onRowGroupOpened, when not expandable, does not set isExpanded", () => {
             // Arrange
-            const vm = {isExpandable: false, isExpanded: false} as ITreeViewNodeVM;
+            const vm = {
+                isExpandable: false,
+                isExpanded: false,
+                key: "",
+                children: [],
+                isSelectable: () => false
+            } as ITreeViewNodeVM;
             const node = {data: vm, expanded: true} as agGrid.RowNode;
 
             // Act

@@ -1,10 +1,11 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {Models} from "../../models";
 import {ItemTypePredefined} from "../../models/enums";
 import {Helper, IBPTreeController} from "../../../shared";
 import {IProjectManager, IArtifactManager} from "../../../managers";
 import {Project} from "../../../managers/project-manager";
 import {IStatefulArtifact} from "../../../managers/artifact-manager";
+import {ISelectionManager} from "../../../managers/selection-manager";
 import {IArtifactNode} from "../../../managers/project-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 
@@ -21,11 +22,17 @@ export class ProjectExplorerController {
     private numberOfProjectsOnLastLoad: number;
     private selectedArtifactNameBeforeChange: string;
 
-    public static $inject: [string] = ["projectManager", "artifactManager", "navigationService"];
+    public static $inject: [string] = [
+        "projectManager", 
+        "artifactManager", 
+        "navigationService",
+        "selectionManager"
+    ];
 
     constructor(private projectManager: IProjectManager,
                 private artifactManager: IArtifactManager,
-                private navigationService: INavigationService) {
+                private navigationService: INavigationService,
+                private selectionManager: ISelectionManager) {
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -33,7 +40,8 @@ export class ProjectExplorerController {
         //use context reference as the last parameter on subscribe...
         this.subscribers = [
             //subscribe for project collection update
-            this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this)
+            this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
+            this.selectionManager.explorerArtifactObservable.filter(artifact => !!artifact).subscribeOnNext(this.setSelectedNode, this)
         ];
     }
 
@@ -45,6 +53,14 @@ export class ProjectExplorerController {
         });
         if (this.selectedArtifactSubscriber) {
             this.selectedArtifactSubscriber.dispose();
+        }
+    }
+
+    private setSelectedNode(artifact: IStatefulArtifact) {
+        if (this.tree.nodeExists(artifact.id)) {
+            this.tree.selectNode(artifact.id);
+        } else {
+            this.tree.clearSelection();
         }
     }
 
@@ -85,15 +101,15 @@ export class ProjectExplorerController {
             if (params.data.hasChildren) {
                 css.push("has-children");
             }
-
-            if (params.data.predefinedType === Models.ItemTypePredefined.PrimitiveFolder) {
-                css.push("is-folder");
-            } else if (params.data.predefinedType === Models.ItemTypePredefined.Project) {
-                css.push("is-project");
+            let typeName: string;
+            if (params.data.predefinedType === Models.ItemTypePredefined.CollectionFolder && params.data.parentNode instanceof Project) {
+                typeName = Models.ItemTypePredefined[Models.ItemTypePredefined.Collections];
             } else {
-                css.push("is-" + Helper.toDashCase(Models.ItemTypePredefined[params.data.predefinedType]));
+                typeName = Models.ItemTypePredefined[params.data.predefinedType];
             }
-
+            if (typeName) {
+                css.push("is-" + Helper.toDashCase(typeName));
+            }
             return css;
         },
 
@@ -108,12 +124,6 @@ export class ProjectExplorerController {
                                 item-type-id="${artifactType.id}"
                                 item-type-icon="${artifactType.iconImageId}"
                                 ng-drag-handle></bp-item-type-icon>`;
-                } else if (artifactType) {
-                    if (artifactType.predefinedType === ItemTypePredefined.CollectionFolder) {
-                        icon = "<i ng-drag-handle class='fonticon fonticon2-collection-folder'></i>";
-                    } else if (artifactType.predefinedType === ItemTypePredefined.ArtifactCollection) {
-                        icon = "<i ng-drag-handle class='fonticon fonticon2-collection'></i>";
-                    }
                 }
                 return `${icon}<span>${name}</span>`;
             },
@@ -135,13 +145,13 @@ export class ProjectExplorerController {
             if (projects && projects.length > 0) {
                 if (!this.selected || this.numberOfProjectsOnLastLoad !== projects.length) {
                     this.selected = projects[0];
-                    this.navigationService.navigateToArtifact(this.selected.id);
+                    this.navigationService.navigateTo(this.selected.id);
                 }
 
                 //if node exists in the tree
                 if (this.tree.nodeExists(this.selected.id)) {
                     this.tree.selectNode(this.selected.id);
-                    this.navigationService.navigateToArtifact(this.selected.id);
+                    this.navigationService.navigateTo(this.selected.id);
 
                     //replace with a new object from tree, since the selected object may be stale after refresh
                     let selectedObjectInTree: IArtifactNode = <IArtifactNode>this.tree.getNodeData(this.selected.id);
@@ -152,7 +162,7 @@ export class ProjectExplorerController {
                     //otherwise, if parent node is in the tree
                     if (this.selected.parentNode && this.tree.nodeExists(this.selected.parentNode.id)) {
                         this.tree.selectNode(this.selected.parentNode.id);
-                        this.navigationService.navigateToArtifact(this.selected.parentNode.id);
+                        this.navigationService.navigateTo(this.selected.parentNode.id);
 
                         //replace with a new object from tree, since the selected object may be stale after refresh
                         let selectedObjectInTree: IArtifactNode = <IArtifactNode>this.tree.getNodeData(this.selected.parentNode.id);
@@ -163,7 +173,7 @@ export class ProjectExplorerController {
                         //otherwise, try with project node
                         if (this.tree.nodeExists(this.selected.projectId)) {
                             this.tree.selectNode(this.selected.projectId);
-                            this.navigationService.navigateToArtifact(this.selected.projectId);
+                            this.navigationService.navigateTo(this.selected.projectId);
                         } else {
                             //if project node fails too - give up
                             this.artifactManager.selection.setExplorerArtifact(null);
@@ -200,7 +210,7 @@ export class ProjectExplorerController {
         this.doSync(node);
         this.selected = node;
         this.tree.selectNode(node.id);
-        this.navigationService.navigateToArtifact(node.id);
+        this.navigationService.navigateTo(node.id);
     };
 
     public doSync = (node: IArtifactNode): IStatefulArtifact => {

@@ -1,0 +1,64 @@
+﻿<div ng-if="$ctrl.isLoading" class="app-loading">
+    <span class="glyphicon glyphicon-refresh spin"></span>
+    <span>Loading...</span>
+</div>
+
+<div class="artifact-overview" ng-if="!$ctrl.isLoading">
+    <div class="heading">Overview</div>
+    <div class="content">
+        <form novalidate>
+            <div class="properties" ng-class="{'collapsed': isSystemPropertiesCollapsed}"
+                 ng-if="$ctrl.isSystemPropertyAvailable">
+                <div class="heading" ng-click="isSystemPropertiesCollapsed = !isSystemPropertiesCollapsed">
+                    {{::$root.config.labels['App_Properties_System_Properties_Label']}}
+                </div>
+                <div class="system-properties content collapse" ng-class="{'in': !isSystemPropertiesCollapsed}">
+                    <formly-form model="$ctrl.model" fields="$ctrl.systemFields">
+                    </formly-form>
+                </div>
+            </div>
+            <div class="properties" ng-class="{'collapsed': isSpecificPropertiesCollapsed}">
+                <div class="heading" ng-click="isSpecificPropertiesCollapsed = !isSpecificPropertiesCollapsed">
+                    {{::$root.config.labels['Artifact_Collection_Content_Header']}}
+                </div>
+                <div class="specific-properties content"
+                     uib-collapse="isSpecificPropertiesCollapsed"
+                     ng-show="$ctrl.rootNode && $ctrl.rootNode.length > 0">
+                    <bp-tree-view
+                          grid-class="project-tree collections-list"
+                          selection-mode="'checkbox'"
+                          row-height="45"
+                          root-node="$ctrl.rootNode"
+                          columns="$ctrl.columns"
+                          header-height="20"
+                          on-select="$ctrl.onSelect(vm, isSelected, selectedVMs)">
+                </div>
+                <div class="specific-properties content"
+                     uib-collapse="isSpecificPropertiesCollapsed"
+                     ng-hide="$ctrl.rootNode && $ctrl.rootNode.length > 0">
+                        <div class="empty-collection text-center" >{{::$ctrl.localization.get('App_UP_Properties_No_Properties')}}</div>
+                </div>
+            </div>
+            <div class="properties" ng-class="{'collapsed': isAdditionalPropertiesCollapsed}"
+                 ng-if="$ctrl.isCustomPropertyAvailable">
+                <div class="heading" ng-click="isAdditionalPropertiesCollapsed = !isAdditionalPropertiesCollapsed">
+                    {{::$root.config.labels['App_Properties_Additional_Properties_Label']}}
+                </div>
+                <div class="additional-properties content" uib-collapse="isAdditionalPropertiesCollapsed">
+                    <formly-form model="$ctrl.model" fields="$ctrl.customFields">
+                    </formly-form>
+                </div>
+            </div>
+
+            <uib-tabset ng-if="$ctrl.isRichTextPropertyAvailable">
+                <uib-tab ng-repeat="field in $ctrl.richTextFields"
+                         heading="{{field.data.name}}"
+                         class="{{field.templateOptions['isInvalid'] ? 'invalid' : ''}}">
+                    <formly-form model="$ctrl.model" fields="[field]">
+                    </formly-form>
+                </uib-tab>
+            </uib-tabset>
+
+        </form>
+    </div>
+</div>

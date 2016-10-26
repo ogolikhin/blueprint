@@ -1,55 +1,26 @@
-﻿import {IProcessShape, IArtifactUpdateModel, PropertyTypePredefined, IPropertyValueInformation} from "../../../../../models/process-models";
+import {IProcessShape, PropertyTypePredefined, IPropertyValueInformation} from "../../../../../models/process-models";
 import {ArtifactUpdateType} from  "../../../../../models/enums";
 import * as Enums from "../../../../../../../main/models/enums";
 import {IProcessGraph, IDiagramNode, IDiagramLink, IDiagramNodeElement} from "./../models/";
 import {DiagramNodeElement} from "./diagram-element";
 import {ElementType, Direction, NodeType, NodeChange} from "./../models/";
 import {IDialogParams} from "../../../../messages/message-dialog";
-
+import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
+import {IStatefulProcessSubArtifact} from "../../../../../process-subartifact";
 
 export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement implements IDiagramNode {
-
     direction: Direction;
     model: T;
-    private nodeType: NodeType;
+    protected dialogManager: IModalDialogCommunication;
 
     public get newShapeColor(): string {
         return "#F7F1CF";
     }
 
-    constructor(model: T, nodeType: NodeType = NodeType.Undefined) {
+    constructor(model: T) {
         super(model.id.toString(), ElementType.Shape);
 
         this.model = model;
-        this.nodeType = nodeType;
-    }
-
-    protected sendUpdatedSubArtifactModel(name: string, updateType: ArtifactUpdateType = ArtifactUpdateType.SubArtifact, value?) {
-        const updateModel: IArtifactUpdateModel = {
-            updateType: updateType,
-            propertyValue: this.getProperty(name), 
-            subArtifactId: this.model.id
-        }; 
-        if (updateModel.propertyValue === null) {  
-            let propertyValue: IPropertyValueInformation;          
-            if (name === "name") {
-                propertyValue = {
-                    propertyName: "name",
-                    typePredefined: PropertyTypePredefined.Name,
-                    value: this.model.name,
-                    typeId: 0
-                };
-            } else {
-                propertyValue = {
-                    propertyName: name,
-                    typePredefined: PropertyTypePredefined.None,
-                    value: value,
-                    typeId: 0
-                };
-            }
-            updateModel.propertyValue = propertyValue;
-        }       
-        this.notify(updateModel);
     }
 
     public getNode(): IDiagramNode {
@@ -69,10 +40,8 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
     }
 
     protected setLabelPropertyValue(value: string) {
-        const valueChanged = this.setPropertyValue("label", value);
-        if (valueChanged) {
-            this.notify(NodeChange.Update);
-        }
+       this.setPropertyValue("label", value);
+      
     }
 
     protected updateCellLabel(value: string) {
@@ -82,10 +51,9 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
     protected setModelName(value: string, redrawCellLabel: boolean) {
         if (this.model != null && this.model.name !== value) {
             this.model.name = value;
+
             if (redrawCellLabel) {
                 this.updateCellLabel(value);
-            } else {
-                this.sendUpdatedSubArtifactModel("name");
             }
         }
     }
@@ -190,14 +158,6 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
         return targets;
     }
 
-    public addNode(graph: IProcessGraph): IDiagramNode {
-        throw new Error("This method is abstract!");
-    }
-
-    public deleteNode(graph: IProcessGraph) {
-        throw new Error("This method is abstract!");
-    }
-
     public render(graph: IProcessGraph, col: number, row: number, justCreated: boolean): IDiagramNode {
         throw new Error("This method is abstract!");
     }
@@ -231,21 +191,8 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
     }
 
     public getNodeType(): NodeType {
-        return this.nodeType;
-    }
-
-    public setElementText(cell: MxCell, text: string) {
-        // override in descendant classes
-    }
-
-    public getElementTextLength(cell: MxCell): number {
-        // override in descendant classes
-        return null;
-    }
-
-    public formatElementText(cell: MxCell, text: string): string {
-        // override in descendant classes
-        return null;
+        // This is abstract method. Should get overriden;
+        return NodeType.Undefined;
     }
 
     public getNextNodes(): IDiagramNode[] {
@@ -257,8 +204,10 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
             }).map((edge) => {
                 return (<IDiagramNodeElement>edge.target).getNode();
             });
+
             return <IDiagramNode[]>nextNodes;
         }
+
         return undefined;
     }
 
@@ -271,10 +220,13 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
             }).map((edge) => {
                 return (<IDiagramNodeElement>edge.source).getNode();
             });
+
             return <IDiagramNode[]>previousNodes;
         }
+
         return undefined;
     }
+
     protected getProperty(propertyName: string): IPropertyValueInformation {
         if (this.model == null || this.model.propertyValues == null || this.model.propertyValues[propertyName] == null) {
             return null;
@@ -282,6 +234,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
 
         return this.model.propertyValues[propertyName];
     }
+
     protected getPropertyValue(propertyName: string) {
         if (this.model == null || this.model.propertyValues == null || this.model.propertyValues[propertyName] == null) {
             return null;
@@ -296,14 +249,29 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
         }
 
         const previousValue = this.model.propertyValues[propertyName].value;
+
         if (previousValue !== newValue) {
-            this.model.propertyValues[propertyName].value = newValue;            
+            const propertyValue = this.model.propertyValues[propertyName];
+            propertyValue.value = newValue;
+            this.updateStatefulPropertyValue(propertyValue.typePredefined, newValue);
             return true;
         }
 
         return false;
     }
-
+    protected updateStatefulPropertyValue(propertyTypePredefined: PropertyTypePredefined, newValue: any) {
+        const subArtifact: any = this.model;
+        const processSubArtifact: IStatefulProcessSubArtifact = subArtifact;
+        if (processSubArtifact) {
+            if (propertyTypePredefined === PropertyTypePredefined.Description) {
+                processSubArtifact.description = newValue;
+            } else if (propertyTypePredefined > 0) {
+                if (processSubArtifact.specialProperties) {
+                    processSubArtifact.specialProperties.set(propertyTypePredefined, newValue);
+                }
+            }
+        }            
+    }
     protected getParentId(): number {
         return this.model.parentId;
     }
@@ -322,28 +290,5 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
 
     public canGenerateUserStory(): boolean {
         return false;
-    }    
-
-    // TODO: communication with utility panel is different in Nova
-    public openPropertiesDialog(scope: ng.IRootScopeService, tab: string) {
-
-        //if (!scope)
-        //    return;
-        //var utilityPanel: Shell.IPropertiesMw = scope["propertiesSvc"]();
-        //if (utilityPanel != null) {
-        //    utilityPanel.openModalDialogWithInfo({
-        //        id: this.model.id,
-        //        containerId: this.model.parentId,
-        //        name: this.model.name,
-        //        typePrefix: this.model.typePrefix,
-        //        predefined: this.model.baseItemTypePredefined,
-        //        isDiagram: false,
-        //        itemStateIndicators: BluePrintSys.RC.Business.Internal.Components.RapidReview.Models.ItemIndicatorFlags.None,
-        //        typeId: undefined
-        //    },
-        //        tab /*preselected tab*/,
-        //        true /*includeDraft*/);
-        //}
-
     }
 }

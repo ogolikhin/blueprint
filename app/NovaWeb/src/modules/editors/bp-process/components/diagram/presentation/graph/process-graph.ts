@@ -27,6 +27,7 @@ import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-mana
 import {ISelectionListener} from "./models/";
 import {ProcessEvents} from "../../process-diagram-communication";
 import {IDragDropHandler, DragDropHandler} from "./drag-drop-handler";
+
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
     public startNode: IDiagramNode;
@@ -38,12 +39,10 @@ export class ProcessGraph implements IProcessGraph {
     private selectionHelper: ProcessGraphSelectionHelper = null;
     private executionEnvironmentDetector: any;
     private transitionTimeOut: number = 400;
-    private bottomBorderWidt: number = 6;
     private highlightedEdgeStates: any[] = [];
     private deleteShapeHandler: string;
     private popupMenu: NodePopupMenu = null;
     public globalScope: IScopeContext;
-    private shapesFactory: ShapesFactory;
     public dragDropHandler: IDragDropHandler;
 
     public static get MinConditions(): number {
@@ -58,17 +57,20 @@ export class ProcessGraph implements IProcessGraph {
         return this.viewModel.isUserToSystemProcess;
     }
 
-    constructor(public rootScope: any,
-                private scope: any,
-                private htmlElement: HTMLElement,
-                // #TODO fix up references later
-                //private artifactVersionControlService: Shell.IArtifactVersionControlService,
-                public viewModel: IProcessViewModel,
-                private dialogService: IDialogService,
-                private localization: ILocalizationService,
-                public messageService: IMessageService = null,
-                private $log: ng.ILogService = null,
-                private statefulArtifactFactory: IStatefulArtifactFactory = null) {
+    constructor(
+        public rootScope: any,
+        private scope: any,
+        private htmlElement: HTMLElement,
+        // #TODO fix up references later
+        //private artifactVersionControlService: Shell.IArtifactVersionControlService,
+        public viewModel: IProcessViewModel,
+        private dialogService: IDialogService,
+        private localization: ILocalizationService,
+        private shapesFactory: ShapesFactory,
+        public messageService: IMessageService = null,
+        private $log: ng.ILogService = null,
+        private statefulArtifactFactory: IStatefulArtifactFactory = null,
+    ) {
         // Creates the graph inside the given container
         // This is temporary code. It will be replaced with
         // a class that wraps this global functionality.
@@ -76,7 +78,6 @@ export class ProcessGraph implements IProcessGraph {
         let w: any = window;
         this.executionEnvironmentDetector = new w.executionEnvironmentDetector();
         this.mxgraph = new mxGraph(this.htmlElement, new BpMxGraphModel());
-        this.shapesFactory = new ShapesFactory(this.rootScope, this.statefulArtifactFactory);
         this.layout = new Layout(this, viewModel, rootScope, this.shapesFactory, this.messageService, this.$log);
         this.init();
     }
@@ -269,7 +270,7 @@ export class ProcessGraph implements IProcessGraph {
 
     private getMinHeight(): string {
         const shift = this.getPosition(this.htmlElement).y;
-        const height = window.innerHeight - shift - this.bottomBorderWidt;
+        const height = window.innerHeight - shift;
         return `${height}px`;
     }
 
@@ -283,7 +284,7 @@ export class ProcessGraph implements IProcessGraph {
     };
 
     private setContainerSize(width: number, height: number = 0) {
-        const minHeight = height === 0 ? this.getMinHeight() : `${height - this.bottomBorderWidt}px`;
+        const minHeight = height === 0 ? this.getMinHeight() : `${height}px`;
         const minWidth = width === 0 ? this.getMinWidth() : `${width}px`;
         if (width === 0) {
             this.htmlElement.style.transition = "";
@@ -531,14 +532,12 @@ export class ProcessGraph implements IProcessGraph {
                 template: require("../../../../../../shared/widgets/bp-dialog/bp-dialog.html"),
                 header: this.localization.get("App_DialogTitle_Alert"),
                 message: dialogParameters.message
-            }).then((confirm: boolean) => {
-                if (confirm) {
-                    if (selectedNode.getNodeType() === NodeType.UserTask) {
-                        ProcessDeleteHelper.deleteUserTask(selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
-                    } else if (selectedNode.getNodeType() === NodeType.UserDecision || selectedNode.getNodeType() === NodeType.SystemDecision) {
-                        ProcessDeleteHelper.deleteDecision(selectedNode.model.id,
-                            (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this, this.shapesFactory);
-                    }
+            }).then(() => {
+                if (selectedNode.getNodeType() === NodeType.UserTask) {
+                    ProcessDeleteHelper.deleteUserTask(selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
+                } else if (selectedNode.getNodeType() === NodeType.UserDecision || selectedNode.getNodeType() === NodeType.SystemDecision) {
+                    ProcessDeleteHelper.deleteDecision(selectedNode.model.id,
+                        (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this, this.shapesFactory);
                 }
             });
         }

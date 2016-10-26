@@ -2,24 +2,29 @@
     <span class="glyphicon glyphicon-refresh spin"></span>
 </div>
 
+<div ng-if="!$ctrl.selectedArtifact &&
+            !$ctrl.isLoading" class="empty-state">{{$ctrl.localization.get('App_UP_Properties_No_Properties')}}
+</div>
 
-<div class="artifact-overview" ng-if="!$ctrl.isLoading" perfect-scrollbar>
+<div class="artifact-overview" ng-if="!$ctrl.isLoading">
     <div class="content">
         <form novalidate name="$ctrl.form">
-            <div class="properties" ng-class="{'collapsed': isSystemPropertiesCollapsed}"
+            <div class="properties" ng-class="{'collapsed': isSystemPropertiesCollapsed || !userInteracted}"
                  ng-if="$ctrl.isSystemPropertyAvailable">
-                <div class="heading" ng-click="isSystemPropertiesCollapsed = !isSystemPropertiesCollapsed">
+                <div class="heading"
+                     ng-click="isSystemPropertiesCollapsed = isSystemPropertiesCollapsed === undefined ? false : !isSystemPropertiesCollapsed; userInteracted = true;">
                     {{::$root.config.labels['App_Properties_System_Properties_Label']}}
                 </div>
-                <div class="system-properties content collapse" ng-class="{'in': !isSystemPropertiesCollapsed}">
+                <div class="system-properties content collapse"
+                     ng-class="{'in': !isSystemPropertiesCollapsed && !!userInteracted}">
                     <formly-form model="$ctrl.model" fields="$ctrl.systemFields">
                     </formly-form>
                 </div>
             </div>
             <div class="properties" ng-class="{'collapsed': isSpecificPropertiesCollapsed}"
                  ng-if="$ctrl.isSpecificPropertyAvailable">
-                <div class="heading" ng-click="isSpecificPropertiesCollapsed = !isSpecificPropertiesCollapsed">{{
-                    $ctrl.specificPropertiesHeading }}
+                <div class="heading" ng-click="isSpecificPropertiesCollapsed = !isSpecificPropertiesCollapsed">
+                    {{::$ctrl.specificPropertiesHeading}}
                 </div>
                 <div class="content" uib-collapse="isSpecificPropertiesCollapsed">
                     <formly-form model="$ctrl.model" fields="$ctrl.specificFields">
@@ -28,7 +33,8 @@
             </div>
             <div class="properties" ng-class="{'collapsed': isAdditionalPropertiesCollapsed}"
                  ng-if="$ctrl.isCustomPropertyAvailable">
-                <div class="heading" ng-click="isAdditionalPropertiesCollapsed = !isAdditionalPropertiesCollapsed">
+                <div class="heading"
+                     ng-click="isAdditionalPropertiesCollapsed = !isAdditionalPropertiesCollapsed">
                     {{::$root.config.labels['App_Properties_Additional_Properties_Label']}}
                 </div>
                 <div class="content" uib-collapse="isAdditionalPropertiesCollapsed">

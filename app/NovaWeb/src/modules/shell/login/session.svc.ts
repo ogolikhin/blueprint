@@ -1,11 +1,29 @@
 ﻿import "angular";
-import {ILocalizationService} from "../../core/";
-import {IDialogService} from "../../shared/";
-import {IAuth, IUser} from "./auth.svc";
-import {ISession} from "./session-interface";
-import {LoginCtrl, ILoginInfo} from "./login.ctrl";
+import { ILocalizationService } from "../../core/";
+import { IDialogService } from "../../shared/";
+import { IAuth, IUser } from "./auth.svc";
+import { SessionTokenHelper } from "./session.token.helper";
+import { LoginCtrl, ILoginInfo } from "./login.ctrl";
 
-export {ISession}
+export interface ISession {
+    ensureAuthenticated(): ng.IPromise<any>;
+
+    currentUser: IUser;
+    
+    logout(): ng.IPromise<any>;
+
+    login(username: string, password: string, overrideSession: boolean): ng.IPromise<any>;
+
+    loginWithSaml(overrideSession: boolean): ng.IPromise<any>;
+
+    resetPassword(login: string, oldPassword: string, newPassword: string): ng.IPromise<any>;
+
+    onExpired(): ng.IPromise<any>;
+
+    getLoginMessage(): string;
+    
+    forceUsername(): string;
+}
 
 export class SessionSvc implements ISession {
 
@@ -105,17 +123,20 @@ export class SessionSvc implements ISession {
         const defer = this.$q.defer();
         this._loginMsg = this.localization.get("Login_Session_EnterCredentials");
         this._isForceSameUsername = false;
-        this.auth.getCurrentUser().then(
-            (result: IUser) => {
-                if (result) {
-                    this._currentUser = result;
+        if (SessionTokenHelper.hasSessionToken()) {
+            this.auth.getCurrentUser().then(user => {
+                    this._currentUser = user;
+                }
+            ).finally(() => {
+                if (this._currentUser) {
                     defer.resolve();
                 } else {
                     this.showLogin(defer);
                 }
-            },
-            () => this.showLogin(defer)
-        );
+            });
+        } else {
+            this.showLogin(defer);
+        }
         return defer.promise;
     }
 
@@ -141,39 +162,39 @@ export class SessionSvc implements ISession {
                     } else if (result.samlLogin) {
                         this.dialogService
                             .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"))
-                            .then((confirmed: boolean) => {
-                                if (confirmed) {
-                                    this.loginWithSaml(true).then(
-                                        () => {
-                                            this._isExpired = false;
-                                            done.resolve();
-                                        },
-                                        (err) => {
-                                            this.showLogin(done, err);
-                                        });
-                                } else {
-                                    this.showLogin(done);
-                                }
-                            }).finally(() => {
+                            .then(() => {
+                                this.loginWithSaml(true).then(
+                                    () => {
+                                        this._isExpired = false;
+                                        done.resolve();
+                                    },
+                                    (err) => {
+                                        this.showLogin(done, err);
+                                    });
+                                })
+                            .catch(() => {
+                                this.showLogin(done);
+                            })
+                            .finally(() => {
                             confirmationDialog = null;
                         });
                     } else if (result.userName && result.password) {
                         this.dialogService
-                            .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm")
-                            .then((confirmed: boolean) => {
-                                if (confirmed) {
-                                    this.login(result.userName, result.password, true).then(
-                                        () => {
-                                            this._isExpired = false;
-                                            done.resolve();
-                                        },
-                                        (err) => {
-                                            this.showLogin(done, err);
-                                        });
-                                } else {
-                                    this.showLogin(done);
-                                }
-                            }).finally(() => {
+                        .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm")
+                        .then(() => {
+                            this.login(result.userName, result.password, true).then(
+                                () => {
+                                    this._isExpired = false;
+                                    done.resolve();
+                                },
+                                (err) => {
+                                    this.showLogin(done, err);
+                                });
+                            })
+                        .catch(() => {
+                            this.showLogin(done);
+                        })
+                        .finally(() => {
                             confirmationDialog = null;
                         });
                     } else {

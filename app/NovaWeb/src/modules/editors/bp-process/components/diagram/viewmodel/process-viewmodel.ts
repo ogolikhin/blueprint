@@ -1,4 +1,4 @@
-﻿import * as Models from "../../../../../main/models/models";
+import * as Models from "../../../../../main/models/models";
 import * as Enums from "../../../../../main/models/enums";
 import {IMessageService, Message, MessageType} from "../../../../../core/";
 import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
@@ -6,21 +6,16 @@ import {ProcessModels, ProcessEnums} from "../../../";
 import {ICommunicationManager} from "../../../";
 import { IStatefulArtifact } from "../../../../../managers/artifact-manager/";
 import { IStatefulProcessSubArtifact, StatefulProcessSubArtifact } from "../../../process-subartifact";
-import { IStatefulProcessArtifact } from "../../../process-artifact";
+import { IStatefulProcessArtifact, StatefulProcessArtifact } from "../../../process-artifact";
 import { ProcessEvents } from "../process-diagram-communication";
 
 export interface IProcessViewModel extends IProcessGraphModel {
     description: string;
     processType: ProcessEnums.ProcessType;
-    isLocked: boolean;
-    isLockedByMe: boolean;
     isHistorical: boolean;
     isReadonly: boolean;
     isChanged: boolean;
-    isUnpublished: boolean;
     isUserToSystemProcess: boolean;
-    showLock: boolean;
-    showLockOpen: boolean;
     licenseType: Enums.LicenseTypeEnum;
     isSpa: boolean;
     isSMB: boolean;
@@ -30,7 +25,6 @@ export interface IProcessViewModel extends IProcessGraphModel {
     getMessageText(message_id: string);
     showMessage(messageType: MessageType, messageText: string);
     updateProcessGraphModel(process);
-    resetLock();
     resetJustCreatedShapeIds();
     addJustCreatedShapeId(id: number);
     isShapeJustCreated(id: number): boolean;
@@ -39,16 +33,12 @@ export interface IProcessViewModel extends IProcessGraphModel {
 }
 
 export class ProcessViewModel implements IProcessViewModel {
-
     private DEFAULT_SHAPE_LIMIT: number = 100;
+
     private _rootScope: any = null;
     private _scope: any = null;
     private _messageService: IMessageService = null;
     private processGraphModel: IProcessGraphModel = null;
-    private _isChanged: boolean = false;
-    private _showLock: boolean;
-    private _showLockOpen: boolean;
-    private _isReadonly: boolean = false;
     private _licenseType: Enums.LicenseTypeEnum;
     private _isSpa: boolean;
     private _isSMB: boolean;
@@ -61,10 +51,11 @@ export class ProcessViewModel implements IProcessViewModel {
         public communicationManager: ICommunicationManager, 
         rootScope?: any, 
         scope?: any,
-        messageService?: IMessageService) {
-
+        messageService?: IMessageService
+    ) {
         this.updateProcessGraphModel(process);
         this._rootScope = rootScope;
+
         if (scope) {
             this._scope = scope;
             this.getConfigurationSettings();
@@ -73,85 +64,36 @@ export class ProcessViewModel implements IProcessViewModel {
         if (messageService) {
             this._messageService = messageService;
         }
+
         if (communicationManager) {
             this.artifactUpdateHandler = communicationManager.processDiagramCommunication
                 .register(ProcessEvents.ArtifactUpdate, this.artifactsOnUpdate);
         }
     }
     
-    private artifactsOnUpdate = (updateModel: ProcessModels.IArtifactUpdateModel) => {
+    private artifactsOnUpdate = () => {
         const statefulArtifact = this.getStatefulArtifact();
-        if (updateModel.updateType === ProcessEnums.ArtifactUpdateType.LinkLabel) {
-            statefulArtifact.processOnUpdate();
-        }
-        else {
-            const subArtifact: any = statefulArtifact.subArtifactCollection.get(updateModel.subArtifactId);
-            const processSubArtifact: IStatefulProcessSubArtifact = <IStatefulProcessSubArtifact> subArtifact;
-            if (processSubArtifact) {
-                if (updateModel.propertyValue.typePredefined === Enums.PropertyTypePredefined.Name) {
-                    processSubArtifact.name = updateModel.propertyValue.value;
-                } else if (updateModel.propertyValue.typePredefined === Enums.PropertyTypePredefined.Description) {
-                    processSubArtifact.description = updateModel.propertyValue.value;
-                } else if (updateModel.propertyValue.typePredefined > 0) {
-                    processSubArtifact.specialProperties.set(updateModel.propertyValue.typePredefined, updateModel.propertyValue.value);
-                }
-            } 
-        }
+        statefulArtifact.processOnUpdate();
     }
 
     public get isReadonly(): boolean {
-        return this._isReadonly;
-    }
+        const statefulProcess: StatefulProcessArtifact = <StatefulProcessArtifact>this.process;
 
-    public set isReadonly(value) {
-        this._isReadonly = value;
-    }
+        if (statefulProcess && statefulProcess.artifactState) {
+            return statefulProcess.artifactState.readonly;
+        }
 
-    public get showLock(): boolean {
-        return this._showLock;
-    }
-
-    public set showLock(value: boolean) {
-        this._showLock = value;
-    }
-
-    public get showLockOpen(): boolean {
-        return this._showLockOpen;
-    }
-
-    public set showLockOpen(value: boolean) {
-        this._showLockOpen = value;
-    }
-
-    public get isLocked(): boolean {
-        return this.status.isLocked;
-    }
-
-    public set isLocked(value) {
-
-        this.status.isLocked = value;
-        this.showLock = this.status.isLocked && !this.status.isLockedByMe;
-        this.showLockOpen = this.status.isLocked && this.status.isLockedByMe;
-    }
-
-    public get isLockedByMe(): boolean {
-        return this.status.isLockedByMe;
-    }
-
-    public set isLockedByMe(value) {
-
-        this.status.isLockedByMe = value;
-
-        this.showLock = this.status.isLocked && !this.status.isLockedByMe;
-        this.showLockOpen = this.status.isLocked && this.status.isLockedByMe;
+        return null;
     }
 
     public get isChanged(): boolean {
-        return this._isChanged;
-    }
+        const statefulProcess: StatefulProcessArtifact = <StatefulProcessArtifact>this.process;
 
-    public set isChanged(value: boolean) {
-        this._isChanged = value;
+        if (statefulProcess && statefulProcess.artifactState) {
+            return statefulProcess.artifactState.dirty;
+        }
+
+        return null;
     }
 
     public get shapeLimit(): number {
@@ -161,7 +103,6 @@ export class ProcessViewModel implements IProcessViewModel {
     public set shapeLimit(value: number) {
         this._shapeLimit = value;
     }
-    
 
     public get licenseType(): Enums.LicenseTypeEnum {
         return this._licenseType;
@@ -187,24 +128,8 @@ export class ProcessViewModel implements IProcessViewModel {
         this._isSMB = value;
     }
 
-    public get isUnpublished(): boolean {
-        return this.isChanged || this.status.isUnpublished;
-    }
-
-    public set isUnpublished(value: boolean) {
-        this.status.isUnpublished = value;
-    }
-
     public updateProcessGraphModel(process: ProcessModels.IProcess) {
         this.processGraphModel = new ProcessGraphModel(process);
-
-        if (this.status) {
-            this.showLock = this.status.isLocked && !this.status.isLockedByMe;
-            this.showLockOpen = this.status.isLocked && this.status.isLockedByMe;
-            this.isReadonly = process.status.isReadOnly;
-        }
-
-        this.isChanged = false;
     }
 
     public get processType(): ProcessEnums.ProcessType {
@@ -225,21 +150,18 @@ export class ProcessViewModel implements IProcessViewModel {
         return this.processType === ProcessEnums.ProcessType.UserToSystemProcess;
     }
 
-    public resetLock() {
-        this.isLocked = false;
-        this.isLockedByMe = false;
-    }
-
     public isWithinShapeLimit(additionalShapes: number = 1, isLoading: boolean = false): boolean {
         let result: boolean = false;
         let eightyPercent: number = Math.floor(this.shapeLimit * .80);
         let shapeCount = this.shapes.length + additionalShapes;
+
+        // okay:  less than eighty percent of the shape limit
         if (shapeCount < eightyPercent) {
-            // okay:  less than eighty percent of the shape limit
             result = true;
         } else if (shapeCount > this.shapeLimit) {
             let message: string;
             let messageType: MessageType = MessageType.Error;
+
             if (isLoading) {
                 message = this.getMessageText("ST_Shape_Limit_Exceeded_Initial_Load");
                 // replace {0} placeholder with number of shapes added
@@ -251,8 +173,8 @@ export class ProcessViewModel implements IProcessViewModel {
                 // replace {0} placeholder with shape limit value
                 message = message.replace("{0}", this.shapeLimit.toString());
             }
-            // exceeds limit cannot add more shapes
 
+            // exceeds limit cannot add more shapes
             this.showMessage(messageType, message);
             return false;
         } else if (shapeCount >= eightyPercent &&
@@ -267,6 +189,7 @@ export class ProcessViewModel implements IProcessViewModel {
                 message = message.replace("{1}", this.shapeLimit.toString());
                 this.showMessage(MessageType.Warning, message);
             }
+
             return true;
         }
 
@@ -274,7 +197,6 @@ export class ProcessViewModel implements IProcessViewModel {
     }
 
     public showMessage(messageType: MessageType, messageText: string) {
-
         const message = new Message(messageType, messageText);
 
         if (message && this._messageService) {
@@ -339,26 +261,23 @@ export class ProcessViewModel implements IProcessViewModel {
         this.processGraphModel.decisionBranchDestinationLinks = newValue;
     }
 
-    public get status(): ProcessModels.IItemStatus {
-        return this.processGraphModel.status;
-    }
-
-    protected addStatefulShape(processShape: ProcessModels.IProcessShape) {
-
-        let statefulShape = new StatefulProcessSubArtifact(this.process,
-            processShape, this.process.getServices());
+    protected addToSubArtifactCollection(statefulSubArtifact: IStatefulProcessSubArtifact) {
 
         const statefulArtifact: IStatefulArtifact = this.getStatefulArtifact();
         if (statefulArtifact) {
-            statefulArtifact.subArtifactCollection.add(statefulShape);
+            statefulArtifact.subArtifactCollection.add(statefulSubArtifact);
         }
     }
 
     public addShape(processShape: ProcessModels.IProcessShape) {
+        let services;
+        if (this.process.getServices) {
+            services = this.process.getServices();
+        }
 
-        this.shapes.push(processShape);
-
-        this.addStatefulShape(processShape);
+        const statefulShape = new StatefulProcessSubArtifact(this.process, processShape, services);
+        this.shapes.push(statefulShape);
+        this.addToSubArtifactCollection(statefulShape);
     }
 
     public removeShape(shapeId: number) {
@@ -473,10 +392,13 @@ export class ProcessViewModel implements IProcessViewModel {
     }
 
     public get isHistorical(): boolean {
-        // TODO: provide proper implementation once version information is available in the model
-        return this.processGraphModel["process"]["versionId"] != null ||
-            this.processGraphModel["process"]["revisionId"] != null ||
-            this.processGraphModel["process"]["baselineId"] != null;
+        const statefulProcess: StatefulProcessArtifact = <StatefulProcessArtifact>this.process;
+
+        if (statefulProcess && statefulProcess.historical !== undefined) {
+            return statefulProcess.historical;
+        }
+
+        return null;
     }
 
     public resetJustCreatedShapeIds() {
@@ -517,6 +439,7 @@ export class ProcessViewModel implements IProcessViewModel {
         if (this.isRootScopeConfigValid) {
             text = this._rootScope.config.labels[message_id];
         }
+
         return text;
     }
 
@@ -526,10 +449,12 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public destroy() {
         this._scope = null;
+
         if (this.processGraphModel != null) {
             this.processGraphModel.destroy();
             this.processGraphModel = null;
         }
+
         if (this.communicationManager) {
             this.communicationManager.processDiagramCommunication
                 .unregister(ProcessEvents.ArtifactUpdate, this.artifactUpdateHandler);

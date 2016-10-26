@@ -8,7 +8,7 @@ export class ArtifactAttachmentsMock implements IArtifactAttachmentsService {
     constructor(private $q: ng.IQService) {
     }
 
-    public getArtifactAttachments(artifactId: number, subArtifactId?: number, addDrafts?: boolean): ng.IPromise<IArtifactAttachmentsResultSet> {
+    public getArtifactAttachments(artifactId: number, subArtifactId?: number, versionId?: number): ng.IPromise<IArtifactAttachmentsResultSet> {
         const deferred = this.$q.defer<IArtifactAttachmentsResultSet>();
         const artifactAttachments: IArtifactAttachmentsResultSet = {
             artifactId: 306,

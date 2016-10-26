@@ -1,18 +1,42 @@
 import {BPButtonAction} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
-import {ILocalizationService} from "../../../../core";
+import {ILocalizationService, IMessageService} from "../../../../core";
 import {ItemTypePredefined} from "../../../../main/models/enums";
+import {ILoadingOverlayService} from "../../../../core/loading-overlay";
+import {Enums} from "../../../../main/models";
+
 
 export class PublishAction extends BPButtonAction {
     constructor(artifact: IStatefulArtifact,
-                localization: ILocalizationService) {
+                localization: ILocalizationService,
+                messageService: IMessageService,
+                loadingOverlayService: ILoadingOverlayService) {
         if (!localization) {
             throw new Error("Localization service not provided or is null");
         }
         
         super(
             (): void => {
-                artifact.publish();
+                let overlayId: number = loadingOverlayService.beginLoading();
+
+                try {
+                    artifact.publish()
+                    .catch((err) => {
+                        if (err) {
+                            messageService.addError(err);
+                        }
+                    })
+                    .finally(() => {
+                        loadingOverlayService.endLoading(overlayId);
+                    });
+                } catch (err) {
+                    loadingOverlayService.endLoading(overlayId);
+
+                    if (err) {
+                        messageService.addError(err);
+                        throw err;
+                    }
+                }
             },
             (): boolean => {
                 if (!artifact) {
@@ -29,6 +53,10 @@ export class PublishAction extends BPButtonAction {
                 }
 
                 if (artifact.artifactState.readonly) {
+                    return false;
+                }
+
+                if (!artifact.artifactState.dirty && artifact.artifactState.lockedBy !== Enums.LockedByEnum.CurrentUser) {
                     return false;
                 }
 

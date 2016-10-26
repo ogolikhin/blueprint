@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -923,7 +923,7 @@ namespace ArtifactStore.Repositories
             const int projectId = 1;
             const int artifactId = 3;
             const int userId = 99;
-            var ancestorsAnsSelf = new List<ArtifactVersion>
+            var ancestorsAndSelf = new List<ArtifactVersion>
             {
                 new ArtifactVersion { ItemId = 1 },
                 new ArtifactVersion { ItemId = 2 },
@@ -931,7 +931,7 @@ namespace ArtifactStore.Repositories
             };
 
             var cxn = new SqlConnectionWrapperMock();
-            cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, ancestorsAnsSelf);
+            cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, ancestorsAndSelf);
 
             var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) {CallBase = true};
 
@@ -952,7 +952,7 @@ namespace ArtifactStore.Repositories
             const int projectId = 1;
             const int artifactId = 3;
             const int userId = 99;
-            var ancestorsAnsSelf = new List<ArtifactVersion>
+            var ancestorsAndSelf = new List<ArtifactVersion>
             {
                 new ArtifactVersion { ItemId = 1 },
                 new ArtifactVersion { ItemId = 2 },
@@ -966,13 +966,13 @@ namespace ArtifactStore.Repositories
             var children2 = new List<Artifact>();
 
             var cxn = new SqlConnectionWrapperMock();
-            cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, ancestorsAnsSelf);
+            cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, ancestorsAndSelf);
 
             var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
 
             mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId))
                 .Returns(Task.FromResult(children1));
-            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, ancestorsAnsSelf[1].ItemId, userId))
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, ancestorsAndSelf[1].ItemId, userId))
                 .Returns(Task.FromResult(children2));
 
             // Act
@@ -988,7 +988,7 @@ namespace ArtifactStore.Repositories
             const int projectId = 1;
             const int artifactId = 3;
             const int userId = 99;
-            var ancestorsAnsSelf = new List<ArtifactVersion>
+            var ancestorsAndSelf = new List<ArtifactVersion>
             {
                 new ArtifactVersion { ItemId = 1 },
                 new ArtifactVersion { ItemId = 2 },
@@ -1007,13 +1007,13 @@ namespace ArtifactStore.Repositories
             };
 
             var cxn = new SqlConnectionWrapperMock();
-            cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, ancestorsAnsSelf);
+            cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, ancestorsAndSelf);
 
             var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
 
             mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId))
                 .Returns(Task.FromResult(children1));
-            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, ancestorsAnsSelf[1].ItemId, userId))
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, ancestorsAndSelf[1].ItemId, userId))
                 .Returns(Task.FromResult(children2));
 
             // Act
@@ -1038,7 +1038,7 @@ namespace ArtifactStore.Repositories
             const int projectId = 1;
             const int artifactId = 3;
             const int userId = 99;
-            var ancestorsAnsSelf = new List<ArtifactVersion>
+            var ancestorsAndSelf = new List<ArtifactVersion>
             {
                 new ArtifactVersion { ItemId = 1 },
                 new ArtifactVersion { ItemId = 2 },
@@ -1062,15 +1062,15 @@ namespace ArtifactStore.Repositories
             };
 
             var cxn = new SqlConnectionWrapperMock();
-            cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, ancestorsAnsSelf);
+            cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, ancestorsAndSelf);
 
             var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
 
             mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId))
                 .Returns(Task.FromResult(children1));
-            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, ancestorsAnsSelf[1].ItemId, userId))
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, ancestorsAndSelf[1].ItemId, userId))
                 .Returns(Task.FromResult(children2));
-            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, ancestorsAnsSelf[2].ItemId, userId))
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, ancestorsAndSelf[2].ItemId, userId))
                 .Returns(Task.FromResult(children3));
 
             // Act
@@ -1168,6 +1168,176 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(2222, result[1].Id);
             Assert.AreEqual("Postcondition", result[1].DisplayName);
         }
+
+        #region GetArtifactNavigatioPathAsync
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task GetArtifactNavigatioPathAsync_InvalidArtifactId()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlArtifactRepository(cxn.Object);
+
+            // Act
+            await repository.GetArtifactNavigatioPathAsync(0, 1);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task GetArtifactNavigatioPathAsync_InvalidUserId()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlArtifactRepository(cxn.Object);
+
+            // Act
+            await repository.GetArtifactNavigatioPathAsync(1, 0);
+
+            // Assert
+        }
+
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        [TestMethod]
+        public async Task GetArtifactNavigatioPathAsync_ArtifactNotFound_ThrowException()
+        {
+            // Arrange
+            const int artifactId = 3;
+            const int userId = 99;
+
+            var cxn = new SqlConnectionWrapperMock();
+            cxn.SetupQueryAsync<List<ArtifactBasicDetails>>("GetArtifactBasicDetails", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId } }, null);
+
+            var repository = new SqlArtifactRepository(cxn.Object, null, null);
+
+            // Act
+            try
+            {
+                await repository.GetArtifactNavigatioPathAsync(artifactId, userId);
+            }
+            catch (ResourceNotFoundException e)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, e.ErrorCode);
+                throw;
+            }
+        }
+
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        [TestMethod]
+        public async Task GetArtifactNavigatioPathAsync_ArtifactIsDeletedAndPublished_ThrowException()
+        {
+            // Arrange
+            const int artifactId = 3;
+            const int userId = 99;
+            var arifactBasicDetails = new List<ArtifactBasicDetails> { new ArtifactBasicDetails { LatestDeleted = true } };
+
+            var cxn = new SqlConnectionWrapperMock();
+            cxn.SetupQueryAsync("GetArtifactBasicDetails", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId } }, arifactBasicDetails);
+
+            var repository = new SqlArtifactRepository(cxn.Object, null, null);
+
+            // Act
+            try
+            {
+                await repository.GetArtifactNavigatioPathAsync(artifactId, userId);
+            }
+            catch (ResourceNotFoundException e)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.ResourceNotFound, e.ErrorCode);
+                throw;
+            }
+        }
+
+        [ExpectedException(typeof(AuthorizationException))]
+        [TestMethod]
+        public async Task GetArtifactNavigatioPathAsync_NoPermissionsForArtifact_ThrowException()
+        {
+            // Arrange
+            const int artifactId = 3;
+            const int userId = 99;
+            var arifactBasicDetails = new List<ArtifactBasicDetails> { new ArtifactBasicDetails { LatestDeleted = false } };
+
+            var permissions = new Dictionary<int, RolePermissions>();
+
+            var cxn = new SqlConnectionWrapperMock();
+            cxn.SetupQueryAsync("GetArtifactBasicDetails", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId } }, arifactBasicDetails);
+
+            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
+            mockArtifactPermissionsRepository.Setup(m => m.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true))
+                .ReturnsAsync(permissions);
+
+            var repository = new SqlArtifactRepository(cxn.Object, null, mockArtifactPermissionsRepository.Object);
+
+            // Act
+            try
+            {
+                await repository.GetArtifactNavigatioPathAsync(artifactId, userId);
+            }
+            catch (AuthorizationException e)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.UnauthorizedAccess, e.ErrorCode);
+                throw;
+            }
+        }
+
+        [TestMethod]
+        public async Task GetArtifactNavigatioPathAsync_Success()
+        {
+            // Arrange
+            const int projectId = 1;
+
+            const int artifactId = 3;
+            const int userId = 99;
+            var arifactBasicDetails = new List<ArtifactBasicDetails> { new ArtifactBasicDetails { LatestDeleted = false } };
+
+            var ancestorsAndSelf = new List<ArtifactVersion>
+            {
+                new ArtifactVersion { ItemId = 3, ParentId = 2, VersionProjectId = projectId, Name = "artifact", ItemTypeId = 88 },
+                new ArtifactVersion { ItemId = 1, ParentId = null, VersionProjectId = projectId, Name = "project", ItemTypeId = 66 },
+                new ArtifactVersion { ItemId = 2, ParentId = 1, VersionProjectId = projectId, Name = "folder", ItemTypeId = 77 }
+            };
+
+            var permissions = new Dictionary<int, RolePermissions> {{artifactId, RolePermissions.Read}};
+
+            var cxn = new SqlConnectionWrapperMock();
+            cxn.SetupQueryAsync("GetArtifactBasicDetails", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId } }, arifactBasicDetails);
+            cxn.SetupQueryAsync("GetArtifactNavigationPath", new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId } }, ancestorsAndSelf);
+
+            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
+            mockArtifactPermissionsRepository.Setup(m => m.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true))
+                .ReturnsAsync(permissions);
+
+            var repository = new SqlArtifactRepository(cxn.Object, null, mockArtifactPermissionsRepository.Object);
+
+            var expected = new List<Artifact>
+            {
+                new Artifact { Id = ancestorsAndSelf[1].ItemId, Name = ancestorsAndSelf[1].Name, ProjectId = ancestorsAndSelf[1].VersionProjectId, ItemTypeId = ancestorsAndSelf[1].ItemTypeId },
+                new Artifact { Id = ancestorsAndSelf[2].ItemId, Name = ancestorsAndSelf[2].Name, ProjectId = ancestorsAndSelf[2].VersionProjectId, ItemTypeId = ancestorsAndSelf[2].ItemTypeId }
+            };
+
+            // Act
+            var actual = await repository.GetArtifactNavigatioPathAsync(artifactId, userId);
+
+            // Assert
+            Assert.AreEqual(expected.Count, actual.Count);
+
+            Assert.AreEqual(expected[0].Id, actual[0].Id);
+            Assert.AreEqual(expected[0].Name, actual[0].Name);
+            Assert.AreEqual(expected[0].ProjectId, actual[0].ProjectId);
+            Assert.AreEqual(expected[0].ItemTypeId, actual[0].ItemTypeId);
+
+            Assert.AreEqual(expected[1].Id, actual[1].Id);
+            Assert.AreEqual(expected[1].Name, actual[1].Name);
+            Assert.AreEqual(expected[1].ProjectId, actual[1].ProjectId);
+            Assert.AreEqual(expected[1].ItemTypeId, actual[1].ItemTypeId);
+        }
+
+        #endregion
 
     }
 }

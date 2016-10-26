@@ -1,4 +1,5 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
+import * as _ from "lodash";
 import {BPLocale, ILocalizationService} from "../../core";
 import {Enums, Models} from "../../main";
 import {PropertyContext} from "./bp-property-context";
@@ -11,6 +12,7 @@ export class PropertyEditor {
     private _fields: AngularFormly.IFieldConfigurationObject[];
     public propertyContexts: PropertyContext[];
     private locale: BPLocale;
+    private itemid: number;
 
     constructor(private localization: ILocalizationService) {
         this.locale = localization.current;
@@ -102,22 +104,41 @@ export class PropertyEditor {
             } else {
                 return $value.toString();
             }
+        } else if (context.primitiveType === Models.PrimitiveType.Text && context.isRichText) {
+            return Helper.getHtmlBodyContent($value);
         }
         return $value;
     }
 
-    public load(statefulItem: IStatefulItem, properties: Models.IPropertyType[]): any {
 
+    public create(statefulItem: IStatefulItem, properties: Models.IPropertyType[], force: boolean): boolean {
+
+        let fieldsupdated: boolean = false;
         this._model = {};
-        this._fields = [];
+
         if (statefulItem && angular.isArray(properties)) {
             this.propertyContexts = properties.map((it: Models.IPropertyType) => {
                 return new PropertyContext(it);
             });
-            // var artifactOrSubArtifact = artifact;
-            // if (subArtifact) {
-            //     artifactOrSubArtifact = subArtifact;
-            // }
+
+            //Check if fields changed (from metadata)
+            let fieldNamesChanged = true;
+            let namesChanged = true;
+            if (this._fields) {
+                const newFieldNames = this.propertyContexts.map((prop) => prop.fieldPropertyName);
+                const previousFieldNames = this._fields.map((field) => (field.data as PropertyContext).fieldPropertyName);
+                fieldNamesChanged = _.xor(newFieldNames, previousFieldNames).length > 0; 
+
+                const newNames = this.propertyContexts.map((prop) => prop.name);
+                const previousNames = this._fields.map((field) => (field.data as PropertyContext).name);
+                namesChanged = _.xor(newNames, previousNames).length > 0;
+            }
+
+            if (this.itemid !== statefulItem.id || fieldNamesChanged || namesChanged || force) {
+                fieldsupdated = true;
+                this._fields = [];
+            }
+
             this.propertyContexts.forEach((propertyContext: PropertyContext) => {
                 if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
                     let modelValue: any = null;
@@ -164,14 +185,20 @@ export class PropertyEditor {
                         }
                     }
                     if (isModelSet) {
+                        propertyContext.isFresh = true;
                         let field = this.createPropertyField(propertyContext, statefulItem.id);
                         this._model[propertyContext.fieldPropertyName] = this.convertToFieldValue(field, modelValue);
-                        this._fields.push(field);
+                        if (fieldsupdated) {
+                            this._fields.push(field);
+                        }
                     }
                 }
             });
+            this.itemid = statefulItem.id;
+
         }
-        return this._model;
+
+        return fieldsupdated;
     }
 
     private getActorStepOfValue(propertyValue: any): string {
@@ -251,13 +278,8 @@ export class PropertyEditor {
                     field.type = context.isMultipleAllowed ? "bpFieldSelectMulti" : "bpFieldSelect";
                     field.templateOptions["optionsAttr"] = "bs-options";
                     field.templateOptions.options = [];
-                    if (context.validValues && context.validValues.length) {
-                        field.templateOptions.options = context.validValues.map(function (it) {
-                            return {value: it.id, name: it.value} as any;
-                        });
-                        if (angular.isNumber(context.defaultValidValueId)) {
-                            field.defaultValue = context.defaultValidValueId.toString();
-                        }
+                    if (context.validValues && context.validValues.length && _.isNumber(context.defaultValidValueId)) {
+                        field.defaultValue = context.defaultValidValueId.toString();
                     }
                     break;
                 case Models.PrimitiveType.User:

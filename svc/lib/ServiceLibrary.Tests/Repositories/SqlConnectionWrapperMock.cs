@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Moq;
 
 namespace ServiceLibrary.Repositories
@@ -21,80 +22,48 @@ namespace ServiceLibrary.Repositories
         public void SetupExecuteAsync(string sql, Dictionary<string, object> param, int result, Dictionary<string, object> outParameters = null)
         {
             Expression<Func<object, bool>> match = p => param == null || param.All(kv => Matches(kv.Value, SqlConnectionWrapper.Get<object>(p, kv.Key)));
-            var setup = Setup(c => c.ExecuteAsync(sql, It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure))
-                .ReturnsAsync(result);
-            if (outParameters != null)
-            {
-                setup.Callback((string s, object p, IDbTransaction t, int? o, CommandType c) =>
-                {
-                    foreach (var kv in outParameters)
-                    {
-                        SqlConnectionWrapper.Set(p, kv.Key, kv.Value);
-                    }
-                });
-            }
-            setup.Verifiable();
+            Setup(c => c.ExecuteAsync(sql, It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure), result, outParameters);
         }
 
         public void SetupExecuteScalarAsync<T>(string sql, Dictionary<string, object> param, T result, Dictionary<string, object> outParameters = null)
         {
             Expression<Func<object, bool>> match = p => param == null || param.All(kv => Matches(kv.Value, SqlConnectionWrapper.Get<object>(p, kv.Key)));
-            var setup = Setup(c => c.ExecuteScalarAsync<T>(sql, It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure))
-                .ReturnsAsync(result);
-            if (outParameters != null)
-            {
-                setup.Callback((string s, object p, IDbTransaction t, int? o, CommandType c) =>
-                {
-                    foreach (var kv in outParameters)
-                    {
-                        SqlConnectionWrapper.Set(p, kv.Key, kv.Value);
-                    }
-                });
-            }
-            setup.Verifiable();
+            Setup(c => c.ExecuteScalarAsync<T>(sql, It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure), result, outParameters);
         }
 
         public void SetupExecuteScalarAsync<T>(Expression<Func<string, bool>> sqlMatcher, Dictionary<string, object> param, T result, Dictionary<string, object> outParameters = null)
         {
             Expression<Func<object, bool>> match = p => param == null || param.All(kv => Matches(kv.Value, SqlConnectionWrapper.Get<object>(p, kv.Key)));
-            var setup = Setup(c => c.ExecuteScalarAsync<T>(It.Is(sqlMatcher), It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>()))
-                .ReturnsAsync(result);
-            if (outParameters != null)
-            {
-                setup.Callback((string s, object p, IDbTransaction t, int? o, CommandType c) =>
-                {
-                    foreach (var kv in outParameters)
-                    {
-                        SqlConnectionWrapper.Set(p, kv.Key, kv.Value);
-                    }
-                });
-            }
-            setup.Verifiable();
+            Setup(c => c.ExecuteScalarAsync<T>(It.Is(sqlMatcher), It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>()), result, outParameters);
         }
 
         public void SetupQueryAsync<T>(string sql, Dictionary<string, object> param, IEnumerable<T> result, Dictionary<string, object> outParameters = null)
         {
             Expression<Func<object, bool>> match = p => param == null || param.All(kv => Matches(kv.Value, SqlConnectionWrapper.Get<object>(p, kv.Key)));
-            var setup = Setup(c => c.QueryAsync<T>(sql, It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure))
-                .ReturnsAsync(result);
-            if (outParameters != null)
-            {
-                setup.Callback((string s, object p, IDbTransaction t, int? o, CommandType c) =>
-                {
-                    foreach (var kv in outParameters)
-                    {
-                        SqlConnectionWrapper.Set(p, kv.Key, kv.Value);
-                    }
-                });
-            }
-            setup.Verifiable();
+            Setup(c => c.QueryAsync<T>(sql, It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure), result, outParameters);
+        }
+
+        public void SetupQueryMultipleAsync<T1, T2>(string sql, Dictionary<string, object> param, Tuple<IEnumerable<T1>, IEnumerable<T2>> result, Dictionary<string, object> outParameters = null)
+        {
+            Expression<Func<object, bool>> match = p => param == null || param.All(kv => Matches(kv.Value, SqlConnectionWrapper.Get<object>(p, kv.Key)));
+            Setup(c => c.QueryMultipleAsync<T1, T2>(sql, It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure), result, outParameters);
         }
 
         public void SetupQueryMultipleAsync<T1, T2, T3>(string sql, Dictionary<string, object> param, Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> result, Dictionary<string, object> outParameters = null)
         {
             Expression<Func<object, bool>> match = p => param == null || param.All(kv => Matches(kv.Value, SqlConnectionWrapper.Get<object>(p, kv.Key)));
-            var setup = Setup(c => c.QueryMultipleAsync<T1, T2, T3>(sql, It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure))
-                .ReturnsAsync(result);
+            Setup(c => c.QueryMultipleAsync<T1, T2, T3>(sql, It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure), result, outParameters);
+        }
+
+        public void SetupQueryMultipleAsync<T1, T2, T3, T4>(string sql, Dictionary<string, object> param, Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> result, Dictionary<string, object> outParameters = null)
+        {
+            Expression<Func<object, bool>> match = p => param == null || param.All(kv => Matches(kv.Value, SqlConnectionWrapper.Get<object>(p, kv.Key)));
+            Setup(c => c.QueryMultipleAsync<T1, T2, T3, T4>(sql, It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure), result, outParameters);
+        }
+
+        private void Setup<T>(Expression<Func<ISqlConnectionWrapper, Task<T>>> expression, T result, Dictionary<string, object> outParameters = null)
+        {
+            var setup = Setup(expression).ReturnsAsync(result);
             if (outParameters != null)
             {
                 setup.Callback((string s, object p, IDbTransaction t, int? o, CommandType c) =>

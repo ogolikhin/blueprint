@@ -1,9 +1,8 @@
 import {UserTask} from "../../diagram/presentation/graph/shapes/";
 
 export interface IModalDialogModel {
+    artifactId: number;
     subArtifactId: number;
-    clonedUserTask: UserTask;
-    originalUserTask: UserTask;
-    propertiesMw: any; //TODO correct interface required
     isHistoricalVersion: boolean;
+    isReadonly: boolean;
 }

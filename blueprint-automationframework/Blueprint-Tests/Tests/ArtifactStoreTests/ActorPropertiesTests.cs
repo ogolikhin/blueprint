@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using CustomAttributes;
 using Helper;
@@ -22,8 +22,8 @@ namespace ArtifactStoreTests
         private IProject _project = null;
         private List<IProject> _allProjects = null;
 
-        private int inheritedActorId = 8;
-        private int baseActorId = 9;
+        private int inheritedActorId = 16;
+        private int baseActorId = 15;
         private string customDataProjectName = "Custom Data";
 
         [SetUp]

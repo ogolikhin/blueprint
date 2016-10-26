@@ -1,4 +1,4 @@
-﻿import {ItemTypePredefined, PropertyTypePredefined} from "../../../../../../../main/models/enums";
+import {ItemTypePredefined, PropertyTypePredefined} from "../../../../../../../main/models/enums";
 import {ProcessShapeType, ProcessType} from "../../../../../models/enums";
 import {ProcessShapeModel, UserTaskShapeModel} from "../../../../../models/process-models";
 import {SystemTaskShapeModel, IHashMapOfPropertyValues} from "../../../../../models/process-models";
@@ -14,7 +14,7 @@ export interface IPropertyNameConstantsInformation {
     name: string;
 }
 
-class ShapesFactorySettings {
+export class ShapesFactorySettings {
     private _userTaskPersona = null;
     private _systemTaskPersona = null;
 
@@ -67,20 +67,11 @@ export class ShapesFactory {
         name: "AssociatedImageUrl"
     };
     public ImageId: IPropertyNameConstantsInformation = {key: "imageId", name: "ImageId"};
-    public Include: IPropertyNameConstantsInformation = {key: "include", name: "Include"};
     public StoryLinks: IPropertyNameConstantsInformation = {key: "storyLinks", name: "StoryLinks"};
-
-    public static $inject = ["$rootScope", "statefulArtifactFactory"];
 
     private settings = new ShapesFactorySettings();
 
-    public setUserTaskPersona(value) {
-        this.settings.setUserTaskPersona(value);
-    }
-
-    public setSystemTaskPersona(value) {
-        this.settings.setSystemTaskPersona(value);
-    }
+    public static $inject = ["$rootScope", "statefulArtifactFactory"];
 
     constructor(private $rootScope: ng.IRootScopeService, private statefulArtifactFactory: IStatefulArtifactFactory) {
 
@@ -146,6 +137,14 @@ export class ShapesFactory {
                 this.NEW_MERGE_NODE_NAME = "";
             }
         }
+    }
+
+    public setUserTaskPersona(value) {
+        this.settings.setUserTaskPersona(value);
+    }
+
+    public setSystemTaskPersona(value) {
+        this.settings.setSystemTaskPersona(value);
     }
 
     public createStatefulSubArtifact(artifact: IStatefulArtifact, subartifact: IProcessShape): StatefulProcessSubArtifact {
@@ -255,7 +254,6 @@ export class ShapesFactory {
         propertyValues[this.Height.key] = this.createHeightValue(height);
         propertyValues[this.ClientType.key] = this.createClientTypeValue(ProcessShapeType.UserTask);
         propertyValues[this.Objective.key] = this.createObjectiveValue(objective);
-        propertyValues[this.Include.key] = this.createIncludeValue(include);
 
         return propertyValues;
     }
@@ -285,7 +283,6 @@ export class ShapesFactory {
         propertyValues[this.Height.key] = this.createHeightValue(height);
         propertyValues[this.ClientType.key] = this.createClientTypeValue(ProcessShapeType.SystemTask);
         propertyValues[this.Objective.key] = this.createObjectiveValue(objective);
-        propertyValues[this.Include.key] = this.createIncludeValue(include);
 
         return propertyValues;
     }
@@ -444,7 +441,7 @@ export class ShapesFactory {
     public createImageIdValue(imageId: string = ""): IPropertyValueInformation {
         return {
             propertyName: this.ImageId.name,
-            typePredefined: PropertyTypePredefined.None,
+            typePredefined: PropertyTypePredefined.ImageId,
             typeId: -1,
             value: imageId
         };
@@ -453,29 +450,26 @@ export class ShapesFactory {
     public createPersonaValue(persona: string): IPropertyValueInformation {
         return {
             propertyName: this.Persona.name,
-            typePredefined: PropertyTypePredefined.None,
+            typePredefined: PropertyTypePredefined.Persona,
             typeId: -1,
             value: persona
 
         };
     }
 
-    public createIncludeValue(includeValue: IArtifactReference): IPropertyValueInformation {
-        return {
-            propertyName: this.Include.name,
-            typePredefined: PropertyTypePredefined.None,
-            typeId: -1,
-            value: includeValue
-        };
-    }
-
     public createStoryLinksValue(storyLinks: IArtifactReferenceLink): IPropertyValueInformation {
         return {
             propertyName: this.StoryLinks.name,
-            typePredefined: PropertyTypePredefined.None,
+            typePredefined: PropertyTypePredefined.StoryLink,
             typeId: -1,
             value: storyLinks
         };
+    }
+
+    public reset() {
+        if (this._idGenerator) {
+            this._idGenerator.reset();
+        }
     }
 
     public destroy() {
@@ -484,4 +478,8 @@ export class ShapesFactory {
         }
     }
 
+}
+
+export class ShapesFactoryMock {
+ 
 }

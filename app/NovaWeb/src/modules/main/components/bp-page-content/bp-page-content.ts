@@ -2,6 +2,8 @@ import {IWindowManager} from "../../services";
 import {IArtifactManager} from "../../../managers";
 import {IMessageService, INavigationService} from "../../../core";
 import {IDiagramService} from "../../../editors/bp-diagram/diagram.svc";
+import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
+import {IDialogService, IDialogSettings} from "../../../shared/widgets/bp-dialog/bp-dialog";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./bp-page-content.html");
@@ -17,21 +19,22 @@ class PageContentCtrl {
         "artifactManager",
         "diagramService",
         "windowManager",
-        "navigationService"
+        "navigationService",
+        "dialogService"
     ];
 
     constructor(private messageService: IMessageService,
                 private artifactManager: IArtifactManager,
                 private diagramService: IDiagramService,
                 private windowManager: IWindowManager,
-                private navigationService: INavigationService) {
+                private navigationService: INavigationService,
+                private dialogService: IDialogService    ) {
     }
 
     public $onInit() {
         //use context reference as the last parameter on subscribe...
         this.subscribers = [
             //subscribe for current artifact change (need to distinct artifact)
-            this.windowManager.mainWindow.subscribeOnNext(this.onAvailableAreaResized, this)
         ];
     }
 
@@ -53,12 +56,21 @@ class PageContentCtrl {
         // }
     }
 
-    private onAvailableAreaResized() {
-        let scrollableElem = document.querySelector(".page-body-wrapper.ps-container") as HTMLElement;
-        if (scrollableElem) {
-            setTimeout(() => {
-                (<any>window).PerfectScrollbar.update(scrollableElem);
-            }, 500);
-        }
+    public openArtifactPicker() {
+        const dialogSettings = <IDialogSettings>{
+            okButton: "Open",
+            template: require("../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
+            controller: ArtifactPickerDialogController,
+            css: "nova-open-project",
+            header: "Single project Artifact picker"
+        };
+
+        const dialogData: IArtifactPickerOptions = {
+            showSubArtifacts: false,
+            isOneProjectLevel: true
+        };
+
+        this.dialogService.open(dialogSettings, dialogData);
     }
+
 }

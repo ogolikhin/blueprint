@@ -1,13 +1,15 @@
-﻿import {ILocalizationService, IMessageService, Message, MessageType, INavigationService} from "../../../../core";
+import {ILocalizationService, IMessageService, Message, MessageType, INavigationService} from "../../../../core";
 import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
 import {IProcessGraph, ISelectionListener} from "./presentation/graph/models/";
+import {SystemTask} from "./presentation/graph/shapes";
 import {ProcessGraph} from "./presentation/graph/process-graph";
 import {ICommunicationManager} from "../../../bp-process";
 import {IDialogService} from "../../../../shared";
 import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {ProcessEvents} from "./process-diagram-communication";
+import {ShapesFactory} from "./presentation/graph/shapes/shapes-factory";
 
 export class ProcessDiagram {
     public processModel: IProcess;
@@ -30,7 +32,9 @@ export class ProcessDiagram {
                 private dialogService: IDialogService,
                 private localization: ILocalizationService,
                 private navigationService: INavigationService,
-                private statefulArtifactFactory: IStatefulArtifactFactory) {
+                private statefulArtifactFactory: IStatefulArtifactFactory,
+                private shapesFactory: ShapesFactory
+                ) {
 
         this.processModel = null;
         this.selectionListeners = [];
@@ -98,8 +102,16 @@ export class ProcessDiagram {
     }
 
     private processTypeChanged = (processType: number) => {
+        const isSystemTaskVisible: boolean = processType === ProcessType.UserToSystemProcess;
+        this.graph.setSystemTasksVisible(isSystemTaskVisible);
         this.processViewModel.processType = <ProcessType>processType;
-        this.recreateProcessGraph();
+
+        if (!isSystemTaskVisible) {
+            const hasSelectedSystemTask: boolean = this.graph.getMxGraph().getSelectionCells().filter(cell => cell instanceof SystemTask).length > 0;
+            if (hasSelectedSystemTask) {
+                this.graph.clearSelection();
+            }
+        }
     }
 
     private modelUpdate = (selectedNodeId: number) => {
@@ -107,7 +119,7 @@ export class ProcessDiagram {
     }
 
     private navigateToAssociatedArtifact = (info: any) => {
-        this.navigationService.navigateToArtifact(info.id, info.enableTracking);
+        this.navigationService.navigateTo(info.id, false, info.enableTracking);
     }
 
     private recreateProcessGraph = (selectedNodeId: number = undefined) => {
@@ -121,6 +133,7 @@ export class ProcessDiagram {
                                selectedNodeId: number = undefined) {
 
         try {
+
             this.graph = new ProcessGraph(
                 this.$rootScope,
                 this.$scope,
@@ -128,9 +141,12 @@ export class ProcessDiagram {
                 this.processViewModel,
                 this.dialogService,
                 this.localization,
+                this.shapesFactory,
                 this.messageService,
                 this.$log,
-                this.statefulArtifactFactory);
+                this.statefulArtifactFactory,
+            );
+                
             this.registerSelectionListeners();
         } catch (err) {
             this.handleInitProcessGraphFailed(processViewModel.id, err);

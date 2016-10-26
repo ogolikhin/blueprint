@@ -1,6 +1,7 @@
-import * as angular from "angular";
+import { INavigationService } from "../../../../core/navigation";
 
 export interface IBPFieldBaseRTFController {
+    editorBody: HTMLElement;
     observer: MutationObserver;
     handleClick(event: Event): void;
     handleLinks(nodeList: Node[] | NodeList, remove: boolean): void;
@@ -9,24 +10,24 @@ export interface IBPFieldBaseRTFController {
 }
 
 export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
-    public observer: MutationObserver;
+    constructor( public navigationService: INavigationService ) {
 
-    constructor() {
-//fixme: empty constructors can be omitted
     }
 
-    public handleClick = function (event) {
+    public editorBody: HTMLElement;
+    public observer: MutationObserver;
+
+    public handleClick = (event: Event) => {
+        const navigationService = this.navigationService;
+        const target = event.currentTarget as HTMLElement;
+
         event.stopPropagation();
         event.preventDefault();
-
-        const href = this.href;
-        if (href.indexOf("?ArtifactId=") !== -1 && this.getAttribute("artifactid")) {
-            const artifactId = parseInt(href.split("?ArtifactId=")[1], 10);
-            if (artifactId === parseInt(this.getAttribute("artifactid"), 10)) {
-                console.log("Should GOTO " + artifactId);
-            }
+        const itemId = Number(target.getAttribute("subartifactid")) || Number(target.getAttribute("artifactid"));
+        if (itemId) {
+            navigationService.navigateTo(itemId);
         } else {
-            window.open(href, "_blank");
+            window.open(target.getAttribute("href"), "_blank");
         }
     };
 
@@ -38,11 +39,18 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             let element = nodeList[i] as HTMLElement;
 
             if (!remove) {
-                angular.element(element).attr("contentEditable", "false");
-                angular.element(element).attr("data-mce-contenteditable", "false");
-
+                // IE doesn't show the pointer cursor over links nested in a element with contenteditable=true
+                // We need to remove and add back that attribute on mouseover/out!!
+                if (document.body.classList.contains("is-msie")) {
+                    element.addEventListener("mouseover", this.disableEditability);
+                    element.addEventListener("mouseout", this.enableEditability);
+                }
                 element.addEventListener("click", this.handleClick);
             } else {
+                if (document.body.classList.contains("is-msie")) {
+                    element.removeEventListener("mouseover", this.disableEditability);
+                    element.removeEventListener("mouseout", this.enableEditability);
+                }
                 element.removeEventListener("click", this.handleClick);
             }
         }
@@ -76,6 +84,18 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                     }
                 }
             }
+        }
+    };
+
+    public disableEditability = (e) => {
+        if (this.editorBody) {
+            this.editorBody.setAttribute("contentEditable", "false");
+        }
+    };
+
+    public enableEditability = (e) => {
+        if (this.editorBody) {
+            this.editorBody.setAttribute("contentEditable", "true");
         }
     };
 

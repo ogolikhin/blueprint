@@ -5,6 +5,7 @@ import {ILocalizationService} from "../../core";
 import {IDiagramService, DiagramErrors} from "./diagram.svc";
 import {DiagramView} from "./impl/diagram-view";
 import {ISelection, IStatefulArtifactFactory} from "../../managers/artifact-manager";
+import {IStatefulArtifact} from "../../managers/artifact-manager/artifact";
 import {IDiagram, IShape, IDiagramElement} from "./impl/models";
 import {SafaryGestureHelper} from "./impl/utils/gesture-helper";
 import {Diagrams, Shapes, ShapeProps} from "./impl/utils/constants";
@@ -21,9 +22,6 @@ import {
 export class BPDiagram implements ng.IComponentOptions {
     public template: string = require("./bp-diagram.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPDiagramController;
-    public bindings: any = {
-        context: "<"
-    };
 }
 
 export class BPDiagramController extends BpBaseEditor {
@@ -33,7 +31,6 @@ export class BPDiagramController extends BpBaseEditor {
         "artifactManager",
         "$element",
         "$q",
-        "$sanitize",
         "stencilService",
         "diagramService",
         "localization",
@@ -53,7 +50,6 @@ export class BPDiagramController extends BpBaseEditor {
                 public artifactManager: IArtifactManager,
                 private $element: ng.IAugmentedJQuery,
                 private $q: ng.IQService,
-                private $sanitize: any,
                 private stencilService: IStencilService,
                 private diagramService: IDiagramService,
                 private localization: ILocalizationService,
@@ -74,7 +70,6 @@ export class BPDiagramController extends BpBaseEditor {
                 .filter(this.clearSelectionFilter)
                 .subscribeOnNext(this.clearSelection, this)
         );
-        this.$element.on("click", this.stopPropagation);
     }
 
     private clearSelectionFilter = (selection: ISelection) => {
@@ -92,8 +87,6 @@ export class BPDiagramController extends BpBaseEditor {
         }
 
         this.destroyDiagramView();
-
-        this.$element.off("click", this.stopPropagation);
     }
 
     private destroyDiagramView() {
@@ -112,7 +105,10 @@ export class BPDiagramController extends BpBaseEditor {
         this.destroyDiagramView();
         this.isIncompatible = false;
         this.cancelationToken = this.$q.defer();
-        this.diagramService.getDiagram(this.artifact.id, this.artifact.predefinedType, this.cancelationToken.promise).then(diagram => {
+        this.diagramService.getDiagram(this.artifact.id,
+                                       this.getEffectiveVersion(),
+                                       this.artifact.predefinedType,
+                                       this.cancelationToken.promise).then(diagram => {
             // TODO: hotfix, remove later
             if (this.isDestroyed) {
                 return;
@@ -132,6 +128,10 @@ export class BPDiagramController extends BpBaseEditor {
             delete this.cancelationToken;
             this.isLoading = false;
         });
+    }
+
+    public getEffectiveVersion() {
+        return this.artifact && this.artifact.deleted ? this.artifact.version : undefined;
     }
 
     private onSelectionChanged = (diagramType: string, elements: Array<IDiagramElement>) => {
@@ -158,21 +158,22 @@ export class BPDiagramController extends BpBaseEditor {
         });
     }
 
-    private getUseCaseDiagramArtifact(shape: IShape) {
+    private getUseCaseDiagramArtifact(shape: IShape): ng.IPromise<IStatefulArtifact> {
         const artifactId = parseInt(ShapeExtensions.getPropertyByName(shape, ShapeProps.ARTIFACT_ID), 10);
         if (isFinite(artifactId)) {
-            return this.artifactManager.get(artifactId);
+            const artifact = this.artifactManager.get(artifactId);
+            if (artifact) {
+                return this.$q.resolve(artifact);
+            } else {
+                return this.statefulArtifactFactory.createStatefulArtifactFromId(artifactId);
+            }
         }
         return undefined;
     }
 
     private getSubArtifact(id: number) {
         if (this.artifact) {
-            for (let subArtifact of this.artifact.subArtifactCollection.list()) {
-                if (subArtifact.id === id) {
-                    return subArtifact;
-                }
-            }
+            return this.artifact.subArtifactCollection.get(id);
         }
         return undefined;
     }

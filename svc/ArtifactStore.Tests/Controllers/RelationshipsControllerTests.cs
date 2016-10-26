@@ -326,6 +326,22 @@ namespace ArtifactStore.Controllers
 
         [ExpectedException(typeof(HttpResponseException))]
         [TestMethod]
+        public async Task GetRelationshipsDetails_IncorrectRevisionId_ExceptionThrown()
+        {
+            //Arrange
+            const int artifactId = 10;
+            const int revisionId = 0;
+            var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+            controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
+            //Act
+            await controller.GetRelationshipDetails(artifactId, revisionId: revisionId);
+        }
+
+        [ExpectedException(typeof(HttpResponseException))]
+        [TestMethod]
         public async Task GetRelationshipDetails_ArtifactNoPermission_ExceptionThrown()
         {
             //Arrange
@@ -398,7 +414,7 @@ namespace ArtifactStore.Controllers
         }
 
         [TestMethod]
-        public async Task GetRelationships_ItemNotFoundForVersion_Success()
+        public async Task GetRelationships_ForVersion_Success()
         {
             //Arrange
             const int artifactId = 1;
@@ -465,7 +481,7 @@ namespace ArtifactStore.Controllers
         }
 
         [TestMethod]
-        public async Task GetRelationshipDetails_ItemNotFoundForVersion_Success()
+        public async Task GetRelationshipDetails_ForRevision_Success()
         {
             //Arrange
             const int artifactId = 1;

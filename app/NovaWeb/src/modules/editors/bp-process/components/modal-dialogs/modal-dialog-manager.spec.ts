@@ -1,5 +1,5 @@
 import {IModalDialogCommunication, ModalDialogCommunication} from "./modal-dialog-communication";
-import {ModalDialogType} from "./base-modal-dialog-controller";
+import {ModalDialogType} from "./modal-dialog-constants";
 
 class Observer1 {
     public getGraph: () => any;
@@ -12,7 +12,7 @@ class Observer1 {
     }
 
     private somePrivateFunc1() {
-
+        // do nothing
     }
 }
 
@@ -27,7 +27,7 @@ class Observer2 {
     }
 
     private somePrivateFunc2() {
-
+        // do nothing
     }
 }
 

@@ -1,9 +1,9 @@
 import * as angular from "angular";
 import "angular-formly";
 import "angular-sanitize";
-import "angular-perfect-scrollbar-2";
 import {ILocalizationService} from "../../../../core";
 import {Models, Enums} from "../../../../main/models";
+import {PropertyContext} from "../../../bp-artifact/bp-property-context";
 import {Helper} from "../../../../shared";
 
 export class BPFieldReadOnly implements AngularFormly.ITypeOptions {
@@ -30,10 +30,35 @@ export class BpFieldReadOnlyController {
     private currentModelVal;
 
     constructor(private $scope: AngularFormly.ITemplateScope, private localization: ILocalizationService, private $sce: ng.ISCEService) {
-        this.currentModelVal = $scope.model[$scope.options["key"]];
+        $scope["filterMultiChoice"] = this.filterMultiChoice;
+        this.formatData();
 
+        $scope.options["expressionProperties"] = {
+            "templateOptions.options": () => {
+                let options = [];
+                const context: PropertyContext = $scope.options["data"];
+                if (context.primitiveType === Enums.PrimitiveType.Choice && context.validValues && context.validValues.length) {
+                    options = context.validValues.map(function (it) {
+                        return {value: it.id, name: it.value} as any;
+                    });
+                }
+                return options;
+            },
+            "model": () => {
+                const context: PropertyContext = $scope.options["data"];
+
+                if (context.isFresh) { // format the data only if fresh
+                    this.formatData();
+                }
+            }
+        };
+    }
+
+    private formatData = () => {
+        this.currentModelVal = this.$scope.model[this.$scope.options["key"]];
+
+        const data: any = this.$scope.options["data"];
         let newValue: any;
-        let data: any = $scope.options["data"];
         let tooltip = "";
 
         switch (data.primitiveType) {
@@ -45,26 +70,29 @@ export class BpFieldReadOnlyController {
                 }
                 tooltip = newValue;
                 if (data.isRichText) {
-                    newValue = $sce.trustAsHtml(Helper.stripWingdings(newValue));
+                    newValue = this.$sce.trustAsHtml(Helper.stripWingdings(newValue));
+                    const div = document.createElement("div");
+                    div.innerHTML = newValue;
+                    tooltip = div.textContent;
                 } else if (data.isMultipleAllowed) {
-                    newValue = $sce.trustAsHtml(Helper.escapeHTMLText(newValue || "").replace(/(?:\r\n|\r|\n)/g, "<br />"));
+                    newValue = this.$sce.trustAsHtml(Helper.escapeHTMLText(newValue || "").replace(/(?:\r\n|\r|\n)/g, "<br />"));
                 }
                 break;
             case Enums.PrimitiveType.Date:
-                let date = localization.current.toDate(this.currentModelVal || (data ? data.dateDefaultValue : null));
+                const date = this.localization.current.toDate(this.currentModelVal || (data ? data.dateDefaultValue : null));
                 if (date) {
-                    newValue = localization.current.formatDate(date,
+                    newValue = this.localization.current.formatDate(date,
                         data.lookup === Enums.PropertyLookupEnum.Custom ?
-                            localization.current.shortDateFormat :
-                            localization.current.longDateFormat);
+                            this.localization.current.shortDateFormat :
+                            this.localization.current.longDateFormat);
                 } else {
                     newValue = data.stringDefaultValue;
                 }
                 tooltip = newValue;
                 break;
             case Enums.PrimitiveType.Number:
-                let decimal = localization.current.toNumber(data.decimalPlaces);
-                newValue = localization.current.formatNumber(
+                const decimal = this.localization.current.toNumber(data.decimalPlaces);
+                newValue = this.localization.current.formatNumber(
                     this.currentModelVal || (data ? data.decimalDefaultValue : null), decimal);
                 tooltip = newValue;
                 break;
@@ -89,7 +117,7 @@ export class BpFieldReadOnlyController {
             case Enums.PrimitiveType.User:
                 if (angular.isArray(this.currentModelVal)) {
                     newValue = this.currentModelVal.map((val: Models.IUserGroup) => {
-                        return (val.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + val.displayName;
+                        return (val.isGroup ? this.localization.get("Label_Group_Identifier") + " " : "") + val.displayName;
                     }).join(", ");
                 } else {
                     newValue = this.currentModelVal || (data ? data.userGroupDefaultValue : null);
@@ -98,22 +126,18 @@ export class BpFieldReadOnlyController {
                 break;
             default:
                 break;
-
         }
-        $scope.model[$scope.options["key"]] = newValue;
 
-        $scope["tooltip"] = tooltip;
-        $scope["primitiveType"] = Enums.PrimitiveType;
-        $scope["scrollOptions"] = {
-            minScrollbarLength: 20,
-            scrollYMarginOffset: 4
-        };
+        this.$scope["formattedValue"] = newValue;
+        this.$scope["tooltip"] = tooltip;
+        this.$scope["primitiveType"] = Enums.PrimitiveType;
+        this.$scope["propertyTypePredefined"] = Models.PropertyTypePredefined;
 
-        $scope["filterMultiChoice"] = this.filterMultiChoice;
-    }
+        data.isFresh = false;
+    };
 
     private filterMultiChoice = (item): boolean => {
-        if (angular.isArray(this.currentModelVal)) {
+        if (_.isArray(this.currentModelVal)) {
             return this.currentModelVal.indexOf(item.value) >= 0;
         }
         return false;

@@ -1,4 +1,4 @@
-﻿import {IProcessShape, IProcessLink, IProcessLinkModel} from "./";
+import {IProcessShape, IProcessLink, IProcessLinkModel} from "./";
 import {IArtifactProperty, ItemIndicatorFlags} from "./";
 import {Direction, NodeType, NodeChange, ElementType} from "./";
 import {IDialogParams} from "../../../../messages/message-dialog";
@@ -122,6 +122,8 @@ export interface IProcessGraph {
     addSelectionListener(listener: ISelectionListener);
     clearSelection();
     destroy();
+    setSystemTasksVisible(value: boolean);
+    clearSelection();
 }
 
 export interface ILayout {
@@ -191,13 +193,10 @@ export interface IDiagramNode extends IDiagramNodeElement, MxCell, IDeletable, I
     getTargets(graphModel: MxGraphModel): IDiagramNode[];
     render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): MxCell;
     renderLabels(): void;
-    addNode(graph: IProcessGraph): IDiagramNode;
-    deleteNode(graph: IProcessGraph);
     // gets immediate successor nodes
     getNextNodes(): IDiagramNode[];
     // gets immediate precursor nodes
     getPreviousNodes(): IDiagramNode[];
-    notify(change: NodeChange);
 
     getDeleteDialogParameters(): IDialogParams;
 
@@ -212,9 +211,6 @@ export interface IDiagramElement extends MxCell {
     getHeight(): number;
     getWidth(): number;
     getCenter(): MxPoint;
-    setElementText(cell: MxCell, text: string);
-    formatElementText(cell: MxCell, text: string): string;
-    getElementTextLength(cell: MxCell): number;
 }
 
 export interface IDiagramNodeElement extends IDiagramElement {
@@ -236,42 +232,16 @@ export interface IUserStoryProperties {
 export interface ISystemTask extends ITask {
     associatedImageUrl: string;
     imageId: string;
-    getUserTask(graph: IProcessGraph): IUserTask;
 }
 
 export interface IUserTask extends ITask {
     objective: string;
-    userStoryProperties: IUserStoryProperties;
     getNextSystemTasks(graph: IProcessGraph): ISystemTask[];
 }
 
 export interface IDecision extends IDiagramNode, IMenuContainer {
     getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape;
     setLabelWithRedrawUi(value: string);
-}
-
-export interface IUserTaskChildElement extends IDiagramNode {
-    getUserTask(graph: IProcessGraph): IUserTask;
-}
-
-export interface ISystemDecision {
-    setLabelWithRedrawUi(value: string);
-    updateCellLabel(value: string);
-    showMenu(graph: IProcessGraph);
-    hideMenu(graph: IProcessGraph);
-    renderLabels();
-    render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode;
-    getElementTextLength(cell: MxCell): number;
-    formatElementText(cell: MxCell, text: string): string;
-    setElementText(cell: MxCell, text: string);
-    getFirstSystemTask(graph: IProcessGraph): ISystemTask;
-    getSystemNodes(graph: IProcessGraph): IDiagramNode[];
-    openDialog(dialogType: ModalDialogType);
-    getDeleteDialogParameters(): IDialogParams;
-    canDelete(): boolean;
     getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape;
 }
 
-export interface IUserTaskChildElement extends IDiagramNode {
-    getUserTask(graph: IProcessGraph): IUserTask;
-}

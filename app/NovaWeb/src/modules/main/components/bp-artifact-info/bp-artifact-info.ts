@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {Models, Enums} from "../../models";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../services";
 import {IMessageService, Message, MessageType, ILocalizationService} from "../../../core";
@@ -26,9 +26,6 @@ export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactInfoController;
     public transclude: boolean = true;
-    public bindings: any = {
-        context: "<"
-    };
 }
 
 export class BpArtifactInfoController {
@@ -46,8 +43,8 @@ export class BpArtifactInfoController {
         "metadataService"
     ];
 
-    private subscribers: Rx.IDisposable[];
-    private artifact: IStatefulArtifact;
+    protected subscribers: Rx.IDisposable[];
+    protected artifact: IStatefulArtifact;
     public isReadonly: boolean;
     public isChanged: boolean;
     public isLocked: boolean;
@@ -78,33 +75,17 @@ export class BpArtifactInfoController {
     }
 
     public $onInit() {
+
         const windowSub = this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
-        // const stateSub = this.artifactManager.selection.artifactObservable
-        //     // cannot always skip 1 and rely on the artifact observable having 2 values (initial and new)
-        //     // this is true when navigating to artifact X from artifact X via breadcrumb (loop)
-        //     // .skip(1) // skip the first (initial) value
-
-        //     .filter((artifact: IStatefulArtifact) => artifact != null)
-        //     .distinctUntilChanged(artifact => artifact.id)
-        //     .flatMap((artifact: IStatefulArtifact) => {
-        //         this.artifact = artifact;
-        //         return artifact.getObservable();
-        //     })
-        //     .subscribeOnNext(this.onStateChanged);
-
         this.subscribers.push(windowSub);
-    }
 
-    public $onChanges(obj: any) {
-        this.artifactManager.get(obj.context.currentValue).then((artifact) => {
-            if (artifact) {
-                this.artifact = artifact;
-                const artifactObserver = artifact.getObservable()
-                    .subscribe(this.onArtifactChanged, this.onError);
-
-                this.subscribers.push(artifactObserver);
-            }
-        });
+        this.artifact = this.artifactManager.selection.getArtifact();
+        if (this.artifact) {
+            const artifactStateSub = this.artifact.getObservable()
+                .subscribe(this.onArtifactChanged, this.onError);
+            
+            this.subscribers.push(artifactStateSub);
+        }
     }
 
     public $onDestroy() {
@@ -113,17 +94,32 @@ export class BpArtifactInfoController {
             subscriber.dispose();
         });
         delete this.subscribers;
+        delete this.artifact;
     }
 
-    private onArtifactChanged = () => {
-        this.updateProperties(this.artifact);
+    protected onArtifactChanged = () => {
+        if (this.artifact) {
+            this.updateProperties(this.artifact);
+            this.subscribeToStateChange(this.artifact);
+        }
+    }
+
+    protected subscribeToStateChange(artifact) {
+        // watch for state changes (dirty, locked etc) and update header
+        const stateObserver = artifact.artifactState.onStateChange.debounce(100).subscribe(
+            (state) => {
+                this.updateProperties(this.artifact);
+            },
+            (err) => {
+                throw new Error(err);
+            });
+
+        this.subscribers.push(stateObserver);
     }
 
     public onError = (error: any) => {
-        if (this.artifact.artifactState.deleted) {
-            this.dialogService.alert("Artifact_Lock_DoesNotExist");
-        } else if (this.artifact.artifactState.misplaced) {
-            //Occurs when refreshing an artifact that's been moved; do nothing
+        if (this.artifact.artifactState.deleted || this.artifact.artifactState.misplaced) {
+            //Occurs when refreshing an artifact that's been moved/deleted; do nothing
         } else {
             this.messageService.addError(error);
         }
@@ -152,7 +148,7 @@ export class BpArtifactInfoController {
         }
     }
 
-    private updateProperties(artifact: IStatefulArtifact) {
+    protected updateProperties(artifact: IStatefulArtifact) {
         this.initProperties();
 
         if (!artifact) {
@@ -173,7 +169,11 @@ export class BpArtifactInfoController {
 
             this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
 
-            this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[itemType.predefinedType] || "document"));
+            if (artifact.itemTypeId === Models.ItemTypePredefined.Collections && artifact.predefinedType === Models.ItemTypePredefined.CollectionFolder) {
+                this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[Models.ItemTypePredefined.Collections] || "document"));
+            } else { 
+                this.artifactClass = "icon-" + (Helper.toDashCase(Models.ItemTypePredefined[itemType.predefinedType] || "document"));
+            }
 
             this.isLegacy = itemType.predefinedType === Enums.ItemTypePredefined.Storyboard ||
                 itemType.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||
@@ -199,17 +199,12 @@ export class BpArtifactInfoController {
                 if (artifact.artifactState.lockDateTime) {
                     msg += " on " + this.localization.current.formatShortDateTime(artifact.artifactState.lockDateTime);
                 }
+                msg += ".";
                 this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
                 break;
 
             default:
                 break;
-        }
-
-        if (artifact.artifactState.misplaced) {
-            this.dialogService.alert("Artifact_Lock_DoesNotExist").then(() => {
-                //fixme: empty function block shoudl be removed
-            });
         }
     }
 
@@ -248,7 +243,7 @@ export class BpArtifactInfoController {
         this.toolbarActions.push(
             new BPButtonGroupAction(
                 new SaveAction(artifact, this.localization, this.messageService, this.loadingOverlayService),
-                new PublishAction(artifact, this.localization),
+                new PublishAction(artifact, this.localization, this.messageService, this.loadingOverlayService),
                 new DiscardAction(artifact, this.localization),
                 new RefreshAction(artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService),
                 new DeleteAction(artifact, this.localization, this.dialogService, deleteDialogSettings)
@@ -260,7 +255,13 @@ export class BpArtifactInfoController {
     private onWidthResized(mainWindow: IMainWindow) {
         if (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
             let sidebarWrapper: Element;
-            const sidebarSize: number = 270; // MUST match $sidebar-size in styles/modules/_variables.scss
+            //const sidebarSize: number = 270; // MUST match $sidebar-size in styles/modules/_variables.scss
+
+            let sidebarSize = 0;
+            if ((<HTMLElement>document.querySelector(".sidebar.left-panel"))) {
+                sidebarSize = (<HTMLElement>document.querySelector(".sidebar.left-panel")).offsetWidth;
+            }
+
             let sidebarsWidth: number = 20 * 2; // main content area padding
             sidebarWrapper = document.querySelector(".bp-sidebar-wrapper");
 

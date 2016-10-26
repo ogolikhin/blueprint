@@ -1,12 +1,12 @@
-﻿using SearchService.Models;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using SearchService.Models;
 
 namespace SearchService.Repositories
 {
     public interface IItemSearchRepository
     {
-        Task<ItemSearchResult> FindItemByName(int userId, ItemSearchCriteria searchCriteria, int startOffset,
-            int pageSize);
+        Task<FullTextSearchResultSet> SearchFullText(int userId, FullTextSearchCriteria searchCriteria, int page, int pageSize);
+        Task<MetaDataSearchResultSet> FullTextMetaData(int userId, FullTextSearchCriteria searchCriteria);
+        Task<ItemNameSearchResultSet> SearchName(int userId, ItemNameSearchCriteria searchCriteria, int startOffset, int pageSize);
     }
 }

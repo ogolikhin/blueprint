@@ -67,23 +67,27 @@
                bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Delete_Traces') }}"></i>
         </div>
 
-        <div id="trace-manager-wrapper" class="trace-manager-wrapper" perfect-scrollbar>
+        <div id="trace-manager-wrapper" class="trace-manager-wrapper">
             <!-- Item details -->
             <bp-manage-traces-item item="item" delete-trace="$ctrl.deleteTrace(item)"
+                                   toggle-flag="$ctrl.toggleFlag(item)"
+                                   set-trace-direction="$ctrl.setTraceDirection(item)"
                                    selected-traces="$ctrl.selectedTraces[$ctrl.data.artifactId]"
                                    is-item-read-only="$ctrl.isItemReadOnly"
                                    ng-repeat="item in $ctrl.data.manualTraces track by $index" class="clearfix"
-                                   ng-class="{true: 'last'}[$last && $index > 2]"></bp-manage-traces-item>
+                                   ng-class="{true: 'big-index'}[$index > 2]" ng-if="item.hasAccess"></bp-manage-traces-item>
             <!-- /Item details -->
         </div>
     </div>
 </div>
+
+
 <div class="modal-footer">
     <div class="nova-form-group nova-form-buttons">
         <button class="btn btn-primary" ng-click="$ctrl.cancel()">
             <span ng-bind="$ctrl.dialogSettings.cancelButton"></span>
         </button>
-        <button class="btn btn-promoted-action" ng-click="$ctrl.ok()">
+        <button class="btn btn-promoted-action" ng-click="$ctrl.ok()" ng-disabled="$ctrl.disabledSave">
             <span ng-bind="$ctrl.dialogSettings.okButton"></span>
         </button>
     </div>

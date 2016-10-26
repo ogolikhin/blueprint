@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Model.Impl;
 using System.Net;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
+using Model.ArtifactModel.Impl;
+using Newtonsoft.Json;
 
 namespace Model
 {
@@ -39,6 +42,16 @@ namespace Model
         /// </summary>
         List<NovaArtifactType> NovaArtifactTypes { get; }
 
+        /// <summary>
+        /// Nova Property type list for the project.
+        /// </summary>
+        List<NovaPropertyType> NovaPropertyTypes { get; }
+
+        /// <summary>
+        /// Nova sub-Artifact type list for the project.
+        /// </summary>
+        List<NovaArtifactType> NovaSubArtifactTypes { get; }
+
         #endregion Properties
 
         #region Methods
@@ -60,6 +73,13 @@ namespace Model
         /// <param name="user">The user to authenticate to the server with.</param>
         /// <returns>The default collection folder for this project.</returns>
         INovaArtifact GetDefaultCollectionFolder(string address, IUser user);
+
+        /// <summary>
+        /// Converts the specified Predefined (Base) Type into the specific Item Type ID for this project.
+        /// </summary>
+        /// <param name="predefinedType">The base predefined type to convert.</param>
+        /// <returns>The Item Type Id of the predefined type for this project.</returns>
+        int GetItemTypeIdForPredefinedType(ItemTypePredefined predefinedType);
 
         /// <summary>
         /// Gets a list of all projects on the Blueprint server.

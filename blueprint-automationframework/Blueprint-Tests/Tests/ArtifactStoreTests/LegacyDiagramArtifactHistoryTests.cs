@@ -1,4 +1,4 @@
-﻿using CustomAttributes;
+using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
@@ -138,10 +138,9 @@ namespace ArtifactStoreTests
         {
             // Setup: Create and publish a diagram artifact
             var publishedDiagramArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType: artifactType);
-            NovaDiagramArtifact diagramArtifact = null;
 
             // Execute: Get the diagram artifact with invalid versionId using GetDiagramArtifact
-            var ex = Assert.Throws<Http404NotFoundException>(() => diagramArtifact = Helper.ArtifactStore.GetDiagramArtifact(_user, publishedDiagramArtifact.Id, versionId: versionId), "GetDiagramArtifact call with invalid versionId does not exit with 404 NotFoundException!");
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetDiagramArtifact(_user, publishedDiagramArtifact.Id, versionId: versionId), "GetDiagramArtifact call with invalid versionId does not exit with 404 NotFoundException!");
 
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
 

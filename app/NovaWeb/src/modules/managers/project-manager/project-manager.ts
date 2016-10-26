@@ -1,13 +1,14 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import {ILocalizationService, IMessageService, INavigationService, HttpStatusCode} from "../../core";
 import {IDialogService} from "../../shared";
 import {IStatefulArtifactFactory, IStatefulArtifact} from "../artifact-manager/artifact";
 import {Project, ArtifactNode} from "./project";
 import {IDispose} from "../models";
-import {Models, Enums} from "../../main/models";
+import {Models, AdminStoreModels, Enums} from "../../main/models";
 import {IProjectService, ProjectServiceStatusCode} from "./project-service";
 import {IArtifactManager} from "../../managers";
 import {IMetaDataService} from "../artifact-manager/metadata";
+import {ILoadingOverlayService} from "../../core/loading-overlay";
 
 export interface IArtifactNode extends IDispose {
     artifact: IStatefulArtifact;
@@ -18,7 +19,7 @@ export interface IArtifactNode extends IDispose {
     projectId: number;
     //parentId: number;
     permissions: Enums.RolePermissions;
-    predefinedType: Models.ItemTypePredefined;
+    predefinedType: Enums.ItemTypePredefined;
     hasChildren?: boolean;
     loaded?: boolean;
     open?: boolean;
@@ -30,12 +31,13 @@ export interface IProjectManager extends IDispose {
     // eventManager
     initialize();
     add(data: Models.IProject);
-    remove(all?: boolean): void;
+    remove(): void;
+    removeAll(): void;
     refresh(data: Models.IProject): ng.IPromise<any>;
     refreshAll(): ng.IPromise<any>;
     loadArtifact(id: number): void;
-    loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
-    getProject(id: number);
+    loadFolders(id?: number): ng.IPromise<AdminStoreModels.IInstanceItem[]>;
+    getProject(id: number): Project;
     getArtifactNode(id: number): IArtifactNode;
     getArtifact(id: number): IStatefulArtifact;
     getSelectedProject(): Project;
@@ -60,7 +62,8 @@ export class ProjectManager implements IProjectManager {
         "navigationService",
         "artifactManager",
         "metadataService",
-        "statefulArtifactFactory"
+        "statefulArtifactFactory",
+        "loadingOverlayService"
     ];
 
     constructor(private $q: ng.IQService,
@@ -71,7 +74,8 @@ export class ProjectManager implements IProjectManager {
                 private navigationService: INavigationService,
                 private artifactManager: IArtifactManager,
                 private metadataService: IMetaDataService,
-                private statefulArtifactFactory: IStatefulArtifactFactory) {
+                private statefulArtifactFactory: IStatefulArtifactFactory,
+                private loadingOverlayService: ILoadingOverlayService) {
 
         this.subscribers = [];
     }
@@ -83,13 +87,23 @@ export class ProjectManager implements IProjectManager {
         }
     }
 
+    private onChangeInCurrentlySelectedArtifact(artifact: IStatefulArtifact) {
+        if (artifact.artifactState.deleted || artifact.artifactState.misplaced) {
+            const refreshOverlayId = this.loadingOverlayService.beginLoading();
+            this.refresh(this.getSelectedProject()).finally(() => {
+                this.triggerProjectCollectionRefresh();
+                this.loadingOverlayService.endLoading(refreshOverlayId);
+            });
+        }
+    }
+
     private disposeSubscribers() {
         this.subscribers.forEach((s) => s.dispose());
         this.subscribers = [];
     }
 
     public dispose() {
-        this.remove(true);
+        this.removeAll();
         this.disposeSubscribers();
 
         if (this._projectCollection) {
@@ -107,6 +121,8 @@ export class ProjectManager implements IProjectManager {
         }
 
         this.subscribers.push(this.artifactManager.collectionChangeObservable.subscribeOnNext(this.onChangeInArtifactManagerCollection, this));
+        this.subscribers.push(this.artifactManager.selection.currentlySelectedArtifactObservable
+            .subscribeOnNext(this.onChangeInCurrentlySelectedArtifact, this));
     }
 
     public get projectCollection(): Rx.BehaviorSubject<Project[]> {
@@ -166,12 +182,11 @@ export class ProjectManager implements IProjectManager {
         }).catch(() => {
             //something went wrong - ask user if they want to force refresh
             this.dialogService.confirm(this.localization.get("Confirmation_Continue_Refresh"))
-                .then((confirmed: boolean) => {
-                    if (confirmed) {
-                        this.doRefresh(project, selectedArtifact, defer, projectToRefresh);
-                    } else {
-                        defer.reject();
-                    }
+                .then(() => {
+                    this.doRefresh(project, selectedArtifact, defer, projectToRefresh);
+                })
+                .catch(() => {
+                    defer.reject();
                 });
         });
 
@@ -259,7 +274,7 @@ export class ProjectManager implements IProjectManager {
         this.metadataService.get(oldProjectId).then(() => {
 
             //reload project info
-            this.projectService.getProject(oldProjectId).then((result: Models.IProjectNode) => {
+            this.projectService.getProject(oldProjectId).then((result: AdminStoreModels.IInstanceItem) => {
 
                 //add some additional info
                 angular.extend(result, {
@@ -384,31 +399,29 @@ export class ProjectManager implements IProjectManager {
         }
     }
 
-    public remove(all: boolean = false) {
-        try {
-            let projectId: number = 0;
-            if (!all) {
-                let artifact = this.artifactManager.selection.getArtifact();
-                if (artifact) {
-                    projectId = artifact.projectId;
+    public remove() {
+        const artifact = this.artifactManager.selection.getArtifact();
+        if (artifact) {
+            const projectId = artifact.projectId;
+            this.artifactManager.removeAll(projectId);
+            const projects = this.projectCollection.getValue().filter((project) => {
+                if (project.projectId === projectId) {
+                    project.dispose();
+                    return false;
                 }
-            }
-            let _projectCollection = this.projectCollection.getValue().filter((it: Project) => {
-                let result = true;
-                if (all || it.id === projectId) {
-                    this.artifactManager.removeAll(it.projectId);
-                    it.dispose();
-                    result = false;
-                }
-                return result;
+                return true;
             });
 
-            this.projectCollection.onNext(_projectCollection);
-        } catch (ex) {
-            this.messageService.addError(ex);
-            throw ex;
+            this.projectCollection.onNext(projects);
         }
+    }
 
+    public removeAll() {
+        this.projectCollection.getValue().forEach((project) => {
+            this.artifactManager.removeAll(project.projectId);
+            project.dispose();
+        });
+        this.projectCollection.onNext([]);
     }
 
     public loadArtifact(id: number): ng.IPromise<any> {
@@ -455,15 +468,17 @@ export class ProjectManager implements IProjectManager {
         return defer.promise;
     }
 
-    public loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]> {
+    public loadFolders(id?: number): ng.IPromise<AdminStoreModels.IInstanceItem[]> {
         return this.projectService.getFolders(id);
     }
 
     public getProject(id: number): Project {
-        let project = this.projectCollection.getValue().filter(function (it) {
-            return it.id === id;
-        })[0];
-        return project;
+        for (let project of this.projectCollection.getValue()) {
+            if (project.id === id) {
+                return project;
+            }
+        }
+        return undefined;
     }
 
     public getSelectedProject(): Project {

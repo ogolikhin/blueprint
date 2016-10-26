@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+import * as angular from "angular";
 import * as _ from "lodash";
 import {ILocalizationService} from "../../core";
 import {Models} from "../../main";
@@ -31,6 +31,7 @@ export class BPUtilityPanelController {
     private _currentItemClass: string;
     private _currentItemType: number;
     private _currentItemIcon: number;
+    private _isAnyPanelVisible: boolean;
 
     public get currentItem() {
         return this._currentItem;
@@ -48,6 +49,10 @@ export class BPUtilityPanelController {
         return this._currentItemIcon;
     }
 
+    public get IsAnyPanelVisible() {
+        return this._isAnyPanelVisible;
+    }
+
     constructor(private localization: ILocalizationService,
                 private artifactManager: IArtifactManager,
                 private $element: ng.IAugmentedJQuery) {
@@ -55,6 +60,7 @@ export class BPUtilityPanelController {
         this._currentItemClass = null;
         this._currentItemType = null;
         this._currentItemIcon = null;
+        this._isAnyPanelVisible = true;
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -98,7 +104,11 @@ export class BPUtilityPanelController {
         const item: IStatefulItem = selection ? (selection.subArtifact || selection.artifact) : undefined;
         if (item) {
             this._currentItem = `${(item.prefix || "")}${item.id}: ${item.name}`;
-            this._currentItemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[item.predefinedType] || "");
+            if (item.itemTypeId === ItemTypePredefined.Collections && item.predefinedType === ItemTypePredefined.CollectionFolder) {
+                this._currentItemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[ItemTypePredefined.Collections] || "");
+            } else {
+                this._currentItemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[item.predefinedType] || "");
+            }
             this._currentItemType = item.itemTypeId;
             this._currentItemIcon = null;
             if (item.predefinedType !== ItemTypePredefined.Project && !selection.subArtifact) {
@@ -124,6 +134,7 @@ export class BPUtilityPanelController {
             this.toggleRelationshipsPanel(selection);
             this.toggleDiscussionsPanel(selection);
         }
+        this.setAnyPanelIsVisible();
     }
 
     private toggleDiscussionsPanel(selection: ISelection) {
@@ -131,6 +142,8 @@ export class BPUtilityPanelController {
         if (artifact && (artifact.predefinedType === ItemTypePredefined.CollectionFolder
             || artifact.predefinedType === ItemTypePredefined.ArtifactCollection)) {
                 this.hidePanel(PanelType.Discussions);
+            } else {
+                this.showPanel(PanelType.Discussions);
             }
     }
 
@@ -160,8 +173,6 @@ export class BPUtilityPanelController {
             || artifact.predefinedType === ItemTypePredefined.UseCase
             || artifact.predefinedType === ItemTypePredefined.UIMockup
             || artifact.predefinedType === ItemTypePredefined.Process
-            || artifact.predefinedType === ItemTypePredefined.CollectionFolder
-            || artifact.predefinedType === ItemTypePredefined.ArtifactCollection
             || (artifact.predefinedType === ItemTypePredefined.Actor &&
             explorerArtifact &&
             explorerArtifact.predefinedType === ItemTypePredefined.UseCaseDiagram))) {
@@ -195,6 +206,13 @@ export class BPUtilityPanelController {
             this.hidePanel(PanelType.Relationships);
         } else {
             this.showPanel(PanelType.Relationships);
+        }
+    }
+
+    private setAnyPanelIsVisible() {
+        const accordionCtrl: IBpAccordionController = this.getAccordionController();
+        if (accordionCtrl) {
+            this._isAnyPanelVisible = accordionCtrl.panels.filter((p) => { return p.isVisible === true; }).length > 0;
         }
     }
 }

@@ -2,6 +2,7 @@ var loaders = require("./loaders");
 var webpack = require('webpack');
 var path = require('path');
 var FailPlugin = require('webpack-fail-plugin');
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 // Do not use code coverage when started with --debug parameter
 var postLoaders = [
@@ -53,6 +54,7 @@ module.exports = {
   bail: true,
   plugins: [
     FailPlugin,
+    new ExtractTextPlugin("[name].css"),
     new webpack.ProvidePlugin({
       $: 'jquery',
       jQuery: 'jquery',
@@ -67,8 +69,7 @@ module.exports = {
   module: {
     loaders: loaders,
     postLoaders: postLoaders,
-    preLoaders: preLoaders,
-    noParse: [/angular-perfect-scrollbar-2/, /tinymce/]
+    preLoaders: preLoaders
   }
 };
 

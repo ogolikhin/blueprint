@@ -11,7 +11,7 @@ import {
 } from "../../../../managers/artifact-manager";
 
 export interface IArtifactSelectedArtifactMap {
-    [artifactId: number]: Relationships.IRelationship[];
+    [artifactId: number]: Relationships.IRelationshipView[];
 }
 
 export class ManageTracesDialogController extends BaseDialogController {
@@ -23,9 +23,8 @@ export class ManageTracesDialogController extends BaseDialogController {
     private selectedVMs: ArtifactPickerNodeVM<any>[];
 
     public item: IStatefulItem;
-    public relationshipsList: IArtifactRelationships;
-    public allTraces: Relationships.IRelationship[];
-    public otherTraces: Relationships.IRelationship[];
+    public allTraces: Relationships.IRelationshipView[];
+    public otherTraces: Relationships.IRelationshipView[];
     public scroller;
     public isLoading: boolean = false;
     public isItemReadOnly: boolean;
@@ -35,6 +34,8 @@ export class ManageTracesDialogController extends BaseDialogController {
     public hasUnFlagged: boolean = false;
     public artifactId: number;
     public isChanged: boolean = false;
+    public disabledSave: boolean = true;
+    public initialArray: any[];
 
     public options = [
         {value: "1", label: this.localization.get("App_UP_Relationships_To")},
@@ -77,14 +78,27 @@ export class ManageTracesDialogController extends BaseDialogController {
 
                 item.isSelected = false;
 
-                if (item.hasAccess) {
-                    return item;
-                }
-
-            }).filter((item) => item)) as Relationships.IRelationshipView[];
+                return item;
+            }));
 
             this.artifactId = this.data.artifactId;
             this.isItemReadOnly = this.data.isItemReadOnly;
+
+            this.initialArray = _.map(this.data.manualTraces, (trace) => {
+                return _.pick(trace, ["artifactId", "suspect", "traceDirection"]);
+            });
+        }
+    }
+
+    public toggleSave() {
+        const lastVersion = _.map(this.data.manualTraces, (trace) => {
+            return _.pick(trace, ["artifactId", "suspect", "traceDirection"]);
+        });
+
+        if (!_.isEqual(this.initialArray, lastVersion)) {
+            this.disabledSave = false;
+        } else {
+            this.disabledSave = true;
         }
     }
 
@@ -115,11 +129,10 @@ export class ManageTracesDialogController extends BaseDialogController {
             if (!res) {
                 currentItemModel.traceType = Relationships.LinkType.Manual;
                 currentItemModel.artifactName = currentItemModel.name || currentItemModel.displayName;
-                currentItemModel.itemName = currentItemModel.name || currentItemModel.displayName;
+                currentItemModel.itemName = currentItemModel.name || currentItemModel.displayName || currentItemModel.itemLabel;
                 currentItemModel.itemTypePrefix = currentItemModel.prefix;
                 currentItemModel.traceDirection = this.direction;
-                currentItemModel.projectName = currentItemModel.parent ? currentItemModel.parent.name :
-                    currentItem["options"].project.name;
+                currentItemModel.projectName = currentItem["options"] && currentItem["options"].project && currentItem["options"].project.name;
                 currentItemModel.hasAccess = true;
                 currentItemModel.suspect = false;
                 currentItemModel.cssClass = cssClass;
@@ -135,10 +148,13 @@ export class ManageTracesDialogController extends BaseDialogController {
         });
 
         this.disableTrace();
+        this.toggleSave();
     }
 
     public setDirection(direction: Relationships.TraceDirection): void {
         this.direction = direction;
+
+        this.toggleSave();
     }
 
     public toggleTraces(): void {
@@ -166,8 +182,12 @@ export class ManageTracesDialogController extends BaseDialogController {
                 } else {
                     traces[i].suspect = true;
                 }
+
+                traces[i].traceIcon = traces[i].suspect ? "trace-icon-suspect" : "trace-icon-regular";
             }
         }
+
+        this.toggleSave();
     }
 
     public deleteTraces(): void {
@@ -176,25 +196,25 @@ export class ManageTracesDialogController extends BaseDialogController {
         let confirmation = this.localization.get("Confirmation_Delete_Traces")
             .replace("{0}", selectedTracesLength.toString());
 
-        this.dialogService.confirm(confirmation).then((confirmed) => {
-            if (confirmed) {
-                this.remove(this.selectedTraces[this.data.artifactId], this.data.manualTraces);
-                this.clearSelected();
-            }
+        this.dialogService.confirm(confirmation)
+        .then(() => {
+            this.remove(this.selectedTraces[this.data.artifactId], this.data.manualTraces);
+            this.clearSelected();
+            this.toggleSave();
         });
     }
 
     public deleteTrace(artifact: Relationships.IRelationship): void {
-        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace")).then((confirmed) => {
-            if (confirmed) {
-                this.remove([artifact], this.data.manualTraces);
+        this.dialogService.confirm(this.localization.get("Confirmation_Delete_Trace")).then(() => {
+            this.remove([artifact], this.data.manualTraces);
 
-                let index = _.findIndex(this.selectedTraces[this.data.artifactId], {itemId: artifact.itemId});
+            let index = _.findIndex(this.selectedTraces[this.data.artifactId], {itemId: artifact.itemId});
 
-                if (index > -1) {
-                    this.selectedTraces[this.data.artifactId].splice(index, 1);
-                }
+            if (index > -1) {
+                this.selectedTraces[this.data.artifactId].splice(index, 1);
             }
+
+            this.toggleSave();
         });
     }
 
@@ -202,6 +222,7 @@ export class ManageTracesDialogController extends BaseDialogController {
         this.selectedVMs = selectedVMs;
 
         this.disableTrace();
+        this.toggleSave();
     }
 
     private disableTrace() {
@@ -215,6 +236,13 @@ export class ManageTracesDialogController extends BaseDialogController {
             }
         });
 
+        if (_.find(this.selectedVMs, (o) => {
+            return o.model.id === this.data.artifactId;
+
+        })) {
+            found = true;
+        }
+
         this.isTraceDisabled = found ? true : false;
     }
 
@@ -224,6 +252,25 @@ export class ManageTracesDialogController extends BaseDialogController {
 
         for (let i = 0; i < selectedTracesLength; i++) {
             traces[i].traceDirection = direction;
+            traces[i].directionIcon = this.getDirectionIcon(traces[i].traceDirection);
+        }
+
+        this.toggleSave();
+    }
+
+    public toggleFlag(artifact: Relationships.IRelationshipView) {
+        if (artifact.hasAccess) {
+            artifact.suspect = !artifact.suspect;
+            artifact.traceIcon = artifact.suspect ? "trace-icon-suspect" : "trace-icon-regular";
+
+            this.toggleSave();
+        }
+    }
+
+    public setTraceDirection(artifact: Relationships.IRelationshipView): void {
+        if (artifact.hasAccess) {
+            artifact.directionIcon = this.getDirectionIcon(artifact.traceDirection);
+            this.toggleSave();
         }
     }
 
@@ -240,5 +287,26 @@ export class ManageTracesDialogController extends BaseDialogController {
         }
         this.disableTrace();
         return traces;
+    }
+
+    public getDirectionIcon (direction: Relationships.TraceDirection) {
+        let icon = "fonticon2-relationship-";
+
+        switch (direction) {
+            case 0:
+                icon += "right";
+                break;
+            case 1:
+                icon += "left";
+                break;
+            case 2:
+                icon += "bi";
+                break;
+            default:
+                icon += "right";
+                break;
+        }
+
+        return icon;
     }
 }

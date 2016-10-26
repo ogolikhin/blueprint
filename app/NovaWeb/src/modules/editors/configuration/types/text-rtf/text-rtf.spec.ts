@@ -10,6 +10,8 @@ import "tinymce";
 import {Helper} from "../../../../shared";
 import {BpFieldTextRTFController} from "./text-rtf";
 import {createFormlyModule} from "../../formly-config.mock";
+import { INavigationService } from "../../../../core/navigation";
+import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 
 describe("Formly Text RTF", () => {
     let fieldsDefinition = [
@@ -33,6 +35,10 @@ describe("Formly Text RTF", () => {
     ], fieldsDefinition);
 
     beforeEach(angular.mock.module(moduleName));
+
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("navigationService", NavigationServiceMock);
+    }));
 
     afterEach(() => {
         angular.element("body").empty();
@@ -66,12 +72,15 @@ describe("Formly Text RTF", () => {
     let editor = {
         editorCommands: {
             execCommand: (command: string) => {
+                return;
             }
         },
         formatter: {
             apply: () => {
+                return;
             },
             register: (a, b) => {
+                return;
             }
         },
         addButton: (a: string, menuToolbar: IMenuToolbar) => {
@@ -84,6 +93,9 @@ describe("Formly Text RTF", () => {
         getBody: () => {
             return tinymceBody;
         },
+        getContent: () => {
+            return tinymceBody;
+        },
         on: (eventName: string, callBack: Function) => {
             callBack.call(null);
         }
@@ -91,7 +103,7 @@ describe("Formly Text RTF", () => {
 
     beforeEach(
         inject(
-            ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $controller: ng.IControllerService) => {
+            ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $controller: ng.IControllerService, navigationService: INavigationService) => {
                 rootScope = $rootScope;
                 compile = $compile;
                 scope = rootScope.$new();
@@ -99,7 +111,7 @@ describe("Formly Text RTF", () => {
                 scope.options = {};
                 scope.to = {};
                 scope.tinymceBody = tinymceBody;
-                controller = $controller(BpFieldTextRTFController, {$scope: scope});
+                controller = $controller(BpFieldTextRTFController, {$scope: scope, navigationService: navigationService});
             }
         )
     );

@@ -38,8 +38,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
         this.changeset = new ChangeSetCollector(statefulItem);
     }
 
-    // refresh = true: turn lazy loading off, always reload
-    public get(refresh: boolean = true): ng.IPromise<IRelationship[]> {
+    public get(refresh: boolean = false): ng.IPromise<IRelationship[]> {
         const deferred = this.statefulItem.getServices().getDeferred<IRelationship[]>();
 
         if (this.isLoaded && !refresh) {
@@ -72,6 +71,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
         return this.subject.asObservable();
     }
 
+    // we do not use changesets to calculate what to send back to the server
     public add(relationships: IRelationship[]): IRelationship[] {
         if (relationships) {
             relationships.map((relationship: IRelationship) => {
@@ -115,6 +115,17 @@ export class ArtifactRelationships implements IArtifactRelationships {
             this.changeset.add(changeset);
         });
 
+        let originalManualTraces = this.originalRelationships.filter((relationship: IRelationship) =>
+        relationship.traceType === LinkType.Manual);
+        if (originalManualTraces.length > 0 && relationships.length === 0) {  //something was deleted
+            //we dont calculate what exactly was deleted as we dont look at the changesets for relationships.
+            const changeset = {
+                type: ChangeTypeEnum.Delete,
+                key: null,
+                value: null
+            } as IChangeSet;
+            this.changeset.add(changeset);
+        }
 
         this.statefulItem.lock();
 
@@ -123,6 +134,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
         return this.relationships;
     }
 
+    // we do not use changesets to calculate what to send back to the server
     public remove(relationships: IRelationship[]): IRelationship[] {
         if (relationships) {
             relationships.map((relationship: IRelationship) => {
@@ -173,9 +185,9 @@ export class ArtifactRelationships implements IArtifactRelationships {
     }
 
     public changes() {
-        let deltaRelationshipChanges = new Array<IRelationship>();
+        const deltaRelationshipChanges: IRelationship[] = [];
         this.relationships.forEach((updatedRelationship: IRelationship) => {
-            let oldRelationship = this.getMatchingRelationshipEntry(updatedRelationship, this.originalRelationships);
+            const oldRelationship = this.getMatchingRelationshipEntry(updatedRelationship, this.originalRelationships);
             if (oldRelationship && this.isChanged(updatedRelationship, oldRelationship)) {
                 deltaRelationshipChanges.push(this.composeDeltaChangeObject(updatedRelationship, ChangeTypeEnum.Update));
             } else if (!oldRelationship) {
@@ -183,12 +195,15 @@ export class ArtifactRelationships implements IArtifactRelationships {
             }
         });
         this.originalRelationships.forEach((originalRelationship: IRelationship) => {
-            let updatedRelationship = this.getMatchingRelationshipEntry(originalRelationship, this.relationships);
+            const updatedRelationship = this.getMatchingRelationshipEntry(originalRelationship, this.relationships);
             if (!updatedRelationship) {
                 deltaRelationshipChanges.push(this.composeDeltaChangeObject(originalRelationship, ChangeTypeEnum.Delete));
             }
         });
-        return deltaRelationshipChanges;
+        if (deltaRelationshipChanges && deltaRelationshipChanges.length > 0) {
+            return deltaRelationshipChanges;
+        }
+        return undefined;
     }
 
     public discard() {

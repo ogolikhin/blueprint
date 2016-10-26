@@ -271,7 +271,7 @@ describe("SaveAction", () => {
                 // arrange
                 saveSpy.and.callFake(() => {
                     const deferred = $q.defer();
-                    deferred.reject();
+                    deferred.reject(new Error(""));
                     return deferred.promise;
                 });
 
@@ -290,9 +290,9 @@ describe("SaveAction", () => {
                 expect(saveSpy).toHaveBeenCalledTimes(1);
             });
 
-            it("doesn't add error message to message service", () => {
+            it("does add error message to message service", () => {
                 // assert
-                expect(addErrorSpy).not.toHaveBeenCalled();
+                expect(addErrorSpy).toHaveBeenCalled();
             });
 
             it("hides loading screen", () => {

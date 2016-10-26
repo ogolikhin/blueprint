@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -432,7 +432,7 @@ namespace ArtifactStore.Repositories
             prm.Add("@itemId", artifactId);
             var artifactBasicDetails = (await _connectionWrapper.QueryAsync<ArtifactBasicDetails>(
                 "GetArtifactBasicDetails", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
-            if (artifactBasicDetails == null)
+            if (artifactBasicDetails == null || artifactBasicDetails.LatestDeleted)
             {
                 var errorMessage = I18NHelper.FormatInvariant("Item (Id:{0}) is not found.", artifactId);
                 throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
@@ -448,7 +448,8 @@ namespace ArtifactStore.Repositories
             prm.Add("@artifactId", artifactId);
             prm.Add("@userId", userId);
 
-            var ancestorsAndSelf =  await _connectionWrapper.QueryAsync<ArtifactVersion>("GetArtifactNavigationPath", prm, commandType: CommandType.StoredProcedure);
+            var ancestorsAndSelf =  (await _connectionWrapper.QueryAsync<ArtifactVersion>("GetArtifactNavigationPath", prm, commandType: CommandType.StoredProcedure))
+                .ToList();
             return OrderAncestors(ancestorsAndSelf, artifactId).Select(a => new Artifact
             {
                 Id = a.ItemId,
@@ -459,10 +460,13 @@ namespace ArtifactStore.Repositories
         }
 
         // This method does not return the self.
-        private static IEnumerable<ArtifactVersion> OrderAncestors(IEnumerable<ArtifactVersion> ancestorsAndSelf, int artifactId)
+        private static IEnumerable<ArtifactVersion> OrderAncestors(List<ArtifactVersion> ancestorsAndSelf, int artifactId)
         {
-            var dicAncestorsAndSelf = ancestorsAndSelf.ToDictionary(a => a.ItemId);
             var result = new List<ArtifactVersion>();
+            if (ancestorsAndSelf == null || !ancestorsAndSelf.Any())
+                return result;
+
+            var dicAncestorsAndSelf = ancestorsAndSelf.ToDictionary(a => a.ItemId);
             int? childId = artifactId;
             ArtifactVersion child;
 

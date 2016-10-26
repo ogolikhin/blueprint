@@ -5,7 +5,7 @@ import {Logger} from "./logger";
 import {LogMock} from "./server-logger.svc.mock";
 
 //global buffer to check logger output
-var msg: string;
+let msg: string;
 
 export class ServerLoggerMock implements IServerLogger {
     static $inject: [string] = ["$injector"];
@@ -13,8 +13,8 @@ export class ServerLoggerMock implements IServerLogger {
     }
 
     log(message: any, level: number): ng.IPromise<any> {
-        var $q: ng.IQService = <ng.IQService>this.$injector.get("$q");
-        var deferred = $q.defer<any>();
+        const $q: ng.IQService = <ng.IQService>this.$injector.get("$q");
+        const deferred = $q.defer<any>();
 
         //log to global variable
         msg = message.message;

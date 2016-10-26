@@ -1,4 +1,4 @@
-﻿import {Models, SearchServiceModels} from "../../main/models";
+﻿import {Models, AdminStoreModels, SearchServiceModels} from "../../main/models";
 import {IProjectService} from "./project-service";
 
 export class ProjectServiceMock implements IProjectService {
@@ -69,9 +69,9 @@ export class ProjectServiceMock implements IProjectService {
         return deferred.promise;
     }
 
-    public getProject(id?: number): ng.IPromise<Models.IProjectNode> {
-        const deferred = this.$q.defer<Models.IProjectNode>();
-        const item: Models.IProjectNode = {id: 1, name: "test", type: 1, parentFolderId: 0, hasChildren: false};
+    public getProject(id?: number): ng.IPromise<AdminStoreModels.IInstanceItem> {
+        const deferred = this.$q.defer<AdminStoreModels.IInstanceItem>();
+        const item: AdminStoreModels.IInstanceItem = {id: 1, name: "test", type: 1, parentFolderId: 0, hasChildren: false};
         deferred.resolve(item);
         return deferred.promise;
     }

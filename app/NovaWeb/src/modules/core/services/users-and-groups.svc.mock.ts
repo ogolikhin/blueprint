@@ -22,12 +22,12 @@ export class UsersAndGroupsServiceMock implements IUsersAndGroupsService {
     }
 
     public search(search: string, emailDiscussions: boolean = false): ng.IPromise<IUserOrGroupInfo[]> {
-        var deferred = this.$q.defer<IUserOrGroupInfo[]>();
+        const deferred = this.$q.defer<IUserOrGroupInfo[]>();
 
         if (search === "error") {
             deferred.reject({message: "Server Error", statusCode: HttpStatusCode.ServerError});
         } else if (search === "return@user.com") {
-            var user = new UserOrGroupInfo("test name", "a@a.com", true, false, false);
+            const user = new UserOrGroupInfo("test name", "a@a.com", true, false, false);
             user.id = "id";
             deferred.resolve([user]);
         } else if (search === "dontreturn@user.com" || search === "dontreturn") {

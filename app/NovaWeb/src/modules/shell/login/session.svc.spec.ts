@@ -21,9 +21,8 @@ describe("SessionSvc", () => {
             // Arrange
 
             // Act
-            var error: any;
-            session.ensureAuthenticated().then(() => {
-            }, (err) => error = err);
+            let error: any;
+            session.ensureAuthenticated().catch(err => error = err);
             $rootScope.$digest();
 
             // Assert
@@ -36,18 +35,17 @@ describe("SessionSvc", () => {
             inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService, $uibModal: ng.ui.bootstrap.IModalService) => {
                 // Arrange
                 spyOn(auth, "getCurrentUser").and.callFake(function () {
-                    var deferred = $q.defer();
+                    const deferred = $q.defer();
                     deferred.reject();
                     return deferred.promise;
                 });
-                var loginInfo: ILoginInfo = new ILoginInfo();
+                const loginInfo: ILoginInfo = new ILoginInfo();
                 loginInfo.userName = "admin";
                 loginInfo.password = "changeme";
 
                 // Act
-                var error: any;
-                session.ensureAuthenticated().then(() => {
-                }, (err) => error = err);
+                let error: any;
+                session.ensureAuthenticated().catch(err => error = err);
                 (<ModalServiceMock>$uibModal).instanceMock.close(loginInfo); //simulate user input in login dialog
 
                 $rootScope.$digest();
@@ -62,17 +60,16 @@ describe("SessionSvc", () => {
             inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService, $uibModal: ng.ui.bootstrap.IModalService) => {
                 // Arrange
                 spyOn(auth, "getCurrentUser").and.callFake(function () {
-                    var deferred = $q.defer();
+                    const deferred = $q.defer();
                     deferred.resolve();  //simulate invalid response
                     return deferred.promise;
                 });
-                var loginInfo: ILoginInfo = new ILoginInfo();
+                const loginInfo: ILoginInfo = new ILoginInfo();
                 loginInfo.loginSuccessful = true;
 
                 // Act
-                var error: any;
-                session.ensureAuthenticated().then(() => {
-                }, (err) => error = err);
+                let error: any;
+                session.ensureAuthenticated().catch(err => error = err);
                 (<ModalServiceMock>$uibModal).instanceMock.close(loginInfo); //simulate user input in login dialog
 
                 $rootScope.$digest();
@@ -87,9 +84,8 @@ describe("SessionSvc", () => {
             // Arrange
 
             // Act
-            var error: any;
-            session.loginWithSaml(true).then(() => {
-            }, (err) => error = err);
+            let error: any;
+            session.loginWithSaml(true).catch(err => error = err);
             $rootScope.$digest();
 
             // Assert
@@ -102,18 +98,17 @@ describe("SessionSvc", () => {
             inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService, $uibModal: ng.ui.bootstrap.IModalService) => {
                 // Arrange
                 spyOn(auth, "getCurrentUser").and.callFake(function () {
-                    var deferred = $q.defer();
+                    const deferred = $q.defer();
                     deferred.reject();
                     return deferred.promise;
                 });
-                var loginInfo: ILoginInfo = new ILoginInfo();
+                const loginInfo: ILoginInfo = new ILoginInfo();
                 loginInfo.samlLogin = true;
                 loginInfo.loginSuccessful = false;
 
                 // Act
-                var error: any;
-                session.ensureAuthenticated().then(() => {
-                }, (err) => error = err);
+                let error: any;
+                session.ensureAuthenticated().catch(err => error = err);
                 (<ModalServiceMock>$uibModal).instanceMock.close(loginInfo); //simulate user input in login dialog
 
                 $rootScope.$digest();
@@ -125,17 +120,16 @@ describe("SessionSvc", () => {
         it("return error",
             inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService, $uibModal: ng.ui.bootstrap.IModalService) => {
                 // Arrange
-                var errorMsg = "login error";
+                const errorMsg = "login error";
                 spyOn(auth, "loginWithSaml").and.callFake(function () {
-                    var deferred = $q.defer();
+                    const deferred = $q.defer();
                     deferred.reject({message: errorMsg});
                     return deferred.promise;
                 });
 
                 // Act
-                var error: any;
-                session.loginWithSaml(true).then(() => {
-                }, (err) => error = err);
+                let error: any;
+                session.loginWithSaml(true).catch(err => error = err);
 
                 $rootScope.$digest();
 
@@ -149,19 +143,18 @@ describe("SessionSvc", () => {
         it("return error",
             inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService, $uibModal: ng.ui.bootstrap.IModalService) => {
                 // Arrange
-                var errorMsg = "login error";
-                var userName = "admin";
-                var password = "changeme";
+                const errorMsg = "login error";
+                const userName = "admin";
+                const password = "changeme";
                 spyOn(auth, "login").and.callFake(function () {
-                    var deferred = $q.defer();
+                    const deferred = $q.defer();
                     deferred.reject({message: errorMsg});
                     return deferred.promise;
                 });
 
                 // Act
-                var error: any;
-                session.login(userName, password, true).then(() => {
-                }, (err) => error = err);
+                let error: any;
+                session.login(userName, password, true).catch(err => error = err);
 
                 $rootScope.$digest();
 
@@ -176,11 +169,8 @@ describe("SessionSvc", () => {
             // Arrange
 
             // Act
-            var error: any;
-            session.logout().then(() => {
-            }, (err) => {
-                error = err;
-            });
+            let error: any;
+            session.logout().catch(err => error = err);
             $rootScope.$digest();
 
             // Assert
@@ -193,11 +183,8 @@ describe("SessionSvc", () => {
             // Arrange
 
             // Act
-            var error: any;
-            session.onExpired().then(() => {
-            }, (err) => {
-                error = err;
-            });
+            let error: any;
+            session.onExpired().catch(err => error = err);
             $rootScope.$digest();
 
             // Assert
@@ -209,14 +196,13 @@ describe("SessionSvc", () => {
     describe("resetPassword", () => {
         it("return success", inject(($rootScope: ng.IRootScopeService, session: ISession) => {
             // Arrange
-            var login = "admin";
-            var oldPassword = "changeme";
-            var newPassword = "123EWQ!@#";
+            const login = "admin";
+            const oldPassword = "changeme";
+            const newPassword = "123EWQ!@#";
 
             // Act
-            var error: any;
-            session.resetPassword(login, oldPassword, newPassword).then(() => {
-            }, (err) => error = err);
+            let error: any;
+            session.resetPassword(login, oldPassword, newPassword).catch(err => error = err);
             $rootScope.$digest();
 
             // Assert
@@ -225,19 +211,18 @@ describe("SessionSvc", () => {
 
         it("return error", inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService) => {
             // Arrange
-            var login = "admin";
-            var oldPassword = "changeme";
-            var newPassword = "123EWQ!@#";
+            const login = "admin";
+            const oldPassword = "changeme";
+            const newPassword = "123EWQ!@#";
             spyOn(auth, "resetPassword").and.callFake(function () {
-                var deferred = $q.defer();
+                const deferred = $q.defer();
                 deferred.reject({message: "error"});
                 return deferred.promise;
             });
 
             // Act
-            var error: any;
-            session.resetPassword(login, oldPassword, newPassword).then(() => {
-            }, (err) => error = err);
+            let error: any;
+            session.resetPassword(login, oldPassword, newPassword).catch(err => error = err);
             $rootScope.$digest();
 
             // Assert

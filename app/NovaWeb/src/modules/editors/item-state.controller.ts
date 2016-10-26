@@ -31,7 +31,7 @@ export class ItemStateController {
 
         let id = parseInt($state.params["id"], 10);
 
-        if (_.isNumber(id)) {
+        if (_.isFinite(id)) {
             this.clearLockedMessages();
 
             const artifact = artifactManager.get(id);

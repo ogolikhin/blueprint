@@ -71,6 +71,15 @@ pagecontent, bp-properties-panel {
             .content {
                 display: none;
             }
+
+            .content.system-properties {
+                display: block;
+                height: #{$property-min-height + 12px};
+
+                &.collapse:not(.in) .formly .formly-field:first-child {
+                    width: 100%;
+                }
+            }
         }
     }
 
@@ -1291,10 +1300,16 @@ pagecontent, bp-properties-panel {
     }
 }
 
-.single-column-property .formly .formly-field label {
-    margin-right: 0;
-    padding: 0;
-    width: $property-input-width;
+.single-column-property {
+    .properties.collapsed .content.system-properties {
+        height: #{$property-min-height + 23px + 12px}; // + label's height + margin-bottom
+    }
+
+    .formly .formly-field label {
+        margin-right: 0;
+        padding: 0;
+        width: $property-input-width;
+    }
 }
 
 .tab-pane {
@@ -1348,21 +1363,6 @@ bp-properties-panel {
 }
 
 pagecontent {
-    .system-properties {
-        &.collapse:not(.in) .formly .formly-field:first-child {
-            width: 100%;
-        }
-
-        &.collapse {
-            display: block !important;
-            height: #{$property-min-height + 12px} !important;
-
-            &.in {
-                height: auto !important;
-            }
-        }
-    }
-
     .empty-collection {
             background: $gray-lighter;
             color: $gray-dark;

@@ -285,7 +285,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         let changes = this.changes();
         if (!changes) {
-            deferred.reject(new Error("App_Save_Artifact_Error_400_114"));
+            let message: string = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
+            deferred.reject(new Error(message.replace("{0}", this.id.toString())));
         } else {
             this.services.artifactService.updateArtifact(changes)
                 .then((artifact: Models.IArtifact) => {
@@ -296,41 +297,48 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                         deferred.reject(error);
                     });
                 }).catch((error) => {
-                    deferred.reject(error);
                     let message: string;
                     // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
                     if (error) {
-                        if (error.statusCode === 400) {
-                            if (error.errorCode === 114) {
-                                message = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
-                            } else {
-                                message = this.services.localizationService.get("App_Save_Artifact_Error_400") + error.message;
-                            }
-                        } else if (error.statusCode === HttpStatusCode.NotFound) {
-                            message = this.services.localizationService.get("App_Save_Artifact_Error_404");
-                        } else if (error.statusCode === HttpStatusCode.Conflict) {
-                            if (error.errorCode === 116) {
-                                message = this.services.localizationService.get("App_Save_Artifact_Error_409_116");
-                            } else if (error.errorCode === 117) {
-                                message = this.services.localizationService.get("App_Save_Artifact_Error_409_117");
-                            } else if (error.errorCode === 111 || error.errorCode === 115) {
-                                message = this.services.localizationService.get("App_Save_Artifact_Error_409_115");
-                            } else if (error.errorCode === 124) {
-                                message = this.services.localizationService.get("App_Save_Artifact_Error_409_123");
-                            } else {
-                                message = this.services.localizationService.get("App_Save_Artifact_Error_409");
-                            }
-                        } else {
-                            message = this.services.localizationService.get("App_Save_Artifact_Error_Other") + error.statusCode;
-                        }
-
-                        deferred.reject(new Error(message));
+                        deferred.reject(this.handleSaveError(error));
+                    } else {
+                        deferred.reject(error);
                     }
                 }
             );
         }
-
         return deferred.promise;
+    }
+
+    private handleSaveError(error: any): Error {
+        let message: string;
+
+        if (error.statusCode === 400) {
+            if (error.errorCode === 114) {
+                message = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
+            } else {
+                message = this.services.localizationService.get("App_Save_Artifact_Error_400") + error.message;
+            }
+        } else if (error.statusCode === HttpStatusCode.NotFound) {
+            message = this.services.localizationService.get("App_Save_Artifact_Error_404");
+        } else if (error.statusCode === HttpStatusCode.Conflict) {
+            if (error.errorCode === 116) {
+                message = this.services.localizationService.get("App_Save_Artifact_Error_409_116");
+            } else if (error.errorCode === 117) {
+                message = this.services.localizationService.get("App_Save_Artifact_Error_409_117");
+            } else if (error.errorCode === 111 || error.errorCode === 115) {
+                message = this.services.localizationService.get("App_Save_Artifact_Error_409_115");
+            } else if (error.errorCode === 124) {
+                message = this.services.localizationService.get("App_Save_Artifact_Error_409_123");
+            } else {
+                message = this.services.localizationService.get("App_Save_Artifact_Error_409");
+            }
+        } else {
+            message = this.services.localizationService.get("App_Save_Artifact_Error_Other") + error.statusCode;
+        }
+
+        message = message.replace("{0}", this.id.toString());
+        return new Error(message);
     }
 
     //TODO: stub - replace with implementation

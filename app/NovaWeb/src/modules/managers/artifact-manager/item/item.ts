@@ -9,7 +9,7 @@ import {IDocumentRefs, DocumentRefs} from "../docrefs";
 import {IStatefulArtifactServices} from "../services";
 import {IArtifactProperties} from "../properties";
 import {IArtifactRelationships, ArtifactRelationships} from "../relationships";
-import {HttpStatusCode} from "../../../core";
+import {HttpStatusCode, IAppicationError} from "../../../core";
 
 export interface IStatefulItem extends Models.IArtifact {
     artifactState: IArtifactState;
@@ -26,6 +26,10 @@ export interface IStatefulItem extends Models.IArtifact {
     lock();
     discard();
     changes(): Models.ISubArtifact;
+    errorObservable(): Rx.Observable<IAppicationError>;
+    unsubscribe(): void;
+
+
 }
 
 export interface IIStatefulItem extends IStatefulItem {
@@ -48,18 +52,43 @@ export abstract class StatefulItem implements IIStatefulItem {
     protected _changesets: IChangeCollector;
     protected lockPromise: ng.IPromise<IStatefulItem>;
     protected loadPromise: ng.IPromise<IStatefulItem>;
-
+    private _error: Rx.BehaviorSubject<IAppicationError>;
     constructor(private artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
+//        this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
+        
         this.deleted = false;
     }
 
     public dispose() {
         this.artifact.parentId = null;
+        this.unsubscribe();
+    }
+
+    public unsubscribe() {
+        if (this.error) {
+            this.error.onCompleted();
+        }
+        delete this._error;        
+    }
+
+    protected get error(): Rx.BehaviorSubject<IAppicationError> {
+        if (!this._error) {
+            this._error = new Rx.BehaviorSubject<IAppicationError>(null);            
+        }    
+        return this._error;    
+    } 
+
+    public errorObservable(): Rx.Observable<IAppicationError> {
+        return this.error.filter(it => !!it).asObservable();
     }
 
     public get id(): number {
         return this.artifact.id;
     }
+
+    public set id(value: number) {
+        this.artifact.id = value;
+    }    
 
     public get projectId() {
         return this.artifact.projectId;
@@ -333,6 +362,9 @@ export abstract class StatefulItem implements IIStatefulItem {
         return delta;
     }
 
+
+    //TODO: moved from bp-artifactinfo
     public abstract get artifactState(): IArtifactState;
+
 
 }

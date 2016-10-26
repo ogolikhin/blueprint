@@ -57,19 +57,20 @@ export class ProcessGraph implements IProcessGraph {
         return this.viewModel.isUserToSystemProcess;
     }
 
-    constructor(public rootScope: any,
-                private scope: any,
-                private htmlElement: HTMLElement,
-                // #TODO fix up references later
-                //private artifactVersionControlService: Shell.IArtifactVersionControlService,
-                public viewModel: IProcessViewModel,
-                private dialogService: IDialogService,
-                private localization: ILocalizationService,
-                public messageService: IMessageService = null,
-                private $log: ng.ILogService = null,
-                private statefulArtifactFactory: IStatefulArtifactFactory = null,
-                private shapesFactory: ShapesFactory = null
-                ) {
+    constructor(
+        public rootScope: any,
+        private scope: any,
+        private htmlElement: HTMLElement,
+        // #TODO fix up references later
+        //private artifactVersionControlService: Shell.IArtifactVersionControlService,
+        public viewModel: IProcessViewModel,
+        private dialogService: IDialogService,
+        private localization: ILocalizationService,
+        private shapesFactory: ShapesFactory,
+        public messageService: IMessageService = null,
+        private $log: ng.ILogService = null,
+        private statefulArtifactFactory: IStatefulArtifactFactory = null,
+    ) {
         // Creates the graph inside the given container
         // This is temporary code. It will be replaced with
         // a class that wraps this global functionality.

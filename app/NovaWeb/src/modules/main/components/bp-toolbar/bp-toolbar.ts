@@ -169,8 +169,8 @@ class BPToolbarController implements IBPToolbarController {
     private confirmPublishAll(data: Models.IPublishResultSet) {
         const selectedProject: Project = this.projectManager.getSelectedProject();
         this.dialogService.open(<IDialogSettings>{
-            okButton: this.localization.get("App_Button_Yes"),
-            cancelButton: this.localization.get("App_Button_No"),
+            okButton: this.localization.get("App_Button_Publish"),
+            cancelButton: this.localization.get("App_Button_Cancel"),
             message: this.localization.get("Publish_All_Dialog_Message"),
             template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
             controller: ConfirmPublishController,

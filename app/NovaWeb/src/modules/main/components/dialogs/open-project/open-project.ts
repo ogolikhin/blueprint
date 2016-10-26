@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import {ILocalizationService} from "../../../../core";
 import {Helper, IBPTreeController, IDialogSettings, BaseDialogController} from "../../../../shared";
-import {Models} from "../../../models";
+import {Models, AdminStoreModels} from "../../../models";
 import {IProjectManager} from "../../../../managers";
 
 export interface IOpenProjectController {
@@ -135,7 +135,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         let self = this;
         let id = (prms && angular.isNumber(prms.id)) ? prms.id : null;
         this.manager.loadFolders(id)
-            .then((nodes: Models.IProjectNode[]) => {
+            .then((nodes: AdminStoreModels.IInstanceItem[]) => {
                 self.tree.reload(nodes, id);
                 if (self.tree.isEmpty) {
                     this._errorMessage = this.localization.get("Project_NoProjectsAvailable");

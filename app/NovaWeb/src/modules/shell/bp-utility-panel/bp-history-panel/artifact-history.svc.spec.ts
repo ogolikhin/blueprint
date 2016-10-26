@@ -97,7 +97,7 @@ describe("Artifact History Service", () => {
                         "hasUserIcon": false,
                         "timestamp": "2016-06-06T13:58:24.557",
                         "artifactState": Models.ArtifactStateEnum.Published
-                    },
+                    }
                 ]
             });
 

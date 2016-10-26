@@ -49,7 +49,9 @@ describe("Publish Service", () => {
         it("get unpublished changes error", inject(($httpBackend: ng.IHttpBackendService, publishService: IPublishService) => {
             // Arrange
             $httpBackend.expectGET("/svc/bpartifactstore/artifacts/unpublished")
-                .respond(HttpStatusCode.NotFound);
+                .respond(HttpStatusCode.NotFound, {
+                    statusCode: HttpStatusCode.NotFound
+                });
 
             // Act
             let error: any;
@@ -97,7 +99,9 @@ describe("Publish Service", () => {
         it("post publish all error", inject(($httpBackend: ng.IHttpBackendService, publishService: IPublishService) => {
             // Arrange
             $httpBackend.expectPOST("/svc/bpartifactstore/artifacts/publish?all=true")
-                .respond(HttpStatusCode.NotFound);
+                .respond(HttpStatusCode.NotFound, {
+                    statusCode: HttpStatusCode.NotFound
+                });
 
             // Act
             let error: any;

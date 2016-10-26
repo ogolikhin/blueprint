@@ -1,5 +1,5 @@
 import * as angular from "angular";
-import {Models, SearchServiceModels} from "../../main/models";
+import {Models, AdminStoreModels, SearchServiceModels} from "../../main/models";
 
 export enum ProjectServiceStatusCode {
     ResourceNotFound = 3000
@@ -7,18 +7,18 @@ export enum ProjectServiceStatusCode {
 
 export interface IProjectService {
     abort(): void;
-    getFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
+    getFolders(id?: number): ng.IPromise<AdminStoreModels.IInstanceItem[]>;
     getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]>;
-    getProject(id?: number): ng.IPromise<Models.IProjectNode>;
+    getProject(id?: number): ng.IPromise<AdminStoreModels.IInstanceItem>;
     getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta>;
     getSubArtifactTree(artifactId: number): ng.IPromise<Models.ISubArtifactNode[]>;
     getProjectTree(projectId: number, artifactId: number, loadChildren?: boolean): ng.IPromise<Models.IArtifact[]>;
     searchProjects(searchCriteria: SearchServiceModels.ISearchCriteria,
                    resultCount?: number,
                    separatorString?: string): ng.IPromise<SearchServiceModels.IProjectSearchResultSet>;
-    searchItemNames(searchCriteria: SearchServiceModels.IItemSearchCriteria,
-                startOffset?: number,
-                pageSize?: number): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet>;
+    searchItemNames(searchCriteria: SearchServiceModels.IItemNameSearchCriteria,
+                    startOffset?: number,
+                    pageSize?: number): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet>;
 }
 
 export class ProjectService implements IProjectService {
@@ -34,7 +34,7 @@ export class ProjectService implements IProjectService {
         this.canceler.resolve();
     }
 
-    public getFolders(id?: number): ng.IPromise<Models.IProjectNode[]> {
+    public getFolders(id?: number): ng.IPromise<AdminStoreModels.IInstanceItem[]> {
         const defer = this.$q.defer<any>();
         this.canceler = this.$q.defer<any>();
 
@@ -45,7 +45,7 @@ export class ProjectService implements IProjectService {
         };
 
         this.$http(requestObj).then(
-            (result: ng.IHttpPromiseCallbackArg<Models.IProjectNode[]>) => defer.resolve(result.data),
+            (result: ng.IHttpPromiseCallbackArg<AdminStoreModels.IInstanceItem[]>) => defer.resolve(result.data),
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 if (!errResult) {
                     defer.reject();
@@ -61,7 +61,7 @@ export class ProjectService implements IProjectService {
         return defer.promise;
     }
 
-    public getProject(id?: number): ng.IPromise<Models.IProjectNode> {
+    public getProject(id?: number): ng.IPromise<AdminStoreModels.IInstanceItem> {
         const defer = this.$q.defer<any>();
         this.canceler = this.$q.defer<any>();
 
@@ -72,7 +72,7 @@ export class ProjectService implements IProjectService {
         };
 
         this.$http(requestObj).then(
-            (result: ng.IHttpPromiseCallbackArg<Models.IProjectNode>) => {
+            (result: ng.IHttpPromiseCallbackArg<AdminStoreModels.IInstanceItem>) => {
                 defer.resolve(result.data);
             },
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {
@@ -241,7 +241,7 @@ export class ProjectService implements IProjectService {
         );
     }
 
-    public searchItemNames(searchCriteria: SearchServiceModels.IItemSearchCriteria,
+    public searchItemNames(searchCriteria: SearchServiceModels.IItemNameSearchCriteria,
                            startOffset: number = 0,
                            pageSize: number = 100): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet> {
         this.canceler = this.$q.defer<any>();

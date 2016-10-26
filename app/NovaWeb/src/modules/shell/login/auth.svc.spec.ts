@@ -17,18 +17,17 @@ describe("AuthSvc", () => {
         it("reject on error with default error message", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, $rootScope: ng.IRootScopeService) => {
             // Arrange
             $httpBackend.expectGET("/svc/adminstore/users/loginuser")
-                .respond(HttpStatusCode.Unauthorized);
+                .respond(HttpStatusCode.Unauthorized, {statusCode: HttpStatusCode.Unauthorized} );
             $httpBackend.expectPOST("/Login/WinLogin.aspx", "")
-                .respond(HttpStatusCode.Unauthorized);
+                .respond(HttpStatusCode.Unauthorized, {statusCode: HttpStatusCode.Unauthorized});
             $rootScope["config"] = {
                 settings: {DisableWindowsIntegratedSignIn: "false"}
             };
 
             // Act
 
-            var error: any;
-            auth.getCurrentUser().then(() => {
-            }, (err) => error = err);
+            let error: any;
+            auth.getCurrentUser().catch(err => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -42,7 +41,7 @@ describe("AuthSvc", () => {
             inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, $rootScope: ng.IRootScopeService) => {
                 // Arrange
                 $httpBackend.expectGET("/svc/adminstore/users/loginuser")
-                    .respond(HttpStatusCode.Unauthorized);
+                    .respond(HttpStatusCode.Unauthorized, {statusCode: HttpStatusCode.Unauthorized});
                 $httpBackend.expectPOST("/Login/WinLogin.aspx", "")
                     .respond(HttpStatusCode.Success, "6be473a999a140d894805746bf54c129");
                 $httpBackend.expectPOST("/svc/shared/licenses/verify", "")
@@ -57,8 +56,8 @@ describe("AuthSvc", () => {
                 };
 
                 // Act
-                var error: any;
-                var user: IUser;
+                let error: any;
+                let user: IUser;
                 auth.getCurrentUser().then((response) => {
                     user = response;
                 }, (err) => error = err);
@@ -80,8 +79,8 @@ describe("AuthSvc", () => {
                 );
 
             // Act
-            var error: any;
-            var user: IUser;
+            let error: any;
+            let user: IUser;
             auth.getCurrentUser().then((response) => {
                 user = response;
             }, (err) => error = err);
@@ -98,15 +97,14 @@ describe("AuthSvc", () => {
     describe("login", () => {
         it("reject on error with default error message", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth) => {
             // Arrange
-            var status: number = HttpStatusCode.Unauthorized;
-            var message: string = "Login Failed";
+            const status: number = HttpStatusCode.Unauthorized;
+            const message: string = "Login Failed";
             $httpBackend.expectPOST("/svc/adminstore/sessions/?login=" + AuthSvc.encode("admin") + "&force=false", angular.toJson(AuthSvc.encode("changeme")))
-                .respond(status, {message: message, errorCode: 2000});
+                .respond(status, {message: message, errorCode: 2000, statusCode: HttpStatusCode.Unauthorized});
 
             // Act
-            var error: any;
-            auth.login("admin", "changeme", false).then(() => {
-            }, (err) => error = err);
+            let error: any;
+            auth.login("admin", "changeme", false).catch(err => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -130,8 +128,8 @@ describe("AuthSvc", () => {
                 );
 
             // Act
-            var error: any;
-            var user: IUser;
+            let error: any;
+            let user: IUser;
             auth.login("admin", "changeme", false).then((response) => {
                 user = response;
             }, (err) => error = err);
@@ -150,8 +148,8 @@ describe("AuthSvc", () => {
                 .respond(HttpStatusCode.Success);
 
             // Act
-            var error: any;
-            var user: IUser;
+            let error: any;
+            let user: IUser;
             auth.login("admin", "changeme", false).then((response) => {
                 user = response;
             }, (err) => error = err);
@@ -175,11 +173,11 @@ describe("AuthSvc", () => {
             $httpBackend.expectPOST("/svc/shared/licenses/verify", "")
                 .respond(HttpStatusCode.Success);
             $httpBackend.expectGET("/svc/adminstore/users/loginuser")
-                .respond(HttpStatusCode.Unauthorized, {message: "Unauthorized error"});
+                .respond(HttpStatusCode.Unauthorized, {message: "Unauthorized error", statusCode: HttpStatusCode.Unauthorized});
 
             // Act
-            var error: any;
-            var user: IUser;
+            let error: any;
+            let user: IUser;
             auth.login("Карл", "changeme", false).then((response) => {
                 user = response;
             }, (err) => error = err);
@@ -201,13 +199,13 @@ describe("AuthSvc", () => {
                     }
                 );
             $httpBackend.expectPOST("/svc/shared/licenses/verify", "")
-                .respond(HttpStatusCode.NotFound);
+                .respond(HttpStatusCode.NotFound, {statusCode: HttpStatusCode.NotFound});
             $httpBackend.expectDELETE("/svc/adminstore/sessions")
                 .respond(HttpStatusCode.Success);
 
             // Act
-            var error: any;
-            var user: IUser;
+            let error: any;
+            let user: IUser;
             auth.login("𐊇𐊈𐊉", "changeme", false).then((response) => {
                 user = response;
             }, (err) => error = err);
@@ -227,13 +225,13 @@ describe("AuthSvc", () => {
                     }
                 );
             $httpBackend.expectPOST("/svc/shared/licenses/verify", "")
-                .respond(HttpStatusCode.Forbidden);
+                .respond(HttpStatusCode.Forbidden, {statusCode: HttpStatusCode.Forbidden});
             $httpBackend.expectDELETE("/svc/adminstore/sessions")
                 .respond(HttpStatusCode.Success);
 
             // Act
-            var error: any;
-            var user: IUser;
+            let error: any;
+            let user: IUser;
             auth.login("admin", "changeme", false).then((response) => {
                 user = response;
             }, (err) => error = err);
@@ -253,10 +251,9 @@ describe("AuthSvc", () => {
                 .respond(HttpStatusCode.Success);
 
             // Act
-            var error: any;
-            var user: IUser = <IUser>{displayName: "Default Instance Admin", login: "admin"};
-            auth.logout(user, true).then(() => {
-            }, (err) => error = err);
+            let error: any;
+            let user: IUser = <IUser>{displayName: "Default Instance Admin", login: "admin"};
+            auth.logout(user, true).catch(err => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -281,8 +278,8 @@ describe("AuthSvc", () => {
                 );
 
             // Act
-            var error: any;
-            var user: IUser;
+            let error: any;
+            let user: IUser;
             auth.loginWithSaml(true, "").then((response) => {
                 user = response;
             }, (err) => error = err);
@@ -299,11 +296,11 @@ describe("AuthSvc", () => {
         it("respond with saml error", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, $window: ng.IWindowService) => {
             // Arrange
             $httpBackend.expectPOST("/svc/adminstore/sessions/sso?force=false", angular.toJson("PHNhbWx"))
-                .respond(HttpStatusCode.Unauthorized, {message: "saml login error"});
+                .respond(HttpStatusCode.Unauthorized, {message: "saml login error", statusCode: HttpStatusCode.Unauthorized});
 
             // Act
-            var error: any;
-            var user: IUser;
+            let error: any;
+            let user: IUser;
             auth.loginWithSaml(false, "").then((response) => {
                 user = response;
             }, (err) => error = err);
@@ -332,8 +329,8 @@ describe("AuthSvc", () => {
                 .respond(HttpStatusCode.Success);
 
             // Act
-            var error: any;
-            var user: IUser;
+            let error: any;
+            let user: IUser;
             auth.loginWithSaml(true, "notAdmin").then((response) => {
                 user = response;
             }, (err) => error = err);
@@ -351,13 +348,13 @@ describe("AuthSvc", () => {
     describe("resetPassword", () => {
         it("respond with success", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, $window: ng.IWindowService) => {
             // Arrange
-            var login = "admin";
-            var oldPassword = "changeme";
-            var newPassword = "123EWQ!@#";
+            const login = "admin";
+            const oldPassword = "changeme";
+            const newPassword = "123EWQ!@#";
 
-            var encUserName = AuthSvc.encode(login);
-            var encOldPassword = AuthSvc.encode(oldPassword);
-            var encNewPassword = AuthSvc.encode(newPassword);
+            const encUserName = AuthSvc.encode(login);
+            const encOldPassword = AuthSvc.encode(oldPassword);
+            const encNewPassword = AuthSvc.encode(newPassword);
             $httpBackend.expectPOST("/svc/adminstore/users/reset?login=" + encUserName, angular.toJson({
                 OldPass: encOldPassword,
                 NewPass: encNewPassword
@@ -365,9 +362,8 @@ describe("AuthSvc", () => {
                 .respond(HttpStatusCode.Success);
 
             // Act
-            var error: any;
-            auth.resetPassword(login, oldPassword, newPassword).then(() => {
-            }, (err) => error = err);
+            let error: any;
+            auth.resetPassword(login, oldPassword, newPassword).catch(err => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -378,24 +374,23 @@ describe("AuthSvc", () => {
 
         it("respond with error", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, $window: ng.IWindowService) => {
             // Arrange
-            var login = "admin";
-            var oldPassword = "changeme";
-            var newPassword = "123EWQ!@#";
-            var errorMsg = "unauthorized error";
+            const login = "admin";
+            const oldPassword = "changeme";
+            const newPassword = "123EWQ!@#";
+            const errorMsg = "unauthorized error";
 
-            var encUserName = AuthSvc.encode(login);
-            var encOldPassword = AuthSvc.encode(oldPassword);
-            var encNewPassword = AuthSvc.encode(newPassword);
+            const encUserName = AuthSvc.encode(login);
+            const encOldPassword = AuthSvc.encode(oldPassword);
+            const encNewPassword = AuthSvc.encode(newPassword);
             $httpBackend.expectPOST("/svc/adminstore/users/reset?login=" + encUserName, angular.toJson({
                 OldPass: encOldPassword,
                 NewPass: encNewPassword
             }))
-                .respond(HttpStatusCode.Unauthorized, {message: errorMsg});
+                .respond(HttpStatusCode.Unauthorized, {message: errorMsg, statusCode: HttpStatusCode.Unauthorized});
 
             // Act
-            var error: any;
-            auth.resetPassword(login, oldPassword, newPassword).then(() => {
-            }, (err) => error = err);
+            let error: any;
+            auth.resetPassword(login, oldPassword, newPassword).catch(err => error = err);
             $httpBackend.flush();
 
             // Assert

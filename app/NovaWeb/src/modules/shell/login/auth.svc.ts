@@ -1,6 +1,6 @@
 ﻿import * as angular from "angular";
 import {SessionTokenHelper} from "./session.token.helper";
-import {ILocalizationService, ISettingsService, IHttpInterceptorConfig, HttpStatusCode} from "../../core";
+import {ILocalizationService, ISettingsService, IHttpInterceptorConfig, HttpStatusCode, AppicationError} from "../../core";
 import {Helper} from "../../shared";
 
 export interface IUser {
@@ -48,20 +48,18 @@ export class AuthSvc implements IAuth {
             .then((result: ng.IHttpPromiseCallbackArg<IUser>) => {
                 defer.resolve(result.data);
             }, (result: ng.IHttpPromiseCallbackArg<any>) => {
-                const error = {
-                    statusCode: result.status,
-                    message: result.data ? result.data.message : this.localization.get("Login_Auth_CannotGetUser")
-                };
+                
+                result.data.message = result.data.message || this.localization.get("Login_Auth_CannotGetUser");
                 if (this.settings.getBoolean("DisableWindowsIntegratedSignIn") === false && !this._loggedOut) {
                     this.$http.post<any>("/Login/WinLogin.aspx", "", config)
                         .then((winLoginResult: ng.IHttpPromiseCallbackArg<string>) => {
                             this.onTokenSuccess(winLoginResult.data, defer, false, "");
                         }, () => {
-                            defer.reject(error);
+                            defer.reject(result.data);
                         });
 
                 } else {
-                    defer.reject(error);
+                    defer.reject(result.data);
                 }
             });
 
@@ -79,12 +77,8 @@ export class AuthSvc implements IAuth {
             .then((result: ng.IHttpPromiseCallbackArg<string>) => {
                 this.onTokenSuccess(result.data, deferred, false, "");
             }, (result: ng.IHttpPromiseCallbackArg<any>) => {
-                var error = {
-                    statusCode: result.status,
-                    message: this.getLoginErrorMessage(result.data),
-                    errorCode: result.data ? result.data.errorCode : -1
-                };
-                deferred.reject(error);
+                result.data.message = this.getLoginErrorMessage(result.data);                
+                deferred.reject(result.data);
 
             });
         /* tslint:enable */
@@ -121,12 +115,8 @@ export class AuthSvc implements IAuth {
                         (result: ng.IHttpPromiseCallbackArg<string>) => {
                             this.onTokenSuccess(result.data, deferred, true, prevLogin);
                         }, (result: ng.IHttpPromiseCallbackArg<any>) => {
-                            const error = {
-                                statusCode: result.status,
-                                message: this.getLoginErrorMessage(result),
-                                errorCode: result.data ? result.data.errorCode : -1
-                            };
-                            deferred.reject(error);
+                            result.data.message = this.localization.get("Login_Auth_LoginFailed");                
+                            deferred.reject(result.data);
                         });
                 return null;
             } else {
@@ -204,21 +194,17 @@ export class AuthSvc implements IAuth {
                                 deferred.resolve(user);
                             }
                         }, (result: ng.IHttpPromiseCallbackArg<any>) => {
-                            const error = {
-                                statusCode: result.status,
-                                message: result.data ? result.data.message : ""
-                            };
-                            deferred.reject(error);
+                            deferred.reject(result.data);
                         });
                 }, (err: any) => {
                     this.internalLogout(token);
                     deferred.reject(err);
                 });
         } else {
-            deferred.reject({
+            deferred.reject(new AppicationError({
                 statusCode: HttpStatusCode.ServerError,
                 message: this.localization.get("Login_Auth_SessionTokenRetrievalFailed")
-            });
+            }));
         }
     }
 
@@ -244,23 +230,12 @@ export class AuthSvc implements IAuth {
                     let statusCode = result.status;
 
                     if (statusCode === HttpStatusCode.NotFound) {
-                        error = {
-                            statusCode: statusCode,
-                            message: this.localization.get("Login_Auth_LicenseNotFound_Verbose")
-                        };
+                        result.data.message = this.localization.get("Login_Auth_LicenseNotFound_Verbose");
                     } else if (statusCode === HttpStatusCode.Forbidden) {
-                        error = {
-                            statusCode: statusCode,
-                            message: this.localization.get("Login_Auth_LicenseLimitReached")
-                        };
-                    } else { // Other error
-                        error = {
-                            statusCode: statusCode,
-                            message: result.data ? result.data.message : ""
-                        };
-                    }
+                        result.data.message = this.localization.get("Login_Auth_LicenseLimitReached");
+                    } 
 
-                    deferred.reject(error);
+                    deferred.reject(result.data);
                 });
 
         return deferred.promise;
@@ -278,12 +253,8 @@ export class AuthSvc implements IAuth {
             .then(
                 () => deferred.resolve(),
                 (result: ng.IHttpPromiseCallbackArg<any>) => {
-                    const error = {
-                        statusCode: result.status,
-                        message: this.getLoginErrorMessage(result.data),
-                        errorCode: result.data.errorCode
-                    };
-                    deferred.reject(error);
+                    result.data.message = this.getLoginErrorMessage(result.data);                
+                    deferred.reject(result.data);
                 }
             );
 

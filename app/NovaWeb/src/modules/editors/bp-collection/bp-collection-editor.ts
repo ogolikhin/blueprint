@@ -148,7 +148,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
 
     public toggleAll(): void {
         this.selectAll = !this.selectAll;
-        this.selectAllClass = this.selectAll ? "ag-checkbox-checked" : "ag-checkbox-checked";
+        this.selectAllClass = this.selectAll ? "ag-checkbox-checked" : "ag-checkbox-unchecked";
     }
 }
 

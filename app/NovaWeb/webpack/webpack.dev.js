@@ -95,6 +95,7 @@ module.exports = {
             BUILD_YEAR: new Date().getFullYear().toString()
         })
     ],
+    watch:false,
     resolve: {
         root: __dirname,
         extensions: ['', '.webpack.js', '.ts', '.js', '.json'],

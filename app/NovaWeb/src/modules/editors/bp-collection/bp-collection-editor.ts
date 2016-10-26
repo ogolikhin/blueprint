@@ -62,8 +62,6 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 this.metadataService.get(result.projectId).then(() => {
                     this.collection = result;
                     this.rootNode = result.artifacts.map((a: ICollectionArtifact) => {
-                        a.name = Helper.limitChars(a.name, 150);
-                        a.description = Helper.limitChars(a.description, 250);
                         return new CollectionNodeVM(a, result.projectId, this.metadataService);
                     });
                 }).catch((error: any) => {

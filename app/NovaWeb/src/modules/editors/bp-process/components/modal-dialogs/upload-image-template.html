@@ -1,4 +1,4 @@
-<div class="file-upload_outer-container">
+ <div class="file-upload_outer-container">
     <div class="file-upload_container">
         <div class="file-upload_inner">
             <div class="file-upload_preview" ng-show="imageUploaded"></div>
@@ -9,7 +9,7 @@
                 <span class="file-upload__button" id="upload-image-btn" ng-click="uploadImage()" ng-class="{'icon--disabled': isReadonly}"><i class="fonticon2-upload"></i>{{imageUploaded ? "Change" : "Upload"}}</span>
                 <span class="file-upload__button" id="delete-image-btn" ng-click="clearImage()"
                                     ng-class="{'icon--disabled': !imageUploaded || isReadonly }"><i class="fonticon2-delete"></i>Delete</span>
-                <span class="file-upload__button" id="download-image-btn" ng-click="downloadImage()" ng-class="{'icon--disabled': !imageUploaded || isReadonly }"><i class="fonticon2-download"></i>Download</span>
+                <span class="file-upload__button" id="download-image-btn" ng-click="downloadImage()" ng-class="{'icon--disabled': !imageUploaded}"><i class="fonticon2-download"></i>Download</span>
             </div>
         </div>
     </div>

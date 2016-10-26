@@ -9,7 +9,7 @@
                 <span class="file-upload__button" id="upload-image-btn" ng-click="uploadImage()" ng-class="{'file-upload__button--disabled': isReadonly}"><i class="fonticon2-upload"></i>{{imageUploaded ? "Change" : "Upload"}}</span>
                 <span class="file-upload__button" id="delete-image-btn" ng-click="clearImage()"
                                     ng-class="{'file-upload__button--disabled': !imageUploaded || isReadonly }"><i class="fonticon2-delete"></i>Delete</span>
-                <span class="file-upload__button" id="download-image-btn" ng-click="downloadImage()" ng-class="{'file-upload__button--disabled': !imageUploaded || isReadonly }"><i class="fonticon2-download"></i>Download</span>
+                <span class="file-upload__button" id="download-image-btn" ng-click="downloadImage()" ng-class="{'file-upload__button--disabled': !imageUploaded }"><i class="fonticon2-download"></i>Download</span>
             </div>
         </div>
     </div>

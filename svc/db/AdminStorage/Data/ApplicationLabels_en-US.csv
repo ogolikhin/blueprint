@@ -308,7 +308,7 @@ Property_UserPicker_Display_Top_N_Results,"Displaying first {0} results"
 
 #Messages
 HttpError_ServiceUnavailable, "A service on the Blueprint web server is unavailable. Please try again later. If the problem continues, contact your administrator for assistance."
-HttpError_Forbidden, "You do not have permission to view this artifact."
+HttpError_Forbidden, "The artifact cannot be opened. It is no longer accessible by you."
 HttpError_NotFound, "Sorry, but the artifact cannot be found. It has likely been deleted or moved."
 HttpError_InternalServer,"Sorry, but there is a problem with the Blueprint web server. Please contact your administrator for assistance."
 

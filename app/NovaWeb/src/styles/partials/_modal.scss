@@ -1,5 +1,114 @@
 $modal-side-clearance: 8px;
 
+
+.empty-collection{
+    padding: $padding-root;
+}
+
+.artifact-overview bp-tree-view{
+    display: block;
+    padding: $padding-root;
+}
+
+.collections-list.project-tree {
+    width: 100%;
+    background: $white;
+
+    .ag-grid{
+        xmin-width: 500px;
+
+        .header-name{
+            padding-left: 10px;
+        }
+
+        .ag-header-cell{
+            background: $gray-dark;
+
+            .ag-header-cell-text{
+                color: $white;
+            }
+        }
+
+        .ag-full-width-container{
+            border-left: 1px solid $gray-lightest;
+            border-right: 1px solid $gray-lightest;
+        }
+
+        .ag-row{
+            border-bottom: 1px solid $gray-lightest;
+
+            &.ag-row-selected{
+                background: $brand-secondary;
+            }
+
+            &.ag-row.ag-row-level-0 .ag-cell > span{
+               margin-left: $padding-smallest;
+            }
+
+            &.ag-row-selected .ag-cell:not(.not-selectable).ag-cell-value{
+                background: transparent;
+
+                .path {
+                    color: $white;
+                }
+
+                a{
+                    color: $white;
+                }
+            }
+
+            &:hover {
+                .ag-group-value-wrapper i:before{
+                    background: transparent;
+                }
+
+
+                span > span{
+                    background: transparent;
+                    border:none;
+                }
+            }
+        }
+
+        .ag-cell{
+            padding-top: 2px;
+            padding-bottom: 2px;
+            height:auto;
+            overflow: hidden;
+
+            .ag-group-value{
+                @include text-ellipsis-flex-width(500px);
+                display: inline-block;
+                width: calc(100% - 10px);
+                padding-right: 0;
+                border-width: 0;
+            }
+        }
+
+        .path{
+            @include text-ellipsis-flex-width(500px);
+            font-size: $font-size-small;
+            color: $gray-light;
+        }
+
+        .ag-header-icon{
+            display: none;
+        }
+
+        .icon{
+            color: $gray-light;
+
+            &:hover{
+                cursor: hand;
+            }
+
+            &.icon__normal:before{
+                font-size: $font-size-normal;
+            }
+        }
+    }
+}
+
 .modal {
     margin: 0;
 

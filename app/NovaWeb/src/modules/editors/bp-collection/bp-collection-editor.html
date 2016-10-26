@@ -16,7 +16,7 @@
                     <formly-form model="$ctrl.model" fields="$ctrl.systemFields">
                     </formly-form>
                 </div>
-            </div>            
+            </div>
             <div class="properties" ng-class="{'collapsed': isSpecificPropertiesCollapsed}">
                 <div class="heading" ng-click="isSpecificPropertiesCollapsed = !isSpecificPropertiesCollapsed">
                     {{::$root.config.labels['Artifact_Collection_Content_Header']}}
@@ -24,19 +24,19 @@
                 <div class="specific-properties content"
                      uib-collapse="isSpecificPropertiesCollapsed"
                      ng-show="$ctrl.rootNode && $ctrl.rootNode.length > 0">
-                    <bp-tree-view 
-                                  grid-class="project-tree"
-                                  selection-mode="'checkbox'"
-                                  row-height="20"
-                                  root-node="$ctrl.rootNode"
-                                  columns="$ctrl.columns"
-                                  header-height="20"                                  
-                                  on-select="$ctrl.onSelect(vm, isSelected, selectedVMs)">                     
+                    <bp-tree-view
+                          grid-class="project-tree collections-list"
+                          selection-mode="'checkbox'"
+                          row-height="45"
+                          root-node="$ctrl.rootNode"
+                          columns="$ctrl.columns"
+                          header-height="20"
+                          on-select="$ctrl.onSelect(vm, isSelected, selectedVMs)">
                 </div>
                 <div class="specific-properties content"
                      uib-collapse="isSpecificPropertiesCollapsed"
                      ng-hide="$ctrl.rootNode && $ctrl.rootNode.length > 0">
-                        <div class="empty-collection" >{{$ctrl.localization.get('App_UP_Properties_No_Properties')}}</div>
+                        <div class="empty-collection text-center" >{{::$ctrl.localization.get('App_UP_Properties_No_Properties')}}</div>
                 </div>
             </div>
             <div class="properties" ng-class="{'collapsed': isAdditionalPropertiesCollapsed}"

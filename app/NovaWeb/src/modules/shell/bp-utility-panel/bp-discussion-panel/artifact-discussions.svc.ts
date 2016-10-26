@@ -2,15 +2,14 @@
 import {ILocalizationService, HttpStatusCode} from "../../../core";
 
 export interface IArtifactDiscussions {
-    artifactDiscussions: ng.IPromise<IDiscussion[]>;
-    getArtifactDiscussions(artifactId: number, subArtifactId?: number, timeout?: ng.IPromise<void>): ng.IPromise<IDiscussionResultSet>;
+    getDiscussions(artifactId: number, subArtifactId?: number, timeout?: ng.IPromise<void>): ng.IPromise<IDiscussionResultSet>;
     getReplies(artifactId: number, discussionId: number, subArtifactId?: number): ng.IPromise<IReply[]>;
     addDiscussion(artifactId: number, comment: string): ng.IPromise<IDiscussion>;
     addDiscussionReply(artifactId: number, discussionId: number, comment: string): ng.IPromise<IReply>;
     editDiscussion(artifactId: number, discussionId: number, comment: string): ng.IPromise<IDiscussion>;
     editDiscussionReply(artifactId: number, discussionId: number, replyId: number, comment: string): ng.IPromise<IReply>;
     deleteReply(itemId: number, replyId: number): ng.IPromise<boolean>;
-    deleteCommentThread(itemId: number, discussionId: number): ng.IPromise<boolean>;
+    deleteDiscussion(itemId: number, discussionId: number): ng.IPromise<boolean>;
 }
 
 export interface IDiscussion extends ICommentBase {
@@ -52,14 +51,12 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
         "$http",
         "localization"];
 
-    public artifactDiscussions: ng.IPromise<IDiscussion[]>;
-
     constructor(private $q: ng.IQService,
                 private $http: ng.IHttpService,
                 private localization: ILocalizationService) {
     }
 
-    public getArtifactDiscussions(artifactId: number,
+    public getDiscussions(artifactId: number,
                                   subArtifactId?: number,
                                   timeout?: ng.IPromise<void>): ng.IPromise<IDiscussionResultSet> {
 
@@ -258,7 +255,7 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
         return defer.promise;
     }
 
-    public deleteCommentThread(itemId: number, discussionId: number): ng.IPromise<boolean> {
+    public deleteDiscussion(itemId: number, discussionId: number): ng.IPromise<boolean> {
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
             url: `/svc/components/RapidReview/artifacts/${itemId}/deletethread/${discussionId}`,

@@ -67,6 +67,7 @@ class BPToolbarController implements IBPToolbarController {
         switch (element.id.toLowerCase()) {
             case `projectclose`:
                 this.projectManager.remove();
+                this.artifactManager.selection.clearAll();
                 this.clearLockedMessages();
                 break;
             case `projectcloseall`:

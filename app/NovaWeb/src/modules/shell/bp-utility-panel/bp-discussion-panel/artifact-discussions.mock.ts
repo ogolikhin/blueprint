@@ -4,12 +4,10 @@ export class ArtifactDiscussionsMock implements IArtifactDiscussions {
 
     public static $inject = ["$q"];
 
-    public artifactDiscussions;
-
     constructor(private $q: ng.IQService) {
     }
 
-    public getArtifactDiscussions(artifactId: number,
+    public getDiscussions(artifactId: number,
                                   subArtifactId?: number): ng.IPromise<IDiscussionResultSet> {
         const deferred = this.$q.defer<any>();
 
@@ -177,7 +175,7 @@ export class ArtifactDiscussionsMock implements IArtifactDiscussions {
         return deferred.promise;
     }
 
-    public deleteCommentThread(itemId: number, discussionId: number): ng.IPromise<boolean> {
+    public deleteDiscussion(itemId: number, discussionId: number): ng.IPromise<boolean> {
         const deferred = this.$q.defer<any>();
         deferred.resolve(true);
         return deferred.promise;

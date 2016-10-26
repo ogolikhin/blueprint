@@ -1,5 +1,4 @@
 import {ILocalizationService} from "../../core";
-import {IArtifact} from "../../main/models/models";
 import {ICollection, ICollectionArtifact} from "./models";
 
 export interface ICollectionService {
@@ -36,15 +35,7 @@ export class CollectionService implements ICollectionService {
                 defer.resolve(result.data);
 
             }, (result: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!result) {
-                    defer.reject();
-                    return;
-                }
-                const error = {
-                    statusCode: result.status,
-                    message: result.data ? result.data.message : ""
-                };
-                defer.reject(error);
+                defer.reject(result.data);
             });
 
         return defer.promise;

@@ -913,8 +913,6 @@ namespace Helper
                 ConfigControl?.Dispose();
                 BlueprintServer?.Dispose();
                 ArtifactStore?.Dispose();
-                AdminStore?.Dispose();
-                AccessControl?.Dispose();
 
                 if (Artifacts != null)
                 {
@@ -961,6 +959,9 @@ namespace Helper
                         user.DeleteUser();
                     }
                 }
+
+                AdminStore?.Dispose();
+                AccessControl?.Dispose();
             }
 
             _isDisposed = true;

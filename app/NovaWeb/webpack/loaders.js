@@ -3,15 +3,14 @@ var path = require("path");
 module.exports = [
     {
         test: /\.ts(x?)$/,
-        exclude: [
-
-        ],
+        exclude: /node_modules/,
         loader: 'awesome-typescript-loader'
     },     {
         test: /\.css$/,
         loader: ExtractTextPlugin.extract('style-loader', 'css-loader?sourceMap')
     },     {
         test: /\.scss$/,
+        exclude: /node_modules/,
         loader: ExtractTextPlugin.extract('style-loader', 'css?sourceMap!sass?sourceMap')
     }, {
         test: /\.html$/,

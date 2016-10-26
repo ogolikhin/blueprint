@@ -34,24 +34,34 @@ export interface IIStatefulArtifact extends IIStatefulItem {
 export class StatefulArtifact extends StatefulItem implements IStatefulArtifact, IIStatefulArtifact {
     private state: IArtifactState;
 
-    protected subject: Rx.BehaviorSubject<IStatefulArtifact>;
+    protected _subject: Rx.BehaviorSubject<IStatefulArtifact>;
 
     constructor(artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
         super(artifact, services);
         this.metadata = new MetaData(this);
-        this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
-
         this.state = new ArtifactState(this);
     }
 
     public dispose() {
         super.dispose();
-        this.subject.dispose();
-        delete this.subject;
         if (this.state) {
             this.state.dispose();
         }
     }
+
+    public unsubscribe() {
+        super.unsubscribe();
+        this.subject.onCompleted();
+        delete this._subject;
+    }
+
+    protected get subject(): Rx.BehaviorSubject<IStatefulArtifact> {
+        if (!this._subject) {
+            this._subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);            
+        }    
+        return this._subject;    
+    } 
+
 
     public initialize(artifact: Models.IArtifact): IState {
         if (this.parentId && this.orderIndex &&
@@ -82,7 +92,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 this.subject.onNext(this);
             }).catch((error) => {
                 this.artifactState.readonly = true;
-                this.subject.onError(error);
+                this.error.onNext(error);
             }).finally(() => {
                 this.loadPromise = null;
                 this.runPostGetObservable();
@@ -183,7 +193,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             this.artifactState.lock(lock);
             if (lock.info.versionId !== this.version) {
                 this.refresh();
-                this.services.messageService.addInfo("Artifact_Lock_Refresh");
+                this.services.messageService.addInfo("Artifact_Lock_Refresh", 6000);
             } else {
                 if (lock.info.parentId !== this.parentId || lock.info.orderIndex !== this.orderIndex) {
                     this.artifactState.misplaced = true;
@@ -195,7 +205,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 this.refresh();
                 if (lock.info.versionId !== this.version) {
                     //Show the refresh message only if the version has changed.
-                    this.services.messageService.addInfo("Artifact_Lock_Refresh");
+                    this.services.messageService.addInfo("Artifact_Lock_Refresh", 6000);
                 }
             } else {
                 this.discard();
@@ -261,7 +271,14 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                     deferred.resolve(this);
                 })
                 .catch((err) => {
-                    deferred.reject(err);
+                    const customErrorHandler = this.getCustomArtifactPromisesForSaveFailed();
+                    if (customErrorHandler) {
+                        customErrorHandler.finally(() => {
+                            deferred.reject(err);
+                        });
+                    } else {
+                        deferred.reject(err);
+                    }
                 });
             })
             .catch((err) => {
@@ -279,13 +296,14 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         return deferred.promise;
     }
-   
+
     private saveArtifact(): ng.IPromise<IStatefulArtifact> {
         let deferred = this.services.getDeferred<IStatefulArtifact>();
 
         let changes = this.changes();
         if (!changes) {
-            deferred.reject(new Error("App_Save_Artifact_Error_400_114"));
+            let message: string = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
+            deferred.reject(new Error(message.replace("{0}", this.id.toString())));
         } else {
             this.services.artifactService.updateArtifact(changes)
                 .then((artifact: Models.IArtifact) => {
@@ -296,41 +314,48 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                         deferred.reject(error);
                     });
                 }).catch((error) => {
-                    deferred.reject(error);
                     let message: string;
                     // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
                     if (error) {
-                        if (error.statusCode === 400) {
-                            if (error.errorCode === 114) {
-                                message = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
-                            } else {
-                                message = this.services.localizationService.get("App_Save_Artifact_Error_400") + error.message;
-                            }
-                        } else if (error.statusCode === HttpStatusCode.NotFound) {
-                            message = this.services.localizationService.get("App_Save_Artifact_Error_404");
-                        } else if (error.statusCode === HttpStatusCode.Conflict) {
-                            if (error.errorCode === 116) {
-                                message = this.services.localizationService.get("App_Save_Artifact_Error_409_116");
-                            } else if (error.errorCode === 117) {
-                                message = this.services.localizationService.get("App_Save_Artifact_Error_409_117");
-                            } else if (error.errorCode === 111 || error.errorCode === 115) {
-                                message = this.services.localizationService.get("App_Save_Artifact_Error_409_115");
-                            } else if (error.errorCode === 124) {
-                                message = this.services.localizationService.get("App_Save_Artifact_Error_409_123");
-                            } else {
-                                message = this.services.localizationService.get("App_Save_Artifact_Error_409");
-                            }
-                        } else {
-                            message = this.services.localizationService.get("App_Save_Artifact_Error_Other") + error.statusCode;
-                        }
-
-                        deferred.reject(new Error(message));
+                        deferred.reject(this.handleSaveError(error));
+                    } else {
+                        deferred.reject(error);
                     }
                 }
             );
         }
-
         return deferred.promise;
+    }
+
+    private handleSaveError(error: any): Error {
+        let message: string;
+
+        if (error.statusCode === 400) {
+            if (error.errorCode === 114) {
+                message = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
+            } else {
+                message = this.services.localizationService.get("App_Save_Artifact_Error_400") + error.message;
+            }
+        } else if (error.statusCode === HttpStatusCode.NotFound) {
+            message = this.services.localizationService.get("App_Save_Artifact_Error_404");
+        } else if (error.statusCode === HttpStatusCode.Conflict) {
+            if (error.errorCode === 116) {
+                message = this.services.localizationService.get("App_Save_Artifact_Error_409_116");
+            } else if (error.errorCode === 117) {
+                message = this.services.localizationService.get("App_Save_Artifact_Error_409_117");
+            } else if (error.errorCode === 111 || error.errorCode === 115) {
+                message = this.services.localizationService.get("App_Save_Artifact_Error_409_115");
+            } else if (error.errorCode === 124) {
+                message = this.services.localizationService.get("App_Save_Artifact_Error_409_123");
+            } else {
+                message = this.services.localizationService.get("App_Save_Artifact_Error_409");
+            }
+        } else {
+            message = this.services.localizationService.get("App_Save_Artifact_Error_Other") + error.statusCode;
+        }
+
+        message = message.replace("{0}", this.id.toString());
+        return new Error(message);
     }
 
     //TODO: stub - replace with implementation
@@ -388,8 +413,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     private publishDependents(dependents: Models.IPublishResultSet) {
         this.services.dialogService.open(<IDialogSettings>{
-            okButton: this.services.localizationService.get("App_Button_Yes"),
-            cancelButton: this.services.localizationService.get("App_Button_No"),
+            okButton: this.services.localizationService.get("App_Button_Publish"),
+            cancelButton: this.services.localizationService.get("App_Button_Cancel"),
             message: this.services.localizationService.get("Publish_Dependents_Dialog_Message"),
             template: require("../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish.html"),
             controller: ConfirmPublishController,
@@ -464,6 +489,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return [];
     }
     protected getCustomArtifactPromisesForSave(): ng.IPromise <IStatefulArtifact> {
+        return null;
+    }
+    protected getCustomArtifactPromisesForSaveFailed(): ng.IPromise <IStatefulArtifact> {
         return null;
     }
 

@@ -71,18 +71,9 @@ export class ArtifactAttachmentsService implements IArtifactAttachmentsService {
             (result: ng.IHttpPromiseCallbackArg<IArtifactAttachmentsResultSet>) => {
                 // console.log("retrieved attachments: " + JSON.stringify(result));
                 defer.resolve(result.data);
-
             },
-            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                const error = {
-                    statusCode: errResult.status,
-                    message: errResult.data ? errResult.data.message : "Artifact_NotFound"
-                };
-                defer.reject(error);
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                defer.reject(result.data);
             });
 
         return defer.promise;

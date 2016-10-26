@@ -1,6 +1,8 @@
 ﻿<h6 bp-tooltip="{{ $ctrl.docRefInfo.itemTypePrefix + $ctrl.docRefInfo.artifactId + ' - ' + $ctrl.docRefInfo.artifactName }}"
-    bp-tooltip-truncated="true">{{ $ctrl.docRefInfo.itemTypePrefix + $ctrl.docRefInfo.artifactId + ' - ' +
-    $ctrl.docRefInfo.artifactName }}</h6>
+    bp-tooltip-truncated="true">
+    <a href="javascript://" ng-click="$ctrl.navigateToDocumentReference($ctrl.docRefInfo.artifactId)">
+    {{ $ctrl.docRefInfo.itemTypePrefix + $ctrl.docRefInfo.artifactId + ' - ' + $ctrl.docRefInfo.artifactName }} </a>
+</h6>
 <div class="thumb {{ $ctrl.fileIconClass }}"></div>
 <div class="author"
      bp-tooltip="{{::$ctrl.localization.get('App_UP_Attachments_Uploaded_By') }} {{ $ctrl.docRefInfo.userName }}"

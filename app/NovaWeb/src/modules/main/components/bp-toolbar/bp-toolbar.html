@@ -75,7 +75,11 @@
             <bp-goto></bp-goto>
         </li>
     </ul>
-    <ul class="nav navbar-nav nav-right">
+    <ul class="nav navbar-nav nav-right full-height">
+        <li class="full-height">
+            <quick-search class="full-height block"></quick-search>
+        </li>
+
         <li>
             <a href="#" id="tour" ng-click="$ctrl.execute($event)">
                 <div class="icon-container">
@@ -83,5 +87,6 @@
                 </div>
                 <span>{{::$root.config.labels["App_Toolbar_Tour"]}}</span></a>
         </li>
+
     </ul>
 </div>

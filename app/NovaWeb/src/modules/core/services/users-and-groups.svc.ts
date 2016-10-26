@@ -55,7 +55,7 @@ export class UsersAndGroupsService implements IUsersAndGroupsService {
                   limit?: number,             //webservice default = 5
                   includeGuests?: boolean     //webservice default = true
     ): ng.IPromise<IUserOrGroupInfo[]> {
-        let deferred = this.$q.defer<IUserOrGroupInfo[]>();
+        let defer = this.$q.defer<IUserOrGroupInfo[]>();
         let sanitizedValue = encodeURI(value).replace(/%20/g, " "); // we revert the encoding of space (%20)
         let requestConfig = this.createRequestConfig(
             sanitizedValue,
@@ -65,15 +65,11 @@ export class UsersAndGroupsService implements IUsersAndGroupsService {
         );
         this.$http.get<IUserOrGroupInfo[]>("/svc/shared/users/search", requestConfig)
             .then((result: ng.IHttpPromiseCallbackArg<IUserOrGroupInfo[]>) => {
-                deferred.resolve(result.data);
+                defer.resolve(result.data);
             }, (result: ng.IHttpPromiseCallbackArg<any>) => {
-                const error = {
-                    statusCode: result.status,
-                    message: (result.data ? result.data.message : "")
-                };
-                deferred.reject(error);
+                defer.reject(result.data);
             });
-        return deferred.promise;
+        return defer.promise;
     }
 
 }

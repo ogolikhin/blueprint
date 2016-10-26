@@ -35,10 +35,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         "localization",
         "dialogService",
         "collectionService",
-        "metadataService",
-        "$scope",
-        "$window",
-        "$timeout"
+        "metadataService"
     ];
 
     private collection: ICollection;
@@ -52,10 +49,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         localization: ILocalizationService,
         dialogService: IDialogService,
         private collectionService: ICollectionService,
-        private metadataService: IMetaDataService,
-        $scope: ng.IScope,
-        $window,
-        $timeout
+        private metadataService: IMetaDataService
     ) {
         super(messageService, artifactManager, windowManager, localization, dialogService);
 
@@ -99,7 +93,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             isCheckboxSelection: true,
             width: 30,
             headerName: `<span><span class="ag-selection-checkbox">` +
-            `<i ng-class="$ctrl.selectAllClass" ng-click="console.log(1)"></i></span></span>`
+            `<i ng-class="$ctrl.selectAllClass"></i></span></span>`
         },
         {
             width: 100,

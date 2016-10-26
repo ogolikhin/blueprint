@@ -4,13 +4,13 @@ import {BPTreeController, ITreeNode} from "./bp-tree";
 import {GridApi} from "ag-grid/main";
 
 function toFlat(root: any): any[] {
-    var stack: any[] = angular.isArray(root) ? root.slice() : [root], array: any[] = [];
+    let stack: any[] = angular.isArray(root) ? root.slice() : [root], array: any[] = [];
     while (stack.length !== 0) {
-        var node = stack.shift();
+        let node = stack.shift();
         array.push(node);
         if (angular.isArray(node.children)) {
 
-            for (var i = node.children.length - 1; i >= 0; i--) {
+            for (let i = node.children.length - 1; i >= 0; i--) {
                 stack.push(node.children[i]);
             }
             node.children = null;
@@ -21,10 +21,11 @@ function toFlat(root: any): any[] {
 }
 
 describe("Embedded ag-grid events", () => {
-    var controller: BPTreeController;
-    var $scope, elem;
-    var gridApi = new GridApi();
+    let controller: BPTreeController;
+    let $scope, elem;
+    const gridApi = new GridApi();
     gridApi.setFocusedCell = () => {
+        return;
     };
 
     beforeEach(inject(function (_$q_, _$rootScope_, _$compile_, $timeout) {
@@ -61,18 +62,18 @@ describe("Embedded ag-grid events", () => {
 
     it("getNodeChildDetails", () => {
         // Arrange
-        var rowItemMock = {
+        const rowItemMock = {
             children: true,
             open: true,
             id: 1
         };
 
-        var rowItemMockNoChildren = {};
+        const rowItemMockNoChildren = {};
 
         // Act
-        var options = controller.options;
-        var node = options.getNodeChildDetails(rowItemMock);
-        var nodeNoChildren = options.getNodeChildDetails(rowItemMockNoChildren);
+        const options = controller.options;
+        const node = options.getNodeChildDetails(rowItemMock);
+        const nodeNoChildren = options.getNodeChildDetails(rowItemMockNoChildren);
 
         // Assert
         expect(node.key).toEqual(1);
@@ -82,21 +83,21 @@ describe("Embedded ag-grid events", () => {
 
     it("innerRenderer", () => {
         // Arrange
-        var paramsMock = {
+        const paramsMock = {
             data: {
                 name: "artifact"
             }
         };
-        var paramsMockFolder = {
+        const paramsMockFolder = {
             data: {
-                type: "Folder",
+                type: "Folder"
             }
         };
 
         // Act
-        var options = controller.options;
-        var cellRenderer = options.columnDefs[0].cellRendererParams.innerRenderer(paramsMock);
-        var cellRendererFolder = options.columnDefs[0].cellRendererParams.innerRenderer(paramsMockFolder);
+        const options = controller.options;
+        const cellRenderer = options.columnDefs[0].cellRendererParams.innerRenderer(paramsMock);
+        const cellRendererFolder = options.columnDefs[0].cellRendererParams.innerRenderer(paramsMockFolder);
 
         // Assert
         expect(cellRenderer).toEqual("artifact");
@@ -105,7 +106,7 @@ describe("Embedded ag-grid events", () => {
 
     it("add nodes with property map", inject(($q: ng.IQService) => {
         // Arrange
-        var dataFromCall: ITreeNode[];
+        let dataFromCall: ITreeNode[];
         gridApi.setRowData = function (data) {
             dataFromCall = data as ITreeNode[];
         };
@@ -129,7 +130,7 @@ describe("Embedded ag-grid events", () => {
 
     it("add nodes with property map with not matched properties", inject(($q: ng.IQService) => {
         // Arrange
-        var dataFromCall: ITreeNode[];
+        let dataFromCall: ITreeNode[];
         gridApi.setRowData = function (data) {
             dataFromCall = data as ITreeNode[];
         };
@@ -157,7 +158,7 @@ describe("Embedded ag-grid events", () => {
 
     it("add nodes", inject(($q: ng.IQService) => {
         // Arrange
-        var dataFromCall;
+        let dataFromCall;
         gridApi.setRowData = function (data) {
             dataFromCall = data;
         };
@@ -177,7 +178,7 @@ describe("Embedded ag-grid events", () => {
     }));
     it("add children to node", inject(($q: ng.IQService) => {
         // Arrange
-        var dataFromCall;
+        let dataFromCall;
         gridApi.setRowData = function (data) {
             dataFromCall = data;
         };

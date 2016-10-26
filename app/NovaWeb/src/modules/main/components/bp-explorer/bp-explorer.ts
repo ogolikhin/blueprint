@@ -21,10 +21,11 @@ export class ProjectExplorerController {
     private selectedArtifactSubscriber: Rx.IDisposable;
     private numberOfProjectsOnLastLoad: number;
     private selectedArtifactNameBeforeChange: string;
+    private skipLoadingIfSameId: boolean;
 
     public static $inject: [string] = [
-        "projectManager", 
-        "artifactManager", 
+        "projectManager",
+        "artifactManager",
         "navigationService",
         "selectionManager"
     ];
@@ -33,6 +34,7 @@ export class ProjectExplorerController {
                 private artifactManager: IArtifactManager,
                 private navigationService: INavigationService,
                 private selectionManager: ISelectionManager) {
+        this.skipLoadingIfSameId = false;
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -150,8 +152,11 @@ export class ProjectExplorerController {
 
                 //if node exists in the tree
                 if (this.tree.nodeExists(this.selected.id)) {
-                    this.tree.selectNode(this.selected.id);
-                    this.navigationService.navigateTo(this.selected.id);
+                    if (!this.skipLoadingIfSameId || this.selected.id !== this.tree.getSelectedNodeId) {
+                        this.tree.selectNode(this.selected.id);
+                        this.navigationService.navigateTo(this.selected.id);
+                    }
+                    this.skipLoadingIfSameId = false;
 
                     //replace with a new object from tree, since the selected object may be stale after refresh
                     let selectedObjectInTree: IArtifactNode = <IArtifactNode>this.tree.getNodeData(this.selected.id);
@@ -187,14 +192,14 @@ export class ProjectExplorerController {
             }
             this.numberOfProjectsOnLastLoad = projects.length;
         }
-    }
+    };
 
     public onSelectedArtifactChange = (artifact: IStatefulArtifact) => {
         //If the artifact's name changes (on refresh), we reload the project so the change is reflected in the explorer.
         if (artifact.name !== this.selectedArtifactNameBeforeChange) {
             this.onLoadProject(this.projectManager.projectCollection.getValue());
         }
-    }
+    };
 
     public doLoad = (prms: Models.IProject): any[] => {
         //the explorer must be empty on a first load
@@ -207,9 +212,9 @@ export class ProjectExplorerController {
     };
 
     public doSelect = (node: IArtifactNode) => {
+        this.skipLoadingIfSameId = true;
         this.doSync(node);
         this.selected = node;
-        this.tree.selectNode(node.id);
         this.navigationService.navigateTo(node.id);
     };
 
@@ -223,7 +228,6 @@ export class ProjectExplorerController {
                 open: node.open
             });
         }
-        ;
 
         return artifactNode.artifact;
     };

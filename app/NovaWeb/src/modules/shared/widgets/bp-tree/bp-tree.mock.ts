@@ -17,6 +17,10 @@ export class BPTreeControllerMock implements IBPTreeController {
         return !Boolean(this._datasource && this._datasource.length);
     }
 
+    public get getSelectedNodeId(): number {
+        return 1;
+    }
+
     public selectNode(id: number) {
         return undefined;
     }

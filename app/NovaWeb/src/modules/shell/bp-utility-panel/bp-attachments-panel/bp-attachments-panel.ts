@@ -194,12 +194,11 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
                     this.item.attachments.initialize(this.attachmentsList);
                     this.item.docRefs.initialize(this.docRefList);
                 }
-            } else {
-                const attachmentsSubscriber = this.item.attachments.getObservable().subscribe(this.attachmentsUpdated);
-                const docRefsSubscriber = this.item.docRefs.getObservable().subscribe(this.docRefsUpdated);
+            } 
+            const attachmentsSubscriber = this.item.attachments.getObservable().subscribe(this.attachmentsUpdated);
+            const docRefsSubscriber = this.item.docRefs.getObservable().subscribe(this.docRefsUpdated);
 
-                this.subscribers = [attachmentsSubscriber, docRefsSubscriber];
-            }
+            this.subscribers = [attachmentsSubscriber, docRefsSubscriber];
         }
 
         return super.onSelectionChanged(artifact, subArtifact, timeout);

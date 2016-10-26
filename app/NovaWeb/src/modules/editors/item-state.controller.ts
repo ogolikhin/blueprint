@@ -4,7 +4,7 @@ import { IArtifactManager } from "../managers";
 import { IStatefulArtifact } from "../managers/artifact-manager";
 import { IStatefulArtifactFactory } from "../managers/artifact-manager/artifact";
 import { IMessageService, Message, MessageType } from "../shell";
-import { IAppicationError, HttpStatusCode } from "../core";
+import { IApplicationError, HttpStatusCode } from "../core";
 import { INavigationService } from "../core/navigation";
 import { ILocalizationService } from "../core/localization";
 import { IItemInfoService, IItemInfoResult } from "../core/navigation/item-info.svc";
@@ -29,7 +29,7 @@ export class ItemStateController {
                 private itemInfoService: IItemInfoService,
                 private statefulArtifactFactory: IStatefulArtifactFactory) {
 
-        let id = parseInt($state.params["id"], 10);
+        const id = parseInt($state.params["id"], 10);
 
         if (_.isFinite(id)) {
             this.clearLockedMessages();
@@ -54,6 +54,7 @@ export class ItemStateController {
             } else if (this.itemInfoService.isProject(result)) {
                 // TODO: implement project navigation in the future US
                 this.messageService.addError("This artifact type cannot be opened directly using the Go To feature.");
+                this.navigationService.navigateToMain();
 
             } else if (this.itemInfoService.isArtifact(result) && !this.isBaselineOrReview(result.predefinedType)) {
                 const artifact: Models.IArtifact = {
@@ -147,7 +148,7 @@ export class ItemStateController {
         }
     }
 
-    protected onArtifactError = (error: IAppicationError) => {
+    protected onArtifactError = (error: IApplicationError) => {
         if (error.statusCode === HttpStatusCode.NotFound) {
             const artifact = this.artifactManager.selection.getArtifact();
             this.navigationService.navigateToMain().finally(() => {

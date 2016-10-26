@@ -270,20 +270,25 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 this.saveArtifact().then(() => {
                     deferred.resolve(this);
                 })
-                .catch((err) => {
-                    deferred.reject(err);
+                .catch((error) => {
+                    deferred.reject(error);
                 });
             })
-            .catch((err) => {
-                deferred.reject(err);
+            .catch((error) => {
+                // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
+                if (error) {
+                    deferred.reject(this.handleSaveError(error));
+                } else {
+                    deferred.reject(error);
+                }
             });
         } else {
             this.saveArtifact()
                 .then(() => {
                     deferred.resolve(this);
                 })
-                .catch((err) => {
-                    deferred.reject(err);
+                .catch((error) => {
+                    deferred.reject(error);
                 });
         } 
 
@@ -307,7 +312,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                         deferred.reject(error);
                     });
                 }).catch((error) => {
-                    let message: string;
                     // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
                     if (error) {
                         deferred.reject(this.handleSaveError(error));
@@ -320,7 +324,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return deferred.promise;
     }
 
-    private handleSaveError(error: any): Error {
+    protected handleSaveError(error: any): Error {
         let message: string;
 
         if (error.statusCode === 400) {

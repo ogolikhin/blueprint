@@ -1,4 +1,4 @@
-import {IArtifactProperty, IUserTaskShape, PropertyTypePredefined, IArtifactReference} from "../../../../../models/process-models";
+﻿import {IArtifactProperty, IUserTaskShape, PropertyTypePredefined, IArtifactReference} from "../../../../../models/process-models";
 import {ItemIndicatorFlags} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {
@@ -62,7 +62,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         //Delete Shape
         const clickAction = () => {
-                this.processDiagramManager.action(ProcessEvents.DeleteShape);
+            this.processDiagramManager.action(ProcessEvents.DeleteShape);
         };
 
         this.deleteShapeButton = new DeleteShapeButton(nodeId, this.BUTTON_SIZE, this.BUTTON_SIZE,
@@ -157,7 +157,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             if (this.personaLabel) {
                 this.personaLabel.text = value;
                 this.shapesFactoryService.setUserTaskPersona(value);
-            } 
+            }
         }
     }
 
@@ -166,7 +166,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public set description(value: string) {
-       this.setPropertyValue("description", value);
+        this.setPropertyValue("description", value);
     }
 
     public get objective(): string {
@@ -174,7 +174,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public set objective(value: string) {
-       this.setPropertyValue("itemLabel", value);
+        this.setPropertyValue("itemLabel", value);
     }
 
     public get associatedArtifact(): IArtifactReference {
@@ -183,7 +183,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
     public set associatedArtifact(value: IArtifactReference) {
         if (this.model != null && this.model.associatedArtifact !== value) {
-            this.model.associatedArtifact = value;           
+            this.model.associatedArtifact = value;
             this.updateStatefulPropertyValue(PropertyTypePredefined.AssociatedArtifact, value);
             if (!value || value === null) {
                 this.linkButton.disable();

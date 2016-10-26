@@ -155,48 +155,5 @@ describe("Get process data model from the process model service", () => {
                 expect(failureSpy).toHaveBeenCalled();
             });
         });
-    });
-
-    describe("getProcesses", () => {
-        describe("When processes collection is returned from the server", () => {
-            it("should return data successfully through a promise", () => {
-                // Arrange
-                var successSpy = jasmine.createSpy("success"),
-                    failureSpy = jasmine.createSpy("failure");
-                var projectId = 1;
-                var processes = [];
-                processes.push({projectId: 1, id: 2});
-
-                httpBackend.when("GET", `/svc/components/storyteller/projects/${projectId}/processes`)
-                    .respond(processes);
-
-                // Act
-                service.getProcesses(projectId).then(successSpy, failureSpy);
-                httpBackend.flush();
-
-                // Assert
-                expect(successSpy).toHaveBeenCalled();
-                expect(failureSpy).not.toHaveBeenCalled();
-            });
-        });
-
-        describe("When processes collection is not returned from the server", () => {
-            it("should reject data through promise if data is not found", () => {
-                // Arrange
-                var successSpy = jasmine.createSpy("success"),
-                    failureSpy = jasmine.createSpy("failure");
-                var projectId = 0;
-                httpBackend.when("GET", `/svc/components/storyteller/projects/${projectId}/processes`)
-                    .respond(() => [HttpStatusCode.NotFound, {}, {}, "Not Found"]);
-
-                // Act
-                service.getProcesses(projectId).then(successSpy, failureSpy);
-                httpBackend.flush();
-
-                // Assert
-                expect(successSpy).not.toHaveBeenCalled();
-                expect(failureSpy).toHaveBeenCalled();
-            });
-        });
-    });
+    });    
 });

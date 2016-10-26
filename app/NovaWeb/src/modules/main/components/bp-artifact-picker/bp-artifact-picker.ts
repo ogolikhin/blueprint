@@ -33,6 +33,16 @@ export class ArtifactPickerDialogController extends BaseDialogController {
     }
 }
 
+/**
+ * Usage:
+ *
+ * <bp-artifact-picker selectable-item-types="$ctrl.selectableItemTypes" ;
+ *                     selection-mode="$ctrl.selectionMode" ;
+ *                     show-sub-artifacts="$ctrl.showSubArtifacts"
+ *                     is-one-project-level="$ctrl.isOneProjectLevel"
+ *                     on-selection-changed="$ctrl.onSelectionChanged(selectedVMs)">
+ * </bp-artifact-picker>
+ */
 export class BpArtifactPicker implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactPickerController;
     public template: string = require("./bp-artifact-picker.html");

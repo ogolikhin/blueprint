@@ -49,7 +49,7 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
         };
 
         this.$scope["getExtension"] = () => {
-            FiletypeParser.getFiletypeClass($scope["getFilename"]());
+            return FiletypeParser.getFiletypeClass($scope["getFilename"]());
         };
 
         this.$scope["getHasFile"] = () => {

@@ -37,7 +37,7 @@ export class QuickSearchService {
         const deferred = this.$q.defer();
         const request: ng.IRequestConfig = {
             method: "POST",
-            url: `/svc/searchservice/FullTextSearch`,
+            url: `/svc/searchservice/itemsearch/fulltext`,
             params: {},
             data: {
                 "Query": term,

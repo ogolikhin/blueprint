@@ -27,7 +27,7 @@ export class QuickSearchModalController {
         this.quickSearchService.search(term).then((results) => {
             //assign the results and display
             //if results are greater than one
-            this.results = results.fullTextSearchItems;
+            this.results = results.items;
             this.isLoading = false;
         });
     }

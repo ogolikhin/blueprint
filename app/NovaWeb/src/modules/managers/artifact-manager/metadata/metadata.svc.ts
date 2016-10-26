@@ -57,8 +57,8 @@ export class MetaDataService implements IMetaDataService {
         return promise;
     }
 
-    private load(projectId: number, deferred: ng.IDeferred<ProjectMetaData>) {
-        this.promises[String(projectId)] = deferred.promise;
+    private load(projectId: number, defer: ng.IDeferred<ProjectMetaData>) {
+        this.promises[String(projectId)] = defer.promise;
         const url = `svc/artifactstore/projects/${projectId}/meta/customtypes`;
         this.$http.get<IProjectMeta>(url).then(
             (result: ng.IHttpPromiseCallbackArg<IProjectMeta>) => {
@@ -81,18 +81,10 @@ export class MetaDataService implements IMetaDataService {
                 }
                 const metadata = new ProjectMetaData(projectId, result.data);
                 this.projectsMeta[String(projectId)] = metadata;
-                deferred.resolve(metadata);
+                defer.resolve(metadata);
             },
-            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    deferred.reject();
-                    return;
-                }
-                const error = {
-                    statusCode: errResult.status,
-                    message: "Project_NotFound"
-                };
-                deferred.reject(error);
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                defer.reject(result.data);
             }
         ).finally(() => {
             delete this.promises[String(projectId)];

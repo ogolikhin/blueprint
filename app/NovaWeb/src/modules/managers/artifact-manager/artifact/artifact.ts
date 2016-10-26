@@ -34,24 +34,34 @@ export interface IIStatefulArtifact extends IIStatefulItem {
 export class StatefulArtifact extends StatefulItem implements IStatefulArtifact, IIStatefulArtifact {
     private state: IArtifactState;
 
-    protected subject: Rx.BehaviorSubject<IStatefulArtifact>;
+    protected _subject: Rx.BehaviorSubject<IStatefulArtifact>;
 
     constructor(artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
         super(artifact, services);
         this.metadata = new MetaData(this);
-        this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
-
         this.state = new ArtifactState(this);
     }
 
     public dispose() {
         super.dispose();
-        this.subject.dispose();
-        delete this.subject;
         if (this.state) {
             this.state.dispose();
         }
     }
+
+    public unsubscribe() {
+        super.unsubscribe();
+        this.subject.onCompleted();
+        delete this._subject;
+    }
+
+    protected get subject(): Rx.BehaviorSubject<IStatefulArtifact> {
+        if (!this._subject) {
+            this._subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);            
+        }    
+        return this._subject;    
+    } 
+
 
     public initialize(artifact: Models.IArtifact): IState {
         if (this.parentId && this.orderIndex &&
@@ -82,7 +92,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 this.subject.onNext(this);
             }).catch((error) => {
                 this.artifactState.readonly = true;
-                this.subject.onError(error);
+                this.error.onNext(error);
             }).finally(() => {
                 this.loadPromise = null;
                 this.runPostGetObservable();

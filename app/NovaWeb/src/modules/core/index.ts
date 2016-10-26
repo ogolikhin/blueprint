@@ -26,6 +26,10 @@ export {
     ISettingsService,
     SettingsService,
 };
+export {
+    IAppicationError,
+    AppicationError
+} from "./error";
 
 export {
     IFileUploadService,

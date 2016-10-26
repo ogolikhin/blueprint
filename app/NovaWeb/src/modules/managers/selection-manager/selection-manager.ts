@@ -1,6 +1,8 @@
+import {IAppicationError, HttpStatusCode} from "./../../core";
 import {IItem} from "./../../main/models/models";
-import {IStatefulArtifact, IStatefulSubArtifact} from "./../../managers/artifact-manager";
+import {IStatefulArtifact, IStatefulSubArtifact, IStatefulItem} from "./../../managers/artifact-manager";
 import {IDispose} from "./../../managers/models";
+
 
 export interface ISelectionManager extends IDispose {
     artifactObservable: Rx.Observable<IStatefulArtifact>;
@@ -27,14 +29,14 @@ export interface ISelection {
 }
 
 export class SelectionManager implements ISelectionManager {
+    
     private selectionSubject: Rx.BehaviorSubject<ISelection>;
     private explorerArtifactSelectionSubject: Rx.BehaviorSubject<IStatefulArtifact>;
-    private editorArtifact: IStatefulArtifact;
 
     constructor() {
         const selection = <ISelection>{
-            artifact: null,
-            subArtifact: null
+            artifact: undefined,
+            subArtifact: undefined
         };
         this.selectionSubject = new Rx.BehaviorSubject<ISelection>(selection);
         this.explorerArtifactSelectionSubject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
@@ -69,7 +71,7 @@ export class SelectionManager implements ISelectionManager {
      */
     public get currentlySelectedArtifactObservable() {
        return this.selectionSubject
-           .filter(selection => selection != null && selection.artifact != null)
+           .filter(selection => !!(selection && selection.artifact))
            .flatMap(selection => selection.artifact.getObservable())
            //.distinctUntilChanged(this.distinctById) -Don't re-enable without testing refreshing a deleted artifact; we need every artifact event.
            .asObservable();
@@ -80,15 +82,16 @@ export class SelectionManager implements ISelectionManager {
     }
 
     public getArtifact(): IStatefulArtifact {
-        return this.editorArtifact;
+        return this.selectionSubject.getValue().artifact;
     }
 
     public setArtifact(artifact: IStatefulArtifact) {
+        
         const selection = <ISelection>{
             artifact: artifact,
-            subArtifact: null
+            subArtifact: undefined
         };
-        this.editorArtifact = artifact;
+
         this.setSelectionSubject(selection);
     }
 
@@ -120,19 +123,19 @@ export class SelectionManager implements ISelectionManager {
     }
 
     public clearAll() {
-        const selection = <ISelection>{
-            artifact: null,
-            subArtifact: null
+        const emptyselection = <ISelection>{
+            artifact: undefined,
+            subArtifact: undefined
         };
-        this.setExplorerArtifact(null);
-        this.setSelectionSubject(selection);
+        this.setExplorerArtifact(undefined);
+        this.setSelectionSubject(emptyselection);
     }
 
     public clearSubArtifact() {
         const val = this.selectionSubject.getValue();
         const selection = <ISelection>{
             artifact: val.artifact,
-            subArtifact: null
+            subArtifact: undefined
         };
 
         this.setSelectionSubject(selection);
@@ -142,7 +145,23 @@ export class SelectionManager implements ISelectionManager {
         return item ? item.id : -1;
     }
 
+
+    private unsubscribe(selection: ISelection) {
+        const prevSelection = this.selectionSubject.getValue();
+
+        if (prevSelection && selection) {
+            if (prevSelection.artifact && !_.isEqual(prevSelection.artifact, selection.artifact)) {
+                prevSelection.artifact.unsubscribe();
+            }
+            if (prevSelection.subArtifact && !_.isEqual(prevSelection.subArtifact, selection.subArtifact)) {
+                prevSelection.subArtifact.unsubscribe();
+            }
+        }
+    }
+
     private setSelectionSubject(selection: ISelection) {
+        this.unsubscribe(selection);
         this.selectionSubject.onNext(selection);
     }
+    
 }

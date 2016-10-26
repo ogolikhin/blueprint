@@ -2,7 +2,7 @@ import { UserTask, SystemTask } from "../../diagram/presentation/graph/shapes/";
 import { UserStoryProperties } from "../../diagram/presentation/graph/shapes/user-task";
 import { IDiagramNode } from "../../diagram/presentation/graph/models";
 import { IArtifactManager } from "../../../../../managers";
-import { IStatefulArtifact } from "../../../../../managers/artifact-manager";
+import { IStatefulArtifact, IStatefulArtifactFactory } from "../../../../../managers/artifact-manager";
 
 export class PreviewCenterController {
     private userStoryTitle: string = "ST-Title";
@@ -34,7 +34,8 @@ export class PreviewCenterController {
         "$rootScope",
         "$sce",
         "artifactManager",
-        "$state"
+        "$state",
+        "statefulArtifactFactory"
     ];
 
     public resizeContentAreas = function (isTabSetVisible) {
@@ -128,8 +129,8 @@ export class PreviewCenterController {
         private $rootScope: ng.IRootScopeService,
         private $sce: ng.ISCEService,
         private artifactManager: IArtifactManager,
-        private $state: angular.ui.IStateService
-        // private projectManager: IProjectManager,
+        private $state: angular.ui.IStateService,
+        private statefulArtifactFactory: IStatefulArtifactFactory
     ) {
 
         this.subscribers = [];
@@ -175,12 +176,15 @@ export class PreviewCenterController {
         if (userStoryId) {
             const artifact = this.artifactManager.get(userStoryId);
             if (artifact) {
-                this.statefulUserStoryArtifact = artifact;
-                let observer = this.statefulUserStoryArtifact.getObservable().subscribe((obs: IStatefulArtifact) => {
-                    this.loadMetaData(obs);
-                });
-                this.subscribers = [observer];
-            };
+                this.statefulUserStoryArtifact = artifact;               
+            } else {
+                this.statefulUserStoryArtifact = this.statefulArtifactFactory.createStatefulArtifact({id: userStoryId});
+
+            }
+            const observer = this.statefulUserStoryArtifact.getObservable().subscribe((obs: IStatefulArtifact) => {
+                this.loadMetaData(obs);
+            });
+            this.subscribers = [observer];
         }
     }
 

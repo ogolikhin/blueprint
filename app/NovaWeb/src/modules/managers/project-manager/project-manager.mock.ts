@@ -18,7 +18,7 @@
 //     public loadProject = (project: Models.IProject) => { };
 //     public loadArtifact = (project: Models.IArtifact) => { };
 //     public loadFolders = (id?: number) => {
-//         var deferred = this.$q.defer<Models.IProjectNode[]>();
+//         var deferred = this.$q.defer<AdminStoreModels.IInstanceItem[]>();
 //         let items = [{ id: 1, name: "test", type: 1, parentFolderId: 0, hasChildren: false }];
 //         deferred.resolve(items);
 //         return deferred.promise;

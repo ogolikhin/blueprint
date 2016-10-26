@@ -94,4 +94,118 @@ describe("ProcessViewModel", () => {
         //Assert
         expect(processArtifact.subArtifactCollection.list().length).toBe(0);
     });
+
+    it("returns isChanged null if process is not stateful artifact", () => {
+        // arrange
+        const process = TestModels.createDefaultProcessModel();
+        const viewModel = new ProcessViewModel(process, null);
+
+        // act
+        const isChanged = viewModel.isChanged;
+
+        // assert
+        expect(isChanged).toBe(null);
+    });
+
+    it("returns isChanged true if process is dirty", () => {
+        // arrange
+        const process = TestModels.createDefaultProcessModel();
+        process["artifactState"] = {dirty: true};
+        const viewModel = new ProcessViewModel(process, null);
+
+        // act
+        const isChanged = viewModel.isChanged;
+
+        // assert
+        expect(isChanged).toBe(true);
+    });
+
+    it("returns isChanged false if process is not dirty", () => {
+        // arrange
+        const process = TestModels.createDefaultProcessModel();
+        process["artifactState"] = {dirty: false};
+        const viewModel = new ProcessViewModel(process, null);
+
+        // act
+        const isChanged = viewModel.isChanged;
+
+        // assert
+        expect(isChanged).toBe(false);
+    });
+
+    it("returns isReadonly null if process is not stateful artifact", () => {
+        // arrange
+        const process = TestModels.createDefaultProcessModel();
+        const viewModel = new ProcessViewModel(process, null);
+
+        // act
+        const isReadonly = viewModel.isReadonly;
+
+        // assert
+        expect(isReadonly).toBe(null);
+    });
+
+    it("returns isReadonly true if process is read-only", () => {
+        // arrange
+        const process = TestModels.createDefaultProcessModel();
+        process["artifactState"] = {readonly: true};
+        const viewModel = new ProcessViewModel(process, null);
+
+        // act
+        const isReadonly = viewModel.isReadonly;
+
+        // assert
+        expect(isReadonly).toBe(true);
+    });
+
+    it("returns isReadonly false if process is not read-only", () => {
+        // arrange
+        const process = TestModels.createDefaultProcessModel();
+        process["artifactState"] = {readonly: false};
+        const viewModel = new ProcessViewModel(process, null);
+
+        // act
+        const isReadonly = viewModel.isReadonly;
+
+        // assert
+        expect(isReadonly).toBe(false);
+    });
+
+    it("returns isHistorical null if process is not stateful artifact", () => {
+        // arrange
+        const process = TestModels.createDefaultProcessModel();
+        const viewModel = new ProcessViewModel(process, null);
+
+        // act
+        const isHistorical = viewModel.isHistorical;
+
+        // assert
+        expect(isHistorical).toBe(null);
+    });
+
+    it("returns isHistorical true if process is historical", () => {
+        // arrange
+        const process = TestModels.createDefaultProcessModel();
+        process["historical"] = true;
+        const viewModel = new ProcessViewModel(process, null);
+
+        // act
+        const isHistorical = viewModel.isHistorical;
+
+        // assert
+        expect(isHistorical).toBe(true);
+    });
+
+    it("returns isHistorical false if process is not historical", () => {
+        // arrange
+        const process = TestModels.createDefaultProcessModel();
+        process["historical"] = false;
+        const viewModel = new ProcessViewModel(process, null);
+
+        // act
+        const isHistorical = viewModel.isHistorical;
+
+        // assert
+        expect(isHistorical).toBe(false);
+    });
 });

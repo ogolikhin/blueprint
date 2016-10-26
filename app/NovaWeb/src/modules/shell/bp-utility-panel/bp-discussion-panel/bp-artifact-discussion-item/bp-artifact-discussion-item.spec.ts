@@ -17,7 +17,7 @@ describe("Component BPArtifactDiscussionItem", () => {
 
     let directiveTest: ComponentTest<BPArtifactDiscussionItemController>;
     let vm: BPArtifactDiscussionItemController;
-    let template = `<bp-artifact-discussion-item 
+    let template = `<bp-artifact-discussion-item
             discussion-info="null"
             artifact-id="1">
         </bp-artifact-discussion-item>`;
@@ -65,8 +65,7 @@ describe("Component BPArtifactDiscussionItem", () => {
 
             //Arrange
             vm.artifactId = 1;
-            vm.discussionEdited = () => {
-            };
+            vm.discussionEdited = () => undefined;
 
             //Act
             vm.editDiscussion("");
@@ -80,8 +79,7 @@ describe("Component BPArtifactDiscussionItem", () => {
         inject(($timeout: ng.ITimeoutService, $q: ng.IQService) => {
             //Arrange
             vm.artifactId = 1;
-            vm.discussionEdited = () => {
-            };
+            vm.discussionEdited = () => undefined;
             let deferred = $q.defer();
             ArtifactDiscussionsMock.prototype.editDiscussion = jasmine.createSpy("editDiscussion() spy").and.callFake(
                 (): ng.IPromise<IDiscussion> => {
@@ -108,8 +106,7 @@ describe("Component BPArtifactDiscussionItem", () => {
         () => {
             //Arrange
             vm.canCreate = true;
-            vm.cancelComment = () => {
-            };
+            vm.cancelComment = () => undefined;
 
             //Act
             vm.newReplyClick();

@@ -31,6 +31,7 @@ export class WindowMock {
     public location = {origin: "http://localhost:9876"};
 
     public open() {
+        return;
     }
 }
 
@@ -51,40 +52,40 @@ export class SessionSvcMock implements ISession {
     }
 
     public ensureAuthenticated() {
-        var deferred = this.$q.defer<any>();
+        const deferred = this.$q.defer<any>();
         this.currentUser = <IUser>{displayName: "Default Instance Admin", login: "admin"};
         deferred.resolve();
         return deferred.promise;
     }
 
     public logout() {
-        var deferred = this.$q.defer<any>();
+        const deferred = this.$q.defer<any>();
         deferred.resolve();
         return deferred.promise;
     }
 
     public onExpired() {
-        var deferred = this.$q.defer<any>();
+        const deferred = this.$q.defer<any>();
         deferred.resolve();
         return deferred.promise;
     }
 
     public login(username: string, password: string, overrideSession: boolean) {
-        var deferred = this.$q.defer<any>();
+        const deferred = this.$q.defer<any>();
         this.currentUser = <IUser>{displayName: "Default Instance Admin", login: "admin"};
         deferred.resolve();
         return deferred.promise;
     }
 
     public loginWithSaml(overrideSession: boolean) {
-        var deferred = this.$q.defer<any>();
+        const deferred = this.$q.defer<any>();
         this.currentUser = <IUser>{displayName: "Default Instance Admin", login: "admin"};
         deferred.resolve();
         return deferred.promise;
     }
 
     public resetPassword(login: string, oldPassword: string, newPassword: string) {
-        var deferred = this.$q.defer<any>();
+        const deferred = this.$q.defer<any>();
         deferred.resolve();
         return deferred.promise;
     }
@@ -98,34 +99,34 @@ export class AuthSvcMock implements IAuth {
     }
 
     public getCurrentUser(): ng.IPromise<IUser> {
-        var deferred = this.$q.defer<IUser>();
-        var user: IUser = <IUser>{displayName: "Default Instance Admin", login: "admin"};
+        const deferred = this.$q.defer<IUser>();
+        const user: IUser = <IUser>{displayName: "Default Instance Admin", login: "admin"};
         deferred.resolve(user);
         return deferred.promise;
     }
 
     public login(userName: string, password: string, overrideSession: boolean): ng.IPromise<IUser> {
-        var deferred = this.$q.defer<IUser>();
-        var user: IUser = <IUser>{displayName: "Default Instance Admin", login: "admin"};
+        const deferred = this.$q.defer<IUser>();
+        const user: IUser = <IUser>{displayName: "Default Instance Admin", login: "admin"};
         deferred.resolve(user);
         return deferred.promise;
     }
 
     public loginWithSaml(overrideSession: boolean = false, prevLogin: string): ng.IPromise<IUser> {
-        var deferred = this.$q.defer<IUser>();
-        var user: IUser = <IUser>{displayName: "Default Instance Admin", login: "admin"};
+        const deferred = this.$q.defer<IUser>();
+        const user: IUser = <IUser>{displayName: "Default Instance Admin", login: "admin"};
         deferred.resolve(user);
         return deferred.promise;
     }
 
     public logout(userInfo: IUser, skipSamlLogout: boolean): ng.IPromise<any> {
-        var deferred = this.$q.defer<any>();
+        const deferred = this.$q.defer<any>();
         deferred.resolve();
         return deferred.promise;
     }
 
     resetPassword(login: string, oldPassword: string, newPassword: string): ng.IPromise<any> {
-        var deferred = this.$q.defer<any>();
+        const deferred = this.$q.defer<any>();
         deferred.resolve();
         return deferred.promise;
     }
@@ -143,10 +144,10 @@ export class ModalServiceMock implements ng.ui.bootstrap.IModalService {
 
     public open(options: ng.ui.bootstrap.IModalSettings): ng.ui.bootstrap.IModalServiceInstance {
         // typescript trick
-        var controller: any = <any>options.controller;
+        const controller: any = <any>options.controller;
 
         /* tslint:disable:no-unused-variable */
-        var ctrl = new controller(
+        const ctrl = new controller(
             new LocalizationServiceMock(this.$rootScope),
             this.instanceMock,
             new SessionSvcMock(this.$q),

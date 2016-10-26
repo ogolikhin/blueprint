@@ -2,8 +2,10 @@ import {ItemTypePredefined, PropertyTypePredefined} from "../../../main/models/e
 import {IHashMap} from "../../../main/models/models";
 import {PropertyType, PropertyValueFormat, ArtifactUpdateType} from "./enums";
 
-export {ItemTypePredefined, PropertyTypePredefined};
-    
+export {
+    ItemTypePredefined, 
+    PropertyTypePredefined
+};
 
 export interface IArtifactInfo {
     id: number;
@@ -18,12 +20,14 @@ export interface IArtifactInfo {
     predefined: ItemTypePredefined;
     hasComments: boolean;
 }
+
 export interface IArtifactProperty {
     name: string;
     value: any;
     format: PropertyValueFormat;
     propertyTypeId: number;
 }
+
 export interface IArtifactWithProperties {
     artifactId: number;
     properties: IArtifactProperty[];

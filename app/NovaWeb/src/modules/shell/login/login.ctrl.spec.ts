@@ -35,10 +35,10 @@ describe("LoginCtrl", () => {
             inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
                 // Arrange
                 spyOn(session, "login").and.callFake(function () {
-                    var deferred = $q.defer();
-                    var error = {
+                    const deferred = $q.defer();
+                    const error = {
                         statusCode: HttpStatusCode.Unauthorized,
-                        errorCode: 2000,
+                        errorCode: 2000
                     };
                     deferred.reject(error);
                     return deferred.promise;
@@ -60,8 +60,8 @@ describe("LoginCtrl", () => {
             inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
                 // Arrange
                 spyOn(session, "login").and.callFake(function () {
-                    var deferred = $q.defer();
-                    var error = {
+                    const deferred = $q.defer();
+                    const error = {
                         statusCode: HttpStatusCode.Unauthorized,
                         errorCode: 2003
                     };
@@ -84,10 +84,10 @@ describe("LoginCtrl", () => {
         it("return account disabled error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
             spyOn(session, "login").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
+                const deferred = $q.defer();
+                const error = {
                     errorCode: 2001,
-                    statusCode: HttpStatusCode.Unauthorized,
+                    statusCode: HttpStatusCode.Unauthorized
                 };
                 deferred.reject(error);
                 return deferred.promise;
@@ -108,10 +108,10 @@ describe("LoginCtrl", () => {
         it("return password expired error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
             spyOn(session, "login").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
+                const deferred = $q.defer();
+                const error = {
                     errorCode: 2002,
-                    statusCode: HttpStatusCode.Unauthorized,
+                    statusCode: HttpStatusCode.Unauthorized
                 };
                 deferred.reject(error);
                 return deferred.promise;
@@ -132,10 +132,10 @@ describe("LoginCtrl", () => {
         it("return password expired error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
             spyOn(session, "login").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
+                const deferred = $q.defer();
+                const error = {
                     errorCode: 1001,
-                    statusCode: HttpStatusCode.Unauthorized,
+                    statusCode: HttpStatusCode.Unauthorized
                 };
                 deferred.reject(error);
                 return deferred.promise;
@@ -156,8 +156,8 @@ describe("LoginCtrl", () => {
         it("return unexpected error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
             spyOn(session, "login").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
+                const deferred = $q.defer();
+                const error = {
                     statusCode: HttpStatusCode.Unauthorized,
                     errorCode: 2010,
                     message: "unexpected error"
@@ -181,8 +181,8 @@ describe("LoginCtrl", () => {
         it("return license limit reached", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
             spyOn(session, "login").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
+                const deferred = $q.defer();
+                const error = {
                     statusCode: HttpStatusCode.Forbidden,
                     message: "Login_Auth_LicenseLimitReached"
                 };
@@ -205,8 +205,8 @@ describe("LoginCtrl", () => {
         it("return license server not found", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
             spyOn(session, "login").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
+                const deferred = $q.defer();
+                const error = {
                     statusCode: HttpStatusCode.NotFound,
                     message: "Login_Auth_LicenseNotFound_Verbose"
                 };
@@ -229,8 +229,8 @@ describe("LoginCtrl", () => {
         it("return session override error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
             spyOn(session, "login").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
+                const deferred = $q.defer();
+                const error = {
                     statusCode: 409
                 };
                 deferred.reject(error);
@@ -251,8 +251,8 @@ describe("LoginCtrl", () => {
         it("return unexpected status code error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
             spyOn(session, "login").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
+                const deferred = $q.defer();
+                const error = {
                     statusCode: 411,
                     message: "unexpected status code"
                 };
@@ -333,10 +333,10 @@ describe("LoginCtrl", () => {
         it("return account disabled error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
             spyOn(session, "loginWithSaml").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
+                const deferred = $q.defer();
+                const error = {
                     errorCode: 2001,
-                    statusCode: HttpStatusCode.Unauthorized,
+                    statusCode: HttpStatusCode.Unauthorized
                 };
                 deferred.reject(error);
                 return deferred.promise;
@@ -355,10 +355,10 @@ describe("LoginCtrl", () => {
         it("return account in AD but not in BP", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
             spyOn(session, "loginWithSaml").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
+                const deferred = $q.defer();
+                const error = {
                     errorCode: 2000,
-                    statusCode: HttpStatusCode.Unauthorized,
+                    statusCode: HttpStatusCode.Unauthorized
                 };
                 deferred.reject(error);
                 return deferred.promise;
@@ -378,8 +378,8 @@ describe("LoginCtrl", () => {
         it("return session override error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
             spyOn(session, "loginWithSaml").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
+                const deferred = $q.defer();
+                const error = {
                     statusCode: 409
                 };
                 deferred.reject(error);
@@ -398,8 +398,8 @@ describe("LoginCtrl", () => {
         it("return unexpected error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
             spyOn(session, "loginWithSaml").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
+                const deferred = $q.defer();
+                const error = {
                     statusCode: HttpStatusCode.Unauthorized,
                     errorCode: 2010,
                     message: "unexpected error"
@@ -421,8 +421,8 @@ describe("LoginCtrl", () => {
         it("return unexpected status code error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
             spyOn(session, "loginWithSaml").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
+                const deferred = $q.defer();
+                const error = {
                     statusCode: 411,
                     message: "unexpected status code"
                 };
@@ -527,8 +527,8 @@ describe("LoginCtrl", () => {
                 loginCtrl.novaNewPassword = "123EWQ!@#";
                 loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
                 spyOn(session, "resetPassword").and.callFake(function () {
-                    var deferred = $q.defer();
-                    var error = {
+                    const deferred = $q.defer();
+                    const error = {
                         statusCode: HttpStatusCode.Unauthorized,
                         errorCode: 2000
                     };
@@ -552,8 +552,8 @@ describe("LoginCtrl", () => {
             loginCtrl.novaNewPassword = "123EWQ!@#";
             loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
             spyOn(session, "resetPassword").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
+                const deferred = $q.defer();
+                const error = {
                     statusCode: HttpStatusCode.Unauthorized,
                     errorCode: 2001
                 };
@@ -577,8 +577,8 @@ describe("LoginCtrl", () => {
             loginCtrl.novaNewPassword = "123EWQ!@#";
             loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
             spyOn(session, "resetPassword").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
+                const deferred = $q.defer();
+                const error = {
                     statusCode: HttpStatusCode.Unauthorized,
                     errorCode: 2003
                 };
@@ -602,8 +602,8 @@ describe("LoginCtrl", () => {
             loginCtrl.novaNewPassword = "123EWQ!@#";
             loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
             spyOn(session, "resetPassword").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
+                const deferred = $q.defer();
+                const error = {
                     statusCode: 400,
                     errorCode: 4000
                 };
@@ -628,8 +628,8 @@ describe("LoginCtrl", () => {
                 loginCtrl.novaNewPassword = "123EWQ!@#";
                 loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
                 spyOn(session, "resetPassword").and.callFake(function () {
-                    var deferred = $q.defer();
-                    var error = {
+                    const deferred = $q.defer();
+                    const error = {
                         statusCode: 400,
                         errorCode: 4001
                     };
@@ -654,8 +654,8 @@ describe("LoginCtrl", () => {
                 loginCtrl.novaNewPassword = "123EWQ!@#";
                 loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
                 spyOn(session, "resetPassword").and.callFake(function () {
-                    var deferred = $q.defer();
-                    var error = {
+                    const deferred = $q.defer();
+                    const error = {
                         statusCode: 400,
                         errorCode: 4002
                     };
@@ -679,9 +679,9 @@ describe("LoginCtrl", () => {
             loginCtrl.novaNewPassword = "123EWQ!@#";
             loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
             spyOn(session, "resetPassword").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
-                    statusCode: HttpStatusCode.ServerError,
+                const deferred = $q.defer();
+                const error = {
+                    statusCode: HttpStatusCode.ServerError
                 };
                 deferred.reject(error);
                 return deferred.promise;

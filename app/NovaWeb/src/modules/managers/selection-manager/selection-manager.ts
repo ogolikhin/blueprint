@@ -151,16 +151,16 @@ export class SelectionManager implements ISelectionManager {
 
     private unsubscribe(selection: ISelection) {
         const prevSelection = this.selectionSubject.getValue();
-        
-        if (prevSelection) {
-            if (prevSelection.artifact && selection &&  prevSelection.artifact.id !== selection.artifact.id) {
+
+        if (prevSelection && selection) {
+            if (prevSelection.artifact && !_.isEqual(prevSelection.artifact, selection.artifact)) {
                 prevSelection.artifact.unsubscribe();
             }
-            if (prevSelection.subArtifact && selection &&  prevSelection.subArtifact.id !== selection.subArtifact.id) {
+            if (prevSelection.subArtifact && !_.isEqual(prevSelection.subArtifact, selection.subArtifact)) {
                 prevSelection.subArtifact.unsubscribe();
             }
         }
-    } 
+    }
 
     private setSelectionSubject(selection: ISelection) {
         this.unsubscribe(selection);

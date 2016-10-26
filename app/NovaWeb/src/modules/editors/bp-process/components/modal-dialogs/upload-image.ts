@@ -66,7 +66,7 @@ export class UploadImageDirective implements ng.IDirective {
         };
 
         $scope.downloadImage = () => {
-            if ($scope.systemTaskModel.associatedImageUrl && !$scope.isReadonly ) {
+            if ($scope.systemTaskModel.associatedImageUrl) {
                 this.$window.open($scope.systemTaskModel.associatedImageUrl, "_blank");
             }
         };

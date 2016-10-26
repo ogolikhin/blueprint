@@ -1,7 +1,7 @@
 ﻿import "angular";
 import {ISession} from "../login/session.svc";
 import {SessionTokenHelper} from "../login/session.token.helper";
-import {IMessageService, IHttpInterceptorConfig, HttpStatusCode, IAppicationError, AppicationError} from "../../core";
+import {IMessageService, IHttpInterceptorConfig, HttpStatusCode, IApplicationError, ApplicationError} from "../../core";
 
 
 
@@ -21,7 +21,7 @@ export class HttpErrorInterceptor {
 
         const deferred: ng.IDeferred<any> = $q.defer();
 
-        let error: AppicationError = this.createApplicationError(response);
+        let error: ApplicationError = this.createApplicationError(response);
         
         if (config.ignoreInterceptor) {
             response.data = this.createApplicationError(response);
@@ -86,8 +86,8 @@ export class HttpErrorInterceptor {
         return deferred.promise;
     };
 
-    private createApplicationError(response: ng.IHttpPromiseCallbackArg<any>, data?: IAppicationError): AppicationError {
-        let error = new AppicationError(data);
+    private createApplicationError(response: ng.IHttpPromiseCallbackArg<any>, data?: IApplicationError): ApplicationError {
+        let error = new ApplicationError(data);
         if (!error.message) {
             error.message = response.data ? response.data.message : response.statusText;
         }

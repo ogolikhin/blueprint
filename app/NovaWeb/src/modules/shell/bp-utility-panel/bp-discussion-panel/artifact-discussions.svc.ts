@@ -1,5 +1,5 @@
 ﻿import * as angular from "angular";
-import {ILocalizationService, HttpStatusCode, IAppicationError} from "../../../core";
+import {ILocalizationService, HttpStatusCode, IApplicationError} from "../../../core";
 
 export interface IArtifactDiscussions {
     getDiscussions(artifactId: number, subArtifactId?: number, timeout?: ng.IPromise<void>): ng.IPromise<IDiscussionResultSet>;

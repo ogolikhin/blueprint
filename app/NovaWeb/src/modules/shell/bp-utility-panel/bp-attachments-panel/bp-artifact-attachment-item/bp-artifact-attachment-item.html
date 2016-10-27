@@ -6,7 +6,7 @@
      bp-tooltip-truncated="true">{{::$ctrl.localization.get('App_UP_Attachments_Uploaded_By') }} {{
     $ctrl.attachmentInfo.userName }}
 </div>
-<div class="timestamp" ng-if="!$ctrl.attachmentInfo.guid"><i class="icon fonticon-clock"></i>{{
+<div class="timestamp" ng-if="!$ctrl.attachmentInfo.guid && $ctrl.attachmentInfo.uploadedDate"><i class="icon fonticon-clock"></i>{{
     $ctrl.attachmentInfo.uploadedDate | date:'medium' }}
 </div>
 <div class="button-bar">

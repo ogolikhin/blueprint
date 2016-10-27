@@ -695,19 +695,15 @@ namespace Helper
 
             Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(AssignProjectRolePermissionsToUser));
 
-            IProjectRole projectRole = null;
+            RolePermissions rolePermissions = RolePermissions.None;
 
             if (role == ProjectRole.Viewer)
             {
-                projectRole = ProjectRoleFactory.CreateProjectRole(
-                        project, RolePermissions.Read,
-                        role.ToString());
+                rolePermissions = RolePermissions.Read;
             }
             else if (role == ProjectRole.AuthorFullAccess)
             {
-                projectRole = ProjectRoleFactory.CreateProjectRole(
-                        project,
-                        RolePermissions.Delete |
+                rolePermissions = RolePermissions.Delete |
                         RolePermissions.Edit |
                         RolePermissions.CanReport |
                         RolePermissions.Comment |
@@ -717,20 +713,15 @@ namespace Helper
                         RolePermissions.Read |
                         RolePermissions.Reuse |
                         RolePermissions.Share |
-                        RolePermissions.Trace,
-                        role.ToString());
+                        RolePermissions.Trace;
             }
             else if (role == ProjectRole.None)
             {
-                projectRole = ProjectRoleFactory.CreateProjectRole(
-                        project, RolePermissions.None,
-                        role.ToString());
+                rolePermissions = RolePermissions.None;
             }
             else if (role == ProjectRole.Author)
             {
-                projectRole = ProjectRoleFactory.CreateProjectRole(
-                        project,
-                        RolePermissions.Edit |
+                rolePermissions = RolePermissions.Edit |
                         RolePermissions.CanReport |
                         RolePermissions.Comment |
                         RolePermissions.CreateRapidReview |
@@ -738,9 +729,37 @@ namespace Helper
                         RolePermissions.Read |
                         RolePermissions.Reuse |
                         RolePermissions.Share |
-                        RolePermissions.Trace,
-                        role.ToString());
+                        RolePermissions.Trace;
             }
+
+            AssignProjectRolePermissionsToUser(user, rolePermissions, project, artifact);
+        }
+
+        /// <summary>
+        /// Assigns project role permissions to the specified user and gets updated Session-Token.
+        /// Optionally, creates role permissions for a single artifact within a project.
+        /// </summary>
+        /// <param name="user">User to assign role</param>
+        /// <param name="role">Role permission</param>
+        /// <param name="project">The project that the role is created for</param>
+        /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide
+        /// after adding a new permissions role</param>
+        public void AssignProjectRolePermissionsToUser(IUser user, RolePermissions rolePermissions, IProject project, IArtifactBase artifact = null)
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+            if (artifact != null)
+            {
+                Assert.IsTrue(artifact.ProjectId == project.Id, "Artifact should belong to the project");
+            }
+
+            Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(AssignProjectRolePermissionsToUser));
+
+            IProjectRole projectRole = null;
+
+            projectRole = ProjectRoleFactory.CreateProjectRole(
+                        project, rolePermissions,
+                        rolePermissions.ToString());
 
             if (projectRole != null)
             {

@@ -445,10 +445,10 @@ $fonticon2-project: '\e843'; /* '' */
 .fonticon2-project:before {
     content: $fonticon2-project;
 } /* '' */
-.icon--disabled {
+.fonticon2__action--disabled {
    color: $gray-lighter !important;
    cursor: not-allowed !important;
 }
-.icon--disabled:hover {
+.fonticon2__action--disabled:hover {
     color: $gray-lighter !important;
 }

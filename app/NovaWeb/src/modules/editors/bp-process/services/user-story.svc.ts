@@ -2,7 +2,6 @@ import {IUserStory} from "../models/process-models";
 import {ILocalizationService, IMessageService} from "../../../core";
 
 export interface IUserStoryService {
-    // getUserStoryId(userTaskId: number): number;
     generateUserStories(projectId: number, processId: number, userTaskId?: number): ng.IPromise<IUserStory[]>;
 }
 

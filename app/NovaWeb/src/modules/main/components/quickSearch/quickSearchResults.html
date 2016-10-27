@@ -37,7 +37,7 @@
                 <ul class="list-unstyled quick-search__results--list" ng-if="$ctrl.results.length>0">
                     <li class="quick-search__results--item"
                         ng-repeat="item in $ctrl.results track by $index">
-                        <a ng-href="{{$ctrl.getNavigationUrl(item)}}" ng-click="$ctrl.closeModal()">
+                        <a class="quick-search__results--link" ng-href="{{$ctrl.getNavigationUrl(item)}}" ng-click="$ctrl.closeModal()">
                             <div class="row small-gutter">
                                 <div class="col-md-1 text-center">
                                     <div class="icon quick-search__results--large-font font-blue" ng-class="!item.artifactTypeIcon ? item.artifactClass : ''"

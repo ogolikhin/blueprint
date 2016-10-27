@@ -3,10 +3,14 @@ using Model;
 using NUnit.Framework;
 using CustomAttributes;
 using System.Collections.Generic;
+using Common;
 using TestCommon;
 using Model.ArtifactModel;
 using Model.Factories;
+using Model.Impl;
+using Newtonsoft.Json;
 using Utilities;
+using Utilities.Facades;
 
 namespace ArtifactStoreTests 
 {
@@ -50,12 +54,14 @@ namespace ArtifactStoreTests
             {
                 Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, viewer);
             }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_PATH_ARTIFACT);
+
+            // TODO: Add proper validation of the list of artifacts returned by the REST call.
         }
 
         [TestCase]
         [TestRail(125500)]
-        [Description("Executes Get project children call and returns 404 Not Found if successful")]
-        public void GetProjectChildrenByProjectId_NotFound()
+        [Description("Executes Get project children call with a non-existent project ID.  Verifies 404 Not Found is returned.")]
+        public void GetProjectChildrenByProjectId_NonExistentProjectId_404NotFound()
         {
             // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() =>
@@ -65,9 +71,28 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
+        [TestRail(190006)]
+        [Description("Executes Get project children call with a user with no permissions.  Verifies 403 Forbidden is returned.")]
+        public void GetProjectChildrenByProjectId_UserWithNoPermissionsToProject_403Forbidden()
+        {
+            // Setup:
+            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, userWithoutPermission);
+            }, "The 'GET {0}' endpoint should return 403 Forbidden if called by a user with no permissions!", REST_PATH_ARTIFACT);
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Project (Id:{0}).", _project.Id);
+            ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
+        }
+
+        [TestCase]
         [TestRail(125501)]
-        [Description("Executes Get project children call and returns 401 Unauthorized if successful")]
-        public void GetProjectChildrenByProjectId_Unauthorized()
+        [Description("Executes Get project children call with an invalid token.  Verifies 401 Unauthorized is returned.")]
+        public void GetProjectChildrenByProjectId_InvalidToken_401Unauthorized()
         {
             // Setup:
             IUser unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
@@ -81,8 +106,8 @@ namespace ArtifactStoreTests
         
         [TestCase]
         [TestRail(125502)]
-        [Description("Executes Get project children call and returns 'Bad Request' if successful")]
-        public void GetProjectChildrenByProjectId_BadRequest()
+        [Description("Executes Get project children call with no Session-Token header.  Verifies 400 Bad Request is returned.")]
+        public void GetProjectChildrenByProjectId_MissingTokenHeader_400BadRequest()
         {
             // Execute & Verify:
             Assert.Throws<Http400BadRequestException>(() =>
@@ -98,7 +123,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(125511)]
         [Description("Executes Get published artifact children call for published artifact and returns 200 OK if successful")]
-        public void GetPublishedArtifactChildrenByProjectAndArtifactId_OK()
+        public void GetArtifactChildrenByProjectAndArtifactId_PublishedParentArtifact_OK()
         {
             // Setup:
             var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _user);
@@ -109,12 +134,14 @@ namespace ArtifactStoreTests
             {
                 Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, viewer);
             }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_PATH_CHILDREN);
+
+            // TODO: Add proper validation of the list of artifacts returned by the REST call.
         }
 
         [TestCase]
-        [TestRail(134071)]
-        [Description("Executes Get artifact children call for artifact that does not exists and returns 404 Not Found if successful")]
-        public void GetPublishedArtifactChildrenByProjectAndArtifactId_NotFound()
+        [TestRail(190008)]
+        [Description("Executes Get artifact children call for Project that does not exists and returns 404 Not Found if successful")]
+        public void GetArtifactChildrenByProjectAndArtifactId_NonExistentProjectId_404NotFound()
         {
             // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() =>
@@ -124,9 +151,62 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
+        [TestRail(134071)]
+        [Description("Executes Get artifact children call for artifact that does not exists and returns 404 Not Found if successful")]
+        public void GetArtifactChildrenByProjectAndArtifactId_NonExistentArtifactId_404NotFound()
+        {
+            // Execute & Verify:
+            Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, NON_EXISTING_PROJECT_ID, _user);
+            }, "The 'GET {0}' endpoint should return 404 Not Found if a non-existing project ID is passed!", REST_PATH_CHILDREN);
+        }
+
+        [TestCase]
+        [TestRail(190009)]
+        [Description("Executes Get project children call with a user with no permissions to the project.  Verifies 403 Forbidden is returned.")]
+        public void GetArtifactChildrenByProjectAndArtifactId_UserWithNoPermissionsToProject_403Forbidden()
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, artifact.Id, userWithoutPermission);
+            }, "The 'GET {0}' endpoint should return 403 Forbidden if called by a user with no permissions!", REST_PATH_ARTIFACT);
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifact.Id);
+            ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
+        }
+
+        [TestCase]
+        [TestRail(190007)]
+        [Description("Executes Get project children call with a user with no permissions to the artifact.  Verifies 403 Forbidden is returned.")]
+        public void GetArtifactChildrenByProjectAndArtifactId_UserWithNoPermissionsToArtifact_403Forbidden()
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            Helper.AssignProjectRolePermissionsToUser(userWithoutPermission, TestHelper.ProjectRole.None, _project, artifact);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, artifact.Id, userWithoutPermission);
+            }, "The 'GET {0}' endpoint should return 403 Forbidden if called by a user with no permissions!", REST_PATH_ARTIFACT);
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifact.Id);
+            ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
+        }
+
+        [TestCase]
         [TestRail(134072)]
         [Description("Executes Get published artifact children call and returns 401 Unauthorized if successful")]
-        public void GetPublishedArtifactChildrenByProjectAndArtifactId_Unauthorized()
+        public void GetArtifactChildrenByProjectAndArtifactId_InvalidToken_401Unauthorized()
         {
             // Setup:
             var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _user);
@@ -142,7 +222,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(134073)]
         [Description("Executes Get published artifact children call and returns 'Bad Request' if successful")]
-        public void GetPublishedArtifactChildrenByProjectAndArtifactId_BadRequest()
+        public void GetArtifactChildrenByProjectAndArtifactId_MissingTokenHeader_400BadRequest()
         {
             // Setup:
             var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _user);
@@ -157,7 +237,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(134074)]
         [Description("Executes Get draft artifact children call for published artifact and returns 200 OK if successful")]
-        public void GetPublishedWithDraftArtifactChildrenByProjectAndArtifactId_OK()
+        public void GetArtifactChildrenByProjectAndArtifactId_PublishedArtifactWithDraft_OK()
         {
             // Setup:
             var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _user);
@@ -170,12 +250,14 @@ namespace ArtifactStoreTests
             {
                 Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, _user);
             }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_PATH_CHILDREN);
+
+            // TODO: Add proper validation of the list of artifacts returned by the REST call.
         }
 
         [TestCase]
         [TestRail(134077)]
         [Description("Executes Get publish artifact of second level children call for published artifact and returns 200 OK if successful")]
-        public void GetSecondLevelPublishedArtifactChildrenByProjectAndArtifactId_OK()
+        public void GetArtifactChildrenByProjectAndArtifactId_SecondLevelPublishedArtifactChild_OK()
         {
             // Setup:
             var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _user);
@@ -185,12 +267,14 @@ namespace ArtifactStoreTests
             {
                 Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, _user);
             }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_PATH_CHILDREN);
+
+            // TODO: Add proper validation of the list of artifacts returned by the REST call.
         }
 
         [TestCase]
         [TestRail(134080)]
         [Description("Executes Get draft artifact of second level children call for published artifact and returns 200 OK if successful")]
-        public void GetSecondLevelPublishedWithDraftArtifactChildrenByProjectAndArtifactId_OK()
+        public void GetArtifactChildrenByProjectAndArtifactId_SecondLevelPublishedArtifactChildWithDraft_OK()
         {
             // Setup:
             var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _user);
@@ -203,12 +287,14 @@ namespace ArtifactStoreTests
             {
                 Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, _user);
             }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_PATH_CHILDREN);
+
+            // TODO: Add proper validation of the list of artifacts returned by the REST call.
         }
 
         [TestCase]
         [TestRail(134083)]
         [Description("Executes Get publish artifact of second level children call for published artifact, creates orphan artifact and returns 200 OK if successful")]
-        public void GetChildrenOfMovedArtifactId_OK()
+        public void GetArtifactChildrenByProjectAndArtifactId_MovedArtifact_OK()
         {
             // Setup:
             var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _user);
@@ -223,6 +309,8 @@ namespace ArtifactStoreTests
             {
                 Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, _user);
             }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_PATH_CHILDREN);
+
+            // TODO: Add proper validation of the list of artifacts returned by the REST call.
         }
 
         #endregion GetArtifactChildrenByProjectAndArtifactId tests
@@ -275,6 +363,20 @@ namespace ArtifactStoreTests
             Helper.CreateAndPublishArtifact(project, user, BaseArtifactType.Document, parentArtifact);
 
             return parentArtifactList;
+        }
+
+        /// <summary>
+        /// Validates that the RestResponse contains the specified error code & message.
+        /// </summary>
+        /// <param name="restResponse">The RestResponse from the failed REST call.</param>
+        /// <param name="expectedErrorCode">The expected error code (see the ErrorCodes class).</param>
+        /// <param name="expectedMessage">The expected error message.</param>
+        private static void ValidateServiceError(RestResponse restResponse, int expectedErrorCode, string expectedMessage)
+        {
+            var expectedServiceError = ServiceErrorMessageFactory.CreateServiceErrorMessage(expectedErrorCode, expectedMessage);
+
+            ServiceErrorMessage serviceError = JsonConvert.DeserializeObject<ServiceErrorMessage>(restResponse.Content);
+            serviceError.AssertEquals(expectedServiceError);
         }
 
         #endregion Private functions

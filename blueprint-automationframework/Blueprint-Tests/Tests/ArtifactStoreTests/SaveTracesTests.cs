@@ -122,12 +122,38 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(185252)]
-        [Description("Delete trace from artifact with manual trace, check that trace was deleted.")]
+        [Description("Delete trace from draft artifact with manual trace, check that trace was deleted.")]
         public void DeleteTrace_DraftArtifactWithTrace_TraceWasDeleted()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.Actor);
             IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase);
+
+            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
+                    changeType: ArtifactUpdateChangeType.Add, artifactStore: Helper.ArtifactStore);
+
+            Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
+            Assert.AreEqual(1, relationships.ManualTraces.Count, "Artifact should have 1 trace.");
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
+                    changeType: ArtifactUpdateChangeType.Delete, artifactStore: Helper.ArtifactStore);
+            }, "Trace delete shouldn't throw any error.");
+
+            // Verify:
+            relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
+            Assert.AreEqual(0, relationships.ManualTraces.Count, "Artifact shouldn't have traces.");
+        }
+
+        [TestCase]
+        [TestRail(185260)]
+        [Description("Delete trace from draft never published artifact with manual trace, check that trace was deleted.")]
+        public void DeleteTrace_DraftNeverPublishedArtifactWithTrace_TraceWasDeleted()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_projectTest, _authorUser, BaseArtifactType.Glossary);
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.DomainDiagram);
 
             ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
                     changeType: ArtifactUpdateChangeType.Add, artifactStore: Helper.ArtifactStore);
@@ -205,8 +231,8 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(183605)]
-        [Description("Create trace between 2 SubArtifacts, Artifact and other Artifacts, check that operation throw no errors.")]
-        public void AddTrace_Between2SubArtifactsArtifactAnd3OtherArtifacts_TracesHaveExpectedValue()
+        [Description("Create trace between 2 SubArtifacts, Artifact and 3 other Artifacts, check that operation throw no errors.")]
+        public void AddTrace_From2SubArtifactsAndArtifactTo3OtherArtifacts_TracesHaveExpectedValue()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase);

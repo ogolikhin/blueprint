@@ -445,7 +445,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user updating the artifact.</param>
         /// <param name="artifactDetailsChanges">(optional) The changes to make to the artifact.  This should contain the bare minimum changes that you want to make.
         ///     By default if null is passed, this function will make a random change to the 'Description' property.</param>
-        /// <param name="expectedServiceErrorMessage">(optional).</param>
+        /// <param name="expectedServiceErrorMessage">(optional)Expected error message.</param>
         /// <param name="address">(optional) The address of the ArtifactStore service.  If null, the Address property of the artifactToUpdate is used.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>The ArtifactDetails that was sent to ArtifactStore to be saved.</returns>        

@@ -370,17 +370,15 @@ export class BPTreeController implements IBPTreeController {
     };
 
     private onGridReady = (params: any) => {
-        let self = this;
-
         if (params && params.api) {
             params.api.sizeColumnsToFit();
         }
 
-        if (angular.isFunction(self.onLoad)) {
-            //this verifes and updates current node to inject children
-            //NOTE:: this method may uppdate grid datasource using setDataSource method
-            let nodes = self.onLoad({prms: null});
-            if (angular.isArray(nodes)) {
+        if (_.isFunction(this.onLoad)) {
+            //this verifies and updates current node to inject children
+            //NOTE: this method may update grid datasource using setDataSource method
+            let nodes = this.onLoad({prms: null});
+            if (_.isArray(nodes)) {
                 //this.addNode(nodes);
                 this.reload(nodes);
             }

@@ -92,7 +92,7 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
                     }));
         }
 
-        return this.$q.resolve();
+        return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
     private onSelectionChangedHelper = (artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> => {

@@ -195,12 +195,12 @@ export class PreviewCenterController {
                     throw new Error(err);
                 });
 
-            this.subscribers.push(stateObserver);
-
             const observer = this.statefulUserStoryArtifact.getObservable().subscribe((obs: IStatefulArtifact) => {
                 this.loadMetaData(obs);
             });
             this.subscribers = [observer];
+
+            this.subscribers.push(stateObserver);
         }
     }
 

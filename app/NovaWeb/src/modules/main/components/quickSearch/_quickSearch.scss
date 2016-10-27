@@ -160,6 +160,9 @@ $quick-search__item--focus-color: #E8F6FB;
     &:focus, &:hover {
         background: $quick-search__item--focus-color;
     }
+    a {
+        color: inherit !important;
+    }
 }
 
 .quick-search__response {

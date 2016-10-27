@@ -91,8 +91,6 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
                         this.onSelectionChangedHelper(artif, null, timeout);
                     }));
         }
-
-        return this.onSelectionChangedHelper(artifact, subArtifact, timeout);
     }
 
     private onSelectionChangedHelper = (artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> => {

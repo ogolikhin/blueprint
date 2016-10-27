@@ -15,12 +15,6 @@ export class BPFieldSelect implements AngularFormly.ITypeOptions {
 
             const $scopeOptions = $scope["options"] as AngularFormly.IFieldConfigurationObject;
             $scopeOptions.validation.show = ($scope["fc"] as ng.IFormController).$invalid;
-
-            const uiSelectContainer = $element[0].querySelector(".ui-select-container");
-            if (uiSelectContainer) {
-                $scope["uiSelectContainer"] = uiSelectContainer;
-                uiSelectContainer.addEventListener("keydown", $scope["bpFieldSelect"].closeDropdownOnTab, true);
-            }
         });
     };
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldSelectController;
@@ -64,13 +58,6 @@ export class BpFieldSelectController extends BPFieldBaseController {
         };
 
         const isCustomSelect = !$scope.options["data"].isValidated && $scope.options["data"].lookup === Enums.PropertyLookupEnum.Custom;
-        // let _$select = undefined;
-
-        $scope["$on"]("$destroy", function () {
-            if ($scope["uiSelectContainer"]) {
-                $scope["uiSelectContainer"].removeEventListener("keydown", $scope["bpFieldSelect"].closeDropdownOnTab, true);
-            }
-        });
 
         $scope.options["expressionProperties"] = {
             "templateOptions.options": () => {
@@ -143,19 +130,17 @@ export class BpFieldSelectController extends BPFieldBaseController {
                 }
             },
             onOpenClose: function ($select, isOpen) {
-                if ($scope["uiSelectContainer"]) {
-                    if (_.isUndefined($select.selected) || _.isNull($select.selected)) {
-                        $select.activeIndex = -1;
-                    } else {
-                        if (_.isObject($select.selected.value)) {
-                            selectCustomItem($select, $select.selected.value.customValue);
+                if (_.isUndefined($select.selected) || _.isNull($select.selected)) {
+                    $select.activeIndex = -1;
+                } else {
+                    if (_.isObject($select.selected.value)) {
+                        selectCustomItem($select, $select.selected.value.customValue);
 
-                            // un-comment the following to make the custom value the only value in the dropdown
-                            // this has no effect when a standard value is selected
-                            // if (isOpen) {
-                            //     $select.search = $select.selected.value.customValue;
-                            // }
-                        }
+                        // un-comment the following to make the custom value the only value in the dropdown
+                        // this has no effect when a standard value is selected
+                        // if (isOpen) {
+                        //     $select.search = $select.selected.value.customValue;
+                        // }
                     }
                 }
             }

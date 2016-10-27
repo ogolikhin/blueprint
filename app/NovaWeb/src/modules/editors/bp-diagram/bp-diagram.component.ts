@@ -106,7 +106,7 @@ export class BPDiagramController extends BpBaseEditor {
         this.isIncompatible = false;
         this.cancelationToken = this.$q.defer();
         this.diagramService.getDiagram(this.artifact.id,
-                                       this.getEffectiveVersion(),
+                                       this.artifact.getEffectiveVersion(),
                                        this.artifact.predefinedType,
                                        this.cancelationToken.promise).then(diagram => {
             // TODO: hotfix, remove later
@@ -128,10 +128,6 @@ export class BPDiagramController extends BpBaseEditor {
             delete this.cancelationToken;
             this.isLoading = false;
         });
-    }
-
-    public getEffectiveVersion() {
-        return this.artifact && this.artifact.deleted ? this.artifact.version : undefined;
     }
 
     private onSelectionChanged = (diagramType: string, elements: Array<IDiagramElement>) => {

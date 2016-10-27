@@ -28,8 +28,7 @@ export interface IStatefulItem extends Models.IArtifact {
     changes(): Models.ISubArtifact;
     errorObservable(): Rx.Observable<IApplicationError>;
     unsubscribe(): void;
-
-
+    getEffectiveVersion(): number;
 }
 
 export interface IIStatefulItem extends IStatefulItem {

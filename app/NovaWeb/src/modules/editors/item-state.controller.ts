@@ -112,11 +112,9 @@ export class ItemStateController {
     }
 
     private setSelectedArtifact(artifact: IStatefulArtifact) {
-        
         this.artifactManager.selection.setExplorerArtifact(artifact);
         this.artifactManager.selection.setArtifact(artifact);
         this.artifactManager.selection.getArtifact().errorObservable().subscribeOnNext(this.onArtifactError);
-        
     }
 
     public navigateToSubRoute(artifact: IStatefulArtifact) {
@@ -152,14 +150,12 @@ export class ItemStateController {
     }
 
     protected onArtifactError = (error: IApplicationError) => {
+        console.log("onArtifactError: %c" + this.$state.current.name, "color: red");
         if (error.statusCode === HttpStatusCode.NotFound) {
             const artifact = this.artifactManager.selection.getArtifact();
-            this.navigationService.navigateToMain().finally(() => {
-                if (artifact) {
-                    this.artifactManager.remove(artifact.id);
-                    this.navigationService.navigateTo(artifact.id);
-                }
-            });
+            this.artifactManager.remove(artifact.id);
+            this.$state.go(this.$state.current.name, this.$state.params, {reload: "main.item"});
+            
             return;
         }
         if (error.statusCode === HttpStatusCode.Forbidden || 
@@ -169,5 +165,4 @@ export class ItemStateController {
             this.navigationService.navigateToMain();
         }
     }
-    
 }

@@ -490,6 +490,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             deferred.reject(error);
 
             //Project manager is listening to this, and will refresh the project.
+            this.error.onNext(error);
             this.subject.onNext(this);
         });
 

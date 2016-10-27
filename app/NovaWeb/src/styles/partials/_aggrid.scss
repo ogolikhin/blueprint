@@ -4,7 +4,6 @@ $has-children-padding-before-arrow: 3px;
 .project-explorer {
     .ag-grid {
         height: 100%;
-        padding-top: 5px;
         // removes focus globally inside ag-grid. May need to be reworked
         *:focus {
             outline: none;
@@ -15,6 +14,7 @@ $has-children-padding-before-arrow: 3px;
         }
 
         .ag-header-cell {
+            line-height: 20px;
             text-align: left;
 
             .ag-header-cell-text {
@@ -34,6 +34,12 @@ $has-children-padding-before-arrow: 3px;
                 line-height: #{$aggrid-row-height - 2px};
             }
 
+            .ag-group-checkbox {
+                border-color: transparent;
+                border-style: solid;
+                border-width: 1px 0 1px 1px;
+            }
+
             .ag-group-contracted,
             .ag-group-expanded {
                 border-color: transparent;
@@ -45,14 +51,13 @@ $has-children-padding-before-arrow: 3px;
             .ag-group-value {
                 border-color: transparent;
                 border-style: solid;
-                border-width: 1px;
+                border-width: 1px 1px 1px 0;
                 padding-right: 5px;
             }
 
             &.has-children {
-                .ag-group-inline-edit,
-                .ag-group-value {
-                    border-width: 1px 1px 1px 0;
+                .ag-group-checkbox {
+                    border-width: 1px 0;
                 }
             }
 
@@ -91,6 +96,7 @@ $has-children-padding-before-arrow: 3px;
                     background-color: $tree-hover-background;
                 }
 
+                .ag-group-checkbox,
                 .ag-group-contracted,
                 .ag-group-expanded,
                 .ag-group-value {
@@ -98,21 +104,22 @@ $has-children-padding-before-arrow: 3px;
                 }
             }
 
-            // &.ag-row-focus,
-            // &.ag-row-focus:hover {
-            //     .ag-cell:not(.not-selectable) {
-            //         span > span,
-            //         *::before {
-            //             background-color: $tree-focus-background;
-            //         }
+             &.ag-row-focus,
+             &.ag-row-focus:hover {
+                 .ag-cell:not(.not-selectable) {
+                     span > span,
+                     *::before {
+                         background-color: $tree-focus-background;
+                     }
 
-            //         .ag-group-contracted,
-            //         .ag-group-expanded,
-            //         .ag-group-value {
-            //             border-color: $tree-focus-border;
-            //         }
-            //     }
-            // }
+                     .ag-group-checkbox,
+                     .ag-group-contracted,
+                     .ag-group-expanded,
+                     .ag-group-value {
+                         border-color: $tree-focus-border;
+                     }
+                 }
+             }
 
             &.ag-row-selected,
             &.ag-row-selected:hover {
@@ -128,6 +135,7 @@ $has-children-padding-before-arrow: 3px;
                         color: $white;
                     }
 
+                    .ag-group-checkbox,
                     .ag-group-contracted,
                     .ag-group-expanded,
                     .ag-group-inline-edit,
@@ -152,6 +160,7 @@ $has-children-padding-before-arrow: 3px;
                     }
                 }
 
+                .ag-group-checkbox,
                 .ag-group-contracted,
                 .ag-group-expanded,
                 .ag-group-value {

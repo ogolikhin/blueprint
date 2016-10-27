@@ -1,7 +1,7 @@
 import "angular";
 import "angular-mocks";
 
-import {SettingsService, ISettingsService} from "./";
+import {SettingsService, ISettingsService} from "./settings";
 
 describe("Settings", () => {
     let settings: ISettingsService;

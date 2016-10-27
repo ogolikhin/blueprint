@@ -63,10 +63,10 @@ export interface IBPTreeController {
     onRowDblClick?: Function;
     onRowPostCreate?: Function;
 
+    getSelectedNodeId: number;
     isEmpty: boolean;
     //to select a row in in ag-grid (by id)
     selectNode(id: number);
-    clearSelection();
     nodeExists(id: number): boolean;
     getNodeData(id: number): Object;
     //to reload datasource with data passed, if id specified the data will be loaded to node's children collection
@@ -77,7 +77,7 @@ export interface IBPTreeController {
 }
 
 export class BPTreeController implements IBPTreeController {
-    static $inject = ["localization", "$element", "$timeout"];
+    static $inject = ["localization", "$element"];
     //properties
     public gridClass: string;
     public enableEditingOn: string;
@@ -102,16 +102,13 @@ export class BPTreeController implements IBPTreeController {
     public options: Grid.GridOptions;
     private editableColumns: string[] = [];
     private _datasource: any[] = [];
-    private selectedRow: any;
-    private clickTimeout: any;
-    private selectionSubject: Rx.Subject<RowNode>;
+    private selectedRowNode: RowNode;
 
     private _innerRenderer: Function;
 
-    constructor(private localization: ILocalizationService, private $element?, private $timeout?: ng.ITimeoutService) {
+    constructor(private localization: ILocalizationService, private $element?) {
         this.bpRef = this;
 
-        this.selectionSubject = new Rx.Subject<RowNode>();
         this.gridClass = this.gridClass ? this.gridClass : "project-explorer";
         this.enableDragndrop = this.enableDragndrop ? true : false;
         this.rowBuffer = this.rowBuffer ? this.rowBuffer : 200;
@@ -132,11 +129,6 @@ export class BPTreeController implements IBPTreeController {
         } else {
             this.gridColumns = [];
         }
-
-        this.selectionSubject
-            .filter(node => node != null && angular.isFunction(this.onSelect))
-            .debounce(200)
-            .subscribe(node => this.onSelect({item: node.data}));
     }
 
     public $onInit = () => {
@@ -145,6 +137,10 @@ export class BPTreeController implements IBPTreeController {
             headerHeight: this.headerHeight,
             showToolPanel: false,
             suppressContextMenu: true,
+            suppressRowClickSelection: true,
+            suppressMenuMainPanel: true,
+            suppressMenuColumnPanel: true,
+            rowSelection: "single",
             rowBuffer: this.rowBuffer,
             rowHeight: this.rowHeight,
             enableColResize: true,
@@ -154,9 +150,8 @@ export class BPTreeController implements IBPTreeController {
                 groupContracted: "<i />"
             },
             getNodeChildDetails: this.getNodeChildDetails,
-            onCellFocused: this.cellFocused,
-            onRowClicked: this.rowClicked,
-            onRowDoubleClicked: this.rowDoubleClicked,
+            onCellClicked: this.cellClicked,
+            onRowSelected: this.rowSelected,
             onRowGroupOpened: this.rowGroupOpened,
             processRowPostCreate: this.rowPostCreate,
             onGridReady: this.onGridReady,
@@ -168,12 +163,10 @@ export class BPTreeController implements IBPTreeController {
     };
 
     public $onDestroy = () => {
-        this.selectedRow = null;
+        this.selectedRowNode = null;
         this.bpRef = null;
         //this.reload(null);
-        this.updateViewport(null, true);
         this.options.api.destroy();
-        this.selectionSubject.dispose();
     };
 
     private mapData(data: any, propertyMap?: any): ITreeNode {
@@ -206,6 +199,10 @@ export class BPTreeController implements IBPTreeController {
         return !Boolean(this._datasource && this._datasource.length);
     }
 
+    public get getSelectedNodeId(): number {
+        return this.selectedRowNode ? this.selectedRowNode.data.id : null;
+    }
+
     private getNode(id: number, nodes?: ITreeNode[]): ITreeNode {
         let item: ITreeNode;
 
@@ -227,24 +224,9 @@ export class BPTreeController implements IBPTreeController {
         this.options.api.getModel().forEachNode((it: RowNode) => {
             if (it.data.id === id) {
                 it.setSelected(true, true);
-                this.clearFocus();
             }
         });
         this.options.api.ensureNodeVisible((it: RowNode) => it.data.id === id);
-    }
-
-    public clearSelection() {
-        const selectedNodes = this.options.api.getSelectedNodes() as RowNode[];
-        if (selectedNodes && selectedNodes.length) {
-            selectedNodes.map(node => {
-                node.setSelected(false);
-            });
-            this.clearFocus();
-        }
-    }
-
-    private clearFocus() {
-        this.options.api.setFocusedCell(-1, this.gridColumns[0].field);
     }
 
     public nodeExists(id: number): boolean {
@@ -290,8 +272,16 @@ export class BPTreeController implements IBPTreeController {
             this._datasource = nodes;
         }
 
-        this.clearFocus();
         this.options.api.setRowData(this._datasource);
+
+        if (this.selectedRowNode) {
+            this.options.api.forEachNode((node) => {
+                if (node.data.id === this.selectedRowNode.data.id) {
+                    node.setSelected(true, true);
+                    this.selectedRowNode = node;
+                }
+            });
+        }
     }
 
     public showLoading = () => {
@@ -306,15 +296,22 @@ export class BPTreeController implements IBPTreeController {
         this.options.api.hideOverlay();
     };
 
-    private updateViewport = (params?: any, remove?: boolean) => {
-        const viewport = this.$element[0].querySelector(".ag-body-viewport");
-        if (viewport) {
+    private updateViewport = (params?: any) => {
+        const viewport = this.$element[0].querySelector(".ag-body-viewport") as HTMLElement;
+        if (viewport && viewport.clientWidth) {
             this.options.columnApi.autoSizeColumns(this.options.columnDefs.map(columnDef => columnDef.field ));
+
+            const container = viewport.querySelector(".ag-body-container") as HTMLElement;
+            if (container && viewport.clientWidth > container.clientWidth) {
+                this.options.api.sizeColumnsToFit();
+            }
         }
+
         if (params && params.lastRow && parseInt(params.lastRow, 10) >= 0) { // the grid contains at least one item
             this.hideOverlays();
         }
     };
+
     private innerRenderer = (params: any) => {
         let inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? `bp-tree-inline-editing="` + params.colDef.field + `"` : "";
 
@@ -334,7 +331,6 @@ export class BPTreeController implements IBPTreeController {
         let currentValue = this._innerRenderer(params) || params.value;
         return `<span class="ag-group-value-wrapper" ${inlineEditing}${enableDragndrop}>${currentValue}</span>`;
     };
-    /* tslint:enable */
 
     private getNodeChildDetails(node: ITreeNode) {
         if (node.children) {
@@ -356,17 +352,15 @@ export class BPTreeController implements IBPTreeController {
     };
 
     private onGridReady = (params: any) => {
-        let self = this;
-
         if (params && params.api) {
             params.api.sizeColumnsToFit();
         }
 
-        if (angular.isFunction(self.onLoad)) {
-            //this verifes and updates current node to inject children
-            //NOTE:: this method may uppdate grid datasource using setDataSource method
-            let nodes = self.onLoad({prms: null});
-            if (angular.isArray(nodes)) {
+        if (_.isFunction(this.onLoad)) {
+            //this verifies and updates current node to inject children
+            //NOTE: this method may update grid datasource using setDataSource method
+            let nodes = this.onLoad({prms: null});
+            if (_.isArray(nodes)) {
                 //this.addNode(nodes);
                 this.reload(nodes);
             }
@@ -374,30 +368,24 @@ export class BPTreeController implements IBPTreeController {
     };
 
     private rowGroupOpened = (params: any) => {
-        console.log("rowGroupOpened");
-        let self = this;
-
         let node = params.node;
-        let row = self.$element[0].querySelector(`.ag-body .ag-body-viewport-wrapper .ag-row[row-id="${node.data.id}"]`);
+
+        let row = this.$element[0].querySelector(`.ag-body .ag-body-viewport-wrapper .ag-row[row-id="${node.data.id}"]`);
         if (row) {
-            if (node.expanded) {
-                row.classList.remove("ag-row-group-contracted");
-                row.classList.add("ag-row-group-expanded");
-            } else {
-                row.classList.remove("ag-row-group-expanded");
-                row.classList.add("ag-row-group-contracted");
-            }
+            row.classList.remove(node.expanded ? "ag-row-group-contracted" : "ag-row-group-expanded");
+            row.classList.add(node.expanded ? "ag-row-group-expanded" : "ag-row-group-contracted");
         }
 
         if (node.data.hasChildren && !node.data.loaded) {
-            if (angular.isFunction(self.onLoad)) {
+            if (node.expanded && _.isFunction(this.onLoad)) {
                 if (row) {
                     row.classList.add("ag-row-loading");
                 }
-                let nodes = self.onLoad({prms: node.data});
+
+                let nodes = this.onLoad({prms: node.data});
                 //this verifes and updates current node to inject children
                 //NOTE:: this method may uppdate grid datasource using setDataSource method
-                if (angular.isArray(nodes)) {
+                if (_.isArray(nodes)) {
                     this.reload(nodes, node.data.id); // pass nothing to just reload
                 }
             }
@@ -405,48 +393,46 @@ export class BPTreeController implements IBPTreeController {
 
         node.data.open = node.expanded;
 
-        if (angular.isFunction(self.onSync)) {
-            self.onSync({item: node.data});
+        if (_.isFunction(this.onSync)) {
+            this.onSync({item: node.data});
         }
     };
 
-    private rowSelected = (node: RowNode) => {
-        if (!node) {
-            return;
+    public rowSelected = (event: {node: RowNode}) => {
+        const node = event.node;
+        const isSelected = node.isSelected();
+
+        if (isSelected) {
+            if (!this.selectedRowNode || this.selectedRowNode.data.id !== node.data.id) {
+                if (_.isFunction(this.onSelect)) {
+                    this.onSelect({item: node.data});
+                }
+                this.selectedRowNode = node;
+            }
+        } else {
+            if (this.selectedRowNode.data.id === node.data.id) {
+                node.setSelected(true, true);
+            }
         }
+    };
+
+    private cellClicked = (params: {event: MouseEvent, rowIndex: number}) => {
+        let element = params.event.target as HTMLElement;
+        while (element && element.parentElement && element.parentElement !== this.$element[0]) {
+            if (element.classList.contains("ag-group-contracted") || element.classList.contains("ag-group-expanded")) {
+                return; // exit if the user clicked on the arrow to expand/contract the folder
+            }
+            element = element.parentElement;
+        }
+
+        const model = this.options.api.getModel();
+        const node = model.getRow(params.rowIndex);
 
         node.setSelected(true, true);
-        this.selectionSubject.onNext(node);
-    };
-
-    private cellFocused = (params: any) => {
-        const model = this.options.api.getModel();
-        let selectedRow = model.getRow(params.rowIndex);
-        this.rowSelected(selectedRow);
-    };
-
-    private rowClicked = (params: any) => {
-        let self = this;
-
-        this.clickTimeout = this.$timeout(function () {
-            if (self.clickTimeout.$$state.status === 2) {
-                return; // click event canceled by double-click
-            }
-
-        }, 250);
-    };
-
-    private rowDoubleClicked = (params: any) => {
-        // this is just to cancel the (single) click event in case of double-click
-        this.$timeout.cancel(this.clickTimeout);
-
-        if (angular.isFunction(this.onRowDblClick)) {
-            this.onRowDblClick({prms: params});
-        }
     };
 
     private rowPostCreate = (params: any) => {
-        if (angular.isFunction(this.onRowPostCreate)) {
+        if (_.isFunction(this.onRowPostCreate)) {
             this.onRowPostCreate({prms: params});
         }
     };

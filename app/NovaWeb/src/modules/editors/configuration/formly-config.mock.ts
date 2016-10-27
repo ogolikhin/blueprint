@@ -41,7 +41,7 @@ export function createFormlyModule(moduleName, dependencies, formlyFields) {
             };
 
             function Controller() {
-                var vm = this;
+                const vm = this;
                 vm.fields = fields;
             }
         });

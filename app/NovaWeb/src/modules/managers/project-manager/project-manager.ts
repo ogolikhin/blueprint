@@ -430,37 +430,30 @@ export class ProjectManager implements IProjectManager {
 
         let node: IArtifactNode = this.getArtifactNode(id);
         if (node) {
-            this.navigationService.navigateToMain().then(() => {
-                this.projectService.getArtifacts(node.projectId, node.artifact.id).then((data: Models.IArtifact[]) => {
-                    node.children = data.map((it: Models.IArtifact) => {
-                        const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
-                        this.artifactManager.add(statefulArtifact);
-                        return new ArtifactNode(statefulArtifact, node);
-                    });
-                    node.loaded = true;
-                    node.open = true;
+            this.projectService.getArtifacts(node.projectId, node.artifact.id).then((data: Models.IArtifact[]) => {
+                node.children = data.map((it: Models.IArtifact) => {
+                    const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
+                    this.artifactManager.add(statefulArtifact);
+                    return new ArtifactNode(statefulArtifact, node);
+                });
+                node.loaded = true;
+                node.open = true;
 
+                this.projectCollection.onNext(this.projectCollection.getValue());
+                defer.resolve();
+            }).catch((error: any) => {
+                //ignore authentication errors here
+                if (error) {
+                    this.messageService.addError(error["message"] || "Artifact_NotFound");
+                    defer.reject();
+                } else {
+                    node.children = [];
+                    node.loaded = false;
+                    node.open = false;
+                    //node.hasChildren = false;
                     this.projectCollection.onNext(this.projectCollection.getValue());
                     defer.resolve();
-                }).catch((error: any) => {
-                    //ignore authentication errors here
-                    if (error) {
-                        this.messageService.addError(error["message"] || "Artifact_NotFound");
-                        defer.reject();
-                    } else {
-                        node.children = [];
-                        node.loaded = false;
-                        node.open = false;
-                        //node.hasChildren = false;
-                        this.projectCollection.onNext(this.projectCollection.getValue());
-                        defer.resolve();
-                    }
-                });
-            }).catch((error: any) => {
-                if (error) {
-                    this.messageService.addError(error);
                 }
-                defer.reject(error);
             });
         } else {
             throw new Error("Artifact_NotFound"); // need to throw an error as mainView may not be active yet

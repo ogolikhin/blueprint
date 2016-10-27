@@ -85,7 +85,10 @@ export class ItemStateController {
             }
         }).catch(error => {
             this.navigationService.navigateToMain();
-            this.messageService.addError("The artifact cannot be opened. It is no longer accessible by you.");
+            // Forbidden and ServerError responces are handled in http-error-interceptor.ts
+            if (error.statusCode === HttpStatusCode.NotFound) {
+                this.messageService.addError("HttpError_NotFound");
+            }
         });
     }
 

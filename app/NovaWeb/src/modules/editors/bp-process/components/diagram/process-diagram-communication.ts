@@ -23,8 +23,9 @@ export interface IProcessDiagramCommunication {
 export class ProcessDiagramCommunication implements IProcessDiagramCommunication {
     private setModelUpdateSubject: ICommunicationWrapper;
     private setNavigateToAssociatedArtifactSubject: ICommunicationWrapper;
-    private setClickDeleteSubject: ICommunicationWrapper;    
-    private setArtifactUpdateSubject: ICommunicationWrapper;    
+    private setClickDeleteSubject: ICommunicationWrapper;
+    private setArtifactUpdateSubject: ICommunicationWrapper;
+    private setUserStoriesGeneratedSubject: ICommunicationWrapper;
 
     constructor() {
         // Create subjects
@@ -32,6 +33,7 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
         this.setNavigateToAssociatedArtifactSubject = new CommunicationWrapper();
         this.setClickDeleteSubject = new CommunicationWrapper();
         this.setArtifactUpdateSubject = new CommunicationWrapper();
+        this.setUserStoriesGeneratedSubject = new CommunicationWrapper();
     };
 
     // Model update
@@ -52,86 +54,99 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
         let result;
         switch (event) {
             case ProcessEvents.DeleteShape: {
-                result = this.setClickDeleteSubject.subscribe(observer);
-            }
+                    result = this.setClickDeleteSubject.subscribe(observer);
+                }
                 break;
             case ProcessEvents.ModelUpdate: {
-                result = this.registerModelUpdateObserver(observer);
-            }
+                    result = this.registerModelUpdateObserver(observer);
+                }
                 break;
             case ProcessEvents.NavigateToAssociatedArtifact: {
-                result = this.setNavigateToAssociatedArtifactSubject.subscribe(observer);
-            }
+                    result = this.setNavigateToAssociatedArtifactSubject.subscribe(observer);
+                }
                 break;
             case ProcessEvents.ArtifactUpdate: {
-                result = this.setArtifactUpdateSubject.subscribe(observer);
-            }
+                    result = this.setArtifactUpdateSubject.subscribe(observer);
+                }
+                break;
+            case ProcessEvents.UserStoriesGenerated: {
+                    result = this.setUserStoriesGeneratedSubject.subscribe(observer);
+                }
                 break;
             default:
                 result = undefined;
                 break;
         }
+
         return result;
     }
 
-    public unregister(event: ProcessEvents, observerHandler: string) {
+    public unregister(event: ProcessEvents, observer: string) {
         switch (event) {
             case ProcessEvents.DeleteShape: {
-                this.setClickDeleteSubject.disposeObserver(observerHandler);
-            }
+                    this.setClickDeleteSubject.disposeObserver(observer);
+                }
                 break;
 
             case ProcessEvents.ModelUpdate: {
-                this.removeModelUpdateObserver(observerHandler);
-            }
+                    this.removeModelUpdateObserver(observer);
+                }
                 break;
 
             case ProcessEvents.NavigateToAssociatedArtifact: {
-                this.setNavigateToAssociatedArtifactSubject.disposeObserver(observerHandler);
-            }
+                    this.setNavigateToAssociatedArtifactSubject.disposeObserver(observer);
+                }
                 break;
 
             case ProcessEvents.ArtifactUpdate: {
-                   this.setArtifactUpdateSubject.disposeObserver(observerHandler);
-            }
+                   this.setArtifactUpdateSubject.disposeObserver(observer);
+                }
+                break;
+            
+            case ProcessEvents.UserStoriesGenerated: {
+                    this.setUserStoriesGeneratedSubject.disposeObserver(observer);
+                }
                 break;
         }
-
     }
 
     public action(event: ProcessEvents, eventPayload?: any) {
         switch (event) {
             case ProcessEvents.DeleteShape: {
-                this.setClickDeleteSubject.notify(true);
-            }
+                    this.setClickDeleteSubject.notify(true);
+                }
                 break;
 
             case ProcessEvents.ModelUpdate: {
-                this.modelUpdate(eventPayload);
-            }
+                    this.modelUpdate(eventPayload);
+                }
                 break;
 
             case ProcessEvents.NavigateToAssociatedArtifact: {
-                this.setNavigateToAssociatedArtifactSubject.notify({
-                    id: eventPayload.id,
-                    enableTracking: eventPayload.enableTracking
-                });
-            }
-                break;          
-            case ProcessEvents.ArtifactUpdate: {
-                   this.setArtifactUpdateSubject.notify(eventPayload);
-            }
+                    this.setNavigateToAssociatedArtifactSubject.notify({
+                        id: eventPayload.id,
+                        enableTracking: eventPayload.enableTracking
+                    });
+                }
                 break;
 
+            case ProcessEvents.ArtifactUpdate: {
+                    this.setArtifactUpdateSubject.notify(eventPayload);
+                }
+                break;
+
+            case ProcessEvents.UserStoriesGenerated: {
+                    this.setUserStoriesGeneratedSubject.notify(eventPayload);
+                }
+                break;
         }
-
     }
-
 
     public onDestroy() {
         this.setModelUpdateSubject.dispose();
         this.setNavigateToAssociatedArtifactSubject.dispose();
         this.setClickDeleteSubject.dispose();
         this.setArtifactUpdateSubject.dispose();
+        this.setUserStoriesGeneratedSubject.dispose();
     }
 }

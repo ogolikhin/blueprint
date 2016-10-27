@@ -68,7 +68,6 @@ describe("BPTreeViewComponent", () => {
         expect(controller.options).toEqual(jasmine.objectContaining({
             suppressRowClickSelection: true,
             rowBuffer: controller.rowBuffer,
-            enableColResize: true,
             icons: {
                 groupExpanded: "<i />",
                 groupContracted: "<i />",
@@ -111,11 +110,13 @@ describe("BPTreeViewController", () => {
                 "showLoadingOverlay",
                 "getSelectedRows",
                 "setRowData",
-                "sizeColumnsToFit",
                 "forEachNode",
                 "getModel",
                 "hideOverlay",
                 "showNoRowsOverlay"
+            ]),
+            columnApi: jasmine.createSpyObj("columnApi", [
+                "autoSizeAllColumns"
             ])
         };
     }));
@@ -165,16 +166,14 @@ describe("BPTreeViewController", () => {
             expect(controller.resetGridAsync).toHaveBeenCalledWith(false);
         });
 
-        it("$onDestroy calls setRowData and updateScrollbars", () => {
+        it("$onDestroy calls setRowData", () => {
             // Arrange
-            spyOn(controller, "updateScrollbars");
 
             // Act
             controller.$onDestroy();
 
             // Assert
             expect(controller.options.api.setRowData).toHaveBeenCalledWith(null);
-            expect(controller.updateScrollbars).toHaveBeenCalledWith(true);
         });
     });
 
@@ -268,7 +267,7 @@ describe("BPTreeViewController", () => {
                 expect(controller.options.api.setRowData).toHaveBeenCalledWith([]);
                 expect(controller.options.api.showLoadingOverlay).toHaveBeenCalledWith();
                 expect(controller.options.api.setRowData).toHaveBeenCalledWith([controller.rootNode]);
-                expect(controller.options.api.sizeColumnsToFit).toHaveBeenCalled();
+                expect(controller.options.columnApi.autoSizeAllColumns).toHaveBeenCalled();
                 expect(controller.options.api.hideOverlay).toHaveBeenCalledWith();
                 expect(controller.options.api.showNoRowsOverlay).not.toHaveBeenCalled();
                 done();
@@ -305,7 +304,7 @@ describe("BPTreeViewController", () => {
                 expect(controller.options.api.setRowData).toHaveBeenCalledWith([]);
                 expect(controller.options.api.showLoadingOverlay).toHaveBeenCalledWith();
                 expect(controller.options.api.setRowData).toHaveBeenCalledWith(children);
-                expect(controller.options.api.sizeColumnsToFit).toHaveBeenCalled();
+                expect(controller.options.columnApi.autoSizeAllColumns).toHaveBeenCalled();
                 expect(controller.options.api.hideOverlay).toHaveBeenCalledWith();
                 expect(controller.options.api.showNoRowsOverlay).not.toHaveBeenCalled();
                 done();
@@ -373,7 +372,7 @@ describe("BPTreeViewController", () => {
                 expect(controller.options.api.setRowData).toHaveBeenCalledWith([]);
                 expect(controller.options.api.showLoadingOverlay).toHaveBeenCalledWith();
                 expect(controller.options.api.setRowData).toHaveBeenCalledWith((<ITreeViewNodeVM>controller.rootNode).children);
-                expect(controller.options.api.sizeColumnsToFit).toHaveBeenCalled();
+                expect(controller.options.columnApi.autoSizeAllColumns).toHaveBeenCalled();
                 expect(controller.options.api.hideOverlay).toHaveBeenCalledWith();
                 expect(controller.options.api.showNoRowsOverlay).not.toHaveBeenCalled();
                 done();
@@ -395,7 +394,7 @@ describe("BPTreeViewController", () => {
                 // Assert
                 expect(controller.options.api.setRowData).toHaveBeenCalledWith([]);
                 expect(controller.options.api.showLoadingOverlay).toHaveBeenCalledWith();
-                expect(controller.options.api.sizeColumnsToFit).toHaveBeenCalled();
+                expect(controller.options.columnApi.autoSizeAllColumns).toHaveBeenCalled();
                 expect(controller.options.api.hideOverlay).toHaveBeenCalledWith();
                 expect(controller.options.api.showNoRowsOverlay).toHaveBeenCalledWith();
                 done();

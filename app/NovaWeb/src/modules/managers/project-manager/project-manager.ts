@@ -149,6 +149,7 @@ export class ProjectManager implements IProjectManager {
         }).catch(() => {
             defer.reject();
         }).finally(() => {
+            
             this.triggerProjectCollectionRefresh();
         });
 

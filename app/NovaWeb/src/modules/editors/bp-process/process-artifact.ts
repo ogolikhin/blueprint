@@ -56,6 +56,10 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         return saveProcessPromise;
     }
 
+    protected customHandleSaveFailed(): void {
+        this.notifySubscribers();
+    }
+
     protected runPostGetObservable() {
         this.loadProcessPromise = null;
     }
@@ -74,7 +78,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     private loadProcess(): ng.IPromise<IStatefulArtifact> {
         const processDeffered = this.services.getDeferred<IStatefulArtifact>();
 
-        this.services.processService.load(this.id.toString())
+        this.services.processService.load(this.id.toString(), this.getEffectiveVersion())
             .then((process: IProcess) => {
                 this.onLoad(process);
                 processDeffered.resolve(this);

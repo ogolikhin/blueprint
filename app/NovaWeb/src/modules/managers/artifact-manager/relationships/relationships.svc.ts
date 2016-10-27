@@ -38,18 +38,11 @@ export class ArtifactRelationshipsService implements IArtifactRelationshipsServi
         this.$http(requestObj).then(
             (result: ng.IHttpPromiseCallbackArg<Relationships.IArtifactRelationshipsResultSet>) => {
                 defer.resolve(result.data);
-            }, (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                const error = {
-                    statusCode: errResult.status,
-                    message: errResult.data ? errResult.data.message : "Artifact_NotFound"
-                };
-                defer.reject(error);
-            });
-
+            }, 
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                defer.reject(result.data);
+            }
+        );
         return defer.promise;
     }
 }

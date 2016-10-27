@@ -5,7 +5,7 @@ import {IDialogParams} from "../../../../messages/message-dialog";
 import {IProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {IMessageService} from "../../../../../../../core/";
-import {SourcesAndDestinations} from "../../../../../models/process-models";
+import {SourcesAndDestinations, IUserStory} from "../../../../../models/process-models";
 
 export interface IDeletable {
     canDelete(): boolean;
@@ -124,6 +124,7 @@ export interface IProcessGraph {
     destroy();
     setSystemTasksVisible(value: boolean);
     clearSelection();
+    onUserStoriesGenerated(userStories: IUserStory[]): void;
 }
 
 export interface ILayout {
@@ -236,6 +237,7 @@ export interface ISystemTask extends ITask {
 
 export interface IUserTask extends ITask {
     objective: string;
+    userStoryId: number;
     getNextSystemTasks(graph: IProcessGraph): ISystemTask[];
 }
 

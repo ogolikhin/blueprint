@@ -1,0 +1,105 @@
+<nav class="navbar navbar-light navbar-fixed-top">
+    <div class="navbar-header">
+        <img class="logo" src="/novaweb/668f48fbcbda805a8a10b21184c7e996.svg"/>
+        <div class="navbar-brand">Blueprint</div>
+    </div>
+</nav>
+<div class="quick-search__results--content">
+    <div class="quick-search__results--content--center">
+        <div class="quick-search__results--side-border" ng-class="{'quick-search__results':$ctrl.results.length===0}">
+            <div class="quick-search__results--input-panel">
+                <form name="$ctrl.form"
+                      ng-submit="$ctrl.search($ctrl.searchTerm)"
+                      novalidate>
+                    <div class="quick-serach__form-control" ng-class="{'has-error':$ctrl.hasError()}">
+                        <input type="text"
+                               required
+                               autocomplete="off"
+                               ng-minlength="3"
+                               placeholder="Search open project"
+                               class="quick-serach__input quick-serach__input--full-width"
+                               name="searchTerm"
+                               ng-model="$ctrl.searchTerm">
+                        <i class="glyphicon glyphicon-search quick-serach__icon--fixed"></i>
+                        <div class="error-messages"
+                             ng-messages="$ctrl.form.$error"
+                             role="alert"
+                             ng-if="$ctrl.form.$submitted">
+                            <span ng-message="minlength">At least 3 characters.</span>
+                        </div>
+                    </div>
+                </form>
+                <button type="button"
+                        class="close"
+                        ng-click="$ctrl.closeModal()">&times;</button>
+            </div>
+            <div class="quick-search__results">
+                <ul class="list-unstyled quick-search__results--list" ng-if="$ctrl.results.length>0">
+                    <li class="quick-search__results--item"
+                        ng-repeat="item in $ctrl.results track by $index">
+                        <a class="quick-search__results--link" ng-href="{{$ctrl.getNavigationUrl(item)}}" ng-click="$ctrl.closeModal()">
+                            <div class="row small-gutter">
+                                <div class="col-md-1 text-center">
+                                    <div class="icon quick-search__results--large-font font-blue" ng-class="!item.artifactTypeIcon ? item.artifactClass : ''"
+                                        bp-tooltip="{{ item.propertyName }}">
+                                        <bp-item-type-icon
+                                            ng-if="!!item.artifactTypeIcon"
+                                            item-type-id="item.itemTypeId"
+                                            item-type-icon="item.artifactTypeIcon"></bp-item-type-icon>
+                                    </div>
+                                </div>
+                                <div class="col-md-11">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <h4 title="{{item.typeName}} - {{item.name}}"
+                                                class="font-blue margin-bottom--none quick-search__text--no-wrap">
+                                                {{item.typeName}} - {{item.name}}
+                                            </h4>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <strong>Author: </strong>
+                                            <span>{{item.createdBy}}</span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>Created on: </strong>
+                                            <span>{{item.createdDateTime|momentDate:'MMMM DD, YYYY'}}</span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>Last Edited: </strong>
+                                            <span> {{item.lastModifiedDateTime|momentDate:'MMMM DD, YYYY'}}</span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                        <span class="quick-search__results--truncate">
+                                            <strong>{{item.propertyName}}: </strong>
+                                            <span ng-if="item.searchableValue">
+                                                {{item.searchableValue}}
+                                            </span>
+                                        </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="quick-search__response" ng-if="$ctrl.isLoading">
+                    <div class="quick-serach__loading">
+                        <div class="quick-serach__loading-overlay"></div>
+                        <span class="glyphicon glyphicon-refresh spin quick-serach__loading-icon"></span>
+                    </div>
+                </div>
+
+                <div class="quick-search__response" ng-if="$ctrl.results.length===0">
+                    <div class="center-item font-larger">
+                        <span>No results Found</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -387,7 +387,7 @@ namespace ArtifactStoreTests
             NovaArtifactDetails updateResult = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, _user, artifactDetails, Helper.BlueprintServer.Address),
+            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, _user, artifactDetails, address: Helper.BlueprintServer.Address),
                 "Exception caught while trying to update an artifact of type: '{0}'!", artifactType);
 
             // Verify:

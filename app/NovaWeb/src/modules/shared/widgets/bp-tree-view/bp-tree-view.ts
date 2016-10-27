@@ -1,3 +1,4 @@
+import * as _ from "lodash";
 import * as angular from "angular";
 import * as agGrid from "ag-grid/main";
 import {ILocalizationService} from "../../../core";
@@ -34,7 +35,7 @@ export class BPTreeViewComponent implements ng.IComponentOptions {
         onSelect: "&?",
         onDoubleClick: "&?",
         onError: "&?",
-        enableColResize: "<"
+        sizeColumnsToFit: "<"
     };
 }
 
@@ -97,7 +98,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     public onSelect: (param: {vm: ITreeViewNodeVM, isSelected: boolean, selectedVMs: ITreeViewNodeVM[]}) => void;
     public onDoubleClick: (param: {vm: ITreeViewNodeVM}) => void;
     public onError: (param: {reason: any}) => void;
-    public enableColResize: boolean;
+    public sizeColumnsToFit: boolean;
     public timers = [];
 
 
@@ -110,12 +111,12 @@ export class BPTreeViewController implements IBPTreeViewController {
         this.rootNodeVisible = angular.isDefined(this.rootNodeVisible) ? this.rootNodeVisible : false;
         this.columns = angular.isDefined(this.columns) ? this.columns : [];
         this.headerHeight = angular.isDefined(this.headerHeight) ? this.headerHeight : 0;
+        this.sizeColumnsToFit = angular.isDefined(this.sizeColumnsToFit) ? this.sizeColumnsToFit : false;
 
         this.options = {
             angularCompileHeaders: true,
             suppressRowClickSelection: true,
             rowBuffer: this.rowBuffer,
-            enableColResize: this.enableColResize || true,
             icons: {
                 groupExpanded: "<i />",
                 groupContracted: "<i />",
@@ -151,18 +152,20 @@ export class BPTreeViewController implements IBPTreeViewController {
         };
     }
 
+    public $onInit() {
+        if (this.sizeColumnsToFit) {
+            this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
+        }
+    }
+
     public $onChanges(onChangesObj: ng.IOnChangesObject): void {
         if (onChangesObj["selectionMode"] || onChangesObj["rootNode"] || onChangesObj["rootNodeVisible"] || onChangesObj["columns"]) {
             this.resetGridAsync(false);
         }
     }
 
-    public $onInit() {
-        this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
-    }
-
     private onWidthResized(mainWindow: IMainWindow) {
-        if (this.options.api) {
+        if (this.options.api && this.sizeColumnsToFit) {
             if (mainWindow.causeOfChange === ResizeCause.browserResize) {
                 this.options.api.sizeColumnsToFit();
             } else if (mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
@@ -175,8 +178,7 @@ export class BPTreeViewController implements IBPTreeViewController {
 
     public $onDestroy(): void {
         this.options.api.setRowData(null);
-        this.updateScrollbars(true);
-        this.timers.forEach((timer) => {
+        _.each(this.timers, (timer) => {
             this.$timeout.cancel(timer);
         });
 
@@ -232,7 +234,14 @@ export class BPTreeViewController implements IBPTreeViewController {
             return this.$q.when(rowDataAsync).then((rowData) => {
                 if (this.options.api) {
                     this.options.api.setRowData(rowData);
-                    this.options.api.sizeColumnsToFit();
+
+                    if (this.sizeColumnsToFit) {
+                        this.timers[1] = this.$timeout(() => {
+                            this.options.api.sizeColumnsToFit();
+                        }, 500);
+                    } else {
+                        this.options.columnApi.autoSizeAllColumns();
+                    }
 
                     if (saveSelection) {
 
@@ -261,7 +270,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         return this.$q.resolve();
     }
 
-    public updateScrollbars(destroy: boolean = false) {
+    public updateScrollbars() {
         const viewport = this.$element[0].querySelector(".ag-body-viewport");
         if (viewport ) {
             this.options.columnApi.autoSizeColumns(this.options.columnDefs.map(columnDef => columnDef.field ));
@@ -388,10 +397,6 @@ export class BPTreeViewController implements IBPTreeViewController {
     };
 
     public onGridReady = (event?: any) => {
-        this.timers[1] = this.$timeout(() => {
-            this.options.api.sizeColumnsToFit();
-        }, 500);
-
         this.resetGridAsync(false);
     }
 }

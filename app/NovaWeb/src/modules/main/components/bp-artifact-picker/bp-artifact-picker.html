@@ -23,7 +23,9 @@
             <div class="search-results" ng-if="!$ctrl.isSearching && $ctrl.searchResults.length !== 0">
                 <div class="search-result"
                      ng-repeat="searchResult in $ctrl.searchResults"
+                     ng-class="{selected: searchResult.isSelected}"
                      ng-click="$ctrl.onSearchResultClicked(searchResult)">
+                    <input class="checkbox" type="checkbox" ng-model="searchResult.isSelected" ng-if="$ctrl.currentSelectionMode === 'checkbox'">
                     <i class="icon-project"></i>
                     <div class="search-details">
                         <div bp-tooltip="{{searchResult.name}}" bp-tooltip-truncated="true">

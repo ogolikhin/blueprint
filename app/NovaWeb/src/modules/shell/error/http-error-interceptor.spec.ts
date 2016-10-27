@@ -1,7 +1,7 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
 import {HttpErrorInterceptor} from "./http-error-interceptor";
-import {IHttpInterceptorConfig, HttpStatusCode} from "../../core/http";
+import {IHttpInterceptorConfig, HttpStatusCode, ApplicationError} from "../../core";
 import {SessionSvcMock} from "../login/mocks.spec";
 import {MessageServiceMock} from "../../core/messages/message.mock";
 
@@ -141,7 +141,9 @@ describe("HttpErrorInterceptor", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(processedResponse).toBeUndefined();
+            expect(processedResponse).toBeDefined();
+            expect(processedResponse.data).toBeDefined();
+            expect(processedResponse.data instanceof ApplicationError).toBeTruthy();
             expect(messageService.messages.length).toBe(1);
             expect(messageService.messages[0].messageText).toBe("HttpError_InternalServer");
         }));
@@ -166,7 +168,9 @@ describe("HttpErrorInterceptor", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(processedResponse).toBeUndefined();
+            expect(processedResponse).toBeDefined();
+            expect(processedResponse.data).toBeDefined();
+            expect(processedResponse.data instanceof ApplicationError).toBeTruthy();
             expect(messageService.messages.length).toBe(1);
             expect(messageService.messages[0].messageText).toBe("HttpError_ServiceUnavailable");
         }));

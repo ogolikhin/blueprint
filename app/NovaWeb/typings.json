@@ -8,6 +8,7 @@
         "jasmine": "registry:dt/jasmine#2.5.0+20161003201800",
         "jquery": "registry:dt/jquery#1.10.0+20160929162922",
         "lodash": "registry:dt/lodash#4.14.0+20161004174455",
+        "moment": "registry:dt/moment#2.11.1+20161010105546",
         "node": "registry:dt/node#6.0.0+20161014191813",
         "rx": "npm:rx/ts/rx.all.d.ts"
     },

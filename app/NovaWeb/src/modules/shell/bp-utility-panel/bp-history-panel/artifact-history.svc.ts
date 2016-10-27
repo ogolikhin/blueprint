@@ -64,18 +64,9 @@ export class ArtifactHistory implements IArtifactHistory {
             (result: ng.IHttpPromiseCallbackArg<IArtifactHistoryResultSet>) => {
                 defer.resolve(result.data.artifactHistoryVersions);
 
-            }, (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                const error = {
-                    statusCode: errResult.status,
-                    message: errResult.data ? errResult.data.message : "Artifact_NotFound"
-                };
-                defer.reject(error);
+            }, (result: ng.IHttpPromiseCallbackArg<any>) => {
+                defer.reject(result.data);
             });
-
         return defer.promise;
     }
 }

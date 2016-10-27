@@ -25,6 +25,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
 
     getObservable(): Rx.Observable<IStatefulArtifact>;
     canBeSaved(): boolean;
+    canBePublished(): boolean;
 }
 
 // TODO: explore the possibility of using an internal interface for services
@@ -34,24 +35,34 @@ export interface IIStatefulArtifact extends IIStatefulItem {
 export class StatefulArtifact extends StatefulItem implements IStatefulArtifact, IIStatefulArtifact {
     private state: IArtifactState;
 
-    protected subject: Rx.BehaviorSubject<IStatefulArtifact>;
+    protected _subject: Rx.BehaviorSubject<IStatefulArtifact>;
 
     constructor(artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
         super(artifact, services);
         this.metadata = new MetaData(this);
-        this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
-
         this.state = new ArtifactState(this);
     }
 
     public dispose() {
         super.dispose();
-        this.subject.dispose();
-        delete this.subject;
         if (this.state) {
             this.state.dispose();
         }
     }
+
+    public unsubscribe() {
+        super.unsubscribe();
+        this.subject.onCompleted();
+        delete this._subject;
+    }
+
+    protected get subject(): Rx.BehaviorSubject<IStatefulArtifact> {
+        if (!this._subject) {
+            this._subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);            
+        }    
+        return this._subject;    
+    } 
+
 
     public initialize(artifact: Models.IArtifact): IState {
         if (this.parentId && this.orderIndex &&
@@ -82,7 +93,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 this.subject.onNext(this);
             }).catch((error) => {
                 this.artifactState.readonly = true;
-                this.subject.onError(error);
+                this.error.onNext(error);
             }).finally(() => {
                 this.loadPromise = null;
                 this.runPostGetObservable();
@@ -91,6 +102,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         return this.subject.filter(it => !!it).asObservable();
     }
+
+    protected notifySubscribers() {
+        this.subject.onNext(this);
+    } 
 
     public discard() {
         super.discard();
@@ -106,6 +121,17 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             return false;
         }
     }
+
+    public canBePublished(): boolean {
+        if (this.isProject()) {
+            return false;
+        } else if (this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser || this.version < 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private isNeedToLoad() {
         if (this.isProject()) {
             return false;
@@ -183,7 +209,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             this.artifactState.lock(lock);
             if (lock.info.versionId !== this.version) {
                 this.refresh();
-                this.services.messageService.addInfo("Artifact_Lock_Refresh");
+                this.services.messageService.addInfo("Artifact_Lock_Refresh", 6000);
             } else {
                 if (lock.info.parentId !== this.parentId || lock.info.orderIndex !== this.orderIndex) {
                     this.artifactState.misplaced = true;
@@ -195,7 +221,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 this.refresh();
                 if (lock.info.versionId !== this.version) {
                     //Show the refresh message only if the version has changed.
-                    this.services.messageService.addInfo("Artifact_Lock_Refresh");
+                    this.services.messageService.addInfo("Artifact_Lock_Refresh", 6000);
                 }
             } else {
                 this.discard();
@@ -260,33 +286,40 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 this.saveArtifact().then(() => {
                     deferred.resolve(this);
                 })
-                .catch((err) => {
-                    deferred.reject(err);
+                .catch((error) => {
+                    this.customHandleSaveFailed();
+                    deferred.reject(error);
                 });
             })
-            .catch((err) => {
-                deferred.reject(err);
+            .catch((error) => {
+                // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
+                if (error) {
+                    deferred.reject(this.handleSaveError(error));
+                } else {
+                    deferred.reject(error);
+                }            
             });
         } else {
             this.saveArtifact()
                 .then(() => {
                     deferred.resolve(this);
                 })
-                .catch((err) => {
-                    deferred.reject(err);
+                .catch((error) => {
+                    deferred.reject(error);
                 });
         } 
 
         return deferred.promise;
     }
-   
+
     private saveArtifact(): ng.IPromise<IStatefulArtifact> {
         let deferred = this.services.getDeferred<IStatefulArtifact>();
 
         let changes = this.changes();
         if (!changes) {
+            const compoundId: string = this.prefix + this.id.toString();
             let message: string = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
-            deferred.reject(new Error(message.replace("{0}", this.id.toString())));
+            deferred.reject(new Error(message.replace("{0}", compoundId)));
         } else {
             this.services.artifactService.updateArtifact(changes)
                 .then((artifact: Models.IArtifact) => {
@@ -297,7 +330,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                         deferred.reject(error);
                     });
                 }).catch((error) => {
-                    let message: string;
                     // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
                     if (error) {
                         deferred.reject(this.handleSaveError(error));
@@ -310,7 +342,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return deferred.promise;
     }
 
-    private handleSaveError(error: any): Error {
+    protected handleSaveError(error: any): Error {
         let message: string;
 
         if (error.statusCode === 400) {
@@ -337,7 +369,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             message = this.services.localizationService.get("App_Save_Artifact_Error_Other") + error.statusCode;
         }
 
-        message = message.replace("{0}", this.id.toString());
+        const compoundId: string = this.prefix + this.id.toString();
+        message = message.replace("{0}", compoundId);
         return new Error(message);
     }
 
@@ -384,7 +417,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         })
         .catch((err) => {
             if (err && err.statusCode === HttpStatusCode.Conflict) {
-                this.publishDependents(err.content);
+                this.publishDependents(err.errorContent);
             } else {
                 this.services.messageService.addError(err);
             }
@@ -473,6 +506,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
     protected getCustomArtifactPromisesForSave(): ng.IPromise <IStatefulArtifact> {
         return null;
+    }
+    protected customHandleSaveFailed(): void {
+        ;
     }
 
     //Hook for subclasses to do some post processing

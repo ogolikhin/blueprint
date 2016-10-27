@@ -76,15 +76,9 @@ export class DiagramService implements IDiagramService {
                     deferred.reject(DiagramErrors[DiagramErrors.Incompatible]);
                 }
             }, (result: ng.IHttpPromiseCallbackArg<any>) => {
-                delete this.promises[id];
-                if (!result) {
-                    deferred.reject();
-                    return;
-                }
                 if (result.status <= 0) {
                     deferred.reject(DiagramErrors.Cancelled);
                 } else {
-                    result.data.statusCode = result.status;
                     deferred.reject(result.data);
                 }
             }).finally(() => {

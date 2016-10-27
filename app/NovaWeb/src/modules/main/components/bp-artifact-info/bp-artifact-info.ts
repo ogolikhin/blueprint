@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import {Models, Enums} from "../../models";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../services";
-import {IMessageService, Message, MessageType, ILocalizationService} from "../../../core";
+import {IMessageService, Message, MessageType, ILocalizationService, IApplicationError, HttpStatusCode } from "../../../core";
 import {ILoadingOverlayService} from "../../../core/loading-overlay";
 import {IArtifactManager, IStatefulArtifact, IMetaDataService} from "../../../managers/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager";
@@ -119,13 +119,14 @@ export class BpArtifactInfoController {
         this.subscribers.push(stateObserver);
     }
 
-    public onError = (error: any) => {
-        if (this.artifact.artifactState.deleted || this.artifact.artifactState.misplaced) {
-            //Occurs when refreshing an artifact that's been moved/deleted; do nothing
-        } else {
-            this.messageService.addError(error);
+    public onError = (error: IApplicationError ) => {
+        if (error && error.message) {
+            if (this.artifact.artifactState.deleted || this.artifact.artifactState.misplaced) {
+                //Occurs when refreshing an artifact that's been moved/deleted; do nothing
+            } else {
+                this.messageService.addError(error);
+            }
         }
-
         this.onArtifactChanged();
     }
 

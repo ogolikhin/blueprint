@@ -131,7 +131,7 @@ namespace ArtifactStoreTests
             NovaArtifactDetails updateResult = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, _user, artifactDetails, Helper.BlueprintServer.Address),
+            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, _user, artifactDetails, address: Helper.BlueprintServer.Address),
                 "Exception caught while trying to update an artifact!");
             var updatedArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
 
@@ -155,8 +155,8 @@ namespace ArtifactStoreTests
             NovaArtifactDetails updateResult = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, _user, artifactDetails, Helper.BlueprintServer.Address),
-                "Exception caught while trying to update an artifact!");
+            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, _user, artifactDetails,
+                address: Helper.BlueprintServer.Address), "Exception caught while trying to update an artifact!");
             var updatedArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
 
             // Verify:

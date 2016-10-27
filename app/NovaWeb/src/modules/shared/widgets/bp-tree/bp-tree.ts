@@ -138,6 +138,10 @@ export class BPTreeController implements IBPTreeController {
             headerHeight: this.headerHeight,
             showToolPanel: false,
             suppressContextMenu: true,
+            suppressRowClickSelection: true,
+            suppressMenuMainPanel: true,
+            suppressMenuColumnPanel: true,
+            rowSelection: "single",
             rowBuffer: this.rowBuffer,
             rowHeight: this.rowHeight,
             enableColResize: true,
@@ -148,6 +152,7 @@ export class BPTreeController implements IBPTreeController {
             },
             getNodeChildDetails: this.getNodeChildDetails,
             onCellClicked: this.cellClicked,
+            onRowSelected: this.rowSelected,
             onRowGroupOpened: this.rowGroupOpened,
             processRowPostCreate: this.rowPostCreate,
             onGridReady: this.onGridReady,
@@ -413,6 +418,24 @@ export class BPTreeController implements IBPTreeController {
         }
     };
 
+    public rowSelected = (event: {node: RowNode}) => {
+        const node = event.node;
+        const isSelected = node.isSelected();
+
+        if (isSelected) {
+            if (!this.selectedRowNode || this.selectedRowNode.data.id !== node.data.id) {
+                if (_.isFunction(this.onSelect)) {
+                    this.onSelect({item: node.data});
+                }
+                this.selectedRowNode = node;
+            }
+        } else {
+            if (this.selectedRowNode.data.id === node.data.id) {
+                node.setSelected(true, true);
+            }
+        }
+    };
+
     private cellClicked = (params: {event: MouseEvent, rowIndex: number}) => {
         let element = params.event.target as HTMLElement;
         while (element && element.parentElement && element.parentElement !== this.$element[0]) {
@@ -424,14 +447,8 @@ export class BPTreeController implements IBPTreeController {
 
         const model = this.options.api.getModel();
         const node = model.getRow(params.rowIndex);
-        if (!this.selectedRowNode || this.selectedRowNode.data.id !== node.data.id) {
-            node.setSelected(true, true);
 
-            if (_.isFunction(this.onSelect)) {
-                this.onSelect({item: node.data});
-            }
-        }
-        this.selectedRowNode = node;
+        node.setSelected(true, true);
     };
 
     private rowPostCreate = (params: any) => {

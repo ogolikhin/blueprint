@@ -1,6 +1,6 @@
 import {BPDropdownAction, BPDropdownItemAction, IDialogService, IDialogSettings} from "../../../../../shared";
 import {IUserStoryService} from "../../../services/user-story.svc";
-import {IMessageService, ILocalizationService} from "../../../../../core";
+import {IApplicationError, IMessageService, ILocalizationService, ErrorCode} from "../../../../../core";
 import {ISelectionManager} from "../../../../../managers/selection-manager";
 import {StatefulProcessArtifact} from "../../../process-artifact";
 import {StatefulProcessSubArtifact} from "../../../process-subartifact";
@@ -135,8 +135,14 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                 this.processDiagramManager.action(ProcessEvents.UserStoriesGenerated, userStories);
                 this.showSuccessMessage(userTaskId);
             })
-            .catch((reason: any) => {
-                this.showErrorMessage(reason.message);
+            .catch((reason: IApplicationError) => {
+                let message: string = reason.message;
+                
+                if (reason.errorCode === ErrorCode.ArtifactNotPublished) {
+                    message = this.localization.get("ST_User_Stories_Generation_Failed_LockedByOtherUser_Message");
+                }
+
+                this.showErrorMessage(message);
             });
     }
 

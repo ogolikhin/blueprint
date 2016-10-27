@@ -3,8 +3,6 @@ import {ISession} from "../login/session.svc";
 import {SessionTokenHelper} from "../login/session.token.helper";
 import {IMessageService, IHttpInterceptorConfig, HttpStatusCode, IApplicationError, ApplicationError} from "../../core";
 
-
-
 export class HttpErrorInterceptor {
 
     static $inject: [string] = ["$injector"];
@@ -30,7 +28,7 @@ export class HttpErrorInterceptor {
             if (!this.canceledByUser(config)) {
                 $message.addError("HttpError_ServiceUnavailable"); // Service is unavailable
                 response.data = this.createApplicationError(response, { handled: true});
-                deferred.reject(response);                
+                deferred.reject(response);
             } else {
                 deferred.reject();
             }

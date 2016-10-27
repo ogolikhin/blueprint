@@ -378,6 +378,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Generate_All_Co
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Generate_Contextual_Toolbar_Button', 'en-US', N'Generate from Task')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_User_Story_Generated_Message', 'en-US', N'The selected task’s user story has been generated.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_User_Stories_Generated_Message', 'en-US', N'All user stories have been generated.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_User_Stories_Generation_Failed_LockedByOtherUser_Message', 'en-US', N'User stories cannot be generated. This artifact is now locked because another user has started editing it. Please refresh the process.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ag-Grid_noRowsToShow', 'en-US', N'Empty')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'fr-CA', N'Oui')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_No', 'fr-CA', N'Non')

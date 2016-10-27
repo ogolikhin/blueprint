@@ -106,7 +106,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
             return;
         }
 
-        if (!process.artifactState.published) {
+        if (process.artifactState.draft) {
             const settings = <IDialogSettings>{
                 type: DialogTypeEnum.Confirm,
                 header: this.localization.get("App_DialogTitle_Confirmation"),

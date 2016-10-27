@@ -135,32 +135,6 @@ describe("ArtifactState", () => {
 
     });
 
-    it("correctly sets published state", (done) => {
-
-        const stateObserver = artifact.artifactState.onStateChange.subscribe(
-            (state) => {
-                // assert
-                if (state && state.lockedBy !== Enums.LockedByEnum.None) {
-                    expect(state.published).toBe(true);
-                    stateObserver.dispose();
-                    done();
-                }
-            },
-            (err) => {
-                fail("state change error: " + err);
-            });
-
-        let newState: IState = {
-            lockDateTime: new Date(),
-            lockedBy: Enums.LockedByEnum.CurrentUser,
-            lockOwner: "Default Instance Admin"
-        };
-
-        artifact.artifactState.setState(newState, false);
-        artifact.artifactState.published = true;
-
-    });
-
     it("correctly returns readonly when locked by another user", () => {
 
         let newState: IState = {

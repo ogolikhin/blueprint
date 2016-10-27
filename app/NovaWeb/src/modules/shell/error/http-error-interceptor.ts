@@ -97,6 +97,9 @@ export class HttpErrorInterceptor {
         if (!error.errorCode) {
             error.errorCode = response.data ? response.data.errorCode : undefined;
         }
+        if (!error.errorContent) {
+            error.errorContent = response.data ? response.data.errorContent : undefined;
+        }
         return error;         
     }
     

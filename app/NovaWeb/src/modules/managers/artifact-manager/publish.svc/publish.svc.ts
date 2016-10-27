@@ -43,18 +43,8 @@ export class PublishService implements IPublishService {
 
         this.$http.post(`/svc/bpartifactstore/artifacts/publish?all=false`, artifactIds).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IPublishResultSet>) => defer.resolve(result.data),
-            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                let error = {
-                    content: errResult.data ? errResult.data.errorContent : null,
-                    statusCode: errResult.status,
-                    errorCode: errResult.data ? errResult.data.errorCode : -1,
-                    message: (errResult.data ? errResult.data.message : "")
-                };
-                defer.reject(error);
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                defer.reject(result.data);
             }
         );
         return defer.promise;

@@ -102,6 +102,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return this.subject.filter(it => !!it).asObservable();
     }
 
+    protected notifySubscribers() {
+        this.subject.onNext(this);
+    } 
+
     public discard() {
         super.discard();
         this.artifactState.dirty = false;
@@ -271,6 +275,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                     deferred.resolve(this);
                 })
                 .catch((error) => {
+                    this.customHandleSaveFailed();
                     deferred.reject(error);
                 });
             })
@@ -280,7 +285,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                     deferred.reject(this.handleSaveError(error));
                 } else {
                     deferred.reject(error);
-                }
+                }            
             });
         } else {
             this.saveArtifact()
@@ -294,14 +299,15 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         return deferred.promise;
     }
-   
+
     private saveArtifact(): ng.IPromise<IStatefulArtifact> {
         let deferred = this.services.getDeferred<IStatefulArtifact>();
 
         let changes = this.changes();
         if (!changes) {
+            const compoundId: string = this.prefix + this.id.toString();
             let message: string = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
-            deferred.reject(new Error(message.replace("{0}", this.id.toString())));
+            deferred.reject(new Error(message.replace("{0}", compoundId)));
         } else {
             this.services.artifactService.updateArtifact(changes)
                 .then((artifact: Models.IArtifact) => {
@@ -351,7 +357,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             message = this.services.localizationService.get("App_Save_Artifact_Error_Other") + error.statusCode;
         }
 
-        message = message.replace("{0}", this.id.toString());
+        const compoundId: string = this.prefix + this.id.toString();
+        message = message.replace("{0}", compoundId);
         return new Error(message);
     }
 
@@ -398,7 +405,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         })
         .catch((err) => {
             if (err && err.statusCode === HttpStatusCode.Conflict) {
-                this.publishDependents(err.content);
+                this.publishDependents(err.errorContent);
             } else {
                 this.services.messageService.addError(err);
             }
@@ -487,6 +494,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
     protected getCustomArtifactPromisesForSave(): ng.IPromise <IStatefulArtifact> {
         return null;
+    }
+    protected customHandleSaveFailed(): void {
+        ;
     }
 
     //Hook for subclasses to do some post processing

@@ -152,6 +152,7 @@ describe("Publish Service", () => {
             let Ids: number[] = [1, 2, 4];
             $httpBackend.expectPOST("/svc/bpartifactstore/artifacts/publish?all=false", Ids)
                 .respond(HttpStatusCode.Conflict, {
+                    statusCode: HttpStatusCode.Conflict,
                     errorContent: <Models.IPublishResultSet>{
                             artifacts: [<Models.IArtifact>{
                             id: 2,
@@ -171,7 +172,7 @@ describe("Publish Service", () => {
                 data = responce;
             }, (err) => {
                 error = err;
-                errorContent = err.content;
+                errorContent = err.errorContent;
             });
             $httpBackend.flush();
 

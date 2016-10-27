@@ -1250,8 +1250,8 @@ pagecontent, bp-properties-panel {
 
                 .icon {
                     display: inline-block;
-                    padding-left: $padding-smaller;
-                    padding-right: $padding-smaller;
+                    margin-left: $padding-smaller;
+                    margin-right: $padding-smaller;
                 }
 
                 .icon__action{
@@ -1268,7 +1268,7 @@ pagecontent, bp-properties-panel {
                 &:not(:first-child):not(:last-child) {
                     padding-right: 5px;
                     .icon {
-                        padding-right: $padding-smaller - 5px;
+                        margin-right: $padding-smaller - 5px;
                     }
                 }
             }

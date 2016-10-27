@@ -1,6 +1,6 @@
 import {BPDropdownAction, BPDropdownItemAction, IDialogService, IDialogSettings} from "../../../../../shared";
 import {IUserStoryService} from "../../../services/user-story.svc";
-import {IMessageService, ILocalizationService} from "../../../../../core";
+import {IApplicationError, IMessageService, ILocalizationService, ErrorCode} from "../../../../../core";
 import {ISelectionManager} from "../../../../../managers/selection-manager";
 import {StatefulProcessArtifact} from "../../../process-artifact";
 import {StatefulProcessSubArtifact} from "../../../process-subartifact";
@@ -8,7 +8,6 @@ import {IProcess, IUserStory} from "../../../models/process-models";
 import {ProcessShapeType} from "../../../models/enums";
 import {IProcessDiagramCommunication, ProcessEvents} from "../../diagram/process-diagram-communication";
 import {DialogTypeEnum} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
-import {ErrorCode} from "../../../../../shell";
 
 export class GenerateUserStoriesAction extends BPDropdownAction {
     private userStoryService: IUserStoryService;
@@ -136,7 +135,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                 this.processDiagramManager.action(ProcessEvents.UserStoriesGenerated, userStories);
                 this.showSuccessMessage(userTaskId);
             })
-            .catch((reason: any) => {
+            .catch((reason: IApplicationError) => {
                 let message: string = reason.message;
                 
                 if (reason.errorCode === ErrorCode.ArtifactNotPublished) {

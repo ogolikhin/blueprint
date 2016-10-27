@@ -25,6 +25,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
 
     getObservable(): Rx.Observable<IStatefulArtifact>;
     canBeSaved(): boolean;
+    canBePublished(): boolean;
 }
 
 // TODO: explore the possibility of using an internal interface for services
@@ -120,6 +121,17 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             return false;
         }
     }
+
+    public canBePublished(): boolean {
+        if (this.isProject()) {
+            return false;
+        } else if (this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser || this.version < 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private isNeedToLoad() {
         if (this.isProject()) {
             return false;

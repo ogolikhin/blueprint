@@ -38,30 +38,7 @@ export class PublishAction extends BPButtonAction {
                     }
                 }
             },
-            (): boolean => {
-                if (!artifact) {
-                    return false;
-                }
-
-                const invalidTypes = [
-                    ItemTypePredefined.Project,
-                    ItemTypePredefined.Collections
-                ];
-
-                if (invalidTypes.indexOf(artifact.predefinedType) >= 0) {
-                    return false;
-                }
-
-                if (artifact.artifactState.readonly) {
-                    return false;
-                }
-
-                if (!artifact.artifactState.dirty && artifact.artifactState.lockedBy !== Enums.LockedByEnum.CurrentUser) {
-                    return false;
-                }
-
-                return true;
-            },
+            (): boolean => artifact ? artifact.canBePublished() : false,
             "fonticon2-publish-line",
             localization.get("App_Toolbar_Publish")
         );

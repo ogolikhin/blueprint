@@ -3,6 +3,7 @@ import { UserStoryProperties } from "../../diagram/presentation/graph/shapes/use
 import { IDiagramNode } from "../../diagram/presentation/graph/models";
 import { IArtifactManager } from "../../../../../managers";
 import { IStatefulArtifact, IStatefulArtifactFactory } from "../../../../../managers/artifact-manager";
+import { IMessageService, ILocalizationService } from "../../../../../core";
 
 export class PreviewCenterController {
     private userStoryTitle: string = "ST-Title";
@@ -35,7 +36,9 @@ export class PreviewCenterController {
         "$sce",
         "artifactManager",
         "$state",
-        "statefulArtifactFactory"
+        "statefulArtifactFactory",
+        "messageService",
+        "localization"
     ];
 
     public resizeContentAreas = function (isTabSetVisible) {
@@ -130,7 +133,9 @@ export class PreviewCenterController {
         private $sce: ng.ISCEService,
         private artifactManager: IArtifactManager,
         private $state: angular.ui.IStateService,
-        private statefulArtifactFactory: IStatefulArtifactFactory
+        private statefulArtifactFactory: IStatefulArtifactFactory,
+        private messageService: IMessageService,
+        private localization: ILocalizationService
     ) {
 
         this.subscribers = [];
@@ -178,9 +183,20 @@ export class PreviewCenterController {
             if (artifact) {
                 this.statefulUserStoryArtifact = artifact;               
             } else {
-                this.statefulUserStoryArtifact = this.statefulArtifactFactory.createStatefulArtifact({id: userStoryId});
-
+                this.statefulUserStoryArtifact = this.statefulArtifactFactory.createStatefulArtifact({ id: userStoryId });
             }
+            const stateObserver = this.statefulUserStoryArtifact.artifactState.onStateChange.debounce(100).subscribe(
+                (state) => {
+                    if (state.deleted) {
+                        this.messageService.addError(this.localization.get("ST_Userstory_Has_Been_Deleted"));
+                    }
+                },
+                (err) => {
+                    throw new Error(err);
+                });
+
+            this.subscribers.push(stateObserver);
+
             const observer = this.statefulUserStoryArtifact.getObservable().subscribe((obs: IStatefulArtifact) => {
                 this.loadMetaData(obs);
             });

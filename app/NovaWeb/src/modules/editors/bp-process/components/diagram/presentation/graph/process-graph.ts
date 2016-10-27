@@ -2,11 +2,11 @@
 import {ILocalizationService, IMessageService} from "../../../../../../core/";
 import {IProcessGraph, ILayout} from "./models/";
 import {INotifyModelChanged, IConditionContext} from "./models/";
-import {ICondition, IScopeContext, IStopTraversalCondition} from "./models/";
+import {ICondition, IScopeContext, IStopTraversalCondition, IUserStory, IUserTask} from "./models/";
 import {INextIdsProvider} from "./models/";
 import {IOverlayHandler, IShapeInformation} from "./models/";
 import {IDiagramNode, IDiagramNodeElement} from "./models/";
-import {IProcessShape, IProcessLink} from "./models/";
+import {IProcessShape, IProcessLink, IUserTaskShape} from "./models/";
 import {SourcesAndDestinations, ProcessShapeType} from "./models/";
 import {NodeType, NodeChange} from "./models/";
 import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
@@ -513,11 +513,11 @@ export class ProcessGraph implements IProcessGraph {
         return null;
     }
 
-    public updateGraphNodes(filter: (MxCell) => boolean, update: (MxCell) => void) {
-        const cells = this.mxgraph.getChildVertices(this.mxgraph.getDefaultParent());
-        for (let cell of cells) {
-            if (filter(cell)) {
-                update(cell);
+    public onUserStoriesGenerated(userStories: IUserStory[]): void {
+        for (const userStory of userStories) {
+            const userTask = <IUserTask>this.getNodeById(userStory.processTaskId.toString());
+            if (userTask) {
+                userTask.userStoryId = userStory.id;
             }
         }
     }

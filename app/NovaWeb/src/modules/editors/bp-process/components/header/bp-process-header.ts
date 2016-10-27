@@ -4,10 +4,11 @@ import {IMessageService, ILocalizationService} from "../../../../core";
 import {IDialogService} from "../../../../shared";
 import {IArtifactManager, IProjectManager} from "../../../../managers";
 import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact-manager";
-import {IToolbarCommunication} from "./toolbar-communication";
 import {ICommunicationManager} from "../../";
+import {IToolbarCommunication} from "./toolbar-communication";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {IUserStoryService} from "../../services/user-story.svc";
 import {IArtifactReference, IBreadcrumbService} from "../../services/breadcrumb.svc";
 import {IBreadcrumbLink} from "../../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
 import {GenerateUserStoriesAction, ToggleProcessTypeAction} from "./actions";
@@ -19,7 +20,6 @@ export class BpProcessHeader implements ng.IComponentOptions {
 }
 
 export class BpProcessHeaderController extends BpArtifactInfoController {
-    private toolbarCommunicationManager: IToolbarCommunication;
     public breadcrumbLinks: IBreadcrumbLink[];
     public isDeleteButtonEnabled: boolean;
 
@@ -36,22 +36,26 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "navigationService",
         "breadcrumbService",
         "projectManager",
-        "metadataService"
+        "metadataService",
+        "userStoryService"
     ];
 
-    constructor($scope: ng.IScope,
-                $element: ng.IAugmentedJQuery,
-                artifactManager: IArtifactManager,
-                localization: ILocalizationService,
-                messageService: IMessageService,
-                dialogService: IDialogService,
-                windowManager: IWindowManager,
-                communicationManager: ICommunicationManager,
-                loadingOverlayService: ILoadingOverlayService,
-                navigationService: INavigationService,
-                private breadcrumbService: IBreadcrumbService,
-                protected projectManager: IProjectManager,
-                protected metadataService: IMetaDataService) {
+    constructor(
+        $scope: ng.IScope,
+        $element: ng.IAugmentedJQuery,
+        artifactManager: IArtifactManager,
+        localization: ILocalizationService,
+        messageService: IMessageService,
+        dialogService: IDialogService,
+        windowManager: IWindowManager,
+        private communicationManager: ICommunicationManager,
+        loadingOverlayService: ILoadingOverlayService,
+        navigationService: INavigationService,
+        private breadcrumbService: IBreadcrumbService,
+        protected projectManager: IProjectManager,
+        protected metadataService: IMetaDataService,
+        private userStoryService: IUserStoryService
+    ) {
         super(
             $scope,
             $element,
@@ -68,7 +72,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
 
         this.breadcrumbLinks = [];
         this.isDeleteButtonEnabled = false;
-        this.toolbarCommunicationManager = communicationManager.toolbarCommunicationManager;
     }
 
     public $onInit() {
@@ -130,8 +133,20 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         }
 
         this.toolbarActions.push(
-            new GenerateUserStoriesAction(processArtifact, this.artifactManager.selection, this.localization),
-            new ToggleProcessTypeAction(processArtifact, this.toolbarCommunicationManager, this.localization)
+            new GenerateUserStoriesAction(
+                processArtifact, 
+                this.artifactManager.selection, 
+                this.userStoryService, 
+                this.messageService, 
+                this.localization,
+                this.dialogService,
+                this.communicationManager.processDiagramCommunication
+            ),
+            new ToggleProcessTypeAction(
+                processArtifact, 
+                this.communicationManager.toolbarCommunicationManager, 
+                this.localization
+            )
         );
     }
 }

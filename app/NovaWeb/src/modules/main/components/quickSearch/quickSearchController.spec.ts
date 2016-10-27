@@ -27,10 +27,14 @@ describe("Controller: Quick Search", () => {
         expect(controller).toBeDefined();
     });
 
-    it('should only show error if submitted', () => {
+    it('should only not show errors if $invalid and not $submitted', () => {
         expect(controller.hasError()).toBe(false);
         controller.form.$invalid = true;
         controller.form.$submitted = false;
+        expect(controller.hasError()).toBe(false);
+    });
+
+    it('should show errors if $invalid and $submitted', () => {
         expect(controller.hasError()).toBe(false);
         controller.form.$invalid = true;
         controller.form.$submitted = true;

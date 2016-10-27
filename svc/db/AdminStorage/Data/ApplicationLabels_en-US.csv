@@ -395,6 +395,7 @@ ST_Generate_All_Contextual_Toolbar_Button, "Generate All"
 ST_Generate_Contextual_Toolbar_Button, "Generate from Task"
 ST_User_Story_Generated_Message, "The selected task’s user story has been generated."
 ST_User_Stories_Generated_Message, "All user stories have been generated."
+ST_User_Stories_Generation_Failed_LockedByOtherUser_Message, "User stories cannot be generated. This artifact is now locked because another user has started editing it. Please refresh the process."
 
 # ag-Grid
 ag-Grid_noRowsToShow,"Empty"

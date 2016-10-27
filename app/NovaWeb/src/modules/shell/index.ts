@@ -35,6 +35,7 @@ import {UsersAndGroupsService} from "../core/services/users-and-groups.svc";
 import {MentionService} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/mention.svc";
 import "../shared/filters";
 
+export {ErrorCode} from "./error/error-code";
 export {IUser, ISession, RelationshipDetailsService, IRelationshipDetailsService}
 export {IServerLogger} from "./log/server-logger.svc";
 export {IMessageService, IMessage, MessageType, MessageService, Message} from "../core";
@@ -81,5 +82,5 @@ function initializeInterceptors($httpProvider: ng.IHttpProvider) {
     $httpProvider.interceptors.push("httpErrorInterceptor");
     $httpProvider.useLegacyPromiseExtensions(false);
 }
-initializeInterceptors.$inject = ["$httpProvider"];
 
+initializeInterceptors.$inject = ["$httpProvider"];

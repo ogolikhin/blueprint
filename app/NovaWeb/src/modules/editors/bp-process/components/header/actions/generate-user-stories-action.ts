@@ -8,6 +8,7 @@ import {IProcess, IUserStory} from "../../../models/process-models";
 import {ProcessShapeType} from "../../../models/enums";
 import {IProcessDiagramCommunication, ProcessEvents} from "../../diagram/process-diagram-communication";
 import {DialogTypeEnum} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
+import {ErrorCode} from "../../../../../shell";
 
 export class GenerateUserStoriesAction extends BPDropdownAction {
     private userStoryService: IUserStoryService;
@@ -136,7 +137,13 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                 this.showSuccessMessage(userTaskId);
             })
             .catch((reason: any) => {
-                this.showErrorMessage(reason.message);
+                let message: string = reason.message;
+                
+                if (reason.errorCode === ErrorCode.ArtifactNotPublished) {
+                    message = this.localization.get("ST_User_Stories_Generation_Failed_LockedByOtherUser_Message");
+                }
+
+                this.showErrorMessage(message);
             });
     }
 

@@ -63,7 +63,7 @@ export class NavigationService implements INavigationService {
         };
 
         const stateOptions: ng.ui.IStateOptions = {
-            location: redirect ? "replace" : undefined,
+            location: redirect ? "replace" : true,
             inherit: false
         };
 

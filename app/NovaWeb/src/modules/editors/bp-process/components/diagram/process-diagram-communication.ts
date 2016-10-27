@@ -4,8 +4,10 @@ export enum ProcessEvents {
     DeleteShape,
     ModelUpdate,
     NavigateToAssociatedArtifact,
-    ArtifactUpdate
+    ArtifactUpdate,
+    UserStoriesGenerated
 }
+
 export interface IProcessDiagramCommunication {
     registerModelUpdateObserver(observer: any);
     removeModelUpdateObserver(observer: any);

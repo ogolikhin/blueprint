@@ -3,6 +3,7 @@ import {BpProcessHeader} from "./components/header/bp-process-header";
 import {BpProcessEditor} from "./bp-process-editor";
 import {ProcessService} from "./services/process.svc";
 import {BreadcrumbService} from "./services/breadcrumb.svc";
+import {UserStoryService} from "./services/user-story.svc";
 import * as ProcessModels from "./models/process-models";
 import * as ProcessEnums from "./models/enums";
 import {ICommunicationManager, CommunicationManager} from "./services/communication-manager";
@@ -34,6 +35,7 @@ angular.module("bp.editors.process", ["ui.bootstrap"])
     .service("shapesFactory", ShapesFactory)
     .service("breadcrumbService", BreadcrumbService)
     .service("communicationManager", CommunicationManager)
+    .service("userStoryService", UserStoryService)
     .directive("contextualHelp", ContextualHelpDirective.factory())
     .directive("cleartext", () => new ClearTextDirective())
     .directive("uploadImage", UploadImageDirective.factory());

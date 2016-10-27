@@ -59,17 +59,19 @@ export class BpArtifactInfoController {
     public artifactTypeDescription: string;
     public toolbarActions: IBPAction[];
 
-    constructor(public $scope: ng.IScope,
-                private $element: ng.IAugmentedJQuery,
-                protected artifactManager: IArtifactManager,
-                protected localization: ILocalizationService,
-                protected messageService: IMessageService,
-                protected dialogService: IDialogService,
-                protected windowManager: IWindowManager,
-                protected loadingOverlayService: ILoadingOverlayService,
-                protected navigationService: INavigationService,
-                protected projectManager: IProjectManager,
-                protected metadataService: IMetaDataService) {
+    constructor(
+        public $scope: ng.IScope,
+        private $element: ng.IAugmentedJQuery,
+        protected artifactManager: IArtifactManager,
+        protected localization: ILocalizationService,
+        protected messageService: IMessageService,
+        protected dialogService: IDialogService,
+        protected windowManager: IWindowManager,
+        protected loadingOverlayService: ILoadingOverlayService,
+        protected navigationService: INavigationService,
+        protected projectManager: IProjectManager,
+        protected metadataService: IMetaDataService
+    ) {
         this.initProperties();
         this.subscribers = [];
     }

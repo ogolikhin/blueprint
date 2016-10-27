@@ -7,8 +7,6 @@ export interface IUserStoryService {
 }
 
 export class UserStoryService implements IUserStoryService {
-    public lastGeneratedUserStories: IUserStory[];
-
     public static $inject: string[] = [
         "$http",
         "$q",
@@ -25,21 +23,6 @@ export class UserStoryService implements IUserStoryService {
     }
 
     /**
-     *  Returns user story id by specified user task id.
-     */
-    // public getUserStoryId(userTaskId: number) {
-    //     if (this.lastGeneratedUserStories) {
-    //         for (const userStory of this.lastGeneratedUserStories) {
-    //             if (userStory.processTaskId === userTaskId) {
-    //                 return userStory.id;
-    //             }
-    //         }
-    //     }
-
-    //     return null;
-    // }
-
-    /**
      * Generates user story artifacts for specific project and process
      */
     public generateUserStories(projectId: number, processId: number, userTaskId?: number): ng.IPromise<IUserStory[]> {
@@ -54,7 +37,6 @@ export class UserStoryService implements IUserStoryService {
         this.$http.post<IUserStory[]>(restPath, "")
             .then(
                 (result: ng.IHttpPromiseCallbackArg<IUserStory[]>) => {
-                    this.lastGeneratedUserStories = result.data;
                     deferred.resolve(result.data);
                 }
             ).catch(

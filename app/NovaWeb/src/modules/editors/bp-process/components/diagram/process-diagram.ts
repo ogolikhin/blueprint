@@ -2,7 +2,7 @@ import {ILocalizationService, IMessageService, Message, MessageType, INavigation
 import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
-import {IProcessGraph, ISelectionListener} from "./presentation/graph/models/";
+import {IProcessGraph, ISelectionListener, IUserStory} from "./presentation/graph/models/";
 import {SystemTask} from "./presentation/graph/shapes";
 import {ProcessGraph} from "./presentation/graph/process-graph";
 import {ICommunicationManager} from "../../../bp-process";
@@ -19,36 +19,35 @@ export class ProcessDiagram {
     private toggleProcessTypeHandler: string;
     private modelUpdateHandler: string;
     private navigateToAssociatedArtifactHandler: string;
+    private userStoriesGeneratedHandler: string;
 
     private selectionListeners: ISelectionListener[];
 
-    constructor(private $rootScope: ng.IRootScopeService,
-                private $scope: ng.IScope,
-                private $timeout: ng.ITimeoutService,
-                private $q: ng.IQService,
-                private $log: ng.ILogService,
-                private messageService: IMessageService,
-                private communicationManager: ICommunicationManager,
-                private dialogService: IDialogService,
-                private localization: ILocalizationService,
-                private navigationService: INavigationService,
-                private statefulArtifactFactory: IStatefulArtifactFactory,
-                private shapesFactory: ShapesFactory
-                ) {
-
+    constructor(
+        private $rootScope: ng.IRootScopeService,
+        private $scope: ng.IScope,
+        private $timeout: ng.ITimeoutService,
+        private $q: ng.IQService,
+        private $log: ng.ILogService,
+        private messageService: IMessageService,
+        private communicationManager: ICommunicationManager,
+        private dialogService: IDialogService,
+        private localization: ILocalizationService,
+        private navigationService: INavigationService,
+        private statefulArtifactFactory: IStatefulArtifactFactory,
+        private shapesFactory: ShapesFactory
+    ) {
         this.processModel = null;
         this.selectionListeners = [];
     }
 
     public createDiagram(process: any, htmlElement: HTMLElement) {
-
         this.checkParams(process.id, htmlElement);
         this.htmlElement = htmlElement;
 
         this.processModel = <IProcess>process;
 
         this.onLoad(this.processModel);
-
     }
 
     private checkParams(processId: number, htmlElement: HTMLElement): void {
@@ -89,6 +88,8 @@ export class ProcessDiagram {
                 .removeModelUpdateObserver(this.modelUpdateHandler);
             this.processViewModel.communicationManager.processDiagramCommunication
                 .unregister(ProcessEvents.NavigateToAssociatedArtifact, this.navigateToAssociatedArtifactHandler);
+            this.processViewModel.communicationManager.processDiagramCommunication
+                .unregister(ProcessEvents.UserStoriesGenerated, this.userStoriesGeneratedHandler);
         }
 
         this.toggleProcessTypeHandler = this.processViewModel.communicationManager.toolbarCommunicationManager
@@ -97,6 +98,8 @@ export class ProcessDiagram {
             .registerModelUpdateObserver(this.modelUpdate);
         this.navigateToAssociatedArtifactHandler = this.processViewModel.communicationManager.processDiagramCommunication
             .register(ProcessEvents.NavigateToAssociatedArtifact, this.navigateToAssociatedArtifact);
+        this.userStoriesGeneratedHandler = this.processViewModel.communicationManager.processDiagramCommunication
+            .register(ProcessEvents.UserStoriesGenerated, this.userStoriesGenerated);
 
         return this.processViewModel;
     }
@@ -125,13 +128,17 @@ export class ProcessDiagram {
     private recreateProcessGraph = (selectedNodeId: number = undefined) => {
         this.graph.destroy();
         this.createProcessGraph(this.processViewModel, true, selectedNodeId);
-
     }
 
-    private createProcessGraph(processViewModel: IProcessViewModel,
-                               useAutolayout: boolean = false,
-                               selectedNodeId: number = undefined) {
+    private userStoriesGenerated = (userStories: IUserStory[]) => {
+        this.graph.onUserStoriesGenerated(userStories);
+    }
 
+    private createProcessGraph(
+        processViewModel: IProcessViewModel,
+        useAutolayout: boolean = false,
+        selectedNodeId: number = undefined
+    ) {
         try {
 
             this.graph = new ProcessGraph(
@@ -193,6 +200,8 @@ export class ProcessDiagram {
                     .removeModelUpdateObserver(this.modelUpdateHandler);
                 this.communicationManager.processDiagramCommunication
                     .unregister(ProcessEvents.NavigateToAssociatedArtifact, this.navigateToAssociatedArtifactHandler);
+                this.communicationManager.processDiagramCommunication
+                    .unregister(ProcessEvents.UserStoriesGenerated, this.userStoriesGeneratedHandler);
             }
         }
 
@@ -205,7 +214,8 @@ export class ProcessDiagram {
         if (this.processViewModel != null) {
             this.processViewModel.destroy();
             this.processViewModel = null;
-        }        
+        }
+
         this.selectionListeners = null;
     }
 

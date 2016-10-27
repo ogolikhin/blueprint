@@ -102,6 +102,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return this.subject.filter(it => !!it).asObservable();
     }
 
+    protected notifySubscribers() {
+        this.subject.onNext(this);
+    } 
+
     public discard() {
         super.discard();
         this.artifactState.dirty = false;
@@ -271,6 +275,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                     deferred.resolve(this);
                 })
                 .catch((error) => {
+                    this.customHandleSaveFailed();
                     deferred.reject(error);
                 });
             })
@@ -280,7 +285,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                     deferred.reject(this.handleSaveError(error));
                 } else {
                     deferred.reject(error);
-                }
+                }            
             });
         } else {
             this.saveArtifact()
@@ -294,7 +299,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         return deferred.promise;
     }
-   
+
     private saveArtifact(): ng.IPromise<IStatefulArtifact> {
         let deferred = this.services.getDeferred<IStatefulArtifact>();
 
@@ -489,6 +494,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
     protected getCustomArtifactPromisesForSave(): ng.IPromise <IStatefulArtifact> {
         return null;
+    }
+    protected customHandleSaveFailed(): void {
+        ;
     }
 
     //Hook for subclasses to do some post processing

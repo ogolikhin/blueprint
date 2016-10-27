@@ -300,8 +300,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         let changes = this.changes();
         if (!changes) {
+            const compoundId: string = this.prefix + this.id.toString();
             let message: string = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
-            deferred.reject(new Error(message.replace("{0}", this.id.toString())));
+            deferred.reject(new Error(message.replace("{0}", compoundId)));
         } else {
             this.services.artifactService.updateArtifact(changes)
                 .then((artifact: Models.IArtifact) => {
@@ -351,7 +352,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             message = this.services.localizationService.get("App_Save_Artifact_Error_Other") + error.statusCode;
         }
 
-        message = message.replace("{0}", this.id.toString());
+        const compoundId: string = this.prefix + this.id.toString();
+        message = message.replace("{0}", compoundId);
         return new Error(message);
     }
 

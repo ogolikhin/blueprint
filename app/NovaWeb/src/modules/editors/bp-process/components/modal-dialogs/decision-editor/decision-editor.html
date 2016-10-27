@@ -41,7 +41,7 @@
                 </div>
                 <div class="col-sm-1 delete-condition" ng-if="$ctrl.isDeleteConditionVisible(condition)">
                     <span ng-click="$ctrl.deleteCondition(condition)" bp-tooltip="{{::$root.config.labels['ST_Decision_Modal_Delete_Condition_Button_Label']}}" ng-disabled="!$ctrl.canDeleteCondition(condition)">
-                        <span class="fonticon2-delete" ng-class="{'icon--disabled':isReadonly}"></span>
+                        <span class="fonticon2-delete" ng-class="{'fonticon2__action--disabled':isReadonly}"></span>
                     </span>
                 </div>
             </div>

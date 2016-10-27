@@ -120,4 +120,74 @@ describe("Publish Service", () => {
         }));
     });
 
+    describe("Post Publish Specific Artifacts", () => {
+        it("successfully", inject(($httpBackend: ng.IHttpBackendService, publishService: IPublishService) => {
+            // Arrange
+            let Ids: number[] = [1, 2, 4];
+            $httpBackend.expectPOST("/svc/bpartifactstore/artifacts/publish?all=false", Ids)
+                .respond(HttpStatusCode.Success, <Models.IPublishResultSet>{
+                    artifacts: [],
+                    projects: []
+                });
+
+            // Act
+            let error: any;
+            let data: Models.IPublishResultSet;
+            publishService.publishArtifacts(Ids).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).toBeUndefined();
+            expect(data).not.toBeUndefined();
+            expect(data.artifacts.length).toEqual(0);
+            expect(data.projects.length).toEqual(0);
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+
+        it("error", inject(($httpBackend: ng.IHttpBackendService, publishService: IPublishService) => {
+            // Arrange
+            let Ids: number[] = [1, 2, 4];
+            $httpBackend.expectPOST("/svc/bpartifactstore/artifacts/publish?all=false", Ids)
+                .respond(HttpStatusCode.Conflict, {
+                    statusCode: HttpStatusCode.Conflict,
+                    errorContent: <Models.IPublishResultSet>{
+                            artifacts: [<Models.IArtifact>{
+                            id: 2,
+                            projectId: 1
+                        }],
+                        projects: [{
+                            id: 1
+                        }]
+                    }
+                });
+
+            // Act
+            let error: any;
+            let data: Models.IPublishResultSet;
+            let errorContent: Models.IPublishResultSet;
+            publishService.publishArtifacts(Ids).then((responce) => {
+                data = responce;
+            }, (err) => {
+                error = err;
+                errorContent = err.errorContent;
+            });
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).not.toBeUndefined();
+            expect(data).toBeUndefined();
+            expect(error.statusCode).toEqual(HttpStatusCode.Conflict);
+            expect(errorContent.artifacts.length).toEqual(1);
+            expect(errorContent.projects.length).toEqual(1);
+            expect(errorContent.artifacts[0].id).toEqual(2);
+            expect(errorContent.artifacts[0].projectId).toEqual(1);
+            expect(errorContent.projects[0].id).toEqual(1);
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+    });
+
 });

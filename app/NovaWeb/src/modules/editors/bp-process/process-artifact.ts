@@ -56,6 +56,10 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         return saveProcessPromise;
     }
 
+    protected customHandleSaveFailed(): void {
+        this.notifySubscribers();
+    }
+
     protected runPostGetObservable() {
         this.loadProcessPromise = null;
     }

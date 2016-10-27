@@ -1,2 +1,2 @@
-export { IAppicationError, AppicationError }  from "./errors";
+export { IApplicationError, ApplicationError }  from "./errors";
 

@@ -13,7 +13,7 @@
     public add(parent, child, index) {
 
         // Connector indexes should always be beneath all other shapes when the parent is the whole mxGraph cell.
-        if (child.edge && parent.id === 1) {
+        if (child.edge && parent.id === "1") {
             // Count the connector shapes in the graph when constructed, and adds connectors to the top most index of connector shapes.
             if (child.source == null || child.target == null) {
                 this.linkCounter++;

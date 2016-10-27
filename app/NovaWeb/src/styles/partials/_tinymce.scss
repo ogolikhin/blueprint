@@ -21,7 +21,11 @@ body {
         }
     }
 
-    .mce-menubtn.mce-fixed-width.mce-listbox.mce-btn-has-text button span { // font-family button
+    .mce-flow-layout-item.mce-last {
+        margin-right: 0;
+    }
+
+    .mce-btn-group:nth-child(2) .mce-listbox.mce-btn-has-text button span { // font-family button
         overflow: hidden;
         text-overflow: initial;
         width: 40px;
@@ -65,13 +69,19 @@ body {
             }
         }
 
-        .mce-menubtn.mce-fixed-width.mce-listbox.mce-btn-has-text button span { // font-family button
-            width: 36px;
+        .mce-btn-group:nth-child(2) .mce-listbox.mce-btn-has-text button {
+            span { // font-family button
+                width: 30px;
 
-            &::before {
-                font-size: 18px;
-                margin-top: 2px;
-                width: 20px;
+                &::before {
+                    font-size: 18px;
+                    margin-top: 2px;
+                    width: 20px;
+                }
+            }
+
+            .mce-caret {
+                right: 2px;
             }
         }
 
@@ -84,5 +94,17 @@ body {
             font-size: 12px;
             width: 12px;
         }
+
+        .mce-colorbutton {
+            .mce-preview {
+                margin-left: -15px;
+            }
+
+            .mce-open {
+                padding-left: 2px;
+                padding-right: 2px;
+            }
+        }
+
     }
 }

@@ -27,8 +27,8 @@ export {
     SettingsService,
 };
 export {
-    IAppicationError,
-    AppicationError
+    IApplicationError,
+    ApplicationError
 } from "./error";
 
 export {

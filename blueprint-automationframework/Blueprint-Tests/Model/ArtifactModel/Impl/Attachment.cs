@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using Model.NovaModel;
 using Utilities;
+using Model.Impl;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -74,7 +75,7 @@ namespace Model.ArtifactModel.Impl
 
         public DateTime? UploadedDate { get; set; }
 
-        public int ChangeType { get; set; }
+        public ArtifactUpdateChangeType ChangeType { get; set; }
 
         /// <summary>
         /// Creates new AttachmentValue from INovaFile
@@ -92,7 +93,7 @@ namespace Model.ArtifactModel.Impl
             AttachmentId = null; //null for add, real id to delete existing attachment
             Guid = file.Guid;
             UploadedDate = null;
-            ChangeType = 0; //0 for add, 2 for delete existing attachment 
+            ChangeType = ArtifactUpdateChangeType.Add;
         }
 
         /// <summary>
@@ -102,7 +103,7 @@ namespace Model.ArtifactModel.Impl
         public AttachmentValue(int attachmentId)
         {
             AttachmentId = attachmentId; //null for add, real id to delete existing attachment
-            ChangeType = 2; //0 for add, 2 for delete existing attachment 
+            ChangeType = ArtifactUpdateChangeType.Delete;
         }
     }
 }

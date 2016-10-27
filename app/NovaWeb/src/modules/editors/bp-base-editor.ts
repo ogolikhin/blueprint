@@ -1,4 +1,4 @@
-﻿import {IMessageService, IAppicationError, HttpStatusCode} from "../core";
+﻿import {IMessageService, IApplicationError, HttpStatusCode} from "../core";
 import {IArtifactManager, IProjectManager} from "../managers";
 import {IStatefulArtifact} from "../managers/artifact-manager";
 import {Models, Enums} from "../main/models";

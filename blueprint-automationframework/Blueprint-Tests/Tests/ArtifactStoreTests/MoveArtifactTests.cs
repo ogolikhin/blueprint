@@ -400,7 +400,7 @@ namespace ArtifactStoreTests
 
             fakeArtifact.Lock();
             
-            Artifact.UpdateArtifact(fakeArtifact, _user, retrievedArtifact, Helper.BlueprintServer.Address);
+            Artifact.UpdateArtifact(fakeArtifact, _user, retrievedArtifact, address: Helper.BlueprintServer.Address);
 
             // Execute:
             try

@@ -123,7 +123,7 @@ namespace ArtifactStoreTests
 
             actor.Lock(user);
             
-            Artifact.UpdateArtifact(actor, user, actorDetails, Helper.BlueprintServer.Address);
+            Artifact.UpdateArtifact(actor, user, actorDetails, address: Helper.BlueprintServer.Address);
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace ArtifactStoreTests
 
             actor.Lock(user);
 
-            Artifact.UpdateArtifact(actor, user, actorDetails, Helper.BlueprintServer.Address);
+            Artifact.UpdateArtifact(actor, user, actorDetails, address: Helper.BlueprintServer.Address);
         }
 
         /// <summary>

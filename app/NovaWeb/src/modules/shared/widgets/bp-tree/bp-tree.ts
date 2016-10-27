@@ -67,7 +67,6 @@ export interface IBPTreeController {
     isEmpty: boolean;
     //to select a row in in ag-grid (by id)
     selectNode(id: number);
-    clearSelection();
     nodeExists(id: number): boolean;
     getNodeData(id: number): Object;
     //to reload datasource with data passed, if id specified the data will be loaded to node's children collection
@@ -225,24 +224,9 @@ export class BPTreeController implements IBPTreeController {
         this.options.api.getModel().forEachNode((it: RowNode) => {
             if (it.data.id === id) {
                 it.setSelected(true, true);
-                this.clearFocus();
             }
         });
         this.options.api.ensureNodeVisible((it: RowNode) => it.data.id === id);
-    }
-
-    public clearSelection() {
-        const selectedNodes = this.options.api.getSelectedNodes() as RowNode[];
-        if (selectedNodes && selectedNodes.length) {
-            selectedNodes.map(node => {
-                node.setSelected(false);
-            });
-            this.clearFocus();
-        }
-    }
-
-    private clearFocus() {
-        this.options.api.setFocusedCell(-1, this.gridColumns[0].field);
     }
 
     public nodeExists(id: number): boolean {
@@ -288,7 +272,6 @@ export class BPTreeController implements IBPTreeController {
             this._datasource = nodes;
         }
 
-        this.clearFocus();
         this.options.api.setRowData(this._datasource);
 
         if (this.selectedRowNode) {
@@ -348,7 +331,6 @@ export class BPTreeController implements IBPTreeController {
         let currentValue = this._innerRenderer(params) || params.value;
         return `<span class="ag-group-value-wrapper" ${inlineEditing}${enableDragndrop}>${currentValue}</span>`;
     };
-    /* tslint:enable */
 
     private getNodeChildDetails(node: ITreeNode) {
         if (node.children) {

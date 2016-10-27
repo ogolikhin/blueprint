@@ -1,14 +1,11 @@
-﻿using System;
-using Helper;
+﻿using Helper;
 using Model;
 using NUnit.Framework;
 using CustomAttributes;
-using System.Net;
 using System.Collections.Generic;
 using TestCommon;
 using Model.ArtifactModel;
 using Model.Factories;
-using Model.ArtifactModel.Impl;
 using Utilities;
 
 namespace ArtifactStoreTests 
@@ -17,17 +14,19 @@ namespace ArtifactStoreTests
     [Category(Categories.ArtifactStore)]
     public class ProjectTests : TestBase
     {
-        private const int DEFAULT_PROJECT_ID = 1;
         private const int NON_EXISTING_PROJECT_ID = int.MaxValue;
-        private readonly string UNAUTHORIZED_TOKEN = new Guid().ToString();
+        private const string REST_PATH_ARTIFACT = RestPaths.Svc.ArtifactStore.Projects_id_.ARTIFACTS_id_;
+        private const string REST_PATH_CHILDREN = RestPaths.Svc.ArtifactStore.Projects_id_.Artifacts_id_.CHILDREN;
 
         private IUser _user = null;
+        private IProject _project = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _project = ProjectFactory.GetProject(_user);
         }
 
         [TearDown]
@@ -43,14 +42,14 @@ namespace ArtifactStoreTests
         [Description("Executes Get project children call and returns 200 OK if successful")]
         public void GetProjectChildrenByProjectId_OK()
         {
+            // Setup:
+            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
+            // Execute & Verify:
             Assert.DoesNotThrow(() =>
             {
-                List<HttpStatusCode> expectedCodesList = new List<HttpStatusCode>();
-                expectedCodesList.Add(HttpStatusCode.OK);
-                /*Executes get project children REST call and returns HTTP code*/
-                /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetProjectChildrenByProjectId(DEFAULT_PROJECT_ID, _user, expectedCodesList);
-            }, "The GET /projects/{projectId}/children endpoint should return 200 OK!");
+                Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, viewer);
+            }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_PATH_ARTIFACT);
         }
 
         [TestCase]
@@ -58,12 +57,11 @@ namespace ArtifactStoreTests
         [Description("Executes Get project children call and returns 404 Not Found if successful")]
         public void GetProjectChildrenByProjectId_NotFound()
         {
+            // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                /*Executes get project children REST call and verify HTTP code*/
-                /*NON EXISTING PROJECT (id = 99) IS USED */
                 Helper.ArtifactStore.GetProjectChildrenByProjectId(NON_EXISTING_PROJECT_ID, _user);
-            }, "The GET /projects/{projectId}/children endpoint should return 404 Not found!");
+            }, "The 'GET {0}' endpoint should return 404 Not Found if a non-existing project ID is passed!", REST_PATH_ARTIFACT);
         }
 
         [TestCase]
@@ -71,15 +69,14 @@ namespace ArtifactStoreTests
         [Description("Executes Get project children call and returns 401 Unauthorized if successful")]
         public void GetProjectChildrenByProjectId_Unauthorized()
         {
-            //Replace session token with expired session one
-            _user.SetToken(UNAUTHORIZED_TOKEN);
+            // Setup:
+            IUser unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
+            // Execute & Verify:
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                /*Executes get project children REST call and returns HTTP code*/
-                /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetProjectChildrenByProjectId(DEFAULT_PROJECT_ID, _user);
-            }, "The GET /projects/{projectId}/children endpoint should return 401 Unauthorized!");
+                Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, unauthorizedUser);
+            }, "The 'GET {0}' endpoint should return 401 Unauthorized if an unauthorized token is passed!", REST_PATH_ARTIFACT);
         }
         
         [TestCase]
@@ -87,12 +84,11 @@ namespace ArtifactStoreTests
         [Description("Executes Get project children call and returns 'Bad Request' if successful")]
         public void GetProjectChildrenByProjectId_BadRequest()
         {
+            // Execute & Verify:
             Assert.Throws<Http400BadRequestException>(() =>
             {
-                /*Executes get project children REST call and returns HTTP code*/
-                /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetProjectChildrenByProjectId(DEFAULT_PROJECT_ID);
-            }, "The GET /projects/{projectId}/children endpoint should return 400 Bad Request!");
+                Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, user: null);
+            }, "The 'GET {0}' endpoint should return 400 Bad Request if no Session-Token header was passed!", REST_PATH_ARTIFACT);
         }
 
         #endregion GetProjectChildrenByProjectId
@@ -104,15 +100,15 @@ namespace ArtifactStoreTests
         [Description("Executes Get published artifact children call for published artifact and returns 200 OK if successful")]
         public void GetPublishedArtifactChildrenByProjectAndArtifactId_OK()
         {
-            IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(project, _user);
+            // Setup:
+            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _user);
+            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
+            // Execute & Verify:
             Assert.DoesNotThrow(() =>
             {
-                /*Executes get project children REST call and returns HTTP code*/
-                /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifact.Id, _user);
-            }, "The GET /projects/{projectId}/artifacts/{artifactId}children endpoint should return 200 OK!");
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, viewer);
+            }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_PATH_CHILDREN);
         }
 
         [TestCase]
@@ -120,12 +116,11 @@ namespace ArtifactStoreTests
         [Description("Executes Get artifact children call for artifact that does not exists and returns 404 Not Found if successful")]
         public void GetPublishedArtifactChildrenByProjectAndArtifactId_NotFound()
         {
+            // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                /*Executes get project children REST call and returns HTTP code*/
-                /*NON EXISTING PROJECT (id = 99) IS USED */
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, NON_EXISTING_PROJECT_ID, _user);
-            }, "The GET /projects/{projectId}/artifacts/{artifactId}children endpoint should return 404 Not found!");
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, NON_EXISTING_PROJECT_ID, _user);
+            }, "The 'GET {0}' endpoint should return 404 Not Found if a non-existing project ID is passed!", REST_PATH_CHILDREN);
         }
 
         [TestCase]
@@ -134,17 +129,14 @@ namespace ArtifactStoreTests
         public void GetPublishedArtifactChildrenByProjectAndArtifactId_Unauthorized()
         {
             // Setup:
-            IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(project, _user);
+            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _user);
             IUser unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             // Execute & Verify:
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                /*Executes get project children REST call and returns HTTP code*/
-                /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifact.Id, unauthorizedUser);
-            }, "The GET /projects/{projectId}/artifacts/{artifactId}children endpoint should return 401 Unauthorized!");
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, unauthorizedUser);
+            }, "The 'GET {0}' endpoint should return 401 Unauthorized if an unauthorized token is passed!", REST_PATH_CHILDREN);
         }
 
         [TestCase]
@@ -152,15 +144,14 @@ namespace ArtifactStoreTests
         [Description("Executes Get published artifact children call and returns 'Bad Request' if successful")]
         public void GetPublishedArtifactChildrenByProjectAndArtifactId_BadRequest()
         {
-            IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(project, _user);
+            // Setup:
+            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _user);
 
+            // Execute & Verify:
             Assert.Throws<Http400BadRequestException>(() =>
             {
-                /*Executes get project children REST call and returns HTTP code*/
-                /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifact.Id);
-            }, "The GET /projects/{projectId}/artifacts/{artifactId}children endpoint should return 400 Bad Request!");
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, user: null);
+            }, "The 'GET {0}' endpoint should return 400 Bad Request if no Session-Token header was passed!", REST_PATH_CHILDREN);
         }
 
         #endregion GetArtifactChildrenByProjectAndArtifactId Published
@@ -172,20 +163,17 @@ namespace ArtifactStoreTests
         [Description("Executes Get draft artifact children call for published artifact and returns 200 OK if successful")]
         public void GetPublishedWithDraftArtifactChildrenByProjectAndArtifactId_OK()
         {
-            IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(project, _user);
+            // Setup:
+            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _user);
 
-            //Create Description property
-            OpenApiProperty property = new OpenApiProperty(parentArtifact.Address);
-            //Set property value
-            parentArtifact.Properties.Add(property.SetPropertyAttribute(project, _user, BaseArtifactType.Actor, "Description", propertyValue: "Testing Set Property Value"));
+            // Save parent to create a draft.
+            parentArtifact.Save();
 
+            // Execute & Verify:
             Assert.DoesNotThrow(() =>
             {
-                /*Executes get project children REST call and returns HTTP code*/
-                /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifact.Id, _user);
-            }, "The GET /projects/{projectId}/artifacts/{artifactId}children endpoint should return 200 OK!");
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, _user);
+            }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_PATH_CHILDREN);
         }
 
         [TestCase]
@@ -194,8 +182,7 @@ namespace ArtifactStoreTests
         public void GetPublishedWithDraftArtifactChildrenByProjectAndArtifactId_Unauthorized()
         {
             // Setup:
-            IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(project, _user);
+            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _user);
 
             // Save parent to create a draft.
             parentArtifact.Save();
@@ -205,10 +192,8 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                /*Executes get project children REST call and returns HTTP code*/
-                /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifact.Id, unauthorizedUser);
-            }, "The GET /projects/{projectId}/artifacts/{artifactId}children endpoint should return 401 Unauthorized!");
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, unauthorizedUser);
+            }, "The 'GET {0}' endpoint should return 401 Unauthorized if an unauthorized token is passed!", REST_PATH_CHILDREN);
         }
 
         [TestCase]
@@ -216,20 +201,17 @@ namespace ArtifactStoreTests
         [Description("Executes Get draft artifact children call and returns 'Bad Request' if successful")]
         public void GetPublishedWithDraftArtifactChildrenByProjectAndArtifactId_BadRequest()
         {
-            IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(project, _user);
+            // Setup:
+            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _user);
 
-            //Create Description property
-            OpenApiProperty property = new OpenApiProperty(parentArtifact.Address);
-            //Set property value
-            parentArtifact.Properties.Add(property.SetPropertyAttribute(project, _user, BaseArtifactType.Actor, "Description", propertyValue: "Testing Set Property Value"));
+            // Save parent to create a draft.
+            parentArtifact.Save();
 
+            // Execute & Verify:
             Assert.Throws<Http400BadRequestException>(() =>
             {
-                /*Executes get project children REST call and returns HTTP code*/
-                /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifact.Id);
-            }, "The GET /projects/{projectId}/artifacts/{artifactId}children endpoint should return 400 Bad Request!");
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, user: null);
+            }, "The 'GET {0}' endpoint should return 400 Bad Request if no Session-Token header was passed!", REST_PATH_CHILDREN);
         }
 
         #endregion GetArtifactChildrenByProjectAndArtifactId Published with Draft
@@ -241,16 +223,14 @@ namespace ArtifactStoreTests
         [Description("Executes Get publish artifact of second level children call for published artifact and returns 200 OK if successful")]
         public void GetSecondLevelPublishedArtifactChildrenByProjectAndArtifactId_OK()
         {
-            IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
+            // Setup:
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _user);
 
-            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(project, _user);
-
+            // Execute & Verify:
             Assert.DoesNotThrow(() =>
             {
-                /*Executes get project children REST call and returns HTTP code*/
-                /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifactList[1].Id, _user);
-            }, "The GET /projects/{projectId}/artifacts/{artifactId}children endpoint should return 200 OK!");
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, _user);
+            }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_PATH_CHILDREN);
         }
 
         [TestCase]
@@ -259,17 +239,14 @@ namespace ArtifactStoreTests
         public void GetSecondLevelPublishedArtifactChildrenByProjectAndArtifactId_Unauthorized()
         {
             // Setup:
-            IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(project, _user);
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _user);
             IUser unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             // Execute & Verify:
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                /*Executes get project children REST call and returns HTTP code*/
-                /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifactList[1].Id, unauthorizedUser);
-            }, "The GET /projects/{projectId}/artifacts/{artifactId}children endpoint should return 401 Unauthorized!");
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, unauthorizedUser);
+            }, "The 'GET {0}' endpoint should return 401 Unauthorized if an unauthorized token is passed!", REST_PATH_CHILDREN);
         }
 
         [TestCase]
@@ -277,15 +254,14 @@ namespace ArtifactStoreTests
         [Description("Executes Get publish artifact of second level children call and returns 'Bad Request' if successful")]
         public void GetSecondLevelPublishedArtifactChildrenByProjectAndArtifactId_BadRequest()
         {
-            IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(project, _user);
+            // Setup:
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _user);
 
+            // Execute & Verify:
             Assert.Throws<Http400BadRequestException>(() =>
             {
-                /*Executes get project children REST call and returns HTTP code*/
-                /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifactList[1].Id);
-            }, "The GET /projects/{projectId}/artifacts/{artifactId}children endpoint should return 400 Bad Request!");
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, user: null);
+            }, "The 'GET {0}' endpoint should return 400 Bad Request if no Session-Token header was passed!", REST_PATH_CHILDREN);
         }
 
         #endregion GetArtifactChildrenByProjectAndArtifactId Published (2nd level)
@@ -297,20 +273,17 @@ namespace ArtifactStoreTests
         [Description("Executes Get draft artifact of second level children call for published artifact and returns 200 OK if successful")]
         public void GetSecondLevelPublishedWithDraftArtifactChildrenByProjectAndArtifactId_OK()
         {
-            IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(project, _user);
+            // Setup:
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _user);
 
-            //Create Description property
-            OpenApiProperty property = new OpenApiProperty(parentArtifactList[1].Address);
-            //Set property value
-            parentArtifactList[1].Properties.Add(property.SetPropertyAttribute(project, _user, BaseArtifactType.Actor, "Description", propertyValue: "Testing Set Property Value"));
+            // Save second parent to create a draft.
+            parentArtifactList[1].Save();
 
+            // Execute & Verify:
             Assert.DoesNotThrow(() =>
             {
-                /*Executes get project children REST call and returns HTTP code*/
-                /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifactList[1].Id, _user);
-            }, "The GET /projects/{projectId}/artifacts/{artifactId}children endpoint should return 200 OK!");
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, _user);
+            }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_PATH_CHILDREN);
         }
 
         [TestCase]
@@ -319,20 +292,18 @@ namespace ArtifactStoreTests
         public void GetSecondLevelPublishedWithDraftArtifactChildrenByProjectAndArtifactId_Unauthorized()
         {
             // Setup:
-            IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(project, _user);
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _user);
 
-            // Save parent to create a draft.
+            // Save second parent to create a draft.
             parentArtifactList[1].Save();
 
             IUser unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
+            // Execute & Verify:
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                /*Executes get project children REST call and returns HTTP code*/
-                /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifactList[1].Id, unauthorizedUser);
-            }, "The GET /projects/{projectId}/artifacts/{artifactId}children endpoint should return 401 Unauthorized!");
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, unauthorizedUser);
+            }, "The 'GET {0}' endpoint should return 401 Unauthorized if an unauthorized token is passed!", REST_PATH_CHILDREN);
         }
 
         [TestCase]
@@ -340,20 +311,17 @@ namespace ArtifactStoreTests
         [Description("Executes Get draft artifact of second level children call and returns 'Bad Request' if successful")]
         public void GetSecondLevelPublishedWithDraftArtifactChildrenByProjectAndArtifactId_BadRequest()
         {
-            IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(project, _user);
+            // Setup:
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _user);
 
-            //Create Description property
-            OpenApiProperty property = new OpenApiProperty(parentArtifactList[1].Address);
-            //Set property value
-            parentArtifactList[1].Properties.Add(property.SetPropertyAttribute(project, _user, BaseArtifactType.Actor, "Description", propertyValue: "Testing Set Property Value"));
+            // Save second parent to create a draft.
+            parentArtifactList[1].Save();
 
+            // Execute & Verify:
             Assert.Throws<Http400BadRequestException>(() =>
             {
-                /*Executes get project children REST call and returns HTTP code*/
-                /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifactList[1].Id);
-            }, "The GET /projects/{projectId}/artifacts/{artifactId}children endpoint should return 400 Bad Request!");
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, user: null);
+            }, "The 'GET {0}' endpoint should return 400 Bad Request if no Session-Token header was passed!", REST_PATH_CHILDREN);
         }
 
         #endregion GetArtifactChildrenByProjectAndArtifactId Published with Draft (2nd level)
@@ -365,20 +333,19 @@ namespace ArtifactStoreTests
         [Description("Executes Get publish artifact of second level children call for published artifact, creates orphan artifact and returns 200 OK if successful")]
         public void GetChildrenOfMovedArtifactId_OK()
         {
-            IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(project, _user);
+            // Setup:
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _user);
 
             // Move second parent below the first parent.
             parentArtifactList[1].Lock();
             Helper.ArtifactStore.MoveArtifact(parentArtifactList[1], parentArtifactList[0], _user);
             parentArtifactList[1].Publish();
 
+            // Execute & Verify:
             Assert.DoesNotThrow(() =>
             {
-                /*Executes get project children REST call and returns HTTP code*/
-                /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifactList[1].Id, _user);
-            }, "The GET /projects/{projectId}/artifacts/{artifactId}children endpoint should return 200 OK!");
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, _user);
+            }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_PATH_CHILDREN);
         }
 
         [TestCase]
@@ -387,8 +354,7 @@ namespace ArtifactStoreTests
         public void GetChildrenOfMovedArtifactId_Unauthorized()
         {
             // Setup:
-            IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(project, _user);
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _user);
 
             // Move second parent below the first parent.
             parentArtifactList[1].Lock();
@@ -400,10 +366,8 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                /*Executes get project children REST call and returns HTTP code*/
-                /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifactList[1].Id, unauthorizedUser);
-            }, "The GET /projects/{projectId}/artifacts/{artifactId}children endpoint should return 401 Unauthorized!");
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, unauthorizedUser);
+            }, "The 'GET {0}' endpoint should return 401 Unauthorized if an unauthorized token is passed!", REST_PATH_CHILDREN);
         }
 
         [TestCase]
@@ -411,20 +375,19 @@ namespace ArtifactStoreTests
         [Description("Executes Get publish artifact of second level children call and returns 'Bad Request' if successful")]
         public void GetChildrenOfMovedArtifactId_BadRequest()
         {
-            IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(project, _user);
+            // Setup:
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _user);
 
             // Move second parent below the first parent.
             parentArtifactList[1].Lock();
             Helper.ArtifactStore.MoveArtifact(parentArtifactList[1], parentArtifactList[0], _user);
             parentArtifactList[1].Publish();
 
+            // Execute & Verify:
             Assert.Throws<Http400BadRequestException>(() =>
             {
-                /*Executes get project children REST call and returns HTTP code*/
-                /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifactList[1].Id);
-            }, "The GET /projects/{projectId}/artifacts/{artifactId}children endpoint should return 400 Bad Request!");
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, user: null);
+            }, "The 'GET {0}' endpoint should return 400 Bad Request if no Session-Token header was passed!", REST_PATH_CHILDREN);
         }
 
         #endregion GetArtifactChildrenByProjectAndArtifactId (moved)

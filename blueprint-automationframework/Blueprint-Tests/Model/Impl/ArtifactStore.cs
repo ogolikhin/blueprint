@@ -134,7 +134,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetArtifactChildrenByProjectAndArtifactId(int, int, IUser, List{HttpStatusCode})"/>
-        public List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.Artifacts_id_.CHILDREN, projectId, artifactId);
             RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
@@ -146,7 +146,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetProjectChildrenByProjectId(int, IUser, List{HttpStatusCode})"/>
-        public List<NovaArtifact> GetProjectChildrenByProjectId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<NovaArtifact> GetProjectChildrenByProjectId(int id, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             return GetProjectChildrenByProjectId(Address, id, user, expectedStatusCodes);
         }
@@ -387,7 +387,7 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IArtifactStore.GetRelationships(IUser, IArtifactBase, int?, bool?, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.GetRelationships(IUser, IArtifactBase, int?, bool?, int?, List{HttpStatusCode})"/>
         public Relationships GetRelationships(IUser user,
             IArtifactBase artifact,
             int? subArtifactId = null,
@@ -427,7 +427,7 @@ namespace Model.Impl
             return relationships;
         }
 
-        /// <seealso cref="IArtifactStore.GetRelationshipsDetails(IUser, IArtifactBase, bool?, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.GetRelationshipsDetails(IUser, IArtifactBase, bool?, int?, List{HttpStatusCode})"/>
         public TraceDetails GetRelationshipsDetails(IUser user,
             IArtifactBase artifact,
             bool? addDrafts = null,
@@ -756,12 +756,12 @@ namespace Model.Impl
         /// </summary>
         /// <param name="address">The base address of the ArtifactStore.</param>
         /// <param name="id">The id of specified project.</param>
-        /// <param name="user">(optional) The user to authenticate with.</param>
+        /// <param name="user">The user to authenticate with.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A list of all artifacts in the specified project.</returns>
         public static List<NovaArtifact> GetProjectChildrenByProjectId(string address,
             int id,
-            IUser user = null,
+            IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.CHILDREN, id);

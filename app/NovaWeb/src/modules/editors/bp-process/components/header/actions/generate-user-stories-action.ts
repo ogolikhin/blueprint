@@ -134,6 +134,9 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
             .then((userStories: IUserStory[]) => {
                 this.processDiagramManager.action(ProcessEvents.UserStoriesGenerated, userStories);
                 this.showSuccessMessage(userTaskId);
+            })
+            .catch((reason: any) => {
+                this.showErrorMessage(reason.message);
             });
     }
 
@@ -143,5 +146,9 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
             this.localization.get("ST_User_Story_Generated_Message") : 
             this.localization.get("ST_User_Stories_Generated_Message");
         this.messageService.addInfo(userStoriesGeneratedMessage);
+    }
+
+    private showErrorMessage(message: string): void {
+        this.messageService.addError(message);
     }
 }

@@ -5,12 +5,14 @@ export interface IApplicationError {
     statusCode?: number;
     errorCode?: number;
     message?: string;
+    errorContent?: any;
 }
 
 export class ApplicationError extends Error implements IApplicationError {
     public handled: boolean;
     public statusCode: number;
     public errorCode: number;
+    public errorContent?: any;
 
     constructor(message?: string | IApplicationError) {
         super();

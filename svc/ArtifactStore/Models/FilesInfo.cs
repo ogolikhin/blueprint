@@ -60,7 +60,7 @@ namespace ArtifactStore.Models
         [JsonProperty]
         public int AttachmentId { get; set; }
         [JsonProperty]
-        public DateTime UploadedDate { get; set; }
+        public DateTime? UploadedDate { get; set; }
         [JsonIgnore]
         public Guid FileGuid { get; set; }
     }

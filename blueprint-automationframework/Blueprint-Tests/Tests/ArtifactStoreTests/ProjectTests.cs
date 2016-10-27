@@ -105,7 +105,7 @@ namespace ArtifactStoreTests
         public void GetPublishedArtifactChildrenByProjectAndArtifactId_OK()
         {
             IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            IOpenApiArtifact parentArtifact = CreateParentAndTwoChildrenArtifactsAndGetParentArtifact(project);
+            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(project, _user);
 
             Assert.DoesNotThrow(() =>
             {
@@ -133,17 +133,17 @@ namespace ArtifactStoreTests
         [Description("Executes Get published artifact children call and returns 401 Unauthorized if successful")]
         public void GetPublishedArtifactChildrenByProjectAndArtifactId_Unauthorized()
         {
-            //Replace session token with expired session one
-            _user.SetToken(UNAUTHORIZED_TOKEN);
-
+            // Setup:
             IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            IOpenApiArtifact parentArtifact = CreateParentAndTwoChildrenArtifactsAndGetParentArtifact(project);
+            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(project, _user);
+            IUser unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
+            // Execute & Verify:
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 /*Executes get project children REST call and returns HTTP code*/
                 /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifact.Id, _user);
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifact.Id, unauthorizedUser);
             }, "The GET /projects/{projectId}/artifacts/{artifactId}children endpoint should return 401 Unauthorized!");
         }
 
@@ -153,7 +153,7 @@ namespace ArtifactStoreTests
         public void GetPublishedArtifactChildrenByProjectAndArtifactId_BadRequest()
         {
             IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            IOpenApiArtifact parentArtifact = CreateParentAndTwoChildrenArtifactsAndGetParentArtifact(project);
+            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(project, _user);
 
             Assert.Throws<Http400BadRequestException>(() =>
             {
@@ -173,7 +173,7 @@ namespace ArtifactStoreTests
         public void GetPublishedWithDraftArtifactChildrenByProjectAndArtifactId_OK()
         {
             IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            IOpenApiArtifact parentArtifact = CreateParentAndTwoChildrenArtifactsAndGetParentArtifact(project);
+            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(project, _user);
 
             //Create Description property
             OpenApiProperty property = new OpenApiProperty(parentArtifact.Address);
@@ -193,22 +193,21 @@ namespace ArtifactStoreTests
         [Description("Executes Get draft artifact children call and returns 401 Unauthorized if successful")]
         public void GetPublishedWithDraftArtifactChildrenByProjectAndArtifactId_Unauthorized()
         {
-            //Replace session token with expired session one
-            _user.SetToken(UNAUTHORIZED_TOKEN);
-
+            // Setup:
             IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            IOpenApiArtifact parentArtifact = CreateParentAndTwoChildrenArtifactsAndGetParentArtifact(project);
+            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(project, _user);
 
-            //Create Description property
-            OpenApiProperty property = new OpenApiProperty(parentArtifact.Address);
-            //Set property value
-            parentArtifact.Properties.Add(property.SetPropertyAttribute(project, _user, BaseArtifactType.Actor, "Description", propertyValue: "Testing Set Property Value"));
+            // Save parent to create a draft.
+            parentArtifact.Save();
 
+            IUser unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+
+            // Execute & Verify:
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 /*Executes get project children REST call and returns HTTP code*/
                 /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifact.Id, _user);
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifact.Id, unauthorizedUser);
             }, "The GET /projects/{projectId}/artifacts/{artifactId}children endpoint should return 401 Unauthorized!");
         }
 
@@ -218,7 +217,7 @@ namespace ArtifactStoreTests
         public void GetPublishedWithDraftArtifactChildrenByProjectAndArtifactId_BadRequest()
         {
             IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            IOpenApiArtifact parentArtifact = CreateParentAndTwoChildrenArtifactsAndGetParentArtifact(project);
+            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(project, _user);
 
             //Create Description property
             OpenApiProperty property = new OpenApiProperty(parentArtifact.Address);
@@ -244,7 +243,7 @@ namespace ArtifactStoreTests
         {
             IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
 
-            List<IOpenApiArtifact> parentArtifactList = CreateGrandParentAndTwoParentArtifactsAndChildrOfSecondParentAndGetSecondParentArtifact(project);
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(project, _user);
 
             Assert.DoesNotThrow(() =>
             {
@@ -259,17 +258,17 @@ namespace ArtifactStoreTests
         [Description("Executes Get publish artifact of second level children call and returns 401 Unauthorized if successful")]
         public void GetSecondLevelPublishedArtifactChildrenByProjectAndArtifactId_Unauthorized()
         {
-            //Replace session token with expired session one
-            _user.SetToken(UNAUTHORIZED_TOKEN);
-
+            // Setup:
             IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            List<IOpenApiArtifact> parentArtifactList = CreateGrandParentAndTwoParentArtifactsAndChildrOfSecondParentAndGetSecondParentArtifact(project);
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(project, _user);
+            IUser unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
+            // Execute & Verify:
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 /*Executes get project children REST call and returns HTTP code*/
                 /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifactList[1].Id, _user);
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifactList[1].Id, unauthorizedUser);
             }, "The GET /projects/{projectId}/artifacts/{artifactId}children endpoint should return 401 Unauthorized!");
         }
 
@@ -279,7 +278,7 @@ namespace ArtifactStoreTests
         public void GetSecondLevelPublishedArtifactChildrenByProjectAndArtifactId_BadRequest()
         {
             IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            List<IOpenApiArtifact> parentArtifactList = CreateGrandParentAndTwoParentArtifactsAndChildrOfSecondParentAndGetSecondParentArtifact(project);
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(project, _user);
 
             Assert.Throws<Http400BadRequestException>(() =>
             {
@@ -299,7 +298,7 @@ namespace ArtifactStoreTests
         public void GetSecondLevelPublishedWithDraftArtifactChildrenByProjectAndArtifactId_OK()
         {
             IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            List<IOpenApiArtifact> parentArtifactList = CreateGrandParentAndTwoParentArtifactsAndChildrOfSecondParentAndGetSecondParentArtifact(project);
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(project, _user);
 
             //Create Description property
             OpenApiProperty property = new OpenApiProperty(parentArtifactList[1].Address);
@@ -319,22 +318,20 @@ namespace ArtifactStoreTests
         [Description("Executes Get draft artifact of second level children call and returns 401 Unauthorized if successful")]
         public void GetSecondLevelPublishedWithDraftArtifactChildrenByProjectAndArtifactId_Unauthorized()
         {
-            //Replace session token with expired session one
-            _user.SetToken(UNAUTHORIZED_TOKEN);
-
+            // Setup:
             IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            List<IOpenApiArtifact> parentArtifactList = CreateGrandParentAndTwoParentArtifactsAndChildrOfSecondParentAndGetSecondParentArtifact(project);
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(project, _user);
 
-            //Create Description property
-            OpenApiProperty property = new OpenApiProperty(parentArtifactList[1].Address);
-            //Set property value
-            parentArtifactList[1].Properties.Add(property.SetPropertyAttribute(project, _user, BaseArtifactType.Actor, "Description", propertyValue: "Testing Set Property Value"));
+            // Save parent to create a draft.
+            parentArtifactList[1].Save();
+
+            IUser unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 /*Executes get project children REST call and returns HTTP code*/
                 /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifactList[1].Id, _user);
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifactList[1].Id, unauthorizedUser);
             }, "The GET /projects/{projectId}/artifacts/{artifactId}children endpoint should return 401 Unauthorized!");
         }
 
@@ -344,7 +341,7 @@ namespace ArtifactStoreTests
         public void GetSecondLevelPublishedWithDraftArtifactChildrenByProjectAndArtifactId_BadRequest()
         {
             IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            List<IOpenApiArtifact> parentArtifactList = CreateGrandParentAndTwoParentArtifactsAndChildrOfSecondParentAndGetSecondParentArtifact(project);
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(project, _user);
 
             //Create Description property
             OpenApiProperty property = new OpenApiProperty(parentArtifactList[1].Address);
@@ -369,11 +366,12 @@ namespace ArtifactStoreTests
         public void GetChildrenOfMovedArtifactId_OK()
         {
             IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            List<IOpenApiArtifact> parentArtifactList = CreateGrandParentAndTwoParentArtifactsAndChildrOfSecondParentAndGetSecondParentArtifact(project);
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(project, _user);
 
-            parentArtifactList[1].ParentId = parentArtifactList[0].Id;
-            parentArtifactList[1].Save();
-            parentArtifactList[0].Publish();
+            // Move second parent below the first parent.
+            parentArtifactList[1].Lock();
+            Helper.ArtifactStore.MoveArtifact(parentArtifactList[1], parentArtifactList[0], _user);
+            parentArtifactList[1].Publish();
 
             Assert.DoesNotThrow(() =>
             {
@@ -388,21 +386,23 @@ namespace ArtifactStoreTests
         [Description("Executes Get publish artifact of second level children call and returns 401 Unauthorized if successful")]
         public void GetChildrenOfMovedArtifactId_Unauthorized()
         {
-            //Replace session token with expired session one
-            _user.SetToken(UNAUTHORIZED_TOKEN);
-
+            // Setup:
             IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            List<IOpenApiArtifact> parentArtifactList = CreateGrandParentAndTwoParentArtifactsAndChildrOfSecondParentAndGetSecondParentArtifact(project);
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(project, _user);
 
-            parentArtifactList[1].ParentId = parentArtifactList[0].Id;
-            parentArtifactList[1].Save();
-            parentArtifactList[0].Publish();
+            // Move second parent below the first parent.
+            parentArtifactList[1].Lock();
+            Helper.ArtifactStore.MoveArtifact(parentArtifactList[1], parentArtifactList[0], _user);
+            parentArtifactList[1].Publish();
 
+            IUser unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+
+            // Execute & Verify:
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 /*Executes get project children REST call and returns HTTP code*/
                 /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifactList[1].Id, _user);
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(DEFAULT_PROJECT_ID, parentArtifactList[1].Id, unauthorizedUser);
             }, "The GET /projects/{projectId}/artifacts/{artifactId}children endpoint should return 401 Unauthorized!");
         }
 
@@ -412,11 +412,12 @@ namespace ArtifactStoreTests
         public void GetChildrenOfMovedArtifactId_BadRequest()
         {
             IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
-            List<IOpenApiArtifact> parentArtifactList = CreateGrandParentAndTwoParentArtifactsAndChildrOfSecondParentAndGetSecondParentArtifact(project);
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(project, _user);
 
-            parentArtifactList[1].ParentId = parentArtifactList[0].Id;
-            parentArtifactList[1].Save();
-            parentArtifactList[0].Publish();
+            // Move second parent below the first parent.
+            parentArtifactList[1].Lock();
+            Helper.ArtifactStore.MoveArtifact(parentArtifactList[1], parentArtifactList[0], _user);
+            parentArtifactList[1].Publish();
 
             Assert.Throws<Http400BadRequestException>(() =>
             {
@@ -430,65 +431,50 @@ namespace ArtifactStoreTests
 
         #region Private functions
 
-        private IOpenApiArtifact CreateParentAndTwoChildrenArtifactsAndGetParentArtifact(IProject project)
+        /// <summary>
+        /// Create and publish a parent artifact with 2 child artifacts, then return the parent.
+        /// </summary>
+        /// <param name="project">The project where the artifacts should be created.</param>
+        /// <param name="user">The user to create the artifacts.</param>
+        /// <returns>The parent artifact.</returns>
+        private IArtifact CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(IProject project, IUser user)
         {
-            IOpenApiArtifact parentArtifact, childArtifact;
+            // Create parent artifact with ArtifactType and populate all required values without properties.
+            var parentArtifact = Helper.CreateAndPublishArtifact(project, user, BaseArtifactType.Document);
 
-            //Create parent artifact with ArtifactType and populate all required values without properties
-            parentArtifact = Helper.CreateOpenApiArtifact(project, _user, artifactType: BaseArtifactType.Document);
-            //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
-            parentArtifact.Save();
+            // Create first child artifact with ArtifactType and populate all required values without properties.
+            Helper.CreateAndPublishArtifact(project, user, BaseArtifactType.Document, parentArtifact);
 
-            //Create first child artifact with ArtifactType and populate all required values without properties
-            childArtifact = Helper.CreateOpenApiArtifact(project, _user, artifactType: BaseArtifactType.Document);
-            //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
-            childArtifact.ParentId = parentArtifact.Id;
-            childArtifact.Save();
-
-            //Create second child artifact with ArtifactType and populate all required values without properties
-            childArtifact = Helper.CreateOpenApiArtifact(project, _user, artifactType: BaseArtifactType.Document);
-            //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
-            childArtifact.ParentId = parentArtifact.Id;
-            childArtifact.Save();
-            //Publish artifact
-            childArtifact.Publish();
+            // Create second child artifact with ArtifactType and populate all required values without properties.
+            Helper.CreateAndPublishArtifact(project, user, BaseArtifactType.Document, parentArtifact);
 
             return parentArtifact;
         }
 
-        private List<IOpenApiArtifact> CreateGrandParentAndTwoParentArtifactsAndChildrOfSecondParentAndGetSecondParentArtifact(IProject project)
+        /// <summary>
+        /// Create and publish a parent artifact (top level) with 2 child artifacts, then add a grandchild artifact to one of the child artifacts and publish it,
+        /// then return the two parent artifacts.
+        /// </summary>
+        /// <param name="project">The project where the artifacts should be created.</param>
+        /// <param name="user">The user to create the artifacts.</param>
+        /// <returns>The two parent artifacts.</returns>
+        private List<IArtifact> CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(IProject project, IUser user)
         {
-            IOpenApiArtifact grandParentArtifact, parentArtifact, childArtifact;
+            var parentArtifactList = new List<IArtifact>();
 
-            List<IOpenApiArtifact> parentArtifactList = new List<IOpenApiArtifact>();
+            // Create grand parent artifact with ArtifactType and populate all required values without properties.
+            var grandParentArtifact = Helper.CreateAndPublishArtifact(project, user, BaseArtifactType.Document);
 
-            //Create grand parent artifact with ArtifactType and populate all required values without properties
-            grandParentArtifact = Helper.CreateOpenApiArtifact(project, _user, artifactType: BaseArtifactType.Document);
-            //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
-            grandParentArtifact.Save();
-
-            //Create first parent artifact with ArtifactType and populate all required values without properties
-            parentArtifact = Helper.CreateOpenApiArtifact(project, _user, artifactType: BaseArtifactType.Document);
-            //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
-            parentArtifact.ParentId = grandParentArtifact.Id;
-            parentArtifact.Save();
+            // Create first parent artifact with ArtifactType and populate all required values without properties.
+            var parentArtifact = Helper.CreateAndPublishArtifact(project, user, BaseArtifactType.Document, grandParentArtifact);
             parentArtifactList.Add(parentArtifact);
 
-            //Create second parent artifact with ArtifactType and populate all required values without properties
-            parentArtifact = Helper.CreateOpenApiArtifact(project, _user, artifactType: BaseArtifactType.Document);
-            //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
-            parentArtifact.ParentId = grandParentArtifact.Id;
-            parentArtifact.Save();
+            // Create second parent artifact with ArtifactType and populate all required values without properties.
+            parentArtifact = Helper.CreateAndPublishArtifact(project, user, BaseArtifactType.Document, grandParentArtifact);
             parentArtifactList.Add(parentArtifact);
 
-            //Create child artifact of second parent with ArtifactType and populate all required values without properties
-            childArtifact = Helper.CreateOpenApiArtifact(project, _user, artifactType: BaseArtifactType.Document);
-            //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
-            childArtifact.ParentId = parentArtifact.Id;
-            childArtifact.Save();
-
-            //Publish artifact
-            childArtifact.Publish();
+            // Create child artifact of second parent with ArtifactType and populate all required values without properties.
+            Helper.CreateAndPublishArtifact(project, user, BaseArtifactType.Document, parentArtifact);
 
             return parentArtifactList;
         }

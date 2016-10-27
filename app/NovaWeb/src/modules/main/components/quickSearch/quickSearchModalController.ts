@@ -32,6 +32,10 @@ export class QuickSearchModalController {
         });
     }
 
+    getNavigationUrl(item) {
+        return "#/main/" + item.artifactId;
+    }
+
     hasError() {
         return this.form.$submitted &&
             this.form.$invalid;

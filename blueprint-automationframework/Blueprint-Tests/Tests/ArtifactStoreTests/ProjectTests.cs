@@ -35,7 +35,7 @@ namespace ArtifactStoreTests
             Helper?.Dispose();
         }
 
-        #region GetProjectChildrenByProjectId
+        #region GetProjectChildrenByProjectId tests
 
         [TestCase]
         [TestRail(125497)]
@@ -91,9 +91,9 @@ namespace ArtifactStoreTests
             }, "The 'GET {0}' endpoint should return 400 Bad Request if no Session-Token header was passed!", REST_PATH_ARTIFACT);
         }
 
-        #endregion GetProjectChildrenByProjectId
+        #endregion GetProjectChildrenByProjectId tests
 
-        #region GetArtifactChildrenByProjectAndArtifactId Published
+        #region GetArtifactChildrenByProjectAndArtifactId tests
 
         [TestCase]
         [TestRail(125511)]
@@ -154,10 +154,6 @@ namespace ArtifactStoreTests
             }, "The 'GET {0}' endpoint should return 400 Bad Request if no Session-Token header was passed!", REST_PATH_CHILDREN);
         }
 
-        #endregion GetArtifactChildrenByProjectAndArtifactId Published
-
-        #region GetArtifactChildrenByProjectAndArtifactId Published with Draft
-
         [TestCase]
         [TestRail(134074)]
         [Description("Executes Get draft artifact children call for published artifact and returns 200 OK if successful")]
@@ -177,48 +173,6 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [TestRail(134075)]
-        [Description("Executes Get draft artifact children call and returns 401 Unauthorized if successful")]
-        public void GetPublishedWithDraftArtifactChildrenByProjectAndArtifactId_Unauthorized()
-        {
-            // Setup:
-            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _user);
-
-            // Save parent to create a draft.
-            parentArtifact.Save();
-
-            IUser unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-
-            // Execute & Verify:
-            Assert.Throws<Http401UnauthorizedException>(() =>
-            {
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, unauthorizedUser);
-            }, "The 'GET {0}' endpoint should return 401 Unauthorized if an unauthorized token is passed!", REST_PATH_CHILDREN);
-        }
-
-        [TestCase]
-        [TestRail(134076)]
-        [Description("Executes Get draft artifact children call and returns 'Bad Request' if successful")]
-        public void GetPublishedWithDraftArtifactChildrenByProjectAndArtifactId_BadRequest()
-        {
-            // Setup:
-            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _user);
-
-            // Save parent to create a draft.
-            parentArtifact.Save();
-
-            // Execute & Verify:
-            Assert.Throws<Http400BadRequestException>(() =>
-            {
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, user: null);
-            }, "The 'GET {0}' endpoint should return 400 Bad Request if no Session-Token header was passed!", REST_PATH_CHILDREN);
-        }
-
-        #endregion GetArtifactChildrenByProjectAndArtifactId Published with Draft
-
-        #region GetArtifactChildrenByProjectAndArtifactId Published (2nd level)
-
-        [TestCase]
         [TestRail(134077)]
         [Description("Executes Get publish artifact of second level children call for published artifact and returns 200 OK if successful")]
         public void GetSecondLevelPublishedArtifactChildrenByProjectAndArtifactId_OK()
@@ -232,41 +186,6 @@ namespace ArtifactStoreTests
                 Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, _user);
             }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_PATH_CHILDREN);
         }
-
-        [TestCase]
-        [TestRail(134078)]
-        [Description("Executes Get publish artifact of second level children call and returns 401 Unauthorized if successful")]
-        public void GetSecondLevelPublishedArtifactChildrenByProjectAndArtifactId_Unauthorized()
-        {
-            // Setup:
-            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _user);
-            IUser unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-
-            // Execute & Verify:
-            Assert.Throws<Http401UnauthorizedException>(() =>
-            {
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, unauthorizedUser);
-            }, "The 'GET {0}' endpoint should return 401 Unauthorized if an unauthorized token is passed!", REST_PATH_CHILDREN);
-        }
-
-        [TestCase]
-        [TestRail(134079)]
-        [Description("Executes Get publish artifact of second level children call and returns 'Bad Request' if successful")]
-        public void GetSecondLevelPublishedArtifactChildrenByProjectAndArtifactId_BadRequest()
-        {
-            // Setup:
-            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _user);
-
-            // Execute & Verify:
-            Assert.Throws<Http400BadRequestException>(() =>
-            {
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, user: null);
-            }, "The 'GET {0}' endpoint should return 400 Bad Request if no Session-Token header was passed!", REST_PATH_CHILDREN);
-        }
-
-        #endregion GetArtifactChildrenByProjectAndArtifactId Published (2nd level)
-
-        #region GetArtifactChildrenByProjectAndArtifactId Published with Draft (2nd level)
 
         [TestCase]
         [TestRail(134080)]
@@ -285,48 +204,6 @@ namespace ArtifactStoreTests
                 Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, _user);
             }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_PATH_CHILDREN);
         }
-
-        [TestCase]
-        [TestRail(134081)]
-        [Description("Executes Get draft artifact of second level children call and returns 401 Unauthorized if successful")]
-        public void GetSecondLevelPublishedWithDraftArtifactChildrenByProjectAndArtifactId_Unauthorized()
-        {
-            // Setup:
-            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _user);
-
-            // Save second parent to create a draft.
-            parentArtifactList[1].Save();
-
-            IUser unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-
-            // Execute & Verify:
-            Assert.Throws<Http401UnauthorizedException>(() =>
-            {
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, unauthorizedUser);
-            }, "The 'GET {0}' endpoint should return 401 Unauthorized if an unauthorized token is passed!", REST_PATH_CHILDREN);
-        }
-
-        [TestCase]
-        [TestRail(134082)]
-        [Description("Executes Get draft artifact of second level children call and returns 'Bad Request' if successful")]
-        public void GetSecondLevelPublishedWithDraftArtifactChildrenByProjectAndArtifactId_BadRequest()
-        {
-            // Setup:
-            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _user);
-
-            // Save second parent to create a draft.
-            parentArtifactList[1].Save();
-
-            // Execute & Verify:
-            Assert.Throws<Http400BadRequestException>(() =>
-            {
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, user: null);
-            }, "The 'GET {0}' endpoint should return 400 Bad Request if no Session-Token header was passed!", REST_PATH_CHILDREN);
-        }
-
-        #endregion GetArtifactChildrenByProjectAndArtifactId Published with Draft (2nd level)
-
-        #region GetArtifactChildrenByProjectAndArtifactId (moved)
 
         [TestCase]
         [TestRail(134083)]
@@ -348,49 +225,7 @@ namespace ArtifactStoreTests
             }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_PATH_CHILDREN);
         }
 
-        [TestCase]
-        [TestRail(134084)]
-        [Description("Executes Get publish artifact of second level children call and returns 401 Unauthorized if successful")]
-        public void GetChildrenOfMovedArtifactId_Unauthorized()
-        {
-            // Setup:
-            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _user);
-
-            // Move second parent below the first parent.
-            parentArtifactList[1].Lock();
-            Helper.ArtifactStore.MoveArtifact(parentArtifactList[1], parentArtifactList[0], _user);
-            parentArtifactList[1].Publish();
-
-            IUser unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-
-            // Execute & Verify:
-            Assert.Throws<Http401UnauthorizedException>(() =>
-            {
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, unauthorizedUser);
-            }, "The 'GET {0}' endpoint should return 401 Unauthorized if an unauthorized token is passed!", REST_PATH_CHILDREN);
-        }
-
-        [TestCase]
-        [TestRail(134085)]
-        [Description("Executes Get publish artifact of second level children call and returns 'Bad Request' if successful")]
-        public void GetChildrenOfMovedArtifactId_BadRequest()
-        {
-            // Setup:
-            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _user);
-
-            // Move second parent below the first parent.
-            parentArtifactList[1].Lock();
-            Helper.ArtifactStore.MoveArtifact(parentArtifactList[1], parentArtifactList[0], _user);
-            parentArtifactList[1].Publish();
-
-            // Execute & Verify:
-            Assert.Throws<Http400BadRequestException>(() =>
-            {
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, user: null);
-            }, "The 'GET {0}' endpoint should return 400 Bad Request if no Session-Token header was passed!", REST_PATH_CHILDREN);
-        }
-
-        #endregion GetArtifactChildrenByProjectAndArtifactId (moved)
+        #endregion GetArtifactChildrenByProjectAndArtifactId tests
 
         #region Private functions
 

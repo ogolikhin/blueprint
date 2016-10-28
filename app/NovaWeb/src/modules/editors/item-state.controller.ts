@@ -150,8 +150,7 @@ export class ItemStateController {
         }
         // since URL doesn't change between "main.item" and "main.item.*", 
         // must force reload on that exact state name
-        // this.$state.go(stateName, {id: artifact.id}, {reload: stateName});
-        this.$state.go(stateName, {id: artifact.id});
+        this.$state.go(stateName, {id: artifact.id}, {reload: stateName});
     }
 
     protected onArtifactError = (error: IApplicationError) => {

@@ -285,6 +285,10 @@ export class Label implements ILabel {
             this.div.style.borderColor = "#666";
             this.div.style.backgroundColor = "#c7edf8";
             this.div.style.color = this.style.highlitedTextColor;
+            
+            if (this.mode === divMode.VIEW) {
+                this.div.innerText = this._text;
+            }        
         } else {
             this.setMouseoutStyle();
         }
@@ -295,6 +299,10 @@ export class Label implements ILabel {
         this.div.style.background = "none";
         this.div.style.backgroundColor = this.style.backColor;
         this.div.style.color = this.style.textColor;
+
+        if (this.mode === divMode.VIEW) {
+            this.setShortText();
+        }        
     }
 
     private onBlur = (e) => {

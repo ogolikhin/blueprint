@@ -390,6 +390,43 @@ namespace Helper
         }
 
         /// <summary>
+        /// Attaches file to the subartifact (Save changes).
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
+        /// <param name="artifact">Artifact.</param>
+        /// <param name="artifact">SubArtifact.</param>
+        /// <param name="files">List of files to attach.</param>
+        /// <param name="artifactStore">IArtifactStore.</param>
+        public static void AddSubArtifactAttachmentAndSave(IUser user, IArtifact artifact, INovaSubArtifact subArtifact,
+            List<INovaFile> files, IArtifactStore artifactStore)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(subArtifact, nameof(subArtifact));
+            ThrowIf.ArgumentNull(files, nameof(files));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+            Assert.AreEqual(artifact.Id, subArtifact.ParentId, "subArtifact should belong to Artifact");
+
+            artifact.Lock(user);
+            NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+
+            NovaSubArtifact subArtifactToAdd = new NovaSubArtifact();
+            subArtifactToAdd.Id = subArtifact.Id;
+            foreach (var file in files)
+            {
+                subArtifactToAdd.AttachmentValues.Add(new AttachmentValue(user, file));
+            }
+
+            List<INovaSubArtifact> subArtifacts = new List<INovaSubArtifact> { subArtifactToAdd };
+
+            artifactDetails.SubArtifacts = subArtifacts;
+
+            Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
+            var attachment = artifactStore.GetAttachments(artifact, user);
+            Assert.IsTrue(attachment.AttachedFiles.Count >= files.Count, "All attachments should be added.");
+        }
+
+        /// <summary>
         /// deletes file from the artifact (Save changes).
         /// </summary>
         /// <param name="user">User to perform an operation.</param>

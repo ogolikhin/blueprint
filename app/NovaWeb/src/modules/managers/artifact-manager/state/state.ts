@@ -179,7 +179,9 @@ export class ArtifactState implements IArtifactState {
                 newState.lockDateTime = artifact.lockedDateTime;
                 newState.deleted = deleted;
                 this.setState(newState, false);
-            };
+            } else {
+                this.currentState.deleted = deleted;
+            }
         }
         return this;
     }

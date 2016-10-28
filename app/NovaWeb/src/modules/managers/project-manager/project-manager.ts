@@ -130,9 +130,7 @@ export class ProjectManager implements IProjectManager {
     }
 
     public triggerProjectCollectionRefresh() {
-        this.navigationService.navigateToMain().then(() => {
-            this.projectCollection.onNext(this.projectCollection.getValue());
-        });
+        this.projectCollection.onNext(this.projectCollection.getValue());
     }
 
     public refreshAll(): ng.IPromise<any> {

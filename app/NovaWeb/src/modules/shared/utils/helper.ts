@@ -22,7 +22,7 @@ export class Helper {
             let text = this.stripHTMLTags(str);
             if (text) {
                 if (text.length > limit) {
-                    return text.substring(0, limit) + this.ELLIPSIS_SYMBOL;
+                    return text.substring(0, limit - 1) + this.ELLIPSIS_SYMBOL;
                 }
                 return text;
             }

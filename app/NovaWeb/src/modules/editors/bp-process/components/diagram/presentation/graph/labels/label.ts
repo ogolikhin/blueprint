@@ -227,7 +227,7 @@ export class Label implements ILabel {
     }
 
     private setShortText() {
-        this.div.innerText = Helper.limitChars(this._text, this.maxVisibleTextLength - 1);
+        this.div.innerText = Helper.limitChars(this._text, this.maxVisibleTextLength);
     }
 
     private setEditMode() {

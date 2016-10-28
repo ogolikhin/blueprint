@@ -106,18 +106,29 @@ class BPToolbarController implements IBPToolbarController {
                 });
                 break;
             case `discardall`:
-                //Test Code: Display load screen for 0.4s (invisible), then popup result.
-                let discardLoadingId = this.loadingOverlayService.beginLoading();
-                let discardPromise: ng.IPromise<number> = this.$timeout(() => {
-                    return 0;
-                }, 500);
-                discardPromise.finally(() => {
-                    this.loadingOverlayService.endLoading(discardLoadingId);
-                    this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
-                });
+                let getUnpublishedLoadingId = this.loadingOverlayService.beginLoading();
+                try {
+                    //get a list of unpublished artifacts
+                    this.publishService.getUnpublishedArtifacts()
+                    .then((data: Models.IPublishResultSet) => {
+                        this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
+
+                        if (data.artifacts.length === 0) {
+                            this.messageService.addInfo("Discard_All_No_Unpublished_Changes");
+                        } else {
+                            this.confirmDiscardAll(data);
+                        }
+                    })
+                    .finally(() => {
+                        this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
+                    });
+                } catch (err) {
+                    this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
+                    throw err;
+                }
                 break;
             case `publishall`:
-                let getUnpublishedLoadingId = this.loadingOverlayService.beginLoading();
+                getUnpublishedLoadingId = this.loadingOverlayService.beginLoading();
                 try {
                     //get a list of unpublished artifacts
                     this.publishService.getUnpublishedArtifacts()
@@ -137,8 +148,6 @@ class BPToolbarController implements IBPToolbarController {
                     this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
                     throw err;
                 }
-
-
                 break;
             case `refreshall`:
                 let refreshAllLoadingId = this.loadingOverlayService.beginLoading();
@@ -164,6 +173,45 @@ class BPToolbarController implements IBPToolbarController {
             if (message.messageType === MessageType.Lock) {
                 this.messageService.deleteMessageById(message.id);
             }
+        });
+    }
+
+    private confirmDiscardAll(data: Models.IPublishResultSet) {
+        const selectedProject: Project = this.projectManager.getSelectedProject();
+        this.dialogService.open(<IDialogSettings>{
+            okButton: this.localization.get("App_Button_Discard"),
+            cancelButton: this.localization.get("App_Button_Cancel"),
+            message: this.localization.get("Discard_All_Dialog_Message"),
+            template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
+            controller: ConfirmPublishController,
+            css: "nova-publish"
+        },
+        <IConfirmPublishDialogData>{
+            artifactList: data.artifacts,
+            projectList: data.projects,
+            selectedProject: selectedProject ? selectedProject.id : undefined
+        })
+        .then(() => {
+            this.discardAll(data);
+        });
+    }
+
+    private discardAll(data: Models.IPublishResultSet) {
+        const publishAllLoadingId = this.loadingOverlayService.beginLoading();
+        //perform publish all
+        this.publishService.discardAll()
+        .then(() => {
+            //remove lock on current artifact
+            const selectedArtifact = this.artifactManager.selection.getArtifact();
+            if (selectedArtifact) {
+                selectedArtifact.artifactState.unlock();
+                selectedArtifact.refresh();
+            }
+            
+            this.messageService.addInfoWithPar("Discard_All_Success_Message", [data.artifacts.length]);
+        })
+        .finally(() => {
+            this.loadingOverlayService.endLoading(publishAllLoadingId);
         });
     }
 

@@ -7,6 +7,7 @@ App_Button_Cancel,"Cancel"
 App_Button_Close,"Close"
 App_Button_Open,"Open"
 App_Button_Publish,"Publish"
+App_Button_Discard,"Discard"
 App_Button_PublishAndContinue,"Publish and Continue"
 
 App_DialogTitle_Alert,"Warning"
@@ -180,6 +181,11 @@ Publish_All_More_Artifacts,"Not showing other {0} artifact(s)."
 
 Publish_Dependents_Dialog_Message,"If you publish the artifact, other related artifacts will also need to be published. Please review and confirm:"
 Publish_Success_Message,"The artifact has been published."
+
+Discard_All_Dialog_Header,"Discard All"
+Discard_All_No_Unpublished_Changes,"There are no artifacts that can be discarded."
+Discard_All_Dialog_Message,"After discarding, all changes made to each artifact will be reverted to previous version. Please review and confirm:"
+Discard_All_Success_Message,"Successfully discarded {0} artifact(s)."
 
 # glossary artifact
 Artifact_Glossary_Term,"Term"

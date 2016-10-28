@@ -14,15 +14,12 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
             $scope["fc"].$setTouched();
             ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
 
-            let uiSelectContainer = $element[0].querySelector(".ui-select-container");
+            const uiSelectContainer = $element[0].querySelector(".ui-select-container");
             if (uiSelectContainer) {
                 $scope["uiSelectContainer"] = uiSelectContainer;
 
-                // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class
-                // Not needed for textareas
-                let uiSelectInput = uiSelectContainer.querySelector("div:not(.ps-child)") as HTMLElement;
-                if (uiSelectInput && !uiSelectInput.classList.contains("ps-child")) {
-                    uiSelectInput.classList.add("ps-child");
+                const uiSelectInput = uiSelectContainer.querySelector("div") as HTMLElement;
+                if (uiSelectInput) {
                     uiSelectInput.classList.add("ui-select-input");
                     uiSelectInput.addEventListener("keydown", $scope["bpFieldSelectMulti"].closeDropdownOnTab, true);
                     uiSelectInput.addEventListener("click", $scope["bpFieldSelectMulti"].scrollIntoView, true);
@@ -67,7 +64,7 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
         $scope["$on"]("$destroy", function () {
             if ($scope["uiSelectContainer"]) {
                 if ($scope["uiSelectContainer"]) {
-                    let uiSelectInput = $scope["uiSelectContainer"].querySelector(".ui-select-input") as HTMLElement;
+                    const uiSelectInput = $scope["uiSelectContainer"].querySelector(".ui-select-input") as HTMLElement;
                     if (uiSelectInput) {
                         uiSelectInput.removeEventListener("keydown", $scope["bpFieldSelectMulti"].closeDropdownOnTab, true);
                         uiSelectInput.removeEventListener("click", $scope["bpFieldSelectMulti"].scrollIntoView, true);

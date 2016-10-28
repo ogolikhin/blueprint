@@ -84,7 +84,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     public getObservable(): Rx.Observable<IStatefulArtifact> {
-        if (!this.isFullArtifactLoadedOrLoading()) {
+        if (!this.isFullArtifactLoadedOrLoading() && !this.isHeadVersionDeleted()) {
             this.loadPromise = this.load();
             const customPromises = this.getCustomArtifactPromisesForGetObservable();
 
@@ -148,7 +148,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         // When we use head version of artifact and we know that artifact has been deleted
         // simulate NotFound error
-        if (this.artifactState.deleted && !this.historical) {
+        if (this.isHeadVersionDeleted()) {
             const error = this.artifactNotFoundError();
             this.error.onNext(error);
             deferred.reject(error);
@@ -174,6 +174,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         }
 
         return deferred.promise;
+    }
+
+    private isHeadVersionDeleted() {
+        return this.artifactState.deleted && !this.historical;
     }
 
     private artifactNotFoundError() {

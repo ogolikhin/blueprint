@@ -1,6 +1,6 @@
 import "angular";
 import "angular-mocks";
-import {Models, AdminStoreModels} from "../../models";
+import {Models, AdminStoreModels, SearchServiceModels} from "../../models";
 import {IArtifactManager} from "../../../managers/";
 import {IProjectService} from "../../../managers/project-manager/";
 import {IArtifactPickerOptions} from "./bp-artifact-picker";
@@ -8,7 +8,8 @@ import {
     InstanceItemNodeVM,
     ArtifactNodeVM,
     SubArtifactContainerNodeVM,
-    SubArtifactNodeVM
+    SubArtifactNodeVM,
+    SearchResultVM
 } from "./bp-artifact-picker-node-vm";
 
 describe("ArtifactPickerNodeVM", () => {
@@ -598,5 +599,21 @@ describe("ArtifactPickerNodeVM", () => {
             // Assert
             expect(result).toEqual(false);
         });
+    });
+});
+
+describe("SearchResultVM", () => {
+    it("select calls onSelect", () => {
+        // Arrange
+        const model = {} as SearchServiceModels.ISearchResult;
+        const onSelect = jasmine.createSpy("onSelect");
+        const searchResultVM = new SearchResultVM(model, onSelect);
+        const value = true;
+
+        // Act
+        searchResultVM.selected(value);
+
+        // Assert
+        expect(onSelect).toHaveBeenCalledWith(searchResultVM, value);
     });
 });

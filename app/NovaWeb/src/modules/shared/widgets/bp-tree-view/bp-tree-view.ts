@@ -15,7 +15,7 @@ import {IWindowManager, IMainWindow, ResizeCause} from "../../../main/services";
  *               root-node-visible="false"
  *               columns="$ctrl.columns"
  *               header-height="20"
- *               on-select="$ctrl.onSelect(vm, isSelected, selectedVMs)"
+ *               on-select="$ctrl.onSelect(vm, isSelected)"
  *               on-double-click="$ctrl.onDoubleClick(vm)"
  *               on-error="$ctrl.onError(reason)">
  * </bp-tree-view>
@@ -51,7 +51,7 @@ export interface IBPTreeViewController extends ng.IComponentController {
     rootNodeVisible: boolean;
     columns: IColumn[];
     headerHeight: number;
-    onSelect: (param: {vm: ITreeViewNodeVM, isSelected: boolean, selectedVMs: ITreeViewNodeVM[]}) => void;
+    onSelect: (param: {vm: ITreeViewNodeVM, isSelected: boolean}) => any;
     onDoubleClick: (param: {vm: ITreeViewNodeVM}) => void;
     onError: (param: {reason: any}) => void;
 
@@ -95,7 +95,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     public columns: IColumn[];
     public headerHeight: number;
     public sizeColumnsToFit: boolean;
-    public onSelect: (param: {vm: ITreeViewNodeVM, isSelected: boolean, selectedVMs: ITreeViewNodeVM[]}) => void;
+    public onSelect: (param: {vm: ITreeViewNodeVM, isSelected: boolean}) => any;
     public onDoubleClick: (param: {vm: ITreeViewNodeVM}) => void;
     public onError: (param: {reason: any}) => void;
 
@@ -375,11 +375,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         if (isSelected && (!vm.isSelectable() || !this.isVisible(node))) {
             node.setSelected(false);
         } else if (this.onSelect) {
-            this.onSelect({
-                vm: vm,
-                isSelected: isSelected,
-                selectedVMs: this.options.api.getSelectedRows() as ITreeViewNodeVM[]
-            });
+            this.onSelect({vm: vm, isSelected: isSelected});
         }
     };
 

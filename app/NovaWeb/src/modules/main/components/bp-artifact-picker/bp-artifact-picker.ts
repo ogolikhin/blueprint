@@ -63,32 +63,35 @@ export interface IArtifactPickerOptions {
 }
 
 export interface IArtifactPickerController extends IArtifactPickerOptions {
-    searchText: string;
-    clearSearch(): void;
-    search(): void;
-    isSearching: boolean;
-    searchResults: SearchServiceModels.ISearchResult[];
-    isMoreSearchResults: boolean;
-    onSearchResultClicked(searchResult: SearchServiceModels.ISearchResult);
     project: AdminStoreModels.IInstanceItem;
+
+    // BpArtifactPicker bindings
+    onSelectionChanged: (params: {selectedVMs: ArtifactPickerNodeVM<any>[]}) => void;
+
+    // BpTreeView bindings
+    currentSelectionMode: "single" | "multiple" | "checkbox";
     rootNode: InstanceItemNodeVM;
     columns: IColumn[];
     onSelect: (vm: ArtifactPickerNodeVM<any>, isSelected: boolean, selectedVMs: ArtifactPickerNodeVM<any>[]) => void;
-    onSelectionChanged: (params: {selectedVMs: ArtifactPickerNodeVM<any>[]}) => void;
+
+    // Search
+    searchText: string;
+    isSearching: boolean;
+    searchResults: SearchServiceModels.ISearchResult[];
+    isMoreSearchResults: boolean;
+    search(): void;
+    clearSearch(): void;
 }
 
 export class BpArtifactPickerController implements ng.IComponentController, IArtifactPickerController {
     private static readonly maxSearchResults = 100;
 
+    // BpArtifactPicker bindings
     public selectableItemTypes: Models.ItemTypePredefined[];
     public selectionMode: "single" | "multiple" | "checkbox";
     public showSubArtifacts: boolean;
     public isOneProjectLevel: boolean;
     public onSelectionChanged: (params: {selectedVMs: ArtifactPickerNodeVM<any>[]}) => void;
-    public searchText: string = "";
-    public isSearching: boolean = false;
-    public searchResults: SearchServiceModels.ISearchResult[];
-    public isMoreSearchResults: boolean;
 
     static $inject = [
         "$scope",
@@ -139,6 +142,25 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         this.projectService.abort();
     }
 
+    private _project: AdminStoreModels.IInstanceItem;
+
+    public get project(): AdminStoreModels.IInstanceItem {
+        return this._project;
+    }
+
+    public set project(project: AdminStoreModels.IInstanceItem) {
+        this.clearSearch();
+        this.setSelectedVMs([]);
+        this._project = project;
+        this.currentSelectionMode = this.selectionMode || "single";
+        this.rootNode = new InstanceItemNodeVM(this.artifactManager, this.projectService, this, project || {
+            id: 0,
+            type: AdminStoreModels.InstanceItemType.Folder,
+            name: "",
+            hasChildren: true
+        } as AdminStoreModels.IInstanceItem, true);
+    }
+
     private setSelectedVMs(items: ArtifactPickerNodeVM<any>[]): void {
         this.$scope.$applyAsync((s) => {
             if (this.onSelectionChanged) {
@@ -147,14 +169,36 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         });
     }
 
-    public clearSearch(): void {
-        if (this.isSearching) {
-            this.projectService.abort();
+    // BpTreeView bindings
+    public currentSelectionMode: "single" | "multiple" | "checkbox";
+    public rootNode: InstanceItemNodeVM;
+
+    public columns: IColumn[] = [{
+        cellClass: (vm: ArtifactPickerNodeVM<any>) => vm.getCellClass(),
+        isGroup: true,
+        innerRenderer: (vm: ArtifactPickerNodeVM<any>, eGridCell: HTMLElement) => {
+            const icon = vm.getIcon();
+            const name = Helper.escapeHTMLText(vm.name);
+            return `<span class="ag-group-value-wrapper">${icon}<span>${name}</span></span>`;
         }
-        this.searchText = undefined;
-        this.searchResults = undefined;
-        this.isMoreSearchResults = undefined;
-    }
+    }];
+
+    public onSelect = (vm: ArtifactPickerNodeVM<any>, isSelected: boolean, selectedVMs: ArtifactPickerNodeVM<any>[]) => {
+        if (vm instanceof InstanceItemNodeVM) {
+            this.setSelectedVMs([]);
+            if (vm.model.type === AdminStoreModels.InstanceItemType.Project) {
+                this.project = vm.model;
+            }
+        } else {
+            this.setSelectedVMs(selectedVMs);
+        }
+    };
+
+    // Search
+    public searchText: string = "";
+    public isSearching: boolean = false;
+    public searchResults: SearchServiceModels.ISearchResult[];
+    public isMoreSearchResults: boolean;
 
     public search(): void {
         if (!this.isSearching && this.searchText && this.searchText.trim().length > 0) {
@@ -183,6 +227,15 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         }
     }
 
+    public clearSearch(): void {
+        if (this.isSearching) {
+            this.projectService.abort();
+        }
+        this.searchText = undefined;
+        this.searchResults = undefined;
+        this.isMoreSearchResults = undefined;
+    }
+
     public onSearchResultClicked(searchResult: SearchServiceModels.ISearchResult) {
         if (this.project) {
             return; //TODO
@@ -194,48 +247,5 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 hasChildren: true
             } as AdminStoreModels.IInstanceItem;
         }
-    }
-
-    public columns: IColumn[] = [{
-        cellClass: (vm: ArtifactPickerNodeVM<any>) => vm.getCellClass(),
-        isGroup: true,
-        innerRenderer: (vm: ArtifactPickerNodeVM<any>, eGridCell: HTMLElement) => {
-            const icon = vm.getIcon();
-            const name = Helper.escapeHTMLText(vm.name);
-            return `<span class="ag-group-value-wrapper">${icon}<span>${name}</span></span>`;
-        }
-    }];
-
-    public currentSelectionMode: "single" | "multiple" | "checkbox";
-    public rootNode: InstanceItemNodeVM;
-
-    public onSelect = (vm: ArtifactPickerNodeVM<any>, isSelected: boolean, selectedVMs: ArtifactPickerNodeVM<any>[]) => {
-        if (vm instanceof InstanceItemNodeVM) {
-            this.setSelectedVMs([]);
-            if (vm.model.type === AdminStoreModels.InstanceItemType.Project) {
-                this.project = vm.model;
-            }
-        } else {
-            this.setSelectedVMs(selectedVMs);
-        }
-    };
-
-    private _project: AdminStoreModels.IInstanceItem;
-
-    public get project(): AdminStoreModels.IInstanceItem {
-        return this._project;
-    }
-
-    public set project(project: AdminStoreModels.IInstanceItem) {
-        this.clearSearch();
-        this.setSelectedVMs([]);
-        this._project = project;
-        this.currentSelectionMode = this.selectionMode || "single";
-        this.rootNode = new InstanceItemNodeVM(this.artifactManager, this.projectService, this, project || {
-            id: 0,
-            type: AdminStoreModels.InstanceItemType.Folder,
-            name: "",
-            hasChildren: true
-        } as AdminStoreModels.IInstanceItem, true);
     }
 }

@@ -88,7 +88,7 @@ export class ProjectManager implements IProjectManager {
     }
 
     private onChangeInCurrentlySelectedArtifact(artifact: IStatefulArtifact) {
-        if (artifact.artifactState.deleted || artifact.artifactState.misplaced) {
+        if (artifact.artifactState.misplaced) {
             const refreshOverlayId = this.loadingOverlayService.beginLoading();
             this.refresh(this.getSelectedProject()).finally(() => {
                 this.triggerProjectCollectionRefresh();

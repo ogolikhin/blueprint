@@ -32,8 +32,8 @@ export class UserStoryProperties implements IUserStoryProperties {
 export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private USER_TASK_WIDTH = 126;
     private USER_TASK_HEIGHT = 150;
-    private LABEL_VIEW_MAXLENGTH = 40;
-    private LABEL_EDIT_MAXLENGTH = 40;
+    private LABEL_VIEW_MAXLENGTH = 60;
+    private LABEL_EDIT_MAXLENGTH = 140;
     private PERSONA_VIEW_MAXLENGTH = 16;
     private PERSONA_EDIT_MAXLENGTH = 40;
     private BUTTON_SIZE = 16;
@@ -277,7 +277,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         const textLabelStyle: LabelStyle = new LabelStyle(
             "Open Sans",
             12,
-            "transparent",
+            "white",
             "#4C4C4C",
             "bold",
             y - 30,

@@ -2,6 +2,7 @@ import * as angular from "angular";
 import "angular-formly";
 import {ILocalizationService, IUsersAndGroupsService, IUserOrGroupInfo} from "../../../../core";
 import {Models} from "../../../../main/models";
+import {PropertyContext} from "../../../bp-artifact/bp-property-context";
 import {BPFieldBaseController} from "../base-controller";
 
 interface IUserGroup extends Models.IUserGroup {
@@ -31,23 +32,15 @@ export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
             if (uiSelectContainer) {
                 $scope["uiSelectContainer"] = uiSelectContainer;
 
-                // perfect-scrollbar steals the mousewheel events unless inner elements have a "ps-child" class
-                // Not needed for textareas
-                let uiSelectInput = uiSelectContainer.querySelector("div:not(.ps-child)") as HTMLElement;
-                if (uiSelectInput && !uiSelectInput.classList.contains("ps-child")) {
-                    uiSelectInput.classList.add("ps-child");
+                const uiSelectInput = uiSelectContainer.querySelector("div") as HTMLElement;
+                if (uiSelectInput) {
                     uiSelectInput.classList.add("ui-select-input");
                     uiSelectInput.addEventListener("keydown", $scope["bpFieldUserPicker"].onKeyDown, true);
                     uiSelectInput.addEventListener("click", $scope["bpFieldUserPicker"].scrollIntoView, true);
                 }
 
-                let uiSelectChoices = uiSelectContainer.querySelector("ul.ui-select-choices") as HTMLElement;
+                const uiSelectChoices = uiSelectContainer.querySelector("ul.ui-select-choices") as HTMLElement;
                 if (uiSelectChoices) {
-                    let uiSelectChoicesLI = uiSelectChoices.querySelector("li:not(.ps-child)") as HTMLElement;
-                    if (uiSelectChoicesLI && !uiSelectChoicesLI.classList.contains("ps-child")) {
-                        uiSelectChoicesLI.classList.add("ps-child");
-                    }
-
                     $scope["bpFieldUserPicker"].setupResultsElement(uiSelectContainer);
                 }
 
@@ -90,32 +83,38 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
             }
         };
 
+        let options: IUserPickerItem[] = [];
         $scope.options["expressionProperties"] = {
             "templateOptions.options": () => {
-                const currentModelVal = $scope.model[$scope.options["key"]];
-                if (currentModelVal) {
-                    let options: IUserPickerItem[] = [];
-                    if (_.isArray(currentModelVal) && currentModelVal.length) {
-                        // create the initial options in the dropdown just to be able to display the selected options in the field
-                        // the dropdown will be dynamically loaded from the webservice
-                        options = currentModelVal.map((it: IUserGroup) => {
-                            return {
-                                value: it,
-                                name: (it.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + it.displayName
-                            } as IUserPickerItem;
-                        });
-                    } else if (_.isString(currentModelVal)) {
-                        $scope.model[$scope.options["key"]] = currentModelVal.split(",").map((it: string) => {
-                            return {
-                                id: -1,
-                                displayName: it,
-                                isImported: true
-                            } as IUserGroup;
-                        });
+                const context: PropertyContext = $scope.options["data"];
+                if (context.isFresh) {
+                    const currentModelVal = $scope.model[$scope.options["key"]];
+                    if (currentModelVal) {
+                        if (_.isArray(currentModelVal) && currentModelVal.length) {
+                            // create the initial options in the dropdown just to be able to display the selected options in the field
+                            // the dropdown will be dynamically loaded from the webservice
+                            options = currentModelVal.map((it: IUserGroup) => {
+                                return {
+                                    value: it,
+                                    name: (it.isGroup ? localization.get("Label_Group_Identifier") + " " : "") + it.displayName
+                                } as IUserPickerItem;
+                            });
+                            context.isFresh = false;
+                        } else if (_.isString(currentModelVal)) {
+                            $scope.model[$scope.options["key"]] = currentModelVal.split(",").map((it: string) => {
+                                return {
+                                    id: -1,
+                                    displayName: it,
+                                    isImported: true
+                                } as IUserGroup;
+                            });
+                        }
                     }
-
-                    return options;
+                } else {
+                    options = [];
                 }
+
+                return options;
             }
         };
 

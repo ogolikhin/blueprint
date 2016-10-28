@@ -1,18 +1,18 @@
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using ServiceLibrary.Models;
 
-namespace ArtifactStore.Models
+namespace SearchService.Models
 {
     [JsonObject]
-    public class Artifact : IArtifact
+    public class ItemNameSearchResult : SearchResult, IArtifact
     {
         [JsonProperty]
-        public int Id { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string Name { get; set; }
+        public int Id {
+            get { return ItemId; }
+            set { ItemId = value; }
+        }
 
         [JsonProperty]
         public int ProjectId { get; set; }
@@ -43,6 +43,9 @@ namespace ArtifactStore.Models
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public UserGroup LockedByUser { get; set; }
+
+        [JsonIgnore]
+        public int? LockedByUserId { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public DateTime? LockedDateTime { get; set; }

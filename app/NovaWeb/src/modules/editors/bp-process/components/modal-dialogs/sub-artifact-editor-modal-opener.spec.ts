@@ -484,7 +484,9 @@ describe("SubArtifactEditorModalOpener test", () => {
             it("returns model as historical if process is historical", () => {
                 // arrange
                 const process = TestModels.createDefaultProcessModel();
-                process["historical"] = true;
+                process["artifactState"] = {
+                    historical: true
+                };
                 const userTaskShape = <ProcessModels.IUserTaskShape>process.shapes[2];
                 const shapeId: number = userTaskShape.id;
                 const userTask = new UserTask(userTaskShape, rootScope, null, null);
@@ -609,7 +611,9 @@ describe("SubArtifactEditorModalOpener test", () => {
             it("returns model as historical if process is historical", () => {
                 // arrange
                 const process = TestModels.createDefaultProcessModel();
-                process["historical"] = true;
+                process["artifactState"] = {
+                    historical: true
+                };
                 const systemTaskShape = <ProcessModels.ISystemTaskShape>process.shapes[3];
                 const shapeId: number = systemTaskShape.id;
                 const systemTask = new SystemTask(systemTaskShape, rootScope, "", null, null);
@@ -735,7 +739,9 @@ describe("SubArtifactEditorModalOpener test", () => {
             it("returns model as historical if process is historical", () => {
                 // arrange
                 const process = TestModels.createUserDecisionForAddBranchTestModel();
-                process["historical"] = true;
+                process["artifactState"] = {
+                    historical: true
+                };
                 const userDecisionShape = process.shapes[3];
                 const shapeId: number = userDecisionShape.id;
                 const userDecision = new UserDecision(userDecisionShape, rootScope);
@@ -859,7 +865,9 @@ describe("SubArtifactEditorModalOpener test", () => {
             it("returns model as historical if process is historical", () => {
                 // arrange
                 const process = TestModels.createDefaultProcessModel();
-                process["historical"] = true;
+                process["artifactState"] = {
+                    historical: true
+                };
                 const userTaskShape = <ProcessModels.IUserTaskShape>process.shapes[2];
                 const shapeId: number = userTaskShape.id;
                 const userTask = new UserTask(userTaskShape, rootScope, null, null);

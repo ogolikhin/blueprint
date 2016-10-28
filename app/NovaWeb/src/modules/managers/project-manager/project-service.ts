@@ -75,16 +75,9 @@ export class ProjectService implements IProjectService {
             (result: ng.IHttpPromiseCallbackArg<AdminStoreModels.IInstanceItem>) => {
                 defer.resolve(result.data);
             },
-            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                const error = {
-                    statusCode: errResult.status,
-                    message: "Project_NotFound"
-                };
-                defer.reject(error);
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                result.data.message = "Project_NotFound"; 
+                defer.reject(result.data);
             }
         );
         return defer.promise;
@@ -108,16 +101,9 @@ export class ProjectService implements IProjectService {
             (result: ng.IHttpPromiseCallbackArg<Models.IArtifact[]>) => {
                 defer.resolve(result.data);
             },
-            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                const error = {
-                    statusCode: errResult.status,
-                    message: "Artifact_NotFound"
-                };
-                defer.reject(error);
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                result.data.message = "Artifact_NotFound"; 
+                defer.reject(result.data);
             }
         );
         return defer.promise;
@@ -141,17 +127,9 @@ export class ProjectService implements IProjectService {
             (result: ng.IHttpPromiseCallbackArg<Models.IArtifact[]>) => {
                 defer.resolve(result.data);
             },
-            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                const error = {
-                    statusCode: errResult.status,
-                    message: "Artifact_NotFound",
-                    errorCode: errResult.data.errorCode
-                };
-                defer.reject(error);
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                result.data.message = "Artifact_NotFound"; 
+                defer.reject(result.data);
             }
         );
         return defer.promise;
@@ -171,16 +149,9 @@ export class ProjectService implements IProjectService {
             (result: ng.IHttpPromiseCallbackArg<Models.IProjectMeta>) => {
                 defer.resolve(result.data);
             },
-            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                const error = {
-                    statusCode: errResult.status,
-                    message: "Project_NotFound"
-                };
-                defer.reject(error);
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                result.data.message = "Project_NotFound"; 
+                defer.reject(result.data);
             }
         );
         return defer.promise;
@@ -200,16 +171,8 @@ export class ProjectService implements IProjectService {
             (result: ng.IHttpPromiseCallbackArg<Models.ISubArtifactNode[]>) => {
                 defer.resolve(result.data);
             },
-            (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-                if (!errResult) {
-                    defer.reject();
-                    return;
-                }
-                const error = {
-                    statusCode: errResult.status,
-                    message: (errResult.data ? errResult.data.message : "")
-                };
-                defer.reject(error);
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                defer.reject(result.data);
             }
         );
         return defer.promise;

@@ -469,7 +469,7 @@ namespace ArtifactStoreTests
             Helper.AssignProjectRolePermissionsToUser(_authorUser, RolePermissions.Read | RolePermissions.Edit | RolePermissions.Delete,
                 _projectTest, artifact);
 
-            IServiceErrorMessage traceToItselfMessage = new ServiceErrorMessage("Cannot perform save, the artifact provided is attempting to override a property made readonly by reuse.", 116);
+            IServiceErrorMessage traceToItselfMessage = new ServiceErrorMessage("Cannot perform save, the artifact provided is attempting to override a read-only property.", 116);
 
             // Execute:
             Assert.Throws<Http409ConflictException>(() => {

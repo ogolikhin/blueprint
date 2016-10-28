@@ -2,10 +2,12 @@ import {BPDropdownAction, BPDropdownItemAction, IDialogService, IDialogSettings}
 import {IUserStoryService} from "../../../services/user-story.svc";
 import {IApplicationError, IMessageService, ILocalizationService, ErrorCode} from "../../../../../core";
 import {ISelectionManager} from "../../../../../managers/selection-manager";
+import {IStatefulSubArtifact} from "../../../../../managers/artifact-manager/sub-artifact";
 import {StatefulProcessArtifact} from "../../../process-artifact";
 import {StatefulProcessSubArtifact} from "../../../process-subartifact";
 import {IProcess, IUserStory} from "../../../models/process-models";
 import {ProcessShapeType} from "../../../models/enums";
+import {ItemTypePredefined} from "../../../../../main/models/enums";
 import {IProcessDiagramCommunication, ProcessEvents} from "../../diagram/process-diagram-communication";
 import {DialogTypeEnum} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
 
@@ -18,19 +20,23 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
 
     constructor(
         process: StatefulProcessArtifact,
-        selectionManager: ISelectionManager,
         userStoryService: IUserStoryService,
+        selectionManager: ISelectionManager,
         messageService: IMessageService,
         localization: ILocalizationService,
         dialogService: IDialogService,
         processDiagramManager: IProcessDiagramCommunication
     ) {
-        if (!selectionManager) {
-            throw new Error("Selection manager is not provided or is null");
+        if (!process) {
+            throw new Error("Process is not provided or is null");
         }
 
         if (!userStoryService) {
-            throw new Error("User Story service is not provided or is null");
+            throw new Error("User story service is not provided or is null");
+        }
+
+        if (!selectionManager) {
+            throw new Error("Selection manager is not provided or is null");
         }
 
         if (!messageService) {
@@ -41,6 +47,14 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
             throw new Error("Localization service is not provided or is null");
         }
 
+        if (!dialogService) {
+            throw new Error("Dialog service is not provided or is null");
+        }
+
+        if (!processDiagramManager) {
+            throw new Error("Process diagram manager is not provided or is null");
+        }
+
         super(
             () => !process.artifactState.readonly,
             "fonticon fonticon2-news",
@@ -48,44 +62,13 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
             undefined,
             new BPDropdownItemAction(
                 localization.get("ST_US_Generate_From_UserTask_Label"),
-                () => {
-                    const subArtifact = selectionManager.getSubArtifact() as StatefulProcessSubArtifact;
-                    this.execute(process, subArtifact.id);
-                },
-                () => {
-                    if (process.artifactState.readonly) {
-                        return false;
-                    }
-
-                    const subArtifact = selectionManager.getSubArtifact() as StatefulProcessSubArtifact;
-                    if (!subArtifact) {
-                        return false;
-                    }
-
-                    const subArtifactType: ProcessShapeType = subArtifact.propertyValues["clientType"].value;
-                    if (subArtifactType !== ProcessShapeType.UserTask) {
-                        return false;
-                    }
-
-                    if (subArtifact.id < 0) {
-                        return false;
-                    }
-
-                    return true;
-                }
+                () => this.executeGenerateFromTask(process, selectionManager.getSubArtifact()), 
+                () => this.canExecuteGenerateFromTask(process, selectionManager.getSubArtifact()),
             ),
             new BPDropdownItemAction(
                 localization.get("ST_US_Generate_All_Label"),
-                () => {
-                    this.execute(process);
-                },
-                () => {
-                    if (process.artifactState.readonly) {
-                        return false;
-                    }
-
-                    return true;
-                }
+                () => this.execute(process),
+                () => this.canExecuteGenerateAll(process)
             )
         );
 
@@ -96,12 +79,65 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         this.processDiagramManager = processDiagramManager;
     }
 
-    private execute(process: StatefulProcessArtifact, userTaskId?: number) {
-        if (!process) {
+    private canExecuteGenerateFromTask(
+        process: StatefulProcessArtifact,
+        subArtifact: IStatefulSubArtifact
+    ): boolean {
+        if (!process || !process.artifactState) {
+            return false;
+        }
+        
+        if (process.artifactState.readonly) {
+            return false;
+        }
+
+        if (!subArtifact || subArtifact.predefinedType !== ItemTypePredefined.PROShape) {
+            return false;
+        }
+
+        if (subArtifact.id < 0) {
+            return false;
+        }
+
+        const processShape = <StatefulProcessSubArtifact>subArtifact;
+        const processShapeType: ProcessShapeType = processShape.propertyValues["clientType"].value;
+
+        if (processShapeType !== ProcessShapeType.UserTask) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private executeGenerateFromTask(
+        process: StatefulProcessArtifact,
+        subArtifact: IStatefulSubArtifact
+    ): void {
+        if (!this.canExecuteGenerateFromTask(process, subArtifact)) {
+            return;
+        }
+        
+        this.execute(process, subArtifact.id);
+    }
+
+    private canExecuteGenerateAll(process: StatefulProcessArtifact): boolean {
+        if (!process || !process.artifactState) {
+            return false;
+        }
+
+        return !process.artifactState.readonly;
+    }
+
+    private executeGenerateAll(process: StatefulProcessArtifact): void {
+        if (!this.canExecuteGenerateAll(process)) {
             return;
         }
 
-        if (process && process.artifactState && process.artifactState.readonly) {
+        this.execute(process);
+    }
+
+    private execute(process: StatefulProcessArtifact, userTaskId?: number) {
+        if (process.artifactState && process.artifactState.readonly) {
             this.messageService.addError(this.localization.get("ST_View_OpenedInReadonly_Message"));
             return;
         }

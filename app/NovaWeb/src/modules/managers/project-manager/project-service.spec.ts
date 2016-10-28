@@ -39,7 +39,7 @@ describe("Project Repository", () => {
         it("get one folder unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
             // Arrange
             $httpBackend.expectGET("svc/adminstore/instance/folders/5/children")
-                .respond(HttpStatusCode.Unauthorized);
+                .respond(HttpStatusCode.Unauthorized, {statusCode: HttpStatusCode.Unauthorized});
 
             // Act
             let error: any;
@@ -89,7 +89,7 @@ describe("Project Repository", () => {
         it("get project - unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
             // Arrange
             $httpBackend.expectGET("svc/adminstore/instance/projects/10")
-                .respond(HttpStatusCode.Unauthorized);
+                .respond(HttpStatusCode.Unauthorized, {statusCode: HttpStatusCode.Unauthorized});
 
             // Act
             let error: any;
@@ -196,7 +196,7 @@ describe("Project Repository", () => {
         it("get project children - unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
             // Arrange
             $httpBackend.expectGET("svc/artifactstore/projects/10/artifacts/111/children")
-                .respond(HttpStatusCode.Unauthorized);
+                .respond(HttpStatusCode.Unauthorized, {statusCode: HttpStatusCode.Unauthorized});
 
             // Act
             let error: any;
@@ -246,7 +246,7 @@ describe("Project Repository", () => {
         it("get - unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
             // Arrange
             $httpBackend.expectGET(`svc/artifactstore/projects/10/meta/customtypes`)
-                .respond(HttpStatusCode.Unauthorized);
+                .respond(HttpStatusCode.Unauthorized, {statusCode: HttpStatusCode.Unauthorized});
 
             // Act
             let error: any;

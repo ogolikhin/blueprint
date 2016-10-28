@@ -38,7 +38,7 @@ export class CollectionServiceMock implements ICollectionService {
                     prefix: "TR",
                     itemTypeId: 5,
                     itemTypePredefined: Models.ItemTypePredefined.Actor,
-                    artifactPath: "Path1"                   
+                    artifactPath: ["Path1"],                                      
                 },
                 <ICollectionArtifact>{
                     id: 386,
@@ -47,7 +47,7 @@ export class CollectionServiceMock implements ICollectionService {
                     prefix: "TR",
                     itemTypeId: 5,
                     itemTypePredefined: Models.ItemTypePredefined.Actor,
-                    artifactPath: "Path1"  
+                    artifactPath: ["Path1"]  
                 },
                 <ICollectionArtifact>{
                     id: 382,
@@ -56,7 +56,7 @@ export class CollectionServiceMock implements ICollectionService {
                     prefix: "TR",
                     itemTypeId: 5,
                     itemTypePredefined: Models.ItemTypePredefined.Actor,
-                    artifactPath: "Path1"  
+                    artifactPath: ["Path1"]  
                 },
                 <ICollectionArtifact>{
                     id: 385,
@@ -65,7 +65,7 @@ export class CollectionServiceMock implements ICollectionService {
                     prefix: "TR",
                     itemTypeId: 5,
                     itemTypePredefined: Models.ItemTypePredefined.Actor,
-                    artifactPath: "Path1"  
+                    artifactPath: ["Path1"]  
                 }
             ]
         };

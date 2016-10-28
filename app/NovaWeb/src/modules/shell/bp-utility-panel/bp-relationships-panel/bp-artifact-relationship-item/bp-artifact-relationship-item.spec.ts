@@ -12,6 +12,8 @@ import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog"
 import {ArtifactRelationshipsMock} from "../../../../managers/artifact-manager/relationships/relationships.svc.mock";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 import {Relationships} from "../../../../main";
+import {Helper} from "../../../../shared";
+
 import {
     ArtifactManager,
     StatefulArtifactFactory,
@@ -94,9 +96,9 @@ describe("Component BPDiscussionReplyItem", () => {
         expect(result.length).toBe(0);
     });
 
-    it("limitChars, long text 110 characters", () => {
+    it("limitChars, long text 100 characters", () => {
         //Arrange
-        const expectedResult = "UiKXLAu2uZQzdnrqH1SlqDXyQ74hHy3kxVtSQowhCxf99llObZxr3Rj0eDX09aCB8NR0YJhMuqNbGczDTimrpGtU48fBeduOhvS1...";
+        const expectedResult = "UiKXLAu2uZQzdnrqH1SlqDXyQ74hHy3kxVtSQowhCxf99llObZxr3Rj0eDX09aCB8NR0YJhMuqNbGczDTimrpGtU48fBeduOhvS" + Helper.ELLIPSIS_SYMBOL;
 
         //Act
         let result = vm.limitChars("UiKXLAu2uZQzdnrqH1SlqDXyQ74hHy3kxVtSQowhCxf99llObZxr3Rj0eDX09aCB8NR0YJhMuqNbGczDTimrpGtU48fBeduOhvS1n98dPUrCHh");

@@ -1103,6 +1103,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_All_Dialog
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_All_No_Unpublished_Changes', 'en-US', N'There are no artifacts that can be discarded.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_All_Dialog_Message', 'en-US', N'After discarding, all changes made to each artifact will be reverted to previous version. Please review and confirm:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_All_Success_Message', 'en-US', N'Successfully discarded {0} artifact(s).')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_Dependents_Dialog_Message', 'en-US', N'If you discard the artifact, other related artifacts will also need to be discarded. Please review and confirm:')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_Success_Message', 'en-US', N'The artifact has been discarded.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Glossary_Term', 'en-US', N'Term')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Glossary_Definition', 'en-US', N'Definition')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Glossary_Empty', 'en-US', N'No terms have been defined.')

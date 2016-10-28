@@ -204,8 +204,8 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     }];
 
     public onSelect = (vm: IViewModel<any>, isSelected: boolean = undefined): boolean => {
-        if (this.project) {
-            if (angular.isDefined(isSelected)) {
+        if (angular.isDefined(isSelected)) {
+            if (this.project) {
                 // Selecting an item from the project tree or project search results
                 if (isSelected) {
                     if (this.selectionMode === "single") {
@@ -221,21 +221,21 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                         this.raiseSelectionChanged();
                     }
                 }
-            } else {
-                return this.selectedVMs.indexOf(vm) >= 0;
+            } else if (vm instanceof InstanceItemNodeVM && vm.model.type === AdminStoreModels.InstanceItemType.Project) {
+                // Selecting a project from the instance tree
+                this.project = vm.model;
+            } else if (vm instanceof SearchResultVM) {
+                // Selecting a project from the project search results
+                this.clearSearch();
+                this.project = {
+                    id: vm.model.itemId,
+                    type: AdminStoreModels.InstanceItemType.Project,
+                    name: vm.model.name,
+                    hasChildren: true
+                } as AdminStoreModels.IInstanceItem;
             }
-        } else if (vm instanceof InstanceItemNodeVM && vm.model.type === AdminStoreModels.InstanceItemType.Project) {
-            // Selecting a project from the instance tree
-            this.project = vm.model;
-        } else if (vm instanceof SearchResultVM) {
-            // Selecting a project from the project search results
-            this.clearSearch();
-            this.project = {
-                id: vm.model.itemId,
-                type: AdminStoreModels.InstanceItemType.Project,
-                name: vm.model.name,
-                hasChildren: true
-            } as AdminStoreModels.IInstanceItem;
+        } else {
+            return this.selectedVMs.indexOf(vm) >= 0;
         }
     };
 

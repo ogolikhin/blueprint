@@ -1,6 +1,7 @@
 import * as angular from "angular";
 import {NodeLabelEditor} from "./node-label-editor";
-import {Label, LabelStyle, ELLIPSIS_SYMBOL} from "./labels/label";
+import {Label, LabelStyle} from "./labels/label";
+import {Helper} from "../../../../../../shared/utils/helper";
 
 class ExecutionEnvironmentDetectorMock {
     constructor() {
@@ -116,7 +117,7 @@ describe("Node Label Editor test", () => {
 
         //assert
         expect(div.getAttribute("contenteditable")).toEqual("false");
-        expect(div.innerText).toEqual("HOLD VALU" + ELLIPSIS_SYMBOL);
+        expect(div.innerText).toEqual("HOLD VALU" + Helper.ELLIPSIS_SYMBOL);
         expect(labelText).toEqual("HOLD VALUE3");
     });
 

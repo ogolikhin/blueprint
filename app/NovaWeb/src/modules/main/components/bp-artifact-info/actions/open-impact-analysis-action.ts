@@ -24,7 +24,7 @@ export class OpenImpactAnalysisAction extends BPButtonAction {
                     return false;
                 }
 
-                if (artifact.deleted) {
+                if (artifact.artifactState.deleted) {
                     return false;
                 }
 

@@ -36,7 +36,7 @@ export class ItemStateController {
             this.clearLockedMessages();
 
             const artifact = artifactManager.get(id);
-            if (artifact) {
+            if (artifact && !artifact.artifactState.deleted) {
                 artifact.unload();
                 this.navigateToSubRoute(artifact);
             } else {
@@ -73,7 +73,7 @@ export class ItemStateController {
                 };
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(artifact);
                 if (result.isDeleted) {
-                    statefulArtifact.deleted = true;
+                    statefulArtifact.artifactState.deleted = true;
                     statefulArtifact.historical = true;
                     const localizedDate = this.localization.current.formatShortDateTime(result.deletedDateTime);
                     const deletedMessage = `Read Only: Deleted by user '${result.deletedByUser.displayName}' on '${localizedDate}'`;
@@ -156,8 +156,10 @@ export class ItemStateController {
     protected onArtifactError = (error: IApplicationError) => {
         if (error.statusCode === HttpStatusCode.NotFound) {
             const artifact = this.artifactManager.selection.getArtifact();
-            this.artifactManager.remove(artifact.id);
-            this.$state.go(this.$state.current.name, this.$state.params, {reload: "main.item"});
+            
+            // <any> due to lack of updated types definition
+            (<any>this.$state).reload("main.item");
+            //this.$state.go(this.$state.current.name, this.$state.params, {reload: "main.item"});
             
             return;
         }

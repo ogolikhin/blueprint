@@ -167,15 +167,18 @@ export class ArtifactState implements IArtifactState {
 
     public initialize(artifact: Models.IArtifact): IArtifactState {
         if (artifact) {
+            // deleted state never can be changed from true to false
+            const deleted = this.currentState.deleted;
             this.reset();
             if (artifact.lockedByUser) {
-                let lockInfo: IState = {};
-                lockInfo.lockedBy = artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
+                const newState: IState = {};
+                newState.lockedBy = artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
                     Enums.LockedByEnum.CurrentUser :
                     Enums.LockedByEnum.OtherUser;
-                lockInfo.lockOwner = artifact.lockedByUser.displayName;
-                lockInfo.lockDateTime = artifact.lockedDateTime;
-                this.setState(lockInfo, false);
+                newState.lockOwner = artifact.lockedByUser.displayName;
+                newState.lockDateTime = artifact.lockedDateTime;
+                newState.deleted = deleted;
+                this.setState(newState, false);
             };
         }
         return this;

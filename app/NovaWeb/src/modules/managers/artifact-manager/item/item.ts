@@ -14,7 +14,6 @@ import {HttpStatusCode, IApplicationError} from "../../../core";
 export interface IStatefulItem extends Models.IArtifact {
     artifactState: IArtifactState;
 
-    deleted: boolean;
     historical: boolean;
     metadata: IMetaData;
 
@@ -39,7 +38,6 @@ export interface IIStatefulItem extends IStatefulItem {
 
 export abstract class StatefulItem implements IIStatefulItem {
     public metadata: IMetaData;
-    public deleted: boolean;
     public historical: boolean;
 
     protected _attachments: IArtifactAttachments;
@@ -52,10 +50,8 @@ export abstract class StatefulItem implements IIStatefulItem {
     protected lockPromise: ng.IPromise<IStatefulItem>;
     protected loadPromise: ng.IPromise<IStatefulItem>;
     private _error: Rx.BehaviorSubject<IApplicationError>;
+
     constructor(private artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
-//        this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
-        
-        this.deleted = false;
     }
 
     public dispose() {
@@ -318,7 +314,7 @@ export abstract class StatefulItem implements IIStatefulItem {
                 deferred.resolve(result);
             }, (error) => {
                 if (error && error.statusCode === HttpStatusCode.NotFound) {
-                    this.deleted = true;
+                    this.artifactState.deleted = true;
                 }
                 deferred.reject(error);
             });
@@ -333,7 +329,7 @@ export abstract class StatefulItem implements IIStatefulItem {
                 deferred.resolve(result);
             }, (error) => {
                 if (error && error.statusCode === HttpStatusCode.NotFound) {
-                    this.deleted = true;
+                    this.artifactState.deleted = true;
                 }
                 deferred.reject(error);
             });

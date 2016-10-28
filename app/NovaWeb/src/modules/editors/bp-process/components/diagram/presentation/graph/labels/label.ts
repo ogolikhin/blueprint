@@ -1,5 +1,5 @@
 import * as angular from "angular";
-export var ELLIPSIS_SYMBOL = String.fromCharCode(8230);
+import {Helper} from "../../../../../../../shared/utils/helper";
 
 export interface ILabel {
     render(): void;
@@ -227,15 +227,7 @@ export class Label implements ILabel {
     }
 
     private setShortText() {
-        this.div.innerText = this.getShortText();
-    }
-
-    public getShortText(): string {
-        let value: string = this._text;
-        if (this._text.length > this.maxVisibleTextLength) {
-            value = this._text.substring(0, this.maxVisibleTextLength - 1) + ELLIPSIS_SYMBOL;
-        }
-        return value;
+        this.div.innerText = Helper.limitChars(this._text, this.maxVisibleTextLength - 1);
     }
 
     private setEditMode() {

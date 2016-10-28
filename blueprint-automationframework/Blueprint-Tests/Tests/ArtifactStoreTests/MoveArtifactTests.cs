@@ -3,7 +3,6 @@ using Helper;
 using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
-using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
 using NUnit.Framework;
@@ -11,7 +10,6 @@ using System.Collections.Generic;
 using System.Linq;
 using TestCommon;
 using Utilities;
-using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
@@ -301,7 +299,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");
         }
 
-        [Ignore(IgnoreReasons.UnderDevelopment)] //US 3184
+        [Explicit] //US 3184
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(190011)]
@@ -420,79 +418,20 @@ namespace ArtifactStoreTests
                 "{0} when user tries to move an artifact to different project", expectedExceptionMessage);
         }
 
-        [Ignore(IgnoreReasons.UnderDevelopment)] //US 3184
-        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
-        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
-        [TestRail(182408)]
-        [Description("Create collection or collection folder. Move regular artifact to be a child of the collection or collection folder. Verify returned code 403 Forbidden.")]
-        public void MoveArtifact_PublishedArtifact_MoveToCollectionOrCollectionFolder_403Forbidden(ItemTypePredefined artifactType)
-        {
-            // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
-
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-
-            INovaArtifact collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
-
-            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            IArtifact parentArtifact = Helper.CreateAndWrapNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
-
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
-
-            artifact.Lock(author);
-
-            // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, parentArtifact.Id, author),
-               "'POST {0}' should return 403 Forbidden when user tries to move regular artifact to a {1} artifact type", SVC_PATH, artifactType);
-
-            // Verify:
-            string expectedExceptionMessage = "Cannot move baselines, collections or reviews.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to move an artifact of unsupported artifact type", expectedExceptionMessage);
-        }
-
-        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
-        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
-        [TestRail(190010)]
-        [Description("Create a collection or collection folder. Move collection or collection folder to be a child of the regular artifact. Verify returned code 403 Forbidden.")]
-        public void MoveArtifact_CollectionOrCollectionFolder_MoveToRegularArtifact_403Forbidden(ItemTypePredefined artifactType)
-        {
-            // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
-
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-
-            INovaArtifact collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
-
-            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            IArtifact childArtifact = Helper.CreateAndWrapNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
-            childArtifact.Publish(_user);
-
-            IArtifact parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
-
-            childArtifact.Lock(author);
-
-            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, childArtifact, parentArtifact.Id, author),
-                   "'POST {0}' should return 403 Forbidden when user tries to move artifact of unsupported artifact type", SVC_PATH);
-
-            // Verify:
-            string expectedExceptionMessage = "Cannot move baselines, collections or reviews.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                    "{0} when user tries to move an artifact of unsupported artifact type", expectedExceptionMessage);
-        }
-
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182416)]
-        [Description("Create & publish two artifacts. Move an artifact to be a child of the other one with user that does not have proper permissions.  Verify returned code 403 Forbidden.")]
+        [Description("Create & publish two artifacts. Move an artifact to be a child of the other one with user that does not have proper permissions to future child artifact.  Verify returned code 403 Forbidden.")]
         public void MoveArtifact_PublishedArtifactCannotBeMovedForUserWithoutProperPermissions_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
             IArtifact artifact1 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             IArtifact artifact2 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IUser userWithoutPermissions = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
-                InstanceAdminRole.BlueprintAnalytics);
 
-            artifact1.Lock();
+            var userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            artifact1.Lock(userWithoutPermissions);
+
+            Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, artifact1);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, userWithoutPermissions),
@@ -506,23 +445,25 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182463)]
-        [Description("Create, publish & save an artifact. Move an artifact to be a child of the other one with user that does not have proper permissions.  Verify returned code 403 Forbidden.")]
+        [Description("Create, publish & save an artifact. Move an artifact to be a child of the other one with user that does not have proper permissions to future parent artifact.  Verify returned code 403 Forbidden.")]
         public void MoveArtifact_SavedArtifactCannotBeMovedForUserWithoutProperPermissions_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
             IArtifact artifact1 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             IArtifact artifact2 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IUser userWithoutPermissions = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
-                InstanceAdminRole.BlueprintAnalytics);
 
-            artifact1.Save(_user);
+            var userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            artifact1.Save(userWithoutPermissions);
+
+            Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, artifact2);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, userWithoutPermissions),
                 "'POST {0}' should return 403 Forbidden when user tries to move artifact without proper permissions", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "You do not have permission to access the artifact (ID: " + artifact1.Id + ")";
+            string expectedExceptionMessage = "You do not have permission to access the artifact (ID: " + artifact2.Id + ")";
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
                 "{0} when user tries to move an artifact without proper permissions", expectedExceptionMessage);
         }
@@ -537,51 +478,20 @@ namespace ArtifactStoreTests
             IArtifact artifact2 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             // Create a user without permission to the artifact.
-            IUser userWithoutPermissions = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
-
-            IProjectRole noneRole = ProjectRoleFactory.CreateProjectRole(_project, RolePermissions.None);
-            IProjectRole authorRole = ProjectRoleFactory.CreateProjectRole(
-                _project,
-                RolePermissions.Delete |
-                RolePermissions.Edit |
-                RolePermissions.CanReport |
-                RolePermissions.Comment |
-                RolePermissions.DeleteAnyComment |
-                RolePermissions.CreateRapidReview |
-                RolePermissions.ExcelUpdate |
-                RolePermissions.Read |
-                RolePermissions.Reuse |
-                RolePermissions.Share |
-                RolePermissions.Trace);
-
-            IGroup authorsGroup = Helper.CreateGroupAndAddToDatabase();
-            authorsGroup.AddUser(userWithoutPermissions);
-            authorsGroup.AssignRoleToProjectOrArtifact(_project, role: authorRole);
-
-            IGroup viewersGroup = Helper.CreateGroupAndAddToDatabase();
-            viewersGroup.AddUser(userWithoutPermissions);
-            viewersGroup.AssignRoleToProjectOrArtifact(_project, role: noneRole, artifact: artifact2);
-
-            Helper.AdminStore.AddSession(userWithoutPermissions);
+            var userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
             artifact1.Lock(userWithoutPermissions);
-            try
-            {
-                // Execute:
-                var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, userWithoutPermissions),
-                    "'POST {0}' should return 403 Forbidden when user tries to move artifact to an artifact to which user has no permissions", SVC_PATH);
 
-                // Verify:
-                string expectedExceptionMessage = "You do not have permission to access the artifact (ID: " + artifact2.Id + ")";
-                Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                    "{0} when user tries to move an artifact without proper permissions", expectedExceptionMessage);
+            Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, artifact2);
 
-            }
-            finally
-            {
-                Helper.ArtifactStore.DeleteArtifact(artifact1, userWithoutPermissions);
-                Helper.ArtifactStore.PublishArtifact(artifact1, userWithoutPermissions);
-            }
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, userWithoutPermissions),
+                "'POST {0}' should return 403 Forbidden when user tries to move artifact to an artifact to which user has no permissions", SVC_PATH);
+
+            // Verify:
+            string expectedExceptionMessage = "You do not have permission to access the artifact (ID: " + artifact2.Id + ")";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} when user tries to move an artifact without proper permissions", expectedExceptionMessage);
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -593,9 +503,11 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             IArtifact folder = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
 
-            folder.Lock();
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            folder.Lock(author);
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(folder, artifact, _user),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(folder, artifact, author),
                 "'POST {0}' should return 403 Forbidden when folder moved to regular artifact", SVC_PATH);
 
             // Verify:
@@ -610,11 +522,13 @@ namespace ArtifactStoreTests
         public void MoveArtifact_SaveFolderAndMoveToBeAChildOfArtifact_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IArtifact folder = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, author, artifactType);
+            IArtifact folder = Helper.CreateAndSaveArtifact(_project, author, BaseArtifactType.PrimitiveFolder);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(folder, artifact, _user),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(folder, artifact, author),
                 "'POST {0}' should return 403 Forbidden when folder moved to regular artifact", SVC_PATH);
 
             // Verify:
@@ -898,6 +812,68 @@ namespace ArtifactStoreTests
                 "{0} when user tries to move an artifact to one of its descendents", expectedExceptionMessage);
         }
 
+        [Explicit] //US 3184
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
+        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
+        [TestRail(182408)]
+        [Description("Create collection or collection folder. Move regular artifact to be a child of the collection or collection folder. Verify returned code 409 Conflict.")]
+        public void MoveArtifact_PublishedArtifact_MoveToCollectionOrCollectionFolder_409Conflict(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            INovaArtifact collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+            IArtifact parentArtifact = Helper.CreateAndWrapNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            parentArtifact.Publish(_user);
+
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+
+            artifact.Lock(author);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, parentArtifact.Id, author),
+               "'POST {0}' should return 409 Conflict when user tries to move regular artifact to a {1} artifact type", SVC_PATH, artifactType);
+
+            // Verify:
+            string expectedExceptionMessage = "Cannot move baselines, collections or reviews.";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} when user tries to move an artifact to collection or collection folder", expectedExceptionMessage);
+        }
+
+        [Explicit] //US 3184
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
+        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
+        [TestRail(190010)]
+        [Description("Create a collection or collection folder. Move collection or collection folder to be a child of the regular artifact. Verify returned code 409 Conflict.")]
+        public void MoveArtifact_CollectionOrCollectionFolder_MoveToRegularArtifact_409Conflict(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            INovaArtifact collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
+
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+            IArtifact childArtifact = Helper.CreateAndWrapNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            childArtifact.Publish(_user);
+
+            IArtifact parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+
+            childArtifact.Lock(author);
+
+            var ex = Assert.Throws<Http409ConflictException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, childArtifact, parentArtifact.Id, author),
+                   "'POST {0}' should return 409 Conflict when user tries to move collection or collection folder to artifact", SVC_PATH);
+
+            // Verify:
+            string expectedExceptionMessage = "Cannot move baselines, collections or reviews.";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                    "{0} when user tries to move collection or collection folder to artifact", expectedExceptionMessage);
+        }
         #endregion 409 Conflict tests
 
         #region private call

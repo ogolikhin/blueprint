@@ -35,12 +35,15 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         "localization",
         "dialogService",
         "collectionService",
-        "metadataService"
+        "metadataService",
+        "$location",
+        "$window"
     ];
 
-    private collection: ICollection;
+    public collection: ICollection;
     public selectAll: boolean = false;
     public selectAllClass: string;
+    //public reviewUrl: string;
 
     constructor(private $state: ng.ui.IStateService,
         messageService: IMessageService,
@@ -49,11 +52,21 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         localization: ILocalizationService,
         dialogService: IDialogService,
         private collectionService: ICollectionService,
-        private metadataService: IMetaDataService
+        private metadataService: IMetaDataService,
+        private $location: ng.ILocationService,
+        private $window: ng.IWindowService
     ) {
         super(messageService, artifactManager, windowManager, localization, dialogService);
 
 
+    }
+
+    public get reviewUrl(): string {
+        if (this.collection && this.collection.isCreated) {
+            return this.$location.protocol() + "://" + this.$window.location.host + "/ArtifactMgmt/RapidReview/" + this.collection.id;
+        }
+
+        return "";
     }
 
     public onArtifactReady() {

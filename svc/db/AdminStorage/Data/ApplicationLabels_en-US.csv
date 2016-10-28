@@ -188,6 +188,9 @@ Artifact_Glossary_Definition,"Definition"
 Artifact_Glossary_Empty,"No terms have been defined."
 
 Artifact_Collection_Content_Header,"Collection Contents"
+Artifact_Collection_Edit_Rapid_Review,"Edit Rapid Review"
+Artifact_Collection_No_Artifacts_In_Collection,"No artifacts available in this collection"
+
 
 Confirmation_Delete_Comment,"Are you sure you want to permanently delete the selected comment?"
 Confirmation_Delete_Comment_Thread,"Are you sure you want to permanently delete all comments in this discussion?"

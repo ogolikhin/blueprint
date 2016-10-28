@@ -31,6 +31,11 @@ export class ArtifactPickerDialogController extends BaseDialogController {
     public onSelectionChanged(selectedVMs: IViewModel<any>[]) {
         this.selectedVMs = selectedVMs;
     }
+
+    public onDoubleClick(vm: IViewModel<any>) {
+        this.selectedVMs = [vm];
+        this.ok();
+    }
 }
 
 /**
@@ -40,7 +45,8 @@ export class ArtifactPickerDialogController extends BaseDialogController {
  *                     selection-mode="$ctrl.selectionMode" ;
  *                     show-sub-artifacts="$ctrl.showSubArtifacts"
  *                     is-one-project-level="$ctrl.isOneProjectLevel"
- *                     on-selection-changed="$ctrl.onSelectionChanged(selectedVMs)">
+ *                     on-selection-changed="$ctrl.onSelectionChanged(selectedVMs)"
+ *                     on-double-click="$ctrl.onDoubleClick(vm)">
  * </bp-artifact-picker>
  */
 export class BpArtifactPicker implements ng.IComponentOptions {
@@ -51,7 +57,8 @@ export class BpArtifactPicker implements ng.IComponentOptions {
         selectionMode: "<",
         showSubArtifacts: "<",
         isOneProjectLevel: "<",
-        onSelectionChanged: "&?"
+        onSelectionChanged: "&?",
+        onDoubleClick: "&?"
     };
 }
 
@@ -66,13 +73,14 @@ export interface IArtifactPickerController extends IArtifactPickerOptions {
     project: AdminStoreModels.IInstanceItem;
 
     // BpArtifactPicker bindings
-    onSelectionChanged: (params: {selectedVMs: ArtifactPickerNodeVM<any>[]}) => void;
+    onSelectionChanged: (params: {selectedVMs: IViewModel<any>[]}) => any;
+    onDoubleClick: (params: {vm: IViewModel<any>}) => any;
 
     // BpTreeView bindings
     currentSelectionMode: "single" | "multiple" | "checkbox";
     rootNode: InstanceItemNodeVM;
     columns: IColumn[];
-    onSelect: (vm: ArtifactPickerNodeVM<any>, isSelected: boolean, selectedVMs: ArtifactPickerNodeVM<any>[]) => void;
+    onSelect: (vm: IViewModel<any>, isSelected: boolean) => any;
 
     // Search
     searchText: string;
@@ -81,6 +89,7 @@ export interface IArtifactPickerController extends IArtifactPickerOptions {
     isMoreSearchResults: boolean;
     search(): void;
     clearSearch(): void;
+    onDouble(vm: SearchResultVM): void;
 }
 
 export class BpArtifactPickerController implements ng.IComponentController, IArtifactPickerController {
@@ -92,6 +101,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public showSubArtifacts: boolean;
     public isOneProjectLevel: boolean;
     public onSelectionChanged: (params: {selectedVMs: IViewModel<any>[]}) => any;
+    public onDoubleClick: (params: {vm: IViewModel<any>}) => any;
 
     static $inject = [
         "$scope",
@@ -194,8 +204,8 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     }];
 
     public onSelect = (vm: IViewModel<any>, isSelected: boolean = undefined): boolean => {
-        if (this.project) {
-            if (angular.isDefined(isSelected)) {
+        if (angular.isDefined(isSelected)) {
+            if (this.project) {
                 // Selecting an item from the project tree or project search results
                 if (isSelected) {
                     if (this.selectionMode === "single") {
@@ -211,23 +221,29 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                         this.raiseSelectionChanged();
                     }
                 }
-            } else {
-                return this.selectedVMs.indexOf(vm) >= 0;
+            } else if (vm instanceof InstanceItemNodeVM && vm.model.type === AdminStoreModels.InstanceItemType.Project) {
+                // Selecting a project from the instance tree
+                this.project = vm.model;
+            } else if (vm instanceof SearchResultVM) {
+                // Selecting a project from the project search results
+                this.clearSearch();
+                this.project = {
+                    id: vm.model.itemId,
+                    type: AdminStoreModels.InstanceItemType.Project,
+                    name: vm.model.name,
+                    hasChildren: true
+                } as AdminStoreModels.IInstanceItem;
             }
-        } else if (vm instanceof InstanceItemNodeVM && vm.model.type === AdminStoreModels.InstanceItemType.Project) {
-            // Selecting a project from the instance tree
-            this.project = vm.model;
-        } else if (vm instanceof SearchResultVM) {
-            // Selecting a project from the project search results
-            this.clearSearch();
-            this.project = {
-                id: vm.model.itemId,
-                type: AdminStoreModels.InstanceItemType.Project,
-                name: vm.model.name,
-                hasChildren: true
-            } as AdminStoreModels.IInstanceItem;
+        } else {
+            return this.selectedVMs.indexOf(vm) >= 0;
         }
     };
+
+    public onDouble(vm: SearchResultVM): void {
+        if (this.onDoubleClick && this.selectionMode === "single") {
+            this.onDoubleClick({vm: vm});
+        }
+    }
 
     // Search
 

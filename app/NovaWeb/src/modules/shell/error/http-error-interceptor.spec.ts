@@ -202,7 +202,7 @@ describe("HttpErrorInterceptor", () => {
             $rootScope.$digest();
 
             // Assert
-            expect(processedResponse).toBeUndefined();
+            expect(processedResponse).toBeDefined();
             expect(messageService.messages.length).toBe(0);
         }));
     });

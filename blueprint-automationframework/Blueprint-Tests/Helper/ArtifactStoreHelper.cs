@@ -386,7 +386,7 @@ namespace Helper
 
             Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
             var attachment = artifactStore.GetAttachments(artifact, user);
-            Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
+            Assert.IsTrue(attachment.AttachedFiles.Count >= files.Count, "All attachments should be added.");
         }
 
         /// <summary>

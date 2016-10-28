@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Common;
 using Helper;
 using Model;
@@ -73,6 +74,10 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
             Assert.IsTrue(openApiAttachment.Equals(attachment.AttachedFiles[0]), "The file attachment returned from ArtifactStore doesn't match the file attachment uploaded.");
+
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_adminUser, artifact.Id);
+            Assert.AreEqual(attachment.AttachedFiles[0].UploadedDate, artifactDetails.LastEditedOn,
+                "UploadedDate for published artifact's attachment should be equal to LastEditedOn date of artifact");
         }
 
         [TestCase]
@@ -126,6 +131,10 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
             Assert.IsTrue(addedArtifactAttachment.Equals(attachment.AttachedFiles[0]), "File from attachment should have expected values, but it doesn't.");
+
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_adminUser, artifact.Id);
+            Assert.AreEqual(attachment.AttachedFiles[0].UploadedDate, artifactDetails.LastEditedOn,
+                "UploadedDate for published artifact's attachment should be equal to LastEditedOn date of artifact");
         }
 
         [TestCase]
@@ -161,6 +170,10 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
             Assert.IsTrue(addedSubArtifactAttachment.Equals(attachment.AttachedFiles[0]), "File from attachment should have expected values, but it doesn't.");
+
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_adminUser, artifact.Id);
+            Assert.AreEqual(attachment.AttachedFiles[0].UploadedDate, artifactDetails.LastEditedOn,
+                "UploadedDate for published artifact's attachment should be equal to LastEditedOn date of artifact");
         }
 
         [TestCase]
@@ -259,6 +272,8 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
             Assert.IsTrue(openApiAttachment.Equals(attachment.AttachedFiles[0]), "The file attachment returned from ArtifactStore doesn't match the file attachment uploaded.");
+            Assert.IsNull(attachment.AttachedFiles[0].UploadedDate,
+                "UploadedDate for draft artifact's attachment should be null.");
         }
 
         [TestCase]
@@ -332,12 +347,15 @@ namespace ArtifactStoreTests
             Assert.AreEqual(openApiAttachments.Count, attachment.AttachedFiles.Count,
                 "List of attached files should have {0} files.", openApiAttachments.Count);
 
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_adminUser, artifact.Id);
+            
             foreach (var openApiAttachment in openApiAttachments)
             {
                 AttachedFile attachedFile = attachment.AttachedFiles.Find(f => f.AttachmentId == openApiAttachment.Id);
                 Assert.NotNull(attachedFile, "Couldn't find file with ID '{0}' in the list of attached files!", openApiAttachment.Id);
                 Assert.IsTrue(openApiAttachment.Equals(attachedFile),
                     "The file attachment returned from ArtifactStore doesn't match the file attachment uploaded.");
+                Assert.AreEqual(artifactDetails.LastEditedOn, attachedFile.UploadedDate, "UploadedDate for published artifact's attachment should be equal to LastEditedOn date of artifact");
             }
         }
 

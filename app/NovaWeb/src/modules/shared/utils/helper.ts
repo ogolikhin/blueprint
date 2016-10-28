@@ -19,10 +19,10 @@ export class Helper {
 
     static limitChars(str, limit: number = 100): string {
         if (str) {
-            let text = this.stripHTMLTags(str);
+            let text = Helper.stripHTMLTags(str);
             if (text) {
                 if (text.length > limit) {
-                    return text.substring(0, limit - 1) + this.ELLIPSIS_SYMBOL;
+                    return text.substring(0, limit - 1) + Helper.ELLIPSIS_SYMBOL;
                 }
                 return text;
             }

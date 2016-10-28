@@ -35,7 +35,7 @@ export class ItemStateController {
             this.clearLockedMessages();
 
             const artifact = artifactManager.get(id);
-            if (artifact) {
+            if (artifact && !artifact.artifactState.deleted) {
                 artifact.unload();
                 this.navigateToSubRoute(artifact);
             } else {
@@ -44,7 +44,7 @@ export class ItemStateController {
         }
     }
 
-    public getItemInfo(id: number) {
+    private getItemInfo(id: number) {
         this.itemInfoService.get(id).then((result: IItemInfoResult) => {
 
             if (this.itemInfoService.isSubArtifact(result)) {
@@ -72,8 +72,8 @@ export class ItemStateController {
                 };
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(artifact);
                 if (result.isDeleted) {
-                    statefulArtifact.deleted = true;
-                    statefulArtifact.historical = true;
+                    statefulArtifact.artifactState.deleted = true;
+                    statefulArtifact.artifactState.historical = true;
                     const localizedDate = this.localization.current.formatShortDateTime(result.deletedDateTime);
                     const deletedMessage = `Read Only: Deleted by user '${result.deletedByUser.displayName}' on '${localizedDate}'`;
                     this.messageService.addMessage(new Message(MessageType.Lock, deletedMessage));
@@ -112,17 +112,15 @@ export class ItemStateController {
     }
 
     private setSelectedArtifact(artifact: IStatefulArtifact) {
-        
         this.artifactManager.selection.setExplorerArtifact(artifact);
         this.artifactManager.selection.setArtifact(artifact);
-        this.artifactManager.selection.getArtifact().errorObservable().subscribeOnNext(this.onArtifactError);
-        
+        artifact.errorObservable().subscribeOnNext(this.onArtifactError);
     }
 
-    public navigateToSubRoute(artifact: IStatefulArtifact) {
+    private navigateToSubRoute(artifact: IStatefulArtifact) {
         this.setSelectedArtifact(artifact);
-        const params =  {id: artifact.id};
 
+        let stateName: string;
         switch (artifact.predefinedType) {
             case Models.ItemTypePredefined.GenericDiagram:
             case Models.ItemTypePredefined.BusinessProcess:
@@ -131,43 +129,45 @@ export class ItemStateController {
             case Models.ItemTypePredefined.UseCaseDiagram:
             case Models.ItemTypePredefined.UseCase:
             case Models.ItemTypePredefined.UIMockup:
-                this.$state.go("main.item.diagram", params);
+                stateName = "main.item.diagram";
                 break;
             case Models.ItemTypePredefined.Glossary:
-                this.$state.go("main.item.glossary", params);
+                stateName = "main.item.glossary";
                 break;
             case Models.ItemTypePredefined.Project:
             case Models.ItemTypePredefined.CollectionFolder:
-                this.$state.go("main.item.general", params);
+                stateName = "main.item.general";
                 break;
             case Models.ItemTypePredefined.ArtifactCollection:
-                this.$state.go("main.item.collection", params);
+                stateName = "main.item.collection";
                 break;
             case Models.ItemTypePredefined.Process:
-                this.$state.go("main.item.process", params);
+                stateName = "main.item.process";
                 break;
             default:
-                this.$state.go("main.item.details", params);
+                stateName = "main.item.details";
         }
+        // since URL doesn't change between "main.item" and "main.item.*", 
+        // must force reload on that exact state name
+        this.$state.go(stateName, {id: artifact.id}, {reload: stateName});
     }
 
-    protected onArtifactError = (error: IApplicationError) => {
+    private onArtifactError = (error: IApplicationError) => {
         if (error.statusCode === HttpStatusCode.NotFound) {
             const artifact = this.artifactManager.selection.getArtifact();
-            this.navigationService.navigateToMain().finally(() => {
-                if (artifact) {
-                    this.artifactManager.remove(artifact.id);
-                    this.navigationService.navigateTo(artifact.id);
-                }
-            });
-            return;
-        }
-        if (error.statusCode === HttpStatusCode.Forbidden || 
+            
+            const immediateParentState = this.$state.$current["parent"];
+            if (immediateParentState) {
+                // <any> due to lack of updated types definition
+                (<any>this.$state).reload(immediateParentState.name);
+            } else {
+                this.$state.reload();
+            }
+        } else if (error.statusCode === HttpStatusCode.Forbidden || 
             error.statusCode === HttpStatusCode.ServerError ||
             error.statusCode === HttpStatusCode.Unauthorized
             ) {
             this.navigationService.navigateToMain();
         }
     }
-    
 }

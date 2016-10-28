@@ -10,6 +10,7 @@ import {IDispose} from "../../models";
 import {HttpStatusCode} from "../../../core/http";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../main/components/dialogs/bp-confirm-publish";
 import {IDialogSettings} from "../../../shared";
+import {IApplicationError, ApplicationError} from "../../../core";
 
 export interface IStatefulArtifact extends IStatefulItem, IDispose {
     /**
@@ -72,9 +73,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             this.artifactState.initialize(artifact);
             super.initialize(artifact);
         }
-        if (this.historical) {
-            this.artifactState.readonly = true;
-        }
         return this.artifactState.get();
     }
 
@@ -83,7 +81,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     public getObservable(): Rx.Observable<IStatefulArtifact> {
-        if (!this.isFullArtifactLoadedOrLoading()) {
+        if (!this.isFullArtifactLoadedOrLoading() && !this.isHeadVersionDeleted()) {
             this.loadPromise = this.load();
             const customPromises = this.getCustomArtifactPromisesForGetObservable();
 
@@ -132,14 +130,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         }
     }
 
-    private isNeedToLoad() {
+    private canBeLoaded() {
         if (this.isProject()) {
             return false;
         } else if (this.artifactState.dirty && this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
             return false;
         } else if (this.artifactState.misplaced) {
-            return false;
-        } else if (this.artifactState.deleted) {
             return false;
         }
         return true;
@@ -147,7 +143,15 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     protected load(): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
-        if (this.isNeedToLoad()) {
+        // When we use head version of artifact and we know that artifact has been deleted
+        // simulate NotFound error
+        if (this.isHeadVersionDeleted()) {
+            const error = this.artifactNotFoundError();
+            this.error.onNext(error);
+            deferred.reject(error);
+            return deferred.promise;
+        }
+        if (this.canBeLoaded()) {
             this.services.artifactService.getArtifact(this.id, this.getEffectiveVersion()).then((artifact: Models.IArtifact) => {
                 this.initialize(artifact);
                 if (this.artifactState.misplaced) {
@@ -155,18 +159,24 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 } else {
                     deferred.resolve(this);
                 }
-            }).catch((err) => {
-                if (err && err.statusCode === HttpStatusCode.NotFound) {
+            }).catch((error: IApplicationError) => {
+                if (error && error.statusCode === HttpStatusCode.NotFound) {
                     this.artifactState.deleted = true;
                 }
-
-                deferred.reject(err);
+                this.error.onNext(error);
+                deferred.reject(error);
             });
         } else {
             deferred.resolve(this);
         }
 
         return deferred.promise;
+    }
+
+    private artifactNotFoundError() {
+        const error = new ApplicationError();
+        error.statusCode = HttpStatusCode.NotFound;
+        return error;
     }
 
     public unload() {
@@ -227,6 +237,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 this.discard();
                 if (lock.result === Enums.LockResultEnum.DoesNotExist) {
                     this.artifactState.deleted = true;
+                    const error = this.artifactNotFoundError();
+                    this.error.onNext(error);
                 } else {
                     this.artifactState.readonly = true;
                 }
@@ -491,6 +503,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
             //Project manager is listening to this, and will refresh the project.
             this.subject.onNext(this);
+
+            this.error.onNext(error);
         });
 
 

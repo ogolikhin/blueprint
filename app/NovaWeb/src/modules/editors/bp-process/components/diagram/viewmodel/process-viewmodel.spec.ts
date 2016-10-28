@@ -186,7 +186,9 @@ describe("ProcessViewModel", () => {
     it("returns isHistorical true if process is historical", () => {
         // arrange
         const process = TestModels.createDefaultProcessModel();
-        process["historical"] = true;
+        process["artifactState"] = {
+            historical: true
+        };
         const viewModel = new ProcessViewModel(process, null);
 
         // act
@@ -199,7 +201,9 @@ describe("ProcessViewModel", () => {
     it("returns isHistorical false if process is not historical", () => {
         // arrange
         const process = TestModels.createDefaultProcessModel();
-        process["historical"] = false;
+        process["artifactState"] = {
+            historical: false
+        };
         const viewModel = new ProcessViewModel(process, null);
 
         // act

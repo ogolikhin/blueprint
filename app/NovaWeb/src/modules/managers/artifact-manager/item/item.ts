@@ -14,7 +14,6 @@ import {HttpStatusCode, IApplicationError} from "../../../core";
 export interface IStatefulItem extends Models.IArtifact {
     artifactState: IArtifactState;
 
-    historical: boolean;
     metadata: IMetaData;
 
     customProperties: IArtifactProperties;
@@ -38,7 +37,6 @@ export interface IIStatefulItem extends IStatefulItem {
 
 export abstract class StatefulItem implements IIStatefulItem {
     public metadata: IMetaData;
-    public historical: boolean;
 
     protected _attachments: IArtifactAttachments;
     protected _docRefs: IDocumentRefs;
@@ -174,7 +172,11 @@ export abstract class StatefulItem implements IIStatefulItem {
     }
 
     public getEffectiveVersion(): number {
-        return this.historical ? this.version : undefined;
+        return this.artifactState.historical ? this.version : undefined;
+    }
+
+    protected isHeadVersionDeleted() {
+        return this.artifactState.deleted && !this.artifactState.historical;
     }
 
     public set(name: string, value: any) {

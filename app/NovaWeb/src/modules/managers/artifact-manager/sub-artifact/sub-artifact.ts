@@ -98,10 +98,6 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
         return this.parentArtifact.lock();
     }
 
-    public getEffectiveVersion(): number {
-        return this.parentArtifact.historical ? this.parentArtifact.version : undefined;
-    }
-
     protected getAttachmentsDocRefsInternal(): ng.IPromise<IArtifactAttachmentsResultSet> {
         return this.services.attachmentService.getArtifactAttachments(this.parentArtifact.id, this.id, this.getEffectiveVersion());
     }

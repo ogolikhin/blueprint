@@ -73,9 +73,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             this.artifactState.initialize(artifact);
             super.initialize(artifact);
         }
-        if (this.historical) {
-            this.artifactState.readonly = true;
-        }
         return this.artifactState.get();
     }
 
@@ -174,10 +171,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         }
 
         return deferred.promise;
-    }
-
-    private isHeadVersionDeleted() {
-        return this.artifactState.deleted && !this.historical;
     }
 
     private artifactNotFoundError() {

@@ -11,6 +11,7 @@ export interface IState {
     dirty?: boolean;
     published?: boolean;
     deleted?: boolean;
+    historical?: boolean;
     misplaced?: boolean;
     invalid?: boolean;
 }
@@ -156,6 +157,7 @@ export class ArtifactState implements IArtifactState {
 
     public get readonly(): boolean {
         return this.currentState.readonly || this.deleted ||
+            this.historical ||
             this.lockedBy === Enums.LockedByEnum.OtherUser ||
             (this.artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
     }
@@ -165,10 +167,20 @@ export class ArtifactState implements IArtifactState {
         this.notifyStateChange();
     }
 
+    public get historical(): boolean {
+        return this.currentState.historical;
+    }
+
+    public set historical(value: boolean) {
+        this.currentState.historical = value;
+        this.notifyStateChange();
+    }
+
     public initialize(artifact: Models.IArtifact): IArtifactState {
         if (artifact) {
             // deleted state never can be changed from true to false
             const deleted = this.currentState.deleted;
+            const historical = this.currentState.historical;
             this.reset();
             if (artifact.lockedByUser) {
                 const newState: IState = {};
@@ -178,9 +190,11 @@ export class ArtifactState implements IArtifactState {
                 newState.lockOwner = artifact.lockedByUser.displayName;
                 newState.lockDateTime = artifact.lockedDateTime;
                 newState.deleted = deleted;
+                newState.historical = historical;
                 this.setState(newState, false);
             } else {
                 this.currentState.deleted = deleted;
+                this.currentState.historical = historical;
             }
         }
         return this;

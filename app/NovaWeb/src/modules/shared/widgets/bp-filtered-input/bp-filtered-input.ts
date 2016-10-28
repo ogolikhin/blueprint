@@ -19,7 +19,7 @@ export class BPFilteredInput implements ng.IDirective {
             let transformedInput = inputValue.replace($scope.regexFilter, "");
 
             if ($scope.maxLength) {
-                transformedInput = transformedInput.substring(0, 10);
+                transformedInput = transformedInput.substring(0, $scope.maxLength);
             }
 
             if (transformedInput !== inputValue) {

@@ -30,7 +30,6 @@ export class ItemStateController {
                 private statefulArtifactFactory: IStatefulArtifactFactory) {
 
         const id = parseInt($state.params["id"], 10);
-        console.log("ItemStateController: " + id);
 
         if (_.isFinite(id)) {
             this.clearLockedMessages();
@@ -45,7 +44,7 @@ export class ItemStateController {
         }
     }
 
-    public getItemInfo(id: number) {
+    private getItemInfo(id: number) {
         this.itemInfoService.get(id).then((result: IItemInfoResult) => {
 
             if (this.itemInfoService.isSubArtifact(result)) {
@@ -118,7 +117,7 @@ export class ItemStateController {
         artifact.errorObservable().subscribeOnNext(this.onArtifactError);
     }
 
-    public navigateToSubRoute(artifact: IStatefulArtifact) {
+    private navigateToSubRoute(artifact: IStatefulArtifact) {
         this.setSelectedArtifact(artifact);
 
         let stateName: string;
@@ -153,7 +152,7 @@ export class ItemStateController {
         this.$state.go(stateName, {id: artifact.id}, {reload: stateName});
     }
 
-    protected onArtifactError = (error: IApplicationError) => {
+    private onArtifactError = (error: IApplicationError) => {
         if (error.statusCode === HttpStatusCode.NotFound) {
             const artifact = this.artifactManager.selection.getArtifact();
             

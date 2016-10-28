@@ -48,17 +48,19 @@ export class MainStateController {
 
     public static $inject = [
         "$rootScope",
-        "$state"
+        "$state",
+        "$log"
     ];
 
     constructor(private $rootScope: ng.IRootScopeService,
-                private $state: angular.ui.IStateService) {
+                private $state: angular.ui.IStateService,
+                private $log: ng.ILogService) {
 
         this.stateChangeListener = $rootScope.$on("$stateChangeStart", this.stateChangeHandler);
     }
 
-    private stateChangeHandler(event, toState, toParams, fromState, fromParams) {
-        console.log(
+    private stateChangeHandler = (event, toState, toParams, fromState, fromParams) => {
+        this.$log.log(
                 "--- $stateChangeStart: %c" + fromState.name + "%c -> %c" + toState.name + "%c " + JSON.stringify(toParams)
                 , "color: red", "color: black", "color: red", "color: black"
             );

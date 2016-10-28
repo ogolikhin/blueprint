@@ -138,10 +138,10 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [TestRail(1)]
-        [Explicit(IgnoreReasons.ProductBug)]//adding attachment to subartifact (Process\User Task or Use Case\Precondition) gives 500 error
+        [TestRail(190742)]
+        [Explicit(IgnoreReasons.ProductBug)]//adding attachment to subartifact (Process\User Task or Use Case\Precondition) via OpenAPI gives 500 error
         [Description("Create a Process artifact, add attachment, publish it, add attachment to User task & publish, get attachments for User task.  Verify only the User Task's attachment is returned.")]
-        public void AddAttachmentToSubArtifact_ArtifactWithAttachments_NoErrors()
+        public void AddAttachmentToSubArtifactOpenAPI_ArtifactWithAttachments_NoErrors()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Process);

@@ -297,7 +297,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                     deferred.reject(this.handleSaveError(error));
                 } else {
                     deferred.reject(error);
-                }            
+                }
             });
         } else {
             this.saveArtifact()

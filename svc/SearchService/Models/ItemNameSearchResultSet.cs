@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace SearchService.Models
+﻿namespace SearchService.Models
 {
     public class ItemNameSearchResultSet : SearchResultSet<ItemNameSearchResult>
     {

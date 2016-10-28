@@ -1055,7 +1055,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_All_Dialog
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_All_Success_Message', 'en-US', N'Successfully published {0} artifact(s).')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_All_No_Unpublished_Changes', 'en-US', N'There are no artifacts that can be published.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_All_Load_More', 'en-US', N'Load more')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_All_More_Artifacts', 'en-US', N'Not showing {0} artifact.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_All_More_Artifacts', 'en-US', N'Not showing {0} artifacts.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_Dependents_Dialog_Message', 'en-US', N'If you publish the artifact, other related artifacts will also need to be published. Please review and confirm:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_Success_Message', 'en-US', N'The artifact has been published.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_Failure_Message', 'en-US', N'The artifact cannot be published.')

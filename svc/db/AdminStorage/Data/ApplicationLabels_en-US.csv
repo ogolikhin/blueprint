@@ -175,7 +175,7 @@ Publish_All_Dialog_Message,"You have unpublished changes to {0} artifacts.<br/>A
 Publish_All_Success_Message,"Successfully published {0} artifact(s)."
 Publish_All_No_Unpublished_Changes,"There are no artifacts that can be published."
 Publish_All_Load_More,"Load more"
-Publish_All_More_Artifacts,"Not showing {0} artifact."
+Publish_All_More_Artifacts,"Not showing {0} artifacts."
 
 Publish_Dependents_Dialog_Message,"If you publish the artifact, other related artifacts will also need to be published. Please review and confirm:"
 Publish_Success_Message,"The artifact has been published."

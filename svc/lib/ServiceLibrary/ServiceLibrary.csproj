@@ -107,7 +107,9 @@
     <Compile Include="LocalLog\LocalEventLog.cs" />
     <Compile Include="LocalLog\LocalFileLog.cs" />
     <Compile Include="Models\ClientLogModel.cs" />
+    <Compile Include="Models\Enums\ItemTypePredefined.cs" />
     <Compile Include="Models\InstanceSettings\EmailSettings.cs" />
+    <Compile Include="Models\Interfaces\IArtifact.cs" />
     <Compile Include="Models\ProjectPermissions.cs" />
     <Compile Include="Models\RolePermissions.cs" />
     <Compile Include="Models\SQLTraceLogModel.cs" />
@@ -120,6 +122,7 @@
     <Compile Include="Models\LogLevelEnum.cs" />
     <Compile Include="Models\Session.cs" />
     <Compile Include="Helpers\ILoggable.cs" />
+    <Compile Include="Models\UserGroup.cs" />
     <Compile Include="Models\UserInfo.cs" />
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />
@@ -144,6 +147,7 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

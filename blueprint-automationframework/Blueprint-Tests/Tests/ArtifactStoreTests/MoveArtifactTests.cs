@@ -118,7 +118,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182459)]
-        [Description("Create & save an artifact.  Move this artifact to be a child of the other.  Verify the moved artifact is returned with the updated Parent ID.")]
+        [Description("Create & save an artifact.  Move this artifact to be a child of published artifact.  Verify the moved artifact is returned with the updated Parent ID.")]
         public void MoveArtifact_SavedArtifactBecomesChildOfPublishedArtifact_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
         {
             // Setup:
@@ -128,22 +128,39 @@ namespace ArtifactStoreTests
             INovaArtifactDetails movedArtifactDetails = null;
 
             // Execute:
-            try
-            {
-                Assert.DoesNotThrow(() =>
-                {
-                    movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, _user);
-                }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
-                // Verify:
-                INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-                ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
-                Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");
-            }
-            finally
+            Assert.DoesNotThrow(() =>
             {
-                artifact.Delete();
-            }
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, _user);
+            }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
+
+            // Verify:
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
+            Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");
+        }
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(190743)]
+        [Description("Create & save an artifact.  Move this artifact to be a child of saved artifact.  Verify the moved artifact is returned with the updated Parent ID.")]
+        public void MoveArtifact_SavedArtifactBecomesChildOfSavedArtifact_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            IArtifact newParentArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+
+            INovaArtifactDetails movedArtifactDetails = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, _user);
+            }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
+
+            // Verify:
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
+            Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -434,13 +451,21 @@ namespace ArtifactStoreTests
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, artifact1);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, userWithoutPermissions),
-                "'POST {0}' should return 403 Forbidden when user tries to move artifact without proper permissions", SVC_PATH);
+            try
+            {
+                var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, userWithoutPermissions),
+                    "'POST {0}' should return 403 Forbidden when user tries to move artifact without proper permissions", SVC_PATH);
 
-            // Verify:
-            string expectedExceptionMessage = "You do not have permission to access the artifact (ID: " + artifact1.Id + ")";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to move an artifact without proper permissions", expectedExceptionMessage);
+                // Verify:
+                string expectedExceptionMessage = "You do not have permission to access the artifact (ID: " + artifact1.Id + ")";
+                Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                    "{0} when user tries to move an artifact without proper permissions", expectedExceptionMessage);
+            }
+            finally
+            {
+                Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.AuthorFullAccess, _project, artifact1);
+                artifact1.Delete(userWithoutPermissions);
+            }
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -449,12 +474,10 @@ namespace ArtifactStoreTests
         public void MoveArtifact_SavedArtifactCannotBeMovedForUserWithoutProperPermissions_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact1 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IArtifact artifact2 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-
             var userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            artifact1.Save(userWithoutPermissions);
+            IArtifact artifact1 = Helper.CreateAndSaveArtifact(_project, userWithoutPermissions, artifactType);
+            IArtifact artifact2 = Helper.CreateAndSaveArtifact(_project, userWithoutPermissions, artifactType);
 
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, artifact2);
 

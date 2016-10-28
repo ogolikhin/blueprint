@@ -194,10 +194,10 @@ class BPToolbarController implements IBPToolbarController {
             this.publishService.publishAll()
             .then(() => {
                 //remove lock on current artifact
-                let currentSelection = this.projectManager.getArtifact(this.currentArtifact);
-                if (currentSelection) {
-                    currentSelection.artifactState.unlock();
-                    currentSelection.refresh();
+                const selectedArtifact = this.artifactManager.selection.getArtifact();
+                if (selectedArtifact) {
+                    selectedArtifact.artifactState.unlock();
+                    selectedArtifact.refresh();
                 }
                
                 this.messageService.addInfoWithPar("Publish_All_Success_Message", [data.artifacts.length]);
@@ -211,10 +211,16 @@ class BPToolbarController implements IBPToolbarController {
     private saveArtifactsAsNeeded(artifactsToSave: Models.IArtifact[]): ng.IPromise<any> {
         const saveArtifactsLoader = this.loadingOverlayService.beginLoading();
         const savePromises = [];
-        artifactsToSave.forEach((artifact) => {
-            let foundArtifact = this.projectManager.getArtifact(artifact.id);
-            if (foundArtifact && foundArtifact.canBeSaved()) {
-                savePromises.push(foundArtifact.save());
+        const selectedArtifact = this.artifactManager.selection.getArtifact();
+        artifactsToSave.forEach((artifactModel) => {
+            let artifact = this.projectManager.getArtifact(artifactModel.id);
+            if (!artifact) {
+                if (selectedArtifact && selectedArtifact.id === artifactModel.id) {
+                    artifact = selectedArtifact;
+                }
+            }
+            if (artifact && artifact.canBeSaved()) {
+                savePromises.push(artifact.save());
             }
         });
 

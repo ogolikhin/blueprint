@@ -379,6 +379,7 @@ ST_Decision_Modal_Add_Condition_Button_Label, "Add Condition"
 ST_Decision_Modal_Delete_Condition_Button_Label, "Delete Condition"
 ST_Decision_Modal_New_System_Task_Edge_Label, "Condition "
 ST_Cannot_Include_Parent_Process,"A task cannot include its parent Process"
+ST_Userstory_Has_Been_Deleted, "User story has been deleted or moved. To preview it, please generate it again."
 
 ST_Given_Label, "Given"
 ST_Then_Label, "Then"

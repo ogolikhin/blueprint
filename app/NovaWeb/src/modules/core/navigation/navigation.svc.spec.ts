@@ -101,7 +101,7 @@ describe("NavigationService", () => {
 
                 const expectedState = artifactState;
                 const expectedParams = {id: targetArtifactId};
-                const expectedOptions = {inherit: false, location: undefined};
+                const expectedOptions = {inherit: false, location: true};
 
                 // act
                 navigationService.navigateTo(targetArtifactId);
@@ -116,7 +116,7 @@ describe("NavigationService", () => {
 
                 const expectedState = artifactState;
                 const expectedParams = {id: targetArtifactId};
-                const expectedOptions = {inherit: false, location: undefined};
+                const expectedOptions = {inherit: false, location: true};
 
                 // act
                 navigationService.navigateTo(targetArtifactId, false);
@@ -131,7 +131,7 @@ describe("NavigationService", () => {
 
                 const expectedState = artifactState;
                 const expectedParams = {id: targetArtifactId};
-                const expectedOptions = {inherit: false, location: undefined};
+                const expectedOptions = {inherit: false, location: true};
 
                 // act
                 navigationService.navigateTo(targetArtifactId, false, true);
@@ -193,7 +193,7 @@ describe("NavigationService", () => {
 
                 const expectedState = artifactState;
                 const expectedParams = {id: targetArtifactId};
-                const expectedOptions = {inherit: false, location: undefined};
+                const expectedOptions = {inherit: false, location: true};
 
                 // act
                 navigationService.navigateTo(targetArtifactId);
@@ -208,7 +208,7 @@ describe("NavigationService", () => {
 
                 const expectedState = artifactState;
                 const expectedParams = {id: targetArtifactId};
-                const expectedOptions = {inherit: false, location: undefined};
+                const expectedOptions = {inherit: false, location: true};
 
                 // act
                 navigationService.navigateTo(targetArtifactId, false, false);
@@ -223,7 +223,7 @@ describe("NavigationService", () => {
 
                 const expectedState = artifactState;
                 const expectedParams = {id: targetArtifactId, path: sourceArtifactId.toString()};
-                const expectedOptions = {inherit: false, location: undefined};
+                const expectedOptions = {inherit: false, location: true};
 
                 // act
                 navigationService.navigateTo(targetArtifactId, false, true);
@@ -259,7 +259,7 @@ describe("NavigationService", () => {
 
                 const expectedState = artifactState;
                 const expectedParams = {id: targetArtifactId};
-                const expectedOptions = {inherit: false, location: undefined};
+                const expectedOptions = {inherit: false, location: true};
 
                 // act
                 navigationService.navigateTo(targetArtifactId);
@@ -274,7 +274,7 @@ describe("NavigationService", () => {
 
                 const expectedState = artifactState;
                 const expectedParams = {id: targetArtifactId};
-                const expectedOptions = {inherit: false, location: undefined};
+                const expectedOptions = {inherit: false, location: true};
 
                 // act
                 navigationService.navigateTo(targetArtifactId, false, false);
@@ -289,7 +289,7 @@ describe("NavigationService", () => {
 
                 const expectedState = artifactState;
                 const expectedParams = {id: targetArtifactId, path: `${predecessorArtifactId},${sourceArtifactId}`};
-                const expectedOptions = {inherit: false, location: undefined};
+                const expectedOptions = {inherit: false, location: true};
 
                 // act
                 navigationService.navigateTo(targetArtifactId, false, true);

@@ -98,7 +98,7 @@ namespace ArtifactStore.Repositories
                 UserInfo userInfo;
                 userInfoDictionary.TryGetValue(attachment.UserId, out userInfo);
                 attachment.UserName = userInfo.DisplayName;
-                attachment.UploadedDate = DateTime.SpecifyKind(attachment.UploadedDate, DateTimeKind.Utc);
+                attachment.UploadedDate = attachment.UploadedDate == null ? (DateTime?)null : DateTime.SpecifyKind(attachment.UploadedDate.Value, DateTimeKind.Utc);
             }
 
             foreach (var referencedArtifact in referencedArtifacts)

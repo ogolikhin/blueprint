@@ -62,7 +62,7 @@ export class MainStateController {
     private stateChangeHandler = (event, toState, toParams, fromState, fromParams) => {
         this.$log.log(
                 "--- $stateChangeStart: %c" + fromState.name + "%c -> %c" + toState.name + "%c " + JSON.stringify(toParams)
-                , "color: red", "color: black", "color: red", "color: black"
+                , "color: blue", "color: black", "color: blue", "color: black"
             );
     }
 }

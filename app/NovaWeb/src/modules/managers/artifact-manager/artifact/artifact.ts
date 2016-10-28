@@ -154,11 +154,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         if (this.canBeLoaded()) {
             this.services.artifactService.getArtifact(this.id, this.getEffectiveVersion()).then((artifact: Models.IArtifact) => {
                 this.initialize(artifact);
-                if (this.artifactState.misplaced) {
-                    deferred.reject(this);
-                } else {
-                    deferred.resolve(this);
-                }
+                deferred.resolve(this);
             }).catch((error: IApplicationError) => {
                 if (error && error.statusCode === HttpStatusCode.NotFound) {
                     this.artifactState.deleted = true;

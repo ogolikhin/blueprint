@@ -24,7 +24,8 @@
                 <div class="search-result"
                      ng-repeat="searchResult in $ctrl.searchResults"
                      ng-class="{selected: searchResult.selected()}"
-                     ng-click="$ctrl.currentSelectionMode === 'single' ? searchResult.selected(true) : undefined">
+                     ng-click="$ctrl.currentSelectionMode === 'single' ? searchResult.selected(true) : undefined"
+                     ng-dblclick="$ctrl.onDouble(searchResult)">
                     <input class="checkbox" type="checkbox" ng-model="searchResult.selected" ng-model-options="{ getterSetter: true }" ng-if="$ctrl.currentSelectionMode !== 'single'">
                     <i class="icon-project"></i>
                     <div class="search-details">
@@ -61,7 +62,8 @@
                           root-node-visible="false"
                           columns="$ctrl.columns"
                           header-height="20"
-                          on-select="$ctrl.onSelect(vm, isSelected, selectedVMs)">
+                          on-select="$ctrl.onSelect(vm, isSelected, selectedVMs)"
+                          on-double-click="$ctrl.onDouble(vm)">
             </bp-tree-view>
         </div>
     </div>

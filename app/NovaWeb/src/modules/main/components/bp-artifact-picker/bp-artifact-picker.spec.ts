@@ -158,6 +158,20 @@ describe("BpArtifactPickerController", () => {
         expect(controller.isMoreSearchResults).toEqual(false);
     }));
 
+    it("onSearchResultDoubleClick, when single-selection mode, calls onDoubleClick", () => {
+        // Arrange
+        const model = {id: 13, itemId: 13, name: "foo"} as SearchServiceModels.ISearchResult;
+        const vm = new SearchResultVM(model, controller.onSelect);
+        controller.selectionMode = "single";
+        controller.onDoubleClick = jasmine.createSpy("onDoubleClick");
+
+        // Act
+        controller.onDouble(vm);
+
+        // Assert
+        expect(controller.onDoubleClick).toHaveBeenCalledWith({vm: vm});
+    });
+
     describe("columns", () => {
         it("column properties are correctly defined", () => {
             // Arrange
@@ -215,7 +229,7 @@ describe("BpArtifactPickerController", () => {
         expect(controller.onSelectionChanged).toHaveBeenCalledWith({selectedVMs: [vm]});
     }));
 
-    it("onSelect, when InstanceItemNodeVM of type Project, sets project", inject(($browser) => {
+    it("onSelect, when InstanceItemNodeVM of type Project, sets project", () => {
         // Arrange
         const model = {id: 11, name: "proj", type: AdminStoreModels.InstanceItemType.Project} as AdminStoreModels.IInstanceItem;
         const vm = new InstanceItemNodeVM(artifactManager, projectService, controller, model);
@@ -225,9 +239,9 @@ describe("BpArtifactPickerController", () => {
 
         // Assert
         expect(controller.project).toBe(model);
-    }));
+    });
 
-    it("onSelect, when SearchResultVM, clears search and sets project", inject(($browser) => {
+    it("onSelect, when SearchResultVM, clears search and sets project", () => {
         // Arrange
         const model = {id: 13, itemId: 13, name: "foo"} as SearchServiceModels.ISearchResult;
         const vm = new SearchResultVM(model, controller.onSelect);
@@ -244,7 +258,7 @@ describe("BpArtifactPickerController", () => {
             name: model.name,
             hasChildren: true
         });
-    }));
+    });
 
     it("set project, when project is defined, clears selection and sets project and root node", inject(($browser) => {
         // Arrange

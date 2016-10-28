@@ -389,8 +389,9 @@ export class BPTreeViewController implements IBPTreeViewController {
     }
 
     public onRowDoubleClicked = (event: {data: ITreeViewNodeVM}) => {
-        if (this.onDoubleClick) {
-            this.onDoubleClick({vm: event.data});
+        const vm = event.data;
+        if (this.onDoubleClick && vm.isSelectable() && !vm.isExpandable) {
+            this.onDoubleClick({vm: vm});
         }
     };
 

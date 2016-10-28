@@ -760,10 +760,10 @@ describe("BPTreeViewController", () => {
             expect(controller.onSelect).toHaveBeenCalledWith({vm: vm, isSelected: false});
         });
 
-        it("onRowDoubleClicked, when not selected, calls onDoubleClick correctly", () => {
+        it("onRowDoubleClicked, when selectable and not expandable, calls onDoubleClick correctly", () => {
             // Arrange
             controller.onDoubleClick = jasmine.createSpy("onDoubleClick");
-            const vm = {} as ITreeViewNodeVM;
+            const vm = {key: "1", isSelectable: () => true, isExpandable: false} as ITreeViewNodeVM;
 
             // Act
             controller.onRowDoubleClicked({data: vm});

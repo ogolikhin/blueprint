@@ -25,7 +25,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
     public unsubscribe() {
         super.unsubscribe();
         this.subject.onCompleted();
-        delete this.subject;
+        delete this._subject;
     }
 
     protected get subject(): Rx.BehaviorSubject<IStatefulSubArtifact> {

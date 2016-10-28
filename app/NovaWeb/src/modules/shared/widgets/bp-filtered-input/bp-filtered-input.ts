@@ -4,8 +4,8 @@ export class BPFilteredInput implements ng.IDirective {
     public restrict = "A";
     public require = "ngModel";
     public scope = {
-        regexFilter: "=bpFilteredInput",
-        maxLength: "=bpMaxLength"
+        regexFilter: "<?bpFilteredInput",
+        maxLength: "<?bpMaxLength"
 
     };
 

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Newtonsoft.Json;
 using ServiceLibrary.Models;
 
 namespace SearchService.Models
 {
-    public class ItemSearchResult : SearchResult, IArtifact
+    [JsonObject]
+    public class ItemNameSearchResult : SearchResult, IArtifact
     {
         public int Id {
             get { return ItemId; }
@@ -32,7 +34,7 @@ namespace SearchService.Models
 
         public UserGroup LockedByUser { get; set; }
 
-        [IgnoreDataMember]
+        [JsonIgnore]
         public int? LockedByUserId { get; set; }
 
         public DateTime? LockedDateTime { get; set; }

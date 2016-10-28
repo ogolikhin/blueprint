@@ -62,7 +62,6 @@
       <HintPath>..\..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -122,13 +121,13 @@
     <Compile Include="Helpers\SearchConfiguration.cs" />
     <Compile Include="Helpers\ISearchConfiguration.cs" />
     <Compile Include="Helpers\SearchConfigurationProvider.cs" />
+    <Compile Include="ItemNameSearchResult.cs" />
     <Compile Include="Models\FullTextSearchCriteria.cs" />
     <Compile Include="Models\FullTextSearchResult.cs" />
     <Compile Include="Models\FullTextSearchResultSet.cs" />
     <Compile Include="Models\MetaDataSearchResultSet.cs" />
     <Compile Include="Models\MetaDataSearchResult.cs" />
     <Compile Include="Models\ItemNameSearchResultSet.cs" />
-    <Compile Include="Models\ItemSearchResult.cs" />
     <Compile Include="Models\ProjectSearchResultSet.cs" />
     <Compile Include="Models\SearchCriteria.cs" />
     <Compile Include="Models\ItemNameSearchCriteria.cs" />

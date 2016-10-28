@@ -49,9 +49,9 @@ namespace SearchService.Repositories
                 ProjectIds = new[] { 1 },
                 PredefinedTypeIds = new[] { 4104 }
             };
-            ItemSearchResult[] queryResult =
+            ItemNameSearchResult[] queryResult =
             {
-                new ItemSearchResult()
+                new ItemNameSearchResult()
             };
             var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult);
 
@@ -72,9 +72,9 @@ namespace SearchService.Repositories
                 Query = "test",
                 ProjectIds = new[] { 1 }
             };
-            ItemSearchResult[] queryResult =
+            ItemNameSearchResult[] queryResult =
             {
-                new ItemSearchResult()
+                new ItemNameSearchResult()
             };
             var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult);
 

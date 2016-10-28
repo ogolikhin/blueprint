@@ -33,7 +33,5 @@ namespace ServiceLibrary.Models
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For JSON serialization, the property sometimes needs to be null")]
         List<IArtifact> Children { get; set; }
-
-        string Path { get; set; }
     }
 }

@@ -30,6 +30,7 @@ export class ItemStateController {
                 private statefulArtifactFactory: IStatefulArtifactFactory) {
 
         const id = parseInt($state.params["id"], 10);
+        console.log("ItemStateController: " + id);
 
         if (_.isFinite(id)) {
             this.clearLockedMessages();
@@ -114,13 +115,13 @@ export class ItemStateController {
     private setSelectedArtifact(artifact: IStatefulArtifact) {
         this.artifactManager.selection.setExplorerArtifact(artifact);
         this.artifactManager.selection.setArtifact(artifact);
-        this.artifactManager.selection.getArtifact().errorObservable().subscribeOnNext(this.onArtifactError);
+        artifact.errorObservable().subscribeOnNext(this.onArtifactError);
     }
 
     public navigateToSubRoute(artifact: IStatefulArtifact) {
         this.setSelectedArtifact(artifact);
-        const params =  {id: artifact.id};
 
+        let stateName: string;
         switch (artifact.predefinedType) {
             case Models.ItemTypePredefined.GenericDiagram:
             case Models.ItemTypePredefined.BusinessProcess:
@@ -129,28 +130,31 @@ export class ItemStateController {
             case Models.ItemTypePredefined.UseCaseDiagram:
             case Models.ItemTypePredefined.UseCase:
             case Models.ItemTypePredefined.UIMockup:
-                this.$state.go("main.item.diagram", params);
+                stateName = "main.item.diagram";
                 break;
             case Models.ItemTypePredefined.Glossary:
-                this.$state.go("main.item.glossary", params);
+                stateName = "main.item.glossary";
                 break;
             case Models.ItemTypePredefined.Project:
             case Models.ItemTypePredefined.CollectionFolder:
-                this.$state.go("main.item.general", params);
+                stateName = "main.item.general";
                 break;
             case Models.ItemTypePredefined.ArtifactCollection:
-                this.$state.go("main.item.collection", params);
+                stateName = "main.item.collection";
                 break;
             case Models.ItemTypePredefined.Process:
-                this.$state.go("main.item.process", params);
+                stateName = "main.item.process";
                 break;
             default:
-                this.$state.go("main.item.details", params);
+                stateName = "main.item.details";
         }
+        // since URL doesn't change between "main.item" and "main.item.*", 
+        // must force reload on that exact state name
+        // this.$state.go(stateName, {id: artifact.id}, {reload: stateName});
+        this.$state.go(stateName, {id: artifact.id});
     }
 
     protected onArtifactError = (error: IApplicationError) => {
-        console.log("onArtifactError: %c" + this.$state.current.name, "color: red");
         if (error.statusCode === HttpStatusCode.NotFound) {
             const artifact = this.artifactManager.selection.getArtifact();
             this.artifactManager.remove(artifact.id);

@@ -155,12 +155,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 } else {
                     deferred.resolve(this);
                 }
-            }).catch((err) => {
-                if (err && err.statusCode === HttpStatusCode.NotFound) {
+            }).catch(error => {
+                if (error && error.statusCode === HttpStatusCode.NotFound) {
                     this.artifactState.deleted = true;
                 }
-
-                deferred.reject(err);
+                this.error.onNext(error);
+                deferred.reject(error);
             });
         } else {
             deferred.resolve(this);

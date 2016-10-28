@@ -78,7 +78,7 @@ export abstract class StatefulItem implements IIStatefulItem {
     } 
 
     public errorObservable(): Rx.Observable<IApplicationError> {
-        return this.error.filter(it => !!it).asObservable();
+        return this.error.filter(it => !!it).distinctUntilChanged().asObservable();
     }
 
     public get id(): number {

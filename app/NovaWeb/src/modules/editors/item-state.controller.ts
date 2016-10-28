@@ -157,13 +157,14 @@ export class ItemStateController {
         if (error.statusCode === HttpStatusCode.NotFound) {
             const artifact = this.artifactManager.selection.getArtifact();
             
-            // <any> due to lack of updated types definition
-            (<any>this.$state).reload("main.item");
-            //this.$state.go(this.$state.current.name, this.$state.params, {reload: "main.item"});
-            
-            return;
-        }
-        if (error.statusCode === HttpStatusCode.Forbidden || 
+            const immediateParentState = this.$state.$current["parent"];
+            if (immediateParentState) {
+                // <any> due to lack of updated types definition
+                (<any>this.$state).reload(immediateParentState.name);
+            } else {
+                this.$state.reload();
+            }
+        } else if (error.statusCode === HttpStatusCode.Forbidden || 
             error.statusCode === HttpStatusCode.ServerError ||
             error.statusCode === HttpStatusCode.Unauthorized
             ) {

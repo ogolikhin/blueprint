@@ -5,7 +5,7 @@ import "tinymce";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
 import {Helper} from "../../../../shared";
 import { INavigationService } from "../../../../core/navigation";
-//fixme: only one class per file
+
 export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTF";
     public template: string = require("./text-rtf.template.html");

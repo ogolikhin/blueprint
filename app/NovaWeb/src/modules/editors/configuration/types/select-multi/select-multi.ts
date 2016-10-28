@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import "angular-formly";
 import {ILocalizationService} from "../../../../core";
-import {Models} from "../../../../main/models";
+import {PropertyContext} from "../../../bp-artifact/bp-property-context";
 import {BPFieldBaseController} from "../base-controller";
 
 export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
@@ -76,14 +76,17 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             }
         });
 
+        let options = [];
         $scope.options["expressionProperties"] = {
             "templateOptions.options": () => {
-                let options = [];
-                let context: Models.IPropertyType = $scope.options["data"];
-                if (context.validValues && context.validValues.length) {
-                    options = context.validValues.map(function (it) {
-                        return {value: it.id, name: it.value} as any;
-                    });
+                const context: PropertyContext = $scope.options["data"];
+                if (context.isFresh) {
+                    context.isFresh = false;
+                    if (context.validValues && context.validValues.length) {
+                        options = context.validValues.map(function (it) {
+                            return {value: it.id, name: it.value} as any;
+                        });
+                    }
                 }
                 return options;
             }
@@ -97,6 +100,7 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             startingItem: 0,
             firstVisibleItem: 0,
             currentSelectedItem: -1,
+            deletingItem: -1,
             isScrolling: false,
             isOpen: false,
             labels: {
@@ -134,9 +138,15 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             },
             closeDropdownOnTab: this.closeDropdownOnTab,
             scrollIntoView: this.scrollIntoView,
+            setFocus: function () {
+                if ($scope["uiSelectContainer"]) {
+                    $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.remove("disable-highlight");
+                    $scope["uiSelectContainer"].querySelector("input").focus();
+                }
+            },
             findDropdown: function ($select): HTMLElement {
                 let dropdown: HTMLElement;
-                let elements = $select.$element.find("ul");
+                const elements = $select.$element.find("ul");
                 for (let i = 0; i < elements.length; i++) {
                     if (elements[i].classList.contains("ui-select-choices")) {
                         dropdown = elements[i];
@@ -151,25 +161,26 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                 }
             },
             onScroll: function (event) {
-                let dropdown = this;
-                if (!$scope["bpFieldSelectMulti"].isScrolling) {
+                const dropdown = event.currentTarget as HTMLElement;
+                const selectMulti = $scope["bpFieldSelectMulti"];
+                if (!selectMulti.isScrolling) {
                     //using requestAnimationFrame to throttle the event (see: https://developer.mozilla.org/en-US/docs/Web/Events/scroll)
                     window.requestAnimationFrame(() => {
-                        let $select = $scope["bpFieldSelectMulti"].$select;
-                        let items = $scope["bpFieldSelectMulti"].items;
+                        const $select = selectMulti.$select;
+                        let items = selectMulti.items;
                         if ($select.search !== "") {
                             items = items.filter((item) => {
                                 return item[$scope["to"].labelProp].toLowerCase().indexOf($select.search.toLowerCase()) !== -1;
                             });
                         }
-                        let itemsHeight = $scope["bpFieldSelectMulti"].itemsHeight;
-                        let itemsContainer = dropdown.firstElementChild as HTMLElement;
-                        let maxItemsToRender = $scope["bpFieldSelectMulti"].maxItemsToRender;
+                        const itemsHeight = selectMulti.itemsHeight;
+                        const itemsContainer = dropdown.firstElementChild as HTMLElement;
+                        const maxItemsToRender = selectMulti.maxItemsToRender;
 
+                        const visibleItems = Math.round(dropdown.offsetHeight / itemsHeight);
+                        const itemsToKeepOffscreen = Math.round((maxItemsToRender - visibleItems) / 2);
                         let firstVisibleItem = Math.round(dropdown.scrollTop / itemsHeight);
-                        let lastVisibleItem = Math.round((dropdown.scrollTop + dropdown.offsetHeight) / itemsHeight);
-                        let visibleItems = lastVisibleItem - firstVisibleItem;
-                        let itemsToKeepOffscreen = Math.round((maxItemsToRender - visibleItems) / 2);
+                        let lastVisibleItem = firstVisibleItem + visibleItems;
 
                         let newStartingItem: number;
                         if (firstVisibleItem - itemsToKeepOffscreen <= 0) {
@@ -179,18 +190,20 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                         } else {
                             newStartingItem = firstVisibleItem - itemsToKeepOffscreen;
                         }
-                        if (firstVisibleItem !== $scope["bpFieldSelectMulti"].firstVisibleItem ||
-                            newStartingItem !== $scope["bpFieldSelectMulti"].startingItem) {
+                        if (firstVisibleItem !== selectMulti.firstVisibleItem ||
+                            newStartingItem !== selectMulti.startingItem) {
                             $scope["$applyAsync"](() => {
-                                let newIndex: number;
-                                if (firstVisibleItem > $scope["bpFieldSelectMulti"].firstVisibleItem) { // scrolling down
-                                    newIndex = lastVisibleItem - newStartingItem - 1;
-                                } else { // scrolling up
-                                    newIndex = firstVisibleItem - newStartingItem;
+                                if ($select.activeIndex !== -1) {
+                                    let newIndex: number;
+                                    if (firstVisibleItem > selectMulti.firstVisibleItem) { // scrolling down
+                                        newIndex = lastVisibleItem - newStartingItem - 1;
+                                    } else { // scrolling up
+                                        newIndex = firstVisibleItem - newStartingItem;
+                                    }
+                                    $select.activeIndex = newIndex;
                                 }
-                                $select.activeIndex = newIndex;
-                                $scope["bpFieldSelectMulti"].firstVisibleItem = firstVisibleItem;
-                                $scope["bpFieldSelectMulti"].startingItem = newStartingItem;
+                                selectMulti.firstVisibleItem = firstVisibleItem;
+                                selectMulti.startingItem = newStartingItem;
                                 $select.items = items.slice(newStartingItem, newStartingItem + maxItemsToRender);
                             });
                         }
@@ -216,28 +229,40 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                         itemsContainer.style.marginTop = marginTop.toString() + "px";
                         itemsContainer.style.marginBottom = marginBottom.toString() + "px";
 
-                        $scope["bpFieldSelectMulti"].isScrolling = false;
+                        selectMulti.isScrolling = false;
                     });
                 }
-                $scope["bpFieldSelectMulti"].isScrolling = true;
+                selectMulti.isScrolling = true;
             },
             onOpenClose: function (isOpen: boolean, $select, options) {
                 this.isOpen = isOpen;
                 this.items = options;
                 this.$select = $select;
 
-                let dropdown = this.findDropdown($select);
+                $select.activeIndex = -1;
+
+                const dropdown = this.findDropdown($select);
                 if (dropdown && options.length > this.maxItemsToRender) {
                     let itemsContainer = dropdown.firstElementChild as HTMLElement;
                     if (isOpen) {
                         if (this.startingItem === 0) {
                             itemsContainer.style.marginTop = "0";
                             itemsContainer.style.marginBottom = ((options.length - this.maxItemsToRender) * this.itemsHeight).toString() + "px";
-                            $select.activeIndex = 0;
                         }
                         angular.element(dropdown).on("scroll", this.onScroll);
                     } else {
                         angular.element(dropdown).off("scroll", this.onScroll);
+                    }
+                }
+
+                // force reopening of dropdown on remove and select the removed item
+                if (this.deletingItem !== -1) {
+                    if (!isOpen) {
+                        $select.open = true;
+                    } else {
+                        $select.activeIndex = this.deletingItem;
+                        this.deletingItem = -1;
+                        this.setFocus();
                     }
                 }
             },
@@ -268,13 +293,11 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             },
             onRemove: function ($item, $select, formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject) {
                 if (this.isOpen) {
-                    $select.open = true; // force the dropdown to stay open on remove (if already open)
-
                     if (this.startingItem !== 0) { // user selected an item after scrolling
                         $select.items = this.items.slice(this.startingItem, this.startingItem + this.maxItemsToRender);
                     }
 
-                    $select.activeIndex = $select.items.map(function (e) {
+                    this.deletingItem = $select.items.map(function (e) {
                         return e[$scope.to.valueProp];
                     }).indexOf($item[$scope.to.valueProp]);
                 }
@@ -297,10 +320,7 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                 }).indexOf($item[$scope.to.valueProp]);
 
                 $scope["$applyAsync"](() => {
-                    if ($scope["uiSelectContainer"]) {
-                        $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.remove("disable-highlight");
-                        $scope["uiSelectContainer"].querySelector("input").focus();
-                    }
+                    this.setFocus();
                     if (currentItem < $select.items.length - 1) {
                         this.currentSelectedItem = currentItem++;
                         $select.activeIndex = currentItem;

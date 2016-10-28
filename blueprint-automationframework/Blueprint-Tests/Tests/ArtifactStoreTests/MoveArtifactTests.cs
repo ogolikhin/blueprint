@@ -299,7 +299,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");
         }
 
-        [Explicit] //US 3184
+        [Explicit(IgnoreReasons.UnderDevelopment)] //US 3184
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(190011)]
@@ -812,7 +812,7 @@ namespace ArtifactStoreTests
                 "{0} when user tries to move an artifact to one of its descendents", expectedExceptionMessage);
         }
 
-        [Explicit] //US 3184
+        [Explicit(IgnoreReasons.UnderDevelopment)] //US 3184
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(182408)]
@@ -844,7 +844,7 @@ namespace ArtifactStoreTests
                 "{0} when user tries to move an artifact to collection or collection folder", expectedExceptionMessage);
         }
 
-        [Explicit] //US 3184
+        [Explicit(IgnoreReasons.UnderDevelopment)] //US 3184
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(190010)]

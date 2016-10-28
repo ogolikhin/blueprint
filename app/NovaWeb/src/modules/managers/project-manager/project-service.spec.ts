@@ -317,8 +317,8 @@ describe("Project Repository", () => {
             const searchCriteria: SearchServiceModels.IItemNameSearchCriteria = {query: "new", projectIds: [1]};
             const searchResult: SearchServiceModels.IItemNameSearchResultSet = {
                 items: [
-                    {projectId: 1, artifactId: 2, itemId: 2, name: "New Actor 1", itemTypeId: 6, typeName: "Actor", typePrefix: "AC", path: ""},
-                    {projectId: 1, artifactId: 3, itemId: 3, name: "New Actor 2", itemTypeId: 6, typeName: "Actor", typePrefix: "AC", path: ""}
+                    {id: 2, itemId: 2, name: "New Actor 1", path: ""},
+                    {id: 2, itemId: 3, name: "New Actor 2", path: ""}
                 ],
                 pageItemCount: 2
             };

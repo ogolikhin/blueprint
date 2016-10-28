@@ -17,10 +17,22 @@
                     </formly-form>
                 </div>
             </div>
+
+            <div class="properties" ng-if="$ctrl.collection.isCreated">
+                <div class="collection-heading clearfix">
+                    <div class="pull-left">
+                        <i class="fonticon2-rapid-review"></i> {{::$ctrl.collection.reviewName}} <a href="#">{{::$ctrl.reviewUrl}}</a>
+                    </div>
+                    <div class="pull-right text-right">
+                        <a ng-href="#">{{::$root.config.labels['Artifact_Collection_Edit_Rapid_Review']}}</a>
+                    </div>
+                </div>
+            </div>
+
             <div class="properties" ng-class="{'collapsed': isSpecificPropertiesCollapsed}">
                 <div class="heading" ng-click="isSpecificPropertiesCollapsed = !isSpecificPropertiesCollapsed">
-                    {{::$root.config.labels['Artifact_Collection_Content_Header']}}
-                </div>
+                    {{::$ctrl.localization.get('Artifact_Collection_Content_Header')}}
+            </div>
                 <div class="specific-properties content"
                      uib-collapse="isSpecificPropertiesCollapsed"
                      ng-show="$ctrl.rootNode && $ctrl.rootNode.length > 0">

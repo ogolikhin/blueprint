@@ -44,10 +44,10 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         super(
             () => !process.artifactState.readonly,
             "fonticon fonticon2-news",
-            localization.get("ST_Generate_Toolbar_Button"),
+            localization.get("ST_US_Generate_Dropdown_Tooltip"),
             undefined,
             new BPDropdownItemAction(
-                localization.get("ST_Generate_Contextual_Toolbar_Button"),
+                localization.get("ST_US_Generate_From_UserTask_Label"),
                 () => {
                     const subArtifact = selectionManager.getSubArtifact() as StatefulProcessSubArtifact;
                     this.execute(process, subArtifact.id);
@@ -75,7 +75,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                 }
             ),
             new BPDropdownItemAction(
-                localization.get("ST_Generate_All_Contextual_Toolbar_Button"),
+                localization.get("ST_US_Generate_All_Label"),
                 () => {
                     this.execute(process);
                 },
@@ -110,8 +110,8 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
             const settings = <IDialogSettings>{
                 type: DialogTypeEnum.Confirm,
                 header: this.localization.get("App_DialogTitle_Confirmation"),
-                message: this.localization.get("ST_Confirm_Publish_Before_Generate_User_Story"),
-                okButton: this.localization.get("ST_Confirm_Publish_ConfirmButton_Label")
+                message: this.localization.get("ST_US_Generate_Confirm_Publish"),
+                okButton: this.localization.get("App_Button_PublishAndContinue")
             };
 
             this.dialogService.open(settings)
@@ -119,6 +119,19 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                     process.publish()
                         .then(() => {
                             this.generateUserStories(process, userTaskId);
+                        })
+                        .catch((reason: IApplicationError) => {
+                            let message: string = this.localization.get("Publish_Failure_Message");
+
+                            if (reason) {
+                                switch (reason.errorCode) {
+                                    case ErrorCode.LockedByOtherUser:
+                                        message = this.localization.get("Publish_Failure_LockedByOtherUser_Message");
+                                        break;
+                                }
+                            }
+
+                            this.messageService.addError(message);
                         });
                 });
         } else {
@@ -133,28 +146,24 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         this.userStoryService.generateUserStories(process.projectId, process.id, userTaskId)
             .then((userStories: IUserStory[]) => {
                 this.processDiagramManager.action(ProcessEvents.UserStoriesGenerated, userStories);
-                this.showSuccessMessage(userTaskId);
+                const userStoriesGeneratedMessage = 
+                    userTaskId ? 
+                    this.localization.get("ST_US_Generate_From_UserTask_Success_Message") : 
+                    this.localization.get("ST_US_Generate_All_Success_Message");
+                this.messageService.addInfo(userStoriesGeneratedMessage);
             })
             .catch((reason: IApplicationError) => {
-                let message: string = reason.message;
-                
-                if (reason.errorCode === ErrorCode.ArtifactNotPublished) {
-                    message = this.localization.get("ST_User_Stories_Generation_Failed_LockedByOtherUser_Message");
+                let message: string = this.localization.get("ST_US_Generate_Generic_Failure_Message");
+
+                if (reason) {
+                    switch (reason.errorCode) {
+                        case ErrorCode.ArtifactNotPublished:
+                            message = this.localization.get("ST_US_Generate_LockedByOtherUser_Failure_Message");
+                            break;
+                    }
                 }
 
-                this.showErrorMessage(message);
+                this.messageService.addError(message);
             });
-    }
-
-    private showSuccessMessage(userTaskId?: number): void {
-        const userStoriesGeneratedMessage = 
-            userTaskId ? 
-            this.localization.get("ST_User_Story_Generated_Message") : 
-            this.localization.get("ST_User_Stories_Generated_Message");
-        this.messageService.addInfo(userStoriesGeneratedMessage);
-    }
-
-    private showErrorMessage(message: string): void {
-        this.messageService.addError(message);
     }
 }

@@ -174,7 +174,7 @@ $modal-open-project-height: 450px;
             padding: 8px;
 
             .checkbox {
-                width: 25px;
+                min-width: 25px;
             }
 
             & > i {

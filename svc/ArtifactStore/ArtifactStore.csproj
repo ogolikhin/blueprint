@@ -122,14 +122,12 @@
     <Compile Include="Models\ItemDetails.cs" />
     <Compile Include="Models\ItemInfo.cs" />
     <Compile Include="Models\ItemType.cs" />
-    <Compile Include="Models\ItemTypePredefined.cs" />
     <Compile Include="Models\ProjectTypes.cs" />
     <Compile Include="Models\PropertyPrimitiveType.cs" />
     <Compile Include="Models\PropertyType.cs" />
     <Compile Include="Models\PropertyTypePredefined.cs" />
     <Compile Include="Models\RelationshipResultSet.cs" />
     <Compile Include="Models\SubArtifact.cs" />
-    <Compile Include="Models\UserGroup.cs" />
     <Compile Include="Models\VersionControlArtifactInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IRelationshipsRepository.cs" />

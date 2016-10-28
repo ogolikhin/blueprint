@@ -448,7 +448,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, newArtifact.Id, author),
-               "'POST {0}' should return 403 Forbidden when user tries to move artifact of unsupported artifact type", SVC_PATH);
+               "'POST {0}' should return 403 Forbidden when user tries to move regular artifact to artifact of unsupported artifact type", SVC_PATH);
 
             // Verify:
             string expectedExceptionMessage = "Cannot move baselines, collections or reviews.";

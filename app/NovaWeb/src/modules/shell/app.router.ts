@@ -45,24 +45,32 @@ export class AppRoutes {
 
 export class MainStateController {
     private stateChangeListener: Function;
+    public mainState = "main";
 
     public static $inject = [
         "$rootScope",
         "$state",
-        "$log"
+        "$log",
+        "artifactManager"
     ];
 
     constructor(private $rootScope: ng.IRootScopeService,
                 private $state: angular.ui.IStateService,
-                private $log: ng.ILogService) {
+                private $log: ng.ILogService,
+                private artifactManager: IArtifactManager) {
 
         this.stateChangeListener = $rootScope.$on("$stateChangeStart", this.stateChangeHandler);
     }
 
-    private stateChangeHandler = (event, toState, toParams, fromState, fromParams) => {
-        this.$log.log(
-                "--- $stateChangeStart: %c" + fromState.name + "%c -> %c" + toState.name + "%c " + JSON.stringify(toParams)
+    private stateChangeHandler = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams: any, fromState: ng.ui.IState, fromParams) => {
+        this.$log.info(
+                "state transition: %c" + fromState.name + "%c -> %c" + toState.name + "%c " + JSON.stringify(toParams)
                 , "color: blue", "color: black", "color: blue", "color: black"
             );
+
+        if (toState.name === this.mainState) {
+            this.$log.info("SelectionManager.clearAll()");
+            this.artifactManager.selection.clearAll();
+        }
     }
 }

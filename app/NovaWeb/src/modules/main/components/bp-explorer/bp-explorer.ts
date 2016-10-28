@@ -179,13 +179,11 @@ export class ProjectExplorerController {
                             this.navigationService.navigateTo(this.selected.projectId);
                         } else {
                             //if project node fails too - give up
-                            this.artifactManager.selection.setExplorerArtifact(null);
                             this.navigationService.navigateToMain();
                         }
                     }
                 }
             } else {
-                this.artifactManager.selection.setExplorerArtifact(null);
                 this.navigationService.navigateToMain();
             }
             this.numberOfProjectsOnLastLoad = projects.length;

@@ -445,30 +445,39 @@ $fonticon2-process-persona: 'e847'; /* '' */
 .fonticon2-rapid-review:before {
     content: $fonticon2-rapid-review;
 } /* '' */
+
 .fonticon2-font-family:before {
     content: $fonticon2-font-family;
 } /* '' */
+
 .fonticon2-project:before {
     content: $fonticon2-project;
 } /* '' */
+
 .fonticon2-link:before {
     content: $fonticon2-link;
-}/* '' */
+} /* '' */
+
 .fonticon2-process-description:before {
-    content: $fonticon2-description;
-}/* '' */
+    content: $fonticon2-process-description;
+} /* '' */
+
 .fonticon2-process-end:before {
     content: $fonticon2-process-end;
-}/* '' */
+} /* '' */
+
 .fonticon2-process-objective:before {
     content: $fonticon2-process-objective;
-}/* '' */
-.fonticon2-process-title: before {
+} /* '' */
+
+.fonticon2-process-title:before {
     content: $fonticon2-process-title;
-}/* '' */
-.fonticon2-process-persona: before {
+} /* '' */
+
+.fonticon2-process-persona:before {
     content: $fonticon2-process-persona;
-}/* '' */
+} /* '' */
+
 .fonticon2__action--disabled {
    color: $gray-lighter !important;
    cursor: not-allowed !important;

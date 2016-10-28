@@ -167,7 +167,6 @@ export class ItemStateController {
             error.statusCode === HttpStatusCode.ServerError ||
             error.statusCode === HttpStatusCode.Unauthorized
             ) {
-            this.artifactManager.selection.clearAll();
             this.navigationService.navigateToMain();
         }
     }

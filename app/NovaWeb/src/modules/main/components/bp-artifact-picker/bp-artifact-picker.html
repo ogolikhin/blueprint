@@ -25,7 +25,7 @@
                      ng-repeat="searchResult in $ctrl.searchResults"
                      ng-class="{selected: searchResult.selected()}"
                      ng-click="$ctrl.currentSelectionMode === 'single' ? searchResult.selected(true) : undefined"
-                     ng-dblclick="$ctrl.currentSelectionMode === 'single' ? $ctrl.onDouble(searchResult) : undefined">
+                     ng-dblclick="$ctrl.onDouble(searchResult)">
                     <input class="checkbox" type="checkbox" ng-model="searchResult.selected" ng-model-options="{ getterSetter: true }" ng-if="$ctrl.currentSelectionMode !== 'single'">
                     <i class="icon-project"></i>
                     <div class="search-details">

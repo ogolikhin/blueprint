@@ -9,7 +9,8 @@ export interface IState {
     lockOwner?: string;
     readonly?: boolean;
     dirty?: boolean;
-    draft?: boolean;
+    published?: boolean;
+    everPublished?: boolean;
     deleted?: boolean;
     misplaced?: boolean;
     invalid?: boolean;
@@ -44,7 +45,8 @@ export class ArtifactState implements IArtifactState {
             lockOwner: null,
             readonly: false,
             dirty: false,
-            draft: false,
+            published: false,
+            everPublished: false,
             deleted: false,
             misplaced: false,
             invalid: false
@@ -145,13 +147,17 @@ export class ArtifactState implements IArtifactState {
         this.notifyStateChange();
     }
 
-    // fixme: Read the correct draft state from the server-side
-    // This method doesn't correctly represent the draft state of the artifact in all cases.
+    // fixme: Read the correct published state from the server-side
+    // This method doesn't correctly represent the published state of the artifact in all cases.
     // In case when the manual trace is added to this artifact, we do not lock the artifact
     // but the artifact gets added to unpublished changes. We cannot at this point determine
     // this condition with given information.
-    public get draft(): boolean {
-        return this.artifact.version < 0 || this.lockedBy === Enums.LockedByEnum.CurrentUser;
+    public get published(): boolean {
+        return this.artifact.version > 0 && this.lockedBy !== Enums.LockedByEnum.CurrentUser;
+    }
+
+    public get everPublished(): boolean {
+        return this.artifact.version > 0;
     }
 
     public get readonly(): boolean {

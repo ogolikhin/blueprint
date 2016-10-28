@@ -704,7 +704,7 @@ describe("BPTreeViewController", () => {
             controller.onRowSelected({node: node});
 
             // Assert
-            expect(controller.onSelect).toHaveBeenCalledWith({vm: vm, isSelected: true, selectedVMs: [vm]});
+            expect(controller.onSelect).toHaveBeenCalledWith({vm: vm, isSelected: true});
         });
 
         it("onRowSelected, when selected and not selectable, deselects", () => {
@@ -757,7 +757,7 @@ describe("BPTreeViewController", () => {
             controller.onRowSelected({node: node});
 
             // Assert
-            expect(controller.onSelect).toHaveBeenCalledWith({vm: vm, isSelected: false, selectedVMs: [vm]});
+            expect(controller.onSelect).toHaveBeenCalledWith({vm: vm, isSelected: false});
         });
 
         it("onRowDoubleClicked, when not selected, calls onDoubleClick correctly", () => {

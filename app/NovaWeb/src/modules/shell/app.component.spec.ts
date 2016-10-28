@@ -4,14 +4,16 @@ import "angular-sanitize";
 import "./index";
 import { ComponentTest } from "../util/component.test";
 import { AppController } from "./app.component";
-import { INavigationService, NavigationService } from "./../core/navigation/navigation.svc";
+import { INavigationService } from "./../core/navigation/navigation.svc";
+import { NavigationServiceMock } from "./../core/navigation/navigation.svc.mock";
 
 describe("Component AppComponent", () => {
     beforeEach(angular.mock.module("app.shell"));
 
+
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("session", SessionSvcMock);
-        $provide.service("navigationService", NavigationService);
+        $provide.service("navigationService", NavigationServiceMock);
         $provide.service("projectManager", () => ({
             removeAll: () => { return undefined; }
         }));

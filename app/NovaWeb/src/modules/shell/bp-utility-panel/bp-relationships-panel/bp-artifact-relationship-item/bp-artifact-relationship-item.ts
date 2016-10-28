@@ -129,17 +129,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     }
 
     public limitChars(str) {
-        if (str) {
-            let text = Helper.stripHTMLTags(str);
-            if (text) {
-                if (text.length > 100) {
-                    return text.substring(0, 100) + "...";
-                }
-                return text;
-            }
-            return "";
-        }
-        return "";
+        return Helper.limitChars(str);
     }
 
     private getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {

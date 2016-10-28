@@ -11,6 +11,11 @@ namespace Model.ArtifactModel.Impl
     public class NovaSubArtifact : INovaSubArtifact
     {
         #region Serialized JSON Properties
+        public bool ShouldSerializeAttachmentValues()
+        {
+            return AttachmentValues.Count > 0;
+        }
+        public List<AttachmentValue> AttachmentValues { get; } = new List<AttachmentValue>();
         public int Id { get; set; }
 
         public int ParentId { get; set; }

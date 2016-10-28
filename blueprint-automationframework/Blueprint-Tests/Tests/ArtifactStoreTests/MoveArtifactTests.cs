@@ -106,22 +106,16 @@ namespace ArtifactStoreTests
             INovaArtifactDetails movedArtifactDetails = null;
 
             // Execute:
-            try
-            {
-                Assert.DoesNotThrow(() =>
-                {
-                    movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, author);
-                }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
-                // Verify:
-                INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
-                ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
-                Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
-            }
-            finally
+            Assert.DoesNotThrow(() =>
             {
-                artifact.Delete();
-            }
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, author);
+            }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
+
+            // Verify:
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
+            Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -307,12 +301,12 @@ namespace ArtifactStoreTests
             Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");
         }
 
-        [Ignore(IgnoreReasons.ProductBug)] //http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=3179
+        [Ignore(IgnoreReasons.UnderDevelopment)] //US 3184
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(190011)]
-        [Description("Create two artifacts of unsupported artifact type. Move one artifact to be a child of the another one. Verify the moved artifact is returned with the updated Parent ID.")]
-        public void MoveArtifact_UnsupportedArtifactTypeArtifact_MovedToUnsupportedArtifacttype_ReturnsMovedArtifact(ItemTypePredefined artifactType)
+        [Description("Create an artifact of collection artifact type & collection folder. Move this artifact to be a child of the collection folder. Verify the moved artifact is returned with the updated Parent ID.")]
+        public void MoveArtifact_CollectionOrCollectionFolder_MovedToCollectionFolder_ReturnsMovedArtifact(ItemTypePredefined artifactType)
         {
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
@@ -321,10 +315,10 @@ namespace ArtifactStoreTests
 
             INovaArtifact collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
 
-            IArtifact parentArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, collectionFolder.Id, baseType: BaseArtifactType.PrimitiveFolder);
-            parentArtifact.Publish(_user);
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+            IArtifact parentArtifact = Helper.CreateAndWrapNovaArtifact(_project, _user, ItemTypePredefined.ArtifactCollection, collectionFolder.Id, baseType: fakeBaseType);
 
-            IArtifact childArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, collectionFolder.Id, baseType: BaseArtifactType.PrimitiveFolder);
+            IArtifact childArtifact = Helper.CreateAndWrapNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
             childArtifact.Publish(_user);
 
             childArtifact.Lock(author);
@@ -426,12 +420,12 @@ namespace ArtifactStoreTests
                 "{0} when user tries to move an artifact to different project", expectedExceptionMessage);
         }
 
-        [Ignore(IgnoreReasons.ProductBug)] //http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=3178
+        [Ignore(IgnoreReasons.UnderDevelopment)] //US 3184
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(182408)]
-        [Description("Create an artifact of unsupported artifact type. Move regular artifact to be a child of the unsupported one. Verify returned code 403 Forbidden.")]
-        public void MoveArtifact_PublishedArtifactCannotBeMovedToUnsupportedArtifactTypeArtifact_403Forbidden(ItemTypePredefined artifactType)
+        [Description("Create collection or collection folder. Move regular artifact to be a child of the collection or collection folder. Verify returned code 403 Forbidden.")]
+        public void MoveArtifact_PublishedArtifact_MoveToCollectionOrCollectionFolder_403Forbidden(ItemTypePredefined artifactType)
         {
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
@@ -440,15 +434,16 @@ namespace ArtifactStoreTests
 
             INovaArtifact collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
 
-            IArtifact newArtifact = CreateArtifactWithRandomName(artifactType, author, _project, collectionFolder.Id, baseType: BaseArtifactType.PrimitiveFolder);
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+            IArtifact parentArtifact = Helper.CreateAndWrapNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
 
             artifact.Lock(author);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, newArtifact.Id, author),
-               "'POST {0}' should return 403 Forbidden when user tries to move regular artifact to artifact of unsupported artifact type", SVC_PATH);
+            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, parentArtifact.Id, author),
+               "'POST {0}' should return 403 Forbidden when user tries to move regular artifact to a {1} artifact type", SVC_PATH, artifactType);
 
             // Verify:
             string expectedExceptionMessage = "Cannot move baselines, collections or reviews.";
@@ -459,8 +454,8 @@ namespace ArtifactStoreTests
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(190010)]
-        [Description("Create an artifact of unsupported artifact type. Move this artifact to be a child of the regular one. Verify returned code 403 Forbidden.")]
-        public void MoveArtifact_UnsupportedArtifactTypeArtifact_CannotBeMovedToRegularArtifact_403Forbidden(ItemTypePredefined artifactType)
+        [Description("Create a collection or collection folder. Move collection or collection folder to be a child of the regular artifact. Verify returned code 403 Forbidden.")]
+        public void MoveArtifact_CollectionOrCollectionFolder_MoveToRegularArtifact_403Forbidden(ItemTypePredefined artifactType)
         {
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
@@ -469,14 +464,15 @@ namespace ArtifactStoreTests
 
             INovaArtifact collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
 
-            IArtifact newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, collectionFolder.Id, baseType: BaseArtifactType.PrimitiveFolder);
-            newArtifact.Publish(_user);
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+            IArtifact childArtifact = Helper.CreateAndWrapNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            childArtifact.Publish(_user);
 
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            IArtifact parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
 
-            newArtifact.Lock(author);
+            childArtifact.Lock(author);
 
-            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, newArtifact, artifact.Id, author),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, childArtifact, parentArtifact.Id, author),
                    "'POST {0}' should return 403 Forbidden when user tries to move artifact of unsupported artifact type", SVC_PATH);
 
             // Verify:
@@ -922,31 +918,6 @@ namespace ArtifactStoreTests
             }
 
             return artifactTypes;
-        }
-
-        /// <summary>
-        /// Creates a new artifact with a random name.
-        /// </summary>
-        /// <param name="artifactType">The type of artifact to create.</param>
-        /// <param name="user">The user to authenticate with.</param>
-        /// <param name="project">The project where the artifact will be created.</param>
-        /// <param name="parentId">(optional) The ID of the parent of the artifact to be created.</param>
-        /// <param name="orderIndex">(optional) The Order Index to assign to the new artifact.</param>
-        /// <param name="baseType">(optional) You can select a different BaseArtifactType here other than what's in the novaArtifact.
-        ///     Use this for artifact types that don't exist in the BaseArtifactType enum.</param>
-        /// <returns>The artifact that was created.</returns>
-        private IArtifact CreateArtifactWithRandomName(ItemTypePredefined artifactType,
-            IUser user,
-            IProject project,
-            int? parentId = null,
-            double? orderIndex = null,
-            BaseArtifactType? baseType = null)
-        {
-            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
-            var artifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address,
-                user, artifactType, artifactName, project, parentId, orderIndex);
-
-            return Helper.WrapNovaArtifact(artifact, project, user, baseType);
         }
 
         #endregion private call

@@ -3,6 +3,7 @@ import {IMetaDataService} from "../../../managers/artifact-manager/metadata/meta
 import {IItemType} from "../../models/models";
 import {Helper} from "../../../shared/utils/helper";
 import {Models} from "../../models";
+import * as SearchModels from "./models/model";
 
 export class QuickSearchService {
     static $inject = [
@@ -29,7 +30,7 @@ export class QuickSearchService {
         return !(this.projectManager.projectCollection.getValue().map(project => project.id).length > 0);
     }
 
-    search(term: string) {
+    search(term: string): ng.IPromise<SearchModels.ISearchResult> {
         this.$log.debug("seraching server for ", term);
 
         //const MOCK_RESULTS = require("./quickSearch.mock.ts");
@@ -47,7 +48,7 @@ export class QuickSearchService {
 
         this.$http(request).then((result) => {
                 let p = [];
-                _.each((<any>result.data).fullTextSearchItems, (item) => {
+                _.each((<SearchModels.ISearchResult>result.data).items, (item) => {
                     p.push(this.metadataService.getArtifactItemType(item.projectId, item.itemTypeId).then((itemType: IItemType) => {
                         return _.extend(item, {
                             iconImageId: itemType.iconImageId,

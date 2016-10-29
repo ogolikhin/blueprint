@@ -27,10 +27,6 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         dialogService: IDialogService,
         processDiagramManager: IProcessDiagramCommunication
     ) {
-        if (!process) {
-            throw new Error("Process is not provided or is null");
-        }
-
         if (!userStoryService) {
             throw new Error("User story service is not provided or is null");
         }
@@ -56,7 +52,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         }
 
         super(
-            () => !process.artifactState.readonly,
+            () => this.canExecute(process),
             "fonticon fonticon2-news",
             localization.get("ST_US_Generate_Dropdown_Tooltip"),
             undefined,
@@ -67,7 +63,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
             ),
             new BPDropdownItemAction(
                 localization.get("ST_US_Generate_All_Label"),
-                () => this.execute(process),
+                () => this.executeGenerateAll(process),
                 () => this.canExecuteGenerateAll(process)
             )
         );
@@ -136,12 +132,11 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         this.execute(process);
     }
 
-    private execute(process: StatefulProcessArtifact, userTaskId?: number) {
-        if (process.artifactState && process.artifactState.readonly) {
-            this.messageService.addError(this.localization.get("ST_View_OpenedInReadonly_Message"));
-            return;
-        }
+    private canExecute(process: StatefulProcessArtifact): boolean {
+        return process && process.artifactState && !process.artifactState.readonly;
+    }
 
+    private execute(process: StatefulProcessArtifact, userTaskId?: number) {
         if (!process.artifactState.published) {
             const settings = <IDialogSettings>{
                 type: DialogTypeEnum.Confirm,

@@ -12,9 +12,12 @@ import {LocalizationServiceMock} from "../../../../../core/localization/localiza
 import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
 import {CommunicationManager} from "../../../";
 import {RolePermissions, LockedByEnum} from "../../../../../main/models/enums";
+import {ErrorCode} from "../../../../../core/error";
+import {ProcessEvents} from "../../diagram/process-diagram-communication";
 import * as TestModels from "../../../models/test-model-factory";
 
 describe("GenerateUserStoriesAction", () => {
+    let $rootScope: ng.IRootScopeService;
     let $q: ng.IQService;
     let userStoryService: UserStoryServiceMock;
     let selectionManager: SelectionManager;
@@ -34,6 +37,7 @@ describe("GenerateUserStoriesAction", () => {
 
     beforeEach(
         inject((
+            _$rootScope_: ng.IRootScopeService,
             _$q_: ng.IQService,
             _userStoryService_: UserStoryServiceMock,
             _selectionManager_: SelectionManager,
@@ -42,6 +46,7 @@ describe("GenerateUserStoriesAction", () => {
             _dialogService_: DialogServiceMock,
             _communicationManager_: CommunicationManager
         ) => {
+            $rootScope = _$rootScope_;
             $q = _$q_;
             userStoryService = _userStoryService_;
             selectionManager = _selectionManager_;
@@ -668,7 +673,227 @@ describe("GenerateUserStoriesAction", () => {
 
             // assert
             expect(openDialogSpy).not.toHaveBeenCalled();
-            expect(generateSpy).toHaveBeenCalled();
+            expect(generateSpy).toHaveBeenCalledWith(process, processShape.id);
+        });
+
+        it("handles generic publish failure", () => {
+            // arrange
+            const process = createStatefulProcessArtifact();
+            const action = new GenerateUserStoriesAction(
+                process, 
+                userStoryService, 
+                selectionManager, 
+                messageService, 
+                localization, 
+                dialogService, 
+                communicationManager.processDiagramCommunication
+            );
+            const generateFromTask = action.actions[0];
+            const processShape = TestModels.createUserTask(2);
+            const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
+            selectionManager.setSubArtifact(processSubArtifact);
+            const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
+            const openDialogSpy = spyOn(dialogService, "open").and.callThrough();
+            const generateSpy = spyOn(action, "generateUserStories").and.callFake(() => {/* no op */});
+            spyOn(process, "publish").and.callFake(
+                () => {
+                    const deferred = $q.defer();
+                    deferred.reject();
+                    return deferred.promise;
+                }
+            );
+            const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
+
+            // act
+            process.artifactState.setState({ lockedBy: LockedByEnum.CurrentUser }, false);
+            generateFromTask.execute();
+            $rootScope.$digest();
+
+            // assert
+            expect(openDialogSpy).toHaveBeenCalled();
+            expect(errorMessageSpy).toHaveBeenCalledWith(localization.get("Publish_Failure_Message"));
+            expect(generateSpy).not.toHaveBeenCalled();
+        });
+
+        it("handles publish failure due to lock by other user", () => {
+            // arrange
+            const process = createStatefulProcessArtifact();
+            const action = new GenerateUserStoriesAction(
+                process, 
+                userStoryService, 
+                selectionManager, 
+                messageService, 
+                localization, 
+                dialogService, 
+                communicationManager.processDiagramCommunication
+            );
+            const generateFromTask = action.actions[0];
+            const processShape = TestModels.createUserTask(2);
+            const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
+            selectionManager.setSubArtifact(processSubArtifact);
+            const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
+            const openDialogSpy = spyOn(dialogService, "open").and.callThrough();
+            const generateSpy = spyOn(action, "generateUserStories").and.callFake(() => {/* no op */});
+            spyOn(process, "publish").and.callFake(
+                () => {
+                    const deferred = $q.defer();
+                    deferred.reject({ errorCode: ErrorCode.LockedByOtherUser });
+                    return deferred.promise;
+                }
+            );
+            const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
+
+            // act
+            process.artifactState.setState({ lockedBy: LockedByEnum.CurrentUser }, false);
+            generateFromTask.execute();
+            $rootScope.$digest();
+
+            // assert
+            expect(openDialogSpy).toHaveBeenCalled();
+            expect(errorMessageSpy).toHaveBeenCalledWith(localization.get("Publish_Failure_LockedByOtherUser_Message"));
+            expect(generateSpy).not.toHaveBeenCalled();
+        });
+
+        it("generates user stories if publish is successful", () => {
+            // arrange
+            const process = createStatefulProcessArtifact();
+            const action = new GenerateUserStoriesAction(
+                process, 
+                userStoryService, 
+                selectionManager, 
+                messageService, 
+                localization, 
+                dialogService, 
+                communicationManager.processDiagramCommunication
+            );
+            const generateFromTask = action.actions[0];
+            const processShape = TestModels.createUserTask(2);
+            const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
+            selectionManager.setSubArtifact(processSubArtifact);
+            const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
+            const openDialogSpy = spyOn(dialogService, "open").and.callThrough();
+            const generateSpy = spyOn(action, "generateUserStories").and.callFake(() => {/* no op */});
+            spyOn(process, "publish").and.callFake(
+                () => {
+                    const deferred = $q.defer();
+                    deferred.resolve();
+                    return deferred.promise;
+                }
+            );
+
+            // act
+            process.artifactState.setState({ lockedBy: LockedByEnum.CurrentUser }, false);
+            generateFromTask.execute();
+            $rootScope.$digest();
+
+            // assert
+            expect(openDialogSpy).toHaveBeenCalled();
+            expect(generateSpy).toHaveBeenCalledWith(process, processShape.id);
+        });
+
+        it("handles generic generate user task failure", () => {
+            // arrange
+            const process = createStatefulProcessArtifact();
+            const action = new GenerateUserStoriesAction(
+                process, 
+                userStoryService, 
+                selectionManager, 
+                messageService, 
+                localization, 
+                dialogService, 
+                communicationManager.processDiagramCommunication
+            );
+            const generateFromTask = action.actions[0];
+            const processShape = TestModels.createUserTask(2);
+            const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
+            selectionManager.setSubArtifact(processSubArtifact);
+            const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
+            const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(
+                () => {
+                    const deferred = $q.defer();
+                    deferred.reject();
+                    return deferred.promise;
+                }
+            );
+            const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
+
+            // act
+            generateFromTask.execute();
+            $rootScope.$digest();
+
+            // assert
+            expect(errorMessageSpy).toHaveBeenCalledWith(localization.get("ST_US_Generate_Generic_Failure_Message"));
+        });
+
+        it("handles generate user task failure due to lock by another user", () => {
+            // arrange
+            const process = createStatefulProcessArtifact();
+            const action = new GenerateUserStoriesAction(
+                process, 
+                userStoryService, 
+                selectionManager, 
+                messageService, 
+                localization, 
+                dialogService, 
+                communicationManager.processDiagramCommunication
+            );
+            const generateFromTask = action.actions[0];
+            const processShape = TestModels.createUserTask(2);
+            const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
+            selectionManager.setSubArtifact(processSubArtifact);
+            const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
+            const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(
+                () => {
+                    const deferred = $q.defer();
+                    deferred.reject({ errorCode: ErrorCode.ArtifactNotPublished });
+                    return deferred.promise;
+                }
+            );
+            const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
+
+            // act
+            generateFromTask.execute();
+            $rootScope.$digest();
+
+            // assert
+            expect(errorMessageSpy).toHaveBeenCalledWith(localization.get("ST_US_Generate_LockedByOtherUser_Failure_Message"));
+        });
+
+        it("notifies about generated user stories if generation is successful", () => {
+            // arrange
+            const process = createStatefulProcessArtifact();
+            const action = new GenerateUserStoriesAction(
+                process, 
+                userStoryService, 
+                selectionManager, 
+                messageService, 
+                localization, 
+                dialogService, 
+                communicationManager.processDiagramCommunication
+            );
+            const userStories = [ {} ];
+            const generateFromTask = action.actions[0];
+            const processShape = TestModels.createUserTask(2);
+            const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
+            selectionManager.setSubArtifact(processSubArtifact);
+            const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
+            const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(
+                () => {
+                    const deferred = $q.defer();
+                    deferred.resolve(userStories);
+                    return deferred.promise;
+                }
+            );
+            const notifySpy = spyOn(communicationManager.processDiagramCommunication, "action");
+            const successSpy = spyOn(messageService, "addInfo");
+
+            // act
+            generateFromTask.execute();
+            $rootScope.$digest();
+
+            // assert
+            expect(notifySpy).toHaveBeenCalledWith(ProcessEvents.UserStoriesGenerated, userStories);
+            expect(successSpy).toHaveBeenCalledWith(localization.get("ST_US_Generate_From_UserTask_Success_Message"));
         });
     });
 
@@ -800,6 +1025,102 @@ describe("GenerateUserStoriesAction", () => {
 
             // assert
             expect(executeSpy).toHaveBeenCalled();
+        });
+
+        it("handles generic generate user task failure", () => {
+            // arrange
+            const process = createStatefulProcessArtifact();
+            const action = new GenerateUserStoriesAction(
+                process, 
+                userStoryService, 
+                selectionManager, 
+                messageService, 
+                localization, 
+                dialogService, 
+                communicationManager.processDiagramCommunication
+            );
+            const generateAll = action.actions[1];
+            const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);
+            const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(
+                () => {
+                    const deferred = $q.defer();
+                    deferred.reject();
+                    return deferred.promise;
+                }
+            );
+            const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
+
+            // act
+            generateAll.execute();
+            $rootScope.$digest();
+
+            // assert
+            expect(errorMessageSpy).toHaveBeenCalledWith(localization.get("ST_US_Generate_Generic_Failure_Message"));
+        });
+
+        it("handles generate user task failure due to lock by another user", () => {
+            // arrange
+            const process = createStatefulProcessArtifact();
+            const action = new GenerateUserStoriesAction(
+                process, 
+                userStoryService, 
+                selectionManager, 
+                messageService, 
+                localization, 
+                dialogService, 
+                communicationManager.processDiagramCommunication
+            );
+            const generateAll = action.actions[1];
+            const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);
+            const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(
+                () => {
+                    const deferred = $q.defer();
+                    deferred.reject({ errorCode: ErrorCode.ArtifactNotPublished });
+                    return deferred.promise;
+                }
+            );
+            const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
+
+            // act
+            generateAll.execute();
+            $rootScope.$digest();
+
+            // assert
+            expect(errorMessageSpy).toHaveBeenCalledWith(localization.get("ST_US_Generate_LockedByOtherUser_Failure_Message"));
+        });
+
+        it("notifies about generated user stories if generation is successful", () => {
+            // arrange
+            const process = createStatefulProcessArtifact();
+            const action = new GenerateUserStoriesAction(
+                process, 
+                userStoryService, 
+                selectionManager, 
+                messageService, 
+                localization, 
+                dialogService, 
+                communicationManager.processDiagramCommunication
+            );
+            const userStories = [ {}, {}, {} ];
+            const generateAll = action.actions[1];
+            const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);
+            const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(
+                () => {
+                    const deferred = $q.defer();
+                    deferred.resolve(userStories);
+                    return deferred.promise;
+                }
+            );
+            const notifySpy = spyOn(communicationManager.processDiagramCommunication, "action");
+            const successSpy = spyOn(messageService, "addInfo");
+
+            // act
+            generateAll.execute();
+            $rootScope.$digest();
+
+            // assert
+            expect(notifySpy).toHaveBeenCalledWith(ProcessEvents.UserStoriesGenerated, userStories);
+            expect(successSpy).toHaveBeenCalledWith(localization.get("ST_US_Generate_All_Success_Message"));
         });
     });
 });

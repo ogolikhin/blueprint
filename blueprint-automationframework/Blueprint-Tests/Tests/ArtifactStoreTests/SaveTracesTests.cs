@@ -205,6 +205,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(1836044)]
+        [Explicit(IgnoreReasons.ProductBug)] //https://trello.com/c/aPfjGHLs does't allow to create trace from artfact to subartifact
         [Description("Add trace between Artifact and SubArtifact, check that trace has expected direction.")]
         public void AddTrace_ArtifactSubArtifact_TraceHasExpectedValue()
         {
@@ -375,7 +376,7 @@ namespace ArtifactStoreTests
         #endregion Positive Tests
 
         [TestCase]
-        [TestRail(185206)]
+        [TestRail(185206)]//now it returns 409. by deisgn?
         [Description("Create trace between artifact and deleted artifact, trace shouldn't be created.")]
         public void AddTrace_BetweenArtifactAndDeletedArtifact_NoTraceCreated()
         {

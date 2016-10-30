@@ -526,15 +526,7 @@ namespace Model.Impl
         /// <seealso cref="IArtifactStore.GetUnpublishedChanges(IUser, List{HttpStatusCode})"/>
         public INovaArtifactsAndProjectsResponse GetUnpublishedChanges(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
-
-            var unpublishedChanges = restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse>(
-                RestPaths.Svc.ArtifactStore.Artifacts.UNPUBLISHED,
-                RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: true);
-
-            return unpublishedChanges;
+            return GetUnpublishedChanges(Address, user, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetVersionControlInfo(IUser, int, List{HttpStatusCode})"/>
@@ -771,6 +763,27 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.GET,
                 expectedStatusCodes: expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// Gets list of unpublished changes for the specified user.
+        /// (Runs: GET svc/bpartifactstore/artifacts/unpublished)
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>List of artifacts and projects for the unpublished changes.</returns>
+        public static INovaArtifactsAndProjectsResponse GetUnpublishedChanges(string address, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+
+            var unpublishedChanges = restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse>(
+                RestPaths.Svc.ArtifactStore.Artifacts.UNPUBLISHED,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
+
+            return unpublishedChanges;
         }
 
         /// <summary>

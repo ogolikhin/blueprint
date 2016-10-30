@@ -5,17 +5,31 @@ import {IToolbarCommunication} from "../toolbar-communication";
 import {ILocalizationService} from "../../../../../core";
 
 export class ToggleProcessTypeAction extends BPToggleAction {
-    constructor(processArtifact: StatefulProcessArtifact,
-                toolbarCommunication: IToolbarCommunication,
-                localization: ILocalizationService) {
-        const processType: ProcessType = processArtifact.propertyValues["clientType"].value;
+    constructor(
+        process: StatefulProcessArtifact,
+        toolbarCommunication: IToolbarCommunication,
+        localization: ILocalizationService
+    ) {
+        if (!process) {
+            throw new Error("Process is not provided or is null");
+        }
+
+        if (!toolbarCommunication) {
+            throw new Error("Toolbar communication is not provided or is null");
+        }
+
+        if (!localization) {
+            throw new Error("Localization service is not provided or is null");
+        }
+
+        const processType: ProcessType = process.propertyValues["clientType"].value;
 
         super(
             processType,
             (value: ProcessType) => {
                 toolbarCommunication.toggleProcessType(value);
             },
-            () => !processArtifact.artifactState.readonly,
+            () => process && process.artifactState && !process.artifactState.readonly,
             new BPToggleItemAction(
                 "fonticon fonticon2-user-user",
                 ProcessType.BusinessProcess,

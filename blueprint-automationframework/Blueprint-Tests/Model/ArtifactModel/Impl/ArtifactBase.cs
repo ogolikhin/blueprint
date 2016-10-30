@@ -758,6 +758,7 @@ namespace Model.ArtifactModel.Impl
         {
             if (!artifact.IsMarkedForDeletion && artifact.IsPublished)
             {
+                // TODO: See if we can give the user Delete permission if they don't already have it.
                 Logger.WriteDebug("Deleting artifact ID: {0}, and its children for user: '{1}'.", artifact.Id, user.Username);
                 var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.NotFound };
                 artifact.Delete(user, expectedStatusCodes, deleteChildren: true);

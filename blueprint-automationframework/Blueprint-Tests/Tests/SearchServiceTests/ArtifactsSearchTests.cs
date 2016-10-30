@@ -276,10 +276,10 @@ namespace SearchServiceTests
         /// <param name="searchItem">searchItem to compare</param>
         private static bool DoesSearchItemCorrespondsToArtifact(IArtifact artifact, SearchItem searchItem)
         {
-            return ((searchItem.ArtifactId == artifact.Id) &&
+            return ((searchItem.Id == artifact.Id) &&
             (searchItem.Name == artifact.Name) &&
             (searchItem.ProjectId == artifact.ProjectId) &&
-            (searchItem.TypeName == artifact.ArtifactTypeName) &&
+            //(searchItem.TypeName == artifact.ArtifactTypeName) &&
             (searchItem.ItemTypeId == artifact.ArtifactTypeId));
         }
     }

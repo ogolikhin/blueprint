@@ -4,12 +4,16 @@ export class QuickSearchModalController {
     isLoading: boolean;
     results: {};
     static $inject = [
+        "$rootScope",
         "quickSearchService",
         "$log",
         "$uibModalInstance"
     ];
 
-    constructor(private quickSearchService,
+    private stateChangeStartListener: Function;
+
+    constructor(private $rootScope: ng.IRootScopeService,
+                private quickSearchService,
                 private $log: ng.ILogService,
                 private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance) {
         this.searchTerm = _.clone(this.quickSearchService.searchTerm);
@@ -30,25 +34,35 @@ export class QuickSearchModalController {
             this.results = results.items;
             this.isLoading = false;
         });
-    }
-
-    getNavigationUrl(item) {
-        return "#/main/" + item.artifactId;
-    }
+    }    
 
     hasError() {
         return this.form.$submitted &&
             this.form.$invalid;
     }
-
     $onInit() {
         if (this.searchTerm.length) {
             this.search(this.searchTerm);
         }
+        
+        this.stateChangeStartListener = this.$rootScope.$on("$stateChangeStart", this.onStateChangeStart);
+    }
+
+    onStateChangeStart = (e, toState, toParams, fromState, fromParams) => {
+        this.$log.debug("state changing from search modal");
+        // navigating to same artifact destroys the editor, but does not enter item state to load artifact.
+        if (toParams.id === fromParams.id) {
+            e.preventDefault();
+        }
+        this.closeModal();
     }
 
     closeModal() {
         this.$log.debug("close modal");
+
+        //unregister the listener 
+        this.stateChangeStartListener();
+
         this.$uibModalInstance.dismiss("cancel");
     }
 }

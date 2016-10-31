@@ -15,7 +15,7 @@ import {IWindowManager, IMainWindow, ResizeCause} from "../../../main/services";
  *               root-node-visible="false"
  *               columns="$ctrl.columns"
  *               header-height="20"
- *               on-select="$ctrl.onSelect(vm, isSelected, selectedVMs)"
+ *               on-select="$ctrl.onSelect(vm, isSelected)"
  *               on-double-click="$ctrl.onDoubleClick(vm)"
  *               on-error="$ctrl.onError(reason)">
  * </bp-tree-view>
@@ -24,6 +24,7 @@ export class BPTreeViewComponent implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BPTreeViewController;
     public template: string = require("./bp-tree-view.html");
     public bindings: {[binding: string]: string} = {
+        // Input
         gridClass: "@",
         rowBuffer: "<",
         selectionMode: "<",
@@ -32,19 +33,17 @@ export class BPTreeViewComponent implements ng.IComponentOptions {
         rootNodeVisible: "<",
         columns: "<",
         headerHeight: "<",
+        sizeColumnsToFit: "<",
+        // Output
         onSelect: "&?",
         onDoubleClick: "&?",
-        onError: "&?",
-        sizeColumnsToFit: "<"
+        onError: "&?"
     };
 }
 
 export interface IBPTreeViewController extends ng.IComponentController {
-    // Template bindings
+    // BPTreeViewComponent bindings
     gridClass: string;
-    options: agGrid.GridOptions;
-
-    // Grid options
     rowBuffer: number;
     selectionMode: "single" | "multiple" | "checkbox";
     rowHeight: number;
@@ -52,9 +51,12 @@ export interface IBPTreeViewController extends ng.IComponentController {
     rootNodeVisible: boolean;
     columns: IColumn[];
     headerHeight: number;
-    onSelect: (param: {vm: ITreeViewNodeVM, isSelected: boolean, selectedVMs: ITreeViewNodeVM[]}) => void;
+    onSelect: (param: {vm: ITreeViewNodeVM, isSelected: boolean}) => any;
     onDoubleClick: (param: {vm: ITreeViewNodeVM}) => void;
     onError: (param: {reason: any}) => void;
+
+    // ag-grid bindings
+    options: agGrid.GridOptions;
 }
 
 export interface ITreeViewNodeVM {
@@ -83,11 +85,8 @@ export interface IColumn {
 export class BPTreeViewController implements IBPTreeViewController {
     public static $inject = ["$q", "$element", "localization", "$timeout", "windowManager"];
 
-    // Template bindings
+    // BPTreeViewComponent bindings
     public gridClass: string;
-    public options: agGrid.GridOptions;
-
-    // Grid options
     public rowBuffer: number;
     public selectionMode: "single" | "multiple" | "checkbox";
     public rowHeight: number;
@@ -95,12 +94,15 @@ export class BPTreeViewController implements IBPTreeViewController {
     public rootNodeVisible: boolean;
     public columns: IColumn[];
     public headerHeight: number;
-    public onSelect: (param: {vm: ITreeViewNodeVM, isSelected: boolean, selectedVMs: ITreeViewNodeVM[]}) => void;
+    public sizeColumnsToFit: boolean;
+    public onSelect: (param: {vm: ITreeViewNodeVM, isSelected: boolean}) => any;
     public onDoubleClick: (param: {vm: ITreeViewNodeVM}) => void;
     public onError: (param: {reason: any}) => void;
-    public sizeColumnsToFit: boolean;
-    public timers = [];
 
+    // ag-grid bindings
+    public options: agGrid.GridOptions;
+
+    private timers = [];
 
     constructor(private $q: ng.IQService, private $element: ng.IAugmentedJQuery, private localization: ILocalizationService,
                 private $timeout: ng.ITimeoutService, private windowManager: IWindowManager) {
@@ -373,11 +375,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         if (isSelected && (!vm.isSelectable() || !this.isVisible(node))) {
             node.setSelected(false);
         } else if (this.onSelect) {
-            this.onSelect({
-                vm: vm,
-                isSelected: isSelected,
-                selectedVMs: this.options.api.getSelectedRows() as ITreeViewNodeVM[]
-            });
+            this.onSelect({vm: vm, isSelected: isSelected});
         }
     };
 
@@ -391,8 +389,9 @@ export class BPTreeViewController implements IBPTreeViewController {
     }
 
     public onRowDoubleClicked = (event: {data: ITreeViewNodeVM}) => {
-        if (this.onDoubleClick) {
-            this.onDoubleClick({vm: event.data});
+        const vm = event.data;
+        if (this.onDoubleClick && vm.isSelectable() && !vm.isExpandable) {
+            this.onDoubleClick({vm: vm});
         }
     };
 

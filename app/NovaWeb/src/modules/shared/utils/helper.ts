@@ -3,6 +3,9 @@ import {Models} from "../../main";
 import {ItemTypePredefined} from "../../main/models/enums";
 
 export class Helper {
+    static get ELLIPSIS_SYMBOL() {
+         return String.fromCharCode(8230);
+    }
 
     static get UID(): string {
         return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
@@ -14,12 +17,12 @@ export class Helper {
         });
     }
 
-    static limitChars(str, limit: number = 100) {
+    static limitChars(str, limit: number = 100): string {
         if (str) {
-            let text = this.stripHTMLTags(str);
+            let text = Helper.stripHTMLTags(str);
             if (text) {
                 if (text.length > limit) {
-                    return text.substring(0, limit) + "...";
+                    return text.substring(0, limit - 1) + Helper.ELLIPSIS_SYMBOL;
                 }
                 return text;
             }

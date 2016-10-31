@@ -411,7 +411,7 @@ namespace ArtifactStore.Repositories
                     ThrowForbiddenException(projectId, expandedToArtifactId);
                 }
                 var children = await GetProjectOrArtifactChildrenAsync(projectId, ancestor.Id, userId);
-                ancestor.Children = children;
+                ancestor.Children = children.Cast<IArtifact>().ToList();
                 siblings = children;
             }
         }

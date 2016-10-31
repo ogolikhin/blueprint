@@ -10,6 +10,7 @@ import {IDispose} from "../../models";
 import {HttpStatusCode} from "../../../core/http";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../main/components/dialogs/bp-confirm-publish";
 import {IDialogSettings} from "../../../shared";
+import {IApplicationError, ApplicationError} from "../../../core";
 
 export interface IStatefulArtifact extends IStatefulItem, IDispose {
     /**
@@ -21,7 +22,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     save(): ng.IPromise<IStatefulArtifact>;
     autosave(): ng.IPromise<IStatefulArtifact>;
     publish(): ng.IPromise<void>;
-    refresh(): ng.IPromise<IStatefulArtifact>;
+    refresh(allowCustomRefresh?: boolean): ng.IPromise<IStatefulArtifact>;
 
     getObservable(): Rx.Observable<IStatefulArtifact>;
     canBeSaved(): boolean;
@@ -60,9 +61,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         if (!this._subject) {
             this._subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);            
         }    
-        return this._subject;    
+        return this._subject;
     } 
-
 
     public initialize(artifact: Models.IArtifact): IState {
         if (this.parentId && this.orderIndex &&
@@ -72,9 +72,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             this.artifactState.initialize(artifact);
             super.initialize(artifact);
         }
-        if (this.historical) {
-            this.artifactState.readonly = true;
-        }
         return this.artifactState.get();
     }
 
@@ -83,7 +80,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     public getObservable(): Rx.Observable<IStatefulArtifact> {
-        if (!this.isFullArtifactLoadedOrLoading()) {
+        if (!this.isFullArtifactLoadedOrLoading() && !this.isHeadVersionDeleted()) {
             this.loadPromise = this.load();
             const customPromises = this.getCustomArtifactPromisesForGetObservable();
 
@@ -183,14 +180,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         }
     }
 
-    private isNeedToLoad() {
+    private canBeLoaded() {
         if (this.isProject()) {
             return false;
         } else if (this.artifactState.dirty && this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
             return false;
         } else if (this.artifactState.misplaced) {
-            return false;
-        } else if (this.artifactState.deleted) {
             return false;
         }
         return true;
@@ -198,26 +193,36 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     protected load(): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
-        if (this.isNeedToLoad()) {
+        // When we use head version of artifact and we know that artifact has been deleted
+        // simulate NotFound error
+        if (this.isHeadVersionDeleted()) {
+            const error = this.artifactNotFoundError();
+            this.error.onNext(error);
+            deferred.reject(error);
+            return deferred.promise;
+        }
+        if (this.canBeLoaded()) {
             this.services.artifactService.getArtifact(this.id, this.getEffectiveVersion()).then((artifact: Models.IArtifact) => {
                 this.initialize(artifact);
-                if (this.artifactState.misplaced) {
-                    deferred.reject(this);
-                } else {
-                    deferred.resolve(this);
-                }
-            }).catch((err) => {
-                if (err && err.statusCode === HttpStatusCode.NotFound) {
+                deferred.resolve(this);
+            }).catch((error: IApplicationError) => {
+                if (error && error.statusCode === HttpStatusCode.NotFound) {
                     this.artifactState.deleted = true;
                 }
-
-                deferred.reject(err);
+                this.error.onNext(error);
+                deferred.reject(error);
             });
         } else {
             deferred.resolve(this);
         }
 
         return deferred.promise;
+    }
+
+    private artifactNotFoundError() {
+        const error = new ApplicationError();
+        error.statusCode = HttpStatusCode.NotFound;
+        return error;
     }
 
     public unload() {
@@ -278,6 +283,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 this.discardChanges();
                 if (lock.result === Enums.LockResultEnum.DoesNotExist) {
                     this.artifactState.deleted = true;
+                    const error = this.artifactNotFoundError();
+                    this.error.onNext(error);
                 } else {
                     this.artifactState.readonly = true;
                 }
@@ -348,7 +355,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                     deferred.reject(this.handleSaveError(error));
                 } else {
                     deferred.reject(error);
-                }            
+                }
             });
         } else {
             this.saveArtifact()
@@ -467,7 +474,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             deffered.resolve();
         })
         .catch((err) => {
-            if (err && err.statusCode === HttpStatusCode.Conflict) {
+            if (err && err.statusCode === HttpStatusCode.Conflict && err.errorContent) {
                 this.publishDependents(err.errorContent);
             } else {
                 this.services.messageService.addError(err);
@@ -508,7 +515,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         });
     }
 
-    public refresh(): ng.IPromise<IStatefulArtifact> {
+    public refresh(allowCustomRefresh: boolean = true): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         this.discardChanges();
 
@@ -530,20 +537,24 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         promisesToExecute.push(this.services.metaDataService.remove(this.projectId));
 
-        // get promises for custom artifact refresh operations
-        promisesToExecute.push.apply(promisesToExecute,
-            this.getCustomArtifactPromisesForRefresh());
+        if (allowCustomRefresh) {
+            // get promises for custom artifact refresh operations
+            promisesToExecute.push.apply(promisesToExecute, this.getCustomArtifactPromisesForRefresh());
+        }
 
-        this.getServices().$q.all(promisesToExecute).then(() => {
-            this.subject.onNext(this);
-            deferred.resolve(this);
-        }).catch(error => {
-            deferred.reject(error);
+        this.getServices().$q.all(promisesToExecute)
+            .then(() => {
+                this.subject.onNext(this);
+                deferred.resolve(this);
+            })
+            .catch((error) => {
+                deferred.reject(error);
 
-            //Project manager is listening to this, and will refresh the project.
-            this.subject.onNext(this);
-        });
+                //Project manager is listening to this, and will refresh the project.
+                this.subject.onNext(this);
 
+                this.error.onNext(error);
+            });
 
         return deferred.promise;
     } 

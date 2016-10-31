@@ -1,5 +1,5 @@
 import * as angular from "angular";
-export var ELLIPSIS_SYMBOL = String.fromCharCode(8230);
+import {Helper} from "../../../../../../../shared/utils/helper";
 
 export interface ILabel {
     render(): void;
@@ -227,15 +227,7 @@ export class Label implements ILabel {
     }
 
     private setShortText() {
-        this.div.innerText = this.getShortText();
-    }
-
-    public getShortText(): string {
-        let value: string = this._text;
-        if (this._text.length > this.maxVisibleTextLength) {
-            value = this._text.substring(0, this.maxVisibleTextLength - 1) + ELLIPSIS_SYMBOL;
-        }
-        return value;
+        this.div.innerText = Helper.limitChars(this._text, this.maxVisibleTextLength);
     }
 
     private setEditMode() {
@@ -285,6 +277,10 @@ export class Label implements ILabel {
             this.div.style.borderColor = "#666";
             this.div.style.backgroundColor = "#c7edf8";
             this.div.style.color = this.style.highlitedTextColor;
+            
+            if (this.mode === divMode.VIEW) {
+                this.div.innerText = this._text;
+            }        
         } else {
             this.setMouseoutStyle();
         }
@@ -295,6 +291,10 @@ export class Label implements ILabel {
         this.div.style.background = "none";
         this.div.style.backgroundColor = this.style.backColor;
         this.div.style.color = this.style.textColor;
+
+        if (this.mode === divMode.VIEW) {
+            this.setShortText();
+        }        
     }
 
     private onBlur = (e) => {

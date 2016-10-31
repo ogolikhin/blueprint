@@ -972,6 +972,13 @@ body.mce-content-body a, body.mce-content-body a:hover {
     height: 0;
     display: none;
 }
+.process-dividing-label {
+    @extend .nova-label;
+    i:before {
+        font-size: 1.3rem;
+        margin-right: 2px;
+    }
+}
 .storyteller-include_container {
     display: flex;
 }
@@ -996,4 +1003,7 @@ body.mce-content-body a, body.mce-content-body a:hover {
 .storyteller-include_btn {
     min-width: auto;
     padding-left: 7px; // buttons with icons inside are uneven due to padding on the icons
+}
+.dropdown-menu__item i:before {
+    font-size: 2.0rem;
 }

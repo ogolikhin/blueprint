@@ -756,9 +756,11 @@ pagecontent, bp-properties-panel {
                 }
             }
 
-            &.formly-field-bpFieldSelectMulti .error-messages,
-            &.formly-field-bpFieldUserPicker .error-messages {
-                right: -20px;
+            &.formly-field-bpFieldSelectMulti,
+            &.formly-field-bpFieldUserPicker {
+                .ui-select-wrapper {
+                    width: $property-input-width;
+                }
             }
 
             .has-error {

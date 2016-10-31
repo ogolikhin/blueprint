@@ -36,7 +36,7 @@ namespace Model.ArtifactModel.Impl
 
         public int AttachmentId { get; set; }
 
-        public DateTime UploadedDate { get; set; }
+        public DateTime? UploadedDate { get; set; }
     }
 
     /// <summary>

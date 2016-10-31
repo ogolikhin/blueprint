@@ -125,6 +125,10 @@ export class NodeLabelEditor {
 
         e = e || window.event;
 
+        if (e.target && e.target.contentEditable === "true") {
+            return null;
+        }
+
         x = e.offsetX;
         y = e.offsetY;
 

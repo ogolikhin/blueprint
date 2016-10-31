@@ -141,7 +141,7 @@ namespace SearchService.Repositories
             param.Add("@pageSize", pageSize);
             param.Add("@maxSearchableValueStringSize", _searchConfigurationProvider.MaxSearchableValueStringSize);
 
-            var items = (await ConnectionWrapper.QueryAsync<ItemSearchResult>("SearchItemNameByItemTypes", param, commandType: CommandType.StoredProcedure)).ToList();
+            var items = (await ConnectionWrapper.QueryAsync<ItemNameSearchResult>("SearchItemNameByItemTypes", param, commandType: CommandType.StoredProcedure)).ToList();
             return new ItemNameSearchResultSet
             {
                 Items = items,

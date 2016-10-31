@@ -84,7 +84,7 @@ export class BpArtifactInfoController {
         this.artifact = this.artifactManager.selection.getArtifact();
         if (this.artifact) {
             const artifactStateSub = this.artifact.getObservable()
-                .subscribe(this.onArtifactChanged, this.onError);
+                .subscribeOnNext(this.onArtifactChanged);
             
             this.subscribers.push(artifactStateSub);
         }
@@ -117,17 +117,6 @@ export class BpArtifactInfoController {
             });
 
         this.subscribers.push(stateObserver);
-    }
-
-    public onError = (error: IApplicationError ) => {
-        if (error && error.message) {
-            if (this.artifact.artifactState.deleted || this.artifact.artifactState.misplaced) {
-                //Occurs when refreshing an artifact that's been moved/deleted; do nothing
-            } else {
-                this.messageService.addError(error);
-            }
-        }
-        this.onArtifactChanged();
     }
 
     private initProperties() {

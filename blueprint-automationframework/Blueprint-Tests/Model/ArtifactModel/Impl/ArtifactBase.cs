@@ -7,6 +7,7 @@ using System.Net;
 using NUnit.Framework;
 using System.Reflection;
 using Common;
+using Model.Factories;
 using Model.Impl;
 using Utilities;
 using Utilities.Facades;
@@ -684,18 +685,11 @@ namespace Model.ArtifactModel.Impl
                 return;
             }
 
-            // Get a list of all child artifacts that were deleted along with the parent.
-            var deletedArtifactResults = new List<DeleteArtifactResult>();
-
-            foreach (var artifact in artifactList.ToArray())
-            {
-                deletedArtifactResults.AddRange(((ArtifactBase) artifact).DeletedArtifactResults);
-            }
-
-            var otherDeletedArtifactIds = deletedArtifactResults.ConvertAll(a => a.ArtifactId).Distinct();
+            IArtifactStore artifactStore = ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
             var savedArtifactsDictionary = new Dictionary<IUser, List<IArtifactBase>>();
+            var publishedArtifactsDictionary = new Dictionary<IUser, List<IArtifactBase>>();
 
-            // Separate the published from the unpublished artifacts.  Delete the published ones, and discard the saved ones.
+            // Create lists of artifacts that are saved vs published by user.
             foreach (var artifact in artifactList.ToArray())
             {
                 artifactList.Remove(artifact);
@@ -707,9 +701,16 @@ namespace Model.ArtifactModel.Impl
                 }
                 else if (artifact.IsPublished)
                 {
-                    DeleteAndPublishArtifact(artifact, user);
+                    if (publishedArtifactsDictionary.ContainsKey(user))
+                    {
+                        publishedArtifactsDictionary[user].Add(artifact);
+                    }
+                    else
+                    {
+                        publishedArtifactsDictionary.Add(user, new List<IArtifactBase> { artifact });
+                    }
                 }
-                else if (artifact.IsSaved && !otherDeletedArtifactIds.Contains(artifact.Id))
+                else
                 {
                     if (savedArtifactsDictionary.ContainsKey(user))
                     {
@@ -724,33 +725,44 @@ namespace Model.ArtifactModel.Impl
                 artifact.UnregisterObserver(observer);
             }
 
-            // For each user that created artifacts, discard the list of artifacts they created.
+            // For each user that created saved artifacts, discard the list of artifacts they created.
             foreach (IUser user in savedArtifactsDictionary.Keys)
             {
                 var artifacts = savedArtifactsDictionary[user];
-
                 Logger.WriteDebug("*** Discarding all unpublished artifacts created by user: '{0}'.", user.Username);
-                ArtifactStore.DiscardArtifacts(artifacts.First().Address, artifacts, user, all: true);
+                artifactStore.DiscardArtifacts(artifacts, user, all: true);
+            }
+
+            // For each user that created published artifacts, delete & publish the list of artifacts they created.
+            foreach (IUser user in savedArtifactsDictionary.Keys)
+            {
+                var artifacts = savedArtifactsDictionary[user];
+                Logger.WriteDebug("*** Discarding all unpublished artifacts created by user: '{0}'.", user.Username);
+
+                foreach (var artifact in artifacts)
+                {
+                    DeleteArtifact(artifact, user);
+                }
+
+                Logger.WriteDebug("*** Publishing all deleted artifacts by user ID: '{0}'...", user.Id);
+                artifactStore.PublishArtifacts(artifacts, user, all: true);
             }
         }
 
         /// <summary>
-        /// Delete (if not already marked for deletion) and publish the artifact using the specified user.
+        /// Delete the artifact (if not already marked for deletion) using the specified user.
         /// </summary>
-        /// <param name="artifact">The artifact to delete and publish.</param>
+        /// <param name="artifact">The artifact to delete.</param>
         /// <param name="user">The user to authenticate with.</param>
-        private static void DeleteAndPublishArtifact(IArtifactBase artifact, IUser user)
+        private static void DeleteArtifact(IArtifactBase artifact, IUser user)
         {
             if (!artifact.IsMarkedForDeletion && artifact.IsPublished)
             {
-                Logger.WriteDebug("Deleting artifact ID: {0}, and its children.", artifact.Id);
+                // TODO: See if we can give the user Delete permission if they don't already have it.
+                Logger.WriteDebug("Deleting artifact ID: {0}, and its children for user: '{1}'.", artifact.Id, user.Username);
                 var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.NotFound };
-                artifact.Delete(artifact.LockOwner, expectedStatusCodes, deleteChildren: true);
+                artifact.Delete(user, expectedStatusCodes, deleteChildren: true);
             }
-
-            // Publish all artifacts changed by this user.
-            Logger.WriteDebug("Publishing deleted artifact ID: {0}, and its children.", artifact.Id);
-            ArtifactStore.PublishArtifacts(artifact.Address, artifacts: null, user: user, all: true);
         }
     }
 

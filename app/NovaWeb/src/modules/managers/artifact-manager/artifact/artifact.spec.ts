@@ -40,7 +40,7 @@ describe("Artifact", () => {
 
     describe("Publish", () => {
         it("success", inject((publishService: IPublishService, statefulArtifactFactory: IStatefulArtifactFactory, $rootScope: ng.IRootScopeService) => {
-            // Arrange
+            // arrange
             const artifactModel = {
                 id: 22,
                 name: "Artifact",
@@ -50,14 +50,52 @@ describe("Artifact", () => {
             } as Models.IArtifact;
             const artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
 
-            // Act
+            // act
             artifact.publish();
             $rootScope.$digest();
             
-            // Assert
+            // assert
             expect(artifact.artifactState.lockedBy).toEqual(Enums.LockedByEnum.None);
         }));
-
     });
 
+    describe("refresh", () => {
+        it("invokes custom refresh if allowed", inject((statefulArtifactFactory: IStatefulArtifactFactory) => {
+            // arrange
+            const artifactModel = {
+                id: 22,
+                name: "Artifact",
+                prefix: "My",
+                lockedByUser: Enums.LockedByEnum.CurrentUser,
+                predefinedType: Models.ItemTypePredefined.Actor
+            } as Models.IArtifact;
+            const artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
+            const customRefreshSpy = spyOn(artifact, "getCustomArtifactPromisesForRefresh");
+
+            // act
+            artifact.refresh();
+
+            // assert
+            expect(customRefreshSpy).toHaveBeenCalled();
+        }));
+
+        it("doesn't invoke custom refresh if not allowed", inject((statefulArtifactFactory: IStatefulArtifactFactory) => {
+            // arrange
+            const artifactModel = {
+                id: 22,
+                name: "Artifact",
+                prefix: "My",
+                lockedByUser: Enums.LockedByEnum.CurrentUser,
+                predefinedType: Models.ItemTypePredefined.Actor
+            } as Models.IArtifact;
+            const artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
+            const customRefreshSpy = spyOn(artifact, "getCustomArtifactPromisesForRefresh");
+
+            // act
+            artifact.refresh(false);
+
+            // assert
+            expect(customRefreshSpy).not.toHaveBeenCalled();
+        }));
+    });
 });

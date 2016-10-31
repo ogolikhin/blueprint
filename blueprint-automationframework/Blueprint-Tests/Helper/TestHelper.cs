@@ -740,7 +740,7 @@ namespace Helper
         /// Optionally, creates role permissions for a single artifact within a project.
         /// </summary>
         /// <param name="user">User to assign role</param>
-        /// <param name="role">Role permission</param>
+        /// <param name="rolePermissions">Role permissions.</param>
         /// <param name="project">The project that the role is created for</param>
         /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide
         /// after adding a new permissions role</param>

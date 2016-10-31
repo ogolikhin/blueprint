@@ -124,6 +124,11 @@ namespace SearchService.Controllers
 
             var results = await _itemSearchRepository.SearchName(userId, searchCriteria, searchStartOffset, searchPageSize);
 
+            foreach (var searchItem in results.Items)
+            {
+                searchItem.LockedByUser = searchItem.LockedByUserId.HasValue ? new UserGroup { Id = searchItem.LockedByUserId } : null;
+            }
+
             if (searchCriteria.IncludeArtifactPath)
             {
                 // TODO Get Search Artifact Path

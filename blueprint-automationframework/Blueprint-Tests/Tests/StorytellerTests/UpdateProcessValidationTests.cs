@@ -208,15 +208,9 @@ namespace StorytellerTests
 
             var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
 
-            var expectedValidationResponseContent = I18NHelper.FormatInvariant(
-                    ProcessValidationResponse.ArtifactAlreadyLocked,
-                    process.Id,
-                    process.Name,
-                    _user2.Username);
-
             // Assert that the deserialized response indicates that the artifact is locked
             // by the second user
-            AssertValidationResponse(deserializedResponse, expectedValidationResponseContent);
+            AssertValidationResponse(deserializedResponse, ProcessValidationResponse.ArtifactAlreadyLocked);
         }
         
         [TestCase]

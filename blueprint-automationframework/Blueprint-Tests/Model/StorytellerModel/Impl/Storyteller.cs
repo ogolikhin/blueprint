@@ -316,8 +316,13 @@ namespace Model.StorytellerModel.Impl
 
             if (lockArtifactBeforeUpdate)
             {
-                // Lock process artifact before update
-                Artifact.Lock(new ArtifactBase(Address, process.Id, process.ProjectId), Address, user);
+                var artifactToLock = Artifacts.Find(a => a.Id == process.Id);
+
+                if (!artifactToLock.Status.IsLocked)
+                {
+                    // Lock process artifact before update
+                    artifactToLock.Lock(user);
+                }
             }
 
             var restResponse = UpdateProcessAndGetRestResponse(user, process, expectedStatusCodes, sendAuthorizationAsCookie);
@@ -334,8 +339,13 @@ namespace Model.StorytellerModel.Impl
 
             if (lockArtifactBeforeUpdate)
             {
-                // Lock process artifact before update
-                Artifact.Lock(new ArtifactBase(Address, process.Id, process.ProjectId), Address, user);
+                var artifactToLock = Artifacts.Find(a => a.Id == process.Id);
+
+                if (!artifactToLock.Status.IsLocked)
+                {
+                    // Lock process artifact before update
+                    artifactToLock.Lock(user);
+                }
             }
 
             var restResponse = UpdateProcessAndGetRestResponse(user, process, expectedStatusCodes, sendAuthorizationAsCookie);
@@ -577,6 +587,7 @@ namespace Model.StorytellerModel.Impl
             var publishedArtifact = Artifacts.Find(artifact => artifact.Id == artifactId);
             publishedArtifact.IsSaved = false;
             publishedArtifact.IsPublished = true;
+            publishedArtifact.Status.IsLocked = false;
         }
 
         /// <summary>
@@ -587,6 +598,7 @@ namespace Model.StorytellerModel.Impl
         {
             var publishedArtifact = Artifacts.Find(artifact => artifact.Id == artifactId);
             publishedArtifact.IsSaved = true;
+            publishedArtifact.Status.IsLocked = true;
         }
 
         /// <summary>

@@ -531,12 +531,18 @@ namespace ArtifactStoreTests
 
             artifactChain.Last().Lock(userWithLock);
 
-            // Execute & Verify:
-            Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DeleteArtifact(artifactChain.First(), _user),
-                "We should get a 409 Conflict when a user tries to delete an artifact when it has a child locked by another user!");
-
-            // Discard the lock so teardown will succeed
-            artifactChain.Last().Discard(userWithLock);
+            try
+            {
+                // Execute & Verify:
+                Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DeleteArtifact(artifactChain.First(), _user),
+                    "We should get a 409 Conflict when a user tries to delete an artifact when it has a child locked by another user!");
+            }
+            finally
+            {
+                // Delete & publish the locked artifact so the TearDown will succeed.
+                artifactChain.Last().Delete(userWithLock);
+                artifactChain.Last().Publish(userWithLock);
+            }
         }
 
         #endregion 409 Conflict tests

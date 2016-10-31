@@ -54,6 +54,7 @@ namespace Model.StorytellerModel.Impl
                         a.IsDeleted = true;
                         a.IsPublished = false;
                         a.IsSaved = false;
+                        a.Status.IsLocked = false;
                     }
                 });
                 Artifacts.RemoveAll(a => a.Id == deletedArtifactId);
@@ -84,6 +85,7 @@ namespace Model.StorytellerModel.Impl
                         }
 
                         a.IsSaved = false;
+                        a.Status.IsLocked = false;
                     }
                 });
                 Artifacts.RemoveAll(a => a.Id == publishedArtifactId);

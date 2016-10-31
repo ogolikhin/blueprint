@@ -17,24 +17,16 @@ export class DiscardAction extends BPButtonAction {
             (): void => {
                 let overlayId: number = loadingOverlayService.beginLoading();
 
-                try {
-                    artifact.discard()
-                    .catch((err) => {
-                        if (err) {
-                            messageService.addError(err);
-                        }
-                    })
-                    .finally(() => {
-                        loadingOverlayService.endLoading(overlayId);
-                    });
-                } catch (err) {
-                    loadingOverlayService.endLoading(overlayId);
-
+                artifact.discard()
+                .catch((err) => {
                     if (err) {
                         messageService.addError(err);
-                        throw err;
                     }
-                }
+                })
+                .finally(() => {
+                    loadingOverlayService.endLoading(overlayId);
+                });
+
             },
             (): boolean => artifact ? artifact.canBePublished() : false,
             "fonticon2-discard-line",

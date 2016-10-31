@@ -7,12 +7,12 @@
     <div class="heading">Overview</div>
     <div class="content">
         <form novalidate>
-            <div class="properties" ng-class="{'collapsed': isSystemPropertiesCollapsed}"
+            <div class="properties" ng-class="{'collapsed': $ctrl.isSystemPropertiesCollapsed}"
                  ng-if="$ctrl.isSystemPropertyAvailable">
-                <div class="heading" ng-click="isSystemPropertiesCollapsed = !isSystemPropertiesCollapsed">
+                <div class="heading" ng-click="$ctrl.isSystemPropertiesCollapsed = !$ctrl.isSystemPropertiesCollapsed">
                     {{::$root.config.labels['App_Properties_System_Properties_Label']}}
                 </div>
-                <div class="system-properties content collapse" ng-class="{'in': !isSystemPropertiesCollapsed}">
+                <div class="system-properties content collapse" ng-class="{'in': !$ctrl.isSystemPropertiesCollapsed}">
                     <formly-form model="$ctrl.model" fields="$ctrl.systemFields">
                     </formly-form>
                 </div>

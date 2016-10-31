@@ -43,6 +43,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public collection: ICollection;
     public selectAll: boolean = false;
     public selectAllClass: string;
+    public isSystemPropertiesCollapsed: boolean = true;
     //public reviewUrl: string;
 
     constructor(private $state: ng.ui.IStateService,

@@ -17,7 +17,7 @@ export class DiscardAction extends BPButtonAction {
             (): void => {
                 let overlayId: number = loadingOverlayService.beginLoading();
 
-                artifact.discard()
+                artifact.discardArtifact()
                 .catch((err) => {
                     if (err) {
                         messageService.addError(err);

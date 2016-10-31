@@ -22,6 +22,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     save(): ng.IPromise<IStatefulArtifact>;
     autosave(): ng.IPromise<IStatefulArtifact>;
     publish(): ng.IPromise<void>;
+    discardArtifact(): ng.IPromise<void>;
     refresh(allowCustomRefresh?: boolean): ng.IPromise<IStatefulArtifact>;
 
     getObservable(): Rx.Observable<IStatefulArtifact>;
@@ -104,11 +105,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         this.subject.onNext(this);
     } 
 
-    private discardChanges() {
+    public discard() {
         super.discard();
+        this.artifactState.dirty = false;
     }
 
-    public discard() {
+    public discardArtifact(): ng.IPromise<void> {
         let deffered = this.services.getDeferred<void>();
 
         this.services.publishService.discardArtifacts([this.id])
@@ -280,7 +282,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                     this.services.messageService.addInfo("Artifact_Lock_Refresh", 6000);
                 }
             } else {
-                this.discardChanges();
+                this.discard();
                 if (lock.result === Enums.LockResultEnum.DoesNotExist) {
                     this.artifactState.deleted = true;
                     const error = this.artifactNotFoundError();
@@ -381,7 +383,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         } else {
             this.services.artifactService.updateArtifact(changes)
                 .then((artifact: Models.IArtifact) => {
-                    this.discardChanges();
+                    this.discard();
                     this.refresh().then((a) => {
                         deferred.resolve(a);
                     }).catch((error) => {
@@ -517,7 +519,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     public refresh(allowCustomRefresh: boolean = true): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
-        this.discardChanges();
+        this.discard();
 
         const promisesToExecute: ng.IPromise<any>[] = [];
 

@@ -35,6 +35,15 @@ export class AppRoutes {
             .state("error", {
                 url: "/error",
                 template: require("./error/error-page.html")
+            })
+            .state("licenseError", {
+                url: "/invalidLicense",
+                template: require("./error/error-license.html")
+                // resolve: {
+                //     authenticated: ["session", (session: ISession) => {
+                //         return session.ensureAuthenticated();
+                //     }]
+                // }
             });
     }
 }

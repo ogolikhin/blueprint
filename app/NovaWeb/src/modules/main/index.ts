@@ -33,6 +33,10 @@ export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateSer
         $state.transitionTo("error");
     }
 
+    if (labels) { //TODO: where is window["config"] set? Need to do same for licenseError.
+    //    $state.transitionTo("licenseError");
+    }
+
     tinymce.baseURL = "../novaweb/libs/tinymce";
 }
 

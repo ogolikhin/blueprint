@@ -10,7 +10,7 @@ export interface ISearchItem {
     createdBy: string;
     createdDateTime: string;
     createdUser: number;
-    isSubArtifact: boolean;
+    isSubartifact: boolean;
     itemId: number;
     itemTypeId: number;
     lastModifiedBy: string;

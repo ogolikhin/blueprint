@@ -84,7 +84,7 @@ export class ItemStateController {
                 this.messageService.addError("This artifact type cannot be opened directly using the Go To feature.");
             }
         }).catch(error => {
-            this.navigationService.navigateToMain();
+            this.navigationService.navigateToMain(true);
             // Forbidden and ServerError responces are handled in http-error-interceptor.ts
             if (error.statusCode === HttpStatusCode.NotFound) {
                 this.messageService.addError("HttpError_NotFound");

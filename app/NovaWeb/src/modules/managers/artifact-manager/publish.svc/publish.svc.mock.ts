@@ -22,4 +22,14 @@ export class PublishServiceMock implements IPublishService {
         deferred.resolve();
         return deferred.promise;
     }
+    public discardArtifacts(artifactIds: number[]): ng.IPromise<Models.IPublishResultSet> {
+        const deferred = this.$q.defer<any>();
+        deferred.resolve();
+        return deferred.promise;
+    }
+    public discardAll(): ng.IPromise<Models.IPublishResultSet> {
+        const deferred = this.$q.defer<any>();
+        deferred.resolve();
+        return deferred.promise;
+    }
 }

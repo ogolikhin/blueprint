@@ -87,7 +87,7 @@ namespace StorytellerTests
             returnedProcess.DeleteSystemDecisionBranch(systemDecisionForDeletionProcess, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint);
 
             // Get and deserialize response
-            var response = Helper.Storyteller.UpdateProcessReturnResponseOnly(_user, returnedProcess, new List<HttpStatusCode> { HttpStatusCode.BadRequest });
+            var response = Helper.Storyteller.UpdateProcessReturnResponseOnly(_user, returnedProcess, expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.BadRequest });
 
             var expectedMessage = I18NHelper.FormatInvariant(MinimumNumberBranchValidationFormat,
                 systemDecisionForDeletionProcess.Id);
@@ -142,7 +142,7 @@ namespace StorytellerTests
             returnedProcess.DeleteUserDecisionBranch(userDecisionForDeletionProcess, preconditionOutgoingLink.Orderindex + 1, branchEndPoint);
 
             // Get and deserialize response
-            var response = Helper.Storyteller.UpdateProcessReturnResponseOnly(_user, returnedProcess, new List<HttpStatusCode> { HttpStatusCode.BadRequest });
+            var response = Helper.Storyteller.UpdateProcessReturnResponseOnly(_user, returnedProcess, expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.BadRequest });
 
             var expectedMessage = I18NHelper.FormatInvariant(MinimumNumberBranchValidationFormat,
                 userDecisionForDeletionProcess.Id);

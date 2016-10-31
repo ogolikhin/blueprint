@@ -57,13 +57,7 @@
             </a>
         </li>
         <li>
-            <a href="#" id="refreshAll" ng-click="$ctrl.execute($event)" ng-if="$ctrl.canRefreshAll">
-                <div class="icon-container">
-                    <i class="fonticon fonticon2-refresh-line"></i>
-                </div>
-                <span>{{::$root.config.labels["App_Toolbar_Refresh_All"]}}</span>
-            </a>
-            <a href="#" id="refreshAll" class="disabled" ng-if="!$ctrl.canRefreshAll">
+            <a href="#" id="refreshAll" ng-class="{disabled: !$ctrl.canRefreshAll}" ng-click="$ctrl.execute($event)">
                 <div class="icon-container">
                     <i class="fonticon fonticon2-refresh-line"></i>
                 </div>

@@ -277,14 +277,15 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         const textLabelStyle: LabelStyle = new LabelStyle(
             "Open Sans",
             12,
-            "white",
+            "trasparent",
             "#4C4C4C",
             "bold",
             y - 30,
             x - this.USER_TASK_WIDTH / 2 + 4,
             66,
             this.USER_TASK_WIDTH - 8,
-            "#4C4C4C"
+            "#4C4C4C",
+            "white"
         );
         this.textLabel = new Label((value: string) => {
                 this.label = value;

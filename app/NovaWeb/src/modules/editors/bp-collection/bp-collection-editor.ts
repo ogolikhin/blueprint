@@ -137,7 +137,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                     tooltipText = tooltipText + `${Helper.escapeHTMLText(collectionArtifact)}` ;
                 });
 
-                return `<div bp-tooltip="${vm.model.name}" bp-tooltip-truncated="true">${vm.model.name}</div>` +
+                return `<div bp-tooltip="${vm.model.name}" bp-tooltip-truncated="true" class="collection__name">${vm.model.name}</div>` +
                             `<div bp-tooltip="${tooltipText}" bp-tooltip-truncated="true" class="path">` + tooltipText + `</div>`;
             }
         },
@@ -147,7 +147,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             isCheckboxHidden: true,
             innerRenderer: (vm: CollectionNodeVM, eGridCell: HTMLElement) => {
                 if (vm.model.description) {
-                    return `<div class="collection-description" bp-tooltip="${vm.model.description}" bp-tooltip-truncated="true">${vm.model.description}</div>`;
+                    return `<div class="collection__description" bp-tooltip="${vm.model.description}" ` +
+                        `bp-tooltip-truncated="true">${vm.model.description}</div>`;
                 }
 
                 return "";

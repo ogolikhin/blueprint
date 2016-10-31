@@ -239,6 +239,7 @@ Login_Session_NewPasswordCannotBeEmpty,"New password cannot be empty."
 Login_Session_NewPasswordSameAsOld,"Ensure your new password is different <br>from the current one."
 Login_Session_NewPasswordCriteria,"Your new password must contain at least one number, <br>uppercase letter, and non-alphanumeric character."
 Login_Session_Timeout,"​Your session has expired or was overridden.<br>Please log in to continue.​"
+Login_Session_InvalidLicense,"Your license does not include access to this application."
 
 Input_Required,"Required"
 

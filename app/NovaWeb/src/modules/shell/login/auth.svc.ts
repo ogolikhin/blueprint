@@ -195,7 +195,9 @@ export class AuthSvc implements IAuth {
                             let user = result.data;
 
                             if (user.licenseType === LicenseType.Viewer) {
-                                deferred.reject({message: this.localization.get("Viewer License Not Allowed")}); //TODO: Localize
+                                this.internalLogout(token).finally(() => {
+                                    deferred.reject({message: this.localization.get("Login_Session_InvalidLicense")}); //TODO: Localize
+                                }); 
                             } else if (isSaml && prevLogin && prevLogin !== user.login) {
                                 this.internalLogout(token).finally(() => {
                                     deferred.reject({message: this.localization.get("Login_Auth_SamlContinueSessionWithOriginalUser")});

@@ -1,5 +1,12 @@
 ﻿import {ProcessShapeType, ProcessType} from "./enums";
-import {IProcess, IProcessShape, ProcessModel, ProcessShapeModel, IUserTaskShape} from "./process-models";
+import {
+    IProcess, 
+    IProcessShape, 
+    ProcessModel, 
+    ProcessShapeModel, 
+    IUserTaskShape, 
+    ISystemTaskShape
+} from "./process-models";
 import {ShapesFactory} from "../components/diagram/presentation/graph/shapes/shapes-factory";
 import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
@@ -44,14 +51,48 @@ export function createShapeModel(type: ProcessShapeType, id: number, x?: number,
     return shapeModel;
 }
 
+export function createStart(id: number, x?: number, y?: number): IProcessShape {
+    const start = createShapeModel(ProcessShapeType.Start, id, x, y);
+    return start;
+}
+
+export function createEnd(id: number, x?: number, y?: number): IProcessShape {
+    const end = createShapeModel(ProcessShapeType.End, id, x, y);
+    return end;
+}
+
+export function createPrecondition(id: number, x?: number, y?: number): IProcessShape {
+    const precondition = createShapeModel(ProcessShapeType.PreconditionSystemTask, id, x, y);
+    return precondition;
+}
+
 export function createUserTask(id: number, x?: number, y?: number, hasComments: boolean = false, hasTraces: boolean = false): IUserTaskShape {
-    const shape = createShapeModel(ProcessShapeType.UserTask, id, x, y);
-    shape["flags"] = {
+    const userTask = createShapeModel(ProcessShapeType.UserTask, id, x, y);
+    userTask["flags"] = {
         hasComments: hasComments,
         hasTraces: hasTraces
     };
 
-    return <IUserTaskShape>shape;
+    return <IUserTaskShape>userTask;
+}
+
+export function createUserDecision(id: number, x?: number, y?: number): IProcessShape {
+    const userDecision = createShapeModel(ProcessShapeType.UserDecision, id, x, y);
+    return userDecision;
+}
+
+export function createSystemTask(id: number, x?: number, y?: number, hasComments: boolean = false, hasTraces: boolean = false): ISystemTaskShape {
+    const systemTask = createShapeModel(ProcessShapeType.SystemTask, id, x, y);
+    systemTask["flags"] = {
+        hasComments: hasComments,
+        hasTraces: hasTraces
+    };
+    return <ISystemTaskShape>systemTask;
+}
+
+export function createSystemDecision(id: number, x?: number, y?: number): IProcessShape {
+    const systemDecision = createShapeModel(ProcessShapeType.SystemDecision, id, x, y);
+    return systemDecision;
 }
 
 export function createDefaultProcessModel(): IProcess {
@@ -213,7 +254,7 @@ export function createTwoUserTaskModel(): IProcess {
 }
 
 export function createUserDecisionWithTwoBranchesModel(): IProcess {
-    var shapesFactory = createShapesFactoryService();
+    const shapesFactory = createShapesFactoryService();
     let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
 
     let start = createShapeModel(ProcessShapeType.Start, 2, 0, 0);
@@ -753,7 +794,7 @@ export function createInfiniteLoopFromDifferentDecisions(): IProcess {
 }
 
 export function createUserDecisionTestModel(decisionShape: IProcessShape): IProcess {
-    var shapesFactory = createShapesFactoryService();
+    const shapesFactory = createShapesFactoryService();
     let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
 
     let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
@@ -793,7 +834,7 @@ export function createUserDecisionTestModel(decisionShape: IProcessShape): IProc
 
 
 export function createSystemDecisionTestModel(decisionShape: IProcessShape): IProcess {
-    var shapesFactory = createShapesFactoryService();
+    const shapesFactory = createShapesFactoryService();
     let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
 
     let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
@@ -936,7 +977,7 @@ export function createUserDecisionWithMaximumConditionsModel(): IProcess {
 }
 
 export function createSystemDecisionWithTwoBranchesModel(): IProcess {
-    var shapesFactory = createShapesFactoryService();
+    const shapesFactory = createShapesFactoryService();
     let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
 
     let start = createShapeModel(ProcessShapeType.Start, 2, 0, 0);
@@ -1025,7 +1066,7 @@ export function createSystemDecisionWithMaximumConditionsModel(): IProcess {
 }
 
 export function createUserDecisionWithMultipleBranchesModel(): IProcess {
-    var shapesFactory = createShapesFactoryService();
+    const shapesFactory = createShapesFactoryService();
     let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
 
     /*
@@ -1083,7 +1124,7 @@ export function createUserDecisionWithMultipleBranchesModel_V2(): IProcess {
      -> ut4 -> st4 ->
      */
 
-    var shapesFactory = createShapesFactoryService();
+    const shapesFactory = createShapesFactoryService();
     let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
 
     let start = createShapeModel(ProcessShapeType.Start, 2, 0, 0);
@@ -1177,7 +1218,7 @@ export function createUserDecisionWithMultipleBranchesModel_V2(): IProcess {
 }
 
 export function createMultipleUserDecisionsWithMultipleBranchesModel(): IProcess {
-    var shapesFactory = createShapesFactoryService();
+    const shapesFactory = createShapesFactoryService();
     let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
 
     let start = createShapeModel(ProcessShapeType.Start, 2, 0, 0);
@@ -1231,7 +1272,7 @@ export function createMultipleUserDecisionsWithMultipleBranchesModel(): IProcess
 }
 
 export function createSystemDecisionWithMultipleBranchesModel(): IProcess {
-    var shapesFactory = createShapesFactoryService();
+    const shapesFactory = createShapesFactoryService();
     let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
 
     let start = createShapeModel(ProcessShapeType.Start, 2, 0, 0);
@@ -1265,7 +1306,7 @@ export function createSystemDecisionWithMultipleBranchesModel(): IProcess {
 
 
 export function createSystemDecisionForAddBranchTestModel(): IProcess {
-    var shapesFactory = createShapesFactoryService();
+    const shapesFactory = createShapesFactoryService();
     let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
 
     let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
@@ -1304,7 +1345,7 @@ export function createSystemDecisionForAddBranchTestModel(): IProcess {
 
 
 export function createSimpleCaseModelWithoutXandY() {
-    var testModel = {
+    const testModel = {
         status: {isLocked: true, isLockedByMe: true},
         description: "test",
         type: 1,
@@ -1434,7 +1475,7 @@ export function createSimpleCaseModelWithoutXandY() {
 
 
 export function createSimpleCaseModelAfterAutoLayout() {
-    var testModel = {
+    const testModel = {
         status: {isLocked: true, isLockedByMe: true},
         description: "test",
         type: 1,
@@ -1560,7 +1601,7 @@ export function createSimpleCaseModelAfterAutoLayout() {
 
 
 export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY() {
-    var testModel = {
+    const testModel = {
         status: {isLocked: true, isLockedByMe: true},
         description: "test",
         type: 1,
@@ -1680,7 +1721,7 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
         decisionBranchDestinationLinks: [
             {sourceId: 25, destinationId: 80, orderindex: 1},
             {sourceId: 40, destinationId: 55, orderindex: 1},
-            {sourceId: 55, destinationId: 80, orderindex: 1},
+            {sourceId: 55, destinationId: 80, orderindex: 1}
         ],
         rawData: "",
         propertyValues: []
@@ -1773,9 +1814,8 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
     return testModel;
 }
 
-
 export function createSystemDecisionBeforeUserDecisionInBranchModel() {
-    var testModel = {
+    const testModel = {
         status: {isLocked: true, isLockedByMe: true},
         description: "test",
         type: 1,
@@ -1895,7 +1935,7 @@ export function createSystemDecisionBeforeUserDecisionInBranchModel() {
         decisionBranchDestinationLinks: [
             {sourceId: 25, destinationId: 80, orderindex: 1},
             {sourceId: 40, destinationId: 55, orderindex: 1},
-            {sourceId: 55, destinationId: 80, orderindex: 1},
+            {sourceId: 55, destinationId: 80, orderindex: 1}
         ],
         rawData: "",
         propertyValues: []
@@ -2865,7 +2905,7 @@ export function createThreeNestedUserTasksModel(): IProcess {
 
 
 export function createModelWithoutSystemTask(): IProcess {
-    var shapesFactory = createShapesFactoryService();
+    const shapesFactory = createShapesFactoryService();
     let model: IProcess = createProcessModel(1, ProcessType.BusinessProcess);
 
     let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
@@ -2889,7 +2929,7 @@ export function createModelWithoutSystemTask(): IProcess {
 
 
 export function createLargeTestModel() {
-    var testModel = {
+    const testModel = {
         status: {isLocked: true, isLockedByMe: true},
         description: "test",
         type: 1,
@@ -3019,7 +3059,7 @@ export function createLargeTestModel() {
 
 
 export function createSystemDecisionForDnDTestModel(): IProcess {
-    var shapesFactory = createShapesFactoryService();
+    const shapesFactory = createShapesFactoryService();
     let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
 
     let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
@@ -3058,7 +3098,7 @@ export function createSystemDecisionForDnDTestModel(): IProcess {
 
 export function createDnDComplicatedModel() {
 
-    var shapesFactory = createShapesFactoryService();
+    const shapesFactory = createShapesFactoryService();
     let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
 
     let start = createShapeModel(ProcessShapeType.Start, 10);
@@ -3163,7 +3203,7 @@ export function createUserDecisionWithUserTaskWithSimpleSystemDecisioFamily(): I
 }
 
 export function createUserDecisionForAddBranchTestModel(): IProcess {
-    var shapesFactory = createShapesFactoryService();
+    const shapesFactory = createShapesFactoryService();
     let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
 
     let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
@@ -3205,7 +3245,7 @@ export function createUserDecisionForAddBranchTestModel(): IProcess {
 }
 
 export function createBackToBackSystemDecisionWithLoopTestModel(): IProcess {
-    var shapesFactory = createShapesFactoryService();
+    const shapesFactory = createShapesFactoryService();
     let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
 
     let start = createShapeModel(ProcessShapeType.Start, 10);
@@ -3250,7 +3290,7 @@ export function createBackToBackSystemDecisionWithLoopTestModel(): IProcess {
 }
 
 export function createMultiDecisionBranchModelWithoutXAndY() {
-    var testModel = {
+    const testModel = {
         "id": 603978,
         "name": "1 merge point multiple branches",
         "typePrefix": "SP",
@@ -4291,8 +4331,9 @@ export function createMultiDecisionBranchModelWithoutXAndY() {
 
     return testModel;
 }
+
 export function createMultiDecisionBranchModel() {
-    var testModel = {
+    const testModel = {
         "id": 603978,
         "name": "1 merge point multiple branches",
         "typePrefix": "SP",
@@ -5316,7 +5357,7 @@ export function createMultiDecisionBranchModel() {
 }
 
 export function createTwoMergePointsModel() {
-    var testModel = {
+    const testModel = {
         "id": 604714,
         "name": "2 merge point",
         "typePrefix": "SP",
@@ -6409,7 +6450,7 @@ export function createTwoMergePointsModel() {
 }
 
 export function createTwoMergePointsModelWithoutXAndY() {
-    var testModel = {
+    const testModel = {
         "id": 604714,
         "name": "2 merge point",
         "typePrefix": "SP",
@@ -7512,7 +7553,7 @@ export function createTwoMergePointsModelWithoutXAndY() {
 }
 
 export function createMultipleMergePointsWithMultipleBranchesModel() {
-    var testModel = {
+    const testModel = {
         "id": 195,
         "name": "New Process 1",
         "typePrefix": "St",
@@ -9868,7 +9909,7 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
 }
 
 export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY() {
-    var testModel = {
+    const testModel = {
         "id": 195,
         "name": "New Process 1",
         "typePrefix": "St",
@@ -12249,7 +12290,7 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
 
 function populatePropertyValues(shape: any, labelValue: string, x: number, y: number, clientType: ProcessShapeType) {
 
-    var shapesFactory = createShapesFactoryService();
+    const shapesFactory = createShapesFactoryService();
     shape.propertyValues["label"] = shapesFactory.createLabelValue(labelValue);
     shape.propertyValues["x"] = shapesFactory.createXValue(x);
     shape.propertyValues["y"] = shapesFactory.createYValue(y);
@@ -12263,8 +12304,9 @@ function populatePropertyValues(shape: any, labelValue: string, x: number, y: nu
         shape.propertyValues["associatedImageUrl"] = shapesFactory.createAssociatedImageUrlValue("");
     }
 }
+
 export function createShapesFactoryService(): ShapesFactory {
-    var rootScope: ng.IRootScopeService = {
+    const rootScope: ng.IRootScopeService = {
         index: "",
         $apply: null,
         $applyAsync: null,

@@ -74,10 +74,12 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         if (this.editor && this.artifact) {
             this.collectionService.getCollection(this.artifact.id).then((result: ICollection) => {
                 this.metadataService.get(result.projectId).then(() => {
+                    this.artifact["rapidReviewCreated"] = result.isCreated;
                     this.collection = result;
                     this.rootNode = result.artifacts.map((a: ICollectionArtifact) => {
                         return new CollectionNodeVM(a, result.projectId, this.metadataService);
                     });
+
                 }).catch((error: any) => {
                     //ignore authentication errors here
                     if (error) {

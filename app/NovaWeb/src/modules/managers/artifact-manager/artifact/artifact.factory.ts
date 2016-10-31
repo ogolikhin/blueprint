@@ -9,7 +9,7 @@ import {Models} from "../../../main/models";
 import {IArtifactAttachmentsService} from "../attachments";
 import {IMetaDataService} from "../metadata";
 import {StatefulSubArtifact, IStatefulSubArtifact} from "../sub-artifact";
-import {IStatefulArtifact, StatefulArtifact, StatefulProcessArtifact, StatefulProcessSubArtifact} from "../artifact";
+import {IStatefulArtifact, IStatefulCollectionArtifact, StatefulArtifact, StatefulProcessArtifact, StatefulProcessSubArtifact} from "../artifact";
 import {IArtifactRelationshipsService} from "../relationships";
 import {
     StatefulArtifactServices,
@@ -20,6 +20,7 @@ import {
 import {IArtifactService} from "./artifact.svc";
 import {ILoadingOverlayService} from "../../../core/loading-overlay";
 import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
+import {StatefulCollectionArtifact} from "./artifact";
 
 export interface IStatefulArtifactFactory {
     createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact;
@@ -105,6 +106,11 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         if (artifact.predefinedType === Models.ItemTypePredefined.Process) {
             return this.createStatefulProcessArtifact(artifact);
         }
+
+        if (artifact.predefinedType === Models.ItemTypePredefined.ArtifactCollection) {
+            return this.createStatefulCollectionArtifact(artifact);
+        }
+
         return new StatefulArtifact(artifact, this.services);
     }
 
@@ -114,6 +120,10 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
 
     public createStatefulProcessSubArtifact(artifact: IStatefulArtifact, subArtifact: IProcessShape): StatefulProcessSubArtifact {
         return new StatefulProcessSubArtifact(artifact, subArtifact, this.services);
+    }
+
+    public createStatefulCollectionArtifact(artifact: Models.IArtifact): IStatefulCollectionArtifact {
+        return new StatefulCollectionArtifact(artifact, this.services);
     }
 
     private createStatefulProcessArtifact(artifact: Models.IArtifact): IStatefulArtifact {

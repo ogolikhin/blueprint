@@ -137,12 +137,21 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                     tooltipText = tooltipText + `${Helper.escapeHTMLText(collectionArtifact)}` ;
                 });
 
-                return `${vm.model.name} <div bp-tooltip="${tooltipText}" bp-tooltip-truncated="true" class="path">` + tooltipText + `</div>`;
+                return `<div bp-tooltip="${vm.model.name}" bp-tooltip-truncated="true">${vm.model.name}</div>` +
+                            `<div bp-tooltip="${tooltipText}" bp-tooltip-truncated="true" class="path">` + tooltipText + `</div>`;
             }
         },
         {
             headerName: this.localization.get("Label_Description"),
-            field: "model.description"
+            isGroup: true,
+            isCheckboxHidden: true,
+            innerRenderer: (vm: CollectionNodeVM, eGridCell: HTMLElement) => {
+                if (vm.model.description) {
+                    return `<div class="collection-description" bp-tooltip="${vm.model.description}" bp-tooltip-truncated="true">${vm.model.description}</div>`;
+                }
+
+                return "";
+            }
         },
         {
             headerName: this.localization.get("Label_Options"),

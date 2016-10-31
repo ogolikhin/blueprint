@@ -5,11 +5,15 @@
     margin: $padding-root;
 }
 
-.collection-heading{
+.collection__heading{
     font-size: $font-size-big;
     color: $gray-dark;
     font-weight: 600;
     padding: 11px 14px 11px 9px;
+}
+
+.collection__description, .collection__name{
+    @include text-ellipsis-flex-width(500px);
 }
 
 .artifact-overview bp-tree-view{

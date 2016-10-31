@@ -161,8 +161,9 @@ $quick-search__item--focus-color: #E8F6FB;
         background: $quick-search__item--focus-color;
     }
 }
-.quick-search__results--link {
-    color: inherit !important;
+a.quick-search__results--link, a.quick-search__results--link:visited {    
+    color: inherit;
+    font-weight: inherit;
 }
 .quick-search__response {
     height: calc(100% - 62px);

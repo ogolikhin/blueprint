@@ -61,6 +61,8 @@ export class ProjectExplorerController {
     private setSelectedNode(artifact: IStatefulArtifact) {
         if (this.tree.nodeExists(artifact.id)) {
             this.tree.selectNode(artifact.id);
+        } else {		
+            this.tree.clearSelection();
         }
     }
 

@@ -37,53 +37,53 @@
                 <ul class="list-unstyled quick-search__results--list" ng-if="$ctrl.results.length>0">
                     <li class="quick-search__results--item"
                         ng-repeat="item in $ctrl.results track by $index">
-                        <a class="quick-search__results--link" ui-sref="main.item({id: item.artifactId})">
-                            <div class="row small-gutter">
-                                <div class="col-md-1 text-center">
-                                    <div class="icon quick-search__results--large-font font-blue" ng-class="!item.artifactTypeIcon ? item.artifactClass : ''"
-                                        bp-tooltip="{{ item.propertyName }}">
-                                        <bp-item-type-icon
-                                            ng-if="!!item.artifactTypeIcon"
-                                            item-type-id="item.itemTypeId"
-                                            item-type-icon="item.artifactTypeIcon"></bp-item-type-icon>
+                        <div class="row small-gutter">
+                            <div class="col-md-1 text-center">
+                                <div class="icon quick-search__results--large-font font-blue" ng-class="!item.artifactTypeIcon ? item.artifactClass : ''"
+                                    bp-tooltip="{{ item.propertyName }}">
+                                    <bp-item-type-icon
+                                        ng-if="!!item.artifactTypeIcon"
+                                        item-type-id="item.itemTypeId"
+                                        item-type-icon="item.artifactTypeIcon"></bp-item-type-icon>
+                                </div>
+                            </div>
+                            <div class="col-md-11">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h4 title="{{item.typeName}} - {{item.name}}"
+                                            class="font-blue margin-bottom--none quick-search__text--no-wrap">
+                                            <a class="quick-search__results--link" ui-sref="main.item({id: item.artifactId})">
+                                                    {{item.typeName}} - {{item.name}}
+                                            </a>
+                                        </h4>
                                     </div>
                                 </div>
-                                <div class="col-md-11">
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <h4 title="{{item.typeName}} - {{item.name}}"
-                                                class="font-blue margin-bottom--none quick-search__text--no-wrap">
-                                                {{item.typeName}} - {{item.name}}
-                                            </h4>
-                                        </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <strong>Author: </strong>
+                                        <span>{{item.createdBy}}</span>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <strong>Author: </strong>
-                                            <span>{{item.createdBy}}</span>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <strong>Created on: </strong>
-                                            <span>{{item.createdDateTime|momentDate:'MMMM DD, YYYY'}}</span>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <strong>Last Edited: </strong>
-                                            <span> {{item.lastModifiedDateTime|momentDate:'MMMM DD, YYYY'}}</span>
-                                        </div>
+                                    <div class="col-md-4">
+                                        <strong>Created on: </strong>
+                                        <span>{{item.createdDateTime|momentDate:'MMMM DD, YYYY'}}</span>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                        <span class="quick-search__results--truncate">
-                                            <strong>{{item.propertyName}}: </strong>
-                                            <span ng-if="item.searchableValue">
-                                                {{item.searchableValue}}
-                                            </span>
+                                    <div class="col-md-4">
+                                        <strong>Last Edited: </strong>
+                                        <span> {{item.lastModifiedDateTime|momentDate:'MMMM DD, YYYY'}}</span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                    <span class="quick-search__results--truncate">
+                                        <strong>{{item.propertyName}}: </strong>
+                                        <span ng-if="item.searchableValue">
+                                            {{item.searchableValue}}
                                         </span>
-                                        </div>
+                                    </span>
                                     </div>
                                 </div>
                             </div>
-                        </a>
+                        </div>
                     </li>
                 </ul>
 

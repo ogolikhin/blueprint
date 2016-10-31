@@ -42,6 +42,8 @@ namespace Helper
 
             var artifacts = new List<IArtifactBase>();
 
+            var projectsSubset = new List<IProject> {projects[0], projects[1]};
+
             // This keeps the artifact description constant for all created artifacts
             var randomArtifactDescription = "Description " + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
 
@@ -49,7 +51,7 @@ namespace Helper
             {
                 var randomArtifactName = "Artifact_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces();
 
-                foreach (var project in projects)
+                foreach (var project in projectsSubset)
                 {
                     // Create artifact in first project with random Name & Description
                     var artifact = testHelper.CreateAndSaveArtifact(project, user, artifactType);
@@ -69,7 +71,7 @@ namespace Helper
             ArtifactBase.PublishArtifacts(artifacts, artifacts.First().Address, user);
 
             // Wait for all artifacts to be available to the search service
-            var searchCriteria = new FullTextSearchCriteria(randomArtifactDescription, projects.Select(p => p.Id));
+            var searchCriteria = new FullTextSearchCriteria(randomArtifactDescription, projectsSubset.Select(p => p.Id));
             WaitForFullTextSearchIndexerToUpdate(user, testHelper, searchCriteria, artifacts.Count, timeoutInMilliseconds: timeoutInMilliseconds);
 
             Logger.WriteInfo("{0} {1} artifacts created.", nameof(SearchServiceTestHelper), artifacts.Count);

@@ -107,47 +107,33 @@ class BPToolbarController implements IBPToolbarController {
                 break;
             case `discardall`:
                 let getUnpublishedLoadingId = this.loadingOverlayService.beginLoading();
-                try {
-                    //get a list of unpublished artifacts
-                    this.publishService.getUnpublishedArtifacts()
-                    .then((data: Models.IPublishResultSet) => {
-                        this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
-
-                        if (data.artifacts.length === 0) {
-                            this.messageService.addInfo("Discard_All_No_Unpublished_Changes");
-                        } else {
-                            this.confirmDiscardAll(data);
-                        }
-                    })
-                    .finally(() => {
-                        this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
-                    });
-                } catch (err) {
+                //get a list of unpublished artifacts
+                this.publishService.getUnpublishedArtifacts()
+                .then((data: Models.IPublishResultSet) => {
+                    if (data.artifacts.length === 0) {
+                        this.messageService.addInfo("Discard_All_No_Unpublished_Changes");
+                    } else {
+                        this.confirmDiscardAll(data);
+                    }
+                })
+                .finally(() => {
                     this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
-                    throw err;
-                }
+                });
                 break;
             case `publishall`:
                 getUnpublishedLoadingId = this.loadingOverlayService.beginLoading();
-                try {
-                    //get a list of unpublished artifacts
-                    this.publishService.getUnpublishedArtifacts()
-                    .then((data: Models.IPublishResultSet) => {
-                        this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
-
-                        if (data.artifacts.length === 0) {
-                            this.messageService.addInfo("Publish_All_No_Unpublished_Changes");
-                        } else {
-                            this.confirmPublishAll(data);
-                        }
-                    })
-                    .finally(() => {
-                        this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
-                    });
-                } catch (err) {
+                //get a list of unpublished artifacts
+                this.publishService.getUnpublishedArtifacts()
+                .then((data: Models.IPublishResultSet) => {
+                    if (data.artifacts.length === 0) {
+                        this.messageService.addInfo("Publish_All_No_Unpublished_Changes");
+                    } else {
+                        this.confirmPublishAll(data);
+                    }
+                })
+                .finally(() => {
                     this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
-                    throw err;
-                }
+                });
                 break;
             case `refreshall`:
                 let refreshAllLoadingId = this.loadingOverlayService.beginLoading();

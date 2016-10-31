@@ -40,7 +40,7 @@
                         <div class="row small-gutter">
                             <div class="col-md-1 text-center">
                                 <div class="icon quick-search__results--large-font font-blue" ng-class="!item.artifactTypeIcon ? item.artifactClass : ''"
-                                    bp-tooltip="{{ item.propertyName }}">
+                                    bp-tooltip="{{ item.typeName }}">
                                     <bp-item-type-icon
                                         ng-if="!!item.artifactTypeIcon"
                                         item-type-id="item.itemTypeId"
@@ -50,10 +50,9 @@
                             <div class="col-md-11">
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <h4 title="{{item.typeName}} - {{item.name}}"
-                                            class="font-blue margin-bottom--none quick-search__text--no-wrap">
+                                        <h4 class="font-blue margin-bottom--none quick-search__text--no-wrap">
                                             <a class="quick-search__results--link" ui-sref="main.item({id: item.artifactId})">
-                                                    {{item.typeName}} - {{item.name}}
+                                                {{item.typeName}} - {{item.name}}
                                             </a>
                                         </h4>
                                     </div>

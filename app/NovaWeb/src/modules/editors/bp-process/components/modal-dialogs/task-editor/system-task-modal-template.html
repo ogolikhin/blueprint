@@ -20,7 +20,7 @@
                     ng-class='dialogModel.persona ? "nova-form-control input-is-dirty" : "nova-form-control"'
                     id="storyteller-system-persona" ng-model='dialogModel.persona' ng-disabled="$ctrl.isReadonly"
                     autofocus maxlength="40" autocomplete="off">
-            <label for="storyteller-user" class="nova-label"><i class="fonticon-bp-actor"></i>{{::$root.config.labels['ST_System_Name_Label']}}</label>
+            <label for="storyteller-user" class="nova-label"><i class="fonticon2-process-persona"></i>{{::$root.config.labels['ST_System_Name_Label']}}</label>
             <span class="storyteller-helper-text">{{::$root.config.labels['ST_System_Name_Helper_Text']}}</span>
         </div>
         <div class="nova-form-group nova-floating-label">
@@ -28,7 +28,7 @@
                     ng-class="dialogModel.action ? 'nova-form-control input-is-dirty' : 'nova-form-control'"
                     id="storyteller-systemtask-action" ng-model="dialogModel.action"
                     ng-disabled="$ctrl.isReadonly" maxlength="140" autocomplete="off">
-            <label for="storyteller-systemtask-action" class="nova-label"><i class="fonticon-storyteller-title"></i>{{$ctrl.systemNamePlaceHolderText}}</label>
+            <label for="storyteller-systemtask-action" class="nova-label"><i class="fonticon2-process-title"></i>{{$ctrl.systemNamePlaceHolderText}}</label>
             <span class="storyteller-helper-text">{{::$root.config.labels['ST_Response_Helper_Text']}}</span>
         </div>
         <div id="SystemTaskUploadImage">
@@ -44,17 +44,17 @@
                     <div class="nova-form-group">
                         <div ng-show="!$ctrl.isIncludeResultsVisible">
                 <button class="btn btn-primary btn-small storyteller-include_btn" type="button" ng-click="$ctrl.openArtifactPicker()" ng-disabled="$ctrl.isReadonly">
-                                <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Add_Include_Tab_Label']}}
+                                <i class="fonticon2-link fonticon-st-tabs"></i>{{::$root.config.labels['ST_Add_Include_Tab_Label']}}
                             </button>
                         </div>
                         <div ng-show="$ctrl.isIncludeResultsVisible" class="storyteller-include_container">
                             <div class="storyteller-include">
-                                <i class="fonticon-include-active fonticon-st-tabs"></i>
+                                <i class="fonticon2-link fonticon-st-tabs"></i>
                                 {{$ctrl.includeArtifactName}}
                                  <i class="fonticon2-delete storyteller-include_clear" ng-click="$ctrl.cleanIncludeField()"  ng-class="{'fonticon2__action--disabled':$ctrl.isReadonly}"></i>
                             </div>
                 <button class="btn btn-primary btn-small storyteller-include_btn" type="button" ng-click="$ctrl.openArtifactPicker()" ng-disabled="$ctrl.isReadonly">
-                                    <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Browse_Include_Label']}}
+                                    <i class="fonticon2-link fonticon-st-tabs"></i>{{::$root.config.labels['ST_Browse_Include_Label']}}
                             </button>
                         </div>
                         <label class="nova-label" ng-if="$ctrl.isIncludeError">{{::$root.config.labels['ST_Cannot_Include_Parent_Process']}}</label>

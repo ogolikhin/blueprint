@@ -20,7 +20,7 @@
                     ng-class='dialogModel.persona ? "nova-form-control input-is-dirty" : "nova-form-control"'
                     id="storyteller-user" ng-model='dialogModel.persona' ng-disabled="$ctrl.isReadonly"
                     autofocus maxlength="40" autocomplete="off">
-            <label for="storyteller-user" class="nova-label"><i class="fonticon-bp-actor"></i>{{::$root.config.labels['ST_Persona_Label']}}</label>
+            <label for="storyteller-user" class="nova-label"><i class="fonticon2-process-persona"></i>{{::$root.config.labels['ST_Persona_Label']}}</label>
             <span class="storyteller-helper-text">{{::$root.config.labels['ST_Persona_Helper_Text']}}</span>
         </div>
         <div class="nova-form-group nova-floating-label">
@@ -28,7 +28,7 @@
                     ng-class="dialogModel.action ? 'nova-form-control input-is-dirty' : 'nova-form-control'"
                     id="storyteller-action" ng-model="dialogModel.action" ng-disabled="$ctrl.isReadonly"
                     maxlength="140" autocomplete="off">
-            <label for="storyteller-action" class="nova-label"><i class="fonticon-storyteller-title"></i>{{$ctrl.actionPlaceHolderText}}</label>
+            <label for="storyteller-action" class="nova-label"><i class="fonticon2-process-title"></i>{{$ctrl.actionPlaceHolderText}}</label>
             <span class="storyteller-helper-text">{{::$root.config.labels['ST_User_Task_Name_Helper_Text']}}</span>
         </div>
         <div class="nova-form-group nova-floating-label">
@@ -36,7 +36,7 @@
                     ng-class='dialogModel.objective ? "nova-form-control input-is-dirty" : "nova-form-control"'
                     id="storyteller-purpose" ng-model='dialogModel.objective'
                     ng-disabled="$ctrl.isReadonly" maxlength="140" autocomplete="off">
-            <label for="storyteller-purpose" class="nova-label"><i class="fonticon-storyteller-objective-1"></i>{{::$root.config.labels['ST_Objective_Label']}}</label>
+            <label for="storyteller-purpose" class="nova-label"><i class="fonticon2-process-objective"></i>{{::$root.config.labels['ST_Objective_Label']}}</label>
             <span class="storyteller-helper-text">{{::$root.config.labels['ST_Objective_Helper_Text']}}</span>
         </div>
 
@@ -48,12 +48,12 @@
                     <div class="nova-form-group">
                         <div ng-show="!$ctrl.isIncludeResultsVisible">
                             <button class="btn btn-primary btn-small storyteller-include_btn" type="button" ng-click="$ctrl.openArtifactPicker()" ng-disabled="$ctrl.isReadonly">
-                                <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Add_Include_Tab_Label']}}
+                                <i class="fonticon2-link fonticon-st-tabs"></i>{{::$root.config.labels['ST_Add_Include_Tab_Label']}}
                             </button>
                         </div>
                         <div ng-show="$ctrl.isIncludeResultsVisible" class="storyteller-include_container">
                             <div class="storyteller-include">
-                                <i class="fonticon-include-active fonticon-st-tabs"></i>
+                                <i class="fonticon2-link fonticon-st-tabs"></i>
                                     {{$ctrl.includeArtifactName}}
                                 <i class="fonticon2-delete storyteller-include_clear" ng-click="$ctrl.cleanIncludeField()" ng-class="{'fonticon2__action--disabled':$ctrl.isReadonly}"></i>
 

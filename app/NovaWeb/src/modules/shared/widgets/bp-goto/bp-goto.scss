@@ -5,13 +5,12 @@
         position: absolute;
         opacity: 0;
         display: inline-block;
-        background: #E1E1E1;
     }
 
     &__input {
         transition: width 0.3s ease-out;
         background: none;
-        height: 42px;
+        height: 40px;
         width: 50px;
         padding: 10px 0 0 28px;
         color: $gray-darker;

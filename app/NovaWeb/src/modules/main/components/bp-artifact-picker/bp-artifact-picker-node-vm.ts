@@ -1,14 +1,10 @@
 import * as angular from "angular";
-import {Models, AdminStoreModels, SearchServiceModels} from "../../models";
+import {Models, AdminStoreModels} from "../../models";
 import {Helper} from "../../../shared/";
 import {ITreeViewNodeVM} from "../../../shared/widgets/bp-tree-view/";
 import {IArtifactManager} from "../../../managers";
 import {IProjectService} from "../../../managers/project-manager/project-service";
-import {IArtifactPickerOptions} from "./bp-artifact-picker";
-
-export interface IViewModel<T> {
-    model: T;
-}
+import {IArtifactPickerOptions, IViewModel} from "./bp-artifact-picker";
 
 export abstract class ArtifactPickerNodeVM<T> implements IViewModel<T>, ITreeViewNodeVM {
     constructor(public model: T,
@@ -177,16 +173,5 @@ export class SubArtifactNodeVM extends ArtifactPickerNodeVM<Models.ISubArtifactN
         return !(this.options &&
         this.options.selectableItemTypes &&
         this.options.selectableItemTypes.indexOf(this.model.predefinedType) === -1);
-    }
-}
-
-export class SearchResultVM implements IViewModel<SearchServiceModels.ISearchResult> {
-    constructor(
-        public model: SearchServiceModels.ISearchResult,
-        private onSelect: (vm: SearchResultVM, value?: boolean) => boolean) {
-    }
-
-    public selected(value?: boolean): boolean {
-        return this.onSelect(this, value);
     }
 }

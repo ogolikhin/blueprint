@@ -884,6 +884,7 @@ describe("GenerateUserStoriesAction", () => {
                     return deferred.promise;
                 }
             );
+            const refreshSpy = spyOn(process, "refresh");
             const notifySpy = spyOn(communicationManager.processDiagramCommunication, "action");
             const successSpy = spyOn(messageService, "addInfo");
 
@@ -894,6 +895,7 @@ describe("GenerateUserStoriesAction", () => {
             // assert
             expect(notifySpy).toHaveBeenCalledWith(ProcessEvents.UserStoriesGenerated, userStories);
             expect(successSpy).toHaveBeenCalledWith(localization.get("ST_US_Generate_From_UserTask_Success_Message"));
+            expect(refreshSpy).toHaveBeenCalledWith(false);
         });
     });
 
@@ -1111,6 +1113,7 @@ describe("GenerateUserStoriesAction", () => {
                     return deferred.promise;
                 }
             );
+            const refreshSpy = spyOn(process, "refresh");
             const notifySpy = spyOn(communicationManager.processDiagramCommunication, "action");
             const successSpy = spyOn(messageService, "addInfo");
 
@@ -1121,6 +1124,7 @@ describe("GenerateUserStoriesAction", () => {
             // assert
             expect(notifySpy).toHaveBeenCalledWith(ProcessEvents.UserStoriesGenerated, userStories);
             expect(successSpy).toHaveBeenCalledWith(localization.get("ST_US_Generate_All_Success_Message"));
+            expect(refreshSpy).toHaveBeenCalledWith(false);
         });
     });
 });

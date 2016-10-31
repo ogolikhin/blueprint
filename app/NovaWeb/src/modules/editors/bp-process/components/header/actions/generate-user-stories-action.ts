@@ -182,6 +182,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                     this.localization.get("ST_US_Generate_From_UserTask_Success_Message") : 
                     this.localization.get("ST_US_Generate_All_Success_Message");
                 this.messageService.addInfo(userStoriesGeneratedMessage);
+                process.refresh(false);
             })
             .catch((reason: IApplicationError) => {
                 let message: string = this.localization.get("ST_US_Generate_Generic_Failure_Message");

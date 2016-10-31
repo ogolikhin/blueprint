@@ -60,7 +60,7 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         super.$onDestroy();
 
         // clean up history list
-        this.artifactHistoryList = null;
+        delete this.artifactHistoryList;
     }
 
     public changeSortOrder() {
@@ -78,6 +78,8 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
             subscriber.dispose();
             return false;
         });
+        
+        this.clearHistoryList();
 
         if (subArtifact) {
             this.subscribers.push(
@@ -97,13 +99,14 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
+    private clearHistoryList() {
+        this.artifactHistoryList = [];
+    }
+
     private onSelectionChangedHelper = (artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> => {
         if (artifact == null) {
-            this.artifactHistoryList = [];
             return super.onSelectionChanged(artifact, subArtifact, timeout);
         }
-
-        this.artifactHistoryList = [];
         this.artifactId = artifact.id;
         return this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending, timeout)
             .then((list: IArtifactHistoryVersion[]) => {

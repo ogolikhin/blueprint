@@ -308,9 +308,17 @@ namespace Model.StorytellerModel.Impl
             return response;
         }
 
-        public IProcess UpdateProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public IProcess UpdateProcess(IUser user, IProcess process, bool lockArtifactBeforeUpdate = true, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UpdateProcess));
+
+            ThrowIf.ArgumentNull(process, nameof(process));
+
+            if (lockArtifactBeforeUpdate)
+            {
+                // Lock process artifact before update
+                Artifact.Lock(new ArtifactBase(Address, process.Id, process.ProjectId), Address, user);
+            }
 
             var restResponse = UpdateProcessAndGetRestResponse(user, process, expectedStatusCodes, sendAuthorizationAsCookie);
             var updateProcessResult = JsonConvert.DeserializeObject<UpdateResult<Process>>(restResponse.Content);
@@ -318,9 +326,17 @@ namespace Model.StorytellerModel.Impl
             return updateProcessResult.Result;
         }
 
-        public string UpdateProcessReturnResponseOnly(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public string UpdateProcessReturnResponseOnly(IUser user, IProcess process, bool lockArtifactBeforeUpdate = true, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UpdateProcessReturnResponseOnly));
+
+            ThrowIf.ArgumentNull(process, nameof(process));
+
+            if (lockArtifactBeforeUpdate)
+            {
+                // Lock process artifact before update
+                Artifact.Lock(new ArtifactBase(Address, process.Id, process.ProjectId), Address, user);
+            }
 
             var restResponse = UpdateProcessAndGetRestResponse(user, process, expectedStatusCodes, sendAuthorizationAsCookie);
 

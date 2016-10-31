@@ -71,8 +71,10 @@ export class QuickSearchService {
 
         return deferred.promise;
     }
-
     private extendItem(item: SearchModels.ISearchItem, itemType: IItemType) {
+        if (!itemType) {
+            return item;
+        }
         return _.extend(item, {
             iconImageId: itemType.iconImageId,
             predefinedType: itemType.predefinedType,

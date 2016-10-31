@@ -12,7 +12,7 @@ export class NavigationServiceMock implements INavigationService {
         return null;
     }
 
-    public navigateToMain(): ng.IPromise<any> {
+    public navigateToMain(redirect?: boolean): ng.IPromise<any> {
         let deferred = this.$q.defer();
         deferred.resolve();
 

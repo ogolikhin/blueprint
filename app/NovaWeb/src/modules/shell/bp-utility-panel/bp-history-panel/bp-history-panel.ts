@@ -83,13 +83,14 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
 
         if (subArtifact) {
             this.subscribers.push(
-                subArtifact.getObservable().distinctUntilChanged(subArtif => subArtif.version)
+                subArtifact.getObservable()
+                    //Note: Don't use .distinctUntilChanged(artifact.version), because we also care about draft/unpublished.
                     .subscribe((subArtif) => {
                         this.onSelectionChangedHelper(null, subArtif, timeout);
                     }));
         } else if (artifact) {
             this.subscribers.push(
-                artifact.getObservable().distinctUntilChanged(artif => artif.version)
+                artifact.getObservable()
                     .subscribe((artif) => {
                         this.onSelectionChangedHelper(artif, null, timeout);
                     }));

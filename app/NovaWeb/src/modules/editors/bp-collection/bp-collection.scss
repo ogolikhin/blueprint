@@ -31,6 +31,10 @@
             padding-left: 10px;
         }
 
+        span > .ag-group-checkbox{
+            border-width: 0;
+        }
+
         .ag-header-cell{
             background: $gray-dark;
 

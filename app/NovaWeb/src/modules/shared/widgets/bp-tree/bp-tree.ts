@@ -236,7 +236,12 @@ export class BPTreeController implements IBPTreeController {
             selectedNodes.map(node => {
                 node.setSelected(false);
             });
+            this.clearFocus();
         }
+    }
+
+    private clearFocus() {
+        this.options.api.setFocusedCell(-1, this.gridColumns[0].field);
     }
 
     public nodeExists(id: number): boolean {
@@ -418,11 +423,12 @@ export class BPTreeController implements IBPTreeController {
                     this.onSelect({item: node.data});
                 }
                 this.selectedRowNode = node;
+                this.clearFocus();
             }
-        } else {
-            if (this.selectedRowNode.data.id === node.data.id) {
-                node.setSelected(true, true);
-            }
+        // } else {
+        //     if (this.selectedRowNode.data.id === node.data.id) {
+        //         node.setSelected(true, true);
+        //     }
         }
     };
 

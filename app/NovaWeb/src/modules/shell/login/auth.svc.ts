@@ -9,6 +9,13 @@ export interface IUser {
     login: string;
     isFallbackAllowed: boolean;
     isSso: boolean;
+    licenseType: LicenseType;
+}
+
+export enum LicenseType {
+    Viewer = 1,
+    Collaborator = 2,
+    Author = 3
 }
 
 export interface IAuth {
@@ -72,8 +79,9 @@ export class AuthSvc implements IAuth {
 
         const deferred = this.$q.defer<IUser>();
 
-        /* tslint:disable */
-        this.$http.post<any>("/svc/adminstore/sessions/?login=" + encUserName + "&force=" + overrideSession, angular.toJson(encPassword), this.createRequestConfig())
+
+        this.$http.post<any>("/svc/adminstore/sessions/?login=" + encUserName + "&force=" + overrideSession, 
+                angular.toJson(encPassword), this.createRequestConfig())
             .then((result: ng.IHttpPromiseCallbackArg<string>) => {
                 this.onTokenSuccess(result.data, deferred, false, "");
             }, (result: ng.IHttpPromiseCallbackArg<any>) => {
@@ -81,7 +89,6 @@ export class AuthSvc implements IAuth {
                 deferred.reject(result.data);
 
             });
-        /* tslint:enable */
         return deferred.promise;
     }
 
@@ -186,7 +193,10 @@ export class AuthSvc implements IAuth {
                     this.$http.get<IUser>("/svc/adminstore/users/loginuser", this.createRequestConfig())
                         .then((result: ng.IHttpPromiseCallbackArg<IUser>) => {
                             let user = result.data;
-                            if (isSaml && prevLogin && prevLogin !== user.login) {
+
+                            if (user.licenseType === LicenseType.Viewer) {
+                                deferred.reject({message: this.localization.get("Viewer License Not Allowed")}); //TODO: Localize
+                            } else if (isSaml && prevLogin && prevLogin !== user.login) {
                                 this.internalLogout(token).finally(() => {
                                     deferred.reject({message: this.localization.get("Login_Auth_SamlContinueSessionWithOriginalUser")});
                                 });

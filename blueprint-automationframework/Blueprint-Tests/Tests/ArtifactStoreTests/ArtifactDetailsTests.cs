@@ -79,37 +79,18 @@ namespace ArtifactStoreTests
         [Description("Create & publish an artifact, modify & publish it again, GetArtifactDetails.  Verify the artifact details for the latest version are returned.")]
         public void GetArtifactDetails_PublishedArtifactWithMultipleVersions_ReturnsArtifactDetailsForLatestVersion(int numberOfVersions)
         {
-            var openApiArtifacts = new List<IOpenApiArtifact>();
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process);
-
-            var retrievedArtifactVersion = OpenApiArtifact.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
-            openApiArtifacts.Add(retrievedArtifactVersion);
-
-            // Create several artifact versions.
-            for (int i = 1; i < numberOfVersions; ++i)
-            {
-                // These are internal properties used by automation, so OpenAPI doesn't set them for us.
-                retrievedArtifactVersion.Address = artifact.Address;
-                retrievedArtifactVersion.CreatedBy = artifact.CreatedBy;
-
-                // Modify & publish the artifact.
-                retrievedArtifactVersion.Name = I18NHelper.FormatInvariant("{0}-version{1}", retrievedArtifactVersion.Name, i + 1);
-
-                Artifact.SaveArtifact(retrievedArtifactVersion, _user);
-                retrievedArtifactVersion.Publish();
-
-                // Get the artifact from OpenAPI.
-                retrievedArtifactVersion = OpenApiArtifact.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
-                openApiArtifacts.Add(retrievedArtifactVersion);
-            }
-
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process, numberOfVersions: numberOfVersions);
             NovaArtifactDetails artifactDetails = null;
 
+            // Execute:
             Assert.DoesNotThrow(() =>
             {
                 artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
+            // Verify:
+            var retrievedArtifactVersion = OpenApiArtifact.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion);
 
             // TODO: add check that Process has SpecificPropery - ClientType (?)
@@ -122,27 +103,22 @@ namespace ArtifactStoreTests
         [Description("Create & publish an artifact, modify & publish it again, GetArtifactDetails with versionId=1.  Verify the artifact details for the first version are returned.")]
         public void GetArtifactDetailsWithVersionId1_PublishedArtifactWithMultipleVersions_ReturnsArtifactDetailsForFirstVersion(BaseArtifactType artifactType)
         {
+            // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
             var retrievedArtifactVersion1 = OpenApiArtifact.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
 
-            // These are internal properties used by automation, so OpenAPI doesn't set them for us.
-            retrievedArtifactVersion1.Address = artifact.Address;
-            retrievedArtifactVersion1.CreatedBy = artifact.CreatedBy;
-
-            // Modify & publish the artifact.
-            var retrievedArtifactVersion2 = retrievedArtifactVersion1.DeepCopy();
-            retrievedArtifactVersion2.Name = I18NHelper.FormatInvariant("{0}-version2", retrievedArtifactVersion1.Name);
-
-            Artifact.SaveArtifact(retrievedArtifactVersion2, _user);
-            retrievedArtifactVersion2.Publish();
+            artifact.Save();
+            artifact.Publish();
 
             NovaArtifactDetails artifactDetails = null;
 
+            // Execute:
             Assert.DoesNotThrow(() =>
             {
                 artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id, versionId: 1);
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
+            // Execute:
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion1);
 
             // TODO: add check that Process has SpecificPropery - ClientType (?)
@@ -156,30 +132,24 @@ namespace ArtifactStoreTests
             "Verify the artifact details for the first version are returned.")]
         public void GetArtifactDetailsWithVersionId1_DeletedArtifactWithMultipleVersions_ReturnsArtifactDetailsForFirstVersion(BaseArtifactType artifactType)
         {
+            // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
             var retrievedArtifactVersion1 = OpenApiArtifact.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
 
-            // These are internal properties used by automation, so OpenAPI doesn't set them for us.
-            retrievedArtifactVersion1.Address = artifact.Address;
-            retrievedArtifactVersion1.CreatedBy = artifact.CreatedBy;
-
-            // Modify & publish the artifact.
-            var retrievedArtifactVersion2 = retrievedArtifactVersion1.DeepCopy();
-            retrievedArtifactVersion2.Name = I18NHelper.FormatInvariant("{0}-version2", retrievedArtifactVersion1.Name);
-
-            Artifact.SaveArtifact(retrievedArtifactVersion2, _user);
-            retrievedArtifactVersion2.Publish();
-
+            artifact.Save();
+            artifact.Publish();
             artifact.Delete();
             artifact.Publish();
 
             NovaArtifactDetails artifactDetails = null;
 
+            // Execute:
             Assert.DoesNotThrow(() =>
             {
                 artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id, versionId: 1);
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
+            // Verify:
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion1);
 
             // TODO: add check that Process has SpecificPropery - ClientType (?)

@@ -331,14 +331,15 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         const textLabelStyle: LabelStyle = new LabelStyle(
             "Open Sans",
             12,
-            "white",
+            "trasparent",
             "#4C4C4C",
             "bold",
             y - this.SYSTEM_TASK_HEIGHT + this.header.getHeight(),
             x - this.SYSTEM_TASK_WIDTH / 2 - this.SYSTEM_TASK_SHIFT + 3,
             this.bodyCell.getHeight() - 4,
             this.bodyCell.getWidth() - 4,
-            "#4C4C4C"
+            "#4C4C4C",
+            "white"
         );
         this.textLabel = new Label((value: string) => {
                 this.label = value;

@@ -67,6 +67,7 @@ export interface IBPTreeController {
     isEmpty: boolean;
     //to select a row in in ag-grid (by id)
     selectNode(id: number);
+    clearSelection();
     nodeExists(id: number): boolean;
     getNodeData(id: number): Object;
     //to reload datasource with data passed, if id specified the data will be loaded to node's children collection
@@ -227,6 +228,15 @@ export class BPTreeController implements IBPTreeController {
             }
         });
         this.options.api.ensureNodeVisible((it: RowNode) => it.data.id === id);
+    }
+
+    public clearSelection() {
+        const selectedNodes = this.options.api.getSelectedNodes() as RowNode[];
+        if (selectedNodes && selectedNodes.length) {
+            selectedNodes.map(node => {
+                node.setSelected(false);
+            });
+        }
     }
 
     public nodeExists(id: number): boolean {

@@ -47,16 +47,7 @@ bp-toolbar {
                 }
                 &.disabled {
                     color: $gray-light;
-                    &:hover {
-                        background: $gray-lighter;
-                        color: $gray-light;
-                        cursor: not-allowed;
-                    }
-                    &:focus {
-                        background-color: $gray-lighter;
-                        color: $gray-light;
-                        outline: 0;
-                    }
+                    pointer-events: none;
                 }
                 span {
                     display: block;

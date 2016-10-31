@@ -14,8 +14,6 @@ import {HttpStatusCode, IApplicationError} from "../../../core";
 export interface IStatefulItem extends Models.IArtifact {
     artifactState: IArtifactState;
 
-    deleted: boolean;
-    historical: boolean;
     metadata: IMetaData;
 
     customProperties: IArtifactProperties;
@@ -28,8 +26,7 @@ export interface IStatefulItem extends Models.IArtifact {
     changes(): Models.ISubArtifact;
     errorObservable(): Rx.Observable<IApplicationError>;
     unsubscribe(): void;
-
-
+    getEffectiveVersion(): number;
 }
 
 export interface IIStatefulItem extends IStatefulItem {
@@ -40,8 +37,6 @@ export interface IIStatefulItem extends IStatefulItem {
 
 export abstract class StatefulItem implements IIStatefulItem {
     public metadata: IMetaData;
-    public deleted: boolean;
-    public historical: boolean;
 
     protected _attachments: IArtifactAttachments;
     protected _docRefs: IDocumentRefs;
@@ -53,10 +48,8 @@ export abstract class StatefulItem implements IIStatefulItem {
     protected lockPromise: ng.IPromise<IStatefulItem>;
     protected loadPromise: ng.IPromise<IStatefulItem>;
     private _error: Rx.BehaviorSubject<IApplicationError>;
+
     constructor(private artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
-//        this.subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
-        
-        this.deleted = false;
     }
 
     public dispose() {
@@ -79,7 +72,7 @@ export abstract class StatefulItem implements IIStatefulItem {
     } 
 
     public errorObservable(): Rx.Observable<IApplicationError> {
-        return this.error.filter(it => !!it).asObservable();
+        return this.error.filter(it => !!it).distinctUntilChanged().asObservable();
     }
 
     public get id(): number {
@@ -179,7 +172,11 @@ export abstract class StatefulItem implements IIStatefulItem {
     }
 
     public getEffectiveVersion(): number {
-        return this.historical ? this.version : undefined;
+        return this.artifactState.historical ? this.version : undefined;
+    }
+
+    protected isHeadVersionDeleted() {
+        return this.artifactState.deleted && !this.artifactState.historical;
     }
 
     public set(name: string, value: any) {
@@ -319,7 +316,7 @@ export abstract class StatefulItem implements IIStatefulItem {
                 deferred.resolve(result);
             }, (error) => {
                 if (error && error.statusCode === HttpStatusCode.NotFound) {
-                    this.deleted = true;
+                    this.artifactState.deleted = true;
                 }
                 deferred.reject(error);
             });
@@ -334,7 +331,7 @@ export abstract class StatefulItem implements IIStatefulItem {
                 deferred.resolve(result);
             }, (error) => {
                 if (error && error.statusCode === HttpStatusCode.NotFound) {
-                    this.deleted = true;
+                    this.artifactState.deleted = true;
                 }
                 deferred.reject(error);
             });

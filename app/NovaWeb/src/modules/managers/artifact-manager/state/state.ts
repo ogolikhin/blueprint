@@ -10,7 +10,9 @@ export interface IState {
     readonly?: boolean;
     dirty?: boolean;
     published?: boolean;
+    everPublished?: boolean;
     deleted?: boolean;
+    historical?: boolean;
     misplaced?: boolean;
     invalid?: boolean;
 }
@@ -45,6 +47,7 @@ export class ArtifactState implements IArtifactState {
             readonly: false,
             dirty: false,
             published: false,
+            everPublished: false,
             deleted: false,
             misplaced: false,
             invalid: false
@@ -145,17 +148,22 @@ export class ArtifactState implements IArtifactState {
         this.notifyStateChange();
     }
 
+    // fixme: Read the correct published state from the server-side
+    // This method doesn't correctly represent the published state of the artifact in all cases.
+    // In case when the manual trace is added to this artifact, we do not lock the artifact
+    // but the artifact gets added to unpublished changes. We cannot at this point determine
+    // this condition with given information.
     public get published(): boolean {
-        return this.currentState.published;
+        return this.artifact.version > 0 && this.lockedBy !== Enums.LockedByEnum.CurrentUser;
     }
 
-    public set published(value: boolean) {
-        this.currentState.published = value;
-        this.notifyStateChange();
+    public get everPublished(): boolean {
+        return this.artifact.version > 0;
     }
 
     public get readonly(): boolean {
         return this.currentState.readonly || this.deleted ||
+            this.historical ||
             this.lockedBy === Enums.LockedByEnum.OtherUser ||
             (this.artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
     }
@@ -165,18 +173,35 @@ export class ArtifactState implements IArtifactState {
         this.notifyStateChange();
     }
 
+    public get historical(): boolean {
+        return this.currentState.historical;
+    }
+
+    public set historical(value: boolean) {
+        this.currentState.historical = value;
+        this.notifyStateChange();
+    }
+
     public initialize(artifact: Models.IArtifact): IArtifactState {
         if (artifact) {
+            // deleted state never can be changed from true to false
+            const deleted = this.currentState.deleted;
+            const historical = this.currentState.historical;
             this.reset();
             if (artifact.lockedByUser) {
-                let lockInfo: IState = {};
-                lockInfo.lockedBy = artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
+                const newState: IState = {};
+                newState.lockedBy = artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
                     Enums.LockedByEnum.CurrentUser :
                     Enums.LockedByEnum.OtherUser;
-                lockInfo.lockOwner = artifact.lockedByUser.displayName;
-                lockInfo.lockDateTime = artifact.lockedDateTime;
-                this.setState(lockInfo, false);
-            };
+                newState.lockOwner = artifact.lockedByUser.displayName;
+                newState.lockDateTime = artifact.lockedDateTime;
+                newState.deleted = deleted;
+                newState.historical = historical;
+                this.setState(newState, false);
+            } else {
+                this.currentState.deleted = deleted;
+                this.currentState.historical = historical;
+            }
         }
         return this;
     }

@@ -1,4 +1,5 @@
 import {ItemTypePredefined} from "./enums";
+import {IArtifact} from "./models";
 
 export interface ISearchCriteria {
     query: string;
@@ -10,7 +11,7 @@ export interface ISearchResultSet<T extends ISearchResult> {
 
 export interface ISearchResult {
     itemId: number;
-    name: string;
+    name?: string;
     path?: string;
 }
 
@@ -23,14 +24,9 @@ export interface IItemNameSearchCriteria extends ISearchCriteria {
     includeArtifactPath?: boolean;
 }
 
-export interface IItemNameSearchResultSet extends ISearchResultSet<IItemSearchResult> {
+export interface IItemNameSearchResultSet extends ISearchResultSet<IItemNameSearchResult> {
     pageItemCount: number;
 }
 
-export interface IItemSearchResult extends ISearchResult {
-    projectId: number;
-    artifactId: number;
-    itemTypeId: number;
-    typeName: string;
-    typePrefix: string;
+export interface IItemNameSearchResult extends ISearchResult, IArtifact {
 }

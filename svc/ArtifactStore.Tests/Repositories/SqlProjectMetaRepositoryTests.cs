@@ -9,6 +9,7 @@ using ArtifactStore.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using static ArtifactStore.Repositories.SqlProjectMetaRepository;
 

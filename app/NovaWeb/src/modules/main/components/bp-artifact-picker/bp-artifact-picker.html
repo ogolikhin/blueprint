@@ -23,16 +23,17 @@
             <div class="search-results" ng-if="!$ctrl.isSearching && $ctrl.searchResults.length !== 0">
                 <div class="search-result"
                      ng-repeat="searchResult in $ctrl.searchResults"
-                     ng-class="{selected: searchResult.isSelected}"
-                     ng-click="$ctrl.onSearchResultClicked(searchResult)">
-                    <input class="checkbox" type="checkbox" ng-model="searchResult.isSelected" ng-if="$ctrl.currentSelectionMode === 'checkbox'">
+                     ng-class="{selected: searchResult.selected()}"
+                     ng-click="$ctrl.currentSelectionMode === 'single' ? searchResult.selected(true) : undefined"
+                     ng-dblclick="$ctrl.onDouble(searchResult)">
+                    <input class="checkbox" type="checkbox" ng-model="searchResult.selected" ng-model-options="{ getterSetter: true }" ng-if="$ctrl.currentSelectionMode !== 'single'">
                     <i class="icon-project"></i>
                     <div class="search-details">
-                        <div bp-tooltip="{{searchResult.name}}" bp-tooltip-truncated="true">
-                            <span ng-bind-html="::searchResult.name | bpEscapeAndHighlight:$ctrl.searchText">
+                        <div bp-tooltip="{{searchResult.model.name}}" bp-tooltip-truncated="true">
+                            {{searchResult.model.prefix}}{{searchResult.model.id}} <span ng-bind-html="::searchResult.model.name | bpEscapeAndHighlight:$ctrl.searchText">
                         </div>
-                        <div bp-tooltip="{{searchResult.path}}" bp-tooltip-truncated="true">
-                            Path: {{searchResult.path}}
+                        <div bp-tooltip="{{searchResult.model.path}}" bp-tooltip-truncated="true">
+                            Path: {{searchResult.model.path}}
                         </div>
                     </div>
                 </div>
@@ -61,7 +62,8 @@
                           root-node-visible="false"
                           columns="$ctrl.columns"
                           header-height="20"
-                          on-select="$ctrl.onSelect(vm, isSelected, selectedVMs)">
+                          on-select="$ctrl.onSelect(vm, isSelected, selectedVMs)"
+                          on-double-click="$ctrl.onDouble(vm)">
             </bp-tree-view>
         </div>
     </div>

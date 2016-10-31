@@ -30,7 +30,7 @@
                     <i class="icon-project"></i>
                     <div class="search-details">
                         <div bp-tooltip="{{searchResult.model.name}}" bp-tooltip-truncated="true">
-                            <span ng-bind-html="::searchResult.model.name | bpEscapeAndHighlight:$ctrl.searchText">
+                            {{searchResult.model.prefix}}{{searchResult.model.id}} <span ng-bind-html="::searchResult.model.name | bpEscapeAndHighlight:$ctrl.searchText">
                         </div>
                         <div bp-tooltip="{{searchResult.model.path}}" bp-tooltip-truncated="true">
                             Path: {{searchResult.model.path}}

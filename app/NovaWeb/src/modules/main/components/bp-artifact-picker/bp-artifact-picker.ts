@@ -161,7 +161,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public set project(project: AdminStoreModels.IInstanceItem) {
         this.selectedVMs = [];
         this._project = project;
-        this.currentSelectionMode = this.selectionMode || "single";
+        this.currentSelectionMode = project ? "single" : this.selectionMode;
         this.rootNode = new InstanceItemNodeVM(this.artifactManager, this.projectService, this, project || {
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,

@@ -2,7 +2,7 @@ import * as angular from "angular";
 import { IUserGroup } from "../../main/models/models";
 
 export interface IItemInfoService {
-    get(id: number): ng.IPromise<any>;
+    get(id: number): ng.IPromise<IItemInfoResult>;
     isProject(item: IItemInfoResult): boolean;
     isSubArtifact(item: IItemInfoResult): boolean;
     isArtifact(item: IItemInfoResult): boolean;
@@ -66,7 +66,7 @@ export class ItemInfoService implements IItemInfoService {
     }
 
     public isProject(item: IItemInfoResult): boolean {
-        return item.id === item.projectId;
+        return !item.subArtifactId && item.id === item.projectId;
     }
 
     public isArtifact(item: IItemInfoResult): boolean {

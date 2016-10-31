@@ -26,6 +26,8 @@ describe("NavigationService", () => {
         it("initiates state transition to main state from main state", () => {
             // arrange
             const expectedState = mainState;
+            const expectedParams = {};
+            const expectedOptions = {location: true};
             const stateGoSpy = spyOn($state, "go");
 
             $state.current.name = "main";
@@ -34,7 +36,26 @@ describe("NavigationService", () => {
             navigationService.navigateToMain();
 
             // assert
-            expect(stateGoSpy).toHaveBeenCalledWith(expectedState);
+            expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
+            expect($state.current.params).toBeUndefined();
+        });
+
+        it("redirects to main state from another artifact", () => {
+            // arrange
+            const sourceArtifactId: number = 54;
+            const expectedState = mainState;
+            const expectedParams = {};
+            const expectedOptions = {location: "replace"};
+            const stateGoSpy = spyOn($state, "go");
+
+            $state.params["id"] = sourceArtifactId.toString();
+            $state.current.name = "main.item";
+
+            // act
+            navigationService.navigateToMain(true);
+
+            // assert
+            expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
             expect($state.current.params).toBeUndefined();
         });
 
@@ -42,6 +63,8 @@ describe("NavigationService", () => {
             // arrange
             const sourceArtifactId: number = 54;
             const expectedState = mainState;
+            const expectedParams = {};
+            const expectedOptions = {location: true};
             const stateGoSpy = spyOn($state, "go");
 
             $state.params["id"] = sourceArtifactId.toString();
@@ -51,7 +74,7 @@ describe("NavigationService", () => {
             navigationService.navigateToMain();
 
             // assert
-            expect(stateGoSpy).toHaveBeenCalledWith(expectedState);
+            expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
             expect($state.current.params).toBeUndefined();
         });
 
@@ -60,6 +83,8 @@ describe("NavigationService", () => {
             let predecessorArtifactId: number = 11;
             let sourceArtifactId: number = 54;
             const expectedState = mainState;
+            const expectedParams = {};
+            const expectedOptions = {location: true};
             const stateGoSpy = spyOn($state, "go");
 
             $state.params["id"] = sourceArtifactId.toString();
@@ -70,7 +95,7 @@ describe("NavigationService", () => {
             navigationService.navigateToMain();
 
             // assert
-            expect(stateGoSpy).toHaveBeenCalledWith(expectedState);
+            expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
             expect($state.current.params).toBeUndefined();
         });
     });

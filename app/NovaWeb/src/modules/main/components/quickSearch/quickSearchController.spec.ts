@@ -19,7 +19,8 @@ describe("Controller: Quick Search", () => {
         controller = $controller(QuickSearchController);
         controller.form = {
             $submitted: false,
-            $invalid: false
+            $invalid: false,
+            $error: {}
         }
     }));
 

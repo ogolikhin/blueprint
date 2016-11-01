@@ -98,7 +98,7 @@ export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
         const result = super.getCellClass();
         const typeName = Models.ItemTypePredefined[this.model.predefinedType];
         if (typeName) {
-            result.push("is-" + Helper.toDashCase(typeName));
+            result.push("is-" + _.kebabCase(typeName));
         }
         return result;
     }

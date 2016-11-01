@@ -37,6 +37,6 @@ export class ArtifactSearchResultVM extends SearchResultVM<SearchServiceModels.I
         onSelect: (vm: SearchResultVM<any>, value?: boolean) => boolean) {
         super(model, onSelect);
         this.id = `${this.model.prefix}${this.model.id}`;
-        this.iconClass = `icon-${Helper.toDashCase(Models.ItemTypePredefined[this.model.predefinedType])}`;
+        this.iconClass = `icon-${_.kebabCase(Models.ItemTypePredefined[this.model.predefinedType])}`;
     }
 }

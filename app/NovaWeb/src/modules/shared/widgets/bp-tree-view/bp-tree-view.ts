@@ -246,13 +246,14 @@ export class BPTreeViewController implements IBPTreeViewController {
                     }
 
                     if (saveSelection) {
-
-                        // Restore selection
+                        // Restore selection (don't raise selection events)
+                        this.options.onRowSelected = undefined;
                         this.options.api.forEachNode(node => {
                             if (selectedVMs[node.data.key]) {
                                 node.setSelected(true);
                             }
                         });
+                        this.options.onRowSelected = this.onRowSelected;
                     }
                 }
             }).catch(reason => {

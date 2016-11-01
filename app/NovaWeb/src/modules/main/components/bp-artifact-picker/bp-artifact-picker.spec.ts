@@ -1,7 +1,8 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
 import {BpArtifactPicker, BpArtifactPickerController} from "./bp-artifact-picker";
-import {ArtifactPickerNodeVM, InstanceItemNodeVM, ArtifactNodeVM, SearchResultVM} from "./bp-artifact-picker-node-vm";
+import {ArtifactPickerNodeVM, InstanceItemNodeVM, ArtifactNodeVM} from "./bp-artifact-picker-node-vm";
+import {ArtifactSearchResultVM} from "./bp-artifact-picker-search-vm";
 import {ILocalizationService} from "../../../core";
 import {Models, AdminStoreModels, SearchServiceModels} from "../../models";
 import {IArtifactManager, IProjectManager} from "../../../managers";
@@ -160,8 +161,8 @@ describe("BpArtifactPickerController", () => {
 
     it("onSearchResultDoubleClick, when single-selection mode, calls onDoubleClick", () => {
         // Arrange
-        const model = {id: 13, itemId: 13, name: "foo"} as SearchServiceModels.ISearchResult;
-        const vm = new SearchResultVM(model, controller.onSelect);
+        const model = {id: 13, itemId: 13, predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
+        const vm = new ArtifactSearchResultVM(model, controller.onSelect);
         controller.selectionMode = "single";
         controller.onDoubleClick = jasmine.createSpy("onDoubleClick");
 
@@ -243,8 +244,8 @@ describe("BpArtifactPickerController", () => {
 
     it("onSelect, when SearchResultVM, clears search and sets project", () => {
         // Arrange
-        const model = {id: 13, itemId: 13, name: "foo"} as SearchServiceModels.ISearchResult;
-        const vm = new SearchResultVM(model, controller.onSelect);
+        const model = {id: 13, itemId: 13, predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
+        const vm = new ArtifactSearchResultVM(model, controller.onSelect);
         controller.clearSearch = jasmine.createSpy("clearSearch");
 
         // Act

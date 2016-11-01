@@ -9,7 +9,12 @@
     font-size: $font-size-big;
     color: $gray-dark;
     font-weight: 600;
-    padding: 11px 14px 11px 9px;
+    padding: 11px 14px 2px 9px;
+    background:  $yellow-pale;
+
+    &__link{
+        font-weight: normal;
+    }
 }
 
 .collection__description, .collection__name{
@@ -29,6 +34,10 @@
 
         .header-name{
             padding-left: 10px;
+        }
+
+        span > .ag-group-checkbox{
+            border-width: 0;
         }
 
         .ag-header-cell{

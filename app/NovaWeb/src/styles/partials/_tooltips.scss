@@ -6,6 +6,7 @@
     padding: 0;
     position: fixed;
     z-index: $tooltip-z-index;
+    word-wrap: break-word;
 
     &.show {
         animation: fadeIn .4s;

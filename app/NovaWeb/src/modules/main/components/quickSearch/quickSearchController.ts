@@ -26,6 +26,13 @@ export class QuickSearchController {
             this.form.$setPristine();
         }
     }
+    onKeyDown($event: KeyboardEvent) {
+        const backspaceKeyCode = 8;
+        const deleteKeyCode = 46;
+        if ($event.keyCode === 8 || $event.keyCode === 46) {
+            this.form.$setPristine();
+        }
+    }
     openModal() {
         if (this.form.$invalid) {
             this.$log.warn("invalid search");

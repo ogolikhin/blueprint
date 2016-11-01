@@ -68,11 +68,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         }
 
         return "";
-    }
-
-    public navigateToRapidReview() {
-        this.$window.open(this.reviewUrl, "_blank");
-    }
+    }   
 
     public onArtifactReady() {
         if (this.editor && this.artifact) {

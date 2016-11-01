@@ -375,7 +375,6 @@ ST_Include_Tab_Label, "Include"
 ST_Add_Include_Tab_Label, "Add Include"
 ST_Browse_Include_Label, "Browse"
 ST_Select_Include_Artifact_Label, "Select Artifact"
-ST_Include_Tab_Placeholder, "Search by artifact name"
 ST_Inline_Traces_Search_No_Matches_Found, "No matches found"
 ST_Inline_Traces_Search_Bad_Request, "Bad search request"
 ST_Search_Project_Scope_Mentions_Includes, "#mention or include artifacts from the current project only"
@@ -414,3 +413,11 @@ ST_US_Generate_LockedByOtherUser_Failure_Message, "User stories cannot be genera
 
 # ag-Grid
 ag-Grid_noRowsToShow,"Empty"
+
+# Search
+Search_Validation_MinThreeChars, "At least 3 characters."
+Search_Results_Author, "Author"
+Search_Results_CreatedOn, "Created On:"
+Search_Results_LastEdited, "Last Edited:"
+Search_Results_SubartifactMessage, "Opening this search result displays the artifact that contains it."
+Search_Results_NoResults, "No Results Found"

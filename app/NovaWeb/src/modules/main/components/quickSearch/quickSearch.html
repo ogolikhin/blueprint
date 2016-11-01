@@ -17,7 +17,7 @@
              ng-messages="quickSearch.form.$error"
              role="alert"
              ng-if="quickSearch.form.$submitted">
-            <span ng-message="minlength">At least 3 characters.</span>
+            <span ng-message="minlength">{{::$root.config.labels["Search_Validation_MinThreeChars"]}}</span>
         </div>
     </div>
 

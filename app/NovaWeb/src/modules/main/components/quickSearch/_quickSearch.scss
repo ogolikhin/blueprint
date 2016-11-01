@@ -213,7 +213,7 @@ a.quick-search__results--link, a.quick-search__results--link:visited {
 
 .quick-search__results--large-font,
 .quick-search__results--large-font::before {
-    font-size: 28px;
+    font-size: 20px;
 }
 
 .small-gutter > [class*='col-'] {
@@ -239,4 +239,5 @@ a.quick-search__results--link, a.quick-search__results--link:visited {
     word-wrap: break-word;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 14px;
 }

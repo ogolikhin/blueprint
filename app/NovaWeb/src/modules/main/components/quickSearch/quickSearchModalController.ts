@@ -1,3 +1,5 @@
+import * as SearchModels from "./models/model";
+
 export class QuickSearchModalController {
     searchTerm: string;
     form: ng.IFormController;
@@ -28,7 +30,7 @@ export class QuickSearchModalController {
         this.isLoading = true;
         this.quickSearchService.searchTerm = _.clone(this.searchTerm);
 
-        this.quickSearchService.search(term).then((results) => {
+        this.quickSearchService.search(term).then((results: SearchModels.ISearchResult) => {
             //assign the results and display
             //if results are greater than one
             this.results = results.items;

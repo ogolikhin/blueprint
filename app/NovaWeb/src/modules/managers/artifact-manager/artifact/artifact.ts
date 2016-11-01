@@ -488,7 +488,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         if (allowCustomRefresh) {
             // get promises for custom artifact refresh operations
-            promisesToExecute.push.apply(promisesToExecute, this.getCustomArtifactPromisesForRefresh());
+            // this operation merges two arrays
+            Array.prototype.push.apply(promisesToExecute, this.getCustomArtifactPromisesForRefresh());
         }
 
         this.getServices().$q.all(promisesToExecute)

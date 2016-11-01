@@ -65,7 +65,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         }
 
         return "";
-    }
+    }   
 
     public onArtifactReady() {
         if (this.editor && this.artifact) {

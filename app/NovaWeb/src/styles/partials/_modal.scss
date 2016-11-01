@@ -217,7 +217,8 @@ $modal-open-project-height: 450px;
         }
 
         .bp-highlight {
-            text-decoration: underline;
+            background-color: $text-highlight-background-color;
+            color: $text-highlight-color;
         }
 
         .project-wrapper {

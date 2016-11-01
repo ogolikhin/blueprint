@@ -39,7 +39,6 @@ export class AppController {
         this.session.logout().finally(() => {
             this.navigation.navigateToMain().finally(() => {
                 this.projectManager.removeAll();
-                this.selectionManager.clearAll();
                 this.session.ensureAuthenticated();
             });
         });

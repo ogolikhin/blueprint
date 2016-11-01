@@ -2,9 +2,11 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using ArtifactStore.Repositories;
 using Dapper;
 using SearchService.Helpers;
 using SearchService.Models;
+using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 
 namespace SearchService.Repositories
@@ -32,14 +34,21 @@ namespace SearchService.Repositories
 
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
         private readonly ISearchConfigurationProvider _searchConfigurationProvider;
+        private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
 
         public SqlItemSearchRepository() : this(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString), new SearchConfiguration())
         {
         }
 
-        internal SqlItemSearchRepository(ISqlConnectionWrapper connectionWrapper, ISearchConfiguration configuration)
+        internal SqlItemSearchRepository(ISqlConnectionWrapper connectionWrapper, ISearchConfiguration configuration):
+            this(connectionWrapper, configuration, new SqlArtifactPermissionsRepository(connectionWrapper))
+        {
+        }
+
+        internal SqlItemSearchRepository(ISqlConnectionWrapper connectionWrapper, ISearchConfiguration configuration, IArtifactPermissionsRepository artifactPermissionsRepository)
         {
             ConnectionWrapper = connectionWrapper;
+            _artifactPermissionsRepository = artifactPermissionsRepository;
             _searchConfigurationProvider = new SearchConfigurationProvider(configuration);
         }
 
@@ -141,7 +150,25 @@ namespace SearchService.Repositories
             param.Add("@pageSize", pageSize);
             param.Add("@maxSearchableValueStringSize", _searchConfigurationProvider.MaxSearchableValueStringSize);
 
-            var items = (await ConnectionWrapper.QueryAsync<ItemSearchResult>("SearchItemNameByItemTypes", param, commandType: CommandType.StoredProcedure)).ToList();
+            var items = (await ConnectionWrapper.QueryAsync<ItemNameSearchResult>("SearchItemNameByItemTypes", param, commandType: CommandType.StoredProcedure)).ToList();
+
+            var itemIdsPermissions =
+                // Always getting permissions for the Head version of an artifact.
+                await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(items.Select(i => i.ItemId).ToList(), userId);
+
+            if (itemIdsPermissions != null)
+            {
+                //items without permission should be removed
+                items.RemoveAll(item => !itemIdsPermissions.ContainsKey(item.ItemId) || !itemIdsPermissions[item.ItemId].HasFlag(RolePermissions.Read));
+
+                var joinedResult = from i in items
+                    join p in itemIdsPermissions.AsEnumerable()
+                        on i.ItemId equals p.Key
+                    select new {i, p};
+                foreach (var result in joinedResult)
+                    result.i.Permissions = result.p.Value;
+            }
+
             return new ItemNameSearchResultSet
             {
                 Items = items,

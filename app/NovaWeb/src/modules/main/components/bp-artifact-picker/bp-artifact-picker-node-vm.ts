@@ -4,9 +4,9 @@ import {Helper} from "../../../shared/";
 import {ITreeViewNodeVM} from "../../../shared/widgets/bp-tree-view/";
 import {IArtifactManager} from "../../../managers";
 import {IProjectService} from "../../../managers/project-manager/project-service";
-import {IArtifactPickerOptions} from "./bp-artifact-picker";
+import {IArtifactPickerOptions, IViewModel} from "./bp-artifact-picker";
 
-export abstract class ArtifactPickerNodeVM<T> implements ITreeViewNodeVM {
+export abstract class ArtifactPickerNodeVM<T> implements IViewModel<T>, ITreeViewNodeVM {
     constructor(public model: T,
                 public name: string,
                 public key: string,
@@ -98,7 +98,7 @@ export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
         const result = super.getCellClass();
         const typeName = Models.ItemTypePredefined[this.model.predefinedType];
         if (typeName) {
-            result.push("is-" + Helper.toDashCase(typeName));
+            result.push("is-" + _.kebabCase(typeName));
         }
         return result;
     }

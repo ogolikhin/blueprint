@@ -54,6 +54,7 @@ namespace Model.StorytellerModel.Impl
                         a.IsDeleted = true;
                         a.IsPublished = false;
                         a.IsSaved = false;
+                        a.Status.IsLocked = false;
                     }
                 });
                 Artifacts.RemoveAll(a => a.Id == deletedArtifactId);
@@ -84,6 +85,7 @@ namespace Model.StorytellerModel.Impl
                         }
 
                         a.IsSaved = false;
+                        a.Status.IsLocked = false;
                     }
                 });
                 Artifacts.RemoveAll(a => a.Id == publishedArtifactId);
@@ -308,9 +310,22 @@ namespace Model.StorytellerModel.Impl
             return response;
         }
 
-        public IProcess UpdateProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public IProcess UpdateProcess(IUser user, IProcess process, bool lockArtifactBeforeUpdate = true, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UpdateProcess));
+
+            ThrowIf.ArgumentNull(process, nameof(process));
+
+            if (lockArtifactBeforeUpdate)
+            {
+                var artifactToLock = Artifacts.Find(a => a.Id == process.Id);
+
+                if (!artifactToLock.Status.IsLocked)
+                {
+                    // Lock process artifact before update
+                    artifactToLock.Lock(user);
+                }
+            }
 
             var restResponse = UpdateProcessAndGetRestResponse(user, process, expectedStatusCodes, sendAuthorizationAsCookie);
             var updateProcessResult = JsonConvert.DeserializeObject<UpdateResult<Process>>(restResponse.Content);
@@ -318,9 +333,22 @@ namespace Model.StorytellerModel.Impl
             return updateProcessResult.Result;
         }
 
-        public string UpdateProcessReturnResponseOnly(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public string UpdateProcessReturnResponseOnly(IUser user, IProcess process, bool lockArtifactBeforeUpdate = true, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UpdateProcessReturnResponseOnly));
+
+            ThrowIf.ArgumentNull(process, nameof(process));
+
+            if (lockArtifactBeforeUpdate)
+            {
+                var artifactToLock = Artifacts.Find(a => a.Id == process.Id);
+
+                if (!artifactToLock.Status.IsLocked)
+                {
+                    // Lock process artifact before update
+                    artifactToLock.Lock(user);
+                }
+            }
 
             var restResponse = UpdateProcessAndGetRestResponse(user, process, expectedStatusCodes, sendAuthorizationAsCookie);
 
@@ -561,6 +589,7 @@ namespace Model.StorytellerModel.Impl
             var publishedArtifact = Artifacts.Find(artifact => artifact.Id == artifactId);
             publishedArtifact.IsSaved = false;
             publishedArtifact.IsPublished = true;
+            publishedArtifact.Status.IsLocked = false;
         }
 
         /// <summary>
@@ -571,6 +600,7 @@ namespace Model.StorytellerModel.Impl
         {
             var publishedArtifact = Artifacts.Find(artifact => artifact.Id == artifactId);
             publishedArtifact.IsSaved = true;
+            publishedArtifact.Status.IsLocked = true;
         }
 
         /// <summary>

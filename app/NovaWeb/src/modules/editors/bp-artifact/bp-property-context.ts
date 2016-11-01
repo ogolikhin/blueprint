@@ -35,7 +35,7 @@ export class PropertyContext implements Models.IPropertyType {
 
     constructor(type: Models.IPropertyType) {
         angular.extend(this, type);
-        let propertyTypeName: string = Helper.toCamelCase(String(Models.PropertyTypePredefined[this.propertyTypePredefined]));
+        let propertyTypeName: string = _.camelCase(String(Models.PropertyTypePredefined[this.propertyTypePredefined]));
         if (this.isSystem(this.propertyTypePredefined)) {
             this.lookup = Enums.PropertyLookupEnum.System;
             this.fieldPropertyName = propertyTypeName;

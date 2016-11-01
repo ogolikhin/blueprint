@@ -113,10 +113,11 @@ namespace Model.StorytellerModel
         /// </summary>
         /// <param name="user">The user credentials for the request to update a process</param>
         /// <param name="process">The process to update</param>
+        /// <param name="lockArtifactBeforeUpdate">(optional) Flag indicating whether or not the process artifact should be locked before update (Default: true)</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The updated process</returns>
-        IProcess UpdateProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        IProcess UpdateProcess(IUser user, IProcess process, bool lockArtifactBeforeUpdate = true, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
         /// Update a Process but only return the JSON response as a string. (Used only when a response other than a process object
@@ -124,10 +125,11 @@ namespace Model.StorytellerModel
         /// </summary>
         /// <param name="user">The user credentials for the request to update a process</param>
         /// <param name="process">The process to update</param>
+        /// <param name="lockArtifactBeforeUpdate">(optional) Flag indicating whether or not the process artifact should be locked before update (Default: true)</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The REST response content of the update process request</returns>
-        string UpdateProcessReturnResponseOnly(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        string UpdateProcessReturnResponseOnly(IUser user, IProcess process, bool lockArtifactBeforeUpdate = true, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
         /// Publish a Process Artifact (Used when publishing a single process artifact)

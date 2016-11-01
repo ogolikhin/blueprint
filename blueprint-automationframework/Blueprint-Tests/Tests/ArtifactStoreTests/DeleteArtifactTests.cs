@@ -7,6 +7,7 @@ using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.Impl;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
@@ -308,6 +309,51 @@ namespace ArtifactStoreTests
             VerifyArtifactHasExpectedNumberOfTraces(sourceArtifact, expectedManualTraces: 0, expectedOtherTraces: 0);
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // TFS Bug:  3208  Gets a 500 error when deleting the parent.
+        [TestCase(BaseArtifactType.Actor, BaseArtifactType.Process)]
+        [TestRail(190725)]
+        [Description("Create & publish a grand-parent, parent & child artifact then move the parent to be under the project.  " +
+            "Delete the parent artifact and publish all 3 artifacts.  Now delete the parent.  Verify it returns 200 OK with the deleted artifact and child.  " +
+            "Try to get the artifact & its child and verify you get a 404 since they were deleted.")]
+        public void DeleteArtifact_GrandParentAndParentAndChild_ParentIsMovedUnderProject_GrandParentIsDeletedAndPublished_DeleteParent_ArtifactIsDeleted(
+            BaseArtifactType parentArtifactType, BaseArtifactType childArtifactType)
+        {
+            // Setup:
+            var artifactChain = new List<IArtifact>();
+
+            var grandParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            artifactChain.Add(grandParentArtifact);
+            var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, parentArtifactType, grandParentArtifact);
+            artifactChain.Add(parentArtifact);
+            artifactChain.Add(Helper.CreateAndPublishArtifact(_project, _user, childArtifactType, parentArtifact));
+
+            // Move parent under project.
+            parentArtifact.Lock();
+            ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, parentArtifact, _project.Id, _user);
+
+            // Execute:
+            List <INovaArtifactResponse> deletedArtifacts = null;
+
+            Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(grandParentArtifact, _user),
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            Helper.ArtifactStore.PublishArtifacts(artifactChain.ConvertAll(a => (IArtifactBase) a), _user);
+
+            Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(parentArtifact, _user),
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+            
+            // Verify:
+            int expectedArtifactCount = artifactChain.Count;
+            Assert.AreEqual(expectedArtifactCount, deletedArtifacts.Count, "There should be {0} deleted artifact returned!", expectedArtifactCount);
+
+            var parentAndChild = artifactChain.GetRange(1, 2);
+            VerifyDeletedArtifactAndChildrenWereReturned(parentAndChild, deletedArtifacts);
+            VerifyArtifactsAreDeleted(parentAndChild);
+            
+        }
+
         #endregion 200 OK tests
 
         #region 401 Unauthorized tests
@@ -485,12 +531,18 @@ namespace ArtifactStoreTests
 
             artifactChain.Last().Lock(userWithLock);
 
-            // Execute & Verify:
-            Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DeleteArtifact(artifactChain.First(), _user),
-                "We should get a 409 Conflict when a user tries to delete an artifact when it has a child locked by another user!");
-
-            // Discard the lock so teardown will succeed
-            artifactChain.Last().Discard(userWithLock);
+            try
+            {
+                // Execute & Verify:
+                Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DeleteArtifact(artifactChain.First(), _user),
+                    "We should get a 409 Conflict when a user tries to delete an artifact when it has a child locked by another user!");
+            }
+            finally
+            {
+                // Delete & publish the locked artifact so the TearDown will succeed.
+                artifactChain.Last().Delete(userWithLock);
+                artifactChain.Last().Publish(userWithLock);
+            }
         }
 
         #endregion 409 Conflict tests

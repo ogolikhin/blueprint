@@ -88,7 +88,7 @@ export class ProjectManager implements IProjectManager {
     }
 
     private onChangeInCurrentlySelectedArtifact(artifact: IStatefulArtifact) {
-        if (artifact.artifactState.deleted || artifact.artifactState.misplaced) {
+        if (artifact.artifactState.misplaced) {
             const refreshOverlayId = this.loadingOverlayService.beginLoading();
             this.refresh(this.getSelectedProject()).finally(() => {
                 this.triggerProjectCollectionRefresh();
@@ -130,9 +130,7 @@ export class ProjectManager implements IProjectManager {
     }
 
     public triggerProjectCollectionRefresh() {
-        this.navigationService.navigateToMain().then(() => {
-            this.projectCollection.onNext(this.projectCollection.getValue());
-        });
+        this.projectCollection.onNext(this.projectCollection.getValue());
     }
 
     public refreshAll(): ng.IPromise<any> {

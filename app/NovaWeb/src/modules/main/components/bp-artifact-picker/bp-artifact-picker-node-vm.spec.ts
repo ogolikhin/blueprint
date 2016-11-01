@@ -1,15 +1,10 @@
 import "angular";
 import "angular-mocks";
-import {Models, AdminStoreModels} from "../../models";
+import {Models, AdminStoreModels, SearchServiceModels} from "../../models";
 import {IArtifactManager} from "../../../managers/";
 import {IProjectService} from "../../../managers/project-manager/";
 import {IArtifactPickerOptions} from "./bp-artifact-picker";
-import {
-    InstanceItemNodeVM,
-    ArtifactNodeVM,
-    SubArtifactContainerNodeVM,
-    SubArtifactNodeVM
-} from "./bp-artifact-picker-node-vm";
+import {InstanceItemNodeVM, ArtifactNodeVM, SubArtifactContainerNodeVM, SubArtifactNodeVM} from "./bp-artifact-picker-node-vm";
 
 describe("ArtifactPickerNodeVM", () => {
     let artifactManager: IArtifactManager;

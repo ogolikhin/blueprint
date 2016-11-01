@@ -791,6 +791,7 @@ namespace Model.ArtifactModel.Impl
                 if (lockResultInfo.Result == LockResult.Success)
                 {
                     artifact.LockOwner = user;
+                    artifact.Status.IsLocked = true;
                 }
 
                 if (restApi.StatusCode == HttpStatusCode.OK)

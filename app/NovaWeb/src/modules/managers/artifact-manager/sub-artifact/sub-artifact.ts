@@ -25,7 +25,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
     public unsubscribe() {
         super.unsubscribe();
         this.subject.onCompleted();
-        delete this.subject;
+        delete this._subject;
     }
 
     protected get subject(): Rx.BehaviorSubject<IStatefulSubArtifact> {
@@ -70,6 +70,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
         }
         return this.subject.filter(it => !!it).asObservable();
     }
+
     public changes(): Models.ISubArtifact {
         const traces = this.relationships.changes();
         const attachmentValues = this.attachments.changes();
@@ -99,7 +100,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
     }
 
     public getEffectiveVersion(): number {
-        return this.parentArtifact.historical ? this.parentArtifact.version : undefined;
+        return this.artifactState.historical ? this.parentArtifact.version : undefined;
     }
 
     protected getAttachmentsDocRefsInternal(): ng.IPromise<IArtifactAttachmentsResultSet> {

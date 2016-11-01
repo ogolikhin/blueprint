@@ -61,6 +61,8 @@ export class ProjectExplorerController {
     private setSelectedNode(artifact: IStatefulArtifact) {
         if (this.tree.nodeExists(artifact.id)) {
             this.tree.selectNode(artifact.id);
+        } else {
+            this.tree.clearSelection();
         }
     }
 
@@ -108,7 +110,7 @@ export class ProjectExplorerController {
                 typeName = Models.ItemTypePredefined[params.data.predefinedType];
             }
             if (typeName) {
-                css.push("is-" + Helper.toDashCase(typeName));
+                css.push("is-" + _.kebabCase(typeName));
             }
             return css;
         },
@@ -179,13 +181,11 @@ export class ProjectExplorerController {
                             this.navigationService.navigateTo(this.selected.projectId);
                         } else {
                             //if project node fails too - give up
-                            this.artifactManager.selection.setExplorerArtifact(null);
                             this.navigationService.navigateToMain();
                         }
                     }
                 }
             } else {
-                this.artifactManager.selection.setExplorerArtifact(null);
                 this.navigationService.navigateToMain();
             }
             this.numberOfProjectsOnLastLoad = projects.length;

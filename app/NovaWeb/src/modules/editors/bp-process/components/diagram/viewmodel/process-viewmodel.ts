@@ -394,8 +394,8 @@ export class ProcessViewModel implements IProcessViewModel {
     public get isHistorical(): boolean {
         const statefulProcess: StatefulProcessArtifact = <StatefulProcessArtifact>this.process;
 
-        if (statefulProcess && statefulProcess.historical !== undefined) {
-            return statefulProcess.historical;
+        if (statefulProcess && statefulProcess.artifactState && statefulProcess.artifactState.historical !== undefined) {
+            return statefulProcess.artifactState.historical;
         }
 
         return null;

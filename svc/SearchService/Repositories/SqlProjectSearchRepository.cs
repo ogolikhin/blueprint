@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using SearchService.Models;
 using ServiceLibrary.Repositories;
 using System.Data;

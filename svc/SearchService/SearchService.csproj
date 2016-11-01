@@ -121,13 +121,13 @@
     <Compile Include="Helpers\SearchConfiguration.cs" />
     <Compile Include="Helpers\ISearchConfiguration.cs" />
     <Compile Include="Helpers\SearchConfigurationProvider.cs" />
+    <Compile Include="Models\ItemNameSearchResult.cs" />
     <Compile Include="Models\FullTextSearchCriteria.cs" />
     <Compile Include="Models\FullTextSearchResult.cs" />
     <Compile Include="Models\FullTextSearchResultSet.cs" />
     <Compile Include="Models\MetaDataSearchResultSet.cs" />
     <Compile Include="Models\MetaDataSearchResult.cs" />
     <Compile Include="Models\ItemNameSearchResultSet.cs" />
-    <Compile Include="Models\ItemSearchResult.cs" />
     <Compile Include="Models\ProjectSearchResultSet.cs" />
     <Compile Include="Models\SearchCriteria.cs" />
     <Compile Include="Models\ItemNameSearchCriteria.cs" />
@@ -141,6 +141,10 @@
     <Compile Include="Repositories\SqlProjectSearchRepository.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ArtifactStore\ArtifactStore.csproj">
+      <Project>{30144c60-f58c-4b49-be52-60c7884b2fb7}</Project>
+      <Name>ArtifactStore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\lib\ServiceLibrary\ServiceLibrary.csproj">
       <Project>{42662de2-4604-427c-91f9-5f47af8f1e1b}</Project>
       <Name>ServiceLibrary</Name>

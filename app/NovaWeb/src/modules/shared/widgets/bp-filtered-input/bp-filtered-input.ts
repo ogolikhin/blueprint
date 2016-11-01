@@ -4,7 +4,9 @@ export class BPFilteredInput implements ng.IDirective {
     public restrict = "A";
     public require = "ngModel";
     public scope = {
-        regexFilter: "=bpFilteredInput"
+        regexFilter: "<?bpFilteredInput",
+        maxLength: "<?bpMaxLength"
+
     };
 
     public link: Function = ($scope: any, $element: any, $attrs: ng.IAttributes, $ctrl): void => {
@@ -14,7 +16,12 @@ export class BPFilteredInput implements ng.IDirective {
                 return "";
             }
 
-            const transformedInput = inputValue.replace($scope.regexFilter, "");
+            let transformedInput = inputValue.replace($scope.regexFilter, "");
+
+            if ($scope.maxLength) {
+                transformedInput = transformedInput.substring(0, $scope.maxLength);
+            }
+
             if (transformedInput !== inputValue) {
                 const el = $element[0];
                 const cursorPosition = el.selectionStart - 1;

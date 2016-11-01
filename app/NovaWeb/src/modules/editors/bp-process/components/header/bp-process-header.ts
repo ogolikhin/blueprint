@@ -135,11 +135,12 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         this.toolbarActions.push(
             new GenerateUserStoriesAction(
                 processArtifact, 
-                this.artifactManager.selection, 
                 this.userStoryService, 
+                this.artifactManager.selection, 
                 this.messageService, 
                 this.localization,
                 this.dialogService,
+                this.loadingOverlayService,
                 this.communicationManager.processDiagramCommunication
             ),
             new ToggleProcessTypeAction(

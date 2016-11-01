@@ -201,22 +201,16 @@ namespace StorytellerTests
 
             var ex = Assert.Throws<Http409ConflictException>(() =>
                 // First user attempts to update the process
-                Helper.Storyteller.UpdateProcess(_user, process),
+                Helper.Storyteller.UpdateProcess(_user, process, lockArtifactBeforeUpdate: false),
                 "The first user attempted to update the process locked by another user and either an unexpected exception was thrown or" +
                 "the first user's attempted publish was successful."
                 );
 
             var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
 
-            var expectedValidationResponseContent = I18NHelper.FormatInvariant(
-                    ProcessValidationResponse.ArtifactAlreadyLocked,
-                    process.Id,
-                    process.Name,
-                    _user2.Username);
-
             // Assert that the deserialized response indicates that the artifact is locked
             // by the second user
-            AssertValidationResponse(deserializedResponse, expectedValidationResponseContent);
+            AssertValidationResponse(deserializedResponse, ProcessValidationResponse.ArtifactAlreadyLocked);
         }
         
         [TestCase]
@@ -294,7 +288,7 @@ namespace StorytellerTests
 
         public static readonly string OrphanedShapes = "Orphaned shapes discovered";
 
-        public static readonly string ArtifactAlreadyLocked = "Artifact \"{0}: {1}\" is locked by user \"{2}\"";
+        public static readonly string ArtifactAlreadyLocked = "Artifact locked by another user.";
 
         public static readonly string ArtifactLimitExceeded = "The Process cannot be saved or published. It has exceeded the maximum {0} shapes. Please refactor it and move more detailed user tasks to included Processes.";
 

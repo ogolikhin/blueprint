@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ArtifactStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using SearchService.Helpers;
 using SearchService.Models;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 
 namespace SearchService.Repositories
@@ -49,11 +51,14 @@ namespace SearchService.Repositories
                 ProjectIds = new[] { 1 },
                 PredefinedTypeIds = new[] { 4104 }
             };
-            ItemSearchResult[] queryResult =
+            ItemNameSearchResult[] queryResult =
             {
-                new ItemSearchResult()
+                new ItemNameSearchResult()
             };
-            var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult);
+            var permissionsDictionary = new Dictionary<int, RolePermissions>();
+            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
+            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(queryResult.Select(queryresult => queryresult.ItemId), UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
+            var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult, mockArtifactPermissionsRepository.Object);
 
             // Act
             var result = await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize);
@@ -72,11 +77,14 @@ namespace SearchService.Repositories
                 Query = "test",
                 ProjectIds = new[] { 1 }
             };
-            ItemSearchResult[] queryResult =
+            ItemNameSearchResult[] queryResult =
             {
-                new ItemSearchResult()
+                new ItemNameSearchResult()
             };
-            var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult);
+            var permissionsDictionary = new Dictionary<int, RolePermissions>();
+            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
+            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(queryResult.Select(queryresult => queryresult.ItemId), UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
+            var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult, mockArtifactPermissionsRepository.Object);
 
             // Act
             var result = await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize);
@@ -253,7 +261,8 @@ namespace SearchService.Repositories
 
         private static IItemSearchRepository CreateItemNameRepository<T>(
             ItemNameSearchCriteria searchCriteria,
-            ICollection<T> queryResult)
+            ICollection<T> queryResult,
+            IArtifactPermissionsRepository artifactPermissionsRepository)
         {
             var connectionWrapper = new SqlConnectionWrapperMock();
             var parameters = new Dictionary<string, object>
@@ -279,7 +288,7 @@ namespace SearchService.Repositories
             configuration.Setup(c => c.MaxItems).Returns(MaxItems.ToStringInvariant());
             configuration.Setup(c => c.MaxSearchableValueStringSize).Returns(MaxSearchableValueStringSize.ToStringInvariant());
 
-            return new SqlItemSearchRepository(connectionWrapper.Object, configuration.Object);
+            return new SqlItemSearchRepository(connectionWrapper.Object, configuration.Object, artifactPermissionsRepository);
         }
     }
 }

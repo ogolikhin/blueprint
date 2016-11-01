@@ -2,6 +2,7 @@
 import "angular-mocks";
 import {BpArtifactPicker, BpArtifactPickerController} from "./bp-artifact-picker";
 import {ArtifactPickerNodeVM, InstanceItemNodeVM, ArtifactNodeVM} from "./bp-artifact-picker-node-vm";
+import {ArtifactSearchResultVM} from "./bp-artifact-picker-search-vm";
 import {ILocalizationService} from "../../../core";
 import {Models, AdminStoreModels, SearchServiceModels} from "../../models";
 import {IArtifactManager, IProjectManager} from "../../../managers";
@@ -84,10 +85,12 @@ describe("BpArtifactPickerController", () => {
         controller.$onInit();
 
         // Assert
-        expect(controller.project.id).toEqual(project.id);
-        expect(controller.project.name).toEqual(project.name);
-        expect(controller.project.type).toEqual(AdminStoreModels.InstanceItemType.Project);
-        expect(controller.project.hasChildren).toEqual(project.hasChildren);
+        expect(controller.project).toEqual({
+            id: project.id,
+            type: AdminStoreModels.InstanceItemType.Project,
+            name: project.name,
+            hasChildren: project.hasChildren
+        });
     });
 
     it("$onDestroy cleans up", () => {
@@ -111,6 +114,7 @@ describe("BpArtifactPickerController", () => {
         // Assert
         expect(controller.searchText).toBeUndefined();
         expect(controller.searchResults).toBeUndefined();
+        expect(controller.isMoreSearchResults).toBeUndefined();
     });
 
     it("search, when project is set, searches artifacts", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
@@ -155,6 +159,20 @@ describe("BpArtifactPickerController", () => {
         expect(controller.isMoreSearchResults).toEqual(false);
     }));
 
+    it("onSearchResultDoubleClick, when single-selection mode, calls onDoubleClick", () => {
+        // Arrange
+        const model = {id: 13, itemId: 13, predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
+        const vm = new ArtifactSearchResultVM(model, controller.onSelect);
+        controller.selectionMode = "single";
+        controller.onDoubleClick = jasmine.createSpy("onDoubleClick");
+
+        // Act
+        controller.onDouble(vm);
+
+        // Assert
+        expect(controller.onDoubleClick).toHaveBeenCalledWith({vm: vm});
+    });
+
     describe("columns", () => {
         it("column properties are correctly defined", () => {
             // Arrange
@@ -197,63 +215,51 @@ describe("BpArtifactPickerController", () => {
         });
     });
 
-    it("onSelect, when InstanceItemNodeVM of type Project, clears selection and sets project", inject(($browser) => {
-        // Arrange
-        const model = {id: 11, name: "proj", type: AdminStoreModels.InstanceItemType.Project} as AdminStoreModels.IInstanceItem;
-        const vm = new InstanceItemNodeVM(artifactManager, projectService, controller, model);
-        controller.onSelectionChanged = jasmine.createSpy("onSelectionChanged");
-
-        // Act
-        controller.onSelect(vm, true, [vm]);
-
-        // Assert
-        $browser.defer.flush(); // wait for $applyAsync()
-        expect(controller.onSelectionChanged).toHaveBeenCalledWith({selectedVMs: []});
-        expect(controller.project).toBe(model);
-    }));
-
-    it("onSelect, when InstanceItemNodeVM of type Folder, clears selection", inject(($browser) => {
-        // Arrange
-        const model = {id: 99, type: AdminStoreModels.InstanceItemType.Folder} as AdminStoreModels.IInstanceItem;
-        const vm = new InstanceItemNodeVM(artifactManager, projectService, controller, model);
-        controller.onSelectionChanged = jasmine.createSpy("onSelectionChanged");
-
-        // Act
-        controller.onSelect(vm, true, [vm]);
-
-        // Assert
-        $browser.defer.flush(); // wait for $applyAsync()
-        expect(controller.onSelectionChanged).toHaveBeenCalledWith({selectedVMs: []});
-    }));
-
-    it("onSelect, when InstanceItemNodeVM of type Project, clears selection and sets project", inject(($browser) => {
-        // Arrange
-        const model = {id: 11, name: "proj", type: AdminStoreModels.InstanceItemType.Project} as AdminStoreModels.IInstanceItem;
-        const vm = new InstanceItemNodeVM(artifactManager, projectService, controller, model);
-        controller.onSelectionChanged = jasmine.createSpy("onSelectionChanged");
-
-        // Act
-        controller.onSelect(vm, true, [vm]);
-
-        // Assert
-        $browser.defer.flush(); // wait for $applyAsync()
-        expect(controller.onSelectionChanged).toHaveBeenCalledWith({selectedVMs: []});
-        expect(controller.project).toBe(model);
-    }));
-
     it("onSelect, when ArtifactNodeVM or SubArtifactNodeVM, sets selection", inject(($browser) => {
         // Arrange
         const model = {id: 3} as Models.IArtifact;
         const vm = new ArtifactNodeVM(artifactManager, projectService, controller, model);
+        controller.project = {id: 6, name: "new", hasChildren: true} as AdminStoreModels.IInstanceItem;
         controller.onSelectionChanged = jasmine.createSpy("onSelectionChanged");
 
         // Act
-        controller.onSelect(vm, true, [vm]);
+        controller.onSelect(vm, true);
 
         // Assert
         $browser.defer.flush(); // wait for $applyAsync()
         expect(controller.onSelectionChanged).toHaveBeenCalledWith({selectedVMs: [vm]});
     }));
+
+    it("onSelect, when InstanceItemNodeVM of type Project, sets project", () => {
+        // Arrange
+        const model = {id: 11, name: "proj", type: AdminStoreModels.InstanceItemType.Project} as AdminStoreModels.IInstanceItem;
+        const vm = new InstanceItemNodeVM(artifactManager, projectService, controller, model);
+
+        // Act
+        controller.onSelect(vm, true);
+
+        // Assert
+        expect(controller.project).toBe(model);
+    });
+
+    it("onSelect, when SearchResultVM, clears search and sets project", () => {
+        // Arrange
+        const model = {id: 13, itemId: 13, predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
+        const vm = new ArtifactSearchResultVM(model, controller.onSelect);
+        controller.clearSearch = jasmine.createSpy("clearSearch");
+
+        // Act
+        controller.onSelect(vm, true);
+
+        // Assert
+        expect(controller.clearSearch).toHaveBeenCalled();
+        expect(controller.project).toEqual({
+            id: model.itemId,
+            type: AdminStoreModels.InstanceItemType.Project,
+            name: model.name,
+            hasChildren: true
+        });
+    });
 
     it("set project, when project is defined, clears selection and sets project and root node", inject(($browser) => {
         // Arrange
@@ -270,7 +276,7 @@ describe("BpArtifactPickerController", () => {
         expect(controller.rootNode).toEqual(new InstanceItemNodeVM(artifactManager, projectService, controller, newProject, true));
     }));
 
-    it("set project, when project is undefined, clears search, selection and project and sets root node", inject(($browser) => {
+    it("set project, when project is undefined, clears selection and project and sets root node", inject(($browser) => {
         // Arrange
         controller.onSelectionChanged = jasmine.createSpy("onSelectionChanged");
 
@@ -279,8 +285,6 @@ describe("BpArtifactPickerController", () => {
 
         // Assert
         $browser.defer.flush(); // wait for $applyAsync()
-        expect(controller.searchText).toBeUndefined();
-        expect(controller.searchResults).toBeUndefined();
         expect(controller.onSelectionChanged).toHaveBeenCalledWith({selectedVMs: []});
         expect(controller.project).toBeUndefined();
         expect(controller.rootNode).toEqual(new InstanceItemNodeVM(artifactManager, projectService, controller, {

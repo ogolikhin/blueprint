@@ -65,7 +65,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         }
 
         return "";
-    }   
+    }
 
     public onArtifactReady() {
         if (this.editor && this.artifact) {
@@ -97,14 +97,44 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         }
     }
 
+    private headerCellRendererSelectAll(params) {
+        let cb = document.createElement("i");
+        cb.setAttribute("class", "ag-checkbox-unchecked");
 
+        let sp = document.createElement("span");
+        sp.setAttribute("class", "ag-group-checkbox");
+
+        sp.appendChild(cb);
+
+        let eHeader = document.createElement("span");
+        eHeader.setAttribute("class", "ag-header-checkbox");
+        eHeader.appendChild(sp);
+
+        cb.addEventListener("click", function (e) {
+            let checked: boolean;
+
+            if ((<HTMLInputElement>e.target)["data-checked"] && (<HTMLInputElement>e.target)["data-checked"] === true) {
+                checked = false;
+                e.target.setAttribute("class", "ag-checkbox-unchecked");
+            } else {
+                checked = true;
+                e.target.setAttribute("class", "ag-checkbox-checked");
+            }
+
+            (<HTMLInputElement>e.target)["data-checked"] = checked;
+            params.context.allSelected = checked;
+            params.context.selectAllClass.selectAll(checked);
+        });
+        return eHeader;
+    }
 
     public columns: IColumn[] = [
         {
             isCheckboxSelection: true,
             width: 30,
-            headerName: `<span><span class="ag-selection-checkbox">` +
-            `<i ng-class="$ctrl.selectAllClass"></i></span></span>`
+            headerName: "",
+            headerCellRenderer: this.headerCellRendererSelectAll,
+            field: "chck"
         },
         {
             width: 100,

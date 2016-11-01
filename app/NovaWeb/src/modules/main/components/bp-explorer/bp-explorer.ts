@@ -144,17 +144,19 @@ export class ProjectExplorerController {
 
             this.tree.reload(projects);
 
+            let currentSelection = this.selected ? this.selected.id : undefined;
+            let navigateToId: number;
             if (projects && projects.length > 0) {
                 if (!this.selected || this.numberOfProjectsOnLastLoad !== projects.length) {
                     this.selected = projects[0];
-                    this.navigationService.navigateTo(this.selected.id);
+                    navigateToId = this.selected.id;
                 }
 
-                //if node exists in the tree
                 if (this.tree.nodeExists(this.selected.id)) {
+                    //if node exists in the tree
                     if (this.isFullReLoad || this.selected.id !== this.tree.getSelectedNodeId) {
                         this.tree.selectNode(this.selected.id);
-                        this.navigationService.navigateTo(this.selected.id);
+                        navigateToId = this.selected.id;
                     }
                     this.isFullReLoad = true;
 
@@ -167,7 +169,7 @@ export class ProjectExplorerController {
                     //otherwise, if parent node is in the tree
                     if (this.selected.parentNode && this.tree.nodeExists(this.selected.parentNode.id)) {
                         this.tree.selectNode(this.selected.parentNode.id);
-                        this.navigationService.navigateTo(this.selected.parentNode.id);
+                        navigateToId = this.selected.parentNode.id;
 
                         //replace with a new object from tree, since the selected object may be stale after refresh
                         let selectedObjectInTree: IArtifactNode = <IArtifactNode>this.tree.getNodeData(this.selected.parentNode.id);
@@ -178,17 +180,24 @@ export class ProjectExplorerController {
                         //otherwise, try with project node
                         if (this.tree.nodeExists(this.selected.projectId)) {
                             this.tree.selectNode(this.selected.projectId);
-                            this.navigationService.navigateTo(this.selected.projectId);
-                        } else {
-                            //if project node fails too - give up
-                            this.navigationService.navigateToMain();
+                            navigateToId = this.selected.projectId;
                         }
                     }
+                }
+            }
+            
+            this.numberOfProjectsOnLastLoad = projects.length;
+
+            if (_.isFinite(navigateToId)) {
+                if (navigateToId !== currentSelection) {
+                    this.navigationService.navigateTo(navigateToId);
+
+                } else if (navigateToId === currentSelection) {
+                    this.navigationService.reloadParentState();
                 }
             } else {
                 this.navigationService.navigateToMain();
             }
-            this.numberOfProjectsOnLastLoad = projects.length;
         }
     };
 

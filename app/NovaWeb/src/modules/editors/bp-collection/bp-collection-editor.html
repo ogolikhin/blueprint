@@ -21,7 +21,7 @@
             <div class="properties" ng-if="$ctrl.collection.isCreated">
                 <div class="collection__heading clearfix">
                     <div class="pull-left">
-                        <i class="fonticon2-rapid-review"></i> {{::$ctrl.collection.reviewName}} <a ng-href="" class="collection__heading__link">{{::$ctrl.reviewUrl}}</a>
+                        <i class="fonticon2-rapid-review"></i> {{::$ctrl.collection.reviewName}} <a href="#" ng-click="$ctrl.navigateToRapidReview()" class="collection__heading__link">{{::$ctrl.reviewUrl}}</a>
                     </div>
                     <div class="pull-right text-right">
                         <a ng-href="" class="collection__heading__link">{{::$ctrl.localization.get('Artifact_Collection_Edit_Rapid_Review')}}</a>

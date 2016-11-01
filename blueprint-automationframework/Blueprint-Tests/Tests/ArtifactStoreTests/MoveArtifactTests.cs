@@ -470,7 +470,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182463)]
-        [Description("Create& save an artifact. Move an artifact to be a child of the other one with user that does not have proper permissions to future parent artifact.  Verify returned code 403 Forbidden.")]
+        [Description("Create & save an artifact. Move an artifact to be a child of the other one with user that does not have proper permissions to future parent artifact.  Verify returned code 403 Forbidden.")]
         public void MoveArtifact_SavedArtifactCannotBeMovedForUserWithoutProperPermissions_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:

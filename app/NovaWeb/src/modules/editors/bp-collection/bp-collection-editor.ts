@@ -113,12 +113,12 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         cb.addEventListener("click", function (e) {
             let checked: boolean;
 
-            if ((<HTMLInputElement>e.target)["data-checked"] && (<HTMLInputElement>e.target)["data-checked"] === true) {
+            if ((e.target)["data-checked"] && (e.target)["data-checked"] === true) {
                 checked = false;
-                e.target.setAttribute("class", "ag-checkbox-unchecked");
+                cb.setAttribute("class", "ag-checkbox-unchecked");
             } else {
                 checked = true;
-                e.target.setAttribute("class", "ag-checkbox-checked");
+                cb.setAttribute("class", "ag-checkbox-checked");
             }
 
             (<HTMLInputElement>e.target)["data-checked"] = checked;

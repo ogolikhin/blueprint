@@ -2,7 +2,14 @@
       class="full-height quick-serach__form"
       ng-submit="quickSearch.openModal()"
       novalidate>
-    <div class="quick-serach__form-control" ng-class="{'has-error':quickSearch.hasError()}">
+    <div class="quick-serach__form-control" ng-class="{'has-error':quickSearch.hasError()}">   
+        <span>
+            <button class="btn btn-default quick-search__btn"
+                    type="submit"               
+                    ng-disabled="quickSearch.quickSearchService.canSearch()">
+                <i class="glyphicon glyphicon-search quick-search__icon--fixed"></i>
+            </button>
+        </span>
         <input type="text"
                required
                ng-minlength="3"
@@ -12,11 +19,6 @@
                class="quick-serach__input"
                name="searchTerm"
                ng-model="quickSearch.quickSearchService.searchTerm">
-        <button class="quick-search__btn"
-                type="submit"               
-                ng-disabled="quickSearch.quickSearchService.canSearch()">
-            <i class="glyphicon glyphicon-search quick-search__icon--fixed"></i>
-        </button>
         <div class="error-messages"
              ng-messages="quickSearch.form.$error"
              role="alert"

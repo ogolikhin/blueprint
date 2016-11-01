@@ -12,6 +12,13 @@
                       ng-submit="$ctrl.search($ctrl.searchTerm)"
                       novalidate>
                     <div class="quick-serach__form-control" ng-class="{'has-error':$ctrl.hasError()}">
+                        <span>
+                            <button class="btn btn-default quick-search__btn"
+                                    type="submit"               
+                                    ng-disabled="quickSearch.quickSearchService.canSearch()">
+                                <i class="glyphicon glyphicon-search quick-search__icon--fixed"></i>
+                            </button>
+                        </span>
                         <input type="text"
                                required
                                autocomplete="off"
@@ -20,11 +27,6 @@
                                class="quick-serach__input quick-serach__input--full-width"
                                name="searchTerm"
                                ng-model="$ctrl.searchTerm">
-                        <button class="quick-search__btn"
-                                type="submit"               
-                                ng-disabled="$ctrl.quickSearchService.canSearch()">
-                            <i class="glyphicon glyphicon-search quick-search__icon--fixed"></i>
-                        </button>
                         <div class="error-messages"
                              ng-messages="$ctrl.form.$error"
                              role="alert"

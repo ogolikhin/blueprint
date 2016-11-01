@@ -8,6 +8,10 @@ export class NavigationServiceMock implements INavigationService {
     constructor(private $q: ng.IQService) {
     }
 
+    public reloadParentState() {
+        ;
+    }
+
     public getNavigationState(): INavigationState {
         return null;
     }

@@ -49,7 +49,7 @@ export class BPItemTypeIconController implements IBPItemTypeIconController {
     }
 
     public getIconClass() {
-        return "icon-" + (Helper.toDashCase(this.artifactTypeDescription));
+        return "icon-" + (_.kebabCase(this.artifactTypeDescription));
     }
 
     public getAltText() {

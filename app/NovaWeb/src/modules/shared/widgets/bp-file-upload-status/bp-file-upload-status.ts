@@ -58,7 +58,7 @@ export class BpFileUploadStatusController extends BaseDialogController implement
                 $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
                 dialogSettings: IDialogSettings,
                 private dialogData: IUploadStatusDialogData,
-                private $timeout: ng.ITimeoutService, //Used for testing, remove later
+                private $timeout: ng.ITimeoutService
                 ) {
 
         super($uibModalInstance, dialogSettings);

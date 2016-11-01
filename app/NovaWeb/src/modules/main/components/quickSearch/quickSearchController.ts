@@ -18,6 +18,7 @@ export class QuickSearchController {
     hasError() {
         return  this.form.$submitted &&
                 this.form.$invalid &&
+                this.form.$error &&
                 !this.form.$error.required;
     }
     onKeyPress($event: KeyboardEvent) {

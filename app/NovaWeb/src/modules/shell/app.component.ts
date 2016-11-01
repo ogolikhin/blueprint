@@ -4,6 +4,7 @@ import { ISettingsService } from "./../core";
 import { INavigationService } from "./../core/navigation";
 import { IProjectManager } from "./../managers/project-manager/";
 import { ISelectionManager } from "./../managers/selection-manager";
+import {QuickSearchService} from '../main/components/quicksearch/quickSearchService';
 
 export class AppComponent implements ng.IComponentOptions {
     // Inline template
@@ -20,14 +21,15 @@ export class AppComponent implements ng.IComponentOptions {
 }
 
 export class AppController {
-    static $inject: [string] = ["navigationService", "projectManager", "selectionManager", "session", "settings", "$window"];
+    static $inject: [string] = ["navigationService", "projectManager", "selectionManager", "session", "settings", "$window", "quickSearchService"];
 
     constructor(private navigation: INavigationService,
                 private projectManager: IProjectManager,
                 private selectionManager: ISelectionManager,
                 private session: ISession,
                 private settings: ISettingsService,
-                private $window: ng.IWindowService) {
+                private $window: ng.IWindowService,
+                private quickSearchService) {
     }
 
     public get currentUser(): IUser {
@@ -40,6 +42,7 @@ export class AppController {
             this.navigation.navigateToMain().finally(() => {
                 this.projectManager.removeAll();
                 this.session.ensureAuthenticated();
+                this.quickSearchService.searchTerm = "";
             });
         });
     }

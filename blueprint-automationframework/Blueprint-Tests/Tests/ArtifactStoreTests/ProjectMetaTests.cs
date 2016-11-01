@@ -148,7 +148,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess,
-                "The user does not have permissions for Project (Id:1).");
+                I18NHelper.FormatInvariant("The user does not have permissions for Project (Id:{0}).", _project.Id));
         }
 
         [TestCase]

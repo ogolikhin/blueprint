@@ -148,21 +148,20 @@ export class BpFileUploadStatusController extends BaseDialogController implement
         ).finally(() => {
             f.isUploading = false;
             this.updateTotalFailedFiles();
+            if (this.files.filter(a => a.isUploading === true).length === 0) {
+                if (this.files.filter(a => a.isFailed === true).length === 0) {
+                    this.$timeout(() => {
+                        super.ok();
+                    }, 500);
+                } else {
+                    this.isUploading = false;
+                }
+            }
         });
     }
 
     private updateTotalFailedFiles() {
         this.totalFailedFiles = this.files.filter((file: IFileUploadStatus) => file.isFailed).length;
-        if (this.totalFailedFiles === 0) {
-            this.$timeout(() => {
-                super.ok();
-            }, 1000);
-        }
-        else {
-            this.$timeout(() => {
-                this.isUploading = false;
-            }, 1000);
-        }
     }
 
     public cancelUpload(file: IFileUploadStatus) {

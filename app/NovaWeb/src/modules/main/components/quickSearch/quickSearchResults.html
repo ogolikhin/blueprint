@@ -20,12 +20,17 @@
                                class="quick-serach__input quick-serach__input--full-width"
                                name="searchTerm"
                                ng-model="$ctrl.searchTerm">
-                        <i class="glyphicon glyphicon-search quick-serach__icon--fixed"></i>
+                        <button class="quick-search__btn"
+                                type="submit"               
+                                ng-disabled="$ctrl.quickSearchService.canSearch()">
+                            <i class="glyphicon glyphicon-search quick-search__icon--fixed"></i>
+                        </button>
                         <div class="error-messages"
                              ng-messages="$ctrl.form.$error"
                              role="alert"
                              ng-if="$ctrl.form.$submitted">
-                            <span ng-message="minlength">At least 3 characters.</span>
+                            <span ng-message="minlength">{{$ctrl.localization.get('Search_Validation_MinimumLength')}}</span>
+                            <span ng-message="required">{{$ctrl.localization.get('Search_Validation_Required')}}</span>
                         </div>
                     </div>
                 </form>

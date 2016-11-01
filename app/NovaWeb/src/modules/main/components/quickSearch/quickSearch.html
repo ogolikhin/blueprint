@@ -4,7 +4,8 @@
       novalidate>
     <div class="quick-serach__form-control" ng-class="{'has-error':quickSearch.hasError()}">
         <input type="text"
-               ng-blur="quickSearch.onBlur()"               
+               ng-model-options="{ updateOn: 'blur' }"   
+               ng-keypress="quickSearch.onKeyPress($event)"        
                required
                ng-minlength="3"
                ng-disabled="quickSearch.quickSearchService.canSearch()"
@@ -19,7 +20,6 @@
              role="alert"
              ng-if="quickSearch.form.$submitted">
             <span ng-message="minlength">{{quickSearch.localization.get('Search_Validation_MinimumLength')}}</span>
-            <span ng-message="required">{{quickSearch.localization.get('Search_Validation_Required')}}</span>
         </div>
     </div>
 

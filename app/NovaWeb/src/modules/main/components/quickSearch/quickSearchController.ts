@@ -15,14 +15,16 @@ export class QuickSearchController {
         this.animationsEnabled = false;
         this.modalSize = "full-screen";
     }
-
-    onBlur() {
-        this.form.$submitted = false;
-    }
-
     hasError() {
         return  this.form.$submitted &&
-                this.form.$invalid;
+                this.form.$invalid &&
+                !this.form.$error.required;
+    }
+    onKeyPress($event: KeyboardEvent) {
+        const enterKeyCode = 13;
+        if ($event.keyCode !== enterKeyCode) {
+            this.form.$setPristine();
+        }
     }
     openModal() {
         if (this.form.$invalid) {

@@ -4,10 +4,11 @@
 
   <BlueprintServices>
     <Service name="AdminStore"    address="http://localhost:9801/" />
-    <Service name="AccessControl" address="http://localhost:19101/" />
+    <Service name="AccessControl" address="http://localhost:19101/" />  <!-- Change port to 9101 if you don't have AccessControlDouble installed. -->
     <Service name="ArtifactStore" address="http://localhost:9801/" />
     <Service name="ConfigControl" address="http://localhost:9101/" />
     <Service name="FileStore"     address="http://localhost:9801/" />
+    <Service name="SearchService" address="http://localhost:9801/" />
     <Service name="Storyteller"   address="http://localhost:9801/" />
   </BlueprintServices>
 

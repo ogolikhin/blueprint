@@ -12,7 +12,11 @@
                class="quick-serach__input"
                name="searchTerm"
                ng-model="quickSearch.quickSearchService.searchTerm">
-        <i class="glyphicon glyphicon-search quick-serach__icon--fixed"></i>
+        <button class="quick-search__btn"
+                type="submit"               
+                ng-disabled="quickSearch.quickSearchService.canSearch()">
+            <i class="glyphicon glyphicon-search quick-search__icon--fixed"></i>
+        </button>
         <div class="error-messages"
              ng-messages="quickSearch.form.$error"
              role="alert"

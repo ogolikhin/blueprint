@@ -342,10 +342,6 @@ pagecontent, bp-properties-panel {
                                     display: inline-block;
                                     width: 12px;
                                 }
-
-                                .bp-highlight {
-                                    text-decoration: underline;
-                                }
                             }
 
                             &:hover .ui-select-choice-item {
@@ -369,10 +365,6 @@ pagecontent, bp-properties-panel {
 
                                 &::before {
                                     content: '\2713';
-                                }
-
-                                .bp-highlight {
-                                    text-decoration: none;
                                 }
                             }
                         }
@@ -549,10 +541,6 @@ pagecontent, bp-properties-panel {
                                     display: inline-block;
                                     width: 12px;
                                 }
-
-                                .bp-highlight {
-                                    text-decoration: underline;
-                                }
                             }
                         }
                     }
@@ -579,10 +567,6 @@ pagecontent, bp-properties-panel {
 
                                 &::before {
                                     content: '\2713';
-                                }
-
-                                .bp-highlight {
-                                    text-decoration: none;
                                 }
                             }
                         }

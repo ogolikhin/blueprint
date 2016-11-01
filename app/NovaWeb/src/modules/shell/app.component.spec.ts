@@ -47,13 +47,13 @@ describe("Component AppComponent", () => {
 
     describe("logout", () => {
         it("should call session logout, navigate to main state and pop up login window",
-            inject((session: SessionSvcMock, navigationService: INavigationService, $q: ng.IQService) => {
+            inject((session: SessionSvcMock, navigationService: INavigationService, $q: ng.IQService, $window: WindowMock) => {
 
             //Arrange
             const vm: AppController = componentTest.createComponent({});
             spyOn(session, "logout").and.callThrough();
             spyOn(navigationService, "navigateToMain").and.callThrough();
-            spyOn(session, "ensureAuthenticated").and.callThrough();
+            spyOn($window.location, "reload").and.callThrough();
             const event = componentTest.scope.$broadcast("dummyEvent");
 
             //Act
@@ -63,7 +63,7 @@ describe("Component AppComponent", () => {
             //Assert
             expect(session.logout).toHaveBeenCalled();
             expect(navigationService.navigateToMain).toHaveBeenCalled();
-            expect(session.ensureAuthenticated).toHaveBeenCalled();
+            expect($window.location.reload).toHaveBeenCalled();
             expect(event.defaultPrevented).toBeTruthy();
 
 
@@ -100,7 +100,15 @@ class WindowMock {
     public outerWidth = 1500;
     public outerHeight = 1000;
 
+    public location: LocationMock = new LocationMock();
+
     public open(url: string, title: string, windowFeatures: string) {
+        return undefined;
+    }
+}
+
+class LocationMock {
+    public reload() {
         return undefined;
     }
 }

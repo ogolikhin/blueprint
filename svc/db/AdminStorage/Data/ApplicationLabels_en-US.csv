@@ -414,3 +414,7 @@ ST_US_Generate_LockedByOtherUser_Failure_Message, "User stories cannot be genera
 
 # ag-Grid
 ag-Grid_noRowsToShow,"Empty"
+
+# search
+Search_Validation_MinimumLength, "At least 3 characters."
+Search_Validation_Required, "Required search term."

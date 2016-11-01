@@ -5,20 +5,20 @@ import {ISelectionManager,  ISelection} from "../selection-manager";
 import {StatefulArtifactFactory} from "./artifact/artifact.factory";
 import {IStatefulItem} from "./item";
 import {
-    ArtifactService, 
-    IArtifactService, 
-    IStatefulArtifactFactory, 
-    StatefulArtifact, 
+    ArtifactService,
+    IArtifactService,
+    IStatefulArtifactFactory,
+    StatefulArtifact,
     StatefulProcessArtifact
 } from "./artifact";
-import {IStatefulArtifact} from "./artifact";
+import {IStatefulArtifact, IStatefulCollectionArtifact} from "./artifact";
 import {StatefulSubArtifact, ISubArtifactCollection, IStatefulSubArtifact} from "./sub-artifact";
 import {IDocumentRefs, DocumentRefs} from "./docrefs";
 import {IChangeSet, IChangeCollector, ChangeTypeEnum, ChangeSetCollector} from "./changeset";
-import { 
-    ArtifactRelationships, 
-    IArtifactRelationships, 
-    ArtifactRelationshipsService, 
+import {
+    ArtifactRelationships,
+    IArtifactRelationships,
+    ArtifactRelationshipsService,
     IArtifactRelationshipsService
 } from "./relationships";
 
@@ -49,6 +49,7 @@ angular.module("bp.managers.artifact", [])
 export {
     IStatefulItem,
     IStatefulArtifact,
+    IStatefulCollectionArtifact,
     IStatefulSubArtifact,
     IArtifactManager,
     ArtifactManager,

@@ -29,7 +29,8 @@
                              ng-messages="$ctrl.form.$error"
                              role="alert"
                              ng-if="$ctrl.form.$submitted">
-                            <span ng-message="minlength">At least 3 characters.</span>
+                            <span ng-message="minlength">{{$ctrl.localization.get('Search_Validation_MinimumLength')}}</span>
+                            <span ng-message="required">{{$ctrl.localization.get('Search_Validation_Required')}}</span>
                         </div>
                     </div>
                 </form>
@@ -56,7 +57,7 @@
                                     <div class="col-md-12">
                                         <h4 class="font-blue margin-bottom--none quick-search__text--no-wrap">
                                             <a class="quick-search__results--link" ui-sref="main.item({id: item.artifactId})">
-                                                {{item.typeName}} - {{item.name}}
+                                                {{item.typePrefix}}{{item.itemId}} - {{item.name}}
                                             </a>
                                         </h4>
                                     </div>

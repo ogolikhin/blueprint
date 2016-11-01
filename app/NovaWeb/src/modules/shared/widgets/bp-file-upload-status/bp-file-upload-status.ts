@@ -49,7 +49,7 @@ export class BpFileUploadStatusController extends BaseDialogController implement
     public files: IFileUploadStatus[];
     public totalFailedFiles: number = 0;
 
-    public isUploading: boolean = true;
+    public areFilesUploading: boolean = true;
 
     constructor(private $q: ng.IQService,
                 private localization: ILocalizationService,
@@ -148,13 +148,13 @@ export class BpFileUploadStatusController extends BaseDialogController implement
         ).finally(() => {
             f.isUploading = false;
             this.updateTotalFailedFiles();
-            if (this.files.filter(a => a.isUploading === true).length === 0) {
-                if (this.files.filter(a => a.isFailed === true).length === 0) {
+            if (this.files.filter(a => a.isUploading).length === 0) {
+                if (this.files.filter(a => a.isFailed).length === 0) {
                     this.$timeout(() => {
                         super.ok();
                     }, 500);
                 } else {
-                    this.isUploading = false;
+                    this.areFilesUploading = false;
                 }
             }
         });

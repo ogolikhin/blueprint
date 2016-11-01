@@ -21,7 +21,7 @@ export class BPFieldDatePicker implements AngularFormly.ITypeOptions {
     constructor() {
         this.defaultOptions = {};
 
-        let datepickerAttributes: string[] = [
+        const datepickerAttributes: string[] = [
             "date-disabled",
             "custom-class",
             "show-weeks",
@@ -46,7 +46,7 @@ export class BPFieldDatePicker implements AngularFormly.ITypeOptions {
             "datepicker-append-to-body"
         ];
 
-        let datepickerBindings: string[] = [
+        const datepickerBindings: string[] = [
             "datepicker-mode",
             "min-date",
             "max-date"
@@ -72,7 +72,12 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
     constructor(private $scope: AngularFormly.ITemplateScope, private localization: ILocalizationService) {
         super();
 
-        let to: AngularFormly.ITemplateOptions = {
+        // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
+        const onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
+        //we override the default onChange as we need to deal with changes differently when using tinymce
+        $scope.to.onChange = undefined;
+
+        const to: AngularFormly.ITemplateOptions = {
             datepickerOptions: {
                 format: localization.current.datePickerFormat,
                 formatDay: "d",
@@ -90,14 +95,14 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
         };
         angular.merge($scope.to, to);
 
-        let validation = {
+        const validation = {
             messages: {
                 date: `"` + this.localization.get("Property_Wrong_Format") + ` (` + to.placeholder + `)"`
             }
         };
         angular.merge($scope.options.validation, validation);
 
-        let validators = {
+        $scope.options["validators"] = {
             minDateSQL: {
                 expression: function ($viewValue, $modelValue, scope) {
                     let date = localization.current.toDate($modelValue || $viewValue, true);
@@ -141,7 +146,6 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
                 }
             }
         };
-        $scope.options["validators"] = validators;
 
         // make sure the values are of type Date!
         let currentModelVal = $scope.model[$scope.options["key"]];

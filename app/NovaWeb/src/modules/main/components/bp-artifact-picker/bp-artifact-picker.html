@@ -27,10 +27,10 @@
                      ng-click="$ctrl.currentSelectionMode === 'single' ? searchResult.selected(true) : undefined"
                      ng-dblclick="$ctrl.onDouble(searchResult)">
                     <input class="checkbox" type="checkbox" ng-model="searchResult.selected" ng-model-options="{ getterSetter: true }" ng-if="$ctrl.currentSelectionMode !== 'single'">
-                    <i class="icon-project"></i>
+                    <i ng-class="searchResult.iconClass"></i>
                     <div class="search-details">
                         <div bp-tooltip="{{searchResult.model.name}}" bp-tooltip-truncated="true">
-                            <span ng-bind-html="::searchResult.model.name | bpEscapeAndHighlight:$ctrl.searchText">
+                            {{searchResult.id}} <span ng-bind-html="::searchResult.model.name | bpEscapeAndHighlight:$ctrl.searchText">
                         </div>
                         <div bp-tooltip="{{searchResult.model.path}}" bp-tooltip-truncated="true">
                             Path: {{searchResult.model.path}}

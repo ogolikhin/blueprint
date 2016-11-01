@@ -12,6 +12,10 @@
     padding: 11px 14px 2px 9px;
 }
 
+.collection__description, .collection__name{
+    @include text-ellipsis-flex-width(500px);
+}
+
 .artifact-overview bp-tree-view{
     display: block;
     padding: $padding-root;

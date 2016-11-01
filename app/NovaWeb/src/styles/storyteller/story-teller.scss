@@ -972,6 +972,13 @@ body.mce-content-body a, body.mce-content-body a:hover {
     height: 0;
     display: none;
 }
+.process-dividing-label {
+    @extend .nova-label;
+    i:before {
+        font-size: 1.3rem;
+        margin-right: 2px;
+    }
+}
 .storyteller-include_container {
     display: flex;
 }

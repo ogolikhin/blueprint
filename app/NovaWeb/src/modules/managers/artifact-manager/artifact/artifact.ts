@@ -22,7 +22,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     save(): ng.IPromise<IStatefulArtifact>;
     autosave(): ng.IPromise<IStatefulArtifact>;
     publish(): ng.IPromise<void>;
-    refresh(): ng.IPromise<IStatefulArtifact>;
+    refresh(allowCustomRefresh?: boolean): ng.IPromise<IStatefulArtifact>;
 
     getObservable(): Rx.Observable<IStatefulArtifact>;
     canBeSaved(): boolean;
@@ -61,9 +61,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         if (!this._subject) {
             this._subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);            
         }    
-        return this._subject;    
+        return this._subject;
     } 
-
 
     public initialize(artifact: Models.IArtifact): IState {
         if (this.parentId && this.orderIndex &&
@@ -465,7 +464,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         });
     }
 
-    public refresh(): ng.IPromise<IStatefulArtifact> {
+    public refresh(allowCustomRefresh: boolean = true): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         this.discard();
 
@@ -487,22 +486,24 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         promisesToExecute.push(this.services.metaDataService.remove(this.projectId));
 
-        // get promises for custom artifact refresh operations
-        promisesToExecute.push.apply(promisesToExecute,
-            this.getCustomArtifactPromisesForRefresh());
+        if (allowCustomRefresh) {
+            // get promises for custom artifact refresh operations
+            promisesToExecute.push.apply(promisesToExecute, this.getCustomArtifactPromisesForRefresh());
+        }
 
-        this.getServices().$q.all(promisesToExecute).then(() => {
-            this.subject.onNext(this);
-            deferred.resolve(this);
-        }).catch(error => {
-            deferred.reject(error);
+        this.getServices().$q.all(promisesToExecute)
+            .then(() => {
+                this.subject.onNext(this);
+                deferred.resolve(this);
+            })
+            .catch((error) => {
+                deferred.reject(error);
 
-            //Project manager is listening to this, and will refresh the project.
-            this.subject.onNext(this);
+                //Project manager is listening to this, and will refresh the project.
+                this.subject.onNext(this);
 
-            this.error.onNext(error);
-        });
-
+                this.error.onNext(error);
+            });
 
         return deferred.promise;
     } 

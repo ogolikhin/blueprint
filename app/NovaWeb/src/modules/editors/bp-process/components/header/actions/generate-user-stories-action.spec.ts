@@ -14,6 +14,7 @@ import {CommunicationManager} from "../../../";
 import {RolePermissions, LockedByEnum} from "../../../../../main/models/enums";
 import {ErrorCode} from "../../../../../core/error";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
+import {LoadingOverlayService} from "../../../../../core/loading-overlay";
 import * as TestModels from "../../../models/test-model-factory";
 
 describe("GenerateUserStoriesAction", () => {
@@ -24,6 +25,7 @@ describe("GenerateUserStoriesAction", () => {
     let messageService: MessageServiceMock;
     let localization: LocalizationServiceMock;
     let dialogService: DialogServiceMock;
+    let loadingOverlayService: LoadingOverlayService;
     let communicationManager: CommunicationManager;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -32,6 +34,7 @@ describe("GenerateUserStoriesAction", () => {
         $provide.service("messageService", MessageServiceMock);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("dialogService", DialogServiceMock);
+        $provide.service("loadingOverlayService", LoadingOverlayService);
         $provide.service("communicationManager", CommunicationManager);
     }));
 
@@ -44,6 +47,7 @@ describe("GenerateUserStoriesAction", () => {
             _messageService_: MessageServiceMock,
             _localization_: LocalizationServiceMock,
             _dialogService_: DialogServiceMock,
+            _loadingOverlayService_: LoadingOverlayService,
             _communicationManager_: CommunicationManager
         ) => {
             $rootScope = _$rootScope_;
@@ -53,6 +57,7 @@ describe("GenerateUserStoriesAction", () => {
             messageService = _messageService_;
             localization = _localization_;
             dialogService = _dialogService_;
+            loadingOverlayService = _loadingOverlayService_;
             communicationManager = _communicationManager_;
         }));
 
@@ -71,6 +76,7 @@ describe("GenerateUserStoriesAction", () => {
                     messageService, 
                     localization, 
                     dialogService, 
+                    loadingOverlayService, 
                     communicationManager.processDiagramCommunication
                 );
             } catch (exception) {
@@ -96,6 +102,7 @@ describe("GenerateUserStoriesAction", () => {
                     messageService, 
                     localization, 
                     dialogService, 
+                    loadingOverlayService, 
                     communicationManager.processDiagramCommunication
                 );
             } catch (exception) {
@@ -121,6 +128,7 @@ describe("GenerateUserStoriesAction", () => {
                     null, 
                     localization, 
                     dialogService, 
+                    loadingOverlayService, 
                     communicationManager.processDiagramCommunication
                 );
             } catch (exception) {
@@ -146,6 +154,7 @@ describe("GenerateUserStoriesAction", () => {
                     messageService, 
                     null, 
                     dialogService, 
+                    loadingOverlayService, 
                     communicationManager.processDiagramCommunication
                 );
             } catch (exception) {
@@ -171,6 +180,7 @@ describe("GenerateUserStoriesAction", () => {
                     messageService, 
                     localization, 
                     null, 
+                    loadingOverlayService, 
                     communicationManager.processDiagramCommunication
                 );
             } catch (exception) {
@@ -180,6 +190,32 @@ describe("GenerateUserStoriesAction", () => {
             // assert
             expect(error).not.toBeNull();
             expect(error.message).toBe("Dialog service is not provided or is null");
+        });
+
+        it("throws error if loading overlay service is not provided", () => {
+            // arrange
+            const process = createStatefulProcessArtifact();
+            let error: Error;
+
+            // act
+            try {
+                new GenerateUserStoriesAction(
+                    process, 
+                    userStoryService, 
+                    selectionManager, 
+                    messageService, 
+                    localization, 
+                    dialogService, 
+                    null, 
+                    communicationManager.processDiagramCommunication
+                );
+            } catch (exception) {
+                error = exception;
+            }
+
+            // assert
+            expect(error).not.toBeNull();
+            expect(error.message).toBe("Loading overlay service is not provided or is null");
         });
 
         it("throws error if process diagram communication is not provided", () => {
@@ -196,6 +232,7 @@ describe("GenerateUserStoriesAction", () => {
                     messageService, 
                     localization, 
                     dialogService, 
+                    loadingOverlayService, 
                     null
                 );
             } catch (exception) {
@@ -221,6 +258,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
 
@@ -238,6 +276,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
 
@@ -258,6 +297,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
 
@@ -282,6 +322,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -300,6 +341,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -322,6 +364,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -343,6 +386,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -364,6 +408,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -387,6 +432,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -410,6 +456,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -433,6 +480,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -456,6 +504,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -479,6 +528,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -502,6 +552,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -525,6 +576,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -548,6 +600,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -574,6 +627,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -601,6 +655,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -629,6 +684,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -658,6 +714,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -666,14 +723,25 @@ describe("GenerateUserStoriesAction", () => {
             selectionManager.setSubArtifact(processSubArtifact);
             const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
             const openDialogSpy = spyOn(dialogService, "open").and.callFake(() => { return { then: () => {/* no op*/} }; });
-            const generateSpy = spyOn(action, "generateUserStories").and.callFake(() => {/* no op */});
+            const generateSpy = spyOn(action, "generateUserStories").and.callFake(
+                () => {
+                    const deferred = $q.defer();
+                    deferred.resolve();
+                    return deferred.promise;
+                }
+            );
+            const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
+            const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
 
             // act
             generateFromTask.execute();
+            $rootScope.$digest();
 
             // assert
             expect(openDialogSpy).not.toHaveBeenCalled();
             expect(generateSpy).toHaveBeenCalledWith(process, processShape.id);
+            expect(beginLoadingSpy).toHaveBeenCalledTimes(1);
+            expect(endLoadingSpy).toHaveBeenCalledTimes(1);
         });
 
         it("handles generic publish failure", () => {
@@ -686,6 +754,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -694,7 +763,13 @@ describe("GenerateUserStoriesAction", () => {
             selectionManager.setSubArtifact(processSubArtifact);
             const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
             const openDialogSpy = spyOn(dialogService, "open").and.callThrough();
-            const generateSpy = spyOn(action, "generateUserStories").and.callFake(() => {/* no op */});
+            const generateSpy = spyOn(action, "generateUserStories").and.callFake(
+                () => {
+                    const deferred = $q.defer();
+                    deferred.resolve();
+                    return deferred.promise;
+                }
+            );
             spyOn(process, "publish").and.callFake(
                 () => {
                     const deferred = $q.defer();
@@ -703,6 +778,8 @@ describe("GenerateUserStoriesAction", () => {
                 }
             );
             const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
+            const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
+            const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
 
             // act
             process.artifactState.setState({ lockedBy: LockedByEnum.CurrentUser }, false);
@@ -713,6 +790,8 @@ describe("GenerateUserStoriesAction", () => {
             expect(openDialogSpy).toHaveBeenCalled();
             expect(errorMessageSpy).toHaveBeenCalledWith(localization.get("Publish_Failure_Message"));
             expect(generateSpy).not.toHaveBeenCalled();
+            expect(beginLoadingSpy).toHaveBeenCalledTimes(1);
+            expect(endLoadingSpy).toHaveBeenCalledTimes(1);
         });
 
         it("handles publish failure due to lock by other user", () => {
@@ -725,6 +804,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -733,7 +813,13 @@ describe("GenerateUserStoriesAction", () => {
             selectionManager.setSubArtifact(processSubArtifact);
             const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
             const openDialogSpy = spyOn(dialogService, "open").and.callThrough();
-            const generateSpy = spyOn(action, "generateUserStories").and.callFake(() => {/* no op */});
+            const generateSpy = spyOn(action, "generateUserStories").and.callFake(
+                () => {
+                    const deferred = $q.defer();
+                    deferred.resolve();
+                    return deferred.promise;
+                }
+            );
             spyOn(process, "publish").and.callFake(
                 () => {
                     const deferred = $q.defer();
@@ -742,6 +828,8 @@ describe("GenerateUserStoriesAction", () => {
                 }
             );
             const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
+            const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
+            const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
 
             // act
             process.artifactState.setState({ lockedBy: LockedByEnum.CurrentUser }, false);
@@ -752,6 +840,8 @@ describe("GenerateUserStoriesAction", () => {
             expect(openDialogSpy).toHaveBeenCalled();
             expect(errorMessageSpy).toHaveBeenCalledWith(localization.get("Publish_Failure_LockedByOtherUser_Message"));
             expect(generateSpy).not.toHaveBeenCalled();
+            expect(beginLoadingSpy).toHaveBeenCalledTimes(1);
+            expect(endLoadingSpy).toHaveBeenCalledTimes(1);
         });
 
         it("generates user stories if publish is successful", () => {
@@ -764,6 +854,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -772,7 +863,13 @@ describe("GenerateUserStoriesAction", () => {
             selectionManager.setSubArtifact(processSubArtifact);
             const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
             const openDialogSpy = spyOn(dialogService, "open").and.callThrough();
-            const generateSpy = spyOn(action, "generateUserStories").and.callFake(() => {/* no op */});
+            const generateSpy = spyOn(action, "generateUserStories").and.callFake(
+                () => {
+                    const deferred = $q.defer();
+                    deferred.resolve();
+                    return deferred.promise;
+                }
+            );
             spyOn(process, "publish").and.callFake(
                 () => {
                     const deferred = $q.defer();
@@ -780,6 +877,8 @@ describe("GenerateUserStoriesAction", () => {
                     return deferred.promise;
                 }
             );
+            const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
+            const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
 
             // act
             process.artifactState.setState({ lockedBy: LockedByEnum.CurrentUser }, false);
@@ -789,6 +888,8 @@ describe("GenerateUserStoriesAction", () => {
             // assert
             expect(openDialogSpy).toHaveBeenCalled();
             expect(generateSpy).toHaveBeenCalledWith(process, processShape.id);
+            expect(beginLoadingSpy).toHaveBeenCalledTimes(1);
+            expect(endLoadingSpy).toHaveBeenCalledTimes(1);
         });
 
         it("handles generic generate user task failure", () => {
@@ -801,6 +902,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -816,13 +918,17 @@ describe("GenerateUserStoriesAction", () => {
                 }
             );
             const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
-
+            const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
+            const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
+            
             // act
             generateFromTask.execute();
             $rootScope.$digest();
 
             // assert
             expect(errorMessageSpy).toHaveBeenCalledWith(localization.get("ST_US_Generate_Generic_Failure_Message"));
+            expect(beginLoadingSpy).toHaveBeenCalledTimes(1);
+            expect(endLoadingSpy).toHaveBeenCalledTimes(1);
         });
 
         it("handles generate user task failure due to lock by another user", () => {
@@ -835,6 +941,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -850,6 +957,8 @@ describe("GenerateUserStoriesAction", () => {
                 }
             );
             const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
+            const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
+            const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
 
             // act
             generateFromTask.execute();
@@ -857,6 +966,8 @@ describe("GenerateUserStoriesAction", () => {
 
             // assert
             expect(errorMessageSpy).toHaveBeenCalledWith(localization.get("ST_US_Generate_LockedByOtherUser_Failure_Message"));
+            expect(beginLoadingSpy).toHaveBeenCalledTimes(1);
+            expect(endLoadingSpy).toHaveBeenCalledTimes(1);
         });
 
         it("notifies about generated user stories if generation is successful", () => {
@@ -869,6 +980,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const userStories = [ {} ];
@@ -884,8 +996,17 @@ describe("GenerateUserStoriesAction", () => {
                     return deferred.promise;
                 }
             );
+            const refreshSpy = spyOn(process, "refresh").and.callFake(
+                () => {
+                    const deferred = $q.defer();
+                    deferred.resolve();
+                    return deferred.promise;
+                }
+            );
             const notifySpy = spyOn(communicationManager.processDiagramCommunication, "action");
             const successSpy = spyOn(messageService, "addInfo");
+            const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
+            const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
 
             // act
             generateFromTask.execute();
@@ -894,6 +1015,9 @@ describe("GenerateUserStoriesAction", () => {
             // assert
             expect(notifySpy).toHaveBeenCalledWith(ProcessEvents.UserStoriesGenerated, userStories);
             expect(successSpy).toHaveBeenCalledWith(localization.get("ST_US_Generate_From_UserTask_Success_Message"));
+            expect(refreshSpy).toHaveBeenCalledWith(false);
+            expect(beginLoadingSpy).toHaveBeenCalledTimes(1);
+            expect(endLoadingSpy).toHaveBeenCalledTimes(1);
         });
     });
 
@@ -910,6 +1034,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateAll = action.actions[1];
@@ -928,6 +1053,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateAll = action.actions[1];
@@ -949,6 +1075,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateAll = action.actions[1];
@@ -970,6 +1097,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateAll = action.actions[1];
@@ -991,6 +1119,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateAll = action.actions[1];
@@ -1014,6 +1143,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateAll = action.actions[1];
@@ -1037,6 +1167,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateAll = action.actions[1];
@@ -1049,6 +1180,8 @@ describe("GenerateUserStoriesAction", () => {
                 }
             );
             const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
+            const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
+            const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
 
             // act
             generateAll.execute();
@@ -1056,6 +1189,8 @@ describe("GenerateUserStoriesAction", () => {
 
             // assert
             expect(errorMessageSpy).toHaveBeenCalledWith(localization.get("ST_US_Generate_Generic_Failure_Message"));
+            expect(beginLoadingSpy).toHaveBeenCalledTimes(1);
+            expect(endLoadingSpy).toHaveBeenCalledTimes(1);
         });
 
         it("handles generate user task failure due to lock by another user", () => {
@@ -1068,6 +1203,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const generateAll = action.actions[1];
@@ -1080,6 +1216,8 @@ describe("GenerateUserStoriesAction", () => {
                 }
             );
             const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
+            const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
+            const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
 
             // act
             generateAll.execute();
@@ -1087,6 +1225,8 @@ describe("GenerateUserStoriesAction", () => {
 
             // assert
             expect(errorMessageSpy).toHaveBeenCalledWith(localization.get("ST_US_Generate_LockedByOtherUser_Failure_Message"));
+            expect(beginLoadingSpy).toHaveBeenCalledTimes(1);
+            expect(endLoadingSpy).toHaveBeenCalledTimes(1);
         });
 
         it("notifies about generated user stories if generation is successful", () => {
@@ -1099,6 +1239,7 @@ describe("GenerateUserStoriesAction", () => {
                 messageService, 
                 localization, 
                 dialogService, 
+                loadingOverlayService, 
                 communicationManager.processDiagramCommunication
             );
             const userStories = [ {}, {}, {} ];
@@ -1111,8 +1252,17 @@ describe("GenerateUserStoriesAction", () => {
                     return deferred.promise;
                 }
             );
+            const refreshSpy = spyOn(process, "refresh").and.callFake(
+                () => {
+                    const deferred = $q.defer();
+                    deferred.resolve();
+                    return deferred.promise;
+                }
+            );
             const notifySpy = spyOn(communicationManager.processDiagramCommunication, "action");
             const successSpy = spyOn(messageService, "addInfo");
+            const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
+            const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
 
             // act
             generateAll.execute();
@@ -1121,6 +1271,9 @@ describe("GenerateUserStoriesAction", () => {
             // assert
             expect(notifySpy).toHaveBeenCalledWith(ProcessEvents.UserStoriesGenerated, userStories);
             expect(successSpy).toHaveBeenCalledWith(localization.get("ST_US_Generate_All_Success_Message"));
+            expect(refreshSpy).toHaveBeenCalledWith(false);
+            expect(beginLoadingSpy).toHaveBeenCalledTimes(1);
+            expect(endLoadingSpy).toHaveBeenCalledTimes(1);
         });
     });
 });

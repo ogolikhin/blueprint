@@ -10,12 +10,14 @@ import {ProcessShapeType} from "../../../models/enums";
 import {ItemTypePredefined} from "../../../../../main/models/enums";
 import {IProcessDiagramCommunication, ProcessEvents} from "../../diagram/process-diagram-communication";
 import {DialogTypeEnum} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
+import {ILoadingOverlayService} from "../../../../../core/loading-overlay";
 
 export class GenerateUserStoriesAction extends BPDropdownAction {
     private userStoryService: IUserStoryService;
     private messageService: IMessageService;
     private localization: ILocalizationService;
     private dialogService: IDialogService;
+    private loadingOverlayService: ILoadingOverlayService;
     private processDiagramManager: IProcessDiagramCommunication;
 
     constructor(
@@ -25,6 +27,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         messageService: IMessageService,
         localization: ILocalizationService,
         dialogService: IDialogService,
+        loadingOverlayService: ILoadingOverlayService,
         processDiagramManager: IProcessDiagramCommunication
     ) {
         if (!userStoryService) {
@@ -45,6 +48,10 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
 
         if (!dialogService) {
             throw new Error("Dialog service is not provided or is null");
+        }
+
+        if (!loadingOverlayService) {
+            throw new Error("Loading overlay service is not provided or is null");
         }
 
         if (!processDiagramManager) {
@@ -72,6 +79,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         this.messageService = messageService;
         this.localization = localization;
         this.dialogService = dialogService;
+        this.loadingOverlayService = loadingOverlayService;
         this.processDiagramManager = processDiagramManager;
     }
 
@@ -147,9 +155,10 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
 
             this.dialogService.open(settings)
                 .then(() => {
+                    const publishGenerateBusy: number = this.loadingOverlayService.beginLoading();
                     process.publish()
                         .then(() => {
-                            this.generateUserStories(process, userTaskId);
+                            return this.generateUserStories(process, userTaskId);
                         })
                         .catch((reason: IApplicationError) => {
                             let message: string = this.localization.get("Publish_Failure_Message");
@@ -163,25 +172,35 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                             }
 
                             this.messageService.addError(message);
+                        })
+                        .finally(() => {
+                            this.loadingOverlayService.endLoading(publishGenerateBusy);
                         });
                 });
         } else {
-            this.generateUserStories(process, userTaskId);
+            const generateBusy: number = this.loadingOverlayService.beginLoading();
+            this.generateUserStories(process, userTaskId)
+                .finally(() => {
+                    this.loadingOverlayService.endLoading(generateBusy);
+                });
         }
     }
 
-    private generateUserStories(process: StatefulProcessArtifact, userTaskId?: number): void {
+    private generateUserStories(process: StatefulProcessArtifact, userTaskId?: number): ng.IPromise<any> {
         const projectId = process.projectId;
         const processId = process.id;
 
-        this.userStoryService.generateUserStories(process.projectId, process.id, userTaskId)
+        return this.userStoryService.generateUserStories(process.projectId, process.id, userTaskId)
             .then((userStories: IUserStory[]) => {
                 this.processDiagramManager.action(ProcessEvents.UserStoriesGenerated, userStories);
+
                 const userStoriesGeneratedMessage = 
                     userTaskId ? 
                     this.localization.get("ST_US_Generate_From_UserTask_Success_Message") : 
                     this.localization.get("ST_US_Generate_All_Success_Message");
                 this.messageService.addInfo(userStoriesGeneratedMessage);
+
+                return process.refresh(false);
             })
             .catch((reason: IApplicationError) => {
                 let message: string = this.localization.get("ST_US_Generate_Generic_Failure_Message");

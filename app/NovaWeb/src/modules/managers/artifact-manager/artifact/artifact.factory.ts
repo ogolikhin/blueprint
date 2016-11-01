@@ -20,7 +20,7 @@ import {
 import {IArtifactService} from "./artifact.svc";
 import {ILoadingOverlayService} from "../../../core/loading-overlay";
 import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
-import {StatefulCollectionArtifact} from "./artifact";
+import {StatefulCollectionArtifact} from "./collection-artifact";
 
 export interface IStatefulArtifactFactory {
     createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact;

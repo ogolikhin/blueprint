@@ -29,10 +29,6 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     canBePublished(): boolean;
 }
 
-export interface IStatefulCollectionArtifact extends IStatefulArtifact {
-    rapidReviewCreated: boolean;
-}
-
 // TODO: explore the possibility of using an internal interface for services
 export interface IIStatefulArtifact extends IIStatefulItem {
 }
@@ -530,8 +526,4 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     protected runPostGetObservable() {
         ;
     }
-}
-
-export class StatefulCollectionArtifact extends StatefulArtifact implements IStatefulCollectionArtifact {
-    rapidReviewCreated: boolean = false;
 }

@@ -2,7 +2,7 @@ import {BPButtonAction} from "../../../shared";
 import {IStatefulArtifact} from "../../../managers/artifact-manager";
 import {ILocalizationService} from "../../../core";
 import {ItemTypePredefined} from "../../../main/models/enums";
-import {IStatefulCollectionArtifact} from "../../../managers/artifact-manager/artifact/artifact";
+import {IStatefulCollectionArtifact} from "../../../managers/artifact-manager/artifact/collection-artifact";
 
 export class AddCollectionArtifactAction extends BPButtonAction {
     constructor(artifact: IStatefulCollectionArtifact,
@@ -11,7 +11,7 @@ export class AddCollectionArtifactAction extends BPButtonAction {
             throw new Error("Localization service not provided or is null");
         }
 
-        super(
+            super(
             (): void => {
                 let a = 5;
             },

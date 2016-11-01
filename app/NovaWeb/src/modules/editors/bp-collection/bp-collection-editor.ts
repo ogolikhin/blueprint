@@ -10,12 +10,10 @@ import {IMetaDataService} from "../../managers/artifact-manager";
 
 
 import {
-    BpArtifactEditor,
     ILocalizationService,
     IArtifactManager,
     IMessageService,
-    IWindowManager,
-    PropertyContext
+    IWindowManager
 } from "../bp-artifact/bp-artifact-editor";
 
 import {IDialogService} from "../../shared";
@@ -44,7 +42,6 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public selectAll: boolean = false;
     public selectAllClass: string;
     public isSystemPropertiesCollapsed: boolean = true;
-    //public reviewUrl: string;
 
     constructor(private $state: ng.ui.IStateService,
         messageService: IMessageService,
@@ -74,10 +71,12 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         if (this.editor && this.artifact) {
             this.collectionService.getCollection(this.artifact.id).then((result: ICollection) => {
                 this.metadataService.get(result.projectId).then(() => {
+                    this.artifact["rapidReviewCreated"] = result.isCreated;
                     this.collection = result;
                     this.rootNode = result.artifacts.map((a: ICollectionArtifact) => {
                         return new CollectionNodeVM(a, result.projectId, this.metadataService);
                     });
+
                 }).catch((error: any) => {
                     //ignore authentication errors here
                     if (error) {

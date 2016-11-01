@@ -6,9 +6,6 @@ namespace Helper
     // Location of the source code: lib/ServiceLibraryHelpers/ErrorCodes.cs
     public static class ErrorCodes
     {
-        //Token
-        public const int TokenProblem = 0;
-
         //Configuration errors
         public const int LdapIsDisabled = 1000;
         public const int FallbackIsDisabled = 1001;

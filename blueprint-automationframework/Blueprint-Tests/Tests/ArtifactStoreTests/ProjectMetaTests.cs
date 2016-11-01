@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Common;
 using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
-using Model.Impl;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
@@ -102,8 +100,7 @@ namespace ArtifactStoreTests
             }, "The GET /projects/{projectId}/meta/customtypes endpoint should return 400 Bad Request when no token header is provided.");
 
             // Verify:
-            ValidateServiceError(ex.RestResponse, ErrorCodes.TokenProblem,
-                "Token is missing or malformed.");
+            Assert.AreEqual("{\"message\":\"Token is missing or malformed.\"}", ex.RestResponse.Content);
         }
 
         [TestCase]
@@ -124,8 +121,7 @@ namespace ArtifactStoreTests
             }, "The GET /projects/{projectId}/meta/customtypes endpoint should return 401 Unauthorized when an unauthorized token is passed.");
 
             // Verify:
-            ValidateServiceError(ex.RestResponse, ErrorCodes.TokenProblem,
-                "Token is invalid.");
+            Assert.AreEqual("{\"message\":\"Token is invalid.\"}", ex.RestResponse.Content);
         }
 
         [TestCase(InstanceAdminRole.AdministerALLProjects)]
@@ -153,7 +149,7 @@ namespace ArtifactStoreTests
             }, "The GET /projects/{projectId}/meta/customtypes endpoint should return 403 Forbidden when a user doesn't have permission to access the specified project.");
 
             // Verify:
-            ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess,
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess,
                 "The user does not have permissions for Project (Id:1).");
         }
 
@@ -186,8 +182,8 @@ namespace ArtifactStoreTests
             }, "The GET /projects/{projectId}/meta/customtypes endpoint should return 403 Forbidden for user without read permission to the project.");
 
             // Verify:
-            ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess,
-                "The user does not have permissions for Project (Id:1).");
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess,
+                I18NHelper.FormatInvariant("The user does not have permissions for Project (Id:{0}).", _project.Id));
         }
 
         [TestCase]
@@ -203,30 +199,8 @@ namespace ArtifactStoreTests
             }, "The GET /projects/{projectId}/meta/customtypes endpoint should return 404 Not Found for non-existing Project ID.");
 
             // Verify:
-            ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound,
-                "Project (Id:2147483647) is not found.");
-        }
-
-        /// <summary>
-        /// Verifies that the content returned in the rest response contains the specified ErrorCode and Message.
-        /// </summary>
-        /// <param name="restResponse">The RestResponse that was returned.</param>
-        /// <param name="expectedErrorCode">The expected error code.</param>
-        /// <param name="expectedErrorMessage">The expected error message.</param>
-        private static void ValidateServiceError(RestResponse restResponse, int expectedErrorCode, string expectedErrorMessage)
-        {
-            IServiceErrorMessage serviceError = null;
-
-            Assert.DoesNotThrow(() =>
-            {
-                serviceError = JsonConvert.DeserializeObject<ServiceErrorMessage>(restResponse.Content);
-            }, "Failed to deserialize the content of the REST response into a ServiceErrorMessage object!");
-
-            IServiceErrorMessage expectedError = ServiceErrorMessageFactory.CreateServiceErrorMessage(
-                expectedErrorCode,
-                expectedErrorMessage);
-
-            serviceError.AssertEquals(expectedError);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound,
+                I18NHelper.FormatInvariant("Project (Id:{0}) is not found.", nonExistingProject.Id));
         }
     }
 }

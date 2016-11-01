@@ -7,10 +7,7 @@ using Common;
 using TestCommon;
 using Model.ArtifactModel;
 using Model.Factories;
-using Model.Impl;
-using Newtonsoft.Json;
 using Utilities;
-using Utilities.Facades;
 
 namespace ArtifactStoreTests 
 {
@@ -86,7 +83,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Project (Id:{0}).", _project.Id);
-            ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
         }
 
         [TestCase]
@@ -179,7 +176,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifact.Id);
-            ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
         }
 
         [TestCase]
@@ -200,7 +197,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifact.Id);
-            ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
         }
 
         [TestCase]
@@ -363,20 +360,6 @@ namespace ArtifactStoreTests
             Helper.CreateAndPublishArtifact(project, user, BaseArtifactType.Document, parentArtifact);
 
             return parentArtifactList;
-        }
-
-        /// <summary>
-        /// Validates that the RestResponse contains the specified error code & message.
-        /// </summary>
-        /// <param name="restResponse">The RestResponse from the failed REST call.</param>
-        /// <param name="expectedErrorCode">The expected error code (see the ErrorCodes class).</param>
-        /// <param name="expectedMessage">The expected error message.</param>
-        private static void ValidateServiceError(RestResponse restResponse, int expectedErrorCode, string expectedMessage)
-        {
-            var expectedServiceError = ServiceErrorMessageFactory.CreateServiceErrorMessage(expectedErrorCode, expectedMessage);
-
-            ServiceErrorMessage serviceError = JsonConvert.DeserializeObject<ServiceErrorMessage>(restResponse.Content);
-            serviceError.AssertEquals(expectedServiceError);
         }
 
         #endregion Private functions

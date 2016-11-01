@@ -54,11 +54,11 @@ export class BPFieldDatePicker implements AngularFormly.ITypeOptions {
 
         let datepickerNgModelAttrs = {};
 
-        angular.forEach(datepickerAttributes, function (attr) {
+        datepickerAttributes.forEach(function (attr) {
             datepickerNgModelAttrs[_.camelCase(attr)] = {attribute: attr};
         });
 
-        angular.forEach(datepickerBindings, function (binding) {
+        datepickerBindings.forEach(function (binding) {
             datepickerNgModelAttrs[_.camelCase(binding)] = {bound: binding};
         });
 
@@ -71,11 +71,6 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
 
     constructor(private $scope: AngularFormly.ITemplateScope, private localization: ILocalizationService) {
         super();
-
-        // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
-        const onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
-        //we override the default onChange as we need to deal with changes differently when using tinymce
-        $scope.to.onChange = undefined;
 
         const to: AngularFormly.ITemplateOptions = {
             datepickerOptions: {

@@ -42,11 +42,14 @@ export class BpFileUploadStatusController extends BaseDialogController implement
         "$filter",
         "$uibModalInstance",
         "dialogSettings",
-        "dialogData"
+        "dialogData",
+        "$timeout"
     ];
 
     public files: IFileUploadStatus[];
     public totalFailedFiles: number = 0;
+
+    public isUploading: boolean = true;
 
     constructor(private $q: ng.IQService,
                 private localization: ILocalizationService,
@@ -54,7 +57,9 @@ export class BpFileUploadStatusController extends BaseDialogController implement
                 private $filter: ng.IFilterService,
                 $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
                 dialogSettings: IDialogSettings,
-                private dialogData: IUploadStatusDialogData) {
+                private dialogData: IUploadStatusDialogData,
+                private $timeout: ng.ITimeoutService, //Used for testing, remove later
+                ) {
 
         super($uibModalInstance, dialogSettings);
 
@@ -148,6 +153,16 @@ export class BpFileUploadStatusController extends BaseDialogController implement
 
     private updateTotalFailedFiles() {
         this.totalFailedFiles = this.files.filter((file: IFileUploadStatus) => file.isFailed).length;
+        if (this.totalFailedFiles === 0) {
+            this.$timeout(() => {
+                super.ok();
+            }, 1000);
+        }
+        else {
+            this.$timeout(() => {
+                this.isUploading = false;
+            }, 1000);
+        }
     }
 
     public cancelUpload(file: IFileUploadStatus) {

@@ -9,8 +9,6 @@ using Model.Factories;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
-using Utilities.Facades;
-using Newtonsoft.Json;
 
 namespace ArtifactStoreTests
 {

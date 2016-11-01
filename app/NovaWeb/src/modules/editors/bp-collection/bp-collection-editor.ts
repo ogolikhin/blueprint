@@ -10,12 +10,10 @@ import {IMetaDataService} from "../../managers/artifact-manager";
 
 
 import {
-    BpArtifactEditor,
     ILocalizationService,
     IArtifactManager,
     IMessageService,
-    IWindowManager,
-    PropertyContext
+    IWindowManager
 } from "../bp-artifact/bp-artifact-editor";
 
 import {IDialogService} from "../../shared";
@@ -44,7 +42,6 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public selectAll: boolean = false;
     public selectAllClass: string;
     public isSystemPropertiesCollapsed: boolean = true;
-    //public reviewUrl: string;
 
     constructor(private $state: ng.ui.IStateService,
         messageService: IMessageService,

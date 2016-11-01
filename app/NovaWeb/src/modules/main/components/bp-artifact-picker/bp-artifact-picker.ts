@@ -2,7 +2,8 @@
 import {IColumn} from "../../../shared/widgets/bp-tree-view/";
 import {Helper} from "../../../shared/";
 import {ILocalizationService} from "../../../core";
-import {IViewModel, ArtifactPickerNodeVM, InstanceItemNodeVM, SearchResultVM} from "./bp-artifact-picker-node-vm";
+import {ArtifactPickerNodeVM, InstanceItemNodeVM} from "./bp-artifact-picker-node-vm";
+import {SearchResultVM, ArtifactSearchResultVM, ProjectSearchResultVM} from "./bp-artifact-picker-search-vm";
 import {IDialogSettings, BaseDialogController} from "../../../shared/";
 import {Models, AdminStoreModels, SearchServiceModels} from "../../models";
 import {IArtifactManager, IProjectManager} from "../../../managers";
@@ -85,11 +86,15 @@ export interface IArtifactPickerController extends IArtifactPickerOptions {
     // Search
     searchText: string;
     isSearching: boolean;
-    searchResults: SearchResultVM[];
+    searchResults: SearchResultVM<any>[];
     isMoreSearchResults: boolean;
     search(): void;
     clearSearch(): void;
-    onDouble(vm: SearchResultVM): void;
+    onDouble(vm: SearchResultVM<any>): void;
+}
+
+export interface IViewModel<T> {
+    model: T;
 }
 
 export class BpArtifactPickerController implements ng.IComponentController, IArtifactPickerController {
@@ -161,7 +166,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public set project(project: AdminStoreModels.IInstanceItem) {
         this.selectedVMs = [];
         this._project = project;
-        this.currentSelectionMode = project ? "single" : this.selectionMode;
+        this.currentSelectionMode = project ? this.selectionMode : "single";
         this.rootNode = new InstanceItemNodeVM(this.artifactManager, this.projectService, this, project || {
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,
@@ -239,7 +244,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         }
     };
 
-    public onDouble(vm: SearchResultVM): void {
+    public onDouble(vm: SearchResultVM<any>): void {
         if (this.onDoubleClick && this.selectionMode === "single") {
             this.onDoubleClick({vm: vm});
         }
@@ -249,14 +254,14 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
 
     public searchText: string = "";
     public isSearching: boolean = false;
-    public searchResults: SearchResultVM[];
+    public searchResults: SearchResultVM<any>[];
     public isMoreSearchResults: boolean;
     private _preiousSelectedVMs = [];
 
     public search(): void {
         if (!this.isSearching && this.searchText && this.searchText.trim().length > 0) {
             this.isSearching = true;
-            let search: ng.IPromise<SearchServiceModels.ISearchResultSet<SearchServiceModels.ISearchResult>>;
+            let searchResults: ng.IPromise<SearchResultVM<any>[]>;
             if (this.project) {
                 const searchCriteria: SearchServiceModels.IItemNameSearchCriteria = {
                     query: this.searchText,
@@ -264,16 +269,18 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                     predefinedTypeIds: this.selectableItemTypes,
                     includeArtifactPath: true
                 };
-                search = this.projectService.searchItemNames(searchCriteria, 0, BpArtifactPickerController.maxSearchResults + 1);
+                searchResults = this.projectService.searchItemNames(searchCriteria, 0, BpArtifactPickerController.maxSearchResults + 1)
+                    .then(result => result.items.map(r => new ArtifactSearchResultVM(r, this.onSelect)));
             } else {
                 const searchCriteria: SearchServiceModels.ISearchCriteria = {
                     query: this.searchText
                 };
-                search = this.projectService.searchProjects(searchCriteria, BpArtifactPickerController.maxSearchResults + 1);
+                searchResults = this.projectService.searchProjects(searchCriteria, BpArtifactPickerController.maxSearchResults + 1)
+                    .then(result => result.items.map(r => new ProjectSearchResultVM(r, this.onSelect)));
             }
-            search.then(result => {
-                this.searchResults = result.items.slice(0, BpArtifactPickerController.maxSearchResults).map(r => new SearchResultVM(r, this.onSelect));
-                this.isMoreSearchResults = (result.items.length > BpArtifactPickerController.maxSearchResults);
+            searchResults.then(items => {
+                this.searchResults = items.slice(0, BpArtifactPickerController.maxSearchResults);
+                this.isMoreSearchResults = (items.length > BpArtifactPickerController.maxSearchResults);
                 this._preiousSelectedVMs = this.selectedVMs;
                 this.selectedVMs = [];
             }).finally(() => {

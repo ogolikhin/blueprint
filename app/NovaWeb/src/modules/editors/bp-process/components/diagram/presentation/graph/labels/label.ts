@@ -35,14 +35,15 @@ class SelectionOffsets {
 export class LabelStyle {
     constructor(private _fontFamily: string,
                 private _fontSize: number,
-                private _backColor: string,
+                private _viewBackColor: string,
                 private _textColor: string,
                 private _fontWeight: string,
                 private _top: number,
                 private _left: number,
                 private _height: number,
                 private _width: number,
-                private _highlitedTextColor) {
+                private _highlitedTextColor,
+                private _editBackColor: string = null) {
     }
 
     public get fontFamily(): string {
@@ -53,8 +54,8 @@ export class LabelStyle {
         return this._fontSize;
     }
 
-    public get backColor(): string {
-        return this._backColor;
+    public get viewBackColor(): string {
+        return this._viewBackColor;
     }
 
     public get textColor(): string {
@@ -83,6 +84,14 @@ export class LabelStyle {
 
     public get highlitedTextColor(): string {
         return this._highlitedTextColor;
+    }
+
+    public get editBackColor(): string {
+        if (this._editBackColor) {
+            return this._editBackColor;
+        } else {
+            return this._viewBackColor;
+        }
     }
 }
 
@@ -253,6 +262,8 @@ export class Label implements ILabel {
 
     private setViewMode() {
         this.mode = divMode.VIEW;
+        this.div.style.background = "none";
+        this.div.style.backgroundColor = this.style.viewBackColor;
         this.div.setAttribute("contenteditable", "false");
         this.setShortText();
         this.wrapperDiv.style.pointerEvents = "none";
@@ -277,10 +288,7 @@ export class Label implements ILabel {
             this.div.style.borderColor = "#666";
             this.div.style.backgroundColor = "#c7edf8";
             this.div.style.color = this.style.highlitedTextColor;
-            
-            if (this.mode === divMode.VIEW) {
-                this.div.innerText = this._text;
-            }        
+            this.div.innerText = this._text;
         } else {
             this.setMouseoutStyle();
         }
@@ -289,11 +297,13 @@ export class Label implements ILabel {
     private setMouseoutStyle() {
         this.div.style.border = "none";
         this.div.style.background = "none";
-        this.div.style.backgroundColor = this.style.backColor;
         this.div.style.color = this.style.textColor;
 
         if (this.mode === divMode.VIEW) {
+            this.div.style.backgroundColor = this.style.viewBackColor;
             this.setShortText();
+        } else {
+            this.div.style.backgroundColor = this.style.editBackColor;
         }        
     }
 
@@ -310,7 +320,7 @@ export class Label implements ILabel {
         this.wrapperDiv.style.width = this.numberToPx(this.style.width);
         this.wrapperDiv.style.minHeight = this.numberToPx(this.style.height);
         this.wrapperDiv.style.height = this.numberToPx(this.style.height);
-        this.wrapperDiv.style.backgroundColor = this.style.backColor;
+        this.wrapperDiv.style.backgroundColor = this.style.viewBackColor;
         this.wrapperDiv.style.visibility = this.visibility;
 
         this.div = document.createElement("div");
@@ -335,7 +345,7 @@ export class Label implements ILabel {
         this.div.style.lineHeight = "1";
         this.div.style.visibility = this.visibility;
 
-        this.div.style.backgroundColor = this.style.backColor;
+        this.div.style.backgroundColor = this.style.viewBackColor;
         this.div.style.color = this.style.textColor;
 
         // Border for the debug purposes

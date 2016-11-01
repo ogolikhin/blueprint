@@ -40,7 +40,7 @@ namespace ArtifactStore.Repositories
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
-        internal SqlArtifactPermissionsRepository(ISqlConnectionWrapper connectionWrapper)
+        public SqlArtifactPermissionsRepository(ISqlConnectionWrapper connectionWrapper)
         {
             ConnectionWrapper = connectionWrapper;
         }

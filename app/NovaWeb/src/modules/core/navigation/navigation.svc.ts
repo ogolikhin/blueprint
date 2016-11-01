@@ -3,7 +3,7 @@ import {INavigationState} from "./navigation-state";
 
 export interface INavigationService {
     getNavigationState(): INavigationState;
-    navigateToMain(): ng.IPromise<any>;
+    navigateToMain(redirect?: boolean): ng.IPromise<any>;
     navigateTo(id: number, redirect?: boolean, enableTracking?: boolean): ng.IPromise<any>;
     navigateBack(pathIndex?: number): ng.IPromise<any>;
 }
@@ -33,9 +33,13 @@ export class NavigationService implements INavigationService {
         };
     }
 
-    public navigateToMain(): ng.IPromise<any> {
+    public navigateToMain(redirect: boolean = false): ng.IPromise<any> {
         const state: string = "main";
-        return this.$state.go(state);
+        const stateOptions: ng.ui.IStateOptions = {
+            location: redirect ? "replace" : true
+        };
+
+        return this.$state.go(state, {}, stateOptions);
     }
 
     public navigateTo(id: number, redirect: boolean = false, enableTracking: boolean = false): ng.IPromise<any> {

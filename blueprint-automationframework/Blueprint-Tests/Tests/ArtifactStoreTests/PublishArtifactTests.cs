@@ -629,6 +629,7 @@ namespace ArtifactStoreTests
             Assert.IsTrue(ex.RestResponse.Content.Contains(expectedMessage));
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // TFS Bug: 3242  Publish returns 200 even with validation errors.
         [TestCase("value\":10.0", "value\":999.0", BaseArtifactType.Actor, 0)] //Insert value into Numeric field which is out of range in grandparent artifact
         [TestCase("value\":10.0", "value\":999.0", BaseArtifactType.Actor, 1)] //Insert value into Numeric field which is out of range in parent artifact
         [TestCase("value\":10.0", "value\":999.0", BaseArtifactType.Actor, 2)] //Insert value into Numeric field which is out of range in child artifact

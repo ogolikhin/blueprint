@@ -31,23 +31,6 @@ export class Helper {
         return "";
     }
 
-    static toDashCase(token: string): string {
-        token = token.replace(/(\B[A-Z][a-z]+)/g, function (match) {
-            return "-" + match.toLowerCase();
-        });
-        return token.toLowerCase();
-    };
-
-    static toCamelCase(token: string): string {
-        token = token.replace(/[\-_\s]+(.)?/g, function (match, chr) {
-            return chr ? chr.toUpperCase() : "";
-        });
-        // Ensure 1st char is always lowercase
-        return token.replace(/^([A-Z])/, function (match, chr) {
-            return chr ? chr.toLowerCase() : "";
-        });
-    };
-
     static stripHTMLTags = (stringToSanitize: string): string => {
         const stringSanitizer = window.document.createElement("DIV");
         stringSanitizer.innerHTML = stringToSanitize;

@@ -88,6 +88,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ArtifactStore\ArtifactStore.csproj">
+      <Project>{30144C60-F58C-4B49-BE52-60C7884B2FB7}</Project>
+      <Name>ArtifactStore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\lib\ServiceLibrary.Tests\ServiceLibrary.Tests.csproj">
       <Project>{610a5eba-78f0-4fc9-a08e-9916a2bba6f5}</Project>
       <Name>ServiceLibrary.Tests</Name>

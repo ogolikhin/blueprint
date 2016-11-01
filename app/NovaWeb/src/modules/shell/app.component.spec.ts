@@ -6,7 +6,6 @@ import { ComponentTest } from "../util/component.test";
 import { AppController } from "./app.component";
 import { INavigationService } from "./../core/navigation/navigation.svc";
 import { NavigationServiceMock } from "./../core/navigation/navigation.svc.mock";
-import {QuickSearchServiceMock} from '../main/components/quicksearch/quickSearchService.mock';
 
 describe("Component AppComponent", () => {
     beforeEach(angular.mock.module("app.shell"));
@@ -23,7 +22,6 @@ describe("Component AppComponent", () => {
         }));
         $provide.service("settings", SettingsMock);
         $provide.service("$window", WindowMock);
-        $provide.service("quickSearchService", QuickSearchServiceMock);
     }));
 
     let componentTest: ComponentTest<AppController>;

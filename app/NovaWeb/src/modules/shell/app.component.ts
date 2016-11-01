@@ -39,7 +39,7 @@ export class AppController {
         this.session.logout().finally(() => {
             this.navigation.navigateToMain().finally(() => {
                 this.projectManager.removeAll();
-                location.reload();
+                this.$window.location.reload();
             });
         });
     }

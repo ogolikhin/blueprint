@@ -3,6 +3,7 @@ import {ISession} from "./login/session.svc";
 import { IApplicationError, HttpStatusCode } from "../core";
 import { INavigationService } from "../core/navigation";
 import { IArtifactManager, IProjectManager } from "../managers";
+import { ILicenseService } from "./license/license.svc";
 
 export class AppRoutes {
 
@@ -31,8 +32,13 @@ export class AppRoutes {
                 template: "<bp-main-view></bp-main-view>",
                 controller: MainStateController,
                 resolve: {
-                    authenticated: ["session", (session: ISession) => {
-                        return session.ensureAuthenticated();
+                    authenticated: ["session", "licenseService", "$q", (session: ISession, licenseService: ILicenseService, $q: ng.IQService) => {
+                        return licenseService.getServerLicenseValidity().then((isServerLicenseValid) => {
+                            return isServerLicenseValid ? session.ensureAuthenticated() : $q.when(false);
+                        });
+                    }],
+                    isServerLicenseValid: ["licenseService", (licenseService: ILicenseService) => {
+                        return licenseService.getServerLicenseValidity();
                     }]
                 }
             })
@@ -43,11 +49,6 @@ export class AppRoutes {
             .state("licenseError", {
                 url: "/invalidLicense",
                 template: require("./error/error-license.html")
-                // resolve: {
-                //     authenticated: ["session", (session: ISession) => {
-                //         return session.ensureAuthenticated();
-                //     }]
-                // }
             });
     }
 }
@@ -60,15 +61,22 @@ export class MainStateController {
         "$rootScope",
         "$state",
         "$log",
-        "artifactManager"
+        "artifactManager",
+        "isServerLicenseValid"
     ];
 
     constructor(private $rootScope: ng.IRootScopeService,
                 private $state: angular.ui.IStateService,
                 private $log: ng.ILogService,
-                private artifactManager: IArtifactManager) {
+                private artifactManager: IArtifactManager,
+                private isServerLicenseValid: boolean) {
 
         this.stateChangeListener = $rootScope.$on("$stateChangeStart", this.stateChangeHandler);
+
+        if (!isServerLicenseValid) {
+            $state.go("licenseError");
+        }
+
     }
 
     private stateChangeHandler = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams: any, fromState: ng.ui.IState, fromParams) => {
@@ -77,7 +85,13 @@ export class MainStateController {
                 , "color: blue", "color: black", "color: blue", "color: black"
             );
 
-        if (toState.name === this.mainState) {
+        if (!this.isServerLicenseValid) {
+            //Prevent leaving the license error state.
+            if (toState.name !== "licenseError") {
+                event.preventDefault();
+                this.$state.go("licenseError");
+            }
+        } else if (toState.name === this.mainState) {
             this.$log.info("SelectionManager.clearAll()");
             this.artifactManager.selection.clearAll();
         }

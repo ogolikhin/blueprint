@@ -98,14 +98,35 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         }
     }
 
+    private headerCellRendererSelectAll(params) {
+        let cb = document.createElement("input");
+        cb.setAttribute("type", "checkbox");
+        cb.setAttribute("id", "selectAllCheckbox");
+        cb.setAttribute("type", "checkbox");
+        cb.setAttribute("selected", params.context.allSelected);       
 
+        let eHeader = document.createElement("label");
+        let eTitle = document.createTextNode(params.colDef.headerName);
+        eHeader.appendChild(cb);
+        eHeader.appendChild(eTitle);
+
+        cb.addEventListener("change", function (e) {
+            let checked: boolean = (<HTMLInputElement>e.target).checked;
+            params.context.allSelected = checked;
+            console.log(params.context.allSelected);
+            console.log(typeof e.target);
+            params.context.selectAllClass.selectAll(checked);
+        });
+        return eHeader;
+    }
 
     public columns: IColumn[] = [
         {
             isCheckboxSelection: true,
             width: 30,
-            headerName: `<span><span class="ag-selection-checkbox">` +
-            `<i ng-class="$ctrl.selectAllClass"></i></span></span>`
+            headerName: "",
+            headerCellRenderer: this.headerCellRendererSelectAll,
+            field: "chck"            
         },
         {
             width: 100,

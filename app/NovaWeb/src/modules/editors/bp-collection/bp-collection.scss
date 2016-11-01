@@ -92,7 +92,10 @@
             padding-top: 2px;
             padding-bottom: 2px;
             height:auto;
-            overflow: hidden;
+
+            .ag-selection-checkbox{
+                margin-top: 8px;
+            }
 
             .ag-group-value{
                 @include text-ellipsis-flex-width(500px);

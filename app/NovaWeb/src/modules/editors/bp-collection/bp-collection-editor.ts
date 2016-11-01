@@ -65,7 +65,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         }
 
         return "";
-    }   
+    }
 
     public onArtifactReady() {
         if (this.editor && this.artifact) {
@@ -98,22 +98,31 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     }
 
     private headerCellRendererSelectAll(params) {
-        let cb = document.createElement("input");
-        cb.setAttribute("type", "checkbox");
-        cb.setAttribute("id", "selectAllCheckbox");
-        cb.setAttribute("type", "checkbox");
-        cb.setAttribute("selected", params.context.allSelected);       
+        let cb = document.createElement("i");
+        cb.setAttribute("class", "ag-checkbox-unchecked");
 
-        let eHeader = document.createElement("label");
-        let eTitle = document.createTextNode(params.colDef.headerName);
-        eHeader.appendChild(cb);
-        eHeader.appendChild(eTitle);
+        let sp = document.createElement("span");
+        sp.setAttribute("class", "ag-group-checkbox");
 
-        cb.addEventListener("change", function (e) {
-            let checked: boolean = (<HTMLInputElement>e.target).checked;
+        sp.appendChild(cb);
+
+        let eHeader = document.createElement("span");
+        eHeader.setAttribute("class", "ag-header-checkbox");
+        eHeader.appendChild(sp);
+
+        cb.addEventListener("click", function (e) {
+            let checked: boolean;
+
+            if ((<HTMLInputElement>e.target)["data-checked"] && (<HTMLInputElement>e.target)["data-checked"] === true) {
+                checked = false;
+                e.target.setAttribute("class", "ag-checkbox-unchecked");
+            } else {
+                checked = true;
+                e.target.setAttribute("class", "ag-checkbox-checked");
+            }
+
+            (<HTMLInputElement>e.target)["data-checked"] = checked;
             params.context.allSelected = checked;
-            console.log(params.context.allSelected);
-            console.log(typeof e.target);
             params.context.selectAllClass.selectAll(checked);
         });
         return eHeader;
@@ -125,7 +134,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             width: 30,
             headerName: "",
             headerCellRenderer: this.headerCellRendererSelectAll,
-            field: "chck"            
+            field: "chck"
         },
         {
             width: 100,

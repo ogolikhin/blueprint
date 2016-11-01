@@ -55,11 +55,11 @@ export class BPFieldDatePicker implements AngularFormly.ITypeOptions {
         let datepickerNgModelAttrs = {};
 
         angular.forEach(datepickerAttributes, function (attr) {
-            datepickerNgModelAttrs[Helper.toCamelCase(attr)] = {attribute: attr};
+            datepickerNgModelAttrs[_.camelCase(attr)] = {attribute: attr};
         });
 
         angular.forEach(datepickerBindings, function (binding) {
-            datepickerNgModelAttrs[Helper.toCamelCase(binding)] = {bound: binding};
+            datepickerNgModelAttrs[_.camelCase(binding)] = {bound: binding};
         });
 
         this.defaultOptions.ngModelAttrs = datepickerNgModelAttrs;

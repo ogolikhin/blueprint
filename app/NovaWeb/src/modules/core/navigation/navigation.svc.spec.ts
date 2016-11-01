@@ -1,7 +1,6 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "angular-ui-router";
-import {ItemStateController} from "../../editors/item-state.controller";
 import {INavigationService, NavigationService} from "./navigation.svc";
 
 describe("NavigationService", () => {

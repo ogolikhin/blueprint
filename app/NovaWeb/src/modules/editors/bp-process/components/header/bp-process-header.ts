@@ -140,6 +140,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                 this.messageService, 
                 this.localization,
                 this.dialogService,
+                this.loadingOverlayService,
                 this.communicationManager.processDiagramCommunication
             ),
             new ToggleProcessTypeAction(

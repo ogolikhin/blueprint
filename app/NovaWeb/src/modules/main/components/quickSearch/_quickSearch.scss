@@ -3,6 +3,7 @@
 $quick-search__results--input-panel-color: #EAEFF4;
 $quick-search__item--color: #FBFBFB;
 $quick-search__item--focus-color: #E8F6FB;
+
 .quick-serach__form {
     display: flex;
     flex-direction: column;
@@ -19,6 +20,7 @@ $quick-search__item--focus-color: #E8F6FB;
             max-width: 100%;
             padding: 0;
             overflow: hidden;
+
             .modal-content {
                 background: $white;
                 height: 100%;
@@ -33,12 +35,14 @@ $quick-search__item--focus-color: #E8F6FB;
     background: $white;
     border-bottom: 1px solid $gray-lightest;
     position: fixed;
+
     .navbar-header {
         padding-left: 1.65em;
         padding-top: 1em;
         padding-bottom: 1em;
         background: white;
     }
+
     .logo {
         fill: $gray-dark;
         stroke: $gray-dark;
@@ -62,12 +66,15 @@ $quick-search__item--focus-color: #E8F6FB;
     &::-webkit-input-placeholder { /* WebKit, Blink, Edge */
         color: $gray-dark !important;
     }
+
     &::-moz-placeholder { /* Firefox 19+ */
         color: $gray-dark !important;
     }
+
     &:-ms-input-placeholder {
         color: $gray-dark !important;
     }
+
     &:focus {
         & + i {
             color: $brand-secondary;
@@ -90,9 +97,11 @@ $quick-search__item--focus-color: #E8F6FB;
     }
     &.has-error {
         color: #d95f5e;
+
         .quick-serach__input {
             border-bottom-color: #d95f5e;
         }
+
         .glyphicon {
             color: #d95f5e;
         }
@@ -109,7 +118,6 @@ $quick-search__item--focus-color: #E8F6FB;
 }
 
 .quick-search__results--content {
-    display: flex;
     align-items: center;
     justify-content: center;
     margin-top: 40px;
@@ -121,6 +129,7 @@ $quick-search__item--focus-color: #E8F6FB;
     border: none;
     width: 60%;
     height: 100%;
+    margin: auto;
 }
 
 .quick-search__results--side-border {
@@ -135,6 +144,7 @@ $quick-search__item--focus-color: #E8F6FB;
     padding: 1em 2em;
     font-size: 16px;
     border-bottom: 1px solid $gray-lightest;
+
     .close {
         position: absolute;
         top: 0;
@@ -144,6 +154,7 @@ $quick-search__item--focus-color: #E8F6FB;
 
 .quick-search__results {
     height: 100%;
+
     .quick-search__results {
         height: calc(100% - 62px)
     }
@@ -158,15 +169,18 @@ $quick-search__item--focus-color: #E8F6FB;
     margin: 1px auto 0;
     background: $quick-search__item--color;
     border-bottom: 1px solid $gray-lightest;
+
     &:focus, &:hover {
         background: $quick-search__item--focus-color;
     }
 }
+
 .quick-search__results--link,
 .quick-search__results--link:visited {
     color: inherit;
     font-weight: inherit;
 }
+
 .quick-search__response {
     height: calc(100% - 62px);
     width: 100%;

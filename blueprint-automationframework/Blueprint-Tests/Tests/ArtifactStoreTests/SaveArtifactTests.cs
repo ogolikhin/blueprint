@@ -106,7 +106,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, modifiedRequestBody, artifact.Id, _user);
-            }, "'PATCH {0}' should return 200 OK if the even if value is set to wrong type!",
+            }, "'PATCH {0}' should return 200 OK even if the value is set to wrong type!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
@@ -430,7 +430,9 @@ namespace ArtifactStoreTests
             foreach (CustomProperty property in properties)
             {
                 if (property.PropertyTypeId == propertyTypeId)
+                {
                     return property;
+                }
             }
             return null;
         }

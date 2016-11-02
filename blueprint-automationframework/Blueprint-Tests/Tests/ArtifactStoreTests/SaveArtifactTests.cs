@@ -120,8 +120,6 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetailsAfter);
         }
 
-//<<<<<<< Updated upstream
-//=======
         private const int NUMBER_OUT_OF_RANGE = 999;
 
         [Category(Categories.CustomData)]
@@ -197,7 +195,6 @@ namespace ArtifactStoreTests
                     "Value of year in this custom property with id {0} should be {1} but was {2}!", propertyTypeId, yearOutPropertyRange, newDate.Year);
         }
 
-//>>>>>>> Stashed changes
         #endregion 200 OK tests
 
         #region Negative tests

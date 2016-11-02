@@ -80,6 +80,45 @@ namespace ArtifactStoreTests
             UpdateArtifact_CanGetArtifact(artifact, artifactType, "Name", "");
         }
 
+        private const int CU_NUMBER_PROPERTY_ID = 120;
+        private const int CU_DATE_PROPERTY_ID = 119;
+
+        [Category(Categories.CustomData)]
+        [TestCase("value\":10.0", "value\":\"A\"", CU_NUMBER_PROPERTY_ID)]   // Insert String into Numeric field.
+        [TestCase("value\":\"20", "value\":\"A", CU_DATE_PROPERTY_ID)]       // Insert String into Date field.
+        [TestRail(164561)]
+        [Description("Try to update an artifact properties with a improper value types. Verify 200 OK Request is returned.")]
+        public void UpdateArtifact_WrongTypeInProperty_CanGetArtifact(string toChange, string changeTo, int propertyTypeId)
+        {
+            // Setup:
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+            artifact.Lock();
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            string requestBody = JsonConvert.SerializeObject(artifactDetails);
+
+            string modifiedRequestBody = requestBody.Replace(toChange, changeTo);
+            Assert.AreNotEqual(requestBody, modifiedRequestBody, "Check that RequestBody was updated.");
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, modifiedRequestBody, artifact.Id, _user);
+            }, "'PATCH {0}' should return 200 OK even if the value is set to wrong type!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            // Verify:
+            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            CustomProperty customProperty = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
+
+            Assert.IsNull(customProperty.CustomPropertyValue, "Value of this custom property with Id {0} has to be null", propertyTypeId);
+
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetailsAfter);
+        }
+
         #endregion 200 OK tests
 
         #region Negative tests
@@ -308,42 +347,9 @@ namespace ArtifactStoreTests
         }
 
         private const string NumberValueIncorrectFormat = "The property CU-Number Required with Min & Max was supplied a value in an incorrect format.";
-        private const string DateValueIncorrectFormat   = "The property CU-Date Required with Min & Max was supplied a value in an incorrect format.";
+        private const string DateValueIncorrectFormat = "The property CU-Date Required with Min & Max was supplied a value in an incorrect format.";
         private const string ChoiceValueIncorrectFormat = "The value for the property CU-Choice Required with Single Choice is invalid.";
-        private const string UserValueIncorrectFormat   = "The value for the property CU-User Required is invalid.";
-
-        [Category(Categories.CustomData)]
-        [TestCase("value\":10.0", "value\":\"A\"", NumberValueIncorrectFormat)]                         // Insert String into Numeric field.
-        [TestCase("value\":\"20", "value\":\"A", DateValueIncorrectFormat)]                             // Insert String into Date field.
-        [TestCase("validValueIds\":[27]", "validValueIds\":[0]", ChoiceValueIncorrectFormat)]           // Insert non-existant choice.
-        [TestCase("usersGroups\":[{\"id\":1", "usersGroups\":[{\"id\":0", UserValueIncorrectFormat)]    // Insert non-existant User ID.
-        [TestRail(164561)]
-        [Description("Try to update an artifact properties with a improper value types. Verify 400 Bad Request is returned.")]
-        public void UpdateArtifact_WrongType1InProperty_400BadRequest(string toChange, string changeTo, string expectedError)
-        {
-            // Setup:
-            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
-            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
-            artifact.Lock();
-
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-
-            //This is needed to suppress 501 error
-            artifactDetails.ItemTypeId = null;
-
-            string requestBody = JsonConvert.SerializeObject(artifactDetails);
-            
-            string  modifiedRequestBody = requestBody.Replace(toChange, changeTo);
-            Assert.AreNotEqual(requestBody, modifiedRequestBody, "Check that RequestBody was updated.");
-
-            // Execute & Verify:
-            var ex = Assert.Throws<Http400BadRequestException>(() =>
-                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, modifiedRequestBody, artifact.Id, _user),
-                "'PATCH {0}' should return 400 Bad Request if the value is set to wrong type!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
-
-            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedError);
-        }
+        private const string UserValueIncorrectFormat = "The value for the property CU-User Required is invalid.";
 
         [TestCase]
         [Category(Categories.CustomData)]
@@ -408,35 +414,29 @@ namespace ArtifactStoreTests
         {
             objectToUpadate.GetType().GetProperty(propertyName).SetValue(objectToUpadate, propertyValue, null);
         }
-/*
+
         /// <summary>
-        /// Try to update an invalid Artifact with Property Changes.  Use this for testing cases where the save is expected to fail.
+        /// Gets sub-property using property name and propertytypeId
         /// </summary>
-        /// <param name="requestBody">The request body (i.e. artifact to be updated).</param>
-        /// <param name="artifactId">The ID of the artifact to save.</param>
-        /// <param name="user">The user updating the artifact.</param>
-        /// <returns>The body content returned from ArtifactStore.</returns>
-        private string UpdateInvalidArtifact(string requestBody,
-            int artifactId,
-            IUser user)
+        /// <param name="objectToSearchCustomProperty">Object in which to look sub-property</param>
+        /// <param name="propertyName">Property name of property that has sub-properties</param>
+        /// <param name="propertyTypeId">Id of specific property to look for</param>
+        /// <returns>Custom property. Null if not found</returns>
+        private static CustomProperty GetCustomPropertyByPropertyTypeId(object objectToSearchCustomProperty, string propertyName, int propertyTypeId)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
+            Assert.IsNotNull(objectToSearchCustomProperty, "Object send to this function cannot be null!");
+            var properties = (List<CustomProperty>)objectToSearchCustomProperty.GetType().GetProperty(propertyName).GetValue(objectToSearchCustomProperty);
 
-            string tokenValue = user.Token?.AccessControlToken;
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
-            RestApiFacade restApi = new RestApiFacade(Helper.BlueprintServer.Address, tokenValue);
-            const string contentType = "application/json";
-
-            var response = restApi.SendRequestBodyAndGetResponse(
-                path,
-                RestRequestMethod.PATCH,
-                requestBody,
-                contentType);
-
-            return response.Content;
+            foreach (CustomProperty property in properties)
+            {
+                if (property.PropertyTypeId == propertyTypeId)
+                {
+                    return property;
+                }
+            }
+            return null;
         }
-*/
+
         /// <summary>
         /// Asserts that the specified RestResponse contains the expected error message.
         /// </summary>

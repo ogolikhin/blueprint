@@ -18,9 +18,7 @@ export class ArtifactManagerMock implements IArtifactManager {
         ;
     }
 
-    public get selection(): ISelectionManager {
-        return null;
-    }
+    public selection = {} as ISelectionManager;
 
     public list(): IStatefulArtifact[] {
         return [];

@@ -116,7 +116,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         this.services.publishService.discardArtifacts([this.id])
         .then(() => {
             this.services.messageService.addInfo("Discard_Success_Message");
-            this.artifactState.unlock();
             this.refresh();
             deffered.resolve();
         })
@@ -151,7 +150,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             this.services.publishService.discardArtifacts(dependents.artifacts.map((d: Models.IArtifact) => d.id ))
             .then(() => {
                 this.services.messageService.addInfoWithPar("Discard__All_Success_Message", [dependents.artifacts.length]);
-                this.artifactState.unlock();
                 this.refresh();
             })
             .catch((err) => {

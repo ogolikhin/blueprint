@@ -28,7 +28,7 @@
                     ng-class="dialogModel.action ? 'nova-form-control input-is-dirty' : 'nova-form-control'"
                     id="storyteller-systemtask-action" ng-model="dialogModel.action"
                     ng-disabled="$ctrl.isReadonly" maxlength="140" autocomplete="off">
-            <label for="storyteller-systemtask-action" class="nova-label"><i class="fonticon2-process-title"></i>{{$ctrl.systemNamePlaceHolderText}}</label>
+            <label for="storyteller-systemtask-action" class="modal-template-label"><i class="fonticon2-process-title"></i>{{$ctrl.systemNamePlaceHolderText}}</label>
             <span class="storyteller-helper-text">{{::$root.config.labels['ST_Response_Helper_Text']}}</span>
         </div>
         <div id="SystemTaskUploadImage">

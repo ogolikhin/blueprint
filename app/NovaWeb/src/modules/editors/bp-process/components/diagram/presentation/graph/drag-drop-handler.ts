@@ -1,5 +1,6 @@
 import {ProcessGraph} from "./process-graph";
 import {NodeType, IDiagramNodeElement} from "./models/";
+import {ProcessEvents} from "../../process-diagram-communication";
 
 export interface IDragDropHandler {
     moveCell: MxCell;
@@ -184,6 +185,8 @@ export class DragDropHandler implements IDragDropHandler {
                         h.reset();
 
                         h.layout.handleUserTaskDragDrop(cellId, edge);
+                        // Set lock/dirty flags
+                        h.processGraph.viewModel.communicationManager.processDiagramCommunication.action(ProcessEvents.ArtifactUpdate);
                     }
                     else {
                         // reset drag state

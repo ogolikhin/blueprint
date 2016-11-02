@@ -386,14 +386,17 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.PublishArtifact(targetArtifact, _adminUser);
 
             // Execute:
-            Assert.DoesNotThrow(() => {
+            var ex = Assert.Throws<Http409ConflictException>(() =>
+            {
                 ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
                     traceDirection: TraceDirection.TwoWay, changeType: 0, artifactStore: Helper.ArtifactStore);
-            },"Trace creation shouldn't throw any error.");
+            }, "Adding a trace to a deleted artifact should return 409 Conflict!");
 
             // Verify:
             Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
             Assert.AreEqual(0, relationships.ManualTraces.Count, "Relationships should have no manual traces.");
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveOverDependencies,
+                "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.");
         }
 
         [TestCase]
@@ -411,7 +414,8 @@ namespace ArtifactStoreTests
 
             artifactDetails.Traces = new List<NovaTrace> { trace};
 
-            IServiceErrorMessage traceToItselfMessage = new ServiceErrorMessage("Cannot add a trace to item itself", 123);
+            IServiceErrorMessage traceToItselfMessage = new ServiceErrorMessage("Cannot add a trace to item itself",
+                InternalApiErrorCodes.CannotSaveOverDependencies);
 
             // Execute:
             Assert.Throws<Http409ConflictException>(() => {
@@ -443,7 +447,9 @@ namespace ArtifactStoreTests
 
             artifactDetails.SubArtifacts = subArtifacts;// Add SubArtifacts to Artifact details of without SubArtifacts supports
 
-            IServiceErrorMessage addSubArtifactsToNoSubartifactsSupportArtifactMessage = new ServiceErrorMessage("Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.", 123);
+            IServiceErrorMessage addSubArtifactsToNoSubartifactsSupportArtifactMessage = new ServiceErrorMessage(
+                "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.",
+                InternalApiErrorCodes.CannotSaveOverDependencies);
 
             // Execute:
             Assert.Throws<Http409ConflictException>(() => {
@@ -469,7 +475,9 @@ namespace ArtifactStoreTests
             Helper.AssignProjectRolePermissionsToUser(_authorUser, RolePermissions.Read | RolePermissions.Edit | RolePermissions.Delete,
                 _projectTest, artifact);
 
-            IServiceErrorMessage traceToItselfMessage = new ServiceErrorMessage("Cannot perform save, the artifact provided is attempting to override a read-only property.", 116);
+            IServiceErrorMessage traceToItselfMessage = new ServiceErrorMessage(
+                "Cannot perform save, the artifact provided is attempting to override a read-only property.",
+                InternalApiErrorCodes.CannotSaveDueToReuseReadOnly);
 
             // Execute:
             Assert.Throws<Http409ConflictException>(() => {

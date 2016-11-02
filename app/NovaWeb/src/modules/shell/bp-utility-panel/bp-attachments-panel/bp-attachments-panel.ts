@@ -178,8 +178,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> {
         this.item = subArtifact || artifact;
 
-        this.attachmentsList = [];
-        this.docRefList = [];
+        this.clearAttachmentList();
 
         this.subscribers = this.subscribers.filter(sub => {
             sub.dispose();
@@ -194,14 +193,21 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
                     this.item.attachments.initialize(this.attachmentsList);
                     this.item.docRefs.initialize(this.docRefList);
                 }
-            } 
+            }
             const attachmentsSubscriber = this.item.attachments.getObservable().subscribe(this.attachmentsUpdated);
-            const docRefsSubscriber = this.item.docRefs.getObservable().subscribe(this.docRefsUpdated);
+            const attachmentErrorSubscriber = this.item.attachments.errorObservable().subscribe(this.clearAttachmentList);
+            const docRefsSubscriber = this.item.docRefs.getObservable().subscribe(this.docRefsUpdated, this.docRefsUpdated);
+            const docRefErrorSubscriber = this.item.docRefs.errorObservable().subscribe(this.clearAttachmentList);
 
-            this.subscribers = [attachmentsSubscriber, docRefsSubscriber];
+            this.subscribers = [attachmentsSubscriber, docRefsSubscriber, attachmentErrorSubscriber, docRefErrorSubscriber];
         }
 
         return super.onSelectionChanged(artifact, subArtifact, timeout);
+    }
+
+    private clearAttachmentList = () => {
+        this.attachmentsList = [];
+        this.docRefList = [];
     }
 
     private attachmentsUpdated = (attachments: IArtifactAttachment[]) => {

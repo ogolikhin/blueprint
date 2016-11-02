@@ -2,6 +2,7 @@ import {IIStatefulItem} from "../item";
 import {IDispose} from "../../models";
 import {ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector} from "../changeset";
 import {IArtifactAttachmentsResultSet, IArtifactAttachment} from "./attachments.svc";
+import {IApplicationError} from "../../../core";
 
 
 export interface IArtifactAttachments extends IDispose {
@@ -13,6 +14,7 @@ export interface IArtifactAttachments extends IDispose {
     changes(): IArtifactAttachment[];
     refresh(): ng.IPromise<IArtifactAttachment[]>;
     discard();
+    errorObservable(): Rx.Observable<IApplicationError>;
 }
 
 export class ArtifactAttachments implements IArtifactAttachments {
@@ -21,10 +23,12 @@ export class ArtifactAttachments implements IArtifactAttachments {
     private changeset: IChangeCollector;
     private isLoaded: boolean;
     private loadPromise: ng.IPromise<any>;
+    private _error: Rx.BehaviorSubject<IApplicationError>;
 
     constructor(private statefulItem: IIStatefulItem) {
         this.subject = new Rx.BehaviorSubject<IArtifactAttachment[]>(this.attachments);
         this.changeset = new ChangeSetCollector(statefulItem);
+        this.isLoaded = true;
     }
 
     public get isLoading(): boolean {
@@ -35,6 +39,17 @@ export class ArtifactAttachments implements IArtifactAttachments {
         this.isLoaded = true;
         this.attachments = attachments;
         this.subject.onNext(this.attachments);
+    }
+
+    protected get error(): Rx.BehaviorSubject<IApplicationError> {
+        if (!this._error) {
+            this._error = new Rx.BehaviorSubject<IApplicationError>(null);
+        }
+        return this._error;
+    }
+
+    public errorObservable(): Rx.Observable<IApplicationError> {
+        return this.error.filter(it => !!it).distinctUntilChanged().asObservable();
     }
 
     // refresh = true: turn lazy loading off, always reload
@@ -60,7 +75,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
         if (!this.isLoadedOrLoading()) {
             this.loadPromise = this.statefulItem.getAttachmentsDocRefs()
                 .catch(error => {
-                    this.subject.onError(error);
+                    this.error.onNext(error);
                 }).finally(() => {
                     this.loadPromise = null;
                 });

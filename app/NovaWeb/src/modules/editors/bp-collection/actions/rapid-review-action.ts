@@ -1,10 +1,10 @@
 import {BPButtonAction} from "../../../shared";
-import {IStatefulArtifact} from "../../../managers/artifact-manager";
 import {ILocalizationService} from "../../../core";
 import {ItemTypePredefined} from "../../../main/models/enums";
+import {IStatefulCollectionArtifact} from "../../../managers/artifact-manager/artifact/collection-artifact";
 
 export class RapidReviewAction extends BPButtonAction {
-    constructor(artifact: IStatefulArtifact,
+    constructor(artifact: IStatefulCollectionArtifact,
         localization: ILocalizationService) {
         if (!localization) {
             throw new Error("Localization service not provided or is null");
@@ -24,6 +24,10 @@ export class RapidReviewAction extends BPButtonAction {
                 }
 
                 if (artifact.artifactState.readonly) {
+                    return false;
+                }
+
+                if (artifact.rapidReviewCreated) {
                     return false;
                 }
 

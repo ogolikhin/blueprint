@@ -1030,8 +1030,9 @@ pagecontent, bp-properties-panel {
         }
 
         .formly-field-bpFieldDatepicker {
-            button {
+            .btn {
                 border-radius: 0;
+                z-index: initial;
             }
 
             .has-error button {

@@ -150,8 +150,12 @@ export class BPTreeViewController implements IBPTreeViewController {
             onRowSelected: this.onRowSelected,
             onRowDoubleClicked: this.onRowDoubleClicked,
             onGridReady: this.onGridReady,
-            onModelUpdated: this.onModelUpdated
+            onModelUpdated: this.onModelUpdated,
+            context: {}
         };
+
+        this.options.context.allSelected = false;
+        this.options.context.selectAllClass = new HeaderCell(this.options);
     }
 
     public $onInit() {
@@ -207,7 +211,8 @@ export class BPTreeViewController implements IBPTreeViewController {
                     } : undefined,
                     checkboxSelection: column.isCheckboxSelection,
                     suppressMenu: true,
-                    suppressSorting: true
+                    suppressSorting: true,
+                    headerCellRenderer: column.headerCellRenderer
                 } as agGrid.ColDef;
             }));
 
@@ -398,5 +403,13 @@ export class BPTreeViewController implements IBPTreeViewController {
 
     public onGridReady = (event?: any) => {
         this.resetGridAsync(false);
+    }
+}
+
+export class HeaderCell {
+    constructor(public gridOptions: agGrid.GridOptions) { }
+
+    selectAll(value: boolean) {        
+        this.gridOptions.api.forEachNodeAfterFilter(node => node.setSelected(value));
     }
 }

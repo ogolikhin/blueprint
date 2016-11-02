@@ -9,7 +9,35 @@
     font-size: $font-size-big;
     color: $gray-dark;
     font-weight: 600;
-    padding: 11px 14px 2px 9px;
+    padding: 11px 14px 11px 9px;
+    background:  $yellow-pale;
+
+
+    .icon{
+        margin-right: 15px;
+
+        &::before{
+            //temporarily, will delete after icon fix
+            line-height: 40%;
+        }
+    }
+
+    &__link__review {
+        margin-left: 15px;
+    }
+
+    &__review__name {
+        display: inline-block;
+        float:left;
+        width: calc(100% - 153px);
+        word-wrap: break-word;
+     }
+
+    &__review__edit{
+        float:right;
+        display: inline-block;
+        width: 130px;
+    }
 
     &__link{
         font-weight: normal;
@@ -31,11 +59,25 @@
 
     .ag-grid{
 
+        .ag-row.ag-row-focus, .ag-row.ag-row-focus:hover{
+            .ag-cell:not(.not-selectable) span > span{
+                background: transparent;
+                *:not([class*="ag-checkbox-"])::before{
+                    background: transparent;
+                }
+            }
+        }
+
         .header-name{
             padding-left: 10px;
         }
 
+        span > .ag-group-checkbox{
+            border-width: 0;
+        }
+
         .ag-header-cell{
+            padding-top: 5px;
             background: $gray-dark;
 
             .ag-header-cell-text{
@@ -88,7 +130,10 @@
             padding-top: 2px;
             padding-bottom: 2px;
             height:auto;
-            overflow: hidden;
+
+            .ag-selection-checkbox{
+                margin-top: 8px;
+            }
 
             .ag-group-value{
                 @include text-ellipsis-flex-width(500px);

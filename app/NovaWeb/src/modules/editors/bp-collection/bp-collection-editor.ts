@@ -10,12 +10,10 @@ import {IMetaDataService} from "../../managers/artifact-manager";
 
 
 import {
-    BpArtifactEditor,
     ILocalizationService,
     IArtifactManager,
     IMessageService,
-    IWindowManager,
-    PropertyContext
+    IWindowManager
 } from "../bp-artifact/bp-artifact-editor";
 
 import {IDialogService} from "../../shared";
@@ -44,7 +42,6 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public selectAll: boolean = false;
     public selectAllClass: string;
     public isSystemPropertiesCollapsed: boolean = true;
-    //public reviewUrl: string;
 
     constructor(private $state: ng.ui.IStateService,
         messageService: IMessageService,
@@ -74,10 +71,12 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         if (this.editor && this.artifact) {
             this.collectionService.getCollection(this.artifact.id).then((result: ICollection) => {
                 this.metadataService.get(result.projectId).then(() => {
+                    this.artifact["rapidReviewCreated"] = result.isCreated;
                     this.collection = result;
                     this.rootNode = result.artifacts.map((a: ICollectionArtifact) => {
                         return new CollectionNodeVM(a, result.projectId, this.metadataService);
                     });
+
                 }).catch((error: any) => {
                     //ignore authentication errors here
                     if (error) {
@@ -98,14 +97,44 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         }
     }
 
+    private headerCellRendererSelectAll(params) {
+        let cb = document.createElement("i");
+        cb.setAttribute("class", "ag-checkbox-unchecked");
 
+        let sp = document.createElement("span");
+        sp.setAttribute("class", "ag-group-checkbox");
+
+        sp.appendChild(cb);
+
+        let eHeader = document.createElement("span");
+        eHeader.setAttribute("class", "ag-header-checkbox");
+        eHeader.appendChild(sp);
+
+        cb.addEventListener("click", function (e) {
+            let checked: boolean;
+
+            if ((e.target)["data-checked"] && (e.target)["data-checked"] === true) {
+                checked = false;
+                cb.setAttribute("class", "ag-checkbox-unchecked");
+            } else {
+                checked = true;
+                cb.setAttribute("class", "ag-checkbox-checked");
+            }
+
+            (<HTMLInputElement>e.target)["data-checked"] = checked;
+            params.context.allSelected = checked;
+            params.context.selectAllClass.selectAll(checked);
+        });
+        return eHeader;
+    }
 
     public columns: IColumn[] = [
         {
             isCheckboxSelection: true,
             width: 30,
-            headerName: `<span><span class="ag-selection-checkbox">` +
-            `<i ng-class="$ctrl.selectAllClass"></i></span></span>`
+            headerName: "",
+            headerCellRenderer: this.headerCellRendererSelectAll,
+            field: "chck"
         },
         {
             width: 100,

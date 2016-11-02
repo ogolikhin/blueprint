@@ -1,8 +1,9 @@
 import "../../";
 import * as angular from "angular";
 import "angular-mocks";
-import {QuickSearchModalController} from './quickSearchModalController';
+import {QuickSearchModalController} from "./quickSearchModalController";
 import {QuickSearchService} from "./quickSearchService";
+import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 
 
 describe("Controller: Quick Search Modal", () => {
@@ -17,7 +18,7 @@ describe("Controller: Quick Search Modal", () => {
 
     // Provide any mocks needed
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-
+        $provide.service("localization", LocalizationServiceMock);
     }));
 
     // Inject in angular constructs otherwise,

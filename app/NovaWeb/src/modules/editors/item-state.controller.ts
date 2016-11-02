@@ -31,7 +31,7 @@ export class ItemStateController {
         private statefulArtifactFactory: IStatefulArtifactFactory
     ) {
         const id: number = parseInt($state.params["id"], 10);
-        const version: number = parseInt($state.params["version"], 10);
+        const version = parseInt($state.params["version"], 10);
 
         if (_.isFinite(id)) {
             this.clearLockedMessages();
@@ -75,18 +75,23 @@ export class ItemStateController {
                 };
 
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(artifact);
-
-                if (result.isDeleted) {
+                if (_.isFinite(version)) {
+                    if (result.versionCount < version) {
+                         this.messageService.addError("The specified artifact version does not exist");
+                         this.navigationService.navigateToMain(true);
+                         return;
+                    }
+                    artifact.version = version;
+                    statefulArtifact.artifactState.historical = true;
+                } else if (result.isDeleted) {
                     statefulArtifact.artifactState.deleted = true;
                     statefulArtifact.artifactState.historical = true;
                     const localizedDate = this.localization.current.formatShortDateTime(result.deletedDateTime);
-                    const deletedMessage = `Read Only: Deleted by user '${result.deletedByUser.displayName}' on '${localizedDate}'`;
+                    const deletedMessage = `Deleted by user '${result.deletedByUser.displayName}' on '${localizedDate}'`;
                     this.messageService.addMessage(new Message(MessageType.Lock, deletedMessage));
-                } else if (version <= result.versionCount) {
-                    statefulArtifact.artifactState.historical = true;
                 }
 
-                this.navigateToSubRoute(statefulArtifact);
+                this.navigateToSubRoute(statefulArtifact, version);
             } else {
                 this.messageService.addError("This artifact type cannot be opened directly using the Go To feature.");
             }
@@ -124,7 +129,7 @@ export class ItemStateController {
         artifact.errorObservable().subscribeOnNext(this.onArtifactError);
     }
 
-    private navigateToSubRoute(artifact: IStatefulArtifact) {
+    private navigateToSubRoute(artifact: IStatefulArtifact, version?: number) {
         this.setSelectedArtifact(artifact);
 
         let stateName: string;
@@ -156,7 +161,11 @@ export class ItemStateController {
         }
         // since URL doesn't change between "main.item" and "main.item.*", 
         // must force reload on that exact state name
-        this.$state.go(stateName, {id: artifact.id}, {reload: stateName});
+        const params = {
+            id: artifact.id,
+            version: _.isFinite(version) ? version : undefined
+        };
+        this.$state.go(stateName, params, {reload: stateName});
     }
 
     private onArtifactError = (error: IApplicationError) => {

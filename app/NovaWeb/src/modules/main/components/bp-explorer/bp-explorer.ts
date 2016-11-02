@@ -202,9 +202,14 @@ export class ProjectExplorerController {
     };
 
     public onSelectedArtifactChange = (artifact: IStatefulArtifact) => {
-        //If the artifact's name changes (on refresh), we reload the project so the change is reflected in the explorer.
-        if (artifact.name !== this.selectedArtifactNameBeforeChange) {
-            this.onLoadProject(this.projectManager.projectCollection.getValue());
+        //If the artifact's name changes (on refresh), we refresh specific node only .
+        //To prevent update treenode name while editing the artifact details, use it only for clean artifact. 
+        if (artifact.name !== this.selectedArtifactNameBeforeChange && !artifact.artifactState.dirty) {
+            let node = this.tree.getNodeData(artifact.id) as IArtifactNode;
+            if (node) {
+                node.name = artifact.name;
+                this.tree.refresh(node.id);
+            }
         }
     };
 

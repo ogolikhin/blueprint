@@ -420,5 +420,5 @@ Search_Validation_Required, "Required search term."
 Search_Results_Author, "Author"
 Search_Results_CreatedOn, "Created On:"
 Search_Results_LastEdited, "Last Edited:"
-Search_Results_SubartifactMessage, "Opening this item displays the artifact that contains it.”
+Search_Results_SubartifactMessage, "Opening this search result displays the artifact that contains it."
 Search_Results_NoResults, "No Results Found"

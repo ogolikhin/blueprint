@@ -62,7 +62,7 @@ $quick-search__item--focus-color: #E8F6FB;
     background: transparent;
 
     border-bottom: solid 1px $gray;
-    padding: .2em .2em .2em;
+    padding: .2em 1.5em .2em .2em;
     &::-webkit-input-placeholder { /* WebKit, Blink, Edge */
         color: $gray-dark !important;
     }
@@ -106,28 +106,13 @@ $quick-search__item--focus-color: #E8F6FB;
             color: #d95f5e;
         }
     }
+    .fonticon-gray {
+        color: $gray;
+    }
 }
-
 .quick-search__icon--fixed {
     color: $gray-dark;
 }
-
-.btn.quick-search__btn {
-    outline: none;
-    height: 24px;
-    width: 24px;
-    min-width: 24px;
-    max-width: 24px;
-    border: none;
-    background: transparent;
-    padding: 0;
-    margin: 0;
-
-    &:focus, &:hover, &:active {
-        background: transparent;
-    }
-}
-
 .block {
     display: block;
 }

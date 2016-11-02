@@ -28,7 +28,7 @@
                     ng-class="dialogModel.action ? 'nova-form-control input-is-dirty' : 'nova-form-control'"
                     id="storyteller-action" ng-model="dialogModel.action" ng-disabled="$ctrl.isReadonly"
                     maxlength="140" autocomplete="off">
-            <label for="storyteller-action" class="nova-label"><i class="fonticon2-process-title"></i>{{$ctrl.actionPlaceHolderText}}</label>
+            <label for="storyteller-action" class="modal-template-label"><i class="fonticon2-process-title"></i>{{$ctrl.actionPlaceHolderText}}</label>
             <span class="storyteller-helper-text">{{::$root.config.labels['ST_User_Task_Name_Helper_Text']}}</span>
         </div>
         <div class="nova-form-group nova-floating-label">

@@ -123,7 +123,7 @@ $modal-open-project-height: 450px;
 
             .fonticon-error {
                 position: absolute;
-                color: $brand-secondary;
+                color: $gray-light;
                 top: 0px;
                 right: 0;
                 height: 34px;
@@ -131,7 +131,7 @@ $modal-open-project-height: 450px;
 
                 &::before {
                     font-size: 2.2rem;
-        }
+                }
             }
 
             .btn {

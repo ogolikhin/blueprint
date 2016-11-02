@@ -2,6 +2,7 @@ import {IIStatefulItem} from "../item";
 import {IDispose} from "../../models";
 import {ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector} from "../changeset";
 import {IArtifactAttachmentsResultSet, IArtifactDocRef} from "../attachments";
+import {IApplicationError} from "../../../core";
 
 export interface IDocumentRefs extends IDispose {
     isLoading: boolean;
@@ -14,6 +15,7 @@ export interface IDocumentRefs extends IDispose {
     changes(): IArtifactDocRef[];
     refresh(): ng.IPromise<IArtifactDocRef[]>;
     discard();
+    errorObservable(): Rx.Observable<IApplicationError>;
 }
 
 export class DocumentRefs implements IDocumentRefs {
@@ -22,11 +24,13 @@ export class DocumentRefs implements IDocumentRefs {
     private changeset: IChangeCollector;
     private isLoaded: boolean;
     private loadPromise: ng.IPromise<any>;
+    private _error: Rx.BehaviorSubject<IApplicationError>;
 
     constructor(private statefulItem: IIStatefulItem) {
         this.docrefs = [];
         this.subject = new Rx.BehaviorSubject<IArtifactDocRef[]>(this.docrefs);
         this.changeset = new ChangeSetCollector(statefulItem);
+        this.isLoaded = true;
     }
 
     public get isLoading(): boolean {
@@ -37,6 +41,17 @@ export class DocumentRefs implements IDocumentRefs {
         this.isLoaded = true;
         this.docrefs = docrefs;
         this.subject.onNext(this.docrefs);
+    }
+
+    protected get error(): Rx.BehaviorSubject<IApplicationError> {
+        if (!this._error) {
+            this._error = new Rx.BehaviorSubject<IApplicationError>(null);
+        }
+        return this._error;
+    }
+
+    public errorObservable(): Rx.Observable<IApplicationError> {
+        return this.error.filter(it => !!it).distinctUntilChanged().asObservable();
     }
 
     // refresh = true: turn lazy loading off, always reload
@@ -62,7 +77,7 @@ export class DocumentRefs implements IDocumentRefs {
         if (!this.isLoadedOrLoading()) {
             this.loadPromise = this.statefulItem.getAttachmentsDocRefs()
                 .catch(error => {
-                    this.subject.onError(error);
+                    this.error.onNext(error);
                 }).finally(() => {
                     this.loadPromise = null;
                 });

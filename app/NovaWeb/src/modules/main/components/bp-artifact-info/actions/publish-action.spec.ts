@@ -11,6 +11,7 @@ import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {ILoadingOverlayService, LoadingOverlayService} from "../../../../core/loading-overlay";
 
 describe("PublishAction", () => {
+    let $q: ng.IQService;
     beforeEach(angular.mock.module("app.main"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -18,6 +19,10 @@ describe("PublishAction", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayService);
+    }));
+
+    beforeEach(inject((_$q_: ng.IQService) => {
+        $q = _$q_;
     }));
 
     it("throws exception when localization is null", inject((statefulArtifactFactory: IStatefulArtifactFactory,
@@ -99,7 +104,7 @@ describe("PublishAction", () => {
             expect(publishAction.disabled).toBe(true);
         }));
 
-    /*it("is enabled when artifact is valid",
+    it("is enabled when artifact is valid",
         inject((statefulArtifactFactory: IStatefulArtifactFactory, localization: ILocalizationService,
             messageService: IMessageService, loadingOverlayService: ILoadingOverlayService) => {
             // arrange
@@ -109,7 +114,8 @@ describe("PublishAction", () => {
                     predefinedType: ItemTypePredefined.TextualRequirement,
                     lockedByUser: null,
                     lockedDateTime: null,
-                    permissions: RolePermissions.Edit
+                    permissions: RolePermissions.Edit,
+                    version: -1
                 });
 
             // act
@@ -117,9 +123,9 @@ describe("PublishAction", () => {
 
             // assert
             expect(publishAction.disabled).toBe(false);
-        }));*/
+        }));
 
-    /*it("calls artifact.discard when executed",
+    it("calls artifact.discard when executed",
         inject((statefulArtifactFactory: IStatefulArtifactFactory, localization: ILocalizationService,
             messageService: IMessageService, loadingOverlayService: ILoadingOverlayService) => {
             // arrange
@@ -131,7 +137,11 @@ describe("PublishAction", () => {
                     lockedDateTime: null,
                     permissions: RolePermissions.Edit
                 });
-            const publishSpy = spyOn(artifact, "publish");
+            const publishSpy = spyOn(artifact, "publish").and.callFake(() => {
+                    const deferred = $q.defer();
+                    deferred.reject(null);
+                    return deferred.promise;
+                });
             const publishAction = new PublishAction(artifact, localization, messageService, loadingOverlayService);
 
             // act
@@ -139,5 +149,5 @@ describe("PublishAction", () => {
 
             // assert
             expect(publishSpy).toHaveBeenCalled();
-        }));*/
+        }));
 });

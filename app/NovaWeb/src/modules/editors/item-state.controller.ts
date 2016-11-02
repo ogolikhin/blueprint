@@ -154,15 +154,8 @@ export class ItemStateController {
 
     private onArtifactError = (error: IApplicationError) => {
         if (error.statusCode === HttpStatusCode.NotFound) {
-            const artifact = this.artifactManager.selection.getArtifact();
+            this.navigationService.reloadParentState();
             
-            const immediateParentState = this.$state.$current["parent"];
-            if (immediateParentState) {
-                // <any> due to lack of updated types definition
-                (<any>this.$state).reload(immediateParentState.name);
-            } else {
-                this.$state.reload();
-            }
         } else if (error.statusCode === HttpStatusCode.Forbidden || 
             error.statusCode === HttpStatusCode.ServerError ||
             error.statusCode === HttpStatusCode.Unauthorized

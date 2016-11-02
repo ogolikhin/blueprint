@@ -47,9 +47,12 @@ $quick-search__item--focus-color: #E8F6FB;
 }
 
 .quick-serach__input--full-width {
-    width: 90%;
+    width: 100%;
 }
 
+.input-group--short-width {
+    max-width: 200px;
+}
 .quick-serach__input {
     border: none;
     background: transparent;
@@ -83,9 +86,6 @@ $quick-search__item--focus-color: #E8F6FB;
         color: #d95f5e;
         font-size: 1rem;
         margin-top: -2px;
-    }
-    .input-group {
-        max-width: 200px;
     }
     &.has-error {
         color: #d95f5e;

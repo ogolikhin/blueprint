@@ -15,6 +15,13 @@ export class QuickSearchController {
         this.animationsEnabled = false;
         this.modalSize = "full-screen";
     }
+    clearSearch() {
+        this.quickSearchService.searchTerm = "";
+        this.form.$setPristine();
+    }
+    get showHide() {
+        return this.quickSearchService.searchTerm || this.form.$dirty;
+    }
     hasError() {
         return  this.form.$submitted &&
                 this.form.$invalid &&

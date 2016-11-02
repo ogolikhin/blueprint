@@ -40,7 +40,15 @@ export class QuickSearchModalController {
             this.isLoading = false;
         });
     }    
-
+    clearSearch() {
+        this.searchTerm = "";
+        this.quickSearchService.searchTerm = "";
+        this.form.$setPristine();
+        this.results = [];
+    }
+    get showHide() {
+        return this.searchTerm || this.form.$dirty;
+    }
     hasError() {
         return this.form.$submitted &&
             this.form.$invalid;

@@ -119,3 +119,32 @@
     text-overflow: ellipsis;
     max-width: 90%;
 }
+.btn-icon {    
+    border: 0;
+    background: transparent;
+    width: 24px;
+    max-width: 24px;
+    min-width: 24px;
+    padding: 0;
+    margin: 0;    
+    outline: none;
+
+    &:focus,
+    &:active,
+    &:hover,
+    &:active:focus{
+        background: transparent;
+    }    
+    .fonticon-error::before {
+        font-size: 2.2rem;
+    }
+}
+.input-group-btn-icon {
+    max-width: 24px;
+    min-width: 24px;
+}
+.input-group-btn-float-right {
+    position: absolute;
+    right: 0px;
+    top: 5px;
+}

@@ -30,7 +30,7 @@ export class BpEscapeAndHighlightFilter {
                         toFilterLCase += escapeHtmlEntities(toFilter.substr(pos, substring.length));
                         pos += substring.length;
                         if (index < substrings.length - 1) {
-                            toFilterLCase += `<span class="bp-highlight">` + escapeHtmlEntities(toFilter.substr(pos, toHighlight.length)) + `</span>`;
+                            toFilterLCase += `<span class="bp-escape-highlight">` + escapeHtmlEntities(toFilter.substr(pos, toHighlight.length)) + `</span>`;
                             pos += toHighlight.length;
                         }
                     });

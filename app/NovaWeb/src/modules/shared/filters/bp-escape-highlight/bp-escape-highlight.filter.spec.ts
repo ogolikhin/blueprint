@@ -2,7 +2,7 @@ import * as angular from "angular";
 import "angular-mocks";
 import "../";
 
-describe("bp-highlight filter", () => {
+describe("bp-escape-highlight filter", () => {
     let $filter;
 
     beforeEach(angular.mock.module("bp.filters"));
@@ -20,7 +20,7 @@ describe("bp-highlight filter", () => {
         const result = $filter("bpEscapeAndHighlight")(toFilter, toHighlight);
 
         // Assert
-        expect(result).toEqual(`Lorem ipsum <span class="bp-highlight">dolor</span> sit tamet`);
+        expect(result).toEqual(`Lorem ipsum <span class="bp-escape-highlight">dolor</span> sit tamet`);
     });
 
     it("should filter HTML content (filtered token not part of the tag)", () => {
@@ -32,7 +32,7 @@ describe("bp-highlight filter", () => {
         const result = $filter("bpEscapeAndHighlight")(toFilter, toHighlight);
 
         // Assert
-        expect(result).toEqual(`Lorem &lt;strong&gt;ipsum&lt;&#x2F;strong&gt; <span class="bp-highlight">dolor</span> sit tamet`);
+        expect(result).toEqual(`Lorem &lt;strong&gt;ipsum&lt;&#x2F;strong&gt; <span class="bp-escape-highlight">dolor</span> sit tamet`);
     });
 
     it("should filter HTML content (filtered token is part of the tag)", () => {
@@ -44,7 +44,7 @@ describe("bp-highlight filter", () => {
         const result = $filter("bpEscapeAndHighlight")(toFilter, toHighlight);
 
         // Assert
-        expect(result).toEqual(`Lorem &lt;strong&gt;ipsum <span class="bp-highlight">dolor</span>&lt;&#x2F;strong&gt; sit tamet`);
+        expect(result).toEqual(`Lorem &lt;strong&gt;ipsum <span class="bp-escape-highlight">dolor</span>&lt;&#x2F;strong&gt; sit tamet`);
     });
 
     it("should filter invalid input", () => {

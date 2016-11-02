@@ -69,13 +69,18 @@ export class BpFieldReadOnlyController {
                     newValue = data.stringDefaultValue;
                 }
                 tooltip = newValue;
-                if (data.isRichText) {
-                    newValue = this.$sce.trustAsHtml(Helper.stripWingdings(newValue));
-                    const div = document.createElement("div");
-                    div.innerHTML = newValue;
-                    tooltip = div.textContent;
-                } else if (data.isMultipleAllowed) {
-                    newValue = this.$sce.trustAsHtml(Helper.escapeHTMLText(newValue || "").replace(/(?:\r\n|\r|\n)/g, "<br />"));
+                if (data) {
+                    if (data.isRichText) {
+                        const defaultValue = data.stringDefaultValue || "";
+                        if (defaultValue.indexOf(newValue) !== -1) {
+                            // SL adds a <pre> tag around the default values for RTF
+                            newValue = Helper.stripHTMLTags(newValue);
+                        }
+                        newValue = this.$sce.trustAsHtml(Helper.stripWingdings(newValue));
+                        tooltip = Helper.stripHTMLTags(newValue);
+                    } else if (data.isMultipleAllowed) {
+                        newValue = this.$sce.trustAsHtml(_.escape(newValue).replace(/(?:\r\n|\r|\n)/g, "<br />"));
+                    }
                 }
                 break;
             case Enums.PrimitiveType.Date:

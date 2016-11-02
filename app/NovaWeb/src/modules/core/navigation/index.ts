@@ -12,5 +12,5 @@ export {
 
 export {
     INavigationService,
-    INavigationOptions
+    INavigationParams
 } from "./navigation.svc";

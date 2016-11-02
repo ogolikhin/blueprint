@@ -170,7 +170,7 @@ namespace ArtifactStoreTests
 
             int thisYear = DateTime.Now.Year;
 
-            string toChange = "value\":\"" + thisYear.ToString();
+            string toChange = "value\":\"" + thisYear;
 
             int yearOutPropertyRange = thisYear + 100;
 

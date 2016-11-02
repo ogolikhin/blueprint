@@ -11,6 +11,7 @@ using System.Globalization;
 using System.Linq;
 using Utilities;
 using Utilities.Facades;
+using Newtonsoft.Json;
 
 namespace Helper
 {
@@ -598,6 +599,28 @@ namespace Helper
                 validInlineTraceLink,
                 !validInlineTraceLink,
                 subArtifactdetails.Description);
+        }
+
+        /// <summary>
+        /// Verifies that the content returned in the rest response contains the specified ErrorCode and Message.
+        /// </summary>
+        /// <param name="restResponse">The RestResponse that was returned.</param>
+        /// <param name="expectedErrorCode">The expected error code.</param>
+        /// <param name="expectedErrorMessage">The expected error message.</param>
+        public static void ValidateServiceError(RestResponse restResponse, int expectedErrorCode, string expectedErrorMessage)
+        {
+            IServiceErrorMessage serviceError = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                serviceError = JsonConvert.DeserializeObject<ServiceErrorMessage>(restResponse.Content);
+            }, "Failed to deserialize the content of the REST response into a ServiceErrorMessage object!");
+
+            IServiceErrorMessage expectedError = ServiceErrorMessageFactory.CreateServiceErrorMessage(
+                expectedErrorCode,
+                expectedErrorMessage);
+
+            serviceError.AssertEquals(expectedError);
         }
 
         /// <summary>

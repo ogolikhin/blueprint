@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using Newtonsoft.Json.Converters;
+using ServiceLibrary.Models;
 
 namespace AdminStore.Models
 {
@@ -28,6 +29,9 @@ namespace AdminStore.Models
 
         [JsonIgnore]
         public bool? IsAccesible { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public RolePermissions? Permissions { get; set; }
     }
 
     public enum InstanceItemTypeEnum

@@ -188,6 +188,9 @@ Discard_All_No_Unpublished_Changes,"There are no artifacts that can be discarded
 Discard_All_Dialog_Message,"After discarding, all changes made to each artifact will be reverted to previous version. Please review and confirm:"
 Discard_All_Success_Message,"Successfully discarded {0} artifact(s)."
 
+Discard_Dependents_Dialog_Message,"If you discard the artifact, other related artifacts will also need to be discarded. Please review and confirm:"
+Discard_Success_Message,"The artifact has been discarded."
+
 # glossary artifact
 Artifact_Glossary_Term,"Term"
 Artifact_Glossary_Definition,"Definition"

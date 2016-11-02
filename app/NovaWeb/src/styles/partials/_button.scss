@@ -119,7 +119,7 @@
     text-overflow: ellipsis;
     max-width: 90%;
 }
-.btn-icon {    
+.btn__icon {    
     border: 0;
     background: transparent;
     width: 24px;
@@ -139,11 +139,11 @@
         font-size: 2.2rem;
     }
 }
-.input-group-btn-icon {
+.input-group-btn__icon {
     max-width: 24px;
     min-width: 24px;
 }
-.input-group-btn-float-right {
+.btn--absolute-right {
     position: absolute;
     right: 0px;
     top: 5px;

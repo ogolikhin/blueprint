@@ -13,8 +13,8 @@
                       novalidate>
                     <div class="quick-serach__form-control" ng-class="{'has-error':$ctrl.hasError()}">
                          <div class="input-group">
-                            <span class="input-group-btn input-group-btn-icon">
-                                <button class="btn btn-default btn-icon"
+                            <span class="input-group-btn input-group-btn__icon ">
+                                <button class="btn btn-default btn__icon"
                                         type="submit"               
                                         ng-disabled="quickSearch.quickSearchService.canSearch()">
                                     <i class="glyphicon glyphicon-search quick-search__icon--fixed"></i>
@@ -28,14 +28,12 @@
                                 class="quick-serach__input quick-serach__input--full-width"
                                 name="searchTerm"
                                 ng-model="$ctrl.searchTerm">
-                            <span class="input-group-btn input-group-btn-icon input-group-btn-float-right">
-                                <button type="button" 
-                                        class="btn btn-default btn-icon" 
-                                        ng-show="$ctrl.showHide" 
-                                        ng-click="$ctrl.clearSearch()">
-                                    <i class="fonticon-error fonticon-gray"></i>
-                                </button>
-                            </span>
+                            <button type="button" 
+                                    class="btn btn-default btn__icon btn--absolute-right" 
+                                    ng-if="$ctrl.showHide" 
+                                    ng-click="$ctrl.clearSearch()">
+                                <i class="fonticon-error fonticon-gray"></i>
+                            </button>
                         </div>
                         <div class="error-messages"
                              ng-messages="$ctrl.form.$error"

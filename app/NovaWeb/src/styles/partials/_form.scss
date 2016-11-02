@@ -197,3 +197,10 @@ textarea[rows="2"].nova-form-control {
         font-size:1.3rem;
     }
 }
+
+.modal-template-label {
+    @extend .nova-label;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

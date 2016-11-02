@@ -8,7 +8,9 @@ export class ArtifactServiceMock implements IArtifactService {
     }
 
     public updateArtifact(artifact: Models.IArtifact) {
-        //Do nothing
+        const defer = this.$q.defer<Models.IArtifact>();
+        defer.resolve(artifact);
+        return defer.promise;
     }
 
     public static createArtifact(id: number, properties?: number): any {
@@ -67,7 +69,10 @@ export class ArtifactServiceMock implements IArtifactService {
 
     public static createLockResult(id: number): Models.ILockResult[] {
         let data = {
-            result: Enums.LockResultEnum.Success
+            result: Enums.LockResultEnum.Success,
+            info: {
+                versionId: 0
+            }
 
         } as Models.ILockResult;
         return [data];

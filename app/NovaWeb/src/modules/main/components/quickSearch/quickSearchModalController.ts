@@ -1,6 +1,16 @@
 import {ILocalizationService} from "../../../core/";
 import * as SearchModels from "./models/model";
 
+export interface IQuickSearchModalController {
+    searchTerm: string;
+    isLoading: boolean;
+    search(term): string;
+    clearSearch();
+    showHide: boolean;
+    hasError(): boolean;
+    closeModal();
+}
+
 export class QuickSearchModalController {
     searchTerm: string;
     form: ng.IFormController;
@@ -40,19 +50,23 @@ export class QuickSearchModalController {
             this.isLoading = false;
         });
     }    
+    
     clearSearch() {
         this.searchTerm = "";
         this.quickSearchService.searchTerm = "";
         this.form.$setPristine();
         this.results = [];
     }
-    get showHide() {
-        return this.searchTerm || this.form.$dirty;
+
+    get showHide(): boolean {
+        return !!this.searchTerm || this.form.$dirty;
     }
-    hasError() {
+
+    hasError(): boolean {
         return this.form.$submitted &&
             this.form.$invalid;
     }
+
     $onInit() {
         if (this.searchTerm.length) {
             this.search(this.searchTerm);

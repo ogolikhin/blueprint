@@ -21,30 +21,33 @@ export class ItemStateController {
         "statefulArtifactFactory"
     ];
 
-    constructor(private $state: angular.ui.IStateService,
-                private artifactManager: IArtifactManager,
-                private messageService: IMessageService,
-                private localization: ILocalizationService,
-                private navigationService: INavigationService,
-                private itemInfoService: IItemInfoService,
-                private statefulArtifactFactory: IStatefulArtifactFactory) {
-
-        const id = parseInt($state.params["id"], 10);
+    constructor(
+        private $state: angular.ui.IStateService,
+        private artifactManager: IArtifactManager,
+        private messageService: IMessageService,
+        private localization: ILocalizationService,
+        private navigationService: INavigationService,
+        private itemInfoService: IItemInfoService,
+        private statefulArtifactFactory: IStatefulArtifactFactory
+    ) {
+        const id: number = parseInt($state.params["id"], 10);
+        const version: number = parseInt($state.params["version"], 10);
 
         if (_.isFinite(id)) {
             this.clearLockedMessages();
 
             const artifact = artifactManager.get(id);
-            if (artifact && !artifact.artifactState.deleted) {
+
+            if (artifact && !artifact.artifactState.deleted && !version) {
                 artifact.unload();
                 this.navigateToSubRoute(artifact);
             } else {
-                this.getItemInfo(id);
+                this.getItemInfo(id, version);
             }
         }
     }
 
-    private getItemInfo(id: number) {
+    private getItemInfo(id: number, version: number) {
         this.itemInfoService.get(id).then((result: IItemInfoResult) => {
 
             if (this.itemInfoService.isSubArtifact(result)) {
@@ -70,16 +73,20 @@ export class ItemStateController {
                     lockedDateTime: result.lockedDateTime,
                     permissions: result.permissions
                 };
+
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(artifact);
+
                 if (result.isDeleted) {
                     statefulArtifact.artifactState.deleted = true;
                     statefulArtifact.artifactState.historical = true;
                     const localizedDate = this.localization.current.formatShortDateTime(result.deletedDateTime);
                     const deletedMessage = `Read Only: Deleted by user '${result.deletedByUser.displayName}' on '${localizedDate}'`;
                     this.messageService.addMessage(new Message(MessageType.Lock, deletedMessage));
+                } else if (version <= result.versionCount) {
+                    statefulArtifact.artifactState.historical = true;
                 }
-                this.navigateToSubRoute(statefulArtifact);
 
+                this.navigateToSubRoute(statefulArtifact);
             } else {
                 this.messageService.addError("This artifact type cannot be opened directly using the Go To feature.");
             }

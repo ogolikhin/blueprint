@@ -52,7 +52,7 @@ export class ItemStateController {
 
             if (this.itemInfoService.isSubArtifact(result)) {
                 // navigate to subartifact's artifact
-                this.navigationService.navigateTo(result.id, true);
+                this.navigationService.navigateTo({ id: result.id, redirect: true });
 
             } else if (this.itemInfoService.isProject(result)) {
                 // TODO: implement project navigation in the future US

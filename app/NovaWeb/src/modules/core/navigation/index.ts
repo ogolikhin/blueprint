@@ -11,5 +11,6 @@ export {
 } from "./navigation-state";
 
 export {
-    INavigationService
+    INavigationService,
+    INavigationOptions
 } from "./navigation.svc";

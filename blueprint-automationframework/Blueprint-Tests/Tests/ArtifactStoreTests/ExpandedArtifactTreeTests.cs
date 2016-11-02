@@ -32,9 +32,6 @@ namespace ArtifactStoreTests
         private IUser _user = null;
         private IProject _project = null;
 
-        private IProjectRole _viewerRole = null;
-        private IProjectRole _noneRole = null;
-
         #region Setup and Teardown
 
         [SetUp]
@@ -43,16 +40,12 @@ namespace ArtifactStoreTests
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
-
-            _viewerRole = ProjectRoleFactory.CreateProjectRole(_project, RolePermissions.Read);
-            _noneRole = ProjectRoleFactory.CreateProjectRole(_project, RolePermissions.None);
         }
 
         [TearDown]
         public void TearDown()
         {
             Helper?.Dispose();
-            _noneRole.DeleteRole();
         }
 
         #endregion Setup and Teardown
@@ -84,12 +77,14 @@ namespace ArtifactStoreTests
             // Create some other top-level artifacts not part of the chain.
             var otherTopLevelArtifacts = new List<IArtifact>();
             otherTopLevelArtifacts.Add(Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor));
-            otherTopLevelArtifacts.Add(Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process));
+            otherTopLevelArtifacts.Add(Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process));
+
+            IUser viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute:
             List<INovaArtifact> artifacts = null;
 
-            Assert.DoesNotThrow(() => artifacts = Helper.ArtifactStore.GetExpandedArtifactTree(_user, _project, artifactChain.Last().Id),
+            Assert.DoesNotThrow(() => artifacts = Helper.ArtifactStore.GetExpandedArtifactTree(viewerUser, _project, artifactChain.Last().Id),
                 "'GET {0}' should return 200 OK when passed valid parameters!", REST_PATH);
 
             // Verify:
@@ -119,11 +114,12 @@ namespace ArtifactStoreTests
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
             // Setup:
-            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
+            var artifactChain = Helper.CreateSavedArtifactChain(_project, _user, artifactTypeChain);
 
             // Create some other top-level artifacts not part of the chain.
-            Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            var otherTopLevelArtifacts = new List<IArtifact>();
+            otherTopLevelArtifacts.Add(Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor));
+            otherTopLevelArtifacts.Add(Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process));
 
             // Execute:
             List<INovaArtifact> artifacts = null;
@@ -133,6 +129,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             VerifyArtifactTree(artifactChain, artifacts);
+            VerifyOtherTopLevelArtifactsExist(otherTopLevelArtifacts, artifacts);
         }
 
         [TestCase(1, BaseArtifactType.Actor, BaseArtifactType.Actor, BaseArtifactType.Actor)]
@@ -157,11 +154,12 @@ namespace ArtifactStoreTests
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
             // Setup:
-            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
+            var artifactChain = Helper.CreateSavedArtifactChain(_project, _user, artifactTypeChain);
 
             // Create some other top-level artifacts not part of the chain.
-            Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            var otherTopLevelArtifacts = new List<IArtifact>();
+            otherTopLevelArtifacts.Add(Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor));
+            otherTopLevelArtifacts.Add(Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process));
 
             // Execute:
             List<INovaArtifact> artifacts = null;
@@ -171,6 +169,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             VerifyArtifactTree(artifactChain, artifacts, artifactIndex);
+            VerifyOtherTopLevelArtifactsExist(otherTopLevelArtifacts, artifacts);
         }
 
         [TestCase(false, 2, BaseArtifactType.Actor, BaseArtifactType.BusinessProcess, BaseArtifactType.Document, BaseArtifactType.DomainDiagram, BaseArtifactType.GenericDiagram)]
@@ -187,11 +186,12 @@ namespace ArtifactStoreTests
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
             // Setup:
-            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
+            var artifactChain = Helper.CreateSavedArtifactChain(_project, _user, artifactTypeChain);
 
             // Create some other top-level artifacts not part of the chain.
-            Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            var otherTopLevelArtifacts = new List<IArtifact>();
+            otherTopLevelArtifacts.Add(Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor));
+            otherTopLevelArtifacts.Add(Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process));
 
             // Execute:
             List<INovaArtifact> artifacts = null;
@@ -207,6 +207,7 @@ namespace ArtifactStoreTests
             }
 
             VerifyArtifactTree(artifactChain, artifacts, artifactIndex);
+            VerifyOtherTopLevelArtifactsExist(otherTopLevelArtifacts, artifacts);
         }
 
         [TestCase(BaseArtifactType.Actor, true)]
@@ -470,8 +471,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
-            IUser userWithoutPermission = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
-                InstanceAdminRole.BlueprintAnalytics);
+            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(userWithoutPermission, _project, artifact.Id),
@@ -501,14 +501,8 @@ namespace ArtifactStoreTests
             otherTopLevelArtifacts.Add(Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process));
 
             // Create a user without permission to the artifact.
-            IUser userWithoutPermission = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
-            IGroup viewersGroup = Helper.CreateGroupAndAddToDatabase();
-
-            viewersGroup.AddUser(userWithoutPermission);
-            viewersGroup.AssignRoleToProjectOrArtifact(_project, role: _viewerRole);
-            // XXX: Next line fails with:  The INSERT statement conflicted with the FOREIGN KEY constraint "FK_RoleRoleAssignments". The conflict occurred in database "Blueprint", table "dbo.Roles", column 'RoleId'.
-            viewersGroup.AssignRoleToProjectOrArtifact(_project, _noneRole, artifactChain[artifactIndex]);
-            Helper.AdminStore.AddSession(userWithoutPermission);
+            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            Helper.AssignProjectRolePermissionsToUser(userWithoutPermission, TestHelper.ProjectRole.None, _project, artifactChain[artifactIndex]);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(userWithoutPermission, _project, artifactChain.Last().Id),

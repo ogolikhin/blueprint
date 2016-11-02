@@ -2,35 +2,36 @@
       class="full-height quick-serach__form"
       ng-submit="quickSearch.openModal()"
       novalidate>
-    <div class="quick-serach__form-control" ng-class="{'has-error':quickSearch.hasError()}">   
+    <div class="quick-serach__form-control" ng-class="{'has-error':quickSearch.hasError()}">
         <div class="input-group">
             <span class="input-group-btn">
                 <button class="btn btn-default quick-search__btn"
-                        type="submit"               
+                        type="submit"
                         ng-disabled="quickSearch.quickSearchService.canSearch()">
                     <i class="glyphicon glyphicon-search quick-search__icon--fixed"></i>
                 </button>
             </span>
             <input type="text"
-                ng-model-options="{ updateOn: 'blur' }"   
-                ng-keypress="quickSearch.onKeyPress($event)"     
-                ng-keydown="quickSearch.onKeyDown($event)"
-                required
-                ng-minlength="3"
-                ng-disabled="quickSearch.quickSearchService.canSearch()"
-                autocomplete="off"
-                placeholder="Search open project"
-                class="quick-serach__input"
-                name="searchTerm"
-                ng-model="quickSearch.quickSearchService.searchTerm">
-        <div>
-        <div class="error-messages"
-             ng-messages="quickSearch.form.$error"
-             role="alert"
-             ng-if="quickSearch.form.$submitted">
-            <span ng-message="minlength">{{quickSearch.localization.get('Search_Validation_MinimumLength')}}</span>
-        </div>
-    </div>
+                   ng-model-options="{ updateOn: 'blur' }"
+                   ng-keypress="quickSearch.onKeyPress($event)"
+                   ng-keydown="quickSearch.onKeyDown($event)"
+                   required
+                   ng-minlength="3"
+                   ng-disabled="quickSearch.quickSearchService.canSearch()"
+                   autocomplete="off"
+                   placeholder="Search open project"
+                   class="quick-serach__input input__bottom-border"
+                   name="searchTerm"
+                   ng-model="quickSearch.quickSearchService.searchTerm">
+            <div>
+                <div class="error-messages"
+                     ng-messages="quickSearch.form.$error"
+                     role="alert"
+                     ng-if="quickSearch.form.$submitted">
+                    <span
+                        ng-message="minlength">{{quickSearch.localization.get('Search_Validation_MinimumLength')}}</span>
+                </div>
+            </div>
 
 
 </form>

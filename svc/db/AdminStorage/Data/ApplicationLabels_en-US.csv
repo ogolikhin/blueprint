@@ -416,6 +416,7 @@ ag-Grid_noRowsToShow,"Empty"
 
 # Search
 Search_Validation_MinThreeChars, "At least 3 characters."
+Search_Validation_Required, "Required search term."
 Search_Results_Author, "Author"
 Search_Results_CreatedOn, "Created On:"
 Search_Results_LastEdited, "Last Edited:"

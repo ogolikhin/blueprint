@@ -96,13 +96,16 @@ $quick-search__item--focus-color: #E8F6FB;
     }
 }
 
-.quick-serach__icon--fixed {
+.quick-search__icon--fixed {
     color: $gray-dark;
-    position: absolute;
-    left: 0;
-    top: 6px
 }
-
+.quick-search__btn {
+    position: absolute;
+    left: -5px;
+    top: 3px;
+    border: 0;
+    background: transparent;
+}
 .block {
     display: block;
 }

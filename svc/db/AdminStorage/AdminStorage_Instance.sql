@@ -1305,6 +1305,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_US_Generate_Fro
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_US_Generate_Generic_Failure_Message', 'en-US', N'User stories cannot be generated.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_US_Generate_LockedByOtherUser_Failure_Message', 'en-US', N'User stories cannot be generated. This artifact is now locked because another user has started editing it. Please refresh the artifact.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ag-Grid_noRowsToShow', 'en-US', N'Empty')
+
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Validation_Required', 'en-US', N'Required search term.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Validation_MinThreeChars', 'en-US', N'At least 3 characters.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Results_Author', 'en-US', N'Author')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Results_CreatedOn', 'en-US', N'Created On:')

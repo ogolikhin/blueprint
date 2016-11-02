@@ -1,3 +1,4 @@
+import {ILocalizationService} from "../../../core/";
 import * as SearchModels from "./models/model";
 
 export class QuickSearchModalController {
@@ -9,7 +10,8 @@ export class QuickSearchModalController {
         "$rootScope",
         "quickSearchService",
         "$log",
-        "$uibModalInstance"
+        "$uibModalInstance",
+        "localization"
     ];
 
     private stateChangeStartListener: Function;
@@ -17,7 +19,8 @@ export class QuickSearchModalController {
     constructor(private $rootScope: ng.IRootScopeService,
                 private quickSearchService,
                 private $log: ng.ILogService,
-                private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance) {
+                private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
+                private localization: ILocalizationService) {
         this.searchTerm = _.clone(this.quickSearchService.searchTerm);
         this.isLoading = true;
     }

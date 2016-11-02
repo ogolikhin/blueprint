@@ -6,6 +6,7 @@ export interface INavigationService {
     navigateToMain(redirect?: boolean): ng.IPromise<any>;
     navigateTo(id: number, redirect?: boolean, enableTracking?: boolean): ng.IPromise<any>;
     navigateBack(pathIndex?: number): ng.IPromise<any>;
+    reloadParentState();
 }
 
 export class NavigationService implements INavigationService {
@@ -18,6 +19,16 @@ export class NavigationService implements INavigationService {
 
     constructor(private $q: ng.IQService,
                 private $state: ng.ui.IStateService) {
+    }
+
+    public reloadParentState() {
+        const immediateParentState = this.$state.$current["parent"];
+        if (immediateParentState) {
+            // <any> due to lack of updated types definition
+            (<any>this.$state).reload(immediateParentState.name);
+        } else {
+            this.$state.reload();
+        }
     }
 
     public getNavigationState(): INavigationState {

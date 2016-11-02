@@ -20,11 +20,12 @@
 
             <div class="properties" ng-if="$ctrl.collection.isCreated">
                 <div class="collection__heading clearfix">
-                    <div class="pull-left">
-                        <i class="fonticon2-rapid-review"></i> {{::$ctrl.collection.reviewName}} <a ng-href="">{{::$ctrl.reviewUrl}}</a>
+                    <div class="collection__heading__review__name">
+                        <i class="icon fonticon2-rapid-review"></i> {{::$ctrl.collection.reviewName}} <a ng-href="{{::$ctrl.reviewUrl}}"
+                             class="collection__heading__link collection__heading__link__review">{{::$ctrl.reviewUrl}}</a>
                     </div>
-                    <div class="pull-right text-right">
-                        <a ng-href="">{{::$ctrl.localization.get('Artifact_Collection_Edit_Rapid_Review')}}</a>
+                    <div class="collection__heading__review__edit text-right">
+                        <a ng-href="" class="collection__heading__link">{{::$ctrl.localization.get('Artifact_Collection_Edit_Rapid_Review')}}</a>
                     </div>
                 </div>
             </div>
@@ -39,10 +40,10 @@
                     <bp-tree-view
                           grid-class="project-tree collections-list"
                           selection-mode="'checkbox'"
-                          row-height="45"
+                          row-height="53"
                           root-node="$ctrl.rootNode"
                           columns="$ctrl.columns"
-                          header-height="20"
+                          header-height="30"
                           size-columns-to-fit="'true'"
                           on-select="$ctrl.onSelect(vm, isSelected)">
                 </div>

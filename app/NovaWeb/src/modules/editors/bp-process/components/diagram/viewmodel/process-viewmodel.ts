@@ -417,7 +417,7 @@ export class ProcessViewModel implements IProcessViewModel {
         // get configuration settings from rootscope configuration object
         // and assign to viewmodel properties
         if (this.isRootScopeConfigValid) {
-            let shapeLimitVal = this._rootScope.config.settings.ProcessShapeLimit;
+            let shapeLimitVal = this._rootScope.config.settings.StorytellerShapeLimit;
             if ((parseInt(shapeLimitVal, 10) || 0) > 0) {
                 this.shapeLimit = Number(shapeLimitVal);
             } else {

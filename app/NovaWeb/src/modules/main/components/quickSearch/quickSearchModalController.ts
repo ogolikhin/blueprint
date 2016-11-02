@@ -1,3 +1,6 @@
+import {ILocalizationService} from "../../../core/";
+import * as SearchModels from "./models/model";
+
 export class QuickSearchModalController {
     searchTerm: string;
     form: ng.IFormController;
@@ -7,7 +10,8 @@ export class QuickSearchModalController {
         "$rootScope",
         "quickSearchService",
         "$log",
-        "$uibModalInstance"
+        "$uibModalInstance",
+        "localization"
     ];
 
     private stateChangeStartListener: Function;
@@ -15,7 +19,8 @@ export class QuickSearchModalController {
     constructor(private $rootScope: ng.IRootScopeService,
                 private quickSearchService,
                 private $log: ng.ILogService,
-                private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance) {
+                private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
+                private localization: ILocalizationService) {
         this.searchTerm = _.clone(this.quickSearchService.searchTerm);
         this.isLoading = true;
     }
@@ -28,14 +33,22 @@ export class QuickSearchModalController {
         this.isLoading = true;
         this.quickSearchService.searchTerm = _.clone(this.searchTerm);
 
-        this.quickSearchService.search(term).then((results) => {
+        this.quickSearchService.search(term).then((results: SearchModels.ISearchResult) => {
             //assign the results and display
             //if results are greater than one
             this.results = results.items;
             this.isLoading = false;
         });
     }    
-
+    clearSearch() {
+        this.searchTerm = "";
+        this.quickSearchService.searchTerm = "";
+        this.form.$setPristine();
+        this.results = [];
+    }
+    get showHide() {
+        return this.searchTerm || this.form.$dirty;
+    }
     hasError() {
         return this.form.$submitted &&
             this.form.$invalid;

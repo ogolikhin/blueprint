@@ -31,23 +31,6 @@ export class Helper {
         return "";
     }
 
-    static toDashCase(token: string): string {
-        token = token.replace(/(\B[A-Z][a-z]+)/g, function (match) {
-            return "-" + match.toLowerCase();
-        });
-        return token.toLowerCase();
-    };
-
-    static toCamelCase(token: string): string {
-        token = token.replace(/[\-_\s]+(.)?/g, function (match, chr) {
-            return chr ? chr.toUpperCase() : "";
-        });
-        // Ensure 1st char is always lowercase
-        return token.replace(/^([A-Z])/, function (match, chr) {
-            return chr ? chr.toLowerCase() : "";
-        });
-    };
-
     static stripHTMLTags = (stringToSanitize: string): string => {
         const stringSanitizer = window.document.createElement("DIV");
         stringSanitizer.innerHTML = stringToSanitize;
@@ -67,6 +50,18 @@ export class Helper {
         }
 
         return el;
+    };
+
+    static isIE11 = (): boolean => {
+        /* references:
+         * https://blogs.msdn.microsoft.com/ieinternals/2013/09/21/internet-explorer-11s-many-user-agent-strings/
+         */
+        let _isIE11 = false;
+        if (window && window.navigator) {
+            const ua = window.navigator.userAgent;
+            _isIE11 = !!(ua.match(/Trident/) && ua.match(/rv[ :]11/)) && !ua.match(/edge/i);
+        }
+        return _isIE11;
     };
 
     static stringifySafe = (obj, replacer?, spaces?, cycleReplacer?): any => {

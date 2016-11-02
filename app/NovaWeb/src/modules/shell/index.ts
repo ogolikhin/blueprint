@@ -34,10 +34,12 @@ import {AppRoutes} from "./app.router";
 import {UsersAndGroupsService} from "../core/services/users-and-groups.svc";
 import {MentionService} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/mention.svc";
 import "../shared/filters";
+import {ILicenseService, LicenseService} from "./license/license.svc";
 
 export {IUser, ISession, RelationshipDetailsService, IRelationshipDetailsService}
 export {IServerLogger} from "./log/server-logger.svc";
 export {IMessageService, IMessage, MessageType, MessageService, Message} from "../core";
+export {ILicenseService, LicenseService} from "./license/license.svc";
 
 angular.module("app.shell",
     [
@@ -58,6 +60,7 @@ angular.module("app.shell",
     .service("artifactDiscussions", ArtifactDiscussions)
     .service("mentionService", MentionService)
     .service("usersAndGroupsService", UsersAndGroupsService)
+    .service("licenseService", LicenseService)
     .component("bpUtilityPanel", new BPUtilityPanel())
     .component("bpHistoryPanel", new BPHistoryPanel())
     .component("bpPropertiesPanel", new BPPropertiesPanel())

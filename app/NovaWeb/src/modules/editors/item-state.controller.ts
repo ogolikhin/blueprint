@@ -84,7 +84,7 @@ export class ItemStateController {
                 this.messageService.addError("This artifact type cannot be opened directly using the Go To feature.");
             }
         }).catch(error => {
-            this.navigationService.navigateToMain();
+            this.navigationService.navigateToMain(true);
             // Forbidden and ServerError responces are handled in http-error-interceptor.ts
             if (error.statusCode === HttpStatusCode.NotFound) {
                 this.messageService.addError("HttpError_NotFound");
@@ -154,15 +154,8 @@ export class ItemStateController {
 
     private onArtifactError = (error: IApplicationError) => {
         if (error.statusCode === HttpStatusCode.NotFound) {
-            const artifact = this.artifactManager.selection.getArtifact();
+            this.navigationService.reloadParentState();
             
-            const immediateParentState = this.$state.$current["parent"];
-            if (immediateParentState) {
-                // <any> due to lack of updated types definition
-                (<any>this.$state).reload(immediateParentState.name);
-            } else {
-                this.$state.reload();
-            }
         } else if (error.statusCode === HttpStatusCode.Forbidden || 
             error.statusCode === HttpStatusCode.ServerError ||
             error.statusCode === HttpStatusCode.Unauthorized

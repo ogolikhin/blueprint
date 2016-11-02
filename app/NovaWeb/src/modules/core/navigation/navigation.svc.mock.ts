@@ -8,11 +8,15 @@ export class NavigationServiceMock implements INavigationService {
     constructor(private $q: ng.IQService) {
     }
 
+    public reloadParentState() {
+        ;
+    }
+
     public getNavigationState(): INavigationState {
         return null;
     }
 
-    public navigateToMain(): ng.IPromise<any> {
+    public navigateToMain(redirect?: boolean): ng.IPromise<any> {
         let deferred = this.$q.defer();
         deferred.resolve();
 

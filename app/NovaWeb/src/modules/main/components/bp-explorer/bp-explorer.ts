@@ -61,7 +61,7 @@ export class ProjectExplorerController {
     private setSelectedNode(artifact: IStatefulArtifact) {
         if (this.tree.nodeExists(artifact.id)) {
             this.tree.selectNode(artifact.id);
-        } else {		
+        } else {
             this.tree.clearSelection();
         }
     }
@@ -110,7 +110,7 @@ export class ProjectExplorerController {
                 typeName = Models.ItemTypePredefined[params.data.predefinedType];
             }
             if (typeName) {
-                css.push("is-" + Helper.toDashCase(typeName));
+                css.push("is-" + _.kebabCase(typeName));
             }
             return css;
         },
@@ -144,17 +144,19 @@ export class ProjectExplorerController {
 
             this.tree.reload(projects);
 
+            let currentSelection = this.selected ? this.selected.id : undefined;
+            let navigateToId: number;
             if (projects && projects.length > 0) {
                 if (!this.selected || this.numberOfProjectsOnLastLoad !== projects.length) {
                     this.selected = projects[0];
-                    this.navigationService.navigateTo(this.selected.id);
+                    navigateToId = this.selected.id;
                 }
 
-                //if node exists in the tree
                 if (this.tree.nodeExists(this.selected.id)) {
+                    //if node exists in the tree
                     if (this.isFullReLoad || this.selected.id !== this.tree.getSelectedNodeId) {
                         this.tree.selectNode(this.selected.id);
-                        this.navigationService.navigateTo(this.selected.id);
+                        navigateToId = this.selected.id;
                     }
                     this.isFullReLoad = true;
 
@@ -167,7 +169,7 @@ export class ProjectExplorerController {
                     //otherwise, if parent node is in the tree
                     if (this.selected.parentNode && this.tree.nodeExists(this.selected.parentNode.id)) {
                         this.tree.selectNode(this.selected.parentNode.id);
-                        this.navigationService.navigateTo(this.selected.parentNode.id);
+                        navigateToId = this.selected.parentNode.id;
 
                         //replace with a new object from tree, since the selected object may be stale after refresh
                         let selectedObjectInTree: IArtifactNode = <IArtifactNode>this.tree.getNodeData(this.selected.parentNode.id);
@@ -178,24 +180,36 @@ export class ProjectExplorerController {
                         //otherwise, try with project node
                         if (this.tree.nodeExists(this.selected.projectId)) {
                             this.tree.selectNode(this.selected.projectId);
-                            this.navigationService.navigateTo(this.selected.projectId);
-                        } else {
-                            //if project node fails too - give up
-                            this.navigationService.navigateToMain();
+                            navigateToId = this.selected.projectId;
                         }
                     }
+                }
+            }
+            
+            this.numberOfProjectsOnLastLoad = projects.length;
+
+            if (_.isFinite(navigateToId)) {
+                if (navigateToId !== currentSelection) {
+                    this.navigationService.navigateTo(navigateToId);
+
+                } else if (navigateToId === currentSelection) {
+                    this.navigationService.reloadParentState();
                 }
             } else {
                 this.navigationService.navigateToMain();
             }
-            this.numberOfProjectsOnLastLoad = projects.length;
         }
     };
 
     public onSelectedArtifactChange = (artifact: IStatefulArtifact) => {
-        //If the artifact's name changes (on refresh), we reload the project so the change is reflected in the explorer.
-        if (artifact.name !== this.selectedArtifactNameBeforeChange) {
-            this.onLoadProject(this.projectManager.projectCollection.getValue());
+        //If the artifact's name changes (on refresh), we refresh specific node only .
+        //To prevent update treenode name while editing the artifact details, use it only for clean artifact. 
+        if (artifact.name !== this.selectedArtifactNameBeforeChange && !artifact.artifactState.dirty) {
+            let node = this.tree.getNodeData(artifact.id) as IArtifactNode;
+            if (node) {
+                node.name = artifact.name;
+                this.tree.refresh(node.id);
+            }
         }
     };
 

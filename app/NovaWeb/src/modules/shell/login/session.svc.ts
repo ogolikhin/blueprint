@@ -9,7 +9,7 @@ export interface ISession {
     ensureAuthenticated(): ng.IPromise<any>;
 
     currentUser: IUser;
-    
+
     logout(): ng.IPromise<any>;
 
     login(username: string, password: string, overrideSession: boolean): ng.IPromise<any>;
@@ -21,7 +21,7 @@ export interface ISession {
     onExpired(): ng.IPromise<any>;
 
     getLoginMessage(): string;
-    
+
     forceUsername(): string;
 }
 

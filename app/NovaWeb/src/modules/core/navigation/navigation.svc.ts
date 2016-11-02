@@ -3,9 +3,10 @@ import {INavigationState} from "./navigation-state";
 
 export interface INavigationService {
     getNavigationState(): INavigationState;
-    navigateToMain(): ng.IPromise<any>;
+    navigateToMain(redirect?: boolean): ng.IPromise<any>;
     navigateTo(id: number, redirect?: boolean, enableTracking?: boolean): ng.IPromise<any>;
     navigateBack(pathIndex?: number): ng.IPromise<any>;
+    reloadParentState();
 }
 
 export class NavigationService implements INavigationService {
@@ -18,6 +19,16 @@ export class NavigationService implements INavigationService {
 
     constructor(private $q: ng.IQService,
                 private $state: ng.ui.IStateService) {
+    }
+
+    public reloadParentState() {
+        const immediateParentState = this.$state.$current["parent"];
+        if (immediateParentState) {
+            // <any> due to lack of updated types definition
+            (<any>this.$state).reload(immediateParentState.name);
+        } else {
+            this.$state.reload();
+        }
     }
 
     public getNavigationState(): INavigationState {
@@ -33,9 +44,13 @@ export class NavigationService implements INavigationService {
         };
     }
 
-    public navigateToMain(): ng.IPromise<any> {
+    public navigateToMain(redirect: boolean = false): ng.IPromise<any> {
         const state: string = "main";
-        return this.$state.go(state);
+        const stateOptions: ng.ui.IStateOptions = {
+            location: redirect ? "replace" : true
+        };
+
+        return this.$state.go(state, {}, stateOptions);
     }
 
     public navigateTo(id: number, redirect: boolean = false, enableTracking: boolean = false): ng.IPromise<any> {

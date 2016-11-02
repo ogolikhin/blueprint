@@ -3,23 +3,37 @@
       ng-submit="quickSearch.openModal()"
       novalidate>
     <div class="quick-serach__form-control" ng-class="{'has-error':quickSearch.hasError()}">
-        <input type="text"
-               required
-               ng-minlength="3"
-               ng-disabled="quickSearch.quickSearchService.canSearch()"
-               autocomplete="off"
-               placeholder="Search open project"
-               class="quick-serach__input"
-               name="searchTerm"
-               ng-model="quickSearch.quickSearchService.searchTerm">
-        <i class="glyphicon glyphicon-search quick-serach__icon--fixed"></i>
+        <div class="input-group input-group--short-width" >
+            <span class="input-group-btn input-group-btn__icon">
+                <button class="btn btn-default btn__icon"
+                        type="submit"               
+                        ng-disabled="quickSearch.quickSearchService.canSearch()">
+                    <i class="glyphicon glyphicon-search quick-search__icon--fixed"></i>
+                </button>
+            </span>
+            <input type="text" 
+                ng-keypress="quickSearch.onKeyPress($event)"     
+                ng-keydown="quickSearch.onKeyDown($event)"
+                required
+                ng-minlength="3"
+                ng-disabled="quickSearch.quickSearchService.canSearch()"
+                autocomplete="off"
+                placeholder="Search open project"
+                class="quick-serach__input"
+                name="searchTerm"
+                ng-model="quickSearch.quickSearchService.searchTerm">
+            <button type="button" 
+                    class="btn btn-default btn__icon btn--absolute-right" 
+                    ng-if="quickSearch.showHide" 
+                    ng-click="quickSearch.clearSearch()">
+                <i class="fonticon-error fonticon-gray"></i>
+            </button>
+        <div>
         <div class="error-messages"
              ng-messages="quickSearch.form.$error"
              role="alert"
              ng-if="quickSearch.form.$submitted">
-            <span ng-message="minlength">At least 3 characters.</span>
+            <span ng-message="minlength">{{::$root.config.labels["Search_Validation_MinThreeChars"]}}</span>
         </div>
     </div>
-
-
 </form>

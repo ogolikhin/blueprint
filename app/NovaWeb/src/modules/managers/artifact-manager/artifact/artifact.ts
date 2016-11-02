@@ -60,10 +60,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     protected get subject(): Rx.BehaviorSubject<IStatefulArtifact> {
         if (!this._subject) {
-            this._subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);            
-        }    
+            this._subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
+        }
         return this._subject;
-    } 
+    }
 
     public initialize(artifact: Models.IArtifact): IState {
         if (this.parentId && this.orderIndex &&
@@ -103,13 +103,13 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     protected notifySubscribers() {
         this.subject.onNext(this);
-    } 
+    }
 
     public discard() {
         super.discard();
         this.artifactState.dirty = false;
     }
-
+    
     public discardArtifact(): ng.IPromise<void> {
         let deffered = this.services.getDeferred<void>();
 
@@ -233,11 +233,11 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         // null values get filtered out before it gets to the observer
         this.subject.onNext(null);
     }
-    
+
     private isProject(): boolean {
         return this.itemTypeId === Enums.ItemTypePredefined.Project;
     }
-    
+
     public lock(): ng.IPromise<IStatefulArtifact> {
         if (this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
             return;
@@ -337,7 +337,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             }
         });
     }
-     
+
     public save(): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         const saveCustomArtifact = this.getCustomArtifactPromisesForSave();
@@ -367,7 +367,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 .catch((error) => {
                     deferred.reject(error);
                 });
-        } 
+        }
 
         return deferred.promise;
     }
@@ -541,7 +541,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         if (allowCustomRefresh) {
             // get promises for custom artifact refresh operations
-            promisesToExecute.push.apply(promisesToExecute, this.getCustomArtifactPromisesForRefresh());
+            // this operation merges two arrays
+            Array.prototype.push.apply(promisesToExecute, this.getCustomArtifactPromisesForRefresh());
         }
 
         this.getServices().$q.all(promisesToExecute)
@@ -559,8 +560,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             });
 
         return deferred.promise;
-    } 
-    
+    }
+
     //Hook for subclasses to provide additional promises which should be run for obtaining data
     protected getCustomArtifactPromisesForGetObservable(): ng.IPromise<IStatefulArtifact>[] {
         return [];

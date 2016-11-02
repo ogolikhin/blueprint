@@ -72,8 +72,7 @@ export class BPLocale {
 
 
     public toNumber(value: string | number, fraction?: number): number {
-
-        if (angular.isNumber(value)) {
+        if (_.isNumber(value)) {
             return value;
         }
 
@@ -81,7 +80,7 @@ export class BPLocale {
         let ds = this.decimalSeparator === "." ? "\\." : ",";
         let expression = "^-?(?!0" + ts + ")(\\d{1,3}(" + ts + "\\d{3})*|\\d+)";
 
-        if (angular.isNumber(fraction)) {
+        if (_.isNumber(fraction)) {
             if (fraction > 0) {
                 expression += "(" + ds + "\\d{1," + fraction.toString() + "})?";
             }
@@ -109,8 +108,8 @@ export class BPLocale {
 
     public formatNumber(value: number | string, decimals?: number, groups?: boolean) {
         let options: Intl.NumberFormatOptions = {};
-        if (angular.isNumber(value)) {
-            if (angular.isNumber(decimals)) {
+        if (_.isNumber(value)) {
+            if (_.isNumber(decimals)) {
                 options.minimumFractionDigits = 0;
                 options.maximumFractionDigits = decimals;
             }
@@ -124,7 +123,7 @@ export class BPLocale {
     }
 
     public toDate(value: string | Date, reset?: boolean): Date {
-        if (value) {
+        if (value && (_.isDate(value) || (_.isString(value) && value.length > 1))) {
             let d = moment(value);
             if (d.isValid()) {
                 if (reset === true) {

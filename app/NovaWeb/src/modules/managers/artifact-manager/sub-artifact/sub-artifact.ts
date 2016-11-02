@@ -70,6 +70,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
         }
         return this.subject.filter(it => !!it).asObservable();
     }
+
     public changes(): Models.ISubArtifact {
         const traces = this.relationships.changes();
         const attachmentValues = this.attachments.changes();
@@ -96,6 +97,10 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
 
     public lock(): ng.IPromise<IStatefulArtifact> {
         return this.parentArtifact.lock();
+    }
+
+    public getEffectiveVersion(): number {
+        return this.artifactState.historical ? this.parentArtifact.version : undefined;
     }
 
     protected getAttachmentsDocRefsInternal(): ng.IPromise<IArtifactAttachmentsResultSet> {

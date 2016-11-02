@@ -57,6 +57,7 @@ module.exports = {
         historyApiFallback: true
     },
     plugins: [
+        // fixme: this will load only EN local, thus breaking our localization code
         new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
         new HtmlWebpackPlugin({
             template: './index.html',

@@ -75,6 +75,7 @@ export interface IBPTreeController {
     showLoading();
     showNoRows();
     hideOverlays();
+    refresh(id?: number);
 }
 
 export class BPTreeController implements IBPTreeController {
@@ -452,4 +453,17 @@ export class BPTreeController implements IBPTreeController {
             this.onRowPostCreate({prms: params});
         }
     };
+    public refresh = (id?: number) => {
+        if (id) {
+            let nodes = [];
+            this.options.api.getModel().forEachNode(function (node) {
+                if (node.data.id === id) {
+                    nodes.push(node);
+                }
+            });
+            this.options.api.refreshRows(nodes);
+        } else {
+            this.options.api.refreshView();
+        }
+    }    
 }

@@ -205,7 +205,6 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(1836044)]
-        [Explicit(IgnoreReasons.ProductBug)] //https://trello.com/c/aPfjGHLs does't allow to create trace from artfact to subartifact
         [Description("Add trace between Artifact and SubArtifact, check that trace has expected direction.")]
         public void AddTrace_ArtifactSubArtifact_TraceHasExpectedValue()
         {
@@ -377,8 +376,8 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(185206)]//now it returns 409. by deisgn?
-        [Description("Create trace between artifact and deleted artifact, trace shouldn't be created.")]
-        public void AddTrace_BetweenArtifactAndDeletedArtifact_NoTraceCreated()
+        [Description("Create trace between artifact and deleted artifact, trace shouldn't be created and a 409 Conflict should be returned.")]
+        public void AddTrace_BetweenArtifactAndDeletedArtifact_Returns409()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
@@ -495,10 +494,9 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.ProductBug)]//https://trello.com/c/EcIJ5qsM message should be updated
         [TestRail(185255)]
-        [Description("Try to create trace, user has no Edit permission for trace target, check 403 exception.")]
-        public void AddTrace_UserHasNoEditPermissionForArtifact_Returns403()
+        [Description("Try to create trace, user has no Edit permission for trace target, check 409 exception.")]
+        public void AddTrace_UserHasNoEditPermissionForArtifact_Returns409()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
@@ -508,15 +506,15 @@ namespace ArtifactStoreTests
                 targetArtifact);
 
             IServiceErrorMessage traceToItselfMessage = new ServiceErrorMessage(
-                "Cannot perform save, the artifact provided is attempting to override a property made readonly by reuse.",
-                InternalApiErrorCodes.Forbidden);
+                "Cannot perform save, the artifact provided is attempting to override a read-only property.",
+                InternalApiErrorCodes.CannotSaveDueToReuseReadOnly);
 
             // Execute:
-            Assert.Throws<Http403ForbiddenException>(() => {
+            Assert.Throws<Http409ConflictException>(() => {
                 ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
                     traceDirection: TraceDirection.From, changeType: ArtifactUpdateChangeType.Add,
                     artifactStore: Helper.ArtifactStore, expectedErrorMessage: traceToItselfMessage);
-            }, "Trace creation shouldn't throw any error.");
+            }, "Adding a trace when the user doesn't have Edit permission for the trace target should return 409 Conflict!");
 
             // Verify:
             Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
@@ -526,7 +524,6 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.ProductBug)]//https://trello.com/c/0uKqlnag message should be updated
         [TestRail(185245)]
         [Description("Try to create trace, user has no access for artifact he tries to update, check 409 exception.")]
         public void AddTrace_UserHasNoTracePermissionForTargetArtifacts_Returns409()
@@ -537,14 +534,16 @@ namespace ArtifactStoreTests
 
             Helper.AssignProjectRolePermissionsToUser(_authorUser, RolePermissions.Read, _projectTest, targetArtifact);
 
-            IServiceErrorMessage traceToItselfMessage = new ServiceErrorMessage("Should be updated?", InternalApiErrorCodes.Forbidden);
+            IServiceErrorMessage traceToItselfMessage = new ServiceErrorMessage(
+                "Cannot perform save, the artifact provided is attempting to override a read-only property.",
+                InternalApiErrorCodes.CannotSaveDueToReuseReadOnly);
 
             // Execute:
             Assert.Throws<Http409ConflictException>(() => {
                 ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
                     traceDirection: TraceDirection.From, changeType: ArtifactUpdateChangeType.Add,
                     artifactStore: Helper.ArtifactStore, expectedErrorMessage: traceToItselfMessage);
-            }, "Trace creation shouldn't throw any error.");
+            }, "Adding a trace with a user that has no access to the target artifact should return 409 Conflict!");
 
             // Verify:
             Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
@@ -560,23 +559,23 @@ namespace ArtifactStoreTests
         [TestCase(87)]//Collection
         [TestCase(5)]//'Baseline and Reviews' folder
         [Category(Categories.CustomData)]
-        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/jzr6xUb1
         [TestRail(185246)]
         [Description("Tries to create trace to Project/Collection/Collection Folder/Baseline Folder.")]
-        public void AddTrace_BetweenArtifactAndNonValidItem_ExceptionThrown(int nonValidItemId)
+        public void AddTrace_BetweenArtifactAndNonValidItem_Returns409(int nonValidItemId)
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
             IArtifact projectArtifact = ArtifactFactory.CreateArtifact(_projectTest, _adminUser, BaseArtifactType.Glossary, nonValidItemId);
 
             IServiceErrorMessage wrongArtifactTypeMessage = new ServiceErrorMessage(
-                "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.", InternalApiErrorCodes.CannotSaveOverDependencies);
+                "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.",
+                InternalApiErrorCodes.CannotSaveOverDependencies);
 
             // Execute:
             Assert.Throws<Http409ConflictException>(() => {
                 ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_adminUser, artifact, projectArtifact, traceDirection: TraceDirection.To, changeType: ArtifactUpdateChangeType.Add,
                     artifactStore: Helper.ArtifactStore, expectedErrorMessage: wrongArtifactTypeMessage);
-            }, "Trace creation shouldn't throw any error.");
+            }, "Adding a trace to an invalid (unsupported) artifact type should return 409 Conflict!");
 
             // Verify:
             Relationships relationships = Helper.ArtifactStore.GetRelationships(_adminUser, artifact, addDrafts: true);

@@ -22,6 +22,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     save(): ng.IPromise<IStatefulArtifact>;
     autosave(): ng.IPromise<IStatefulArtifact>;
     publish(): ng.IPromise<void>;
+    discardArtifact(): ng.IPromise<void>;
     refresh(allowCustomRefresh?: boolean): ng.IPromise<IStatefulArtifact>;
 
     getObservable(): Rx.Observable<IStatefulArtifact>;
@@ -108,7 +109,57 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         super.discard();
         this.artifactState.dirty = false;
     }
+    
+    public discardArtifact(): ng.IPromise<void> {
+        let deffered = this.services.getDeferred<void>();
 
+        this.services.publishService.discardArtifacts([this.id])
+        .then(() => {
+            this.services.messageService.addInfo("Discard_Success_Message");
+            this.refresh();
+            deffered.resolve();
+        })
+        .catch((err) => {
+            if (err && err.statusCode === HttpStatusCode.Conflict) {
+                this.discardDependents(err.errorContent);
+            } else {
+                this.services.messageService.addError(err);
+            }
+            deffered.reject();
+        });
+
+        return deffered.promise;
+    }
+
+    private discardDependents(dependents: Models.IPublishResultSet) {
+        this.services.dialogService.open(<IDialogSettings>{
+            okButton: this.services.localizationService.get("App_Button_Discard"),
+            cancelButton: this.services.localizationService.get("App_Button_Cancel"),
+            message: this.services.localizationService.get("Discard_Dependents_Dialog_Message"),
+            template: require("../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish.html"),
+            controller: ConfirmPublishController,
+            css: "nova-publish"
+        },
+        <IConfirmPublishDialogData>{
+            artifactList: dependents.artifacts,
+            projectList: dependents.projects,
+            selectedProject: this.projectId
+        })
+        .then(() => {
+            let discardOverlayId = this.services.loadingOverlayService.beginLoading();
+            this.services.publishService.discardArtifacts(dependents.artifacts.map((d: Models.IArtifact) => d.id ))
+            .then(() => {
+                this.services.messageService.addInfoWithPar("Discard__All_Success_Message", [dependents.artifacts.length]);
+                this.refresh();
+            })
+            .catch((err) => {
+                this.services.messageService.addError(err);
+            }).finally(() => {
+                this.services.loadingOverlayService.endLoading(discardOverlayId);
+            });
+        });
+    }
+    
     public canBeSaved(): boolean {
         if (this.isProject()) {
             return false;

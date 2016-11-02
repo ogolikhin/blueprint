@@ -91,7 +91,7 @@ describe("RefreshAction", () => {
         inject((localization: ILocalizationService,
                 projectManager: IProjectManager,
                 loadingOverlayService: ILoadingOverlayService,
-                metaDataService: IMetaDataService,) => {
+                metaDataService: IMetaDataService) => {
             // arrange
             artifact = null;
             let error: Error = null;

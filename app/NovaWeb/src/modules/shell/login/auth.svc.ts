@@ -55,7 +55,7 @@ export class AuthSvc implements IAuth {
             .then((result: ng.IHttpPromiseCallbackArg<IUser>) => {
                 defer.resolve(result.data);
             }, (result: ng.IHttpPromiseCallbackArg<any>) => {
-                
+
                 result.data.message = result.data.message || this.localization.get("Login_Auth_CannotGetUser");
                 if (this.settings.getBoolean("DisableWindowsIntegratedSignIn") === false && !this._loggedOut) {
                     this.$http.post<any>("/Login/WinLogin.aspx", "", config)
@@ -80,12 +80,12 @@ export class AuthSvc implements IAuth {
         const deferred = this.$q.defer<IUser>();
 
 
-        this.$http.post<any>("/svc/adminstore/sessions/?login=" + encUserName + "&force=" + overrideSession, 
+        this.$http.post<any>("/svc/adminstore/sessions/?login=" + encUserName + "&force=" + overrideSession,
                 angular.toJson(encPassword), this.createRequestConfig())
             .then((result: ng.IHttpPromiseCallbackArg<string>) => {
                 this.onTokenSuccess(result.data, deferred, false, "");
             }, (result: ng.IHttpPromiseCallbackArg<any>) => {
-                result.data.message = this.getLoginErrorMessage(result.data);                
+                result.data.message = this.getLoginErrorMessage(result.data);
                 deferred.reject(result.data);
 
             });
@@ -122,7 +122,7 @@ export class AuthSvc implements IAuth {
                         (result: ng.IHttpPromiseCallbackArg<string>) => {
                             this.onTokenSuccess(result.data, deferred, true, prevLogin);
                         }, (result: ng.IHttpPromiseCallbackArg<any>) => {
-                            result.data.message = this.localization.get("Login_Auth_LoginFailed");                
+                            result.data.message = this.localization.get("Login_Auth_LoginFailed");
                             deferred.reject(result.data);
                         });
                 return null;
@@ -170,7 +170,7 @@ export class AuthSvc implements IAuth {
             return "";
         }
 
-        return err.message ? err.message : this.localization.get("Login_Auth_LoginFailed"); // TODO: generic message
+        return err.message ? err.message : this.localization.get("Login_Auth_LoginFailed");
     }
 
     private internalLogout(token: string): ng.IPromise<any> {
@@ -197,7 +197,7 @@ export class AuthSvc implements IAuth {
                             if (user.licenseType === LicenseType.Viewer) {
                                 this.internalLogout(token).finally(() => {
                                     deferred.reject({message: this.localization.get("Login_Session_InvalidLicense")}); //TODO: Localize
-                                }); 
+                                });
                             } else if (isSaml && prevLogin && prevLogin !== user.login) {
                                 this.internalLogout(token).finally(() => {
                                     deferred.reject({message: this.localization.get("Login_Auth_SamlContinueSessionWithOriginalUser")});
@@ -245,7 +245,7 @@ export class AuthSvc implements IAuth {
                         result.data.message = this.localization.get("Login_Auth_LicenseNotFound_Verbose");
                     } else if (statusCode === HttpStatusCode.Forbidden) {
                         result.data.message = this.localization.get("Login_Auth_LicenseLimitReached");
-                    } 
+                    }
 
                     deferred.reject(result.data);
                 });
@@ -265,7 +265,7 @@ export class AuthSvc implements IAuth {
             .then(
                 () => deferred.resolve(),
                 (result: ng.IHttpPromiseCallbackArg<any>) => {
-                    result.data.message = this.getLoginErrorMessage(result.data);                
+                    result.data.message = this.getLoginErrorMessage(result.data);
                     deferred.reject(result.data);
                 }
             );

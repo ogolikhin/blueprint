@@ -118,7 +118,7 @@ namespace ArtifactStoreTests
                 artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id, versionId: 1);
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
-            // Execute:
+            // Verify:
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion1);
 
             // TODO: add check that Process has SpecificPropery - ClientType (?)

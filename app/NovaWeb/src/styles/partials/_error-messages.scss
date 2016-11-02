@@ -1,5 +1,4 @@
-messages-container,
-bp-messages-container {
+messages-container {
     display: block;
     flex: none;
 }
@@ -17,14 +16,13 @@ bp-messages-container {
     padding-right: 0;
 }
 
-message,
-bp-message {
+message {
     display: block;
     font-size: 0;
 
     .container {
         color: $white;
-        margin: -2px 0 5px 0;
+        margin: -2px 0 5px;
         padding: 10px;
         position: relative;
         width: 100%;
@@ -85,12 +83,15 @@ bp-message {
 
 .error-page-wrapper {
     position: relative;
+
+    .navbar-fixed-top {
+        position: fixed;
+    }
 }
 
 .error-page {
     background-color: $blue-lightest;
     bottom: 0;
-    height: 100%; //IE8- property
     height: calc(100% - #{$navbar-height});
     left: 0;
     position: fixed;

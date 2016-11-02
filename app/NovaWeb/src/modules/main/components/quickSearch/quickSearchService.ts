@@ -31,7 +31,7 @@ export class QuickSearchService {
     }
 
     search(term: string): ng.IPromise<SearchModels.ISearchResult> {
-        this.$log.debug("seraching server for ", term);
+        this.$log.debug(`searching server for "${term}"`);
 
         //const MOCK_RESULTS = require("./quickSearch.mock.ts");
 

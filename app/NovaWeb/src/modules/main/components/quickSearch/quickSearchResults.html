@@ -33,8 +33,8 @@
                              ng-messages="$ctrl.form.$error"
                              role="alert"
                              ng-if="$ctrl.form.$submitted">
-                            <span ng-message="minlength">{{$ctrl.localization.get('Search_Validation_MinimumLength')}}</span>
                             <span ng-message="required">{{$ctrl.localization.get('Search_Validation_Required')}}</span>
+                            <span ng-message="minlength">{{::$root.config.labels["Search_Validation_MinThreeChars"]}}</span>
                         </div>
                     </div>
                 </form>
@@ -66,19 +66,24 @@
                                         </h4>
                                     </div>
                                 </div>
-                                <div class="row">
+                                <div class="row" ng-if="!item.isSubartifact">
                                     <div class="col-md-4">
-                                        <strong>Author: </strong>
+                                        <strong>{{::$root.config.labels["Search_Results_Author"]}} </strong>
                                         <span>{{item.createdBy}}</span>
                                     </div>
                                     <div class="col-md-4">
-                                        <strong>Created on: </strong>
+                                        <strong>{{::$root.config.labels["Search_Results_CreatedOn"]}} </strong>
                                         <span>{{item.createdDateTime|momentDate:'MMMM DD, YYYY'}}</span>
                                     </div>
                                     <div class="col-md-4">
-                                        <strong>Last Edited: </strong>
+                                        <strong>{{::$root.config.labels["Search_Results_LastEdited"]}} </strong>
                                         <span> {{item.lastModifiedDateTime|momentDate:'MMMM DD, YYYY'}}</span>
                                     </div>
+                                </div>
+                                <div class="row" ng-if="!!item.isSubartifact">
+                                    <div class="col-md-12" >
+                                        <span><i>{{::$root.config.labels["Search_Results_SubartifactMessage"]}}</i></span>
+                                    </div>                                    
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12">
@@ -104,7 +109,7 @@
 
                 <div class="quick-search__response" ng-if="$ctrl.results.length===0">
                     <div class="center-item font-larger">
-                        <span>No results Found</span>
+                        <span>{{::$root.config.labels["Search_Results_NoResults"]}}</span>
                     </div>
                 </div>
             </div>

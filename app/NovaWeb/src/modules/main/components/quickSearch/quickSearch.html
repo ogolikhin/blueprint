@@ -11,27 +11,26 @@
                     <i class="glyphicon glyphicon-search quick-search__icon--fixed"></i>
                 </button>
             </span>
-            <input type="text"
-                   ng-model-options="{ updateOn: 'blur' }"
-                   ng-keypress="quickSearch.onKeyPress($event)"
-                   ng-keydown="quickSearch.onKeyDown($event)"
-                   required
-                   ng-minlength="3"
-                   ng-disabled="quickSearch.quickSearchService.canSearch()"
-                   autocomplete="off"
-                   placeholder="Search open project"
-                   class="quick-serach__input"
-                   name="searchTerm"
-                   ng-model="quickSearch.quickSearchService.searchTerm">
+        <input type="text"
+               ng-model-options="{ updateOn: 'blur' }"   
+               ng-keypress="quickSearch.onKeyPress($event)"     
+               ng-keydown="quickSearch.onKeyDown($event)"         
+               required
+               ng-minlength="3"
+               ng-disabled="quickSearch.quickSearchService.canSearch()"
+               autocomplete="off"
+               placeholder="Search open project"
+               class="quick-serach__input"
+               name="searchTerm"
+               ng-model="quickSearch.quickSearchService.searchTerm">
             <div>
-                <div class="error-messages"
-                     ng-messages="quickSearch.form.$error"
-                     role="alert"
-                     ng-if="quickSearch.form.$submitted">
-                    <span
-                        ng-message="minlength">{{quickSearch.localization.get('Search_Validation_MinimumLength')}}</span>
-                </div>
-            </div>
+        <div class="error-messages"
+             ng-messages="quickSearch.form.$error"
+             role="alert"
+             ng-if="quickSearch.form.$submitted">
+            <span ng-message="minlength">{{::$root.config.labels["Search_Validation_MinThreeChars"]}}</span>
+        </div>
+    </div>
 
 
 </form>

@@ -80,6 +80,45 @@ namespace ArtifactStoreTests
             UpdateArtifact_CanGetArtifact(artifact, artifactType, "Name", "");
         }
 
+        private const int CU_NUMBER_PROPERTY_ID = 120;
+        private const int CU_DATE_PROPERTY_ID = 119;
+
+        [Category(Categories.CustomData)]
+        [TestCase("value\":10.0", "value\":\"A\"", CU_NUMBER_PROPERTY_ID)]   // Insert String into Numeric field.
+        [TestCase("value\":\"20", "value\":\"A", CU_DATE_PROPERTY_ID)]       // Insert String into Date field.
+        [TestRail(164561)]
+        [Description("Try to update an artifact properties with a improper value types. Verify 200 OK Request is returned.")]
+        public void UpdateArtifact_WrongTypeInProperty_CanGetArtifact(string toChange, string changeTo, int propertyTypeId)
+        {
+            // Setup:
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+            artifact.Lock();
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            string requestBody = JsonConvert.SerializeObject(artifactDetails);
+
+            string modifiedRequestBody = requestBody.Replace(toChange, changeTo);
+            Assert.AreNotEqual(requestBody, modifiedRequestBody, "Check that RequestBody was updated.");
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, modifiedRequestBody, artifact.Id, _user);
+            }, "'PATCH {0}' should return 200 OK even if the value is set to wrong type!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            // Verify:
+            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            CustomProperty customProperty = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
+
+            Assert.IsNull(customProperty.CustomPropertyValue, "Value of this custom property with Id {0} has to be null", propertyTypeId);
+
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetailsAfter);
+        }
+
         #endregion 200 OK tests
 
         #region Negative tests
@@ -434,7 +473,14 @@ namespace ArtifactStoreTests
                 requestBody,
                 contentType);
 
-            return response.Content;
+            foreach (CustomProperty property in properties)
+            {
+                if (property.PropertyTypeId == propertyTypeId)
+                {
+                    return property;
+                }
+            }
+            return null;
         }
 */
         /// <summary>

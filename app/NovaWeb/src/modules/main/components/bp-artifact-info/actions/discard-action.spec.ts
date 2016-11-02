@@ -120,9 +120,10 @@ describe("DiscardAction", () => {
                 {
                     id: 1,
                     predefinedType: ItemTypePredefined.TextualRequirement,
-                    lockedByUser: LockedByEnum.CurrentUser,
+                    lockedByUser: null,
                     lockedDateTime: null,
-                    permissions: RolePermissions.Edit
+                    permissions: RolePermissions.Edit,
+                    version: -1
                 });
 
             // act

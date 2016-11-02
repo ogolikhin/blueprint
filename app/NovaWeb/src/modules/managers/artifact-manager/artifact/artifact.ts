@@ -122,7 +122,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         })
         .catch((err) => {
             if (err && err.statusCode === HttpStatusCode.Conflict) {
-                this.publishDependents(err.errorContent);
+                this.discardDependents(err.errorContent);
             } else {
                 this.services.messageService.addError(err);
             }

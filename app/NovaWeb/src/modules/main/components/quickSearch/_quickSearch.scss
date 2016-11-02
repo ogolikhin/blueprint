@@ -86,7 +86,9 @@ $quick-search__item--focus-color: #E8F6FB;
         font-size: 1rem;
         margin-top: -2px;
     }
-
+    .input-group {
+        width: 200px;
+    }
     &.has-error {
         color: #d95f5e;
         border-bottom-color: #d95f5e;
@@ -97,7 +99,10 @@ $quick-search__item--focus-color: #E8F6FB;
 }
 
 .quick-search__icon--fixed {
-    color: $gray-dark;
+    color: $gray-dark;    
+    position: absolute;
+    top: 6px;
+    left: 11px;
 }
 
 button.quick-search__btn {

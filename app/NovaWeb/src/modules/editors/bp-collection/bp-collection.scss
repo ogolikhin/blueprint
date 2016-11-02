@@ -76,9 +76,12 @@
             border-width: 0;
         }
 
+        .ag-header{
+            background: $gray-dark;
+        }
+
         .ag-header-cell{
             padding-top: 5px;
-            background: $gray-dark;
 
             .ag-header-cell-text{
                 color: $white;
@@ -127,9 +130,7 @@
         }
 
         .ag-cell{
-            padding-top: 2px;
-            padding-bottom: 2px;
-            height:auto;
+            padding-top: 7px;
 
             .ag-selection-checkbox{
                 margin-top: 8px;

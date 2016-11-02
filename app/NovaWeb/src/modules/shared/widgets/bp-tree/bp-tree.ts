@@ -456,9 +456,9 @@ export class BPTreeController implements IBPTreeController {
     public refresh = (id?: number) => {
         if (id) {
             let nodes = [];
-            this.options.api.getModel().forEachNode(function (it) {
-                if (it.data.id === id) {
-                    nodes.push(it);
+            this.options.api.getModel().forEachNode(function (node) {
+                if (node.data.id === id) {
+                    nodes.push(node);
                 }
             });
             this.options.api.refreshRows(nodes);

@@ -41,13 +41,11 @@ export class BpGlossaryController extends BpBaseEditor {
     public $onInit() {
         super.$onInit();
         this.subscribers.push(this.artifactManager.selection.subArtifactObservable.filter(s => s == null).subscribeOnNext(this.clearSelection, this));
-        this.$element.on("click", this.stopPropagation);
         this.terms = [];
     }
 
     public $onDestroy() {
         super.$onDestroy();
-        this.$element.off("click", this.stopPropagation);
     }
 
     public onArtifactReady() {
@@ -91,12 +89,6 @@ export class BpGlossaryController extends BpBaseEditor {
         if (term !== this.selectedTerm) {
             this.selectedTerm = term;
             this.artifactManager.selection.setSubArtifact(this.selectedTerm);
-        }
-    }
-
-    private stopPropagation(event: JQueryEventObject) {
-        if (event.target.tagName !== "TH") {
-            event.stopPropagation();
         }
     }
 }

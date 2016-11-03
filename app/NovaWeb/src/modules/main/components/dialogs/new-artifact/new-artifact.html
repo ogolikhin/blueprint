@@ -7,6 +7,7 @@
     </div>
     <div ng-if="!$ctrl.hasError" class="project-wrapper">
         <div class="nova-message" ng-bind-html="$ctrl.dialogSettings.message"></div>
+        <pre>{{::$ctrl.filterItemTypeByParent() | json}}</pre>
     </div>
 </div>
 <div class="modal-footer">

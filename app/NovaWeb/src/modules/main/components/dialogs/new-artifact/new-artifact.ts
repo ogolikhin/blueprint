@@ -1,6 +1,7 @@
 import { IDialogSettings, BaseDialogController, IDialogData } from "../../../../shared";
 import { IProjectService } from "../../../../managers/project-manager";
-import { Models, Enums } from "../../../../main/models";
+import { ItemTypePredefined } from "../../../../main/models/enums";
+import { IProjectMeta } from "../../../../main/models/models";
 
 export interface ICreateNewArtifactController {
     errorMessage: string;
@@ -20,7 +21,8 @@ export class CreateNewArtifactController extends BaseDialogController implements
     private _parentId: number;
     private _parentType: number;
 
-    private _projectMeta;
+    private _projectMeta: IProjectMeta;
+    private _acceptableItemType: ItemTypePredefined[];
 
     static $inject = [
         "$uibModalInstance",
@@ -46,28 +48,57 @@ export class CreateNewArtifactController extends BaseDialogController implements
         }
         this._projectId = dialogData.projectId;
 
-        if (!_.isNumber(dialogData.parentId) || dialogData.parentId <= 0 || !Enums.ItemTypePredefined[dialogData.parentPredefinedType]) {
+        if (!_.isNumber(dialogData.parentId) || dialogData.parentId <= 0 || !ItemTypePredefined[dialogData.parentPredefinedType]) {
             // something is wrong with the parent data, we will create the artifact as child of the project
             this._parentId = dialogData.projectId;
-            this._parentType = Enums.ItemTypePredefined.Project;
+            this._parentType = ItemTypePredefined.Project;
         } else {
             this._parentId = dialogData.parentId;
             this._parentType = dialogData.parentPredefinedType;
         }
 
         projectService.getProjectMeta(this._projectId).then(
-            (projectMeta) => {
+            (projectMeta: IProjectMeta) => {
                 this._projectMeta = projectMeta;
             },
             (error) => {
-                throw new Error("project meta erro");
+                throw new Error("project meta error");
             }
         );
     }
 
+    public filterItemTypeByParent = (): ItemTypePredefined[] => {
+        const allowedItemType: ItemTypePredefined[] = [
+            ItemTypePredefined.TextualRequirement,
+            ItemTypePredefined.Process,
+            ItemTypePredefined.Actor,
+            ItemTypePredefined.Document,
+            ItemTypePredefined.PrimitiveFolder,
+            ItemTypePredefined.ArtifactCollection,
+            ItemTypePredefined.CollectionFolder
+        ];
+
+        return allowedItemType.filter((itemType: ItemTypePredefined) => {
+            if (this._parentType === ItemTypePredefined.CollectionFolder) {
+                return itemType === ItemTypePredefined.ArtifactCollection ||
+                    itemType === ItemTypePredefined.CollectionFolder;
+            } else if (this._parentType === ItemTypePredefined.ArtifactCollection) {
+                return itemType === ItemTypePredefined.ArtifactCollection;
+            } else if (this._parentType === ItemTypePredefined.Project || this._parentType === ItemTypePredefined.PrimitiveFolder) {
+                return itemType !== ItemTypePredefined.ArtifactCollection &&
+                    itemType !== ItemTypePredefined.CollectionFolder;
+            } else {
+                return itemType !== ItemTypePredefined.PrimitiveFolder &&
+                    itemType !== ItemTypePredefined.ArtifactCollection &&
+                    itemType !== ItemTypePredefined.CollectionFolder;
+            }
+        });
+    };
+
     public get hasError(): boolean {
         return Boolean(this._errorMessage);
     }
+
     public get errorMessage(): string {
         return this._errorMessage;
     }

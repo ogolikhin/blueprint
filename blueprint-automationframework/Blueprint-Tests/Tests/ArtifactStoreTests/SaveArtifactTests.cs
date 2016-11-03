@@ -394,34 +394,6 @@ namespace ArtifactStoreTests
 
         #region Custom data tests
 
-        [Category(Categories.CustomData)]
-        [TestCase("value\":10.0", "value\":999.0")] //Insert value into Numeric field which is out of range
-        [TestCase("value\":\"20", "value\":\"21")] //Insert value into Date field which is out of range
-        [TestRail(164595)]
-        [Description("Try to update an artifact properties with a value that out of its permitted range. Verify 200 OK Request is returned.")]
-        public void UpdateArtifact_PropertyOutOfRange_200OK(string toChange, string changeTo)
-        {
-            // Setup:
-            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
-            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
-            artifact.Lock();
-
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-
-            //This is needed to suppress 501 error
-            artifactDetails.ItemTypeId = null;
-
-            string requestBody = JsonConvert.SerializeObject(artifactDetails);
-
-            requestBody = requestBody.Replace(toChange, changeTo);
-
-            // Execute:
-            string resultContent = null;
-            Assert.DoesNotThrow(() => resultContent = ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifact.Id, _user),
-                "'PATCH {0}' should return 200 OK if properties are out of range!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
-        }
-
         private const string ChoiceValueIncorrectFormat = "The value for the property CU-Choice Required with Single Choice is invalid.";
         private const string UserValueIncorrectFormat = "The value for the property CU-User Required is invalid.";
 

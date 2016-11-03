@@ -1,6 +1,6 @@
 ﻿import {ILocalizationService, IMessageService, MessageType} from "../../../core";
 import {IDialogSettings, IDialogService} from "../../../shared";
-import {Models, Enums} from "../../models";
+import {Models} from "../../models";
 import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
@@ -308,7 +308,7 @@ class BPToolbarController implements IBPToolbarController {
     };
 
     public get canCreateNew(): boolean {
-        return this._currentArtifact ? !!(this._currentArtifact.permissions & Enums.RolePermissions.Edit) : false;
+        return this._currentArtifact ? !this._currentArtifact.artifactState.readonly : false;
     }
 
     private createNewArtifact() {

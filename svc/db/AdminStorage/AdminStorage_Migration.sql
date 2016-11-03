@@ -1064,7 +1064,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_Failure_Me
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_Failure_LockedByOtherUser_Message', 'en-US', N'The artifact cannot be published because it is locked by another user.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_All_Dialog_Header', 'en-US', N'Discard All')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_All_No_Unpublished_Changes', 'en-US', N'There are no artifacts that can be discarded.')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_All_Dialog_Message', 'en-US', N'All artifacts that have never been published will be deleted. Published artifacts will be restored to their previous versions:')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_All_Dialog_Message', 'en-US', N'You have unpublished changes to {0} artifact(s).<br/>All artifacts that have never been published will be deleted. Published artifacts will be restored to their previous versions:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_All_Success_Message', 'en-US', N'Successfully discarded changes for {0} artifact(s).')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_All_Ok_Button', 'en-US', N'DISCARD ALL')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_All_Cancel_Button', 'en-US', N'CANCEL')

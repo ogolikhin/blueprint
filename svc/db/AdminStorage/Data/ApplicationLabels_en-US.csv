@@ -186,7 +186,7 @@ Publish_Failure_LockedByOtherUser_Message, "The artifact cannot be published bec
 
 Discard_All_Dialog_Header,"Discard All"
 Discard_All_No_Unpublished_Changes,"There are no artifacts that can be discarded."
-Discard_All_Dialog_Message,"All artifacts that have never been published will be deleted. Published artifacts will be restored to their previous versions:"
+Discard_All_Dialog_Message,"You have unpublished changes to {0} artifact(s).<br/>All artifacts that have never been published will be deleted. Published artifacts will be restored to their previous versions:"
 Discard_All_Success_Message,"Successfully discarded changes for {0} artifact(s)."
 Discard_All_Ok_Button,"DISCARD ALL"
 Discard_All_Cancel_Button,"CANCEL"

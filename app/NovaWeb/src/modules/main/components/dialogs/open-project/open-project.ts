@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import {ILocalizationService} from "../../../../core";
 import {Helper, IBPTreeController, IDialogSettings, BaseDialogController} from "../../../../shared";
-import {Models, AdminStoreModels} from "../../../models";
+import {Models, Enums, AdminStoreModels} from "../../../models";
 import {IProjectManager} from "../../../../managers";
 
 export interface IOpenProjectController {
@@ -73,7 +73,8 @@ export class OpenProjectController extends BaseDialogController implements IOpen
             id: (item && item["id"]) || -1,
             name: (item && item["name"]) || "",
             description: (item && item["description"]) || "",
-            itemTypeId: (item && item["type"]) || -1
+            itemTypeId: (item && item["type"]) || Enums.ItemTypePredefined.Project,
+            permissions: (item && item["permissions"]) || Enums.RolePermissions.Read // if the user can select it, it means he can read it
         };
 
         if (this._selectedItem.description) {

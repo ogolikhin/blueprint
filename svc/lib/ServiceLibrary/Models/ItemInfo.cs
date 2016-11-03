@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ArtifactStore.Models
+namespace ServiceLibrary.Models
 {
     public class ItemInfo
     {

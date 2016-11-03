@@ -10,8 +10,8 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 using System.Web.Http;
-using System;
 using System.Net;
+using ServiceLibrary.Repositories;
 
 namespace ArtifactStore.Controllers
 {

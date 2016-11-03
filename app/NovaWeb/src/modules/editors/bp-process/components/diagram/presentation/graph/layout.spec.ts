@@ -1,4 +1,5 @@
 import * as angular from "angular";
+require("script!mxClient");
 import {ProcessGraph} from "./process-graph";
 import {MessageServiceMock} from "../../../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../../../core/messages/message.svc";
@@ -19,6 +20,20 @@ import {ProcessAddHelper} from "./process-add-helper";
 import {ShapesFactory, ShapesFactoryMock} from "./shapes/shapes-factory";
 import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-manager/";
 import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {StatefulSubArtifactCollection} from "../../../../../../managers/artifact-manager/sub-artifact";
+import {ChangeSetCollector} from "../../../../../../managers/artifact-manager/changeset";
+
+class ExecutionEnvironmentDetectorMock {
+    private browserInfo: any;
+
+    constructor() {
+        this.browserInfo = { msie: false, firefox: false, version: 0 };
+    }
+
+    public getBrowserInfo(): any {
+        return this.browserInfo;
+    }
+}
 
 describe("Layout test", () => {
     let msgService: IMessageService,
@@ -33,6 +48,9 @@ describe("Layout test", () => {
         statefulArtifactFactory: IStatefulArtifactFactory,
         shapesFactory: ShapesFactory;
 
+    let _window: any = window;
+    _window.executionEnvironmentDetector = ExecutionEnvironmentDetectorMock;
+
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("messageService", MessageServiceMock);
         $provide.service("communicationManager", CommunicationManager);
@@ -44,6 +62,10 @@ describe("Layout test", () => {
     }));
 
     let setProcessViewModel = function (model) {
+        model.subArtifactCollection = new StatefulSubArtifactCollection(model, null);
+        model.changeset = new ChangeSetCollector(model);
+        model.artifactState = {dirty: false};
+        model.lock = function (){};
         const processModel = new ProcessViewModel(model, communicationManager);
         return processModel;
     };
@@ -593,12 +615,13 @@ describe("Layout test", () => {
 
     describe("Test handleUserTaskDragDrop method", () => {
 
-        xit("with system task as the next shape.", () => {
+        it("with system task as the next shape.", () => {
             // Arrange
             const testModel = TestModels.createLargeTestModel();
             const processModel = setProcessViewModel(testModel);
+
             let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
-            const unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
+            let modelUpdateHandler = graph.viewModel.communicationManager.processDiagramCommunication.registerModelUpdateObserver((selectedNodeId: number) => {
                 graph.destroy();
                 graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
                 graph.render(true, null);
@@ -607,19 +630,20 @@ describe("Layout test", () => {
             // Act
             graph.render(true, null);
             graph.layout.handleUserTaskDragDrop(26, graph.getNodeById("37").getConnectableElement().edges[0]);
-            unregProcesssModelUpdate();
+            graph.viewModel.communicationManager.processDiagramCommunication.removeModelUpdateObserver(modelUpdateHandler);
 
             //Assert
             // System task ('37') connected to the moved user task ('26')
             expect((<IDiagramNode>(graph.getNodeById("37").getConnectableElement().edges[0].target)).getId()).toEqual("26");
         });
 
-        xit("system decision as the next shape.", () => {
+        it("system decision as the next shape.", () => {
             // Arrange
             const testModel = TestModels.createSystemDecisionBeforeUserDecisionInBranchModel();
             const processModel = setProcessViewModel(testModel);
             let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
-            const unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
+            graph.layout.setTempShapeId(0);
+            let modelUpdateHandler = graph.viewModel.communicationManager.processDiagramCommunication.registerModelUpdateObserver((selectedNodeId: number) => {
                 graph.destroy();
                 graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
                 graph.render(true, null);
@@ -630,7 +654,7 @@ describe("Layout test", () => {
             ProcessAddHelper.insertTaskWithUpdate(graph.getNodeById("80").getConnectableElement().edges[0],
                 graph.layout, shapesFactoryService);
             graph.layout.handleUserTaskDragDrop(20, graph.getNodeById("80").getConnectableElement().edges[0]);
-            unregProcesssModelUpdate();
+            graph.viewModel.communicationManager.processDiagramCommunication.removeModelUpdateObserver(modelUpdateHandler);
 
             //Assert
             // 1. new user task + system task created

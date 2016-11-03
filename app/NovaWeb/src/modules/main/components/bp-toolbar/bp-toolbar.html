@@ -26,20 +26,14 @@
             </ul>
         </li>
         <li class="separator"></li>
-        <li uib-dropdown>
-            <a href="#" uib-dropdown-toggle>
+        <li>
+            <a href="#" id="createNewArtifact" ng-class="{disabled: !$ctrl.canCreateNew}" ng-click="$ctrl.execute($event)">
                 <div class="icon-container">
-                    <i class="fonticon fonticon2-new"></i><b class="caret"></b>
+                    <i class="fonticon fonticon2-new"></i>
                 </div>
-                <span>New</span>
+                <span>{{::$root.config.labels["App_Toolbar_New"]}}</span>
             </a>
-            <ul class="dropdown-menu">
-                <li><a href="#" ng-click="$ctrl.execute($event)">Actor</a></li>
-                <li><a href="#" ng-click="$ctrl.execute($event)">Textual</a></li>
-                <li><a href="#" ng-click="$ctrl.execute($event)">Process</a></li>
-            </ul>
         </li>
-
         <li>
             <a href="#" id="publishAll" ng-click="$ctrl.execute($event)">
                 <div class="icon-container">

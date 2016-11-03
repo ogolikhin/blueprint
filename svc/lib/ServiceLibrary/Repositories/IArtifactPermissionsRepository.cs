@@ -1,9 +1,8 @@
-﻿using ArtifactStore.Models;
-using ServiceLibrary.Models;
+﻿using ServiceLibrary.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ArtifactStore.Repositories
+namespace ServiceLibrary.Repositories
 {
     public interface IArtifactPermissionsRepository
     {

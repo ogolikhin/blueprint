@@ -120,7 +120,6 @@
     <Compile Include="Models\FilesInfo.cs" />
     <Compile Include="Models\DiscussionResultSet.cs" />
     <Compile Include="Models\ItemDetails.cs" />
-    <Compile Include="Models\ItemInfo.cs" />
     <Compile Include="Models\ItemType.cs" />
     <Compile Include="Models\ProjectTypes.cs" />
     <Compile Include="Models\PropertyPrimitiveType.cs" />
@@ -132,8 +131,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IRelationshipsRepository.cs" />
     <Compile Include="Repositories\ISqlItemInfoRepository.cs" />
-    <Compile Include="Repositories\SqlArtifactPermissionsRepository.cs" />
-    <Compile Include="Repositories\IArtifactPermissionsRepository.cs" />
     <Compile Include="Repositories\ISqlArtifactRepository.cs" />
     <Compile Include="Repositories\IAttachmentsRepository.cs" />
     <Compile Include="Repositories\IDiscussionsRepository.cs" />

@@ -1,5 +1,6 @@
 import {ProcessGraph} from "./process-graph";
 import {NodeType, IDiagramNodeElement} from "./models/";
+import {ProcessEvents} from "../../process-diagram-communication";
 
 export interface IDragDropHandler {
     moveCell: MxCell;
@@ -149,45 +150,47 @@ export class DragDropHandler implements IDragDropHandler {
     }
 
     private installMouseDragDropListener() {
-        let h = this;
+        let _this = this;
         this.graph.addMouseListener({
             mouseDown: function (sender, me) {
-                h.cell = me.getCell();
-                if (h.cell && h.cell !== h.moveCell) {
-                    if (h.isValidDropSource(h.cell)) {
+                _this.cell = me.getCell();
+                if (_this.cell && _this.cell !== _this.moveCell) {
+                    if (_this.isValidDropSource(_this.cell)) {
                         // start drag
-                        h.moveCell = h.cell;
+                        _this.moveCell = _this.cell;
                     }
                 }
-                h.cell = null;
+                _this.cell = null;
             },
             mouseMove: function (sender, me) {
-                if (h.moveCell && h.graph.isMouseDown) {
+                if (_this.moveCell && _this.graph.isMouseDown) {
                     // dragging
-                    if (h.dragPreview == null) {
-                        h.createDragPreview();
+                    if (_this.dragPreview == null) {
+                        _this.createDragPreview();
                     }
-                    h.showDragPreview(me);
-                    h.highlightDropTarget(me);
+                    _this.showDragPreview(me);
+                    _this.highlightDropTarget(me);
                 }
-                h.cell = null;
+                _this.cell = null;
             },
             mouseUp: function (sender, me) {
-                if (h.moveCell) {
-                    let node = (<IDiagramNodeElement>h.moveCell).getNode();
-                    if (h.currentState && h.currentState.cell.isEdge()) {
+                if (_this.moveCell) {
+                    let node = (<IDiagramNodeElement>_this.moveCell).getNode();
+                    if (_this.currentState && _this.currentState.cell.isEdge()) {
                         // drop
-                        let edge = h.currentState.cell;
+                        let edge = _this.currentState.cell;
                         let cellId = Number(node.getId());
                             
                         // reset drag state
-                        h.reset();
+                        _this.reset();
 
-                        h.layout.handleUserTaskDragDrop(cellId, edge);
+                        _this.layout.handleUserTaskDragDrop(cellId, edge);
+                        // Set lock/dirty flags
+                        _this.processGraph.viewModel.communicationManager.processDiagramCommunication.action(ProcessEvents.ArtifactUpdate);
                     }
                     else {
                         // reset drag state
-                        h.reset();
+                        _this.reset();
                     }
                 }
             }

@@ -69,8 +69,13 @@ export class BPUtilityPanelController {
             .distinctUntilChanged()
             .subscribe(this.onSelectionChanged);
 
+        const artifactObservable = this.artifactManager.selection.currentlySelectedArtifactObservable
+            .distinctUntilChanged(artifact => artifact.name)
+            .subscribe(this.onArtifactChanged);
+
         this._subscribers = [
-            selectionObservable
+            selectionObservable,
+            artifactObservable
         ];
     }
 
@@ -103,7 +108,6 @@ export class BPUtilityPanelController {
     private updateItem(selection: ISelection) {
         const item: IStatefulItem = selection ? (selection.subArtifact || selection.artifact) : undefined;
         if (item) {
-            this._currentItem = `${(item.prefix || "")}${item.id}: ${item.name}`;
             if (item.itemTypeId === ItemTypePredefined.Collections && item.predefinedType === ItemTypePredefined.CollectionFolder) {
                 this._currentItemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[ItemTypePredefined.Collections] || "");
             } else {
@@ -124,6 +128,18 @@ export class BPUtilityPanelController {
             this._currentItemIcon = null;
         }
     }
+
+    private updateItemName = (artifact: ISelection) => {
+        const item: IStatefulItem = artifact ? (artifact.subArtifact || artifact.artifact) : undefined;
+
+        if (item && item.name !== "") {
+            this._currentItem = `${(item.prefix || "")}${item.id}: ${item.name}`;
+        }
+    }
+
+    private onArtifactChanged = (artifact: ISelection) => {
+        this.updateItemName(artifact);
+    };
 
     private onSelectionChanged = (selection: ISelection) => {
         this.updateItem(selection);

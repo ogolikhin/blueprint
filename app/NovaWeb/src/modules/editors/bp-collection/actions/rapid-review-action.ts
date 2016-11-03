@@ -1,7 +1,7 @@
 import {BPButtonAction} from "../../../shared";
 import {ILocalizationService} from "../../../core";
 import {ItemTypePredefined} from "../../../main/models/enums";
-import {IStatefulCollectionArtifact} from "../../../managers/artifact-manager/artifact/collection-artifact";
+import {IStatefulCollectionArtifact} from "../collection-artifact";
 
 export class RapidReviewAction extends BPButtonAction {
     constructor(artifact: IStatefulCollectionArtifact,

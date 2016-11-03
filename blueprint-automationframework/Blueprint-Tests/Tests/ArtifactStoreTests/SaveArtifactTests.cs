@@ -106,7 +106,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, modifiedRequestBody, artifact.Id, _user);
+                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, modifiedRequestBody, artifact.Id, _user);
             }, "'PATCH {0}' should return 200 OK even if the value is set to wrong type!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -124,11 +124,13 @@ namespace ArtifactStoreTests
 
         [Category(Categories.CustomData)]
         [TestRail(164595)]
-        [TestCase("value\":10.0", NUMBER_OUT_OF_RANGE, CU_NUMBER_PROPERTY_ID)]   //Insert value into Numeric field which is out of range    
+        [TestCase(NUMBER_OUT_OF_RANGE, CU_NUMBER_PROPERTY_ID)]   //Insert value into Numeric field which is out of range    
         [Description("Try to update an artifact properties with a number value that is out of its permitted range. Verify 200 OK Request is returned.")]
-        public void UpdateArtifact_PropertyOutOfRange_200OK<T>(string toChange, T value, int propertyTypeId)
+        public void UpdateArtifact_NumberPropertyOutOfRange_200OK(int outOfRangeNumber, int propertyTypeId)
         {
             // Setup:
+            string stringToReplace = "value\":10.0";
+
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
             IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
             artifact.Lock();
@@ -137,9 +139,9 @@ namespace ArtifactStoreTests
 
             string requestBody = JsonConvert.SerializeObject(artifactDetails);
 
-            string changedValue = "value\":" + value.ToString();
+            string changedValue = "value\":" + outOfRangeNumber;
 
-            requestBody = requestBody.Replace(toChange, changedValue);
+            requestBody = requestBody.Replace(stringToReplace, changedValue);
 
             // Execute:
             Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user),
@@ -151,9 +153,8 @@ namespace ArtifactStoreTests
 
             CustomProperty customPropertyAfter = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
 
-            if (value.GetType() == typeof(int))
-                Assert.AreEqual(value.ToInt32Invariant(), customPropertyAfter.CustomPropertyValue,
-                    "Value of this custom property with id {0} should be {1} but was !", propertyTypeId, value.ToInt32Invariant(), customPropertyAfter.CustomPropertyValue);
+            Assert.AreEqual(outOfRangeNumber, customPropertyAfter.CustomPropertyValue,
+                    "Value of this custom property with id {0} should be {1} but was !", propertyTypeId, outOfRangeNumber, customPropertyAfter.CustomPropertyValue);
         }
 
         [Category(Categories.CustomData)]
@@ -178,7 +179,7 @@ namespace ArtifactStoreTests
             requestBody = requestBody.Replace(toChange, "value\":\"" + yearOutPropertyRange);
 
             // Execute:
-            Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifact.Id, _user),
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user),
                 "'PATCH {0}' should return 200 OK if properties are out of range!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -209,7 +210,7 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifact.Id, _user);
+                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user);
             }, "'PATCH {0}' should return 400 Bad Request if an empty body is sent!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -232,7 +233,7 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifact.Id, _user);
+                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user);
             }, "'PATCH {0}' should return 400 Bad Request if a corrupt JSON body is sent!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -255,7 +256,7 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifact.Id, _user);
+                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user);
             }, "'PATCH {0}' should return 400 Bad Request if the 'Id' property is missing in the JSON body!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -278,7 +279,7 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, wrongArtifactId, _user);
+                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, wrongArtifactId, _user);
             }, "'PATCH {0}' should return 400 Bad Request if the Artifact ID in the URL is different than in the body!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 

@@ -7,8 +7,8 @@ import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
 import {OpenProjectController} from "../dialogs/open-project/open-project";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../dialogs/bp-confirm-publish";
+import {CreateNewArtifactController, ICreateNewArtifactDialogData} from "../dialogs/new-artifact";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
-import {Helper} from "../../../shared/utils/helper";
 import {ILoadingOverlayService} from "../../../core/loading-overlay";
 import {Project} from "../../../managers/project-manager/project";
 
@@ -25,11 +25,7 @@ export class BPToolbar implements ng.IComponentOptions {
 class BPToolbarController implements IBPToolbarController {
 
     private _subscribers: Rx.IDisposable[];
-    private _currentArtifact: number;
-
-    public get currentArtifact() {
-        return this._currentArtifact;
-    }
+    private _currentArtifact: IStatefulArtifact;
 
     static $inject = [
         "$q",
@@ -149,6 +145,9 @@ class BPToolbarController implements IBPToolbarController {
                     throw err;
                 }
                 break;
+            case `createnewartifact`:
+                this.createNewArtifact();
+                break;
             default:
                 this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
                 break;
@@ -195,7 +194,7 @@ class BPToolbarController implements IBPToolbarController {
                 selectedArtifact.artifactState.unlock();
                 selectedArtifact.refresh();
             }
-            
+
             this.messageService.addInfoWithPar("Discard_All_Success_Message", [data.artifacts.length]);
         })
         .finally(() => {
@@ -235,13 +234,13 @@ class BPToolbarController implements IBPToolbarController {
                     selectedArtifact.artifactState.unlock();
                     selectedArtifact.refresh();
                 }
-               
+
                 this.messageService.addInfoWithPar("Publish_All_Success_Message", [data.artifacts.length]);
             })
             .finally(() => {
                 this.loadingOverlayService.endLoading(publishAllLoadingId);
             });
-        }); 
+        });
     }
 
     private saveArtifactsAsNeeded(artifactsToSave: Models.IArtifact[]): ng.IPromise<any> {
@@ -290,7 +289,7 @@ class BPToolbarController implements IBPToolbarController {
             })
             .filter(selection => !!selection)
             .flatMap(selection => selection.getObservable())
-            .subscribe(this.displayArtifact);
+            .subscribe(this.setCurrentArtifact);
 
         this._subscribers = [artifactStateSubscriber];
     }
@@ -302,13 +301,36 @@ class BPToolbarController implements IBPToolbarController {
         delete this._subscribers;
     }
 
-    private displayArtifact = (artifact: IStatefulArtifact) => {
-        this._currentArtifact =
-            Helper.canUtilityPanelUseSelectedArtifact(artifact) &&
-            (artifact.version > 0) ? artifact.id : null;
-    }
-
     public get canRefreshAll(): boolean {
         return !!this.projectManager.getSelectedProject();
+    }
+
+    private setCurrentArtifact = (artifact: IStatefulArtifact) => {
+        this._currentArtifact = artifact;
+    };
+
+    public get canCreateNew(): boolean {
+        // if no artifact/project is selected and the project explorer is not open at all, always disable the button
+        return this._currentArtifact && !!this.projectManager.getSelectedProject() ? !this._currentArtifact.artifactState.readonly : false;
+    }
+
+    private createNewArtifact() {
+        const artifact = this._currentArtifact;
+        this.dialogService.open(<IDialogSettings>{
+                okButton: this.localization.get("App_Button_Create"),
+                cancelButton: this.localization.get("App_Button_Cancel"),
+                message: this.localization.get("Create_New_Dialog_Message"),
+                template: require("../dialogs/new-artifact/new-artifact.html"),
+                controller: CreateNewArtifactController,
+                css: "nova-model" //temp
+            },
+            <ICreateNewArtifactDialogData>{
+                projectId: artifact.projectId,
+                parentId: artifact.id,
+                parentPredefinedType: artifact.predefinedType
+            })
+            .then(() => {
+                console.log(artifact);
+            });
     }
 }

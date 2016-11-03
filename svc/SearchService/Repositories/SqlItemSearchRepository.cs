@@ -2,7 +2,6 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using ArtifactStore.Repositories;
 using Dapper;
 using SearchService.Helpers;
 using SearchService.Models;
@@ -156,18 +155,15 @@ namespace SearchService.Repositories
                 // Always getting permissions for the Head version of an artifact.
                 await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(items.Select(i => i.ItemId).ToList(), userId);
 
-            if (itemIdsPermissions != null)
-            {
-                //items without permission should be removed
-                items.RemoveAll(item => !itemIdsPermissions.ContainsKey(item.ItemId) || !itemIdsPermissions[item.ItemId].HasFlag(RolePermissions.Read));
+            //items without permission should be removed
+            items.RemoveAll(item => !itemIdsPermissions.ContainsKey(item.ItemId) || !itemIdsPermissions[item.ItemId].HasFlag(RolePermissions.Read));
 
-                var joinedResult = from i in items
-                    join p in itemIdsPermissions.AsEnumerable()
-                        on i.ItemId equals p.Key
-                    select new {i, p};
-                foreach (var result in joinedResult)
-                    result.i.Permissions = result.p.Value;
-            }
+            var joinedResult = from i in items
+                               join p in itemIdsPermissions.AsEnumerable()
+                                   on i.ItemId equals p.Key
+                               select new { i, p };
+            foreach (var result in joinedResult)
+                result.i.Permissions = result.p.Value;
 
             return new ItemNameSearchResultSet
             {

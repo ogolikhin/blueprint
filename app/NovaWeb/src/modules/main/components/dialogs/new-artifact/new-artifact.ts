@@ -83,7 +83,7 @@ export class CreateNewArtifactController extends BaseDialogController implements
                 return itemType === ItemTypePredefined.ArtifactCollection ||
                     itemType === ItemTypePredefined.CollectionFolder;
             } else if (this._parentType === ItemTypePredefined.ArtifactCollection) {
-                return itemType === ItemTypePredefined.ArtifactCollection;
+                return false; // cannot create anything under ArtifactCollection
             } else if (this._parentType === ItemTypePredefined.Project || this._parentType === ItemTypePredefined.PrimitiveFolder) {
                 return itemType !== ItemTypePredefined.ArtifactCollection &&
                     itemType !== ItemTypePredefined.CollectionFolder;

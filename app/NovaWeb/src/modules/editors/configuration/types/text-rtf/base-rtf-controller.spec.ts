@@ -71,7 +71,7 @@ describe("Formly Base RTF Controller", () => {
             aTag.dispatchEvent(mouseEvent);
 
             expect(controller.navigationService.navigateTo).toHaveBeenCalled();
-            expect(controller.navigationService.navigateTo).toHaveBeenCalledWith(365);
+            expect(controller.navigationService.navigateTo).toHaveBeenCalledWith({ id: 365 });
 
             aTag.removeEventListener("click", controller.handleClick);
         });

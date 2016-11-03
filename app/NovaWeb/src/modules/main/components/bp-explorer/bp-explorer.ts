@@ -190,7 +190,7 @@ export class ProjectExplorerController {
 
             if (_.isFinite(navigateToId)) {
                 if (navigateToId !== currentSelection) {
-                    this.navigationService.navigateTo(navigateToId);
+                    this.navigationService.navigateTo({ id: navigateToId });
 
                 } else if (navigateToId === currentSelection) {
                     this.navigationService.reloadParentState();
@@ -229,7 +229,7 @@ export class ProjectExplorerController {
     public doSelect = (node: IArtifactNode) => {
         this.doSync(node);
         this.selected = node;
-        this.navigationService.navigateTo(node.id);
+        this.navigationService.navigateTo({ id: node.id });
     };
 
     public doSync = (node: IArtifactNode): IStatefulArtifact => {

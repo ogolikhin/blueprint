@@ -287,6 +287,6 @@ describe("ProcessDiagram Tests", () => {
         communicationManager.processDiagramCommunication.action(ProcessEvents.NavigateToAssociatedArtifact, {id: artifactId});
 
         // assert
-        expect(navigateToArtifactSpy).toHaveBeenCalledWith(artifactId, false, undefined);
+        expect(navigateToArtifactSpy).toHaveBeenCalledWith({ id: artifactId, enableTracking: undefined });
     });
 });

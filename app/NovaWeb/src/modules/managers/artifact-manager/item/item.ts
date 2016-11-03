@@ -49,7 +49,7 @@ export abstract class StatefulItem implements IIStatefulItem {
     protected loadPromise: ng.IPromise<IStatefulItem>;
     private _error: Rx.BehaviorSubject<IApplicationError>;
 
-    constructor(private artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
+    constructor(protected artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
     }
 
     public dispose() {

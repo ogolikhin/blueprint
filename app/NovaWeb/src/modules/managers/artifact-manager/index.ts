@@ -11,7 +11,7 @@ import {
     StatefulArtifact,
     StatefulProcessArtifact
 } from "./artifact";
-import {IStatefulArtifact, IStatefulCollectionArtifact} from "./artifact";
+import {IStatefulArtifact} from "./artifact";
 import {StatefulSubArtifact, ISubArtifactCollection, IStatefulSubArtifact} from "./sub-artifact";
 import {IDocumentRefs, DocumentRefs} from "./docrefs";
 import {IChangeSet, IChangeCollector, ChangeTypeEnum, ChangeSetCollector} from "./changeset";
@@ -49,7 +49,6 @@ angular.module("bp.managers.artifact", [])
 export {
     IStatefulItem,
     IStatefulArtifact,
-    IStatefulCollectionArtifact,
     IStatefulSubArtifact,
     IArtifactManager,
     ArtifactManager,

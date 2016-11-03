@@ -58,4 +58,39 @@ describe("Component BPUtilityPanel", () => {
         expect(directiveTest.element.find("bp-discussion-panel").length).toBe(1);
         expect(directiveTest.element.find("bp-attachments-panel").length).toBe(1);
     });
+
+    xit("should load data for a selected artifact",
+        inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
+            //Arrange
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "My"});
+
+            //Act
+            artifactManager.selection.setArtifact(artifact);
+            $rootScope.$digest();
+            const selectedArtifact = artifactManager.selection.getArtifact();
+
+            // Assert
+            expect(selectedArtifact).toBeDefined();
+            expect(selectedArtifact.id).toBe(22);
+            expect(vm.currentItem).toBe("My22: Artifact");
+        }));
+
+    xit("should hide all tabs for collections",
+        inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
+            //Arrange
+            const artifact = statefulArtifactFactory.createStatefulArtifact({
+                id: 22,
+                name: "Artifact",
+                prefix: "My",
+                predefinedType: 4609
+            });
+
+            //Act
+            artifactManager.selection.setArtifact(artifact);
+            $rootScope.$digest();
+            const accordionCtrl = vm.getAccordionController();
+
+            // Assert
+            expect(vm.IsAnyPanelVisible).toBe(false);
+        }));
 });

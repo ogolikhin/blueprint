@@ -6,7 +6,7 @@ import {ICollectionService, CollectionService} from "./collection.svc";
 //import {IArtifact} from "../../main/models/models";
 import {HttpStatusCode} from "../../core/http";
 import {Models} from "../../main";
-import {ICollection, ICollectionArtifact} from "./models";
+import {ICollection, ICollectionArtifact} from "./collection-artifact";
 
 describe("Collection Service", () => {
 

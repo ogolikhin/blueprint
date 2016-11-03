@@ -219,7 +219,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             return deferred.promise;
         }
         if (this.canBeLoaded()) {
-            this.services.artifactService.getArtifact(this.id, this.getEffectiveVersion()).then((artifact: Models.IArtifact) => {
+            this.getArtifactModel(this.id, this.getEffectiveVersion()).then((artifact: Models.IArtifact) => {
                 this.initialize(artifact);
                 deferred.resolve(this);
             }).catch((error: IApplicationError) => {
@@ -234,6 +234,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         }
 
         return deferred.promise;
+    }
+
+    protected getArtifactModel(id: number, versionId: number): ng.IPromise<Models.IArtifact> {
+        return this.services.artifactService.getArtifact(id, versionId);
     }
 
     private artifactNotFoundError() {

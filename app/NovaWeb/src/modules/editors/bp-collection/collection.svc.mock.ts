@@ -1,6 +1,6 @@
 import {ICollectionService} from "./collection.svc";
 import {IArtifact} from "../../main/models/models";
-import {ICollection, ICollectionArtifact} from "./models";
+import {ICollection, ICollectionArtifact} from "./collection-artifact";
 import {Models} from "../../main";
 
 export class CollectionServiceMock implements ICollectionService {
@@ -38,7 +38,7 @@ export class CollectionServiceMock implements ICollectionService {
                     prefix: "TR",
                     itemTypeId: 5,
                     itemTypePredefined: Models.ItemTypePredefined.Actor,
-                    artifactPath: ["Path1"],                                      
+                    artifactPath: ["Path1"]                                      
                 },
                 <ICollectionArtifact>{
                     id: 386,

@@ -9,8 +9,9 @@ import {Models} from "../../../main/models";
 import {IArtifactAttachmentsService} from "../attachments";
 import {IMetaDataService} from "../metadata";
 import {StatefulSubArtifact, IStatefulSubArtifact} from "../sub-artifact";
-import {IStatefulArtifact, IStatefulCollectionArtifact, StatefulArtifact, StatefulProcessArtifact, StatefulProcessSubArtifact} from "../artifact";
+import {IStatefulArtifact, StatefulArtifact, StatefulProcessArtifact, StatefulProcessSubArtifact} from "../artifact";
 import {IArtifactRelationshipsService} from "../relationships";
+import {IStatefulCollectionArtifact, StatefulCollectionArtifact} from "../../../editors/bp-collection/collection-artifact";
 import {
     StatefulArtifactServices,
     IStatefulArtifactServices,
@@ -20,7 +21,6 @@ import {
 import {IArtifactService} from "./artifact.svc";
 import {ILoadingOverlayService} from "../../../core/loading-overlay";
 import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
-import {StatefulCollectionArtifact} from "./collection-artifact";
 
 export interface IStatefulArtifactFactory {
     createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact;

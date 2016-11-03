@@ -47,10 +47,6 @@ export interface IProjectManager extends IDispose {
 
 export class ProjectManager implements IProjectManager {
 
-    private get defaultPermissions(): number {
-        return 4095;
-    };
-
     private _projectCollection: Rx.BehaviorSubject<Project[]>;
     private subscribers: Rx.IDisposable[];
     static $inject: [string] = [
@@ -147,7 +143,7 @@ export class ProjectManager implements IProjectManager {
         }).catch(() => {
             defer.reject();
         }).finally(() => {
-            
+
             this.triggerProjectCollectionRefresh();
         });
 
@@ -266,7 +262,8 @@ export class ProjectManager implements IProjectManager {
     private ProcessProjectTree(project: Project, data: Models.IArtifact[]): ng.IPromise<any> {
         let defer = this.$q.defer<any>();
 
-        let oldProjectId: number = project.id;
+        const oldProjectId: number = project.id;
+        const oldProjectPermissions: number = project.permissions;
         let oldProject = this.getProject(oldProjectId);
         this.artifactManager.removeAll(oldProjectId);
 
@@ -280,7 +277,7 @@ export class ProjectManager implements IProjectManager {
                     projectId: oldProjectId,
                     itemTypeId: Enums.ItemTypePredefined.Project,
                     prefix: "PR",
-                    permissions: this.defaultPermissions,
+                    permissions: oldProjectPermissions,
                     predefinedType: Enums.ItemTypePredefined.Project,
                     hasChildren: true
                 });
@@ -360,7 +357,7 @@ export class ProjectManager implements IProjectManager {
                     projectId: data.id,
                     itemTypeId: Enums.ItemTypePredefined.Project,
                     prefix: "PR",
-                    permissions: this.defaultPermissions,
+                    permissions: data.permissions,
                     predefinedType: Enums.ItemTypePredefined.Project,
                     hasChildren: true
                 });

@@ -1,4 +1,5 @@
 ﻿import {ILocalizationService, INavigationService} from "../../../core";
+import {AppConstants} from "../../../core/constants";
 import {Models} from "../../../main";
 import {IArtifactManager, IStatefulArtifact, IStatefulSubArtifact} from "../../../managers/artifact-manager";
 import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
@@ -143,7 +144,10 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
 
     public selectArtifactVersion(artifactHistoryItem: IArtifactHistoryVersion): void {
         this.selectedArtifactVersion = artifactHistoryItem;
-        this.navigationService.navigateTo({ id: this.artifactId, version: artifactHistoryItem.versionId });
+        const versionId = artifactHistoryItem.versionId;
+        if (versionId > 0 && versionId !== new AppConstants().draftVersion) {
+            this.navigationService.navigateTo({ id: this.artifactId, version: artifactHistoryItem.versionId });
+        }
     }
 
     private getHistoricalVersions(limit: number,

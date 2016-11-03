@@ -40,13 +40,16 @@ export class NavigationService implements INavigationService {
 
     public getNavigationState(): INavigationState {
         const idParameter = this.$state.params["id"];
+        const versionParameter = this.$state.params["version"];
         const pathParameter = this.$state.params["path"];
 
-        const id: number = idParameter ? Number(idParameter) : null;
-        const path: number[] = pathParameter ? pathParameter.split(this.delimiter).map((element) => Number(element)) : null;
+        const id: number = idParameter ? Number(idParameter) : undefined;
+        const version: number = versionParameter ? Number(versionParameter) : undefined;
+        const path: number[] = pathParameter ? pathParameter.split(this.delimiter).map((element) => Number(element)) : undefined;
 
         return <INavigationState>{
             id: id,
+            version: version,
             path: path
         };
     }
@@ -88,6 +91,10 @@ export class NavigationService implements INavigationService {
         const parameters = { 
             id: params.id
         };
+
+        if (_.isFinite(params.version)) {
+            parameters["version"] = params.version;
+        }
 
         if (params.enableTracking && currentState.id) {
             if (!currentState.path || currentState.path.length === 0) {

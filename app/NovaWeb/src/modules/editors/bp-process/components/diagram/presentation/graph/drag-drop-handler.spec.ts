@@ -40,8 +40,8 @@ describe("Drag-drop test", () => {
         statefulArtifactFactory: IStatefulArtifactFactory,
         shapesFactory: ShapesFactory;
 
-    let w: any = window;
-    w.executionEnvironmentDetector = ExecutionEnvironmentDetectorMock;
+    let _window: any = window;
+    _window.executionEnvironmentDetector = ExecutionEnvironmentDetectorMock;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("messageService", MessageServiceMock);

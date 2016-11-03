@@ -129,7 +129,7 @@ export class BPUtilityPanelController {
         }
     }
 
-    private updateItemName = (artifact) => {
+    private updateItemName = (artifact: ISelection) => {
         const item: IStatefulItem = artifact ? (artifact.subArtifact || artifact.artifact) : undefined;
 
         if (item && item.name !== "") {
@@ -137,7 +137,7 @@ export class BPUtilityPanelController {
         }
     }
 
-    private onArtifactChanged = (artifact) => {
+    private onArtifactChanged = (artifact: ISelection) => {
         this.updateItemName(artifact);
     };
 

@@ -52,7 +52,7 @@ export abstract class StatefulItem implements IIStatefulItem {
     private _error: Rx.BehaviorSubject<IApplicationError>;
     private _propertySubject: Rx.BehaviorSubject<IItemChangeSet>;
 
-    constructor(private artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
+    constructor(protected artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
     }
 
     public dispose() {

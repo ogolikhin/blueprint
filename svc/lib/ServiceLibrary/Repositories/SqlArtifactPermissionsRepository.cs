@@ -1,8 +1,6 @@
-﻿using ArtifactStore.Models;
-using Dapper;
+﻿using Dapper;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using ServiceLibrary.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,21 +10,21 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 
-namespace ArtifactStore.Repositories
+namespace ServiceLibrary.Repositories
 {
-    internal class ProjectsArtifactsItem
+    public class ProjectsArtifactsItem
     {
         public int VersionProjectId;
         public int VersionArtifactId;
         public int HolderId;
     }
-    internal class VersionProjectInfo
+    public class VersionProjectInfo
     {
         public int ProjectId;
         public long? Permissions;
     }
 
-    internal class OpenArtifactPermission
+    public class OpenArtifactPermission
     {
         public int HolderId;
         public long? Permissions;

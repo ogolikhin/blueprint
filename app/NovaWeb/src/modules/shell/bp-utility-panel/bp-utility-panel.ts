@@ -70,9 +70,7 @@ export class BPUtilityPanelController {
             .distinctUntilChanged()
             .subscribe(this.onSelectionChanged);
 
-        this._subscribers = [
-            selectionObservable
-        ];
+        this._subscribers = [selectionObservable];
     }
 
     public $onDestroy() {
@@ -104,7 +102,7 @@ export class BPUtilityPanelController {
     private updateItem = (changes: IItemChangeSet) => {
         if (changes && changes.item) {
             const item: IStatefulItem = changes.item;
-            this._currentItem = `${(item.prefix || "")}${item.id}: ${item.name}`;
+            this._currentItem = `${(item.prefix || "")}${item.id}: ${item.name || ""}`;
             if (item.itemTypeId === ItemTypePredefined.Collections && item.predefinedType === ItemTypePredefined.CollectionFolder) {
                 this._currentItemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[ItemTypePredefined.Collections] || "");
             } else {
@@ -128,9 +126,7 @@ export class BPUtilityPanelController {
     } 
 
     private onSelectionChanged = (selection: ISelection) => {
-//        this.updateItem(selection);
         const item: IStatefulItem = selection ? (selection.subArtifact || selection.artifact) : undefined;
-
         if (this.propertySubscriber) {
             this.propertySubscriber.dispose();
         }

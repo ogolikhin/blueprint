@@ -110,6 +110,7 @@
     <Compile Include="Models\Enums\ItemTypePredefined.cs" />
     <Compile Include="Models\InstanceSettings\EmailSettings.cs" />
     <Compile Include="Models\Interfaces\IArtifact.cs" />
+    <Compile Include="Models\ItemInfo.cs" />
     <Compile Include="Models\ProjectPermissions.cs" />
     <Compile Include="Models\RolePermissions.cs" />
     <Compile Include="Models\SQLTraceLogModel.cs" />
@@ -127,10 +128,12 @@
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceLogRepository.cs" />
+    <Compile Include="Repositories\IArtifactPermissionsRepository.cs" />
     <Compile Include="Repositories\InstanceSettings\IInstanceSettingsRepository.cs" />
     <Compile Include="Repositories\InstanceSettings\SqlInstanceSettingsRepository.cs" />
     <Compile Include="Repositories\IUsersRepository.cs" />
     <Compile Include="Repositories\JobExecutorStatusRepository.cs" />
+    <Compile Include="Repositories\SqlArtifactPermissionsRepository.cs" />
     <Compile Include="Repositories\SqlConnectionWrapper.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceConfigRepository.cs" />
     <Compile Include="Repositories\ServiceDependencyStatusRepository.cs" />

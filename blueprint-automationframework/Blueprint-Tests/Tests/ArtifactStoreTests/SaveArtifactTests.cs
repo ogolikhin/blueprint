@@ -50,10 +50,20 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_PublishedArtifact_CanGetArtifact(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            artifact.Lock();
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5));
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            artifact.Lock(author);
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            // Execute:
+            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5), author);
+
+            // Verify:
+            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetailsAfter);
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
@@ -62,10 +72,20 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_UnpublishedArtifact_CanGetArtifact(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            // Execute & Verify:
-            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5));
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, author, artifactType);
+
+            string description = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5);
+
+            // Execute:
+            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", description, author);
+
+            // Verify:
+            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+
+            Assert.IsNotNull(artifactDetailsAfter.Description);
+            Assert.AreEqual("<html><head/>" + description + "</html>", artifactDetailsAfter.Description);
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
@@ -74,11 +94,20 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_PublishedArtifact_SetEmptyNameProperty_CanGetArtifact(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            artifact.Lock();
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            // Execute & Verify:
-            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Name", "");
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            artifact.Lock(author);
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            // Execute:
+            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Name", "", author);
+
+            // Verify:
+            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetailsAfter);
         }
 
         private const int CU_NUMBER_PROPERTY_ID = 120;
@@ -316,11 +345,12 @@ namespace ArtifactStoreTests
             IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
             artifact.Lock();
 
-            // Execute & Verify:
+            // Execute:
             var ex = Assert.Throws<Http401UnauthorizedException>(() => artifact.Save(userWithBadToken, shouldGetLockForUpdate: false),
                 "'PATCH {0}' should return 401 Unauthorized if an invalid token is passed!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
+            // Verify
             const string expectedMessage = "Unauthorized call";
             AssertStringMessaceIsCorrect(ex.RestResponse, expectedMessage);
         }
@@ -332,16 +362,16 @@ namespace ArtifactStoreTests
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+
             IUser userWithoutPermission = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
                 InstanceAdminRole.BlueprintAnalytics);
 
-            artifact.Lock();
-
-            // Execute & Verify:
+            // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => artifact.Save(userWithoutPermission, shouldGetLockForUpdate: false),
                 "'PATCH {0}' should return 403 Forbidden if the user doesn't have permission to update artifacts!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
+            // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", artifact.Id);
             AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
         }
@@ -458,23 +488,23 @@ namespace ArtifactStoreTests
         /// <param name="artifactType">The type of artifact.</param>
         /// <param name="propertyToChange">Property to change.</param>
         /// <param name="value">The value to what property will be changed</param>
-        private void UpdateArtifact_CanGetArtifact<T>(IArtifact artifact, BaseArtifactType artifactType, string propertyToChange, T value)
+        private void UpdateArtifact_CanGetArtifact<T>(IArtifact artifact, BaseArtifactType artifactType, string propertyToChange, T value, IUser user)
         {
             // Setup:
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
 
             SetProperty(propertyToChange, value, ref artifactDetails);
 
             NovaArtifactDetails updateResult = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, _user, artifactDetails, address: Helper.BlueprintServer.Address),
+            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, user, artifactDetails, address: Helper.BlueprintServer.Address),
                 "Exception caught while trying to update an artifact of type: '{0}'!", artifactType);
 
             // Verify:
             Assert.AreEqual(artifactDetails.CreatedBy?.DisplayName, updateResult.CreatedBy?.DisplayName, "The CreatedBy properties don't match!");
 
-            IOpenApiArtifact openApiArtifact = OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, _user);
+            IOpenApiArtifact openApiArtifact = OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, user);
             ArtifactStoreHelper.AssertArtifactsEqual(updateResult, artifactDetails);
             TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
         }

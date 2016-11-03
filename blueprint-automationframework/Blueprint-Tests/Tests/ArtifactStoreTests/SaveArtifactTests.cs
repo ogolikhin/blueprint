@@ -224,6 +224,32 @@ namespace ArtifactStoreTests
                     "Value of year in this custom property with id {0} should be {1} but was {2}!", propertyTypeId, yearOutPropertyRange, newDate.Year);
         }
 
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
+        [TestRail(0)]
+        [Description("Create & save an artifact.  Update the artifact type.  Get the artifact.  Verify the artifact returned has the updated property type as the artifact we updated.")]
+        public void UpdateArtifact_SavedArtifactUpdateArtifactType_CanGetArtifact(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IUser user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, user, artifactType);
+            artifact.Lock(user);
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
+
+            //            Helper.AdminStore.AddSession(_user.Username, _user.Password);
+
+            Helper.AssignProjectRolePermissionsToUser(user, TestHelper.ProjectRole.Viewer, _project);
+
+            // Execute:
+            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5), user);
+
+            // Verify:
+            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetailsAfter);
+        }
+
         #endregion 200 OK tests
 
         #region Negative tests
@@ -368,6 +394,29 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => artifact.Save(userWithoutPermission, shouldGetLockForUpdate: false),
+                "'PATCH {0}' should return 403 Forbidden if the user doesn't have permission to update artifacts!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", artifact.Id);
+            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
+        }
+
+        [Explicit(IgnoreReasons.ProductBug)]    //Opened trello issue for clarification.
+        [TestCase]
+        [TestRail(190881)]
+        [Description("Create & publish an artifact.  Lock artifact with an author, change permissions to viewer and update the artifact.  Verify 403 Forbidden is returned.")]
+        public void UpdateArtifact_UserLosesPermissionsToArtifact_403Forbidden()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+
+            IUser user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+
+            Helper.AssignProjectRolePermissionsToUser(user, TestHelper.ProjectRole.Viewer, _project);
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => artifact.Save(user),
                 "'PATCH {0}' should return 403 Forbidden if the user doesn't have permission to update artifacts!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 

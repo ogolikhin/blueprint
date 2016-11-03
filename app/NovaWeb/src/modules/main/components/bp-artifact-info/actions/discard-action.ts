@@ -15,18 +15,12 @@ export class DiscardAction extends BPButtonAction {
 
         super(
             (): void => {
-                let overlayId: number = loadingOverlayService.beginLoading();
-
                 artifact.discardArtifact()
                 .catch((err) => {
                     if (err) {
                         messageService.addError(err);
                     }
-                })
-                .finally(() => {
-                    loadingOverlayService.endLoading(overlayId);
                 });
-
             },
             (): boolean => artifact ? artifact.canBePublished() : false,
             "fonticon2-discard-line",

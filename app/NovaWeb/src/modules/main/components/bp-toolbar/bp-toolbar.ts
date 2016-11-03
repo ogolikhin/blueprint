@@ -1,5 +1,6 @@
 ﻿import {ILocalizationService, IMessageService, MessageType} from "../../../core";
 import {IDialogSettings, IDialogService} from "../../../shared";
+import {DialogTypeEnum} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {Models} from "../../models";
 import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
 import {IArtifactManager, IProjectManager} from "../../../managers";
@@ -165,12 +166,13 @@ class BPToolbarController implements IBPToolbarController {
     private confirmDiscardAll(data: Models.IPublishResultSet) {
         const selectedProject: Project = this.projectManager.getSelectedProject();
         this.dialogService.open(<IDialogSettings>{
-            okButton: this.localization.get("App_Button_Discard"),
-            cancelButton: this.localization.get("App_Button_Cancel"),
+            okButton: this.localization.get("Discard_All_Ok_Button"),
+            cancelButton: this.localization.get("Discard_All_Cancel_Button"),
             message: this.localization.get("Discard_All_Dialog_Message"),
             template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
             controller: ConfirmPublishController,
-            css: "nova-publish"
+            css: "nova-publish modal-alert",
+            header: this.localization.get("App_DialogTitle_Alert")
         },
         <IConfirmPublishDialogData>{
             artifactList: data.artifacts,

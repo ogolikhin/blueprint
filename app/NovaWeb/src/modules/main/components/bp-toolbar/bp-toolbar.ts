@@ -308,7 +308,8 @@ class BPToolbarController implements IBPToolbarController {
     };
 
     public get canCreateNew(): boolean {
-        return this._currentArtifact ? !this._currentArtifact.artifactState.readonly : false;
+        // if no artifact/project is selected and the project explorer is not open at all, always disable the button
+        return this._currentArtifact && !!this.projectManager.getSelectedProject() ? !this._currentArtifact.artifactState.readonly : false;
     }
 
     private createNewArtifact() {

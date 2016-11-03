@@ -273,7 +273,7 @@ export class ProjectManager implements IProjectManager {
             this.projectService.getProject(oldProjectId).then((result: AdminStoreModels.IInstanceItem) => {
 
                 //add some additional info
-                angular.extend(result, {
+                _.assign(result, {
                     projectId: oldProjectId,
                     itemTypeId: Enums.ItemTypePredefined.Project,
                     prefix: "PR",
@@ -353,7 +353,7 @@ export class ProjectManager implements IProjectManager {
         let project: Project = this.getProject(data.id);
         if (!project) {
             this.metadataService.get(data.id).then(() => {
-                angular.extend(data, {
+                _.assign(data, {
                     projectId: data.id,
                     itemTypeId: Enums.ItemTypePredefined.Project,
                     prefix: "PR",

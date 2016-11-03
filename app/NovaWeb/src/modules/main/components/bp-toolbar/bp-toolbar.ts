@@ -1,6 +1,6 @@
 ﻿import {ILocalizationService, IMessageService, MessageType} from "../../../core";
 import {IDialogSettings, IDialogService} from "../../../shared";
-import {Models} from "../../models";
+import {Models, Enums} from "../../models";
 import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
@@ -8,7 +8,6 @@ import {OpenProjectController} from "../dialogs/open-project/open-project";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../dialogs/bp-confirm-publish";
 import {CreateNewArtifactController, ICreateNewArtifactDialogData} from "../dialogs/new-artifact";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
-import {Helper} from "../../../shared/utils/helper";
 import {ILoadingOverlayService} from "../../../core/loading-overlay";
 import {Project} from "../../../managers/project-manager/project";
 
@@ -309,7 +308,7 @@ class BPToolbarController implements IBPToolbarController {
     };
 
     public get canCreateNew(): boolean {
-        return this._currentArtifact ? !this._currentArtifact.artifactState.readonly : false;
+        return this._currentArtifact ? !!(this._currentArtifact.permissions & Enums.RolePermissions.Edit) : false;
     }
 
     private createNewArtifact() {
@@ -323,8 +322,9 @@ class BPToolbarController implements IBPToolbarController {
                 css: "nova-model" //temp
             },
             <ICreateNewArtifactDialogData>{
+                projectId: artifact.projectId,
                 parentId: artifact.id,
-                parentType: artifact.itemTypeId
+                parentPredefinedType: artifact.predefinedType
             })
             .then(() => {
                 console.log(artifact);

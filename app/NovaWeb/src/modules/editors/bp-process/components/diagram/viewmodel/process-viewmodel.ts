@@ -36,7 +36,7 @@ export class ProcessViewModel implements IProcessViewModel {
     private DEFAULT_SHAPE_LIMIT: number = 100;
 
     private _rootScope: any = null;
-    private _scope: any = null;
+    private _scope: ng.IScope = null;
     private _messageService: IMessageService = null;
     private processGraphModel: IProcessGraphModel = null;
     private _licenseType: Enums.LicenseTypeEnum;
@@ -200,8 +200,9 @@ export class ProcessViewModel implements IProcessViewModel {
         const message = new Message(messageType, messageText);
 
         if (message && this._messageService) {
-            //this._messageService.clearMessages();
             this._messageService.addMessage(message);
+            // force $digest cycle to show message
+            this._scope.$apply();
         }
     }
 

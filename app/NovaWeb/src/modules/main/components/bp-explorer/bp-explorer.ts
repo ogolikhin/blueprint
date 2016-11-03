@@ -4,7 +4,7 @@ import {ItemTypePredefined} from "../../models/enums";
 import {Helper, IBPTreeController} from "../../../shared";
 import {IProjectManager, IArtifactManager} from "../../../managers";
 import {Project} from "../../../managers/project-manager";
-import {IStatefulArtifact} from "../../../managers/artifact-manager";
+import {IStatefulArtifact, IItemChangeSet} from "../../../managers/artifact-manager";
 import {ISelectionManager} from "../../../managers/selection-manager";
 import {IArtifactNode} from "../../../managers/project-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
@@ -78,7 +78,9 @@ export class ProjectExplorerController {
         if (this.selectedArtifactSubscriber) {
             this.selectedArtifactSubscriber.dispose();
         }
-        this.selectedArtifactSubscriber = value.artifact.getObservable().subscribeOnNext(this.onSelectedArtifactChange);
+        this.selectedArtifactSubscriber = value.artifact.properyObservable()
+                        .distinctUntilChanged(changes => changes.item && changes.item.name)                            
+                        .subscribeOnNext(this.onSelectedArtifactChange);
     }
 
     // the object defines how data will map to ITreeNode
@@ -201,16 +203,16 @@ export class ProjectExplorerController {
         }
     };
 
-    public onSelectedArtifactChange = (artifact: IStatefulArtifact) => {
+    public onSelectedArtifactChange = (changes: IItemChangeSet) => {
         //If the artifact's name changes (on refresh), we refresh specific node only .
-        //To prevent update treenode name while editing the artifact details, use it only for clean artifact. 
-        if (artifact.name !== this.selectedArtifactNameBeforeChange && !artifact.artifactState.dirty) {
-            let node = this.tree.getNodeData(artifact.id) as IArtifactNode;
+        //To prevent update treenode name while editing the artifact details, use it only for clean artifact.
+        if (changes.item) {
+            let node = this.tree.getNodeData(changes.item.id) as IArtifactNode;
             if (node) {
-                node.name = artifact.name;
+                node.name = changes.item.name;
                 this.tree.refresh(node.id);
             }
-        }
+        } 
     };
 
     public doLoad = (prms: Models.IProject): any[] => {

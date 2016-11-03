@@ -2,7 +2,7 @@ import * as angular from "angular";
 import * as _ from "lodash";
 import {ILocalizationService} from "../../core";
 import {Models} from "../../main";
-import {IArtifactManager, ISelection, IStatefulItem} from "../../managers/artifact-manager";
+import {IArtifactManager, ISelection, IStatefulItem, IItemChangeSet, StatefulArtifact} from "../../managers/artifact-manager";
 import {ItemTypePredefined} from "../../main/models/enums";
 import {IBpAccordionController} from "../../main/components/bp-accordion/bp-accordion";
 
@@ -27,6 +27,7 @@ export class BPUtilityPanelController {
     ];
 
     private _subscribers: Rx.IDisposable[];
+    private propertySubscriber: Rx.IDisposable;
     private _currentItem: string;
     private _currentItemClass: string;
     private _currentItemType: number;
@@ -100,9 +101,9 @@ export class BPUtilityPanelController {
         return angular.element(this.$element.find("bp-accordion")[0]).controller("bpAccordion");
     }
 
-    private updateItem(selection: ISelection) {
-        const item: IStatefulItem = selection ? (selection.subArtifact || selection.artifact) : undefined;
-        if (item) {
+    private updateItem = (changes: IItemChangeSet) => {
+        if (changes && changes.item) {
+            const item: IStatefulItem = changes.item;
             this._currentItem = `${(item.prefix || "")}${item.id}: ${item.name}`;
             if (item.itemTypeId === ItemTypePredefined.Collections && item.predefinedType === ItemTypePredefined.CollectionFolder) {
                 this._currentItemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[ItemTypePredefined.Collections] || "");
@@ -111,7 +112,7 @@ export class BPUtilityPanelController {
             }
             this._currentItemType = item.itemTypeId;
             this._currentItemIcon = null;
-            if (item.predefinedType !== ItemTypePredefined.Project && !selection.subArtifact) {
+            if (item.predefinedType !== ItemTypePredefined.Project && item instanceof StatefulArtifact) {
                 const artifactType = item.metadata.getItemTypeTemp();
                 if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
                     this._currentItemIcon = artifactType.iconImageId;
@@ -123,10 +124,20 @@ export class BPUtilityPanelController {
             this._currentItemType = null;
             this._currentItemIcon = null;
         }
-    }
+
+    } 
 
     private onSelectionChanged = (selection: ISelection) => {
-        this.updateItem(selection);
+//        this.updateItem(selection);
+        const item: IStatefulItem = selection ? (selection.subArtifact || selection.artifact) : undefined;
+
+        if (this.propertySubscriber) {
+            this.propertySubscriber.dispose();
+        }
+        if (item) {
+            this.propertySubscriber = item.properyObservable().subscribeOnNext(this.updateItem);
+        }
+        
         if (selection && (selection.artifact || selection.subArtifact)) {
             this.toggleHistoryPanel(selection);
             this.togglePropertiesPanel(selection);

@@ -83,10 +83,11 @@ export class BpArtifactInfoController {
 
         this.artifact = this.artifactManager.selection.getArtifact();
         if (this.artifact) {
-            const artifactStateSub = this.artifact.getObservable()
-                .subscribeOnNext(this.onArtifactChanged);
-
-            this.subscribers.push(artifactStateSub);
+            this.subscribers.push(this.artifact.getObservable()
+                                                .subscribeOnNext(this.onArtifactChanged));
+            this.subscribers.push(this.artifact.properyObservable()
+                                                .distinctUntilChanged(changes => changes.item && changes.item.name)                            
+                                                .subscribeOnNext(this.onArtifactPropertyChanged));
         }
     }
 
@@ -103,6 +104,11 @@ export class BpArtifactInfoController {
         if (this.artifact) {
             this.updateProperties(this.artifact);
             this.subscribeToStateChange(this.artifact);
+        }
+    }
+    protected onArtifactPropertyChanged = (change ) => {
+        if (this.artifact) {
+            this.artifactName = change.item.name;
         }
     }
 

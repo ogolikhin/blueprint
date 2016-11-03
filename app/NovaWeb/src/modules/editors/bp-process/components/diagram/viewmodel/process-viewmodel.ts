@@ -202,7 +202,9 @@ export class ProcessViewModel implements IProcessViewModel {
         if (message && this._messageService) {
             this._messageService.addMessage(message);
             // force $digest cycle to show message
-            this._scope.$apply();
+            if (this._scope && this._scope.$apply) {
+                this._scope.$apply();
+            }
         }
     }
 

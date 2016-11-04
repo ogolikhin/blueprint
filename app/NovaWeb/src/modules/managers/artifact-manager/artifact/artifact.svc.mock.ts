@@ -139,10 +139,41 @@ export class ArtifactServiceMock implements IArtifactService {
         return deferred.promise;
     }
 
+
+
      public getArtifactModel<T extends Models.IArtifact>(url: string, id: number, versionId?: number, timeout?: ng.IPromise<any>): ng.IPromise<T> {
         const deferred = this.$q.defer<any>();
         deferred.resolve(ArtifactServiceMock.createArtifact(id));
         return deferred.promise;
      }
+
+     public static createChildren(artifactId: number, count: number): Models.IArtifact[] {
+        const result: Models.IArtifact[] = [];
+        for (let i = 1; i <= count; i++) {
+            result.push(ArtifactServiceMock.createArtifact(artifactId + i));
+        }
+        return result;
+     }
+
+    public getChilden(projectId: number, artifactId?: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.IArtifact[]> {
+        const deferred = this.$q.defer<Models.IArtifact[]>();
+        const result = ArtifactServiceMock.createChildren(artifactId, 5);
+        deferred.resolve(result);
+        return deferred.promise;
+    }
+
+    public deleteArtifact(artifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.IArtifact[]> {
+        const deferred = this.$q.defer<Models.IArtifact[]>();
+        let result: Models.IArtifact[] = [];
+
+        if (artifactId === 200) {
+            result = ArtifactServiceMock.createChildren(artifactId, 5);
+        } else {
+            result = [ArtifactServiceMock.createArtifact(artifactId, 2)];
+        }
+        deferred.resolve(result);
+        return deferred.promise;
+        
+    }
 
 }

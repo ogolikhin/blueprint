@@ -29,6 +29,12 @@
     border-bottom-right-radius: $radius;
 }
 
+@mixin text-ellipsis-any-width() {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 @mixin text-ellipsis-fixed-width($width) {
     white-space: nowrap;
     width: $width;

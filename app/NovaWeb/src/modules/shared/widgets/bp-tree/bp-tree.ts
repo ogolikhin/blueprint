@@ -419,16 +419,9 @@ export class BPTreeController implements IBPTreeController {
 
         if (isSelected) {
             if (!this.selectedRowNode || this.selectedRowNode.data.id !== node.data.id) {
-                if (_.isFunction(this.onSelect)) {
-                    this.onSelect({item: node.data});
-                }
                 this.selectedRowNode = node;
                 this.clearFocus();
             }
-        // } else {
-        //     if (this.selectedRowNode.data.id === node.data.id) {
-        //         node.setSelected(true, true);
-        //     }
         }
     };
 
@@ -445,6 +438,10 @@ export class BPTreeController implements IBPTreeController {
         const node = model.getRow(params.rowIndex);
 
         node.setSelected(true, true);
+
+        if (_.isFunction(this.onSelect)) {
+            this.onSelect({item: node.data});
+        }
     };
 
     private rowPostCreate = (params: any) => {

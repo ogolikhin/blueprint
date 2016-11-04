@@ -1,7 +1,8 @@
 import { IDialogSettings, BaseDialogController, IDialogData } from "../../../../shared";
-import { IProjectService } from "../../../../managers/project-manager";
+import { IMetaDataService } from "../../../../managers/artifact-manager";
 import { ItemTypePredefined } from "../../../../main/models/enums";
-import { IProjectMeta } from "../../../../main/models/models";
+import { IProjectMeta, IItemType } from "../../../../main/models/models";
+import { IMessageService, ILocalizationService } from "../../../../core";
 
 export interface ICreateNewArtifactController {
     errorMessage: string;
@@ -22,20 +23,23 @@ export class CreateNewArtifactController extends BaseDialogController implements
     private _parentType: number;
 
     private _projectMeta: IProjectMeta;
-    private _acceptableItemType: ItemTypePredefined[];
 
     static $inject = [
         "$uibModalInstance",
         "dialogSettings",
-        "projectService",
-        "dialogData"
+        "dialogData",
+        "localization",
+        "messageService",
+        "metadataService"
     ];
 
     constructor (
         $instance: ng.ui.bootstrap.IModalServiceInstance,
         dialogSettings: IDialogSettings,
-        projectService: IProjectService,
-        public dialogData: ICreateNewArtifactDialogData
+        public dialogData: ICreateNewArtifactDialogData,
+        private localization: ILocalizationService,
+        private messageService: IMessageService,
+        private metadataService: IMetaDataService
     ) {
         super($instance, dialogSettings);
 
@@ -57,12 +61,17 @@ export class CreateNewArtifactController extends BaseDialogController implements
             this._parentType = dialogData.parentPredefinedType;
         }
 
-        projectService.getProjectMeta(this._projectId).then(
-            (projectMeta: IProjectMeta) => {
-                this._projectMeta = projectMeta;
+        metadataService.get(this._projectId).then(
+            (results) => {
+                this._projectMeta = results.data;
             },
             (error) => {
-                throw new Error("project meta error");
+                this.cancel();
+                if (error && error.message) {
+                    this.messageService.addError(error.message || "Project_MetaDataNotFound");
+                } else {
+                    throw new Error("Project metadata missing");
+                }
             }
         );
     }
@@ -95,9 +104,16 @@ export class CreateNewArtifactController extends BaseDialogController implements
         });
     };
 
-    public availableItemTypes = (): ItemTypePredefined[] => {
+    public availableItemTypes = (): IItemType[] => {
         const availableItemTypePredefined = this.filterItemTypePredefinedByParent();
-        return [];
+        let _availableItemTypes: IItemType[] = [];
+        if (this._projectMeta) {
+            _availableItemTypes = this._projectMeta.artifactTypes.filter((artifactType: IItemType) => {
+                return availableItemTypePredefined.indexOf(artifactType.predefinedType) !== -1;
+            });
+
+        }
+        return _availableItemTypes;
     };
 
     public get hasError(): boolean {

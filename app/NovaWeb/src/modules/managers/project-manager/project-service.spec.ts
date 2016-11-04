@@ -322,7 +322,7 @@ describe("Project Repository", () => {
                 ],
                 pageItemCount: 2
             };
-            $httpBackend.expectPOST("/svc/searchservice/itemsearch/name?pageSize=100&startOffset=0", searchCriteria)
+            $httpBackend.expectPOST("/svc/searchservice/itemsearch/name?pageSize=100&startOffset=0&separatorString=+%3E+", searchCriteria)
                 .respond(HttpStatusCode.Success, searchResult);
 
             // Act
@@ -341,7 +341,7 @@ describe("Project Repository", () => {
         it("post - unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
             // Arrange
             const searchCriteria: SearchServiceModels.IItemNameSearchCriteria = {query: "new", projectIds: [1]};
-            $httpBackend.expectPOST("/svc/searchservice/itemsearch/name?pageSize=100&startOffset=0", searchCriteria)
+            $httpBackend.expectPOST("/svc/searchservice/itemsearch/name?pageSize=100&startOffset=0&separatorString=+%3E+", searchCriteria)
                 .respond(HttpStatusCode.Unauthorized);
 
             // Act

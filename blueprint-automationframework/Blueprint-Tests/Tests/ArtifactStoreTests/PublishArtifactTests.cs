@@ -497,9 +497,8 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 400 Bad Request if an artifact already published!", PUBLISH_PATH);
 
             // Verify:
-            string expectedMessage = "{\"message\":\"Artifact with Id " + artifact.Id + " has nothing to publish.\",\"errorCode\":114}";
-            Assert.IsTrue(ex.RestResponse.Content.Contains(expectedMessage));
-
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact with ID {0} has nothing to publish.", artifact.Id);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ValidationFailed, expectedExceptionMessage);
         }
 
         #endregion 400 Bad Request tests
@@ -546,8 +545,8 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found if the Artifact ID doesn't exist!", PUBLISH_PATH);
 
             // Verify:
-            string expectedMessage = "{\"message\":\"Artifact with Id " + artifact.Id + " is deleted.\",\"errorCode\":101}";
-            Assert.IsTrue(ex.RestResponse.Content.Equals(expectedMessage));
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact with ID {0} is deleted.", artifact.Id);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedExceptionMessage);
         }
 
         [TestCase(int.MaxValue)]
@@ -566,8 +565,8 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found if the Artifact ID doesn't exist!", PUBLISH_PATH);
 
             // Verify:
-            string expectedMessage = "{\"message\":\"Item with Id " + artifact.Id + " is not found.\",\"errorCode\":101}";
-            Assert.IsTrue(ex.RestResponse.Content.Equals(expectedMessage));
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("Item with ID {0} is not found.", artifact.Id);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedExceptionMessage);
         }
 
         #endregion 404 Not Found tests
@@ -625,8 +624,8 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict if an artifact already published!", PUBLISH_PATH);
 
             // Verify:
-            string expectedMessage = "{\"message\":\"Artifact with Id " + artifact.Id + " has validation errors.\",\"errorCode\":121}";
-            Assert.IsTrue(ex.RestResponse.Content.Contains(expectedMessage));
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact with ID {0} has validation errors.", artifact.Id);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors, expectedExceptionMessage);
         }
 
         [TestCase("value\":10.0", "value\":999.0", BaseArtifactType.Actor, 0)] //Insert value into Numeric field which is out of range in grandparent artifact
@@ -665,8 +664,8 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict if an artifact already published!", PUBLISH_PATH);
 
             // Verify:
-            string expectedMessage = "{\"message\":\"Artifact with Id " + artifactList[index].Id + " has validation errors.\",\"errorCode\":121}";
-            Assert.IsTrue(ex.RestResponse.Content.Contains(expectedMessage));
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact with ID {0} has validation errors.", artifactList[index].Id);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors, expectedExceptionMessage);
         }
     
         #endregion Custom data tests

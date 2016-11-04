@@ -1,13 +1,13 @@
 ﻿import * as angular from "angular";
 import {Helper} from "../../shared";
-import {Enums, Models} from "../../main";
+import {PropertyTypePredefined, PropertyLookupEnum} from "../../main/models/enums";
+import {IPropertyType, IPropertyValue, IOption, PrimitiveType} from "../../main/models/models";
 
-
-export class PropertyContext implements Models.IPropertyType {
+export class PropertyContext implements IPropertyType {
     public id: number;
     public versionId: number;
     public name: string;
-    public primitiveType: Models.PrimitiveType;
+    public primitiveType: PrimitiveType;
     public instancePropertyTypeId: number;
     public isRichText: boolean;
     public decimalDefaultValue: number;
@@ -22,44 +22,68 @@ export class PropertyContext implements Models.IPropertyType {
     public isMultipleAllowed: boolean;
     public isRequired: boolean;
     public isValidated: boolean;
-    public validValues: Models.IOption[];
+    public validValues: IOption[];
     public defaultValidValueId: number;
-    public propertyTypePredefined: Models.PropertyTypePredefined;
+    public propertyTypePredefined: PropertyTypePredefined;
     public disabled: boolean;
     //extension
     public fieldPropertyName: string;
     public modelPropertyName: string | number;
-    public lookup: Enums.PropertyLookupEnum;
+    public lookup: PropertyLookupEnum;
     public isFresh?: boolean;
 
+    public static createFromPropertyType(type: IPropertyType) {
+        const propertyContext = new PropertyContext();
+        angular.extend(propertyContext, type);
+        propertyContext.init();
+        return propertyContext;
+    }
 
-    constructor(type: Models.IPropertyType) {
-        angular.extend(this, type);
-        let propertyTypeName: string = _.camelCase(String(Models.PropertyTypePredefined[this.propertyTypePredefined]));
+    public static createFromPropertyValue(propertyValue: IPropertyValue) {
+        const propertyContext = new PropertyContext();
+        propertyContext.id = propertyValue.propertyTypeId;
+        propertyContext.propertyTypePredefined = propertyValue.propertyTypePredefined;
+        propertyContext.name = propertyValue["name"];
+        propertyContext.primitiveType = propertyValue["primitiveType"];
+        propertyContext.isMultipleAllowed = propertyValue.isMultipleAllowed;
+        if (propertyContext.primitiveType === PrimitiveType.Text) {
+            propertyContext.isRichText = propertyValue.isRichText;
+        }
+        else if (propertyContext.primitiveType === PrimitiveType.Choice && propertyValue.value) {
+            propertyContext.isMultipleAllowed = propertyValue.value["isMultipleAllowed"];
+            if (propertyValue.value["validValues"]) {
+                propertyContext.validValues = propertyValue.value["validValues"];
+            }
+        }
+        propertyContext.init();
+        return propertyContext;
+    }
+
+    private init() {
+        let propertyTypeName: string = _.camelCase(String(PropertyTypePredefined[this.propertyTypePredefined]));
         if (this.isSystem(this.propertyTypePredefined)) {
-            this.lookup = Enums.PropertyLookupEnum.System;
+            this.lookup = PropertyLookupEnum.System;
             this.fieldPropertyName = propertyTypeName;
             this.modelPropertyName = propertyTypeName;
-        } else if (angular.isUndefined(this.propertyTypePredefined) && angular.isNumber(this.id)) {
-            this.lookup = Enums.PropertyLookupEnum.Custom;
-            this.fieldPropertyName = `${Enums.PropertyLookupEnum[this.lookup]}_${this.id.toString()}`;
+        } else if (this.propertyTypePredefined === PropertyTypePredefined.CustomGroup) {
+            this.lookup = PropertyLookupEnum.Custom;
+            this.fieldPropertyName = `${PropertyLookupEnum[this.lookup]}_${this.id.toString()}`;
             this.modelPropertyName = this.id;
         } else {
-            this.lookup = Enums.PropertyLookupEnum.Special;
+            this.lookup = PropertyLookupEnum.Special;
             this.fieldPropertyName = propertyTypeName;
             this.modelPropertyName = this.propertyTypePredefined;
         }
     }
 
-    private isSystem(type: Models.PropertyTypePredefined): boolean {
-        return [Models.PropertyTypePredefined.Name,
-                Models.PropertyTypePredefined.ItemTypeId,
-                Models.PropertyTypePredefined.CreatedBy,
-                Models.PropertyTypePredefined.CreatedOn,
-                Models.PropertyTypePredefined.LastEditedBy,
-                Models.PropertyTypePredefined.LastEditedOn,
-                Models.PropertyTypePredefined.Description].indexOf(type) >= 0;
+    private isSystem(type: PropertyTypePredefined): boolean {
+        return [PropertyTypePredefined.Name,
+                PropertyTypePredefined.ItemTypeId,
+                PropertyTypePredefined.CreatedBy,
+                PropertyTypePredefined.CreatedOn,
+                PropertyTypePredefined.LastEditedBy,
+                PropertyTypePredefined.LastEditedOn,
+                PropertyTypePredefined.Description].indexOf(type) >= 0;
     }
 
 }
-

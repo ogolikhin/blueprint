@@ -120,7 +120,7 @@ describe("Component BPPropertiesPanel", () => {
                 predefinedType: Models.ItemTypePredefined.PROShape
             } as Models.ISubArtifact;
 
-            let observerSpy1 = spyOn(artifactService, "getSubArtifact").and.callThrough();
+            const observerSpy1 = spyOn(artifactService, "getSubArtifact").and.callThrough();
 
             const artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
             const subArtifact = statefulArtifactFactory.createStatefulSubArtifact(artifact, subArtifactModel);
@@ -145,7 +145,7 @@ describe("Component BPPropertiesPanel", () => {
                 prefix: "SA",
                 predefinedType: Models.ItemTypePredefined.PROShape
             } as Models.ISubArtifact;
-            let observerSpy1 = spyOn(metadataService, "getArtifactPropertyTypes").and.callThrough();
+            const observerSpy1 = spyOn(metadataService, "getArtifactPropertyTypes").and.callThrough();
 
             // Act
             artifactManager.selection.setArtifact(undefined);
@@ -181,7 +181,7 @@ describe("Component BPPropertiesPanel", () => {
     it("on field update for plain text",
         inject(($rootScope: ng.IRootScopeService) => {
             //Arrange
-            let pt: Models.IPropertyType = {
+            const pt: Models.IPropertyType = {
                 id: 1,
                 versionId: 1,
                 name: "",
@@ -205,8 +205,8 @@ describe("Component BPPropertiesPanel", () => {
                 propertyTypePredefined: Enums.PropertyTypePredefined.Description,
                 disabled: false
             };
-            let pc: PropertyContext = new PropertyContext(pt);
-            let field: AngularFormly.IFieldConfigurationObject = {data: pc};
+            const pc: PropertyContext = PropertyContext.createFromPropertyType(pt);
+            const field: AngularFormly.IFieldConfigurationObject = {data: pc};
             ctrl.systemFields = [];
 
             // Act
@@ -219,7 +219,7 @@ describe("Component BPPropertiesPanel", () => {
     it("on field update for rich text",
         inject(($rootScope: ng.IRootScopeService) => {
             //Arrange
-            let pt: Models.IPropertyType = {
+            const pt: Models.IPropertyType = {
                 id: 1,
                 versionId: 1,
                 name: "",
@@ -243,8 +243,8 @@ describe("Component BPPropertiesPanel", () => {
                 propertyTypePredefined: Enums.PropertyTypePredefined.Description,
                 disabled: false
             };
-            let pc: PropertyContext = new PropertyContext(pt);
-            let field: AngularFormly.IFieldConfigurationObject = {data: pc};
+            const pc: PropertyContext = PropertyContext.createFromPropertyType(pt);
+            const field: AngularFormly.IFieldConfigurationObject = {data: pc};
             ctrl.richTextFields = [];
 
             // Act
@@ -353,7 +353,7 @@ describe("Component BPPropertiesPanel", () => {
             metaDataServiceGetMethodSpy.and.returnValue(deferred.promise);
 
             spyOn(artifactService, "getSubArtifact").and.callFake((artifactId: number, subArtifactId: number) => {
-                    let model = {
+                    const model = {
                         predefinedType: Models.ItemTypePredefined.BPShape,
                         specificPropertyValues: [xPropertyValue, yPropertyValue, widthPropertyValue, heightPropertyValue]
                     };
@@ -374,7 +374,7 @@ describe("Component BPPropertiesPanel", () => {
             $rootScope.$digest();
 
             // Assert
-            let model: any = ctrl.model;
+            const model: any = ctrl.model;
             expect(model.x).toBeDefined();
             expect(model.y).toBeDefined();
             expect(model.width).toBeDefined();
@@ -431,7 +431,7 @@ describe("Component BPPropertiesPanel", () => {
             metaDataServiceGetMethodSpy.and.returnValue(deferred.promise);
 
             spyOn(artifactService, "getSubArtifact").and.callFake((artifactId: number, subArtifactId: number) => {
-                    let model = {
+                    const model = {
                         predefinedType: Models.ItemTypePredefined.PROShape,
                         specificPropertyValues: [xPropertyValue, yPropertyValue, widthPropertyValue, heightPropertyValue]
                     };
@@ -451,7 +451,7 @@ describe("Component BPPropertiesPanel", () => {
             $rootScope.$digest();
 
             // Assert
-            let propertyContexts: PropertyContext[] = ctrl.specificFields.map(a => a.data as PropertyContext);
+            const propertyContexts: PropertyContext[] = ctrl.specificFields.map(a => a.data as PropertyContext);
 
             expect(propertyContexts.filter(a => a.name === "Label_X").length).toBe(0);
             expect(propertyContexts.filter(a => a.name === "Label_Y").length).toBe(0);

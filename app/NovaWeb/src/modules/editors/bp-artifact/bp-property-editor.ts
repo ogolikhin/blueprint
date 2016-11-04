@@ -111,92 +111,86 @@ export class PropertyEditor {
     }
 
 
-    public create(statefulItem: IStatefulItem, properties: Models.IPropertyType[], force: boolean): boolean {
+    public create(statefulItem: IStatefulItem, propertyContexts: PropertyContext[], force: boolean): boolean {
 
         let fieldsupdated: boolean = false;
         this._model = {};
+        this.propertyContexts = propertyContexts;
 
-        if (statefulItem && angular.isArray(properties)) {
-            this.propertyContexts = properties.map((it: Models.IPropertyType) => {
-                return new PropertyContext(it);
-            });
+        //Check if fields changed (from metadata)
+        let fieldNamesChanged = true;
+        let namesChanged = true;
+        if (this._fields) {
+            const newFieldNames = this.propertyContexts.map((prop) => prop.fieldPropertyName);
+            const previousFieldNames = this._fields.map((field) => (field.data as PropertyContext).fieldPropertyName);
+            fieldNamesChanged = _.xor(newFieldNames, previousFieldNames).length > 0; 
 
-            //Check if fields changed (from metadata)
-            let fieldNamesChanged = true;
-            let namesChanged = true;
-            if (this._fields) {
-                const newFieldNames = this.propertyContexts.map((prop) => prop.fieldPropertyName);
-                const previousFieldNames = this._fields.map((field) => (field.data as PropertyContext).fieldPropertyName);
-                fieldNamesChanged = _.xor(newFieldNames, previousFieldNames).length > 0; 
+            const newNames = this.propertyContexts.map((prop) => prop.name);
+            const previousNames = this._fields.map((field) => (field.data as PropertyContext).name);
+            namesChanged = _.xor(newNames, previousNames).length > 0;
+        }
 
-                const newNames = this.propertyContexts.map((prop) => prop.name);
-                const previousNames = this._fields.map((field) => (field.data as PropertyContext).name);
-                namesChanged = _.xor(newNames, previousNames).length > 0;
-            }
+        if (this.itemid !== statefulItem.id || fieldNamesChanged || namesChanged || force) {
+            fieldsupdated = true;
+            this._fields = [];
+        }
 
-            if (this.itemid !== statefulItem.id || fieldNamesChanged || namesChanged || force) {
-                fieldsupdated = true;
-                this._fields = [];
-            }
+        this.propertyContexts.forEach((propertyContext: PropertyContext) => {
+            if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
+                let modelValue: any = null;
+                let isModelSet: boolean = false;
 
-            this.propertyContexts.forEach((propertyContext: PropertyContext) => {
-                if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
-                    let modelValue: any = null;
-                    let isModelSet: boolean = false;
-
-                    if (propertyContext.lookup === Enums.PropertyLookupEnum.System) {
-                        //System property
-                        if (angular.isDefined(statefulItem[propertyContext.modelPropertyName])) {
-                            modelValue = statefulItem[propertyContext.modelPropertyName];
-                        } else {
-                            modelValue = null;
-                        }
-                        isModelSet = true;
-                        if (Models.PropertyTypePredefined.Name === propertyContext.propertyTypePredefined &&
-                            statefulItem.readOnlyReuseSettings &&
-                            (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Name) === Enums.ReuseSettings.Name) {
-                            propertyContext.disabled = true;
-
-                        } else if (Models.PropertyTypePredefined.Description === propertyContext.propertyTypePredefined &&
-                            statefulItem.readOnlyReuseSettings &&
-                            (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Description) === Enums.ReuseSettings.Description) {
-                            propertyContext.disabled = true;
-                        }
-                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Custom) {
-                        //Custom property
-                        let custompropertyvalue = statefulItem.customProperties.get(propertyContext.modelPropertyName as number);
-                        if (custompropertyvalue) {
-                            modelValue = custompropertyvalue.value;
-                            isModelSet = true;
-                            propertyContext.disabled = custompropertyvalue.isReuseReadOnly ? true : propertyContext.disabled;
-                        }
-                    } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Special) {
-                        //Specific property
-                        let specificPropertyValue = statefulItem.specialProperties.get(propertyContext.modelPropertyName as number);
-                        isModelSet = true;
-                        if (specificPropertyValue) {
-                            if (statefulItem.predefinedType === Enums.ItemTypePredefined.Step &&
-                                specificPropertyValue.propertyTypePredefined === Enums.PropertyTypePredefined.StepOf) {
-                                modelValue = this.getActorStepOfValue(specificPropertyValue.value);
-                            } else {
-                                modelValue = specificPropertyValue.value;
-                            }
-                            propertyContext.disabled = specificPropertyValue.isReuseReadOnly ? true : propertyContext.disabled;
-                        }
+                if (propertyContext.lookup === Enums.PropertyLookupEnum.System) {
+                    //System property
+                    if (angular.isDefined(statefulItem[propertyContext.modelPropertyName])) {
+                        modelValue = statefulItem[propertyContext.modelPropertyName];
+                    } else {
+                        modelValue = null;
                     }
-                    if (isModelSet) {
-                        propertyContext.isFresh = true;
-                        let field = this.createPropertyField(propertyContext, statefulItem.id);
-                        this._model[propertyContext.fieldPropertyName] = this.convertToFieldValue(field, modelValue);
-                        if (fieldsupdated) {
-                            this._fields.push(field);
+                    isModelSet = true;
+                    if (Models.PropertyTypePredefined.Name === propertyContext.propertyTypePredefined &&
+                        statefulItem.readOnlyReuseSettings &&
+                        (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Name) === Enums.ReuseSettings.Name) {
+                        propertyContext.disabled = true;
+
+                    } else if (Models.PropertyTypePredefined.Description === propertyContext.propertyTypePredefined &&
+                        statefulItem.readOnlyReuseSettings &&
+                        (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Description) === Enums.ReuseSettings.Description) {
+                        propertyContext.disabled = true;
+                    }
+                } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Custom) {
+                    //Custom property
+                    let custompropertyvalue = statefulItem.customProperties.get(propertyContext.modelPropertyName as number);
+                    if (custompropertyvalue) {
+                        modelValue = custompropertyvalue.value;
+                        isModelSet = true;
+                        propertyContext.disabled = custompropertyvalue.isReuseReadOnly ? true : propertyContext.disabled;
+                    }
+                } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Special) {
+                    //Specific property
+                    let specificPropertyValue = statefulItem.specialProperties.get(propertyContext.modelPropertyName as number);
+                    isModelSet = true;
+                    if (specificPropertyValue) {
+                        if (statefulItem.predefinedType === Enums.ItemTypePredefined.Step &&
+                            specificPropertyValue.propertyTypePredefined === Enums.PropertyTypePredefined.StepOf) {
+                            modelValue = this.getActorStepOfValue(specificPropertyValue.value);
+                        } else {
+                            modelValue = specificPropertyValue.value;
                         }
+                        propertyContext.disabled = specificPropertyValue.isReuseReadOnly ? true : propertyContext.disabled;
                     }
                 }
-            });
-            this.itemid = statefulItem.id;
-
-        }
+                if (isModelSet) {
+                    propertyContext.isFresh = true;
+                    let field = this.createPropertyField(propertyContext, statefulItem.id);
+                    this._model[propertyContext.fieldPropertyName] = this.convertToFieldValue(field, modelValue);
+                    if (fieldsupdated) {
+                        this._fields.push(field);
+                    }
+                }
+            }
+        });
+        this.itemid = statefulItem.id;
 
         return fieldsupdated;
     }
@@ -312,7 +306,6 @@ export class PropertyEditor {
                     }
                     break;
             }
-
         }
         if (field.templateOptions.disabled) {
             if (field.type !== "bpFieldImage" &&

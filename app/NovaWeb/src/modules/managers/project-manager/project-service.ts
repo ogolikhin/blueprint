@@ -76,7 +76,7 @@ export class ProjectService implements IProjectService {
                 defer.resolve(result.data);
             },
             (result: ng.IHttpPromiseCallbackArg<any>) => {
-                result.data.message = "Project_NotFound"; 
+                result.data.message = "Project_NotFound";
                 defer.reject(result.data);
             }
         );
@@ -102,7 +102,7 @@ export class ProjectService implements IProjectService {
                 defer.resolve(result.data);
             },
             (result: ng.IHttpPromiseCallbackArg<any>) => {
-                result.data.message = "Artifact_NotFound"; 
+                result.data.message = "Artifact_NotFound";
                 defer.reject(result.data);
             }
         );
@@ -128,7 +128,7 @@ export class ProjectService implements IProjectService {
                 defer.resolve(result.data);
             },
             (result: ng.IHttpPromiseCallbackArg<any>) => {
-                result.data.message = "Artifact_NotFound"; 
+                result.data.message = "Artifact_NotFound";
                 defer.reject(result.data);
             }
         );
@@ -150,7 +150,7 @@ export class ProjectService implements IProjectService {
                 defer.resolve(result.data);
             },
             (result: ng.IHttpPromiseCallbackArg<any>) => {
-                result.data.message = "Project_NotFound"; 
+                result.data.message = "Project_NotFound";
                 defer.reject(result.data);
             }
         );
@@ -206,12 +206,13 @@ export class ProjectService implements IProjectService {
 
     public searchItemNames(searchCriteria: SearchServiceModels.IItemNameSearchCriteria,
                            startOffset: number = 0,
-                           pageSize: number = 100): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet> {
+                           pageSize: number = 100,
+                           separatorString: string = " > "): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet> {
         this.canceler = this.$q.defer<any>();
 
         const requestObj: ng.IRequestConfig = {
             url: `/svc/searchservice/itemsearch/name`,
-            params: { startOffset: startOffset, pageSize: pageSize},
+            params: {startOffset: startOffset, pageSize: pageSize, separatorString: separatorString},
             data: searchCriteria,
             method: "POST",
             timeout: this.canceler.promise

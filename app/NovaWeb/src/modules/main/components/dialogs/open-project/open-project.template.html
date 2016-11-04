@@ -2,24 +2,25 @@
     <h3 class="modal-title">{{::$root.config.labels["App_Project_Open"]}}</h3>
 </div>
 <div class="modal-body">
-    <div ng-if="$ctrl.hasError">
+    <div ng-if="$ctrl.errorMessage">
         {{$ctrl.errorMessage}}
     </div>
-    <div ng-if="!$ctrl.hasError" class="project-wrapper">
+    <div ng-if="!$ctrl.errorMessage" class="project-wrapper">
         <div class="project-tree-container">
-            <bp-tree bp-ref="$ctrl.tree"
-                     grid-class="project-tree"
-                     header-height="20"
-                     row-height="20"
-                     grid-columns="$ctrl.columns"
-                     property-map="$ctrl.propertyMap"
-                     on-load="$ctrl.doLoad(prms)"
-                     on-select="$ctrl.doSelect(item)">
-            </bp-tree>
+            <bp-tree-view grid-class="project-tree"
+                          row-height="20"
+                          root-node="$ctrl.rootNode"
+                          root-node-visible="false"
+                          columns="$ctrl.columns"
+                          header-height="20"
+                          on-select="$ctrl.onSelect(vm, isSelected, selectedVMs)"
+                          on-double-click="$ctrl.onDoubleClick(vm)"
+                          on-error="$ctrl.onError(reason)">
+            </bp-tree-view>
         </div>
         <div class="project-data">
             <span class="block">{{::$root.config.labels["App_Project_Name"]}}</span>
-            <div class="project-name">{{$ctrl.selectedItem.name}}</div>
+            <div class="project-name">{{$ctrl.selectedItem.model.name}}</div>
             <div ng-if="($ctrl.isProjectSelected)">
                 <span class="block">{{::$root.config.labels["App_Project_Description"]}}</span>
                 <div class="project-description-wrapper">

@@ -110,9 +110,9 @@ describe("Artifact Repository", () => {
 
 ///---
 
-    describe("Get Artifact dependants", () => {
+    describe("Get Artifact dependants:", () => {
 
-        it("get 5 children successful", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
+        it("5 children -> successful", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
             // Arrange
             
             $httpBackend.expectGET("svc/artifactstore/projects/1/artifacts/100/children")
@@ -135,7 +135,7 @@ describe("Artifact Repository", () => {
             $httpBackend.verifyNoOutstandingRequest();
         }));
 
-        it("get 5 children unsuccessful ", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
+        it("5 children -> unsuccessful ", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
             // Arrange
             $httpBackend.expectGET("svc/artifactstore/projects/1/artifacts/100/children")
                 .respond(HttpStatusCode.NotFound, {
@@ -159,7 +159,7 @@ describe("Artifact Repository", () => {
     });
 
 
-    describe("Delete Artifact ->", () => {
+    describe("Delete Artifact:", () => {
 
         it("Single -> successful", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
             // Arrange
@@ -183,7 +183,7 @@ describe("Artifact Repository", () => {
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));
-        it("Single -> unsuccessful ", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
+        it("Single -> unsuccessful", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
             // Arrange
             $httpBackend.expectDELETE("svc/bpartifactstore/artifacts/100")
                 .respond(HttpStatusCode.NotFound, {

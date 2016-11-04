@@ -11,11 +11,11 @@
     </tr>
     </thead>
     <tbody>
-    <tr ng-repeat="term in $ctrl.terms"
-        ng-class="{'selected-term': $ctrl.selectedTerm === term}"
+    <tr ng-repeat="term in $ctrl.terms track by term.id"
+        ng-class="{'selected-term': $ctrl.selectedTerm.id === term.id}"
         ng-click="$ctrl.selectTerm(term)">
-        <td>{{term.name}}</td>
-        <td ng-bind-html="term.description"></td>
+        <td>{{::term.name}}</td>
+        <td ng-bind-html="$ctrl.$sce.trustAsHtml(term.description)"></td>
     </tr>
     <tr class="empty-state" ng-if="$ctrl.terms.length === 0">
         <td colspan="2">{{::$ctrl.localization.get('Artifact_Glossary_Empty') }}</td>

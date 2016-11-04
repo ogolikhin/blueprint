@@ -1,64 +1,72 @@
 import * as angular from "angular";
 import {ILocalizationService} from "../../../../core";
-import {Helper, IBPTreeController, IDialogSettings, BaseDialogController} from "../../../../shared";
-import {Models, Enums, AdminStoreModels} from "../../../models";
-import {IProjectManager} from "../../../../managers";
+import {Helper, IDialogSettings, BaseDialogController} from "../../../../shared";
+import {IColumn} from "../../../../shared/widgets/bp-tree-view/";
+import {Models, Enums, AdminStoreModels, TreeViewModels} from "../../../models";
+import {IArtifactManager} from "../../../../managers";
+import {IProjectService} from "../../../../managers/project-manager/project-service";
 
 export interface IOpenProjectController {
-    propertyMap: any;
     errorMessage: string;
-    hasError: boolean;
     isProjectSelected: boolean;
-    selectedItem?: Models.IProject;
+    selectedItem?: TreeViewModels.InstanceItemNodeVM;
+    selectedDescription: string;
 
+    // BpTreeView bindings
+    rootNode: TreeViewModels.InstanceItemNodeVM;
+    columns: IColumn[];
+    onSelect: (vm: TreeViewModels.IViewModel<any>, isSelected: boolean) => any;
+    onDoubleClick: (vm: TreeViewModels.IViewModel<any>) => any;
+    onError: (reason: any) => any;
 }
 
 export class OpenProjectController extends BaseDialogController implements IOpenProjectController {
     public hasCloseButton: boolean = true;
-    private _selectedItem: Models.IProject;
+    private _selectedItem: TreeViewModels.InstanceItemNodeVM;
     private _errorMessage: string;
-    private tree: IBPTreeController;
 
-    static $inject = ["$scope", "localization", "$uibModalInstance", "projectManager", "dialogSettings", "$sce"];
+    static $inject = ["$scope", "localization", "$uibModalInstance", "artifactManager", "projectService", "dialogSettings", "$sce"];
 
     constructor(private $scope: ng.IScope,
                 private localization: ILocalizationService,
                 $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
-                private manager: IProjectManager,
+                private artifactManager: IArtifactManager,
+                private projectService: IProjectService,
                 dialogSettings: IDialogSettings,
                 private $sce: ng.ISCEService) {
         super($uibModalInstance, dialogSettings);
-
+        this.rootNode = new TreeViewModels.InstanceItemNodeVM(this.artifactManager, this.projectService, this, {
+            id: 0,
+            type: AdminStoreModels.InstanceItemType.Folder,
+            name: "",
+            hasChildren: true
+        } as AdminStoreModels.IInstanceItem, true);
     };
 
-    public propertyMap = {
-        id: "id",
-        type: "type",
-        name: "name",
-        hasChildren: "hasChildren",
-        children: "children",
-        loaded: "loaded",
-        open: "open"
-    };
-
-       //Dialog return value
+    //Dialog return value
     public get returnValue(): Models.IProject {
-        return this.selectedItem || null;
+        if (this.isProjectSelected) {
+            const model = this.selectedItem.model;
+            return {
+                id: model.id || -1,
+                name: model.name || "",
+                description: model.description || "",
+                itemTypeId: Enums.ItemTypePredefined.Project,
+                permissions: Enums.RolePermissions.Read // if the user can select it, it means he can read it
+            } as Models.IProject;
+        }
+        return undefined;
     };
-
-    public get hasError(): boolean {
-        return Boolean(this._errorMessage);
-    }
 
     public get errorMessage(): string {
         return this._errorMessage;
     }
 
     public get isProjectSelected(): boolean {
-        return this.returnValue && this.returnValue.itemTypeId === 1;
+        return this.selectedItem && this.selectedItem.model.type === AdminStoreModels.InstanceItemType.Project;
     }
 
-    public get selectedItem() {
+    public get selectedItem(): TreeViewModels.InstanceItemNodeVM {
         return this._selectedItem;
     }
 
@@ -68,17 +76,12 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         return this._selectedDescription;
     }
 
-    private setSelectedItem(item: any) {
-        this._selectedItem = <Models.IProject>{
-            id: (item && item["id"]) || -1,
-            name: (item && item["name"]) || "",
-            description: (item && item["description"]) || "",
-            itemTypeId: (item && item["type"]) || Enums.ItemTypePredefined.Project,
-            permissions: (item && item["permissions"]) || Enums.RolePermissions.Read // if the user can select it, it means he can read it
-        };
+    private setSelectedItem(item: TreeViewModels.InstanceItemNodeVM) {
+        this._selectedItem = item;
 
-        if (this._selectedItem.description) {
-            const description = this._selectedItem.description;
+        const description = this.selectedItem.model.description;
+        if (description) {
+            //TODO Why do we need this? Project descriptions are plain text and Instance Folders can't have descriptions.
             const virtualDiv = window.document.createElement("DIV");
             virtualDiv.innerHTML = description;
 
@@ -87,13 +90,13 @@ export class OpenProjectController extends BaseDialogController implements IOpen
                 aTags[a].setAttribute("target", "_blank");
             }
             this._selectedDescription = this.$sce.trustAsHtml(Helper.stripWingdings(virtualDiv.innerHTML));
-            this._selectedItem.description = this._selectedDescription.toString();
+            this.selectedItem.model.description = this.selectedDescription.toString();
         } else {
-            this._selectedDescription = null;
+            this._selectedDescription = undefined;
         }
     }
 
-    private onEnterKeyPressed = (e: any) => {
+    private onEnterKeyPressed = (e: KeyboardEvent) => {
         const key = e.which || e.keyCode;
         if (key === 13) {
             //user pressed Enter key on project
@@ -101,59 +104,46 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         }
     };
 
-    public columns = [{
+    // BpTreeView bindings
+
+    public rootNode: TreeViewModels.InstanceItemNodeVM;
+    public columns: IColumn[] = [{
         headerName: this.localization.get("App_Header_Name"),
-        field: "name",
-        cellClassRules: {
-            "has-children": function (params) {
-                return params.data.hasChildren;
-            },
-            "is-folder": function (params) {
-                return params.data.type === 0;
-            },
-            "is-project": function (params) {
-                return params.data.type === 1;
+        cellClass: (vm: TreeViewModels.TreeViewNodeVM<any>) => vm.getCellClass(),
+        isGroup: true,
+        innerRenderer: (vm: TreeViewModels.TreeViewNodeVM<any>, eGridCell: HTMLElement) => {
+            if (vm instanceof TreeViewModels.InstanceItemNodeVM && vm.model.type === AdminStoreModels.InstanceItemType.Project) {
+                //TODO this listener is never removed
+                // Need to use a cellRenderer "Component" with a destroy method, not a function.
+                // See https://www.ag-grid.com/javascript-grid-cell-rendering/
+                // Also need to upgrade ag-grid as destroy wasn't being called until 6.3.0
+                // See https://www.ag-grid.com/change-log/changeLogIndex.php
+                eGridCell.addEventListener("keydown", this.onEnterKeyPressed);
             }
-        },
-        cellRenderer: "group",
-        cellRendererParams: {
-            innerRenderer: (params) => {
-                if (params.data.type === 1) {
-                    let cell = params.eGridCell;
-                    cell.addEventListener("keydown", this.onEnterKeyPressed);
-                }
-                return `<i></i><span>${Helper.escapeHTMLText(params.data.name)}</span>`;
-            },
-            padding: 20
-        },
-        suppressMenu: true,
-        suppressSorting: true,
-        suppressFiltering: true
+            const name = Helper.escapeHTMLText(vm.name);
+            return `<span class="ag-group-value-wrapper"><i></i><span>${name}</span></span>`;
+        }
     }];
 
-    public doLoad = (prms: any): any[] => {
-        //check passed in parameter
-        let self = this;
-        let id = (prms && angular.isNumber(prms.id)) ? prms.id : null;
-        this.manager.loadFolders(id)
-            .then((nodes: AdminStoreModels.IInstanceItem[]) => {
-                self.tree.reload(nodes, id);
-                if (self.tree.isEmpty) {
-                    this._errorMessage = this.localization.get("Project_NoProjectsAvailable");
-                }
-            }, (error) => {
-                //close dialog on authentication error
-                this._errorMessage = this.localization.get("Project_NoProjectsAvailable");
+    public onSelect = (vm: TreeViewModels.InstanceItemNodeVM, isSelected: boolean): void => {
+        if (isSelected) {
+            this.$scope.$applyAsync((s) => {
+                this.setSelectedItem(vm);
             });
-
-        return null;
-    };
-
-    public doSelect = (item: any) => {
-        //check passed in parameter
-        this.$scope.$applyAsync((s) => {
-            this.setSelectedItem(item);
-        });
+        }
     }
 
+    public onDoubleClick = (vm: TreeViewModels.InstanceItemNodeVM): void => {
+        if (vm.model.type === AdminStoreModels.InstanceItemType.Project) {
+            this.$scope.$applyAsync((s) => {
+                this.setSelectedItem(vm);
+                this.ok();
+            });
+        }
+    }
+
+    public onError = (reason: any): void => {
+        //close dialog on authentication error
+        this._errorMessage = this.localization.get("Project_NoProjectsAvailable");
+    }
 }

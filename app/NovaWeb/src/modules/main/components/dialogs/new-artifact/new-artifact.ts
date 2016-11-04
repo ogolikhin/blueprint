@@ -109,7 +109,8 @@ export class CreateNewArtifactController extends BaseDialogController implements
         let _availableItemTypes: IItemType[] = [];
         if (this._projectMeta) {
             _availableItemTypes = this._projectMeta.artifactTypes.filter((artifactType: IItemType) => {
-                return availableItemTypePredefined.indexOf(artifactType.predefinedType) !== -1;
+                return availableItemTypePredefined.indexOf(artifactType.predefinedType) !== -1 &&
+                    artifactType.id > 0; // this is needed for filtering out Project and (main) Collections artifact types
             });
 
         }

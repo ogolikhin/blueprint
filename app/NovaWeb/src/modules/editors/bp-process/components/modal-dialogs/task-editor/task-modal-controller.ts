@@ -1,4 +1,3 @@
-import {IDiagramService} from "../../../../../editors/bp-diagram/diagram.svc";
 import {IDialogSettings, IDialogService} from "../../../../../shared";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../../main/components/bp-artifact-picker";
 import {Models} from "../../../../../main/models";

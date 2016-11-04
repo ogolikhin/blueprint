@@ -310,7 +310,7 @@ export abstract class StatefulItem implements IIStatefulItem {
         }
     }
 
-    public initialize(artifact: Models.IArtifact): IState {
+    protected initialize(artifact: Models.IArtifact): IState {
 
         this.artifact = artifact;
         this.customProperties.initialize(artifact.customPropertyValues);

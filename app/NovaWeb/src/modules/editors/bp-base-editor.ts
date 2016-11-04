@@ -20,8 +20,8 @@ export class BpBaseEditor {
     public $onInit() {
         this.isDestroyed = false;
         this.isLoading = true;
-        
-        this.artifact = this.artifactManager.selection.getArtifact();       
+
+        this.artifact = this.artifactManager.selection.getArtifact();
         if (this.artifact) {
             const selectedArtifactSub = this.artifact.getObservable()
                 .subscribeOnNext(this.onArtifactChanged);

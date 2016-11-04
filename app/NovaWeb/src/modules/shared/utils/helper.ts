@@ -52,6 +52,18 @@ export class Helper {
         return el;
     };
 
+    static isIE11 = (): boolean => {
+        /* references:
+         * https://blogs.msdn.microsoft.com/ieinternals/2013/09/21/internet-explorer-11s-many-user-agent-strings/
+         */
+        let _isIE11 = false;
+        if (window && window.navigator) {
+            const ua = window.navigator.userAgent;
+            _isIE11 = !!(ua.match(/Trident/) && ua.match(/rv[ :]11/)) && !ua.match(/edge/i);
+        }
+        return _isIE11;
+    };
+
     static stringifySafe = (obj, replacer?, spaces?, cycleReplacer?): any => {
         return JSON.stringify(obj, Helper.serializer(replacer, cycleReplacer), spaces);
     };

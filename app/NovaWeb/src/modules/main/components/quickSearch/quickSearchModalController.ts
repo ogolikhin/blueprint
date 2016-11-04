@@ -1,4 +1,15 @@
 import {ILocalizationService} from "../../../core/";
+import * as SearchModels from "./models/model";
+
+export interface IQuickSearchModalController {
+    searchTerm: string;
+    isLoading: boolean;
+    search(term): string;
+    clearSearch();
+    showHide: boolean;
+    hasError(): boolean;
+    closeModal();
+}
 
 export class QuickSearchModalController {
     searchTerm: string;
@@ -32,18 +43,30 @@ export class QuickSearchModalController {
         this.isLoading = true;
         this.quickSearchService.searchTerm = _.clone(this.searchTerm);
 
-        this.quickSearchService.search(term).then((results) => {
+        this.quickSearchService.search(term).then((results: SearchModels.ISearchResult) => {
             //assign the results and display
             //if results are greater than one
             this.results = results.items;
             this.isLoading = false;
         });
     }    
+    
+    clearSearch() {
+        this.searchTerm = "";
+        this.quickSearchService.searchTerm = "";
+        this.form.$setPristine();
+        this.results = [];
+    }
 
-    hasError() {
+    get showHide(): boolean {
+        return !!this.searchTerm || this.form.$dirty;
+    }
+
+    hasError(): boolean {
         return this.form.$submitted &&
             this.form.$invalid;
     }
+
     $onInit() {
         if (this.searchTerm.length) {
             this.search(this.searchTerm);

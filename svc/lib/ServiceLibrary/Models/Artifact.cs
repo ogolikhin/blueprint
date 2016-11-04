@@ -1,9 +1,8 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using ServiceLibrary.Models;
 
-namespace ArtifactStore.Models
+namespace ServiceLibrary.Models
 {
     [JsonObject]
     public class Artifact : IArtifact

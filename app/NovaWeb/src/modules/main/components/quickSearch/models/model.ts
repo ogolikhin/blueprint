@@ -19,8 +19,13 @@ export interface ISearchItem {
     name: string;
     projectId: number;
     propertyName: string;
-    proeprtyTypeId: number;
+    propertyTypeId: number;
     searchableValue: string;
     subartifactId: number;
     typeName: string;
+
+    typePrefix: string;
+    iconImageId: number;
+    predefinedType: number;
+    artifactClass: string;
 }

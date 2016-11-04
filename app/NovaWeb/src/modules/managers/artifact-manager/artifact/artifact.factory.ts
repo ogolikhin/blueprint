@@ -9,8 +9,10 @@ import {Models} from "../../../main/models";
 import {IArtifactAttachmentsService} from "../attachments";
 import {IMetaDataService} from "../metadata";
 import {StatefulSubArtifact, IStatefulSubArtifact} from "../sub-artifact";
-import {IStatefulArtifact, IStatefulCollectionArtifact, StatefulArtifact, StatefulProcessArtifact, StatefulProcessSubArtifact} from "../artifact";
+import {IStatefulArtifact, StatefulArtifact, StatefulProcessArtifact, StatefulProcessSubArtifact} from "../artifact";
 import {IArtifactRelationshipsService} from "../relationships";
+import {IStatefulCollectionArtifact, StatefulCollectionArtifact} from "../../../editors/bp-collection/collection-artifact";
+import {IStatefulGlossaryArtifact, StatefulGlossaryArtifact} from "../../../editors/bp-glossary/glossary-artifact";
 import {
     StatefulArtifactServices,
     IStatefulArtifactServices,
@@ -20,7 +22,6 @@ import {
 import {IArtifactService} from "./artifact.svc";
 import {ILoadingOverlayService} from "../../../core/loading-overlay";
 import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
-import {StatefulCollectionArtifact} from "./collection-artifact";
 
 export interface IStatefulArtifactFactory {
     createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact;
@@ -111,6 +112,10 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
             return this.createStatefulCollectionArtifact(artifact);
         }
 
+        if (artifact.predefinedType === Models.ItemTypePredefined.Glossary) {
+            return this.createStatefulGlossaryArtifact(artifact);
+        }
+
         return new StatefulArtifact(artifact, this.services);
     }
 
@@ -124,6 +129,10 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
 
     public createStatefulCollectionArtifact(artifact: Models.IArtifact): IStatefulCollectionArtifact {
         return new StatefulCollectionArtifact(artifact, this.services);
+    }
+
+    public createStatefulGlossaryArtifact(artifact: Models.IArtifact): IStatefulGlossaryArtifact {
+        return new StatefulGlossaryArtifact(artifact, this.services);
     }
 
     private createStatefulProcessArtifact(artifact: Models.IArtifact): IStatefulArtifact {

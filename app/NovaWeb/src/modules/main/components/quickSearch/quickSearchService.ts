@@ -5,7 +5,13 @@ import { Helper } from "../../../shared/utils/helper";
 import { Models } from "../../models";
 import * as SearchModels from "./models/model";
 
-export class QuickSearchService {
+export interface IQuickSearchService {
+    search(term: string): ng.IPromise<SearchModels.ISearchResult>;
+    searchTerm: string;
+    canSearch(): boolean;
+}
+
+export class QuickSearchService implements IQuickSearchService {
     static $inject = [
         "$q",
         "$http",
@@ -24,14 +30,14 @@ export class QuickSearchService {
         private metadataService: IMetaDataService) {
     }
 
-    searchTerm;
+    searchTerm: string;
 
     canSearch(): boolean {
         return !(this.projectManager.projectCollection.getValue().map(project => project.id).length > 0);
     }
 
     search(term: string): ng.IPromise<SearchModels.ISearchResult> {
-        this.$log.debug("seraching server for ", term);
+        this.$log.debug(`searching server for "${term}"`);
 
         //const MOCK_RESULTS = require("./quickSearch.mock.ts");
 

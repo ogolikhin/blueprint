@@ -10,6 +10,7 @@ namespace SearchServiceTests
     [Category(Categories.SearchService)]
     public static class SearchStatusTests
     {
+        [Explicit(IgnoreReasons.ProductBug)]    // TFS Bug: 3260  Returns 404 Not Found.
         [TestCase]
         [TestRail(182409)]
         [Description("Calls the /status endpoint for SearchService with a valid preAuthorizedKey and verifies that it returns 200 OK and a JSON structure containing detailed status of dependent services.")]
@@ -30,6 +31,7 @@ namespace SearchServiceTests
             }
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // TFS Bug: 3260  Returns 404 Not Found.
         [TestCase]
         [TestRail(182410)]
         [Description("Calls the /status endpoint for SearchService with a valid preAuthorizedKey and verifies that it returns 200 OK and a JSON structure containing basic status of dependent services.")]
@@ -53,6 +55,7 @@ namespace SearchServiceTests
             }
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // TFS Bug: 3260  Returns 404 Not Found.
         [TestCase("ABCDEFG123456")]
         [TestRail(182411)]
         [Description("Calls the /status endpoint for SearchService and passes invalid preAuthorizedKey values.  Verifies that it returns a 401 error.")]
@@ -67,6 +70,7 @@ namespace SearchServiceTests
             }
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // TFS Bug: 3260  Returns 404 Not Found.
         [TestCase]
         [TestRail(182412)]
         [Description("Calls the /status/upcheck endpoint for SearchService and verifies that it returns 200 OK.")]

@@ -1,10 +1,9 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
 import {BpArtifactPicker, BpArtifactPickerController} from "./bp-artifact-picker";
-import {ArtifactPickerNodeVM, InstanceItemNodeVM, ArtifactNodeVM} from "./bp-artifact-picker-node-vm";
 import {ArtifactSearchResultVM} from "./bp-artifact-picker-search-vm";
 import {ILocalizationService} from "../../../core";
-import {Models, AdminStoreModels, SearchServiceModels} from "../../models";
+import {Models, AdminStoreModels, SearchServiceModels, TreeViewModels} from "../../models";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 
@@ -189,7 +188,7 @@ describe("BpArtifactPickerController", () => {
 
         it("getCellClass returns correct result", () => {
             // Arrange
-            const vm = {getCellClass: () => ["test"]} as ArtifactPickerNodeVM<any>;
+            const vm = {getCellClass: () => ["test"]} as TreeViewModels.TreeViewNodeVM<any>;
 
             // Act
             const css = controller.columns[0].cellClass(vm);
@@ -204,7 +203,7 @@ describe("BpArtifactPickerController", () => {
                 name: "name", getIcon() {
                     return "icon";
                 }
-            } as ArtifactPickerNodeVM<any>;
+            } as TreeViewModels.TreeViewNodeVM<any>;
             const cell = {} as HTMLElement;
 
             // Act
@@ -218,7 +217,7 @@ describe("BpArtifactPickerController", () => {
     it("onSelect, when ArtifactNodeVM or SubArtifactNodeVM, sets selection", inject(($browser) => {
         // Arrange
         const model = {id: 3} as Models.IArtifact;
-        const vm = new ArtifactNodeVM(artifactManager, projectService, controller, model);
+        const vm = new TreeViewModels.ArtifactNodeVM(artifactManager, projectService, controller, model);
         controller.project = {id: 6, name: "new", hasChildren: true} as AdminStoreModels.IInstanceItem;
         controller.onSelectionChanged = jasmine.createSpy("onSelectionChanged");
 
@@ -233,7 +232,7 @@ describe("BpArtifactPickerController", () => {
     it("onSelect, when InstanceItemNodeVM of type Project, sets project", () => {
         // Arrange
         const model = {id: 11, name: "proj", type: AdminStoreModels.InstanceItemType.Project} as AdminStoreModels.IInstanceItem;
-        const vm = new InstanceItemNodeVM(artifactManager, projectService, controller, model);
+        const vm = new TreeViewModels.InstanceItemNodeVM(artifactManager, projectService, controller, model);
 
         // Act
         controller.onSelect(vm, true);
@@ -273,7 +272,7 @@ describe("BpArtifactPickerController", () => {
         $browser.defer.flush(); // wait for $applyAsync()
         expect(controller.onSelectionChanged).toHaveBeenCalledWith({selectedVMs: []});
         expect(controller.project).toBe(newProject);
-        expect(controller.rootNode).toEqual(new InstanceItemNodeVM(artifactManager, projectService, controller, newProject, true));
+        expect(controller.rootNode).toEqual(new TreeViewModels.InstanceItemNodeVM(artifactManager, projectService, controller, newProject, true));
     }));
 
     it("set project, when project is undefined, clears selection and project and sets root node", inject(($browser) => {
@@ -287,7 +286,7 @@ describe("BpArtifactPickerController", () => {
         $browser.defer.flush(); // wait for $applyAsync()
         expect(controller.onSelectionChanged).toHaveBeenCalledWith({selectedVMs: []});
         expect(controller.project).toBeUndefined();
-        expect(controller.rootNode).toEqual(new InstanceItemNodeVM(artifactManager, projectService, controller, {
+        expect(controller.rootNode).toEqual(new TreeViewModels.InstanceItemNodeVM(artifactManager, projectService, controller, {
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,
             name: "",

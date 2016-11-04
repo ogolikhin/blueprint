@@ -67,4 +67,7 @@ export class BPTreeControllerMock implements IBPTreeController {
     public hideOverlays() {
         return undefined;
     }
+     public refresh = (id?: number) => {
+         ;
+    }
 }

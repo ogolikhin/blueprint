@@ -124,7 +124,7 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
         }
 
         $scope["navigateToItem"] = (id: number) => {
-            this.navigationService.navigateTo(id);
+            this.navigationService.navigateTo({ id: id });
         };
 
         $scope["selectBaseActor"] = () => {

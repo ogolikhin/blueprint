@@ -1,128 +1,426 @@
-// import "angular";
-// import "angular-mocks";
-// import "angular-sanitize";
+import * as angular from "angular";
+import "angular-mocks";
+import "angular-sanitize";
 
-// import {LocalizationServiceMock} from "../../core/localization/localization.mock";
-// import {MessageServiceMock} from "../../core/messages/message.mock";
-// import {ISelectionManager, IProjectManager, SelectionManager, ProjectManager} from "../services";
-// import {SelectionSource} from "../services/selection-manager";
-// import {ArtifactStateController} from "../router/artifact.state";
-// import {Models, Enums} from "../";
-// import {IEditorParameters} from "./artifact.state";
+import "../main";
+import { Models } from "../main/models";
+import {ILocalizationService} from "../core/localization";
+import {LocalizationServiceMock} from "../core/localization/localization.mock";
+import {IMessageService, Message, MessageType} from "../core/messages";
+import {MessageServiceMock} from "../core/messages/message.mock";
+import {INavigationService} from "../core/navigation";
+import {NavigationServiceMock} from "../core/navigation/navigation.svc.mock";
+import {IItemInfoService} from "../core/navigation/item-info.svc";
+import {ItemInfoServiceMock} from "../core/navigation/item-info.svc.mock";
+import {IArtifactManager} from "../managers/artifact-manager/artifact-manager";
+import {IStatefulArtifact} from "../managers/artifact-manager/artifact";
+import {ArtifactManagerMock} from "../managers/artifact-manager/artifact-manager.mock";
+import {IStatefulArtifactFactory} from "../managers/artifact-manager/artifact/artifact.factory";
+import {StatefulArtifactFactoryMock} from "../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ItemStateController} from "./item-state.controller";
 
-// describe("Artifact state tests", () => {
-//     let $state: angular.ui.IStateService,
-//         $rootScope,
-//         projectManager,
-//         selectionManager,
-//         localization,
-//         messageService;
+describe("Item State Controller tests", () => {
+    let $state: angular.ui.IStateService,
+        $rootScope: ng.IRootScopeService,
+        $q: ng.IQService,
+        artifactManager: IArtifactManager,
+        localization,
+        messageService: IMessageService,
+        navigationService,
+        itemInfoService,
+        statefulArtifactFactory,
+        ctrl: ItemStateController,
+        stateSpy;
 
-//     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-//         $provide.service("projectManager", ProjectManager);
-//         $provide.service("selectionManager", SelectionManager);
-//         $provide.service("localization", LocalizationServiceMock);
-//         $provide.service("messageService", MessageServiceMock);
-//     }));
+    beforeEach(angular.mock.module("ui.router"));
+    beforeEach(angular.mock.module("app.main"));
 
-//     beforeEach(angular.mock.module("app.main"));
-//     beforeEach((inject((
-//         _$state_: angular.ui.IStateService,
-//         _$rootScope_,
-//         _projectManager_: IProjectManager,
-//         _selectionManager_: ISelectionManager,
-//         _localization_,
-//         _messageService_ ) => {
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("localization", LocalizationServiceMock);
+        $provide.service("messageService", MessageServiceMock);
+        $provide.service("navigationService", NavigationServiceMock);
+        $provide.service("artifactManager", ArtifactManagerMock);
+        $provide.service("itemInfoService", ItemInfoServiceMock);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
+    }));
 
-//         $state = _$state_;
-//         $rootScope = _$rootScope_;
-//         localization = _localization_;
-//         messageService = _messageService_;
-//         projectManager = _projectManager_;
-//         selectionManager = _selectionManager_;
-//     })));
+    beforeEach(inject((
+        _$state_: ng.ui.IStateService,
+        _$rootScope_: ng.IRootScopeService,
+        _$q_: ng.IQService,
+        _artifactManager_: IArtifactManager,
+        _localization_: ILocalizationService,
+        _messageService_: IMessageService,
+        _navigationService_: INavigationService,
+        _itemInfoService_: IItemInfoService,
+        _statefulArtifactFactory_: IStatefulArtifactFactory) => {
 
-//     it("respond to url", () => {
-//         expect($state.href("main.artifact", { id: 1 })).toEqual("#/main/1");
-//     });
+        $state = _$state_;
+        $rootScope = _$rootScope_;
+        $q = _$q_;
+        artifactManager = _artifactManager_;
+        localization = _localization_;
+        messageService = _messageService_;
+        navigationService = _navigationService_;
+        itemInfoService = _itemInfoService_;
+        statefulArtifactFactory = _statefulArtifactFactory_;
+    }));
 
-//     describe("state changes", () => {
+    beforeEach(() => {
+        artifactManager.selection.setExplorerArtifact = (artifact) => null;
+        artifactManager.selection.setArtifact = (artifact) => null;
+        stateSpy = spyOn($state, "go");
+    });
 
-//         function runStateChangeTest(predefinedType, expectedRoute: string) {
-//             let artifact: Models.IArtifact = {
-//                 id: 1, predefinedType: predefinedType
-//             };
-//             let editorContext: Models.IEditorContext = { artifact: artifact, type: null };
-//             let editorParams: IEditorParameters = { context: editorContext };
+    function getItemStateController(id: string): ItemStateController {
+        $state.params["id"] = id;
 
-//             selectionManager.selection = { source: SelectionSource.Explorer, artifact: artifact };
+        return new ItemStateController(
+            $state, 
+            artifactManager, 
+            messageService, 
+            localization, 
+            navigationService,
+            itemInfoService, 
+            statefulArtifactFactory);
+    }
 
-//             spyOn(projectManager, "getArtifact").and.returnValue(artifact);
-//             spyOn(projectManager, "getArtifactType").and.returnValue(null);
-//             $state.params["context"] = editorContext;
-//             let stateSpy = spyOn($state, "go");
+    afterEach(() => {
+        delete $state.params["id"];
+    });
 
-//             // act
-//             new ArtifactStateController(
-//                 $rootScope,
-//                 $state,
-//                 projectManager,
-//                 selectionManager,
-//                 messageService,
-//                 localization);
+    it("respond to url", () => {
+        expect($state.href("main.item", { id: 1 })).toEqual("#/main/1");
+    });
+    
+    it("clears locked messages", () => {
+        // arrange
+        const artifactId = 10;
+        const deleteMessageSpy = spyOn(messageService, "deleteMessageById");
+        const message = new Message(MessageType.Lock, "test");
+        message.id = 1;
+        messageService.addMessage(message);
 
-//             // assert
-//             expect(stateSpy).toHaveBeenCalled();
-//             expect(stateSpy).toHaveBeenCalledWith(expectedRoute, editorParams);
-//         }
-//         it("Process state change", () => {
-//             runStateChangeTest(Enums.ItemTypePredefined.Process, "main.artifact.process");
-//         });
+        // act
+        ctrl = getItemStateController(artifactId.toString());
+        $rootScope.$digest();
 
-//         it("Glossary state change", () => {
-//             runStateChangeTest(Enums.ItemTypePredefined.Glossary, "main.artifact.glossary");
-//         });
+        // assert
+        expect(deleteMessageSpy).toHaveBeenCalled();
+        expect(deleteMessageSpy).toHaveBeenCalledWith(message.id);
+    });
 
-//         it("Project state change", () => {
-//             runStateChangeTest(Enums.ItemTypePredefined.Project, "main.artifact.general");
-//         });
+    describe("when not in artifact manager", () => {
+        let artifactId, artifactManagerSpy, itemInfoSpy;
 
-//         it("CollectionFolder state change", () => {
-//             runStateChangeTest(Enums.ItemTypePredefined.CollectionFolder, "main.artifact.general");
-//         });
+        beforeEach(() => {
+            artifactId = 10;
+            artifactManagerSpy = spyOn(artifactManager, "get").and.returnValue(null);
+        });
 
-//         describe("diagram state changes", () => {
-//             it("GenericDiagram state change", () => {
-//                 runStateChangeTest(Enums.ItemTypePredefined.GenericDiagram, "main.artifact.diagram");
-//             });
+        afterEach(() => {
+            artifactManagerSpy = undefined;
+            itemInfoSpy = undefined;
+        });
 
-//             it("BusinessProcess state change", () => {
-//                 runStateChangeTest(Enums.ItemTypePredefined.BusinessProcess, "main.artifact.diagram");
-//             });
+        describe("state changes to artifact", () => {
+            let isArtifactSpy;
 
-//             it("DomainDiagram state change", () => {
-//                 runStateChangeTest(Enums.ItemTypePredefined.DomainDiagram, "main.artifact.diagram");
-//             });
+            beforeEach(() => {
+                isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
+            });
 
-//             it("Storyboard state change", () => {
-//                 runStateChangeTest(Enums.ItemTypePredefined.Storyboard, "main.artifact.diagram");
-//             });
+            afterEach(() => {
+                isArtifactSpy = undefined;
+            });
 
-//             it("UseCaseDiagram state change", () => {
-//                 runStateChangeTest(Enums.ItemTypePredefined.UseCaseDiagram, "main.artifact.diagram");
-//             });
-//             it("UseCase state change", () => {
-//                 runStateChangeTest(Enums.ItemTypePredefined.UseCase, "main.artifact.diagram");
-//             });
+            it("diagram", () => {
+                // arrange
+                const expectedState = "main.item.diagram";
+                itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
+                    const deferred = $q.defer();
+                    deferred.resolve({id: artifactId, projectId: 11, predefinedType: Models.ItemTypePredefined.GenericDiagram});
+                    return deferred.promise;
+                });
 
-//             it("UIMockup state change", () => {
-//                 runStateChangeTest(Enums.ItemTypePredefined.UIMockup, "main.artifact.diagram");
-//             });
-//         });
+                // act
+                ctrl = getItemStateController(artifactId.toString());
+                $rootScope.$digest();
 
-//         it("TextualRequirement state change", () => {
-//             runStateChangeTest(Enums.ItemTypePredefined.TextualRequirement, "main.artifact.details");
-//         });
-//     });
-// });
+                // assert
+                expect(itemInfoSpy).toHaveBeenCalled();
+                expect(stateSpy).toHaveBeenCalled();
+                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
+            });
+            
+            it("glossary", () => {
+                // arrange
+                const expectedState = "main.item.glossary";
+                itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
+                    const deferred = $q.defer();
+                    deferred.resolve({id: artifactId, projectId: 11, predefinedType: Models.ItemTypePredefined.Glossary});
+                    return deferred.promise;
+                });
 
+                // act
+                ctrl = getItemStateController(artifactId.toString());
+                $rootScope.$digest();
+
+                // assert
+                expect(itemInfoSpy).toHaveBeenCalled();
+                expect(stateSpy).toHaveBeenCalled();
+                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
+            });
+            
+            it("general", () => {
+                // arrange
+                const expectedState = "main.item.general";
+                itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
+                    const deferred = $q.defer();
+                    deferred.resolve({id: artifactId, projectId: 11, predefinedType: Models.ItemTypePredefined.Project});
+                    return deferred.promise;
+                });
+
+                // act
+                ctrl = getItemStateController(artifactId.toString());
+                $rootScope.$digest();
+
+                // assert
+                expect(itemInfoSpy).toHaveBeenCalled();
+                expect(stateSpy).toHaveBeenCalled();
+                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
+            });
+            
+            it("collection", () => {
+                // arrange
+                const expectedState = "main.item.collection";
+                itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
+                    const deferred = $q.defer();
+                    deferred.resolve({id: artifactId, projectId: 11, predefinedType: Models.ItemTypePredefined.ArtifactCollection});
+                    return deferred.promise;
+                });
+
+                // act
+                ctrl = getItemStateController(artifactId.toString());
+                $rootScope.$digest();
+
+                // assert
+                expect(itemInfoSpy).toHaveBeenCalled();
+                expect(stateSpy).toHaveBeenCalled();
+                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
+            });
+            
+            it("process", () => {
+                // arrange
+                const expectedState = "main.item.process";
+                itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
+                    const deferred = $q.defer();
+                    deferred.resolve({id: artifactId, projectId: 11, predefinedType: Models.ItemTypePredefined.Process});
+                    return deferred.promise;
+                });
+
+                // act
+                ctrl = getItemStateController(artifactId.toString());
+                $rootScope.$digest();
+
+                // assert
+                expect(itemInfoSpy).toHaveBeenCalled();
+                expect(stateSpy).toHaveBeenCalled();
+                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
+            });
+            
+            it("details", () => {
+                // arrange
+                const expectedState = "main.item.details";
+                itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
+                    const deferred = $q.defer();
+                    deferred.resolve({id: artifactId, projectId: 11, predefinedType: Models.ItemTypePredefined.Actor});
+                    return deferred.promise;
+                });
+
+                // act
+                ctrl = getItemStateController(artifactId.toString());
+                $rootScope.$digest();
+
+                // assert
+                expect(itemInfoSpy).toHaveBeenCalled();
+                expect(stateSpy).toHaveBeenCalled();
+                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
+            });
+        });
+
+        describe("state changes to non-artifact", () => {
+            it("should redirect to artifact", () => {
+                // arrange
+                const artifactId = 10;
+                const subArtifactId = 123;
+                const isSubArtifactSpy = spyOn(itemInfoService, "isSubArtifact").and.callFake(() => true);
+                const itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
+                    const deferred = $q.defer();
+                    deferred.resolve({id: artifactId, subArtifactId: subArtifactId});
+                    return deferred.promise;
+                });
+                const navigationSpy = spyOn(navigationService, "navigateTo");
+
+                // act
+                ctrl = getItemStateController(subArtifactId.toString());
+                $rootScope.$digest();
+
+                // assert
+                expect(navigationSpy).toHaveBeenCalled();
+                expect(navigationSpy).toHaveBeenCalledWith({id: 10, redirect: true});
+            });
+            
+            it("should not navigate to a project, should navigate to Main", () => {
+                // arrange
+                const artifactId = 10;
+                const isSubArtifactSpy = spyOn(itemInfoService, "isProject").and.callFake(() => true);
+                const itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
+                    const deferred = $q.defer();
+                    deferred.resolve({id: artifactId, projectId: artifactId});
+                    return deferred.promise;
+                });
+                const navigationSpy = spyOn(navigationService, "navigateTo");
+                const mainNavigationSpy = spyOn(navigationService, "navigateToMain");
+                const messageSpy = spyOn(messageService, "addError");
+
+                // act
+                ctrl = getItemStateController(artifactId.toString());
+                $rootScope.$digest();
+
+                // assert
+                expect(navigationSpy).not.toHaveBeenCalled();
+                expect(mainNavigationSpy).toHaveBeenCalled();
+                expect(messageSpy).toHaveBeenCalled();
+            });
+        });
+
+        describe("artifact is deleted", () => {
+            it("should redirect to a historical version of artifact and add a message", () => {
+                // arrange
+                const artifactId = 10;
+                const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
+                const itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
+                    const deferred = $q.defer();
+                    deferred.resolve({
+                        id: artifactId,
+                        predefinedType: Models.ItemTypePredefined.Actor,
+                        isDeleted: true,
+                        deletedByUser: {}
+                    });
+                    return deferred.promise;
+                });
+                const navigationSpy = spyOn(navigationService, "navigateTo");
+                const messageSpy = spyOn(messageService, "addMessage").and.callFake(message => void(0));
+                const selectionSpy = spyOn(artifactManager.selection, "setExplorerArtifact");
+
+                // act
+                ctrl = getItemStateController(artifactId.toString());
+                $rootScope.$digest();
+
+                // assert
+                const selectedArtifact: IStatefulArtifact = artifactManager.selection.setExplorerArtifact["calls"].argsFor(0)[0];
+                expect(stateSpy).toHaveBeenCalled();
+                expect(navigationSpy).not.toHaveBeenCalled();
+                expect(messageSpy).toHaveBeenCalled();
+                expect(selectionSpy).toHaveBeenCalled();
+                expect(selectedArtifact.artifactState.historical).toBe(true);
+                expect(selectedArtifact.artifactState.deleted).toBe(true);
+            });
+
+        });
+
+        describe("artifact is not found", () => {
+            it("should redirect to main state and show a not found message", () => {
+                // arrange
+                const artifactId = 10;
+                const itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
+                    const deferred = $q.defer();
+                    deferred.reject({
+                        message: "Item (Id:${artifactId}) is not found.",
+                        statusCode: 404
+                    });
+                    return deferred.promise;
+                });
+                const navigationSpy = spyOn(navigationService, "navigateToMain");
+                const messageSpy = spyOn(messageService, "addError").and.callFake(message => void(0));
+
+                // act
+                ctrl = getItemStateController(artifactId.toString());
+                $rootScope.$digest();
+
+                // assert
+                expect(navigationSpy).toHaveBeenCalled();
+                expect(messageSpy).toHaveBeenCalled();
+            });
+
+        });
+    });
+
+
+    describe("when in artifact manager", () => {
+        let artifactId: number,
+            statefulArtifact, 
+            artifactManagerSpy: jasmine.Spy;
+        
+        beforeEach(() => {
+            artifactId = 10;
+            statefulArtifact = {
+                id: artifactId,
+                predefinedType: Models.ItemTypePredefined.Process,
+                artifactState: {
+                    deleted: false
+                },
+                unload: () => void(0),
+                errorObservable: () => {
+                    return {
+                        subscribeOnNext: () => void(0)
+                    };
+                }
+            };
+            artifactManagerSpy = spyOn(artifactManager, "get").and.returnValue(statefulArtifact);
+        });
+
+        afterEach(() => {
+            artifactManagerSpy = undefined;
+        });
+
+        it("should unload existing artifact and go to main.item.process state", () => {
+            // arrange
+            const unloadSpy = spyOn(statefulArtifact, "unload");
+
+            // act
+            ctrl = getItemStateController(artifactId.toString());
+            $rootScope.$digest();
+
+            // assert
+            expect(unloadSpy).toHaveBeenCalled();
+            expect(stateSpy).toHaveBeenCalled();
+            expect(stateSpy).toHaveBeenCalledWith("main.item.process", {id: artifactId, version: undefined}, {reload: "main.item.process"});
+        });
+
+        it("should not use artifact from artifact manager if it's deleted", () => {
+            // arrange
+            statefulArtifact.artifactState.deleted = true;
+            const unloadSpy = spyOn(statefulArtifact, "unload");
+            const itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
+                    const deferred = $q.defer();
+                    deferred.resolve({
+                        id: artifactId,
+                        predefinedType: Models.ItemTypePredefined.Actor,
+                        isDeleted: true,
+                        deletedByUser: {}
+                    });
+                    return deferred.promise;
+                });
+
+            // act
+            ctrl = getItemStateController(artifactId.toString());
+            $rootScope.$digest();
+
+            // assert
+            expect(unloadSpy).not.toHaveBeenCalled();
+            expect(itemInfoSpy).toHaveBeenCalled();
+        });
+    });
+});

@@ -13,6 +13,7 @@ using TestCommon;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
+using System;
 
 namespace ArtifactStoreTests
 {
@@ -80,6 +81,153 @@ namespace ArtifactStoreTests
             UpdateArtifact_CanGetArtifact(artifact, artifactType, "Name", "");
         }
 
+        private const int CU_NUMBER_PROPERTY_ID = 120;
+        private const int CU_DATE_PROPERTY_ID = 119;
+
+        [Category(Categories.CustomData)]
+        [TestRail(190895)]
+        [TestCase("value\":10.0", 15, CU_NUMBER_PROPERTY_ID)]   // Insert value in range into Numeric field.
+        [Description("Update a custom property of an artifact with a new in-range value.  Verify 200 OK Request is returned and the new value is saved.")]
+        public void UpdateArtifact_ChangeCustomPropertyValue_NewValueIsUpdated(string textToReplace, int newNumberValue, int propertyTypeId)
+        {
+            // TODO: Make this test work with any data type, not just int.
+            // Setup:
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+            artifact.Lock();
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            string requestBody = JsonConvert.SerializeObject(artifactDetails);
+            string changedValue = "value\":" + newNumberValue;
+
+            requestBody = requestBody.Replace(textToReplace, changedValue);
+
+            // Execute:
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user),
+                "'PATCH {0}' should return 200 OK if properties are out of range!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            // Verify:
+            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            CustomProperty customPropertyAfter = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
+
+            Assert.AreEqual(newNumberValue, customPropertyAfter.CustomPropertyValue,
+                    "Value of this custom property with id {0} should be {1} but was {2}!",
+                    propertyTypeId, newNumberValue, customPropertyAfter.CustomPropertyValue);
+        }
+
+        [Category(Categories.CustomData)]
+        [TestCase("value\":10.0", "value\":\"A\"", CU_NUMBER_PROPERTY_ID)]   // Insert String into Numeric field.
+        [TestCase("value\":\"20", "value\":\"A", CU_DATE_PROPERTY_ID)]       // Insert String into Date field.
+        [TestRail(164561)]
+        [Description("Try to update an artifact properties with a improper value types. Verify 200 OK Request is returned.")]
+        public void UpdateArtifact_WrongTypeInProperty_CanGetArtifact(string toChange, string changeTo, int propertyTypeId)
+        {
+            // Setup:
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+            artifact.Lock();
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            string requestBody = JsonConvert.SerializeObject(artifactDetails);
+
+            string modifiedRequestBody = requestBody.Replace(toChange, changeTo);
+            Assert.AreNotEqual(requestBody, modifiedRequestBody, "Check that RequestBody was updated.");
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, modifiedRequestBody, artifact.Id, _user);
+            }, "'PATCH {0}' should return 200 OK even if the value is set to wrong type!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            // Verify:
+            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            CustomProperty customProperty = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
+
+            Assert.IsNull(customProperty.CustomPropertyValue, "Value of this custom property with Id {0} has to be null", propertyTypeId);
+
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetailsAfter);
+        }
+
+        private const int NUMBER_OUT_OF_RANGE = 999;
+
+        [Category(Categories.CustomData)]
+        [TestRail(164595)]
+        [TestCase(NUMBER_OUT_OF_RANGE, CU_NUMBER_PROPERTY_ID)]   //Insert value into Numeric field which is out of range    
+        [Description("Try to update an artifact properties with a number value that is out of its permitted range. Verify 200 OK Request is returned.")]
+        public void UpdateArtifact_NumberPropertyOutOfRange_200OK(int outOfRangeNumber, int propertyTypeId)
+        {
+            // Setup:
+            string stringToReplace = "value\":10.0";
+
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+            artifact.Lock();
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            string requestBody = JsonConvert.SerializeObject(artifactDetails);
+
+            string changedValue = "value\":" + outOfRangeNumber;
+
+            requestBody = requestBody.Replace(stringToReplace, changedValue);
+
+            // Execute:
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user),
+                "'PATCH {0}' should return 200 OK if properties are out of range!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            // Verify:
+            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            CustomProperty customPropertyAfter = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
+
+            Assert.AreEqual(outOfRangeNumber, customPropertyAfter.CustomPropertyValue,
+                    "Value of this custom property with id {0} should be {1} but was {2}!", propertyTypeId, outOfRangeNumber, customPropertyAfter.CustomPropertyValue);
+        }
+
+        [Category(Categories.CustomData)]
+        [TestRail(190817)]
+        [TestCase(CU_DATE_PROPERTY_ID)]     //Insert value into Date field which is out of range
+        [Description("Try to update an artifact date property with a value that out of its permitted range. Verify 200 OK Request is returned.")]
+        public void UpdateArtifact_DatePropertyOutOfRange_200OK(int propertyTypeId)
+        {
+            // Setup:
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+            artifact.Lock();
+
+            int thisYear = DateTime.Now.Year;
+
+            string toChange = "value\":\"" + thisYear;
+
+            int yearOutPropertyRange = thisYear + 100;
+
+            string requestBody = JsonConvert.SerializeObject(Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id));
+
+            requestBody = requestBody.Replace(toChange, "value\":\"" + yearOutPropertyRange);
+
+            // Execute:
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user),
+                "'PATCH {0}' should return 200 OK if properties are out of range!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            // Verify:
+            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            CustomProperty customPropertyAfter = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
+
+            DateTime newDate = (DateTime)customPropertyAfter.CustomPropertyValue;
+
+            Assert.AreEqual(yearOutPropertyRange, newDate.Year,
+                    "Value of year in this custom property with id {0} should be {1} but was {2}!", propertyTypeId, yearOutPropertyRange, newDate.Year);
+        }
+
         #endregion 200 OK tests
 
         #region Negative tests
@@ -96,7 +244,7 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifact.Id, _user);
+                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user);
             }, "'PATCH {0}' should return 400 Bad Request if an empty body is sent!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -119,7 +267,7 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifact.Id, _user);
+                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user);
             }, "'PATCH {0}' should return 400 Bad Request if a corrupt JSON body is sent!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -142,7 +290,7 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifact.Id, _user);
+                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user);
             }, "'PATCH {0}' should return 400 Bad Request if the 'Id' property is missing in the JSON body!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -165,7 +313,7 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, wrongArtifactId, _user);
+                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, wrongArtifactId, _user);
             }, "'PATCH {0}' should return 400 Bad Request if the Artifact ID in the URL is different than in the body!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -279,47 +427,15 @@ namespace ArtifactStoreTests
 
         #region Custom data tests
 
-        [Category(Categories.CustomData)]
-        [TestCase("value\":10.0", "value\":999.0")] //Insert value into Numeric field which is out of range
-        [TestCase("value\":\"20", "value\":\"21")] //Insert value into Date field which is out of range
-        [TestRail(164595)]
-        [Description("Try to update an artifact properties with a value that out of its permitted range. Verify 200 OK Request is returned.")]
-        public void UpdateArtifact_PropertyOutOfRange_200OK(string toChange, string changeTo)
-        {
-            // Setup:
-            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
-            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
-            artifact.Lock();
-
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-
-            //This is needed to suppress 501 error
-            artifactDetails.ItemTypeId = null;
-
-            string requestBody = JsonConvert.SerializeObject(artifactDetails);
-
-            requestBody = requestBody.Replace(toChange, changeTo);
-
-            // Execute:
-            string resultContent = null;
-            Assert.DoesNotThrow(() => resultContent = ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifact.Id, _user),
-                "'PATCH {0}' should return 200 OK if properties are out of range!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
-        }
-
-        private const string NumberValueIncorrectFormat = "The property CU-Number Required with Min & Max was supplied a value in an incorrect format.";
-        private const string DateValueIncorrectFormat   = "The property CU-Date Required with Min & Max was supplied a value in an incorrect format.";
         private const string ChoiceValueIncorrectFormat = "The value for the property CU-Choice Required with Single Choice is invalid.";
-        private const string UserValueIncorrectFormat   = "The value for the property CU-User Required is invalid.";
+        private const string UserValueIncorrectFormat = "The value for the property CU-User Required is invalid.";
 
         [Category(Categories.CustomData)]
-        [TestCase("value\":10.0", "value\":\"A\"", NumberValueIncorrectFormat)]                         // Insert String into Numeric field.
-        [TestCase("value\":\"20", "value\":\"A", DateValueIncorrectFormat)]                             // Insert String into Date field.
         [TestCase("validValueIds\":[27]", "validValueIds\":[0]", ChoiceValueIncorrectFormat)]           // Insert non-existant choice.
         [TestCase("usersGroups\":[{\"id\":1", "usersGroups\":[{\"id\":0", UserValueIncorrectFormat)]    // Insert non-existant User ID.
-        [TestRail(164561)]
+        [TestRail(190804)]
         [Description("Try to update an artifact properties with a improper value types. Verify 400 Bad Request is returned.")]
-        public void UpdateArtifact_WrongType1InProperty_400BadRequest(string toChange, string changeTo, string expectedError)
+        public void UpdateArtifact_NonExistingValueInProperty_400BadRequest(string toChange, string changeTo, string expectedError)
         {
             // Setup:
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
@@ -332,8 +448,8 @@ namespace ArtifactStoreTests
             artifactDetails.ItemTypeId = null;
 
             string requestBody = JsonConvert.SerializeObject(artifactDetails);
-            
-            string  modifiedRequestBody = requestBody.Replace(toChange, changeTo);
+
+            string modifiedRequestBody = requestBody.Replace(toChange, changeTo);
             Assert.AreNotEqual(requestBody, modifiedRequestBody, "Check that RequestBody was updated.");
 
             // Execute & Verify:
@@ -368,8 +484,6 @@ namespace ArtifactStoreTests
 
         #region Private functions
 
-
-
         /// <summary>
         /// Common code for UpdateArtifact_PublishedArtifact_CanGetArtifact and UpdateArtifact_UnpublishedArtifact_CanGetArtifact tests.
         /// </summary>
@@ -403,40 +517,34 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="propertyName">Name of the property in which value will be changed.</param>
         /// <param name="propertyValue">The value to set the property to.</param>
-        /// <param name="objectToUpadate">Object that contains the property to be changed.</param>
-        private static void SetProperty<T>(string propertyName, T propertyValue, ref NovaArtifactDetails objectToUpadate)
+        /// <param name="objectToUpdate">Object that contains the property to be changed.</param>
+        private static void SetProperty<T>(string propertyName, T propertyValue, ref NovaArtifactDetails objectToUpdate)
         {
-            objectToUpadate.GetType().GetProperty(propertyName).SetValue(objectToUpadate, propertyValue, null);
+            objectToUpdate.GetType().GetProperty(propertyName).SetValue(objectToUpdate, propertyValue, null);
         }
-/*
+
         /// <summary>
-        /// Try to update an invalid Artifact with Property Changes.  Use this for testing cases where the save is expected to fail.
+        /// Gets sub-property using property name and propertytypeId
         /// </summary>
-        /// <param name="requestBody">The request body (i.e. artifact to be updated).</param>
-        /// <param name="artifactId">The ID of the artifact to save.</param>
-        /// <param name="user">The user updating the artifact.</param>
-        /// <returns>The body content returned from ArtifactStore.</returns>
-        private string UpdateInvalidArtifact(string requestBody,
-            int artifactId,
-            IUser user)
+        /// <param name="objectToSearchCustomProperty">Object in which to look sub-property</param>
+        /// <param name="propertyName">Property name of property that has sub-properties</param>
+        /// <param name="propertyTypeId">Id of specific property to look for</param>
+        /// <returns>Custom property. Null if not found</returns>
+        private static CustomProperty GetCustomPropertyByPropertyTypeId(object objectToSearchCustomProperty, string propertyName, int propertyTypeId)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
+            Assert.IsNotNull(objectToSearchCustomProperty, "Object send to this function cannot be null!");
+            var properties = (List<CustomProperty>)objectToSearchCustomProperty.GetType().GetProperty(propertyName).GetValue(objectToSearchCustomProperty);
 
-            string tokenValue = user.Token?.AccessControlToken;
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
-            RestApiFacade restApi = new RestApiFacade(Helper.BlueprintServer.Address, tokenValue);
-            const string contentType = "application/json";
-
-            var response = restApi.SendRequestBodyAndGetResponse(
-                path,
-                RestRequestMethod.PATCH,
-                requestBody,
-                contentType);
-
-            return response.Content;
+            foreach (CustomProperty property in properties)
+            {
+                if (property.PropertyTypeId == propertyTypeId)
+                {
+                    return property;
+                }
+            }
+            return null;
         }
-*/
+
         /// <summary>
         /// Asserts that the specified RestResponse contains the expected error message.
         /// </summary>

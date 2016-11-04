@@ -21,7 +21,7 @@ class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance 
 }
 
 describe("File Upload Status", () => {
-    let $scope, $q, localization, $filter, $timeout;
+    let $scope, $q, localization, $filter;
     let controller: BpFileUploadStatusController;
     let fileUploadService: IFileUploadService;
     let dialogService: DialogServiceMock;
@@ -42,8 +42,7 @@ describe("File Upload Status", () => {
             $filter,
             new ModalServiceInstanceMock(),
             dialogSettings,
-            dialogData,
-            $timeout
+            dialogData
         );
     }
 
@@ -67,15 +66,13 @@ describe("File Upload Status", () => {
                        $rootScope: ng.IRootScopeService,
                        _localization_: LocalizationServiceMock,
                        $compile: ng.ICompileService,
-                       _dialogService_: DialogServiceMock,
-                       _$timeout_: ng.ITimeoutService) => {
+                       _dialogService_: DialogServiceMock) => {
         $scope = $rootScope.$new();
         $q = _$q_;
         localization = _localization_;
         $filter = _$filter_;
         fileUploadService = _fileUploadService_;
         dialogService = _dialogService_;
-        $timeout = _$timeout_;
     }));
 
     afterEach(() => {

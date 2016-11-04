@@ -7,7 +7,7 @@ export class ItemInfoServiceMock implements IItemInfoService {
 
     public get(id: number, timeout?: ng.IPromise<void>): ng.IPromise<IItemInfoResult> {
         const result = <IItemInfoResult>{
-            id: 360,
+            id: id,
             name: "Actor X",
             projectId: 259,
             parentId: 259,

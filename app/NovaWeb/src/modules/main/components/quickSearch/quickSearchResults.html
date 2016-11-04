@@ -12,25 +12,35 @@
                       ng-submit="$ctrl.search($ctrl.searchTerm)"
                       novalidate>
                     <div class="quick-serach__form-control" ng-class="{'has-error':$ctrl.hasError()}">
-                        <input type="text"
-                               required
-                               autocomplete="off"
-                               ng-minlength="3"
-                               placeholder="Search open project"
-                               class="quick-serach__input quick-serach__input--full-width"
-                               name="searchTerm"
-                               ng-model="$ctrl.searchTerm">
-                        <button class="quick-search__btn"
-                                type="submit"               
-                                ng-disabled="$ctrl.quickSearchService.canSearch()">
-                            <i class="glyphicon glyphicon-search quick-search__icon--fixed"></i>
-                        </button>
+                         <div class="input-group">
+                            <span class="input-group-btn input-group-btn__icon ">
+                                <button class="btn btn-default btn__icon"
+                                        type="submit"               
+                                        ng-disabled="quickSearch.quickSearchService.canSearch()">
+                                    <i class="glyphicon glyphicon-search quick-search__icon--fixed"></i>
+                                </button>
+                            </span>
+                            <input type="text"
+                                required
+                                autocomplete="off"
+                                ng-minlength="3"
+                                placeholder="Search open project"
+                                class="quick-serach__input quick-serach__input--full-width"
+                                name="searchTerm"
+                                ng-model="$ctrl.searchTerm">
+                            <button type="button" 
+                                    class="btn btn-default btn__icon btn--absolute-right" 
+                                    ng-if="$ctrl.showHide" 
+                                    ng-click="$ctrl.clearSearch()">
+                                <i class="fonticon-error fonticon-gray"></i>
+                            </button>
+                        </div>
                         <div class="error-messages"
                              ng-messages="$ctrl.form.$error"
                              role="alert"
                              ng-if="$ctrl.form.$submitted">
-                            <span ng-message="minlength">{{$ctrl.localization.get('Search_Validation_MinimumLength')}}</span>
                             <span ng-message="required">{{$ctrl.localization.get('Search_Validation_Required')}}</span>
+                            <span ng-message="minlength">{{::$root.config.labels["Search_Validation_MinThreeChars"]}}</span>
                         </div>
                     </div>
                 </form>
@@ -62,19 +72,24 @@
                                         </h4>
                                     </div>
                                 </div>
-                                <div class="row">
+                                <div class="row" ng-if="!item.isSubartifact">
                                     <div class="col-md-4">
-                                        <strong>Author: </strong>
+                                        <strong>{{::$root.config.labels["Search_Results_Author"]}} </strong>
                                         <span>{{item.createdBy}}</span>
                                     </div>
                                     <div class="col-md-4">
-                                        <strong>Created on: </strong>
+                                        <strong>{{::$root.config.labels["Search_Results_CreatedOn"]}} </strong>
                                         <span>{{item.createdDateTime|momentDate:'MMMM DD, YYYY'}}</span>
                                     </div>
                                     <div class="col-md-4">
-                                        <strong>Last Edited: </strong>
+                                        <strong>{{::$root.config.labels["Search_Results_LastEdited"]}} </strong>
                                         <span> {{item.lastModifiedDateTime|momentDate:'MMMM DD, YYYY'}}</span>
                                     </div>
+                                </div>
+                                <div class="row" ng-if="!!item.isSubartifact">
+                                    <div class="col-md-12" >
+                                        <span><i>{{::$root.config.labels["Search_Results_SubartifactMessage"]}}</i></span>
+                                    </div>                                    
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12">
@@ -100,7 +115,7 @@
 
                 <div class="quick-search__response" ng-if="$ctrl.results.length===0">
                     <div class="center-item font-larger">
-                        <span>No results Found</span>
+                        <span>{{::$root.config.labels["Search_Results_NoResults"]}}</span>
                     </div>
                 </div>
             </div>

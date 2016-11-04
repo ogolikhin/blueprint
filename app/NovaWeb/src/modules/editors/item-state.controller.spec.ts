@@ -150,7 +150,7 @@ describe("Item State Controller tests", () => {
                 // assert
                 expect(itemInfoSpy).toHaveBeenCalled();
                 expect(stateSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId}, {reload: expectedState});
+                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
             });
             
             it("glossary", () => {
@@ -169,7 +169,7 @@ describe("Item State Controller tests", () => {
                 // assert
                 expect(itemInfoSpy).toHaveBeenCalled();
                 expect(stateSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId}, {reload: expectedState});
+                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
             });
             
             it("general", () => {
@@ -188,7 +188,7 @@ describe("Item State Controller tests", () => {
                 // assert
                 expect(itemInfoSpy).toHaveBeenCalled();
                 expect(stateSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId}, {reload: expectedState});
+                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
             });
             
             it("collection", () => {
@@ -207,7 +207,7 @@ describe("Item State Controller tests", () => {
                 // assert
                 expect(itemInfoSpy).toHaveBeenCalled();
                 expect(stateSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId}, {reload: expectedState});
+                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
             });
             
             it("process", () => {
@@ -226,7 +226,7 @@ describe("Item State Controller tests", () => {
                 // assert
                 expect(itemInfoSpy).toHaveBeenCalled();
                 expect(stateSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId}, {reload: expectedState});
+                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
             });
             
             it("details", () => {
@@ -245,7 +245,7 @@ describe("Item State Controller tests", () => {
                 // assert
                 expect(itemInfoSpy).toHaveBeenCalled();
                 expect(stateSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId}, {reload: expectedState});
+                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
             });
         });
 
@@ -268,7 +268,7 @@ describe("Item State Controller tests", () => {
 
                 // assert
                 expect(navigationSpy).toHaveBeenCalled();
-                expect(navigationSpy).toHaveBeenCalledWith(artifactId, true);
+                expect(navigationSpy).toHaveBeenCalledWith({id: 10, redirect: true});
             });
             
             it("should not navigate to a project, should navigate to Main", () => {
@@ -396,7 +396,7 @@ describe("Item State Controller tests", () => {
             // assert
             expect(unloadSpy).toHaveBeenCalled();
             expect(stateSpy).toHaveBeenCalled();
-            expect(stateSpy).toHaveBeenCalledWith("main.item.process", {id: artifactId}, {reload: "main.item.process"});
+            expect(stateSpy).toHaveBeenCalledWith("main.item.process", {id: artifactId, version: undefined}, {reload: "main.item.process"});
         });
 
         it("should not use artifact from artifact manager if it's deleted", () => {

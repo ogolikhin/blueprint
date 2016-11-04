@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
@@ -34,21 +35,27 @@ namespace SearchService.Repositories
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
         private readonly ISearchConfigurationProvider _searchConfigurationProvider;
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
+        private readonly ISqlArtifactRepository _artifactRepository;
 
         public SqlItemSearchRepository() : this(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString), new SearchConfiguration())
         {
         }
 
         internal SqlItemSearchRepository(ISqlConnectionWrapper connectionWrapper, ISearchConfiguration configuration):
-            this(connectionWrapper, configuration, new SqlArtifactPermissionsRepository(connectionWrapper))
+            this(connectionWrapper, configuration, new SqlArtifactPermissionsRepository(connectionWrapper), new SqlArtifactRepository(connectionWrapper))
         {
         }
 
-        internal SqlItemSearchRepository(ISqlConnectionWrapper connectionWrapper, ISearchConfiguration configuration, IArtifactPermissionsRepository artifactPermissionsRepository)
+        internal SqlItemSearchRepository(
+            ISqlConnectionWrapper connectionWrapper, 
+            ISearchConfiguration configuration, 
+            IArtifactPermissionsRepository artifactPermissionsRepository,
+            ISqlArtifactRepository artifactRepository)
         {
             ConnectionWrapper = connectionWrapper;
             _artifactPermissionsRepository = artifactPermissionsRepository;
             _searchConfigurationProvider = new SearchConfigurationProvider(configuration);
+            _artifactRepository = artifactRepository;
         }
 
         /// <summary>
@@ -135,8 +142,14 @@ namespace SearchService.Repositories
         /// <param name="searchCriteria">SearchCriteria object</param>
         /// <param name="startOffset">Search start offset</param>
         /// <param name="pageSize">Page Size</param>
+        /// <param name="separatorString"></param>
         /// <returns></returns>
-        public async Task<ItemNameSearchResultSet> SearchName(int userId, ItemNameSearchCriteria searchCriteria, int startOffset, int pageSize)
+        public async Task<ItemNameSearchResultSet> SearchName(
+            int userId, 
+            ItemNameSearchCriteria searchCriteria, 
+            int startOffset, 
+            int pageSize,
+            string separatorString)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
@@ -155,15 +168,35 @@ namespace SearchService.Repositories
                 // Always getting permissions for the Head version of an artifact.
                 await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(items.Select(i => i.ItemId).ToList(), userId);
 
+            IDictionary<int, IEnumerable<string>> itemsNavigationPaths;
+            if (searchCriteria.IncludeArtifactPath)
+            {
+                itemsNavigationPaths =
+                    await
+                        _artifactRepository.GetArtifactsNavigationPaths(userId, items.Select(i => i.ItemId).ToList(),
+                            false);
+            }
+            else
+            {
+                itemsNavigationPaths = new Dictionary<int, IEnumerable<string>>();
+            }
+
             //items without permission should be removed
             items.RemoveAll(item => !itemIdsPermissions.ContainsKey(item.ItemId) || !itemIdsPermissions[item.ItemId].HasFlag(RolePermissions.Read));
 
-            var joinedResult = from i in items
-                               join p in itemIdsPermissions.AsEnumerable()
-                                   on i.ItemId equals p.Key
-                               select new { i, p };
+            var joinedResult = from item in items
+                               join permission in itemIdsPermissions.AsEnumerable()
+                                   on item.ItemId equals permission.Key
+                               join path in itemsNavigationPaths 
+                                   on item.Id equals path.Key into paths
+                               from lpath in paths.DefaultIfEmpty()
+                               select new { item, permission, lpath };
             foreach (var result in joinedResult)
-                result.i.Permissions = result.p.Value;
+            {
+                result.item.Permissions = result.permission.Value;
+                if (searchCriteria.IncludeArtifactPath)
+                    result.item.Path = string.Join(separatorString, result.lpath.Value);
+            }
 
             return new ItemNameSearchResultSet
             {

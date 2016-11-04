@@ -14,7 +14,7 @@ import {
 import {IStatefulArtifact} from "./artifact";
 import {StatefulSubArtifact, ISubArtifactCollection, IStatefulSubArtifact} from "./sub-artifact";
 import {IDocumentRefs, DocumentRefs} from "./docrefs";
-import {IChangeSet, IChangeCollector, ChangeTypeEnum, ChangeSetCollector} from "./changeset";
+import {IChangeSet, IItemChangeSet, IChangeCollector, ChangeTypeEnum, ChangeSetCollector} from "./changeset";
 import {
     ArtifactRelationships,
     IArtifactRelationships,
@@ -72,7 +72,7 @@ export {
     StatefulSubArtifact,
     StatefulArtifact,
     ISubArtifactCollection,
-    IChangeSet, IChangeCollector, ChangeTypeEnum, ChangeSetCollector,
+    IChangeSet, IItemChangeSet, IChangeCollector, ChangeTypeEnum, ChangeSetCollector,
     ArtifactRelationships,
     IArtifactRelationships,
     ArtifactRelationshipsService,

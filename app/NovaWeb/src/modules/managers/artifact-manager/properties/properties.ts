@@ -1,6 +1,6 @@
 import {IIStatefulItem} from "../item";
 import {Models} from "../../../main/models";
-import {ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector} from "../changeset";
+import {ChangeTypeEnum, IChangeCollector, IChangeSet, IItemChangeSet, ChangeSetCollector} from "../changeset";
 import {IDispose} from "../../models";
 
 export interface IArtifactProperties extends IDispose {
@@ -22,11 +22,6 @@ export class ArtifactProperties implements IArtifactProperties {
         this.properties = properties || [];
         this.changeset = new ChangeSetCollector(statefulItem);
         this._isLoaded = false;
-//        this.subject = new Rx.BehaviorSubject<Models.IPropertyValue>(null);
-        // this.subject.subscribeOnNext((it: Models.IPropertyValue) => {
-        //     this.addChangeSet(it);
-
-        // });
     }
 
     public initialize(properties: Models.IPropertyValue[]) {
@@ -59,7 +54,7 @@ export class ArtifactProperties implements IArtifactProperties {
                 value: property
             } as IChangeSet;
             this.changeset.add(changeset);
-
+            this.statefulItem.propertyChange.onNext({item: this.statefulItem, change: changeset} as IItemChangeSet);
             this.statefulItem.lock();
         }
         return property;

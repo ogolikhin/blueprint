@@ -3,7 +3,7 @@ import {Models, Enums} from "../../models";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../services";
 import {IMessageService, Message, MessageType, ILocalizationService, IApplicationError, HttpStatusCode } from "../../../core";
 import {ILoadingOverlayService} from "../../../core/loading-overlay";
-import {IArtifactManager, IStatefulArtifact, IMetaDataService} from "../../../managers/artifact-manager";
+import {IArtifactManager, IStatefulArtifact, IMetaDataService, IItemChangeSet} from "../../../managers/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {
@@ -83,10 +83,11 @@ export class BpArtifactInfoController {
 
         this.artifact = this.artifactManager.selection.getArtifact();
         if (this.artifact) {
-            const artifactStateSub = this.artifact.getObservable()
-                .subscribeOnNext(this.onArtifactChanged);
-
-            this.subscribers.push(artifactStateSub);
+            this.subscribers.push(this.artifact.getObservable()
+                                                .subscribeOnNext(this.onArtifactChanged));
+            this.subscribers.push(this.artifact.getProperyObservable()
+                                                .distinctUntilChanged(changes => changes.item && changes.item.name)                            
+                                                .subscribeOnNext(this.onArtifactPropertyChanged));
         }
     }
 
@@ -103,6 +104,11 @@ export class BpArtifactInfoController {
         if (this.artifact) {
             this.updateProperties(this.artifact);
             this.subscribeToStateChange(this.artifact);
+        }
+    }
+    protected onArtifactPropertyChanged = (change: IItemChangeSet) => {
+        if (this.artifact) {
+            this.artifactName = change.item.name;
         }
     }
 

@@ -47,22 +47,22 @@ export interface IBPTreeViewController extends ng.IComponentController {
     rowBuffer: number;
     selectionMode: "single" | "multiple" | "checkbox";
     rowHeight: number;
-    rootNode: ITreeViewNodeVM | ITreeViewNodeVM[];
+    rootNode: ITreeViewNode | ITreeViewNode[];
     rootNodeVisible: boolean;
     columns: IColumn[];
     headerHeight: number;
-    onSelect: (param: {vm: ITreeViewNodeVM, isSelected: boolean}) => any;
-    onDoubleClick: (param: {vm: ITreeViewNodeVM}) => void;
+    onSelect: (param: {vm: ITreeViewNode, isSelected: boolean}) => any;
+    onDoubleClick: (param: {vm: ITreeViewNode}) => void;
     onError: (param: {reason: any}) => void;
 
     // ag-grid bindings
     options: agGrid.GridOptions;
 }
 
-export interface ITreeViewNodeVM {
+export interface ITreeViewNode {
     key: string; // Each row in the dom will have an attribute row-id='key'
     isExpandable?: boolean;
-    children?: ITreeViewNodeVM[];
+    children?: ITreeViewNode[];
     isExpanded?: boolean;
     isSelectable(): boolean;
     loadChildrenAsync?(): ng.IPromise<any>; // To lazy-load children
@@ -78,8 +78,8 @@ export interface IColumn {
     isGroup?: boolean;
     isCheckboxSelection?: boolean;
     isCheckboxHidden?: boolean;
-    cellClass?: (vm: ITreeViewNodeVM) => string[];
-    innerRenderer?: (vm: ITreeViewNodeVM, eGridCell: HTMLElement) => string;
+    cellClass?: (vm: ITreeViewNode) => string[];
+    innerRenderer?: (vm: ITreeViewNode, eGridCell: HTMLElement) => string;
 }
 
 export class BPTreeViewController implements IBPTreeViewController {
@@ -90,13 +90,13 @@ export class BPTreeViewController implements IBPTreeViewController {
     public rowBuffer: number;
     public selectionMode: "single" | "multiple" | "checkbox";
     public rowHeight: number;
-    public rootNode: ITreeViewNodeVM | ITreeViewNodeVM[];
+    public rootNode: ITreeViewNode | ITreeViewNode[];
     public rootNodeVisible: boolean;
     public columns: IColumn[];
     public headerHeight: number;
     public sizeColumnsToFit: boolean;
-    public onSelect: (param: {vm: ITreeViewNodeVM, isSelected: boolean}) => any;
-    public onDoubleClick: (param: {vm: ITreeViewNodeVM}) => void;
+    public onSelect: (param: {vm: ITreeViewNode, isSelected: boolean}) => any;
+    public onDoubleClick: (param: {vm: ITreeViewNode}) => void;
     public onError: (param: {reason: any}) => void;
 
     // ag-grid bindings
@@ -200,13 +200,13 @@ export class BPTreeViewController implements IBPTreeViewController {
                     headerName: column.headerName ? column.headerName : "",
                     field: column.field,
                     width: column.width,
-                    cellClass: column.cellClass ? (params: agGrid.RowNode) => column.cellClass(params.data as ITreeViewNodeVM) : undefined,
+                    cellClass: column.cellClass ? (params: agGrid.RowNode) => column.cellClass(params.data as ITreeViewNode) : undefined,
                     cellRenderer: column.isGroup ? "group" : undefined,
                     cellRendererParams: column.isGroup ? {
                         checkbox: this.selectionMode === "checkbox" && !column.isCheckboxHidden ?
-                                 (params: any) => (params.data as ITreeViewNodeVM).isSelectable() : undefined,
+                                 (params: any) => (params.data as ITreeViewNode).isSelectable() : undefined,
                         innerRenderer: column.innerRenderer ?
-                            (params: any) => column.innerRenderer(params.data as ITreeViewNodeVM, params.eGridCell as HTMLElement) : undefined,
+                            (params: any) => column.innerRenderer(params.data as ITreeViewNode, params.eGridCell as HTMLElement) : undefined,
                         padding: 20
                     } : undefined,
                     checkboxSelection: column.isCheckboxSelection,
@@ -216,7 +216,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                 } as agGrid.ColDef;
             }));
 
-            let rowDataAsync: ITreeViewNodeVM[] | ng.IPromise<ITreeViewNodeVM[]>;
+            let rowDataAsync: ITreeViewNode[] | ng.IPromise<ITreeViewNode[]>;
             if (this.rootNode) {
                 if (this.rootNodeVisible || angular.isArray(this.rootNode)) {
                     rowDataAsync = angular.isArray(this.rootNode) ? this.rootNode : [this.rootNode];
@@ -230,9 +230,9 @@ export class BPTreeViewController implements IBPTreeViewController {
                 rowDataAsync = [];
             }
 
-            const selectedVMs: {[key: string]: ITreeViewNodeVM} = {};
+            const selectedVMs: {[key: string]: ITreeViewNode} = {};
             if (saveSelection) {
-                this.options.api.getSelectedRows().forEach((row: ITreeViewNodeVM) => selectedVMs[row.key] = row);
+                this.options.api.getSelectedRows().forEach((row: ITreeViewNode) => selectedVMs[row.key] = row);
             } else {
                 this.options.api.setRowData([]);
                 this.options.api.showLoadingOverlay();
@@ -288,7 +288,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     // Callbacks
 
     public getNodeChildDetails(dataItem: any): agGrid.NodeChildDetails {
-        const vm = dataItem as ITreeViewNodeVM;
+        const vm = dataItem as ITreeViewNode;
         if (vm.isExpandable) {
             return {
                 group: true,
@@ -301,7 +301,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     }
 
     public getBusinessKeyForNode(node: agGrid.RowNode): string {
-        const vm = node.data as ITreeViewNodeVM;
+        const vm = node.data as ITreeViewNode;
         return vm.key;
     }
 
@@ -309,7 +309,7 @@ export class BPTreeViewController implements IBPTreeViewController {
 
     public onRowGroupOpened = (event: {node: agGrid.RowNode}) => {
         const node = event.node;
-        const vm = node.data as ITreeViewNodeVM;
+        const vm = node.data as ITreeViewNode;
 
         if (vm.isExpandable) {
             const row = this.$element[0].querySelector(`.ag-body .ag-body-viewport-wrapper .ag-row[row-id="${vm.key}"]`);
@@ -351,7 +351,7 @@ export class BPTreeViewController implements IBPTreeViewController {
 
         const node = event.node as agGrid.RowNode &
             {setSelectedParams: (params: {newValue: boolean, clearSelection?: boolean, tailingNodeInSequence?: boolean, rangeSelect?: boolean}) => void};
-        const vm = node.data as ITreeViewNodeVM;
+        const vm = node.data as ITreeViewNode;
 
         // We set suppressRowClickSelection and handle row selection here because ag-grid's renderedRow.onRowClick()
         // does not work correctly with checkboxes and does not allow selection of group rows.
@@ -377,7 +377,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     public onRowSelected = (event: {node: agGrid.RowNode}) => {
         const node = event.node;
         const isSelected = node.isSelected();
-        const vm = node.data as ITreeViewNodeVM;
+        const vm = node.data as ITreeViewNode;
         if (isSelected && (!vm.isSelectable() || !this.isVisible(node))) {
             node.setSelected(false);
         } else if (this.onSelect) {
@@ -394,7 +394,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         return true;
     }
 
-    public onRowDoubleClicked = (event: {data: ITreeViewNodeVM}) => {
+    public onRowDoubleClicked = (event: {data: ITreeViewNode}) => {
         const vm = event.data;
         if (this.onDoubleClick && vm.isSelectable() && !vm.isExpandable) {
             this.onDoubleClick({vm: vm});
@@ -409,7 +409,7 @@ export class BPTreeViewController implements IBPTreeViewController {
 export class HeaderCell {
     constructor(public gridOptions: agGrid.GridOptions) { }
 
-    selectAll(value: boolean) {        
+    selectAll(value: boolean) {
         this.gridOptions.api.forEachNodeAfterFilter(node => node.setSelected(value));
     }
 }

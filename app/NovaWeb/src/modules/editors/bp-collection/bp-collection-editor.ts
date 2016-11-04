@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import * as _ from "lodash";
 import {Models, Enums} from "../../main";
-import {IColumn, ITreeViewNodeVM} from "../../shared/widgets/bp-tree-view/";
+import {IColumn, ITreeViewNode} from "../../shared/widgets/bp-tree-view/";
 import {BpArtifactDetailsEditorController} from "../bp-artifact/bp-details-editor";
 import {ICollectionService} from "./collection.svc";
 import {IStatefulCollectionArtifact, ICollection, ICollectionArtifact} from "./collection-artifact";
@@ -189,7 +189,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     }
 }
 
-class CollectionNodeVM implements ITreeViewNodeVM {
+class CollectionNodeVM implements ITreeViewNode {
     public key: string;
 
     constructor(public model: ICollectionArtifact, private projectId: number, private metadataService: IMetaDataService) {

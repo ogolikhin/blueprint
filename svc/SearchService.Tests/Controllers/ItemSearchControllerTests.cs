@@ -329,7 +329,7 @@ namespace SearchService.Controllers
                 }));
             itemSearchRepository.Setup(a => a.FullTextMetaData(It.IsAny<int>(), It.IsAny<FullTextSearchCriteria>())).
                 ReturnsAsync(new MetaDataSearchResultSet { Items = new List<MetaDataSearchResult>() });
-            itemSearchRepository.Setup(m => m.SearchName(It.IsAny<int>(), It.IsAny<ItemNameSearchCriteria>(), It.IsAny<int>(), It.IsAny<int>()))
+            itemSearchRepository.Setup(m => m.SearchName(It.IsAny<int>(), It.IsAny<ItemNameSearchCriteria>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()))
                 .ReturnsAsync(new ItemNameSearchResultSet { Items = new List<ItemNameSearchResult>(), PageItemCount = 0 });
 
             var configuration = new Mock<ISearchConfiguration>();

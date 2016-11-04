@@ -1,4 +1,4 @@
-import {IIStatefulItem} from "../item";
+import {IIStatefulItem, IStatefulItem} from "../item";
 
 export enum ChangeTypeEnum {
     Add = 0,
@@ -10,6 +10,11 @@ export interface IChangeSet {
     type: ChangeTypeEnum;
     key: string | number;
     value: any;
+}
+
+export interface IItemChangeSet {
+    item: IStatefulItem;
+    change?: IChangeSet;
 }
 export interface IChangeCollector {
     add(changeset: IChangeSet);

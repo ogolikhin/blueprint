@@ -279,4 +279,17 @@ export class Helper {
     public static isInt(n: number): boolean {
         return parseInt(n.toString(), 10) === n;
     }
+
+    public static getArtifactPath(artifact: Models.IArtifact): string[] {
+        if (!artifact) {
+            return [];
+        }
+        let currentArtifact = artifact.parent;
+        let path: string[] = [];
+        while (currentArtifact) {
+            path.unshift(currentArtifact.name);
+            currentArtifact = currentArtifact.parent;
+        }
+        return path;
+    }
 }

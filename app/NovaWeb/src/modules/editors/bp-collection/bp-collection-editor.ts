@@ -7,6 +7,7 @@ import {ICollectionService} from "./collection.svc";
 import {IStatefulCollectionArtifact, ICollection, ICollectionArtifact} from "./collection-artifact";
 import {Helper} from "../../shared";
 import {IMetaDataService} from "../../managers/artifact-manager";
+import {ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet} from "../../managers/artifact-manager/changeset";
 import {
     ILocalizationService,
     IArtifactManager,
@@ -38,6 +39,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public selectAll: boolean = false;
     public selectAllClass: string;
     public isSystemPropertiesCollapsed: boolean = true;
+    private collectionSubscriber: Rx.IDisposable;
 
     constructor(private $state: ng.ui.IStateService,
         messageService: IMessageService,
@@ -61,13 +63,22 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         return "";
     }
 
+    private subscribeOnCollectionChanges(collectionArtifact: IStatefulCollectionArtifact) {
+        if (this.collectionSubscriber) {
+            this.collectionSubscriber.dispose();
+            this.collectionSubscriber = null;
+        }
+        this.collectionSubscriber = collectionArtifact.collectionObservable().subscribe(this.onCollectionArtifactsChanged);                
+    }
+
     public onArtifactReady() {
         if (this.editor && this.artifact) {
             const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
-            this.metadataService.get(collectionArtifact.projectId).then(() => {
+            this.metadataService.get(collectionArtifact.projectId).then(() => {                
                 this.rootNode = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
                     return new CollectionNodeVM(a, this.artifact.projectId, this.metadataService);
-                });
+                });     
+                this.subscribeOnCollectionChanges(collectionArtifact);
 
             }).catch((error: any) => {
                 //ignore authentication errors here
@@ -82,6 +93,23 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             super.onArtifactReady();
         }
     }
+
+    private onCollectionArtifactsChanged = (changes: IChangeSet[]) => {
+        if (!changes || changes.length === 0) {
+            return;
+        }
+
+        let collectionArtifacts = this.rootNode.slice();
+
+        changes.map((change: IChangeSet) => {
+            if (change.type === ChangeTypeEnum.Add) {
+                let addedTreeVM = new CollectionNodeVM(change.value, this.artifact.projectId, this.metadataService);                
+                collectionArtifacts.push(addedTreeVM);                
+            }
+        });
+
+        this.rootNode = collectionArtifacts;
+    };
 
     private headerCellRendererSelectAll(params) {
         let cb = document.createElement("i");

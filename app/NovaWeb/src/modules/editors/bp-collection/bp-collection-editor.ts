@@ -32,12 +32,16 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         "collectionService",
         "metadataService",
         "$location",
-        "$window"
+        "$window",
+        "$scope"
     ];
 
     public selectAll: boolean = false;
     public selectAllClass: string;
     public isSystemPropertiesCollapsed: boolean = true;
+    public selectedVMs: any[] = [];
+    //public showBulkActions: boolean;
+    //public selectedVMsLength: number;
 
     constructor(private $state: ng.ui.IStateService,
         messageService: IMessageService,
@@ -48,7 +52,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         private collectionService: ICollectionService,
         private metadataService: IMetaDataService,
         private $location: ng.ILocationService,
-        private $window: ng.IWindowService
+        private $window: ng.IWindowService,
+        private $scope: ng.IScope
     ) {
         super(messageService, artifactManager, windowManager, localization, dialogService);
     }
@@ -186,6 +191,24 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public toggleAll(): void {
         this.selectAll = !this.selectAll;
         this.selectAllClass = this.selectAll ? "ag-checkbox-checked" : "ag-checkbox-unchecked";
+    }
+
+    public onSelect = (vm, isSelected: boolean) => {
+        if (isSelected) {
+            this.selectedVMs.push(vm);
+        } else {
+            let index = _.findIndex(this.selectedVMs, {key: vm.key});
+
+            if (index > -1) {
+                this.selectedVMs.splice(index, 1);
+            }
+        }
+
+        this.$scope.$applyAsync();
+    }
+
+    public bulkDelete() {
+        console.log("bulk Delete");
     }
 }
 

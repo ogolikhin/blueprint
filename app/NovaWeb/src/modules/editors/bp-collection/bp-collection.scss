@@ -5,6 +5,19 @@
     margin: $padding-root;
 }
 
+.collection__bulk__actions{
+    background: $gray-lightest;
+    margin-bottom: -10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 5px;
+
+    .icon::before{
+        color: $gray-light;
+        font-size: $font-size-normal;
+    }
+}
+
 .collection__heading{
     font-size: $font-size-big;
     color: $gray-dark;

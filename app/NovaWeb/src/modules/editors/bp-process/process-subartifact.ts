@@ -51,7 +51,11 @@ export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements 
                 this.loadPromise = null;
             });
         } else {
-            deferred.resolve(this);
+            if (this.loadPromise) {
+                return this.loadPromise;
+            } else {
+                deferred.resolve(this);
+            }
         }
         return deferred.promise;
     }

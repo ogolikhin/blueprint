@@ -137,7 +137,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     private getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {
         return this.relationshipDetailsService.getRelationshipDetails(artifactId)
             .then((relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo) => {
-                if (relationshipExtendedInfo.pathToProject[0].parentId === 0) {
+                if (relationshipExtendedInfo.pathToProject.length > 0 && relationshipExtendedInfo.pathToProject[0].parentId === 0) {
                     this.artifact.projectId = relationshipExtendedInfo.pathToProject[0].itemId;
                     this.artifact.projectName = relationshipExtendedInfo.pathToProject[0].itemName;
                 }

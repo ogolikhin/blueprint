@@ -67,7 +67,7 @@ export class CreateNewArtifactController extends BaseDialogController implements
         );
     }
 
-    public filterItemTypeByParent = (): ItemTypePredefined[] => {
+    public filterItemTypePredefinedByParent = (): ItemTypePredefined[] => {
         const allowedItemType: ItemTypePredefined[] = [
             ItemTypePredefined.TextualRequirement,
             ItemTypePredefined.Process,
@@ -83,7 +83,7 @@ export class CreateNewArtifactController extends BaseDialogController implements
                 return itemType === ItemTypePredefined.ArtifactCollection ||
                     itemType === ItemTypePredefined.CollectionFolder;
             } else if (this._parentType === ItemTypePredefined.ArtifactCollection) {
-                return false; // cannot create anything under ArtifactCollection
+                return itemType === ItemTypePredefined.ArtifactCollection;
             } else if (this._parentType === ItemTypePredefined.Project || this._parentType === ItemTypePredefined.PrimitiveFolder) {
                 return itemType !== ItemTypePredefined.ArtifactCollection &&
                     itemType !== ItemTypePredefined.CollectionFolder;
@@ -93,6 +93,11 @@ export class CreateNewArtifactController extends BaseDialogController implements
                     itemType !== ItemTypePredefined.CollectionFolder;
             }
         });
+    };
+
+    public availableItemTypes = (): ItemTypePredefined[] => {
+        const availableItemTypePredefined = this.filterItemTypePredefinedByParent();
+        return [];
     };
 
     public get hasError(): boolean {

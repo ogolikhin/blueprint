@@ -285,10 +285,8 @@ $modal-open-project-height: 450px;
 
             .project-name,
             .instance-name {
+                @include text-ellipsis-any-width();
                 display: inline-block;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
             }
 
             .instance-name {

@@ -124,7 +124,11 @@ export class ItemStateController {
     }
 
     private setSelectedArtifact(artifact: IStatefulArtifact) {
-        this.artifactManager.selection.setExplorerArtifact(artifact);
+        // do not select artifact in explorer if navigated from another artifact
+        if (!this.$state.params["path"]) {
+            this.artifactManager.selection.setExplorerArtifact(artifact);
+        }
+        
         this.artifactManager.selection.setArtifact(artifact);
         artifact.errorObservable().subscribeOnNext(this.onArtifactError);
     }

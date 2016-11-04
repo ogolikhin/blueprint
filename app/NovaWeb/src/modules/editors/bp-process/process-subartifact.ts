@@ -40,7 +40,7 @@ export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements 
 
     public loadProperties(): ng.IPromise<IStatefulSubArtifact> {      
         const deferred = this.services.getDeferred<IStatefulSubArtifact>();  
-        if (this.canLoadProperties()) {
+        if (!this.isFullArtifactLoadedOrLoading()) {
             this.loadPromise = this.load();
             this.loadPromise.then(() => {
                 deferred.resolve(this);
@@ -55,8 +55,8 @@ export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements 
         return deferred.promise;
     }
 
-    protected canLoadProperties() {
+    protected isFullArtifactLoadedOrLoading() {
         // If process shape has never been saved/published, then don't load.
-        return !this.isFullArtifactLoadedOrLoading() && Helper.hasArtifactEverBeenSavedOrPublished(this);
+        return super.isFullArtifactLoadedOrLoading() || !Helper.hasArtifactEverBeenSavedOrPublished(this);
     }
 }

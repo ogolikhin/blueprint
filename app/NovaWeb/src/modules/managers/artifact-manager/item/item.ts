@@ -243,7 +243,7 @@ export abstract class StatefulItem implements IIStatefulItem {
 
     public abstract lock();
 
-    protected isFullArtifactLoadedOrLoading() {
+    protected isFullArtifactLoadedOrLoading(): boolean | ng.IPromise<IStatefulItem> {
         return (this._customProperties && this._customProperties.isLoaded &&
             this._specialProperties && this._specialProperties.isLoaded) ||
             this.loadPromise;

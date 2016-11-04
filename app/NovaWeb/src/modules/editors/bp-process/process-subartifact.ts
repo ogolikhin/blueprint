@@ -46,6 +46,7 @@ export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements 
                 deferred.resolve(this);
             }).catch((error) => {
                 this.error.onNext(error);
+                deferred.reject(error);
             }).finally(() => {
                 this.loadPromise = null;
             });

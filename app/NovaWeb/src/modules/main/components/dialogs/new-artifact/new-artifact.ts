@@ -16,6 +16,9 @@ export interface ICreateNewArtifactDialogData extends IDialogData {
 }
 
 export class CreateNewArtifactController extends BaseDialogController implements ICreateNewArtifactController {
+    public newName: string;
+    public newArtifactType: IItemType;
+
     private _errorMessage: string;
 
     private _projectId: number;
@@ -123,5 +126,10 @@ export class CreateNewArtifactController extends BaseDialogController implements
 
     public get errorMessage(): string {
         return this._errorMessage;
+    }
+
+    public get isCreateButtonDisabled(): boolean {
+        return _.isUndefined(this.newName) || !_.isString(this.newName) || this.newName.length === 0 ||
+            _.isUndefined(this.newArtifactType) || _.isNull(this.newArtifactType);
     }
 }

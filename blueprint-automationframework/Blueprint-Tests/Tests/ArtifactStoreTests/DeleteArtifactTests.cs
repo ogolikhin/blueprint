@@ -61,7 +61,6 @@ namespace ArtifactStoreTests
             VerifyArtifactIsDeleted(artifact, authorUser);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // TFS Bug: 3129  The new Delete REST call gives a 404 error when trying to delete a Collection or Collection Folder.
         [TestCase(ItemTypePredefined.ArtifactCollection)]
         [TestCase(ItemTypePredefined.CollectionFolder)]
         [TestRail(185237)]
@@ -71,11 +70,11 @@ namespace ArtifactStoreTests
         {
             // Setup:
             IUser authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, authorUser);
 
-            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
+            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, authorUser);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            IArtifact artifact = Helper.CreateAndWrapNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            IArtifact artifact = Helper.CreateAndWrapNovaArtifact(_project, authorUser, artifactType, collectionFolder.Id, baseType: fakeBaseType);
             artifact.Publish();
 
             // Execute:
@@ -90,7 +89,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, deletedArtifacts.Count, "There should only be 1 deleted artifact returned!");
             Assert.AreEqual(artifact.Id, deletedArtifacts[0].Id, "The artifact ID doesn't match the one that we deleted!");
 
-            VerifyArtifactIsDeleted(artifact);
+            VerifyArtifactIsDeleted(artifact, authorUser);
         }
 
         [TestCase(BaseArtifactType.Actor)]

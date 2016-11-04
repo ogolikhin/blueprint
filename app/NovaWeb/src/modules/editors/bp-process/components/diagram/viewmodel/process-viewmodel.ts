@@ -198,8 +198,8 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public showMessage(messageType: MessageType, messageText: string) {
         const message = new Message(messageType, messageText);
-
         if (message && this._messageService) {
+            this._messageService.clearMessages();
             this._messageService.addMessage(message);
             // force $digest cycle to show message
             if (this._scope && this._scope.$apply) {

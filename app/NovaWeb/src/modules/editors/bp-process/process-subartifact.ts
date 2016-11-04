@@ -60,7 +60,7 @@ export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements 
         return deferred.promise;
     }
 
-    protected isFullArtifactLoadedOrLoading() {
+    protected isFullArtifactLoadedOrLoading(): boolean {
         // If process shape has never been saved/published, then don't load.
         return super.isFullArtifactLoadedOrLoading() || !Helper.hasArtifactEverBeenSavedOrPublished(this);
     }

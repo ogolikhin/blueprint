@@ -8,10 +8,11 @@ import {
 import { IStatefulSubArtifact, StatefulSubArtifact } from "../../managers/artifact-manager/sub-artifact";
 import { IStatefulArtifact } from "../../managers/artifact-manager/artifact";
 import { IStatefulArtifactServices } from "../../managers/artifact-manager/services";
+import { Helper } from "../../shared/utils/helper";
 
 
 export interface IStatefulProcessSubArtifact extends IStatefulSubArtifact {
-
+    loadProperties(): ng.IPromise<IStatefulSubArtifact>;
 }
 export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements IStatefulProcessSubArtifact, IProcessShape {
     
@@ -35,5 +36,27 @@ export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements 
 
     public get predefinedType(): ItemTypePredefined {
         return this.baseItemTypePredefined;
+    }
+
+    public loadProperties(): ng.IPromise<IStatefulSubArtifact> {      
+        const deferred = this.services.getDeferred<IStatefulSubArtifact>();  
+        if (this.canLoadProperties()) {
+            this.loadPromise = this.load();
+            this.loadPromise.then(() => {
+                deferred.resolve(this);
+            }).catch((error) => {
+                this.error.onNext(error);
+            }).finally(() => {
+                this.loadPromise = null;
+            });
+        } else {
+            deferred.resolve(this);
+        }
+        return deferred.promise;
+    }
+
+    protected canLoadProperties() {
+        // If process shape has never been saved/published, then don't load.
+        return !this.isFullArtifactLoadedOrLoading() && Helper.hasArtifactEverBeenSavedOrPublished(this);
     }
 }

@@ -27,7 +27,7 @@ export interface IStatefulItem extends Models.IArtifact {
     errorObservable(): Rx.Observable<IApplicationError>;
     unsubscribe(): void;
     getEffectiveVersion(): number;
-    properyObservable(): Rx.Observable<IItemChangeSet>;
+    getProperyObservable(): Rx.Observable<IItemChangeSet>;
 }
 
 export interface IIStatefulItem extends IStatefulItem {
@@ -50,7 +50,7 @@ export abstract class StatefulItem implements IIStatefulItem {
     protected lockPromise: ng.IPromise<IStatefulItem>;
     protected loadPromise: ng.IPromise<IStatefulItem>;
     private _error: Rx.BehaviorSubject<IApplicationError>;
-    private _propertySubject: Rx.BehaviorSubject<IItemChangeSet>;
+    private _propertyChangeSubject: Rx.BehaviorSubject<IItemChangeSet>;
 
     constructor(protected artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
     }
@@ -79,13 +79,13 @@ export abstract class StatefulItem implements IIStatefulItem {
     }
 
     public get propertyChange(): Rx.BehaviorSubject<IItemChangeSet> {
-        if (!this._propertySubject) {
-            this._propertySubject = new Rx.BehaviorSubject<IItemChangeSet>({item: this});            
+        if (!this._propertyChangeSubject) {
+            this._propertyChangeSubject = new Rx.BehaviorSubject<IItemChangeSet>({item: this});            
         }    
-        return this._propertySubject;    
+        return this._propertyChangeSubject;    
     } 
 
-    public properyObservable(): Rx.Observable<IItemChangeSet> {
+    public getProperyObservable(): Rx.Observable<IItemChangeSet> {
         return this.propertyChange.filter(it => !!it).asObservable();
     } 
 

@@ -131,7 +131,7 @@ export class BPUtilityPanelController {
             this.propertySubscriber.dispose();
         }
         if (item) {
-            this.propertySubscriber = item.properyObservable().subscribeOnNext(this.updateItem);
+            this.propertySubscriber = item.getProperyObservable().subscribeOnNext(this.updateItem);
         }
         
         if (selection && (selection.artifact || selection.subArtifact)) {

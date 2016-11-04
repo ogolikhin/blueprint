@@ -78,7 +78,7 @@ export class ProjectExplorerController {
         if (this.selectedArtifactSubscriber) {
             this.selectedArtifactSubscriber.dispose();
         }
-        this.selectedArtifactSubscriber = value.artifact.properyObservable()
+        this.selectedArtifactSubscriber = value.artifact.getProperyObservable()
                         .distinctUntilChanged(changes => changes.item && changes.item.name)                            
                         .subscribeOnNext(this.onSelectedArtifactChange);
     }
@@ -207,7 +207,7 @@ export class ProjectExplorerController {
         //If the artifact's name changes (on refresh), we refresh specific node only .
         //To prevent update treenode name while editing the artifact details, use it only for clean artifact.
         if (changes.item) {
-            let node = this.tree.getNodeData(changes.item.id) as IArtifactNode;
+            const node = this.tree.getNodeData(changes.item.id) as IArtifactNode;
             if (node) {
                 node.name = changes.item.name;
                 this.tree.refresh(node.id);

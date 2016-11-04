@@ -58,6 +58,9 @@
     background: $white;
 
     .ag-grid{
+        .ag-header-cell-label{
+            overflow: visible;
+        }
 
         .ag-row.ag-row-focus, .ag-row.ag-row-focus:hover{
             .ag-cell:not(.not-selectable) span > span{

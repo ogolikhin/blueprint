@@ -1,20 +1,19 @@
 import "angular";
 import "angular-mocks";
-import {Models, AdminStoreModels, SearchServiceModels} from "../../models";
-import {IArtifactManager} from "../../../managers/";
-import {IProjectService} from "../../../managers/project-manager/";
-import {IArtifactPickerOptions} from "./bp-artifact-picker";
-import {InstanceItemNodeVM, ArtifactNodeVM, SubArtifactContainerNodeVM, SubArtifactNodeVM} from "./bp-artifact-picker-node-vm";
+import {Models, AdminStoreModels, SearchServiceModels} from "./";
+import {IArtifactManager} from "../../managers/";
+import {IProjectService} from "../../managers/project-manager/";
+import {ITreeViewOptions, InstanceItemNodeVM, ArtifactNodeVM, SubArtifactContainerNodeVM, SubArtifactNodeVM} from "./tree-view-models";
 
 describe("ArtifactPickerNodeVM", () => {
     let artifactManager: IArtifactManager;
     let projectService: IProjectService;
-    let options: IArtifactPickerOptions;
+    let options: ITreeViewOptions;
 
     beforeEach(() => {
         artifactManager = jasmine.createSpyObj("artifactManager", ["get"]) as IArtifactManager;
         projectService = jasmine.createSpyObj("projectService", ["getFolders", "getArtifacts", "getSubArtifactTree"]) as IProjectService;
-        options = {} as IArtifactPickerOptions;
+        options = {} as ITreeViewOptions;
     });
 
     describe("InstanceItemNodeVM", () => {

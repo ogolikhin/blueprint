@@ -16,6 +16,8 @@ export class PropertyEditorFilters {
             propertyFilters[Models.PropertyTypePredefined.Height] = true;
             propertyFilters[Models.PropertyTypePredefined.Label] = true;
             propertyFilters[Models.PropertyTypePredefined.Name] = true;
+        } else if (itemTypePredefined === Models.ItemTypePredefined.Process) {
+            propertyFilters[Models.PropertyTypePredefined.Name] = true;
         }
 
         return propertyFilters;

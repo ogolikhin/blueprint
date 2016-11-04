@@ -15,6 +15,7 @@ import {PropertyContext} from "../../../editors/bp-artifact/bp-property-context"
 import {PropertyLookupEnum, LockedByEnum} from "../../../main/models/enums";
 import {Helper} from "../../../shared/utils/helper";
 import {PropertyEditorFilters} from "./bp-properties-panel-filters";
+import * as ChangesetModels from "../../../managers/artifact-manager/changeset";
 
 export class BPPropertiesPanel implements ng.IComponentOptions {
     public template: string = require("./bp-properties-panel.html");
@@ -204,13 +205,13 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                     if (isReadOnly) {
                         field.templateOptions.disabled = true;
                     }
-                    //if (isReadOnly) {
-                    if (field.key !== "documentFile" &&
-                        field.type !== "bpFieldImage" &&
-                        field.type !== "bpFieldInheritFrom") {
-                        field.type = "bpFieldReadOnly";
+                    if (isReadOnly) {
+                        if (field.key !== "documentFile" &&
+                            field.type !== "bpFieldImage" &&
+                            field.type !== "bpFieldInheritFrom") {
+                            field.type = "bpFieldReadOnly";
+                        }
                     }
-                    //}
 
                     this.onFieldUpdate(field);
 
@@ -245,23 +246,40 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     }
 
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
+        //$scope.$applyAsync(() => {
         //here we need to update original model
         let context = $field.data as PropertyContext;
         if (!context) {
             return;
         }
-        //let value = this.editor.convertToModelValue($field, $value);
-        // let changeSet: IPropertyChangeSet = {
-        //     lookup: context.lookup,
-        //     id: context.modelPropertyName,
-        //     value: value
-        // };
-
-        // if (this.selectedSubArtifact) {
-        //     this.addSubArtifactChangeset(this.selectedArtifact, this.selectedSubArtifact, changeSet);
-        // } else {
-        //     this.stateManager.addChange(this.selectedArtifact, changeSet);
-        // }
+        let value = this.editor.convertToModelValue($field, $value);
+        switch (context.lookup) {
+            case Enums.PropertyLookupEnum.Custom:
+                if (this.selectedSubArtifact) {
+                    this.selectedSubArtifact.customProperties.set(context.modelPropertyName as number, value);
+                } else {
+                    this.selectedArtifact.customProperties.set(context.modelPropertyName as number, value);                            
+                }
+                
+                break;
+            case Enums.PropertyLookupEnum.Special:
+                if (this.selectedSubArtifact) {
+                    this.selectedSubArtifact.specialProperties.set(context.modelPropertyName as number, value);
+                } else {
+                    this.selectedArtifact.specialProperties.set(context.modelPropertyName as number, value);                            
+                }
+                
+                break;
+            default:
+                if (this.selectedSubArtifact) {
+                    this.selectedSubArtifact[context.modelPropertyName] = value;
+                } else {
+                    this.selectedArtifact[context.modelPropertyName] = value;                            
+                }                
+                break;
+            }
+        context.isFresh = false;
+        //});
     };
 
     public get specificPropertiesHeading(): string {

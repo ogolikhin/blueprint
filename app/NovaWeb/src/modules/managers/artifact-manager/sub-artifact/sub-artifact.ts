@@ -5,6 +5,7 @@ import {StatefulItem, IStatefulItem, IIStatefulItem} from "../item";
 import {IArtifactAttachmentsResultSet} from "../attachments";
 import {MetaData} from "../metadata";
 import {HttpStatusCode} from "../../../core/http";
+import {IChangeSet} from "../changeset";
 
 export interface IIStatefulSubArtifact extends IIStatefulItem {
 }
@@ -75,21 +76,48 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
         const traces = this.relationships.changes();
         const attachmentValues = this.attachments.changes();
         const docRefValues = this.docRefs.changes();
+        const customPropertyChangedValues = this.customProperties.changes();
+        const specificPropertyChangedValues = this.specialProperties.changes();
 
-        if (traces || attachmentValues || docRefValues) {
-            const delta = <Models.ISubArtifact>{};
-            delta.id = this.id;
+        let hasChanges = false;
+
+        const delta = <Models.ISubArtifact>{};
+        delta.id = this.id;
+
+        this.changesets.get().forEach((it: IChangeSet) => {
+                hasChanges = true;
+                delta[it.key as string] = it.value;
+        });
+
+        if (traces || 
+        attachmentValues || 
+        docRefValues || 
+        (customPropertyChangedValues && customPropertyChangedValues.length > 0) || 
+        (specificPropertyChangedValues && specificPropertyChangedValues.length > 0)) {
+
+            delta.customPropertyValues = customPropertyChangedValues;
+            delta.specificPropertyValues = specificPropertyChangedValues;
+
             delta.traces = traces;
             delta.attachmentValues = attachmentValues;
             delta.docRefValues = docRefValues;
+
             return delta;
         }
+
+        if (hasChanges) {
+            return delta;
+        }
+
         return undefined;
     }
 
     public discard() {
         super.discard();
         this.artifactState.dirty = false;
+        
+        this.customProperties.discard();
+        this.specialProperties.discard();
 
         this.attachments.discard();
         this.docRefs.discard();

@@ -85,6 +85,40 @@ namespace ArtifactStoreTests
         private const int CU_DATE_PROPERTY_ID = 119;
 
         [Category(Categories.CustomData)]
+        [TestRail(190895)]
+        [TestCase("value\":10.0", 15, CU_NUMBER_PROPERTY_ID)]   // Insert value in range into Numeric field.
+        [Description("Update a custom property of an artifact with a new in-range value.  Verify 200 OK Request is returned and the new value is saved.")]
+        public void UpdateArtifact_ChangeCustomPropertyValue_NewValueIsUpdated(string textToReplace, int newNumberValue, int propertyTypeId)
+        {
+            // TODO: Make this test work with any data type, not just int.
+            // Setup:
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+            artifact.Lock();
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            string requestBody = JsonConvert.SerializeObject(artifactDetails);
+            string changedValue = "value\":" + newNumberValue;
+
+            requestBody = requestBody.Replace(textToReplace, changedValue);
+
+            // Execute:
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user),
+                "'PATCH {0}' should return 200 OK if properties are out of range!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            // Verify:
+            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            CustomProperty customPropertyAfter = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
+
+            Assert.AreEqual(newNumberValue, customPropertyAfter.CustomPropertyValue,
+                    "Value of this custom property with id {0} should be {1} but was {2}!",
+                    propertyTypeId, newNumberValue, customPropertyAfter.CustomPropertyValue);
+        }
+
+        [Category(Categories.CustomData)]
         [TestCase("value\":10.0", "value\":\"A\"", CU_NUMBER_PROPERTY_ID)]   // Insert String into Numeric field.
         [TestCase("value\":\"20", "value\":\"A", CU_DATE_PROPERTY_ID)]       // Insert String into Date field.
         [TestRail(164561)]
@@ -154,7 +188,7 @@ namespace ArtifactStoreTests
             CustomProperty customPropertyAfter = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
 
             Assert.AreEqual(outOfRangeNumber, customPropertyAfter.CustomPropertyValue,
-                    "Value of this custom property with id {0} should be {1} but was !", propertyTypeId, outOfRangeNumber, customPropertyAfter.CustomPropertyValue);
+                    "Value of this custom property with id {0} should be {1} but was {2}!", propertyTypeId, outOfRangeNumber, customPropertyAfter.CustomPropertyValue);
         }
 
         [Category(Categories.CustomData)]
@@ -483,7 +517,7 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="propertyName">Name of the property in which value will be changed.</param>
         /// <param name="propertyValue">The value to set the property to.</param>
-        /// <param name="objectToUpadate">Object that contains the property to be changed.</param>
+        /// <param name="objectToUpdate">Object that contains the property to be changed.</param>
         private static void SetProperty<T>(string propertyName, T propertyValue, ref NovaArtifactDetails objectToUpdate)
         {
             objectToUpdate.GetType().GetProperty(propertyName).SetValue(objectToUpdate, propertyValue, null);

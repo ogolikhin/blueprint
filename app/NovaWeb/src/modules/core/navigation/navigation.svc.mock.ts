@@ -1,4 +1,4 @@
-import {INavigationState, INavigationService} from "./";
+import {INavigationState, INavigationService, INavigationParams} from "./";
 
 export class NavigationServiceMock implements INavigationService {
     public static $inject: string[] = [
@@ -17,21 +17,23 @@ export class NavigationServiceMock implements INavigationService {
     }
 
     public navigateToMain(redirect?: boolean): ng.IPromise<any> {
-        let deferred = this.$q.defer();
+        const deferred = this.$q.defer();
         deferred.resolve();
 
         return deferred.promise;
     }
 
-    public navigateTo(id: number, redirect?: boolean, enableTracking?: boolean): ng.IPromise<any> {
-        let deferred = this.$q.defer();
+    public navigateTo(params: INavigationParams): ng.IPromise<any> {
+        params.redirect = params.redirect || false;
+        params.enableTracking = params.enableTracking || false;
+        const deferred = this.$q.defer();
         deferred.resolve();
 
         return deferred.promise;
     }
 
     public navigateBack(pathIndex: number): ng.IPromise<any> {
-        let deferred = this.$q.defer();
+        const deferred = this.$q.defer();
         deferred.resolve();
 
         return deferred.promise;

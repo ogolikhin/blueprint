@@ -151,7 +151,8 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
             relationship.traceType === Relationships.LinkType.Manual);
         this.otherTraces = relationships
             .filter((relationship: Relationships.IRelationship) =>
-            relationship.traceType !== Relationships.LinkType.Manual);
+                relationship.traceType !== Relationships.LinkType.Manual);
+        this.populateOtherTraceLists();
     }
 
     private reset() {

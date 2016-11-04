@@ -2,6 +2,7 @@
 import {SessionTokenHelper} from "./session.token.helper";
 import {ILocalizationService, ISettingsService, IHttpInterceptorConfig, HttpStatusCode, ApplicationError} from "../../core";
 import {Helper} from "../../shared";
+import {LicenseTypeEnum} from "../../main/models/enums";
 
 export interface IUser {
     id: number;
@@ -9,13 +10,7 @@ export interface IUser {
     login: string;
     isFallbackAllowed: boolean;
     isSso: boolean;
-    licenseType: LicenseType;
-}
-
-export enum LicenseType {
-    Viewer = 1,
-    Collaborator = 2,
-    Author = 3
+    licenseType: LicenseTypeEnum;
 }
 
 export interface IAuth {
@@ -194,7 +189,7 @@ export class AuthSvc implements IAuth {
                         .then((result: ng.IHttpPromiseCallbackArg<IUser>) => {
                             let user = result.data;
 
-                            if (user.licenseType === LicenseType.Viewer) {
+                            if (user.licenseType === LicenseTypeEnum.Viewer || user.licenseType === LicenseTypeEnum.Collaborator) {
                                 this.internalLogout(token).finally(() => {
                                     deferred.reject({message: this.localization.get("Login_Session_InvalidLicense")}); //TODO: Localize
                                 });

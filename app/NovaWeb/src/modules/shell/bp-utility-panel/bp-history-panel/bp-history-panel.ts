@@ -1,4 +1,5 @@
-﻿import {ILocalizationService} from "../../../core";
+﻿import {ILocalizationService, INavigationService} from "../../../core";
+import {AppConstants} from "../../../core/constants";
 import {Models} from "../../../main";
 import {IArtifactManager, IStatefulArtifact, IStatefulSubArtifact} from "../../../managers/artifact-manager";
 import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
@@ -23,7 +24,8 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         "$q",
         "localization",
         "artifactHistory",
-        "artifactManager"
+        "artifactManager",
+        "navigationService"
     ];
 
     private loadLimit: number = 10;
@@ -40,6 +42,7 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
                 private localization: ILocalizationService,
                 private artifactHistory: IArtifactHistory,
                 protected artifactManager: IArtifactManager,
+                private navigationService: INavigationService,
                 public bpAccordionPanel: IBpAccordionPanelController) {
 
         super($q, artifactManager.selection, bpAccordionPanel);
@@ -141,6 +144,10 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
 
     public selectArtifactVersion(artifactHistoryItem: IArtifactHistoryVersion): void {
         this.selectedArtifactVersion = artifactHistoryItem;
+        const versionId = artifactHistoryItem.versionId;
+        if (versionId > 0 && versionId !== new AppConstants().draftVersion) {
+            this.navigationService.navigateTo({ id: this.artifactId, version: artifactHistoryItem.versionId });
+        }
     }
 
     private getHistoricalVersions(limit: number,

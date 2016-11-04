@@ -36,7 +36,7 @@ export class MessageServiceMock implements IMessageService {
     }
 
     public addInfoWithPar(msg: string, par: any[]) {
-        return;
+        return this.addInfo(msg);
     }
 
     public deleteMessageById(id: number) {

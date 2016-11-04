@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ArtifactStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using SearchService.Helpers;
@@ -55,9 +54,9 @@ namespace SearchService.Repositories
             {
                 new ItemNameSearchResult()
             };
-            var permissionsDictionary = new Dictionary<int, RolePermissions>();
+            var permissionsDictionary = new Dictionary<int, RolePermissions> {{0, RolePermissions.Read}};
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
-            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(queryResult.Select(queryresult => queryresult.ItemId), UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
+            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissionsInChunks(new List<int> { 0 }, UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
             var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult, mockArtifactPermissionsRepository.Object);
 
             // Act
@@ -66,6 +65,33 @@ namespace SearchService.Repositories
             // Assert
             CollectionAssert.AreEqual(queryResult, result.Items.ToList());
             Assert.AreEqual(queryResult.Length, result.PageItemCount);
+            Assert.AreEqual(result.Items.First().Permissions, RolePermissions.Read);
+        }
+
+        [TestMethod]
+        public async Task SearchName_WithoutPermission_DoesNotReturn()
+        {
+            // Arrange
+            var searchCriteria = new ItemNameSearchCriteria
+            {
+                Query = "test",
+                ProjectIds = new[] { 1 },
+                PredefinedTypeIds = new[] { 4104 }
+            };
+            ItemNameSearchResult[] queryResult =
+            {
+                new ItemNameSearchResult()
+            };
+            var permissionsDictionary = new Dictionary<int, RolePermissions>();
+            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
+            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissionsInChunks(new List<int> { 0 }, UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
+            var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult, mockArtifactPermissionsRepository.Object);
+
+            // Act
+            var result = await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize);
+
+            // Assert
+            Assert.AreEqual(0, result.PageItemCount);
         }
 
         [TestMethod]
@@ -81,9 +107,9 @@ namespace SearchService.Repositories
             {
                 new ItemNameSearchResult()
             };
-            var permissionsDictionary = new Dictionary<int, RolePermissions>();
+            var permissionsDictionary = new Dictionary<int, RolePermissions> {{0, RolePermissions.Read}};
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
-            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissions(queryResult.Select(queryresult => queryresult.ItemId), UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
+            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissionsInChunks(new List<int> { 0 }, UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
             var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult, mockArtifactPermissionsRepository.Object);
 
             // Act

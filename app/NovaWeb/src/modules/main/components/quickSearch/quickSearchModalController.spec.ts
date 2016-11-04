@@ -32,18 +32,26 @@ describe("Controller: Quick Search Modal", () => {
         });
         controller.form = {
             $submitted: false,
-            $invalid: false
+            $invalid: false,
+            $setPristine: function() {
+                // do nothing
+            }
         }
     }));
 
-    it('should exist', () => {
+    it("should exist", () => {
         expect(controller).toBeDefined();
     });
 
-    it('can only search if a term is valid', () => {
-        expect(controller.search('New')).not.toBe(null);
+    it("can only search if a term is valid", () => {
+        expect(controller.search("New")).not.toBe(null);
         controller.form.$invalid = true;
         expect(controller.search()).toBe(null);
     });
-
+    
+    it("clear search, clears searchTerm", () => {
+        controller.search("New");
+        controller.clearSearch();
+        expect(controller.searchTerm).toBe("");
+    });
 });

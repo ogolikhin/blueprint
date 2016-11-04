@@ -4,6 +4,7 @@ export {Models, Enums}
 
 export interface IArtifactService {
     getArtifact(id: number, versionId?: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.IArtifact>;
+    getArtifactModel<T extends Models.IArtifact>(url: string, id: number, versionId?: number, timeout?: ng.IPromise<any>): ng.IPromise<T>;
     getSubArtifact(artifactId: number, subArtifactId: number, versionId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifact>;
     lock(artifactId: number): ng.IPromise<Models.ILockResult[]>;
     updateArtifact(artifact: Models.IArtifact);
@@ -17,8 +18,17 @@ export class ArtifactService implements IArtifactService {
     }
 
     public getArtifact(artifactId: number, versionId?: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.IArtifact> {
-        const defer = this.$q.defer<any>();
         const url = `/svc/bpartifactstore/artifacts/${artifactId}`;
+        return this.getArtifactModel<Models.IArtifact>(url, artifactId, versionId, timeout);
+    }
+
+    // public getCollectionArtifact(artifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.IArtifact> {
+    //     const url = `/svc/bpartifactstore/collection/${artifactId}`;
+    //     return this.getArtifactInternal<Models.Co>(url, artifactId, undefined, timeout);
+    // }
+
+    public getArtifactModel<T extends Models.IArtifact>(url: string, artifactId: number, versionId?: number, timeout?: ng.IPromise<any>): ng.IPromise<T> {
+        const defer = this.$q.defer<any>();
         const config: ng.IRequestShortcutConfig = {
             timeout: timeout,
             params: {
@@ -27,7 +37,7 @@ export class ArtifactService implements IArtifactService {
         };
 
         this.$http.get(url, config).then(
-            (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => defer.resolve(result.data),
+            (result: ng.IHttpPromiseCallbackArg<T>) => defer.resolve(result.data),
             (errResult: ng.IHttpPromiseCallbackArg<any>) => {
                 defer.reject(errResult.data);
             }

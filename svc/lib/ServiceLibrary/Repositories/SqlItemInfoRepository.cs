@@ -2,12 +2,11 @@
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using ArtifactStore.Models;
 using Dapper;
 using ServiceLibrary.Helpers;
-using ServiceLibrary.Repositories;
+using ServiceLibrary.Models;
 
-namespace ArtifactStore.Repositories
+namespace ServiceLibrary.Repositories
 {
     public class SqlItemInfoRepository : ISqlItemInfoRepository
     {

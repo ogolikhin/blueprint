@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using ArtifactStore.Models;
+using ServiceLibrary.Models;
 
-namespace ArtifactStore.Repositories
+namespace ServiceLibrary.Repositories
 {
     public interface ISqlArtifactRepository
     {
@@ -13,5 +13,12 @@ namespace ArtifactStore.Repositories
         Task<IEnumerable<SubArtifact>> GetSubArtifactTreeAsync(int artifactId, int userId, int revisionId = int.MaxValue, bool includeDrafts = true);
 
         Task<List<Artifact>> GetArtifactNavigatioPathAsync(int artifactId, int userId);
+
+        Task<IDictionary<int, IEnumerable<string>>> GetArtifactsNavigationPaths(
+            int userId,
+            IEnumerable<int> artifactIds,
+            bool includeArtifactItself = true,
+            int? revisionId = null,
+            bool addDraft = true);
     }
 }

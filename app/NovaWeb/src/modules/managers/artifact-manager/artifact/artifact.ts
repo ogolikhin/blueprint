@@ -134,7 +134,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 if (err && err.statusCode === HttpStatusCode.Conflict) {
                     this.discardDependents(err.errorContent);
                 } else {
-                    this.services.messageService.addError(err);
+                    if (err && err.errorCode === 114) {
+                        this.services.messageService.addInfo("Artifact_Lock_Refresh");
+                        this.refresh();
+                    } else {
+                        this.services.messageService.addError(err);
+                    }
                 }
                 deffered.reject();
             }).finally(() => {
@@ -170,7 +175,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 this.refresh();
             })
             .catch((err) => {
-                this.services.messageService.addError(err);
+                if (err && err.errorCode === 114) {
+                    this.services.messageService.addInfo("Artifact_Lock_Refresh");
+                    this.refresh();
+                } else {
+                    this.services.messageService.addError(err);
+                }
             }).finally(() => {
                 this.services.loadingOverlayService.endLoading(discardOverlayId);
             });

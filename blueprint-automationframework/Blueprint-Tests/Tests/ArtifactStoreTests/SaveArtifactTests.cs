@@ -110,177 +110,30 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetailsAfter);
         }
 
-        private const int CU_NUMBER_PROPERTY_ID = 120;
-        private const int CU_DATE_PROPERTY_ID = 119;
 
-        [Category(Categories.CustomData)]
-        [TestRail(190895)]
-        [TestCase("value\":10.0", 15, CU_NUMBER_PROPERTY_ID)]   // Insert value in range into Numeric field.
-        [Description("Update a custom property of an artifact with a new in-range value.  Verify 200 OK Request is returned and the new value is saved.")]
-        public void UpdateArtifact_ChangeCustomPropertyValue_NewValueIsUpdated(string textToReplace, int newNumberValue, int propertyTypeId)
-        {
-            // TODO: Make this test work with any data type, not just int.
-            // Setup:
-            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
-            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
-            artifact.Lock();
-
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-
-            string requestBody = JsonConvert.SerializeObject(artifactDetails);
-            string changedValue = "value\":" + newNumberValue;
-
-            requestBody = requestBody.Replace(textToReplace, changedValue);
-
-            // Execute:
-            Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user),
-                "'PATCH {0}' should return 200 OK if properties are out of range!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
-
-            // Verify:
-            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-
-            CustomProperty customPropertyAfter = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
-
-            Assert.AreEqual(newNumberValue, customPropertyAfter.CustomPropertyValue,
-                    "Value of this custom property with id {0} should be {1} but was {2}!",
-                    propertyTypeId, newNumberValue, customPropertyAfter.CustomPropertyValue);
-        }
-
-        [Category(Categories.CustomData)]
-        [TestCase("value\":10.0", "value\":\"A\"", CU_NUMBER_PROPERTY_ID)]   // Insert String into Numeric field.
-        [TestCase("value\":\"20", "value\":\"A", CU_DATE_PROPERTY_ID)]       // Insert String into Date field.
-        [TestRail(164561)]
-        [Description("Try to update an artifact properties with a improper value types. Verify 200 OK Request is returned.")]
-        public void UpdateArtifact_WrongTypeInProperty_CanGetArtifact(string toChange, string changeTo, int propertyTypeId)
+        [TestCase]  // It is working as designed for now. There is no check on user's permissions after artifact was locked
+        [TestRail(190881)]
+        [Description("Create & publish an artifact.  Lock artifact with an author, change permissions to viewer and update the artifact.  Verify 403 Forbidden is returned.")]
+        public void UpdateArtifact_UserLosesPermissionsToArtifact_CanGetArtifact()
         {
             // Setup:
-            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
-            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
-            artifact.Lock();
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
 
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-
-            string requestBody = JsonConvert.SerializeObject(artifactDetails);
-
-            string modifiedRequestBody = requestBody.Replace(toChange, changeTo);
-            Assert.AreNotEqual(requestBody, modifiedRequestBody, "Check that RequestBody was updated.");
-
-            // Execute:
-            Assert.DoesNotThrow(() =>
-            {
-                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, modifiedRequestBody, artifact.Id, _user);
-            }, "'PATCH {0}' should return 200 OK even if the value is set to wrong type!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
-
-            // Verify:
-            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-
-            CustomProperty customProperty = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
-
-            Assert.IsNull(customProperty.CustomPropertyValue, "Value of this custom property with Id {0} has to be null", propertyTypeId);
-
-            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetailsAfter);
-        }
-
-        private const int NUMBER_OUT_OF_RANGE = 999;
-
-        [Category(Categories.CustomData)]
-        [TestRail(164595)]
-        [TestCase(NUMBER_OUT_OF_RANGE, CU_NUMBER_PROPERTY_ID)]   //Insert value into Numeric field which is out of range    
-        [Description("Try to update an artifact properties with a number value that is out of its permitted range. Verify 200 OK Request is returned.")]
-        public void UpdateArtifact_NumberPropertyOutOfRange_200OK(int outOfRangeNumber, int propertyTypeId)
-        {
-            // Setup:
-            string stringToReplace = "value\":10.0";
-
-            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
-            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
-            artifact.Lock();
-
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-
-            string requestBody = JsonConvert.SerializeObject(artifactDetails);
-
-            string changedValue = "value\":" + outOfRangeNumber;
-
-            requestBody = requestBody.Replace(stringToReplace, changedValue);
-
-            // Execute:
-            Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user),
-                "'PATCH {0}' should return 200 OK if properties are out of range!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
-
-            // Verify:
-            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-
-            CustomProperty customPropertyAfter = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
-
-            Assert.AreEqual(outOfRangeNumber, customPropertyAfter.CustomPropertyValue,
-                    "Value of this custom property with id {0} should be {1} but was {2}!", propertyTypeId, outOfRangeNumber, customPropertyAfter.CustomPropertyValue);
-        }
-
-        [Category(Categories.CustomData)]
-        [TestRail(190817)]
-        [TestCase(CU_DATE_PROPERTY_ID)]     //Insert value into Date field which is out of range
-        [Description("Try to update an artifact date property with a value that out of its permitted range. Verify 200 OK Request is returned.")]
-        public void UpdateArtifact_DatePropertyOutOfRange_200OK(int propertyTypeId)
-        {
-            // Setup:
-            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
-            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
-            artifact.Lock();
-
-            int thisYear = DateTime.Now.Year;
-
-            string toChange = "value\":\"" + thisYear;
-
-            int yearOutPropertyRange = thisYear + 100;
-
-            string requestBody = JsonConvert.SerializeObject(Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id));
-
-            requestBody = requestBody.Replace(toChange, "value\":\"" + yearOutPropertyRange);
-
-            // Execute:
-            Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user),
-                "'PATCH {0}' should return 200 OK if properties are out of range!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
-
-            // Verify:
-            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-
-            CustomProperty customPropertyAfter = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
-
-            DateTime newDate = (DateTime)customPropertyAfter.CustomPropertyValue;
-
-            Assert.AreEqual(yearOutPropertyRange, newDate.Year,
-                    "Value of year in this custom property with id {0} should be {1} but was {2}!", propertyTypeId, yearOutPropertyRange, newDate.Year);
-        }
-
-        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
-        [TestRail(0)]
-        [Description("Create & save an artifact.  Update the artifact type.  Get the artifact.  Verify the artifact returned has the updated property type as the artifact we updated.")]
-        public void UpdateArtifact_SavedArtifactUpdateArtifactType_CanGetArtifact(BaseArtifactType artifactType)
-        {
-            // Setup:
             IUser user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, user, artifactType);
             artifact.Lock(user);
-
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
-
-            //            Helper.AdminStore.AddSession(_user.Username, _user.Password);
 
             Helper.AssignProjectRolePermissionsToUser(user, TestHelper.ProjectRole.Viewer, _project);
 
+            string newName = "NewName_" + RandomGenerator.RandomAlphaNumeric(5);
+
             // Execute:
-            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5), user);
+            UpdateArtifact_CanGetArtifact(artifact, BaseArtifactType.Process, "Name", newName, user);
 
             // Verify:
-            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
 
-            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetailsAfter);
+            Assert.AreEqual(newName, artifactDetails.Name);
         }
 
         #endregion 200 OK tests
@@ -435,29 +288,6 @@ namespace ArtifactStoreTests
             AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    //Opened trello issue for clarification.
-        [TestCase]
-        [TestRail(190881)]
-        [Description("Create & publish an artifact.  Lock artifact with an author, change permissions to viewer and update the artifact.  Verify 403 Forbidden is returned.")]
-        public void UpdateArtifact_UserLosesPermissionsToArtifact_403Forbidden()
-        {
-            // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
-
-            IUser user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
-
-            Helper.AssignProjectRolePermissionsToUser(user, TestHelper.ProjectRole.Viewer, _project);
-
-            // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => artifact.Save(user),
-                "'PATCH {0}' should return 403 Forbidden if the user doesn't have permission to update artifacts!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
-
-            // Verify:
-            string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", artifact.Id);
-            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
-        }
-
         [TestCase(0)]
         [TestCase(int.MaxValue)]
         [TestRail(156660)]
@@ -506,6 +336,153 @@ namespace ArtifactStoreTests
 
         #region Custom data tests
 
+        private const int CU_NUMBER_PROPERTY_ID = 120;
+        private const int CU_DATE_PROPERTY_ID = 119;
+
+        [Category(Categories.CustomData)]
+        [TestCase("value\":10.0", "value\":\"A\"", CU_NUMBER_PROPERTY_ID)]   // Insert String into Numeric field.
+        [TestCase("value\":\"20", "value\":\"A", CU_DATE_PROPERTY_ID)]       // Insert String into Date field.
+        [TestRail(164561)]
+        [Description("Try to update an artifact properties with a improper value types. Verify 200 OK Request is returned.")]
+        public void UpdateArtifact_WrongTypeInProperty_CanGetArtifact(string toChange, string changeTo, int propertyTypeId)
+        {
+            // Setup:
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+            artifact.Lock();
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            string requestBody = JsonConvert.SerializeObject(artifactDetails);
+
+            string modifiedRequestBody = requestBody.Replace(toChange, changeTo);
+            Assert.AreNotEqual(requestBody, modifiedRequestBody, "Check that RequestBody was updated.");
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, modifiedRequestBody, artifact.Id, _user);
+            }, "'PATCH {0}' should return 200 OK even if the value is set to wrong type!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            // Verify:
+            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            CustomProperty customProperty = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
+
+            Assert.IsNull(customProperty.CustomPropertyValue, "Value of this custom property with Id {0} has to be null", propertyTypeId);
+
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetailsAfter);
+        }
+
+        private const int NUMBER_OUT_OF_RANGE = 999;
+
+        [Category(Categories.CustomData)]
+        [TestRail(164595)]
+        [TestCase(NUMBER_OUT_OF_RANGE, CU_NUMBER_PROPERTY_ID)]   //Insert value into Numeric field which is out of range    
+        [Description("Try to update an artifact properties with a number value that is out of its permitted range. Verify 200 OK Request is returned.")]
+        public void UpdateArtifact_NumberPropertyOutOfRange_200OK(int outOfRangeNumber, int propertyTypeId)
+        {
+            // Setup:
+            string stringToReplace = "value\":10.0";
+
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+            artifact.Lock();
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            string requestBody = JsonConvert.SerializeObject(artifactDetails);
+
+            string changedValue = "value\":" + outOfRangeNumber;
+
+            requestBody = requestBody.Replace(stringToReplace, changedValue);
+
+            // Execute:
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user),
+                "'PATCH {0}' should return 200 OK if properties are out of range!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            // Verify:
+            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            CustomProperty customPropertyAfter = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
+
+            Assert.AreEqual(outOfRangeNumber, customPropertyAfter.CustomPropertyValue,
+                    "Value of this custom property with id {0} should be {1} but was {2}!", propertyTypeId, outOfRangeNumber, customPropertyAfter.CustomPropertyValue);
+        }
+
+        [Category(Categories.CustomData)]
+        [TestRail(190895)]
+        [TestCase("value\":10.0", 15, CU_NUMBER_PROPERTY_ID)]   // Insert value in range into Numeric field.
+        [Description("Update a custom property of an artifact with a new in-range value.  Verify 200 OK Request is returned and the new value is saved.")]
+        public void UpdateArtifact_ChangeCustomPropertyValue_NewValueIsUpdated(string textToReplace, int newNumberValue, int propertyTypeId)
+        {
+            // TODO: Make this test work with any data type, not just int.
+            // Setup:
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+            artifact.Lock();
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            string requestBody = JsonConvert.SerializeObject(artifactDetails);
+            string changedValue = "value\":" + newNumberValue;
+
+            requestBody = requestBody.Replace(textToReplace, changedValue);
+
+            // Execute:
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user),
+                "'PATCH {0}' should return 200 OK if properties are out of range!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            // Verify:
+            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            CustomProperty customPropertyAfter = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
+
+            Assert.AreEqual(newNumberValue, customPropertyAfter.CustomPropertyValue,
+                    "Value of this custom property with id {0} should be {1} but was {2}!",
+                    propertyTypeId, newNumberValue, customPropertyAfter.CustomPropertyValue);
+        }
+
+        [Category(Categories.CustomData)]
+        [TestRail(190817)]
+        [TestCase(CU_DATE_PROPERTY_ID)]     //Insert value into Date field which is out of range
+        [Description("Try to update an artifact date property with a value that out of its permitted range. Verify 200 OK Request is returned.")]
+        public void UpdateArtifact_DatePropertyOutOfRange_200OK(int propertyTypeId)
+        {
+            // Setup:
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+            artifact.Lock();
+
+            int thisYear = DateTime.Now.Year;
+
+            string toChange = "value\":\"" + thisYear;
+
+            int yearOutPropertyRange = thisYear + 100;
+
+            string requestBody = JsonConvert.SerializeObject(Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id));
+
+            requestBody = requestBody.Replace(toChange, "value\":\"" + yearOutPropertyRange);
+
+            // Execute:
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user),
+                "'PATCH {0}' should return 200 OK if properties are out of range!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            // Verify:
+            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            CustomProperty customPropertyAfter = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
+
+            DateTime newDate = (DateTime)customPropertyAfter.CustomPropertyValue;
+
+            Assert.AreEqual(yearOutPropertyRange, newDate.Year,
+                    "Value of year in this custom property with id {0} should be {1} but was {2}!", propertyTypeId, yearOutPropertyRange, newDate.Year);
+        }
+
         private const string ChoiceValueIncorrectFormat = "The value for the property CU-Choice Required with Single Choice is invalid.";
         private const string UserValueIncorrectFormat = "The value for the property CU-User Required is invalid.";
 
@@ -523,9 +500,6 @@ namespace ArtifactStoreTests
 
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
-            //This is needed to suppress 501 error
-            artifactDetails.ItemTypeId = null;
-
             string requestBody = JsonConvert.SerializeObject(artifactDetails);
 
             string modifiedRequestBody = requestBody.Replace(toChange, changeTo);
@@ -533,7 +507,7 @@ namespace ArtifactStoreTests
 
             // Execute & Verify:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
-                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, modifiedRequestBody, artifact.Id, _user),
+                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, modifiedRequestBody, artifact.Id, _user),
                 "'PATCH {0}' should return 400 Bad Request if the value is set to wrong type!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
@@ -586,7 +560,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(artifactDetails.CreatedBy?.DisplayName, updateResult.CreatedBy?.DisplayName, "The CreatedBy properties don't match!");
 
-            IOpenApiArtifact openApiArtifact = OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, user);
+            IOpenApiArtifact openApiArtifact = OpenApiArtifact.GetArtifact(Helper.ArtifactStore.Address, _project, artifact.Id, user);
             ArtifactStoreHelper.AssertArtifactsEqual(updateResult, artifactDetails);
             TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
         }

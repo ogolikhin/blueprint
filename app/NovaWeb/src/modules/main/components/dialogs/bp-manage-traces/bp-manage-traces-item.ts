@@ -36,7 +36,7 @@ export class BPManageTracesItemController implements IBPManageTracesItemControll
     public item: Relationships.IRelationshipView;
     public isItemReadOnly: boolean;
     public traceIcon: string;
-    public itemNameOrLabel : string;
+    public itemNameOrLabel: string;
 
     constructor(private localization: ILocalizationService,
                 private dialogService: IDialogService) {

@@ -36,14 +36,14 @@ export class BPManageTracesItemController implements IBPManageTracesItemControll
     public item: Relationships.IRelationshipView;
     public isItemReadOnly: boolean;
     public traceIcon: string;
-    public itemName: string;
+    public itemNameOrLabel : string;
 
     constructor(private localization: ILocalizationService,
                 private dialogService: IDialogService) {
     }
 
     public $onInit() {
-        this.itemName = this.item.itemName || this.item.itemLabel;
+        this.itemNameOrLabel  = this.item.itemName || this.item.itemLabel;
         this.item.directionIcon = this.getDirectionIcon(this.item.traceDirection);
         this.item.traceIcon = this.item.suspect ? "trace-icon-suspect" : "trace-icon-regular";
     }

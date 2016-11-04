@@ -1,11 +1,13 @@
-export interface IDiagram {
-    id: number;
+import {IArtifact} from "../../../main/models/models";
+
+export interface IDiagram extends IArtifact {
     diagramType: string;
-    width: number;
-    height: number;
-    shapes: IShape[];
-    connections: IConnection[];
-    libraryVersion: number;
+    width?: number;
+    height?: number;
+    shapes?: IShape[];
+    connections?: IConnection[];
+    libraryVersion?: number;
+    isCompatible?: boolean;
 }
 
 export interface IDiagramElement {

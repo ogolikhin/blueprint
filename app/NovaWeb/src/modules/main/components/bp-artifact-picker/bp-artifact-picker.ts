@@ -1,43 +1,10 @@
-﻿import * as angular from "angular";
-import {IColumn} from "../../../shared/widgets/bp-tree-view/";
+﻿import {IColumn} from "../../../shared/widgets/bp-tree-view/";
 import {Helper} from "../../../shared/";
 import {ILocalizationService} from "../../../core";
-import {ArtifactPickerNodeVM, InstanceItemNodeVM} from "./bp-artifact-picker-node-vm";
 import {SearchResultVM, ArtifactSearchResultVM, ProjectSearchResultVM} from "./bp-artifact-picker-search-vm";
-import {IDialogSettings, BaseDialogController} from "../../../shared/";
-import {Models, AdminStoreModels, SearchServiceModels} from "../../models";
+import {Models, AdminStoreModels, SearchServiceModels, TreeViewModels} from "../../models";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IProjectService} from "../../../managers/project-manager/project-service";
-
-export class ArtifactPickerDialogController extends BaseDialogController {
-    public hasCloseButton: boolean = true;
-    private selectedVMs: IViewModel<any>[];
-
-    static $inject = [
-        "$uibModalInstance",
-        "dialogSettings",
-        "dialogData"
-    ];
-
-    constructor($instance: ng.ui.bootstrap.IModalServiceInstance,
-                dialogSettings: IDialogSettings,
-                public dialogData: IArtifactPickerOptions) {
-        super($instance, dialogSettings);
-    };
-
-    public get returnValue(): any[] {
-        return this.selectedVMs.map(vm => vm.model);
-    };
-
-    public onSelectionChanged(selectedVMs: IViewModel<any>[]) {
-        this.selectedVMs = selectedVMs;
-    }
-
-    public onDoubleClick(vm: IViewModel<any>) {
-        this.selectedVMs = [vm];
-        this.ok();
-    }
-}
 
 /**
  * Usage:
@@ -63,7 +30,7 @@ export class BpArtifactPicker implements ng.IComponentOptions {
     };
 }
 
-export interface IArtifactPickerOptions {
+export interface IArtifactPickerOptions extends TreeViewModels.ITreeViewOptions {
     selectableItemTypes?: Models.ItemTypePredefined[];
     selectionMode?: "single" | "multiple" | "checkbox";
     showSubArtifacts?: boolean;
@@ -74,14 +41,14 @@ export interface IArtifactPickerController extends IArtifactPickerOptions {
     project: AdminStoreModels.IInstanceItem;
 
     // BpArtifactPicker bindings
-    onSelectionChanged: (params: {selectedVMs: IViewModel<any>[]}) => any;
-    onDoubleClick: (params: {vm: IViewModel<any>}) => any;
+    onSelectionChanged: (params: {selectedVMs: TreeViewModels.IViewModel<any>[]}) => any;
+    onDoubleClick: (params: {vm: TreeViewModels.IViewModel<any>}) => any;
 
     // BpTreeView bindings
     currentSelectionMode: "single" | "multiple" | "checkbox";
-    rootNode: InstanceItemNodeVM;
+    rootNode: TreeViewModels.InstanceItemNodeVM;
     columns: IColumn[];
-    onSelect: (vm: IViewModel<any>, isSelected: boolean) => any;
+    onSelect: (vm: TreeViewModels.IViewModel<any>, isSelected: boolean) => any;
 
     // Search
     searchText: string;
@@ -93,10 +60,6 @@ export interface IArtifactPickerController extends IArtifactPickerOptions {
     onDouble(vm: SearchResultVM<any>): void;
 }
 
-export interface IViewModel<T> {
-    model: T;
-}
-
 export class BpArtifactPickerController implements ng.IComponentController, IArtifactPickerController {
     private static readonly maxSearchResults = 100;
 
@@ -105,8 +68,8 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public selectionMode: "single" | "multiple" | "checkbox";
     public showSubArtifacts: boolean;
     public isOneProjectLevel: boolean;
-    public onSelectionChanged: (params: {selectedVMs: IViewModel<any>[]}) => any;
-    public onDoubleClick: (params: {vm: IViewModel<any>}) => any;
+    public onSelectionChanged: (params: {selectedVMs: TreeViewModels.IViewModel<any>[]}) => any;
+    public onDoubleClick: (params: {vm: TreeViewModels.IViewModel<any>}) => any;
 
     static $inject = [
         "$scope",
@@ -167,7 +130,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         this.selectedVMs = [];
         this._project = project;
         this.currentSelectionMode = project ? this.selectionMode : "single";
-        this.rootNode = new InstanceItemNodeVM(this.artifactManager, this.projectService, this, project || {
+        this.rootNode = new TreeViewModels.InstanceItemNodeVM(this.artifactManager, this.projectService, this, project || {
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,
             name: "",
@@ -175,13 +138,13 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         } as AdminStoreModels.IInstanceItem, true);
     }
 
-    private _selectedVMs: IViewModel<any>[] = [];
+    private _selectedVMs: TreeViewModels.IViewModel<any>[] = [];
 
-    private get selectedVMs(): IViewModel<any>[] {
+    private get selectedVMs(): TreeViewModels.IViewModel<any>[] {
         return this._selectedVMs;
     }
 
-    private set selectedVMs(value: IViewModel<any>[]) {
+    private set selectedVMs(value: TreeViewModels.IViewModel<any>[]) {
         this._selectedVMs = value;
         this.raiseSelectionChanged();
     }
@@ -197,18 +160,18 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     // BpTreeView bindings
 
     public currentSelectionMode: "single" | "multiple" | "checkbox";
-    public rootNode: InstanceItemNodeVM;
+    public rootNode: TreeViewModels.InstanceItemNodeVM;
     public columns: IColumn[] = [{
-        cellClass: (vm: ArtifactPickerNodeVM<any>) => vm.getCellClass(),
+        cellClass: (vm: TreeViewModels.TreeViewNodeVM<any>) => vm.getCellClass(),
         isGroup: true,
-        innerRenderer: (vm: ArtifactPickerNodeVM<any>, eGridCell: HTMLElement) => {
+        innerRenderer: (vm: TreeViewModels.TreeViewNodeVM<any>, eGridCell: HTMLElement) => {
             const icon = vm.getIcon();
             const name = Helper.escapeHTMLText(vm.name);
             return `<span class="ag-group-value-wrapper">${icon}<span>${name}</span></span>`;
         }
     }];
 
-    public onSelect = (vm: IViewModel<any>, isSelected: boolean = undefined): boolean => {
+    public onSelect = (vm: TreeViewModels.IViewModel<any>, isSelected: boolean = undefined): boolean => {
         if (angular.isDefined(isSelected)) {
             if (this.project) {
                 // Selecting an item from the project tree or project search results
@@ -226,7 +189,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                         this.raiseSelectionChanged();
                     }
                 }
-            } else if (vm instanceof InstanceItemNodeVM && vm.model.type === AdminStoreModels.InstanceItemType.Project) {
+            } else if (vm instanceof TreeViewModels.InstanceItemNodeVM && vm.model.type === AdminStoreModels.InstanceItemType.Project) {
                 // Selecting a project from the instance tree
                 this.project = vm.model;
             } else if (vm instanceof SearchResultVM) {

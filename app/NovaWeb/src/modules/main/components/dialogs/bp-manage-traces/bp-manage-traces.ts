@@ -1,9 +1,8 @@
 import * as _ from "lodash";
 import {ILocalizationService} from "../../../../core";
 import {BaseDialogController, IDialogSettings, IDialogService} from "../../../../shared";
-import {Relationships, Models} from "../../../models";
+import {Relationships, Models, TreeViewModels} from "../../../models";
 import {IDialogRelationshipItem} from "../../../models/relationshipModels";
-import {ArtifactPickerNodeVM, ArtifactNodeVM} from "../../bp-artifact-picker/bp-artifact-picker-node-vm";
 import {
     IStatefulItem,
     IArtifactManager,
@@ -20,7 +19,7 @@ export class ManageTracesDialogController extends BaseDialogController {
 
     public traceDirection: Relationships.TraceDirection = 0;
     public direction: Relationships.TraceDirection = 0;
-    private selectedVMs: ArtifactPickerNodeVM<any>[];
+    private selectedVMs: TreeViewModels.TreeViewNodeVM<any>[];
 
     public item: IStatefulItem;
     public allTraces: Relationships.IRelationshipView[];
@@ -114,7 +113,7 @@ export class ManageTracesDialogController extends BaseDialogController {
 
             currentItemModel.itemId = currentItemModel.id;
 
-            currentItemModel.artifactId = currentItem instanceof ArtifactNodeVM ? currentItemModel.id : currentItemModel.parentId;
+            currentItemModel.artifactId = currentItem instanceof TreeViewModels.ArtifactNodeVM ? currentItemModel.id : currentItemModel.parentId;
 
             let res = _.find(this.data.manualTraces, {itemId: currentItemModel.itemId});
 
@@ -218,7 +217,7 @@ export class ManageTracesDialogController extends BaseDialogController {
         });
     }
 
-    public onSelectionChanged(selectedVMs: ArtifactPickerNodeVM<any>[]): void {
+    public onSelectionChanged(selectedVMs: TreeViewModels.TreeViewNodeVM<any>[]): void {
         this.selectedVMs = selectedVMs;
 
         this.disableTrace();

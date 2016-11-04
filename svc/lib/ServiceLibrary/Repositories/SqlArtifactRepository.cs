@@ -4,14 +4,12 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using ArtifactStore.Models;
-using ServiceLibrary.Repositories;
 using ServiceLibrary.Helpers;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
 
-namespace ArtifactStore.Repositories
+namespace ServiceLibrary.Repositories
 {
     public class SqlArtifactRepository : ISqlArtifactRepository
     {
@@ -30,7 +28,7 @@ namespace ArtifactStore.Repositories
         {
         }
 
-        internal SqlArtifactRepository(ISqlConnectionWrapper connectionWrapper,
+        public SqlArtifactRepository(ISqlConnectionWrapper connectionWrapper,
             SqlItemInfoRepository itemInfoRepository,
             IArtifactPermissionsRepository artifactPermissionsRepository)
         {
@@ -481,29 +479,61 @@ namespace ArtifactStore.Repositories
         }
 
         #endregion
-    }
 
-    internal class ArtifactVersion
-    {
-        internal int ItemId { get; set; }
-        internal int VersionProjectId { get; set; }
-        internal int? ParentId { get; set; }
-        internal string Name { get; set; }
-        internal double? OrderIndex { get; set; }
-        internal int StartRevision { get; set; }
-        internal int EndRevision { get; set; }
-        internal ItemTypePredefined? ItemTypePredefined { get; set; }
-        internal int? ItemTypeId { get; set; }
-        internal string Prefix { get; set; }
-        internal int? LockedByUserId { get; set; }
-        internal DateTime? LockedByUserTime { get; set; }
-        internal RolePermissions? DirectPermissions { get; set; }
-        // Not returned in SQL server but calculated in the server application
-        internal RolePermissions? EffectivePermissions { get; set; }
-        // Returned doubled if returned Head and Draft 
-        internal int? VersionsCount { get; set; }
-        internal bool HasDraft { get; set; }
-        // Not returned in SQL server but calculated in the server application
-        internal bool? HasChildren { get; set; }
+        #region GetArtifactsNavigationPaths
+
+        public async Task<IDictionary<int, IEnumerable<string>>> GetArtifactsNavigationPaths(
+            int userId,
+            IEnumerable<int> artifactIds,
+            bool includeArtifactItself = true,
+            int? revisionId = null,
+            bool addDraft = true)
+        {
+            if (artifactIds == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(artifactIds));
+            }
+
+            var param = new DynamicParameters();
+            param.Add("@userId", userId);
+            param.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value"));
+            param.Add("@revisionId", revisionId ?? int.MaxValue);
+            param.Add("@addDrafts", addDraft);
+
+            var itemPaths = (await _connectionWrapper.QueryAsync<ArtifactsNavigationPath>("GetArtifactsNavigationPaths", param, commandType: CommandType.StoredProcedure)).ToList();
+
+            var artifactNavigationPaths = new Dictionary<int, IDictionary<int, string>>();
+
+            foreach (var artifactsNavigationPath in itemPaths)
+            {
+                if(!includeArtifactItself && artifactsNavigationPath.Level == 0)
+                    continue;
+
+                IDictionary<int, string> pathArray;
+                if (!artifactNavigationPaths.TryGetValue(artifactsNavigationPath.ArtifactId, out pathArray))
+                {
+                    pathArray = new Dictionary<int, string>
+                    {
+                        {artifactsNavigationPath.Level, artifactsNavigationPath.Name}
+                    };
+                    artifactNavigationPaths.Add(artifactsNavigationPath.ArtifactId, pathArray);
+                }
+                else
+                {
+                    pathArray.Add(artifactsNavigationPath.Level, artifactsNavigationPath.Name);
+                }
+            }
+
+            var result = new Dictionary<int, IEnumerable<string>>(artifactNavigationPaths.Count);
+
+            foreach (var entry in artifactNavigationPaths)
+            {
+                result.Add(entry.Key, entry.Value.OrderByDescending(i => i.Key).Select(j => j.Value));
+            }
+
+            return result;
+        }
+
+        #endregion
     }
 }

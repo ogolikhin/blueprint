@@ -3,7 +3,7 @@ import "angular-mocks";
 import "angular-sanitize";
 import "rx/dist/rx.lite";
 import * as agGrid from "ag-grid/main";
-import {BPTreeViewComponent, BPTreeViewController, ITreeViewNodeVM, IColumn} from "./bp-tree-view";
+import {BPTreeViewComponent, BPTreeViewController, ITreeViewNode, IColumn} from "./bp-tree-view";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {WindowManager, IWindowManager} from "../../../main/services/window-manager";
 import {WindowResize} from "../../../core/services/window-resize";
@@ -257,7 +257,7 @@ describe("BPTreeViewController", () => {
                     return 1;
                 }
             });
-            controller.rootNode = {} as ITreeViewNodeVM;
+            controller.rootNode = {} as ITreeViewNode;
             controller.rootNodeVisible = true;
 
             // Act
@@ -282,7 +282,7 @@ describe("BPTreeViewController", () => {
                     return 1;
                 }
             });
-            const children = [{key: "child"}] as ITreeViewNodeVM[];
+            const children = [{key: "child"}] as ITreeViewNode[];
             controller.rootNode = {
                 key: "root",
                 isExpandable: true,
@@ -295,7 +295,7 @@ describe("BPTreeViewController", () => {
                     this.children = children;
                     return $q.resolve();
                 }
-            } as ITreeViewNodeVM;
+            } as ITreeViewNode;
 
             // Act
             controller.resetGridAsync(false).then(() => {
@@ -332,7 +332,7 @@ describe("BPTreeViewController", () => {
                 loadChildrenAsync() {
                     return $q.reject(reason);
                 }
-            } as ITreeViewNodeVM;
+            } as ITreeViewNode;
 
             // Act
             controller.resetGridAsync(false).then(() => {
@@ -361,9 +361,9 @@ describe("BPTreeViewController", () => {
                     key: "child",
                     children: [],
                     isSelectable: () => false
-                }] as ITreeViewNodeVM[],
+                }] as ITreeViewNode[],
                 isSelectable: () => false
-            } as ITreeViewNodeVM;
+            } as ITreeViewNode;
 
             // Act
             controller.resetGridAsync(false).then(() => {
@@ -371,7 +371,7 @@ describe("BPTreeViewController", () => {
                 // Assert
                 expect(controller.options.api.setRowData).toHaveBeenCalledWith([]);
                 expect(controller.options.api.showLoadingOverlay).toHaveBeenCalledWith();
-                expect(controller.options.api.setRowData).toHaveBeenCalledWith((<ITreeViewNodeVM>controller.rootNode).children);
+                expect(controller.options.api.setRowData).toHaveBeenCalledWith((<ITreeViewNode>controller.rootNode).children);
                 expect(controller.options.columnApi.autoSizeAllColumns).toHaveBeenCalled();
                 expect(controller.options.api.hideOverlay).toHaveBeenCalledWith();
                 expect(controller.options.api.showNoRowsOverlay).not.toHaveBeenCalled();
@@ -459,7 +459,7 @@ describe("BPTreeViewController", () => {
 
         it("getBusinessKeyForNode returns vm.key", () => {
             // Arrange
-            const vm = {key: "key"} as ITreeViewNodeVM;
+            const vm = {key: "key"} as ITreeViewNode;
 
             // Act
             const result = controller.getBusinessKeyForNode({data: vm} as agGrid.RowNode);
@@ -478,7 +478,7 @@ describe("BPTreeViewController", () => {
                 key: "",
                 children: [],
                 isSelectable: () => false
-            } as ITreeViewNodeVM;
+            } as ITreeViewNode;
             const node = {data: vm, expanded: true} as agGrid.RowNode;
 
             // Act
@@ -490,7 +490,7 @@ describe("BPTreeViewController", () => {
 
         it("onRowGroupOpened, when loads asynchronously, calls resetGridAsync correctly", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
             // Arrange
-            const vm = jasmine.createSpyObj("vm", ["loadChildrenAsync"]) as ITreeViewNodeVM;
+            const vm = jasmine.createSpyObj("vm", ["loadChildrenAsync"]) as ITreeViewNode;
             (vm.loadChildrenAsync as jasmine.Spy).and.returnValue($q.resolve());
             vm.isExpandable = true;
             vm.isExpanded = false;
@@ -509,7 +509,7 @@ describe("BPTreeViewController", () => {
         it("onRowGroupOpened, when asynchronous load fails, calls onError correctly", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
             // Arrange
             controller.onError = jasmine.createSpy("onError");
-            const vm = jasmine.createSpyObj("vm", ["loadChildrenAsync"]) as ITreeViewNodeVM;
+            const vm = jasmine.createSpyObj("vm", ["loadChildrenAsync"]) as ITreeViewNode;
             (vm.loadChildrenAsync as jasmine.Spy).and.returnValue($q.reject("reason"));
             vm.isExpandable = true;
             vm.isExpanded = false;
@@ -532,7 +532,7 @@ describe("BPTreeViewController", () => {
                 key: "",
                 children: [],
                 isSelectable: () => false
-            } as ITreeViewNodeVM;
+            } as ITreeViewNode;
             const node = {data: vm, expanded: true} as agGrid.RowNode;
 
             // Act
@@ -696,7 +696,7 @@ describe("BPTreeViewController", () => {
                 isSelectable() {
                     return true;
                 }
-            } as ITreeViewNodeVM;
+            } as ITreeViewNode;
             const node = {data: vm, isSelected: () => true} as agGrid.RowNode;
             (controller.options.api.getSelectedRows as jasmine.Spy).and.returnValue([node.data]);
 
@@ -749,7 +749,7 @@ describe("BPTreeViewController", () => {
         it("onRowSelected, when not selected, calls onSelect correctly", () => {
             // Arrange
             controller.onSelect = jasmine.createSpy("onSelect");
-            const vm = {} as ITreeViewNodeVM;
+            const vm = {} as ITreeViewNode;
             const node = {data: vm, isSelected: () => false} as agGrid.RowNode;
             (controller.options.api.getSelectedRows as jasmine.Spy).and.returnValue([node.data]);
 
@@ -763,7 +763,7 @@ describe("BPTreeViewController", () => {
         it("onRowDoubleClicked, when selectable and not expandable, calls onDoubleClick correctly", () => {
             // Arrange
             controller.onDoubleClick = jasmine.createSpy("onDoubleClick");
-            const vm = {key: "1", isSelectable: () => true, isExpandable: false} as ITreeViewNodeVM;
+            const vm = {key: "1", isSelectable: () => true, isExpandable: false} as ITreeViewNode;
 
             // Act
             controller.onRowDoubleClicked({data: vm});

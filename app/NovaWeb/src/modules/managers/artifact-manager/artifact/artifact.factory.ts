@@ -12,6 +12,7 @@ import {StatefulSubArtifact, IStatefulSubArtifact} from "../sub-artifact";
 import {IStatefulArtifact, StatefulArtifact, StatefulProcessArtifact, StatefulProcessSubArtifact} from "../artifact";
 import {IArtifactRelationshipsService} from "../relationships";
 import {IStatefulCollectionArtifact, StatefulCollectionArtifact} from "../../../editors/bp-collection/collection-artifact";
+import {IStatefulGlossaryArtifact, StatefulGlossaryArtifact} from "../../../editors/bp-glossary/glossary-artifact";
 import {
     StatefulArtifactServices,
     IStatefulArtifactServices,
@@ -111,6 +112,10 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
             return this.createStatefulCollectionArtifact(artifact);
         }
 
+        if (artifact.predefinedType === Models.ItemTypePredefined.Glossary) {
+            return this.createStatefulGlossaryArtifact(artifact);
+        }
+
         return new StatefulArtifact(artifact, this.services);
     }
 
@@ -124,6 +129,10 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
 
     public createStatefulCollectionArtifact(artifact: Models.IArtifact): IStatefulCollectionArtifact {
         return new StatefulCollectionArtifact(artifact, this.services);
+    }
+
+    public createStatefulGlossaryArtifact(artifact: Models.IArtifact): IStatefulGlossaryArtifact {
+        return new StatefulGlossaryArtifact(artifact, this.services);
     }
 
     private createStatefulProcessArtifact(artifact: Models.IArtifact): IStatefulArtifact {

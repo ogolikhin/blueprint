@@ -5,7 +5,6 @@ repository for blueprint automation framework
 ```
 master: trunk
 ```
-
 ### Getting sync to work
 
 ##### Cloning blueprint-automationframework

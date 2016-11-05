@@ -134,7 +134,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 const prefix = Helper.escapeHTMLText(vm.model.prefix);
                 const icon = vm.getIcon();
                 const url = this.$state.href("main.item", { id: vm.model.id });
-                return `<span class="ag-group-value-wrapper">${icon} <a ng-href="${url}" target="_blank">${prefix}${vm.model.id}</a></span>`;
+                return `<span class="ag-group-value-wrapper">${icon} <a ng-href="${url}" target="_blank" 
+                            ng-click="$event.stopPropagation();">${prefix}${vm.model.id}</a></span>`;
             }
         },
         {

@@ -312,9 +312,7 @@ namespace ArtifactStore.Repositories
                 {
                     {"contextUser", false},
                     {"userId", 0},
-                    {"itemIds", tvp},
-                    {"revisionId", revisionId},
-                    {"addDrafts", addDrafts}
+                    {"itemIds", tvp}
                 }, result);
         }
 

@@ -531,13 +531,12 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found if the Artifact was deleted!", DISCARD_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "Artifact with Id " + artifact.Id + " is deleted.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} was not found in returned message of discard published artifact(s) which has removed artifact Id.", expectedExceptionMessage);
+            string expectedExceptionMessage = "Artifact with ID " + artifact.Id + " is deleted.";
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedExceptionMessage);
         }
 
-        [TestCase(0, "Item with Id {0} is not an artifact.")]
-        [TestCase(int.MaxValue, "Item with Id {0} is not found.")]
+        [TestCase(0, "Item with ID {0} is not an artifact.")]
+        [TestCase(int.MaxValue, "Item with ID {0} is not found.")]
         [TestRail(166153)]
         [Description("Try to discard an artifact with a non-existent Artifact ID.  Verify 404 Not Found is returned.")]
         public void DiscardArtifact_NonExistentArtifactId_404NotFound(int nonExistentArtifactId, string expectedErrorMessage)
@@ -555,8 +554,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedExceptionMessage = I18NHelper.FormatInvariant(expectedErrorMessage, artifact.Id);
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} was not found in returned message of discard published artifact(s) which has non existent artifact Id.", expectedExceptionMessage);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedExceptionMessage);
         }
 
         #endregion 404 Not Found tests

@@ -480,8 +480,8 @@ namespace ArtifactStoreTests
             "'POST {0}' should return 400 Bad Request if body of the request does not have any artifact ids!", PUBLISH_PATH);
 
             // Verify:
-            const string expectedMessage = "{\"message\":\"The list of artifact Ids is empty.\",\"errorCode\":103}";
-            Assert.IsTrue(ex.RestResponse.Content.Contains(expectedMessage));
+            string expectedExceptionMessage = "The list of artifact Ids is empty.";
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, expectedExceptionMessage);
         }
 
         [TestCase(BaseArtifactType.Actor)]
@@ -520,8 +520,9 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 401 Unauthorized if a token is invalid!", PUBLISH_PATH);
             
             // Verify:
-            const string expectedMessage = "\"Unauthorized call\"";
-            Assert.IsTrue(ex.RestResponse.Content.Equals(expectedMessage));
+            string jsonBody = JsonConvert.DeserializeObject<string>(ex.RestResponse.Content);
+            const string expectedMessage = "Unauthorized call";
+            Assert.AreEqual(expectedMessage, jsonBody, "The JSON body should contain '{0}' when an unauthorized token is passed!", expectedMessage);
         }
 
         #endregion 401 Unauthorized tests
@@ -586,10 +587,11 @@ namespace ArtifactStoreTests
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(childArtifact, _user),
                 "'POST {0}' should return 409 Conflict if the Artifact has parent artifact which is not published!", PUBLISH_PATH);
-            
+
             // Verify:
-            string expectedMessage = "{\"message\":\"Specified artifacts have dependent artifacts to publish.\",\"errorCode\":120,\"errorContent\":{";
-            Assert.IsTrue(ex.RestResponse.Content.Contains(expectedMessage));
+            // TODO: Also verify the 'errorContent' property that contains the dependent artifacts.
+            string expectedExceptionMessage = "Specified artifacts have dependent artifacts to publish.";
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverDependencies, expectedExceptionMessage);
         }
 
         #region Custom data tests

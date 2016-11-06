@@ -1,9 +1,9 @@
 ﻿import * as angular from "angular";
 import {Models} from "../../../main/models";
-import {Helper} from "../../../shared";
+
 export interface IBPItemTypeIconController {
     itemTypeId: number;
-    itemTypeIcon?: number;
+    itemTypeVersionId?: number;
     predefinedType?: number;
     getImageSource(): string;
     getIconClass(): string;
@@ -15,14 +15,14 @@ export class BPItemTypeIconComponent implements ng.IComponentOptions {
     public transclude: boolean = true;
     public bindings: any = {
         itemTypeId: "<",
-        itemTypeIcon: "<",
+        itemTypeVersionId: "<",
         predefinedType: "<"
     };
 }
 
 export class BPItemTypeIconController implements IBPItemTypeIconController {
     public itemTypeId: number;
-    public itemTypeIcon: number;
+    public itemTypeVersionId: number;
     public predefinedType: number;
     public showBasicIcon: boolean;
 
@@ -34,17 +34,13 @@ export class BPItemTypeIconController implements IBPItemTypeIconController {
     }
 
     public getImageSource() {
-        let imgUrl: string;
-
-        if (this.itemTypeId && !isNaN(Number(this.itemTypeId))) {
-            imgUrl = "/shared/api/itemTypes/" + this.itemTypeId.toString() + "/icon";
-            if (this.itemTypeIcon && !isNaN(Number(this.itemTypeIcon))) {
-                imgUrl += "?" + this.itemTypeIcon.toString();
+        let imgUrl: string = "";
+        if (_.isFinite(this.itemTypeId)) {
+            imgUrl = `/shared/api/itemTypes/${this.itemTypeId}/icon`;
+            if (_.isFinite(this.itemTypeVersionId)) {
+                imgUrl += `?${this.itemTypeVersionId}`;
             }
-        } else {
-            imgUrl = "";
         }
-
         return imgUrl;
     }
 

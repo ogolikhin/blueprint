@@ -55,8 +55,9 @@ export class BpArtifactInfoController {
     public artifactType: string;
     public artifactClass: string;
     public artifactTypeId: number;
-    public artifactTypeIcon: number;
+    public artifactTypeVersionId: number;
     public artifactTypeDescription: string;
+    public hasCustomIcon: boolean;
     public toolbarActions: IBPAction[];
 
     constructor(
@@ -129,7 +130,7 @@ export class BpArtifactInfoController {
         this.artifactName = null;
         this.artifactType = null;
         this.artifactTypeId = null;
-        this.artifactTypeIcon = null;
+        this.artifactTypeVersionId = null;
         this.artifactTypeDescription = null;
         this.isLegacy = false;
         this.isReadonly = false;
@@ -155,34 +156,27 @@ export class BpArtifactInfoController {
 
         this.updateToolbarOptions(artifact);
 
-        this.artifactName = artifact.name || "";
+        this.artifactName = artifact.name;
+        this.artifactTypeId = artifact.itemTypeId;
+        this.artifactTypeVersionId = artifact.itemTypeVersionId;
+        this.hasCustomIcon = artifact.hasCustomIcon;
 
-        artifact.metadata.getItemType().then(itemType => {
-            this.artifactTypeId = itemType.id;
-            this.artifactType = itemType.name || Models.ItemTypePredefined[itemType.predefinedType] || "";
+        this.isLegacy = artifact.predefinedType === Enums.ItemTypePredefined.Storyboard ||
+            artifact.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||
+            artifact.predefinedType === Enums.ItemTypePredefined.BusinessProcess ||
+            artifact.predefinedType === Enums.ItemTypePredefined.UseCase ||
+            artifact.predefinedType === Enums.ItemTypePredefined.UseCaseDiagram ||
+            artifact.predefinedType === Enums.ItemTypePredefined.UIMockup ||
+            artifact.predefinedType === Enums.ItemTypePredefined.DomainDiagram ||
+            artifact.predefinedType === Enums.ItemTypePredefined.Glossary;
 
-            if (itemType.iconImageId && angular.isNumber(itemType.iconImageId)) {
-                this.artifactTypeIcon = itemType.iconImageId;
-            }
-
-            this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
-
-            if (artifact.itemTypeId === Models.ItemTypePredefined.Collections && artifact.predefinedType === Models.ItemTypePredefined.CollectionFolder) {
-                this.artifactClass = "icon-" + (_.kebabCase(Models.ItemTypePredefined[Models.ItemTypePredefined.Collections] || "document"));
-            } else {
-                this.artifactClass = "icon-" + (_.kebabCase(Models.ItemTypePredefined[itemType.predefinedType] || "document"));
-            }
-
-            this.isLegacy = itemType.predefinedType === Enums.ItemTypePredefined.Storyboard ||
-                itemType.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||
-                itemType.predefinedType === Enums.ItemTypePredefined.BusinessProcess ||
-                itemType.predefinedType === Enums.ItemTypePredefined.UseCase ||
-                itemType.predefinedType === Enums.ItemTypePredefined.UseCaseDiagram ||
-                itemType.predefinedType === Enums.ItemTypePredefined.UIMockup ||
-                itemType.predefinedType === Enums.ItemTypePredefined.DomainDiagram ||
-                itemType.predefinedType === Enums.ItemTypePredefined.Glossary;
-
-        });
+        if (artifact.itemTypeId === Models.ItemTypePredefined.Collections && artifact.predefinedType === Models.ItemTypePredefined.CollectionFolder) {
+            this.artifactClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[Models.ItemTypePredefined.Collections]);
+        } else {
+            this.artifactClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[artifact.predefinedType]);
+        }
+        this.artifactType = artifact.itemTypeName;
+        this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
 
         this.isReadonly = artifact.artifactState.readonly;
         this.isChanged = artifact.artifactState.dirty;

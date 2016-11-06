@@ -28,40 +28,17 @@ export class BPUtilityPanelController {
 
     private _subscribers: Rx.IDisposable[];
     private propertySubscriber: Rx.IDisposable;
-    private _currentItem: string;
-    private _currentItemClass: string;
-    private _currentItemType: number;
-    private _currentItemIcon: number;
-    private _isAnyPanelVisible: boolean;
-
-    public get currentItem() {
-        return this._currentItem;
-    }
-
-    public get currentItemClass() {
-        return this._currentItemClass;
-    }
-
-    public get currentItemType() {
-        return this._currentItemType;
-    }
-
-    public get currentItemIcon() {
-        return this._currentItemIcon;
-    }
-
-    public get IsAnyPanelVisible() {
-        return this._isAnyPanelVisible;
-    }
+    public itemDisplayName: string;
+    public itemClass: string;
+    public itemTypeId: number;
+    public itemTypeVersionId: number;
+    public hasCustomIcon: boolean;
+    public isAnyPanelVisible: boolean;
 
     constructor(private localization: ILocalizationService,
                 private artifactManager: IArtifactManager,
                 private $element: ng.IAugmentedJQuery) {
-        this._currentItem = null;
-        this._currentItemClass = null;
-        this._currentItemType = null;
-        this._currentItemIcon = null;
-        this._isAnyPanelVisible = true;
+        this.isAnyPanelVisible = true;
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -100,29 +77,24 @@ export class BPUtilityPanelController {
     }
 
     private updateItem = (changes: IItemChangeSet) => {
+        this.itemDisplayName = undefined;
+        this.itemClass = undefined;
+        this.itemTypeId = undefined;
+        this.hasCustomIcon = false;
         if (changes && changes.item) {
             const item: IStatefulItem = changes.item;
-            this._currentItem = `${(item.prefix || "")}${item.id}: ${item.name || ""}`;
+            this.itemDisplayName = `${(item.prefix || "")}${item.id}: ${item.name || ""}`;
+            this.itemTypeId = item.itemTypeId;
             if (item.itemTypeId === ItemTypePredefined.Collections && item.predefinedType === ItemTypePredefined.CollectionFolder) {
-                this._currentItemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[ItemTypePredefined.Collections] || "");
+                this.itemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[ItemTypePredefined.Collections] || "");
             } else {
-                this._currentItemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[item.predefinedType] || "");
+                this.itemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[item.predefinedType] || "");
             }
-            this._currentItemType = item.itemTypeId;
-            this._currentItemIcon = null;
             if (item.predefinedType !== ItemTypePredefined.Project && item instanceof StatefulArtifact) {
-                const artifactType = item.metadata.getItemTypeTemp();
-                if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-                    this._currentItemIcon = artifactType.iconImageId;
-                }
+                this.hasCustomIcon = item.hasCustomIcon;
+                this.itemTypeVersionId = item.itemTypeVersionId;
             }
-        } else {
-            this._currentItem = null;
-            this._currentItemClass = null;
-            this._currentItemType = null;
-            this._currentItemIcon = null;
         }
-
     } 
 
     private onSelectionChanged = (selection: ISelection) => {
@@ -219,7 +191,7 @@ export class BPUtilityPanelController {
     private setAnyPanelIsVisible() {
         const accordionCtrl: IBpAccordionController = this.getAccordionController();
         if (accordionCtrl) {
-            this._isAnyPanelVisible = accordionCtrl.panels.filter((p) => { return p.isVisible === true; }).length > 0;
+            this.isAnyPanelVisible = accordionCtrl.panels.filter((p) => { return p.isVisible === true; }).length > 0;
         }
     }
 }

@@ -1,9 +1,9 @@
 <div class="artifact-heading" ng-style="$ctrl.artifactHeadingMinWidth">
-    <div class="icon" ng-class="!$ctrl.artifactTypeIcon ? $ctrl.artifactClass : ''"
+    <div class="icon" ng-class="!$ctrl.hasCustomIcon ? $ctrl.artifactClass : ''"
          bp-tooltip="{{ $ctrl.artifactTypeDescription }}">
-        <bp-item-type-icon ng-if="!!$ctrl.artifactTypeIcon"
+        <bp-item-type-icon ng-if="$ctrl.hasCustomIcon"
                            item-type-id="$ctrl.artifactTypeId"
-                           item-type-icon="$ctrl.artifactTypeIcon"></bp-item-type-icon>
+                           item-type-version-id="$ctrl.artifactTypeVersionId"></bp-item-type-icon>
     </div>
     <div class="artifact-heading-group1">
         <div class="artifact-heading-group2">

@@ -134,6 +134,14 @@ export abstract class StatefulItem implements IIStatefulItem {
         return this.artifact.itemTypeVersionId;
     }
 
+    public get hasCustomIcon(): boolean {
+        return this.artifact.hasCustomIcon;
+    }
+
+    public get itemTypeName(): string {
+        return this.artifact.itemTypeName;
+    }
+
     public get predefinedType(): Models.ItemTypePredefined {
         return this.artifact.predefinedType;
     }

@@ -162,7 +162,8 @@ namespace ArtifactStoreTests
             var updatedDefaultUserTask = updatedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             var updatedDescriptionProperty = StorytellerTestHelper.FindPropertyValue("description", updatedDefaultUserTask.PropertyValues).Value;
 
-            Assert.That(updatedDescriptionProperty.Value.ToString().Contains(descriptionProperty.Value.ToString()), "Description properties don't match.");
+            StringAssert.Contains(descriptionProperty.Value.ToString(), updatedDescriptionProperty.Value.ToString(),
+                "Description properties don't match.");
 
             // Execute:
             inlineTraceArtifact.Lock();
@@ -218,7 +219,8 @@ namespace ArtifactStoreTests
             var updatedDefaultUserTask = updatedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             var updatedDescriptionProperty = StorytellerTestHelper.FindPropertyValue("description", updatedDefaultUserTask.PropertyValues).Value;
 
-            Assert.That(updatedDescriptionProperty.Value.ToString().Contains(descriptionProperty.Value.ToString()), "Description properties don't match.");
+            StringAssert.Contains(descriptionProperty.Value.ToString(), updatedDescriptionProperty.Value.ToString(),
+                "Description properties don't match.");
 
             // Execute:
             inlineTraceArtifact.Lock();
@@ -271,7 +273,8 @@ namespace ArtifactStoreTests
             var updatedDefaultUserTask = updatedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             var updatedDescriptionProperty = StorytellerTestHelper.FindPropertyValue("description", updatedDefaultUserTask.PropertyValues).Value;
 
-            Assert.That(updatedDescriptionProperty.Value.ToString().Contains(descriptionProperty.Value.ToString()), "Description properties don't match.");
+            StringAssert.Contains(descriptionProperty.Value.ToString(), updatedDescriptionProperty.Value.ToString(),
+                "Description properties don't match.");
 
             // Execute:
             inlineTraceArtifact.Lock();
@@ -321,7 +324,8 @@ namespace ArtifactStoreTests
             var updatedDefaultUserTask = updatedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             var updatedDescriptionProperty = StorytellerTestHelper.FindPropertyValue("description", updatedDefaultUserTask.PropertyValues).Value;
 
-            Assert.That(updatedDescriptionProperty.Value.ToString().Contains(descriptionProperty.Value.ToString()), "Description properties don't match.");
+            StringAssert.Contains(descriptionProperty.Value.ToString(), updatedDescriptionProperty.Value.ToString(),
+                "Description properties don't match.");
 
             // Create user with a permission only on second project
             var userWithPermissionOnSecondProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, new List<IProject> { secondProject });

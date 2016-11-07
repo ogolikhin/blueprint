@@ -117,7 +117,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         this.services.dialogService.open(<IDialogSettings>{
             okButton: this.services.localizationService.get("App_Button_Discard"),
             cancelButton: this.services.localizationService.get("App_Button_Cancel"),
-            message: this.services.localizationService.get("Discard_Dependents_Dialog_Message"),
+            message: this.services.localizationService.get("Discard_Single_Dialog_Message"),
             type: DialogTypeEnum.Alert,
             header: this.services.localizationService.get("App_DialogTitle_Alert"),
             css: "modal-alert nova-messaging"

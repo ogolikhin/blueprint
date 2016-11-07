@@ -197,12 +197,12 @@ export class ProjectExplorerController implements IProjectExplorerController {
         cellRendererParams: {
             innerRenderer: (params) => {
                 let icon = "<i ng-drag-handle></i>";
-                let name = Helper.escapeHTMLText(params.data.name);
-                let artifactType = (params.data as IArtifactNode).artifact.metadata.getItemTypeTemp();
-                if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
+                const name = Helper.escapeHTMLText(params.data.name);
+                const artifact = (params.data as IArtifactNode).artifact;
+                if (_.isFinite(artifact.itemTypeIconId)) {
                     icon = `<bp-item-type-icon
-                                item-type-id="${artifactType.id}"
-                                item-type-icon="${artifactType.iconImageId}"
+                                item-type-id="${artifact.itemTypeId}"
+                                item-type-icon-id="${artifact.itemTypeIconId}"
                                 ng-drag-handle></bp-item-type-icon>`;
                 }
                 return `${icon}<span>${name}</span>`;

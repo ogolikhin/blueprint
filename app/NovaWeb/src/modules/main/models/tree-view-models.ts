@@ -112,15 +112,11 @@ export class ArtifactNodeVM extends TreeViewNodeVM<Models.IArtifact> {
     }
 
     public getIcon(): string {
-        //TODO: for now it display custom icons just for already loaded projects
-        let statefulArtifact = this.artifactManager.get(this.model.id);
-        if (statefulArtifact) {
-            let artifactType = statefulArtifact.metadata.getItemTypeTemp();
-            if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-                return `<bp-item-type-icon item-type-id="${artifactType.id}" item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
-            }
+        if (_.isFinite(this.model.itemTypeIconId)) {
+            return `<bp-item-type-icon item-type-id="${this.model.itemTypeId}" item-type-icon-id="${this.model.itemTypeIconId}"></bp-item-type-icon>`;
+        } else {
+            return super.getIcon();
         }
-        return super.getIcon();
     }
 
     public isSelectable(): boolean {

@@ -284,27 +284,22 @@ describe("ArtifactPickerNodeVM", () => {
 
         it("getIcon, when custom icon, returns correct result", () => {
             // Arrange
-            const itemType = {id: 123, iconImageId: 456};
-            (artifactManager.get as jasmine.Spy).and.returnValue({
-                metadata: {
-                    getItemTypeTemp() {
-                        return itemType;
-                    }
-                }
-            });
-            const model = {} as Models.IArtifact;
+            const model = {
+                id: 1,
+                itemTypeIconId: 456,
+                itemTypeId: 123
+            } as Models.IArtifact;
             const vm = new ArtifactNodeVM(artifactManager, projectService, options, model);
 
             // Act
             const result = vm.getIcon();
 
             // Assert
-            expect(result).toEqual(`<bp-item-type-icon item-type-id="123" item-type-icon="456"></bp-item-type-icon>`);
+            expect(result).toEqual(`<bp-item-type-icon item-type-id="123" item-type-icon-id="456"></bp-item-type-icon>`);
         });
 
         it("getIcon, when no custom icon, returns correct result", () => {
             // Arrange
-            (artifactManager.get as jasmine.Spy).and.returnValue(undefined);
             const model = {} as Models.IArtifact;
             const vm = new ArtifactNodeVM(artifactManager, projectService, options, model);
 

@@ -1,42 +1,10 @@
-﻿import * as angular from "angular";
-import {IColumn} from "../../../shared/widgets/bp-tree-view/";
+﻿import {IColumn} from "../../../shared/widgets/bp-tree-view/";
 import {Helper} from "../../../shared/";
 import {ILocalizationService} from "../../../core";
 import {SearchResultVM, ArtifactSearchResultVM, ProjectSearchResultVM} from "./bp-artifact-picker-search-vm";
-import {IDialogSettings, BaseDialogController} from "../../../shared/";
 import {Models, AdminStoreModels, SearchServiceModels, TreeViewModels} from "../../models";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IProjectService} from "../../../managers/project-manager/project-service";
-
-export class ArtifactPickerDialogController extends BaseDialogController {
-    public hasCloseButton: boolean = true;
-    private selectedVMs: TreeViewModels.IViewModel<any>[];
-
-    static $inject = [
-        "$uibModalInstance",
-        "dialogSettings",
-        "dialogData"
-    ];
-
-    constructor($instance: ng.ui.bootstrap.IModalServiceInstance,
-                dialogSettings: IDialogSettings,
-                public dialogData: TreeViewModels.ITreeViewOptions) {
-        super($instance, dialogSettings);
-    };
-
-    public get returnValue(): any[] {
-        return this.selectedVMs.map(vm => vm.model);
-    };
-
-    public onSelectionChanged(selectedVMs: TreeViewModels.IViewModel<any>[]) {
-        this.selectedVMs = selectedVMs;
-    }
-
-    public onDoubleClick(vm: TreeViewModels.IViewModel<any>) {
-        this.selectedVMs = [vm];
-        this.ok();
-    }
-}
 
 /**
  * Usage:

@@ -26,6 +26,9 @@ namespace ServiceLibrary.Models
         public string Prefix { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? ItemTypeIconId { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public ItemTypePredefined? PredefinedType { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]

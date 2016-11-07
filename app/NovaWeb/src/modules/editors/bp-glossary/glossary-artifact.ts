@@ -13,7 +13,7 @@ export class StatefulGlossaryArtifact extends StatefulArtifact implements IState
         return this.services.artifactService.getArtifactModel<IArtifact>(url, id, versionId);
     }
 
-    public initialize(artifact: IArtifact): IState {
+    protected initialize(artifact: IArtifact): IState {
         const statefulSubartifacts: IStatefulSubArtifact[] = artifact.subArtifacts.map(subArtifact => {
             return new StatefulSubArtifact(this, subArtifact, this.services);
         });

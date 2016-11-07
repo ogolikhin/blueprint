@@ -134,6 +134,14 @@ export abstract class StatefulItem implements IIStatefulItem {
         return this.artifact.itemTypeVersionId;
     }
 
+    public get itemTypeIconId(): number {
+        return this.artifact.itemTypeIconId;
+    }
+
+    public get itemTypeName(): string {
+        return this.artifact.itemTypeName;
+    }
+
     public get predefinedType(): Models.ItemTypePredefined {
         return this.artifact.predefinedType;
     }
@@ -310,7 +318,7 @@ export abstract class StatefulItem implements IIStatefulItem {
         }
     }
 
-    public initialize(artifact: Models.IArtifact): IState {
+    protected initialize(artifact: Models.IArtifact): IState {
 
         this.artifact = artifact;
         this.customProperties.initialize(artifact.customPropertyValues);

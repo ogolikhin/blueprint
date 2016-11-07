@@ -148,6 +148,7 @@ namespace ServiceLibrary.Repositories
                 ParentId = v.ParentId,
                 ItemTypeId = GetItemTypeId(v),
                 Prefix = v.Prefix,
+                ItemTypeIconId = v.ItemTypeIconId,
                 PredefinedType = v.ItemTypePredefined.GetValueOrDefault(),
                 Version = v.VersionsCount,
                 OrderIndex = v.OrderIndex,

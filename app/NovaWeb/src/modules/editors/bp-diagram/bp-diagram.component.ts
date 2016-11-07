@@ -2,7 +2,6 @@ import "angular";
 import "angular-sanitize";
 import {IStencilService} from "./impl/stencil.svc";
 import {ILocalizationService} from "../../core";
-import {IDiagramService, DiagramErrors} from "./diagram.svc";
 import {DiagramView} from "./impl/diagram-view";
 import {ISelection, IStatefulArtifactFactory} from "../../managers/artifact-manager";
 import {IStatefulArtifact} from "../../managers/artifact-manager/artifact";
@@ -12,6 +11,7 @@ import {Diagrams, Shapes, ShapeProps} from "./impl/utils/constants";
 import {ShapeExtensions} from "./impl/utils/helpers";
 import {ItemTypePredefined} from "./../../main/models/enums";
 import {IItem} from "./../../main/models/models";
+import {IStatefulDiagramArtifact} from "./diagram-artifact";
 
 import {
     IArtifactManager,
@@ -32,26 +32,22 @@ export class BPDiagramController extends BpBaseEditor {
         "$element",
         "$q",
         "stencilService",
-        "diagramService",
         "localization",
         "$rootScope",
         "$log",
         "statefulArtifactFactory"
     ];
 
-    public isLoading: boolean = true;
-    public isIncompatible: boolean = false;
     public errorMsg: string;
 
     private diagramView: DiagramView;
-    private cancelationToken: ng.IDeferred<any>;
+    private diagram: IDiagram;
 
     constructor(public messageService: IMessageService,
                 public artifactManager: IArtifactManager,
                 private $element: ng.IAugmentedJQuery,
                 private $q: ng.IQService,
                 private stencilService: IStencilService,
-                private diagramService: IDiagramService,
                 private localization: ILocalizationService,
                 private $rootScope: ng.IRootScopeService,
                 private $log: ng.ILogService,
@@ -81,20 +77,17 @@ export class BPDiagramController extends BpBaseEditor {
     }
 
     public $onDestroy() {
-        super.$onDestroy();
-        if (this.cancelationToken) {
-            this.cancelationToken.resolve();
-        }
-
+        // this.diagramView.clearSelection();
         this.destroyDiagramView();
+        super.$onDestroy();
     }
 
     private destroyDiagramView() {
         if (this.diagramView) {
-            this.diagramView.clearSelection();
             this.diagramView.destroy();
         }
         delete this.diagramView;
+        delete this.diagram;
     }
 
     public onArtifactReady() {
@@ -103,31 +96,20 @@ export class BPDiagramController extends BpBaseEditor {
             return;
         }
         this.destroyDiagramView();
-        this.isIncompatible = false;
-        this.cancelationToken = this.$q.defer();
-        this.diagramService.getDiagram(this.artifact.id,
-                                       this.artifact.getEffectiveVersion(),
-                                       this.artifact.predefinedType,
-                                       this.cancelationToken.promise).then(diagram => {
-            // TODO: hotfix, remove later
-            if (this.isDestroyed) {
-                return;
-            }
-            this.initSubArtifacts(diagram);
+        this.diagram = (<IStatefulDiagramArtifact>this.artifact).getDiagramModel();
+        if (this.diagram.isCompatible) {
             this.diagramView = new DiagramView(this.$element[0], this.stencilService);
-            this.diagramView.addSelectionListener((elements) => this.onSelectionChanged(diagram.diagramType, elements));
-            this.stylizeSvg(this.$element, diagram.width, diagram.height);
-            this.diagramView.drawDiagram(diagram);
-        }).catch((error: any) => {
-            if (error === DiagramErrors[DiagramErrors.Incompatible]) {
-                this.isIncompatible = true;
-                this.errorMsg = this.localization.get("Diagram_OldFormat_Message");
-                this.$log.error(error.message);
+            this.diagramView.addSelectionListener((elements) => this.onSelectionChanged(this.diagram.diagramType, elements));
+            this.stylizeSvg(this.$element, this.diagram.width, this.diagram.height);
+            this.diagramView.drawDiagram(this.diagram);
+            const selectedSubArtifact = this.artifactManager.selection.getSubArtifact();
+            if (selectedSubArtifact) {
+                this.diagramView.setSelectedItem(selectedSubArtifact.id);
             }
-        }).finally(() => {
-            delete this.cancelationToken;
-            this.isLoading = false;
-        });
+        } else {
+            this.errorMsg = this.localization.get("Diagram_OldFormat_Message");
+            this.$log.error(this.errorMsg);
+        }
     }
 
     private onSelectionChanged = (diagramType: string, elements: Array<IDiagramElement>) => {
@@ -146,7 +128,8 @@ export class BPDiagramController extends BpBaseEditor {
                         });
                     }
                 } else {
-                    this.artifactManager.selection.setSubArtifact(this.getSubArtifact(element.id));
+                    const subArtifact = this.artifact.subArtifactCollection.get(element.id);
+                    this.artifactManager.selection.setSubArtifact(subArtifact);
                 }
             } else {
                 this.artifactManager.selection.setArtifact(this.artifact);
@@ -165,67 +148,6 @@ export class BPDiagramController extends BpBaseEditor {
             }
         }
         return undefined;
-    }
-
-    private getSubArtifact(id: number) {
-        if (this.artifact) {
-            return this.artifact.subArtifactCollection.get(id);
-        }
-        return undefined;
-    }
-
-    private initSubArtifacts(diagram: IDiagram) {
-        const subArtifacts = [];
-        if (diagram.shapes) {
-            diagram.shapes.forEach((shape) => {
-                this.initPrefixAndType(diagram.diagramType, shape, shape);
-                const stateful = this.statefulArtifactFactory.createStatefulSubArtifact(this.artifact, shape);
-                subArtifacts.push(stateful);
-            });
-        }
-        if (diagram.connections) {
-            diagram.connections.forEach((connection) => {
-                this.initPrefixAndType(diagram.diagramType, connection, connection);
-                const stateful = this.statefulArtifactFactory.createStatefulSubArtifact(this.artifact, connection);
-                subArtifacts.push(stateful);
-            });
-        }
-        this.artifact.subArtifactCollection.initialise(subArtifacts);
-    }
-
-    private initPrefixAndType(diagramType: string, item: IItem, element: IDiagramElement) {
-        switch (diagramType) {
-            case Diagrams.BUSINESS_PROCESS:
-                item.prefix = element.isShape ? "BPSH" : "BPCT";
-                item.predefinedType = element.isShape ? ItemTypePredefined.BPShape : ItemTypePredefined.BPConnector;
-                break;
-            case Diagrams.DOMAIN_DIAGRAM:
-                item.prefix = element.isShape ? "DDSH" : "DDCT";
-                item.predefinedType = element.isShape ? ItemTypePredefined.DDShape : ItemTypePredefined.DDConnector;
-                break;
-            case Diagrams.GENERIC_DIAGRAM:
-                item.prefix = element.isShape ? "GDST" : "GDCT";
-                item.predefinedType = element.isShape ? ItemTypePredefined.GDShape : ItemTypePredefined.GDConnector;
-                break;
-            case Diagrams.STORYBOARD:
-                item.prefix = element.isShape ? "SBSH" : "SBCT";
-                item.predefinedType = element.isShape ? ItemTypePredefined.SBShape : ItemTypePredefined.SBConnector;
-                break;
-            case Diagrams.UIMOCKUP:
-                item.prefix = element.isShape ? "UISH" : "UICT";
-                item.predefinedType = element.isShape ? ItemTypePredefined.UIShape : ItemTypePredefined.UIConnector;
-                break;
-            case Diagrams.USECASE:
-                item.prefix = "ST";
-                item.predefinedType = ItemTypePredefined.Step;
-                break;
-            case Diagrams.USECASE_DIAGRAM:
-                item.prefix = element.isShape ? "UCDS" : "UCDC";
-                item.predefinedType = element.isShape ? ItemTypePredefined.UCDShape : ItemTypePredefined.UCDConnector;
-                break;
-            default:
-                break;
-        }
     }
 
     private clearSelection(selection: ISelection) {

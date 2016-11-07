@@ -9,7 +9,6 @@ import {IProjectService} from "../../../../managers/project-manager/project-serv
 
 describe("OpenProjectController", () => {
     let localization: ILocalizationService;
-    let artifactManager: IArtifactManager;
     let projectService: IProjectService;
     let $sce: ng.ISCEService;
     let controller: OpenProjectController;
@@ -19,11 +18,10 @@ describe("OpenProjectController", () => {
         localization = jasmine.createSpyObj("localization", ["get"]) as ILocalizationService;
         (localization.get as jasmine.Spy).and.callFake(name => name === "App_Header_Name" ? "Blueprint" : undefined);
         const $uibModalInstance = {} as ng.ui.bootstrap.IModalServiceInstance;
-        artifactManager = {} as IArtifactManager;
         projectService = {} as IProjectService;
         const dialogSettings = {} as IDialogSettings;
         $sce = _$sce_;
-        controller = new OpenProjectController($scope, localization, $uibModalInstance, artifactManager, projectService, dialogSettings, $sce);
+        controller = new OpenProjectController($scope, localization, $uibModalInstance, projectService, dialogSettings, $sce);
     }));
 
     it("constructor sets root node", () => {
@@ -32,7 +30,7 @@ describe("OpenProjectController", () => {
         // Act
 
         // Assert
-        expect(controller.rootNode).toEqual(new TreeViewModels.InstanceItemNodeVM(artifactManager, projectService, controller, {
+        expect(controller.rootNode).toEqual(new TreeViewModels.InstanceItemNodeVM(projectService, controller, {
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,
             name: "",
@@ -83,7 +81,7 @@ describe("OpenProjectController", () => {
         it("innerRenderer, when project, calls ok on enter", () => {
             // Arrange
             const model = {id: 3, type: AdminStoreModels.InstanceItemType.Project} as AdminStoreModels.IInstanceItem;
-            const vm = new TreeViewModels.InstanceItemNodeVM(artifactManager, projectService, controller, model);
+            const vm = new TreeViewModels.InstanceItemNodeVM(projectService, controller, model);
             const cell = document.createElement("div");
             controller.columns[0].innerRenderer(vm, cell);
             spyOn(controller, "ok");
@@ -108,7 +106,7 @@ describe("OpenProjectController", () => {
             type: AdminStoreModels.InstanceItemType.Project,
             hasChildren: true
         } as AdminStoreModels.IInstanceItem;
-        const vm = new TreeViewModels.InstanceItemNodeVM(artifactManager, projectService, controller, model);
+        const vm = new TreeViewModels.InstanceItemNodeVM(projectService, controller, model);
 
         // Act
         controller.onSelect(vm, true);
@@ -130,7 +128,7 @@ describe("OpenProjectController", () => {
     it("onSelect, when selected folder, sets selection", inject(($browser) => {
         // Arrange
         const model = {id: 3, type: AdminStoreModels.InstanceItemType.Folder} as AdminStoreModels.IInstanceItem;
-        const vm = new TreeViewModels.InstanceItemNodeVM(artifactManager, projectService, controller, model);
+        const vm = new TreeViewModels.InstanceItemNodeVM(projectService, controller, model);
 
         // Act
         controller.onSelect(vm, true);
@@ -146,7 +144,7 @@ describe("OpenProjectController", () => {
     it("onDoubleClick, when project, sets selection and calls ok", inject(($browser) => {
         // Arrange
         const model = {id: 3, type: AdminStoreModels.InstanceItemType.Project} as AdminStoreModels.IInstanceItem;
-        const vm = new TreeViewModels.InstanceItemNodeVM(artifactManager, projectService, controller, model);
+        const vm = new TreeViewModels.InstanceItemNodeVM(projectService, controller, model);
         spyOn(controller, "ok");
 
         // Act

@@ -146,9 +146,9 @@ export class BPTreeViewController implements IBPTreeViewController {
             // Event handlers
             onRowGroupOpened: this.onRowGroupOpened,
             onViewportChanged: this.onViewportChanged,
-            onCellClicked: this.onCellClicked,
-            onRowSelected: this.onRowSelected,
-            onRowDoubleClicked: this.onRowDoubleClicked,
+            //onCellClicked: this.onCellClicked,
+            //onRowSelected: this.onRowSelected,
+            //onRowDoubleClicked: this.onRowDoubleClicked,
             onGridReady: this.onGridReady,
             onModelUpdated: this.onModelUpdated,
             context: {}

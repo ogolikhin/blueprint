@@ -205,12 +205,18 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             width: 60,
             colWidth: 60,
             isCheckboxHidden: true,
-            innerRenderer: (vm: CollectionNodeVM, eGridCell: HTMLElement) => {
-                return `<i class="icon icon__normal fonticon-delete-filled"></i>`;
+            innerRenderer: (vm: CollectionNodeVM, eGridCell: HTMLElement) => {                
+                //`<span ng-click='$ctrl.removeArtifact()'>` + 
+                return `<button class="icon icon__normal fonticon-delete-filled" ng-click='$ctrl.removeArtifact();'></button>`;
+                       //`</span>`;
             }
         }];
 
     public rootNode: CollectionNodeVM[] = [];
+
+    public removeArtifact() {
+        console.log("Message!");
+    }
 
     public toggleAll(): void {
         this.selectAll = !this.selectAll;
@@ -223,6 +229,10 @@ class CollectionNodeVM implements ITreeViewNode {
 
     constructor(public model: ICollectionArtifact, private projectId: number, private metadataService: IMetaDataService) {
         this.key = String(model.id);
+    }
+
+    public removeArtifact() {
+        let a = 5;
     }
 
     public getIcon(): string {

@@ -6,6 +6,7 @@ import {IDialogSettings} from "../../../../shared";
 import {Models, Enums, AdminStoreModels, SearchServiceModels, TreeViewModels} from "../../../models";
 import {IArtifactManager} from "../../../../managers";
 import {IProjectService} from "../../../../managers/project-manager/project-service";
+import {IColumnRendererParams} from "../../../../shared/widgets/bp-tree-view/";
 
 describe("OpenProjectController", () => {
     let localization: ILocalizationService;
@@ -13,9 +14,10 @@ describe("OpenProjectController", () => {
     let projectService: IProjectService;
     let $sce: ng.ISCEService;
     let controller: OpenProjectController;
+    let $scope: ng.IScope;
 
     beforeEach(inject(($rootScope: ng.IRootScopeService, _$sce_: ng.ISCEService) => {
-        const $scope = $rootScope.$new();
+        $scope = $rootScope.$new();
         localization = jasmine.createSpyObj("localization", ["get"]) as ILocalizationService;
         (localization.get as jasmine.Spy).and.callFake(name => name === "App_Header_Name" ? "Blueprint" : undefined);
         const $uibModalInstance = {} as ng.ui.bootstrap.IModalServiceInstance;
@@ -73,8 +75,14 @@ describe("OpenProjectController", () => {
             } as TreeViewModels.TreeViewNodeVM<any>;
             const cell = {} as HTMLElement;
 
+             const params: IColumnRendererParams = {
+                vm: vm,
+                $scope: $scope,
+                eGridCell: cell
+            };
+
             // Act
-            const result = controller.columns[0].innerRenderer(vm, cell);
+            const result = controller.columns[0].innerRenderer(params);
 
             // Assert
             expect(result).toEqual(`<span class="ag-group-value-wrapper"><i></i><span>name</span></span>`);
@@ -85,7 +93,13 @@ describe("OpenProjectController", () => {
             const model = {id: 3, type: AdminStoreModels.InstanceItemType.Project} as AdminStoreModels.IInstanceItem;
             const vm = new TreeViewModels.InstanceItemNodeVM(artifactManager, projectService, controller, model);
             const cell = document.createElement("div");
-            controller.columns[0].innerRenderer(vm, cell);
+            const params: IColumnRendererParams = {
+                vm: vm,
+                $scope: $scope,
+                eGridCell: cell
+            };
+
+            controller.columns[0].innerRenderer(params);
             spyOn(controller, "ok");
 
             // Act

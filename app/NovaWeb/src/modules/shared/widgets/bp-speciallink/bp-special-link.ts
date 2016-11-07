@@ -64,7 +64,7 @@ export class BpSpecialLinkContainer implements ng.IDirective {
             //navigate to internal link
             if (this.bpLinksHelper.isRichTextMentionLink($anchor)) {
                 const id = this.bpLinksHelper.getItemId($anchor);
-                this.navigationService.navigateTo(id);
+                this.navigationService.navigateTo({ id: id });
             }
             return;
         }

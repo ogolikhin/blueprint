@@ -50,6 +50,12 @@ export class MessageServiceMock implements IMessageService {
         }
     }
 
+    public clearMessages() {
+        if (this.messages) {
+            this.messages.length = 0;
+        }
+    }
+
     public messages: Array<IMessage>;
 
     public dispose() {

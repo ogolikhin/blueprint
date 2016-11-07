@@ -4,9 +4,16 @@ import {INavigationState} from "./navigation-state";
 export interface INavigationService {
     getNavigationState(): INavigationState;
     navigateToMain(redirect?: boolean): ng.IPromise<any>;
-    navigateTo(id: number, redirect?: boolean, enableTracking?: boolean): ng.IPromise<any>;
+    navigateTo(params: INavigationParams): ng.IPromise<any>;
     navigateBack(pathIndex?: number): ng.IPromise<any>;
     reloadParentState();
+}
+
+export interface INavigationParams {
+    id: number;
+    version?: number;
+    redirect?: boolean;
+    enableTracking?: boolean;
 }
 
 export class NavigationService implements INavigationService {
@@ -33,13 +40,16 @@ export class NavigationService implements INavigationService {
 
     public getNavigationState(): INavigationState {
         const idParameter = this.$state.params["id"];
+        const versionParameter = this.$state.params["version"];
         const pathParameter = this.$state.params["path"];
 
-        const id: number = idParameter ? Number(idParameter) : null;
-        const path: number[] = pathParameter ? pathParameter.split(this.delimiter).map((element) => Number(element)) : null;
+        const id: number = idParameter ? Number(idParameter) : undefined;
+        const version: number = versionParameter ? Number(versionParameter) : undefined;
+        const path: number[] = pathParameter ? pathParameter.split(this.delimiter).map((element) => Number(element)) : undefined;
 
         return <INavigationState>{
             id: id,
+            version: version,
             path: path
         };
     }
@@ -53,36 +63,48 @@ export class NavigationService implements INavigationService {
         return this.$state.go(state, {}, stateOptions);
     }
 
-    public navigateTo(id: number, redirect: boolean = false, enableTracking: boolean = false): ng.IPromise<any> {
+    public navigateTo(params: INavigationParams): ng.IPromise<any> {
+        params.redirect = params.redirect || false;
+        params.enableTracking = params.enableTracking || false;
+
+        //id: number, redirect: boolean = false, enableTracking: boolean = false
         const deferred: ng.IDeferred<any> = this.$q.defer();
         const currentState = this.getNavigationState();
-        const validationError: Error = this.validateArtifactNavigation(id, currentState);
+        const validationError: Error = this.validateArtifactNavigation(params, currentState);
 
         if (!!validationError) {
             deferred.reject(validationError);
             return deferred.promise;
         }
 
-        const getParameters = () => {
-            const parameters = {id: id};
-
-            if (enableTracking && currentState.id) {
-                if (!currentState.path || currentState.path.length === 0) {
-                    parameters["path"] = `${currentState.id}`;
-                } else {
-                    parameters["path"] = `${currentState.path.join(this.delimiter)}${this.delimiter}${currentState.id}`;
-                }
-            }
-
-            return parameters;
-        };
-
         const stateOptions: ng.ui.IStateOptions = {
-            location: redirect ? "replace" : true,
+            location: params.redirect ? "replace" : true,
             inherit: false
         };
 
-        return this.navigateToArtifactInternal(getParameters, stateOptions);
+        const routerParams = this.createRouterParams(params, currentState);
+
+        return this.navigateToArtifactInternal(routerParams, stateOptions);
+    }
+
+    private createRouterParams(params: INavigationParams, currentState: INavigationState) {
+        const parameters = { 
+            id: params.id
+        };
+
+        if (_.isFinite(params.version)) {
+            parameters["version"] = params.version;
+        }
+
+        if (params.enableTracking && currentState.id) {
+            if (!currentState.path || currentState.path.length === 0) {
+                parameters["path"] = `${currentState.id}`;
+            } else {
+                parameters["path"] = `${currentState.path.join(this.delimiter)}${this.delimiter}${currentState.id}`;
+            }
+        }
+
+        return parameters;
     }
 
     public navigateBack(pathIndex?: number): ng.IPromise<any> {
@@ -95,43 +117,42 @@ export class NavigationService implements INavigationService {
             return deferred.promise;
         }
 
+        const parameters = this.createNavigateBackRouterParams(path, pathIndex);
+        return this.navigateToArtifactInternal(parameters);
+    }
+
+    private createNavigateBackRouterParams(path: number[], pathIndex?: number): any {
         if (pathIndex == null) {
             // if path index is not defined set it to the index of the last element in navigation path
             pathIndex = path.length - 1;
         }
-
-        const getParameters = () => {
-            const parameters = {
-                id: path[pathIndex]
-            };
-
-            const newPath = path.slice(0, pathIndex).join(this.delimiter);
-
-            if (newPath) {
-                parameters["path"] = newPath;
-            }
-
-            return parameters;
+        const parameters = {
+            id: path[pathIndex]
         };
 
-        return this.navigateToArtifactInternal(getParameters);
+        const newPath = path.slice(0, pathIndex).join(this.delimiter);
+
+        if (newPath) {
+            parameters["path"] = newPath;
+        }
+        return parameters;
     }
 
-    private navigateToArtifactInternal(getParameters: () => any, stateOptions?: ng.ui.IStateOptions): ng.IPromise<any> {
+    private navigateToArtifactInternal(parameters: any, stateOptions?: ng.ui.IStateOptions): ng.IPromise<any> {
         const state = "main.item";
-        const parameters = getParameters();
         // Disables the inheritance of optional url parameters (such as "path")
         const options: ng.ui.IStateOptions = stateOptions || { inherit: false };
 
         return this.$state.go(state, parameters, options);
     }
 
-    private validateArtifactNavigation(id: number, navigationState: INavigationState): Error {
-        if (id === navigationState.id && (!navigationState.path || navigationState.path.length === 0)) {
+    private validateArtifactNavigation(params: INavigationParams, state: INavigationState): Error {
+        if (params.id === state.id && params.version === state.version &&
+            (!state.path || state.path.length === 0)) {
             return new Error(`Unable to navigate to artifact, navigating from the same artifact.`);
         }
 
-        return null;
+        return undefined;
     }
 
     private validateBackNavigation(path: number[], pathIndex: number): Error {
@@ -149,6 +170,6 @@ export class NavigationService implements INavigationService {
             }
         }
 
-        return null;
+        return undefined;
     }
 }

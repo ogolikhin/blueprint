@@ -10,6 +10,7 @@ import {IDispose} from "../../models";
 import {HttpStatusCode} from "../../../core/http";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../main/components/dialogs/bp-confirm-publish";
 import {IDialogSettings} from "../../../shared";
+import {DialogTypeEnum} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {IApplicationError, ApplicationError} from "../../../core";
 
 export interface IStatefulArtifact extends IStatefulItem, IDispose {
@@ -65,7 +66,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return this._subject;
     }
 
-    public initialize(artifact: Models.IArtifact): IState {
+    protected initialize(artifact: Models.IArtifact): IState {
         if (this.parentId && this.orderIndex &&
             (this.parentId !== artifact.parentId || this.orderIndex !== artifact.orderIndex)) {
             this.artifactState.misplaced = true;
@@ -112,19 +113,39 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     
     public discardArtifact(): ng.IPromise<void> {
         let deffered = this.services.getDeferred<void>();
-
-        this.services.publishService.discardArtifacts([this.id])
-        .then(() => {
-            this.services.messageService.addInfo("Discard_Success_Message");
-            this.refresh();
-            deffered.resolve();
+        this.services.messageService.clearMessages();
+        this.services.dialogService.open(<IDialogSettings>{
+            okButton: this.services.localizationService.get("App_Button_Discard"),
+            cancelButton: this.services.localizationService.get("App_Button_Cancel"),
+            message: this.services.localizationService.get("Discard_Dependents_Dialog_Message"),
+            type: DialogTypeEnum.Alert,
+            header: this.services.localizationService.get("App_DialogTitle_Alert"),
+            css: "modal-alert nova-messaging"
         })
-        .catch((err) => {
-            if (err && err.statusCode === HttpStatusCode.Conflict) {
-                this.discardDependents(err.errorContent);
-            } else {
-                this.services.messageService.addError(err);
-            }
+        .then(() => {
+            let overlayId: number = this.services.loadingOverlayService.beginLoading();
+            this.services.publishService.discardArtifacts([this.id])
+            .then(() => {
+                this.services.messageService.addInfo("Discard_Success_Message");
+                this.refresh();
+                deffered.resolve();
+            })
+            .catch((err) => {
+                if (err && err.statusCode === HttpStatusCode.Conflict) {
+                    this.discardDependents(err.errorContent);
+                } else {
+                    if (err && err.errorCode === 114) {
+                        this.services.messageService.addInfo("Artifact_Lock_Refresh");
+                        this.refresh();
+                    } else {
+                        this.services.messageService.addError(err);
+                    }
+                }
+                deffered.reject();
+            }).finally(() => {
+                this.services.loadingOverlayService.endLoading(overlayId);
+            });
+        }).catch(() => {
             deffered.reject();
         });
 
@@ -138,7 +159,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             message: this.services.localizationService.get("Discard_Dependents_Dialog_Message"),
             template: require("../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish.html"),
             controller: ConfirmPublishController,
-            css: "nova-publish"
+            css: "nova-publish modal-alert",
+            header: this.services.localizationService.get("App_DialogTitle_Alert")
         },
         <IConfirmPublishDialogData>{
             artifactList: dependents.artifacts,
@@ -153,7 +175,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 this.refresh();
             })
             .catch((err) => {
-                this.services.messageService.addError(err);
+                if (err && err.errorCode === 114) {
+                    this.services.messageService.addInfo("Artifact_Lock_Refresh");
+                    this.refresh();
+                } else {
+                    this.services.messageService.addError(err);
+                }
             }).finally(() => {
                 this.services.loadingOverlayService.endLoading(discardOverlayId);
             });
@@ -202,7 +229,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             return deferred.promise;
         }
         if (this.canBeLoaded()) {
-            this.services.artifactService.getArtifact(this.id, this.getEffectiveVersion()).then((artifact: Models.IArtifact) => {
+            this.getArtifactModel(this.id, this.getEffectiveVersion()).then((artifact: Models.IArtifact) => {
                 this.initialize(artifact);
                 deferred.resolve(this);
             }).catch((error: IApplicationError) => {
@@ -217,6 +244,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         }
 
         return deferred.promise;
+    }
+
+    protected getArtifactModel(id: number, versionId: number): ng.IPromise<Models.IArtifact> {
+        return this.services.artifactService.getArtifact(id, versionId);
     }
 
     private artifactNotFoundError() {
@@ -338,6 +369,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     public save(): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
+        this.services.messageService.clearMessages();
         const saveCustomArtifact = this.getCustomArtifactPromisesForSave();
         if (saveCustomArtifact) {
             saveCustomArtifact.then(() => {

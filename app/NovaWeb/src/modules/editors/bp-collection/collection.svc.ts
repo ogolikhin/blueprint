@@ -1,5 +1,5 @@
 import {ILocalizationService} from "../../core";
-import {ICollection, ICollectionArtifact} from "./models";
+import {ICollection, ICollectionArtifact} from "./collection-artifact";
 
 export interface ICollectionService {
     getCollection(id: number): ng.IPromise<ICollection>;

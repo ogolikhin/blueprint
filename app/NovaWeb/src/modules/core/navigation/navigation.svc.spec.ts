@@ -128,7 +128,7 @@ describe("NavigationService", () => {
                 const expectedOptions = {inherit: false, location: true};
 
                 // act
-                navigationService.navigateTo(targetArtifactId);
+                navigationService.navigateTo({ id: targetArtifactId });
 
                 // assert
                 expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
@@ -143,7 +143,7 @@ describe("NavigationService", () => {
                 const expectedOptions = {inherit: false, location: true};
 
                 // act
-                navigationService.navigateTo(targetArtifactId, false);
+                navigationService.navigateTo({ id: targetArtifactId });
 
                 // assert
                 expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
@@ -158,7 +158,7 @@ describe("NavigationService", () => {
                 const expectedOptions = {inherit: false, location: true};
 
                 // act
-                navigationService.navigateTo(targetArtifactId, false, true);
+                navigationService.navigateTo({ id: targetArtifactId, enableTracking: true });
 
                 // assert
                 expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
@@ -185,7 +185,7 @@ describe("NavigationService", () => {
                 const stateGoSpy = spyOn($state, "go");
 
                 // act
-                navigationService.navigateTo(targetArtifactId)
+                navigationService.navigateTo({ id: targetArtifactId })
                     .catch((error: any) => {
                         // assert
                         expect(stateGoSpy).not.toHaveBeenCalledWith();
@@ -220,7 +220,7 @@ describe("NavigationService", () => {
                 const expectedOptions = {inherit: false, location: true};
 
                 // act
-                navigationService.navigateTo(targetArtifactId);
+                navigationService.navigateTo({ id: targetArtifactId });
 
                 // assert
                 expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
@@ -235,7 +235,7 @@ describe("NavigationService", () => {
                 const expectedOptions = {inherit: false, location: true};
 
                 // act
-                navigationService.navigateTo(targetArtifactId, false, false);
+                navigationService.navigateTo({ id: targetArtifactId });
 
                 // assert
                 expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
@@ -250,7 +250,7 @@ describe("NavigationService", () => {
                 const expectedOptions = {inherit: false, location: true};
 
                 // act
-                navigationService.navigateTo(targetArtifactId, false, true);
+                navigationService.navigateTo({ id: targetArtifactId, enableTracking: true });
 
                 // assert
                 expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
@@ -286,7 +286,7 @@ describe("NavigationService", () => {
                 const expectedOptions = {inherit: false, location: true};
 
                 // act
-                navigationService.navigateTo(targetArtifactId);
+                navigationService.navigateTo({ id: targetArtifactId });
 
                 // assert
                 expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
@@ -301,7 +301,7 @@ describe("NavigationService", () => {
                 const expectedOptions = {inherit: false, location: true};
 
                 // act
-                navigationService.navigateTo(targetArtifactId, false, false);
+                navigationService.navigateTo({ id: targetArtifactId });
 
                 // assert
                 expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
@@ -316,7 +316,7 @@ describe("NavigationService", () => {
                 const expectedOptions = {inherit: false, location: true};
 
                 // act
-                navigationService.navigateTo(targetArtifactId, false, true);
+                navigationService.navigateTo({ id: targetArtifactId, enableTracking: true });
 
                 // assert
                 expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);

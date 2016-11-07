@@ -21,35 +21,38 @@ export class ItemStateController {
         "statefulArtifactFactory"
     ];
 
-    constructor(private $state: angular.ui.IStateService,
-                private artifactManager: IArtifactManager,
-                private messageService: IMessageService,
-                private localization: ILocalizationService,
-                private navigationService: INavigationService,
-                private itemInfoService: IItemInfoService,
-                private statefulArtifactFactory: IStatefulArtifactFactory) {
-
-        const id = parseInt($state.params["id"], 10);
+    constructor(
+        private $state: angular.ui.IStateService,
+        private artifactManager: IArtifactManager,
+        private messageService: IMessageService,
+        private localization: ILocalizationService,
+        private navigationService: INavigationService,
+        private itemInfoService: IItemInfoService,
+        private statefulArtifactFactory: IStatefulArtifactFactory
+    ) {
+        const id: number = parseInt($state.params["id"], 10);
+        const version = parseInt($state.params["version"], 10);
 
         if (_.isFinite(id)) {
             this.clearLockedMessages();
 
             const artifact = artifactManager.get(id);
-            if (artifact && !artifact.artifactState.deleted) {
+
+            if (artifact && !artifact.artifactState.deleted && !version) {
                 artifact.unload();
                 this.navigateToSubRoute(artifact);
             } else {
-                this.getItemInfo(id);
+                this.getItemInfo(id, version);
             }
         }
     }
 
-    private getItemInfo(id: number) {
+    private getItemInfo(id: number, version: number) {
         this.itemInfoService.get(id).then((result: IItemInfoResult) => {
 
             if (this.itemInfoService.isSubArtifact(result)) {
                 // navigate to subartifact's artifact
-                this.navigationService.navigateTo(result.id, true);
+                this.navigationService.navigateTo({ id: result.id, redirect: true });
 
             } else if (this.itemInfoService.isProject(result)) {
                 // TODO: implement project navigation in the future US
@@ -70,16 +73,25 @@ export class ItemStateController {
                     lockedDateTime: result.lockedDateTime,
                     permissions: result.permissions
                 };
+
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(artifact);
-                if (result.isDeleted) {
+                if (_.isFinite(version)) {
+                    if (result.versionCount < version) {
+                         this.messageService.addError("The specified artifact version does not exist");
+                         this.navigationService.navigateToMain(true);
+                         return;
+                    }
+                    artifact.version = version;
+                    statefulArtifact.artifactState.historical = true;
+                } else if (result.isDeleted) {
                     statefulArtifact.artifactState.deleted = true;
                     statefulArtifact.artifactState.historical = true;
                     const localizedDate = this.localization.current.formatShortDateTime(result.deletedDateTime);
-                    const deletedMessage = `Read Only: Deleted by user '${result.deletedByUser.displayName}' on '${localizedDate}'`;
+                    const deletedMessage = `Deleted by user '${result.deletedByUser.displayName}' on '${localizedDate}'`;
                     this.messageService.addMessage(new Message(MessageType.Lock, deletedMessage));
                 }
-                this.navigateToSubRoute(statefulArtifact);
 
+                this.navigateToSubRoute(statefulArtifact, version);
             } else {
                 this.messageService.addError("This artifact type cannot be opened directly using the Go To feature.");
             }
@@ -112,12 +124,16 @@ export class ItemStateController {
     }
 
     private setSelectedArtifact(artifact: IStatefulArtifact) {
-        this.artifactManager.selection.setExplorerArtifact(artifact);
+        // do not select artifact in explorer if navigated from another artifact
+        if (!this.$state.params["path"]) {
+            this.artifactManager.selection.setExplorerArtifact(artifact);
+        }
+        
         this.artifactManager.selection.setArtifact(artifact);
         artifact.errorObservable().subscribeOnNext(this.onArtifactError);
     }
 
-    private navigateToSubRoute(artifact: IStatefulArtifact) {
+    private navigateToSubRoute(artifact: IStatefulArtifact, version?: number) {
         this.setSelectedArtifact(artifact);
 
         let stateName: string;
@@ -149,7 +165,11 @@ export class ItemStateController {
         }
         // since URL doesn't change between "main.item" and "main.item.*", 
         // must force reload on that exact state name
-        this.$state.go(stateName, {id: artifact.id}, {reload: stateName});
+        const params = {
+            id: artifact.id,
+            version: _.isFinite(version) ? version : undefined
+        };
+        this.$state.go(stateName, params, {reload: stateName});
     }
 
     private onArtifactError = (error: IApplicationError) => {

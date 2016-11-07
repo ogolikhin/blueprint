@@ -1,5 +1,6 @@
-export interface IUseCase {
-    id: number;
+import {IArtifact} from "../../../../main/models/models";
+
+export interface IUseCase extends IArtifact {
     preCondition: IStep;
     steps: IStep[];
     postCondition: IStep;

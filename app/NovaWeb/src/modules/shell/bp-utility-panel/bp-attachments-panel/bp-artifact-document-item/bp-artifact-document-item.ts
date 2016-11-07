@@ -63,6 +63,6 @@ export class BPArtifactDocumentItemController implements IBPArtifactAttachmentIt
             });
     }
     public navigateToDocumentReference (artifactId: number) {
-        this.navigationService.navigateTo(artifactId);
+        this.navigationService.navigateTo({ id: artifactId });
     }
 }

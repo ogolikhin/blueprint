@@ -1,9 +1,8 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using ServiceLibrary.Models;
 
-namespace ArtifactStore.Models
+namespace ServiceLibrary.Models
 {
     [JsonObject]
     public class Artifact : IArtifact
@@ -25,6 +24,9 @@ namespace ArtifactStore.Models
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Prefix { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? ItemTypeIconId { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public ItemTypePredefined? PredefinedType { get; set; }

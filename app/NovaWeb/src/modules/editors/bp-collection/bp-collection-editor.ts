@@ -1,14 +1,12 @@
 import * as angular from "angular";
 import * as _ from "lodash";
 import {Models, Enums} from "../../main";
-import {IColumn, ITreeViewNodeVM} from "../../shared/widgets/bp-tree-view/";
+import {IColumn, ITreeViewNode} from "../../shared/widgets/bp-tree-view/";
 import {BpArtifactDetailsEditorController} from "../bp-artifact/bp-details-editor";
 import {ICollectionService} from "./collection.svc";
-import {ICollection, ICollectionArtifact} from "./models";
+import {IStatefulCollectionArtifact, ICollection, ICollectionArtifact} from "./collection-artifact";
 import {Helper} from "../../shared";
 import {IMetaDataService} from "../../managers/artifact-manager";
-
-
 import {
     ILocalizationService,
     IArtifactManager,
@@ -17,7 +15,6 @@ import {
 } from "../bp-artifact/bp-artifact-editor";
 
 import {IDialogService} from "../../shared";
-
 
 export class BpArtifactCollectionEditor implements ng.IComponentOptions {
     public template: string = require("./bp-collection-editor.html");
@@ -38,7 +35,6 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         "$window"
     ];
 
-    public collection: ICollection;
     public selectAll: boolean = false;
     public selectAllClass: string;
     public isSystemPropertiesCollapsed: boolean = true;
@@ -55,13 +51,11 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         private $window: ng.IWindowService
     ) {
         super(messageService, artifactManager, windowManager, localization, dialogService);
-
-
     }
 
     public get reviewUrl(): string {
-        if (this.collection && this.collection.isCreated) {
-            return this.$location.protocol() + "://" + this.$window.location.host + "/ArtifactMgmt/RapidReview/" + this.collection.id;
+        if (this.artifact && (<IStatefulCollectionArtifact>this.artifact).rapidReviewCreated) {
+            return this.$location.protocol() + "://" + this.$window.location.host + "/ArtifactMgmt/RapidReview/" + this.artifact.id;
         }
 
         return "";
@@ -69,26 +63,18 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
 
     public onArtifactReady() {
         if (this.editor && this.artifact) {
-            this.collectionService.getCollection(this.artifact.id).then((result: ICollection) => {
-                this.metadataService.get(result.projectId).then(() => {
-                    this.artifact["rapidReviewCreated"] = result.isCreated;
-                    this.collection = result;
-                    this.rootNode = result.artifacts.map((a: ICollectionArtifact) => {
-                        return new CollectionNodeVM(a, result.projectId, this.metadataService);
-                    });
-
-                }).catch((error: any) => {
-                    //ignore authentication errors here
-                    if (error) {
-                        this.messageService.addError(error["message"] || "Project_MetaDataNotFound");
-                    }
-                }).finally(() => {
-                    super.onArtifactReady();
+            const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
+            this.metadataService.get(collectionArtifact.projectId).then(() => {
+                this.rootNode = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
+                    return new CollectionNodeVM(a, this.artifact.projectId, this.metadataService);
                 });
+
             }).catch((error: any) => {
+                //ignore authentication errors here
                 if (error) {
-                    this.messageService.addError(error["message"] || "Artifact_NotFound");
+                    this.messageService.addError(error["message"] || "Project_MetaDataNotFound");
                 }
+            }).finally(() => {
                 super.onArtifactReady();
             });
         }
@@ -148,7 +134,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 const prefix = Helper.escapeHTMLText(vm.model.prefix);
                 const icon = vm.getIcon();
                 const url = this.$state.href("main.item", { id: vm.model.id });
-                return `<span class="ag-group-value-wrapper">${icon} <a ng-href="${url}" target="_blank">${prefix}${vm.model.id}</a></span>`;
+                return `<span class="ag-group-value-wrapper">${icon} <a ng-href="${url}" target="_blank" 
+                            ng-click="$event.stopPropagation();">${prefix}${vm.model.id}</a></span>`;
             }
         },
         {
@@ -203,19 +190,17 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     }
 }
 
-class CollectionNodeVM implements ITreeViewNodeVM {
+class CollectionNodeVM implements ITreeViewNode {
     public key: string;
 
     constructor(public model: ICollectionArtifact, private projectId: number, private metadataService: IMetaDataService) {
         this.key = String(model.id);
     }
 
-
-
     public getIcon(): string {
         let artifactType = this.metadataService.getArtifactItemTypeTemp(this.projectId, this.model.itemTypeId);
         if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-            return `<bp-item-type-icon item-type-id="${artifactType.id}" item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
+            return `<bp-item-type-icon item-type-id="${artifactType.id}" item-type-icon-id="${artifactType.iconImageId}"></bp-item-type-icon>`;
         }
         return `<i></i>`;
     }

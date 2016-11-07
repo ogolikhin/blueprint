@@ -1,4 +1,5 @@
 ﻿using ArtifactStore.Models;
+using ServiceLibrary.Models;
 using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories

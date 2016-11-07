@@ -1,4 +1,4 @@
-﻿import {IColumn} from "../../../shared/widgets/bp-tree-view/";
+﻿import {IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
 import {Helper} from "../../../shared/";
 import {ILocalizationService} from "../../../core";
 import {SearchResultVM, ArtifactSearchResultVM, ProjectSearchResultVM} from "./bp-artifact-picker-search-vm";
@@ -164,9 +164,10 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public columns: IColumn[] = [{
         cellClass: (vm: TreeViewModels.TreeViewNodeVM<any>) => vm.getCellClass(),
         isGroup: true,
-        innerRenderer: (vm: TreeViewModels.TreeViewNodeVM<any>, eGridCell: HTMLElement) => {
-            const icon = vm.getIcon();
-            const name = Helper.escapeHTMLText(vm.name);
+        innerRenderer: (params: IColumnRendererParams) => {
+            const node = <TreeViewModels.TreeViewNodeVM<any>>params.vm;
+            const icon = node.getIcon();
+            const name = Helper.escapeHTMLText(node.name);
             return `<span class="ag-group-value-wrapper">${icon}<span>${name}</span></span>`;
         }
     }];

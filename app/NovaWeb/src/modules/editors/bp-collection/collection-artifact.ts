@@ -25,6 +25,7 @@ export interface IStatefulCollectionArtifact extends IStatefulArtifact {
     reviewName: string;      
     artifacts: ICollectionArtifact[];
     addArtifactsToCollection(artifactIds: IArtifact[]);
+    removeArtifacts(artifactIds: IArtifact[]);
     collectionObservable(): Rx.Observable<IChangeSet[]>;
 }
 
@@ -111,4 +112,35 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
             this.updateCollectionSubject(changesets);
         }
     }    
+
+    public removeArtifacts(artifacts: IArtifact[]) {
+
+        if (this.artifact &&
+            artifacts &&
+            artifacts.length > 0) {
+
+            let changesets: IChangeSet[] = [];
+            artifacts.map((artifact: IArtifact) => {
+                
+                let index = this.artifacts.indexOf(<ICollectionArtifact>artifact, 0);
+                if (index > -1) {
+                    this.artifacts.splice(index, 1);
+
+                    const changeset = {
+                    type: ChangeTypeEnum.Delete,
+                    key: artifact.id,
+                    value: artifact
+                    } as IChangeSet;    
+
+                    changesets.push(changeset);            
+                    this.changesets.add(changeset);
+                }                                                                             
+            });
+
+            if (changesets.length > 0) {
+                this.lock();
+                this.updateCollectionSubject(changesets);
+            }
+        }
+    }
 }

@@ -6,6 +6,7 @@ import {ILocalizationService} from "../../../core";
 import {Models, AdminStoreModels, SearchServiceModels, TreeViewModels} from "../../models";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IProjectService} from "../../../managers/project-manager/project-service";
+import {IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
 
 describe("BpArtifactPicker", () => {
     angular.module("bp.components.artifactpicker", [])
@@ -203,9 +204,13 @@ describe("BpArtifactPickerController", () => {
                 }
             } as TreeViewModels.TreeViewNodeVM<any>;
             const cell = {} as HTMLElement;
-
+            const params: IColumnRendererParams = {
+                vm: vm,
+                $scope: $scope,
+                eGridCell: cell
+            };
             // Act
-            const result = controller.columns[0].innerRenderer(vm, cell);
+            const result = controller.columns[0].innerRenderer(params);
 
             // Assert
             expect(result).toEqual(`<span class="ag-group-value-wrapper">icon<span>name</span></span>`);

@@ -69,6 +69,39 @@ namespace SearchService.Repositories
         }
 
         [TestMethod]
+        public async Task SearchName_IncludeArtifactPath_ReturnsResults()
+        {
+            // Arrange
+            var searchCriteria = new ItemNameSearchCriteria
+            {
+                Query = "test",
+                ProjectIds = new[] { 1 },
+                IncludeArtifactPath = true
+            };
+            ItemNameSearchResult[] queryResult =
+            {
+                new ItemNameSearchResult()
+            };
+            var permissionsDictionary = new Dictionary<int, RolePermissions> { { 0, RolePermissions.Read } };
+            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
+            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissionsInChunks(new List<int> { 0 }, UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
+
+            var navigationPaths = new Dictionary<int, IEnumerable<string>> { { 0, new List<string> { "ArtifactPath" } } };
+            var mockSqlArtifactRepository = new Mock<ISqlArtifactRepository>();
+            mockSqlArtifactRepository.Setup(r => r.GetArtifactsNavigationPaths(1, new List<int> { 0 }, false, null, true)).ReturnsAsync(navigationPaths);
+
+            var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult, mockArtifactPermissionsRepository.Object, mockSqlArtifactRepository.Object);
+
+            // Act
+            var result = await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize, @"/");
+
+            // Assert
+            CollectionAssert.AreEqual(queryResult, result.Items.ToList());
+            Assert.AreEqual(queryResult.Length, result.PageItemCount);
+            Assert.AreEqual(result.Items.First().Path, "ArtifactPath");
+        }
+
+        [TestMethod]
         public async Task SearchName_WithoutPermission_DoesNotReturn()
         {
             // Arrange

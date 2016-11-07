@@ -2,15 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ArtifactStore.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
-using ServiceLibrary.Repositories;
 using ServiceLibrary.Models;
 
-namespace ArtifactStore.Repositories
+namespace ServiceLibrary.Repositories
 {
     [TestClass]
     public class SqlArtifactRepositoryTests
@@ -1335,6 +1333,90 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(expected[1].Name, actual[1].Name);
             Assert.AreEqual(expected[1].ProjectId, actual[1].ProjectId);
             Assert.AreEqual(expected[1].ItemTypeId, actual[1].ItemTypeId);
+        }
+
+        #endregion
+
+        #region GetArtifactNavigatioPathAsync
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task GetArtifactsNavigationPathsAsync_InvalidArtifactIds()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlArtifactRepository(cxn.Object);
+
+            // Act
+            await repository.GetArtifactsNavigationPaths(1, null);
+
+            // Assert
+        }
+
+        [TestMethod]
+        public async Task GetArtifactsNavigationPathsAsync_Success()
+        {
+            // Arrange
+            int[] artifactIds = {1};
+            const int userId = 1;
+
+            ArtifactsNavigationPath[] queryResult ={
+                new ArtifactsNavigationPath()
+            };
+
+            var cxn = new SqlConnectionWrapperMock();
+            cxn.SetupQueryAsync("GetArtifactsNavigationPaths", 
+                new Dictionary<string, object>
+                {
+                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value")},
+                    { "userId", userId },
+                    { "revisionId", int.MaxValue },
+                    { "addDrafts", true }
+                }, 
+                queryResult);
+
+            var repository = new SqlArtifactRepository(cxn.Object, null, null);
+
+            // Act
+            var actual = await repository.GetArtifactsNavigationPaths(userId, artifactIds);
+
+            // Assert
+            Assert.AreEqual(queryResult.Length, actual.Count);
+        }
+
+        [TestMethod]
+        public async Task GetArtifactsNavigationPathsAsync_ReturnsMultipleLevels_Success()
+        {
+            // Arrange
+            int[] artifactIds = { 1 };
+            const int userId = 1;
+
+            var queryResult = new List<ArtifactsNavigationPath>
+            {
+                new ArtifactsNavigationPath {ArtifactId = 1, Level = 0, Name = "ArtifactName"},
+                new ArtifactsNavigationPath {ArtifactId = 1, Level = 1, Name = "ArtifactParent"},
+                new ArtifactsNavigationPath {ArtifactId = 1, Level = 2, Name = "ArtifactGrandParent"}
+            };
+
+            var cxn = new SqlConnectionWrapperMock();
+            cxn.SetupQueryAsync("GetArtifactsNavigationPaths",
+                new Dictionary<string, object>
+                {
+                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value")},
+                    { "userId", userId },
+                    { "revisionId", int.MaxValue },
+                    { "addDrafts", true }
+                },
+                queryResult);
+
+            var repository = new SqlArtifactRepository(cxn.Object, null, null);
+
+            // Act
+            var actual = await repository.GetArtifactsNavigationPaths(userId, artifactIds, false, null);
+
+            // Assert
+            Assert.AreEqual(1, actual.Count);
+            Assert.AreEqual(2, actual[1].Count());
         }
 
         #endregion

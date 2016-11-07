@@ -222,14 +222,14 @@ namespace SearchService.Controllers
             var searchCriteria = new ItemNameSearchCriteria { Query = "Test", ProjectIds = new List<int> { 5 } };
             var startOffset = 0;
             var pageSize = 20;
-            var controller = CreateController();
+            var controller = CreateController(1);
 
             // Act
-            var result = await controller.SearchName(searchCriteria, startOffset, pageSize);
+            var result = await controller.SearchName(searchCriteria, startOffset, pageSize, "");
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.PageItemCount);
+            Assert.AreEqual(1, result.PageItemCount);
         }
 
         [TestMethod]
@@ -316,7 +316,7 @@ namespace SearchService.Controllers
 
         #endregion SearchName
 
-        private ItemSearchController CreateController()
+        private ItemSearchController CreateController(int itemNameResultCount = 0)
         {
             var itemSearchRepository = new Mock<IItemSearchRepository>();
             itemSearchRepository.Setup(a => a.SearchFullText(It.IsAny<int>(), It.IsAny<FullTextSearchCriteria>(), It.IsAny<int>(), It.IsAny<int>())).
@@ -329,8 +329,19 @@ namespace SearchService.Controllers
                 }));
             itemSearchRepository.Setup(a => a.FullTextMetaData(It.IsAny<int>(), It.IsAny<FullTextSearchCriteria>())).
                 ReturnsAsync(new MetaDataSearchResultSet { Items = new List<MetaDataSearchResult>() });
+            var itemNameSearchResult = new List<ItemNameSearchResult>();
+            for (var i = 0; i < itemNameResultCount; i++)
+            {
+                itemNameSearchResult.Add(new ItemNameSearchResult
+                {
+                    Id = i,
+                    ItemId = i,
+                    LockedByUserId = i,
+                    ProjectId = 1
+                });
+            }
             itemSearchRepository.Setup(m => m.SearchName(It.IsAny<int>(), It.IsAny<ItemNameSearchCriteria>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()))
-                .ReturnsAsync(new ItemNameSearchResultSet { Items = new List<ItemNameSearchResult>(), PageItemCount = 0 });
+                .ReturnsAsync(new ItemNameSearchResultSet { Items = itemNameSearchResult, PageItemCount = itemNameSearchResult.Count });
 
             var configuration = new Mock<ISearchConfiguration>();
 

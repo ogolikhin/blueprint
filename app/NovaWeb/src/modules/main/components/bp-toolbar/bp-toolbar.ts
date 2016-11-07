@@ -3,7 +3,6 @@ import {IDialogSettings, IDialogService} from "../../../shared";
 import {DialogTypeEnum} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {Models, Enums} from "../../models";
 import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
-import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
 import {OpenProjectController} from "../dialogs/open-project/open-project";
@@ -35,7 +34,6 @@ class BPToolbarController implements IBPToolbarController {
         "projectManager",
         "artifactManager",
         "publishService",
-        "artifactService",
         "messageService",
         "$rootScope",
         "loadingOverlayService",
@@ -49,7 +47,6 @@ class BPToolbarController implements IBPToolbarController {
         private projectManager: IProjectManager,
         private artifactManager: IArtifactManager,
         private publishService: IPublishService,
-        private artifactService: IArtifactService,
         private messageService: IMessageService,
         private $rootScope: ng.IRootScopeService,
         private loadingOverlayService: ILoadingOverlayService,
@@ -340,7 +337,7 @@ class BPToolbarController implements IBPToolbarController {
                 const itemTypeId = result.artifactTypeId;
                 const name = result.artifactName;
 
-                this.artifactService.create(name, projectId, parentId, itemTypeId)
+                this.artifactManager.create(name, projectId, parentId, itemTypeId)
                     .then((data: Models.IArtifact) => {
                         console.log(data);
                     })

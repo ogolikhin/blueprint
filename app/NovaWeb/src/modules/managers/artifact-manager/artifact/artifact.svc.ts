@@ -8,7 +8,7 @@ export interface IArtifactService {
     getSubArtifact(artifactId: number, subArtifactId: number, versionId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifact>;
     lock(artifactId: number): ng.IPromise<Models.ILockResult[]>;
     updateArtifact(artifact: Models.IArtifact);
-    create(name: string, projectId: number, parentId: number, itemTypeId: number): ng.IPromise<Models.IArtifact>;
+    create(name: string, projectId: number, parentId: number, itemTypeId: number, orderIndex?: number): ng.IPromise<Models.IArtifact>;
 }
 
 export class ArtifactService implements IArtifactService {

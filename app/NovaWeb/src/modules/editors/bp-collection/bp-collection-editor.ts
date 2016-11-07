@@ -42,6 +42,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public isSystemPropertiesCollapsed: boolean = true;
     private collectionSubscriber: Rx.IDisposable;
     public selectedVMs: any[] = [];
+    public itemsSelected: string;
     //public showBulkActions: boolean;
     //public selectedVMsLength: number;
 
@@ -167,7 +168,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 const prefix = Helper.escapeHTMLText(vm.model.prefix);
                 const icon = vm.getIcon();
                 const url = this.$state.href("main.item", { id: vm.model.id });
-                return `<span class="ag-group-value-wrapper">${icon} <a ng-href="${url}" target="_blank" 
+                return `<span class="ag-group-value-wrapper">${icon} <a ng-href="${url}" target="_blank" class="collection__link"
                             ng-click="$event.stopPropagation();">${prefix}${vm.model.id}</a></span>`;
             }
         },
@@ -211,7 +212,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             colWidth: 60,
             isCheckboxHidden: true,
             innerRenderer: (vm: CollectionNodeVM, eGridCell: HTMLElement) => {
-                return `<i class="icon icon__normal fonticon-delete-filled"></i>`;
+                return `<i class="icon icon__normal icon__action fonticon-delete-filled"></i>`;
             }
         }];
 
@@ -233,11 +234,13 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             }
         }
 
+        let item_selected = this.localization.get("Artifact_Collection_Items_Selected") as string;
+        this.itemsSelected = item_selected.replace("{0}", (this.selectedVMs.length).toString());
         this.$scope.$applyAsync();
     }
 
     public bulkDelete() {
-        console.log("bulk Delete");
+        console.log("bulk Delete will be here");
     }
 }
 
@@ -253,7 +256,7 @@ class CollectionNodeVM implements ITreeViewNode {
         if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
             return `<bp-item-type-icon item-type-id="${artifactType.id}" item-type-icon-id="${artifactType.iconImageId}"></bp-item-type-icon>`;
         }
-        return `<i></i>`;
+        return `<i class="icon__normal"></i>`;
     }
 
     public getCellClass(): string[] {

@@ -35,8 +35,8 @@
                     {{::$ctrl.localization.get('Artifact_Collection_Content_Header')}}
                 </div>
                 <div class="collection__bulk__actions text-right" ng-show="$ctrl.selectedVMs.length">
-                    {{$ctrl.selectedVMs.length}} <i class="icon icon__normal fonticon-delete-filled" ng-click="$ctrl.bulkDelete()"
-                        bp-tooltip="Delete selected"></i>
+                    {{$ctrl.itemsSelected}} <i class="icon icon__normal fonticon-delete-filled" ng-click="$ctrl.bulkDelete()"
+                        bp-tooltip=" {{::$ctrl.localization.get('Artifact_Collection_Delete_Selected')}}"></i>
                 </div>
                 <div class="specific-properties content"
                      uib-collapse="isSpecificPropertiesCollapsed"

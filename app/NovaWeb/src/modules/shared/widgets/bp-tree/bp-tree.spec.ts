@@ -118,7 +118,7 @@ describe("Embedded ag-grid events", () => {
             TheName: "name"
         };
         // Act
-        controller.reload([{itemId: 1, TheName: `Name 1`}]);
+        controller.api.reload([{itemId: 1, TheName: `Name 1`}]);
         // Assert
         //let data = controller.options.api.getRenderedNodes();
         expect(dataFromCall).toEqual(jasmine.any(Array));
@@ -143,7 +143,7 @@ describe("Embedded ag-grid events", () => {
         };
         $scope.$apply();
 
-        controller.reload([{itemId: 1, TheName: `Name 1`}]);
+        controller.api.reload([{itemId: 1, TheName: `Name 1`}]);
         // Assert
         //let data = controller.options.api.getRenderedNodes();
         expect(dataFromCall).toEqual(jasmine.any(Array));
@@ -167,7 +167,7 @@ describe("Embedded ag-grid events", () => {
         controller.options.api = gridApi;
         $scope.$apply();
 
-        controller.reload([
+        controller.api.reload([
             {id: 1, Name: `Name 1`},
             {id: 2, Name: `Name 2`}
         ]);
@@ -187,11 +187,11 @@ describe("Embedded ag-grid events", () => {
         controller.options.api = gridApi;
         $scope.$apply();
 
-        controller.reload([
+        controller.api.reload([
             {id: 1, Name: `Name 1`},
             {id: 2, Name: `Name 2`}
         ]);
-        controller.reload([
+        controller.api.reload([
             {id: 3, Name: `Name 3`},
             {id: 4, Name: `Name 4`}
         ], 1);

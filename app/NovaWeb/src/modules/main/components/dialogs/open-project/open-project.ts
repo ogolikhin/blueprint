@@ -3,7 +3,6 @@ import {ILocalizationService} from "../../../../core";
 import {Helper, IDialogSettings, BaseDialogController} from "../../../../shared";
 import {IColumn} from "../../../../shared/widgets/bp-tree-view/";
 import {Models, Enums, AdminStoreModels, TreeViewModels} from "../../../models";
-import {IArtifactManager} from "../../../../managers";
 import {IProjectService} from "../../../../managers/project-manager/project-service";
 
 export interface IOpenProjectController {
@@ -25,17 +24,16 @@ export class OpenProjectController extends BaseDialogController implements IOpen
     private _selectedItem: TreeViewModels.InstanceItemNodeVM;
     private _errorMessage: string;
 
-    static $inject = ["$scope", "localization", "$uibModalInstance", "artifactManager", "projectService", "dialogSettings", "$sce"];
+    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogSettings", "$sce"];
 
     constructor(private $scope: ng.IScope,
                 private localization: ILocalizationService,
                 $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
-                private artifactManager: IArtifactManager,
                 private projectService: IProjectService,
                 dialogSettings: IDialogSettings,
                 private $sce: ng.ISCEService) {
         super($uibModalInstance, dialogSettings);
-        this.rootNode = new TreeViewModels.InstanceItemNodeVM(this.artifactManager, this.projectService, this, {
+        this.rootNode = new TreeViewModels.InstanceItemNodeVM(this.projectService, this, {
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,
             name: "",

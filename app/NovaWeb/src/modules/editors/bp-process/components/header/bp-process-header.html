@@ -18,7 +18,7 @@
                 <i class="legacy-indicator fonticon2-legacy" bp-tooltip="Legacy artifact" ng-if="$ctrl.isLegacy"></i>
             </div>
         </div>
-        <bp-breadcrumb links="$ctrl.breadcrumbLinks" on-navigate="$ctrl.navigateTo(link)"></bp-breadcrumb>
+        <bp-breadcrumb ng-if="$ctrl.breadcrumbLinks.length > 1" links="$ctrl.breadcrumbLinks" on-navigate="$ctrl.navigateTo(link)"></bp-breadcrumb>
         <div class="type-id"> {{$ctrl.artifactTypeDescription}}</div>
     </div>
 </div>

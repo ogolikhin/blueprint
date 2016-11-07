@@ -82,7 +82,7 @@ describe("BreadcrumbService", () => {
 
     it("getReferences makes an http call if navigation history exists", (done: DoneFn) => {
         // arrange
-        const navigationState = {id: 1, path: [2, 3]};
+        const navigationState = {id: 1, path: [{id: 2}, {id: 3}]};
         const service = new BreadcrumbService($q, $http, navigationService);
 
         const deferred = $q.defer();

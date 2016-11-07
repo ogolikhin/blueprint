@@ -358,11 +358,7 @@ namespace Model
         /// <param name="artifactVersion">(optional) Artifact version.  By default it uses the current artifact version.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The details of the artifact that we moved.</returns>
-        INovaArtifactDetails MoveArtifact(IArtifactBase artifact,
-            IArtifactBase newParent,
-            IUser user = null,
-            int? artifactVersion = null,
-            List<HttpStatusCode> expectedStatusCodes = null);
+        INovaArtifactDetails MoveArtifact(IArtifactBase artifact, IArtifactBase newParent, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Publishes an artifact.

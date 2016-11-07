@@ -44,7 +44,7 @@ namespace ArtifactStoreTests
         public void MoveArtifact_PublishedArtifactWithDependentChildBecomesChildOfProject_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
         {
             // Setup: 
-            IArtifact grandParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);            
+            IArtifact grandParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             IArtifact parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, grandParentArtifact);
             Helper.CreateAndPublishArtifact(_project, _user, artifactType, parentArtifact);
 
@@ -263,57 +263,6 @@ namespace ArtifactStoreTests
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(_project.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
-        }
-
-        [TestCase(BaseArtifactType.Process)]
-        [TestRail(182402)]
-        [Description("Create & publish two artifacts.  Move one artifact to be a child of the other.  Send current version of artifact with the message.  Verify the moved artifact is returned with the updated Parent ID.")]
-        public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_SendCurrentVersion_200OK(BaseArtifactType artifactType)
-        {
-            const int CURRENT_VERSION_OF_ARTIFACT = 2;
-            INovaArtifactDetails movedArtifactDetails = null;
-
-            // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: CURRENT_VERSION_OF_ARTIFACT);
-            IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-
-            artifact.Lock();
-            
-            // Execute:
-            Assert.DoesNotThrow(() =>
-            {
-                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, _user, CURRENT_VERSION_OF_ARTIFACT);
-            }, "'POST {0}' should return 200 OK when called with current version!", SVC_PATH);
-
-            // Verify:
-            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
-            Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
-        }
-
-        [TestCase(BaseArtifactType.Process)]
-        [TestRail(182461)]
-        [Description("Create, publish & save an artifact.  Move one artifact to be a child of the other.  Send current version of artifact with the message.  Verify the moved artifact is returned with the updated Parent ID.")]
-        public void MoveArtifact_SavedArtifactBecomesChildOfPublishedArtifact_SendCurrentVersion_200OK(BaseArtifactType artifactType)
-        {
-            const int CURRENT_VERSION_OF_ARTIFACT = 2;
-            INovaArtifactDetails movedArtifactDetails = null;
-
-            // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: CURRENT_VERSION_OF_ARTIFACT);
-            artifact.Save();
-            IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-
-            // Execute:
-            Assert.DoesNotThrow(() =>
-            {
-                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, _user, CURRENT_VERSION_OF_ARTIFACT);
-            }, "'POST {0}' should return 200 OK when called with current version!", SVC_PATH);
-
-            // Verify:
-            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
-            Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)] //US 3184
@@ -710,53 +659,6 @@ namespace ArtifactStoreTests
         #endregion 404 Not Found tests
 
         #region 409 Conflict tests
-
-        [TestCase(BaseArtifactType.Process, int.MaxValue)]
-        [TestCase(BaseArtifactType.Process, 0)]
-        [TestCase(BaseArtifactType.Process, 1)]
-        [TestRail(182378)]
-        [Description("Create & publish two artifacts.  Move one artifact to be a child of the other.  Send not current version of artifact with the message. Verify returned code 409 Conflict.")]
-        public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_SendIncorrectVersion_409Conflict(BaseArtifactType artifactType, int artifactVersion)
-
-        {
-            // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions : 2);
-            IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-
-            artifact.Lock();
-            // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, _user, artifactVersion),
-                "'POST {0}' should return 409 Conflict when called with incorrect version!", SVC_PATH);
-
-            // Verify:
-            string expectedExceptionMessage = "Cannot move a historical version of an artifact. Please refresh.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} did not find version in returned message of move artifact call due to incorrect one sent with the request.", expectedExceptionMessage);
-        }
-
-        [TestCase(BaseArtifactType.Process, int.MaxValue)]
-        [TestCase(BaseArtifactType.Process, 0)]
-        [TestCase(BaseArtifactType.Process, 1)]
-        [TestRail(182481)]
-        [Description("Create & publish two artifacts.  Move this artifact to be a child of the other.  Send not current version of artifact with the message. Verify returned code 409 Conflict.")]
-        public void MoveArtifact_SavedArtifactBecomesChildOfPublishedArtifact_SendIncorrectVersion_409Conflict(BaseArtifactType artifactType, int artifactVersion)
-
-        {
-            // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: 2);
-            IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-
-            artifact.Save(_user);
-
-            // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, _user, artifactVersion),
-                "'POST {0}' should return 409 Conflict when called with incorrect version!", SVC_PATH);
-
-            // Verify:
-            string expectedExceptionMessage = "Cannot move a historical version of an artifact. Please refresh.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} did not find version in returned message of move artifact call due to incorrect one sent with the request.", expectedExceptionMessage);
-        }
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182401)]

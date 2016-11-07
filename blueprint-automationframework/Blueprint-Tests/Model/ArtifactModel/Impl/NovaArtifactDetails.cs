@@ -121,6 +121,7 @@ namespace Model.ArtifactModel.Impl
         public override int? ParentId { get; set; }
         public double? OrderIndex { get; set; }
         public override int? ItemTypeId { get; set; }
+        public string ItemTypeName { get; set; }
         public int ItemTypeVersionId { get; set; }
         public string Prefix { get; set; }
         public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();

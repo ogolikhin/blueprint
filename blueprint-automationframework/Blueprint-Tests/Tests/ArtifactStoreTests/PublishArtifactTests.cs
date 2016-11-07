@@ -480,8 +480,8 @@ namespace ArtifactStoreTests
             "'POST {0}' should return 400 Bad Request if body of the request does not have any artifact ids!", PUBLISH_PATH);
 
             // Verify:
-            const string expectedMessage = "{\"message\":\"The list of artifact Ids is empty.\",\"errorCode\":103}";
-            Assert.IsTrue(ex.RestResponse.Content.Contains(expectedMessage));
+            string expectedExceptionMessage = "The list of artifact Ids is empty.";
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, expectedExceptionMessage);
         }
 
         [TestCase(BaseArtifactType.Actor)]
@@ -497,9 +497,8 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 400 Bad Request if an artifact already published!", PUBLISH_PATH);
 
             // Verify:
-            string expectedMessage = "{\"message\":\"Artifact with Id " + artifact.Id + " has nothing to publish.\",\"errorCode\":114}";
-            Assert.IsTrue(ex.RestResponse.Content.Contains(expectedMessage));
-
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact with ID {0} has nothing to publish.", artifact.Id);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ValidationFailed, expectedExceptionMessage);
         }
 
         #endregion 400 Bad Request tests
@@ -521,8 +520,9 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 401 Unauthorized if a token is invalid!", PUBLISH_PATH);
             
             // Verify:
-            const string expectedMessage = "\"Unauthorized call\"";
-            Assert.IsTrue(ex.RestResponse.Content.Equals(expectedMessage));
+            string jsonBody = JsonConvert.DeserializeObject<string>(ex.RestResponse.Content);
+            const string expectedMessage = "Unauthorized call";
+            Assert.AreEqual(expectedMessage, jsonBody, "The JSON body should contain '{0}' when an unauthorized token is passed!", expectedMessage);
         }
 
         #endregion 401 Unauthorized tests
@@ -546,8 +546,8 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found if the Artifact ID doesn't exist!", PUBLISH_PATH);
 
             // Verify:
-            string expectedMessage = "{\"message\":\"Artifact with Id " + artifact.Id + " is deleted.\",\"errorCode\":101}";
-            Assert.IsTrue(ex.RestResponse.Content.Equals(expectedMessage));
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact with ID {0} is deleted.", artifact.Id);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedExceptionMessage);
         }
 
         [TestCase(int.MaxValue)]
@@ -566,8 +566,8 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found if the Artifact ID doesn't exist!", PUBLISH_PATH);
 
             // Verify:
-            string expectedMessage = "{\"message\":\"Item with Id " + artifact.Id + " is not found.\",\"errorCode\":101}";
-            Assert.IsTrue(ex.RestResponse.Content.Equals(expectedMessage));
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("Item with ID {0} is not found.", artifact.Id);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedExceptionMessage);
         }
 
         #endregion 404 Not Found tests
@@ -587,10 +587,11 @@ namespace ArtifactStoreTests
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(childArtifact, _user),
                 "'POST {0}' should return 409 Conflict if the Artifact has parent artifact which is not published!", PUBLISH_PATH);
-            
+
             // Verify:
-            string expectedMessage = "{\"message\":\"Specified artifacts have dependent artifacts to publish.\",\"errorCode\":120,\"errorContent\":{";
-            Assert.IsTrue(ex.RestResponse.Content.Contains(expectedMessage));
+            // TODO: Also verify the 'errorContent' property that contains the dependent artifacts.
+            string expectedExceptionMessage = "Specified artifacts have dependent artifacts to publish.";
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverDependencies, expectedExceptionMessage);
         }
 
         #region Custom data tests
@@ -625,8 +626,8 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict if an artifact already published!", PUBLISH_PATH);
 
             // Verify:
-            string expectedMessage = "{\"message\":\"Artifact with Id " + artifact.Id + " has validation errors.\",\"errorCode\":121}";
-            Assert.IsTrue(ex.RestResponse.Content.Contains(expectedMessage));
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact with ID {0} has validation errors.", artifact.Id);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors, expectedExceptionMessage);
         }
 
         [TestCase("value\":10.0", "value\":999.0", BaseArtifactType.Actor, 0)] //Insert value into Numeric field which is out of range in grandparent artifact
@@ -665,8 +666,8 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict if an artifact already published!", PUBLISH_PATH);
 
             // Verify:
-            string expectedMessage = "{\"message\":\"Artifact with Id " + artifactList[index].Id + " has validation errors.\",\"errorCode\":121}";
-            Assert.IsTrue(ex.RestResponse.Content.Contains(expectedMessage));
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact with ID {0} has validation errors.", artifactList[index].Id);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors, expectedExceptionMessage);
         }
     
         #endregion Custom data tests

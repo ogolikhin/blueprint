@@ -72,7 +72,7 @@ describe("Component BPUtilityPanel", () => {
             // Assert
             expect(selectedArtifact).toBeDefined();
             expect(selectedArtifact.id).toBe(22);
-            expect(vm.currentItem).toBe("My22: Artifact");
+            expect(vm.itemDisplayName).toBe("My22: Artifact");
         }));
 
     xit("should hide all tabs for collections",
@@ -91,6 +91,6 @@ describe("Component BPUtilityPanel", () => {
             const accordionCtrl = vm.getAccordionController();
 
             // Assert
-            expect(vm.IsAnyPanelVisible).toBe(false);
+            expect(vm.isAnyPanelVisible).toBe(false);
         }));
 });

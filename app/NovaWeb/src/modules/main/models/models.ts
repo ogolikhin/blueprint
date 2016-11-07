@@ -91,6 +91,9 @@ export interface IArtifact extends IItem {
     hasChildren?: boolean;
     subArtifacts?: ISubArtifact[];
 
+    itemTypeIconId?: number;
+    itemTypeName?: string;
+
     //for client use
     children?: IArtifact[];
     loaded?: boolean;
@@ -266,7 +269,8 @@ export class Artifact implements IArtifact {
     public predefinedType: ItemTypePredefined;
     public itemTypeId: number;
     public itemTypeVersionId: number;
-
+    public itemTypeName: string;
+    public hasCustomIcon: boolean;
 }
 
 export interface IKeyValuePair {

@@ -110,7 +110,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         super.discard();
         this.artifactState.dirty = false;
     }
-    
+
     public discardArtifact(): ng.IPromise<void> {
         let deffered = this.services.getDeferred<void>();
         this.services.messageService.clearMessages();
@@ -186,7 +186,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             });
         });
     }
-    
+
     public canBeSaved(): boolean {
         if (this.isProject()) {
             return false;
@@ -567,7 +567,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         //History and Discussions are excluded from here.
         //They refresh independently, triggered by artifact's observable.
 
-        promisesToExecute.push(this.services.metaDataService.remove(this.projectId));
+        //Disabled due to major performance concerns for large projects.
+        //This is normally done to refresh custom property type changes (property types added/removed to artifacts)
+        //Also see: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=3338&fullScreen=false
+        //promisesToExecute.push(this.services.metaDataService.remove(this.projectId));
 
         if (allowCustomRefresh) {
             // get promises for custom artifact refresh operations

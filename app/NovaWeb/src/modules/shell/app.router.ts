@@ -74,7 +74,7 @@ export class MainStateController {
                 private isServerLicenseValid: boolean,
                 private messageService: IMessageService) {
 
-        this.stateChangeListener = $rootScope.$on("$stateChangeStart", this.stateChangeHandler);
+       $rootScope.$on("$stateChangeStart", this.stateChangeStart);
 
         if (!isServerLicenseValid) {
             $state.go("licenseError");
@@ -82,7 +82,7 @@ export class MainStateController {
 
     }
 
-    private stateChangeHandler = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams: any, fromState: ng.ui.IState, fromParams) => {
+    private stateChangeStart = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams: any, fromState: ng.ui.IState, fromParams) => {
         // clear messages when the routing state changes 
         this.messageService.clearMessages();
 

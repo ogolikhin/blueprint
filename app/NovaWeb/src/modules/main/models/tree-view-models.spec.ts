@@ -6,12 +6,10 @@ import {IProjectService} from "../../managers/project-manager/";
 import {ITreeViewOptions, InstanceItemNodeVM, ArtifactNodeVM, SubArtifactContainerNodeVM, SubArtifactNodeVM} from "./tree-view-models";
 
 describe("ArtifactPickerNodeVM", () => {
-    let artifactManager: IArtifactManager;
     let projectService: IProjectService;
     let options: ITreeViewOptions;
 
     beforeEach(() => {
-        artifactManager = jasmine.createSpyObj("artifactManager", ["get"]) as IArtifactManager;
         projectService = jasmine.createSpyObj("projectService", ["getFolders", "getArtifacts", "getSubArtifactTree"]) as IProjectService;
         options = {} as ITreeViewOptions;
     });
@@ -26,7 +24,7 @@ describe("ArtifactPickerNodeVM", () => {
             } as AdminStoreModels.IInstanceItem;
 
             // Act
-            const vm = new InstanceItemNodeVM(artifactManager, projectService, options, model);
+            const vm = new InstanceItemNodeVM(projectService, options, model);
 
             // Assert
             expect(vm.model).toBe(model);
@@ -43,7 +41,7 @@ describe("ArtifactPickerNodeVM", () => {
                 type: AdminStoreModels.InstanceItemType.Folder,
                 hasChildren: true
             } as AdminStoreModels.IInstanceItem;
-            const vm = new InstanceItemNodeVM(artifactManager, projectService, options, model);
+            const vm = new InstanceItemNodeVM(projectService, options, model);
 
             // Act
             const result = vm.getCellClass();
@@ -58,7 +56,7 @@ describe("ArtifactPickerNodeVM", () => {
                 type: AdminStoreModels.InstanceItemType.Project,
                 hasChildren: true
             } as AdminStoreModels.IInstanceItem;
-            const vm = new InstanceItemNodeVM(artifactManager, projectService, options, model);
+            const vm = new InstanceItemNodeVM(projectService, options, model);
 
             // Act
             const result = vm.getCellClass();
@@ -73,7 +71,7 @@ describe("ArtifactPickerNodeVM", () => {
                 type: -999 as AdminStoreModels.InstanceItemType,
                 hasChildren: false
             } as AdminStoreModels.IInstanceItem;
-            const vm = new InstanceItemNodeVM(artifactManager, projectService, options, model);
+            const vm = new InstanceItemNodeVM(projectService, options, model);
 
             // Act
             const result = vm.getCellClass();
@@ -86,7 +84,7 @@ describe("ArtifactPickerNodeVM", () => {
             // Arrange
             const model = {} as AdminStoreModels.IInstanceItem;
 
-            const vm = new InstanceItemNodeVM(artifactManager, projectService, options, model);
+            const vm = new InstanceItemNodeVM(projectService, options, model);
 
             // Act
             const result = vm.getIcon();
@@ -98,7 +96,7 @@ describe("ArtifactPickerNodeVM", () => {
         it("isSelectable returns correct result", () => {
             // Arrange
             const model = {} as AdminStoreModels.IInstanceItem;
-            const vm = new InstanceItemNodeVM(artifactManager, projectService, options, model);
+            const vm = new InstanceItemNodeVM(projectService, options, model);
 
             // Act
             const result = vm.isSelectable();
@@ -115,14 +113,14 @@ describe("ArtifactPickerNodeVM", () => {
                     const model = {
                         type: AdminStoreModels.InstanceItemType.Folder
                     } as AdminStoreModels.IInstanceItem;
-                    const vm = new InstanceItemNodeVM(artifactManager, projectService, options, model);
+                    const vm = new InstanceItemNodeVM(projectService, options, model);
 
                     // Act
                     vm.loadChildrenAsync().then(() => {
 
                         // Assert
                         expect(vm.loadChildrenAsync).toBeUndefined();
-                        expect(vm.children).toEqual(children.map(child => new InstanceItemNodeVM(artifactManager, projectService, options, child)));
+                        expect(vm.children).toEqual(children.map(child => new InstanceItemNodeVM(projectService, options, child)));
                         done();
                     }).catch(done.fail);
                     $rootScope.$digest(); // Resolves promises
@@ -140,7 +138,7 @@ describe("ArtifactPickerNodeVM", () => {
                     const model = {
                         type: AdminStoreModels.InstanceItemType.Project
                     } as AdminStoreModels.IInstanceItem;
-                    const vm = new InstanceItemNodeVM(artifactManager, projectService, options, model);
+                    const vm = new InstanceItemNodeVM(projectService, options, model);
 
                     // Act
                     vm.loadChildrenAsync().then(() => {
@@ -148,7 +146,7 @@ describe("ArtifactPickerNodeVM", () => {
                         // Assert
                         expect(vm.loadChildrenAsync).toBeUndefined();
                         expect(vm.children).toEqual(children.filter(child => child.predefinedType !== Models.ItemTypePredefined.CollectionFolder)
-                            .map(child => new ArtifactNodeVM(artifactManager, projectService, options, child)));
+                            .map(child => new ArtifactNodeVM(projectService, options, child)));
                         expect(vm.children.reduce((result, child) => result && child.model.parent === model, true)).toEqual(true);
                         done();
                     }).catch(done.fail);
@@ -169,7 +167,7 @@ describe("ArtifactPickerNodeVM", () => {
             } as Models.IArtifact;
 
             // Act
-            const vm = new ArtifactNodeVM(artifactManager, projectService, options, model);
+            const vm = new ArtifactNodeVM(projectService, options, model);
 
             // Assert
             expect(vm.model).toBe(model);
@@ -192,7 +190,7 @@ describe("ArtifactPickerNodeVM", () => {
             } as Models.IArtifact;
 
             // Act
-            const vm = new ArtifactNodeVM(artifactManager, projectService, options, model);
+            const vm = new ArtifactNodeVM(projectService, options, model);
 
             // Assert
             expect(vm.model).toBe(model);
@@ -210,7 +208,7 @@ describe("ArtifactPickerNodeVM", () => {
                 predefinedType: Models.ItemTypePredefined.PrimitiveFolder,
                 hasChildren: true
             } as Models.IArtifact;
-            const vm = new ArtifactNodeVM(artifactManager, projectService, options, model);
+            const vm = new ArtifactNodeVM(projectService, options, model);
 
             // Act
             const result = vm.getCellClass();
@@ -226,7 +224,7 @@ describe("ArtifactPickerNodeVM", () => {
                 predefinedType: Models.ItemTypePredefined.Project,
                 hasChildren: true
             } as Models.IArtifact;
-            const vm = new ArtifactNodeVM(artifactManager, projectService, options, model);
+            const vm = new ArtifactNodeVM(projectService, options, model);
 
             // Act
             const result = vm.getCellClass();
@@ -242,7 +240,7 @@ describe("ArtifactPickerNodeVM", () => {
                 predefinedType: Models.ItemTypePredefined.UseCase,
                 hasChildren: true
             } as Models.IArtifact;
-            const vm = new ArtifactNodeVM(artifactManager, projectService, options, model);
+            const vm = new ArtifactNodeVM(projectService, options, model);
 
             // Act
             const result = vm.getCellClass();
@@ -257,7 +255,7 @@ describe("ArtifactPickerNodeVM", () => {
                 id: 456,
                 predefinedType: -999
             } as Models.IArtifact;
-            const vm = new ArtifactNodeVM(artifactManager, projectService, options, model);
+            const vm = new ArtifactNodeVM(projectService, options, model);
 
             // Act
             const result = vm.getCellClass();
@@ -273,7 +271,7 @@ describe("ArtifactPickerNodeVM", () => {
                 id: 100,
                 predefinedType: Models.ItemTypePredefined.DomainDiagram
             } as Models.ISubArtifactNode;
-            const vm = new ArtifactNodeVM(artifactManager, projectService, options, model);
+            const vm = new ArtifactNodeVM(projectService, options, model);
 
             // Act
             const result = vm.getCellClass();
@@ -289,7 +287,7 @@ describe("ArtifactPickerNodeVM", () => {
                 itemTypeIconId: 456,
                 itemTypeId: 123
             } as Models.IArtifact;
-            const vm = new ArtifactNodeVM(artifactManager, projectService, options, model);
+            const vm = new ArtifactNodeVM(projectService, options, model);
 
             // Act
             const result = vm.getIcon();
@@ -301,7 +299,7 @@ describe("ArtifactPickerNodeVM", () => {
         it("getIcon, when no custom icon, returns correct result", () => {
             // Arrange
             const model = {} as Models.IArtifact;
-            const vm = new ArtifactNodeVM(artifactManager, projectService, options, model);
+            const vm = new ArtifactNodeVM(projectService, options, model);
 
             // Act
             const result = vm.getIcon();
@@ -313,7 +311,7 @@ describe("ArtifactPickerNodeVM", () => {
         it("isSelectable, when selectableItemTypes not defined, returns true", () => {
             // Arrange
             const model = {} as Models.IArtifact;
-            const vm = new ArtifactNodeVM(artifactManager, projectService, options, model);
+            const vm = new ArtifactNodeVM(projectService, options, model);
 
             // Act
             const result = vm.isSelectable();
@@ -329,7 +327,7 @@ describe("ArtifactPickerNodeVM", () => {
                 id: 700,
                 predefinedType: Models.ItemTypePredefined.Storyboard
             } as Models.IArtifact;
-            const vm = new ArtifactNodeVM(artifactManager, projectService, options, model);
+            const vm = new ArtifactNodeVM(projectService, options, model);
 
             // Act
             const result = vm.isSelectable();
@@ -345,7 +343,7 @@ describe("ArtifactPickerNodeVM", () => {
                 id: 700,
                 predefinedType: Models.ItemTypePredefined.Document
             } as Models.IArtifact;
-            const vm = new ArtifactNodeVM(artifactManager, projectService, options, model);
+            const vm = new ArtifactNodeVM(projectService, options, model);
 
             // Act
             const result = vm.isSelectable();
@@ -363,14 +361,14 @@ describe("ArtifactPickerNodeVM", () => {
                         id: 123,
                         predefinedType: Models.ItemTypePredefined.GenericDiagram
                     } as Models.IArtifact;
-                    const vm = new ArtifactNodeVM(artifactManager, projectService, options, model);
+                    const vm = new ArtifactNodeVM(projectService, options, model);
 
                     // Act
                     vm.loadChildrenAsync().then(() => {
 
                         // Assert
                         expect(vm.loadChildrenAsync).toBeUndefined();
-                        expect(vm.children).toEqual(children.map(child => new ArtifactNodeVM(artifactManager, projectService, options, child)));
+                        expect(vm.children).toEqual(children.map(child => new ArtifactNodeVM(projectService, options, child)));
                         expect(vm.children.reduce((result, child) => result && child.model.parent === model, true)).toEqual(true);
                         done();
                     }).catch(done.fail);
@@ -388,7 +386,7 @@ describe("ArtifactPickerNodeVM", () => {
                         id: 123,
                         predefinedType: Models.ItemTypePredefined.BusinessProcess
                     } as Models.IArtifact;
-                    const vm = new ArtifactNodeVM(artifactManager, projectService, options, model);
+                    const vm = new ArtifactNodeVM(projectService, options, model);
 
                     // Act
                     vm.loadChildrenAsync().then(() => {
@@ -396,7 +394,7 @@ describe("ArtifactPickerNodeVM", () => {
                         // Assert
                         expect(vm.loadChildrenAsync).toBeUndefined();
                         expect(vm.children[0]).toEqual(new SubArtifactContainerNodeVM(projectService, options, model, "Shapes"));
-                        expect(vm.children.slice(1)).toEqual(children.map(child => new ArtifactNodeVM(artifactManager, projectService, options, child)));
+                        expect(vm.children.slice(1)).toEqual(children.map(child => new ArtifactNodeVM(projectService, options, child)));
                         done();
                     }).catch(done.fail);
                     $rootScope.$digest(); // Resolves promises

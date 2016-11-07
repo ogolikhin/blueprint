@@ -1,4 +1,4 @@
-﻿import {IColumn} from "../../../shared/widgets/bp-tree-view/";
+﻿import {IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
 import {Helper} from "../../../shared/";
 import {ILocalizationService} from "../../../core";
 import {SearchResultVM, ArtifactSearchResultVM, ProjectSearchResultVM} from "./bp-artifact-picker-search-vm";
@@ -9,8 +9,8 @@ import {IProjectService} from "../../../managers/project-manager/project-service
 /**
  * Usage:
  *
- * <bp-artifact-picker selectable-item-types="$ctrl.selectableItemTypes" ;
- *                     selection-mode="$ctrl.selectionMode" ;
+ * <bp-artifact-picker selectable-item-types="$ctrl.selectableItemTypes"
+ *                     selection-mode="$ctrl.selectionMode"
  *                     show-sub-artifacts="$ctrl.showSubArtifacts"
  *                     is-one-project-level="$ctrl.isOneProjectLevel"
  *                     on-selection-changed="$ctrl.onSelectionChanged(selectedVMs)"
@@ -130,7 +130,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         this.selectedVMs = [];
         this._project = project;
         this.currentSelectionMode = project ? this.selectionMode : "single";
-        this.rootNode = new TreeViewModels.InstanceItemNodeVM(this.artifactManager, this.projectService, this, project || {
+        this.rootNode = new TreeViewModels.InstanceItemNodeVM(this.projectService, this, project || {
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,
             name: "",
@@ -164,9 +164,10 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public columns: IColumn[] = [{
         cellClass: (vm: TreeViewModels.TreeViewNodeVM<any>) => vm.getCellClass(),
         isGroup: true,
-        innerRenderer: (vm: TreeViewModels.TreeViewNodeVM<any>, eGridCell: HTMLElement) => {
-            const icon = vm.getIcon();
-            const name = Helper.escapeHTMLText(vm.name);
+        innerRenderer: (params: IColumnRendererParams) => {
+            const node = <TreeViewModels.TreeViewNodeVM<any>>params.vm;
+            const icon = node.getIcon();
+            const name = Helper.escapeHTMLText(node.name);
             return `<span class="ag-group-value-wrapper">${icon}<span>${name}</span></span>`;
         }
     }];

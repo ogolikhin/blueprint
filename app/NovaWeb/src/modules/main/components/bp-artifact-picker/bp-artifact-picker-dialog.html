@@ -2,8 +2,8 @@
     <h3 class="modal-title">{{::$ctrl.dialogSettings.header}}</h3>
 </div>
 <div class="modal-body">
-    <bp-artifact-picker selectable-item-types="$ctrl.dialogData.selectableItemTypes" ;
-                        selection-mode="$ctrl.dialogData.selectionMode" ;
+    <bp-artifact-picker selectable-item-types="$ctrl.dialogData.selectableItemTypes"
+                        selection-mode="$ctrl.dialogData.selectionMode"
                         show-sub-artifacts="$ctrl.dialogData.showSubArtifacts"
                         is-one-project-level="$ctrl.dialogData.isOneProjectLevel"
                         on-selection-changed="$ctrl.onSelectionChanged(selectedVMs)"

@@ -1,10 +1,9 @@
-import * as angular from "angular";
 import * as _ from "lodash";
-import {BPLocale, ILocalizationService} from "../../core";
 import {Enums, Models} from "../../main";
 import {PropertyContext} from "./bp-property-context";
 import {IStatefulItem} from "../../managers/artifact-manager";
 import {Helper} from "../../shared/utils/helper";
+import {BPLocale, ILocalizationService} from "../../core/localization/localizationService";
 
 export class PropertyEditor {
 
@@ -127,7 +126,7 @@ export class PropertyEditor {
             if (this._fields) {
                 const newFieldNames = this.propertyContexts.map((prop) => prop.fieldPropertyName);
                 const previousFieldNames = this._fields.map((field) => (field.data as PropertyContext).fieldPropertyName);
-                fieldNamesChanged = _.xor(newFieldNames, previousFieldNames).length > 0; 
+                fieldNamesChanged = _.xor(newFieldNames, previousFieldNames).length > 0;
 
                 const newNames = this.propertyContexts.map((prop) => prop.name);
                 const previousNames = this._fields.map((field) => (field.data as PropertyContext).name);

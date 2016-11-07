@@ -2,12 +2,12 @@
 import {IDialogService} from "../../shared";
 import {
     BpArtifactEditor,
-    ILocalizationService,
     IArtifactManager,
     IWindowManager,
     PropertyContext
 } from "./bp-artifact-editor";
 import {IMessageService} from "../../core/messages/message.svc";
+import {ILocalizationService} from "../../core/localization/localizationService";
 
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {

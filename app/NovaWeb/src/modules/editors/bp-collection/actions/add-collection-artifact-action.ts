@@ -1,8 +1,7 @@
 import {BPButtonAction} from "../../../shared";
-import {IStatefulArtifact} from "../../../managers/artifact-manager";
-import {ILocalizationService} from "../../../core";
 import {ItemTypePredefined} from "../../../main/models/enums";
 import {IStatefulCollectionArtifact} from "../collection-artifact";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export class AddCollectionArtifactAction extends BPButtonAction {
     constructor(artifact: IStatefulCollectionArtifact,

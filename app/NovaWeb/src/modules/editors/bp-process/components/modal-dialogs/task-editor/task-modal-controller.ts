@@ -1,12 +1,10 @@
-import {IDiagramService} from "../../../../../editors/bp-diagram/diagram.svc";
 import {IDialogSettings, IDialogService} from "../../../../../shared";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../../main/components/bp-artifact-picker";
 import {Models} from "../../../../../main/models";
-import {ILocalizationService} from "../../../../../core";
 import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-controller";
 import {IArtifactReference, ArtifactReference} from "../../../models/process-models";
-import {ICommunicationManager} from "../../../services/communication-manager";
 import {IModalDialogModel} from "../models/modal-dialog-model-interface";
+import {ILocalizationService} from "../../../../../core/localization/localizationService";
 
 export abstract class TaskModalController<T extends IModalDialogModel> extends BaseModalDialogController<T> {
     public includeArtifactName: string;
@@ -124,5 +122,5 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
     private canCleanIncludeField(): boolean {
         return !this.dialogModel.isReadonly;
     }
-   
+
 }

@@ -1,5 +1,4 @@
-﻿import {ILocalizationService} from "../../../../../../core/";
-import {IProcessGraph, ILayout} from "./models/";
+﻿import {IProcessGraph, ILayout} from "./models/";
 import {INotifyModelChanged, IConditionContext} from "./models/";
 import {ICondition, IScopeContext, IStopTraversalCondition, IUserStory, IUserTask} from "./models/";
 import {INextIdsProvider} from "./models/";
@@ -27,6 +26,7 @@ import {ISelectionListener} from "./models/";
 import {ProcessEvents} from "../../process-diagram-communication";
 import {IDragDropHandler, DragDropHandler} from "./drag-drop-handler";
 import {IMessageService} from "../../../../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../../../../core/localization/localizationService";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
@@ -57,20 +57,18 @@ export class ProcessGraph implements IProcessGraph {
         return this.viewModel.isUserToSystemProcess;
     }
 
-    constructor(
-        public rootScope: any,
-        private scope: any,
-        private htmlElement: HTMLElement,
-        // #TODO fix up references later
-        //private artifactVersionControlService: Shell.IArtifactVersionControlService,
-        public viewModel: IProcessViewModel,
-        private dialogService: IDialogService,
-        private localization: ILocalizationService,
-        private shapesFactory: ShapesFactory,
-        public messageService: IMessageService = null,
-        private $log: ng.ILogService = null,
-        private statefulArtifactFactory: IStatefulArtifactFactory = null,
-    ) {
+    constructor(public rootScope: any,
+                private scope: any,
+                private htmlElement: HTMLElement,
+                // #TODO fix up references later
+                //private artifactVersionControlService: Shell.IArtifactVersionControlService,
+                public viewModel: IProcessViewModel,
+                private dialogService: IDialogService,
+                private localization: ILocalizationService,
+                private shapesFactory: ShapesFactory,
+                public messageService: IMessageService = null,
+                private $log: ng.ILogService = null,
+                private statefulArtifactFactory: IStatefulArtifactFactory = null,) {
         // Creates the graph inside the given container
         // This is temporary code. It will be replaced with
         // a class that wraps this global functionality.
@@ -366,7 +364,7 @@ export class ProcessGraph implements IProcessGraph {
         }
         // Dispose handlers
         if (this.dragDropHandler != null) {
-           this.dragDropHandler.dispose();
+            this.dragDropHandler.dispose();
         }
         if (this.nodeLabelEditor != null) {
             this.nodeLabelEditor.dispose();

@@ -1,6 +1,5 @@
 import {IWindowManager} from "../../main/services";
 import {BpArtifactInfoController} from "../../main/components/bp-artifact-info/bp-artifact-info";
-import {ILocalizationService} from "../../core";
 import {IDialogService} from "../../shared";
 import {IArtifactManager, IProjectManager} from "../../managers";
 import {IMetaDataService} from "../../managers/artifact-manager";
@@ -9,6 +8,7 @@ import {INavigationService} from "../../core/navigation/navigation.svc";
 import {RapidReviewAction, AddCollectionArtifactAction} from "./actions";
 import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../core/messages/message.svc";
+import {ILocalizationService} from "../../core/localization/localizationService";
 
 export class BpCollectionHeader implements ng.IComponentOptions {
     public template: string = require("../../main/components/bp-artifact-info/bp-artifact-info.html");

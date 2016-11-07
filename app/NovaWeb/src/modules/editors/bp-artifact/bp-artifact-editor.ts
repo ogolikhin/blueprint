@@ -1,4 +1,3 @@
-import {ILocalizationService} from "../../core";
 import {IWindowManager, IMainWindow} from "../../main";
 import {
     Models, Enums,
@@ -10,9 +9,9 @@ import {
 import {PropertyEditor} from "./bp-property-editor";
 import {PropertyContext} from "./bp-property-context";
 import {IMessageService} from "../../core/messages/message.svc";
+import {ILocalizationService} from "../../core/localization/localizationService";
 
 export {
-    ILocalizationService,
     IArtifactManager,
     IStatefulArtifact,
     IWindowManager,

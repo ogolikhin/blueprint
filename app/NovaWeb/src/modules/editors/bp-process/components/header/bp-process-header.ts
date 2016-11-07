@@ -1,6 +1,5 @@
 import {IWindowManager} from "../../../../main/services";
 import {BpArtifactInfoController} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
-import {ILocalizationService} from "../../../../core";
 import {IDialogService} from "../../../../shared";
 import {IArtifactManager, IProjectManager} from "../../../../managers";
 import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact-manager";
@@ -13,6 +12,7 @@ import {GenerateUserStoriesAction, ToggleProcessTypeAction} from "./actions";
 import {StatefulProcessArtifact} from "../../process-artifact";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("./bp-process-header.html");

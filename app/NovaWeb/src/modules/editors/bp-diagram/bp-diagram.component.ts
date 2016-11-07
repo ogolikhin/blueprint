@@ -1,6 +1,5 @@
 import "angular-sanitize";
 import {IStencilService} from "./impl/stencil.svc";
-import {ILocalizationService} from "../../core";
 import {IDiagramService, DiagramErrors} from "./diagram.svc";
 import {DiagramView} from "./impl/diagram-view";
 import {ISelection, IStatefulArtifactFactory} from "../../managers/artifact-manager";
@@ -13,6 +12,7 @@ import {ItemTypePredefined} from "./../../main/models/enums";
 import {IItem} from "./../../main/models/models";
 import {IArtifactManager, BpBaseEditor} from "../bp-base-editor";
 import {IMessageService} from "../../core/messages/message.svc";
+import {ILocalizationService} from "../../core/localization/localizationService";
 
 
 export class BPDiagram implements ng.IComponentOptions {

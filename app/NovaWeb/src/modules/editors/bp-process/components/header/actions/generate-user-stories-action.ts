@@ -1,6 +1,5 @@
 import {BPDropdownAction, BPDropdownItemAction, IDialogService, IDialogSettings} from "../../../../../shared";
 import {IUserStoryService} from "../../../services/user-story.svc";
-import {ILocalizationService} from "../../../../../core";
 import {ISelectionManager} from "../../../../../managers/selection-manager";
 import {IStatefulSubArtifact} from "../../../../../managers/artifact-manager/sub-artifact";
 import {StatefulProcessArtifact} from "../../../process-artifact";
@@ -14,6 +13,7 @@ import {IApplicationError} from "../../../../../core/error/applicationError";
 import {ErrorCode} from "../../../../../core/error/error-code";
 import {ILoadingOverlayService} from "../../../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../../../core/localization/localizationService";
 
 export class GenerateUserStoriesAction extends BPDropdownAction {
     private userStoryService: IUserStoryService;

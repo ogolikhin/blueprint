@@ -6,14 +6,11 @@ import {ICollectionService} from "./collection.svc";
 import {IStatefulCollectionArtifact, ICollectionArtifact} from "./collection-artifact";
 import {Helper} from "../../shared";
 import {IMetaDataService} from "../../managers/artifact-manager";
-import {
-    ILocalizationService,
-    IArtifactManager,
-    IWindowManager
-} from "../bp-artifact/bp-artifact-editor";
+import {IArtifactManager, IWindowManager} from "../bp-artifact/bp-artifact-editor";
 
 import {IDialogService} from "../../shared";
 import {IMessageService} from "../../core/messages/message.svc";
+import {ILocalizationService} from "../../core/localization/localizationService";
 
 export class BpArtifactCollectionEditor implements ng.IComponentOptions {
     public template: string = require("./bp-collection-editor.html");

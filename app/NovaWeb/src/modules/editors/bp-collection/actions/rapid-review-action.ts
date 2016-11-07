@@ -1,7 +1,7 @@
 import {BPButtonAction} from "../../../shared";
-import {ILocalizationService} from "../../../core";
 import {ItemTypePredefined} from "../../../main/models/enums";
 import {IStatefulCollectionArtifact} from "../collection-artifact";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export class RapidReviewAction extends BPButtonAction {
     constructor(artifact: IStatefulCollectionArtifact,
@@ -9,7 +9,6 @@ export class RapidReviewAction extends BPButtonAction {
         if (!localization) {
             throw new Error("Localization service not provided or is null");
         }
-
         super(
             (): void => {
                 let a = 5;

@@ -2,11 +2,11 @@ import {
     Models, Enums,
     BpArtifactEditor,
     PropertyContext,
-    ILocalizationService,
     IArtifactManager,
     IWindowManager
 } from "./bp-artifact-editor";
 import {IMessageService} from "../../core/messages/message.svc";
+import {ILocalizationService} from "../../core/localization/localizationService";
 
 export class BpArtifactGeneralEditor implements ng.IComponentOptions {
     public template: string = require("./bp-general-editor.html");

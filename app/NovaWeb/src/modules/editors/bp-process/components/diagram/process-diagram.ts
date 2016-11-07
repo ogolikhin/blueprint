@@ -1,4 +1,3 @@
-import {ILocalizationService} from "../../../../core";
 import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
@@ -13,6 +12,7 @@ import {ShapesFactory} from "./presentation/graph/shapes/shapes-factory";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {MessageType, Message} from "../../../../core/messages/message";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export class ProcessDiagram {
     public processModel: IProcess;

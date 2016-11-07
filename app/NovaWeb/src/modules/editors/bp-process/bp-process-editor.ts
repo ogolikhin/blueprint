@@ -1,6 +1,5 @@
 ﻿// References to StorytellerDiagramDirective
 import {ICommunicationManager} from "./";
-import {ILocalizationService} from "../../core";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../main";
@@ -11,6 +10,7 @@ import {ISelection, IStatefulArtifactFactory} from "../../managers/artifact-mana
 import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shapes-factory";
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IMessageService} from "../../core/messages/message.svc";
+import {ILocalizationService} from "../../core/localization/localizationService";
 
 export class BpProcessEditor implements ng.IComponentOptions {
     public template: string = require("./bp-process-editor.html");

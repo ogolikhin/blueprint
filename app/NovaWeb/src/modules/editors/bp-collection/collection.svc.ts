@@ -1,5 +1,5 @@
-import {ILocalizationService} from "../../core";
-import {ICollection, ICollectionArtifact} from "./collection-artifact";
+import {ICollection} from "./collection-artifact";
+import {ILocalizationService} from "../../core/localization/localizationService";
 
 export interface ICollectionService {
     getCollection(id: number): ng.IPromise<ICollection>;

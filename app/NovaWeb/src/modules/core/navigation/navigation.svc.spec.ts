@@ -350,7 +350,7 @@ describe("NavigationService", () => {
         it("transitions to last artifact if path index is not provided", () => {
             // arrange
             const stateGoSpy = spyOn($state, "go");
-            const expectedParams = {id: predecessorArtifactId2, path: `${predecessorArtifactId1}`};
+            const expectedParams = {id: predecessorArtifactId2, version: undefined, path: `${predecessorArtifactId1}`};
             const expectedOptions = {inherit: false};
 
             // act
@@ -402,7 +402,7 @@ describe("NavigationService", () => {
             // arrange
             const pathIndex = 0;
             const stateGoSpy = spyOn($state, "go");
-            const expectedParams = {id: predecessorArtifactId1};
+            const expectedParams = {id: predecessorArtifactId1, version: undefined};
             const expectedOptions = {inherit: false};
 
             // act

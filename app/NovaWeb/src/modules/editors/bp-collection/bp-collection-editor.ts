@@ -234,7 +234,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             }
         }
 
-        let item_selected = this.localization.get("Artifact_Collection_Items_Selected") as string;
+        let item_selected = this.localization.get("Artifact_Collection_Items_Selected");
         this.itemsSelected = item_selected.replace("{0}", (this.selectedVMs.length).toString());
         this.$scope.$applyAsync();
     }

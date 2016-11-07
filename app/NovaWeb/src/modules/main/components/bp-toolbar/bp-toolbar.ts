@@ -1,6 +1,6 @@
 ﻿import {ILocalizationService, IMessageService, MessageType} from "../../../core";
 import {IDialogSettings, IDialogService} from "../../../shared";
-import {Models} from "../../models";
+import {Models, Enums} from "../../models";
 import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
@@ -317,18 +317,17 @@ class BPToolbarController implements IBPToolbarController {
         this.dialogService.open(<IDialogSettings>{
                 okButton: this.localization.get("App_Button_Create"),
                 cancelButton: this.localization.get("App_Button_Cancel"),
-                message: this.localization.get("Create_New_Dialog_Message"),
                 template: require("../dialogs/new-artifact/new-artifact.html"),
                 controller: CreateNewArtifactController,
-                css: "nova-model" //temp
+                css: "nova-new-artifact"
             },
             <ICreateNewArtifactDialogData>{
                 projectId: artifact.projectId,
-                parentId: artifact.id,
+                parentId: artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection ? artifact.id : artifact.parentId,
                 parentPredefinedType: artifact.predefinedType
             })
-            .then(() => {
-                console.log(artifact);
+            .then((result) => {
+                console.log(result);
             });
     }
 }

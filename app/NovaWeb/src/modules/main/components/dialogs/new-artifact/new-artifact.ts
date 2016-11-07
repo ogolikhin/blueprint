@@ -4,22 +4,20 @@ import { ItemTypePredefined } from "../../../../main/models/enums";
 import { IProjectMeta, IItemType } from "../../../../main/models/models";
 import { IMessageService, ILocalizationService } from "../../../../core";
 
-export interface ICreateNewArtifactController {
-    errorMessage: string;
-    hasError: boolean;
-}
-
 export interface ICreateNewArtifactDialogData extends IDialogData {
     projectId: number;
     parentId: number;
     parentPredefinedType: number;
 }
 
-export class CreateNewArtifactController extends BaseDialogController implements ICreateNewArtifactController {
-    public newName: string;
-    public newArtifactType: IItemType;
+export interface ICreateNewArtifactReturn {
+    artifactTypeId: number;
+    artifactName: string;
+}
 
-    private _errorMessage: string;
+export class CreateNewArtifactController extends BaseDialogController {
+    public newArtifactName: string;
+    public newArtifactType: IItemType;
 
     private _projectId: number;
     private _parentId: number;
@@ -79,6 +77,14 @@ export class CreateNewArtifactController extends BaseDialogController implements
         );
     }
 
+    //Dialog return value
+    public get returnValue(): ICreateNewArtifactReturn {
+        return {
+                artifactTypeId: this.newArtifactType.id,
+                artifactName: this.newArtifactName
+            };
+    };
+
     public filterItemTypePredefinedByParent = (): ItemTypePredefined[] => {
         const allowedItemType: ItemTypePredefined[] = [
             ItemTypePredefined.TextualRequirement,
@@ -120,16 +126,8 @@ export class CreateNewArtifactController extends BaseDialogController implements
         return _availableItemTypes;
     };
 
-    public get hasError(): boolean {
-        return Boolean(this._errorMessage);
-    }
-
-    public get errorMessage(): string {
-        return this._errorMessage;
-    }
-
     public get isCreateButtonDisabled(): boolean {
-        return _.isUndefined(this.newName) || !_.isString(this.newName) || this.newName.length === 0 ||
+        return _.isUndefined(this.newArtifactName) || !_.isString(this.newArtifactName) || this.newArtifactName.length === 0 ||
             _.isUndefined(this.newArtifactType) || _.isNull(this.newArtifactType);
     }
 }

@@ -8,6 +8,7 @@ App_Button_Close,"Close"
 App_Button_Open,"Open"
 App_Button_Publish,"Publish"
 App_Button_Discard,"Discard"
+App_Button_Create,"Create"
 App_Button_PublishAndContinue,"Publish and Continue"
 
 App_DialogTitle_Alert,"Warning"
@@ -191,6 +192,10 @@ Discard_All_Success_Message,"Successfully discarded {0} artifact(s)."
 
 Discard_Dependents_Dialog_Message,"If you discard the artifact, other related artifacts will also need to be discarded. Please review and confirm:"
 Discard_Success_Message,"The artifact has been discarded."
+
+Create_New_Dialog_Header,"New Artifact"
+Create_New_Dialog_Artifact_Type,"Artifact Type"
+Create_New_Dialog_Artifact_Name,"Name of Artifact"
 
 # glossary artifact
 Artifact_Glossary_Term,"Term"

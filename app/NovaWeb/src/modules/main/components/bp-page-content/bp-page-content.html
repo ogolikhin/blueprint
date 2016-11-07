@@ -1,11 +1,3 @@
-﻿<ul class="breadcrumbs">
-    <li><a href="#">Selected Project</a></li>
-    <li><a href="#">Selected Folder</a></li>
-    <li><a href="#">Selected Artifact</a></li>
-    <li>Infrastructure for directing change</li>
-    <content>
-        <button class="btn btn-primary btn-small" ng-click="$ctrl.openArtifactPicker()">AP</button>
-    </content>
-</ul>
+﻿<bp-breadcrumb links="$ctrl.breadcrumbLinks" on-navigate="$ctrl.navigateTo(link)"></bp-breadcrumb>
 <messages-container class="message-container"></messages-container>
 <div class="page-content-wrapper" ui-view></div>

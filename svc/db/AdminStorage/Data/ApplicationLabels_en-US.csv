@@ -212,7 +212,9 @@ Artifact_Collection_Content_Header,"Collection Contents"
 Artifact_Collection_Edit_Rapid_Review,"Edit Rapid Review"
 Artifact_Collection_Items_Selected,"Items selected: {0}"
 Artifact_Collection_Delete_Selected,"Delete selected"
+Artifact_Collection_Confirmation_Delete_Items,"Please confirm the deletion of the selected items ({0})."
 Artifact_Collection_No_Artifacts_In_Collection,"No artifacts available in this collection"
+
 
 
 Confirmation_Delete_Comment,"Are you sure you want to permanently delete the selected comment?"

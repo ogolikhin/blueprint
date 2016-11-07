@@ -51,7 +51,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         artifactManager: IArtifactManager,
         windowManager: IWindowManager,
         localization: ILocalizationService,
-        dialogService: IDialogService,
+        private dialogService: IDialogService,
         private collectionService: ICollectionService,
         private metadataService: IMetaDataService,
         private $location: ng.ILocationService,
@@ -113,12 +113,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 collectionArtifacts.push(addedTreeVM);
             }
             else if (change.type === ChangeTypeEnum.Delete) {
-                let removingNodeIndex = collectionArtifacts.findIndex((nodeVM: CollectionNodeVM) => {
-                    if (nodeVM.model.id === change.key) {
-                        return true;
-                     }
-                     return false;
-                });
+                const removingNodeIndex = collectionArtifacts.findIndex((nodeVM: CollectionNodeVM) => nodeVM.model.id === change.key);
 
                 if (removingNodeIndex > -1) {
                     collectionArtifacts.splice(removingNodeIndex, 1);
@@ -228,12 +223,13 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             colWidth: 60,
             isCheckboxHidden: true,
             innerRenderer: (params: IColumnRendererParams) => {
-                params.$scope["removeArtifact"] = () => {
+                params.$scope["removeArtifact"] = ($event) => {
+                    $event.stopPropagation();
                     const node = <CollectionNodeVM>params.vm;
                     const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
                     collectionArtifact.removeArtifacts([node.model]);
                 };
-                return `<i class="icon icon__action fonticon-delete-filled" ng-click="removeArtifact()"></i>`;
+                return `<i class="icon icon__action fonticon-delete-filled" ng-click="removeArtifact($event)"></i>`;
             }
         }];
 
@@ -261,7 +257,15 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     }
 
     public bulkDelete() {
-        console.log("bulk Delete will be here");
+        let confirmation = this.localization.get("Artifact_Collection_Confirmation_Delete_Items")
+            .replace("{0}", this.selectedVMs.length.toString());
+
+        this.dialogService.confirm(confirmation).then(() => {
+            const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
+            const artifactsToBeDeleted = _.map(this.selectedVMs, (node) => node.model);
+            collectionArtifact.removeArtifacts(artifactsToBeDeleted);
+            this.selectedVMs.length = 0;
+        });
     }
 }
 

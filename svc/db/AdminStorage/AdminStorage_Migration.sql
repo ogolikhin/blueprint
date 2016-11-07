@@ -1084,6 +1084,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collectio
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collection_Edit_Rapid_Review', 'en-US', N'Edit Rapid Review')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collection_Items_Selected', 'en-US', N'Items selected: {0}')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collection_Delete_Selected', 'en-US', N'Delete selected')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collection_Confirmation_Delete_Items', 'en-US', N'Please confirm the deletion of the selected items ({0}).')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collection_No_Artifacts_In_Collection', 'en-US', N'No artifacts available in this collection')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Confirmation_Delete_Comment', 'en-US', N'Are you sure you want to permanently delete the selected comment?')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Confirmation_Delete_Comment_Thread', 'en-US', N'Are you sure you want to permanently delete all comments in this discussion?')

@@ -11,7 +11,6 @@ import {CreateNewArtifactController, ICreateNewArtifactDialogData, ICreateNewArt
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
 import {ILoadingOverlayService} from "../../../core/loading-overlay";
 import {Project} from "../../../managers/project-manager/project";
-import {error} from "util";
 
 interface IBPToolbarController {
     execute(evt: ng.IAngularEvent): void;

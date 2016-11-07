@@ -575,21 +575,40 @@ namespace SearchServiceTests
                 "POST {0} call with the searchCriteria less than minimum length search term should return {1} errorCode but {2} is returned", FULLTEXTSEARCH_PATH, ErrorCodes.IncorrectSearchCriteria, serviceErrorMessage.ErrorCode);
         }
 
+        [TestCase]
+        [TestRail(190966)]
+        [Description("Searching with empty 'Session-Token' header in the request. Execute Search - Must return 401 Unautorized")]
+        public void FullTextSearch_SearchWithEmptySessionToken_400BadRequest()
+        {
+            // Setup: Create searchable artifact(s) with unique search term
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria("NonExistingSearchTerm", selectedProjectIds);
+            IUser userWithNoToken = Helper.CreateUserAndAddToDatabase();
+
+            // Execute: Execute FullTextSearch using the user with empty session token
+            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.SearchService.FullTextSearch(userWithNoToken, searchCriteria),
+                "POST {0} call should exit with 400 BadRequestException when using empty session!", FULLTEXTSEARCH_PATH);
+
+            // Validation: Exception should contain expected message.
+            const string expectedExceptionMessage = "Token is missing or malformed";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of Nova FullTextSearch which has no session token.", expectedExceptionMessage);
+        }
+
         #endregion 400 Bad Request Tests
 
         #region 401 Unauthorized Tests
 
         [TestCase]
         [TestRail(166163)]
-        [Description("Searching with invalid sesson. Execute Search - Must return 401 Unautorized")]
-        public void FullTextSearch_SearchWithInvalidSession_401Unauthorized()
+        [Description("Searching with invalid 'Session-Token' header in the request. Execute Search - Must return 401 Unautorized")]
+        public void FullTextSearch_SearchWithInvalidSessionToken_401Unauthorized()
         {
             // Setup: Create searchable artifact(s) with unique search term
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new FullTextSearchCriteria("NonExistingSearchTerm", selectedProjectIds);
             IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
-            // Execute: Execute FullTextSearch with invalid session
+            // Execute: Execute FullTextSearch using the user with invalid session token
             var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.SearchService.FullTextSearch(userWithBadToken, searchCriteria),
                 "POST {0} call should exit with 401 UnauthorizedException when using invalid session!", FULLTEXTSEARCH_PATH);
 
@@ -599,6 +618,9 @@ namespace SearchServiceTests
         }
 
         #endregion 401 Unauthorized Tests
+
+        #region 403 Forbidden Tests
+        #endregion 403 Forbidden Tests
 
         #region 404 Not Found Tests
         #endregion 404 Not Found Tests

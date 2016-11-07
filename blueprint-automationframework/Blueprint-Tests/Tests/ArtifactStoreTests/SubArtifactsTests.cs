@@ -133,6 +133,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(0, subArtifacts.Count, "For deleted process GetSubartifacts must return empty list (for Instance Admin).");
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)] // will be updated after backend portion of User Story 2338:[Nova] [ST] Edit Process custom properties in Utility Panel
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(182511)]
@@ -188,6 +189,7 @@ namespace ArtifactStoreTests
             CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)] // will be updated after backend portion of User Story 2338:[Nova] [ST] Edit Process custom properties in Utility Panel
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(182596)]
         [Description("Create default process and new artifact in a different project from the process. Add inline trace that points to the new " +
@@ -245,6 +247,7 @@ namespace ArtifactStoreTests
             CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)] // will be updated after backend portion of User Story 2338:[Nova] [ST] Edit Process custom properties in Utility Panel
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(182559)]
         [Description("Create default process and new artifact. Add inline trace that points to the new artifact to a process subartifact." +
@@ -293,6 +296,7 @@ namespace ArtifactStoreTests
             CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)] // will be updated after backend portion of User Story 2338:[Nova] [ST] Edit Process custom properties in Utility Panel
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(182600)]
         [Description("Create default process and new artifact. Add inline trace that points to the new artifact to a process subartifact." +

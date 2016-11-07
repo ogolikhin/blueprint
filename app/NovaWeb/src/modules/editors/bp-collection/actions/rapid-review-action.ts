@@ -16,12 +16,16 @@ export class RapidReviewAction extends BPButtonAction {
         super(
             (): void => {
                 if (!artifact.artifactState.published) {
-                    dialogService.confirm("Please publish your changes before entering the review. Would you like to proceed?").then( () => {
-                        artifact.publish().then(() => {
-                            let url = `Web/#/RapidReview/${artifact.id}/edit`;
-                            window.open(url);
-                        });
-                    });
+                    dialogService.confirm(
+                        localization.get(
+                            "Confirm_Publish_Collection",
+                            "Please publish your changes before entering the review. Would you like to proceed?"
+                            )).then( () => {
+                                artifact.publish().then(() => {
+                                    let url = `Web/#/RapidReview/${artifact.id}/edit`;
+                                    window.open(url);
+                                });
+                            });
                 } else {
                     let url = `Web/#/RapidReview/${artifact.id}/edit`;
                     window.open(url);
@@ -39,7 +43,7 @@ export class RapidReviewAction extends BPButtonAction {
                 return true;
             },
             undefined,
-            "Create Rapid Review",
+            localization.get("Create_Rapid_Review", "Create Rapid Review"),
             "RR"
         );
     }

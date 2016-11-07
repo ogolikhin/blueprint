@@ -30,7 +30,7 @@
                     <i ng-class="searchResult.iconClass"></i>
                     <div class="search-details">
                         <div bp-tooltip="{{searchResult.model.name}}" bp-tooltip-truncated="true">
-                            {{searchResult.id}} <span ng-bind-html="::searchResult.model.name | bpEscapeAndHighlight:$ctrl.searchText">
+                            {{searchResult.id}} <span ng-bind-html="::searchResult.model.name | bpEscapeAndHighlight:$ctrl.searchText"></span>
                         </div>
                         <div bp-tooltip="{{searchResult.model.path}}" bp-tooltip-truncated="true">
                             Path: {{searchResult.model.path}}
@@ -43,17 +43,14 @@
                 </div>
             </div>
         </div>
-        <div ng-hide="$ctrl.isSearching || $ctrl.searchResults">
+        <div class="grid-wrapper" ng-hide="$ctrl.isSearching || $ctrl.searchResults">
             <div class="grid-header">
-                <div ng-if="$ctrl.project">
-                    <i class="fonticon2-arrow-double-left" ng-class="{'hide-project-navigation': $ctrl.isOneProjectLevel}" ng-click="$ctrl.project = undefined"></i>
-                    <i class="icon-project"></i>
-                    &nbsp;&nbsp;&nbsp;<span class="project-name" bp-tooltip="{{$ctrl.project.name}}"
-                                            bp-tooltip-truncated="true">{{$ctrl.project.name}}</span>
-                </div>
-                <div ng-if="!$ctrl.project">
-                    {{::$root.config.labels['App_Header_Name']}}
-                </div>
+                <i ng-if="$ctrl.project" class="project-navigation fonticon2-arrow-double-left" ng-class="{'hide-project-navigation': $ctrl.isOneProjectLevel}" ng-click="$ctrl.project = undefined"></i>
+                <i ng-if="$ctrl.project" class="project-icon icon-project"></i>
+                <span ng-if="$ctrl.project" class="project-name"
+                      bp-tooltip="{{$ctrl.project.name}}" bp-tooltip-truncated="true">{{$ctrl.project.name}}</span>
+                <span ng-if="!$ctrl.project" class="instance-name"
+                      bp-tooltip="{{::$root.config.labels['App_Header_Name']}}" bp-tooltip-truncated="true">{{::$root.config.labels['App_Header_Name']}}</span>
             </div>
             <bp-tree-view grid-class="project-tree"
                           selection-mode="$ctrl.currentSelectionMode"

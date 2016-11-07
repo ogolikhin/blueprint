@@ -5,6 +5,7 @@ import {ISelectionManager} from "../../../../managers";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../main/components/bp-artifact-picker";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
+import {Helper} from "../../../../shared/utils/helper";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export class BPFieldInheritFrom implements AngularFormly.ITypeOptions {
@@ -48,20 +49,7 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
         function deleteBaseActor() {
             currentModelVal = null;
             $scope.model[$scope.options["key"]] = null;
-        }
-
-        function getArtifactPath(artifact: Models.IArtifact): string[] {
-            if (!artifact) {
-                return [];
-            }
-            let currentArtifact = artifact.parent;
-            let path: string[] = [];
-            while (currentArtifact) {
-                path.unshift(currentArtifact.name);
-                currentArtifact = currentArtifact.parent;
-            }
-            return path;
-        }
+        }        
 
         function isArtifactactPathFitToControl(prefix: string, name: string, id: number, artifactPath: string[]): boolean {
             if (!artifactPath || !prefix || !id || !name) {
@@ -98,7 +86,7 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
                         deleteBaseActor();
 
                     }
-                    const artifactPath = getArtifactPath(artifact);
+                    const artifactPath = Helper.getArtifactPath(artifact);
                     $scope.model[$scope.options["key"]] = {
                         actorName: artifact.name,
                         actorId: artifact.id,

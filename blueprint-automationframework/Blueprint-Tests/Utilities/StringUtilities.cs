@@ -65,7 +65,7 @@ namespace Utilities
         ///<returns>HTML wrapped text</returns>
         public static string WrapInHTML(string text)
         {
-            return ("<html><head/><pre>" + text + "</pre></html>");
+            return ("<html><head></head>" + text + "</html>");
         }
     }
 }

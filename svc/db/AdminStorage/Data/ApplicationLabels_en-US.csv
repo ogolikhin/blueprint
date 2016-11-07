@@ -8,6 +8,7 @@ App_Button_Close,"Close"
 App_Button_Open,"Open"
 App_Button_Publish,"Publish"
 App_Button_Discard,"Discard"
+App_Button_Create,"Create"
 App_Button_PublishAndContinue,"Publish and Continue"
 
 App_DialogTitle_Alert,"Warning"
@@ -194,6 +195,13 @@ Discard_All_Cancel_Button,"CANCEL"
 Discard_Single_Dialog_Message,"This artifact will be restored to its last published version. If it has never been published, it will be deleted."
 Discard_Dependents_Dialog_Message,"If you discard changes to the artifact, other related artifacts will also need to be restored to previously published versions. Please review and confirm:"
 Discard_Success_Message,"Changes have been discarded."
+
+#Create New Artifact modal popup
+Create_New_Dialog_Header,"New Artifact"
+Create_New_Dialog_Artifact_Type,"Artifact Type"
+Create_New_Dialog_Artifact_Name,"Name of Artifact"
+Confirm_Publish_Collection, "Please publish your changes before entering the review. Would you like to proceed?"
+Create_Rapid_Review, "Create Rapid Review"
 
 # glossary artifact
 Artifact_Glossary_Term,"Term"

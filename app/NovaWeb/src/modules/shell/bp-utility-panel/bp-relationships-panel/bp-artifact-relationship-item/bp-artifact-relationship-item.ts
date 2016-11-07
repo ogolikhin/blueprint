@@ -74,7 +74,9 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
         if (!this.expanded) {
             this.getRelationshipDetails(this.artifact.artifactId)
                 .then(relationshipExtendedInfo => {
-                    relationshipExtendedInfo.pathToProject.shift(); // do not show project in the path.
+                    if (relationshipExtendedInfo.pathToProject.length > 0 && relationshipExtendedInfo.pathToProject[0].parentId == null) {
+                        relationshipExtendedInfo.pathToProject.shift(); // do not show project in the path.
+                    }
                     this.relationshipExtendedInfo = relationshipExtendedInfo;
                 });
         }

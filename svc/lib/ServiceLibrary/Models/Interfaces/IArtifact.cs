@@ -17,6 +17,8 @@ namespace ServiceLibrary.Models
 
         string Prefix { get; set; }
 
+        int? ItemTypeIconId { get; set; }
+
         ItemTypePredefined? PredefinedType { get; set; }
 
         int? Version { get; set; }

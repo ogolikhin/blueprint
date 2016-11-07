@@ -1,9 +1,8 @@
 import * as angular from "angular";
-import {Models, SearchServiceModels} from "../../models";
+import {Models, SearchServiceModels, TreeViewModels} from "../../models";
 import {Helper} from "../../../shared/";
-import {IViewModel} from "./bp-artifact-picker";
 
-export abstract class SearchResultVM<T extends SearchServiceModels.ISearchResult> implements IViewModel<T> {
+export abstract class SearchResultVM<T extends SearchServiceModels.ISearchResult> implements TreeViewModels.IViewModel<T> {
     public abstract readonly id: string;
     public abstract readonly iconClass: string;
 

@@ -119,7 +119,6 @@ export interface IProcessGraph {
     redraw(action: any);
     updateSizeChanges(width?: number, height?: number);
     addSelectionListener(listener: ISelectionListener);
-    clearSelection();
     destroy();
     setSystemTasksVisible(value: boolean);
     clearSelection();

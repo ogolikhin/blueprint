@@ -58,7 +58,28 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         if (this.canCleanIncludeField()) {
             this.isIncludeResultsVisible = false;
             this.setAssociatedArtifact(null);
+            this.refreshView();
         }
+    }
+
+    // This is a workaround to force re-rendering of the dialog
+    public refreshView() {
+        const element: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
+
+        if (!element) {
+            return;
+        }
+
+        const node = document.createTextNode(" ");
+        element.appendChild(node);
+
+        this.$timeout(
+            () => {
+                node.parentNode.removeChild(node);
+            },
+            20,
+            false
+        );
     }
 
     public formatIncludeLabel(model: IArtifactReference) {

@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import {Models} from "../../main";
-import {IArtifactManager, ISelection, IStatefulItem} from "../../managers/artifact-manager";
+import {IArtifactManager, ISelection, IStatefulItem, IItemChangeSet, StatefulArtifact} from "../../managers/artifact-manager";
 import {ItemTypePredefined} from "../../main/models/enums";
 import {IBpAccordionController} from "../../main/components/bp-accordion/bp-accordion";
 import {ILocalizationService} from "../../core/localization/localizationService";
@@ -26,40 +26,18 @@ export class BPUtilityPanelController {
     ];
 
     private _subscribers: Rx.IDisposable[];
-    private _currentItem: string;
-    private _currentItemClass: string;
-    private _currentItemType: number;
-    private _currentItemIcon: number;
-    private _isAnyPanelVisible: boolean;
-
-    public get currentItem() {
-        return this._currentItem;
-    }
-
-    public get currentItemClass() {
-        return this._currentItemClass;
-    }
-
-    public get currentItemType() {
-        return this._currentItemType;
-    }
-
-    public get currentItemIcon() {
-        return this._currentItemIcon;
-    }
-
-    public get IsAnyPanelVisible() {
-        return this._isAnyPanelVisible;
-    }
+    private propertySubscriber: Rx.IDisposable;
+    public itemDisplayName: string;
+    public itemClass: string;
+    public itemTypeId: number;
+    public itemTypeIconId: number;
+    public hasCustomIcon: boolean;
+    public isAnyPanelVisible: boolean;
 
     constructor(private localization: ILocalizationService,
                 private artifactManager: IArtifactManager,
                 private $element: ng.IAugmentedJQuery) {
-        this._currentItem = null;
-        this._currentItemClass = null;
-        this._currentItemType = null;
-        this._currentItemIcon = null;
-        this._isAnyPanelVisible = true;
+        this.isAnyPanelVisible = true;
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -68,14 +46,7 @@ export class BPUtilityPanelController {
             .distinctUntilChanged()
             .subscribe(this.onSelectionChanged);
 
-        const artifactObservable = this.artifactManager.selection.currentlySelectedArtifactObservable
-            .distinctUntilChanged(artifact => artifact.name)
-            .subscribe(this.onArtifactChanged);
-
-        this._subscribers = [
-            selectionObservable,
-            artifactObservable
-        ];
+        this._subscribers = [selectionObservable];
     }
 
     public $onDestroy() {
@@ -104,44 +75,36 @@ export class BPUtilityPanelController {
         return angular.element(this.$element.find("bp-accordion")[0]).controller("bpAccordion");
     }
 
-    private updateItem(selection: ISelection) {
-        const item: IStatefulItem = selection ? (selection.subArtifact || selection.artifact) : undefined;
-        if (item) {
+    private updateItem = (changes: IItemChangeSet) => {
+        this.itemDisplayName = undefined;
+        this.itemClass = undefined;
+        this.itemTypeId = undefined;
+        this.hasCustomIcon = false;
+        if (changes && changes.item) {
+            const item: IStatefulItem = changes.item;
+            this.itemDisplayName = `${(item.prefix || "")}${item.id}: ${item.name || ""}`;
+            this.itemTypeId = item.itemTypeId;
             if (item.itemTypeId === ItemTypePredefined.Collections && item.predefinedType === ItemTypePredefined.CollectionFolder) {
-                this._currentItemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[ItemTypePredefined.Collections] || "");
+                this.itemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[ItemTypePredefined.Collections] || "");
             } else {
-                this._currentItemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[item.predefinedType] || "");
+                this.itemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[item.predefinedType] || "");
             }
-            this._currentItemType = item.itemTypeId;
-            this._currentItemIcon = null;
-            if (item.predefinedType !== ItemTypePredefined.Project && !selection.subArtifact) {
-                const artifactType = item.metadata.getItemTypeTemp();
-                if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-                    this._currentItemIcon = artifactType.iconImageId;
-                }
+            if (item.predefinedType !== ItemTypePredefined.Project && item instanceof StatefulArtifact) {
+                this.hasCustomIcon = _.isFinite(item.itemTypeIconId);
+                this.itemTypeIconId = item.itemTypeIconId;
             }
-        } else {
-            this._currentItem = null;
-            this._currentItemClass = null;
-            this._currentItemType = null;
-            this._currentItemIcon = null;
         }
-    }
-
-    private updateItemName = (artifact: ISelection) => {
-        const item: IStatefulItem = artifact ? (artifact.subArtifact || artifact.artifact) : undefined;
-
-        if (item && item.name !== "") {
-            this._currentItem = `${(item.prefix || "")}${item.id}: ${item.name}`;
-        }
-    }
-
-    private onArtifactChanged = (artifact: ISelection) => {
-        this.updateItemName(artifact);
-    };
+    } 
 
     private onSelectionChanged = (selection: ISelection) => {
-        this.updateItem(selection);
+        const item: IStatefulItem = selection ? (selection.subArtifact || selection.artifact) : undefined;
+        if (this.propertySubscriber) {
+            this.propertySubscriber.dispose();
+        }
+        if (item) {
+            this.propertySubscriber = item.getProperyObservable().subscribeOnNext(this.updateItem);
+        }
+        
         if (selection && (selection.artifact || selection.subArtifact)) {
             this.toggleHistoryPanel(selection);
             this.togglePropertiesPanel(selection);
@@ -227,7 +190,7 @@ export class BPUtilityPanelController {
     private setAnyPanelIsVisible() {
         const accordionCtrl: IBpAccordionController = this.getAccordionController();
         if (accordionCtrl) {
-            this._isAnyPanelVisible = accordionCtrl.panels.filter((p) => { return p.isVisible === true; }).length > 0;
+            this.isAnyPanelVisible = accordionCtrl.panels.filter((p) => { return p.isVisible === true; }).length > 0;
         }
     }
 }

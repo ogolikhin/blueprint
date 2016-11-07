@@ -66,8 +66,8 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             return;
         }
 
-        this.toolbarActions.push(new RapidReviewAction(collectionArtifact, this.localization));
+        this.toolbarActions.push(new RapidReviewAction(collectionArtifact, this.localization, this.dialogService));
 
-        this.toolbarActions.push(new AddCollectionArtifactAction(collectionArtifact, this.localization));
+        this.toolbarActions.push(new AddCollectionArtifactAction(collectionArtifact, this.localization, this.dialogService));
     }
 }

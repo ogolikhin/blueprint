@@ -2,13 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ArtifactStore.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Models;
-using ServiceLibrary.Repositories;
-using ServiceLibrary.Helpers;
 
-namespace ArtifactStore.Repositories
+namespace ServiceLibrary.Repositories
 {
     [TestClass]
     public class ArtifactPermissionsRepositoryTests
@@ -312,9 +309,7 @@ namespace ArtifactStore.Repositories
                 {
                     {"contextUser", false},
                     {"userId", 0},
-                    {"itemIds", tvp},
-                    {"revisionId", revisionId},
-                    {"addDrafts", addDrafts}
+                    {"itemIds", tvp}
                 }, result);
         }
 

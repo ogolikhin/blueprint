@@ -15,11 +15,14 @@ export class ArtifactRoutes {
 
         // register states with the router
         $stateProvider
-            .state("main.item", {
-                url: "/{id:int}?{path:string}&{version:int}",
+            .state("main.item", <ng.ui.IState>{
+                url: "/{id:int}?{version:int}",
                 template: "<div ui-view class='artifact-state'></div>",
                 reloadOnSearch: false,
-                controller: ItemStateController
+                controller: ItemStateController,
+                params: {
+                    path: undefined
+                }
             })
 
             .state("main.item.process", {

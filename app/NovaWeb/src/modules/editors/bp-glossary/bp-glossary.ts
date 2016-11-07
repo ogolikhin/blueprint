@@ -1,10 +1,7 @@
-import {IGlossaryService} from "./glossary.svc";
-import {IArtifactManager, IStatefulSubArtifact, IStatefulArtifactFactory} from "../../managers/artifact-manager";
-import {Models} from "../../main/models";
+import {IArtifactManager, IStatefulSubArtifact} from "../../managers/artifact-manager";
 import {BpBaseEditor} from "../bp-base-editor";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
-
 
 export class BpGlossary implements ng.IComponentOptions {
     public template: string = require("./bp-glossary.html");
@@ -13,28 +10,21 @@ export class BpGlossary implements ng.IComponentOptions {
 
 export class BpGlossaryController extends BpBaseEditor {
     public static $inject: [string] = [
-        "$element",
         "$log",
         "localization",
-        "glossaryService",
         "$sce",
         "messageService",
-        "artifactManager",
-        "statefulArtifactFactory"
+        "artifactManager"
     ];
 
-    public isLoading: boolean = true;
     public terms: IStatefulSubArtifact[];
     public selectedTerm: IStatefulSubArtifact;
 
-    constructor(private $element: ng.IAugmentedJQuery,
-                private $log: ng.ILogService,
-                private localization: ILocalizationService,
-                private glossaryService: IGlossaryService,
-                private $sce: ng.ISCEService,
+    constructor(private $log: ng.ILogService,
+                public localization: ILocalizationService,
+                public $sce: ng.ISCEService,
                 public messageService: IMessageService,
-                public artifactManager: IArtifactManager,
-                private statefulArtifactFactory: IStatefulArtifactFactory) {
+                public artifactManager: IArtifactManager) {
 
         super(messageService, artifactManager);
     }
@@ -47,38 +37,13 @@ export class BpGlossaryController extends BpBaseEditor {
 
     public $onDestroy() {
         super.$onDestroy();
+        delete this.terms;
+        delete this.selectedTerm;
     }
 
     public onArtifactReady() {
         super.onArtifactReady();
-
-        // TODO: move this to sub-artifact
-        let statefulSubartifacts = [];
-        this.glossaryService.getGlossary(this.artifact.id).then((result: Models.IArtifact) => {
-            if (this.isDestroyed) {
-                return;
-            }
-            result.subArtifacts = result.subArtifacts.map((term: Models.ISubArtifact) => {
-
-                // TODO: should not same $sce wrapper in StatefulSubArtifact model (after MVP)
-                term.description = this.$sce.trustAsHtml(term.description);
-
-                const stateful = this.statefulArtifactFactory.createStatefulSubArtifact(this.artifact, term);
-                statefulSubartifacts.push(stateful);
-
-                return term;
-            });
-            this.artifact.subArtifactCollection.initialise(statefulSubartifacts);
-            this.terms = this.artifact.subArtifactCollection.list();
-
-        }).catch((error: any) => {
-            //ignore authentication errors here
-            if (error) {
-                this.messageService.addError(error["message"] || "Artifact_NotFound");
-            }
-        }).finally(() => {
-            this.isLoading = false;
-        });
+        this.terms = this.artifact.subArtifactCollection.list();
     }
 
     private clearSelection() {

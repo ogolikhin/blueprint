@@ -9,6 +9,7 @@ export interface IArtifactReference {
     typePrefix: string;
     projectName: string;
     baseItemTypePredefined: ItemTypePredefined;
+    version?: number;
     link: string;
 }
 
@@ -23,9 +24,11 @@ export class BreadcrumbService implements IBreadcrumbService {
         "navigationService"
     ];
 
-    constructor(private $q: ng.IQService,
-                private $http: ng.IHttpService,
-                private navigationService: INavigationService) {
+    constructor(
+        private $q: ng.IQService,
+        private $http: ng.IHttpService,
+        private navigationService: INavigationService
+    ) {
     }
 
     public getReferences(): ng.IPromise<IArtifactReference[]> {
@@ -35,7 +38,11 @@ export class BreadcrumbService implements IBreadcrumbService {
         if (!navigationState.path || navigationState.path.length === 0) {
             deferred.reject();
         } else {
-            const url = `/svc/shared/navigation/${navigationState.path.join("/")}/${navigationState.id}`;
+            let url = `/svc/shared/navigation/${navigationState.path.map(item => item.id).join("/")}/${navigationState.id}`;
+
+            if (navigationState.version) {
+                url = `${url}?versionId=${navigationState.version}`;
+            }
 
             this.$http.get(url)
                 .then((result) => {

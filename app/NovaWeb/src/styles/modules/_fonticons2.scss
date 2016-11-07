@@ -114,14 +114,15 @@ $fonticon2-add-artifact: '\e800'; /* '' */
 $fonticon2-add-folder: '\e801'; /* '' */
 $fonticon2-rapid-review: '\e82a'; /* '' */
 $fonticon2-font-family: '\e840'; /* '' */
-$fonticon2-project: '\e843'; /* '' */
 $fonticon2-link: '\e842'; /* '' */
 $fonticon2-process-description: '\e843'; /* '' */
 $fonticon2-process-end: '\e844'; /* '' */
 $fonticon2-process-objective: '\e845'; /* '' */
 $fonticon2-process-title: '\e846'; /* '' */
 $fonticon2-process-persona: '\e847'; /* '' */
-$fonticon2-project: '\e848'; /* '' */
+$fonticon2-project: '\e903'; /* '' */
+$fonticon2-artifact-deleted: '\e904';  /* '' */
+
 .fonticon2-arrow-down::before {
     content: $fonticon2-arrow-down;
 }
@@ -480,6 +481,9 @@ $fonticon2-project: '\e848'; /* '' */
 .fonticon2-project:before {
     content: $fonticon2-project;
 }/* '' */
+.fonticon2-artifact-deleted:before {
+    content: $fonticon2-artifact-deleted;
+} /* '' */
 .fonticon2__action--disabled {
    color: $gray-lighter !important;
    cursor: not-allowed !important;

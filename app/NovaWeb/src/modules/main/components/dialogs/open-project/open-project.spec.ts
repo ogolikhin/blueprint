@@ -1,248 +1,183 @@
-﻿// import * as angular from "angular";
-// import "angular-mocks";
-// import { OpenProjectController } from "./open-project";
-// import { SettingsService } from "../../../../core";
-// import { MessageService } from "../../../../shell/";
-// import { ProjectManager } from "../../../../managers/project-manager/project-manager";
-// import { BPTreeControllerMock } from "../../../../shared/widgets/bp-tree/bp-tree.mock";
-// import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
-// import { ProjectServiceMock } from "../../../../managers/project-manager/project-service.mock";
+﻿import * as angular from "angular";
+import "angular-mocks";
+import {OpenProjectController} from "./open-project";
+import {ILocalizationService} from "../../../../core";
+import {IDialogSettings} from "../../../../shared";
+import {Models, Enums, AdminStoreModels, SearchServiceModels, TreeViewModels} from "../../../models";
+import {IArtifactManager} from "../../../../managers";
+import {IProjectService} from "../../../../managers/project-manager/project-service";
+import {IColumnRendererParams} from "../../../../shared/widgets/bp-tree-view/";
 
-// export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
+describe("OpenProjectController", () => {
+    let localization: ILocalizationService;
+    let projectService: IProjectService;
+    let $sce: ng.ISCEService;
+    let controller: OpenProjectController;
+    let $scope: ng.IScope;
 
-//     public close(result?: any): void {}
+    beforeEach(inject(($rootScope: ng.IRootScopeService, _$sce_: ng.ISCEService) => {
+        $scope = $rootScope.$new();
+        localization = jasmine.createSpyObj("localization", ["get"]) as ILocalizationService;
+        (localization.get as jasmine.Spy).and.callFake(name => name === "App_Header_Name" ? "Blueprint" : undefined);
+        const $uibModalInstance = {} as ng.ui.bootstrap.IModalServiceInstance;
+        projectService = {} as IProjectService;
+        const dialogSettings = {} as IDialogSettings;
+        $sce = _$sce_;
+        controller = new OpenProjectController($scope, localization, $uibModalInstance, projectService, dialogSettings, $sce);
+    }));
 
-//     public dismiss(reason?: any): void {}
+    it("constructor sets root node", () => {
+        // Arrange
 
-//     public result: angular.IPromise<any>;
+        // Act
 
-//     public opened: angular.IPromise<any>;
+        // Assert
+        expect(controller.rootNode).toEqual(controller.factory.createInstanceItemNodeVM({
+            id: 0,
+            type: AdminStoreModels.InstanceItemType.Folder,
+            name: "",
+            hasChildren: true
+        } as AdminStoreModels.IInstanceItem, true));
+    });
 
-//     public rendered: angular.IPromise<any>;
+    describe("columns", () => {
+        it("column properties are correctly defined", () => {
+            // Arrange
 
-//     public closed: angular.IPromise<any>;
-// }
-// var controller: OpenProjectController;
+            // Act
 
+            // Assert
+            expect(controller.columns).toEqual([jasmine.objectContaining({
+                headerName: "Blueprint",
+                isGroup: true
+            })]);
+            expect(angular.isFunction(controller.columns[0].cellClass)).toEqual(true);
+            expect(angular.isFunction(controller.columns[0].innerRenderer)).toEqual(true);
+        });
 
-// describe("Open Project.", () => {
-//     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-//         $provide.service("localization", LocalizationServiceMock);
-//     }));
+        it("getCellClass returns correct result", () => {
+            // Arrange
+            const vm = {getCellClass: () => ["test"]} as TreeViewModels.TreeViewNodeVM<any>;
 
+            // Act
+            const css = controller.columns[0].cellClass(vm);
 
-//     beforeEach(inject((localization: LocalizationServiceMock)  => {
-//         controller = new OpenProjectController(
-//             null,
-//             localization,
-//             new ModalServiceInstanceMock(),
-//             null,
-//             null, null, null);
+            // Assert
+            expect(css).toEqual(["test"]);
+        });
 
-//     }));
+        it("innerRenderer returns correct result", () => {
+            // Arrange
+            const vm = {
+                name: "name"
+            } as TreeViewModels.TreeViewNodeVM<any>;
+            const cell = {} as HTMLElement;
 
-//     it("Test InnerRenderer", () => {
-//         // Arrange
-//         var paramsMock = {
-//             data: {
-//                 name: "artifact"
-//             }
-//         };
-//         var paramsMockFolder = {
-//             data: {
-//                 type: "Folder",
-//                 name: "folder"
-//             }
-//         };
-//         var paramsMockProject = {
-//             data: {
-//                 type: "Project",
-//                 name: "<button onclick=\"alert('HEY!')\";>project</button>"
-//             },
-//             eGridCell: document.createElement("div")
-//         };
+             const params: IColumnRendererParams = {
+                vm: vm,
+                $scope: $scope,
+                eGridCell: cell
+            };
 
-//         // Act
-//         var columns = controller.columns;
-//         var cellRenderer = columns[0].cellRendererParams.innerRenderer(paramsMock);
-//         var cellRendererFolder = columns[0].cellRendererParams.innerRenderer(paramsMockFolder);
-//         var cellRendererProject = columns[0].cellRendererParams.innerRenderer(paramsMockProject);
+            // Act
+            const result = controller.columns[0].innerRenderer(params);
 
-//         // Assert
-//         expect(cellRenderer).toContain("artifact");
-//         expect(cellRendererFolder).toContain("folder");
-//         expect(cellRendererProject).toContain("project");
-//         expect(cellRendererProject).not.toContain("<button");
-//     });
+            // Assert
+            expect(result).toEqual(`<span class="ag-group-value-wrapper"><i></i><span>name</span></span>`);
+        });
 
-//     it("Test options ", () => {
+        it("innerRenderer, when project, calls ok on enter", () => {
+            // Arrange
+            const model = {id: 3, type: AdminStoreModels.InstanceItemType.Project} as AdminStoreModels.IInstanceItem;
+            const vm = controller.factory.createInstanceItemNodeVM(model);
+            const cell = document.createElement("div");
+            const params: IColumnRendererParams = {
+                vm: vm,
+                $scope: $scope,
+                eGridCell: cell
+            };
 
-//         // Arrange
+            controller.columns[0].innerRenderer(params);
+            spyOn(controller, "ok");
 
-//         // Act
-//         var columns = controller.columns;
+            // Act
+            const event = new Event("keydown") as any;
+            event.keyCode = 13;
+            cell.dispatchEvent(event);
 
-//         //// Assert
-//         expect(columns).toBeDefined();
-//         expect(columns).toEqual(jasmine.any(Array));
-//         expect(columns.length).toBeGreaterThan(0);
-//         expect(columns[0].field).toBeDefined();
-//         expect(columns[0].headerName).toBe("App_Header_Name");
-//         expect(columns[0].cellRenderer).toBeDefined();
-//         expect(columns[0].cellRendererParams).toBeDefined();
-//         expect(columns[0].cellRendererParams.innerRenderer).toBeDefined();
-//     });
+            // Assert
+            expect(controller.ok).toHaveBeenCalled();
+        });
+    });
 
-//     it("propertyMap", () => {
-//         // Arrange
-//         // Act
-//         // Assert
+    it("onSelect, when selected project, sets selection", inject(($browser) => {
+        // Arrange
+        const model = {
+            id: 3,
+            parentFolderId: 1,
+            name: "name",
+            description: "abc",
+            type: AdminStoreModels.InstanceItemType.Project,
+            hasChildren: true
+        } as AdminStoreModels.IInstanceItem;
+        const vm = controller.factory.createInstanceItemNodeVM(model);
 
-//         expect(controller.propertyMap).toBeDefined();
-//         expect(controller.propertyMap["id"]).toEqual("id");
-//         expect(controller.propertyMap["type"]).toEqual("type");
-//         expect(controller.propertyMap["name"]).toEqual("name");
-//         expect(controller.propertyMap["hasChildren"]).toEqual("hasChildren");
+        // Act
+        controller.onSelect(vm, true);
 
-//     });
-//     it("selectItem", () => {
-//         // Arrange
-//         let item = { id: -1, name: "", description: "", itemTypeId: -1 };
-//         // Act
-//         controller["setSelectedItem"](null);
+        // Assert
+        $browser.defer.flush(); // wait for $applyAsync()
+        expect(controller.isProjectSelected).toEqual(true);
+        expect(controller.selectedItem).toEqual(vm);
+        expect($sce.getTrustedHtml(controller.selectedDescription)).toEqual("abc");
+        expect(controller.returnValue).toEqual({
+            id: 3,
+            name: "name",
+            description: "abc",
+            itemTypeId: Enums.ItemTypePredefined.Project,
+            permissions: Enums.RolePermissions.Read
+        });
+    }));
 
-//         let _selected = controller.selectedItem;
-//         // Assert
-//         expect(_selected).toEqual(item);
+    it("onSelect, when selected folder, sets selection", inject(($browser) => {
+        // Arrange
+        const model = {id: 3, type: AdminStoreModels.InstanceItemType.Folder} as AdminStoreModels.IInstanceItem;
+        const vm = controller.factory.createInstanceItemNodeVM(model);
 
-//     });
-//     it("isProjectSelected", () => {
-//         // Arrange
-//         let item = { id: 1, name: "Project", description: "", type: 1 };
-//         // Act
-//         controller["setSelectedItem"](item);
+        // Act
+        controller.onSelect(vm, true);
 
-//         let _selected = controller.isProjectSelected;
-//         // Assert
-//         expect(_selected).toBeTruthy();
+        // Assert
+        $browser.defer.flush(); // wait for $applyAsync()
+        expect(controller.isProjectSelected).toEqual(false);
+        expect(controller.selectedItem).toEqual(vm);
+        expect(controller.selectedDescription).toBeUndefined();
+        expect(controller.returnValue).toBeUndefined();
+    }));
 
-//     });
-//     it("returnValue", () => {
-//         // Arrange
-//         let item = { id: 1, name: "Project", description: "", type: 1 };
-//         // Act
-//         controller["setSelectedItem"](item);
+    it("onDoubleClick, when project, sets selection and calls ok", inject(($browser) => {
+        // Arrange
+        const model = {id: 3, type: AdminStoreModels.InstanceItemType.Project} as AdminStoreModels.IInstanceItem;
+        const vm = controller.factory.createInstanceItemNodeVM(model);
+        spyOn(controller, "ok");
 
-//         let _selected = controller.returnValue;
-//         // Assert
-//         expect(_selected).toBeDefined;
+        // Act
+        controller.onDoubleClick(vm);
 
-//     });
+        // Assert
+        $browser.defer.flush(); // wait for $applyAsync()
+        expect(controller.selectedItem).toEqual(vm);
+        expect(controller.ok).toHaveBeenCalled();
+    }));
 
+    it("onError sets error message", () => {
+        // Arrange
+        (localization.get as jasmine.Spy).and.callFake(name => name === "Project_NoProjectsAvailable" ? "error" : undefined);
 
-// });
+        // Act
+        controller.onError("reason");
 
-// describe("Embedded ag-grid events", () => {
-//     let $scope;
-//     let elem;
-
-//     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-//         $provide.service("localization", LocalizationServiceMock);
-//         $provide.service("settings", SettingsService);
-//         $provide.service("messageService", MessageService);
-//         $provide.service("projectService", ProjectServiceMock);
-//         $provide.service("manager", ProjectManager);
-
-//     }));
-//     beforeEach(inject((
-//         $q: ng.IQService,
-//         $rootScope: ng.IRootScopeService,
-//         $compile: ng.ICompileService,
-//         manager: ProjectManager,
-//         localization: LocalizationServiceMock
-//     ) => {
-//         $rootScope["config"] = {
-//             "settings": {
-//                 "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`
-//             }
-//         };
-//         manager.initialize();
-
-//         $scope = $rootScope.$new();
-
-//         elem = angular.element(`<div ag-grid="ctrl.gridOptions" class="ag-grid"></div>`);
-
-//         controller = new OpenProjectController(
-//             $scope,
-//             localization,
-//             new ModalServiceInstanceMock(),
-//             manager,
-//             null,
-//             null,
-//             null);
-
-//         controller["tree"] = new BPTreeControllerMock();
-
-//         $compile(elem)($scope);
-//         $scope.$digest();
-//     }));
-
-
-//     it("onEnterKeyOnProject", () => {
-//         // Arrange
-//         var event = new Event("keydown");
-//         var div = document.createElement("div");
-//         var paramsMock = {
-//             data: {
-//                 type: "Project",
-//                 name: "project"
-//             },
-//             eGridCell: div
-//         };
-
-//         // Act
-//         var columns = controller.columns;
-//         var cellRenderer = columns[0].cellRendererParams.innerRenderer(paramsMock);
-//         div.dispatchEvent(event);
-
-//         // Assert
-//         expect(cellRenderer).toContain("project");
-//     });
-
-//     it("Load data", inject(($rootScope: ng.IRootScopeService) => {
-//         // Arrange
-//         controller.doLoad({ id: 1 });
-//         var event = new Event("keydown");
-//         var div = document.createElement("div");
-//         var paramsMock = {
-//             data: {
-//                 type: "Project",
-//                 name: "project"
-//             },
-//             eGridCell: div
-//         };
-
-//         // Act
-//         var columns = controller.columns;
-//         var cellRenderer = columns[0].cellRendererParams.innerRenderer(paramsMock);
-//         div.dispatchEvent(event);
-
-//         // Assert
-//         expect(cellRenderer).toContain("project");
-//     }));
-
-//     it("Load empty data", inject(($rootScope: ng.IRootScopeService) => {
-
-//         // Arrange
-
-//         // Act, load empty datasource
-//         controller.doLoad({ id: -1 });
-//         $rootScope.$digest();
-
-//         // Assert
-//         expect(controller.hasError).toBeTruthy();
-//         expect(controller.errorMessage).toEqual("Project_NoProjectsAvailable");
-//     }));
-
-
-// });
+        // Assert
+        expect(controller.errorMessage).toEqual("error");
+    });
+});

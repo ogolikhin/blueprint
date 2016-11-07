@@ -286,10 +286,10 @@ export class Helper {
         }
         let currentArtifact = artifact.parent;
         let path: string[] = [];
-        while (currentArtifact) {
-            path.unshift(currentArtifact.name);
+        while (currentArtifact) {            
+            path.push(currentArtifact.name);
             currentArtifact = currentArtifact.parent;
         }
-        return path;
+        return path.reverse();
     }
 }

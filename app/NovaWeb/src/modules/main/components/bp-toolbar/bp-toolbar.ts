@@ -1,4 +1,4 @@
-﻿import {ILocalizationService, IMessageService, MessageType} from "../../../core";
+﻿import {ILocalizationService, IMessageService, MessageType, IApplicationError} from "../../../core";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {DialogTypeEnum} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {Models, Enums} from "../../models";
@@ -347,22 +347,14 @@ class BPToolbarController implements IBPToolbarController {
                                 this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
                             });
                     })
-                    .catch((error) => {
-                        if (error.statusCode === 400) {
-                            this.messageService.addError("Create_New_Artifact_Error_400");
-                        } else if (error.statusCode === 401) {
-                            this.messageService.addError("Create_New_Artifact_Error_401");
-                        } else if (error.statusCode === 403) {
-                            this.messageService.addError("Create_New_Artifact_Error_403");
-                        } else if (error.statusCode === 404) {
+                    .catch((error: IApplicationError) => {
+                        if (error.statusCode === 404) {
                             this.projectManager.refreshAll()
                                 .then(() => {
                                     this.messageService.addError("Create_New_Artifact_Error_404", true);
                                     this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
                                 });
-                        } else if (error.statusCode === 409) {
-                            this.messageService.addError("Create_New_Artifact_Error_409");
-                        } else {
+                        } else if (!error.handled) {
                             this.messageService.addError("Create_New_Artifact_Error_Generic");
                         }
 

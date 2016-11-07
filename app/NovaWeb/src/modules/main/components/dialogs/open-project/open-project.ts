@@ -24,6 +24,8 @@ export class OpenProjectController extends BaseDialogController implements IOpen
     private _selectedItem: TreeViewModels.InstanceItemNodeVM;
     private _errorMessage: string;
 
+    public factory: TreeViewModels.TreeNodeVMFactory;
+
     static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogSettings", "$sce"];
 
     constructor(private $scope: ng.IScope,
@@ -33,7 +35,8 @@ export class OpenProjectController extends BaseDialogController implements IOpen
                 dialogSettings: IDialogSettings,
                 private $sce: ng.ISCEService) {
         super($uibModalInstance, dialogSettings);
-        this.rootNode = new TreeViewModels.InstanceItemNodeVM(this.projectService, this, {
+        this.factory = new TreeViewModels.TreeNodeVMFactory(projectService);
+        this.rootNode = this.factory.createInstanceItemNodeVM({
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,
             name: "",

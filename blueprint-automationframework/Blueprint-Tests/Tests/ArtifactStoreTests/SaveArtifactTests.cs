@@ -76,7 +76,7 @@ namespace ArtifactStoreTests
 
             IArtifact artifact = Helper.CreateAndSaveArtifact(_project, author, artifactType);
 
-            string description = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5);
+            string description = StringUtilities.WrapInHTML("NewDescription_" + RandomGenerator.RandomAlphaNumeric(5));
 
             // Execute:
             UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", description, author);
@@ -85,7 +85,7 @@ namespace ArtifactStoreTests
             NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
 
             Assert.IsNotNull(artifactDetailsAfter.Description); 
-            Assert.AreEqual("<html><head/>" + description + "</html>", artifactDetailsAfter.Description);
+            Assert.AreEqual(description, artifactDetailsAfter.Description);
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]

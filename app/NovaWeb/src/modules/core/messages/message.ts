@@ -11,8 +11,6 @@ export interface IMessage {
     messageType: MessageType;
     messageText: string;
     persistent?: boolean;
-
-    isPersistent(): boolean;
 }
 
 export class Message implements IMessage {
@@ -23,10 +21,6 @@ export class Message implements IMessage {
         this.messageText = messageText;
         this.messageType = messageType;
         this.persistent = persistent;
-    }
-
-    public isPersistent(): boolean {
-        return !!this.persistent;
     }
 }
 

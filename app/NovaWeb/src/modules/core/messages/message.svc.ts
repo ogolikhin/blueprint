@@ -93,7 +93,7 @@ export class MessageService implements IMessageService {
         if (this._messages) {
             for (let index = this._messages.length - 1; index >= 0; index--) {
                 let msg: IMessage = this._messages[index];
-                if (!msg.isPersistent()) {
+                if (!msg.persistent) {
                     this.cancelTimer(msg.id);
                     this._messages.splice(index, 1);
                 }

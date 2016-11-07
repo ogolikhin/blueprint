@@ -118,7 +118,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             okButton: this.services.localizationService.get("App_Button_Discard"),
             cancelButton: this.services.localizationService.get("App_Button_Cancel"),
             message: this.services.localizationService.get("Discard_Single_Dialog_Message"),
-            type: DialogTypeEnum.Alert,
             header: this.services.localizationService.get("App_DialogTitle_Alert"),
             css: "modal-alert nova-messaging"
         })
@@ -524,7 +523,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             message: this.services.localizationService.get("Publish_Dependents_Dialog_Message"),
             template: require("../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish.html"),
             controller: ConfirmPublishController,
-            css: "nova-publish"
+            css: "nova-publish",
+            header: this.services.localizationService.get("App_DialogTitle_Confirmation")
         },
         <IConfirmPublishDialogData>{
             artifactList: dependents.artifacts,

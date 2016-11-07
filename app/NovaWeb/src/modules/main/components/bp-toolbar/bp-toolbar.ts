@@ -165,12 +165,12 @@ class BPToolbarController implements IBPToolbarController {
     private confirmDiscardAll(data: Models.IPublishResultSet) {
         const selectedProject: Project = this.projectManager.getSelectedProject();
         this.dialogService.open(<IDialogSettings>{
-            okButton: this.localization.get("Discard_All_Ok_Button"),
-            cancelButton: this.localization.get("Discard_All_Cancel_Button"),
+            okButton: this.localization.get("App_Button_Discard_All"),
+            cancelButton: this.localization.get("App_Button_Cancel"),
             message: this.localization.get("Discard_All_Dialog_Message"),
             template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
             controller: ConfirmPublishController,
-            css: "nova-publish modal-alert",
+            css: "modal-alert nova-publish",
             header: this.localization.get("App_DialogTitle_Alert")
         },
         <IConfirmPublishDialogData>{
@@ -205,12 +205,13 @@ class BPToolbarController implements IBPToolbarController {
     private confirmPublishAll(data: Models.IPublishResultSet) {
         const selectedProject: Project = this.projectManager.getSelectedProject();
         this.dialogService.open(<IDialogSettings>{
-            okButton: this.localization.get("App_Button_Publish"),
+            okButton: this.localization.get("App_Button_Publish_All"),
             cancelButton: this.localization.get("App_Button_Cancel"),
             message: this.localization.get("Publish_All_Dialog_Message"),
             template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
             controller: ConfirmPublishController,
-            css: "nova-publish"
+            css: "nova-publish",
+            header: this.localization.get("App_DialogTitle_Confirmation")
         },
         <IConfirmPublishDialogData>{
             artifactList: data.artifacts,

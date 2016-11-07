@@ -43,15 +43,14 @@ class PageContentCtrl {
         this.artifactService.getArtifactNavigationPath(selection.artifact.id)
             .then((result: Models.IArtifact[]) => {
                 this.breadcrumbLinks = [];
-                for (let i: number = 0; i < result.length; i++) {
-                    const artifact = result[i];
+                _.each(result, artifact => {
                     const breadcrumbLink: IBreadcrumbLink = {
                         id: artifact.id,
                         name: artifact.name,
                         isEnabled: !selection.artifact.artifactState.historical
                     };
                     this.breadcrumbLinks.push(breadcrumbLink);
-                }
+                });
             });
     }
 
